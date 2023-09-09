@@ -28,7 +28,6 @@
     "migration:revert": "npm run typeorm migration:revert -- -d ./src/typeorm.config.ts"
   },
   "dependencies": {
-    "@matterlabs/prettier-config": "^1.0.2",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",

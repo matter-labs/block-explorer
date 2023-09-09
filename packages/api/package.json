@@ -24,7 +24,6 @@
     "test:perf": "artillery run ./performance/load-test.yaml"
   },
   "dependencies": {
-    "@matterlabs/prettier-config": "^1.0.2",
     "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",

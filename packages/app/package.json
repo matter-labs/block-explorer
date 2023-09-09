@@ -43,7 +43,6 @@
     "@headlessui/vue": "1.5.0",
     "@heroicons/vue": "1.0.6",
     "@matterlabs/eslint-config-vue": "^1.1.4",
-    "@matterlabs/prettier-config": "^1.0.2",
     "@playwright/test": "1.27.0",
     "@rushstack/eslint-patch": "^1.1.0",
     "@semantic-release/changelog": "^6.0.1",
