@@ -4,11 +4,15 @@
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "prepare": "husky install"
+  },
   "dependencies": {
   },
   "devDependencies": {
     "lerna": "^7.2.0",
     "typescript": "4.7.4",
-    "prettier": "2.8.4"
+    "prettier": "2.8.4",
+    "husky": "8.0.1"
   }
 }
