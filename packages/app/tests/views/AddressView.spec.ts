@@ -1,7 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
-
 import { ref } from "vue";
 import { createI18n } from "vue-i18n";
+
+import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { mount } from "@vue/test-utils";
 import { $fetch, FetchError } from "ohmyfetch";

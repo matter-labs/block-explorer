@@ -1,6 +1,6 @@
-import { describe, it } from "vitest";
-
 import { createI18n } from "vue-i18n";
+
+import { describe, it } from "vitest";
 
 import { render } from "@testing-library/vue";
 

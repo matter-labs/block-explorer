@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-
 import { createI18n } from "vue-i18n";
+
+import { describe, expect, it, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
 

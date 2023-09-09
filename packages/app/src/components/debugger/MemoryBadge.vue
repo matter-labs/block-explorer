@@ -29,7 +29,7 @@ function setBadgeColor(item: string, defaultColor: string) {
 
 <style scoped lang="scss">
 .badge-container {
-  @apply flex w-full max-w-max items-center rounded py-1 px-2 pr-2.5 font-bold capitalize;
+  @apply flex w-full max-w-max items-center rounded px-2 py-1 pr-2.5 font-bold capitalize;
 
   .badge-content {
     @apply block break-all;

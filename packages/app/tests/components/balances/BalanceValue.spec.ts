@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-
 import { computed } from "vue";
+
+import { describe, expect, it, vi } from "vitest";
 
 import { mount } from "@vue/test-utils";
 

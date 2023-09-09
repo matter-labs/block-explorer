@@ -48,7 +48,7 @@ const expanded = ref(false);
       @apply flex items-center gap-1;
 
       .copy-button {
-        @apply pt-0.5 pl-1.5;
+        @apply pl-1.5 pt-0.5;
       }
       .expand-button {
         @apply rounded-md p-1.5 text-neutral-500 transition-colors hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;

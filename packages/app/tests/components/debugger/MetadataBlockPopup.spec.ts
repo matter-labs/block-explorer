@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-
 import { createI18n } from "vue-i18n";
+
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render } from "@testing-library/vue";
 

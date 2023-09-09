@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Helper } from "../helpers/helper";
 import { BasePage } from "./base.page";
 import { MainPage } from "./main.page";
+import { Helper } from "../helpers/helper";
 
 import type { ICustomWorld } from "../support/custom-world";
 

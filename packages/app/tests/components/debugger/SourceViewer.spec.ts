@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-
 import { createI18n } from "vue-i18n";
+
+import { describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render, waitFor } from "@testing-library/vue";
 import { mount } from "@vue/test-utils";

@@ -1,5 +1,5 @@
-import ContentLoader from "../loaders/ContentLoader.vue";
 import Table from "./Table.vue";
+import ContentLoader from "../loaders/ContentLoader.vue";
 
 export default {
   title: "Common/Table",

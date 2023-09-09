@@ -1,7 +1,7 @@
-import { describe, expect, it, vi } from "vitest";
-
 import { ref } from "vue";
 import { createI18n } from "vue-i18n";
+
+import { describe, expect, it, vi } from "vitest";
 
 import { render } from "@testing-library/vue";
 import { useTimeAgo } from "@vueuse/core";

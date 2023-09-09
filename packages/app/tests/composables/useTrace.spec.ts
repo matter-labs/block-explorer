@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-
 import { computed, nextTick, ref } from "vue";
+
+import { describe, expect, it } from "vitest";
 
 import useTrace, { type TraceFile, useTraceNavigation } from "@/composables/useTrace";
 

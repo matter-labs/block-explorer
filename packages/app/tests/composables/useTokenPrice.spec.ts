@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
-
 import { computed } from "vue";
+
+import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { GOERLI_NETWORK, useContextMock } from "../mocks";
 

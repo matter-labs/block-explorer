@@ -135,7 +135,7 @@ const { t } = useI18n();
       @apply col-[1] h-[20px] min-w-[20px] text-ellipsis rounded bg-neutral-200 px-[2px] text-center leading-5;
     }
     .memory-badge-hash {
-      @apply col-[2] w-full min-w-[20px] py-0 px-[2px] leading-5;
+      @apply col-[2] w-full min-w-[20px] px-[2px] py-0 leading-5;
       .badge-content {
         @apply w-full;
       }

@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
-
 import { createI18n } from "vue-i18n";
+
+import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { render } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";

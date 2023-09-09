@@ -627,7 +627,7 @@ async function submitForm() {
       @apply w-full max-w-xs sm:w-max;
     }
     .button:nth-child(2) {
-      @apply mt-2 sm:mt-0 sm:ml-4;
+      @apply mt-2 sm:ml-4 sm:mt-0;
     }
   }
   .contract-dropdowns-container {

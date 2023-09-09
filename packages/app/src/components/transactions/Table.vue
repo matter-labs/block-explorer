@@ -458,7 +458,7 @@ function getDirection(item: TransactionListItem): Direction {
   td {
     @apply relative flex flex-col items-end justify-end text-right md:table-cell md:text-left;
     &:before {
-      @apply absolute top-3 left-4 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
+      @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
     }
   }
   .copy-button-container {

@@ -42,7 +42,7 @@ defineProps({
     }
   }
   .breadcrumb-divider {
-    @apply mx-5 h-2 w-2 rotate-45 border-t border-r border-gray-300;
+    @apply mx-5 h-2 w-2 rotate-45 border-r border-t border-gray-300;
   }
 }
 </style>

@@ -114,7 +114,7 @@ const tabs = computed(() => [
     .memory-badge-index-container {
       @apply max-w-[42px];
       .memory-badge-index {
-        @apply col-[1] inline-block w-full min-w-[20px] text-ellipsis rounded bg-neutral-200 py-0 px-1 text-center text-sm leading-5;
+        @apply col-[1] inline-block w-full min-w-[20px] text-ellipsis rounded bg-neutral-200 px-1 py-0 text-center text-sm leading-5;
       }
       .index-width {
         @apply table-cell max-w-fit;
@@ -122,7 +122,7 @@ const tabs = computed(() => [
     }
 
     .memory-badge-hash {
-      @apply col-[2] w-full flex-auto py-0 px-[2px] leading-5;
+      @apply col-[2] w-full flex-auto px-[2px] py-0 leading-5;
     }
     .top-step {
       @apply mt-[22px];

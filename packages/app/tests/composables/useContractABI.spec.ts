@@ -1,6 +1,6 @@
-import { describe, expect, it, type SpyInstance, vi } from "vitest";
-
 import { ref } from "vue";
+
+import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
 

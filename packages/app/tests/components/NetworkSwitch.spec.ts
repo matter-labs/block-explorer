@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
 import { computed } from "vue";
+
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render } from "@testing-library/vue";
 

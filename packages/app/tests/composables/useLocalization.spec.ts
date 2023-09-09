@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-
 import { ref } from "vue";
+
+import { describe, expect, it, vi } from "vitest";
 
 import useLocalization from "@/composables/useLocalization";
 

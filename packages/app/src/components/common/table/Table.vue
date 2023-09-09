@@ -60,7 +60,7 @@ defineProps({
     @apply w-full overflow-auto;
 
     & > table > thead tr {
-      @apply absolute top-[-9999px] left-[-9999px] md:relative md:left-0 md:top-0;
+      @apply absolute left-[-9999px] top-[-9999px] md:relative md:left-0 md:top-0;
     }
   }
   &.has-head {

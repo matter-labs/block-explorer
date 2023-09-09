@@ -102,7 +102,7 @@ getBatches(1, new Date());
   }
 
   .latest-blocks-transactions {
-    @apply mt-9 mb-0.5 block gap-x-5 lg:flex;
+    @apply mb-0.5 mt-9 block gap-x-5 lg:flex;
     > div:first-child {
       @apply mb-9 lg:mb-0;
     }

@@ -1,6 +1,6 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-
 import { computed } from "vue";
+
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
 

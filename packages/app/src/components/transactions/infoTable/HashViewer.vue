@@ -83,12 +83,12 @@ function hexStringToUTF8(hexString: string): string {
 .convert-dropdown-container {
   @apply relative block h-max;
   .option-list {
-    @apply absolute top-full left-0 z-10 mb-1 max-h-56 overflow-auto rounded-md bg-white py-1 text-base shadow-lg focus:outline-none sm:text-sm;
+    @apply absolute left-0 top-full z-10 mb-1 max-h-56 overflow-auto rounded-md bg-white py-1 text-base shadow-lg focus:outline-none sm:text-sm;
     &.opens-up {
-      @apply top-auto bottom-full;
+      @apply bottom-full top-auto;
     }
     &.opens-right {
-      @apply left-[calc(100%+0.25rem)] bottom-[calc(100%-32px)] top-auto;
+      @apply bottom-[calc(100%-32px)] left-[calc(100%+0.25rem)] top-auto;
     }
     .option-list-item {
       @apply px-3 py-2 text-neutral-900 lg:py-1;

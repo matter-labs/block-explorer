@@ -78,7 +78,7 @@ defineProps({
   }
 
   .popover-panel {
-    @apply absolute left-1/2 -top-10  -translate-x-1/2 transform rounded-lg bg-white p-2 px-3 text-sm text-neutral-700 shadow-lg;
+    @apply absolute -top-10 left-1/2  -translate-x-1/2 transform rounded-lg bg-white p-2 px-3 text-sm text-neutral-700 shadow-lg;
   }
 }
 </style>

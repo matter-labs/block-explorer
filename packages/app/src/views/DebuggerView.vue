@@ -390,7 +390,7 @@ watchEffect(() => {
     @apply border-b;
   }
   .tab-head {
-    @apply divide-x pt-0 pl-0;
+    @apply divide-x pl-0 pt-0;
     li {
       @apply flex-1;
     }
@@ -422,7 +422,7 @@ watchEffect(() => {
       }
     }
     .options-list-container {
-      @apply top-6 right-0 z-50 w-auto md:right-auto;
+      @apply right-0 top-6 z-50 w-auto md:right-auto;
       span.check-icon-container {
         @apply static right-0 inline-flex pl-1 align-bottom;
       }
@@ -542,6 +542,6 @@ watchEffect(() => {
 }
 
 .debugger-full-screen {
-  @apply fixed left-0 right-0 top-0 -bottom-4 z-[100] mt-0 4xl:grid-cols-3;
+  @apply fixed -bottom-4 left-0 right-0 top-0 z-[100] mt-0 4xl:grid-cols-3;
 }
 </style>

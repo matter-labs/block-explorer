@@ -84,7 +84,7 @@ const subtitle = computed(() =>
 
 <style scoped lang="scss">
 .card {
-  @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-white py-5 px-8 shadow lg:flex-row lg:items-center;
+  @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-white px-8 py-5 shadow lg:flex-row lg:items-center;
   .title {
     @apply text-xl font-bold text-neutral-700;
   }

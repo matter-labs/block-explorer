@@ -312,7 +312,7 @@ const hasContent = computed(() => {
     @apply divide-y-2 divide-neutral-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5;
 
     .mobile-header-container {
-      @apply px-5 pt-5 pb-6;
+      @apply px-5 pb-6 pt-5;
 
       .mobile-popover-navigation {
         @apply flex items-center justify-between;

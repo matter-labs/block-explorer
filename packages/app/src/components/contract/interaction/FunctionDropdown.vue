@@ -120,7 +120,7 @@ const submit = async (form: Record<string, string | string[] | boolean | boolean
 }
 
 .response-message {
-  @apply mt-2 break-words rounded-md bg-neutral-200 py-2 px-4 font-mono text-neutral-900;
+  @apply mt-2 break-words rounded-md bg-neutral-200 px-4 py-2 font-mono text-neutral-900;
 }
 .function-disclosure-panel {
   @apply hidden space-y-3 rounded-bl-lg rounded-br-lg border border-t-0 px-4 py-3 text-sm text-gray-500;

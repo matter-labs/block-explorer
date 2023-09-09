@@ -20,7 +20,7 @@ const { t } = useI18n();
 
 <style scoped lang="scss">
 .error-page-container {
-  @apply flex flex-col items-center gap-y-4 rounded-md bg-white py-4 px-6 text-center shadow-md;
+  @apply flex flex-col items-center gap-y-4 rounded-md bg-white px-6 py-4 text-center shadow-md;
   .error-page-icon-container {
     @apply flex h-14 w-14 items-center justify-center rounded-full bg-error-500;
   }

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { vi } from "vitest";
-
 import { computed, ref } from "vue";
+
+import { vi } from "vitest";
 
 import * as composablesFactory from "@matterlabs/composables";
 

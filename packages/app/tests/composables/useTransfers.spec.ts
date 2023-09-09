@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
-
 import { computed, type ComputedRef } from "vue";
+
+import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
 

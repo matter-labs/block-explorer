@@ -78,7 +78,7 @@ const buttonText = computed(() => {
     @apply flex flex-none;
   }
   .dropdown-container {
-    @apply absolute right-0 left-0 top-1 z-10 flex flex-col items-end;
+    @apply absolute left-0 right-0 top-1 z-10 flex flex-col items-end;
     .dropdown-button {
       @apply mr-1 h-6 w-6 rounded-md hover:bg-neutral-300;
     }

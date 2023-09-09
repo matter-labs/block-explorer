@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-
 import { createI18n } from "vue-i18n";
+
+import { describe, expect, it } from "vitest";
 
 import userEvent from "@testing-library/user-event";
 import { fireEvent, render } from "@testing-library/vue";

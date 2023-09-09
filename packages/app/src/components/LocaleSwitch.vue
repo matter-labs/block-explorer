@@ -66,10 +66,10 @@ const selected = computed<Locale>({
   @apply relative;
 
   .language-list-wrapper {
-    @apply absolute top-full right-0 h-auto w-full lg:w-[60px];
+    @apply absolute right-0 top-full h-auto w-full lg:w-[60px];
   }
   .language-list {
-    @apply absolute top-1 right-0 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
+    @apply absolute right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
   }
 
   .language-list-item {
@@ -97,7 +97,7 @@ const selected = computed<Locale>({
   }
 
   .toggle-button {
-    @apply relative flex w-full items-center rounded-md border border-neutral-300 bg-white py-2 px-2 font-sans text-base text-neutral-700 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:w-max lg:border-primary-800 lg:bg-primary-800 lg:text-white;
+    @apply relative flex w-full items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base text-neutral-700 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:w-max lg:border-primary-800 lg:bg-primary-800 lg:text-white;
 
     .selected-language {
       @apply mr-5 flex items-center gap-1.5;

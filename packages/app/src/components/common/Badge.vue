@@ -143,7 +143,7 @@ defineProps({
     @apply rounded font-bold capitalize;
 
     &.size-sm {
-      @apply py-1 px-2 pr-2.5 text-xs;
+      @apply px-2 py-1 pr-2.5 text-xs;
 
       &.has-icon .badge-content {
         @apply ml-1 pr-0.5;
@@ -151,7 +151,7 @@ defineProps({
     }
 
     &.size-md {
-      @apply py-1 px-2.5 pr-3 text-sm;
+      @apply px-2.5 py-1 pr-3 text-sm;
 
       &.has-icon .badge-content {
         @apply ml-1.5 pr-1;

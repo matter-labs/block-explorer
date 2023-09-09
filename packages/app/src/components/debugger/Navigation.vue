@@ -184,7 +184,7 @@ watch(
 .navigation-search-input-container {
   @apply h-full w-full flex-shrink flex-grow border-b sm:border-b-0;
   &:after {
-    @apply absolute top-2 right-2 hidden text-sm text-neutral-400 content-[attr(data-hotkey)] lg:block;
+    @apply absolute right-2 top-2 hidden text-sm text-neutral-400 content-[attr(data-hotkey)] lg:block;
   }
   .navigation-search-input {
     @apply h-full w-full rounded-none border-0 border-solid border-transparent bg-neutral-50 focus:border-primary-400 focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50;
@@ -220,14 +220,14 @@ watch(
 .navigation-button-container {
   @apply inline-flex border-l last:border-x-0;
   .navigation-button {
-    @apply flex h-9 w-6 flex-shrink-0 items-center justify-center rounded-none border-y-0 border-y-transparent border-y-neutral-200 bg-neutral-50 last:border-r-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-9;
+    @apply flex h-9 w-6 flex-shrink-0 items-center justify-center rounded-none border-y-0 border-y-neutral-200 border-y-transparent bg-neutral-50 last:border-r-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-9;
   }
 }
 .arrow-right {
   @apply rotate-180;
 }
 .start {
-  @apply absolute right-[25px] bottom-0 h-9 w-[68px] text-sm hover:bg-neutral-200 focus:bg-neutral-50 sm:right-[39px] sm:w-[76px];
+  @apply absolute bottom-0 right-[25px] h-9 w-[68px] text-sm hover:bg-neutral-200 focus:bg-neutral-50 sm:right-[39px] sm:w-[76px];
   &.not-started {
     @apply z-10;
 

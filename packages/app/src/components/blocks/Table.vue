@@ -135,7 +135,7 @@ defineProps({
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
 
       &:before {
-        @apply absolute top-2 left-4 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
+        @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
       }
     }
   }
