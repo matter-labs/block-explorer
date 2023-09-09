@@ -1,3 +1,5 @@
+import { computed } from "vue";
+
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 let location = {
@@ -8,8 +10,6 @@ let location = {
 vi.mock("@/utils/helpers", () => ({
   getWindowLocation: () => location,
 }));
-
-import { computed } from "vue";
 
 import { GOERLI_BETA_NETWORK, GOERLI_NETWORK } from "../mocks";
 
