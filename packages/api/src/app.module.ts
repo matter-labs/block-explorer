@@ -1,7 +1,6 @@
 import { Module, Logger, MiddlewareConsumer, NestModule } from "@nestjs/common";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import config from "./config";
 import { HealthModule } from "./health/health.module";
 import { ApiModule } from "./api/api.module";
 import { ApiBlockModule } from "./api/block/block.module";
@@ -20,6 +19,7 @@ import { StatsModule } from "./stats/stats.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
+import config from "./config";
 
 @Module({
   imports: [

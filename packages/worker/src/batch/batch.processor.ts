@@ -1,7 +1,7 @@
 import { Logger } from "@nestjs/common";
 import { IsNull, Not } from "typeorm";
-import { unixTimeToDate } from "../utils/date";
 import { getBatchState } from "./batch.utils";
+import { unixTimeToDate } from "../utils/date";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { BatchRepository, BlockRepository } from "../repositories";
 import { BatchState } from "../entities/batch.entity";
