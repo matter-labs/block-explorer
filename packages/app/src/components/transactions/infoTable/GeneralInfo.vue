@@ -1,0 +1,284 @@
+<template>
+  <Table class="transaction-info-table has-head" :loading="loading">
+    <template #default>
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.transactionHash") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.transactionHashTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <CopyContent :value="transaction?.hash" />
+        </TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label transaction-status-label">
+            {{ t("transactions.table.status") }}
+          </span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.statusTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value transaction-status-value">
+          <TransactionStatus
+            :status="transaction!.status"
+            :commit-tx-hash="transaction!.ethCommitTxHash"
+            :prove-tx-hash="transaction!.ethProveTxHash"
+            :execute-tx-hash="transaction!.ethExecuteTxHash"
+          />
+        </TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.block") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.blockTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <span v-if="transaction?.blockNumber || transaction?.blockNumber === 0">
+            <span v-if="transaction.status === 'indexing'">#{{ transaction.blockNumber }}</span>
+            <router-link
+              v-else
+              :data-testid="$testId.blocksNumber"
+              :to="{
+                name: 'block',
+                params: { id: transaction.blockNumber },
+              }"
+            >
+              #{{ transaction.blockNumber }}
+            </router-link>
+          </span>
+          <span v-else>{{ t("transactions.table.notYetSentOnTheChain") }}</span>
+        </TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.batch") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.batchTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <span v-if="transaction?.l1BatchNumber">
+            <router-link
+              v-if="transaction?.isL1BatchSealed"
+              :to="{ name: 'batch', params: { id: transaction.l1BatchNumber } }"
+            >
+              #{{ transaction.l1BatchNumber }}
+            </router-link>
+            <Tooltip v-else>
+              <span>#{{ transaction.l1BatchNumber }}</span>
+              <template #content>{{ t("batches.notYetSealed") }}</template>
+            </Tooltip>
+          </span>
+          <span v-else>{{ t("transactions.table.unknown") }}</span>
+        </TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.from") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.fromTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <div class="value-with-copy-button">
+            <AddressLink :address="transaction?.from" :data-testid="$testId.fromAddress" />
+            <CopyButton :value="transaction?.from" />
+          </div>
+        </TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.to") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.toTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <div class="value-with-copy-button">
+            <AddressLink :address="transaction?.to" />
+            <CopyButton :value="transaction?.to" />
+          </div>
+        </TableBodyColumn>
+      </tr>
+      <tr v-if="transaction?.transfers.length">
+        <TableBodyColumn class="transaction-table-label transaction-token-transferred">
+          <span class="transaction-info-field-label">{{ t("transactions.table.tokensTransferred") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.tokensTransferredTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <div v-for="transfer in transaction.transfers" :key="transfer.to + transfer.from">
+            <TransferTableCell :transfer="transfer" />
+          </div>
+        </TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label input-data-label">{{ t("transactions.table.inputData") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.inputDataTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <TransactionData :data="transaction?.data" :error="decodingDataError" />
+        </TableBodyColumn>
+      </tr>
+
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.value") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.valueTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <EthAmountPrice :amount="transaction?.value"></EthAmountPrice>
+        </TableBodyColumn>
+      </tr>
+
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.fee") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.feeTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <FeeData :fee-data="transaction?.feeData" :show-details="transaction?.status !== 'indexing'" />
+        </TableBodyColumn>
+      </tr>
+
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.nonce") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.nonceTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">{{ transaction?.nonce }}</TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row">
+        <table-body-column class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.created") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.createdTooltip") }}
+          </InfoTooltip>
+        </table-body-column>
+        <table-body-column class="transaction-table-value">
+          <TimeField :value="transaction?.receivedAt" />
+        </table-body-column>
+      </tr>
+    </template>
+    <template #loading>
+      <tr class="loading-row" v-for="row in 11" :key="row">
+        <TableBodyColumn>
+          <ContentLoader />
+        </TableBodyColumn>
+        <TableBodyColumn>
+          <ContentLoader />
+        </TableBodyColumn>
+      </tr>
+    </template>
+  </Table>
+</template>
+
+<script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
+import AddressLink from "@/components/AddressLink.vue";
+import FeeData from "@/components/FeeData.vue";
+import CopyButton from "@/components/common/CopyButton.vue";
+import InfoTooltip from "@/components/common/InfoTooltip.vue";
+import Tooltip from "@/components/common/Tooltip.vue";
+import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
+import Table from "@/components/common/table/Table.vue";
+import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
+import CopyContent from "@/components/common/table/fields/CopyContent.vue";
+import TimeField from "@/components/common/table/fields/TimeField.vue";
+import EthAmountPrice from "@/components/transactions/EthAmountPrice.vue";
+import TransactionStatus from "@/components/transactions/Status.vue";
+import TransactionData from "@/components/transactions/infoTable/TransactionData.vue";
+import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
+
+import type { TransactionItem } from "@/composables/useTransaction";
+import type { PropType } from "vue";
+
+const { t } = useI18n();
+
+defineProps({
+  transaction: {
+    type: Object as PropType<TransactionItem | null>,
+    default: null,
+  },
+  loading: {
+    type: Boolean,
+    default: true,
+  },
+  decodingDataError: {
+    type: String,
+  },
+});
+</script>
+
+<style lang="scss">
+.transaction-info-table {
+  .table-body {
+    @apply md:overflow-visible;
+  }
+  .table-body-col {
+    @apply py-4;
+  }
+  .loading-row {
+    .table-body-col {
+      @apply first:w-[9rem];
+
+      .content-loader {
+        @apply w-full;
+
+        &:nth-child(2) {
+          @apply max-w-md;
+        }
+      }
+    }
+  }
+  .transaction-info-field-label {
+    @apply text-gray-400;
+  }
+  .transaction-info-field-value {
+    @apply text-gray-800;
+  }
+  .transaction-table-label {
+    @apply m-0 inline-flex w-[7rem] items-center whitespace-normal sm:w-[11.5rem];
+
+    .transaction-info-field-tooltip {
+      @apply ml-1;
+    }
+    .input-data-label,
+    .transaction-status-label {
+      @apply inline-block;
+    }
+  }
+  .transaction-table-value {
+    @apply m-0 w-full;
+  }
+  .transaction-token-transferred {
+    @apply align-top;
+  }
+  .copy-button-container {
+    @apply inline;
+  }
+  .value-with-copy-button {
+    display: flex;
+    justify-content: space-between;
+  }
+  .transaction-status-value {
+    @apply py-2;
+  }
+}
+</style>

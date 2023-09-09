@@ -1,0 +1,78 @@
+name: block-explorer
+services:
+  worker:
+    build:
+      context: .
+      target: development-stage
+    command: npm run start:debug
+    environment:
+      - PORT=3001
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - DATABASE_HOST=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=block-explorer
+      - BLOCKCHAIN_RPC_URL=http://zksync:3050
+    ports:
+      - '3001:3001'
+      - '9229:9229'
+      - '9230:9230'
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      zksync:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: "postgres"
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=block-explorer
+
+  geth:
+    image: "matterlabs/geth:latest"
+    logging:
+      driver: none
+    ports:
+      - "8545:8545"
+      - "8546:8546"
+    volumes:
+      - ./volumes/geth:/var/lib/geth/data
+
+  zksync:
+    stdin_open: true
+    tty: true
+    image: matterlabs/local-node:latest2.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      geth:
+        condition: service_started
+    ports:
+      - "3050:3050" # JSON RPC HTTP port
+      - "3051:3051" # JSON RPC WS port
+    volumes:
+      # Configs folder bind
+      - ./volumes/zksync/env/dev:/etc/env/dev
+      # Storage folder bind
+      - ./volumes/zksync/data:/var/lib/zksync/data
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/zksync_local
+      - ETH_CLIENT_WEB3_URL=http://geth:8545
+    healthcheck:
+      test: "curl -H \"Content-Type: application/json\" -X POST --data '{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}' 127.0.0.1:3050 || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 120
+    restart: unless-stopped

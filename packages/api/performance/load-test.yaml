@@ -1,0 +1,273 @@
+config:
+  target: "http://127.0.0.1:3000"
+  http:
+    timeout: 100
+    extendedMetrics: true
+  phases:
+    - duration: 500
+      arrivalCount: 100
+
+  environments:
+    stage:
+      target: "https://staging-block-explorer-api.stage.zksync.dev"
+    testnet-prod:
+      target: "https://block-explorer-api.testnets.zksync.dev"
+      variables:
+        addresses:
+          - ["0x0000000000000000000000000000000000008001"]
+          - ["0x8E113670acAB84C88508D7Fc47d93F3AC4ecFA69"]
+    testnet:
+      target: "https://staging-block-explorer-api.testnets.zksync.dev"
+      variables:
+        addresses:
+          - ["0x0000000000000000000000000000000000008001"]
+          - ["0x8E113670acAB84C88508D7Fc47d93F3AC4ecFA69"]
+    mainnet:
+      target: "https://staging-block-explorer-api.mainnet.zksync.io"
+    mainnet-prod:
+      target: "https://block-explorer-api.mainnet.zksync.io"
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+  variables:
+    toDate: "2025-04-26T00:43:26.000Z"
+    fromDate: "2021-04-26T00:43:26.000Z"
+    limit: 10
+    addresses:
+      - ["0x0000000000000000000000000000000000008001"] 
+      - ["0x0000000000000000000000000000000000008007"]
+    tokenAddressesToCheck:
+      -
+    txHashesToCheck:
+      -
+
+scenarios:
+  - name: "All API endpoints"
+    flow:
+
+      # STATS
+      - get:
+          name: "/stats"
+          url: "/stats"
+
+      # BATCHES
+      - get:
+          name: "/batches"
+          url: "/batches"
+          qs:
+            limit: 5
+          capture:
+            json: "$.items"
+            as: "batchItems"
+
+      - loop:
+          - get:
+              name: "/batches with toDate"
+              url: "/batches"
+              qs:
+                toDate: "{{ toDate }}"
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 100) }}"
+        count: 5
+
+      # - loop:
+      #     - get:
+      #         name: "/batches with toDate and fromDate"
+      #         url: "/batches"
+      #         qs:
+      #           toDate: "{{ toDate }}"
+      #           fromDate: "{{ fromDate }}"
+      #           limit: "{{ limit }}"
+      #           page: "{{ $randomNumber(1, 100) }}"
+      #   count: 5
+
+      - loop:
+          - get:
+              name: "/batches/{batchNumber}"
+              url: "/batches/{{ $loopElement.number }}"
+        over: batchItems
+
+      # BLOCKS
+      - get:
+          name: "/blocks"
+          url: "/blocks"
+          qs:
+            limit: 5
+          capture:
+            json: "$.items"
+            as: "blockItems"
+
+      - loop:
+          - get:
+              name: "/blocks with toDate"
+              url: "/blocks"
+              qs:
+                toDate: "{{ toDate }}"
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 100) }}"
+        count: 5
+
+      # - loop:
+      #     - get:
+      #         name: "/blocks with toDate and fromDate"
+      #         url: "/blocks"
+      #         qs:
+      #           toDate: "{{ toDate }}"
+      #           fromDate: "{{ fromDate }}"
+      #           limit: "{{ limit }}"
+      #           page: "{{ $randomNumber(1, 100) }}"
+      #   count: 5
+
+      - loop:
+          - get:
+              name: "/blocks/{blockNumber}"
+              url: "/blocks/{{ $loopElement.number }}"
+        over: blockItems
+
+      # ADDRESS
+      - loop:
+          - get:
+              name: "/address/{address}"
+              url: "/address/{{ $loopElement }}"
+        over: addresses
+
+      - loop:
+          - get:
+              name: "/address/{address}/logs"
+              url: "/address/{{ $loopElement }}/logs"
+              qs:
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 5) }}"
+        over: addresses
+
+      - loop:
+          - get:
+              name: "/address/{address}/transfers"
+              url: "/address/{{ $loopElement }}/transfers"
+              qs:
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 5) }}"
+        over: addresses
+
+      # TOKENS
+      - get:
+          name: "/tokens"
+          url: "/tokens"
+          qs:
+            limit: 5
+          capture:
+            json: "$.items"
+            as: "tokenItems"
+
+      - loop:
+          - get:
+              name: "/tokens paging"
+              url: "/tokens"
+              qs:
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 100) }}"
+        count: 5
+
+      - loop:
+          - get:
+              name: "/tokens/{address}"
+              url: "/tokens/{{ $loopElement.l2Address }}"
+        over: tokenItems
+
+      - loop:
+          - get:
+              name: "/tokens/{address}/transfers"
+              url: "/tokens/{{ $loopElement.l2Address }}/transfers"
+        over: tokenItems
+
+      # Additional tokens to check. Can be configured per environment.
+      - loop:
+          - get:
+              name: "/tokens/{address}"
+              url: "/tokens/{{ $loopElement }}"
+        over: tokenAddressesToCheck
+
+      - loop:
+          - get:
+              name: "/tokens/{address}/transfers"
+              url: "/tokens/{{ $loopElement }}/transfers"
+        over: tokenAddressesToCheck
+
+      # TRANSACTIONS
+      - get:
+          name: "/transactions"
+          url: "/transactions"
+          qs:
+            limit: 5
+          capture:
+            json: "$.items"
+            as: "txItems"
+
+      - loop:
+          - get:
+              name: "/transactions with toDate"
+              url: "/transactions"
+              qs:
+                toDate: "{{ toDate }}"
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 100) }}"
+        count: 5
+
+      - loop:
+          - get:
+              name: "/transactions with toDate and address"
+              url: "/transactions"
+              qs:
+                toDate: "{{ toDate }}"
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 5) }}"
+                address: "{{ $loopElement }}"
+        over: addresses
+
+      # - loop:
+      #     - get:
+      #         name: "/transactions with toDate and fromDate"
+      #         url: "/transactions"
+      #         qs:
+      #           toDate: "{{ toDate }}"
+      #           fromDate: "{{ fromDate }}"
+      #           limit: "{{ limit }}"
+      #           page: "{{ $randomNumber(1, 100) }}"
+      #   count: 5
+
+      - loop:
+          - get:
+              name: "/transactions/{transactionHash}"
+              url: "/transactions/{{ $loopElement.hash }}"
+        over: txItems
+
+      - loop:
+          - get:
+              name: "/transactions/{transactionHash}/transfers"
+              url: "/transactions/{{ $loopElement.hash }}/transfers"
+        over: txItems
+
+      - loop:
+          - get:
+              name: "/transactions/{transactionHash}/logs"
+              url: "/transactions/{{ $loopElement.hash }}/logs"
+        over: txItems
+
+      # Additional tx to check. Can be configured per environment.
+      - loop:
+          - get:
+              name: "/transactions/{transactionHash}"
+              url: "/transactions/{{ $loopElement }}"
+        over: txHashesToCheck
+
+      - loop:
+          - get:
+              name: "/transactions/{transactionHash}/transfers"
+              url: "/transactions/{{ $loopElement }}/transfers"
+        over: txHashesToCheck
+
+      - loop:
+          - get:
+              name: "/transactions/{transactionHash}/logs"
+              url: "/transactions/{{ $loopElement }}/logs"
+        over: txHashesToCheck

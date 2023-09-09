@@ -1,0 +1,60 @@
+config:
+  target: "http://127.0.0.1:3000"
+  http:
+    timeout: 100
+    extendedMetrics: true
+  phases:
+    - duration: 500
+      arrivalCount: 100
+
+  environments:
+    stage:
+      target: "https://staging-block-explorer-api.stage.zksync.dev"
+    testnet-prod:
+      target: "https://block-explorer-api.testnets.zksync.dev"
+    testnet:
+      target: "https://staging-block-explorer-api.testnets.zksync.dev"
+    mainnet:
+      target: "https://staging-block-explorer-api.mainnet.zksync.io"
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+  variables:
+    toDate: "2025-04-26T00:43:26.000Z"
+    fromDate: "2021-04-26T00:43:26.000Z"
+    limit: 10
+    addresses:
+      - ["0x0000000000000000000000000000000000008001"]
+      - ["0x0000000000000000000000000000000000008007"]
+
+scenarios:
+  - name: "Address page endpoints"
+    flow:
+      # ADDRESS
+      - loop:
+          - get:
+              name: "/address/{address}"
+              url: "/address/{{ $loopElement }}"
+        over: addresses
+
+      # TRANSACTIONS
+      - loop:
+          - get:
+              name: "/transactions with toDate and address"
+              url: "/transactions"
+              qs:
+                toDate: "{{ toDate }}"
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 5) }}"
+                address: "{{ $loopElement }}"
+        over: addresses
+
+      # TRANSFERS
+      - loop:
+          - get:
+              name: "/address/{address}/transfers"
+              url: "/address/{{ $loopElement }}/transfers"
+              qs:
+                limit: "{{ limit }}"
+                page: "{{ $randomNumber(1, 5) }}"
+        over: addresses

@@ -1,0 +1,39 @@
+config:
+  target: "http://127.0.0.1:3000"
+  http:
+    timeout: 100
+    extendedMetrics: true
+  phases:
+    - duration: 500
+      arrivalCount: 100
+
+  environments:
+    stage:
+      target: "https://staging-block-explorer-api.stage.zksync.dev"
+    testnet-prod:
+      target: "https://block-explorer-api.testnets.zksync.dev"
+    testnet:
+      target: "https://staging-block-explorer-api.testnets.zksync.dev"
+    mainnet:
+      target: "https://staging-block-explorer-api.mainnet.zksync.io"
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+
+scenarios:
+  - name: "Home page endpoints"
+    flow:
+      # STATS
+      - get:
+          name: "/stats"
+          url: "/stats"
+
+      # BATCHES
+      - get:
+          name: "/batches"
+          url: "/batches"
+
+      # TRANSACTIONS
+      - get:
+          name: "/transactions"
+          url: "/transactions"

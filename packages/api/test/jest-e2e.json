@@ -1,0 +1,25 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "globalSetup": "./global/setup.ts",
+  "globalTeardown": "./global/clean.ts",
+  "reporters": [
+    "default",
+    [
+      "jest-junit",
+      {
+        "suiteName": "E2E tests",
+        "outputFile": "e2e-junit.xml"
+      }
+    ]
+  ]
+}

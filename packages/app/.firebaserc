@@ -1,0 +1,27 @@
+{
+  "projects": {
+    "default": "staging-scan-v2"
+  },
+  "targets": {
+    "scan-v2": {
+      "hosting": {
+        "web": [
+          "scan-v2"
+        ],
+        "storybook": [
+          "storybook-scan-v2"
+        ]
+      }
+    },
+    "staging-scan-v2": {
+      "hosting": {
+        "web": [
+          "staging-scan-v2"
+        ],
+        "storybook": [
+          "staging-storybook-scan-v2"
+        ]
+      }
+    }
+  }
+}

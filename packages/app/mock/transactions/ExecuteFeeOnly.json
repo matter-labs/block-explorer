@@ -1,0 +1,142 @@
+{
+  "transactionHash": "0x8afa27556bc8cf4461ac8d1df68dab4a368aa66d2b35f778b2eb7e07fe334fe7",
+  "data": {
+    "type": "execute",
+    "contractAddress": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+    "calldata": "0xa9059cbb0000000000000000000000006c557bc88804254760be210c01fd9b6b5de96e530000000000000000000000000000000000000000000000056bc75e2d63100000",
+    "value": "0x0"
+  },
+  "status": "verified",
+  "fee": "0x2279f530c00",
+  "nonce": 2625,
+  "blockNumber": 267161,
+  "blockHash": "0xb6e4c5505adfac5c681be177b194df935602757b6d81114486eb5e5e5f82be87",
+  "indexInBlock": 3,
+  "initiatorAddress": "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+  "receivedAt": "2022-07-11T11:36:29.007307Z",
+  "ethExecuteTxHash": "0x2068ef172edb7618b8e19d3e43960beedc09dbd8c31e758c27bfb1cc8f33f7e8",
+  "erc20Transfers": [
+    {
+      "tokenInfo": {
+        "l1Address": "0x63bfb2118771bd0da7a6936667a7bb705a06c1ba",
+        "l2Address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+        "address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+        "symbol": "LINK",
+        "name": "ChainLink Token (goerli)",
+        "decimals": 18,
+        "usdPrice": "1"
+      },
+      "from": "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+      "to": "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
+      "amount": "0x2279f530c00"
+    }
+  ],
+  "transfer": {
+    "tokenInfo": {
+      "l1Address": "0x63bfb2118771bd0da7a6936667a7bb705a06c1ba",
+      "l2Address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+      "address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+      "symbol": "LINK",
+      "name": "ChainLink Token (goerli)",
+      "decimals": 18,
+      "usdPrice": "1"
+    },
+    "from": "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+    "to": "0x6c557bc88804254760be210c01fd9b6b5de96e53",
+    "amount": "0x56bc75e2d63100000"
+  },
+  "balanceChanges": [
+    {
+      "tokenInfo": {
+        "l1Address": "0x0000000000000000000000000000000000000000",
+        "l2Address": "0x0000000000000000000000000000000000000000",
+        "address": "0x0000000000000000000000000000000000000000",
+        "symbol": "ETH",
+        "name": "Ether",
+        "decimals": 18,
+        "usdPrice": "1"
+      },
+      "from": "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+      "to": "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
+      "fromNetwork": "L2",
+      "toNetwork": "L2",
+      "amount": "0x2279f530c00",
+      "type": "fee"
+    },
+    {
+      "tokenInfo": {
+        "l1Address": "0x63bfb2118771bd0da7a6936667a7bb705a06c1ba",
+        "l2Address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+        "address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+        "symbol": "LINK",
+        "name": "ChainLink Token (goerli)",
+        "decimals": 18,
+        "usdPrice": "1"
+      },
+      "from": "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+      "to": "0x6c557bc88804254760be210c01fd9b6b5de96e53",
+      "fromNetwork": "L2",
+      "toNetwork": "L2",
+      "amount": "0x56bc75e2d63100000",
+      "type": "transfer"
+    }
+  ],
+  "transfers": [
+    {
+      "tokenInfo": {
+        "l1Address": "0x63bfb2118771bd0da7a6936667a7bb705a06c1ba",
+        "l2Address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+        "address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+        "symbol": "LINK",
+        "name": "ChainLink Token (goerli)",
+        "decimals": 18,
+        "usdPrice": "1"
+      },
+      "from": "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+      "to": "0x6c557bc88804254760be210c01fd9b6b5de96e53",
+      "fromNetwork": "L2",
+      "toNetwork": "L2",
+      "amount": "0x56bc75e2d63100000",
+      "type": "transfer"
+    }
+  ],
+  "isL1Originated": false,
+  "fromNetwork": "L2",
+  "toNetwork": "L2",
+  "logs": [
+    {
+      "address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+      "topics": [
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        "0x000000000000000000000000cfa3dd0cba60484d1c8d0cdd22c5432013368875",
+        "0x000000000000000000000000de03a0b5963f75f1c8485b355ff6d30f3093bde7"
+      ],
+      "data": "0x000000000000000000000000000000000000000000000000000002279f530c00",
+      "blockHash": "0xb6e4c5505adfac5c681be177b194df935602757b6d81114486eb5e5e5f82be87",
+      "blockNumber": "0x41399",
+      "transactionHash": "0x8afa27556bc8cf4461ac8d1df68dab4a368aa66d2b35f778b2eb7e07fe334fe7",
+      "transactionIndex": "0x3",
+      "logIndex": "0xd",
+      "transactionLogIndex": "0xd",
+      "logType": null,
+      "removed": false
+    },
+    {
+      "address": "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+      "topics": [
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        "0x000000000000000000000000cfa3dd0cba60484d1c8d0cdd22c5432013368875",
+        "0x0000000000000000000000006c557bc88804254760be210c01fd9b6b5de96e53"
+      ],
+      "data": "0x0000000000000000000000000000000000000000000000056bc75e2d63100000",
+      "blockHash": "0xb6e4c5505adfac5c681be177b194df935602757b6d81114486eb5e5e5f82be87",
+      "blockNumber": "0x41399",
+      "transactionHash": "0x8afa27556bc8cf4461ac8d1df68dab4a368aa66d2b35f778b2eb7e07fe334fe7",
+      "transactionIndex": "0x3",
+      "logIndex": "0xe",
+      "transactionLogIndex": "0xe",
+      "logType": null,
+      "removed": false
+    }
+  ]
+}
