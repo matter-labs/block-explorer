@@ -12,7 +12,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "build-storybook -s ./public",
-    "postinstall": "rm -rf ./node_modules/@types/react"
+    "postinstall": "rm -rf ./node_modules/@types/react && rm -rf ../../node_modules/@types/react"
   },
   "prettier": "@matterlabs/prettier-config",
   "lint-staged": {
