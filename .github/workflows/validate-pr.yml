@@ -61,6 +61,7 @@ jobs:
             packages/worker/junit.xml
           check_run_annotations: all tests, skipped tests
           report_individual_runs: "true"
+          check_name: Unit Test Results
 
       - name: Build
         run: |
