@@ -42,13 +42,14 @@ jobs:
         run: |
           npm run lint -- -- --no-fix --max-warnings 0
 
+      - name: App type check
+        working-directory: ./packages/app
+        run: |
+          npm run typecheck
+
       - name: Test
         run: |
           npm run test:unit:ci
-
-      - name: Type check
-        run: |
-          npm run typecheck --scope=app
 
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
