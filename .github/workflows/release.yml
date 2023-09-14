@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - '[0-9]+.*'
+
+jobs:
+  createReleaseVersion:
+    name: Create Release Version
+    runs-on: ubuntu-latest
+    outputs:
+      releaseVersion: ${{ steps.release.outputs.releaseVersion }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Lint
+        run: |
+          npm run lint -- -- --no-fix --max-warnings 0
+
+      - name: Test
+        run: |
+          npm run test:unit:ci
+
+      - name: Create Release Version
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: npx semantic-release
