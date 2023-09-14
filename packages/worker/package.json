@@ -19,6 +19,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "test:unit:ci": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
@@ -110,7 +111,7 @@
       [
         "jest-junit",
         {
-          "suiteName": "Unit tests"
+          "suiteName": "Worker Unit tests"
         }
       ]
     ]
@@ -122,7 +123,7 @@
     ]
   },
   "engines": {
-    "npm": ">=8.0.0",
-    "node": ">=16.0.0"
+    "npm": ">=9.0.0",
+    "node": ">=18.0.0"
   }
 }

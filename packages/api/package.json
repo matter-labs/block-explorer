@@ -19,6 +19,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
+    "test:unit:ci": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles",
     "test:perf": "artillery run ./performance/load-test.yaml"
@@ -112,7 +113,7 @@
       [
         "jest-junit",
         {
-          "suiteName": "Unit tests"
+          "suiteName": "API Unit tests"
         }
       ]
     ]
@@ -124,7 +125,7 @@
     ]
   },
   "engines": {
-    "npm": ">=8.0.0",
-    "node": ">=16.0.0"
+    "npm": ">=9.0.0",
+    "node": ">=18.0.0"
   }
 }

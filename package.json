@@ -1,5 +1,6 @@
 {
   "name": "block-explorer",
+  "version": "1.0.0-development",
   "private": true,
   "workspaces": [
     "packages/*"
@@ -8,6 +9,7 @@
     "prepare": "husky install",
     "lint": "lerna run lint",
     "test": "lerna run test",
+    "test:unit:ci": "lerna run test:unit:ci",
     "build": "lerna run build"
   },
   "dependencies": {
@@ -21,5 +23,9 @@
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
     "@matterlabs/prettier-config": "^1.0.2"
+  },
+  "engines": {
+    "npm": ">=9.0.0",
+    "node": ">=18.0.0"
   }
 }

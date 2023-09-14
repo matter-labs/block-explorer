@@ -1,0 +1,62 @@
+name: Validate PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - reopened
+      - synchronize
+
+jobs:
+  label:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        with:
+          subjectPattern: ^(?![A-Z]).+$
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Lint
+        run: |
+          npm run lint -- -- --no-fix --max-warnings 0
+
+      - name: Test
+        run: |
+          npm run test:unit:ci
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+            files: |
+              /packages/app/junit.xml
+              /packages/api/junit.xml
+              /packages/worker/junit.xml
+          check_run_annotations: all tests, skipped tests
+          report_individual_runs: "true"
+
+      - name: Build
+        run: |
+          npm run build
