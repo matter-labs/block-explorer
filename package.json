@@ -12,17 +12,18 @@
     "test:unit:ci": "lerna run test:unit:ci",
     "build": "lerna run build"
   },
-  "dependencies": {
-  },
   "devDependencies": {
-    "lerna": "^7.2.0",
-    "typescript": "4.7.4",
-    "prettier": "2.8.4",
-    "eslint": "8.48.0",
-    "husky": "8.0.1",
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
-    "@matterlabs/prettier-config": "^1.0.2"
+    "@matterlabs/prettier-config": "^1.0.2",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^6.0.3",
+    "eslint": "8.48.0",
+    "husky": "8.0.1",
+    "lerna": "^7.2.0",
+    "prettier": "2.8.4",
+    "semantic-release": "^21.1.1",
+    "typescript": "4.7.4"
   },
   "engines": {
     "npm": ">=9.0.0",
