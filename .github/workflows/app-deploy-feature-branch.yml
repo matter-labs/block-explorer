@@ -22,10 +22,13 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install
-        working-directory: ./packages/app
+      - name: Remove husky hooks
+        working-directory: ./
         run: |
           npm pkg delete scripts.prepare
+
+      - name: Install
+        run: |
           npm ci
 
       - name: Lint
