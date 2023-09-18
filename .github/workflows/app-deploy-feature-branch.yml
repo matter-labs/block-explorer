@@ -1,0 +1,70 @@
+name: Deploy App To Feature Branch
+on: pull_request
+
+jobs:
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./packages/app
+    outputs:
+      dappUrl: ${{ steps.deploy.outputs.details_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install
+        run: |
+          npm pkg delete scripts.prepare
+          npm ci
+
+      - name: Lint
+        run: |
+          npm run lint -- --no-fix --max-warnings 0
+
+      - name: Test
+        run: npm run test:unit:ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: |
+          VITE_VERSION=${{ github.head_ref }} \
+            npm run build
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Update config
+        run: |
+          echo "window[\"##runtimeConfig\"] = { appEnvironment: \"staging\" };" > dist/config.js
+
+      - name: Deploy
+        uses: matter-labs/action-hosting-deploy@main
+        id: deploy
+        with:
+          repoToken: "${{ github.token }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING_SCAN_V2 }}"
+          expires: 7d
+          projectId: staging-scan-v2
+
+  # mainnet:
+  #   needs: build
+  #   name: Feature Env, Mainnet+
+  #   uses: ./.github/workflows/e2e.yml
+  #   secrets: inherit
+  #   with:
+  #     targetUrl: ${{ needs.build.outputs.dappUrl }}
+  #     default_network_value_for_e2e: "/?network=mainnet"
+  #     publish_to_allure: true
+  #     environmentTags: "and not @stagingEnv"
