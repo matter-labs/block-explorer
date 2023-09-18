@@ -3,7 +3,7 @@ on: pull_request
 
 jobs:
   build:
-    name: Build and Test
+    name: Build and Test App
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,7 +22,7 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Remove husky hooks
+      - name: Install dependencies
         working-directory: ./
         run: |
           npm pkg delete scripts.prepare
@@ -43,8 +43,8 @@ jobs:
           VITE_VERSION=${{ github.head_ref }} \
             npm run build
 
-      - name: Build Storybook
-        run: npm run build-storybook
+      # - name: Build Storybook
+      #   run: npm run build-storybook
 
       - name: Update config
         run: |
