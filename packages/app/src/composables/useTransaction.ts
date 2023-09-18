@@ -8,8 +8,6 @@ import useContext from "./useContext";
 import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
 
-import { ETH_TOKEN } from "@/utils/constants";
-
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
   address: Hash;
@@ -234,16 +232,14 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
     fromNetwork: getTransferNetworkOrigin(item, "from"),
     toNetwork: getTransferNetworkOrigin(item, "to"),
     type: item.type,
-    tokenInfo: item.token
-      ? ({
-          address: item.token.l2Address,
-          l1Address: item.token.l1Address,
-          l2Address: item.token.l2Address,
-          decimals: item.token.decimals,
-          name: item.token.name,
-          symbol: item.token.symbol,
-        } as TokenInfo)
-      : ETH_TOKEN,
+    tokenInfo: {
+      address: item.tokenAddress,
+      l1Address: item.token?.l1Address,
+      l2Address: item.tokenAddress,
+      decimals: item.token?.decimals || 0,
+      name: item.token?.name,
+      symbol: item.token?.symbol,
+    } as TokenInfo,
   }));
 }
 

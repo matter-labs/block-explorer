@@ -8,6 +8,8 @@ import useTransaction, { getTransferNetworkOrigin } from "@/composables/useTrans
 
 import type { Context } from "@/composables/useContext";
 
+import { ETH_TOKEN } from "@/utils/constants";
+
 const logs = [
   {
     address: "0x000000000000000000000000000000000000800A",
@@ -104,10 +106,10 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
               amount: "1561368069251910",
-              tokenAddress: null,
+              tokenAddress: ETH_TOKEN.address,
               type: "fee",
               fields: null,
-              token: null,
+              token: ETH_TOKEN,
             },
             {
               from: "0x0000000000000000000000000000000000008001",
@@ -115,8 +117,19 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
               amount: "116665569251910",
-              tokenAddress: null,
+              tokenAddress: ETH_TOKEN.address,
               type: "refund",
+              fields: null,
+              token: ETH_TOKEN,
+            },
+            {
+              from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+              to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+              blockNumber: 1162235,
+              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              amount: "1",
+              tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47D",
+              type: "transfer",
               fields: null,
               token: null,
             },
@@ -143,10 +156,10 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
               amount: "867466250000000",
-              tokenAddress: null,
+              tokenAddress: ETH_TOKEN.address,
               type: "refund",
               fields: null,
-              token: null,
+              token: ETH_TOKEN,
             },
           ],
           meta: {
@@ -451,6 +464,22 @@ describe("useTransaction:", () => {
           },
         ],
         transfers: [
+          {
+            amount: "1",
+            from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            fromNetwork: "L2",
+            toNetwork: "L2",
+            type: "transfer",
+            tokenInfo: {
+              address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47D",
+              l1Address: undefined,
+              l2Address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47D",
+              decimals: 0,
+              name: undefined,
+              symbol: undefined,
+            },
+          },
           {
             amount: "12",
             from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
