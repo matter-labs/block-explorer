@@ -23,6 +23,7 @@ jobs:
           cache: 'npm'
 
       - name: Install
+        working-directory: ./packages/app
         run: |
           npm pkg delete scripts.prepare
           npm ci
