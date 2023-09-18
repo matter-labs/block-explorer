@@ -26,9 +26,6 @@ jobs:
         working-directory: ./
         run: |
           npm pkg delete scripts.prepare
-
-      - name: Install
-        run: |
           npm ci
 
       - name: Lint
