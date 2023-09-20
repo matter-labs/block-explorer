@@ -60,13 +60,13 @@ jobs:
           projectId: staging-scan-v2
           entryPoint: ./packages/app
 
-  # mainnet:
-  #   needs: build
-  #   name: Feature Env, Mainnet+
-  #   uses: ./.github/workflows/e2e.yml
-  #   secrets: inherit
-  #   with:
-  #     targetUrl: ${{ needs.build.outputs.dappUrl }}
-  #     default_network_value_for_e2e: "/?network=mainnet"
-  #     publish_to_allure: true
-  #     environmentTags: "and not @stagingEnv"
+  mainnet:
+    needs: build
+    name: Feature Env, Mainnet+
+    uses: ./.github/workflows/e2e.yml
+    secrets: inherit
+    with:
+      targetUrl: ${{ needs.build.outputs.dappUrl }}
+      default_network_value_for_e2e: "/?network=mainnet"
+      publish_to_allure: true
+      environmentTags: "and not @stagingEnv"
