@@ -24,9 +24,42 @@
       }
     ],
     [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "npm run build-storybook",
+        "publishCmd": "zip -r storybook-static.zip storybook-static",
+        "execCwd": "packages/app"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "VITE_VERSION=${nextRelease.version} npm run build",
+        "publishCmd": "zip -r dist.zip dist",
+        "execCwd": "packages/app"
+      }
+    ],
+    [
+      "@semantic-release/exec",
+      {
+        "prepareCmd": "./node_modules/.bin/sentry-cli releases new ${nextRelease.version}",
+        "publishCmd": "./node_modules/.bin/sentry-cli releases files ${nextRelease.version} upload-sourcemaps packages/app/dist",
+        "successCmd": "./node_modules/.bin/sentry-cli releases finalize ${nextRelease.version}"
+      }
+    ],
+    [
       "@semantic-release/github",
       {
-        "assets": []
+        "assets": [
+          {
+            "path": "dist.zip",
+            "label": "App dist package"
+          },
+          {
+            "path": "storybook-static.zip",
+            "label": "Storybook package"
+          }
+        ]
       }
     ],
     [

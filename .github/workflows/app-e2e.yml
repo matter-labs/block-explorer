@@ -1,0 +1,144 @@
+name: BE App E2E tests
+on:
+  workflow_call:
+    secrets:
+      ALLURE_TOKEN:
+        description: 'A token passed from the caller workflow'
+        required: true
+    inputs:
+      environmentTags:
+        type: string
+        default: ''
+        required: false
+      targetUrl:
+        type: string
+        default: 'https://staging-scan-v2.zksync.dev/'
+        required: true
+      default_network_value_for_e2e:
+        type: string
+        default: '/?network=mainnet'
+        required: true
+      publish_to_allure: #Here we define the variable that can be overwritten by caller workflow
+        type: boolean
+        description: "Publish test results to allure"
+        default: true
+        required: false
+
+env:
+  ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
+  ALLURE_SEARCH_REQUEST: '[{"id":"name","type":"string","value":"#${{ github.run_number }}"}]'
+  ALLURE_BASIC_TAGS: "${{ github.head_ref }}, #${{ github.run_number }}, ${{ github.event.pull_request.title }}"
+  ALLURE_PROJECT_ID: ${{ vars.ALLURE_PROJECT_ID }}
+  ALLURE_ENDPOINT: ${{ vars.ALLURE_ENDPOINT }}
+
+jobs:
+  e2e:
+    runs-on: [self-hosted, ci-runner]
+    defaults:
+      run:
+        working-directory: ./packages/app
+    strategy:
+      fail-fast: false
+      matrix:
+        tags: [ 
+                "@artifactsSet1",
+                "@artifactsSet2",
+                "@artifactsSet3",
+                "@artifactsSet4",
+                "@redirectionSet1",
+                "@redirectionSet2",
+                "@redirectionSet3",
+                "@copying",
+                "@search",
+                "@testnetSmokeSuite" 
+              ]
+                
+    name: '${{ matrix.tags }}'
+    container:
+      image: mcr.microsoft.com/playwright:v1.27.0-focal
+      options: --user root
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+              ${{ runner.os }}-build-${{ env.cache-name }}-
+              ${{ runner.os }}-build-
+              ${{ runner.os }}-
+
+      - name: Install dependencies
+        working-directory: ./
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: |
+          npm pkg delete scripts.prepare
+          npm ci
+
+      - name: Download allurectl
+        run: wget https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_386 -O ./allurectl
+
+      - name: Change permission for allurectl
+        run: chmod +x ./allurectl
+
+      - name: Launch tests
+        env:
+          CI: 'true'
+          TARGET_ENV: ${{ inputs.targetUrl }}
+        run: |
+          echo "Run tests"
+            if [ "${{ matrix.tags }}" = "@testnetSmokeSuite" ]; then
+                echo "Run in testnetSmokeSuite only"
+                E2ENETWORK='/?network=goerli' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @mainnet"
+            else
+                echo "Run in mainnet"
+                E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
+            fi
+
+      - name: Reset tags quotes
+        if: always()
+        run: |
+          echo "MATRIX_TAG_WITHOUT_QUOTES=$(echo ${{ matrix.tags }} | sed -e 's/@//g' )" >> $GITHUB_ENV
+
+      - name: Create launch ID
+        if: always()
+        env:
+          ALLURE_LAUNCH_NAME: "#${{ github.run_number }} ${{ env.MATRIX_TAG_WITHOUT_QUOTES }}" 
+          ALLURE_LAUNCH_TAGS: "${{ env.ALLURE_BASIC_TAGS }}, ${{ env.MATRIX_TAG_WITHOUT_QUOTES }}"
+        run: |
+          echo "ALLURE_LAUNCH_ID=$(./allurectl launch create --launch-name '${{ env.ALLURE_LAUNCH_NAME }}' --no-header --format ID | tail -n1)" >> $GITHUB_ENV
+ 
+      - name: Upload tests to the Allure proj
+        if: always() && inputs.publish_to_allure == true
+        run: |
+          ./allurectl upload allure-results --launch-id ${{ env.ALLURE_LAUNCH_ID }}
+          ./allurectl launch close ${{ env.ALLURE_LAUNCH_ID }}
+
+      - if: failure()
+        name: Save artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: portal_e2e_${{ github.run_number }}_artifacts
+          path: packages/app/tests/e2e/artifacts/*
+      
+  publish:
+    name: Publish Allure link to GIT
+    runs-on: ubuntu-latest
+    needs: e2e
+    if: always()
+    steps:
+      - name: Prepare a link
+        run: |
+          echo "BASE64_SEARCH_REQUEST=$(echo '${{ env.ALLURE_SEARCH_REQUEST }}' | base64)" >> $GITHUB_ENV
+
+      - name: Publish Allure link to GIT Summary
+        run: |
+          LINK="${{ vars.ALLURE_ENDPOINT }}project/${{ vars.ALLURE_PROJECT_ID }}/launches?search=${{ env.BASE64_SEARCH_REQUEST }}"
+          echo "Allure [e2e tests]($LINK) :rocket: in git run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
