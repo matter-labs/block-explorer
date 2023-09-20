@@ -24,7 +24,7 @@ RUN npm run build
 
 FROM base-stage AS production-stage
 
-COPY --chown=node:node --from=build-stage /usr/src/app/packages/api/dist ./dist
+COPY --chown=node:node --from=build-stage /usr/src/app/packages/api/dist ./packages/api/dist
 
 ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
@@ -39,4 +39,4 @@ EXPOSE $PORT $METRICS_PORT 9229 9230
 
 USER node
 
-CMD [ "node", "dist/main.js" ]
+CMD [ "node", "packages/api/dist/main.js" ]

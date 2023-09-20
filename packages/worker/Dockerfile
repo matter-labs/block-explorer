@@ -27,7 +27,7 @@ FROM base-stage AS production-stage
 # HEALTHCHECK --interval=30s --timeout=3s --retries=5 \
 #   CMD curl -f http://localhost:${PORT}/health || exit 1
 
-COPY --chown=node:node --from=build-stage /usr/src/app/packages/worker/dist ./dist
+COPY --chown=node:node --from=build-stage /usr/src/app/packages/worker/dist ./packages/worker/dist
 
 ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
@@ -39,4 +39,4 @@ EXPOSE $PORT 9229 9230
 
 USER node
 
-CMD [ "node", "dist/main.js" ]
+CMD [ "node", "packages/worker/dist/main.js" ]
