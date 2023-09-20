@@ -63,7 +63,7 @@ jobs:
   mainnet:
     needs: build
     name: Feature Env, Mainnet+
-    uses: ./.github/workflows/e2e.yml
+    uses: ./.github/workflows/app-e2e.yml
     secrets: inherit
     with:
       targetUrl: ${{ needs.build.outputs.dappUrl }}
