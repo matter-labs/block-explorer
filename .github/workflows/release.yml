@@ -122,13 +122,13 @@ jobs:
         uses: dsaltares/fetch-gh-release-asset@master
         with:
           version: "tags/v${{ needs.publish.outputs.releaseVersion }}"
-          file: "app-dist.zip"
-          target: "app-dist.zip"
+          file: "dist.zip"
+          target: "dist.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Unzip Dist package
         run: |
-          unzip app-dist.zip
+          unzip dist.zip
 
       - name: Update config
         run: |

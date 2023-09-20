@@ -35,7 +35,7 @@
       "@semantic-release/exec",
       {
         "prepareCmd": "VITE_VERSION=${nextRelease.version} npm run build",
-        "publishCmd": "zip -r app-dist.zip dist",
+        "publishCmd": "zip -r dist.zip dist",
         "execCwd": "packages/app"
       }
     ],
@@ -52,7 +52,7 @@
       {
         "assets": [
           {
-            "path": "app-dist.zip",
+            "path": "dist.zip",
             "label": "App dist package"
           },
           {
