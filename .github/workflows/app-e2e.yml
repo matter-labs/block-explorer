@@ -1,4 +1,4 @@
-name: Testing BlockExplorer App using e2e
+name: BE App E2E tests
 on:
   workflow_call:
     secrets:

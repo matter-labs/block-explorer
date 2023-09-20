@@ -1,0 +1,70 @@
+name: Deploy App to Preview
+"on":
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: "A release version to deploy, e.g. v2.0.0"
+        required: true
+        default: "v2.0.0"
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    outputs:
+      dappUrl: ${{ steps.deploy.outputs.details_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download Dist package
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          version: "tags/${{ github.event.inputs.version }}"
+          file: "app-dist.zip"
+          target: "app-dist.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Unzip Dist package
+        run: |
+          unzip app-dist.zip
+
+      - name: Download Storybook package
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          version: "tags/${{ github.event.inputs.version }}"
+          file: "storybook-static.zip"
+          target: "storybook-static.zip"
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Unzip Storybook package
+        run: |
+          unzip storybook-static.zip
+
+      - name: Deploy
+        id: deploy
+        uses: matter-labs/action-hosting-deploy@main
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCAN_V2 }}'
+          expires: 7d
+          projectId: scan-v2
+          channelID: ${{ github.event.inputs.version }}
+
+      - name: Output version url on success
+        run: |
+          run: |
+          echo "Block explorer app has been deployed to: ${{ steps.deploy.outputs.details_url }}"
+
+  mainnet:
+    needs: deploy
+    name: Staging Env, Mainnet+
+    uses: ./.github/workflows/app-e2e.yml
+    secrets: inherit
+    with:
+      targetUrl: ${{ needs.deploy.outputs.dappUrl }}
+      default_network_value_for_e2e: "/?network=mainnet"
+      publish_to_allure: true
+      environmentTags: "and not @featureEnv"
