@@ -52,11 +52,11 @@
       {
         "assets": [
           {
-            "path": "dist.zip",
+            "path": "packages/app/dist.zip",
             "label": "App dist package"
           },
           {
-            "path": "storybook-static.zip",
+            "path": "packages/app/storybook-static.zip",
             "label": "Storybook package"
           }
         ]
