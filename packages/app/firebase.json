@@ -2,7 +2,7 @@
   "hosting": [
     {
       "target": "web",
-      "public": "app-dist",
+      "public": "dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/*.map"],
       "rewrites": [
         {
