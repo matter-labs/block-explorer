@@ -9,7 +9,7 @@
     "test:unit:ci": "TZ=UTC-3 vitest --environment jsdom --run --reporter=verbose --reporter=junit --outputFile.junit=./junit.xml",
     "test:e2e": "cucumber-js -t \"not @testnet\"",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "build-storybook -s ./public",
     "postinstall": "rm -rf ./node_modules/@types/react && rm -rf ../../node_modules/@types/react"

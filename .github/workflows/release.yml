@@ -128,7 +128,7 @@ jobs:
 
       - name: Unzip Dist package
         run: |
-          unzip dist.zip
+          unzip dist.zip -d packages/app
 
       - name: Update config
         run: |
@@ -144,7 +144,7 @@ jobs:
 
       - name: Unzip Storybook package
         run: |
-          unzip storybook-static.zip
+          unzip storybook-static.zip -d packages/app
 
       - name: Deploy
         uses: matter-labs/action-hosting-deploy@main
@@ -154,3 +154,4 @@ jobs:
           firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING_SCAN_V2 }}"
           projectId: staging-scan-v2
           channelID: live
+          entryPoint: ./packages/app
