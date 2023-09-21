@@ -30,11 +30,12 @@ vi.mock("ohmyfetch", () => {
       Promise.resolve({
         items: [
           { ...baseTransferPayload, type: "transfer" },
+          { ...baseTransferPayload, token: null, type: "transfer" },
           { ...baseTransferPayload, type: "deposit" },
           { ...baseTransferPayload, type: "withdrawal" },
         ],
         meta: {
-          totalItems: 3,
+          totalItems: 4,
           page: 1,
           pageSize: 10,
           totalPages: 1,
@@ -73,10 +74,23 @@ describe("useTransfers:", () => {
     const composable = useTransfers(address);
     await composable.load(1);
     const transfers = composable.data.value;
-    expect(composable.data.value?.length).toBe(3);
+    expect(composable.data.value?.length).toBe(4);
     expect(transfers).toEqual([
       {
         ...baseTransferPayload,
+        type: "transfer",
+        fromNetwork: "L2",
+        toNetwork: "L2",
+      },
+      {
+        ...baseTransferPayload,
+        token: {
+          decimals: 0,
+          l1Address: null,
+          l2Address: "tokenAddress",
+          name: null,
+          symbol: null,
+        },
         type: "transfer",
         fromNetwork: "L2",
         toNetwork: "L2",
