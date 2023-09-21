@@ -87,6 +87,7 @@ describe("AddressView: ", () => {
         sealedNonce: 123,
         verifiedNonce: 123,
       }),
+      getContractProxyInfo: async () => null,
     });
     const wrapper = mount(AddressView, {
       props: {
@@ -119,6 +120,7 @@ describe("AddressView: ", () => {
       getByAddress(): Promise<void> {
         return Promise.resolve(undefined);
       },
+      getContractProxyInfo: async () => null,
     });
     const wrapper = mount(AddressView, {
       props: {
@@ -140,6 +142,7 @@ describe("AddressView: ", () => {
       isRequestFailed: ref(true),
       isRequestPending: ref(false),
       item: ref<AddressItem | null>(null),
+      getContractProxyInfo: async () => null,
     });
     const wrapper = mount(AddressView, {
       props: {

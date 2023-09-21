@@ -4,6 +4,7 @@ import { $fetch, FetchError } from "ohmyfetch";
 
 import useTransactionData, { decodeDataWithABI, type TransactionData } from "@/composables/useTransactionData";
 
+import ERC20ProxyVerificationInfo from "@/../mock/contracts/ERC20ProxyVerificationInfo.json";
 import ERC20VerificationInfo from "@/../mock/contracts/ERC20VerificationInfo.json";
 
 import type { AbiFragment } from "@/composables/useAddress";
@@ -17,6 +18,25 @@ vi.mock("ohmyfetch", () => {
         status: 404,
       };
     },
+  };
+});
+const getContractProxyInfoMock = vi.fn(() => {
+  return ERC20VerificationInfo
+    ? {
+        implementation: {
+          verificationInfo: {
+            artifacts: ERC20VerificationInfo.artifacts,
+          },
+        },
+      }
+    : null;
+});
+
+vi.mock("@/composables/useAddress", () => {
+  return {
+    default: () => ({
+      getContractProxyInfo: getContractProxyInfoMock,
+    }),
   };
 });
 
@@ -108,6 +128,38 @@ describe("useTransactionData:", () => {
     expect(decodingError.value).toEqual("");
     expect(data.value).toEqual({ ...transactionData, method: transactionDataDecodedMethod });
   });
+  it("sets error message when decoding failed for a proxy contract", async () => {
+    ($fetch as unknown as SpyInstance).mockResolvedValueOnce(ERC20ProxyVerificationInfo);
+    const getProxyInfoMock = getContractProxyInfoMock.mockResolvedValueOnce(null);
+    const { data, isDecodePending, decodingError, decodeTransactionData } = useTransactionData();
+    const dataWithNewAddress = {
+      ...transactionData,
+      contractAddress: "0x1235c03b2cf6ede46500e799de79A15dF44929eb" as Address,
+    };
+    await decodeTransactionData(dataWithNewAddress);
+    expect(isDecodePending.value).toEqual(false);
+    expect(decodingError.value).toEqual("data_decode_failed");
+    expect(data.value).toEqual({ ...transactionData, contractAddress: "0x1235c03b2cf6ede46500e799de79A15dF44929eb" });
+    getProxyInfoMock.mockRestore();
+  });
+  it("decodes data successfully for a proxy contract", async () => {
+    ($fetch as unknown as SpyInstance).mockResolvedValueOnce(ERC20ProxyVerificationInfo);
+    const mock = ($fetch as unknown as SpyInstance).mockResolvedValueOnce(ERC20VerificationInfo);
+    const { data, isDecodePending, decodingError, decodeTransactionData } = useTransactionData();
+    const dataWithNewAddress = {
+      ...transactionData,
+      contractAddress: "0x1235c03b2cf6ede46500e799de79A15dF44929eb" as Address,
+    };
+    await decodeTransactionData(dataWithNewAddress);
+    expect(isDecodePending.value).toEqual(false);
+    expect(decodingError.value).toEqual("");
+    expect(data.value).toEqual({
+      ...transactionData,
+      contractAddress: "0x1235c03b2cf6ede46500e799de79A15dF44929eb",
+      method: transactionDataDecodedMethod,
+    });
+    mock.mockRestore();
+  });
   it("returns data with no error for empty calldata", async () => {
     const { data, isDecodePending, decodingError, decodeTransactionData } = useTransactionData();
     await decodeTransactionData({ ...transactionData, calldata: "0x" });
@@ -115,7 +167,6 @@ describe("useTransactionData:", () => {
     expect(decodingError.value).toEqual("");
     expect(data.value).toEqual({ ...transactionData, calldata: "0x" });
   });
-
   describe("decodeDataWithABI", () => {
     it("decodes data", () => {
       const result = decodeDataWithABI(transactionData, ERC20VerificationInfo.artifacts.abi as AbiFragment[]);

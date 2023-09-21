@@ -141,9 +141,9 @@ export default (context = useContext()) => {
     return null;
   };
 
-  const getContractProxyInfo = async (contract: Api.Response.Contract) => {
+  const getContractProxyInfo = async (address: string) => {
     try {
-      const implementationAddress = await getProxyImplementation(contract.address);
+      const implementationAddress = await getProxyImplementation(address);
       if (!implementationAddress) {
         return null;
       }
@@ -172,7 +172,7 @@ export default (context = useContext()) => {
       } else if (response.type === "contract") {
         const [verificationInfo, proxyInfo] = await Promise.all([
           getContractVerificationInfo(response.address),
-          getContractProxyInfo(response),
+          getContractProxyInfo(response.address),
         ]);
         item.value = {
           ...response,
@@ -189,6 +189,7 @@ export default (context = useContext()) => {
   };
   return {
     getByAddress,
+    getContractProxyInfo,
     item,
     isRequestPending,
     isRequestFailed,
