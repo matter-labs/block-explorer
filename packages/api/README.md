@@ -28,16 +28,16 @@ You need to have a running Worker database, for instructions on how to run the w
 
 ```bash
 # development
-$ npm run start
+$ npm run dev
 
 # watch mode
-$ npm run start:dev
+$ npm run dev:watch
 
 # debug mode
-$ npm run start:debug
+$ npm run dev:debug
 
 # production mode
-$ npm run start:prod
+$ npm run start
 ```
 
 ## Test

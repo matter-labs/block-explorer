@@ -9,8 +9,11 @@
     "prepare": "husky install",
     "lint": "lerna run lint",
     "test": "lerna run test",
-    "test:unit:ci": "lerna run test:unit:ci",
-    "build": "lerna run build"
+    "test:ci": "lerna run test:ci",
+    "test:e2e": "lerna run test:e2e",
+    "dev": "lerna run dev",
+    "build": "lerna run build",
+    "start": "lerna run start"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",

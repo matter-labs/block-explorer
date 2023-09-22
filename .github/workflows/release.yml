@@ -34,7 +34,7 @@ jobs:
 
       - name: Test
         run: |
-          npm run test:unit:ci
+          npm run test:ci
 
       - name: App type check
         working-directory: ./packages/app

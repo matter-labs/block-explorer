@@ -4,7 +4,7 @@ services:
     build:
       context: .
       target: development-stage
-    command: npm run start:debug
+    command: npm run dev:debug
     environment:
       - PORT=3001
       - LOG_LEVEL=verbose

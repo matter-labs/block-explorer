@@ -29,16 +29,16 @@ You need to have a running Postgres server, set the following env variables to p
 
 ```bash
 # development
-$ npm run start
+$ npm run dev
 
 # watch mode
-$ npm run start:dev
+$ npm run dev:watch
 
 # debug mode
-$ npm run start:debug
+$ npm run dev:debug
 
 # production mode
-$ npm run start:prod
+$ npm run start
 ```
 
 ## Running the app in Docker
