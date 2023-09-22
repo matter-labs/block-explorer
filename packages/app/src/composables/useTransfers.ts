@@ -18,6 +18,13 @@ export default (address: ComputedRef<string>, context = useContext()) => {
       ),
     (transfer: Api.Response.Transfer): Transfer => ({
       ...transfer,
+      token: transfer.token || {
+        l2Address: transfer.tokenAddress,
+        l1Address: null,
+        name: null,
+        symbol: null,
+        decimals: 0,
+      },
       fromNetwork: transfer.type === "deposit" ? "L1" : "L2",
       toNetwork: transfer.type === "withdrawal" ? "L1" : "L2",
     })
