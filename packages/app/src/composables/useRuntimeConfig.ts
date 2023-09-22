@@ -28,10 +28,7 @@ export default (): {
 
   return {
     version: import.meta.env?.VITE_VERSION || "localhost",
-    sentryDSN:
-      runtimeConfig?.sentryDSN ||
-      import.meta.env?.VITE_SENTRY_DSN ||
-      "https://ce75ed993f964591901fbe0b7868aa50@o1242386.ingest.sentry.io/4504802315468800",
+    sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
     appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "local",
   };
 };
