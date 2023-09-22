@@ -47,7 +47,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-            VITE_SENTRY_DSN=https://ce75ed993f964591901fbe0b7868aa50@o1242386.ingest.sentry.io/4504802315468800 \
             VITE_APP_ENVIRONMENT=production \
               npx semantic-release
 
@@ -132,7 +131,7 @@ jobs:
 
       - name: Update config
         run: |
-          echo "window[\"##runtimeConfig\"] = { appEnvironment: \"staging\" };" > packages/app/dist/config.js
+          echo "window[\"##runtimeConfig\"] = { appEnvironment: \"staging\", sentryDSN: \"${{ vars.SENTRY_DSN }}\"  };" > packages/app/dist/config.js
 
       - name: Download Storybook package
         uses: dsaltares/fetch-gh-release-asset@master
