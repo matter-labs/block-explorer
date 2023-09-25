@@ -1,8 +1,10 @@
 # zkSync Era Block Explorer API
-## Description
+## Overview
 
 `zkSync Era Block Explorer API` is a block explorer API for zkSync Era blockchain.
 The service provides API for retrieving structured zkSync Era blockchain data. It must be connected to the [Block explorer Worker](https://github.com/matter-labs/block-explorer-worker) database.
+
+There are 2 sets of endpoints the service provides. All the endpoints under `/api/*` are designed for external direct usage. These endpoints are similar to [Etherscan API](https://docs.etherscan.io) endpoints. The development of these endpoints is in progress, so more of them will be added soon. The other set of endpoints (other than `/api/*`) is designed to be used by the front-end [App](/packages/app) only and is not meant to be used externally. Once all the new `/api/*` endpoints are developed all the other endpoints (other than `/api/*`) will be deprecated and removed.
 
 ## Installation
 
@@ -56,6 +58,9 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Docs
+Locally Swagger docs are available at http://localhost:3000/docs.
+
 ## Development
 
 ### Linter
@@ -87,3 +92,14 @@ artillery run ./performance/load-test.yaml -e testnet -o ./performance/29-06/tes
 ```
 
 for more command options check [official artillery docs](https://www.artillery.io/docs).
+
+
+## Environments
+
+### *Staging*
+ - [Testnet](https://staging-block-explorer-api.testnets.zksync.dev)
+ - [Mainnet](https://staging-block-explorer-api.mainnet.zksync.io)
+
+### *Production*
+ - [Testnet](https://block-explorer-api.testnets.zksync.dev)
+ - [Mainnet](https://block-explorer-api.mainnet.zksync.io)

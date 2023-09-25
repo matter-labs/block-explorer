@@ -40,6 +40,7 @@ describe("config", () => {
       swagger: {
         enabled: true,
       },
+      disableExternalAPI: false,
     });
   });
 

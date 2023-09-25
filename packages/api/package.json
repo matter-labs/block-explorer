@@ -1,12 +1,12 @@
 {
   "name": "api",
   "version": "0.0.0",
-  "title": "zkSync Block Explorer API",
-  "description": "zkSync Block Explorer API",
+  "title": "zkSync Era Block Explorer API",
+  "description": "zkSync Era Block Explorer API",
   "author": "Matter Labs",
   "private": true,
-  "license": "UNLICENSED",
-  "repository": "https://github.com/matter-labs/block-explorer-api",
+  "license": "MIT",
+  "repository": "https://github.com/matter-labs/block-explorer",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",

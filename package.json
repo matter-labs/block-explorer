@@ -1,6 +1,11 @@
 {
   "name": "block-explorer",
   "version": "1.0.0-development",
+  "title": "zkSync Era Block Explorer",
+  "description": "zkSync Era Block Explorer",
+  "author": "Matter Labs",
+  "license": "MIT",
+  "repository": "https://github.com/matter-labs/block-explorer",
   "private": true,
   "workspaces": [
     "packages/*"

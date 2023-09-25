@@ -10,6 +10,7 @@ export default () => {
     DATABASE_CONNECTION_POOL_SIZE,
     DATABASE_CONNECTION_IDLE_TIMEOUT_MS,
     DISABLE_API_SCHEMA_DOCS,
+    DISABLE_EXTERNAL_API,
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
   } = process.env;
@@ -75,6 +76,7 @@ export default () => {
     swagger: {
       enabled: DISABLE_API_SCHEMA_DOCS !== "true",
     },
+    disableExternalAPI: DISABLE_EXTERNAL_API === "true",
     contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL,
   };
 };
