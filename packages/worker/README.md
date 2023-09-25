@@ -41,13 +41,6 @@ $ npm run dev:debug
 $ npm run start
 ```
 
-## Running the app in Docker
-There is a docker compose configuration that allows you to run Block Explorer Worker and all its dependencies in docker. Just run the following command to spin up the whole environment:
-```
-docker-compose up
-```
-It will run local Ethereum node, ZkSync Era, Postgres DB and Block Explorer Worker.
-
 ## Test
 
 ```bash
@@ -91,6 +84,3 @@ npm run migration:create -name=UpdateTxsFee
 ```
 
 this command will simply create an empty migration where the custom migration logic can be added.
-
-### Conventional Commits
-We follow the Conventional Commits [specification](https://www.conventionalcommits.org/en/v1.0.0/#specification).

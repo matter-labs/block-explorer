@@ -71,9 +71,19 @@ For `production` mode run:
 $ npm run build
 $ npm run start
 ```
-To verify front-end `App` is running open http://localhost:3010 in your browser. `API` should be available at http://localhost:3000. `Worker` - http://localhost:3001.
 
 Each component can also be started individually. Follow individual packages `README` for details.
+
+## 🐳 Running in Docker
+There is a docker compose configuration that allows you to run Block Explorer and all its dependencies in docker. Just run the following command to spin up the whole environment:
+```
+docker-compose up
+```
+It will run local Ethereum node, ZkSync Era, Postgres DB and all Block Explorer services.
+
+## 🔍 Verify Block Explorer is up and running
+
+To verify front-end `App` is running open http://localhost:3010 in your browser. `API` should be available at http://localhost:3000. `Worker` - http://localhost:3001.
 
 ## 🕵️‍♂️ Testing
 Run unit tests for all packages:
