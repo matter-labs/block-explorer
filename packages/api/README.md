@@ -12,7 +12,7 @@ $ npm install
 
 ## Setting up env variables
 
-- Create `.env` file in the project root and copy paste `.env.example` content in there.
+- Create `.env` file in the `api` package folder and copy paste `.env.example` content in there.
 ```
 cp .env.example .env
 ```
