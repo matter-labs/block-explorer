@@ -11,7 +11,7 @@ $ npm install
 
 ## Setting up env variables
 
-- Create `.env` file in the project root and copy paste `.env.example` content in there.
+- Create `.env` file in the `worker` package folder and copy paste `.env.example` content in there.
 ```
 cp .env.example .env
 ```
