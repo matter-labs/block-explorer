@@ -87,6 +87,3 @@ artillery run ./performance/load-test.yaml -e testnet -o ./performance/29-06/tes
 ```
 
 for more command options check [official artillery docs](https://www.artillery.io/docs).
-
-### Conventional Commits
-We follow the Conventional Commits [specification](https://www.conventionalcommits.org/en/v1.0.0/#specification).
