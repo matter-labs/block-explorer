@@ -13,6 +13,11 @@ jobs:
     name: Run E2E tests
     timeout-minutes: 10
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
     defaults:
       run:
         working-directory: ./packages/api

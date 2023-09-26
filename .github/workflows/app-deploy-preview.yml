@@ -11,6 +11,8 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       dappUrl: ${{ steps.deploy.outputs.details_url }}
     steps:
@@ -64,6 +66,8 @@ jobs:
     name: Staging Env, Mainnet+
     uses: ./.github/workflows/app-e2e.yml
     secrets: inherit
+    permissions:
+      contents: read
     with:
       targetUrl: ${{ needs.deploy.outputs.dappUrl }}
       default_network_value_for_e2e: "/?network=mainnet"

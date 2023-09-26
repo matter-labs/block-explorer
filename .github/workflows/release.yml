@@ -10,6 +10,9 @@ jobs:
   createReleaseVersion:
     name: Create Release Version
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       releaseVersion: ${{ steps.release.outputs.releaseVersion }}
     steps:
@@ -53,6 +56,8 @@ jobs:
   deployBackendToStaging:
     name: Deploy Block Explorer backend to staging
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: createReleaseVersion
     if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
@@ -109,6 +114,8 @@ jobs:
   deployFrontendToStaging:
     name: Deploy Block Explorer frontend to staging
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: createReleaseVersion
     if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:

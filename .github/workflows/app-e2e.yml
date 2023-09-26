@@ -1,4 +1,5 @@
 name: BE App E2E tests
+
 on:
   workflow_call:
     secrets:
@@ -34,6 +35,8 @@ env:
 jobs:
   e2e:
     runs-on: [self-hosted, ci-runner]
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: ./packages/app
@@ -131,6 +134,8 @@ jobs:
   publish:
     name: Publish Allure link to GIT
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     needs: e2e
     if: always()
     steps:
