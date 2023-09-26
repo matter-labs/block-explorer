@@ -2,7 +2,7 @@
 ## Overview
 
 `zkSync Era Block Explorer API` is a block explorer API for zkSync Era blockchain.
-The service provides API for retrieving structured zkSync Era blockchain data. It must be connected to the [Block explorer Worker](https://github.com/matter-labs/block-explorer-worker) database.
+The service provides API for retrieving structured zkSync Era blockchain data. It must be connected to the [Block explorer Worker](/packages/worker) database.
 
 There are 2 sets of endpoints the service provides. All the endpoints under `/api/*` are designed for external direct usage. These endpoints are similar to [Etherscan API](https://docs.etherscan.io) endpoints. The development of these endpoints is in progress, so more of them will be added soon. The other set of endpoints (other than `/api/*`) is designed to be used by the front-end [App](/packages/app) only and is not meant to be used externally. Once all the new `/api/*` endpoints are developed all the other endpoints (other than `/api/*`) will be deprecated and removed.
 
@@ -19,7 +19,7 @@ $ npm install
 cp .env.example .env
 ```
 - Set up env variables for Worker Postgres database connection. By default it points to `postgres://postgres:postgres@localhost:5432/block-explorer`.
-You need to have a running Worker database, for instructions on how to run the worker service see [Block explorer Worker](https://github.com/matter-labs/block-explorer-worker). Set the following env variables to point the service to your worker database:
+You need to have a running Worker database, for instructions on how to run the worker service see [Block explorer Worker](/packages/worker). Set the following env variables to point the service to your worker database:
   - `DATABASE_URL`
   - `DATABASE_REPLICA_URL_<<replica_index>>`
   - `DATABASE_CONNECTION_IDLE_TIMEOUT_MS`
