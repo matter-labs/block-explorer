@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          DIRS=$(find -not \( -path \*node_modules -prune \) -type f -name yarn.lock  | xargs dirname | awk -v RS='' -v OFS='","' 'NF { $1 = $1; print "\"" $0 "\"" }')
+          DIRS=$(find -not \( -path \*node_modules -prune \) -type f -name package.json  | xargs dirname | awk -v RS='' -v OFS='","' 'NF { $1 = $1; print "\"" $0 "\"" }')
           echo "matrix=[${DIRS}]" >> $GITHUB_OUTPUT
         id: set-matrix
 
@@ -54,12 +54,11 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install yarn
-        run: npm install -g yarn license-checker
+      - name: Install license checker
+        run: npm install -g license-checker
 
-      - name: Install dependencies in ${{ matrix.dir }}
-        working-directory: ${{ matrix.dir }}
-        run: yarn install
+      - name: Install dependencies
+        run: npm ci
 
       - name: Check licenses in ${{ matrix.dir }}
         working-directory: ${{ matrix.dir }}
