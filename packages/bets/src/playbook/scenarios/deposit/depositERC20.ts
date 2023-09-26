@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger, Token, Wallets } from "../../../entities";
+import { Buffer, Logger, Wallets } from "../../../entities";
 import { Helper } from "../../../helper";
 
 const helper = new Helper();

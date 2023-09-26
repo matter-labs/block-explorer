@@ -3,7 +3,7 @@ import { setTimeout } from "timers/promises";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
-import { Logger, Token } from "../../src/entities";
+import { Logger } from "../../src/entities";
 import { Playbook } from "../../src/playbook/playbook";
 
 describe("NFTs", () => {
@@ -13,7 +13,6 @@ describe("NFTs", () => {
 
   describe("Deploy/check the NFT", () => {
     jest.setTimeout(localConfig.standardTimeout);
-    let deployedToken: string;
     const playbook = new Playbook();
 
     //@id672

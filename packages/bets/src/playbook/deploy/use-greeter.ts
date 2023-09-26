@@ -12,7 +12,7 @@ import type { HardhatRuntimeEnvironment } from "hardhat/types";
 export default async function (hre: HardhatRuntimeEnvironment) {
   const bufferRoute = "src/playbook/";
   const helper = new Helper();
-  let contract: any;
+  let contract: any; // eslint-disable-line
 
   const greeterContractAddress = await helper.getStringFromFile(bufferRoute + Buffer.greeterL2);
 

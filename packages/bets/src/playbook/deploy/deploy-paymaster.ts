@@ -4,7 +4,6 @@ import { promises as fs } from "fs";
 import { Wallet } from "zksync-web3";
 
 import { Buffer, Wallets } from "../../entities";
-import { Playbook } from "../playbook";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 

@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import { Provider, utils, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
-import { Buffer, Wallets } from "../../entities";
+import { Buffer } from "../../entities";
 import { Helper } from "../../helper";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
@@ -49,7 +49,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     },
   });
 
-  const fee = gasPrice.mul(gasLimit.toString());
+  gasPrice.mul(gasLimit.toString());
 
   const mintTx = await erc20.mint(emptyWallet.address, 90, {
     customData: {

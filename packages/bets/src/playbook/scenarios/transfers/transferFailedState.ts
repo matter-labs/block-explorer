@@ -2,10 +2,10 @@ import * as ethers from "ethers";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Logger, Wallets } from "../../../entities";
+import { Logger } from "../../../entities";
 import { Helper } from "../../../helper";
 
-export const transferFailedState = async function (tokenAddress: string, tokenName?: string, units = 18) {
+export const transferFailedState = async function (tokenAddress: string, tokenName?: string) {
   const helper = new Helper();
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);

@@ -1,4 +1,4 @@
-import { Buffer, Logger, Wallets } from "../../../entities";
+import { Buffer, Logger } from "../../../entities";
 import { Helper } from "../../../helper";
 
 let deployedContract: string;

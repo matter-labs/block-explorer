@@ -12,7 +12,6 @@ let url: string;
 let bufferFile;
 let contract: string;
 let element: Locator;
-let selector: string;
 
 //@id1658
 test("Check the L2 NFT contract address", async ({ page }) => {
@@ -25,7 +24,6 @@ test("Check the L2 NFT contract address", async ({ page }) => {
   await page.goto(targetUrl);
 
   element = await page.locator(`text=${contract}`).first();
-  const richWallet = await page.locator(`text=0x36615...c049`).first();
 
   await expect(element).toBeVisible(config.extraTimeout);
 });

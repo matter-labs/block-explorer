@@ -3,7 +3,6 @@ import { promises as fs } from "fs";
 
 import { Buffer } from "../../entities";
 import { Helper } from "../../helper";
-import displayVerificationInfo from "../utils/displayVerificationInfo";
 import getWallet from "../utils/getWallet";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
