@@ -18,24 +18,13 @@ There are many ways to contribute to the ZK Stack:
 
 ## Fixing issues
 
-To contribute code fixing issues, please fork the repo, fix an issue, commit, add documentation as per the PR template,
-and the repo's maintainers will review the PR.
-[here](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork)
-for guidance how to work with PRs created from a fork.
+To contribute code fixing issues, please clone the repo, fix an issue, commit, add documentation as per the PR template,
+and the repo's maintainers will review the PR. Please follow the Conventional Commits [specification](https://www.conventionalcommits.org/en/v1.0.0/#specification).
 
 ## Licenses
 
 If you contribute to this project, your contributions will be made to the project under both Apache 2.0 and the MIT
 license.
-
-## Resources
-
-We aim to make it as easy as possible to contribute to the mission. This is still WIP, and we're happy for contributions
-and suggestions here too. Some resources to help:
-
-1. [In-repo docs aimed at developers](docs)
-2. [zkSync Era docs!](https://era.zksync.io/docs/)
-3. Company links can be found in the [repo's readme](README.md)
 
 ## Code of Conduct
 

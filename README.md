@@ -59,9 +59,9 @@ Make sure you have set up all the necessary env variables. Follow [Setting up en
 
 ## 👨‍💻 Running locally
 
-Before running the solution, make sure you have a database server up and running and you have created a database.
+Before running the solution, make sure you have a database server up and running, you have created a database and set up all the required environment variables.
 
-To run all the components (`Worker`, `API` and front-end `App`) in `development` mode run the following command from the root directory.
+To run all the packages (`Worker`, `API` and front-end `App`) in `development` mode run the following command from the root directory.
 ```bash
 $ npm run dev
 ```
@@ -104,4 +104,15 @@ For more details on testing please check individual packages `README`.
 We follow the Conventional Commits [specification](https://www.conventionalcommits.org/en/v1.0.0/#specification).
 
 ## 📘 License
-MIT License.
+zkSync Era Block Explorer is distributed under the terms of either
+
+- Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+
+at your option.
+
+## 🔗 Production links
+- Testnet API: https://block-explorer-api.testnets.zksync.dev
+- Mainnet API: https://block-explorer-api.mainnet.zksync.io
+- Testnet App: https://goerli.explorer.zksync.io
+- Mainnet App: https://explorer.zksync.io

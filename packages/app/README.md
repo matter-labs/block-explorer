@@ -1,16 +1,6 @@
-# zksync-dapp-scan-v2
-
-This template should help get you started developing with Vue 3 in Vite.
-
-## Environments
-
-### *Staging*
- - [Web Application](https://staging-scan-v2.zksync.dev)
- - [Storybook](https://staging-storybook-scan-v2.zksync.dev)
-
-### *Production*
- - [Web Application](https://explorer.zksync.io)
- - [Storybook](https://storybook-scan-v2.zksync.dev)
+# zkSync Era Block Explorer App
+## Overview
+`zkSync Era Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [zkSync Era](https://zksync.io) blockchain.
 
 ## Recommended IDE Setup
 
@@ -27,14 +17,10 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
     2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
 2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
 
-## Customize configuration
+## Installation
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
+```bash
+$ npm install
 ```
 
 ### Environment configs
@@ -89,7 +75,6 @@ const config: EnvironmentConfig = {
 export default config;
 ```
 
-
 ### Compile and Hot-Reload for Development
 
 ```sh
@@ -119,3 +104,13 @@ npm run test:e2e
 ```sh
 npm run lint
 ```
+
+## Environments
+
+### *Staging*
+ - [Web Application](https://staging-scan-v2.zksync.dev)
+ - [Storybook](https://staging-storybook-scan-v2.zksync.dev)
+
+### *Production*
+ - [Web Application](https://explorer.zksync.io)
+ - [Storybook](https://storybook-scan-v2.zksync.dev)

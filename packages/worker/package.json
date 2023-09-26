@@ -1,11 +1,11 @@
 {
   "name": "worker",
   "version": "0.0.0",
-  "title": "zkSync Block Explorer Worker",
-  "description": "zkSync Block Explorer Worker",
+  "title": "zkSync Era Block Explorer Worker",
+  "description": "zkSync Era Block Explorer Worker",
   "author": "Matter Labs",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": "https://github.com/matter-labs/block-explorer",
   "scripts": {
     "prebuild": "rimraf dist",

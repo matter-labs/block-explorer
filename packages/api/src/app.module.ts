@@ -21,6 +21,9 @@ import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
 import config from "./config";
 
+// TMP: disable external API until release
+const { disableExternalAPI } = config();
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [config] }),
@@ -30,10 +33,8 @@ import config from "./config";
       inject: [ConfigService],
     }),
     ApiModule,
-    ApiBlockModule,
-    ApiAccountModule,
     ApiContractModule,
-    ApiTransactionModule,
+    ...(disableExternalAPI ? [] : [ApiBlockModule, ApiAccountModule, ApiTransactionModule]),
     TokenModule,
     AddressModule,
     BalanceModule,
