@@ -105,12 +105,6 @@ npm run test:e2e
 npm run lint
 ```
 
-## Environments
-
-### *Staging*
- - [Web Application](https://staging-scan-v2.zksync.dev)
- - [Storybook](https://staging-storybook-scan-v2.zksync.dev)
-
-### *Production*
+## Production links
  - [Web Application](https://explorer.zksync.io)
  - [Storybook](https://storybook-scan-v2.zksync.dev)

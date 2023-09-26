@@ -8,24 +8,12 @@ config:
       arrivalCount: 100
 
   environments:
-    stage:
-      target: "https://staging-block-explorer-api.stage.zksync.dev"
-    testnet-prod:
-      target: "https://block-explorer-api.testnets.zksync.dev"
+    local:
+      target: "http://localhost:3000"
       variables:
         addresses:
           - ["0x0000000000000000000000000000000000008001"]
-          - ["0x8E113670acAB84C88508D7Fc47d93F3AC4ecFA69"]
-    testnet:
-      target: "https://staging-block-explorer-api.testnets.zksync.dev"
-      variables:
-        addresses:
-          - ["0x0000000000000000000000000000000000008001"]
-          - ["0x8E113670acAB84C88508D7Fc47d93F3AC4ecFA69"]
-    mainnet:
-      target: "https://staging-block-explorer-api.mainnet.zksync.io"
-    mainnet-prod:
-      target: "https://block-explorer-api.mainnet.zksync.io"
+          - ["0x000000000000000000000000000000000000800A"]
   plugins:
     metrics-by-endpoint:
       useOnlyRequestNames: true

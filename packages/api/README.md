@@ -78,11 +78,7 @@ artillery run ./performance/load-test.yaml -e <name of the environment>
 ```
 
 supported environments:
-* stage
-* testnet
-* testnet-prod
-* mainnet
-* mainnet-prod
+* local
 
 Feel free to add other API requests to the config if anything is missing. Keep in mind that performance tests may affect the running environment or/and any of its dependencies.
 
@@ -94,12 +90,6 @@ artillery run ./performance/load-test.yaml -e testnet -o ./performance/29-06/tes
 for more command options check [official artillery docs](https://www.artillery.io/docs).
 
 
-## Environments
-
-### *Staging*
- - [Testnet](https://staging-block-explorer-api.testnets.zksync.dev)
- - [Mainnet](https://staging-block-explorer-api.mainnet.zksync.io)
-
-### *Production*
+## Production links
  - [Testnet](https://block-explorer-api.testnets.zksync.dev)
  - [Mainnet](https://block-explorer-api.mainnet.zksync.io)

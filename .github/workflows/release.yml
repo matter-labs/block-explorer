@@ -55,7 +55,7 @@ jobs:
 
   deployBackendToStaging:
     name: Deploy Block Explorer backend to staging
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, default]
     permissions:
       contents: read
     needs: createReleaseVersion
