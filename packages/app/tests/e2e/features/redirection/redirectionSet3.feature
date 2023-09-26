@@ -41,7 +41,7 @@ Feature: Redirection
 #    Given Page with part address "/block/" includes ID result
 
   #369 Contract page - Pages - Redirection
-  @id369 @testnet @testnetSmokeSuite
+  @id369 @testnet
   Scenario: Verify contract link on the Contacts page
     Given I go to page "/address/0x0BfcE1D53451B4a8175DD94e6e029F7d8a701e9c"
     When I click on the first "from address" link
