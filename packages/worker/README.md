@@ -1,7 +1,7 @@
 # zkSync Era Block Explorer Worker
 ## Overview
 
-`zkSync Era Block Explorer Worker` is an indexer service for zkSync Era blockchain data. The purpose of the service is to read the data from the blockchain in real time, transform it and fill in it's database with the data in a way that makes it easy to read by the [Block explorer API](https://github.com/matter-labs/block-explorer-api).
+`zkSync Era Block Explorer Worker` is an indexer service for zkSync Era blockchain data. The purpose of the service is to read the data from the blockchain in real time, transform it and fill in it's database with the data in a way that makes it easy to read by the [Block explorer API](/packages/api).
 
 ## Installation
 
