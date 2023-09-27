@@ -1,0 +1,37 @@
+# Buffer files
+*.txt
+
+# Logs
+logs
+*.log
+npm-debug.log*
+test-results
+
+node_modules
+.DS_Store
+dist
+dist-ssr
+*.local
+
+#sub-modules
+repos/block-explorer-api
+repos/block-explorer-worker
+
+
+#SDK traces
+artifacts-zk
+cache-zk
+artifacts
+cache
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+junit.xml
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+/.nuxt/
