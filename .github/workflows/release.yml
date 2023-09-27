@@ -55,7 +55,7 @@ jobs:
 
   deployBackendToStaging:
     name: Deploy Block Explorer backend to staging
-    runs-on: [self-hosted, default]
+    runs-on: [self-hosted, ci-runner]
     permissions:
       contents: read
     needs: createReleaseVersion
