@@ -6,7 +6,7 @@ import { fireEvent, render, waitFor } from "@testing-library/vue";
 
 import Navigation from "@/components/debugger/Navigation.vue";
 
-import testId from "./../../e2e/testId.json";
+import testId from "./../../testId.json";
 import enUS from "@/locales/en.json";
 
 import $testId from "@/plugins/testId";

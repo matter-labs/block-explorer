@@ -12,7 +12,7 @@ import { useContextMock, useTransfersMock } from "./../../mocks";
 import Table from "@/components/transfers/Table.vue";
 
 import enUS from "@/locales/en.json";
-import elements from "tests/e2e/testId.json";
+import elements from "tests/testId.json";
 
 import $testId from "@/plugins/testId";
 import { ETH_TOKEN } from "@/utils/constants";
