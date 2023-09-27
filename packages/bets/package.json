@@ -4,7 +4,7 @@
   "description": "The test solution for transaction processing`",
   "scripts": {
     "postinstall": "cd src/playbook && npm install",
-    "test": "jest --verbose --testPathPattern=tokens.test.ts",
+    "test": "jest --verbose --testPathPattern=withdrawal.test.ts",
     "test:e2e": "npx playwright test",
     "dev:be": "docker-compose -f docker-compose.yaml up\n",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore --ignore-pattern 'repos' --ignore-pattern 'git add .'"

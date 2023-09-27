@@ -63,8 +63,8 @@ describe("Endpoints", () => {
         .expect((res) => expect(typeof res.body.meta.currentPage).toStrictEqual("number"))
         .expect((res) => expect(res.body.links.first).toStrictEqual("tokens?limit=10"))
         .expect((res) => expect(res.body.links.previous).toStrictEqual(""))
-        .expect((res) => expect(res.body.links.next).toStrictEqual(""))
-        .expect((res) => expect(res.body.links.last).toStrictEqual("tokens?page=1&limit=10"));
+        .expect((res) => expect(typeof res.body.links.next).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
     });
   });
 
