@@ -46,13 +46,13 @@ services:
       target: development-stage
     command: npm run --prefix packages/api dev:debug
     environment:
-      - PORT=3000
+      - PORT=3020
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
       - NODE_ENV=development
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
     ports:
-      - '3000:3000'
+      - '3020:3020'
       - '3005:3005'
       - '9231:9229'
       - '9232:9230'

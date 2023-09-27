@@ -29,7 +29,7 @@ COPY --chown=node:node --from=build-stage /usr/src/app/packages/api/dist ./packa
 ARG NODE_ENV=production
 ENV NODE_ENV $NODE_ENV
 
-ARG PORT=3000
+ARG PORT=3020
 ENV PORT $PORT
 
 ARG METRICS_PORT=3005

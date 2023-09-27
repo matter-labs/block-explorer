@@ -83,7 +83,7 @@ It will run local Ethereum node, ZkSync Era, Postgres DB and all Block Explorer 
 
 ## 🔍 Verify Block Explorer is up and running
 
-To verify front-end `App` is running open http://localhost:3010 in your browser. `API` should be available at http://localhost:3000. `Worker` - http://localhost:3001.
+To verify front-end `App` is running open http://localhost:3010 in your browser. `API` should be available at http://localhost:3020. `Worker` - http://localhost:3001.
 
 ## 🕵️‍♂️ Testing
 Run unit tests for all packages:

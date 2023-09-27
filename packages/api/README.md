@@ -59,7 +59,7 @@ $ npm run test:cov
 ```
 
 ## Docs
-Locally Swagger docs are available at http://localhost:3000/docs. JSON version - http://localhost:3000/docs-json.
+Locally Swagger docs are available at http://localhost:3020/docs. JSON version - http://localhost:3020/docs-json.
 
 ## Development
 

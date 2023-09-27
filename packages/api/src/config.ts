@@ -67,7 +67,7 @@ export default () => {
 
   return {
     NODE_ENV,
-    port: parseInt(PORT, 10) || 3000,
+    port: parseInt(PORT, 10) || 3020,
     metrics: {
       port: parseInt(METRICS_PORT, 10) || 3005,
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,

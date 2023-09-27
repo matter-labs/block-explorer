@@ -13,7 +13,7 @@ describe("config", () => {
 
   it("sets default values", () => {
     expect(config()).toEqual({
-      port: 3000,
+      port: 3001,
       blockchain: {
         rpcCallDefaultRetryTimeout: 30000,
         rpcCallQuickRetryTimeout: 500,
