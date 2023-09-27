@@ -8,7 +8,8 @@
   "repository": "https://github.com/matter-labs/block-explorer",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "integrationTests"
   ],
   "scripts": {
     "prepare": "husky install",
@@ -16,6 +17,7 @@
     "test": "lerna run test",
     "test:ci": "lerna run test:ci",
     "test:e2e": "lerna run test:e2e",
+    "test:sdk-ui": "lerna run test:sdk-ui",
     "dev": "lerna run dev",
     "build": "lerna run build",
     "start": "lerna run start",
