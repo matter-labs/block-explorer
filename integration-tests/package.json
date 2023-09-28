@@ -1,5 +1,5 @@
 {
-  "name": "integration_tests",
+  "name": "integration-tests",
   "version": "1.0.0",
   "description": "The test solution for transaction processing`",
   "scripts": {
