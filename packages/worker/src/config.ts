@@ -24,7 +24,7 @@ export default () => {
   } = process.env;
 
   return {
-    port: parseInt(PORT, 10) || 3000,
+    port: parseInt(PORT, 10) || 3001,
     blockchain: {
       rpcUrl: BLOCKCHAIN_RPC_URL,
       rpcCallDefaultRetryTimeout: parseInt(RPC_CALLS_DEFAULT_RETRY_TIMEOUT, 10) || 30000,

@@ -1,5 +1,5 @@
 config:
-  target: "http://127.0.0.1:3000"
+  target: "http://127.0.0.1:3020"
   http:
     timeout: 100
     extendedMetrics: true
@@ -9,7 +9,7 @@ config:
 
   environments:
     local:
-      target: "http://localhost:3000"
+      target: "http://localhost:3020"
   plugins:
     metrics-by-endpoint:
       useOnlyRequestNames: true

@@ -17,7 +17,7 @@ describe("config", () => {
   it("sets default values", () => {
     expect(config()).toEqual({
       NODE_ENV: "test",
-      port: 3000,
+      port: 3020,
       metrics: {
         port: 3005,
         collectDbConnectionPoolMetricsInterval: 10000,

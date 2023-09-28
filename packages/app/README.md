@@ -40,7 +40,7 @@ import type { EnvironmentConfig } from ".";
 const config: EnvironmentConfig = {
   networks: [
     {
-      apiURLv2: "http://localhost:3000",
+      apiURLv2: "http://localhost:3020",
       apiUrl: "https://zksync2-testnet-explorer.zksync.dev",
       hostnames: ["localhost"],
       icon: "/images/icons/zksync-arrows.svg",
