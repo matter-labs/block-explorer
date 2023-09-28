@@ -33,6 +33,19 @@ key-words from "it" to "fit" (for the test) and "describe" to "fdescribe" for su
 If you want to exclude some test/suites, there needs change keywords "it" to "xit" and/or
 "describe" to "xdescribe"
 
+The test solution contains two main folders: [src](./src) and [tests](./tests).
+[src](./src) folder contains: 
+- essential [scenarios](./src/playbook/scenarios/)
+- predefined [entities](./src/entities.ts) and [config](./src/config.ts) config files
+- [contracts](./src/playbook/contracts/) folder with a set of contracts
+- [deploy](./src/playbook/deploy/) folder with a set of deploy scripts
+- [buffer](./src/playbook/buffer/) folder as a temporary storage of transaction hashes and addresses 
+- [utils](./src/playbook/utils/) folder with utils scripts
+
+[tests](./tests) folder contains sets of:
+- [sdk-api](./tests/sdk-api/) endpoints tests, that cover an essential part of [worker](../packages/worker/) and [api](../packages/api/) functionality
+- [sdk-ui](./tests/sdk-ui/) UI tests. that cover an essential part of [BE UI](../packages/app/) functionality
+
 
 The presented logic/code (/utils, /deploy, /contracts) of custom ERC20 token deployment has been taking from
 JackHamer09/zkSync-2.0-Hardhat-example repository.  
