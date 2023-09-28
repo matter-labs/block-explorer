@@ -1,8 +1,8 @@
 import type { NetworkConfig } from "@/configs";
 
 export const DEFAULT_NETWORK: NetworkConfig = {
-  apiURLv2: "https://block-explorer-api.testnets.zksync.dev",
-  apiUrl: "https://zksync2-testnet-explorer.zksync.dev",
+  apiUrl: "https://block-explorer-api.testnets.zksync.dev",
+  verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   bridgeUrl: "https://goerli.bridge.zksync.io",
   hostnames: ["https://goerli.explorer.zksync.io"],
   icon: "/images/icons/zksync-arrows.svg",

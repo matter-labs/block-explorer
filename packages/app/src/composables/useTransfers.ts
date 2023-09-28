@@ -14,7 +14,7 @@ export default (address: ComputedRef<string>, context = useContext()) => {
     () =>
       new URL(
         `/address/${address.value}/transfers?toDate=${new Date().toISOString()}`,
-        context.currentNetwork.value.apiURLv2
+        context.currentNetwork.value.apiUrl
       ),
     (transfer: Api.Response.Transfer): Transfer => ({
       ...transfer,

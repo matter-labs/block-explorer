@@ -12,7 +12,7 @@ import { checksumAddress } from "@/utils/formatters";
 
 const retrieveAddressInfo = useMemoize(
   async (address: Address, context: Context = useContext()) => {
-    return await $fetch(`${context.currentNetwork.value.apiUrl}/contract_verification/info/${address}`);
+    return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
   },
   {
     getKey(address: Address, context: Context = useContext()) {

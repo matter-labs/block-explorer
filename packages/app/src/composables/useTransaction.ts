@@ -144,11 +144,11 @@ export default (context = useContext()) => {
 
     try {
       const [txResponse, txTransfers, txLogs] = await Promise.all([
-        $fetch<Api.Response.Transaction>(`${context.currentNetwork.value.apiURLv2}/transactions/${hash}`),
+        $fetch<Api.Response.Transaction>(`${context.currentNetwork.value.apiUrl}/transactions/${hash}`),
         all<Api.Response.Transfer>(
-          new URL(`${context.currentNetwork.value.apiURLv2}/transactions/${hash}/transfers?limit=100`)
+          new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/transfers?limit=100`)
         ),
-        all<Api.Response.Log>(new URL(`${context.currentNetwork.value.apiURLv2}/transactions/${hash}/logs?limit=100`)),
+        all<Api.Response.Log>(new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/logs?limit=100`)),
       ]);
       transaction.value = mapTransaction(txResponse, txTransfers, txLogs);
     } catch (error) {

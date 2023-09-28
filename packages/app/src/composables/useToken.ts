@@ -27,7 +27,7 @@ export const retrieveToken = useMemoize(
     if (tokenAddress === ETH_TOKEN.l2Address) {
       return Promise.resolve(ETH_TOKEN);
     }
-    return $fetch(`${context.currentNetwork.value.apiURLv2}/tokens/${tokenAddress}`);
+    return $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`);
   },
   {
     getKey(tokenAddress: Hash, context: Context = useContext()) {

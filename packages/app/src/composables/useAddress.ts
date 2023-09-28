@@ -94,7 +94,7 @@ export default (context = useContext()) => {
 
   const getContractVerificationInfo = async (address: string): Promise<ContractVerificationInfo | null> => {
     try {
-      return await $fetch(`${context.currentNetwork.value.apiUrl}/contract_verification/info/${address}`);
+      return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
     } catch (e) {
       if (!(e instanceof FetchError) || e.response?.status !== 404) {
         throw e;
@@ -165,7 +165,7 @@ export default (context = useContext()) => {
 
     try {
       const response: Api.Response.Account | Api.Response.Contract = await $fetch(
-        `${context.currentNetwork.value.apiURLv2}/address/${address}`
+        `${context.currentNetwork.value.apiUrl}/address/${address}`
       );
       if (response.type === "account") {
         item.value = response;

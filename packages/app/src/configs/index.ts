@@ -1,8 +1,8 @@
 export type NetworkConfig = {
   name: string;
   icon: string;
+  verificationApiUrl: string;
   apiUrl: string;
-  apiURLv2: string;
   newProverUrl: string;
   rpcUrl: string;
   bridgeUrl?: string;

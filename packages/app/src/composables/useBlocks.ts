@@ -5,6 +5,6 @@ import type { BlockListItem } from "@/composables/useBlock";
 
 export default (context = useContext()) => {
   return useFetchCollection<BlockListItem>(
-    new URL(`/blocks?toDate=${new Date().toISOString()}`, context.currentNetwork.value.apiURLv2)
+    new URL(`/blocks?toDate=${new Date().toISOString()}`, context.currentNetwork.value.apiUrl)
   );
 };

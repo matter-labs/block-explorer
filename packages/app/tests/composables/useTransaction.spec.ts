@@ -531,7 +531,7 @@ describe("useTransaction:", () => {
           currentNetwork: {
             value: {
               newProverUrl: "http://prover.url",
-              apiURLv2: "http://api.url",
+              apiUrl: "http://api.url",
             },
           },
           getL2Provider: vi.fn().mockReturnValue(provider),

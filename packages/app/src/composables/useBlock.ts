@@ -56,7 +56,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const data = await $fetch(`${context.currentNetwork.value.apiURLv2}/blocks/${id}`);
+      const data = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
       if (data.l1BatchNumber && data.proveTxHash) {
         const proof = await getBatchNewProof(data.l1BatchNumber);
         data.isProvenByNewProver = !!proof;
