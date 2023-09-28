@@ -3,8 +3,8 @@ import type { EnvironmentConfig } from ".";
 const config: EnvironmentConfig = {
   networks: [
     {
-      apiURLv2: "https://block-explorer-api.testnets.zksync.dev",
-      apiUrl: "https://zksync2-testnet-explorer.zksync.dev",
+      apiUrl: "https://block-explorer-api.testnets.zksync.dev",
+      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
       bridgeUrl: "https://goerli.bridge.zksync.io",
       hostnames: ["https://goerli.explorer.zksync.io"],
       icon: "/images/icons/zksync-arrows.svg",
@@ -19,8 +19,8 @@ const config: EnvironmentConfig = {
       rpcUrl: "https://testnet.era.zksync.dev",
     },
     {
-      apiURLv2: "https://block-explorer-api.mainnet.zksync.io",
-      apiUrl: "https://zksync2-mainnet-explorer.zksync.io",
+      apiUrl: "https://block-explorer-api.mainnet.zksync.io",
+      verificationApiUrl: "https://zksync2-mainnet-explorer.zksync.io",
       bridgeUrl: "https://bridge.zksync.io",
       hostnames: ["https://explorer.zksync.io"],
       icon: "/images/icons/zksync-arrows.svg",

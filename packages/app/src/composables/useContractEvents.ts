@@ -41,7 +41,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const url = new URL(`/address/${params.contractAddress}/logs`, context.currentNetwork.value.apiURLv2);
+      const url = new URL(`/address/${params.contractAddress}/logs`, context.currentNetwork.value.apiUrl);
       if (params.toDate && +new Date(params.toDate) > 0) {
         url.searchParams.set("toDate", params.toDate.toISOString());
       }

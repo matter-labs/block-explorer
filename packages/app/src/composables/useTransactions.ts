@@ -19,6 +19,6 @@ export default (searchParams: ComputedRef<TransactionSearchParams>, context = us
         .filter(([, value]) => !!value || value === 0)
         .map(([key, value]) => [key, value.toString()])
     );
-    return new URL(`/transactions?${new URLSearchParams(requestParams)}`, context.currentNetwork.value.apiURLv2);
+    return new URL(`/transactions?${new URLSearchParams(requestParams)}`, context.currentNetwork.value.apiUrl);
   });
 };

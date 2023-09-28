@@ -40,7 +40,7 @@ export default (context = useContext()) => {
           if (!item.isValid) {
             continue;
           }
-          await $fetch(`${context.currentNetwork.value.apiURLv2}/${item.apiRoute}/${param}`);
+          await $fetch(`${context.currentNetwork.value.apiUrl}/${item.apiRoute}/${param}`);
 
           await router.push({ name: item.routeName, params: item.routeParam });
           return;

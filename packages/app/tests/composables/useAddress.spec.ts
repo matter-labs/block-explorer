@@ -47,7 +47,7 @@ const mockGetStorageAt = vi.fn().mockResolvedValue("0x00000000000000000000000000
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
-      currentNetwork: computed(() => ({ apiUrl: "http://api.url", apiURLv2: "http://api2.url" })),
+      currentNetwork: computed(() => ({ verificationApiUrl: "http://verification.url", apiUrl: "http://api2.url" })),
       getL2Provider: vi.fn().mockReturnValue({
         getStorageAt: (slot: string) => mockGetStorageAt(slot),
       }),
@@ -95,10 +95,10 @@ describe("useAddresses", () => {
       const { item, getByAddress } = useAddress();
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
       expect($fetch).toBeCalledWith(
-        "http://api.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c"
+        "http://verification.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c"
       );
       expect($fetch).toBeCalledWith(
-        "http://api.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10"
+        "http://verification.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10"
       );
       expect(item.value).toEqual({
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",

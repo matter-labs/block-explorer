@@ -26,7 +26,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const batch = await $fetch(`${context.currentNetwork.value.apiURLv2}/batches/${id}`);
+      const batch = await $fetch(`${context.currentNetwork.value.apiUrl}/batches/${id}`);
       if (batch.proveTxHash) {
         const proof = await getBatchNewProof(id);
         batch.isProvenByNewProver = !!proof;

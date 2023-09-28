@@ -3,8 +3,8 @@ import type { EnvironmentConfig } from ".";
 const config: EnvironmentConfig = {
   networks: [
     {
-      apiURLv2: "https://block-explorer-api.testnets.zksync.dev",
-      apiUrl: "https://zksync2-testnet-explorer.zksync.dev",
+      apiUrl: "https://block-explorer-api.testnets.zksync.dev",
+      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
       bridgeUrl: "https://staging.goerli.bridge.zksync.dev",
       hostnames: ["https://goerli.staging-scan-v2.zksync.dev"],
       icon: "/images/icons/zksync-arrows.svg",
@@ -19,8 +19,8 @@ const config: EnvironmentConfig = {
       rpcUrl: "https://testnet.era.zksync.dev",
     },
     {
-      apiURLv2: "https://block-explorer-api.stage.zksync.dev",
-      apiUrl: "https://z2-dev-api-explorer.zksync.dev",
+      apiUrl: "https://block-explorer-api.stage.zksync.dev",
+      verificationApiUrl: "https://z2-dev-api-explorer.zksync.dev",
       hostnames: ["https://goerli-beta.staging-scan-v2.zksync.dev"],
       icon: "/images/icons/zksync-arrows.svg",
       l1ExplorerUrl: "https://goerli.etherscan.io",
@@ -34,8 +34,8 @@ const config: EnvironmentConfig = {
       rpcUrl: "https://z2-dev-api.zksync.dev",
     },
     {
-      apiURLv2: "https://block-explorer-api.mainnet.zksync.io",
-      apiUrl: "https://zksync2-mainnet-explorer.zksync.io",
+      apiUrl: "https://block-explorer-api.mainnet.zksync.io",
+      verificationApiUrl: "https://zksync2-mainnet-explorer.zksync.io",
       bridgeUrl: "https://staging.bridge.zksync.dev",
       hostnames: ["https://staging-scan-v2.zksync.dev"],
       icon: "/images/icons/zksync-arrows.svg",

@@ -22,8 +22,8 @@ import type { Provider } from "zksync-web3";
 
 export const GOERLI_NETWORK: NetworkConfig = {
   name: "goerli",
-  apiUrl: "",
-  apiURLv2: "https://block-explorer-api.testnets.zksync.dev",
+  verificationApiUrl: "",
+  apiUrl: "https://block-explorer-api.testnets.zksync.dev",
   icon: "",
   l2ChainId: 280,
   rpcUrl: "",
@@ -37,8 +37,8 @@ export const GOERLI_NETWORK: NetworkConfig = {
 };
 export const GOERLI_BETA_NETWORK: NetworkConfig = {
   name: "goerli-beta",
-  apiUrl: "",
-  apiURLv2: "https://block-explorer-api.mock.zksync.dev",
+  verificationApiUrl: "",
+  apiUrl: "https://block-explorer-api.mock.zksync.dev",
   icon: "",
   l2ChainId: 270,
   rpcUrl: "",

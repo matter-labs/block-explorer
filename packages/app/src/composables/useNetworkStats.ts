@@ -10,5 +10,5 @@ export interface NetworkStats {
 }
 
 export default (context = useContext()) => {
-  return useFetch<NetworkStats>(() => new URL(`${context.currentNetwork.value.apiURLv2}/stats`));
+  return useFetch<NetworkStats>(() => new URL(`${context.currentNetwork.value.apiUrl}/stats`));
 };

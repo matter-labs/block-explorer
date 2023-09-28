@@ -146,7 +146,7 @@ export class BasePage {
     //Debug on @id367
 
     if (slug_element === "from-address" || slug_element === "to-address") {
-      return await this.getNetworkLayer(slug_element, "byTestID"); //changed in uexp-3170-transactions
+      return await this.getNetworkLayer(slug_element, "byTestID");
     } else if (
       //hint: for these types we should hardcoded L1 layer
       //Debug on @id241

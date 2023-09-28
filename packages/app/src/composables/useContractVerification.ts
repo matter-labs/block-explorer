@@ -55,7 +55,7 @@ export default (context = useContext()) => {
     const response: {
       status: ContractVerificationStatus;
       error?: string;
-    } = await $fetch(`${context.currentNetwork.value.apiUrl}/contract_verification/${id}`);
+    } = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/${id}`);
     if (response.error) {
       throw new ContractVerificationError(response.error, response);
     }
@@ -88,7 +88,7 @@ export default (context = useContext()) => {
       ].includes(data.codeFormat);
 
       const { sourceCode, zkCompilerVersion, compilerVersion, ...payload } = data;
-      const response = await $fetch(`${context.currentNetwork.value.apiUrl}/contract_verification`, {
+      const response = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification`, {
         method: "POST",
         body: {
           ...payload,
@@ -135,7 +135,9 @@ export default (context = useContext()) => {
     compilerVersions.value[compiler].isRequestPending = true;
     compilerVersions.value[compiler].isRequestFailed = false;
     try {
-      const result = await $fetch(`${context.currentNetwork.value.apiUrl}/contract_verification/${compiler}_versions`);
+      const result = await $fetch(
+        `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
+      );
       compilerVersions.value[compiler].versions = result.sort((a: string, b: string) => {
         return b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" });
       });
