@@ -47,7 +47,7 @@ flowchart
 
 ## 📋 Prerequisites
 
-- Ensure you have `node >= 18.0.0` and `npm >= 9.0.0` installed. (lts version is preferable)
+- Ensure you have `node >= 18.0.0` and `npm >= 9.0.0` installed.
 
 ## 🛠 Installation
 

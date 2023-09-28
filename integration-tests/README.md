@@ -19,12 +19,19 @@ Before the test run, there needs to spin a local environment up:
 docker-compose -f docker-compose.yaml up
 ```
 
-## How to run tests
+## How to run sdk-api tests
 --
 all tests:
 
 ```bash
-npm run test 
+npm run test:sdk-api 
+```
+## How to run sdk-ui tests
+--
+all tests:
+
+```bash
+npm run test:sdk-ui 
 ```
 
 If there is a necessity to run the exact test or/and suite you need change 
