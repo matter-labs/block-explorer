@@ -19,19 +19,19 @@ Before the test run, there needs to spin a local environment up:
 docker-compose -f docker-compose.yaml up
 ```
 
-## How to run sdk-api tests
+## How to run api tests
 --
 all tests:
 
 ```bash
-npm run test:sdk-api 
+npm run test:api 
 ```
-## How to run sdk-ui tests
+## How to run ui tests
 --
 all tests:
 
 ```bash
-npm run test:sdk-ui 
+npm run test:ui 
 ```
 
 If there is a necessity to run the exact test or/and suite you need change 
@@ -50,8 +50,8 @@ The test solution contains two main folders: [src](./src) and [tests](./tests).
 - [utils](./src/playbook/utils/) folder with utils scripts
 
 [tests](./tests) folder contains sets of:
-- [sdk-api](./tests/sdk-api/) endpoints tests, that cover an essential part of [worker](../packages/worker/) and [api](../packages/api/) functionality
-- [sdk-ui](./tests/sdk-ui/) UI tests. that cover an essential part of [BE UI](../packages/app/) functionality
+- [api](./tests/api/) endpoints tests, that cover an essential part of [worker](../packages/worker/) and [api](../packages/api/) functionality
+- [ui](./tests/ui/) UI tests. that cover an essential part of [BE UI](../packages/app/) functionality
 
 
 The presented logic/code (/utils, /deploy, /contracts) of custom ERC20 token deployment has been taking from

@@ -1,8 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
-import { config } from "tests/sdk-ui/config";
+import { config } from "tests/ui/config";
 
 export default defineConfig({
-  testDir: "tests/sdk-ui",
+  testDir: "tests/ui",
   fullyParallel: true,
   projects: [
     {
