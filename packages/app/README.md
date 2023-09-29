@@ -93,6 +93,12 @@ npm run build
 npm run test
 ```
 
+### Run End-to-End Tests with [Playwright](https://www.playwright.io/)
+
+```sh
+npm run test:e2e
+```
+
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
