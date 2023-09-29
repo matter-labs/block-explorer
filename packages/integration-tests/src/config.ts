@@ -14,5 +14,5 @@ export const localConfig = {
 };
 
 export const environment = {
-  blockExplorerAPI: "http://localhost:3000",
+  blockExplorerAPI: "http://localhost:3020",
 };

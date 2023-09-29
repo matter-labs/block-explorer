@@ -1,4 +1,4 @@
-import elements from "../../tests/testId.json";
+import elements from "../../tests/e2e/testId.json";
 
 import type { App } from "vue";
 

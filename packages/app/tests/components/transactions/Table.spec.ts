@@ -11,7 +11,7 @@ import { useContextMock, useTransactionsMock } from "../../mocks";
 import Table from "@/components/transactions/Table.vue";
 
 import enUS from "@/locales/en.json";
-import elements from "tests/testId.json";
+import elements from "tests/e2e/testId.json";
 
 import type { AbiFragment } from "@/composables/useAddress";
 import type { TransactionListItem } from "@/composables/useTransactions";

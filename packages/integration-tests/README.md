@@ -14,9 +14,9 @@ npm install
 
 Pre-requisites: Docker Desktop should be installed
 
-Before the test run, there needs to spin a local environment up:
+Before the test run, there needs to spin a local environment up (use docker-compose.yaml from the root project):
 ```bash
-docker-compose -f docker-compose.yaml up
+docker-compose -f ../../docker-compose.yaml up
 ```
 
 ## How to run api tests
