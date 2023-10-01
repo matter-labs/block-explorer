@@ -96,7 +96,7 @@ docker-compose up
 It will run local Ethereum node, ZkSync Era, Postgres DB and all Block Explorer services.
 
 ## ⛓️ Connection to your Hyperchain
-To get block-explorer connected to your ZK Stack Hyperchain you need to set up all the the necessary environment and configuration files with your Hyperchain settings. You can use a script to build them. See [Setting up env variables](#setting-up-env-variables).
+To get block-explorer connected to your ZK Stack Hyperchain you need to set up all the the necessary environment and configuration files with your Hyperchain settings. You can use a script to build them. See [Setting up env variables](#%EF%B8%8F-setting-up-env-variables).
 
 ## 🔍 Verify Block Explorer is up and running
 
