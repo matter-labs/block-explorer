@@ -15,7 +15,7 @@ $ npm install
 ```
 cp .env.example .env
 ```
-- In order to tell the service where to get the blockchain data from set the value of the `BLOCKCHAIN_RPC_URL` env var to your blockchain RPC API URL. For zkSync Era testnet it can be set to `https://zksync2-testnet.zksync.dev`. For zkSync Era mainnet can be set to `https://zksync2-mainnet.zksync.io`.
+- In order to tell the service where to get the blockchain data from set the value of the `BLOCKCHAIN_RPC_URL` env var to your blockchain RPC API URL. For zkSync Era testnet it can be set to `https://zksync2-testnet.zksync.dev`. For zkSync Era mainnet - `https://zksync2-mainnet.zksync.io`.
 - Set up env variables for Postgres database connection. By default it points to `localhost:5432` and database name is `block-explorer`.
 You need to have a running Postgres server, set the following env variables to point the service to your database:
   - `DATABASE_HOST`
@@ -24,6 +24,11 @@ You need to have a running Postgres server, set the following env variables to p
   - `DATABASE_NAME`
   - `DATABASE_CONNECTION_IDLE_TIMEOUT_MS`
   - `DATABASE_CONNECTION_POOL_SIZE`
+
+The service doesn't create database automatically, you can create database by running the following command:
+```bash
+$ npm run db:create
+```
 
 ## Running the app
 

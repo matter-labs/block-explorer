@@ -18,15 +18,18 @@
     "test:e2e": "lerna run test:e2e",
     "dev": "lerna run dev",
     "build": "lerna run build",
-    "start": "lerna run start"
+    "start": "lerna run start",
+    "db:create": "lerna run db:create",
+    "db:drop": "lerna run db:drop",
+    "hyperchain:configure": "ts-node scripts/setup-hyperchain-config"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
     "@matterlabs/prettier-config": "^1.0.2",
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/exec": "^6.0.3",
     "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/exec": "^6.0.3",
     "@semantic-release/github": "^8.0.2",
     "@semantic-release/npm": "^9.0.0",
     "@semantic-release/release-notes-generator": "^10.0.3",
@@ -36,7 +39,10 @@
     "lerna": "^7.2.0",
     "prettier": "2.8.4",
     "semantic-release": "^21.1.1",
-    "typescript": "4.7.4"
+    "typescript": "4.7.4",
+    "enquirer": "2.3.6",
+    "dotenv": "16.1.4",
+    "pg-connection-string": "2.6.2"
   },
   "engines": {
     "npm": ">=9.0.0",
