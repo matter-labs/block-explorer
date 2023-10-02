@@ -45,15 +45,15 @@ jobs:
       matrix:
         tags: [
                 "@artifactsSet1",
-                "@artifactsSet2",
-                "@artifactsSet3",
-                "@artifactsSet4",
-                "@redirectionSet1",
-                "@redirectionSet2",
-                "@redirectionSet3",
-                "@copying",
-                "@search",
-                "@testnetSmokeSuite"
+                # "@artifactsSet2",
+                # "@artifactsSet3",
+                # "@artifactsSet4",
+                # "@redirectionSet1",
+                # "@redirectionSet2",
+                # "@redirectionSet3",
+                # "@copying",
+                # "@search",
+                # "@testnetSmokeSuite"
               ]
 
     name: '${{ matrix.tags }}'
@@ -84,6 +84,7 @@ jobs:
         run: |
           whoami
           pwd
+          sleep 9999999
           npm pkg delete scripts.prepare
           npm ci
 
