@@ -125,7 +125,7 @@ export class ContractController {
                 ? data.request.sourceCode
                 : `{${JSON.stringify(data.request.sourceCode)}}`,
             // remove leading 0x as Etherscan does
-            ConstructorArguments: data.request.constructorArguments?.startsWith("0x")
+            ConstructorArguments: data.request.constructorArguments.startsWith("0x")
               ? data.request.constructorArguments.substring(2)
               : data.request.constructorArguments,
             ContractName: data.request.contractName,

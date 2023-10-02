@@ -169,6 +169,37 @@ describe("ContractController", () => {
       );
     });
 
+    it("returns empty source code when response API fails with with no data", async () => {
+      pipeMock.mockImplementation((callback) => {
+        return callback({
+          stack: "error stack",
+        } as AxiosError);
+      });
+
+      const response = await controller.getContractSourceCode(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          {
+            ABI: "Contract source code not verified",
+            CompilerVersion: "",
+            ConstructorArguments: "",
+            ContractName: "",
+            EVMVersion: "Default",
+            Implementation: "",
+            Library: "",
+            LicenseType: "Unknown",
+            OptimizationUsed: "",
+            Proxy: "0",
+            Runs: "",
+            SourceCode: "",
+            SwarmSource: "",
+          },
+        ],
+      });
+    });
+
     it("returns empty source code response when contract verification info API fails with response status 404", async () => {
       pipeMock.mockImplementation((callback) => {
         return callback({
@@ -218,7 +249,7 @@ describe("ContractController", () => {
                 sourceCode: "sourceCode",
                 constructorArguments: "0x0001",
                 contractName: "contractName",
-                optimizationUsed: true,
+                optimizationUsed: false,
                 compilerSolcVersion: "8.10.0",
                 compilerZksolcVersion: "10.0.0",
               },
@@ -241,7 +272,7 @@ describe("ContractController", () => {
             Implementation: "",
             Library: "",
             LicenseType: "",
-            OptimizationUsed: "1",
+            OptimizationUsed: "0",
             Proxy: "0",
             Runs: "",
             SourceCode: "sourceCode",
@@ -280,7 +311,7 @@ describe("ContractController", () => {
                     },
                   },
                 },
-                constructorArguments: "0x0001",
+                constructorArguments: "0001",
                 contractName: "contractName",
                 optimizationUsed: true,
                 compilerSolcVersion: "8.10.0",
@@ -332,7 +363,7 @@ describe("ContractController", () => {
                 sourceCode: "sourceCode",
                 constructorArguments: "0x0001",
                 contractName: "contractName",
-                optimizationUsed: true,
+                optimizationUsed: false,
                 compilerVyperVersion: "9.10.0",
                 compilerZkvyperVersion: "11.0.0",
               },
@@ -355,7 +386,7 @@ describe("ContractController", () => {
             Implementation: "",
             Library: "",
             LicenseType: "",
-            OptimizationUsed: "1",
+            OptimizationUsed: "0",
             Proxy: "0",
             Runs: "",
             SourceCode: "sourceCode",
@@ -394,7 +425,7 @@ describe("ContractController", () => {
                     },
                   },
                 },
-                constructorArguments: "0x0001",
+                constructorArguments: "0001",
                 contractName: "contractName",
                 optimizationUsed: true,
                 compilerVyperVersion: "9.10.0",
