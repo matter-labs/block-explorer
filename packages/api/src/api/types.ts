@@ -23,6 +23,7 @@ export enum ApiAccountAction {
 
 export enum ApiContractAction {
   GetAbi = "getabi",
+  GetSourceCode = "getsourcecode",
   GetContractCreation = "getcontractcreation",
 }
 
