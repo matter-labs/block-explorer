@@ -82,6 +82,267 @@ describe("Contract API (e2e)", () => {
     });
   });
 
+  describe("/api?module=contract&action=getsourcecode GET", () => {
+    it("returns HTTP 200 and contract source code for verified single file Solidity contract", () => {
+      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .reply(200, {
+          artifacts: {
+            abi: [],
+          },
+          request: {
+            sourceCode: "sourceCode",
+            constructorArguments: "0x0001",
+            contractName: "contractName",
+            optimizationUsed: true,
+            compilerSolcVersion: "8.10.0",
+            compilerZksolcVersion: "10.0.0",
+          },
+        });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=getsourcecode&address=${address}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: [
+              {
+                ABI: "[]",
+                CompilerVersion: "8.10.0",
+                CompilerZksolcVersion: "10.0.0",
+                ConstructorArguments: "0001",
+                ContractName: "contractName",
+                EVMVersion: "Default",
+                Implementation: "",
+                Library: "",
+                LicenseType: "",
+                OptimizationUsed: "1",
+                Proxy: "0",
+                Runs: "",
+                SourceCode: "sourceCode",
+                SwarmSource: "",
+              },
+            ],
+            status: "1",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and contract source code for verified multi file Solidity contract", () => {
+      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .reply(200, {
+          artifacts: {
+            abi: [],
+          },
+          request: {
+            sourceCode: {
+              language: "Solidity",
+              settings: {
+                optimizer: {
+                  enabled: true,
+                },
+              },
+              sources: {
+                "@openzeppelin/contracts/access/Ownable.sol": {
+                  content: "Ownable.sol content",
+                },
+                "faucet.sol": {
+                  content: "faucet.sol content",
+                },
+              },
+            },
+            constructorArguments: "0x0001",
+            contractName: "contractName",
+            optimizationUsed: true,
+            compilerSolcVersion: "8.10.0",
+            compilerZksolcVersion: "10.0.0",
+          },
+        });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=getsourcecode&address=${address}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: [
+              {
+                ABI: "[]",
+                CompilerVersion: "8.10.0",
+                CompilerZksolcVersion: "10.0.0",
+                ConstructorArguments: "0001",
+                ContractName: "contractName",
+                EVMVersion: "Default",
+                Implementation: "",
+                Library: "",
+                LicenseType: "",
+                OptimizationUsed: "1",
+                Proxy: "0",
+                Runs: "",
+                SourceCode:
+                  '{{"language":"Solidity","settings":{"optimizer":{"enabled":true}},"sources":{"@openzeppelin/contracts/access/Ownable.sol":{"content":"Ownable.sol content"},"faucet.sol":{"content":"faucet.sol content"}}}}',
+                SwarmSource: "",
+              },
+            ],
+            status: "1",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and contract source code for verified single file Vyper contract", () => {
+      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .reply(200, {
+          artifacts: {
+            abi: [],
+          },
+          request: {
+            sourceCode: "sourceCode",
+            constructorArguments: "0x0001",
+            contractName: "contractName",
+            optimizationUsed: true,
+            compilerVyperVersion: "9.10.0",
+            compilerZkvyperVersion: "11.0.0",
+          },
+        });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=getsourcecode&address=${address}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: [
+              {
+                ABI: "[]",
+                CompilerVersion: "9.10.0",
+                CompilerZkvyperVersion: "11.0.0",
+                ConstructorArguments: "0001",
+                ContractName: "contractName",
+                EVMVersion: "Default",
+                Implementation: "",
+                Library: "",
+                LicenseType: "",
+                OptimizationUsed: "1",
+                Proxy: "0",
+                Runs: "",
+                SourceCode: "sourceCode",
+                SwarmSource: "",
+              },
+            ],
+            status: "1",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and contract source code for verified multi file Vyper contract", () => {
+      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .reply(200, {
+          artifacts: {
+            abi: [],
+          },
+          request: {
+            sourceCode: {
+              language: "Vyper",
+              settings: {
+                optimizer: {
+                  enabled: true,
+                },
+              },
+              sources: {
+                "Base.vy": {
+                  content: "Base.vy content",
+                },
+                "faucet.vy": {
+                  content: "faucet.vy content",
+                },
+              },
+            },
+            constructorArguments: "0x0001",
+            contractName: "contractName",
+            optimizationUsed: true,
+            compilerVyperVersion: "9.10.0",
+            compilerZkvyperVersion: "11.0.0",
+          },
+        });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=getsourcecode&address=${address}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: [
+              {
+                ABI: "[]",
+                CompilerVersion: "9.10.0",
+                CompilerZkvyperVersion: "11.0.0",
+                ConstructorArguments: "0001",
+                ContractName: "contractName",
+                EVMVersion: "Default",
+                Implementation: "",
+                Library: "",
+                LicenseType: "",
+                OptimizationUsed: "1",
+                Proxy: "0",
+                Runs: "",
+                SourceCode:
+                  '{{"language":"Vyper","settings":{"optimizer":{"enabled":true}},"sources":{"Base.vy":{"content":"Base.vy content"},"faucet.vy":{"content":"faucet.vy content"}}}}',
+                SwarmSource: "",
+              },
+            ],
+            status: "1",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and empty result when verification API does not return the contract source code", () => {
+      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .reply(404, {});
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=getsourcecode&address=${address}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: [
+              {
+                ABI: "Contract source code not verified",
+                CompilerVersion: "",
+                ConstructorArguments: "",
+                ContractName: "",
+                EVMVersion: "Default",
+                Implementation: "",
+                Library: "",
+                LicenseType: "Unknown",
+                OptimizationUsed: "",
+                Proxy: "0",
+                Runs: "",
+                SourceCode: "",
+                SwarmSource: "",
+              },
+            ],
+            status: "1",
+          })
+        );
+    });
+  });
+
   describe("/api?module=contract&action=getcontractcreation GET", () => {
     it("returns HTTP 200 and contract creation info when contract is found in DB", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";

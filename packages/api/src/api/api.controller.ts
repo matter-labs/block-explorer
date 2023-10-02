@@ -4,6 +4,7 @@ import { Request, NextFunction } from "express";
 import { PagingOptionsWithMaxItemsLimitDto } from "./dtos/common/pagingOptionsWithMaxItemsLimit.dto";
 import { ContractAbiResponseDto } from "./dtos/contract/contractAbiResponse.dto";
 import { ContractCreationResponseDto, ContractCreationInfoDto } from "./dtos/contract/contractCreationResponse.dto";
+import { ContractSourceCodeResponseDto } from "./dtos/contract/contractSourceCodeResponse.dto";
 import { TransactionStatusResponseDto, TransactionStatusDto } from "./dtos/transaction/transactionStatusResponse.dto";
 import { TransactionReceiptStatusResponseDto } from "./dtos/transaction/transactionReceiptStatusResponse.dto";
 import { AccountTransactionDto } from "./dtos/account/accountTransaction.dto";
@@ -60,6 +61,22 @@ export class ApiController {
     type: ContractAbiResponseDto,
   })
   public async getContractAbi(): Promise<ContractAbiResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Contract API")
+  @Get("api?module=contract&action=getsourcecode")
+  @ApiQuery({
+    name: "address",
+    description: "The contract address that has a verified source code",
+    example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
+    required: true,
+  })
+  @ApiOkResponse({
+    description: "Contract source code",
+    type: ContractSourceCodeResponseDto,
+  })
+  public async getContractSourceCode(): Promise<ContractSourceCodeResponseDto> {
     return null;
   }
 
