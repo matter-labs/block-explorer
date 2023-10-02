@@ -38,6 +38,50 @@ describe("Contract API (e2e)", () => {
     await app.close();
   });
 
+  describe("/api?module=contract&action=getabi GET", () => {
+    it("returns HTTP 200 and contract ABI when verification API returns the contract ABI", () => {
+      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .reply(200, {
+          artifacts: {
+            abi: [],
+          },
+        });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=getabi&address=${address}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            status: "1",
+            message: "OK",
+            result: "[]",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and error result when verification API does not return the contract ABI", () => {
+      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .reply(200, {});
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=getabi&address=${address}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            status: "0",
+            message: "NOTOK",
+            result: "Contract source code not verified",
+          })
+        );
+    });
+  });
+
   describe("/api?module=contract&action=getsourcecode GET", () => {
     it("returns HTTP 200 and contract source code for verified single file Solidity contract", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
