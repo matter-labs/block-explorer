@@ -56,4 +56,4 @@ lerna-debug.log*
 /allure-results/
 
 # App hyperchain config
-hyperchain.json
+hyperchain.config.json

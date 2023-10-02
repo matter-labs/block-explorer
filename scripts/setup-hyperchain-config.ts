@@ -21,7 +21,7 @@ const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
   }
 });
 
-const buildWorkerConfig = (zkSyncEnvs) => {
+const buildWorkerConfig = (zkSyncEnvs: { [key: string]: string }) => {
   const dbConfig = parseConnectionString(zkSyncEnvs.DATABASE_URL);
   return {
     BLOCKCHAIN_RPC_URL: zkSyncEnvs.API_WEB3_JSON_RPC_HTTP_URL || "",
@@ -32,7 +32,7 @@ const buildWorkerConfig = (zkSyncEnvs) => {
   }
 };
 
-const buildApiConfig = (zkSyncEnvs) => {
+const buildApiConfig = (zkSyncEnvs: { [key: string]: string }) => {
   const dbConfig = parseConnectionString(zkSyncEnvs.DATABASE_URL);
   return {
     DATABASE_URL: `postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/block-explorer`,
@@ -79,8 +79,8 @@ const buildEnvFileContent = (json: { [key: string]: string | number }) => Object
   const workerConfig = buildWorkerConfig(envs);
   const apiConfig = buildApiConfig(envs);
 
-  writeFileSync(path.join(__dirname, "../packages/app/src/configs/hyperchain.json"), JSON.stringify(appConfig, null, 2));
-  console.log("Updated app config at app/src/configs/hyperchain.json");
+  writeFileSync(path.join(__dirname, "../packages/app/src/configs/hyperchain.config.json"), JSON.stringify(appConfig, null, 2));
+  console.log("Updated app config at app/src/configs/hyperchain.config.json");
   writeFileSync(path.join(__dirname, "../packages/worker/.env"), buildEnvFileContent(workerConfig));
   console.log("Updated worker env file at worker/.env");
   writeFileSync(path.join(__dirname, "../packages/api/.env"), buildEnvFileContent(apiConfig));
