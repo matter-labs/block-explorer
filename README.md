@@ -55,11 +55,25 @@ $ npm install
 
 ## ⚙️ Setting up env variables
 
-Make sure you have set up all the necessary env variables. Follow [Setting up env variables for Worker](./packages/worker#setting-up-env-variables) and [Setting up env variables for API](./packages/api#setting-up-env-variables) for instructions.
+### Manually set up env variables
+Make sure you have set up all the necessary env variables. Follow [Setting up env variables for Worker](./packages/worker#setting-up-env-variables) and [Setting up env variables for API](./packages/api#setting-up-env-variables) for instructions. For the [App](./packages/app) package you might want to edit environment config, see [Environment configs](./packages/app#environment-configs).
+
+### Build env variables based on your [zksync-era](https://github.com/matter-labs/zksync-era) local repo setup
+Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo set up locally. You must have your environment variables files present in the [zksync-era](https://github.com/matter-labs/zksync-era) repo at `/etc/env/*.env` for the build envs script to work.
+
+The following script sets `.env` files for [Worker](./packages/worker) and [API](./packages/api) packages as well as environment configuration file for [App](./packages/app) package based on your local [zksync-era](https://github.com/matter-labs/zksync-era) repo setup.
+```bash
+$ npm run hyperchain:configure
+```
+You can review and edit generated files if you need to change any settings.
 
 ## 👨‍💻 Running locally
 
 Before running the solution, make sure you have a database server up and running, you have created a database and set up all the required environment variables.
+To create a database run the following command:
+```bash
+$ npm run db:create
+```
 
 To run all the packages (`Worker`, `API` and front-end `App`) in `development` mode run the following command from the root directory.
 ```bash
@@ -80,6 +94,9 @@ There is a docker compose configuration that allows you to run Block Explorer an
 docker-compose up
 ```
 It will run local Ethereum node, ZkSync Era, Postgres DB and all Block Explorer services.
+
+## ⛓️ Connection to your Hyperchain
+To get block-explorer connected to your ZK Stack Hyperchain you need to set up all the the necessary environment and configuration files with your Hyperchain settings. You can use a script to build them. See [Setting up env variables](#%EF%B8%8F-setting-up-env-variables).
 
 ## 🔍 Verify Block Explorer is up and running
 

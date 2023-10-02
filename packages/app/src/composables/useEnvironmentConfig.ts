@@ -4,9 +4,21 @@ import type { EnvironmentConfig, NetworkConfig } from "@/configs";
 
 const config = ref<EnvironmentConfig | null>(null);
 
+const HYPERCHAIN_CONFIG_NAME = "hyperchain";
+const LOCAL_CONFIG_NAME = "local";
+
 export async function loadEnvironmentConfig(appEnvironment: string): Promise<void> {
-  const { default: envConfig } = await import(`../configs/${appEnvironment}.config.ts`);
-  config.value = envConfig as EnvironmentConfig;
+  let envConfig: EnvironmentConfig;
+  if (appEnvironment === "default") {
+    try {
+      envConfig = (await import(`../configs/${HYPERCHAIN_CONFIG_NAME}.config.json`)).default;
+    } catch {
+      envConfig = (await import(`../configs/${LOCAL_CONFIG_NAME}.config.json`)).default;
+    }
+  } else {
+    envConfig = (await import(`../configs/${appEnvironment}.config.json`)).default;
+  }
+  config.value = envConfig;
 }
 
 export default () => {
