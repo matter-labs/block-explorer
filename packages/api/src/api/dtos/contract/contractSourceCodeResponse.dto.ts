@@ -70,7 +70,7 @@ export class ContractSourceCodeDto {
 
   @ApiProperty({
     description: "The contract source code",
-    example: JSON.stringify({
+    example: `{${JSON.stringify({
       language: "Solidity",
       settings: {
         optimizer: {
@@ -97,13 +97,13 @@ export class ContractSourceCodeDto {
           content: "// SPDX-License-Identifier: MIT\r\npragma solidity >=0.8.12; ...",
         },
       },
-    }),
+    })}}`,
   })
   public readonly SourceCode: string;
 
   @ApiProperty({
     description: "Contract constructor arguments",
-    example: "0x0000000000000000000000009b896c0e23220469c7ae69cb4bbae391eaa4c8da",
+    example: "0000000000000000000000009b896c0e23220469c7ae69cb4bbae391eaa4c8da",
   })
   public readonly ConstructorArguments: string;
 
@@ -114,7 +114,7 @@ export class ContractSourceCodeDto {
   public readonly ContractName: string;
 
   @ApiProperty({
-    description: "1 - optimization was used for the contract, 0 - otherwise",
+    description: "Indicates if optimization was used for the contract. 1 - optimization was used, 0 - otherwise",
     example: "1",
   })
   public readonly OptimizationUsed: string;
@@ -170,7 +170,7 @@ export class ContractSourceCodeDto {
   public readonly SwarmSource: string;
 
   @ApiProperty({
-    description: "1 - if the contract is a proxy contract, 0 - otherwise",
+    description: "Indicates if the contract is a proxy contract. 1 - the contract is a proxy, 0 - otherwise",
     example: "0",
   })
   public readonly Proxy: string;
