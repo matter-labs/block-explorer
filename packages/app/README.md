@@ -24,13 +24,13 @@ $ npm install
 ```
 
 ### Environment configs
-Public environment configs are stored in `src/configs` folder and are named as `<appEnvironment>.config.ts` where `appEnvironment` is the name of the environment set in `VITE_APP_ENVIRONMENT` env variable.
+Public environment configs are stored in `src/configs` folder and are named as `<appEnvironment>.config.json` where `appEnvironment` is the name of the environment set in `VITE_APP_ENVIRONMENT` env variable.
 Currently there are 3 different environments for the project: `local`, `staging` and `production`, each with its corresponding configuration file.
 
 ### Adding a new network to the config
-In order to change the configuration for the environment, you need to change its configuration file. By default, there are 4 networks configured for the `local` environment: `local`, `stage`, `testnet` and `mainnet`. Your local network might be different from what is configured in `local.config.ts` in such case you should edit the config and set correct values for your setup. You can also add new items to the `networks` array and they will automatically appear in the networks dropdown on UI. 
+In order to change the configuration for the environment, you need to change its configuration file. By default, there are 4 networks configured for the `local` environment: `local`, `stage`, `testnet` and `mainnet`. Your local network might be different from what is configured in `local.config.json` in such case you should edit the config and set correct values for your setup. You can also add new items to the `networks` array and they will automatically appear in the networks dropdown on UI. 
 
-Example of `local.config.ts` extended with the new network:
+Example of `local.config.json` extended with the new network:
 
 ```
 import stagingConfig from "./staging.config";

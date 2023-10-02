@@ -23,6 +23,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs",
+    "db:create": "ts-node ./scripts/create-database.ts",
+    "db:drop": "ts-node ./scripts/drop-database.ts",
     "migration:generate": "npm run typeorm migration:generate ./src/migrations/$npm_config_name -- -d ./src/typeorm.config.ts",
     "migration:create": "npm run typeorm migration:create ./src/migrations/$npm_config_name",
     "migration:run": "npm run typeorm migration:run -- -d ./src/typeorm.config.ts",
@@ -68,7 +70,8 @@
     "ts-jest": "28.0.8",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
-    "tsconfig-paths": "4.1.0"
+    "tsconfig-paths": "4.1.0",
+    "typeorm-extension": "3.0.2"
   },
   "jest": {
     "moduleFileExtensions": [
