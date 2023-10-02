@@ -82,6 +82,8 @@ jobs:
         working-directory: ./
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: |
+          whoami
+          pwd
           npm pkg delete scripts.prepare
           npm ci
 
