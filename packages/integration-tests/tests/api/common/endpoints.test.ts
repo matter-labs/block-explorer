@@ -1,9 +1,9 @@
 import * as request from "supertest";
 import { setTimeout } from "timers/promises";
 
-import { environment, localConfig } from "../../src/config";
-import { Buffer } from "../../src/entities";
-import { Helper } from "../../src/helper";
+import { environment, localConfig } from "../../../src/config";
+import { Buffer } from "../../../src/entities";
+import { Helper } from "../../../src/helper";
 
 describe("Endpoints", () => {
   const helper = new Helper();

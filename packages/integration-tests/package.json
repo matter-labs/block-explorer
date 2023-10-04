@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "cd src/playbook && npm install",
-    "test:api": "jest --verbose",
+    "test:api": "./run.sh",
     "test:ui": "npx playwright test",
     "dev:be": "docker-compose -f docker-compose.yaml up\n",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-pattern 'repos' --ignore-pattern 'git add .'"
