@@ -20,6 +20,8 @@ import { ContractAbiResponseDto } from "../dtos/contract/contractAbiResponse.dto
 import { ContractSourceCodeResponseDto } from "../dtos/contract/contractSourceCodeResponse.dto";
 import { ContractCreationResponseDto } from "../dtos/contract/contractCreationResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
+import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
+import { ContractVerificationInfo } from "../types";
 
 const entityName = "contract";
 
@@ -46,7 +48,7 @@ export class ContractController {
   public async getContractAbi(
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<ContractAbiResponseDto> {
-    const { data } = await firstValueFrom(
+    const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
       this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
         catchError((error: AxiosError) => {
           if (error.response?.status === 404) {
@@ -75,7 +77,7 @@ export class ContractController {
   public async getContractSourceCode(
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<ContractSourceCodeResponseDto> {
-    const { data } = await firstValueFrom(
+    const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
       this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
         catchError((error: AxiosError) => {
           this.logger.error({
@@ -90,63 +92,19 @@ export class ContractController {
         })
       )
     );
+
     if (!data?.artifacts?.abi) {
       return {
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
-        result: [
-          {
-            ABI: "Contract source code not verified",
-            CompilerVersion: "",
-            ConstructorArguments: "",
-            ContractName: "",
-            EVMVersion: "Default",
-            Implementation: "",
-            Library: "",
-            LicenseType: "Unknown",
-            OptimizationUsed: "",
-            Proxy: "0",
-            Runs: "",
-            SourceCode: "",
-            SwarmSource: "",
-          },
-        ],
+        result: [SOURCE_CODE_EMPTY_INFO],
       };
     }
+
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: [
-        {
-          ...{
-            ABI: JSON.stringify(data.artifacts.abi),
-            SourceCode:
-              typeof data.request.sourceCode === "string"
-                ? data.request.sourceCode
-                : `{${JSON.stringify(data.request.sourceCode)}}`,
-            // remove leading 0x as Etherscan does
-            ConstructorArguments: data.request.constructorArguments.startsWith("0x")
-              ? data.request.constructorArguments.substring(2)
-              : data.request.constructorArguments,
-            ContractName: data.request.contractName,
-            EVMVersion: "Default",
-            OptimizationUsed: data.request.optimizationUsed ? "1" : "0",
-            Library: "",
-            LicenseType: "",
-            CompilerVersion: data.request.compilerSolcVersion || data.request.compilerVyperVersion,
-            Runs: "",
-            SwarmSource: "",
-            Proxy: "0",
-            Implementation: "",
-          },
-          ...(data.request.compilerZksolcVersion && {
-            CompilerZksolcVersion: data.request.compilerZksolcVersion,
-          }),
-          ...(data.request.compilerZkvyperVersion && {
-            CompilerZkvyperVersion: data.request.compilerZkvyperVersion,
-          }),
-        },
-      ],
+      result: [mapContractSourceCode(data)],
     };
   }
 
