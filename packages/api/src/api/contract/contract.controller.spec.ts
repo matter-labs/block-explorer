@@ -9,6 +9,12 @@ import { AddressService } from "../../address/address.service";
 import { Address } from "../../address/address.entity";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { ContractController, parseAddressListPipeExceptionFactory } from "./contract.controller";
+import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
+
+jest.mock("../mappers/sourceCodeMapper", () => ({
+  ...jest.requireActual("../mappers/sourceCodeMapper"),
+  mapContractSourceCode: jest.fn().mockReturnValue({ mockMappedSourceCode: true }),
+}));
 
 describe("ContractController", () => {
   let controller: ContractController;
@@ -180,27 +186,11 @@ describe("ContractController", () => {
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
-        result: [
-          {
-            ABI: "Contract source code not verified",
-            CompilerVersion: "",
-            ConstructorArguments: "",
-            ContractName: "",
-            EVMVersion: "Default",
-            Implementation: "",
-            Library: "",
-            LicenseType: "Unknown",
-            OptimizationUsed: "",
-            Proxy: "0",
-            Runs: "",
-            SourceCode: "",
-            SwarmSource: "",
-          },
-        ],
+        result: [SOURCE_CODE_EMPTY_INFO],
       });
     });
 
-    it("returns empty source code response when contract verification info API fails with response status 404", async () => {
+    it("returns empty source code response when contract verification info is not found", async () => {
       pipeMock.mockImplementation((callback) => {
         return callback({
           stack: "error stack",
@@ -215,252 +205,42 @@ describe("ContractController", () => {
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
-        result: [
-          {
-            ABI: "Contract source code not verified",
-            CompilerVersion: "",
-            ConstructorArguments: "",
-            ContractName: "",
-            EVMVersion: "Default",
-            Implementation: "",
-            Library: "",
-            LicenseType: "Unknown",
-            OptimizationUsed: "",
-            Proxy: "0",
-            Runs: "",
-            SourceCode: "",
-            SwarmSource: "",
-          },
-        ],
+        result: [SOURCE_CODE_EMPTY_INFO],
       });
     });
 
-    it("returns contract source code from verification info API for solc compiler and single file contract", async () => {
-      const abi = [];
+    it("returns mapped source code for verified contract", async () => {
+      const data = {
+        artifacts: {
+          abi: [],
+        },
+        request: {
+          sourceCode: "sourceCode",
+          constructorArguments: "0x0001",
+          contractName: "contractName",
+          optimizationUsed: false,
+          compilerSolcVersion: "8.10.0",
+          compilerZksolcVersion: "10.0.0",
+        },
+      };
 
       pipeMock.mockReturnValue(
         new rxjs.Observable((subscriber) => {
           subscriber.next({
-            data: {
-              artifacts: {
-                abi,
-              },
-              request: {
-                sourceCode: "sourceCode",
-                constructorArguments: "0x0001",
-                contractName: "contractName",
-                optimizationUsed: false,
-                compilerSolcVersion: "8.10.0",
-                compilerZksolcVersion: "10.0.0",
-              },
-            },
+            data,
           });
         })
       );
 
       const response = await controller.getContractSourceCode(address);
+      expect(mapContractSourceCode as jest.Mock).toHaveBeenCalledWith(data);
+      expect(mapContractSourceCode as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/info/${address}`);
       expect(response).toEqual({
         message: "OK",
-        result: [
-          {
-            ABI: "[]",
-            CompilerVersion: "8.10.0",
-            CompilerZksolcVersion: "10.0.0",
-            ConstructorArguments: "0001",
-            ContractName: "contractName",
-            EVMVersion: "Default",
-            Implementation: "",
-            Library: "",
-            LicenseType: "",
-            OptimizationUsed: "0",
-            Proxy: "0",
-            Runs: "",
-            SourceCode: "sourceCode",
-            SwarmSource: "",
-          },
-        ],
+        result: [{ mockMappedSourceCode: true }],
         status: "1",
       });
-      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/info/${address}`);
-    });
-
-    it("returns contract source code from verification info API for solc compiler and multi file contract", async () => {
-      const abi = [];
-
-      pipeMock.mockReturnValue(
-        new rxjs.Observable((subscriber) => {
-          subscriber.next({
-            data: {
-              artifacts: {
-                abi,
-              },
-              request: {
-                sourceCode: {
-                  language: "Solidity",
-                  settings: {
-                    optimizer: {
-                      enabled: true,
-                    },
-                  },
-                  sources: {
-                    "@openzeppelin/contracts/access/Ownable.sol": {
-                      content: "Ownable.sol content",
-                    },
-                    "faucet.sol": {
-                      content: "faucet.sol content",
-                    },
-                  },
-                },
-                constructorArguments: "0001",
-                contractName: "contractName",
-                optimizationUsed: true,
-                compilerSolcVersion: "8.10.0",
-                compilerZksolcVersion: "10.0.0",
-              },
-            },
-          });
-        })
-      );
-
-      const response = await controller.getContractSourceCode(address);
-      expect(response).toEqual({
-        message: "OK",
-        result: [
-          {
-            ABI: "[]",
-            CompilerVersion: "8.10.0",
-            CompilerZksolcVersion: "10.0.0",
-            ConstructorArguments: "0001",
-            ContractName: "contractName",
-            EVMVersion: "Default",
-            Implementation: "",
-            Library: "",
-            LicenseType: "",
-            OptimizationUsed: "1",
-            Proxy: "0",
-            Runs: "",
-            SourceCode:
-              '{{"language":"Solidity","settings":{"optimizer":{"enabled":true}},"sources":{"@openzeppelin/contracts/access/Ownable.sol":{"content":"Ownable.sol content"},"faucet.sol":{"content":"faucet.sol content"}}}}',
-            SwarmSource: "",
-          },
-        ],
-        status: "1",
-      });
-      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/info/${address}`);
-    });
-
-    it("returns contract source code from verification info API for vyper compiler and single file contract", async () => {
-      const abi = [];
-
-      pipeMock.mockReturnValue(
-        new rxjs.Observable((subscriber) => {
-          subscriber.next({
-            data: {
-              artifacts: {
-                abi,
-              },
-              request: {
-                sourceCode: "sourceCode",
-                constructorArguments: "0x0001",
-                contractName: "contractName",
-                optimizationUsed: false,
-                compilerVyperVersion: "9.10.0",
-                compilerZkvyperVersion: "11.0.0",
-              },
-            },
-          });
-        })
-      );
-
-      const response = await controller.getContractSourceCode(address);
-      expect(response).toEqual({
-        message: "OK",
-        result: [
-          {
-            ABI: "[]",
-            CompilerVersion: "9.10.0",
-            CompilerZkvyperVersion: "11.0.0",
-            ConstructorArguments: "0001",
-            ContractName: "contractName",
-            EVMVersion: "Default",
-            Implementation: "",
-            Library: "",
-            LicenseType: "",
-            OptimizationUsed: "0",
-            Proxy: "0",
-            Runs: "",
-            SourceCode: "sourceCode",
-            SwarmSource: "",
-          },
-        ],
-        status: "1",
-      });
-      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/info/${address}`);
-    });
-
-    it("returns contract source code from verification info API for vyper compiler and multi file contract", async () => {
-      const abi = [];
-
-      pipeMock.mockReturnValue(
-        new rxjs.Observable((subscriber) => {
-          subscriber.next({
-            data: {
-              artifacts: {
-                abi,
-              },
-              request: {
-                sourceCode: {
-                  language: "Vyper",
-                  settings: {
-                    optimizer: {
-                      enabled: true,
-                    },
-                  },
-                  sources: {
-                    "Base.vy": {
-                      content: "Base.vy content",
-                    },
-                    "faucet.vy": {
-                      content: "faucet.vy content",
-                    },
-                  },
-                },
-                constructorArguments: "0001",
-                contractName: "contractName",
-                optimizationUsed: true,
-                compilerVyperVersion: "9.10.0",
-                compilerZkvyperVersion: "11.0.0",
-              },
-            },
-          });
-        })
-      );
-
-      const response = await controller.getContractSourceCode(address);
-      expect(response).toEqual({
-        message: "OK",
-        result: [
-          {
-            ABI: "[]",
-            CompilerVersion: "9.10.0",
-            CompilerZkvyperVersion: "11.0.0",
-            ConstructorArguments: "0001",
-            ContractName: "contractName",
-            EVMVersion: "Default",
-            Implementation: "",
-            Library: "",
-            LicenseType: "",
-            OptimizationUsed: "1",
-            Proxy: "0",
-            Runs: "",
-            SourceCode:
-              '{{"language":"Vyper","settings":{"optimizer":{"enabled":true}},"sources":{"Base.vy":{"content":"Base.vy content"},"faucet.vy":{"content":"faucet.vy content"}}}}',
-            SwarmSource: "",
-          },
-        ],
-        status: "1",
-      });
-      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/info/${address}`);
     });
   });
 
