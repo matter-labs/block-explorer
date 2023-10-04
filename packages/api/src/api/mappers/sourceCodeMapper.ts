@@ -19,7 +19,7 @@ export const SOURCE_CODE_EMPTY_INFO: ContractSourceCodeDto = {
 
 export const mapContractSourceCode = (data: ContractVerificationInfo): ContractSourceCodeDto => {
   let sourceCode: string;
-  if (data.request.codeFormat.startsWith("vyper-multi-file")) {
+  if (data.request.codeFormat.startsWith("vyper-multi-file") && typeof data.request.sourceCode !== "string") {
     const vyperFileNames = Object.keys(data.request.sourceCode);
     if (vyperFileNames.length === 1) {
       sourceCode = data.request.sourceCode[vyperFileNames[0]];

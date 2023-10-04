@@ -93,6 +93,7 @@ describe("Contract API (e2e)", () => {
             abi: [],
           },
           request: {
+            codeFormat: "solidity-single-file",
             sourceCode: "sourceCode",
             constructorArguments: "0x0001",
             contractName: "contractName",
@@ -141,6 +142,7 @@ describe("Contract API (e2e)", () => {
             abi: [],
           },
           request: {
+            codeFormat: "solidity-standard-json-input",
             sourceCode: {
               language: "Solidity",
               settings: {
@@ -205,7 +207,10 @@ describe("Contract API (e2e)", () => {
             abi: [],
           },
           request: {
-            sourceCode: "sourceCode",
+            codeFormat: "vyper-multi-file",
+            sourceCode: {
+              "Base.vy": "Base.vy content",
+            },
             constructorArguments: "0x0001",
             contractName: "contractName",
             optimizationUsed: true,
@@ -234,7 +239,7 @@ describe("Contract API (e2e)", () => {
                 OptimizationUsed: "1",
                 Proxy: "0",
                 Runs: "",
-                SourceCode: "sourceCode",
+                SourceCode: "Base.vy content",
                 SwarmSource: "",
               },
             ],
@@ -253,21 +258,10 @@ describe("Contract API (e2e)", () => {
             abi: [],
           },
           request: {
+            codeFormat: "vyper-multi-file",
             sourceCode: {
-              language: "Vyper",
-              settings: {
-                optimizer: {
-                  enabled: true,
-                },
-              },
-              sources: {
-                "Base.vy": {
-                  content: "Base.vy content",
-                },
-                "faucet.vy": {
-                  content: "faucet.vy content",
-                },
-              },
+              "Base.vy": "Base.vy content",
+              "faucet.vy": "faucet.vy content",
             },
             constructorArguments: "0x0001",
             contractName: "contractName",
