@@ -1,7 +1,11 @@
 {
-  "name": "block-explorer-api-automation",
-  "version": "1.0.0",
+  "name": "playbook",
+  "version": "0.0.0",
   "description": "The test solution for transaction processing`",
+  "repository": "https://github.com/matter-labs/block-explorer",
+  "private": true,
+  "author": "Matter Labs",
+  "license": "MIT",
   "scripts": {
     "compile": "hardhat compile",
     "clean": "hardhat clean",
@@ -21,8 +25,6 @@
     "deploy:multicall:caller": "hardhat deploy-zksync --script multicallCaller.ts",
     "deploy:use:multicall": "hardhat deploy-zksync --script use-multiCall.ts"
   },
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "hardhat": "^2.17.3",
     "ts-jest-resolver": "^2.0.0"

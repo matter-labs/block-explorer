@@ -19,7 +19,7 @@ export default function ({
   artifact: ZkSyncArtifact;
 }) {
   console.log(
-    `\nVerify the contract: https://explorer.zksync.io/contracts/verify?address=${contract.address}&network=${hre.config.networks.zkSyncTestnet.ethNetwork}`
+    `\nVerify the contract: https://explorer.zksync.io/contracts/verify?address=${contract.address}&network=${hre.config.networks.zkSyncLocal.ethNetwork}`
   );
   console.log(`Contract name: ${artifact.contractName}`);
   console.log(`zkSolc Version: v${hre.userConfig.zksolc.version}`);

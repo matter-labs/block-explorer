@@ -3,8 +3,8 @@ import { Provider, Wallet } from "zksync-web3";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function (hre: any) {
-  const syncProvider = new Provider(hre.config.networks.zkSyncTestnet.url);
-  const ethProvider = getDefaultProvider(hre.config.networks.zkSyncTestnet.ethNetwork);
+  const syncProvider = new Provider(hre.config.networks.zkSyncLocal.url);
+  const ethProvider = getDefaultProvider(hre.config.networks.zkSyncLocal.ethNetwork);
 
   if (!process.env.WALLET_PRIVATE_KEY) {
     throw new Error("WALLET_PRIVATE_KEY env variable is not set");

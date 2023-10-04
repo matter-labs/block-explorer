@@ -14,10 +14,10 @@ const config: HardhatUserConfig = {
     compilerSource: "binary",
     settings: {},
   },
-  defaultNetwork: "zkSyncTestnet",
+  defaultNetwork: "zkSyncLocal",
 
   networks: {
-    zkSyncTestnet: {
+    zkSyncLocal: {
       url: localConfig.L2Network,
       ethNetwork: localConfig.L1Network,
       zksync: true,
