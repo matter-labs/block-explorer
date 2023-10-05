@@ -215,7 +215,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=balance")
-  @ApiOperation({ summary: "Retrieve the Ether balance for a given address" })
+  @ApiOperation({ summary: "Retrieve the balance for a given address" })
   @ApiQuery({
     name: "address",
     description: "The address to get Ether balance for",
@@ -232,7 +232,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=balancemulti")
-  @ApiOperation({ summary: "Retrieve the Ether balances for a list of addresses" })
+  @ApiOperation({ summary: "Retrieve the balances for a list of addresses" })
   @ApiQuery({
     isArray: true,
     explode: false,
