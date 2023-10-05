@@ -49,7 +49,7 @@ The test solution contains two main folders: [src](./src) and [tests](./tests).
 
 [tests](./tests) folder contains sets of:
 - [api](./tests/api/) endpoints tests, that cover an essential part of [worker](../packages/worker/) and [api](../packages/api/) functionality
-- [ui](./tests/ui/) UI tests. that cover an essential part of [Block explorer](../packages/app/) functionality
+- [ui](./tests/ui/) UI tests, which cover an essential part of [Block explorer](../packages/app/) functionality
 
 
 For more details, follow this documentation https://era.zksync.io/docs/.  
