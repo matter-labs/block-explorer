@@ -95,7 +95,7 @@ export class ApiController {
   })
   @ApiExtraModels(ContractCreationInfoDto)
   @ApiOkResponse({
-    description: "Contract creation info",
+    description: "Contract creation information",
     type: ContractCreationResponseDto,
   })
   public async getContractCreation(): Promise<ContractCreationResponseDto> {
