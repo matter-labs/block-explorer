@@ -9,7 +9,8 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "cd src/playbook && npm install",
-    "integration-test:api": "./run.sh",
+    "integration-test:api:pre-seed": "jest --verbose --testPathPattern=tokens.test.ts && jest --verbose --testPathPattern=deposit.test.ts",
+    "integration-test:api": "jest --verbose --testPathPattern=common && jest --verbose --testPathPattern=transactions",
     "integration-test:ui": "npx playwright test",
     "block-explorer:start": "docker-compose -f docker-compose.yaml up\n",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-pattern 'repos' --ignore-pattern 'git add .'"
