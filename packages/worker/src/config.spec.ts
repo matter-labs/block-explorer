@@ -15,6 +15,7 @@ describe("config", () => {
     expect(config()).toEqual({
       port: 3001,
       blockchain: {
+        rpcUrl: "http://localhost:3050",
         rpcCallDefaultRetryTimeout: 30000,
         rpcCallQuickRetryTimeout: 500,
         rpcCallConnectionTimeout: 20000,
