@@ -20,6 +20,7 @@ export enum ApiAccountAction {
   TokenBalance = "tokenbalance",
   TokenTransfers = "tokentx",
   NFTTransfers = "tokennfttx",
+  GetMinedBlocks = "getminedblocks",
 }
 
 export enum ApiContractAction {

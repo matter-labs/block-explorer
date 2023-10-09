@@ -2,6 +2,7 @@ import { Controller, Get, Query, Logger, UseFilters, ParseArrayPipe, BadRequestE
 import { ApiTags, ApiExcludeController } from "@nestjs/swagger";
 import { L2_ETH_TOKEN_ADDRESS } from "../../common/constants";
 import { TokenType } from "../../token/token.entity";
+import { dateToTimestamp } from "../../common/utils";
 import { BlockService } from "../../block/block.service";
 import { TransactionService } from "../../transaction/transaction.service";
 import { TransferService } from "../../transfer/transfer.service";
@@ -25,6 +26,7 @@ import {
   AccountEtherBalanceResponseDto,
   AccountsEtherBalancesResponseDto,
 } from "../dtos/account/accountEtherBalanceResponse.dto";
+import { AccountMinedBlocksResponseDto } from "../dtos/account/accountMinedBlocksResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
 
 const entityName = "account";
@@ -223,6 +225,39 @@ export class AccountController {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
       result: balance,
+    };
+  }
+
+  @Get("/getminedblocks")
+  public async getAccountMinedBlocks(
+    @Query("address", new ParseAddressPipe()) address: string,
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+  ): Promise<AccountMinedBlocksResponseDto> {
+    // Atm all the blocks are validated by zero address
+    if (address !== "0x0000000000000000000000000000000000000000") {
+      return {
+        status: ResponseStatus.NOTOK,
+        message: ResponseMessage.NO_TRANSACTIONS_FOUND,
+        result: [],
+      };
+    }
+    const blocks = await this.blockService.findAll(
+      {},
+      {
+        page: pagingOptions.page,
+        limit: pagingOptions.offset,
+        maxLimit: pagingOptions.maxLimit,
+        canUseNumberFilterAsOffset: true,
+      }
+    );
+    return {
+      status: ResponseStatus.OK,
+      message: ResponseMessage.OK,
+      result: blocks.items.map((block) => ({
+        blockNumber: block.number.toString(),
+        timeStamp: dateToTimestamp(block.timestamp).toString(),
+        blockReward: "0",
+      })),
     };
   }
 }
