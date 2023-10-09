@@ -32,7 +32,7 @@ export default () => {
   };
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
-    const master = { url: DATABASE_URL };
+    const master = { url: DATABASE_URL || "postgres://postgres:postgres@localhost:5432/block-explorer" };
     const replicaSet = getDatabaseReplicaSet();
 
     return {
@@ -77,6 +77,6 @@ export default () => {
       enabled: DISABLE_API_SCHEMA_DOCS !== "true",
     },
     disableExternalAPI: DISABLE_EXTERNAL_API === "true",
-    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL,
+    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
   };
 };
