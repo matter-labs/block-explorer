@@ -1,7 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsInt, IsOptional, Max, Min } from "class-validator";
-import { SortingOrder } from "../../../common/types";
 
 export class PagingOptionsDto {
   @ApiPropertyOptional({
@@ -31,13 +30,4 @@ export class PagingOptionsDto {
   @Max(10000)
   @IsOptional()
   public readonly offset: number = 10;
-
-  @ApiPropertyOptional({
-    enum: SortingOrder,
-    default: SortingOrder.Desc,
-    description: "The sorting preference, use asc to sort by ascending and desc to sort by descending",
-    example: SortingOrder.Desc,
-  })
-  @IsOptional()
-  public readonly sort: SortingOrder = SortingOrder.Desc;
 }

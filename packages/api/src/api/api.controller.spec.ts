@@ -71,48 +71,56 @@ describe("ApiController", () => {
 
   describe("getAccountTransactions", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
-      const result = await controller.getAccountTransactions({
-        page: 1,
-        offset: 10,
-        sort: SortingOrder.Desc,
-        maxLimit: 10000,
-      });
+      const result = await controller.getAccountTransactions(
+        {
+          page: 1,
+          offset: 10,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Desc }
+      );
       expect(result).toBe(null);
     });
   });
 
   describe("getAccountInternalTransactions", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
-      const result = await controller.getAccountInternalTransactions({
-        page: 1,
-        offset: 10,
-        sort: SortingOrder.Desc,
-        maxLimit: 10000,
-      });
+      const result = await controller.getAccountInternalTransactions(
+        {
+          page: 1,
+          offset: 10,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Desc }
+      );
       expect(result).toBe(null);
     });
   });
 
   describe("getAccountTokenTransfers", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
-      const result = await controller.getAccountTokenTransfers({
-        page: 1,
-        offset: 10,
-        sort: SortingOrder.Desc,
-        maxLimit: 10000,
-      });
+      const result = await controller.getAccountTokenTransfers(
+        {
+          page: 1,
+          offset: 10,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Desc }
+      );
       expect(result).toBe(null);
     });
   });
 
   describe("getAccountNFTTransfers", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
-      const result = await controller.getAccountNFTTransfers({
-        page: 1,
-        offset: 10,
-        sort: SortingOrder.Desc,
-        maxLimit: 10000,
-      });
+      const result = await controller.getAccountNFTTransfers(
+        {
+          page: 1,
+          offset: 10,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Desc }
+      );
       expect(result).toBe(null);
     });
   });
@@ -155,6 +163,17 @@ describe("ApiController", () => {
   describe("getBlockRewards", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
       const result = await controller.getBlockRewards();
+      expect(result).toBe(null);
+    });
+  });
+
+  describe("getLogs", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getLogs({
+        page: 1,
+        offset: 10,
+        maxLimit: 10000,
+      });
       expect(result).toBe(null);
     });
   });
