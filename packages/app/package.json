@@ -22,7 +22,7 @@
   },
   "prettier": "@matterlabs/prettier-config",
   "lint-staged": {
-    "*.{vue,js,ts}": "echo test"
+    "*.{vue,js,ts}": "npm run lint"
   },
   "dependencies": {
     "@matterlabs/composables": "1.1.7",
