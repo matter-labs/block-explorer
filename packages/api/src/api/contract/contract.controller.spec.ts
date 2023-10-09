@@ -9,6 +9,12 @@ import { AddressService } from "../../address/address.service";
 import { Address } from "../../address/address.entity";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { ContractController, parseAddressListPipeExceptionFactory } from "./contract.controller";
+import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
+
+jest.mock("../mappers/sourceCodeMapper", () => ({
+  ...jest.requireActual("../mappers/sourceCodeMapper"),
+  mapContractSourceCode: jest.fn().mockReturnValue({ mockMappedSourceCode: true }),
+}));
 
 describe("ContractController", () => {
   let controller: ContractController;
@@ -139,6 +145,102 @@ describe("ContractController", () => {
         result: JSON.stringify(abi),
       });
       expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/info/${address}`);
+    });
+  });
+
+  describe("getContractSourceCode", () => {
+    let pipeMock = jest.fn();
+
+    beforeEach(() => {
+      pipeMock = jest.fn();
+      jest.spyOn(httpServiceMock, "get").mockReturnValue({
+        pipe: pipeMock,
+      } as unknown as rxjs.Observable<AxiosResponse>);
+      jest.spyOn(rxjs, "catchError").mockImplementation((callback) => callback as any);
+    });
+
+    it("throws error when contract verification info API fails with a server error", async () => {
+      pipeMock.mockImplementation((callback) => {
+        callback({
+          stack: "error stack",
+          response: {
+            data: "response data",
+            status: 500,
+          },
+        } as AxiosError);
+      });
+
+      await expect(controller.getContractSourceCode(address)).rejects.toThrowError(
+        new InternalServerErrorException("Failed to get contract source code")
+      );
+    });
+
+    it("returns empty source code when response API fails with with no data", async () => {
+      pipeMock.mockImplementation((callback) => {
+        return callback({
+          stack: "error stack",
+        } as AxiosError);
+      });
+
+      const response = await controller.getContractSourceCode(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [SOURCE_CODE_EMPTY_INFO],
+      });
+    });
+
+    it("returns empty source code response when contract verification info is not found", async () => {
+      pipeMock.mockImplementation((callback) => {
+        return callback({
+          stack: "error stack",
+          response: {
+            data: "response data",
+            status: 404,
+          },
+        } as AxiosError);
+      });
+
+      const response = await controller.getContractSourceCode(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [SOURCE_CODE_EMPTY_INFO],
+      });
+    });
+
+    it("returns mapped source code for verified contract", async () => {
+      const data = {
+        artifacts: {
+          abi: [],
+        },
+        request: {
+          sourceCode: "sourceCode",
+          constructorArguments: "0x0001",
+          contractName: "contractName",
+          optimizationUsed: false,
+          compilerSolcVersion: "8.10.0",
+          compilerZksolcVersion: "10.0.0",
+        },
+      };
+
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data,
+          });
+        })
+      );
+
+      const response = await controller.getContractSourceCode(address);
+      expect(mapContractSourceCode as jest.Mock).toHaveBeenCalledWith(data);
+      expect(mapContractSourceCode as jest.Mock).toHaveBeenCalledTimes(1);
+      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/info/${address}`);
+      expect(response).toEqual({
+        message: "OK",
+        result: [{ mockMappedSourceCode: true }],
+        status: "1",
+      });
     });
   });
 

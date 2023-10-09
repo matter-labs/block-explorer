@@ -41,6 +41,13 @@ describe("ApiController", () => {
     });
   });
 
+  describe("getContractSourceCode", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getContractSourceCode();
+      expect(result).toBe(null);
+    });
+  });
+
   describe("getContractCreation", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
       const result = await controller.getContractCreation();

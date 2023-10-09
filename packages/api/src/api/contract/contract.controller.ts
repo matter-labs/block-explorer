@@ -12,13 +12,16 @@ import { HttpService } from "@nestjs/axios";
 import { ApiTags, ApiExcludeController } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
 import { AxiosError } from "axios";
-import { catchError, firstValueFrom } from "rxjs";
+import { catchError, firstValueFrom, of } from "rxjs";
 import { AddressService } from "../../address/address.service";
 import { ParseAddressPipe } from "../../common/pipes/parseAddress.pipe";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { ContractAbiResponseDto } from "../dtos/contract/contractAbiResponse.dto";
+import { ContractSourceCodeResponseDto } from "../dtos/contract/contractSourceCodeResponse.dto";
 import { ContractCreationResponseDto } from "../dtos/contract/contractCreationResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
+import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
+import { ContractVerificationInfo } from "../types";
 
 const entityName = "contract";
 
@@ -45,14 +48,14 @@ export class ContractController {
   public async getContractAbi(
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<ContractAbiResponseDto> {
-    const { data } = await firstValueFrom(
+    const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
       this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
         catchError((error: AxiosError) => {
           if (error.response?.status === 404) {
             throw new BadRequestException("Contract source code not verified");
           }
           this.logger.error({
-            message: "Error fetching contract info",
+            message: "Error fetching contract verification info",
             stack: error.stack,
             response: error.response?.data,
           });
@@ -67,6 +70,41 @@ export class ContractController {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
       result: JSON.stringify(data.artifacts.abi),
+    };
+  }
+
+  @Get("/getsourcecode")
+  public async getContractSourceCode(
+    @Query("address", new ParseAddressPipe()) address: string
+  ): Promise<ContractSourceCodeResponseDto> {
+    const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
+      this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
+        catchError((error: AxiosError) => {
+          this.logger.error({
+            message: "Error fetching contract verification info",
+            stack: error.stack,
+            response: error.response?.data,
+          });
+          if (error.response?.status >= 500) {
+            throw new InternalServerErrorException("Failed to get contract source code");
+          }
+          return of({ data: null });
+        })
+      )
+    );
+
+    if (!data?.artifacts?.abi) {
+      return {
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [SOURCE_CODE_EMPTY_INFO],
+      };
+    }
+
+    return {
+      status: ResponseStatus.OK,
+      message: ResponseMessage.OK,
+      result: [mapContractSourceCode(data)],
     };
   }
 

@@ -1,9 +1,10 @@
 import { Controller, Get, Query, Req, Next, UseFilters } from "@nestjs/common";
-import { ApiTags, ApiOkResponse, ApiExcludeEndpoint, ApiQuery, ApiExtraModels } from "@nestjs/swagger";
+import { ApiTags, ApiOkResponse, ApiExcludeEndpoint, ApiQuery, ApiExtraModels, ApiOperation } from "@nestjs/swagger";
 import { Request, NextFunction } from "express";
 import { PagingOptionsWithMaxItemsLimitDto } from "./dtos/common/pagingOptionsWithMaxItemsLimit.dto";
 import { ContractAbiResponseDto } from "./dtos/contract/contractAbiResponse.dto";
 import { ContractCreationResponseDto, ContractCreationInfoDto } from "./dtos/contract/contractCreationResponse.dto";
+import { ContractSourceCodeResponseDto } from "./dtos/contract/contractSourceCodeResponse.dto";
 import { TransactionStatusResponseDto, TransactionStatusDto } from "./dtos/transaction/transactionStatusResponse.dto";
 import { TransactionReceiptStatusResponseDto } from "./dtos/transaction/transactionReceiptStatusResponse.dto";
 import { AccountTransactionDto } from "./dtos/account/accountTransaction.dto";
@@ -49,6 +50,7 @@ export class ApiController {
 
   @ApiTags("Contract API")
   @Get("api?module=contract&action=getabi")
+  @ApiOperation({ summary: "Fetch the ABI for a given contract address" })
   @ApiQuery({
     name: "address",
     description: "The contract address that has a verified source code",
@@ -64,7 +66,25 @@ export class ApiController {
   }
 
   @ApiTags("Contract API")
+  @Get("api?module=contract&action=getsourcecode")
+  @ApiOperation({ summary: "Fetch the source code for a given contract address" })
+  @ApiQuery({
+    name: "address",
+    description: "The contract address that has a verified source code",
+    example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
+    required: true,
+  })
+  @ApiOkResponse({
+    description: "Contract source code",
+    type: ContractSourceCodeResponseDto,
+  })
+  public async getContractSourceCode(): Promise<ContractSourceCodeResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Contract API")
   @Get("api?module=contract&action=getcontractcreation")
+  @ApiOperation({ summary: "Fetch creation details for a list of contract addresses" })
   @ApiQuery({
     isArray: true,
     explode: false,
@@ -75,7 +95,7 @@ export class ApiController {
   })
   @ApiExtraModels(ContractCreationInfoDto)
   @ApiOkResponse({
-    description: "Contract creation info",
+    description: "Contract creation information",
     type: ContractCreationResponseDto,
   })
   public async getContractCreation(): Promise<ContractCreationResponseDto> {
@@ -84,6 +104,7 @@ export class ApiController {
 
   @ApiTags("Transaction API")
   @Get("api?module=transaction&action=getstatus")
+  @ApiOperation({ summary: "Fetch the status for a given transaction hash" })
   @ApiQuery({
     name: "txhash",
     description: "The transaction hash to check the execution status",
@@ -101,6 +122,7 @@ export class ApiController {
 
   @ApiTags("Transaction API")
   @Get("api?module=transaction&action=gettxreceiptstatus")
+  @ApiOperation({ summary: "Fetch the receipt status for a given transaction hash" })
   @ApiQuery({
     name: "txhash",
     description: "The transaction hash to check the execution status",
@@ -117,6 +139,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=txlist")
+  @ApiOperation({ summary: "Retrieve transactions for a given address" })
   @ApiQuery({
     name: "address",
     description: "The address to filter transactions by",
@@ -151,6 +174,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=txlistinternal")
+  @ApiOperation({ summary: "Retrieve internal transactions for a given address or transaction hash" })
   @ApiQuery({
     name: "address",
     description: "The address to filter internal transactions by",
@@ -191,6 +215,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=balance")
+  @ApiOperation({ summary: "Retrieve the balance for a given address" })
   @ApiQuery({
     name: "address",
     description: "The address to get Ether balance for",
@@ -207,6 +232,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=balancemulti")
+  @ApiOperation({ summary: "Retrieve the balances for a list of addresses" })
   @ApiQuery({
     isArray: true,
     explode: false,
@@ -225,6 +251,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=tokenbalance")
+  @ApiOperation({ summary: "Retrieve token balance for a specific address" })
   @ApiQuery({
     name: "address",
     description: "The address to get Token balance for",
@@ -247,6 +274,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=tokentx")
+  @ApiOperation({ summary: "Retrieve token transfers for a specific address or token contract" })
   @ApiQuery({
     name: "address",
     description: "The address to get transfers for",
@@ -287,6 +315,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=tokennfttx")
+  @ApiOperation({ summary: "Retrieve NFT transfers for a specific address" })
   @ApiQuery({
     name: "address",
     description: "The address to get transfers for",
@@ -327,6 +356,7 @@ export class ApiController {
 
   @ApiTags("Block API")
   @Get("api?module=block&action=getblocknobytime")
+  @ApiOperation({ summary: "Retrieve block number closest to a specific timestamp" })
   @ApiQuery({
     name: "timestamp",
     type: "integer",
@@ -351,6 +381,7 @@ export class ApiController {
 
   @ApiTags("Block API")
   @Get("api?module=block&action=getblockcountdown")
+  @ApiOperation({ summary: "Retrieve countdown details for a specific block number" })
   @ApiQuery({
     name: "blockno",
     type: "integer",
@@ -368,6 +399,7 @@ export class ApiController {
 
   @ApiTags("Block API")
   @Get("api?module=block&action=getblockreward")
+  @ApiOperation({ summary: "Retrieve block reward details for a specific block number" })
   @ApiQuery({
     name: "blockno",
     type: "integer",

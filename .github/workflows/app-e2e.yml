@@ -26,7 +26,6 @@ on:
         required: false
 
 env:
-  ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
   ALLURE_SEARCH_REQUEST: '[{"id":"name","type":"string","value":"#${{ github.run_number }}"}]'
   ALLURE_BASIC_TAGS: "${{ github.head_ref }}, #${{ github.run_number }}, ${{ github.event.pull_request.title }}"
   ALLURE_PROJECT_ID: ${{ vars.ALLURE_PROJECT_ID }}
@@ -45,15 +44,15 @@ jobs:
       matrix:
         tags: [
                 "@artifactsSet1",
-                # "@artifactsSet2",
-                # "@artifactsSet3",
-                # "@artifactsSet4",
-                # "@redirectionSet1",
-                # "@redirectionSet2",
-                # "@redirectionSet3",
-                # "@copying",
-                # "@search",
-                # "@testnetSmokeSuite"
+                "@artifactsSet2",
+                "@artifactsSet3",
+                "@artifactsSet4",
+                "@redirectionSet1",
+                "@redirectionSet2",
+                "@redirectionSet3",
+                "@copying",
+                "@search",
+                "@testnetSmokeSuite"
               ]
 
     name: '${{ matrix.tags }}'
@@ -110,11 +109,14 @@ jobs:
         env:
           ALLURE_LAUNCH_NAME: "#${{ github.run_number }} ${{ env.MATRIX_TAG_WITHOUT_QUOTES }}"
           ALLURE_LAUNCH_TAGS: "${{ env.ALLURE_BASIC_TAGS }}, ${{ env.MATRIX_TAG_WITHOUT_QUOTES }}"
+          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
         run: |
           echo "ALLURE_LAUNCH_ID=$(./allurectl launch create --launch-name '${{ env.ALLURE_LAUNCH_NAME }}' --no-header --format ID | tail -n1)" >> $GITHUB_ENV
 
       - name: Upload tests to the Allure proj
         if: always() && inputs.publish_to_allure == true
+        env:
+          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
         run: |
           ./allurectl upload allure-results --launch-id ${{ env.ALLURE_LAUNCH_ID }}
           ./allurectl launch close ${{ env.ALLURE_LAUNCH_ID }}

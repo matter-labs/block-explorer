@@ -23,6 +23,7 @@ export enum ApiAccountAction {
 
 export enum ApiContractAction {
   GetAbi = "getabi",
+  GetSourceCode = "getsourcecode",
   GetContractCreation = "getcontractcreation",
 }
 
@@ -42,4 +43,62 @@ export const apiActionsMap = {
   [ApiModule.Contract]: Object.values(ApiContractAction) as string[],
   [ApiModule.Transaction]: Object.values(ApiTransactionAction) as string[],
   [ApiModule.Block]: Object.values(ApiBlockAction) as string[],
+};
+
+type ContractFunctionInput = {
+  internalType: string;
+  name: string;
+  type: string;
+  value?: string | number;
+};
+type ContractFunctionOutput = {
+  internalType: string;
+  name: string;
+  type: string;
+};
+
+export type AbiFragment = {
+  inputs: ContractFunctionInput[];
+  name: string;
+  outputs: ContractFunctionOutput[];
+  stateMutability: string;
+  type: string;
+};
+
+type ContractVerificationRequest = {
+  id: number;
+  codeFormat: string;
+  contractName: string;
+  contractAddress: string;
+  compilerSolcVersion?: string;
+  compilerZksolcVersion?: string;
+  compilerVyperVersion?: string;
+  compilerZkvyperVersion?: string;
+  constructorArguments: string;
+  sourceCode:
+    | string
+    | {
+        language: string;
+        settings: {
+          optimizer: {
+            enabled: boolean;
+          };
+        };
+        sources: {
+          [key: string]: {
+            content: string;
+          };
+        };
+      }
+    | Record<string, string>;
+  optimizationUsed: boolean;
+};
+
+export type ContractVerificationInfo = {
+  artifacts: {
+    abi: AbiFragment[];
+    bytecode: number[];
+  };
+  request: ContractVerificationRequest;
+  verifiedAt: string;
 };
