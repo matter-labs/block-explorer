@@ -74,6 +74,6 @@ export class Transfer extends CountableEntity {
   @Column({ type: "int" })
   public readonly logIndex: number;
 
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
 }
