@@ -79,6 +79,13 @@ jobs:
               ${{ runner.os }}-build-
               ${{ runner.os }}-
 
+      - name: Install dependencies
+        working-directory: ./
+        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
+        run: |
+          npm pkg delete scripts.prepare
+          npm ci
+
       - name: Download allurectl
         run: wget https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_386 -O ./allurectl
 
