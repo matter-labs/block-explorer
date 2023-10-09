@@ -7,6 +7,7 @@ import { TransactionService } from "../../transaction/transaction.service";
 import { TransferService } from "../../transfer/transfer.service";
 import { BalanceService } from "../../balance/balance.service";
 import { PagingOptionsWithMaxItemsLimitDto } from "../dtos/common/pagingOptionsWithMaxItemsLimit.dto";
+import { SortingOptionsDto } from "../dtos/common/sortingOptions.dto";
 import { ParseLimitedIntPipe } from "../../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe } from "../../common/pipes/parseAddress.pipe";
 import { ParseTransactionHashPipe } from "../../common/pipes/parseTransactionHash.pipe";
@@ -50,6 +51,7 @@ export class AccountController {
   public async getAccountTransactions(
     @Query("address", new ParseAddressPipe()) address: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Query() sortingOptions: SortingOptionsDto,
     @Query("startblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) startBlock?: number,
     @Query("endblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) endBlock?: number
   ): Promise<AccountTransactionsResponseDto> {
@@ -59,6 +61,7 @@ export class AccountController {
         startBlock,
         endBlock,
         ...pagingOptions,
+        ...sortingOptions,
       }),
     ]);
     const transactionsList = transactions.map((transaction) => mapTransactionListItem(transaction, lastBlockNumber));
@@ -79,6 +82,7 @@ export class AccountController {
     )
     transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Query() sortingOptions: SortingOptionsDto,
     @Query("startblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) startBlock?: number,
     @Query("endblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) endBlock?: number
   ): Promise<AccountInternalTransactionsResponseDto> {
@@ -88,6 +92,7 @@ export class AccountController {
       startBlock,
       endBlock,
       ...pagingOptions,
+      ...sortingOptions,
     });
     const internalTransactionsList = transfers.map((transfer) => mapInternalTransactionListItem(transfer));
     return {
@@ -107,6 +112,7 @@ export class AccountController {
     )
     contractAddress: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Query() sortingOptions: SortingOptionsDto,
     @Query("startblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) startBlock?: number,
     @Query("endblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) endBlock?: number
   ): Promise<AccountTokenTransfersResponseDto> {
@@ -119,6 +125,7 @@ export class AccountController {
         startBlock,
         endBlock,
         ...pagingOptions,
+        ...sortingOptions,
       }),
     ]);
     const transfersList = transfers.map((transfer) => mapTransferListItem(transfer, lastBlockNumber));
@@ -139,6 +146,7 @@ export class AccountController {
     )
     contractAddress: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Query() sortingOptions: SortingOptionsDto,
     @Query("startblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) startBlock?: number,
     @Query("endblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) endBlock?: number
   ): Promise<AccountNFTTransfersResponseDto> {
@@ -151,6 +159,7 @@ export class AccountController {
         startBlock,
         endBlock,
         ...pagingOptions,
+        ...sortingOptions,
       }),
     ]);
     const transfersList = transfers.map((transfer) => mapTransferListItem(transfer, lastBlockNumber));

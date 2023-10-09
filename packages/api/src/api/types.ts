@@ -9,6 +9,7 @@ export enum ApiModule {
   Contract = "contract",
   Transaction = "transaction",
   Block = "block",
+  Logs = "logs",
 }
 
 export enum ApiAccountAction {
@@ -38,11 +39,16 @@ export enum ApiBlockAction {
   GetBlockRewards = "getblockreward",
 }
 
+export enum ApiLogsAction {
+  getLogs = "getLogs",
+}
+
 export const apiActionsMap = {
   [ApiModule.Account]: Object.values(ApiAccountAction) as string[],
   [ApiModule.Contract]: Object.values(ApiContractAction) as string[],
   [ApiModule.Transaction]: Object.values(ApiTransactionAction) as string[],
   [ApiModule.Block]: Object.values(ApiBlockAction) as string[],
+  [ApiModule.Logs]: Object.values(ApiLogsAction) as string[],
 };
 
 type ContractFunctionInput = {

@@ -7,6 +7,7 @@ import { ApiBlockModule } from "./api/block/block.module";
 import { ApiAccountModule } from "./api/account/account.module";
 import { ApiContractModule } from "./api/contract/contract.module";
 import { ApiTransactionModule } from "./api/transaction/transaction.module";
+import { ApiLogModule } from "./api/log/log.module";
 import { TokenModule } from "./token/token.module";
 import { BatchModule } from "./batch/batch.module";
 import { BlockModule } from "./block/block.module";
@@ -32,9 +33,9 @@ const { disableExternalAPI } = config();
       useFactory: (configService: ConfigService) => configService.get<TypeOrmModuleOptions>("typeORM"),
       inject: [ConfigService],
     }),
-    ApiModule,
-    ApiContractModule,
-    ...(disableExternalAPI ? [] : [ApiBlockModule, ApiAccountModule, ApiTransactionModule]),
+    ...(disableExternalAPI
+      ? []
+      : [ApiModule, ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiContractModule, ApiLogModule]),
     TokenModule,
     AddressModule,
     BalanceModule,
