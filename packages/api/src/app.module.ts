@@ -33,9 +33,9 @@ const { disableExternalAPI } = config();
       useFactory: (configService: ConfigService) => configService.get<TypeOrmModuleOptions>("typeORM"),
       inject: [ConfigService],
     }),
-    ...(disableExternalAPI
-      ? []
-      : [ApiModule, ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiContractModule, ApiLogModule]),
+    ApiModule,
+    ApiContractModule,
+    ...(disableExternalAPI ? [] : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule]),
     TokenModule,
     AddressModule,
     BalanceModule,
