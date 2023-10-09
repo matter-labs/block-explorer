@@ -6,7 +6,6 @@ describe("config", () => {
   beforeAll(() => {
     process.env = {
       NODE_ENV: "test",
-      DATABASE_URL: "DATABASE_URL",
     };
   });
 
@@ -24,7 +23,7 @@ describe("config", () => {
       },
       typeORM: {
         type: "postgres",
-        url: "DATABASE_URL",
+        url: "postgres://postgres:postgres@localhost:5432/block-explorer",
         poolSize: 300,
         extra: {
           idleTimeoutMillis: 60000,
@@ -40,6 +39,7 @@ describe("config", () => {
       swagger: {
         enabled: true,
       },
+      contractVerificationApiUrl: "http://127.0.0.1:3070",
       disableExternalAPI: false,
     });
   });

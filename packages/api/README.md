@@ -24,7 +24,7 @@ You need to have a running Worker database, for instructions on how to run the w
   - `DATABASE_REPLICA_URL_<<replica_index>>`
   - `DATABASE_CONNECTION_IDLE_TIMEOUT_MS`
   - `DATABASE_CONNECTION_POOL_SIZE`
-- Set `CONTRACT_VERIFICATION_API_URL` to `https://zksync2-testnet-explorer.zksync.dev` for zkSync Era testnet. For zkSync Era mainnet: `https://zksync2-mainnet-explorer.zksync.io`.
+- Set `CONTRACT_VERIFICATION_API_URL` to your verification API URL. For zkSync Era testnet use `https://zksync2-testnet-explorer.zksync.dev`. For zkSync Era mainnet - `https://zksync2-mainnet-explorer.zksync.io`.
 
 ## Running the app
 
