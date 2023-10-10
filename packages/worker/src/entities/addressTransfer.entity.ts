@@ -49,6 +49,6 @@ export class AddressTransfer extends BaseEntity {
   @Column({ type: "int" })
   public readonly logIndex: number;
 
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
 }
