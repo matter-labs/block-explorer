@@ -41,6 +41,6 @@ export class AddressTransfer extends BaseEntity {
   @Column({ type: "jsonb", nullable: true })
   public readonly fields?: Record<string, string>;
 
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
 }
