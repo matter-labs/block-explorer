@@ -15,7 +15,7 @@ import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes
 
 const entityName = "transactions";
 
-@ApiTags(entityName)
+@ApiTags("Transaction BFF")
 @Controller(entityName)
 export class TransactionController {
   constructor(

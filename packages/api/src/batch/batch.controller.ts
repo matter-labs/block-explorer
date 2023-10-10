@@ -11,7 +11,7 @@ import { BatchDetailsDto } from "./batchDetails.dto";
 
 const entityName = "batches";
 
-@ApiTags(entityName)
+@ApiTags("Batch BFF")
 @Controller(entityName)
 export class BatchController {
   constructor(private readonly batchService: BatchService) {}
