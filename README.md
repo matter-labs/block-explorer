@@ -4,7 +4,7 @@
 
 ## 📌 Overview
 This repository is a monorepo consisting of 3 packages:
-- [Worker](./packages/worker) - an indexer service for [zkSync Era](https://zksync.io) blockchain data. The purpose of the service is to read the data from the blockchain in real time, transform it and fill in it's database with the data in a way that makes it easy to be queried by the [API](./packegs/api) service.
+- [Worker](./packages/worker) - an indexer service for [zkSync Era](https://zksync.io) blockchain data. The purpose of the service is to read the data from the blockchain in real time, transform it and fill in it's database with the data in a way that makes it easy to be queried by the [API](./packages/api) service.
 - [API](./packages/api) - a service providing Web API for retrieving structured [zkSync Era](https://zksync.io) blockchain data collected by [Worker](./packages/worker). It connects to the Worker's database to be able to query the collected data.
 - [App](./packages/app) - a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more. It makes requests to the [API](./packages/api) to get the data and presents it in a way that's easy to read and understand.
 
