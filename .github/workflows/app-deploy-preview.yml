@@ -73,3 +73,4 @@ jobs:
       default_network_value_for_e2e: "/?network=mainnet"
       publish_to_allure: true
       environmentTags: "and not @featureEnv"
+      
