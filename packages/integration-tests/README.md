@@ -8,15 +8,6 @@ Based on Jest.io/TypeScript/TDD.
 npm install
 ```
 
-## Setting up env variables
-
-- Create `.env` file in the `integration-tests/src/playbook/` package folder and copy paste `.env.example` content in there.
-```
-cp .env.example packages/integration-tests/src/playbook/.env
-```
-
-- Add your private wallet key to `WALLET_PRIVATE_KEY=` By default we use `richWalletPrivateKey` private key in `integration-tests/src/playbook/utils/getWallet.ts` from `integration-tests/src/entities.ts`. 
-
 ## Preparing a local environment
 
 Make sure you have `Docker` installed. Before running the tests you need to spin up a local environment (use `docker-compose.yaml` from the root directory):
