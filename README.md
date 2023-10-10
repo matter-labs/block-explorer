@@ -9,6 +9,8 @@ This repository is a monorepo consisting of 4 packages:
 - [API](./packages/api) - a service providing Web API for retrieving structured [zkSync Era](https://zksync.io) blockchain data collected by [Worker](./packages/worker). It connects to the Worker's database to be able to query the collected data.
 - [App](./packages/app) - a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more. It makes requests to the [API](./packages/api) to get the data and presents it in a way that's easy to read and understand.
 
+Also the repository contains [integration-test](./packages/integration-tests) package with a set of API and UI tests. Follow this [Readme](./packages/integration-tests/README.md) for more details.
+
 ## 🏛 Architecture
 The following diagram illustrates how are the block explorer components connected:
 
