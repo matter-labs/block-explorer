@@ -31,7 +31,6 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   const deployTransaction = await paymaster.deployTransaction;
   console.log(`Paymaster deploy transaction: ${deployTransaction.hash}`);
-  await fs.writeFile(Buffer.paymasterDeployTx, deployTransaction.hash);
 
   await (
     await deployer.zkWallet.sendTransaction({

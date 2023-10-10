@@ -4,7 +4,6 @@ require("dotenv").config({ path: __dirname + "/.env" });
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@nomiclabs/hardhat-ethers";
-
 import { localConfig } from "../config";
 
 import type { HardhatUserConfig } from "hardhat/types";
