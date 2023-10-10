@@ -92,8 +92,8 @@
     "start-server-and-test": "^1.14.0",
     "storybook-vue3-router": "^2.2.1",
     "tailwindcss": "^3.0.23",
-    "vite": "2.9.14",
-    "vitest": "0.15.2",
+    "vite": "2.9.16",
+    "vitest": "0.19.0",
     "vue-loader": "16.8.3",
     "vue-tsc": "0.33.6"
   }

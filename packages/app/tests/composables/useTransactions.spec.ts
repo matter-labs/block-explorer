@@ -1,6 +1,6 @@
 import { computed, type ComputedRef } from "vue";
 
-import { afterEach, beforeEach, describe, expect, it, type SpyInstance, type SpyInstanceFn, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
 
@@ -49,13 +49,13 @@ vi.mock("ohmyfetch", () => {
 describe("useTransactions:", () => {
   let mockContext: SpyInstance;
   let searchParams: ComputedRef<TransactionSearchParams>;
-  let fetchMock: SpyInstanceFn;
+  let fetchMock: SpyInstance;
 
   /* eslint-disable  @typescript-eslint/no-explicit-any */
   beforeEach(() => {
     mockContext = useContextMock();
     searchParams = computed(() => ({}));
-    fetchMock = $fetch as any as SpyInstanceFn;
+    fetchMock = $fetch as any as SpyInstance;
   });
 
   afterEach(() => {
