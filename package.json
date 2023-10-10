@@ -17,7 +17,7 @@
     "test:ci": "lerna run test:ci",
     "test:e2e": "lerna run test:e2e",
     "test:integration:ui": "lerna run integration-test:ui",
-    "test:integration:api": "lerna run integration-test:api:pre-seed && lerna run integration-test:api",
+    "test:integration:api": "lerna run integration-test:api",
     "dev": "lerna run dev",
     "build": "lerna run build",
     "start": "lerna run start",
