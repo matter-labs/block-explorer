@@ -1,9 +1,8 @@
 import * as ethers from "ethers";
-import { promises as fs } from "fs";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger, Wallets } from "../../../entities";
+import { Logger, Wallets } from "../../../entities";
 import { Helper } from "../../../helper";
 
 export const transferERC20 = async function (sum: string, tokenAddress: string, tokenName?: string /*, units = 18*/) {
@@ -12,8 +11,6 @@ export const transferERC20 = async function (sum: string, tokenAddress: string, 
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
   const syncWallet2 = new zksync.Wallet(Wallets.secondWalletPrivateKey, syncProvider, ethProvider);
-  const playbookRoot = "src/playbook/";
-  const bufferFile = playbookRoot + Buffer.txEthTransfer;
 
   const transfer = await syncWallet.transfer({
     to: syncWallet2.address,
@@ -24,7 +21,6 @@ export const transferERC20 = async function (sum: string, tokenAddress: string, 
 
   const txHash = transfer.hash;
   await helper.txHashLogger(Logger.transfer, txHash, tokenName);
-  await fs.writeFile(bufferFile, txHash);
 
   return txHash;
 };
