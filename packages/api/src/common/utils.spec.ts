@@ -3,7 +3,15 @@ import { MoreThanOrEqual, LessThanOrEqual, Between, SelectQueryBuilder } from "t
 import * as paginator from "nestjs-typeorm-paginate";
 import { hexTransformer } from "./transformers/hex.transformer";
 import { BaseEntity } from "../common/entities/base.entity";
-import { buildDateFilter, paginate, formatHexAddress, getMethodId, dateToTimestamp } from "./utils";
+import {
+  buildDateFilter,
+  paginate,
+  formatHexAddress,
+  getMethodId,
+  dateToTimestamp,
+  numberToHex,
+  parseIntToHex,
+} from "./utils";
 import { IPaginationOptions } from "./types";
 
 jest.mock("nestjs-typeorm-paginate");
@@ -361,6 +369,38 @@ describe("utils", () => {
   describe("dateToTimestamp", () => {
     it("returns timestamp seconds for the date", () => {
       expect(dateToTimestamp(new Date("2022-11-21T18:16:51.000Z"))).toBe(1669054611);
+    });
+  });
+
+  describe("numberToHex", () => {
+    it("returns hex str for the specified number", () => {
+      expect(numberToHex(1000)).toBe("0x3e8");
+    });
+
+    it("returns 0x if the specified number is null", () => {
+      expect(numberToHex(null)).toBe("0x");
+    });
+
+    it("returns 0x if the specified number is undefined", () => {
+      expect(numberToHex(undefined)).toBe("0x");
+    });
+  });
+
+  describe("parseIntToHex", () => {
+    it("returns hex str for the specified number as a string", () => {
+      expect(parseIntToHex("1000")).toBe("0x3e8");
+    });
+
+    it("returns 0x if the specified number is null", () => {
+      expect(parseIntToHex(null)).toBe("0x");
+    });
+
+    it("returns 0x if the specified number is undefined", () => {
+      expect(parseIntToHex(undefined)).toBe("0x");
+    });
+
+    it("returns 0x if the specified number is not valid int", () => {
+      expect(parseIntToHex("azxf")).toBe("0x");
     });
   });
 });

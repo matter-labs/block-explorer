@@ -149,12 +149,15 @@ describe("AccountController", () => {
 
   describe("getAccountTransactions", () => {
     it("calls block service to get latest block number", async () => {
-      await controller.getAccountTransactions(address, {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      await controller.getAccountTransactions(
+        address,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(blockServiceMock.getLastBlockNumber).toBeCalledTimes(1);
     });
 
@@ -165,8 +168,8 @@ describe("AccountController", () => {
           page: 2,
           offset: 20,
           maxLimit: 10000,
-          sort: SortingOrder.Asc,
         },
+        { sort: SortingOrder.Asc },
         11,
         12
       );
@@ -182,12 +185,15 @@ describe("AccountController", () => {
     });
 
     it("returns not ok response when no transactions found", async () => {
-      const response = await controller.getAccountTransactions(address, {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      const response = await controller.getAccountTransactions(
+        address,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(response).toEqual({
         status: ResponseStatus.NOTOK,
         message: ResponseMessage.NO_TRANSACTIONS_FOUND,
@@ -198,12 +204,15 @@ describe("AccountController", () => {
     it("returns transactions list when transactions are found by address", async () => {
       jest.spyOn(transactionServiceMock, "findByAddress").mockResolvedValue([addressTransaction as AddressTransaction]);
 
-      const response = await controller.getAccountTransactions(address, {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      const response = await controller.getAccountTransactions(
+        address,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
@@ -250,8 +259,8 @@ describe("AccountController", () => {
           page: 2,
           offset: 20,
           maxLimit: 10000,
-          sort: SortingOrder.Asc,
         },
+        { sort: SortingOrder.Asc },
         11,
         12
       );
@@ -269,12 +278,16 @@ describe("AccountController", () => {
     });
 
     it("returns not ok response when no transactions found", async () => {
-      const response = await controller.getAccountInternalTransactions(address, null, {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      const response = await controller.getAccountInternalTransactions(
+        address,
+        null,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(response).toEqual({
         status: ResponseStatus.NOTOK,
         message: ResponseMessage.NO_TRANSACTIONS_FOUND,
@@ -285,12 +298,16 @@ describe("AccountController", () => {
     it("returns internal transactions list when transactions are found", async () => {
       jest.spyOn(transferServiceMock, "findInternalTransfers").mockResolvedValue([ecr20Transfer as Transfer]);
 
-      const response = await controller.getAccountInternalTransactions(address, null, {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      const response = await controller.getAccountInternalTransactions(
+        address,
+        null,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
@@ -320,12 +337,16 @@ describe("AccountController", () => {
 
   describe("getAccountTokenTransfers", () => {
     it("calls block service to get latest block number", async () => {
-      await controller.getAccountTokenTransfers(address, null, {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      await controller.getAccountTokenTransfers(
+        address,
+        null,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(blockServiceMock.getLastBlockNumber).toBeCalledTimes(1);
     });
 
@@ -337,8 +358,8 @@ describe("AccountController", () => {
           page: 2,
           offset: 20,
           maxLimit: 10000,
-          sort: SortingOrder.Asc,
         },
+        { sort: SortingOrder.Asc },
         11,
         12
       );
@@ -357,12 +378,16 @@ describe("AccountController", () => {
     });
 
     it("returns not ok response when no transfers found", async () => {
-      const response = await controller.getAccountTokenTransfers(address, "tokenAddress", {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      const response = await controller.getAccountTokenTransfers(
+        address,
+        "tokenAddress",
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(response).toEqual({
         status: ResponseStatus.NOTOK,
         message: ResponseMessage.NO_TRANSACTIONS_FOUND,
@@ -380,8 +405,8 @@ describe("AccountController", () => {
           page: 2,
           offset: 20,
           maxLimit: 10000,
-          sort: SortingOrder.Asc,
-        }
+        },
+        { sort: SortingOrder.Asc }
       );
       expect(response).toEqual({
         status: ResponseStatus.OK,
@@ -417,12 +442,16 @@ describe("AccountController", () => {
 
   describe("getAccountNFTTransfers", () => {
     it("calls block service to get latest block number", async () => {
-      await controller.getAccountNFTTransfers(address, null, {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      await controller.getAccountNFTTransfers(
+        address,
+        null,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(blockServiceMock.getLastBlockNumber).toBeCalledTimes(1);
     });
 
@@ -434,8 +463,8 @@ describe("AccountController", () => {
           page: 2,
           offset: 20,
           maxLimit: 10000,
-          sort: SortingOrder.Asc,
         },
+        { sort: SortingOrder.Asc },
         11,
         12
       );
@@ -454,12 +483,16 @@ describe("AccountController", () => {
     });
 
     it("returns not ok response when no transfers found", async () => {
-      const response = await controller.getAccountNFTTransfers(address, "tokenAddress", {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      const response = await controller.getAccountNFTTransfers(
+        address,
+        "tokenAddress",
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(response).toEqual({
         status: ResponseStatus.NOTOK,
         message: ResponseMessage.NO_TRANSACTIONS_FOUND,
@@ -470,12 +503,16 @@ describe("AccountController", () => {
     it("returns transfers list when transfers are found", async () => {
       jest.spyOn(transferServiceMock, "findTokenTransfers").mockResolvedValue([erc721Transfer]);
 
-      const response = await controller.getAccountNFTTransfers(address, "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe36A", {
-        page: 2,
-        offset: 20,
-        maxLimit: 10000,
-        sort: SortingOrder.Asc,
-      });
+      const response = await controller.getAccountNFTTransfers(
+        address,
+        "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe36A",
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,

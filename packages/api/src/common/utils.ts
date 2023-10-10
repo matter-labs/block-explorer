@@ -109,3 +109,15 @@ export const formatHexAddress = (address: string) => hexTransformer.from(hexTran
 export const getMethodId = (data: string) => (data.length > 10 ? data.substring(0, 10) : "0x");
 
 export const dateToTimestamp = (date: Date) => Math.floor(date.getTime() / 1000);
+
+export const numberToHex = (num: number) => (num != null ? `0x${num.toString(16)}` : "0x");
+
+export const parseIntToHex = (numStr: string) => {
+  if (numStr != null) {
+    const parsedInt = parseInt(numStr, 10);
+    if (!Number.isNaN(parsedInt)) {
+      return numberToHex(parsedInt);
+    }
+  }
+  return "0x";
+};

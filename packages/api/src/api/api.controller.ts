@@ -2,6 +2,7 @@ import { Controller, Get, Query, Req, Next, UseFilters } from "@nestjs/common";
 import { ApiTags, ApiOkResponse, ApiExcludeEndpoint, ApiQuery, ApiExtraModels, ApiOperation } from "@nestjs/swagger";
 import { Request, NextFunction } from "express";
 import { PagingOptionsWithMaxItemsLimitDto } from "./dtos/common/pagingOptionsWithMaxItemsLimit.dto";
+import { SortingOptionsDto } from "./dtos/common/sortingOptions.dto";
 import { ContractAbiResponseDto } from "./dtos/contract/contractAbiResponse.dto";
 import { ContractCreationResponseDto, ContractCreationInfoDto } from "./dtos/contract/contractCreationResponse.dto";
 import { ContractSourceCodeResponseDto } from "./dtos/contract/contractSourceCodeResponse.dto";
@@ -28,6 +29,7 @@ import { ApiRequestQuery, ApiModule } from "./types";
 import { ParseModulePipe } from "./pipes/parseModule.pipe";
 import { ParseActionPipe } from "./pipes/parseAction.pipe";
 import { ApiExceptionFilter } from "./exceptionFilter";
+import { LogsResponseDto, LogApiDto } from "./dtos/log/logs.dto";
 
 @Controller("")
 export class ApiController {
@@ -167,7 +169,9 @@ export class ApiController {
   })
   public async getAccountTransactions(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
   ): Promise<AccountTransactionsResponseDto> {
     return null;
   }
@@ -208,7 +212,9 @@ export class ApiController {
   })
   public async getAccountInternalTransactions(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
   ): Promise<AccountInternalTransactionsResponseDto> {
     return null;
   }
@@ -308,7 +314,9 @@ export class ApiController {
   })
   public async getAccountTokenTransfers(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
   ): Promise<AccountTokenTransfersResponseDto> {
     return null;
   }
@@ -349,7 +357,9 @@ export class ApiController {
   })
   public async getAccountNFTTransfers(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
   ): Promise<AccountNFTTransfersResponseDto> {
     return null;
   }
@@ -412,6 +422,41 @@ export class ApiController {
     type: BlockRewardResponseDto,
   })
   public async getBlockRewards(): Promise<BlockRewardResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Logs API")
+  @Get("api?module=logs&action=getLogs")
+  @ApiOperation({ summary: "Retrieve the event logs for an address, with optional filtering by block range" })
+  @ApiQuery({
+    name: "address",
+    description: "The address to filter logs by",
+    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    required: true,
+  })
+  @ApiQuery({
+    name: "fromBlock",
+    type: "integer",
+    description: "The integer block number to start searching for logs",
+    example: 12878196,
+    required: false,
+  })
+  @ApiQuery({
+    name: "toBlock",
+    type: "integer",
+    description: "The integer block number to stop searching for logs ",
+    example: 12879196,
+    required: false,
+  })
+  @ApiExtraModels(LogApiDto)
+  @ApiOkResponse({
+    description: "Returns event logs for an address",
+    type: LogsResponseDto,
+  })
+  public async getLogs(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+  ): Promise<LogsResponseDto> {
     return null;
   }
 }

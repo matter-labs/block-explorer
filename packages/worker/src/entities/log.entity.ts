@@ -10,6 +10,7 @@ import { BaseEntity } from "./base.entity";
 @Entity({ name: "logs" })
 @Index(["address", "timestamp", "logIndex"])
 @Index(["transactionHash", "timestamp", "logIndex"])
+@Index(["address", "blockNumber", "logIndex"])
 export class Log extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;
