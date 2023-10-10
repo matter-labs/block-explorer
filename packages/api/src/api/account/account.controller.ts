@@ -233,27 +233,22 @@ export class AccountController {
     @Query("address", new ParseAddressPipe()) address: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<AccountMinedBlocksResponseDto> {
-    // Atm all the blocks are validated by zero address
-    if (address !== "0x0000000000000000000000000000000000000000") {
+    const blocks = await this.blockService.findMany({
+      miner: address,
+      ...pagingOptions,
+      selectFields: ["number", "timestamp"],
+    });
+    if (!blocks.length) {
       return {
         status: ResponseStatus.NOTOK,
         message: ResponseMessage.NO_TRANSACTIONS_FOUND,
         result: [],
       };
     }
-    const blocks = await this.blockService.findAll(
-      {},
-      {
-        page: pagingOptions.page,
-        limit: pagingOptions.offset,
-        maxLimit: pagingOptions.maxLimit,
-        canUseNumberFilterAsOffset: true,
-      }
-    );
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: blocks.items.map((block) => ({
+      result: blocks.map((block) => ({
         blockNumber: block.number.toString(),
         timeStamp: dateToTimestamp(block.timestamp).toString(),
         blockReward: "0",

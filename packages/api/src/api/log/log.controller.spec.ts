@@ -16,7 +16,7 @@ describe("LogController", () => {
   const address = "address";
   beforeEach(async () => {
     logServiceMock = mock<LogService>({
-      findLogs: jest.fn().mockResolvedValue([
+      findMany: jest.fn().mockResolvedValue([
         {
           logIndex: 1,
         },
@@ -52,8 +52,8 @@ describe("LogController", () => {
         0,
         10
       );
-      expect(logServiceMock.findLogs).toBeCalledTimes(1);
-      expect(logServiceMock.findLogs).toBeCalledWith({
+      expect(logServiceMock.findMany).toBeCalledTimes(1);
+      expect(logServiceMock.findMany).toBeCalledWith({
         address,
         fromBlock: 0,
         toBlock: 10,
@@ -89,7 +89,7 @@ describe("LogController", () => {
     });
 
     it("returns not ok response and empty logs list when logs are not found", async () => {
-      (logServiceMock.findLogs as jest.Mock).mockResolvedValueOnce([]);
+      (logServiceMock.findMany as jest.Mock).mockResolvedValueOnce([]);
       const response = await controller.getLogs(
         address,
         {
