@@ -1,9 +1,10 @@
-import { Entity, Column, PrimaryColumn, Index } from "typeorm";
+import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { hexArrayTransformer } from "../common/transformers/hexArray.transformer";
+import { Transaction } from "../transaction/entities/transaction.entity";
 
 @Entity({ name: "logs" })
 @Index(["blockNumber", "logIndex"])
@@ -22,6 +23,10 @@ export class Log extends BaseEntity {
 
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
+
+  @ManyToOne(() => Transaction)
+  @JoinColumn({ name: "transactionHash" })
+  public readonly transaction?: Transaction;
 
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly transactionHash?: string;
