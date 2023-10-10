@@ -1,0 +1,48 @@
+{
+  "name": "integration-tests",
+  "version": "0.0.0",
+  "title": "Integration tests",
+  "description": "The test solution for transaction processing`",
+  "repository": "https://github.com/matter-labs/block-explorer",
+  "private": true,
+  "author": "Matter Labs",
+  "license": "MIT",
+  "scripts": {
+    "postinstall": "cd src/playbook && npm install",
+    "integration-test:api": "jest --verbose --testPathPattern=tokens.test.ts && jest --verbose --testPathPattern=deposit.test.ts && jest --verbose --testPathPattern=common && jest --verbose --testPathPattern=transactions",
+    "integration-test:ui": "npx playwright test",
+    "block-explorer:start": "docker-compose up",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-pattern 'repos' --ignore-pattern 'git add .'"
+  },
+  "devDependencies": {
+    "@matterlabs/eslint-config-vue": "^1.1.4",
+    "@matterlabs/hardhat-zksync-deploy": "^0.6.3",
+    "@matterlabs/hardhat-zksync-solc": "^0.3.14",
+    "@matterlabs/prettier-config": "^1.0.2",
+    "@matterlabs/zksync-contracts": "^0.6.1",
+    "@nomiclabs/hardhat-ethers": "^2.2.2",
+    "@openzeppelin/contracts": "^4.6.0",
+    "@openzeppelin/contracts-upgradeable": "^4.6.0",
+    "@playwright/test": "^1.37.1",
+    "@types/jest": "^29.2.4",
+    "@types/node": "^18.15.0",
+    "dotenv": "^16.0.3",
+    "eslint": "^8.31.0",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.12.0",
+    "jest": "^29.6.2",
+    "lint-staged": "^13.1.0",
+    "prettier": "^2.8.2",
+    "supertest": "^6.3.3",
+    "ts-jest": "^29.0.5",
+    "ts-node": "^10.9.1",
+    "zksync-web3": "^0.14.3"
+  },
+  "dependencies": {
+    "ts-jest-resolver": "^2.0.0"
+  },
+  "prettier": "@matterlabs/prettier-config",
+  "lint-staged": {
+    "*.{vue,js,ts}": "npm run lint"
+  }
+}
