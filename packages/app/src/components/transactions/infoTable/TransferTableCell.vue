@@ -38,7 +38,7 @@ const props = defineProps({
 });
 
 const transferAmount = computed(() =>
-  props.transfer.tokenInfo ? formatBigNumberish(props.transfer.amount, props.transfer.tokenInfo?.decimals) : ""
+  props.transfer.tokenInfo ? formatBigNumberish(props.transfer.amount || 0, props.transfer.tokenInfo?.decimals) : ""
 );
 </script>
 
