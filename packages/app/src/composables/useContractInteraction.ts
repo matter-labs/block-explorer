@@ -86,7 +86,11 @@ export default (context = useContext()) => {
       isRequestFailed.value = false;
       response.value = undefined;
       errorMessage.value = null;
-      const signer = new zkSyncSdk.Provider(context.currentNetwork.value.rpcUrl);
+      let signer: zkSyncSdk.Provider | zkSyncSdk.Signer = new zkSyncSdk.Provider(context.currentNetwork.value.rpcUrl);
+      if (walletAddress.value !== null) {
+        // If connected to a wallet, use the signer so 'msg.sender' is correctly populated downstream
+        signer = await getL2Signer();
+      }
       const contract = new ethers.Contract(address, [abiFragment], signer!);
       const res = (
         await contract[abiFragment.name](...Object.entries(params).map(([, inputValue]) => inputValue)).catch(

@@ -67,6 +67,27 @@ describe("useContractInteraction:", () => {
       expect(errorMessage.value).toEqual("An error occurred");
       mock.mockRestore();
     });
+    it("uses Signer when wallet address is not null", async () => {
+      const mockGetL2Signer = vi.fn(async () => undefined);
+      const walletMock = useWalletMock({
+        getL2Signer: mockGetL2Signer,
+        address: { value: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b" },
+      });
+      const { readFunction } = useContractInteraction();
+      await readFunction("0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b", abiFragment, {});
+      expect(mockGetL2Signer).toHaveBeenCalled();
+      mockGetL2Signer.mockRestore();
+      walletMock.mockRestore();
+    });
+    it("uses Provider when wallet address is null", async () => {
+      const mockGetL2Signer = vi.fn(async () => undefined);
+      const walletMock = useWalletMock({ getL2Signer: mockGetL2Signer });
+      const { readFunction } = useContractInteraction();
+      await readFunction("0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b", abiFragment, {});
+      expect(mockGetL2Signer).not.toHaveBeenCalled();
+      mockGetL2Signer.mockRestore();
+      walletMock.mockRestore();
+    });
   });
   describe("writeFunction:", () => {
     beforeEach(() => {
