@@ -4,8 +4,8 @@ import { prompt } from "enquirer";
 import * as dotenv from "dotenv";
 import { parse as parseConnectionString } from "pg-connection-string";
 
-const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ([{
-  networks: {
+const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
+  networks: [{
     apiUrl: "http://localhost:3020",
     verificationApiUrl: zkSyncEnvs.API_CONTRACT_VERIFICATION_URL || "",
     hostnames: ["localhost"],
@@ -18,8 +18,8 @@ const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ([{
     name: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
     published: true,
     rpcUrl: zkSyncEnvs.API_WEB3_JSON_RPC_HTTP_URL || "",
-  }
-}]);
+  }]
+});
 
 const buildWorkerConfig = (zkSyncEnvs: { [key: string]: string }) => {
   const dbConfig = parseConnectionString(zkSyncEnvs.DATABASE_URL);
