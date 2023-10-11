@@ -105,7 +105,7 @@
           </div>
         </TableBodyColumn>
       </tr>
-      <tr v-if="transaction?.transfers.length">
+      <tr v-if="tokenTransfers.length">
         <TableBodyColumn class="transaction-table-label transaction-token-transferred">
           <span class="transaction-info-field-label">{{ t("transactions.table.tokensTransferred") }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
@@ -113,7 +113,7 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <div v-for="transfer in transaction.transfers" :key="transfer.to + transfer.from">
+          <div v-for="transfer in tokenTransfers" :key="transfer.to + transfer.from">
             <TransferTableCell :transfer="transfer" />
           </div>
         </TableBodyColumn>
@@ -189,6 +189,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
 import AddressLink from "@/components/AddressLink.vue";
@@ -207,11 +208,10 @@ import TransactionData from "@/components/transactions/infoTable/TransactionData
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
 import type { TransactionItem } from "@/composables/useTransaction";
-import type { PropType } from "vue";
 
 const { t } = useI18n();
 
-defineProps({
+const props = defineProps({
   transaction: {
     type: Object as PropType<TransactionItem | null>,
     default: null,
@@ -223,6 +223,11 @@ defineProps({
   decodingDataError: {
     type: String,
   },
+});
+
+const tokenTransfers = computed(() => {
+  // exclude transfers with no amount, such as NFT until we fully support them
+  return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
 });
 </script>
 
