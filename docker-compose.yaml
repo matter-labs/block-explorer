@@ -7,6 +7,9 @@ services:
     command: npm run --prefix packages/app dev -- --host
     ports:
       - '3010:3010'
+    volumes:
+      - ./packages/app:/usr/src/app/packages/app
+      - /usr/src/app/packages/app/node_modules
     depends_on:
       - api
     restart: unless-stopped
@@ -26,6 +29,7 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
       - BLOCKCHAIN_RPC_URL=http://zksync:3050
+      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
       - '3001:3001'
       - '9229:9229'
@@ -33,7 +37,6 @@ services:
     volumes:
       - ./packages/worker:/usr/src/app/packages/worker
       - /usr/src/app/packages/worker/node_modules
-      - ./node_modules:/usr/src/worker/node_modules:ro
     depends_on:
       zksync:
         condition: service_healthy
@@ -59,7 +62,6 @@ services:
     volumes:
       - ./packages/api:/usr/src/app/packages/api
       - /usr/src/app/packages/api/node_modules
-      - ./node_modules:/usr/src/api/node_modules:ro
     depends_on:
       - worker
     restart: unless-stopped
