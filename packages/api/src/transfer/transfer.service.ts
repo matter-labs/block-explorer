@@ -105,15 +105,14 @@ export class TransferService {
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
       queryBuilder.where({
         address,
-        fields: tokenType === TokenType.ERC721 ? Not(IsNull()) : IsNull(),
       });
       if (tokenAddress) {
         queryBuilder.andWhere(`"addressTransfer"."tokenAddress" = :tokenAddress`, {
           tokenAddress: normalizeAddressTransformer.to(tokenAddress),
         });
       } else {
-        queryBuilder.andWhere(`"addressTransfer"."tokenAddress" != :tokenAddress`, {
-          tokenAddress: normalizeAddressTransformer.to(L2_ETH_TOKEN_ADDRESS),
+        queryBuilder.andWhere(`"addressTransfer"."tokenType" = :tokenType`, {
+          tokenType,
         });
       }
       if (startBlock !== undefined) {
@@ -154,7 +153,6 @@ export class TransferService {
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
     queryBuilder.where({
       tokenAddress,
-      fields: tokenType === TokenType.ERC721 ? Not(IsNull()) : IsNull(),
     });
     if (startBlock !== undefined) {
       queryBuilder.andWhere({
