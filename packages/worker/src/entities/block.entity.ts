@@ -9,6 +9,7 @@ import { BaseEntity } from "./base.entity";
 
 @Entity({ name: "blocks" })
 @Index(["timestamp", "number"])
+@Index(["miner", "number"])
 export class Block extends BaseEntity {
   @PrimaryColumn({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly number: number;

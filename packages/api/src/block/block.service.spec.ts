@@ -4,7 +4,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder, FindOptionsOrder } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
-import { BlockService } from "./block.service";
+import { BlockService, FindManyOptions } from "./block.service";
 import { Block } from "./block.entity";
 import { BlockDetail } from "./blockDetail.entity";
 
@@ -297,6 +297,83 @@ describe("BlockService", () => {
         order: orderOpts,
       });
       expect(number).toBe(1000);
+    });
+  });
+
+  describe("findMany", () => {
+    let queryBuilderMock;
+    let filterOptions: FindManyOptions;
+
+    beforeEach(() => {
+      queryBuilderMock = mock<SelectQueryBuilder<BlockDetail>>({
+        getMany: jest.fn().mockResolvedValue([
+          {
+            number: 1,
+            timestamp: new Date("2023-03-03"),
+          },
+        ]),
+      });
+      (blockDetailRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
+
+      filterOptions = {
+        miner: "address",
+      };
+    });
+
+    it("creates query builder with proper params", async () => {
+      await service.findMany(filterOptions);
+      expect(blockDetailRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
+      expect(blockDetailRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("block");
+    });
+
+    it("selects specified fields", async () => {
+      await service.findMany({
+        ...filterOptions,
+        selectFields: ["number", "timestamp"],
+      });
+      expect(queryBuilderMock.addSelect).toHaveBeenCalledTimes(1);
+      expect(queryBuilderMock.addSelect).toHaveBeenCalledWith(["number", "timestamp"]);
+    });
+
+    it("adds where condition for miner when specified", async () => {
+      await service.findMany(filterOptions);
+      expect(queryBuilderMock.where).toHaveBeenCalledTimes(1);
+      expect(queryBuilderMock.where).toHaveBeenCalledWith({
+        miner: "address",
+      });
+    });
+
+    it("does not add where condition for miner when not specified", async () => {
+      await service.findMany({});
+      expect(queryBuilderMock.where).not.toBeCalled();
+    });
+
+    it("sets offset and limit", async () => {
+      await service.findMany({
+        page: 10,
+        offset: 100,
+      });
+      expect(queryBuilderMock.offset).toHaveBeenCalledTimes(1);
+      expect(queryBuilderMock.offset).toHaveBeenCalledWith(900);
+      expect(queryBuilderMock.limit).toHaveBeenCalledTimes(1);
+      expect(queryBuilderMock.limit).toHaveBeenCalledWith(100);
+    });
+
+    it("orders by block number DESC", async () => {
+      await service.findMany({});
+      expect(queryBuilderMock.orderBy).toHaveBeenCalledTimes(1);
+      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("block.number", "DESC");
+    });
+
+    it("returns block list", async () => {
+      const result = await service.findMany({});
+      expect(queryBuilderMock.getMany).toHaveBeenCalledTimes(1);
+      expect(result).toEqual([
+        {
+          number: 1,
+          timestamp: new Date("2023-03-03"),
+        },
+      ]);
     });
   });
 });

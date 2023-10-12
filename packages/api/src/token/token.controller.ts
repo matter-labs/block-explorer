@@ -11,7 +11,7 @@ import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAd
 
 const entityName = "tokens";
 
-@ApiTags(entityName)
+@ApiTags("Token BFF")
 @Controller(entityName)
 export class TokenController {
   constructor(private readonly tokenService: TokenService, private readonly transferService: TransferService) {}
