@@ -16,7 +16,6 @@ import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import * as utils from "../common/utils";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
-import { L2_ETH_TOKEN_ADDRESS } from "../common/constants";
 
 jest.mock("../common/utils");
 
