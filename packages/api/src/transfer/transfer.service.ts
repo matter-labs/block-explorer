@@ -1,9 +1,8 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual, IsNull, Not } from "typeorm";
+import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
-import { L2_ETH_TOKEN_ADDRESS } from "../common/constants";
 import { IPaginationOptions, SortingOrder } from "../common/types";
 import { Transfer } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";

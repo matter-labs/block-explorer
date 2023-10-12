@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 import { types, utils } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { ethWithdrawalToL1Handler } from "./ethWithdrawalToL1.handler";
 
 describe("ethWithdrawalToL1Handler", () => {
@@ -74,6 +75,11 @@ describe("ethWithdrawalToL1Handler", () => {
     it("extracts transfer of deposit type", () => {
       const result = ethWithdrawalToL1Handler.extract(log, blockDetails);
       expect(result.type).toBe(TransferType.Withdrawal);
+    });
+
+    it("extracts transfer of ETH token type", () => {
+      const result = ethWithdrawalToL1Handler.extract(log, blockDetails);
+      expect(result.tokenType).toBe(TokenType.ETH);
     });
 
     it("adds isFeeOrRefund as false", () => {

@@ -228,18 +228,17 @@ describe("TransferService", () => {
       });
 
       describe("when token type is ERC20", () => {
-        it("adds ERC20 filter", async () => {
+        it("adds tokenAddress filter", async () => {
           await service.findTokenTransfers(filterOptions);
           expect(queryBuilderMock.where).toBeCalledTimes(1);
           expect(queryBuilderMock.where).toHaveBeenCalledWith({
             tokenAddress: filterOptions.tokenAddress,
-            fields: typeorm.IsNull(),
           });
         });
       });
 
       describe("when token type is ERC721", () => {
-        it("adds ERC721 filter", async () => {
+        it("adds tokenAddress filter", async () => {
           await service.findTokenTransfers({
             ...filterOptions,
             tokenType: TokenType.ERC721,
@@ -247,7 +246,6 @@ describe("TransferService", () => {
           expect(queryBuilderMock.where).toBeCalledTimes(1);
           expect(queryBuilderMock.where).toHaveBeenCalledWith({
             tokenAddress: "tokenAddress",
-            fields: typeorm.Not(typeorm.IsNull()),
           });
         });
       });
@@ -345,13 +343,19 @@ describe("TransferService", () => {
       });
 
       describe("when token type is ERC20", () => {
-        it("adds ERC20 filter", async () => {
+        it("adds address and ERC20 filter", async () => {
           await service.findTokenTransfers(filterOptions);
           expect(addressTransfersQueryBuilderMock.where).toBeCalledTimes(1);
           expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({
             address: filterOptions.address,
-            fields: typeorm.IsNull(),
           });
+          expect(addressTransfersQueryBuilderMock.andWhere).toBeCalledTimes(1);
+          expect(addressTransfersQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+            `"addressTransfer"."tokenType" = :tokenType`,
+            {
+              tokenType: TokenType.ERC20,
+            }
+          );
         });
       });
 
@@ -364,8 +368,14 @@ describe("TransferService", () => {
           expect(addressTransfersQueryBuilderMock.where).toBeCalledTimes(1);
           expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({
             address: filterOptions.address,
-            fields: typeorm.Not(typeorm.IsNull()),
           });
+          expect(addressTransfersQueryBuilderMock.andWhere).toBeCalledTimes(1);
+          expect(addressTransfersQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+            `"addressTransfer"."tokenType" = :tokenType`,
+            {
+              tokenType: TokenType.ERC721,
+            }
+          );
         });
       });
 
@@ -380,19 +390,6 @@ describe("TransferService", () => {
             `"addressTransfer"."tokenAddress" = :tokenAddress`,
             {
               tokenAddress: normalizeAddressTransformer.to("0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E"),
-            }
-          );
-        });
-      });
-
-      describe("when token address is not specified", () => {
-        it("adds filter to exclude ETH token", async () => {
-          await service.findTokenTransfers(filterOptions);
-          expect(addressTransfersQueryBuilderMock.andWhere).toBeCalledTimes(1);
-          expect(addressTransfersQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-            `"addressTransfer"."tokenAddress" != :tokenAddress`,
-            {
-              tokenAddress: normalizeAddressTransformer.to(L2_ETH_TOKEN_ADDRESS),
             }
           );
         });
