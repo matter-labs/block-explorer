@@ -7,6 +7,13 @@ import { IPaginationOptions } from "../common/types";
 import { Block } from "./block.entity";
 import { BlockDetail } from "./blockDetail.entity";
 
+export interface FindManyOptions {
+  miner?: string;
+  page?: number;
+  offset?: number;
+  selectFields?: (keyof BlockDetail)[];
+}
+
 @Injectable()
 export class BlockService {
   public constructor(
@@ -81,5 +88,19 @@ export class BlockService {
       .orderBy("block.number", "DESC");
 
     return await paginate<Block>(queryBuilder, paginationOptions, () => this.count(filterOptions));
+  }
+
+  public async findMany({ miner, page = 1, offset = 10, selectFields }: FindManyOptions): Promise<BlockDetail[]> {
+    const queryBuilder = this.blockDetailsRepository.createQueryBuilder("block");
+    queryBuilder.addSelect(selectFields);
+    if (miner) {
+      queryBuilder.where({
+        miner,
+      });
+    }
+    queryBuilder.offset((page - 1) * offset);
+    queryBuilder.limit(offset);
+    queryBuilder.orderBy("block.number", "DESC");
+    return await queryBuilder.getMany();
   }
 }
