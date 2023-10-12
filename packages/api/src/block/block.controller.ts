@@ -11,7 +11,7 @@ import { BlockDetailDto } from "./blockDetail.dto";
 
 const entityName = "blocks";
 
-@ApiTags(entityName)
+@ApiTags("Block BFF")
 @Controller(entityName)
 export class BlockController {
   constructor(private readonly blockService: BlockService) {}

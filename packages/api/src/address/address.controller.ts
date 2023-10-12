@@ -19,7 +19,7 @@ import { TransferDto } from "../transfer/transfer.dto";
 
 const entityName = "address";
 
-@ApiTags(entityName)
+@ApiTags("Address BFF")
 @Controller(entityName)
 export class AddressController {
   constructor(
