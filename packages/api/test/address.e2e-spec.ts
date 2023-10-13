@@ -12,7 +12,7 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { Log } from "../src/log/log.entity";
-import { Token } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
@@ -310,6 +310,7 @@ describe("AddressController (e2e)", () => {
         transactionIndex: i,
         timestamp: new Date("2022-11-21T18:16:51.000Z"),
         type,
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
         tokenAddress:
           i % 2 ? "0x97d0a23f34e535e44df8ba84c53a0945cf0eeb67" : "0x000000000000000000000000000000000000800a",
         logIndex: i,
@@ -326,6 +327,7 @@ describe("AddressController (e2e)", () => {
           tokenAddress: transferSpec.tokenAddress,
           blockNumber: transferSpec.blockNumber,
           timestamp: transferSpec.timestamp,
+          tokenType: transferSpec.tokenType,
           isFeeOrRefund: transferSpec.isFeeOrRefund,
           logIndex: transferSpec.logIndex,
           isInternal: transferSpec.isInternal,
@@ -1029,6 +1031,7 @@ describe("AddressController (e2e)", () => {
               tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               type: "mint",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1048,6 +1051,7 @@ describe("AddressController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               type: "transfer",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1067,6 +1071,7 @@ describe("AddressController (e2e)", () => {
               tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               type: "deposit",
+              tokenType: "ERC20",
               isInternal: false,
             },
           ])

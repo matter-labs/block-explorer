@@ -2,6 +2,7 @@ import { utils, types } from "zksync-web3";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
@@ -22,14 +23,17 @@ export const defaultTransferHandler: ExtractTransferHandler = {
       transferType = TransferType.Refund;
     }
 
+    const tokenAddress = log.address.toLowerCase();
+
     return {
       from: parsedLog.args.from.toLowerCase(),
       to: parsedLog.args.to.toLowerCase(),
       transactionHash: log.transactionHash,
       blockNumber: log.blockNumber,
       amount: parsedLog.args.value,
-      tokenAddress: log.address.toLowerCase(),
+      tokenAddress,
       type: transferType,
+      tokenType: tokenAddress === utils.L2_ETH_TOKEN_ADDRESS ? TokenType.ETH : TokenType.ERC20,
       isFeeOrRefund: [TransferType.Fee, TransferType.Refund].includes(transferType),
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

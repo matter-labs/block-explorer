@@ -5,6 +5,12 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 import { hexTransformer } from "../transformers/hex.transformer";
 import { BaseEntity } from "./base.entity";
 
+export enum TokenType {
+  ETH = "ETH",
+  ERC20 = "ERC20",
+  ERC721 = "ERC721",
+}
+
 @Entity({ name: "tokens" })
 @Check(`"symbol" <> ''`)
 @Index(["blockNumber", "logIndex"])

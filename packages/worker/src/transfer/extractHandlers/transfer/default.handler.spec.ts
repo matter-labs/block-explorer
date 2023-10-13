@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 import { types, utils } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { defaultTransferHandler } from "./default.handler";
 
 describe("defaultTransferHandler", () => {
@@ -101,11 +102,13 @@ describe("defaultTransferHandler", () => {
       log.address = utils.L2_ETH_TOKEN_ADDRESS;
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
+      expect(result.tokenType).toBe(TokenType.ETH);
     });
 
     it("extracts transfer with tokenAddress field populated with lower cased log address", () => {
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe("0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c");
+      expect(result.tokenType).toBe(TokenType.ERC20);
     });
 
     it("extracts transfer of fee type if to address is a bootloader address", () => {
