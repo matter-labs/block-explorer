@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetail } from "../src/block/blockDetail.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
@@ -108,6 +108,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: "1000",
         type: TransferType.Deposit,
+        tokenType: TokenType.ERC20,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -123,6 +124,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: "1000",
         type: TransferType.Fee,
+        tokenType: TokenType.ERC20,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -138,6 +140,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: "1000",
         type: TransferType.Mint,
+        tokenType: TokenType.ERC20,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -153,6 +156,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: "1000",
         type: TransferType.Transfer,
+        tokenType: TokenType.ERC20,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -168,6 +172,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: "1000",
         type: TransferType.Withdrawal,
+        tokenType: TokenType.ERC20,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -183,6 +188,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: undefined,
         type: TransferType.Mint,
+        tokenType: TokenType.ERC721,
         fields: { tokenId: "1" },
         logIndex: transferIndex++,
         transactionIndex: 0,
@@ -199,6 +205,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: "1000",
         type: TransferType.Refund,
+        tokenType: TokenType.ERC20,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -392,6 +399,7 @@ describe("TokenController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -411,6 +419,7 @@ describe("TokenController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -432,6 +441,7 @@ describe("TokenController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
+              tokenType: "ERC721",
               isInternal: false,
             },
             {
@@ -451,6 +461,7 @@ describe("TokenController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -470,6 +481,7 @@ describe("TokenController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -489,6 +501,7 @@ describe("TokenController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -508,6 +521,7 @@ describe("TokenController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
+              tokenType: "ERC20",
               isInternal: false,
             },
           ])

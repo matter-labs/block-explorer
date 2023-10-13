@@ -3,6 +3,7 @@ import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
@@ -28,6 +29,7 @@ export const contractDeployerTransferHandler: ExtractTransferHandler = {
       amount: parsedLog.args.value,
       tokenAddress: log.address.toLowerCase(),
       type: TransferType.Mint,
+      tokenType: TokenType.ERC20,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 import { types } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { contractDeployerTransferHandler } from "./contractDeployerTransfer.handler";
 
 describe("contractDeployerTransferHandler", () => {
@@ -115,6 +116,11 @@ describe("contractDeployerTransferHandler", () => {
     it("extracts transfer of mint type", () => {
       const result = contractDeployerTransferHandler.extract(log, blockDetails);
       expect(result.type).toBe(TransferType.Mint);
+    });
+
+    it("extracts transfer with ERC20 token type", () => {
+      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+      expect(result.tokenType).toBe(TokenType.ERC20);
     });
 
     it("adds isFeeOrRefund as false", () => {

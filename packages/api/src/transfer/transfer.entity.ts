@@ -1,6 +1,6 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { Token } from "../token/token.entity";
+import { Token, TokenType } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
@@ -19,7 +19,7 @@ export enum TransferType {
 @Index(["blockNumber", "logIndex"])
 @Index(["transactionHash", "timestamp", "logIndex"])
 @Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["tokenAddress", "fields", "blockNumber", "logIndex"])
+@Index(["tokenAddress", "blockNumber", "logIndex"])
 export class Transfer extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint", select: false })
   public number: number;
@@ -63,6 +63,9 @@ export class Transfer extends BaseEntity {
 
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
+
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  public readonly tokenType: TokenType;
 
   @Column({ type: "boolean", select: false })
   public readonly isFeeOrRefund: boolean;

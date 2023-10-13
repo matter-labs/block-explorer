@@ -3,6 +3,7 @@ import { BigNumber } from "ethers";
 import { CountableEntity } from "./countable.entity";
 import { Block } from "./block.entity";
 import { Transaction } from "./transaction.entity";
+import { TokenType } from "./token.entity";
 import { bigNumberTransformer } from "../transformers/bigNumber.transformer";
 import { transferFieldsTransformer } from "../transformers/transferFields.transformer";
 import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
@@ -22,7 +23,7 @@ export enum TransferType {
 @Entity({ name: "transfers" })
 @Index(["transactionHash", "timestamp", "logIndex"])
 @Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["tokenAddress", "fields", "blockNumber", "logIndex"])
+@Index(["tokenAddress", "blockNumber", "logIndex"])
 @Index(["transactionHash", "isInternal", "blockNumber", "logIndex"])
 @Index(["isInternal", "blockNumber", "logIndex"])
 export class Transfer extends CountableEntity {
@@ -64,6 +65,9 @@ export class Transfer extends CountableEntity {
 
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
+
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  public readonly tokenType: TokenType;
 
   @Column({ type: "boolean" })
   public readonly isFeeOrRefund: boolean;
