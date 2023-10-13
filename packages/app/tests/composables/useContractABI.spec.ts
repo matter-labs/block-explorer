@@ -1,4 +1,4 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
 import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
