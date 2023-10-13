@@ -68,6 +68,7 @@ describe("useContractABI:", () => {
   });
   it("doesn't make request when there is no verification api url", async () => {
     const mock = ($fetch as unknown as SpyInstance).mockClear();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { getCollection } = useContractABI({ currentNetwork: computed(() => ({})) } as any);
     await getCollection(["0x5550000000000000000000000000000000000000"]);
     expect(mock).toHaveBeenCalledTimes(0);
