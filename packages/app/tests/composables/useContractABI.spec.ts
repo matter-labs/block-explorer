@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
@@ -64,6 +64,13 @@ describe("useContractABI:", () => {
     await getCollection(["0x0000000000000000000000000000000000000123"]);
 
     expect(isRequestFailed.value).toEqual(true);
+    mock.mockRestore();
+  });
+  it("doesn't make request when there is no verification api url", async () => {
+    const mock = ($fetch as unknown as SpyInstance).mockClear();
+    const { getCollection } = useContractABI({ currentNetwork: computed(() => ({})) } as any);
+    await getCollection(["0x5550000000000000000000000000000000000000"]);
+    expect(mock).toHaveBeenCalledTimes(0);
     mock.mockRestore();
   });
   it("caches the results", async () => {
