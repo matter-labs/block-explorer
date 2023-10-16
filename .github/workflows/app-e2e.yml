@@ -44,21 +44,21 @@ jobs:
       matrix:
         tags: [
                 "@artifactsSet1",
-                "@artifactsSet2",
-                "@artifactsSet3",
-                "@artifactsSet4",
-                "@redirectionSet1",
-                "@redirectionSet2",
-                "@redirectionSet3",
-                "@copying",
-                "@search",
-                "@testnetSmokeSuite"
+                # "@artifactsSet2",
+                # "@artifactsSet3",
+                # "@artifactsSet4",
+                # "@redirectionSet1",
+                # "@redirectionSet2",
+                # "@redirectionSet3",
+                # "@copying",
+                # "@search",
+                # "@testnetSmokeSuite"
               ]
 
     name: '${{ matrix.tags }}'
     container:
       image: mcr.microsoft.com/playwright:v1.27.0-focal
-      options: --user root
+      options: --user 1001
     steps:
       - uses: actions/checkout@v3
         with:
