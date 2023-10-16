@@ -19,7 +19,7 @@ type TokenInfo = {
 };
 
 export type TokenTransfer = {
-  amount: Hash;
+  amount: Hash | null;
   from: Hash;
   to: Hash;
   type: "fee" | "transfer" | "withdrawal" | "deposit" | "refund" | "mint";
@@ -244,7 +244,7 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
 }
 
 function sumAmounts(balanceChanges: TokenTransfer[]) {
-  const total = balanceChanges.reduce((acc, cur) => acc.add(cur.amount), BigNumber.from(0));
+  const total = balanceChanges.reduce((acc, cur) => acc.add(cur.amount || 0), BigNumber.from(0));
   return total.toHexString() as Hash;
 }
 

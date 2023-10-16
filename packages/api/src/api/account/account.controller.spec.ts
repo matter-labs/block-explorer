@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { BadRequestException, Logger } from "@nestjs/common";
 import { L2_ETH_TOKEN_ADDRESS } from "../../common/constants";
 import { BlockService } from "../../block/block.service";
+import { BlockDetail } from "../../block/blockDetail.entity";
 import { TransactionService } from "../../transaction/transaction.service";
 import { BalanceService } from "../../balance/balance.service";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
@@ -104,6 +105,7 @@ describe("AccountController", () => {
   beforeEach(async () => {
     blockServiceMock = mock<BlockService>({
       getLastBlockNumber: jest.fn().mockResolvedValue(100),
+      findMany: jest.fn().mockResolvedValue([]),
     });
     transactionServiceMock = mock<TransactionService>({
       findByAddress: jest.fn().mockResolvedValue([]),
@@ -601,6 +603,43 @@ describe("AccountController", () => {
   describe("parseAddressListPipeExceptionFactory", () => {
     it("returns new BadRequestException with message", () => {
       expect(parseAddressListPipeExceptionFactory()).toEqual(new BadRequestException("Error! Missing address"));
+    });
+  });
+
+  describe("getAccountMinedBlocks", () => {
+    it("returns not ok response when no blocks by miner found", async () => {
+      const response = await controller.getAccountMinedBlocks(address, {
+        page: 1,
+        offset: 10,
+        maxLimit: 100,
+      });
+      expect(response).toEqual({
+        status: ResponseStatus.NOTOK,
+        message: ResponseMessage.NO_TRANSACTIONS_FOUND,
+        result: [],
+      });
+    });
+
+    it("returns blocks list response when block by miner are found", async () => {
+      jest
+        .spyOn(blockServiceMock, "findMany")
+        .mockResolvedValue([{ number: 1, timestamp: new Date("2023-03-03") } as BlockDetail]);
+      const response = await controller.getAccountMinedBlocks(address, {
+        page: 1,
+        offset: 10,
+        maxLimit: 100,
+      });
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          {
+            blockNumber: "1",
+            timeStamp: "1677801600",
+            blockReward: "0",
+          },
+        ],
+      });
     });
   });
 });

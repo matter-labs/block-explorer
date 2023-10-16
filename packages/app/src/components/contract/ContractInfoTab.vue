@@ -11,7 +11,10 @@
           </div>
           <div v-else class="functions-dropdown-container">
             <div class="function-dropdown-spacer">
-              <span class="function-type-title">{{ t("contract.abiInteraction.method.read.name") }}</span>
+              <div class="metamask-button-container">
+                <span class="function-type-title">{{ t("contract.abiInteraction.method.read.name") }}</span>
+                <ConnectMetamaskButton />
+              </div>
               <FunctionDropdown
                 v-for="(item, index) in readFunctions"
                 :key="item.name"

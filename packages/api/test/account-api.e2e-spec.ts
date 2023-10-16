@@ -303,4 +303,25 @@ describe("Account API (e2e)", () => {
         );
     });
   });
+
+  describe("/api?module=account&action=getminedblocks GET", () => {
+    it("returns HTTP 200 and list of mined blocks by address", () => {
+      return request(app.getHttpServer())
+        .get(`/api?module=account&action=getminedblocks&address=0x0000000000000000000000000000000000000000`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            status: "1",
+            message: "OK",
+            result: [
+              {
+                blockNumber: "1",
+                timeStamp: "1668091448",
+                blockReward: "0",
+              },
+            ],
+          })
+        );
+    });
+  });
 });

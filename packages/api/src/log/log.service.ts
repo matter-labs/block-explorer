@@ -37,7 +37,7 @@ export class LogService {
     return await paginate<Log>(queryBuilder, paginationOptions);
   }
 
-  public async findLogs({
+  public async findMany({
     address,
     fromBlock,
     toBlock,

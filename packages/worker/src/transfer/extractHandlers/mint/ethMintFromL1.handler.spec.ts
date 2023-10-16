@@ -2,6 +2,7 @@ import { BigNumber } from "ethers";
 import { types, utils } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { ethMintFromL1Handler } from "./ethMintFromL1.handler";
 
 describe("ethMintFromL1Handler", () => {
@@ -58,6 +59,11 @@ describe("ethMintFromL1Handler", () => {
     it("extracts transfer with populated blockNumber", () => {
       const result = ethMintFromL1Handler.extract(log, blockDetails);
       expect(result.blockNumber).toBe(215276);
+    });
+
+    it("extracts transfer with tokenType as ETH", () => {
+      const result = ethMintFromL1Handler.extract(log, blockDetails);
+      expect(result.tokenType).toBe(TokenType.ETH);
     });
 
     it("extracts transfer with populated amount", () => {

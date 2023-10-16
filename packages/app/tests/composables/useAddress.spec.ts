@@ -118,6 +118,22 @@ describe("useAddresses", () => {
       });
     });
 
+    it("doesn't make contract verification request when network has no verificationApiUrl", async () => {
+      const currentNetwork = computed(() => ({ apiUrl: "http://api.url" }));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { item, getByAddress } = useAddress({ currentNetwork } as any);
+      await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+      expect($fetch).toHaveBeenCalledOnce();
+      expect($fetch).toHaveBeenCalledWith("http://api.url/address/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+      expect(item.value).toEqual({
+        address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
+        balances: {},
+        type: "contract",
+        verificationInfo: null,
+        proxyInfo: null,
+      });
+    });
+
     it("takes proxy implementation contract from implementation function when it exists", async () => {
       const { item, getByAddress } = useAddress();
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");

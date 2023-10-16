@@ -111,6 +111,20 @@ jobs:
           file: packages/worker/Dockerfile
           no-cache: true
 
+      - name: Build and push Docker image for App
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: |
+              "matterlabs/block-explorer-app:latest"
+              "matterlabs/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "matterlabs/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:latest"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
+          file: packages/app/Dockerfile
+          no-cache: true
+
   deployFrontendToStaging:
     name: Deploy Block Explorer frontend to staging
     runs-on: ubuntu-latest
