@@ -93,6 +93,9 @@ export default (context = useContext()) => {
   const item = ref(<null | AddressItem>null);
 
   const getContractVerificationInfo = async (address: string): Promise<ContractVerificationInfo | null> => {
+    if (!context.currentNetwork.value.verificationApiUrl) {
+      return null;
+    }
     try {
       return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
     } catch (e) {

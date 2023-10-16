@@ -2,7 +2,6 @@
   "networks": [
     {
       "apiUrl": "http://localhost:3020",
-      "verificationApiUrl": "http://127.0.0.1:3070",
       "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [
         "localhost"
