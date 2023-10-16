@@ -83,6 +83,7 @@ jobs:
         working-directory: ./
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: |
+          sleep 999999999
           npm pkg delete scripts.prepare
           npm ci
 
