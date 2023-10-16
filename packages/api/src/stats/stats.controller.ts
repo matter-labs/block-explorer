@@ -8,7 +8,7 @@ import { StatsDto } from "./stats.dto";
 
 const entityName = "stats";
 
-@ApiTags(entityName)
+@ApiTags("Stats BFF")
 @Controller(entityName)
 export class StatsController {
   constructor(

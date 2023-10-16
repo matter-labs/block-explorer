@@ -3,6 +3,7 @@ import { types } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { erc721TransferHandler } from "./erc721Transfer.handler";
 
 describe("erc721TransferHandler", () => {
@@ -88,6 +89,11 @@ describe("erc721TransferHandler", () => {
     it("extracts transfer with tokenAddress field populated with lower cased log address", () => {
       const result = erc721TransferHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe("0x89bcb56033920b8a654109faeb1f87e0c3358cad");
+    });
+
+    it("extracts transfer of ERC721 token type", () => {
+      const result = erc721TransferHandler.extract(log, blockDetails);
+      expect(result.tokenType).toBe(TokenType.ERC721);
     });
 
     it("extracts transfer of transfer type if from address is not a zero address", () => {

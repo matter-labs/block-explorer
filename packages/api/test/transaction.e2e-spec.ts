@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetail } from "../src/block/blockDetail.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
@@ -188,6 +188,7 @@ describe("TransactionController (e2e)", () => {
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress:
           i % 2 ? "0xd754ff5e8a6f257e162f72578a4bb0493c068101" : "0x000000000000000000000000000000000000800a",
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
         amount: "2000",
         type,
         logIndex: i,
@@ -1005,6 +1006,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1024,6 +1026,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1043,6 +1046,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1062,6 +1066,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "fee",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1081,6 +1086,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1100,6 +1106,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "refund",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1119,6 +1126,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1138,6 +1146,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1157,6 +1166,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
+              tokenType: "ETH",
               isInternal: false,
             },
           ])
@@ -1221,6 +1231,7 @@ describe("TransactionController (e2e)", () => {
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "deposit",
+                tokenType: "ETH",
                 isInternal: false,
               },
             ],

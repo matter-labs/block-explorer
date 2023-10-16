@@ -22,6 +22,8 @@ import {
   AccountsEtherBalancesResponseDto,
 } from "./dtos/account/accountEtherBalanceResponse.dto";
 import { AccountTokenBalanceResponseDto } from "./dtos/account/accountTokenBalanceResponse.dto";
+import { AccountMinedBlock } from "./dtos/account/accountMinedBlock.dto";
+import { AccountMinedBlocksResponseDto } from "./dtos/account/accountMinedBlocksResponse.dto";
 import { BlockNumberResponseDto } from "./dtos/block/blockNumberResponse.dto";
 import { BlockCountdownResponseDto } from "./dtos/block/blockCountdownResponse.dto";
 import { BlockRewardResponseDto } from "./dtos/block/blockRewardResponse.dto";
@@ -361,6 +363,27 @@ export class ApiController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() sortingOptions: SortingOptionsDto
   ): Promise<AccountNFTTransfersResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
+  @Get("api?module=account&action=getminedblocks")
+  @ApiOperation({ summary: "Get list of Blocks Validated by Address" })
+  @ApiQuery({
+    name: "address",
+    description: "The address to get validated blocks by",
+    example: "0x0000000000000000000000000000000000000000",
+    required: true,
+  })
+  @ApiExtraModels(AccountMinedBlock)
+  @ApiOkResponse({
+    description: "Blocks validated by address",
+    type: AccountMinedBlocksResponseDto,
+  })
+  public async getAccountMinedBlocks(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+  ): Promise<AccountMinedBlocksResponseDto> {
     return null;
   }
 

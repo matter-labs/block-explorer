@@ -3,6 +3,7 @@ import { types, utils } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { defaultWithdrawalInitiatedHandler } from "./default.handler";
 
 describe("defaultWithdrawalInitiatedHandler", () => {
@@ -66,11 +67,13 @@ describe("defaultWithdrawalInitiatedHandler", () => {
       log.topics[3] = ZERO_HASH_64;
       const result = defaultWithdrawalInitiatedHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
+      expect(result.tokenType).toBe(TokenType.ETH);
     });
 
     it("extracts transfer with tokenAddress field populated with lower cased l2Token", () => {
       const result = defaultWithdrawalInitiatedHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe("0xdc187378edd8ed1585fb47549cc5fe633295d571");
+      expect(result.tokenType).toBe(TokenType.ERC20);
     });
 
     it("extracts transfer of deposit type", () => {
