@@ -58,7 +58,6 @@ jobs:
     name: '${{ matrix.tags }}'
     container:
       image: mcr.microsoft.com/playwright:v1.27.0-focal
-      options: --user 1001
     steps:
       - uses: actions/checkout@v3
         with:
@@ -83,7 +82,6 @@ jobs:
         working-directory: ./
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: |
-          sleep 999999999
           npm pkg delete scripts.prepare
           npm ci
 
