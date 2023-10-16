@@ -1,0 +1,74 @@
+version: '3.2'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./packages/app/Dockerfile
+    environment:
+      - VITE_APP_ENVIRONMENT=local
+    ports:
+      - '3010:3010'
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./packages/worker/Dockerfile
+    environment:
+      - PORT=3001
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - DATABASE_HOST=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=block-explorer
+      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:3050
+      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
+    ports:
+      - '3001:3001'
+      - '9229:9229'
+      - '9230:9230'
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
+    environment:
+      - PORT=3020
+      - METRICS_PORT=3005
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
+    ports:
+      - '3020:3020'
+      - '3005:3005'
+      - '9231:9229'
+      - '9232:9230'
+    depends_on:
+      - worker
+    restart: unless-stopped
+
+  postgres:
+    image: "postgres:14"
+    logging:
+      driver: none 
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=block-explorer
+
+volumes:
+  postgres:

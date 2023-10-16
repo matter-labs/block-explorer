@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: ./packages/app/Dockerfile
+      target: development-stage
     command: npm run --prefix packages/app dev -- --host
     ports:
       - '3010:3010'

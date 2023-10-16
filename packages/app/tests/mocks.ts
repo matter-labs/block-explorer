@@ -22,7 +22,7 @@ import type { Provider } from "zksync-web3";
 
 export const GOERLI_NETWORK: NetworkConfig = {
   name: "goerli",
-  verificationApiUrl: "",
+  verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   apiUrl: "https://block-explorer-api.testnets.zksync.dev",
   icon: "",
   l2ChainId: 280,
@@ -37,7 +37,7 @@ export const GOERLI_NETWORK: NetworkConfig = {
 };
 export const GOERLI_BETA_NETWORK: NetworkConfig = {
   name: "goerli-beta",
-  verificationApiUrl: "",
+  verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   apiUrl: "https://block-explorer-api.mock.zksync.dev",
   icon: "",
   l2ChainId: 270,
