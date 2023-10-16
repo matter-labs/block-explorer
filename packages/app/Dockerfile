@@ -22,9 +22,7 @@ FROM development-stage AS build-stage
 RUN npm run build
 
 FROM base-stage AS production-stage
-
 COPY --chown=node:node --from=build-stage /usr/src/app/packages/app/dist ./packages/app/dist
-
 RUN npm i -g http-server
 
 ARG NODE_ENV=production
