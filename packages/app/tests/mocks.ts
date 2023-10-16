@@ -68,7 +68,7 @@ export const useWalletMock = (params: any = {}) => {
     ...composablesFactory.useWallet({
       currentNetwork: computed(() => ({
         chainName: GOERLI_NETWORK.name,
-        explorerUrl: GOERLI_NETWORK.l1ExplorerUrl,
+        explorerUrl: GOERLI_NETWORK.l1ExplorerUrl!,
         l1ChainId: 5,
         l2ChainId: GOERLI_NETWORK.l2ChainId,
         rpcUrl: GOERLI_NETWORK.rpcUrl,
