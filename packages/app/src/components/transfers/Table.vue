@@ -244,6 +244,9 @@ watch(
     .transfers-data-link-value {
       @apply block cursor-pointer text-sm font-medium;
     }
+    span.transfers-data-link-value {
+      @apply cursor-default;
+    }
   }
 }
 </style>

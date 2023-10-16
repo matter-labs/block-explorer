@@ -414,6 +414,9 @@ function getDirection(item: TransactionListItem): Direction {
     .transactions-data-link-value {
       @apply block cursor-pointer text-sm font-medium;
     }
+    span.transactions-data-link-value {
+      @apply cursor-default;
+    }
   }
   .transactions-data-method {
     @apply w-[200px] truncate sm:w-auto;

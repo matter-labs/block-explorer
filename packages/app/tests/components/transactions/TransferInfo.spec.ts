@@ -1,6 +1,7 @@
+import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
 import { $fetch } from "ohmyfetch";
@@ -12,6 +13,15 @@ import enUS from "@/locales/en.json";
 vi.mock("ohmyfetch", () => {
   return {
     $fetch: vi.fn(() => ({})),
+  };
+});
+
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+vi.mock("@/composables/useContext", () => {
+  return {
+    default: () => ({
+      currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+    }),
   };
 });
 
@@ -49,5 +59,59 @@ describe("TransferInfo:", () => {
 
     mock.mockRestore();
     wrapper.unmount();
+  });
+  it("renders component properly for L1 network", async () => {
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    const mock = ($fetch as any).mockResolvedValue({ accountType: "eOA" });
+
+    const wrapper = mount(TransferInfo, {
+      global,
+      props: {
+        label: "From",
+        address: "0x6c10d9c1744f149d4b17660e14faa247964749c7",
+        network: "L1",
+      },
+    });
+    expect(wrapper.find("span")?.text()).toBe("From");
+    expect(wrapper.findAll("a")[0].attributes("href")).toEqual(
+      "https://goerli.etherscan.io/address/0x6c10d9c1744f149d4b17660e14faa247964749c7"
+    );
+    expect(wrapper.findAll("a")[0].text()).toEqual("0x6c10d9c1744...49c7");
+    expect(wrapper.find(".copy-btn")).toBeTruthy();
+    expect(wrapper.find(".transactions-data-link-network")?.text()).toBe("L1");
+
+    mock.mockRestore();
+    wrapper.unmount();
+  });
+  describe("when L1 explorer url is not set", () => {
+    let mock1ExplorerUrl: Mock;
+    beforeEach(() => {
+      mock1ExplorerUrl = l1ExplorerUrlMock.mockReturnValue(null);
+    });
+
+    afterEach(() => {
+      mock1ExplorerUrl.mockRestore();
+    });
+
+    it("renders L1 address as text instead of a link", async () => {
+      /* eslint-disable  @typescript-eslint/no-explicit-any */
+      const mock = ($fetch as any).mockResolvedValue({ accountType: "eOA" });
+
+      const wrapper = mount(TransferInfo, {
+        global,
+        props: {
+          label: "From",
+          address: "0x6c10d9c1744f149d4b17660e14faa247964749c7",
+          network: "L1",
+        },
+      });
+      expect(wrapper.find("span")?.text()).toBe("From");
+      expect(wrapper.findAll("span.address")[0].text()).toEqual("0x6c10d9c1744...49c7");
+      expect(wrapper.find(".copy-btn")).toBeTruthy();
+      expect(wrapper.find(".transactions-data-link-network")?.text()).toBe("L1");
+
+      mock.mockRestore();
+      wrapper.unmount();
+    });
   });
 });

@@ -1,9 +1,18 @@
 <template>
-  <a v-if="network === 'L1'" target="_blank" :href="`${currentNetwork.l1ExplorerUrl}/address/${formattedAddress}`">
+  <a
+    v-if="network === 'L1' && !!currentNetwork.l1ExplorerUrl"
+    target="_blank"
+    :href="`${currentNetwork.l1ExplorerUrl}/address/${formattedAddress}`"
+  >
     <slot>
       {{ formattedAddress }}
     </slot>
   </a>
+  <span v-else-if="network === 'L1' && !currentNetwork.l1ExplorerUrl">
+    <slot>
+      {{ formattedAddress }}
+    </slot>
+  </span>
   <router-link v-else :to="{ name: 'address', params: { address: formattedAddress } }">
     <slot>
       {{ formattedAddress }}

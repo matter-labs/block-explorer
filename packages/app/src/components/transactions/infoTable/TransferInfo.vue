@@ -5,9 +5,17 @@
     <AddressLink v-if="network !== 'L1'" :address="address" class="address">
       <span>{{ shortenFitText(address, "left") }}</span>
     </AddressLink>
-    <a v-else class="address" target="_blank" :href="`${currentNetwork.l1ExplorerUrl}/address/${address}`">
-      <span>{{ shortenFitText(address, "left") }}</span>
-    </a>
+    <template v-else>
+      <a
+        v-if="currentNetwork.l1ExplorerUrl"
+        class="address"
+        target="_blank"
+        :href="`${currentNetwork.l1ExplorerUrl}/address/${address}`"
+      >
+        <span>{{ shortenFitText(address, "left") }}</span>
+      </a>
+      <span class="address" v-else>{{ shortenFitText(address, "left") }}</span>
+    </template>
     <CopyButton :value="address" class="copy-btn" />
   </div>
 </template>
