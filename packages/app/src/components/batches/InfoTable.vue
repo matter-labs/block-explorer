@@ -85,7 +85,9 @@ const tableInfoItems = computed(() => {
           tooltip: t(`batches.${key}Tooltip`),
           value: { value: props.batch[key] },
           component: CopyContent,
-          url: `${currentNetwork.value.l1ExplorerUrl}/tx/${props.batch[key]}`,
+          url: currentNetwork.value.l1ExplorerUrl
+            ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.batch[key]}`
+            : undefined,
           ...(key === "proveTxHash" &&
             props.batch.isProvenByNewProver && {
               additionalContentComponent: NewProverInfoBox,

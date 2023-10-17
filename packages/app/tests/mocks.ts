@@ -29,7 +29,7 @@ export const GOERLI_NETWORK: NetworkConfig = {
   rpcUrl: "",
   l2NetworkName: "Goerli",
   l2WalletUrl: "",
-  l1ExplorerUrl: "",
+  l1ExplorerUrl: "http://goerli-block-explorer",
   maintenance: false,
   published: true,
   hostnames: [],
@@ -44,7 +44,7 @@ export const GOERLI_BETA_NETWORK: NetworkConfig = {
   rpcUrl: "",
   l2NetworkName: "Goerli Beta",
   l2WalletUrl: "",
-  l1ExplorerUrl: "",
+  l1ExplorerUrl: "http://goerli-beta-block-explorer",
   maintenance: false,
   published: true,
   hostnames: ["https://goerli-beta.staging-scan-v2.zksync.dev/"],
@@ -68,7 +68,7 @@ export const useWalletMock = (params: any = {}) => {
     ...composablesFactory.useWallet({
       currentNetwork: computed(() => ({
         chainName: GOERLI_NETWORK.name,
-        explorerUrl: GOERLI_NETWORK.l1ExplorerUrl,
+        explorerUrl: GOERLI_NETWORK.l1ExplorerUrl!,
         l1ChainId: 5,
         l2ChainId: GOERLI_NETWORK.l2ChainId,
         rpcUrl: GOERLI_NETWORK.rpcUrl,
