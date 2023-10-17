@@ -20,12 +20,14 @@
           <ol v-for="(finishedStatus, index) in item.finishedStatuses" :key="index">
             <li>
               <a
-                :href="`${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}`"
+                :href="
+                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                "
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
               </a>
             </li>
           </ol>
@@ -36,12 +38,12 @@
         <template #default v-if="item.text">
           <a
             v-if="item.url"
-            :href="`${currentNetwork.l1ExplorerUrl}/tx/${item.url}`"
+            :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
             class="badge-status-link"
             target="_blank"
           >
             <span class="badge-status-link-text"><CheckIcon />{{ item.text }}</span>
-            <ExternalLinkIcon class="badge-status-link-icon" />
+            <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
           </a>
           <span v-else>{{ item.text }}</span>
         </template>
@@ -103,19 +105,25 @@
               :key="index"
             >
               <a
-                :href="`${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}`"
+                :href="
+                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                "
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
               </a>
             </div>
 
             <div v-if="item.url" class="badge-status-popup-button status-active">
-              <a :href="`${currentNetwork.l1ExplorerUrl}/tx/${item.url}`" class="badge-status-link" target="_blank">
+              <a
+                :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
+                class="badge-status-link"
+                target="_blank"
+              >
                 <span class="badge-status-link-text status-next"><CheckIcon />{{ item.text }}</span>
-                <ExternalLinkIcon class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
               </a>
             </div>
             <div v-else class="badge-status-popup-button status-current">

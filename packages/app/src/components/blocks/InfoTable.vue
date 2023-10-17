@@ -110,7 +110,9 @@ const tableInfoItems = computed(() => {
           tooltip: t(`blocks.table.${key}Tooltip`),
           value: { value: props.block[key] },
           component: CopyContent,
-          url: `${currentNetwork.value.l1ExplorerUrl}/tx/${props.block[key]}`,
+          url: currentNetwork.value.l1ExplorerUrl
+            ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.block[key]}`
+            : undefined,
           ...(key === "proveTxHash" &&
             props.block.isProvenByNewProver && {
               additionalContentComponent: NewProverInfoBox,
