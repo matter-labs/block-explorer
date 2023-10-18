@@ -70,11 +70,11 @@ Feature: Main Page
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher
 
     Examples:
-      | Value               | Dropdown |
-      | zkSync Era Testnet  | network  |
-      | zkSync Era Mainnet  | network  |
-      | EN                  | language |
-      | UA                  | language |
+      | Value                      | Dropdown |
+      | zkSync Era Goerli Testnet  | network  |
+      | zkSync Era Mainnet         | network  |
+      | EN                         | language |
+      | UA                         | language |
 
   @id254:II @featureEnv
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
