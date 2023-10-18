@@ -94,13 +94,27 @@ export class TokenService {
         tokenAddress: contractAddress.address,
       });
 
-      await this.tokenRepository.upsert({
-        ...erc20Token,
-        blockNumber: contractAddress.blockNumber,
-        transactionHash: contractAddress.transactionHash,
-        l2Address: contractAddress.address,
-        logIndex: contractAddress.logIndex,
-      });
+      try {
+        await this.tokenRepository.upsert({
+          ...erc20Token,
+          blockNumber: contractAddress.blockNumber,
+          transactionHash: contractAddress.transactionHash,
+          l2Address: contractAddress.address,
+          logIndex: contractAddress.logIndex,
+        });
+      } catch (err) {
+        // tmp fix for invalid byte sequence for encoding "UTF8"
+        if (err.code === "22021") {
+          this.logger.error({
+            message: "Skipping token with fields having invalid byte sequence for encoding UTF8",
+            blockNumber: contractAddress.blockNumber,
+            transactionHash: contractAddress.transactionHash,
+            tokenAddress: contractAddress.address,
+          });
+          return;
+        }
+        throw err;
+      }
     }
   }
 }
