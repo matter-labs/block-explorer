@@ -184,6 +184,13 @@ describe("AddressController (e2e)", () => {
         blockNumber: i + 3,
         balance: (345 * i).toString(),
       });
+
+      await balanceRepository.insert({
+        address: "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67",
+        tokenAddress: "0x000000000000000000000000000000000000800A",
+        blockNumber: i + 3,
+        balance: (345 * i).toString(),
+      });
     }
 
     // balances without address record
@@ -205,6 +212,13 @@ describe("AddressController (e2e)", () => {
       await balanceRepository.insert({
         address: "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb71",
         tokenAddress: "0x9488fc54fccc6f319d4863ddc2c2899ed35d8956",
+        blockNumber: i + 3,
+        balance: (345 * i).toString(),
+      });
+
+      await balanceRepository.insert({
+        address: "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb71",
+        tokenAddress: "0x000000000000000000000000000000000000800A",
         blockNumber: i + 3,
         balance: (345 * i).toString(),
       });
@@ -273,16 +287,6 @@ describe("AddressController (e2e)", () => {
       l2Address: "0x97d0a23f34e535e44df8ba84c53a0945cf0eeb67",
       name: "TEST",
       symbol: "TST",
-      decimals: 18,
-      blockNumber: 1,
-      logIndex: 0,
-    });
-
-    await tokenRepository.insert({
-      l2Address: "0x000000000000000000000000000000000000800a",
-      l1Address: "0x0000000000000000000000000000000000000000",
-      symbol: "ETH",
-      name: "Ether",
       decimals: 18,
       blockNumber: 1,
       logIndex: 0,
@@ -378,6 +382,16 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: null,
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -425,6 +439,16 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: null,
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -472,6 +496,16 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: null,
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -519,6 +553,16 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: null,
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -568,6 +612,16 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91d0A23F34e535E44dF8ba84c53a0945cf0EEB71",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: null,
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -1043,7 +1097,7 @@ describe("AddressController (e2e)", () => {
               to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: null,
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,

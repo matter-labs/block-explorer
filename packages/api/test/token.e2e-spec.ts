@@ -212,6 +212,22 @@ describe("TokenController (e2e)", () => {
         isFeeOrRefund: true,
         isInternal: false,
       });
+
+      await transferRepository.insert({
+        from: "0x0000000000000000000000000000000000008001",
+        to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        blockNumber: 1,
+        transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+        tokenAddress: "0x000000000000000000000000000000000000800A",
+        amount: "1000",
+        type: TransferType.Refund,
+        tokenType: TokenType.ETH,
+        logIndex: transferIndex++,
+        transactionIndex: 0,
+        timestamp: "2022-11-21T18:16:51.000Z",
+        isFeeOrRefund: false,
+        isInternal: false,
+      });
     }
   });
 
@@ -266,6 +282,21 @@ describe("TokenController (e2e)", () => {
             l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
             symbol: "TEST1",
             name: "TEST token 1",
+            decimals: 18,
+          })
+        );
+    });
+
+    it("returns HTTP 200 and ETH token even if it does not exist in DB", () => {
+      return request(app.getHttpServer())
+        .get("/tokens/0x000000000000000000000000000000000000800a")
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            l2Address: "0x000000000000000000000000000000000000800A",
+            l1Address: null,
+            symbol: "ETH",
+            name: "Ether",
             decimals: 18,
           })
         );
@@ -553,6 +584,91 @@ describe("TokenController (e2e)", () => {
             last: "tokens/0xd754ff5e8a6f257e162f72578a4bb0493c068101/transfers?page=3&limit=7",
             next: "tokens/0xd754ff5e8a6f257e162f72578a4bb0493c068101/transfers?page=3&limit=7",
             previous: "tokens/0xd754ff5e8a6f257e162f72578a4bb0493c068101/transfers?page=1&limit=7",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and transfers for ETH token even if it is not in DB", () => {
+      return request(app.getHttpServer())
+        .get("/tokens/0x000000000000000000000000000000000000800a/transfers?page=1&limit=7")
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            items: [
+              {
+                amount: "1000",
+                blockNumber: 1,
+                fields: null,
+                from: "0x0000000000000000000000000000000000008001",
+                isInternal: false,
+                timestamp: "2022-11-21T18:16:51.000Z",
+                to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+                token: {
+                  decimals: 18,
+                  l1Address: null,
+                  l2Address: "0x000000000000000000000000000000000000800A",
+                  name: "Ether",
+                  symbol: "ETH",
+                },
+                tokenAddress: "0x000000000000000000000000000000000000800A",
+                tokenType: "ETH",
+                transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+                type: "refund",
+              },
+              {
+                amount: "1000",
+                blockNumber: 1,
+                fields: null,
+                from: "0x0000000000000000000000000000000000008001",
+                isInternal: false,
+                timestamp: "2022-11-21T18:16:51.000Z",
+                to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+                token: {
+                  decimals: 18,
+                  l1Address: null,
+                  l2Address: "0x000000000000000000000000000000000000800A",
+                  name: "Ether",
+                  symbol: "ETH",
+                },
+                tokenAddress: "0x000000000000000000000000000000000000800A",
+                tokenType: "ETH",
+                transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+                type: "refund",
+              },
+              {
+                amount: "1000",
+                blockNumber: 1,
+                fields: null,
+                from: "0x0000000000000000000000000000000000008001",
+                isInternal: false,
+                timestamp: "2022-11-21T18:16:51.000Z",
+                to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+                token: {
+                  decimals: 18,
+                  l1Address: null,
+                  l2Address: "0x000000000000000000000000000000000000800A",
+                  name: "Ether",
+                  symbol: "ETH",
+                },
+                tokenAddress: "0x000000000000000000000000000000000000800A",
+                tokenType: "ETH",
+                transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+                type: "refund",
+              },
+            ],
+            links: {
+              first: "tokens/0x000000000000000000000000000000000000800a/transfers?limit=7",
+              last: "tokens/0x000000000000000000000000000000000000800a/transfers?page=1&limit=7",
+              next: "",
+              previous: "",
+            },
+            meta: {
+              currentPage: 1,
+              itemCount: 3,
+              itemsPerPage: 7,
+              totalItems: 3,
+              totalPages: 1,
+            },
           })
         );
     });
