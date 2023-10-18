@@ -54,6 +54,28 @@ describe("TokenService", () => {
       const result = await service.findOne(tokenAddress);
       expect(result).toBe(token);
     });
+
+    describe("when requested token does not exist", () => {
+      beforeEach(() => {
+        (repositoryMock.findOneBy as jest.Mock).mockResolvedValue(null);
+      });
+
+      it("returns ETH token for ETH address", async () => {
+        const result = await service.findOne("0x000000000000000000000000000000000000800a");
+        expect(result).toEqual({
+          decimals: 18,
+          l1Address: null,
+          l2Address: "0x000000000000000000000000000000000000800A",
+          name: "Ether",
+          symbol: "ETH",
+        });
+      });
+
+      it("returns null for non ETH address", async () => {
+        const result = await service.findOne("0x000000000000000000000000000000000000800b");
+        expect(result).toBeNull();
+      });
+    });
   });
 
   describe("exists", () => {
@@ -82,10 +104,20 @@ describe("TokenService", () => {
       expect(result).toBe(true);
     });
 
-    it("returns false if there is no token with the specified address", async () => {
-      (repositoryMock.findOne as jest.Mock).mockResolvedValue(null);
-      const result = await service.exists(tokenAddress);
-      expect(result).toBe(false);
+    describe("when requested token does not exist", () => {
+      beforeEach(() => {
+        (repositoryMock.findOne as jest.Mock).mockResolvedValue(null);
+      });
+
+      it("returns true for ETH address", async () => {
+        const result = await service.exists("0x000000000000000000000000000000000000800a");
+        expect(result).toBe(true);
+      });
+
+      it("returns false for non ETH address", async () => {
+        const result = await service.exists(tokenAddress);
+        expect(result).toBe(false);
+      });
     });
   });
 
