@@ -73,8 +73,8 @@ export class TokenService {
     if (bridgeLog) {
       const parsedLog = parseLog(CONTRACT_INTERFACES.L2_STANDARD_ERC20, bridgeLog);
       erc20Token = {
-        name: parsedLog.args.name,
-        symbol: parsedLog.args.symbol,
+        name: parsedLog.args.name?.replace(/\0/g, ""),
+        symbol: parsedLog.args.symbol?.replace(/\0/g, ""),
         decimals: parsedLog.args.decimals,
         l1Address: parsedLog.args.l1Token,
       };
@@ -94,27 +94,13 @@ export class TokenService {
         tokenAddress: contractAddress.address,
       });
 
-      try {
-        await this.tokenRepository.upsert({
-          ...erc20Token,
-          blockNumber: contractAddress.blockNumber,
-          transactionHash: contractAddress.transactionHash,
-          l2Address: contractAddress.address,
-          logIndex: contractAddress.logIndex,
-        });
-      } catch (err) {
-        // tmp fix for invalid byte sequence for encoding "UTF8"
-        if (err.code === "22021") {
-          this.logger.error({
-            message: "Skipping token with fields having invalid byte sequence for encoding UTF8",
-            blockNumber: contractAddress.blockNumber,
-            transactionHash: contractAddress.transactionHash,
-            tokenAddress: contractAddress.address,
-          });
-          return;
-        }
-        throw err;
-      }
+      await this.tokenRepository.upsert({
+        ...erc20Token,
+        blockNumber: contractAddress.blockNumber,
+        transactionHash: contractAddress.transactionHash,
+        l2Address: contractAddress.address,
+        logIndex: contractAddress.logIndex,
+      });
     }
   }
 }
