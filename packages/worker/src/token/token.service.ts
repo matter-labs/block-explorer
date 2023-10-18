@@ -73,8 +73,8 @@ export class TokenService {
     if (bridgeLog) {
       const parsedLog = parseLog(CONTRACT_INTERFACES.L2_STANDARD_ERC20, bridgeLog);
       erc20Token = {
-        name: parsedLog.args.name?.replace(/\0/g, ""),
-        symbol: parsedLog.args.symbol?.replace(/\0/g, ""),
+        name: parsedLog.args.name,
+        symbol: parsedLog.args.symbol,
         decimals: parsedLog.args.decimals,
         l1Address: parsedLog.args.l1Token,
       };
