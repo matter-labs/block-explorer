@@ -8,6 +8,14 @@ export enum TokenType {
   ERC721 = "ERC721",
 }
 
+export const ETH_TOKEN: Token = {
+  l2Address: "0x000000000000000000000000000000000000800A",
+  l1Address: null,
+  symbol: "ETH",
+  name: "Ether",
+  decimals: 18,
+} as Token;
+
 @Entity({ name: "tokens" })
 @Index(["blockNumber", "logIndex"])
 export class Token extends BaseEntity {
