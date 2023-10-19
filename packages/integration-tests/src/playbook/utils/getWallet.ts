@@ -9,10 +9,6 @@ export default async function (hre: any) {
   const ethProvider = getDefaultProvider(hre.config.networks.zkSyncLocal.ethNetwork);
   const walletPrivateKey = process.env.WALLET_PRIVATE_KEY || Wallets.richWalletPrivateKey;
 
-  if (!walletPrivateKey) {
-    throw new Error("WALLET_PRIVATE_KEY env variable is not set");
-  }
-
   // Initialize the wallet.
   const wallet = new Wallet(walletPrivateKey as string, syncProvider, ethProvider);
   console.log(`Deploying using wallet: ${wallet.address}`);
