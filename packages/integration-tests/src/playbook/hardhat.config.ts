@@ -6,13 +6,8 @@ import "@matterlabs/hardhat-zksync-solc";
 import "@nomiclabs/hardhat-ethers";
 
 import { localConfig } from "../config";
-import { Wallets } from "../entities";
 
 import type { HardhatUserConfig } from "hardhat/types";
-
-if (!process.env.WALLET_PRIVATE_KEY) {
-  process.env.WALLET_PRIVATE_KEY = Wallets.richWalletPrivateKey;
-}
 
 const config: HardhatUserConfig = {
   zksolc: {
