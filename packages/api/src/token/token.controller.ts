@@ -1,5 +1,12 @@
 import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiOkResponse, ApiBadRequestResponse, ApiNotFoundResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiExcludeController,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
@@ -8,10 +15,13 @@ import { TransferService } from "../transfer/transfer.service";
 import { TokenDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
+import config from "../config";
 
+const { swagger } = config();
 const entityName = "tokens";
 
 @ApiTags("Token BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class TokenController {
   constructor(private readonly tokenService: TokenService, private readonly transferService: TransferService) {}

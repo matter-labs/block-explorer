@@ -38,6 +38,7 @@ describe("config", () => {
       },
       swagger: {
         enabled: true,
+        bffEnabled: true,
       },
       contractVerificationApiUrl: "http://127.0.0.1:3070",
       disableExternalAPI: false,
