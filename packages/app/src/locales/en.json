@@ -127,13 +127,17 @@
             "value": "Value",
             "valueTooltip": "Amount of Ether being transferred from one address to another within a transaction.",
             "fee": "Fee",
+            "paidByPaymaster": "Paid by paymaster",
             "feeDetails": {
                 "moreDetails": "More Details",
                 "closeDetails": "Close Details",
                 "initial": "Initial:",
                 "refunded": "Refunded:",
                 "refunds": "Refunds:",
-                "whyRefunded": "Why I'm being refunded?"
+                "whyRefunded": "Why I'm being refunded?",
+                "whyPaymasterRefunded": "Why paymaster is being refunded?",
+                "whatIsPaymaster": "What is Paymaster?",
+                "paymaster": "Paymaster"
             },
             "feeTooltip": "Fee which sender paid for this transaction, amount in chosen asset & price in USD at the current time",
             "direction": "Direction",
