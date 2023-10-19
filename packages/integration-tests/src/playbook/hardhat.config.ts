@@ -8,7 +8,7 @@ import { Wallets } from "../entities";
 
 import type { HardhatUserConfig } from "hardhat/types";
 
-const envFilePath = `${__dirname} + "/.env"`;
+const envFilePath = `${__dirname}/.env`;
 if (fs.existsSync(envFilePath)) {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require("dotenv").config({ path: envFilePath });
