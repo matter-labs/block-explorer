@@ -345,7 +345,6 @@ describe("Endpoints", () => {
   });
 
   describe("Block API", () => {
-    const bufferRoute = "src/playbook/";
     //@id1700
     it("Verify /api?module=block&action=getblockcountdown&blockno={block_number} response returns elements", async () => {
       const blocks = await request(environment.blockExplorerAPI).get("/blocks");
