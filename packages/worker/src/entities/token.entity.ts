@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryColumn, Check, Index, JoinColumn, ManyToOne } fr
 import { Block } from "./block.entity";
 import { Transaction } from "./transaction.entity";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
+import { stringTransformer } from "../transformers/string.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { BaseEntity } from "./base.entity";
 
@@ -24,10 +25,10 @@ export class Token extends BaseEntity {
   @Column({ generated: true, type: "bigint" })
   public readonly number: number;
 
-  @Column()
+  @Column({ transformer: stringTransformer })
   public readonly symbol: string;
 
-  @Column()
+  @Column({ transformer: stringTransformer })
   public readonly name?: string;
 
   @Column()
