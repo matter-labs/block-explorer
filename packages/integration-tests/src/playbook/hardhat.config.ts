@@ -1,18 +1,16 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+require("dotenv").config({ path: __dirname + "/.env" });
+
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@nomiclabs/hardhat-ethers";
-import * as fs from "fs";
 
 import { localConfig } from "../config";
 import { Wallets } from "../entities";
 
 import type { HardhatUserConfig } from "hardhat/types";
 
-const envFilePath = `${__dirname}/.env`;
-if (fs.existsSync(envFilePath)) {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  require("dotenv").config({ path: envFilePath });
-} else {
+if (!process.env.WALLET_PRIVATE_KEY) {
   process.env.WALLET_PRIVATE_KEY = Wallets.richWalletPrivateKey;
 }
 
