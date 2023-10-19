@@ -15,9 +15,8 @@ import { TransferService } from "../transfer/transfer.service";
 import { TokenDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
-import config from "../config";
+import { swagger } from "../config/featureFlags";
 
-const { swagger } = config();
 const entityName = "tokens";
 
 @ApiTags("Token BFF")

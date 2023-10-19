@@ -24,9 +24,8 @@ import { LogService } from "../log/log.service";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
-import config from "../config";
+import { swagger } from "../config/featureFlags";
 
-const { swagger } = config();
 const entityName = "address";
 
 @ApiTags("Address BFF")

@@ -5,9 +5,8 @@ import { BatchService } from "../batch/batch.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { StatsDto } from "./stats.dto";
-import config from "../config";
+import { swagger } from "../config/featureFlags";
 
-const { swagger } = config();
 const entityName = "stats";
 
 @ApiTags("Stats BFF")

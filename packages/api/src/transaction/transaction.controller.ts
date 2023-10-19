@@ -19,9 +19,8 @@ import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
-import config from "../config";
+import { swagger } from "../config/featureFlags";
 
-const { swagger } = config();
 const entityName = "transactions";
 
 @ApiTags("Transaction BFF")

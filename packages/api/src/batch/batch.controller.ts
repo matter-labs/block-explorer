@@ -15,9 +15,8 @@ import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkRespons
 import { BatchService } from "./batch.service";
 import { BatchDto } from "./batch.dto";
 import { BatchDetailsDto } from "./batchDetails.dto";
-import config from "../config";
+import { swagger } from "../config/featureFlags";
 
-const { swagger } = config();
 const entityName = "batches";
 
 @ApiTags("Batch BFF")

@@ -15,9 +15,8 @@ import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkRespons
 import { BlockService } from "./block.service";
 import { BlockDto } from "./block.dto";
 import { BlockDetailDto } from "./blockDetail.dto";
-import config from "../config";
+import { swagger } from "../config/featureFlags";
 
-const { swagger } = config();
 const entityName = "blocks";
 
 @ApiTags("Block BFF")

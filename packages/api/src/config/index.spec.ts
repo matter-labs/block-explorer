@@ -1,4 +1,9 @@
-import config from "./config";
+import config from "../config";
+
+jest.mock("./featureFlags", () => ({
+  feature1Enabled: true,
+  feature2Enabled: false,
+}));
 
 describe("config", () => {
   const env = process.env;
@@ -36,12 +41,11 @@ describe("config", () => {
         retryDelay: 3000,
         applicationName: "block-explorer-api",
       },
-      swagger: {
-        enabled: true,
-        bffEnabled: true,
-      },
       contractVerificationApiUrl: "http://127.0.0.1:3070",
-      disableExternalAPI: false,
+      featureFlags: {
+        feature1Enabled: true,
+        feature2Enabled: false,
+      },
     });
   });
 
