@@ -133,9 +133,9 @@ export class BlockchainService implements OnModuleInit {
       erc20Contract.name(),
     ]);
     return {
-      symbol: symbol?.replace(/\0/g, ""),
+      symbol,
       decimals,
-      name: name?.replace(/\0/g, ""),
+      name,
     };
   }
 
