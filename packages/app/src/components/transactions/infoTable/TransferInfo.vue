@@ -1,6 +1,7 @@
 <template>
   <div class="transfer-info-container">
     <span>{{ label }}</span>
+    <PaymasterLabel v-if="isPaymaster" />
     <TransactionNetworkSquareBlock :network="network" />
     <AddressLink v-if="network !== 'L1'" :address="address" class="address">
       <span>{{ shortenFitText(address, "left") }}</span>
@@ -24,6 +25,7 @@
 import AddressLink from "@/components/AddressLink.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import { shortenFitText } from "@/components/common/HashLabel.vue";
+import PaymasterLabel from "@/components/transactions/PaymasterLabel.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
 
 import useContext from "@/composables/useContext";
@@ -44,6 +46,9 @@ defineProps({
     required: true,
     default: "L1",
   },
+  isPaymaster: {
+    type: Boolean,
+  },
 });
 const { currentNetwork } = useContext();
 </script>
@@ -53,6 +58,13 @@ const { currentNetwork } = useContext();
   @apply flex text-sm;
   .transactions-data-link-network {
     @apply ml-2 mr-1;
+  }
+  .paymaster-label {
+    @apply ml-2;
+
+    & + .transactions-data-link-network {
+      @apply ml-1;
+    }
   }
   .copy-btn {
     @apply -top-px -mr-1.5 inline-block align-top;

@@ -1,7 +1,17 @@
 <template>
   <div class="transfer-container">
-    <TransferInfo :label="t('transactions.table.from')" :network="transfer.fromNetwork" :address="transfer.from" />
-    <TransferInfo :label="t('transactions.table.transferTo')" :network="transfer.toNetwork" :address="transfer.to" />
+    <TransferInfo
+      :label="t('transactions.table.from')"
+      :network="transfer.fromNetwork"
+      :address="transfer.from"
+      :is-paymaster="transfer.from === paymasterAddress"
+    />
+    <TransferInfo
+      :label="t('transactions.table.transferTo')"
+      :network="transfer.toNetwork"
+      :address="transfer.to"
+      :is-paymaster="transfer.to === paymasterAddress"
+    />
     <div class="transfer-amount-container">
       <span>{{ t("transactions.table.for") }}</span>
       <span class="transfer-amount-value">{{ transferAmount }}</span>
@@ -25,6 +35,7 @@ import TokenIconLabel from "@/components/TokenIconLabel.vue";
 import TransferInfo from "@/components/transactions/infoTable/TransferInfo.vue";
 
 import type { TokenTransfer } from "@/composables/useTransaction";
+import type { Hash } from "@/types";
 
 import { formatBigNumberish } from "@/utils/formatters";
 
@@ -34,6 +45,9 @@ const props = defineProps({
   transfer: {
     type: Object as PropType<TokenTransfer>,
     required: true,
+  },
+  paymasterAddress: {
+    type: String as PropType<Hash>,
   },
 });
 

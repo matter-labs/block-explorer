@@ -2,6 +2,9 @@
   <div>
     <div class="fee-info-container">
       <TokenAmountPrice :token="token" :amount="feeData?.amountPaid" />
+      <span class="payed-by-paymaster-label" v-if="feeData?.isPaidByPaymaster">
+        {{ t("transactions.table.paidByPaymaster") }}
+      </span>
       <button v-if="showDetails" class="toggle-button" @click="collapsed = !collapsed" type="button">
         {{ buttonTitle }}
       </button>
@@ -18,15 +21,30 @@
       <div class="fee-transfers-container">
         <div class="details-title">{{ t("transactions.table.feeDetails.refunds") }}</div>
         <div v-for="(transfer, index) in feeData?.refunds" :key="index">
-          <TransferTableCell :transfer="transfer" />
+          <TransferTableCell :transfer="transfer" :paymaster-address="feeData?.paymasterAddress" />
         </div>
       </div>
-      <a
-        class="refunded-link"
-        href="https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
-        target="_blank"
-        >{{ t("transactions.table.feeDetails.whyRefunded") }}</a
-      >
+      <div>
+        <a
+          class="refunded-link"
+          href="https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
+          target="_blank"
+          >{{
+            t(
+              feeData?.isPaidByPaymaster
+                ? "transactions.table.feeDetails.whyPaymasterRefunded"
+                : "transactions.table.feeDetails.whyRefunded"
+            )
+          }}</a
+        >
+        <a
+          v-if="feeData?.isPaidByPaymaster"
+          class="paymaster-link"
+          href="https://era.zksync.io/docs/reference/concepts/account-abstraction.html#paymasters"
+          target="_blank"
+          >{{ t("transactions.table.feeDetails.whatIsPaymaster") }}</a
+        >
+      </div>
     </div>
   </div>
 </template>
@@ -77,7 +95,10 @@ const token = computed<Token>(() => {
 </script>
 <style lang="scss" scoped>
 .fee-info-container {
-  @apply flex items-center gap-x-5;
+  @apply flex items-center gap-x-2;
+}
+.payed-by-paymaster-label {
+  @apply text-gray-400;
 }
 .toggle-button {
   @apply text-primary-600 underline hover:text-[#7379E5];
@@ -93,8 +114,12 @@ const token = computed<Token>(() => {
   .fee-transfers-container {
     @apply flex flex-col gap-y-1;
   }
-  .refunded-link {
+  .refunded-link,
+  .paymaster-link {
     @apply w-max;
+  }
+  .paymaster-link {
+    @apply ml-2;
   }
 }
 </style>

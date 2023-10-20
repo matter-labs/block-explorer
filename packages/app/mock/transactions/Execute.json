@@ -11,6 +11,7 @@
   "fee": "0x2279f530c00",
   "feeData": {
     "amountPaid": "0x2279f530c00",
+    "isPaidByPaymaster": false,
     "refunds": [],
     "amountRefunded": "0x00"
   },
