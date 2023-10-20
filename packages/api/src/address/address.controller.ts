@@ -1,5 +1,13 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiOkResponse, ApiBadRequestResponse, ApiExtraModels, refs } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiExtraModels,
+  refs,
+  ApiExcludeController,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { utils } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
@@ -16,10 +24,12 @@ import { LogService } from "../log/log.service";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
+import { swagger } from "../config/featureFlags";
 
 const entityName = "address";
 
 @ApiTags("Address BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class AddressController {
   constructor(

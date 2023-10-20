@@ -20,10 +20,8 @@ import { StatsModule } from "./stats/stats.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
+import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
-
-// TMP: disable external API until release
-const { disableExternalAPI } = config();
 
 @Module({
   imports: [
@@ -35,6 +33,7 @@ const { disableExternalAPI } = config();
     }),
     ApiModule,
     ApiContractModule,
+    // TMP: disable external API until release
     ...(disableExternalAPI ? [] : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule]),
     TokenModule,
     AddressModule,

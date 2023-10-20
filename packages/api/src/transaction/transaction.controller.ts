@@ -1,5 +1,12 @@
 import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiExcludeController,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
@@ -12,10 +19,12 @@ import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
+import { swagger } from "../config/featureFlags";
 
 const entityName = "transactions";
 
 @ApiTags("Transaction BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class TransactionController {
   constructor(

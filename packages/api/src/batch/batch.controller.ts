@@ -1,5 +1,12 @@
 import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiOkResponse, ApiBadRequestResponse, ApiNotFoundResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiExcludeController,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { PagingOptionsDto, ListFiltersDto } from "../common/dtos";
@@ -8,10 +15,12 @@ import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkRespons
 import { BatchService } from "./batch.service";
 import { BatchDto } from "./batch.dto";
 import { BatchDetailsDto } from "./batchDetails.dto";
+import { swagger } from "../config/featureFlags";
 
 const entityName = "batches";
 
 @ApiTags("Batch BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class BatchController {
   constructor(private readonly batchService: BatchService) {}
