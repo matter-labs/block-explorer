@@ -22,7 +22,7 @@ async function bootstrap() {
   const metricsApp = await NestFactory.create(AppMetricsModule);
   metricsApp.enableShutdownHooks();
 
-  if (configService.get<boolean>("swagger.enabled")) {
+  if (configService.get<boolean>("featureFlags.swagger.enabled")) {
     const swaggerConfig = new DocumentBuilder()
       .setTitle("Block explorer API")
       .setDescription("ZkSync Block Explorer API")

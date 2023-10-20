@@ -1,14 +1,16 @@
 import { Controller, Get } from "@nestjs/common";
-import { ApiTags, ApiOkResponse } from "@nestjs/swagger";
+import { ApiTags, ApiOkResponse, ApiExcludeController } from "@nestjs/swagger";
 import { Not, IsNull } from "typeorm";
 import { BatchService } from "../batch/batch.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { StatsDto } from "./stats.dto";
+import { swagger } from "../config/featureFlags";
 
 const entityName = "stats";
 
 @ApiTags("Stats BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class StatsController {
   constructor(
