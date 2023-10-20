@@ -34,4 +34,4 @@ ENV PORT $PORT
 USER node
 WORKDIR /usr/src/app/packages/app/dist
 
-CMD http-server -p $PORT
+CMD http-server -p $PORT -c-1 --proxy="http://127.0.0.1:$PORT/index.html?"
