@@ -83,6 +83,24 @@ describe("TransferInfo:", () => {
     mock.mockRestore();
     wrapper.unmount();
   });
+  it("renders paymaster label when transaction fee is paid by paymaster", async () => {
+    /* eslint-disable  @typescript-eslint/no-explicit-any */
+    const mock = ($fetch as any).mockResolvedValue({ accountType: "eOA" });
+
+    const wrapper = mount(TransferInfo, {
+      global,
+      props: {
+        label: "From",
+        address: "0x6c10d9c1744f149d4b17660e14faa247964749c7",
+        network: "L2",
+        isPaymaster: true,
+      },
+    });
+    expect(wrapper.find(".paymaster-label")?.text()).toBe("Paymaster");
+
+    mock.mockRestore();
+    wrapper.unmount();
+  });
   describe("when L1 explorer url is not set", () => {
     let mock1ExplorerUrl: Mock;
     beforeEach(() => {

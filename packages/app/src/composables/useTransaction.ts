@@ -30,6 +30,8 @@ export type TokenTransfer = {
 
 export type FeeData = {
   amountPaid: Hash;
+  isPaidByPaymaster: boolean;
+  paymasterAddress?: Hash;
   refunds: TokenTransfer[];
   amountRefunded: Hash;
 };
@@ -109,6 +111,7 @@ export default (context = useContext()) => {
         fee: transactionDetails.fee.toString(),
         feeData: {
           amountPaid: transactionDetails.fee.toString(),
+          isPaidByPaymaster: false,
           refunds: [],
           amountRefunded: BigNumber.from(0).toHexString(),
         },
@@ -178,6 +181,11 @@ export function mapTransaction(
   transfers: Api.Response.Transfer[],
   logs: Api.Response.Log[]
 ): TransactionItem {
+  const fees = mapTransfers(filterFees(transfers));
+  const refunds = mapTransfers(filterRefunds(transfers));
+  const paymasterFee = fees.find((fee) => fee.from !== transaction.from);
+  const paymasterAddress = paymasterFee?.from;
+  const isPaidByPaymaster = !transaction.isL1Originated && !!paymasterFee;
   return {
     hash: transaction.hash,
     blockHash: transaction.blockHash,
@@ -197,7 +205,9 @@ export function mapTransaction(
     fee: transaction.fee,
     feeData: {
       amountPaid: transaction.fee!,
-      refunds: mapTransfers(filterRefunds(transfers)),
+      isPaidByPaymaster,
+      paymasterAddress,
+      refunds,
       amountRefunded: sumAmounts(mapTransfers(filterRefunds(transfers))),
     },
     indexInBlock: transaction.transactionIndex,
@@ -248,12 +258,16 @@ function sumAmounts(balanceChanges: TokenTransfer[]) {
   return total.toHexString() as Hash;
 }
 
-export function filterRefunds(balanceChanges: Api.Response.Transfer[]) {
-  return balanceChanges.filter((item) => item.type === "refund");
+export function filterRefunds(transfers: Api.Response.Transfer[]) {
+  return transfers.filter((item) => item.type === "refund");
 }
 
-export function filterTransfers(balanceChanges: Api.Response.Transfer[]) {
-  return balanceChanges.filter((item) => item.type !== "fee" && item.type !== "refund");
+export function filterFees(transfers: Api.Response.Transfer[]) {
+  return transfers.filter((item) => item.type === "fee");
+}
+
+export function filterTransfers(transfers: Api.Response.Transfer[]) {
+  return transfers.filter((item) => item.type !== "fee" && item.type !== "refund");
 }
 
 async function all<T>(url: URL): Promise<T[]> {

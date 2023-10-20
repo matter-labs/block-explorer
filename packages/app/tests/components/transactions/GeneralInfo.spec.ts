@@ -36,6 +36,7 @@ const transaction: TransactionItem = {
   fee: "0x521f303519100",
   feeData: {
     amountPaid: "0x521f303519100",
+    isPaidByPaymaster: false,
     refunds: [
       {
         amount: "116665569251910",
