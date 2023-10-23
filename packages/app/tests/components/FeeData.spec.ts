@@ -192,7 +192,7 @@ describe("FeeToken", () => {
         "https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
       );
       expect(link?.getAttribute("target")).toBe("_blank");
-      expect(link?.textContent).toBe("Why I'm being refunded?");
+      expect(link?.textContent).toBe("Why am I being refunded?");
     });
   });
 
