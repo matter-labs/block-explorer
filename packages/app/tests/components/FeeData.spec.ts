@@ -243,7 +243,7 @@ describe("FeeToken", () => {
         "https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
       );
       expect(refundedLink?.getAttribute("target")).toBe("_blank");
-      expect(refundedLink?.textContent).toBe("Why Paymaster is being refunded?");
+      expect(refundedLink?.textContent).toBe("Why is Paymaster being refunded?");
 
       const paymasterLink = container.querySelector(".paymaster-link");
       expect(paymasterLink?.getAttribute("href")).toBe(
