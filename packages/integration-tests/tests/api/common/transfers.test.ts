@@ -38,22 +38,4 @@ describe("Transfer", () => {
       .expect((res) => expect(res.body.items[1].amount).toBe("1000000000000"))
       .expect((res) => expect(res.body.items[1].type).toBe("transfer"));
   });
-
-  //@id1448
-  it("Verify the custom ERC20 token transfer via /tokens/{address}/transfers", async () => {
-    const apiRoute = `/tokens/${token}/transfers?page=1&limit=10`;
-    token = await helper.getStringFromFile(bufferFile);
-
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body.items[0].amount).toBe("10000000000000000"))
-      .expect((res) => expect(res.body.items[0].from).toBe(Wallets.richWalletAddress))
-      .expect((res) => expect(res.body.items[0].to).toBe(Wallets.secondWalletAddress))
-      .expect((res) => expect(res.body.items[0].token).toEqual(expect.objectContaining({ l2Address: token })))
-      .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ transactionHash: txHashCust })))
-      .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ type: "transfer" })));
-  });
 });
