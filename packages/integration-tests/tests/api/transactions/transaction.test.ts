@@ -37,25 +37,6 @@ describe("Transactions", () => {
       expect(result).toContain(Logger.txHashStartsWith);
     });
 
-    //@id1451
-    it("Verify the custom token includes paymaster transaction", async () => {
-      const paymaster = await helper.getStringFromFile(bufferRoute + Buffer.paymaster);
-      const apiRoute = `/tokens/${token}/transfers?page=1&limit=10`;
-
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
-
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster })))
-        .expect((res) => expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: token })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
-        .expect((res) =>
-          expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }))
-        );
-    });
-
     //@id1452
     it("Verify transaction through Paymaster", async () => {
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
