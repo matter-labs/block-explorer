@@ -1,4 +1,4 @@
-import { ContractVerificationInfo } from "../types";
+import { ContractVerificationInfo, SourceCodeData } from "../types";
 import { ContractSourceCodeDto } from "../dtos/contract/contractSourceCodeResponse.dto";
 
 export const SOURCE_CODE_EMPTY_INFO: ContractSourceCodeDto = {
@@ -44,6 +44,23 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
         : `{${JSON.stringify(data.request.sourceCode)}}`;
   }
 
+  let libraryString = "";
+  let runs = "";
+
+  const sourceCodeSettings = (data.request.sourceCode as SourceCodeData).settings;
+  if (sourceCodeSettings) {
+    runs = sourceCodeSettings.optimizer?.runs?.toString() || "";
+    if (sourceCodeSettings.libraries) {
+      const librariesMapping: string[] = [];
+      for (const [fileName, contracts] of Object.entries(sourceCodeSettings.libraries)) {
+        for (const [contractName, contractAddress] of Object.entries(contracts)) {
+          librariesMapping.push(`${fileName}:${contractName}:${contractAddress}`);
+        }
+      }
+      libraryString = librariesMapping.join(";");
+    }
+  }
+
   return {
     ...{
       ABI: JSON.stringify(data.artifacts.abi),
@@ -55,10 +72,10 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
       ContractName: data.request.contractName,
       EVMVersion: "Default",
       OptimizationUsed: data.request.optimizationUsed ? "1" : "0",
-      Library: "",
+      Library: libraryString,
       LicenseType: "",
       CompilerVersion: data.request.compilerSolcVersion || data.request.compilerVyperVersion,
-      Runs: "",
+      Runs: runs,
       SwarmSource: "",
       Proxy: "0",
       Implementation: "",

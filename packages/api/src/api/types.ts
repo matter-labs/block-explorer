@@ -72,6 +72,26 @@ export type AbiFragment = {
   type: string;
 };
 
+export type SourceCodeData = {
+  language: string;
+  settings: {
+    optimizer?: {
+      enabled: boolean;
+      runs?: number;
+    };
+    libraries?: {
+      [file: string]: {
+        [library: string]: string;
+      };
+    };
+  };
+  sources: {
+    [key: string]: {
+      content: string;
+    };
+  };
+};
+
 type ContractVerificationRequest = {
   id: number;
   codeFormat: string;
@@ -82,22 +102,7 @@ type ContractVerificationRequest = {
   compilerVyperVersion?: string;
   compilerZkvyperVersion?: string;
   constructorArguments: string;
-  sourceCode:
-    | string
-    | {
-        language: string;
-        settings: {
-          optimizer: {
-            enabled: boolean;
-          };
-        };
-        sources: {
-          [key: string]: {
-            content: string;
-          };
-        };
-      }
-    | Record<string, string>;
+  sourceCode: string | SourceCodeData | Record<string, string>;
   optimizationUsed: boolean;
 };
 
