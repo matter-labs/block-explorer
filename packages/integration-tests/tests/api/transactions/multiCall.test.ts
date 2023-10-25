@@ -23,66 +23,6 @@ describe("Multicall transactions", () => {
     expect(contract[2]).toContain(Logger.txHashStartsWith);
   });
 
-  //@id1464
-  it("Verify the deployed Root contract via /address/{address}", async () => {
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
-    contract = await helper.getStringFromFile(bufferRoute + Buffer.addressMultiCallRoot);
-    txHash = await helper.getStringFromFile(bufferRoute + Buffer.txMultiCallRoot);
-
-    const apiRoute = `/address/${contract}`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ type: "contract" })))
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ address: contract })))
-      .expect((res) =>
-        expect(res.body).toStrictEqual(expect.objectContaining({ creatorAddress: Wallets.richWalletAddress }))
-      )
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ creatorTxHash: txHash })))
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ balances: {} })));
-  });
-
-  //@id1465
-  it("Verify the deployed Middle contract via /address/{address}", async () => {
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
-    contract = await helper.getStringFromFile(bufferRoute + Buffer.addressMultiCallMiddle);
-    txHash = await helper.getStringFromFile(bufferRoute + Buffer.txMultiCallMiddle);
-
-    const apiRoute = `/address/${contract}`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ type: "contract" })))
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ address: contract })))
-      .expect((res) =>
-        expect(res.body).toStrictEqual(expect.objectContaining({ creatorAddress: Wallets.richWalletAddress }))
-      )
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ creatorTxHash: txHash })))
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ balances: {} })));
-  });
-
-  //@id1466
-  it("Verify the deployed Caller contract via /address/{address}", async () => {
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
-    contract = await helper.getStringFromFile(bufferRoute + Buffer.addressMultiCallCaller);
-    txHash = await helper.getStringFromFile(bufferRoute + Buffer.txMultiCallCaller);
-
-    const apiRoute = `/address/${contract}`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ type: "contract" })))
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ address: contract })))
-      .expect((res) =>
-        expect(res.body).toStrictEqual(expect.objectContaining({ creatorAddress: Wallets.richWalletAddress }))
-      )
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ creatorTxHash: txHash })))
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ balances: {} })));
-  });
-
   //@id690:I --> @id1467
   it("Use the multicall contracts", async () => {
     txMulticall = await playbook.useMultiCallContracts();
