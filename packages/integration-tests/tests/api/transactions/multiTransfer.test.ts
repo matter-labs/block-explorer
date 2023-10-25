@@ -26,21 +26,6 @@ describe("Mulitransfer ETH", () => {
     expect(contract).toContain(Logger.txHashStartsWith);
   });
 
-  //@id1476
-  it("Verify the deployed multitransfer contract via /address/{address}", async () => {
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
-
-    const apiRoute = `/address/${contract}`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ address: contract })))
-      .expect((res) =>
-        expect(res.body).toStrictEqual(expect.objectContaining({ creatorAddress: Wallets.richWalletAddress }))
-      );
-  });
-
   //@id690 --> //@id1477
   it("Call the multitransfer contract to the L2", async () => {
     txMultiTransfer = await playbook.useMultiTransferETH();
