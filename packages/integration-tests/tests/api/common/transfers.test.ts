@@ -23,19 +23,4 @@ describe("Transfer", () => {
 
     return [txHashCust, txHashEth];
   });
-
-  //@id1447
-  it("Verify transfer ETH L2-L2 via /transactions/{transactionHash}/transfers", async () => {
-    const apiRoute = `/transactions/${txHashEth}/transfers`;
-    await setTimeout(localConfig.standardPause);
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body.items[1].from).toBe(Wallets.richWalletAddress))
-      .expect((res) => expect(res.body.items[1].to).toBe(Wallets.mainWalletAddress))
-      .expect((res) => expect(res.body.items[1].transactionHash).toBe(txHashEth))
-      .expect((res) => expect(res.body.items[1].amount).toBe("1000000000000"))
-      .expect((res) => expect(res.body.items[1].type).toBe("transfer"));
-  });
 });

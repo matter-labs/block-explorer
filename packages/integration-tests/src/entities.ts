@@ -19,6 +19,8 @@ export enum Buffer {
   txMultiCallCaller = "./buffer/txMultiCallCaller.txt",
   txMultiCallRoot = "./buffer/txmultiCallRoot.txt",
   txUseMultiCallContracts = "./buffer/txUseMultiCallContracts.txt",
+  txEthTransfer = "./buffer/txEthTransfer.txt",
+  txERC20Transfer = "./buffer/txERC20Transfer.txt",
   emptyWalletPrivateKey = "./buffer/emptyWalletPrivateKey.txt",
   emptyWalletAddress = "./buffer/emptyWalletAddress.txt",
   failedState = "./buffer/failedState.txt",
