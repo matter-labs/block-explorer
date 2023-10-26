@@ -1,8 +1,8 @@
 import { Wallets } from "./entities";
 
 export const localConfig = {
-  gasLimit: { gasLimit: 8000000 },
-  l2GasLimit: 8000000,
+  gasLimit: { gasLimit: 10000000 },
+  l2GasLimit: 10000000,
   L1Network: "http://localhost:8545",
   L2Network: "http://localhost:3050",
   privateKey: Wallets.richWalletPrivateKey,
