@@ -15,7 +15,7 @@ import { ContractAbiResponseDto } from "./dtos/contract/contractAbiResponse.dto"
 import { ContractCreationResponseDto, ContractCreationInfoDto } from "./dtos/contract/contractCreationResponse.dto";
 import { ContractSourceCodeResponseDto } from "./dtos/contract/contractSourceCodeResponse.dto";
 import { VerifyContractRequestDto } from "./dtos/contract/verifyContractRequest.dto";
-import { VerifyContractResponseDto } from "./dtos/contract/VerifyContractResponse.dto";
+import { VerifyContractResponseDto } from "./dtos/contract/verifyContractResponse.dto";
 import { TransactionStatusResponseDto, TransactionStatusDto } from "./dtos/transaction/transactionStatusResponse.dto";
 import { TransactionReceiptStatusResponseDto } from "./dtos/transaction/transactionReceiptStatusResponse.dto";
 import { AccountTransactionDto } from "./dtos/account/accountTransaction.dto";

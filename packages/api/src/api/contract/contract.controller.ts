@@ -26,7 +26,7 @@ import { VerifyContractRequestDto } from "../dtos/contract/verifyContractRequest
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
 import { ContractVerificationInfo, ContractVerificationCodeFormatEnum } from "../types";
-import { VerifyContractResponseDto } from "../dtos/contract/VerifyContractResponse.dto";
+import { VerifyContractResponseDto } from "../dtos/contract/verifyContractResponse.dto";
 
 const entityName = "contract";
 
