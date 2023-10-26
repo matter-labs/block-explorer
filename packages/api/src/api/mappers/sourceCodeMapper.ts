@@ -62,29 +62,22 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
   }
 
   return {
-    ...{
-      ABI: JSON.stringify(data.artifacts.abi),
-      SourceCode: sourceCode,
-      // remove leading 0x as Etherscan does
-      ConstructorArguments: data.request.constructorArguments.startsWith("0x")
-        ? data.request.constructorArguments.substring(2)
-        : data.request.constructorArguments,
-      ContractName: data.request.contractName,
-      EVMVersion: "Default",
-      OptimizationUsed: data.request.optimizationUsed ? "1" : "0",
-      Library: libraryString,
-      LicenseType: "",
-      CompilerVersion: data.request.compilerSolcVersion || data.request.compilerVyperVersion,
-      Runs: runs,
-      SwarmSource: "",
-      Proxy: "0",
-      Implementation: "",
-    },
-    ...(data.request.compilerZksolcVersion && {
-      CompilerZksolcVersion: data.request.compilerZksolcVersion,
-    }),
-    ...(data.request.compilerZkvyperVersion && {
-      CompilerZkvyperVersion: data.request.compilerZkvyperVersion,
-    }),
+    ABI: JSON.stringify(data.artifacts.abi),
+    SourceCode: sourceCode,
+    // remove leading 0x as Etherscan does
+    ConstructorArguments: data.request.constructorArguments.startsWith("0x")
+      ? data.request.constructorArguments.substring(2)
+      : data.request.constructorArguments,
+    ContractName: data.request.contractName,
+    EVMVersion: "Default",
+    OptimizationUsed: data.request.optimizationUsed ? "1" : "0",
+    Library: libraryString,
+    LicenseType: "",
+    CompilerVersion: data.request.compilerSolcVersion || data.request.compilerVyperVersion,
+    Runs: runs,
+    SwarmSource: "",
+    Proxy: "0",
+    Implementation: "",
+    ZkCompilerVersion: data.request.compilerZksolcVersion || data.request.compilerZkvyperVersion,
   };
 };

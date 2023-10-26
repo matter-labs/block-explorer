@@ -1,12 +1,15 @@
 import {
   Controller,
   Get,
+  Post,
+  Body,
   Query,
   Logger,
   InternalServerErrorException,
   BadRequestException,
   UseFilters,
   ParseArrayPipe,
+  HttpCode,
 } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import { ApiTags, ApiExcludeController } from "@nestjs/swagger";
@@ -19,9 +22,11 @@ import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto
 import { ContractAbiResponseDto } from "../dtos/contract/contractAbiResponse.dto";
 import { ContractSourceCodeResponseDto } from "../dtos/contract/contractSourceCodeResponse.dto";
 import { ContractCreationResponseDto } from "../dtos/contract/contractCreationResponse.dto";
+import { VerifyContractRequestDto } from "../dtos/contract/verifyContractRequest.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
-import { ContractVerificationInfo } from "../types";
+import { ContractVerificationInfo, ContractVerificationCodeFormatEnum } from "../types";
+import { VerifyContractResponseDto } from "../dtos/contract/VerifyContractResponse.dto";
 
 const entityName = "contract";
 
@@ -105,6 +110,96 @@ export class ContractController {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
       result: [mapContractSourceCode(data)],
+    };
+  }
+
+  @HttpCode(200)
+  @Post("/verifysourcecode")
+  public async verifySourceContract(
+    @Body(
+      "contractaddress",
+      new ParseAddressPipe({
+        required: true,
+        errorMessage: "Missing or invalid contractAddress (should start with 0x)",
+      })
+    )
+    contractAddress,
+    @Body() request: VerifyContractRequestDto
+  ): Promise<VerifyContractResponseDto> {
+    const isSolidityContract = [
+      ContractVerificationCodeFormatEnum.soliditySingleFile,
+      ContractVerificationCodeFormatEnum.solidityJsonInput,
+    ].includes(request.codeformat);
+
+    if (isSolidityContract && request.sourceCode instanceof Object) {
+      const libraries: { [key: string]: Record<string, string> } = {};
+      for (let i = 1; i <= 10; i++) {
+        const libName: string = request[`libraryname${i}`];
+        const libAddress: string = request[`libraryaddress${i}`];
+        if (libName && libAddress) {
+          const [filePath, contractName] = libName.split(":");
+          libraries[filePath] = {
+            ...libraries[filePath],
+            [contractName]: libAddress,
+          };
+        }
+      }
+
+      if (!request.sourceCode.settings) {
+        request.sourceCode.settings = {};
+      }
+
+      request.sourceCode.settings.libraries = { ...request.sourceCode.settings.libraries, ...libraries };
+
+      if (request.runs) {
+        if (!request.sourceCode.settings.optimizer) {
+          request.sourceCode.settings.optimizer = {
+            enabled: true,
+          };
+        }
+        request.sourceCode.settings.optimizer.runs = request.runs;
+      }
+    }
+
+    const { data } = await firstValueFrom<{ data: number }>(
+      this.httpService
+        .post(`${this.contractVerificationApiUrl}/contract_verification`, {
+          codeFormat: request.codeformat,
+          contractAddress,
+          contractName: request.contractname,
+          optimizationUsed: request.optimizationUsed === "1",
+          sourceCode: request.sourceCode,
+          constructorArguments: request.constructorArguements,
+          ...(isSolidityContract && {
+            compilerZksolcVersion: request.zkCompilerVersion,
+            compilerSolcVersion: request.compilerversion,
+          }),
+          ...(!isSolidityContract && {
+            compilerZkvyperVersion: request.zkCompilerVersion,
+            compilerVyperVersion: request.compilerversion,
+          }),
+        })
+        .pipe(
+          catchError((error: AxiosError) => {
+            this.logger.error({
+              message: "Error posting contract for verification",
+              stack: error.stack,
+              response: error.response?.data,
+            });
+
+            if (error.response?.status === 400) {
+              throw new BadRequestException(error.response.data);
+            }
+
+            throw new InternalServerErrorException("Failed to send verification request");
+          })
+        )
+    );
+
+    return {
+      status: ResponseStatus.OK,
+      message: ResponseMessage.OK,
+      result: data.toString(),
     };
   }
 

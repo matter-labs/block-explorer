@@ -26,6 +26,7 @@ export enum ApiAccountAction {
 export enum ApiContractAction {
   GetAbi = "getabi",
   GetSourceCode = "getsourcecode",
+  VerifySourceCode = "verifysourcecode",
   GetContractCreation = "getcontractcreation",
 }
 
@@ -114,3 +115,9 @@ export type ContractVerificationInfo = {
   request: ContractVerificationRequest;
   verifiedAt: string;
 };
+
+export enum ContractVerificationCodeFormatEnum {
+  soliditySingleFile = "solidity-single-file",
+  solidityJsonInput = "solidity-standard-json-input",
+  vyperMultiFile = "vyper-multi-file",
+}

@@ -9,7 +9,9 @@ import { AddressService } from "../../address/address.service";
 import { Address } from "../../address/address.entity";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { ContractController, parseAddressListPipeExceptionFactory } from "./contract.controller";
+import { VerifyContractRequestDto } from "../dtos/contract/verifyContractRequest.dto";
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
+import { ContractVerificationCodeFormatEnum } from "../types";
 
 jest.mock("../mappers/sourceCodeMapper", () => ({
   ...jest.requireActual("../mappers/sourceCodeMapper"),
@@ -239,6 +241,278 @@ describe("ContractController", () => {
       expect(response).toEqual({
         message: "OK",
         result: [{ mockMappedSourceCode: true }],
+        status: "1",
+      });
+    });
+  });
+
+  describe("verifySourceContract", () => {
+    let pipeMock = jest.fn();
+    let request: VerifyContractRequestDto;
+
+    beforeEach(() => {
+      pipeMock = jest.fn();
+      jest.spyOn(httpServiceMock, "post").mockReturnValue({
+        pipe: pipeMock,
+      } as unknown as rxjs.Observable<AxiosResponse>);
+      jest.spyOn(rxjs, "catchError").mockImplementation((callback) => callback as any);
+
+      request = {
+        module: "contract",
+        action: "verifysourcecode",
+        contractaddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        sourceCode: {
+          language: "Solidity",
+          settings: {
+            optimizer: {
+              enabled: true,
+            },
+          },
+          sources: {
+            "contracts/HelloWorld.sol": {
+              content: "// SPDX-License-Identifier: UNLICENSED",
+            },
+          },
+        },
+        codeformat: ContractVerificationCodeFormatEnum.solidityJsonInput,
+        contractname: "contracts/HelloWorld.sol:HelloWorld",
+        compilerversion: "0.8.17",
+        optimizationUsed: "1",
+        zkCompilerVersion: "v1.3.14",
+        constructorArguements: "0x94869207468657265210000000000000000000000000000000000000000000000",
+        runs: 700,
+        libraryname1: "contracts/MiniMath.sol:MiniMath",
+        libraryaddress1: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+        libraryname2: "contracts/MiniMath2.sol:MiniMath2",
+        libraryaddress2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+      } as unknown as VerifyContractRequestDto;
+    });
+
+    it("sends proper payload to the verification endpoint for single file solidity contract", async () => {
+      request = {
+        ...request,
+        sourceCode: "// SPDX-License-Identifier: UNLICENSED",
+        codeformat: ContractVerificationCodeFormatEnum.soliditySingleFile,
+      } as unknown as VerifyContractRequestDto;
+
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(request.contractaddress, request);
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "solidity-single-file",
+        compilerSolcVersion: "0.8.17",
+        compilerZksolcVersion: "v1.3.14",
+        constructorArguments: "0x94869207468657265210000000000000000000000000000000000000000000000",
+        contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        contractName: "contracts/HelloWorld.sol:HelloWorld",
+        optimizationUsed: true,
+        sourceCode: "// SPDX-License-Identifier: UNLICENSED",
+      });
+    });
+
+    it("sends proper payload to the verification endpoint for multi file solidity contract", async () => {
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(request.contractaddress, request);
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "solidity-standard-json-input",
+        compilerSolcVersion: "0.8.17",
+        compilerZksolcVersion: "v1.3.14",
+        constructorArguments: "0x94869207468657265210000000000000000000000000000000000000000000000",
+        contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        contractName: "contracts/HelloWorld.sol:HelloWorld",
+        optimizationUsed: true,
+        sourceCode: {
+          language: "Solidity",
+          settings: {
+            libraries: {
+              "contracts/MiniMath.sol": {
+                MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+              },
+              "contracts/MiniMath2.sol": {
+                MiniMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+              },
+            },
+            optimizer: {
+              enabled: true,
+              runs: 700,
+            },
+          },
+          sources: {
+            "contracts/HelloWorld.sol": {
+              content: "// SPDX-License-Identifier: UNLICENSED",
+            },
+          },
+        },
+      });
+    });
+
+    it("adds optimizer specific fields to the payload if they are not set for multi file solidity contract", async () => {
+      request.sourceCode = {
+        language: "Solidity",
+        sources: {
+          "contracts/HelloWorld.sol": {
+            content: "// SPDX-License-Identifier: UNLICENSED",
+          },
+        },
+      };
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(request.contractaddress, request);
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "solidity-standard-json-input",
+        compilerSolcVersion: "0.8.17",
+        compilerZksolcVersion: "v1.3.14",
+        constructorArguments: "0x94869207468657265210000000000000000000000000000000000000000000000",
+        contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        contractName: "contracts/HelloWorld.sol:HelloWorld",
+        optimizationUsed: true,
+        sourceCode: {
+          language: "Solidity",
+          settings: {
+            libraries: {
+              "contracts/MiniMath.sol": {
+                MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+              },
+              "contracts/MiniMath2.sol": {
+                MiniMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+              },
+            },
+            optimizer: {
+              enabled: true,
+              runs: 700,
+            },
+          },
+          sources: {
+            "contracts/HelloWorld.sol": {
+              content: "// SPDX-License-Identifier: UNLICENSED",
+            },
+          },
+        },
+      });
+    });
+
+    it("sends proper payload to the verification endpoint for multi file vyper contract", async () => {
+      const vyperVerificationRequest = {
+        module: "contract",
+        action: "verifysourcecode",
+        contractaddress: "0x589160F112A9BFB16f0FD8C6434a27bC3703507D",
+        sourceCode: {
+          sources: {
+            "contracts/Greeter.vy": {
+              content: "# @version ^0.3.3 # vim: ft=python",
+            },
+          },
+        },
+        codeformat: "vyper-multi-file",
+        contractname: "contracts/Greeter.vy:Greeter",
+        compilerversion: "0.3.3",
+        optimizationUsed: "1",
+        zkCompilerVersion: "v1.3.11",
+      } as unknown as VerifyContractRequestDto;
+
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(request.contractaddress, vyperVerificationRequest);
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "vyper-multi-file",
+        compilerVyperVersion: "0.3.3",
+        compilerZkvyperVersion: "v1.3.11",
+        constructorArguments: undefined,
+        contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        contractName: "contracts/Greeter.vy:Greeter",
+        optimizationUsed: true,
+        sourceCode: {
+          sources: {
+            "contracts/Greeter.vy": {
+              content: "# @version ^0.3.3 # vim: ft=python",
+            },
+          },
+        },
+      });
+    });
+
+    it("throws error when verification endpoint fails with response status different to 400", async () => {
+      pipeMock.mockImplementation((callback) => {
+        callback({
+          stack: "error stack",
+          response: {
+            data: "response data",
+            status: 500,
+          },
+        } as AxiosError);
+      });
+
+      await expect(controller.verifySourceContract(request.contractaddress, request)).rejects.toThrowError(
+        new InternalServerErrorException("Failed to send verification request")
+      );
+    });
+
+    it("throws error when verification endpoint fails with response status 400", async () => {
+      pipeMock.mockImplementation((callback) => {
+        callback({
+          stack: "error stack",
+          response: {
+            data: "Contract has already been verified",
+            status: 400,
+          },
+        } as AxiosError);
+      });
+
+      await expect(controller.verifySourceContract(request.contractaddress, request)).rejects.toThrowError(
+        new BadRequestException("Contract has already been verified")
+      );
+    });
+
+    it("throws error when contract verification info API fails without response data", async () => {
+      pipeMock.mockImplementation((callback) => {
+        callback({
+          stack: "error stack",
+        } as AxiosError);
+      });
+
+      await expect(controller.verifySourceContract(request.contractaddress, request)).rejects.toThrowError(
+        new InternalServerErrorException("Failed to send verification request")
+      );
+    });
+
+    it("returns verification id for verification request", async () => {
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      const response = await controller.verifySourceContract(request.contractaddress, request);
+      expect(response).toEqual({
+        message: "OK",
+        result: "1234",
         status: "1",
       });
     });

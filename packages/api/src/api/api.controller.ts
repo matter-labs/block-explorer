@@ -1,11 +1,21 @@
-import { Controller, Get, Query, Req, Next, UseFilters } from "@nestjs/common";
-import { ApiTags, ApiOkResponse, ApiExcludeEndpoint, ApiQuery, ApiExtraModels, ApiOperation } from "@nestjs/swagger";
+import { Controller, Get, Query, Req, Next, UseFilters, Post, Body } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOkResponse,
+  ApiExcludeEndpoint,
+  ApiQuery,
+  ApiExtraModels,
+  ApiOperation,
+  ApiBody,
+} from "@nestjs/swagger";
 import { Request, NextFunction } from "express";
 import { PagingOptionsWithMaxItemsLimitDto } from "./dtos/common/pagingOptionsWithMaxItemsLimit.dto";
 import { SortingOptionsDto } from "./dtos/common/sortingOptions.dto";
 import { ContractAbiResponseDto } from "./dtos/contract/contractAbiResponse.dto";
 import { ContractCreationResponseDto, ContractCreationInfoDto } from "./dtos/contract/contractCreationResponse.dto";
 import { ContractSourceCodeResponseDto } from "./dtos/contract/contractSourceCodeResponse.dto";
+import { VerifyContractRequestDto } from "./dtos/contract/verifyContractRequest.dto";
+import { VerifyContractResponseDto } from "./dtos/contract/VerifyContractResponse.dto";
 import { TransactionStatusResponseDto, TransactionStatusDto } from "./dtos/transaction/transactionStatusResponse.dto";
 import { TransactionReceiptStatusResponseDto } from "./dtos/transaction/transactionReceiptStatusResponse.dto";
 import { AccountTransactionDto } from "./dtos/account/accountTransaction.dto";
@@ -38,17 +48,30 @@ export class ApiController {
   @ApiExcludeEndpoint()
   @Get("api")
   @UseFilters(ApiExceptionFilter)
-  public async apiHandler(
+  public async apiGetHandler(
     @Req() request: Request,
     @Next() next: NextFunction,
-    @Query("module", new ParseModulePipe()) module: ApiModule,
     @Query(new ParseActionPipe()) action: string,
+    @Query("module", new ParseModulePipe()) module: ApiModule,
     @Query() query: ApiRequestQuery
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { module: queryModule, action: queryAction, ...queryParams } = query;
     request.url = `/api/${module}/${action}`;
     request.query = queryParams;
+    next();
+  }
+
+  @ApiExcludeEndpoint()
+  @Post("api")
+  @UseFilters(ApiExceptionFilter)
+  public async apiPostHandler(
+    @Req() request: Request,
+    @Next() next: NextFunction,
+    @Body(new ParseActionPipe()) action: string,
+    @Body("module", new ParseModulePipe()) module: ApiModule
+  ) {
+    request.url = `/api/${module}/${action}`;
     next();
   }
 
@@ -83,6 +106,18 @@ export class ApiController {
     type: ContractSourceCodeResponseDto,
   })
   public async getContractSourceCode(): Promise<ContractSourceCodeResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Contract API")
+  @Post("api")
+  @ApiOperation({ summary: "Submits a contract source code for verification" })
+  @ApiBody({ type: VerifyContractRequestDto })
+  @ApiOkResponse({
+    description: "Verification ID for the submission",
+    type: VerifyContractResponseDto,
+  })
+  public async verifyContractSourceCode(): Promise<VerifyContractResponseDto> {
     return null;
   }
 
