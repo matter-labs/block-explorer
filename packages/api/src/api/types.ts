@@ -26,8 +26,9 @@ export enum ApiAccountAction {
 export enum ApiContractAction {
   GetAbi = "getabi",
   GetSourceCode = "getsourcecode",
-  VerifySourceCode = "verifysourcecode",
   GetContractCreation = "getcontractcreation",
+  VerifySourceCode = "verifysourcecode",
+  GetVerificationStatus = "checkverifystatus",
 }
 
 export enum ApiTransactionAction {
@@ -121,3 +122,8 @@ export enum ContractVerificationCodeFormatEnum {
   solidityJsonInput = "solidity-standard-json-input",
   vyperMultiFile = "vyper-multi-file",
 }
+
+export type ContractVerificationStatusResponse = {
+  status: "successful" | "failed" | "in_progress" | "queued";
+  error?: string;
+};

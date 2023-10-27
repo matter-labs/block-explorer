@@ -524,6 +524,98 @@ describe("Contract API (e2e)", () => {
     });
   });
 
+  describe("/api?module=contract&action=checkverifystatus GET", () => {
+    it("returns HTTP 200 and successful verification status", () => {
+      const verificationId = "1234";
+
+      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
+        status: "successful",
+      });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=checkverifystatus&guid=${verificationId}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: "Pass - Verified",
+            status: "1",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and queued verification status", () => {
+      const verificationId = "1234";
+
+      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
+        status: "queued",
+      });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=checkverifystatus&guid=${verificationId}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: "Pending in queue",
+            status: "1",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and in progress verification status", () => {
+      const verificationId = "1234";
+
+      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
+        status: "in_progress",
+      });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=checkverifystatus&guid=${verificationId}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "OK",
+            result: "In progress",
+            status: "1",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and in progress failed status", () => {
+      const verificationId = "1234";
+
+      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
+        status: "failed",
+        error: "ERROR! Compilation error.",
+      });
+
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=checkverifystatus&guid=${verificationId}`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "NOTOK",
+            result: "ERROR! Compilation error.",
+            status: "0",
+          })
+        );
+    });
+
+    it("returns HTTP 200 and not OK if verification id is not valid", () => {
+      return request(app.getHttpServer())
+        .get(`/api?module=contract&action=checkverifystatus`)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body).toStrictEqual({
+            message: "NOTOK",
+            result: "Verification ID is not specified",
+            status: "0",
+          })
+        );
+    });
+  });
+
   describe("/api?module=contract&action=getcontractcreation GET", () => {
     it("returns HTTP 200 and contract creation info when contract is found in DB", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";

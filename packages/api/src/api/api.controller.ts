@@ -16,6 +16,7 @@ import { ContractCreationResponseDto, ContractCreationInfoDto } from "./dtos/con
 import { ContractSourceCodeResponseDto } from "./dtos/contract/contractSourceCodeResponse.dto";
 import { VerifyContractRequestDto } from "./dtos/contract/verifyContractRequest.dto";
 import { VerifyContractResponseDto } from "./dtos/contract/verifyContractResponse.dto";
+import { ContractVerificationStatusResponseDto } from "./dtos/contract/contractVerificationStatusResponse.dto";
 import { TransactionStatusResponseDto, TransactionStatusDto } from "./dtos/transaction/transactionStatusResponse.dto";
 import { TransactionReceiptStatusResponseDto } from "./dtos/transaction/transactionReceiptStatusResponse.dto";
 import { AccountTransactionDto } from "./dtos/account/accountTransaction.dto";
@@ -110,18 +111,6 @@ export class ApiController {
   }
 
   @ApiTags("Contract API")
-  @Post("api")
-  @ApiOperation({ summary: "Submits a contract source code for verification" })
-  @ApiBody({ type: VerifyContractRequestDto })
-  @ApiOkResponse({
-    description: "Verification ID for the submission",
-    type: VerifyContractResponseDto,
-  })
-  public async verifyContractSourceCode(): Promise<VerifyContractResponseDto> {
-    return null;
-  }
-
-  @ApiTags("Contract API")
   @Get("api?module=contract&action=getcontractcreation")
   @ApiOperation({ summary: "Fetch creation details for a list of contract addresses" })
   @ApiQuery({
@@ -138,6 +127,35 @@ export class ApiController {
     type: ContractCreationResponseDto,
   })
   public async getContractCreation(): Promise<ContractCreationResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Contract API")
+  @Post("api")
+  @ApiOperation({ summary: "Submits a contract source code for verification" })
+  @ApiBody({ type: VerifyContractRequestDto })
+  @ApiOkResponse({
+    description: "Verification ID for the submission",
+    type: VerifyContractResponseDto,
+  })
+  public async verifyContractSourceCode(): Promise<VerifyContractResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Contract API")
+  @Get("api?module=contract&action=checkverifystatus")
+  @ApiOperation({ summary: "Check source code verification submission status" })
+  @ApiQuery({
+    name: "guid",
+    description: "Verification ID",
+    example: "44071",
+    required: true,
+  })
+  @ApiOkResponse({
+    description: "Source code verification status",
+    type: ContractVerificationStatusResponseDto,
+  })
+  public async getVerificationStatus(): Promise<ContractVerificationStatusResponseDto> {
     return null;
   }
 

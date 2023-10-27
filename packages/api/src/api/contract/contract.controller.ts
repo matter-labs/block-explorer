@@ -18,14 +18,19 @@ import { AxiosError } from "axios";
 import { catchError, firstValueFrom, of } from "rxjs";
 import { AddressService } from "../../address/address.service";
 import { ParseAddressPipe } from "../../common/pipes/parseAddress.pipe";
-import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
+import { ResponseStatus, ResponseMessage, ResponseResultMessage } from "../dtos/common/responseBase.dto";
 import { ContractAbiResponseDto } from "../dtos/contract/contractAbiResponse.dto";
 import { ContractSourceCodeResponseDto } from "../dtos/contract/contractSourceCodeResponse.dto";
 import { ContractCreationResponseDto } from "../dtos/contract/contractCreationResponse.dto";
 import { VerifyContractRequestDto } from "../dtos/contract/verifyContractRequest.dto";
+import { ContractVerificationStatusResponseDto } from "../dtos/contract/contractVerificationStatusResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
-import { ContractVerificationInfo, ContractVerificationCodeFormatEnum } from "../types";
+import {
+  ContractVerificationInfo,
+  ContractVerificationCodeFormatEnum,
+  ContractVerificationStatusResponse,
+} from "../types";
 import { VerifyContractResponseDto } from "../dtos/contract/verifyContractResponse.dto";
 
 const entityName = "contract";
@@ -231,6 +236,61 @@ export class ContractController {
       status: result.length ? ResponseStatus.OK : ResponseStatus.NOTOK,
       message: result.length ? ResponseMessage.OK : ResponseMessage.NO_DATA_FOUND,
       result: result.length ? result : null,
+    };
+  }
+
+  @Get("/checkverifystatus")
+  public async getVerificationStatus(
+    @Query("guid") verificationId: string
+  ): Promise<ContractVerificationStatusResponseDto> {
+    if (!verificationId) {
+      throw new BadRequestException("Verification ID is not specified");
+    }
+
+    const { data } = await firstValueFrom<{ data: ContractVerificationStatusResponse }>(
+      this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/${verificationId}`).pipe(
+        catchError((error: AxiosError) => {
+          if (error.response?.status === 404) {
+            throw new BadRequestException("Contract verification submission not found");
+          }
+          this.logger.error({
+            message: "Error fetching contract verification status",
+            stack: error.stack,
+            response: error.response?.data,
+          });
+          throw new InternalServerErrorException("Failed to get verification status");
+        })
+      )
+    );
+
+    if (data.status === "successful") {
+      return {
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: ResponseResultMessage.VERIFICATION_SUCCESSFUL,
+      };
+    }
+
+    if (data.status === "queued") {
+      return {
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: ResponseResultMessage.VERIFICATION_QUEUED,
+      };
+    }
+
+    if (data.status === "in_progress") {
+      return {
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: ResponseResultMessage.VERIFICATION_IN_PROGRESS,
+      };
+    }
+
+    return {
+      status: ResponseStatus.NOTOK,
+      message: ResponseMessage.NOTOK,
+      result: data.error,
     };
   }
 }
