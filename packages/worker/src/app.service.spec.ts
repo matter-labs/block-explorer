@@ -215,10 +215,10 @@ describe("AppService", () => {
 
       expect(blocksRevertService.handleRevert).toBeCalledWith(blockNumber);
 
-      expect(blockService.start).toBeCalledTimes(1);
-      expect(batchService.start).toBeCalledTimes(1);
-      expect(counterService.start).toBeCalledTimes(1);
-      expect(balancesCleanerService.start).toBeCalledTimes(1);
+      expect(blockService.start).toBeCalledTimes(2);
+      expect(batchService.start).toBeCalledTimes(2);
+      expect(counterService.start).toBeCalledTimes(2);
+      expect(balancesCleanerService.start).toBeCalledTimes(2);
 
       await app.close();
     });

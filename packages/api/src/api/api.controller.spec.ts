@@ -16,11 +16,11 @@ describe("ApiController", () => {
     controller = module.get<ApiController>(ApiController);
   });
 
-  describe("apiHandler", () => {
+  describe("apiGetHandler", () => {
     it("delegates request handling to a different controller based on module and action from query string", async () => {
       const request = mock<Request>();
       const next = jest.fn();
-      await controller.apiHandler(request, next, ApiModule.Contract, ApiContractAction.GetAbi, {
+      await controller.apiGetHandler(request, next, ApiContractAction.GetAbi, ApiModule.Contract, {
         module: ApiModule.Contract,
         action: ApiContractAction.GetAbi,
         address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
@@ -30,6 +30,17 @@ describe("ApiController", () => {
       expect(request.query).toEqual({
         address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
       });
+      expect(next).toBeCalledTimes(1);
+    });
+  });
+
+  describe("apiPostHandler", () => {
+    it("delegates request handling to a different controller based on module and action from body string", async () => {
+      const request = mock<Request>();
+      const next = jest.fn();
+      await controller.apiPostHandler(request, next, ApiContractAction.VerifySourceCode, ApiModule.Contract);
+
+      expect(request.url).toBe(`/api/${ApiModule.Contract}/${ApiContractAction.VerifySourceCode}`);
       expect(next).toBeCalledTimes(1);
     });
   });
@@ -44,6 +55,20 @@ describe("ApiController", () => {
   describe("getContractSourceCode", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
       const result = await controller.getContractSourceCode();
+      expect(result).toBe(null);
+    });
+  });
+
+  describe("verifyContractSourceCode", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.verifyContractSourceCode();
+      expect(result).toBe(null);
+    });
+  });
+
+  describe("getVerificationStatus", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getVerificationStatus();
       expect(result).toBe(null);
     });
   });
