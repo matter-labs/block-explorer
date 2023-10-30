@@ -297,7 +297,7 @@ export class ApiController {
     description: "Internal transactions list",
     type: AccountInternalTransactionsResponseDto,
   })
-  public async getTransactionInternalTransactions(
+  public async getInternalTransactionsByTxHash(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
