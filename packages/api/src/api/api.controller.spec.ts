@@ -122,6 +122,20 @@ describe("ApiController", () => {
     });
   });
 
+  describe("getInternalTransactionsByTxHash", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getInternalTransactionsByTxHash(
+        {
+          page: 1,
+          offset: 10,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Desc }
+      );
+      expect(result).toBe(null);
+    });
+  });
+
   describe("getAccountTokenTransfers", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
       const result = await controller.getAccountTokenTransfers(
