@@ -25,6 +25,7 @@ import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAd
 import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
+import { constants } from "../config/docs";
 
 const entityName = "address";
 
@@ -46,7 +47,7 @@ export class AddressController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.address,
     description: "Valid hex address",
   })
   @ApiExtraModels(AccountDto, ContractDto)
@@ -112,7 +113,7 @@ export class AddressController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.contractAddressWithLogs,
     description: "Valid hex address",
   })
   @ApiListPageOkResponse(LogDto, { description: "Successfully returned address logs" })
@@ -136,7 +137,7 @@ export class AddressController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.address,
     description: "Valid hex address",
   })
   @ApiListPageOkResponse(TransferDto, { description: "Successfully returned address transfers" })

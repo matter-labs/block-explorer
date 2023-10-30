@@ -108,9 +108,23 @@ describe("ApiController", () => {
     });
   });
 
-  describe("getAccountInternalTransactions", () => {
+  describe("getAccountInternalTransactionsForAddress", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
-      const result = await controller.getAccountInternalTransactions(
+      const result = await controller.getAccountInternalTransactionsForAddress(
+        {
+          page: 1,
+          offset: 10,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Desc }
+      );
+      expect(result).toBe(null);
+    });
+  });
+
+  describe("getAccountInternalTransactionsForTx", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getAccountInternalTransactionsForTx(
         {
           page: 1,
           offset: 10,
