@@ -43,6 +43,7 @@ import { ParseModulePipe } from "./pipes/parseModule.pipe";
 import { ParseActionPipe } from "./pipes/parseAction.pipe";
 import { ApiExceptionFilter } from "./exceptionFilter";
 import { LogsResponseDto, LogApiDto } from "./dtos/log/logs.dto";
+import { constants } from "../config/docs";
 
 @Controller("")
 export class ApiController {
@@ -82,7 +83,7 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The contract address that has a verified source code",
-    example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
+    example: constants.verifiedContractAddress,
     required: true,
   })
   @ApiOkResponse({
@@ -99,7 +100,7 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The contract address that has a verified source code",
-    example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
+    example: constants.verifiedContractAddress,
     required: true,
   })
   @ApiOkResponse({
@@ -118,7 +119,7 @@ export class ApiController {
     explode: false,
     name: "contractaddresses",
     description: "List of contract addresses, up to 5 at a time",
-    example: ["0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594", "0x0E03197d697B592E5AE49EC14E952cddc9b28e14"],
+    example: [constants.verifiedContractAddress, constants.verifiedContractAddress2],
     required: true,
   })
   @ApiExtraModels(ContractCreationInfoDto)
@@ -165,7 +166,7 @@ export class ApiController {
   @ApiQuery({
     name: "txhash",
     description: "The transaction hash to check the execution status",
-    example: "0x04a4757cd59681b037c1e7bd2402cc45a23c66ed7497614879376719d34e020a",
+    example: constants.txHash,
     required: true,
   })
   @ApiExtraModels(TransactionStatusDto)
@@ -183,7 +184,7 @@ export class ApiController {
   @ApiQuery({
     name: "txhash",
     description: "The transaction hash to check the execution status",
-    example: "0x04a4757cd59681b037c1e7bd2402cc45a23c66ed7497614879376719d34e020a",
+    example: constants.txHash,
     required: true,
   })
   @ApiOkResponse({
@@ -200,7 +201,7 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to filter transactions by",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: true,
   })
   @ApiQuery({
@@ -232,18 +233,12 @@ export class ApiController {
   }
 
   @ApiTags("Account API")
-  @Get("api?module=account&action=txlistinternal")
-  @ApiOperation({ summary: "Retrieve internal transactions for a given address or transaction hash" })
+  @Get("api?module=account&action=txlistinternal&address=")
+  @ApiOperation({ summary: "Retrieve internal transactions for a given address" })
   @ApiQuery({
     name: "address",
     description: "The address to filter internal transactions by",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
-    required: false,
-  })
-  @ApiQuery({
-    name: "txhash",
-    description: "The transaction hash to filter internal transaction by",
-    example: "0x04a4757cd59681b037c1e7bd2402cc45a23c66ed7497614879376719d34e020a",
+    example: constants.addressWithInternalTx,
     required: false,
   })
   @ApiQuery({
@@ -275,12 +270,49 @@ export class ApiController {
   }
 
   @ApiTags("Account API")
+  @Get("api?module=account&action=txlistinternal&txhash=")
+  @ApiOperation({ summary: "Retrieve internal transactions for a given transaction hash" })
+  @ApiQuery({
+    name: "txhash",
+    description: "The transaction hash to filter internal transaction by",
+    example: constants.addressTxWithInternalTransfers,
+    required: false,
+  })
+  @ApiQuery({
+    name: "startblock",
+    type: "integer",
+    description: "The block number to start searching for internal transactions",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: "endblock",
+    type: "integer",
+    description: "The block number to stop searching for internal transactions",
+    example: 99999999,
+    required: false,
+  })
+  @ApiExtraModels(AccountInternalTransactionDto)
+  @ApiOkResponse({
+    description: "Internal transactions list",
+    type: AccountInternalTransactionsResponseDto,
+  })
+  public async getInternalTransactionsByTxHash(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
+  ): Promise<AccountInternalTransactionsResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
   @Get("api?module=account&action=balance")
   @ApiOperation({ summary: "Retrieve the balance for a given address" })
   @ApiQuery({
     name: "address",
     description: "The address to get Ether balance for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: true,
   })
   @ApiOkResponse({
@@ -299,7 +331,7 @@ export class ApiController {
     explode: false,
     name: "address",
     description: "List of addresses to get Ether balance for",
-    example: ["0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28", "0x0E03197d697B592E5AE49EC14E952cddc9b28e14"],
+    example: [constants.address, constants.addressWithInternalTx],
     required: true,
   })
   @ApiOkResponse({
@@ -316,13 +348,13 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to get Token balance for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: true,
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get balance for",
-    example: "0x0faF6df7054946141266420b43783387A78d82A9",
+    example: constants.tokenAddress,
     required: true,
   })
   @ApiOkResponse({
@@ -339,13 +371,13 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to get transfers for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: false,
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
-    example: "0x0faF6df7054946141266420b43783387A78d82A9",
+    example: constants.tokenAddress,
     required: false,
   })
   @ApiQuery({
@@ -382,13 +414,13 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to get transfers for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: false,
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
-    example: "0x0faF6df7054946141266420b43783387A78d82A9",
+    example: constants.tokenAddress,
     required: false,
   })
   @ApiQuery({
@@ -472,7 +504,7 @@ export class ApiController {
     name: "blockno",
     type: "integer",
     description: "The integer block number to estimate time remaining to be mined",
-    example: 12697906,
+    example: 20697906,
     required: true,
   })
   @ApiOkResponse({
@@ -490,7 +522,7 @@ export class ApiController {
     name: "blockno",
     type: "integer",
     description: "The integer block number to check block rewards",
-    example: 12697906,
+    example: 1500,
     required: true,
   })
   @ApiOkResponse({
@@ -507,21 +539,21 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to filter logs by",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.contractAddressWithLogs,
     required: true,
   })
   @ApiQuery({
     name: "fromBlock",
     type: "integer",
     description: "The integer block number to start searching for logs",
-    example: 12878196,
+    example: 0,
     required: false,
   })
   @ApiQuery({
     name: "toBlock",
     type: "integer",
     description: "The integer block number to stop searching for logs ",
-    example: 12879196,
+    example: 99999999,
     required: false,
   })
   @ApiExtraModels(LogApiDto)

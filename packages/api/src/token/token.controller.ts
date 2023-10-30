@@ -16,6 +16,7 @@ import { TokenDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { swagger } from "../config/featureFlags";
+import { constants } from "../config/docs";
 
 const entityName = "tokens";
 
@@ -39,7 +40,7 @@ export class TokenController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.tokenAddress,
     description: "Valid hex address",
   })
   @ApiOkResponse({ description: "Token was returned successfully", type: TokenDto })
@@ -57,7 +58,7 @@ export class TokenController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.tokenAddress,
     description: "Valid hex address",
   })
   @ApiListPageOkResponse(TransferDto, { description: "Successfully returned token transfers list" })
