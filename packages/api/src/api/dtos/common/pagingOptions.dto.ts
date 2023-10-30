@@ -19,7 +19,7 @@ export class PagingOptionsDto {
   @ApiPropertyOptional({
     type: "integer",
     minimum: 1,
-    maximum: 10000,
+    maximum: 100,
     default: 10,
     description: "The number of items returned per page",
     example: 10,
