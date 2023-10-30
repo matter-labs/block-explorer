@@ -5,7 +5,8 @@ import { TransactionReceiptService } from "../../transaction/transactionReceipt.
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
 import { ParseTransactionHashPipe } from "../../common/pipes/parseTransactionHash.pipe";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
-import { ContractAbiResponseDto } from "../dtos/contract/contractAbiResponse.dto";
+import { TransactionStatusResponseDto } from "../dtos/transaction/transactionStatusResponse.dto";
+import { TransactionReceiptStatusResponseDto } from "../dtos/transaction/transactionReceiptStatusResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
 
 const entityName = "transaction";
@@ -27,7 +28,7 @@ export class TransactionController {
   @Get("/getstatus")
   public async getTransactionStatus(
     @Query("txhash", new ParseTransactionHashPipe()) transactionHash: string
-  ): Promise<ContractAbiResponseDto> {
+  ): Promise<TransactionStatusResponseDto> {
     const transaction = await this.transactionService.findOne(transactionHash);
     const hasError = transaction?.status === TransactionStatus.Failed;
     return {
@@ -43,7 +44,7 @@ export class TransactionController {
   @Get("/gettxreceiptstatus")
   public async getTransactionReceiptStatus(
     @Query("txhash", new ParseTransactionHashPipe()) transactionHash: string
-  ): Promise<ContractAbiResponseDto> {
+  ): Promise<TransactionReceiptStatusResponseDto> {
     const transactionReceipt = await this.transactionReceiptService.findOne(transactionHash, ["status"]);
     const status = transactionReceipt?.status.toString() || "";
     return {
