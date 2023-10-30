@@ -108,9 +108,9 @@ describe("ApiController", () => {
     });
   });
 
-  describe("getAccountInternalTransactionsForAddress", () => {
+  describe("getAccountInternalTransactions", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
-      const result = await controller.getAccountInternalTransactionsForAddress(
+      const result = await controller.getAccountInternalTransactions(
         {
           page: 1,
           offset: 10,
@@ -122,9 +122,9 @@ describe("ApiController", () => {
     });
   });
 
-  describe("getAccountInternalTransactionsForTx", () => {
+  describe("getTransactionInternalTransactions", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
-      const result = await controller.getAccountInternalTransactionsForTx(
+      const result = await controller.getTransactionInternalTransactions(
         {
           page: 1,
           offset: 10,

@@ -260,7 +260,7 @@ export class ApiController {
     description: "Internal transactions list",
     type: AccountInternalTransactionsResponseDto,
   })
-  public async getAccountInternalTransactionsForAddress(
+  public async getAccountInternalTransactions(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -297,7 +297,7 @@ export class ApiController {
     description: "Internal transactions list",
     type: AccountInternalTransactionsResponseDto,
   })
-  public async getAccountInternalTransactionsForTx(
+  public async getTransactionInternalTransactions(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
