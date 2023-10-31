@@ -8,6 +8,7 @@ import { BlockService } from "./block";
 import { BatchService } from "./batch";
 import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
+import { TokenInfoWorkerService } from "./token/tokenInfo/tokenInfoWorker.service";
 import runMigrations from "./utils/runMigrations";
 
 @Injectable()
@@ -20,6 +21,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     private readonly blockService: BlockService,
     private readonly blocksRevertService: BlocksRevertService,
     private readonly balancesCleanerService: BalancesCleanerService,
+    private readonly tokenInfoWorkerService: TokenInfoWorkerService,
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService
   ) {
@@ -52,6 +54,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     const disableBatchesProcessing = this.configService.get<boolean>("batches.disableBatchesProcessing");
     const disableCountersProcessing = this.configService.get<boolean>("counters.disableCountersProcessing");
     const disableOldBalancesCleaner = this.configService.get<boolean>("balances.disableOldBalancesCleaner");
+    const enableTokenInfoWorker = this.configService.get<boolean>("tokens.enableTokenInfoWorker");
     const tasks = [this.blockService.start()];
     if (!disableBatchesProcessing) {
       tasks.push(this.batchService.start());
@@ -62,6 +65,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     if (!disableOldBalancesCleaner) {
       tasks.push(this.balancesCleanerService.start());
     }
+    if (enableTokenInfoWorker) {
+      tasks.push(this.tokenInfoWorkerService.start());
+    }
     return Promise.all(tasks);
   }
 
@@ -71,6 +77,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
       this.batchService.stop(),
       this.counterService.stop(),
       this.balancesCleanerService.stop(),
+      this.tokenInfoWorkerService.stop(),
     ]);
   }
 }
