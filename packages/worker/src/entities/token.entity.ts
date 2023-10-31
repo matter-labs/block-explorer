@@ -53,10 +53,10 @@ export class Token extends BaseEntity {
   @Column({ type: "int" })
   public readonly logIndex: number;
 
-  @Column({ nullable: true })
+  @Column({ type: "double precision", nullable: true })
   public readonly usdPrice?: number;
 
-  @Column({ nullable: true })
+  @Column({ type: "double precision", nullable: true })
   public readonly liquidity?: number;
 
   @Column({ nullable: true })
