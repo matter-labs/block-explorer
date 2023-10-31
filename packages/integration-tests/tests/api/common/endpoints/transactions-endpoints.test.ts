@@ -309,7 +309,7 @@ describe("Transactions", () => {
       );
   });
 
-  //   //@id1478
+  //@id1478
   it("Verify transaction for the ETH via /transactions/${txHash}", async () => {
     // txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferETH);
     contract = await playbook.deployMultiTransferETH();
@@ -705,7 +705,6 @@ describe("Transactions", () => {
       .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
   });
 
-  //   describe("Verify the multicall transactions via /transactions/${txHash}/transfers", () => {
   //@id1472
   it("Verify transaction for the Root contract via /transactions/${txHash}/transfers", async () => {
     await setTimeout(localConfig.standardPause); //works unstable without timeout
@@ -881,9 +880,7 @@ describe("Transactions", () => {
       .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
       .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })));
   });
-  //   });
-  //
-  //   describe("Verify the multicall transactions via /transactions/${txHash}", () => {
+
   //@id1464:I --> @id1468
   it("Verify transaction for the Root contract via /transactions/${txHash}", async () => {
     await setTimeout(localConfig.standardPause); //works unstable without timeout
@@ -962,8 +959,7 @@ describe("Transactions", () => {
       .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ isL1Originated: false })))
       .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 })));
   });
-  //   });
-  //
+
   //@id645
   it("Verify the transactions with failed state", async () => {
     token = await playbook.deployERC20toL2();
