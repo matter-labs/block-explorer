@@ -3,44 +3,44 @@ import { HttpService } from "@nestjs/axios";
 import { AxiosError } from "axios";
 import { setTimeout } from "timers/promises";
 import { catchError, firstValueFrom } from "rxjs";
-import { TokenInfoProvider, ITokenInfo } from "../tokenInfoProvider.abstract";
+import { TokenOffChainDataProvider, ITokenOffChainData } from "../tokenOffChainDataProvider.abstract";
 
 const TOKENS_INFO_API_URL = "https://api.portals.fi/v2/tokens";
 const API_INITIAL_RETRY_TIMEOUT = 5000;
 const API_RETRY_ATTEMPTS = 5;
 
-interface ITokensInfoPage {
+interface ITokensOffChainDataPage {
   hasMore: boolean;
-  tokens: ITokenInfo[];
+  tokens: ITokenOffChainData[];
 }
 
-interface ITokenInfoProviderResponse {
+interface ITokenOffChainDataProviderResponse {
   address: string;
   image?: string;
   liquidity: number;
   price: number;
 }
 
-interface ITokensInfoProviderResponse {
+interface ITokensOffChainDataProviderResponse {
   more: boolean;
-  tokens: ITokenInfoProviderResponse[];
+  tokens: ITokenOffChainDataProviderResponse[];
 }
 
 @Injectable()
-export class PortalsFiTokenInfoProvider implements TokenInfoProvider {
+export class PortalsFiTokenOffChainDataProvider implements TokenOffChainDataProvider {
   private readonly logger: Logger;
 
   constructor(private readonly httpService: HttpService) {
-    this.logger = new Logger(PortalsFiTokenInfoProvider.name);
+    this.logger = new Logger(PortalsFiTokenOffChainDataProvider.name);
   }
 
-  public async getTokensInfo(minLiquidity: number): Promise<ITokenInfo[]> {
+  public async getTokensOffChainData(minLiquidity: number): Promise<ITokenOffChainData[]> {
     let page = 0;
     let hasMore = true;
     const tokens = [];
 
     while (hasMore) {
-      const tokensInfoPage = await this.getTokensInfoPageRetryable({ page, minLiquidity });
+      const tokensInfoPage = await this.getTokensOffChainDataPageRetryable({ page, minLiquidity });
       tokens.push(...tokensInfoPage.tokens);
       page++;
       hasMore = tokensInfoPage.hasMore;
@@ -49,7 +49,7 @@ export class PortalsFiTokenInfoProvider implements TokenInfoProvider {
     return tokens;
   }
 
-  private async getTokensInfoPageRetryable({
+  private async getTokensOffChainDataPageRetryable({
     page,
     minLiquidity,
     retryAttempt = 0,
@@ -59,14 +59,14 @@ export class PortalsFiTokenInfoProvider implements TokenInfoProvider {
     minLiquidity: number;
     retryAttempt?: number;
     retryTimeout?: number;
-  }): Promise<ITokensInfoPage> {
+  }): Promise<ITokensOffChainDataPage> {
     try {
-      return await this.getTokensInfoPage({ page, minLiquidity });
+      return await this.getTokensOffChainDataPage({ page, minLiquidity });
     } catch {
       if (retryAttempt > API_RETRY_ATTEMPTS) {
         this.logger.error({
           message: `Failed to fetch tokens info at page=${page} after ${retryAttempt} retries`,
-          provider: PortalsFiTokenInfoProvider.name,
+          provider: PortalsFiTokenOffChainDataProvider.name,
         });
         return {
           hasMore: false,
@@ -74,7 +74,7 @@ export class PortalsFiTokenInfoProvider implements TokenInfoProvider {
         };
       }
       await setTimeout(retryTimeout);
-      return this.getTokensInfoPageRetryable({
+      return this.getTokensOffChainDataPageRetryable({
         page,
         minLiquidity,
         retryAttempt: retryAttempt + 1,
@@ -83,23 +83,23 @@ export class PortalsFiTokenInfoProvider implements TokenInfoProvider {
     }
   }
 
-  private async getTokensInfoPage({
+  private async getTokensOffChainDataPage({
     page,
     minLiquidity,
   }: {
     page: number;
     minLiquidity: number;
-  }): Promise<ITokensInfoPage> {
+  }): Promise<ITokensOffChainDataPage> {
     const queryString = `networks=ethereum&limit=250&sortBy=liquidity&minLiquidity=${minLiquidity}&sortDirection=desc&page=${page}`;
 
-    const { data } = await firstValueFrom<{ data: ITokensInfoProviderResponse }>(
+    const { data } = await firstValueFrom<{ data: ITokensOffChainDataProviderResponse }>(
       this.httpService.get(`${TOKENS_INFO_API_URL}?${queryString}`).pipe(
         catchError((error: AxiosError) => {
           this.logger.error({
             message: `Failed to fetch tokens info at page=${page}`,
             stack: error.stack,
             response: error.response?.data,
-            provider: PortalsFiTokenInfoProvider.name,
+            provider: PortalsFiTokenOffChainDataProvider.name,
           });
           throw new Error(`Failed to fetch tokens info at page=${page}`);
         })

@@ -3,38 +3,40 @@ import { ConfigService } from "@nestjs/config";
 import { Worker } from "../../common/worker";
 import waitFor from "../../utils/waitFor";
 import { TokenRepository } from "../../repositories/token.repository";
-import { TokenInfoProvider } from "./tokenInfoProvider.abstract";
+import { TokenOffChainDataProvider } from "./tokenOffChainDataProvider.abstract";
 
 const UPDATE_TOKENS_BATCH_SIZE = 100;
 
 @Injectable()
-export class TokenInfoWorkerService extends Worker {
-  private readonly updateTokenInfoInterval: number;
-  private readonly minTokensLiquidityFilter: number;
+export class TokenOffChainDataSaverService extends Worker {
+  private readonly updateTokenOffChainDataInterval: number;
+  private readonly tokenOffChainDataMinLiquidityFilter: number;
   private readonly logger: Logger;
 
   public constructor(
     private readonly tokenRepository: TokenRepository,
-    private readonly tokenInfoProvider: TokenInfoProvider,
+    private readonly tokenInfoProvider: TokenOffChainDataProvider,
     configService: ConfigService
   ) {
     super();
-    this.updateTokenInfoInterval = configService.get<number>("tokens.updateTokenInfoInterval");
-    this.minTokensLiquidityFilter = configService.get<number>("tokens.minTokensLiquidityFilter");
-    this.logger = new Logger(TokenInfoWorkerService.name);
+    this.updateTokenOffChainDataInterval = configService.get<number>("tokens.updateTokenOffChainDataInterval");
+    this.tokenOffChainDataMinLiquidityFilter = configService.get<number>("tokens.tokenOffChainDataMinLiquidityFilter");
+    this.logger = new Logger(TokenOffChainDataSaverService.name);
   }
 
   protected async runProcess(): Promise<void> {
-    let nextUpdateTimeout = this.updateTokenInfoInterval;
+    let nextUpdateTimeout = this.updateTokenOffChainDataInterval;
     try {
       const lastUpdatedAt = await this.tokenRepository.getOffChainDataLastUpdatedAt();
       const now = new Date().getTime();
-      const timeSinceLastUpdate = lastUpdatedAt ? now - lastUpdatedAt.getTime() : this.updateTokenInfoInterval;
+      const timeSinceLastUpdate = lastUpdatedAt ? now - lastUpdatedAt.getTime() : this.updateTokenOffChainDataInterval;
       nextUpdateTimeout =
-        timeSinceLastUpdate >= this.updateTokenInfoInterval ? 0 : this.updateTokenInfoInterval - timeSinceLastUpdate;
+        timeSinceLastUpdate >= this.updateTokenOffChainDataInterval
+          ? 0
+          : this.updateTokenOffChainDataInterval - timeSinceLastUpdate;
 
       if (!nextUpdateTimeout) {
-        const tokensInfo = await this.tokenInfoProvider.getTokensInfo(this.minTokensLiquidityFilter);
+        const tokensInfo = await this.tokenInfoProvider.getTokensOffChainData(this.tokenOffChainDataMinLiquidityFilter);
         const bridgedTokens = await this.tokenRepository.getBridgedTokens();
         const tokensToUpdate = tokensInfo.filter((token) => bridgedTokens.find((t) => t.l1Address === token.l1Address));
         const updatedAt = new Date();
@@ -56,14 +58,14 @@ export class TokenInfoWorkerService extends Worker {
           }
         }
 
-        nextUpdateTimeout = this.updateTokenInfoInterval;
+        nextUpdateTimeout = this.updateTokenOffChainDataInterval;
       }
     } catch (err) {
       this.logger.error({
         message: "Failed to update tokens offchain data",
         originalError: err,
       });
-      nextUpdateTimeout = this.updateTokenInfoInterval;
+      nextUpdateTimeout = this.updateTokenOffChainDataInterval;
     }
 
     await waitFor(() => !this.currentProcessPromise, nextUpdateTimeout);

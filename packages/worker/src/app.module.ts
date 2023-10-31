@@ -17,9 +17,9 @@ import { AddressService } from "./address/address.service";
 import { BalanceService, BalancesCleanerService } from "./balance";
 import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
-import { TokenInfoProvider } from "./token/tokenInfo/tokenInfoProvider.abstract";
-import { PortalsFiTokenInfoProvider } from "./token/tokenInfo/providers/portalsFiTokenInfoProvider";
-import { TokenInfoWorkerService } from "./token/tokenInfo/tokenInfoWorker.service";
+import { TokenOffChainDataProvider } from "./token/tokenInfo/tokenOffChainDataProvider.abstract";
+import { PortalsFiTokenOffChainDataProvider } from "./token/tokenInfo/providers/portalsFiTokenOffChainDataProvider";
+import { TokenOffChainDataSaverService } from "./token/tokenInfo/tokenOffChainDataSaver.service";
 import { CounterModule } from "./counter/counter.module";
 import {
   BatchRepository,
@@ -99,10 +99,10 @@ import { UnitOfWorkModule } from "./unitOfWork";
     TransferService,
     TokenService,
     {
-      provide: TokenInfoProvider,
-      useClass: PortalsFiTokenInfoProvider,
+      provide: TokenOffChainDataProvider,
+      useClass: PortalsFiTokenOffChainDataProvider,
     },
-    TokenInfoWorkerService,
+    TokenOffChainDataSaverService,
     BatchRepository,
     BlockRepository,
     TransactionRepository,

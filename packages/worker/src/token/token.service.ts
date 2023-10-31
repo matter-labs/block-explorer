@@ -1,7 +1,6 @@
 import { types } from "zksync-web3";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { utils as ethersUtils } from "ethers";
 import { Histogram } from "prom-client";
 import { LogType, isLogOfType } from "../log/logType";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -25,7 +24,6 @@ export interface Token {
 @Injectable()
 export class TokenService {
   private readonly logger: Logger;
-  private readonly abiCoder: ethersUtils.AbiCoder;
 
   constructor(
     private readonly blockchainService: BlockchainService,
@@ -33,7 +31,6 @@ export class TokenService {
     @InjectMetric(GET_TOKEN_INFO_DURATION_METRIC_NAME)
     private readonly getTokenInfoDurationMetric: Histogram
   ) {
-    this.abiCoder = new ethersUtils.AbiCoder();
     this.logger = new Logger(TokenService.name);
   }
 
