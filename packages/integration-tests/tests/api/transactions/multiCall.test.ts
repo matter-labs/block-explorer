@@ -1,19 +1,11 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment, localConfig } from "../../../src/config";
-import { Buffer, Logger, Token, TransactionsType, Wallets } from "../../../src/entities";
-import { Helper } from "../../../src/helper";
+import { localConfig } from "../../../src/config";
+import { Logger } from "../../../src/entities";
 import { Playbook } from "../../../src/playbook/playbook";
 
 describe("Multicall transactions", () => {
   jest.setTimeout(localConfig.extendedTimeout);
   const playbook = new Playbook();
-  const helper = new Helper();
-  const bufferRoute = "src/playbook/";
-  let txHash: string;
   let txMulticall: string;
-  let contract: string;
 
   //@id689
   it("Deploy the Multicall contracts", async () => {

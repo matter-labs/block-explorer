@@ -1,7 +1,3 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment } from "../../../src/config";
 import { localConfig } from "../../../src/config";
 import { Logger } from "../../../src/entities";
 import { Playbook } from "../../../src/playbook/playbook";
