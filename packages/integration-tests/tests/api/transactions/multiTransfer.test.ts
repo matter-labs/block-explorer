@@ -1,8 +1,5 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment, localConfig } from "../../../src/config";
-import { Buffer, Logger, Token, TransactionsType, Wallets } from "../../../src/entities";
+import { localConfig } from "../../../src/config";
+import { Buffer, Logger } from "../../../src/entities";
 import { Helper } from "../../../src/helper";
 import { Playbook } from "../../../src/playbook/playbook";
 
@@ -11,9 +8,7 @@ describe("Mulitransfer ETH", () => {
   const playbook = new Playbook();
   const helper = new Helper();
   const bufferRoute = "src/playbook/";
-  let txHash: string;
   let txMultiTransfer: string[];
-  let token: string;
   let contract: string;
 
   beforeEach(async () => {
