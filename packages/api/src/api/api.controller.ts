@@ -233,13 +233,44 @@ export class ApiController {
   }
 
   @ApiTags("Account API")
+  @Get("api?module=account&action=txlistinternal")
+  @ApiOperation({ summary: "Retrieve internal transactions" })
+  @ApiQuery({
+    name: "startblock",
+    type: "integer",
+    description: "The block number to start searching for internal transactions",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: "endblock",
+    type: "integer",
+    description: "The block number to stop searching for internal transactions",
+    example: 99999999,
+    required: false,
+  })
+  @ApiExtraModels(AccountInternalTransactionDto)
+  @ApiOkResponse({
+    description: "Internal transactions list",
+    type: AccountInternalTransactionsResponseDto,
+  })
+  public async getInternalTransactions(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
+  ): Promise<AccountInternalTransactionsResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
   @Get("api?module=account&action=txlistinternal&address=")
   @ApiOperation({ summary: "Retrieve internal transactions for a given address" })
   @ApiQuery({
     name: "address",
     description: "The address to filter internal transactions by",
     example: constants.addressWithInternalTx,
-    required: false,
+    required: true,
   })
   @ApiQuery({
     name: "startblock",
@@ -276,7 +307,7 @@ export class ApiController {
     name: "txhash",
     description: "The transaction hash to filter internal transaction by",
     example: constants.addressTxWithInternalTransfers,
-    required: false,
+    required: true,
   })
   @ApiQuery({
     name: "startblock",
