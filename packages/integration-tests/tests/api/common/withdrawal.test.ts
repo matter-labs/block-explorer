@@ -1,7 +1,4 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment, localConfig } from "../../../src/config";
+import { localConfig } from "../../../src/config";
 import { Buffer, Token, Wallets } from "../../../src/entities";
 import { Logger } from "../../../src/entities";
 import { Helper } from "../../../src/helper";
@@ -12,7 +9,6 @@ describe("Withdrawal", () => {
   const helper = new Helper();
   const playbookRoot = "src/playbook";
   const l2Token = playbookRoot + "/" + Buffer.L2deposited;
-  const l1Token = playbookRoot + "/" + Buffer.L1;
 
   let result: string;
   jest.setTimeout(localConfig.extendedTimeout);
