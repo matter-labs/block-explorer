@@ -23,11 +23,11 @@ describe("Tokens", () => {
   describe("/tokens", () => {
     //@id1508
     it("Verify the response via /tokens", async () => {
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
-
       const l2DepositedToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
       const l1Token = await helper.getStringFromFile(bufferFile + Buffer.L1);
       const apiRoute = `/tokens`;
+
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -57,9 +57,9 @@ describe("Tokens", () => {
     });
     //@id1456
     it("Verify deployed to L2 custom token via /tokens/{tokenAddress}", async () => {
-      await setTimeout(localConfig.extendedPause); //works unstable without timeout
-
       const apiRoute = `/tokens/${l2Token}`;
+
+      await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -74,19 +74,13 @@ describe("Tokens", () => {
           })
         );
     });
-
     describe("/tokens/{address}/transfers", () => {
-      beforeAll(async () => {
-        txHash = await playbook.transferERC20("0.01", l2Token, "L2");
-        await playbook.deployViaPaymaster();
-        await playbook.usePaymaster();
-      });
-
       //@id1448
       it("Verify the custom ERC20 token transfer via /tokens/{address}/transfers", async () => {
-        await setTimeout(localConfig.standardPause); //works unstable without timeout
-
         const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+        const txHash = await playbook.transferERC20("0.01", l2Token, "L2");
+
+        await setTimeout(localConfig.standardPause); //works unstable without timeout
 
         return request(environment.blockExplorerAPI)
           .get(apiRoute)
@@ -101,13 +95,14 @@ describe("Tokens", () => {
 
       //@id1451
       it("Verify the custom token includes paymaster transaction via /tokens/{address}/transfers", async () => {
-        await setTimeout(localConfig.standardPause); //works unstable without timeout
-
         l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
         const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
         const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
         txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+
         const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+
+        await setTimeout(localConfig.standardPause); //works unstable without timeout
 
         return request(environment.blockExplorerAPI)
           .get(apiRoute)

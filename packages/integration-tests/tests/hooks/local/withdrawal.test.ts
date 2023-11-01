@@ -1,8 +1,8 @@
-import { localConfig } from "../../../../src/config";
-import { Buffer, Token, Wallets } from "../../../../src/entities";
-import { Logger } from "../../../../src/entities";
-import { Helper } from "../../../../src/helper";
-import { Playbook } from "../../../../src/playbook/playbook";
+import { localConfig } from "../../../src/config";
+import { Buffer, Token, Wallets } from "../../../src/entities";
+import { Logger } from "../../../src/entities";
+import { Helper } from "../../../src/helper";
+import { Playbook } from "../../../src/playbook/playbook";
 
 describe("Withdrawal", () => {
   const playbook = new Playbook();
