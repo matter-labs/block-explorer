@@ -50,6 +50,7 @@ describe("AccountController", () => {
         cumulativeGasUsed: "1200000",
         gasUsed: "900000",
       },
+      type: 255,
     },
   };
 
@@ -92,6 +93,7 @@ describe("AccountController", () => {
         cumulativeGasUsed: "1200000",
         gasUsed: "900000",
       },
+      type: 255,
     },
   } as Transfer;
 
@@ -246,6 +248,7 @@ describe("AccountController", () => {
             transactionIndex: "10",
             txreceipt_status: "1",
             value: "1000000",
+            type: "255",
           },
         ],
       });
@@ -331,6 +334,7 @@ describe("AccountController", () => {
             traceId: "0",
             type: "call",
             value: "1000000",
+            transactionType: "255",
           },
         ],
       });
@@ -436,6 +440,7 @@ describe("AccountController", () => {
             tokenSymbol: "TKN",
             transactionIndex: "10",
             value: "1000000",
+            type: "255",
           },
         ],
       });
@@ -542,6 +547,7 @@ describe("AccountController", () => {
             tokenSymbol: "TKN",
             transactionIndex: "10",
             value: "1000000",
+            type: "255",
           },
         ],
       });

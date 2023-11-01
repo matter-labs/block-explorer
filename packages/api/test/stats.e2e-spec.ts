@@ -86,6 +86,7 @@ describe("StatsController (e2e)", () => {
         receiptStatus: 1,
         gasLimit: "1000000",
         gasPrice: "100",
+        type: 255,
       });
     }
 

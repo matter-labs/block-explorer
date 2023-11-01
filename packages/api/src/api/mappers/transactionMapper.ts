@@ -29,6 +29,7 @@ export const mapTransactionListItem = (addressTransaction: AddressTransaction, l
   executeTxHash: addressTransaction.transaction.executeTxHash,
   isL1Originated: addressTransaction.transaction.isL1Originated ? "1" : "0",
   l1BatchNumber: addressTransaction.transaction.l1BatchNumber.toString(),
+  type: addressTransaction.transaction.type.toString(),
   methodId: getMethodId(addressTransaction.transaction.data),
   functionName: "",
 });
