@@ -71,6 +71,7 @@ describe("Transaction API (e2e)", () => {
       receiptStatus: 0,
       gasLimit: "1000000",
       gasPrice: "100",
+      type: 255,
     });
 
     await transactionRepository.insert({
@@ -90,6 +91,7 @@ describe("Transaction API (e2e)", () => {
       receiptStatus: 1,
       gasLimit: "1000000",
       gasPrice: "100",
+      type: 255,
     });
 
     await transactionReceiptRepository.insert({

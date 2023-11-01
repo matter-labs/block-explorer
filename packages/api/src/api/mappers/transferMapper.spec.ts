@@ -37,6 +37,7 @@ describe("transferMapper", () => {
       executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
       isL1Originated: true,
       l1BatchNumber: 3,
+      type: 255,
       transactionReceipt: {
         contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
         cumulativeGasUsed: "1200000",
@@ -69,6 +70,7 @@ describe("transferMapper", () => {
         tokenSymbol: "TKN",
         transactionIndex: "10",
         value: "1000000",
+        type: "255",
       });
     });
 
@@ -157,6 +159,7 @@ describe("transferMapper", () => {
           tokenSymbol: "TKN",
           transactionIndex: "10",
           value: "1000000",
+          type: "255",
         });
       });
     });

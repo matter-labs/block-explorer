@@ -80,6 +80,9 @@ export class Transaction extends BaseEntity {
   public readonly blockHash: string;
 
   @Column({ type: "int" })
+  public readonly type: number;
+
+  @Column({ type: "int" })
   public readonly transactionIndex: number;
 
   @Column({ type: "timestamp" })

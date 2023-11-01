@@ -92,6 +92,7 @@ describe("Account API (e2e)", () => {
       receiptStatus: 0,
       gasLimit: "1000000",
       gasPrice: "100",
+      type: 255,
     });
 
     await transactionReceiptRepository.insert({
@@ -253,6 +254,7 @@ describe("Account API (e2e)", () => {
                 transactionIndex: "1",
                 txreceipt_status: "0",
                 value: "0x2386f26fc10000",
+                type: "255",
               },
             ],
           })
@@ -304,6 +306,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "TKN",
                 transactionIndex: "1",
                 value: "105",
+                type: "255",
               },
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -327,6 +330,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "TKN",
                 transactionIndex: "1",
                 value: "103",
+                type: "255",
               },
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -350,6 +354,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "TKN",
                 transactionIndex: "1",
                 value: "101",
+                type: "255",
               },
             ],
             status: "1",
@@ -389,6 +394,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "ETH",
                 transactionIndex: "1",
                 value: "104",
+                type: "255",
               },
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -412,6 +418,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "ETH",
                 transactionIndex: "1",
                 value: "102",
+                type: "255",
               },
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -435,6 +442,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "ETH",
                 transactionIndex: "1",
                 value: "100",
+                type: "255",
               },
             ],
             status: "1",
@@ -472,6 +480,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "TKN",
                 transactionIndex: "1",
                 value: "105",
+                type: "255",
               },
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -495,6 +504,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "TKN",
                 transactionIndex: "1",
                 value: "103",
+                type: "255",
               },
             ],
             status: "1",
@@ -532,6 +542,7 @@ describe("Account API (e2e)", () => {
                 tokenSymbol: "TKN",
                 transactionIndex: "1",
                 value: "101",
+                type: "255",
               },
             ],
             status: "1",

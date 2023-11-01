@@ -89,6 +89,7 @@ describe("TransactionController (e2e)", () => {
       isL1Originated: true,
       gasLimit: "1000000",
       gasPrice: "100",
+      type: 255,
     };
 
     for (let i = 0; i < 10; i++) {
@@ -241,6 +242,7 @@ describe("TransactionController (e2e)", () => {
               status: "failed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233106,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -263,6 +265,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233105,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -285,6 +288,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233104,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -307,6 +311,7 @@ describe("TransactionController (e2e)", () => {
               status: "proved",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -329,6 +334,7 @@ describe("TransactionController (e2e)", () => {
               status: "proved",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233102,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -351,6 +357,7 @@ describe("TransactionController (e2e)", () => {
               status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233101,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -373,6 +380,7 @@ describe("TransactionController (e2e)", () => {
               status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233100,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -395,6 +403,7 @@ describe("TransactionController (e2e)", () => {
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233099,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -417,6 +426,7 @@ describe("TransactionController (e2e)", () => {
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233098,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -439,6 +449,7 @@ describe("TransactionController (e2e)", () => {
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233097,
+              type: 255,
               value: "0x2386f26fc10000",
             },
           ])
@@ -471,6 +482,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233105,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -493,6 +505,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233104,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -515,6 +528,7 @@ describe("TransactionController (e2e)", () => {
               status: "proved",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
+              type: 255,
               value: "0x2386f26fc10000",
             },
           ])
@@ -593,6 +607,7 @@ describe("TransactionController (e2e)", () => {
                 status: "included",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233098,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
             ],
@@ -640,6 +655,7 @@ describe("TransactionController (e2e)", () => {
                 status: "included",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233098,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
             ],
@@ -687,6 +703,7 @@ describe("TransactionController (e2e)", () => {
                 status: "verified",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233104,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
               {
@@ -709,6 +726,7 @@ describe("TransactionController (e2e)", () => {
                 status: "proved",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233103,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
             ],
@@ -792,6 +810,7 @@ describe("TransactionController (e2e)", () => {
             status: "verified",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233105,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -822,6 +841,7 @@ describe("TransactionController (e2e)", () => {
             status: "proved",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233102,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -852,6 +872,7 @@ describe("TransactionController (e2e)", () => {
             status: "committed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233100,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -882,6 +903,7 @@ describe("TransactionController (e2e)", () => {
             status: "included",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233097,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -912,6 +934,7 @@ describe("TransactionController (e2e)", () => {
             status: "failed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233106,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -942,6 +965,7 @@ describe("TransactionController (e2e)", () => {
             status: "included",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233097,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
