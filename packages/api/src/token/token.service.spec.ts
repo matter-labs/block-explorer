@@ -136,7 +136,7 @@ describe("TokenService", () => {
     it("returns tokens ordered by liquidity, blockNumber and logIndex DESC", async () => {
       await service.findAll(pagingOptions);
       expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
-      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("token.liquidity", "DESC");
+      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("token.liquidity", "DESC", "NULLS LAST");
       expect(queryBuilderMock.addOrderBy).toBeCalledTimes(2);
       expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("token.blockNumber", "DESC");
       expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("token.logIndex", "DESC");
