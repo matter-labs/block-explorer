@@ -1,6 +1,6 @@
-import { localConfig } from "../../../src/config";
-import { Logger } from "../../../src/entities";
-import { Playbook } from "../../../src/playbook/playbook";
+import { localConfig } from "../../../../src/config";
+import { Logger } from "../../../../src/entities";
+import { Playbook } from "../../../../src/playbook/playbook";
 
 describe("NFTs", () => {
   jest.setTimeout(localConfig.standardTimeout);
