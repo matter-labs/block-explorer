@@ -10,6 +10,7 @@ import { CounterService } from "./counter";
 import { BatchService } from "./batch";
 import { BlockService } from "./block";
 import { BlocksRevertService } from "./blocksRevert";
+import { TokenOffChainDataSaverService } from "./token/tokenInfo/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
 
@@ -35,6 +36,7 @@ describe("AppService", () => {
   let batchService: BatchService;
   let blockService: BlockService;
   let blocksRevertService: BlocksRevertService;
+  let tokenOffChainDataSaverService: TokenOffChainDataSaverService;
   let dataSourceMock: DataSource;
   let configServiceMock: ConfigService;
 
@@ -57,6 +59,10 @@ describe("AppService", () => {
     });
     blocksRevertService = mock<BlocksRevertService>({
       handleRevert: jest.fn().mockResolvedValue(null),
+    });
+    tokenOffChainDataSaverService = mock<TokenOffChainDataSaverService>({
+      start: jest.fn().mockResolvedValue(null),
+      stop: jest.fn().mockResolvedValue(null),
     });
     dataSourceMock = mock<DataSource>();
     configServiceMock = mock<ConfigService>({
@@ -87,6 +93,10 @@ describe("AppService", () => {
         {
           provide: BlocksRevertService,
           useValue: blocksRevertService,
+        },
+        {
+          provide: TokenOffChainDataSaverService,
+          useValue: tokenOffChainDataSaverService,
         },
         {
           provide: DataSource,
@@ -156,6 +166,13 @@ describe("AppService", () => {
       expect(balancesCleanerService.stop).toBeCalledTimes(1);
     });
 
+    it("does not start token offchain data saver service by default", async () => {
+      appService.onModuleInit();
+      await migrationsRunFinished;
+      expect(tokenOffChainDataSaverService.start).not.toBeCalled();
+      appService.onModuleDestroy();
+    });
+
     it("does not start batches service when disableBatchesProcessing is true", async () => {
       (configServiceMock.get as jest.Mock).mockReturnValue(true);
       appService.onModuleInit();
@@ -179,6 +196,15 @@ describe("AppService", () => {
       expect(balancesCleanerService.start).not.toBeCalled();
       appService.onModuleDestroy();
     });
+
+    it("starts token offchain data saver service when enableTokenOffChainDataSaver is true", async () => {
+      (configServiceMock.get as jest.Mock).mockReturnValue(true);
+      appService.onModuleInit();
+      await migrationsRunFinished;
+      expect(tokenOffChainDataSaverService.start).toBeCalledTimes(1);
+      appService.onModuleDestroy();
+      expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
+    });
   });
 
   describe("onModuleDestroy", () => {
@@ -201,6 +227,11 @@ describe("AppService", () => {
       appService.onModuleDestroy();
       expect(balancesCleanerService.stop).toBeCalledTimes(1);
     });
+
+    it("stops token offchain data saver service", async () => {
+      appService.onModuleDestroy();
+      expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
+    });
   });
 
   describe("Handling blocks revert event", () => {
@@ -212,6 +243,7 @@ describe("AppService", () => {
       expect(batchService.stop).toBeCalledTimes(1);
       expect(counterService.stop).toBeCalledTimes(1);
       expect(balancesCleanerService.stop).toBeCalledTimes(1);
+      expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
 
       expect(blocksRevertService.handleRevert).toBeCalledWith(blockNumber);
 
@@ -219,6 +251,7 @@ describe("AppService", () => {
       expect(batchService.start).toBeCalledTimes(2);
       expect(counterService.start).toBeCalledTimes(2);
       expect(balancesCleanerService.start).toBeCalledTimes(2);
+      expect(tokenOffChainDataSaverService.start).toBeCalledTimes(2);
 
       await app.close();
     });
