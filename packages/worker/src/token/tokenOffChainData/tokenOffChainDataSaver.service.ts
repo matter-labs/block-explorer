@@ -15,7 +15,7 @@ export class TokenOffChainDataSaverService extends Worker {
 
   public constructor(
     private readonly tokenRepository: TokenRepository,
-    private readonly tokenInfoProvider: TokenOffChainDataProvider,
+    private readonly tokenOffChainDataProvider: TokenOffChainDataProvider,
     configService: ConfigService
   ) {
     super();
@@ -38,7 +38,7 @@ export class TokenOffChainDataSaverService extends Worker {
       if (!nextUpdateTimeout) {
         const bridgedTokens = await this.tokenRepository.getBridgedTokens();
         if (bridgedTokens.length) {
-          const tokensInfo = await this.tokenInfoProvider.getTokensOffChainData(
+          const tokensInfo = await this.tokenOffChainDataProvider.getTokensOffChainData(
             this.tokenOffChainDataMinLiquidityFilter
           );
           const tokensToUpdate = tokensInfo.filter((token) =>
