@@ -113,4 +113,11 @@ export class AccountInternalTransactionDto {
     example: "",
   })
   public readonly errCode: string;
+
+  @ApiProperty({
+    type: String,
+    description: "The type of the parent transaction",
+    example: "255",
+  })
+  public readonly transactionType: string;
 }
