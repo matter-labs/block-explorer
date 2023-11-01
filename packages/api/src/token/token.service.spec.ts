@@ -68,6 +68,9 @@ describe("TokenService", () => {
           l2Address: "0x000000000000000000000000000000000000800A",
           name: "Ether",
           symbol: "ETH",
+          iconURL: null,
+          liquidity: null,
+          usdPrice: null,
         });
       });
 
