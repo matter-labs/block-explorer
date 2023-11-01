@@ -2,23 +2,24 @@ import { localConfig } from "../../../src/config";
 import { Logger } from "../../../src/entities";
 import { Playbook } from "../../../src/playbook/playbook";
 
-describe("Tokens", () => {
+describe("NFTs", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   let deployedToken: string;
 
-  describe("Deploy/check the custom ERC20 tokens", () => {
+  describe("Deploy/check the NFT", () => {
+    jest.setTimeout(localConfig.standardTimeout);
     const playbook = new Playbook();
 
-    //@id603
-    it("Deploy custom ERC20 token to L2", async () => {
-      deployedToken = await playbook.deployERC20toL2();
+    //@id672
+    it("Deploy the NFT to L1", async () => {
+      deployedToken = await playbook.deployNFTtoL1();
       expect(deployedToken).toContain(Logger.txHashStartsWith);
     });
 
-    //@id657
-    it("Deploy custom ERC20 token to L1", async () => {
-      deployedToken = await playbook.deployERC20toL1();
+    //@id671
+    it("Deploy the NFT to L2", async () => {
+      deployedToken = await playbook.deployNFTtoL2();
       expect(deployedToken).toContain(Logger.txHashStartsWith);
     });
   });
