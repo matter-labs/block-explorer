@@ -14,10 +14,13 @@ export const ETH_TOKEN: Token = {
   symbol: "ETH",
   name: "Ether",
   decimals: 18,
+  iconURL: null,
+  liquidity: null,
+  usdPrice: null,
 } as Token;
 
 @Entity({ name: "tokens" })
-@Index(["blockNumber", "logIndex"])
+@Index(["liquidity", "blockNumber", "logIndex"])
 export class Token extends BaseEntity {
   @PrimaryColumn({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly l2Address: string;
@@ -25,6 +28,7 @@ export class Token extends BaseEntity {
   @Column({ generated: true, type: "bigint", select: false })
   public readonly number: number;
 
+  @Index()
   @Column({ type: "bytea", nullable: true, transformer: normalizeAddressTransformer })
   public readonly l1Address?: string;
 
@@ -42,4 +46,17 @@ export class Token extends BaseEntity {
 
   @Column({ type: "int", select: false })
   public readonly logIndex: number;
+
+  @Column({ type: "double precision", nullable: true })
+  public readonly usdPrice?: number;
+
+  @Column({ type: "double precision", nullable: true })
+  public readonly liquidity?: number;
+
+  @Column({ nullable: true })
+  public readonly iconURL?: string;
+
+  @Index()
+  @Column({ type: "timestamp", nullable: true, select: false })
+  public readonly offChainDataUpdatedAt?: Date;
 }
