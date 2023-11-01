@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-web3";
+import { types, utils } from "zksync-web3";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -98,6 +98,34 @@ describe("TokenService", () => {
           l2Address: deployedContractAddress.address,
           l1Address: undefined,
           logIndex: deployedContractAddress.logIndex,
+        });
+      });
+
+      describe("when contract is ETH L2 contract", () => {
+        it("upserts ETH token with ETH l1Address", async () => {
+          const ethTokenData = {
+            symbol: "ETH",
+            decimals: 18,
+            name: "Ethers",
+          };
+          const deployedETHContractAddress = mock<ContractAddress>({
+            address: utils.L2_ETH_TOKEN_ADDRESS,
+            blockNumber: 0,
+            transactionHash: "transactionHash",
+            logIndex: 0,
+          });
+          (blockchainServiceMock.getERC20TokenData as jest.Mock).mockResolvedValueOnce(ethTokenData);
+
+          await tokenService.saveERC20Token(deployedETHContractAddress, transactionReceipt);
+          expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(1);
+          expect(tokenRepositoryMock.upsert).toHaveBeenCalledWith({
+            ...ethTokenData,
+            blockNumber: deployedETHContractAddress.blockNumber,
+            transactionHash: deployedETHContractAddress.transactionHash,
+            l2Address: deployedETHContractAddress.address,
+            l1Address: utils.ETH_ADDRESS,
+            logIndex: deployedETHContractAddress.logIndex,
+          });
         });
       });
 
