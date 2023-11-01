@@ -1,11 +1,11 @@
 import * as request from "supertest";
 import { setTimeout } from "timers/promises";
 
-import { environment } from "../../../../src/config";
-import { localConfig } from "../../../../src/config";
-import { Buffer, Token, TransactionsType, Wallets } from "../../../../src/entities";
-import { Helper } from "../../../../src/helper";
-import { Playbook } from "../../../../src/playbook/playbook";
+import { environment } from "../../src/config";
+import { localConfig } from "../../src/config";
+import { Buffer, Token, TransactionsType, Wallets } from "../../src/entities";
+import { Helper } from "../../src/helper";
+import { Playbook } from "../../src/playbook/playbook";
 
 describe("Tokens", () => {
   jest.setTimeout(localConfig.standardTimeout);
@@ -55,8 +55,6 @@ describe("Tokens", () => {
         .expect((res) => expect(typeof res.body.links.next).toStrictEqual("string"))
         .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
     });
-  });
-  describe("/tokens/{tokenAddress}", () => {
     //@id1456
     it("Verify deployed to L2 custom token via /tokens/{tokenAddress}", async () => {
       const apiRoute = `/tokens/${l2Token}`;
@@ -76,47 +74,51 @@ describe("Tokens", () => {
           })
         );
     });
-  });
-  describe("/tokens/{address}/transfers", () => {
-    //@id1448
-    it("Verify the custom ERC20 token transfer via /tokens/{address}/transfers", async () => {
-      const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
-      const txHash = await playbook.transferERC20("0.01", l2Token, "L2");
+    describe("/tokens/{address}/transfers", () => {
+      //@id1448
+      it("Verify the custom ERC20 token transfer via /tokens/{address}/transfers", async () => {
+        const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+        const txHash = await playbook.transferERC20("0.01", l2Token, "L2");
 
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
+        await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(res.body.items[0].amount).toBe("10000000000000000"))
-        .expect((res) => expect(res.body.items[0].from).toBe(Wallets.richWalletAddress))
-        .expect((res) => expect(res.body.items[0].to).toBe(Wallets.secondWalletAddress))
-        .expect((res) => expect(res.body.items[0].token).toEqual(expect.objectContaining({ l2Address: l2Token })))
-        .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ transactionHash: txHash })))
-        .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ type: "transfer" })));
-    });
+        return request(environment.blockExplorerAPI)
+          .get(apiRoute)
+          .expect(200)
+          .expect((res) => expect(res.body.items[0].amount).toBe("10000000000000000"))
+          .expect((res) => expect(res.body.items[0].from).toBe(Wallets.richWalletAddress))
+          .expect((res) => expect(res.body.items[0].to).toBe(Wallets.secondWalletAddress))
+          .expect((res) => expect(res.body.items[0].token).toEqual(expect.objectContaining({ l2Address: l2Token })))
+          .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ transactionHash: txHash })))
+          .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ type: "transfer" })));
+      });
 
-    //@id1451
-    it("Verify the custom token includes paymaster transaction", async () => {
-      l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
-      const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
-      const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-      txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+      //@id1451
+      it("Verify the custom token includes paymaster transaction via /tokens/{address}/transfers", async () => {
+        l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
+        const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
+        const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
+        txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
 
-      const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+        const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
 
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
+        await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster })))
-        .expect((res) => expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: l2Token })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
-        .expect((res) =>
-          expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }))
-        );
+        return request(environment.blockExplorerAPI)
+          .get(apiRoute)
+          .expect(200)
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet })))
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster })))
+          .expect((res) =>
+            expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: l2Token }))
+          )
+          .expect((res) =>
+            expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }))
+          )
+          .expect((res) =>
+            expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }))
+          );
+      });
     });
   });
 });
