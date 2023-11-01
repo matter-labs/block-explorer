@@ -1,7 +1,7 @@
-import { localConfig } from "../../../../src/config";
-import { Buffer } from "../../../../src/entities";
-import { Helper } from "../../../../src/helper";
-import { Playbook } from "../../../../src/playbook/playbook";
+import { localConfig } from "../../../src/config";
+import { Buffer } from "../../../src/entities";
+import { Helper } from "../../../src/helper";
+import { Playbook } from "../../../src/playbook/playbook";
 
 describe("Transfer", () => {
   jest.setTimeout(localConfig.standardTimeout);
