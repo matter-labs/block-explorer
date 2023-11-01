@@ -1,10 +1,10 @@
 import * as request from "supertest";
 import { setTimeout } from "timers/promises";
 
-import { environment } from "../../../../src/config";
-import { localConfig } from "../../../../src/config";
-import { Buffer, Token, Wallets } from "../../../../src/entities";
-import { Helper } from "../../../../src/helper";
+import { environment } from "../../src/config";
+import { localConfig } from "../../src/config";
+import { Buffer, Token, Wallets } from "../../src/entities";
+import { Helper } from "../../src/helper";
 
 describe("Address", () => {
   jest.setTimeout(localConfig.standardTimeout);
@@ -170,7 +170,7 @@ describe("Address", () => {
     });
   });
 
-  describe("/address/{address}/logs", () => {
+  describe("/address/{address}/transfers", () => {
     //@id1509
     it("Verify the transaction via /address/{address}/transfers", async () => {
       contract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
