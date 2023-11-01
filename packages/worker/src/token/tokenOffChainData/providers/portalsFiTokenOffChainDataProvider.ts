@@ -63,7 +63,7 @@ export class PortalsFiTokenOffChainDataProvider implements TokenOffChainDataProv
     try {
       return await this.getTokensOffChainDataPage({ page, minLiquidity });
     } catch {
-      if (retryAttempt > API_RETRY_ATTEMPTS) {
+      if (retryAttempt >= API_RETRY_ATTEMPTS) {
         this.logger.error({
           message: `Failed to fetch tokens info at page=${page} after ${retryAttempt} retries`,
           provider: PortalsFiTokenOffChainDataProvider.name,
