@@ -163,5 +163,19 @@ describe("transferMapper", () => {
         });
       });
     });
+
+    describe("when transfer amount is NULL", () => {
+      it("sets value as undefined", () => {
+        expect(
+          mapTransferListItem(
+            {
+              ...transfer,
+              amount: null,
+            } as unknown as Transfer,
+            100
+          ).value
+        ).toBe(undefined);
+      });
+    });
   });
 });

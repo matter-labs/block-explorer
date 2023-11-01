@@ -234,7 +234,9 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=txlistinternal")
-  @ApiOperation({ summary: "Retrieve internal transactions" })
+  @ApiOperation({
+    summary: "Retrieve internal transactions for a given blocks range (only transfers are supported for now)",
+  })
   @ApiQuery({
     name: "startblock",
     type: "integer",
@@ -265,7 +267,9 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=txlistinternal&address=")
-  @ApiOperation({ summary: "Retrieve internal transactions for a given address" })
+  @ApiOperation({
+    summary: "Retrieve internal transactions for a given address (only transfers are supported for now)",
+  })
   @ApiQuery({
     name: "address",
     description: "The address to filter internal transactions by",
@@ -302,7 +306,9 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=txlistinternal&txhash=")
-  @ApiOperation({ summary: "Retrieve internal transactions for a given transaction hash" })
+  @ApiOperation({
+    summary: "Retrieve internal transactions for a given transaction hash (only transfers are supported for now)",
+  })
   @ApiQuery({
     name: "txhash",
     description: "The transaction hash to filter internal transaction by",

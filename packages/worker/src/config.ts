@@ -19,6 +19,9 @@ export default () => {
     DISABLE_BALANCES_PROCESSING,
     DISABLE_OLD_BALANCES_CLEANER,
     DISABLE_BLOCKS_REVERT,
+    ENABLE_TOKEN_OFFCHAIN_DATA_SAVER,
+    UPDATE_TOKEN_OFFCHAIN_DATA_INTERVAL,
+    TOKEN_OFFCHAIN_DATA_MIN_LIQUIDITY_FILTER,
     FROM_BLOCK,
     TO_BLOCK,
   } = process.env;
@@ -52,6 +55,11 @@ export default () => {
       recordsBatchSize: parseInt(COUNTERS_PROCESSING_RECORDS_BATCH_SIZE, 10) || 20000,
       updateInterval: parseInt(COUNTERS_PROCESSING_POLLING_INTERVAL, 10) || 30000,
       disableCountersProcessing: DISABLE_COUNTERS_PROCESSING === "true",
+    },
+    tokens: {
+      enableTokenOffChainDataSaver: ENABLE_TOKEN_OFFCHAIN_DATA_SAVER === "true",
+      updateTokenOffChainDataInterval: parseInt(UPDATE_TOKEN_OFFCHAIN_DATA_INTERVAL, 10) || 86_400_000,
+      tokenOffChainDataMinLiquidityFilter: parseInt(TOKEN_OFFCHAIN_DATA_MIN_LIQUIDITY_FILTER, 10) || 1000_000,
     },
     metrics: {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
