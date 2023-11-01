@@ -99,6 +99,7 @@ export class TransferService {
         "transaction.data",
         "transaction.fee",
         "transaction.l1BatchNumber",
+        "transaction.type",
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
@@ -147,6 +148,7 @@ export class TransferService {
       "transaction.data",
       "transaction.fee",
       "transaction.l1BatchNumber",
+      "transaction.type",
     ]);
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
@@ -191,6 +193,7 @@ export class TransferService {
         "transaction.gasLimit",
         "transaction.fee",
         "transaction.l1BatchNumber",
+        "transaction.type",
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
@@ -223,6 +226,7 @@ export class TransferService {
       "transaction.gasLimit",
       "transaction.fee",
       "transaction.l1BatchNumber",
+      "transaction.type",
     ]);
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);

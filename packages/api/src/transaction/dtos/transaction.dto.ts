@@ -132,6 +132,13 @@ export class TransactionDto {
   public readonly isL1BatchSealed: boolean;
 
   @ApiProperty({
+    type: Number,
+    description: "The type of the transaction",
+    example: 255,
+  })
+  public readonly type: number;
+
+  @ApiProperty({
     enum: TransactionStatus,
     description: "The status of the transaction",
     example: "verified",
