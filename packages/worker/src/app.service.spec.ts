@@ -237,6 +237,9 @@ describe("AppService", () => {
   describe("Handling blocks revert event", () => {
     it("stops all the workers, handles blocks revert and then restarts the workers", async () => {
       (runMigrations as jest.Mock).mockResolvedValue(null);
+      (configServiceMock.get as jest.Mock).mockImplementation((key) =>
+        key === "tokens.enableTokenOffChainDataSaver" ? true : false
+      );
       await app.init();
 
       expect(blockService.stop).toBeCalledTimes(1);
