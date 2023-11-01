@@ -9,9 +9,9 @@ describe("/blocks", () => {
 
   //@id1511
   it("Verify the response via /blocks", async () => {
-    await setTimeout(localConfig.extendedPause); //works unstable without timeout
-
     const apiRoute = `/blocks`;
+
+    await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
     return request(environment.blockExplorerAPI)
       .get(apiRoute)
@@ -31,13 +31,13 @@ describe("/blocks", () => {
 
   //@id1512
   it("Verify the response via /blocks/{/blockNumber}", async () => {
-    await setTimeout(localConfig.extendedPause); //works unstable without timeout
-
     const blocks = await request(environment.blockExplorerAPI).get("/blocks");
 
     const blockNumber = blocks.body.items[0].number;
 
     const apiRoute = `/blocks/${blockNumber}`;
+
+    await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
     return (
       request(environment.blockExplorerAPI)
