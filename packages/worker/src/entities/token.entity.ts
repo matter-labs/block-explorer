@@ -14,11 +14,12 @@ export enum TokenType {
 
 @Entity({ name: "tokens" })
 @Check(`"symbol" <> ''`)
-@Index(["blockNumber", "logIndex"])
+@Index(["liquidity", "blockNumber", "logIndex"])
 export class Token extends BaseEntity {
   @PrimaryColumn({ type: "bytea", transformer: hexTransformer })
   public readonly l2Address: string;
 
+  @Index()
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly l1Address?: string;
 
@@ -51,4 +52,17 @@ export class Token extends BaseEntity {
 
   @Column({ type: "int" })
   public readonly logIndex: number;
+
+  @Column({ type: "double precision", nullable: true })
+  public readonly usdPrice?: number;
+
+  @Column({ type: "double precision", nullable: true })
+  public readonly liquidity?: number;
+
+  @Column({ nullable: true })
+  public readonly iconURL?: string;
+
+  @Index()
+  @Column({ type: "timestamp", nullable: true })
+  public readonly offChainDataUpdatedAt?: Date;
 }
