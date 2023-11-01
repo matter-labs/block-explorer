@@ -24,4 +24,5 @@ export const mapTransferListItem = (transfer: Transfer, lastBlockNumber: number)
   confirmations: (lastBlockNumber - transfer.blockNumber).toString(),
   fee: transfer.transaction?.fee ? BigNumber.from(transfer.transaction.fee).toString() : undefined,
   l1BatchNumber: transfer.transaction?.l1BatchNumber.toString(),
+  type: transfer.transaction?.type.toString(),
 });
