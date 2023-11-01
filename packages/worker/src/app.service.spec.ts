@@ -10,7 +10,7 @@ import { CounterService } from "./counter";
 import { BatchService } from "./batch";
 import { BlockService } from "./block";
 import { BlocksRevertService } from "./blocksRevert";
-import { TokenOffChainDataSaverService } from "./token/tokenInfo/tokenOffChainDataSaver.service";
+import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
 

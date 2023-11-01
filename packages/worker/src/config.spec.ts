@@ -42,6 +42,11 @@ describe("config", () => {
         updateInterval: 30000,
         disableCountersProcessing: false,
       },
+      tokens: {
+        enableTokenOffChainDataSaver: false,
+        updateTokenOffChainDataInterval: 86_400_000,
+        tokenOffChainDataMinLiquidityFilter: 1000_000,
+      },
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,

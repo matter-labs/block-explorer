@@ -8,7 +8,7 @@ import { BlockService } from "./block";
 import { BatchService } from "./batch";
 import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
-import { TokenOffChainDataSaverService } from "./token/tokenInfo/tokenOffChainDataSaver.service";
+import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
 
 @Injectable()

@@ -17,9 +17,9 @@ import { AddressService } from "./address/address.service";
 import { BalanceService, BalancesCleanerService } from "./balance";
 import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
-import { TokenOffChainDataProvider } from "./token/tokenInfo/tokenOffChainDataProvider.abstract";
-import { PortalsFiTokenOffChainDataProvider } from "./token/tokenInfo/providers/portalsFiTokenOffChainDataProvider";
-import { TokenOffChainDataSaverService } from "./token/tokenInfo/tokenOffChainDataSaver.service";
+import { TokenOffChainDataProvider } from "./token/tokenOffChainData/tokenOffChainDataProvider.abstract";
+import { PortalsFiTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/portalsFiTokenOffChainDataProvider";
+import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import { CounterModule } from "./counter/counter.module";
 import {
   BatchRepository,
