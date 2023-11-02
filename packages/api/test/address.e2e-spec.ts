@@ -12,7 +12,7 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { Log } from "../src/log/log.entity";
-import { Token, TokenType } from "../src/token/token.entity";
+import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
@@ -148,6 +148,16 @@ describe("AddressController (e2e)", () => {
     await addressRepository.insert({
       address: "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67",
       bytecode: "0x",
+    });
+
+    await tokenRepository.insert({
+      l2Address: ETH_TOKEN.l2Address,
+      l1Address: ETH_TOKEN.l1Address,
+      symbol: ETH_TOKEN.symbol,
+      name: ETH_TOKEN.name,
+      decimals: ETH_TOKEN.decimals,
+      blockNumber: 0,
+      logIndex: 0,
     });
 
     // tokens for balances
@@ -387,7 +397,7 @@ describe("AddressController (e2e)", () => {
                   balance: "34500",
                   token: {
                     decimals: 18,
-                    l1Address: null,
+                    l1Address: "0x0000000000000000000000000000000000000000",
                     l2Address: "0x000000000000000000000000000000000000800A",
                     name: "Ether",
                     symbol: "ETH",
@@ -456,7 +466,7 @@ describe("AddressController (e2e)", () => {
                   balance: "34500",
                   token: {
                     decimals: 18,
-                    l1Address: null,
+                    l1Address: "0x0000000000000000000000000000000000000000",
                     l2Address: "0x000000000000000000000000000000000000800A",
                     name: "Ether",
                     symbol: "ETH",
@@ -525,7 +535,7 @@ describe("AddressController (e2e)", () => {
                   balance: "34500",
                   token: {
                     decimals: 18,
-                    l1Address: null,
+                    l1Address: "0x0000000000000000000000000000000000000000",
                     l2Address: "0x000000000000000000000000000000000000800A",
                     name: "Ether",
                     symbol: "ETH",
@@ -594,7 +604,7 @@ describe("AddressController (e2e)", () => {
                   balance: "34500",
                   token: {
                     decimals: 18,
-                    l1Address: null,
+                    l1Address: "0x0000000000000000000000000000000000000000",
                     l2Address: "0x000000000000000000000000000000000000800A",
                     name: "Ether",
                     symbol: "ETH",
@@ -665,7 +675,7 @@ describe("AddressController (e2e)", () => {
                   balance: "34500",
                   token: {
                     decimals: 18,
-                    l1Address: null,
+                    l1Address: "0x0000000000000000000000000000000000000000",
                     l2Address: "0x000000000000000000000000000000000000800A",
                     name: "Ether",
                     symbol: "ETH",
@@ -1197,7 +1207,7 @@ describe("AddressController (e2e)", () => {
               to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: null,
+                l1Address: "0x0000000000000000000000000000000000000000",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,

@@ -31,7 +31,7 @@ export class TokenService {
 
   public async findAll(paginationOptions: IPaginationOptions): Promise<Pagination<Token>> {
     const queryBuilder = this.tokenRepository.createQueryBuilder("token");
-    queryBuilder.orderBy("token.liquidity", "DESC");
+    queryBuilder.orderBy("token.liquidity", "DESC", "NULLS LAST");
     queryBuilder.addOrderBy("token.blockNumber", "DESC");
     queryBuilder.addOrderBy("token.logIndex", "DESC");
     return await paginate<Token>(queryBuilder, paginationOptions);

@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { TokenService } from "./token.service";
-import { Token } from "./token.entity";
+import { Token, ETH_TOKEN } from "./token.entity";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 
@@ -62,16 +62,7 @@ describe("TokenService", () => {
 
       it("returns ETH token for ETH address", async () => {
         const result = await service.findOne("0x000000000000000000000000000000000000800a");
-        expect(result).toEqual({
-          decimals: 18,
-          l1Address: null,
-          l2Address: "0x000000000000000000000000000000000000800A",
-          name: "Ether",
-          symbol: "ETH",
-          iconURL: null,
-          liquidity: null,
-          usdPrice: null,
-        });
+        expect(result).toEqual(ETH_TOKEN);
       });
 
       it("returns null for non ETH address", async () => {
@@ -145,7 +136,7 @@ describe("TokenService", () => {
     it("returns tokens ordered by liquidity, blockNumber and logIndex DESC", async () => {
       await service.findAll(pagingOptions);
       expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
-      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("token.liquidity", "DESC");
+      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("token.liquidity", "DESC", "NULLS LAST");
       expect(queryBuilderMock.addOrderBy).toBeCalledTimes(2);
       expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("token.blockNumber", "DESC");
       expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("token.logIndex", "DESC");

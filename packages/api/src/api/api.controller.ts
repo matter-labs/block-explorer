@@ -391,7 +391,7 @@ export class ApiController {
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get balance for",
-    example: constants.tokenAddress,
+    example: constants.erc20TokenAddress,
     required: true,
   })
   @ApiOkResponse({
@@ -414,7 +414,7 @@ export class ApiController {
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
-    example: constants.tokenAddress,
+    example: constants.erc20TokenAddress,
     required: false,
   })
   @ApiQuery({
@@ -451,13 +451,13 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to get transfers for",
-    example: constants.address,
+    example: constants.erc721TokenHolderAddress,
     required: false,
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
-    example: constants.tokenAddress,
+    example: constants.erc721TokenAddress,
     required: false,
   })
   @ApiQuery({
