@@ -237,4 +237,18 @@ describe("ApiController", () => {
       expect(result).toBe(null);
     });
   });
+
+  describe("tokenInfo", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.tokenInfo();
+      expect(result).toBe(null);
+    });
+  });
+
+  describe("ethPrice", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.ethPrice();
+      expect(result).toBe(null);
+    });
+  });
 });
