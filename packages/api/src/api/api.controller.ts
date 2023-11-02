@@ -43,6 +43,8 @@ import { ParseModulePipe } from "./pipes/parseModule.pipe";
 import { ParseActionPipe } from "./pipes/parseAction.pipe";
 import { ApiExceptionFilter } from "./exceptionFilter";
 import { LogsResponseDto, LogApiDto } from "./dtos/log/logs.dto";
+import { TokenInfoResponseDto, TokenInfoDto } from "./dtos/token/tokenInfo.dto";
+import { EthPriceResponseDto, EthPriceDto } from "./dtos/stats/ethPrice.dto";
 import { constants } from "../config/docs";
 
 @Controller("")
@@ -602,6 +604,36 @@ export class ApiController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<LogsResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Token API")
+  @Get("api?module=token&action=tokeninfo")
+  @ApiOperation({ summary: "Returns token information" })
+  @ApiQuery({
+    name: "contractaddress",
+    description: "The contract address of the ERC-20/ERC-721 token to retrieve token info",
+    example: constants.tokenAddress,
+    required: true,
+  })
+  @ApiExtraModels(TokenInfoDto)
+  @ApiOkResponse({
+    description: "Token information",
+    type: TokenInfoResponseDto,
+  })
+  public async tokenInfo(): Promise<TokenInfoResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Stats API")
+  @Get("api?module=stats&action=ethprice")
+  @ApiOperation({ summary: "Returns price of 1 ETH" })
+  @ApiExtraModels(EthPriceDto)
+  @ApiOkResponse({
+    description: "ETH price",
+    type: EthPriceResponseDto,
+  })
+  public async ethPrice(): Promise<EthPriceResponseDto> {
     return null;
   }
 }
