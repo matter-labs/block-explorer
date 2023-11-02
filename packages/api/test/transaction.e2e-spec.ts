@@ -8,6 +8,7 @@ import { configureApp } from "../src/configureApp";
 import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetail } from "../src/block/blockDetail.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
+import { ETH_TOKEN } from "../src/token/token.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
@@ -155,6 +156,16 @@ describe("TransactionController (e2e)", () => {
         timestamp: "2022-11-21T18:16:00.000Z",
       });
     }
+
+    await tokenRepository.insert({
+      l2Address: ETH_TOKEN.l2Address,
+      l1Address: ETH_TOKEN.l1Address,
+      symbol: ETH_TOKEN.symbol,
+      name: ETH_TOKEN.name,
+      decimals: ETH_TOKEN.decimals,
+      blockNumber: 0,
+      logIndex: 0,
+    });
 
     await tokenRepository.insert({
       l2Address: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -1012,7 +1023,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: null,
+                l1Address: "0x0000000000000000000000000000000000000000",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1058,7 +1069,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: null,
+                l1Address: "0x0000000000000000000000000000000000000000",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1104,7 +1115,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: null,
+                l1Address: "0x0000000000000000000000000000000000000000",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1150,7 +1161,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: null,
+                l1Address: "0x0000000000000000000000000000000000000000",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1196,7 +1207,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: null,
+                l1Address: "0x0000000000000000000000000000000000000000",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1264,7 +1275,7 @@ describe("TransactionController (e2e)", () => {
                 to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
                 token: {
                   decimals: 18,
-                  l1Address: null,
+                  l1Address: "0x0000000000000000000000000000000000000000",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",

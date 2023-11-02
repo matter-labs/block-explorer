@@ -22,7 +22,12 @@ const providerTokensResponse = [
     address: "address2",
     liquidity: 2000000,
     price: 20.3454334,
-    image: "http://image2.com",
+    images: ["http://image2.com"],
+  },
+  {
+    address: "address3",
+    liquidity: 3000000,
+    price: 10.7678787,
   },
 ];
 
@@ -173,6 +178,11 @@ describe("PortalsFiTokenOffChainDataProvider", () => {
           liquidity: 2000000,
           usdPrice: 20.3454334,
           iconURL: "http://image2.com",
+        },
+        {
+          l1Address: "address3",
+          liquidity: 3000000,
+          usdPrice: 10.7678787,
         },
       ]);
     });

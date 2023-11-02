@@ -1,4 +1,4 @@
-import { types } from "zksync-web3";
+import { types, utils } from "zksync-web3";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
@@ -97,6 +97,10 @@ export class TokenService {
         transactionHash: contractAddress.transactionHash,
         l2Address: contractAddress.address,
         logIndex: contractAddress.logIndex,
+        // add L1 address for ETH token
+        ...(contractAddress.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS && {
+          l1Address: utils.ETH_ADDRESS,
+        }),
       });
     }
   }
