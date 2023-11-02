@@ -17,6 +17,7 @@ interface ITokensOffChainDataPage {
 interface ITokenOffChainDataProviderResponse {
   address: string;
   image?: string;
+  images?: string[];
   liquidity: number;
   price: number;
 }
@@ -112,7 +113,7 @@ export class PortalsFiTokenOffChainDataProvider implements TokenOffChainDataProv
         l1Address: token.address,
         liquidity: token.liquidity,
         usdPrice: token.price,
-        iconURL: token.image,
+        iconURL: token.image || token.images?.[0],
       })),
     };
   }

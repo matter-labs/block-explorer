@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token, TokenType } from "../src/token/token.entity";
+import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
 import { BlockDetail } from "../src/block/blockDetail.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
@@ -87,6 +87,16 @@ describe("TokenController (e2e)", () => {
 
     let tokenIndex = 0;
     let transferIndex = 0;
+
+    await tokenRepository.insert({
+      l2Address: ETH_TOKEN.l2Address,
+      l1Address: ETH_TOKEN.l1Address,
+      symbol: ETH_TOKEN.symbol,
+      name: ETH_TOKEN.name,
+      decimals: ETH_TOKEN.decimals,
+      blockNumber: 0,
+      logIndex: 0,
+    });
 
     for (let i = 1; i <= 30; i++) {
       await tokenRepository.insert({
@@ -304,7 +314,7 @@ describe("TokenController (e2e)", () => {
         .expect((res) =>
           expect(res.body).toStrictEqual({
             l2Address: "0x000000000000000000000000000000000000800A",
-            l1Address: null,
+            l1Address: "0x0000000000000000000000000000000000000000",
             symbol: "ETH",
             name: "Ether",
             decimals: 18,
@@ -380,8 +390,8 @@ describe("TokenController (e2e)", () => {
             currentPage: 2,
             itemCount: 10,
             itemsPerPage: 10,
-            totalItems: 30,
-            totalPages: 3,
+            totalItems: 31,
+            totalPages: 4,
           })
         );
     });
@@ -393,7 +403,7 @@ describe("TokenController (e2e)", () => {
         .expect((res) =>
           expect(res.body.links).toStrictEqual({
             first: "tokens?limit=10",
-            last: "tokens?page=3&limit=10",
+            last: "tokens?page=4&limit=10",
             next: "tokens?page=3&limit=10",
             previous: "tokens?page=1&limit=10",
           })
@@ -645,7 +655,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: null,
+                  l1Address: "0x0000000000000000000000000000000000000000",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -668,7 +678,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: null,
+                  l1Address: "0x0000000000000000000000000000000000000000",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -691,7 +701,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: null,
+                  l1Address: "0x0000000000000000000000000000000000000000",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
