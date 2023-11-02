@@ -1,0 +1,20 @@
+{
+  "networks": [
+    {
+      "apiUrl": "http://localhost:3020",
+      "bridgeUrl": "http://localhost:3000/bridge",
+      "hostnames": [
+        "localhost"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l2ChainId": 260,
+      "l2NetworkName": "In-Memory",
+      "l2WalletUrl": "http://localhost:3000",
+      "maintenance": false,
+      "name": "in-memory",
+      "newProverUrl": "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
+      "published": true,
+      "rpcUrl": "http://localhost:8011"
+    }
+  ]
+}
