@@ -148,6 +148,13 @@ export class AccountTokenTransferDto {
     example: "18",
   })
   public readonly tokenDecimal: string;
+
+  @ApiProperty({
+    type: String,
+    description: "The type of the parent transaction",
+    example: "255",
+  })
+  public readonly transactionType: string;
 }
 
 export class AccountNFTTransferDto extends AccountTokenTransferDto {
