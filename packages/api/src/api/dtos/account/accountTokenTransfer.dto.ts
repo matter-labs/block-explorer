@@ -154,7 +154,7 @@ export class AccountTokenTransferDto {
     description: "The type of the parent transaction",
     example: "255",
   })
-  public readonly type: string;
+  public readonly transactionType: string;
 }
 
 export class AccountNFTTransferDto extends AccountTokenTransferDto {
