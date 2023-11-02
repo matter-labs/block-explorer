@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, FindOptionsSelect } from "typeorm";
 import { Pagination, IPaginationOptions } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { Token, ETH_TOKEN } from "./token.entity";
@@ -12,9 +12,14 @@ export class TokenService {
     private readonly tokenRepository: Repository<Token>
   ) {}
 
-  public async findOne(address: string): Promise<Token> {
-    const token = await this.tokenRepository.findOneBy({ l2Address: address });
-    if (!token && address === ETH_TOKEN.l2Address.toLowerCase()) {
+  public async findOne(address: string, fields?: FindOptionsSelect<Token>): Promise<Token> {
+    const token = await this.tokenRepository.findOne({
+      where: {
+        l2Address: address,
+      },
+      select: fields,
+    });
+    if (!token && address.toLowerCase() === ETH_TOKEN.l2Address.toLowerCase()) {
       return ETH_TOKEN;
     }
     return token;

@@ -41,13 +41,13 @@ describe("TokenService", () => {
       token = {
         l2Address: tokenAddress,
       };
-      (repositoryMock.findOneBy as jest.Mock).mockResolvedValue(token);
+      (repositoryMock.findOne as jest.Mock).mockResolvedValue(token);
     });
 
     it("queries tokens by specified token address", async () => {
       await service.findOne(tokenAddress);
-      expect(repositoryMock.findOneBy).toHaveBeenCalledTimes(1);
-      expect(repositoryMock.findOneBy).toHaveBeenCalledWith({ l2Address: tokenAddress });
+      expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
+      expect(repositoryMock.findOne).toHaveBeenCalledWith({ where: { l2Address: tokenAddress } });
     });
 
     it("returns token by address", async () => {
@@ -55,9 +55,20 @@ describe("TokenService", () => {
       expect(result).toBe(token);
     });
 
+    describe("when called with fields", () => {
+      it("queries only specified fields", async () => {
+        await service.findOne(tokenAddress, { l2Address: true });
+        expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
+        expect(repositoryMock.findOne).toHaveBeenCalledWith({
+          where: { l2Address: tokenAddress },
+          select: { l2Address: true },
+        });
+      });
+    });
+
     describe("when requested token does not exist", () => {
       beforeEach(() => {
-        (repositoryMock.findOneBy as jest.Mock).mockResolvedValue(null);
+        (repositoryMock.findOne as jest.Mock).mockResolvedValue(null);
       });
 
       it("returns ETH token for ETH address", async () => {
