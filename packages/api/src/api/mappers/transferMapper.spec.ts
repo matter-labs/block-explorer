@@ -70,7 +70,7 @@ describe("transferMapper", () => {
         tokenSymbol: "TKN",
         transactionIndex: "10",
         value: "1000000",
-        type: "255",
+        transactionType: "255",
       });
     });
 
@@ -159,7 +159,7 @@ describe("transferMapper", () => {
           tokenSymbol: "TKN",
           transactionIndex: "10",
           value: "1000000",
-          type: "255",
+          transactionType: "255",
         });
       });
     });

@@ -440,7 +440,7 @@ describe("AccountController", () => {
             tokenSymbol: "TKN",
             transactionIndex: "10",
             value: "1000000",
-            type: "255",
+            transactionType: "255",
           },
         ],
       });
@@ -547,7 +547,7 @@ describe("AccountController", () => {
             tokenSymbol: "TKN",
             transactionIndex: "10",
             value: "1000000",
-            type: "255",
+            transactionType: "255",
           },
         ],
       });
