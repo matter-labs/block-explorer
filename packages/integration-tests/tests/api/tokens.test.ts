@@ -75,10 +75,15 @@ describe("Tokens", () => {
         );
     });
     describe("/tokens/{address}/transfers", () => {
+      beforeAll(async () => {
+        txHash = await playbook.transferERC20("0.01", l2Token, "L2");
+        await playbook.deployViaPaymaster();
+        await playbook.usePaymaster();
+      });
+
       //@id1448
       it("Verify the custom ERC20 token transfer via /tokens/{address}/transfers", async () => {
         const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
-        const txHash = await playbook.transferERC20("0.01", l2Token, "L2");
 
         await setTimeout(localConfig.standardPause); //works unstable without timeout
 
