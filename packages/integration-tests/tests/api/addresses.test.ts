@@ -5,17 +5,28 @@ import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 import { Buffer, Token, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
+import { Playbook } from "../../src/playbook/playbook";
 
 describe("Address", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
+  const playbook = new Playbook();
   const bufferFile = "src/playbook/";
   let token: string;
   let contract: string;
   let txHash: string;
 
   describe("/address/{address}", () => {
+    beforeAll(async () => {
+      await playbook.deployNFTtoL2();
+      await playbook.deployMultiCallContracts();
+      await playbook.deployMultiTransferETH();
+      await playbook.deployGreeterToL2();
+      await playbook.useMultiCallContracts();
+      await playbook.useMultiTransferETH();
+    });
+
     //@id1457
     it("Verify deployed to L2 NFT via /address/{address}", async () => {
       token = await helper.getStringFromFile(bufferFile + Buffer.NFTtoL2);
@@ -105,6 +116,7 @@ describe("Address", () => {
     //@id1476
     it("Verify the deployed multitransfer contract via /address/{address}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
 
       const apiRoute = `/address/${contract}`;
 
@@ -119,6 +131,8 @@ describe("Address", () => {
 
     //@id1449
     it("Verify the deployed Greeter contract via /address/{address}", async () => {
+      contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
+
       const apiRoute = `/address/${contract}`;
 
       await setTimeout(localConfig.standardPause); //works unstable without timeout
@@ -132,6 +146,11 @@ describe("Address", () => {
   });
 
   describe("/address/{address}/logs", () => {
+    beforeAll(async () => {
+      await playbook.deployGreeterToL2();
+      await playbook.useGreeter();
+    });
+
     //@id1510
     it("Verify the transaction via /address/{address}/logs", async () => {
       contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
@@ -171,6 +190,11 @@ describe("Address", () => {
   });
 
   describe("/address/{address}/transfers", () => {
+    beforeAll(async () => {
+      await playbook.deployViaPaymaster();
+      await playbook.usePaymaster();
+    });
+
     //@id1509
     it("Verify the transaction via /address/{address}/transfers", async () => {
       contract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
