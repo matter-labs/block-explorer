@@ -16,7 +16,9 @@ async function globalHook() {
 }
 
 globalHook()
-  .then(() => process.exit(0))
+  .then(() => {
+    console.log("Global hook completed successfully.");
+  })
   .catch((error) => {
     console.error(error);
     process.exit(1);
