@@ -1,4 +1,3 @@
-import * as buffer from "buffer";
 import * as request from "supertest";
 import { setTimeout } from "timers/promises";
 
@@ -18,20 +17,23 @@ describe("Transactions", () => {
   let contract: any;
   let token: string;
   let txHash: any;
-  let txERC20Withdraw: string;
-  let customTokenL2;
 
   beforeAll(async () => {
-    // token = bufferFile + "/" + Buffer.L2deposited;
-    // customTokenL2 = await helper.getStringFromFile(token);
-    // await playbook.withdrawERC20(customTokenL2);
+    const customToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
+    await playbook.withdrawETHtoOtherAddress();
+    await playbook.withdrawERC20(customToken);
+    await playbook.withdrawETH();
+    await playbook.deployMultiTransferETH();
+    await playbook.useMultiTransferETH();
+    await playbook.deployGreeterToL2();
+    await playbook.useGreeter();
+    await playbook.deployMultiCallContracts();
+    await playbook.useMultiCallContracts();
   });
 
   describe("/transactions/{transactionHash}/transfers", () => {
     beforeAll(async () => {
       await playbook.transferETH("0.000001");
-      await playbook.withdrawETH();
-      await playbook.withdrawETHtoOtherAddress();
     });
 
     //@id1447
@@ -142,23 +144,17 @@ describe("Transactions", () => {
         .expect((res) => expect(res.body.items[3]).toStrictEqual(expect.objectContaining({ type: "refund" })));
     });
 
-    //@id1463 //failing due to unexpected l1 address after withdraw
-    xit("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
-      // const l1Token = bufferFile + "/" + Buffer.L1;
-      // const customTokenL1 = await helper.getStringFromFile(l1Token);
-      //
-      // txHash = await helper.getStringFromFile(bufferFile + Buffer.txERC20Withdraw);
-      //
+    //@id1463
+    it("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      token = bufferFile + "/" + Buffer.L2deposited;
       const l1Token = bufferFile + "/" + Buffer.L1;
-      const customTokenL2 = await helper.getStringFromFile(token);
       const customTokenL1 = await helper.getStringFromFile(l1Token);
-      txHash = await playbook.withdrawERC20(customTokenL2);
+      const l2Token = bufferFile + "/" + Buffer.L2deposited;
+      const customTokenL2 = await helper.getStringFromFile(l2Token);
+      txHash = await playbook.withdrawERC20toOtherAddress(customTokenL2);
 
       const apiRoute = `/transactions/${txHash}/transfers`;
-
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -197,7 +193,7 @@ describe("Transactions", () => {
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }))
         )
         .expect((res) =>
-          expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }))
+          expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.mainWalletAddress }))
         )
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
         .expect((res) =>
@@ -229,9 +225,14 @@ describe("Transactions", () => {
   });
 
   describe("/transactions/{transactionHash}", () => {
+    beforeAll(async () => {
+      const customToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
+      await playbook.transferFailedState(customToken);
+    });
+
     //@id1460
     it("Verify the ETH withdrawal to the other address via /transactions/{transactionHash}", async () => {
-      txHash = await playbook.withdrawETHtoOtherAddress();
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthWithdrawOtherAddress);
       await setTimeout(localConfig.standardPause); //works unstable without timeout
       const apiRoute = `/transactions/${txHash}`;
 
@@ -246,9 +247,7 @@ describe("Transactions", () => {
 
     //@id1462
     it("Verify the custom token withdrawal via /transactions/{transactionHash}", async () => {
-      token = bufferFile + "/" + Buffer.L2deposited;
-      const customToken = await helper.getStringFromFile(token);
-      txHash = await playbook.withdrawERC20(customToken);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txERC20Withdraw);
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       const apiRoute = `/transactions/${txHash}`;
@@ -262,7 +261,7 @@ describe("Transactions", () => {
 
     //@id1458
     it("Verify the ETH withdrawal via /transactions/{transactionHash}", async () => {
-      txHash = await playbook.withdrawETH();
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthWithdraw);
       const apiRoute = `/transactions/${txHash}`;
 
       await setTimeout(localConfig.standardPause); //works unstable without timeout
@@ -278,17 +277,16 @@ describe("Transactions", () => {
 
     //@id1478
     it("Verify transaction for the ETH via /transactions/{transactionHash}", async () => {
-      // txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferETH);
-      contract = await playbook.deployMultiTransferETH();
-      txHash = await playbook.useMultiTransferETH();
-      const apiRoute = `/transactions/${txHash[0]}`;
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferETH);
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
+      const apiRoute = `/transactions/${txHash}`;
 
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
         .expect(200)
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ hash: txHash[0] })))
+        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ hash: txHash })))
         .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ to: contract })))
         .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress })))
         .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ isL1Originated: false })));
@@ -296,16 +294,16 @@ describe("Transactions", () => {
 
     //@id1479
     it("Verify transaction for the Custom Token I via /transactions/{transactionHash}", async () => {
-      contract = await playbook.deployERC20toL2();
-      txHash = await playbook.useMultiTransferETH();
-      const apiRoute = `/transactions/${txHash[1]}`;
+      contract = await helper.getStringFromFile(bufferFile + Buffer.L2);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenI);
+      const apiRoute = `/transactions/${txHash}`;
 
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
         .expect(200)
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ hash: txHash[1] })))
+        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ hash: txHash })))
         .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ to: contract })))
         .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress })))
         .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ isL1Originated: false })));
@@ -313,13 +311,8 @@ describe("Transactions", () => {
 
     //@id1480
     it("Verify transaction for the Custom Token II via /transactions/{transactionHash}", async () => {
-      token = await playbook.deployERC20toL1();
-      await setTimeout(0.9 * 1000);
-      await playbook.depositERC20("100", token, 18);
-      await setTimeout(0.9 * 1000);
       contract = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
-      txHash = await playbook.useMultiTransferETH();
-      txHash = txHash[2];
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenII);
       const apiRoute = `/transactions/${txHash}`;
 
       await setTimeout(localConfig.standardPause); //works unstable without timeout
@@ -335,8 +328,8 @@ describe("Transactions", () => {
 
     //@id1454
     it("Verify the transaction after SetGreeting execution via transactions/{transactionHash}", async () => {
-      contract = await playbook.deployGreeterToL2();
-      txHash = await playbook.useGreeter();
+      contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
       const apiRoute = `/transactions/${txHash}?page=1&limit=10`;
 
       await setTimeout(localConfig.standardPause); //works unstable without timeout
@@ -354,8 +347,6 @@ describe("Transactions", () => {
     it("Verify transaction for the Root contract via /transactions/{transactionHash}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      await playbook.deployMultiCallContracts();
-      await playbook.useMultiCallContracts();
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallRoot);
       const apiRoute = `/transactions/${txHash}`;
 
@@ -373,8 +364,6 @@ describe("Transactions", () => {
     it("Verify transaction for the Middle contract via /transactions/{transactionHash}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      await playbook.deployMultiCallContracts();
-      await playbook.useMultiCallContracts();
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallMiddle);
 
       const apiRoute = `/transactions/${txHash}`;
@@ -393,8 +382,6 @@ describe("Transactions", () => {
     it("Verify transaction for the Caller contract via /transactions/{transactionHash}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      await playbook.deployMultiCallContracts();
-      await playbook.useMultiCallContracts();
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
 
       const apiRoute = `/transactions/${txHash}`;
@@ -411,13 +398,10 @@ describe("Transactions", () => {
 
     //@id1471
     it("Verify transaction for the use multicall contract via /transactions/{transactionHash}", async () => {
-      await playbook.deployMultiCallContracts();
-      await playbook.useMultiCallContracts();
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txUseMultiCallContracts);
       const apiRoute = `/transactions/${txHash}`;
-
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -431,12 +415,12 @@ describe("Transactions", () => {
 
     //@id645
     it("Verify the transactions with failed state via /transactions/{transactionHash}", async () => {
-      token = await playbook.deployERC20toL2();
-      txHash = await playbook.transferFailedState(token);
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+      token = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.failedState);
 
       const apiRoute = `/transactions/${txHash}?page=1&limit=10`;
-
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -448,15 +432,19 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/transactions/${txHash}/transfers", () => {
+  describe("/transactions/{transactionHash}/transfers", () => {
+    beforeAll(async () => {
+      await playbook.deployViaPaymaster();
+      await playbook.usePaymaster();
+    });
+
     //@id1481
     it("Verify transaction for the ETH via /transactions/{transactionHash}/transfers", async () => {
-      contract = await playbook.deployMultiTransferETH();
-      txHash = await playbook.useMultiTransferETH();
-      txHash = txHash[0];
-      const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-
       await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferETH);
+      const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -508,13 +496,12 @@ describe("Transactions", () => {
 
     //@id1482
     it("Verify transaction for the Custom tokenI via /transactions/{transactionHash}/transfers", async () => {
-      token = await playbook.deployERC20toL2();
-      contract = await playbook.deployMultiTransferETH();
-      txHash = await playbook.useMultiTransferETH();
-      txHash = txHash[1];
-      const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-
       await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+      token = await helper.getStringFromFile(bufferFile + Buffer.L2);
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenI);
+      const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -577,15 +564,11 @@ describe("Transactions", () => {
     it("Verify transaction for the Custom tokenII via /transactions/{transactionHash}/transfers", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      const tokenL1 = await playbook.deployERC20toL1();
-      await setTimeout(0.9 * 1000);
-      await playbook.depositERC20("100", tokenL1, 18);
-      await setTimeout(0.9 * 1000);
+      const tokenL1 = await helper.getStringFromFile(bufferFile + Buffer.L1);
+
       token = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
-      contract = await playbook.deployMultiTransferETH();
-      await setTimeout(0.9 * 1000);
-      txHash = await playbook.useMultiTransferETH();
-      txHash = txHash[2];
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenII);
 
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
 
@@ -650,15 +633,13 @@ describe("Transactions", () => {
 
     //@id1452
     it("Verify transaction through Paymaster via /transactions/{transactionHash}/transfers", async () => {
-      // const paymasterAddress = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-      await playbook.deployViaPaymaster();
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
+
       const paymasterAddress = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
       const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
       token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
-      txHash = await playbook.usePaymaster();
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -715,11 +696,11 @@ describe("Transactions", () => {
 
     //@id1455
     it("Verify the transaction after SetGreeting execution via transactions/{transactionHash}/transfers", async () => {
-      await playbook.deployGreeterToL2();
-      txHash = await playbook.useGreeter();
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
 
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -760,9 +741,7 @@ describe("Transactions", () => {
     it("Verify transaction for the Root contract via /transactions/{transactionHash}/transfers", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      contract = await playbook.deployMultiCallContracts();
-      contract = contract[0];
-      await playbook.useMultiCallContracts();
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallRoot);
 
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
@@ -806,9 +785,7 @@ describe("Transactions", () => {
     it("Verify transaction for the Middle contract via /transactions/{transactionHash}/transfers", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      contract = await playbook.deployMultiCallContracts();
-      contract = contract[1];
-      await playbook.useMultiCallContracts();
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallMiddle);
 
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
@@ -852,10 +829,8 @@ describe("Transactions", () => {
     it("Verify transaction for the Caller contract via /transactions/{transactionHash}/transfers", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      contract = await playbook.deployMultiCallContracts();
-      contract = contract[2];
-      await playbook.useMultiCallContracts();
-      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallMiddle);
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
 
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
 
@@ -898,12 +873,9 @@ describe("Transactions", () => {
     it("Verify transaction for the use multicall contract via /transactions/{transactionHash}/transfers", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-      await playbook.deployMultiCallContracts();
-      await playbook.useMultiCallContracts();
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txUseMultiCallContracts);
 
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -941,86 +913,87 @@ describe("Transactions", () => {
     });
   });
 
-  //@id1507
-  it("Verify the transaction via /transactions/{transactionHash}/logs", async () => {
-    contract = await playbook.deployGreeterToL2();
-    txHash = await playbook.useGreeter();
+  describe("/transactions/${txHash}/logs", () => {
+    //@id1507
+    it("Verify the transaction via /transactions/{transactionHash}/logs", async () => {
+      contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
 
-    const apiRoute = `/transactions/${txHash}/logs`;
-    const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
+      const apiRoute = `/transactions/${txHash}/logs`;
+      const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
 
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) =>
-        expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }))
-      )
-      .expect((res) => expect(Array.isArray(res.body.items[0].topics)).toStrictEqual(true))
-      .expect((res) => expect(typeof res.body.items[0].data).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.items[0].blockNumber).toStrictEqual("number"))
-      .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
-      .expect((res) => expect(typeof res.body.items[0].transactionIndex).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.items[0].logIndex).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.items[0].timestamp).toStrictEqual("string"))
-      .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ address: contract })))
-      .expect((res) => expect(Array.isArray(res.body.items[1].topics)).toStrictEqual(true))
-      .expect((res) => expect(typeof res.body.items[1].data).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.items[1].blockNumber).toStrictEqual("number"))
-      .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
-      .expect((res) => expect(typeof res.body.items[1].transactionIndex).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.items[1].logIndex).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.items[1].timestamp).toStrictEqual("string"))
-      .expect((res) =>
-        expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }))
-      )
-      .expect((res) => expect(Array.isArray(res.body.items[2].topics)).toStrictEqual(true))
-      .expect((res) => expect(typeof res.body.items[2].data).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.items[2].blockNumber).toStrictEqual("number"))
-      .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
-      .expect((res) => expect(typeof res.body.items[2].transactionIndex).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.items[2].logIndex).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.items[2].timestamp).toStrictEqual("string"))
-      .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ totalItems: 3 })))
-      .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ itemCount: 3 })))
-      .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ itemsPerPage: 10 })))
-      .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ totalPages: 1 })))
-      .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ currentPage: 1 })))
-      .expect((res) =>
-        expect(res.body.links).toStrictEqual(expect.objectContaining({ first: `${decapitalizedAddress}?limit=10` }))
-      )
-      .expect((res) => expect(res.body.links).toStrictEqual(expect.objectContaining({ previous: "" })))
-      .expect((res) => expect(res.body.links).toStrictEqual(expect.objectContaining({ next: "" })))
-      .expect((res) =>
-        expect(res.body.links).toStrictEqual(
-          expect.objectContaining({ last: `${decapitalizedAddress}?page=1&limit=10` })
+      return request(environment.blockExplorerAPI)
+        .get(apiRoute)
+        .expect(200)
+        .expect((res) =>
+          expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }))
         )
-      );
+        .expect((res) => expect(Array.isArray(res.body.items[0].topics)).toStrictEqual(true))
+        .expect((res) => expect(typeof res.body.items[0].data).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].blockNumber).toStrictEqual("number"))
+        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[0].transactionIndex).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].logIndex).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].timestamp).toStrictEqual("string"))
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ address: contract })))
+        .expect((res) => expect(Array.isArray(res.body.items[1].topics)).toStrictEqual(true))
+        .expect((res) => expect(typeof res.body.items[1].data).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].blockNumber).toStrictEqual("number"))
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[1].transactionIndex).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].logIndex).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].timestamp).toStrictEqual("string"))
+        .expect((res) =>
+          expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }))
+        )
+        .expect((res) => expect(Array.isArray(res.body.items[2].topics)).toStrictEqual(true))
+        .expect((res) => expect(typeof res.body.items[2].data).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].blockNumber).toStrictEqual("number"))
+        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[2].transactionIndex).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].logIndex).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].timestamp).toStrictEqual("string"))
+        .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ totalItems: 3 })))
+        .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ itemCount: 3 })))
+        .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ itemsPerPage: 10 })))
+        .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ totalPages: 1 })))
+        .expect((res) => expect(res.body.meta).toStrictEqual(expect.objectContaining({ currentPage: 1 })))
+        .expect((res) =>
+          expect(res.body.links).toStrictEqual(expect.objectContaining({ first: `${decapitalizedAddress}?limit=10` }))
+        )
+        .expect((res) => expect(res.body.links).toStrictEqual(expect.objectContaining({ previous: "" })))
+        .expect((res) => expect(res.body.links).toStrictEqual(expect.objectContaining({ next: "" })))
+        .expect((res) =>
+          expect(res.body.links).toStrictEqual(
+            expect.objectContaining({ last: `${decapitalizedAddress}?page=1&limit=10` })
+          )
+        );
+    });
   });
 
-  //@id1506
-  it("Verify the transaction via /transactions", async () => {
-    contract = await playbook.deployGreeterToL2();
-    txHash = await playbook.useGreeter();
+  describe("/transactions", () => {
+    //@id1506
+    it("Verify the transaction via /transactions", async () => {
+      const apiRoute = `/transactions`;
 
-    const apiRoute = `/transactions`;
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(Array.isArray(res.body.items)).toStrictEqual(true))
-      .expect((res) => expect(res.body.items.length).toBe(10))
-      .expect((res) => expect(typeof res.body.meta.totalItems).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.itemCount).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.itemsPerPage).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.totalPages).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.currentPage).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.links.first).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.previous).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.next).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
+      return request(environment.blockExplorerAPI)
+        .get(apiRoute)
+        .expect(200)
+        .expect((res) => expect(Array.isArray(res.body.items)).toStrictEqual(true))
+        .expect((res) => expect(res.body.items.length).toBe(10))
+        .expect((res) => expect(typeof res.body.meta.totalItems).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.meta.itemCount).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.meta.itemsPerPage).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.meta.totalPages).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.meta.currentPage).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.links.first).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.links.previous).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.links.next).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
+    });
   });
 });
