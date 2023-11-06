@@ -29,9 +29,9 @@ describe("Address", () => {
 
     //@id1457
     it("Verify deployed to L2 NFT via /address/{address}", async () => {
-      token = await helper.getStringFromFile(bufferFile + Buffer.NFTtoL2);
-
       await setTimeout(localConfig.extendedPause);
+
+      token = await helper.getStringFromFile(bufferFile + Buffer.NFTtoL2);
       const apiRoute = `/address/${token}`;
 
       return request(environment.blockExplorerAPI)
@@ -56,6 +56,7 @@ describe("Address", () => {
     //@id1464
     it("Verify the deployed Root contract via /address/{address}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
+
       contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallRoot);
 
@@ -76,6 +77,7 @@ describe("Address", () => {
     //@id1465
     it("Verify the deployed Middle contract via /address/{address}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
+
       contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallMiddle);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallMiddle);
 
@@ -96,6 +98,7 @@ describe("Address", () => {
     //@id1466
     it("Verify the deployed Caller contract via /address/{address}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
+
       contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
 
@@ -116,8 +119,8 @@ describe("Address", () => {
     //@id1476
     it("Verify the deployed multitransfer contract via /address/{address}", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
-      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
 
+      contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
       const apiRoute = `/address/${contract}`;
 
       return request(environment.blockExplorerAPI)
@@ -131,11 +134,10 @@ describe("Address", () => {
 
     //@id1449
     it("Verify the deployed Greeter contract via /address/{address}", async () => {
-      contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
-
-      const apiRoute = `/address/${contract}`;
-
       await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+      contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
+      const apiRoute = `/address/${contract}`;
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -153,13 +155,13 @@ describe("Address", () => {
 
     //@id1510
     it("Verify the transaction via /address/{address}/logs", async () => {
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
+
       contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
 
       const apiRoute = `/address/${contract}/logs`;
       const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
-
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -197,6 +199,8 @@ describe("Address", () => {
 
     //@id1509
     it("Verify the transaction via /address/{address}/transfers", async () => {
+      await setTimeout(localConfig.standardPause); //works unstable without timeout
+
       contract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
       const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
@@ -204,8 +208,6 @@ describe("Address", () => {
       const customTokenAddress = await helper.getStringFromFile(bufferFile + Buffer.customToken);
       const apiRoute = `/address/${contract}/transfers`;
       const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
-
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
