@@ -5,12 +5,11 @@ import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 
 describe("/stats", () => {
-  jest.setTimeout(localConfig.standardTimeout);
   //@id1515
   it("Verify the response via /stats", async () => {
-    const apiRoute = `/stats`;
-
     await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+    const apiRoute = `/stats`;
 
     return request(environment.blockExplorerAPI)
       .get(apiRoute)
