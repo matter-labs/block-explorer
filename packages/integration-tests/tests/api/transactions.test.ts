@@ -14,9 +14,9 @@ describe("Transactions", () => {
   const bufferFile = "src/playbook/";
   const playbook = new Playbook();
 
-  let contract: any;
+  let contract: string;
   let token: string;
-  let txHash: any;
+  let txHash: string;
 
   beforeAll(async () => {
     const customToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
