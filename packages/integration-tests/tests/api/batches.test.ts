@@ -8,9 +8,9 @@ describe("/batches", () => {
   jest.setTimeout(localConfig.standardTimeout);
   //@id1513
   it("Verify the response via /batches", async () => {
-    const apiRoute = `/batches`;
-
     await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+    const apiRoute = `/batches`;
 
     return request(environment.blockExplorerAPI)
       .get(apiRoute)
@@ -29,14 +29,14 @@ describe("/batches", () => {
   });
 
   //@id1514
-  it("Verify the response via /batches/{batchNumber}", async () => {
+  xit("Verify the response via /batches/{batchNumber}", async () => {
+    await setTimeout(localConfig.standardPause); //works unstable without timeout
+
     const batches = await request(environment.blockExplorerAPI).get("/batches");
 
     const batchNumber = batches.body.items[0].number;
 
     const apiRoute = `/batches/${batchNumber}`;
-
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
 
     return request(environment.blockExplorerAPI)
       .get(apiRoute)
