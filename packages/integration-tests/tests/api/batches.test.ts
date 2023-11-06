@@ -6,6 +6,7 @@ import { localConfig } from "../../src/config";
 
 describe("/batches", () => {
   jest.setTimeout(localConfig.standardTimeout);
+
   //@id1513
   it("Verify the response via /batches", async () => {
     await setTimeout(localConfig.standardPause); //works unstable without timeout
@@ -29,7 +30,7 @@ describe("/batches", () => {
   });
 
   //@id1514
-  xit("Verify the response via /batches/{batchNumber}", async () => {
+  it("Verify the response via /batches/{batchNumber}", async () => {
     await setTimeout(localConfig.standardPause); //works unstable without timeout
 
     const batches = await request(environment.blockExplorerAPI).get("/batches");
