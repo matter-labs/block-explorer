@@ -5,9 +5,11 @@ import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 
 describe("/stats", () => {
+  jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
+
   //@id1515
   it("Verify the response via /stats", async () => {
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
+    await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
     const apiRoute = `/stats`;
 
