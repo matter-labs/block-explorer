@@ -31,7 +31,7 @@ describe("/blocks", () => {
 
   //@id1512
   it("Verify the response via /blocks/{/blockNumber}", async () => {
-    await setTimeout(localConfig.standardTimeout); //works unstable without timeout
+    await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
     const blocks = await request(environment.blockExplorerAPI).get("/blocks");
 
