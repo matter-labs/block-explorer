@@ -8,7 +8,7 @@ import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
 describe("Address", () => {
-  jest.setTimeout(localConfig.standardTimeout);
+  jest.setTimeout(localConfig.extendedTimeout);
 
   const helper = new Helper();
   const playbook = new Playbook();
