@@ -22,6 +22,7 @@ describe("Transactions", () => {
     const customToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
     await playbook.withdrawETHtoOtherAddress();
     await playbook.withdrawERC20(customToken);
+    await playbook.withdrawERC20toOtherAddress(customToken);
     await playbook.withdrawETH();
     await playbook.deployMultiTransferETH();
     await playbook.useMultiTransferETH();
@@ -152,7 +153,7 @@ describe("Transactions", () => {
       const customTokenL1 = await helper.getStringFromFile(l1Token);
       const l2Token = bufferFile + "/" + Buffer.L2deposited;
       const customTokenL2 = await helper.getStringFromFile(l2Token);
-      txHash = await playbook.withdrawERC20toOtherAddress(customTokenL2);
+      txHash = await helper.getStringFromFile(bufferFile + Buffer.txERC20WithdrawOtherAddress);
 
       const apiRoute = `/transactions/${txHash}/transfers`;
 
