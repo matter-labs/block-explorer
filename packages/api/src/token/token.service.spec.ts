@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { Repository, SelectQueryBuilder, MoreThanOrEqual } from "typeorm";
 import { TokenService } from "./token.service";
 import { Token, ETH_TOKEN } from "./token.entity";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
@@ -139,13 +139,26 @@ describe("TokenService", () => {
     });
 
     it("creates query builder with proper params", async () => {
-      await service.findAll(pagingOptions);
+      await service.findAll({}, pagingOptions);
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("token");
     });
 
+    it("does not add liquidity filter when minLiquidity is not provided", async () => {
+      await service.findAll({}, pagingOptions);
+      expect(queryBuilderMock.where).not.toBeCalled();
+    });
+
+    it("adds liquidity filter when minLiquidity is provided", async () => {
+      await service.findAll({ minLiquidity: 1000 }, pagingOptions);
+      expect(queryBuilderMock.where).toBeCalledTimes(1);
+      expect(queryBuilderMock.where).toHaveBeenCalledWith({
+        liquidity: MoreThanOrEqual(1000),
+      });
+    });
+
     it("returns tokens ordered by liquidity, blockNumber and logIndex DESC", async () => {
-      await service.findAll(pagingOptions);
+      await service.findAll({}, pagingOptions);
       expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
       expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("token.liquidity", "DESC", "NULLS LAST");
       expect(queryBuilderMock.addOrderBy).toBeCalledTimes(2);
@@ -156,7 +169,7 @@ describe("TokenService", () => {
     it("returns paginated result", async () => {
       const paginationResult = mock<Pagination<Token, IPaginationMeta>>();
       (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
-      const result = await service.findAll(pagingOptions);
+      const result = await service.findAll({}, pagingOptions);
       expect(utils.paginate).toBeCalledTimes(1);
       expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions);
       expect(result).toBe(paginationResult);
