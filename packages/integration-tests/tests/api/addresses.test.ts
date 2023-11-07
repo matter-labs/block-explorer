@@ -149,7 +149,6 @@ describe("Address", () => {
 
   describe("/address/{address}/logs", () => {
     beforeAll(async () => {
-      await playbook.deployGreeterToL2();
       await playbook.useGreeter();
     });
 
