@@ -21,6 +21,7 @@ export enum Buffer {
   txUseMultiCallContracts = "./buffer/txUseMultiCallContracts.txt",
   txEthTransfer = "./buffer/txEthTransfer.txt",
   txERC20Withdraw = "./buffer/txERC20Withdraw.txt",
+  txERC20WithdrawOtherAddress = "./buffer/txERC20WithdrawOtherAddress.txt",
   txEthWithdraw = "./buffer/txEthWithdraw.txt",
   txEthWithdrawOtherAddress = "./buffer/txEthWithdrawOtherAddress.txt",
   txERC20Transfer = "./buffer/txERC20Transfer.txt",
