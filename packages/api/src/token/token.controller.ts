@@ -6,6 +6,7 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiExcludeController,
+  ApiQuery,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
@@ -14,6 +15,7 @@ import { TokenService } from "./token.service";
 import { TransferService } from "../transfer/transfer.service";
 import { TokenDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
+import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
@@ -29,11 +31,26 @@ export class TokenController {
   @Get("")
   @ApiListPageOkResponse(TokenDto, { description: "Successfully returned token list" })
   @ApiBadRequestResponse({ description: "Paging query params are not valid or out of range" })
-  public async getTokens(@Query() pagingOptions: PagingOptionsDto): Promise<Pagination<TokenDto>> {
-    return await this.tokenService.findAll({
-      ...pagingOptions,
-      route: entityName,
-    });
+  @ApiQuery({
+    name: "minLiquidity",
+    type: "integer",
+    description: "Min liquidity filter",
+    example: 1000000,
+    required: false,
+  })
+  public async getTokens(
+    @Query() pagingOptions: PagingOptionsDto,
+    @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number
+  ): Promise<Pagination<TokenDto>> {
+    return await this.tokenService.findAll(
+      {
+        minLiquidity,
+      },
+      {
+        ...pagingOptions,
+        route: entityName,
+      }
+    );
   }
 
   @Get(":address")
