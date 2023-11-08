@@ -33,7 +33,7 @@ env:
 
 jobs:
   e2e:
-    runs-on: [self-hosted, ci-runner]
+    runs-on: [matterlabs-ci-runner]
     permissions:
       contents: read
     defaults:
@@ -64,22 +64,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache node modules
-        id: cache-nodemodules
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          path: node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-              ${{ runner.os }}-build-${{ env.cache-name }}-
-              ${{ runner.os }}-build-
-              ${{ runner.os }}-
+          node-version: '18'
+          cache: 'npm'
 
       - name: Install dependencies
         working-directory: ./
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: |
           npm pkg delete scripts.prepare
           npm ci
