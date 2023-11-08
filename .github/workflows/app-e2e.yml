@@ -64,22 +64,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache node modules
-        id: cache-nodemodules
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-              ${{ runner.os }}-build-${{ env.cache-name }}-
-              ${{ runner.os }}-build-
-              ${{ runner.os }}-
-
       - name: Install dependencies
         working-directory: ./
-        if: steps.cache-nodemodules.outputs.cache-hit != 'true'
         run: |
           npm pkg delete scripts.prepare
           npm ci
