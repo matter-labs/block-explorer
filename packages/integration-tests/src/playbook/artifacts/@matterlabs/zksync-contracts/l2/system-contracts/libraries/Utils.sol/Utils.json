@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Utils",
+  "sourceName": "@matterlabs/zksync-contracts/l2/system-contracts/libraries/Utils.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220cda790b0fda0c8de3ee1bda342d1bc887c69410acffc03bcf629d72bcc2cadbe64736f6c63430008120033",
+  "deployedBytecode": "0x600080fdfea2646970667358221220cda790b0fda0c8de3ee1bda342d1bc887c69410acffc03bcf629d72bcc2cadbe64736f6c63430008120033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

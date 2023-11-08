@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "RLPEncoder",
+  "sourceName": "@matterlabs/zksync-contracts/l2/system-contracts/libraries/RLPEncoder.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea26469706673582212204bea743b455214c7175807a495f4fb38a8690a1e1f6c4d8b74d230b571dacb0864736f6c63430008120033",
+  "deployedBytecode": "0x600080fdfea26469706673582212204bea743b455214c7175807a495f4fb38a8690a1e1f6c4d8b74d230b571dacb0864736f6c63430008120033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

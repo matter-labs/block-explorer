@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "TransactionHelper",
+  "sourceName": "@matterlabs/zksync-contracts/l2/system-contracts/libraries/TransactionHelper.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea2646970667358221220023c79b805f279cf37dab836c1123895007f802f4551fc0402e993ba4ad51dbd64736f6c63430008120033",
+  "deployedBytecode": "0x600080fdfea2646970667358221220023c79b805f279cf37dab836c1123895007f802f4551fc0402e993ba4ad51dbd64736f6c63430008120033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

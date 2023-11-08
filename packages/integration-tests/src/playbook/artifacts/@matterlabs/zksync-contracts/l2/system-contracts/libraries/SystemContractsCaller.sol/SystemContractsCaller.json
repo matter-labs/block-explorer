@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "SystemContractsCaller",
+  "sourceName": "@matterlabs/zksync-contracts/l2/system-contracts/libraries/SystemContractsCaller.sol",
+  "abi": [],
+  "bytecode": "0x60808060405234601757603a9081601d823930815050f35b600080fdfe600080fdfea264697066735822122039d99a6780026d2a89898e0998e4ac3137b9f7747e676e1187e2899a1fbb071c64736f6c63430008120033",
+  "deployedBytecode": "0x600080fdfea264697066735822122039d99a6780026d2a89898e0998e4ac3137b9f7747e676e1187e2899a1fbb071c64736f6c63430008120033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
