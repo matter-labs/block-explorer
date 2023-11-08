@@ -155,11 +155,12 @@ describe("TransactionService", () => {
         ]);
       });
 
-      it("orders transactions by receivedAt and transactionIndex DESC", async () => {
+      it("orders transactions by blockNumber, receivedAt and transactionIndex DESC", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
-        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
-        expect(queryBuilderMock.addOrderBy).toBeCalledTimes(1);
+        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
+        expect(queryBuilderMock.addOrderBy).toBeCalledTimes(2);
+        expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
       });
 
