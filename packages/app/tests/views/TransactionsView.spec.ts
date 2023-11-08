@@ -59,7 +59,7 @@ describe("TransactionsView:", () => {
   });
 
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "transactions")?.meta.title as string)).toBe("Transactions");
+    expect(i18n.global.t(routes.find((e) => e.name === "transactions")?.meta?.title as string)).toBe("Transactions");
   });
 
   it("renders correctly", async () => {

@@ -31,6 +31,14 @@ const router = {
   },
 };
 
+vi.mock("@/composables/useSearch", () => {
+  return {
+    default: () => ({
+      getSearchRoute: () => null,
+    }),
+  };
+});
+
 vi.mock("vue-router", () => ({
   useRouter: () => router,
   useRoute: () => ({
@@ -69,7 +77,7 @@ describe("AddressView: ", () => {
   });
 
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "address")?.meta.title as string)).toBe("Address");
+    expect(i18n.global.t(routes.find((e) => e.name === "address")?.meta?.title as string)).toBe("Address");
   });
 
   it("renders Account component if address type 'account'", () => {
