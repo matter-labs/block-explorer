@@ -19,6 +19,14 @@ const router = {
   },
 };
 
+vi.mock("@/composables/useSearch", () => {
+  return {
+    default: () => ({
+      getSearchRoute: () => null,
+    }),
+  };
+});
+
 vi.mock("vue-router", () => ({
   useRouter: () => router,
   useRoute: () => vi.fn(),
@@ -43,7 +51,7 @@ describe("BatchView:", () => {
   });
 
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "batch")?.meta.title as string)).toBe("Batch");
+    expect(i18n.global.t(routes.find((e) => e.name === "batch")?.meta?.title as string)).toBe("Batch");
   });
 
   it("route is replaced with not found view on request 404 error", async () => {

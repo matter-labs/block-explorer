@@ -53,7 +53,7 @@ describe("HomeView:", () => {
   };
 
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "home")?.meta.title as string)).toBe(
+    expect(i18n.global.t(routes.find((e) => e.name === "home")?.meta?.title as string)).toBe(
       "Transactions, Blocks, Contracts and much more"
     );
   });
