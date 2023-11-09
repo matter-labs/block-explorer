@@ -75,8 +75,6 @@ jobs:
         uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
-          # Workaround for bug https://github.com/typicode/husky/issues/991
-          HUSKY: 0
         with:
           path: node_modules
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
