@@ -33,7 +33,7 @@ env:
 
 jobs:
   e2e:
-    runs-on: [self-hosted, ci-runner]
+    runs-on: [matterlabs-ci-runner]
     permissions:
       contents: read
     defaults:
@@ -64,6 +64,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
       - name: Cache node modules
         id: cache-nodemodules
         uses: actions/cache@v3
