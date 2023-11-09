@@ -145,6 +145,7 @@
     "header": {
         "nav": {
             "tools": "Інструменти",
+            "apiDocs": "АРІ Документація",
             "contractVerification": "Верифікація Смарт контракту",
             "debugger": "zkEVM Налагоджувач",
             "blockExplorer": "Провідник",
