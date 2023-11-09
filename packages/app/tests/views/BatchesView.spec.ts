@@ -54,7 +54,7 @@ describe("BatchesView:", () => {
       data: ref(getMockCollection(10)),
       total: ref(100),
     });
-    expect(i18n.global.t(routes.find((e) => e.name === "batches")?.meta.title as string)).toBe("Batches");
+    expect(i18n.global.t(routes.find((e) => e.name === "batches")?.meta?.title as string)).toBe("Batches");
   });
 
   it("renders correctly", async () => {

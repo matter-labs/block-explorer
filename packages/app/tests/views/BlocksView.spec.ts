@@ -57,7 +57,7 @@ describe("BlocksView:", () => {
       data: ref(getMockCollection(10)),
       total: ref(100),
     });
-    expect(i18n.global.t(routes.find((e) => e.name === "blocks")?.meta.title as string)).toBe("Blocks");
+    expect(i18n.global.t(routes.find((e) => e.name === "blocks")?.meta?.title as string)).toBe("Blocks");
   });
 
   it("renders correctly", async () => {
