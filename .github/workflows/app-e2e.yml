@@ -83,6 +83,21 @@ jobs:
               ${{ runner.os }}-build-
               ${{ runner.os }}-
 
+      - name: Cache node modules
+        id: cache-nodemodules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+          # Workaround for bug https://github.com/typicode/husky/issues/991
+          HUSKY: 0
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+              ${{ runner.os }}-build-${{ env.cache-name }}-
+              ${{ runner.os }}-build-
+              ${{ runner.os }}-
+
       - name: Install dependencies
         working-directory: ./
         if: steps.cache-nodemodules.outputs.cache-hit != 'true'
