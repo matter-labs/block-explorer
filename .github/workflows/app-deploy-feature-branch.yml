@@ -38,11 +38,11 @@ jobs:
         run: |
           npm run lint -- --no-fix --max-warnings 0
 
-      # - name: Test
-      #   run: npm run test:ci
+      - name: Test
+        run: npm run test:ci
 
-      # - name: Type check
-      #   run: npm run typecheck
+      - name: Type check
+        run: npm run typecheck
 
       - name: Build
         run: |
