@@ -19,7 +19,10 @@ export const defaultTransferHandler: ExtractTransferHandler = {
     let transferType: TransferType = TransferType.Transfer;
     if (parsedLog.args.to === utils.BOOTLOADER_FORMAL_ADDRESS) {
       transferType = TransferType.Fee;
-    } else if (parsedLog.args.from === utils.BOOTLOADER_FORMAL_ADDRESS) {
+    }
+    // if transactionDetails is null it means that this transfer comes from a block with
+    // no transactions and it is a reward to an operator address, so it's a transfer and not a refund
+    else if (parsedLog.args.from === utils.BOOTLOADER_FORMAL_ADDRESS && transactionDetails) {
       transferType = TransferType.Refund;
     }
 
