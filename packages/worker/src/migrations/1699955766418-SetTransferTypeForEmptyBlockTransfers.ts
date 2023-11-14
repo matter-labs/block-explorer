@@ -6,12 +6,12 @@ export class SetTransferTypeForEmptyBlockTransfers1699955766418 implements Migra
             WITH "updatedTransferNumbers" AS 
                 (
                     UPDATE transfers 
-                    SET "type" = 'transfer', "isFeeOrRefund" = false, "isInternal" = true, "updatedAt" = CURRENT_TIMESTAMP
-                    WHERE "transactionHash" IS NULL AND "isInternal" = false
+                    SET "type" = 'transfer', "isFeeOrRefund" = false, "isInternal" = true
+                    WHERE "transactionHash" IS NULL
                     RETURNING number
                 )
             UPDATE "addressTransfers"
-            SET "isFeeOrRefund" = false, "isInternal" = true, "updatedAt" = CURRENT_TIMESTAMP
+            SET "isFeeOrRefund" = false, "isInternal" = true
             FROM "updatedTransferNumbers"
             WHERE "transferNumber" = "updatedTransferNumbers"."number"
         `);
