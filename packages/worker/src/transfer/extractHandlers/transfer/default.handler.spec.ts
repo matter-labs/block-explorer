@@ -123,16 +123,30 @@ describe("defaultTransferHandler", () => {
       expect(result.isFeeOrRefund).toBe(true);
     });
 
-    it("extracts transfer of refund type if from address is a bootloader address", () => {
+    it("extracts transfer of refund type if from address is a bootloader address and there are transaction details", () => {
+      const transactionDetails = mock<types.TransactionDetails>();
       log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
-      const result = defaultTransferHandler.extract(log, blockDetails);
+      const result = defaultTransferHandler.extract(log, blockDetails, transactionDetails);
       expect(result.type).toBe(TransferType.Refund);
     });
 
-    it("adds isFeeOrRefund as true if from address is a bootloader address", () => {
+    it("extracts transfer of transfer type if from address is a bootloader address and there are no transaction details", () => {
       log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
       const result = defaultTransferHandler.extract(log, blockDetails);
+      expect(result.type).toBe(TransferType.Transfer);
+    });
+
+    it("adds isFeeOrRefund as true if from address is a bootloader address and there are transaction details", () => {
+      const transactionDetails = mock<types.TransactionDetails>();
+      log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      const result = defaultTransferHandler.extract(log, blockDetails, transactionDetails);
       expect(result.isFeeOrRefund).toBe(true);
+    });
+
+    it("adds isFeeOrRefund as false if from address is a bootloader address and there are no transaction details", () => {
+      log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      const result = defaultTransferHandler.extract(log, blockDetails);
+      expect(result.isFeeOrRefund).toBe(false);
     });
 
     it("extracts transfer of transfer type if neither to address nor from address is a bootload address", () => {
