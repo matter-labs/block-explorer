@@ -1,5 +1,6 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
+  "globalSetup": "<rootDir>/tests/hooks/global.ts",
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".test.ts$",
