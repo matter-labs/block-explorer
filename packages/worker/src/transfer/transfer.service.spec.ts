@@ -53,6 +53,7 @@ import * as addressOutOfRange from "../../test/transactionReceipts/address-out-o
 import * as logParsingError from "../../test/transactionReceipts/log-parsing-error.json";
 import * as noDepositAfterFee from "../../test/transactionReceipts/no-deposit-after-fee.json";
 import * as feeWithNoDeposits from "../../test/transactionReceipts/fee-with-no-deposits.json";
+import * as blockWithNoTxsLogs from "../../test/logs/block-with-no-txs-logs.json";
 
 jest.mock("../logger", () => ({
   default: {
@@ -2280,6 +2281,36 @@ describe("TransferService", () => {
           },
         ];
         const result = await transferService.saveTransfers(txReceipt.logs, blockDetails);
+        expect(transferRepositoryMock.addMany).toHaveBeenCalledTimes(1);
+        expect(transferRepositoryMock.addMany).toHaveBeenCalledWith(expectedTransfers);
+        expect(result).toStrictEqual(expectedTransfers);
+      });
+    });
+
+    describe("block with no transactions", () => {
+      it("properly saves transfers", async () => {
+        const blockDate = new Date();
+        blockDetails.timestamp = blockDate.getTime() / 1000;
+
+        const expectedTransfers = [
+          {
+            amount: BigNumber.from("0xf22ec29c9c4980"),
+            blockNumber: 6711853,
+            from: "0x0000000000000000000000000000000000008001",
+            isFeeOrRefund: false,
+            isInternal: true,
+            logIndex: 0,
+            timestamp: blockDate,
+            to: "0xa9232040bf0e0aea2578a5b2243f2916dbfc0a69",
+            tokenAddress: "0x000000000000000000000000000000000000800a",
+            tokenType: "ETH",
+            transactionHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
+            transactionIndex: 0,
+            type: "transfer",
+          },
+        ];
+
+        const result = await transferService.saveTransfers(blockWithNoTxsLogs, blockDetails);
         expect(transferRepositoryMock.addMany).toHaveBeenCalledTimes(1);
         expect(transferRepositoryMock.addMany).toHaveBeenCalledWith(expectedTransfers);
         expect(result).toStrictEqual(expectedTransfers);
