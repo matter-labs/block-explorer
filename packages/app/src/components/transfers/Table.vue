@@ -111,8 +111,7 @@
       </TableBodyColumn>
 
       <TableBodyColumn :data-heading="t('transfers.table.amount')">
-        <TokenAmountPriceTableCell v-if="item.amount" :amount="item.amount" :token="item.token" :show-price="true" />
-        <span v-else>—</span>
+        <TokenAmountPriceTableCell :amount="item.amount" :token="item.token" :show-price="true" />
       </TableBodyColumn>
     </template>
     <template #empty>

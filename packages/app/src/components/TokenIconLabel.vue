@@ -9,7 +9,12 @@
       </span>
       <div class="token-icon-container" :class="iconSize">
         <div class="token-img-loader"></div>
-        <img class="token-img" :class="{ loaded: isImageReady }" :src="imgSource" :alt="symbol!" />
+        <img
+          class="token-img"
+          :class="{ loaded: isImageReady }"
+          :src="imgSource"
+          :alt="symbol || t('balances.table.unknownSymbol')"
+        />
       </div>
     </AddressLink>
     <div class="token-info" v-if="name && symbol">
@@ -45,13 +50,13 @@ const props = defineProps({
   },
   symbol: {
     type: [String, null] as PropType<string | null>,
-    required: true,
+    default: null,
   },
   iconSize: {
     type: String as PropType<IconSize>,
     default: "sm",
   },
-  imageUrl: {
+  iconUrl: {
     type: String,
     default: "",
   },
@@ -75,15 +80,15 @@ const {
 getTokens();
 
 const imgSource = computed(() => {
-  if (props.imageUrl) {
-    return props.imageUrl;
+  if (props.iconUrl) {
+    return props.iconUrl;
   }
   const tokenFromLibrary = getToken(props.address);
-  return tokenFromLibrary ? tokenFromLibrary.imageUrl : "/images/currencies/customToken.svg";
+  return tokenFromLibrary?.iconURL ? tokenFromLibrary.iconURL : "/images/currencies/customToken.svg";
 });
 const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
 const isImageReady = computed(
-  () => (!isTokensRequestPending.value && !isTokensRequestFailed.value && isImageLoaded.value) || props.imageUrl
+  () => (!isTokensRequestPending.value && !isTokensRequestFailed.value && isImageLoaded.value) || props.iconUrl
 );
 </script>
 

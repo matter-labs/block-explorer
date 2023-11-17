@@ -18,7 +18,7 @@
       <TokenIconLabel
         v-if="transfer.tokenInfo"
         class="token-icon"
-        :address="transfer.tokenInfo.address"
+        :address="transfer.tokenInfo.l2Address"
         :symbol="transfer.tokenInfo.symbol"
         icon-size="md"
         show-link-symbol

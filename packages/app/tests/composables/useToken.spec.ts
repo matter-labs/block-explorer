@@ -11,13 +11,11 @@ const token: Api.Response.Token = {
   symbol: "ETH",
   name: "Ether",
   decimals: 18,
+  usdPrice: 1800,
+  liquidity: 220000000000,
+  iconURL: "https://icon.url",
 };
 
-vi.mock("@/composables/useTokenPrice", () => {
-  return {
-    retrieveTokenPrice: () => Promise.resolve("3500"),
-  };
-});
 vi.mock("@/composables/useTokenLibrary", () => {
   return {
     default: () => ({
@@ -49,7 +47,11 @@ describe("useToken:", () => {
       symbol: "ETH",
       name: "Ether",
       decimals: 18,
-      usdPrice: "3500",
+      usdPrice: 1800,
+      iconURL: "https://icon.url",
+      l1Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+      l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeb",
+      liquidity: 220000000000,
     });
   });
 });

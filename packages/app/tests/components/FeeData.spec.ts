@@ -6,6 +6,8 @@ import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render } from "@testing-library/vue";
 import { mount, RouterLinkStub } from "@vue/test-utils";
 
+import { ETH_TOKEN_MOCK } from "../mocks";
+
 import { default as FeeDataComponent } from "@/components/FeeData.vue";
 
 import enUS from "@/locales/en.json";
@@ -13,14 +15,13 @@ import enUS from "@/locales/en.json";
 import type { FeeData } from "@/composables/useTransaction";
 
 import $testId from "@/plugins/testId";
-import { ETH_TOKEN } from "@/utils/constants";
 
 vi.mock("@/composables/useToken", () => {
   return {
     default: () => ({
       getTokenInfo: () => undefined,
       tokenInfo: computed(() => ({
-        address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         name: "Ether",
         symbol: "ETH",
         decimals: 18,
@@ -44,13 +45,12 @@ const feeData = {
   refunds: [
     {
       tokenInfo: {
-        address: "0x0000000000000000000000000000000000000000",
         decimals: 18,
         l1Address: "0x0000000000000000000000000000000000000000",
         l2Address: "0x0000000000000000000000000000000000000000",
         symbol: "ETH",
         name: "Ether",
-        usdPrice: "3500",
+        usdPrice: 3500,
       },
       amount: "1000000",
       from: "0x0000000000000000000000000000000000008001",
@@ -87,7 +87,7 @@ describe("FeeToken", () => {
     });
     await wrapper.vm.$nextTick();
     expect(wrapper.find(".token-amount").text()).toBe("0.01");
-    expect(wrapper.find(".token-symbol").text()).toBe(ETH_TOKEN.symbol);
+    expect(wrapper.find(".token-symbol").text()).toBe(ETH_TOKEN_MOCK.symbol);
     expect(wrapper.find(".token-price").text()).toBe("$1.50");
   });
   it("handles amount update correctly", async () => {

@@ -16,10 +16,13 @@ type TokenInfo = {
   l2Address: Hash;
   name?: string;
   symbol: string;
+  usdPrice?: number;
+  liquidity?: number;
+  iconURL?: string;
 };
 
 export type TokenTransfer = {
-  amount: Hash | null;
+  amount: string | null;
   from: Hash;
   to: Hash;
   type: "fee" | "transfer" | "withdrawal" | "deposit" | "refund" | "mint";
@@ -236,7 +239,7 @@ export function mapTransaction(
 
 function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
   return transfers.map((item) => ({
-    amount: item.amount!,
+    amount: item.amount,
     from: item.from,
     to: item.to,
     fromNetwork: getTransferNetworkOrigin(item, "from"),
@@ -249,6 +252,9 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
       decimals: item.token?.decimals || 0,
       name: item.token?.name,
       symbol: item.token?.symbol,
+      usdPrice: item.token?.usdPrice,
+      liquidity: item.token?.liquidity,
+      iconURL: item.token?.iconURL,
     } as TokenInfo,
   }));
 }

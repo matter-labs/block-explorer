@@ -7,7 +7,7 @@ import { mount, RouterLinkStub } from "@vue/test-utils";
 
 import TokenListTable from "@/components/token/TokenListTable.vue";
 
-import useToken from "@/composables/useToken";
+import useToken, { type Token } from "@/composables/useToken";
 
 import enUS from "@/locales/en.json";
 
@@ -50,13 +50,12 @@ describe("TokenListTable:", () => {
         tokens: [
           {
             decimals: 18,
-            imageUrl:
-              "https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/eth.svg?alt=media&token=1985e3d8-3aa7-4d04-8839-565d4c341615",
+            iconURL: "https://icon.com",
             l1Address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             l2Address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
             name: "Ether",
             symbol: "ETH",
-          },
+          } as Token,
         ],
         loading: false,
       },
@@ -75,9 +74,7 @@ describe("TokenListTable:", () => {
     expect(tr0Arr.length).toBe(3);
     expect(tr0Arr[0].find(".token-symbol").text()).toBe("ETH");
     expect(tr0Arr[0].find(".token-name").text()).toBe("Ether");
-    expect(tr0Arr[0].find(".token-icon-label img").attributes("src")).toBe(
-      "https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/eth.svg?alt=media&token=1985e3d8-3aa7-4d04-8839-565d4c341615"
-    );
+    expect(tr0Arr[0].find(".token-icon-label img").attributes("src")).toBe("https://icon.com");
     expect(tr0Arr[1].text()).toBe("$150.00");
     expect(tr0Arr[2].text()).toBe("L20xEeeeeEeeeEeE...EEeE");
   });

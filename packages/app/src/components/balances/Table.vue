@@ -61,7 +61,7 @@ import useTokenLibrary from "@/composables/useTokenLibrary";
 
 import type { Balances } from "@/composables/useAddress";
 
-import { ETH_TOKEN } from "@/utils/constants";
+import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
 
 const { t } = useI18n();
 
@@ -97,10 +97,14 @@ const displayedBalances = computed(() => {
     .sort((a, b) => {
       if (!a.token || !b.token) return 0;
 
-      if (a.token.l2Address === ETH_TOKEN.l2Address) {
+      if (a.token.l2Address === ETH_TOKEN_L2_ADDRESS) {
         return -1;
-      } else if (b.token.l2Address === ETH_TOKEN.l2Address) {
+      } else if (b.token.l2Address === ETH_TOKEN_L2_ADDRESS) {
         return 1;
+      }
+
+      if (a.token.liquidity || b.token.liquidity) {
+        return (a.token.liquidity || 0) > (b.token.liquidity || 0) ? -1 : 1;
       }
 
       const isATokenInLibrary = Boolean(getLibraryToken(a.token.l2Address));
