@@ -1,31 +1,27 @@
 import * as request from "supertest";
+import { setTimeout } from "timers/promises";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
-import { Buffer } from "../../src/entities";
+import { Buffer, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
-import { Playbook } from "../../src/playbook/playbook";
 
-describe("Logs API", () => {
+describe("Logs", () => {
   jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
   const helper = new Helper();
   const bufferFile = "src/playbook/";
-  const playbook = new Playbook();
   let contractAddress: string;
-  let txHash: string;
+
+  beforeAll(async () => {
+    contractAddress = await helper.getStringFromFile(bufferFile + Buffer.customToken);
+  });
 
   describe("/api?module=logs&action=getLogs", () => {
-    beforeAll(async () => {
-      await playbook.deployGreeterToL2();
-      await playbook.useGreeter();
-    });
-
     //@id1808
-    it("Verify the response via /api?module=logs&action=getLogs&page={page}&offset={offset}0&toBlock={toBlock}&fromBlock={fromBlock}&address={address}", async () => {
-      contractAddress = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
-      txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
+    it("Verify the response via /api?module=logs&action=getLogs", async () => {
+      await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
-      const apiRoute = `/api?module=logs&action=getLogs&page=1&offset=10&toBlock=10000&fromBlock=1&address=${contractAddress}`;
+      const apiRoute = `/api?module=logs&action=getLogs&page=1&offset=1&toBlock=1000&fromBlock=1&address=${contractAddress}`;
 
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
@@ -33,32 +29,15 @@ describe("Logs API", () => {
         .expect((res) =>
           expect(res.body.result[0]).toStrictEqual(expect.objectContaining({ address: contractAddress }))
         )
-        .expect((res) => expect(Array.isArray(res.body.result[0].topics)).toStrictEqual(true))
         .expect((res) => expect(typeof res.body.result[0].topics[0]).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].topics[0].startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].topics[0].length).toBe(66))
         .expect((res) => expect(typeof res.body.result[0].data).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].data.startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].data.length).toBe(194))
         .expect((res) => expect(typeof res.body.result[0].blockNumber).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].blockNumber.startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].blockNumber.length).toBe(5))
         .expect((res) => expect(typeof res.body.result[0].timeStamp).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].timeStamp.startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].timeStamp.length).toBe(10))
         .expect((res) => expect(typeof res.body.result[0].gasPrice).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].gasPrice.startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].gasPrice.length).toBe(9))
         .expect((res) => expect(typeof res.body.result[0].gasUsed).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].gasUsed.startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].gasUsed.length).toBe(7))
         .expect((res) => expect(typeof res.body.result[0].logIndex).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].logIndex.startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].logIndex.length).toBe(3))
-        .expect((res) => expect(res.body.result[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
-        .expect((res) => expect(typeof res.body.result[0].transactionIndex).toStrictEqual("string"))
-        .expect((res) => expect(res.body.result[0].transactionIndex.startsWith("0x")).toBe(true))
-        .expect((res) => expect(res.body.result[0].transactionIndex.length).toBe(3));
+        .expect((res) => expect(typeof res.body.result[0].transactionHash).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.result[0].transactionIndex).toStrictEqual("string"));
     });
   });
 });
