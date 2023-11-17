@@ -7,6 +7,7 @@ export enum Buffer {
   L2 = "./buffer/L2.txt",
   L2deposited = "./buffer/L2deposited.txt",
   paymaster = "./buffer/paymaster.txt",
+  paymasterDeployTx = "./buffer/paymasterDeployTx.txt",
   paymasterTx = "./buffer/paymasterTx.txt",
   addressMultiTransferETH = "./buffer/multiTransferETH.txt",
   txMultiTransferETH = "./buffer/txMultiTransferETH.txt",
