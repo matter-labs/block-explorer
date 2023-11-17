@@ -29,7 +29,7 @@ vi.mock("@/composables/useToken", () => {
         name: "Ether",
         symbol: "ETH",
         decimals: 18,
-        usdPrice: "150",
+        usdPrice: 150,
       })),
     }),
   };

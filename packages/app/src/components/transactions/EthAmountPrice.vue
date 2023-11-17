@@ -6,9 +6,8 @@ import { computed, type PropType } from "vue";
 
 import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
 
-import useToken from "@/composables/useToken";
+import useToken, { type Token } from "@/composables/useToken";
 
-import type { Token } from "@/composables/useToken";
 import type { BigNumberish } from "ethers";
 
 import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";

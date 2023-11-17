@@ -1,14 +1,14 @@
 <template>
-  <TokenAmountPrice :token="token" :amount="amount" v-slot="{ token, decimalAmount, priceAmount }">
-    <template v-if="token && decimalAmount">
+  <TokenAmountPrice :token="token" :amount="amount" v-slot="{ token: tokenInfo, decimalAmount, priceAmount }">
+    <template v-if="tokenInfo && decimalAmount">
       <div class="token-amount-symbol">
         <Tooltip class="token-amount-short" :disabled="decimalAmount.length < 10">
           {{ shortenFitText(decimalAmount, "right", 100, 10) }}
 
-          <template #content>{{ decimalAmount }} {{ token.symbol }}</template>
+          <template #content>{{ decimalAmount }} {{ tokenInfo.symbol }}</template>
         </Tooltip>
         <div class="token-amount" :data-testid="$testId.tokenAmount">{{ decimalAmount }}</div>
-        <TokenIconLabel class="token-icon" :address="token.l2Address" :symbol="token.symbol" show-link-symbol />
+        <TokenIconLabel class="token-icon" :address="tokenInfo.l2Address" :symbol="tokenInfo.symbol" show-link-symbol />
       </div>
       <span v-if="showPrice" class="token-price" :data-testid="$testId.tokenAmountPrice">
         {{ priceAmount }}

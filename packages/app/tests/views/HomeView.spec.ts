@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { describe, expect, it, vi } from "vitest";
@@ -7,7 +7,7 @@ import { render } from "@testing-library/vue";
 import { useTimeAgo } from "@vueuse/core";
 import { $fetch } from "ohmyfetch";
 
-import { useBatchesMock } from "../mocks";
+import { ETH_TOKEN_MOCK, useBatchesMock } from "../mocks";
 import { useTransactionsMock } from "../mocks";
 
 import ExecuteTx from "../../mock/transactions/Execute.json";
@@ -37,6 +37,16 @@ vi.mock("vue-router", () => ({
   useRouter: () => vi.fn(),
   useRoute: () => vi.fn(),
 }));
+
+vi.mock("@/composables/useToken", () => {
+  return {
+    default: () => ({
+      getTokenInfo: vi.fn(),
+      tokenInfo: computed(() => ETH_TOKEN_MOCK),
+      isRequestPending: computed(() => false),
+    }),
+  };
+});
 
 describe("HomeView:", () => {
   const i18n = createI18n({

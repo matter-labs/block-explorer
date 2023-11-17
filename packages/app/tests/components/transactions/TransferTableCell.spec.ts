@@ -40,7 +40,7 @@ describe("TransferTableCell:", () => {
             l2Address: "0x4732c03b2cf6ede46500e799de79a15df44929eb",
             name: "ChainLink Token (goerli)",
             symbol: "LINK",
-            usdPrice: "1",
+            usdPrice: 1,
           },
         },
       },

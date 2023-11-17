@@ -6,11 +6,9 @@ import { $fetch } from "ohmyfetch";
 import useContext, { type Context } from "@/composables/useContext";
 import useTokenLibrary from "@/composables/useTokenLibrary";
 
-import type { Address, Hash } from "@/types";
+import type { Hash } from "@/types";
 
-export type Token = Api.Response.Token & {
-  address: Address;
-};
+export type Token = Api.Response.Token;
 
 export const retrieveToken = useMemoize(
   (tokenAddress: Hash, context: Context = useContext()): Promise<Api.Response.Token> => {
@@ -40,10 +38,7 @@ export default () => {
       await getTokens();
       const tokenFromLibrary = getToken(address);
       const token = tokenFromLibrary || (await retrieveToken(address));
-      tokenInfo.value = {
-        ...token,
-        address: token.l2Address,
-      };
+      tokenInfo.value = token;
     } catch {
       isRequestFailed.value = true;
     } finally {

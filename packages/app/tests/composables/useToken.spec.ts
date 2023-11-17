@@ -43,7 +43,6 @@ describe("useToken:", () => {
     const { getTokenInfo, tokenInfo } = useToken();
     await getTokenInfo(token.l2Address);
     expect(tokenInfo.value).toEqual({
-      address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeb",
       symbol: "ETH",
       name: "Ether",
       decimals: 18,
