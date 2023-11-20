@@ -2,13 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } fro
 
 import { $fetch, FetchError } from "ohmyfetch";
 
-import { useContextMock } from "./../mocks";
+import { ETH_TOKEN_MOCK, useContextMock } from "./../mocks";
 
 import useTransaction, { getTransferNetworkOrigin } from "@/composables/useTransaction";
 
 import type { Context } from "@/composables/useContext";
-
-import { ETH_TOKEN } from "@/utils/constants";
 
 const hash = "0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
 const hashPaidByPaymaster = "0x111b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
@@ -106,10 +104,10 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: hash,
               amount: "1561368069251910",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "fee",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
             {
               from: "0x0000000000000000000000000000000000008001",
@@ -117,10 +115,10 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: hash,
               amount: "116665569251910",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "refund",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
             {
               from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
@@ -156,10 +154,10 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: hash,
               amount: "867466250000000",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "refund",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
           ],
           meta: {
@@ -186,10 +184,10 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: hashPaidByPaymaster,
               amount: "1561368069251910",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "fee",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
             {
               from: "0x0000000000000000000000000000000000008001",
@@ -197,10 +195,10 @@ vi.mock("ohmyfetch", async () => {
               blockNumber: 1162235,
               transactionHash: hashPaidByPaymaster,
               amount: "116665569251910",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "refund",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
           ],
           meta: {
@@ -278,7 +276,7 @@ describe("useTransaction:", () => {
             symbol: "LINK",
             name: "ChainLink Token (goerli)",
             decimals: 18,
-            usdPrice: "1",
+            usdPrice: 1,
           },
           from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
           to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
@@ -301,7 +299,7 @@ describe("useTransaction:", () => {
             symbol: "LINK",
             name: "ChainLink Token (goerli)",
             decimals: 18,
-            usdPrice: "1",
+            usdPrice: 1,
           },
           from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
           to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
@@ -324,7 +322,7 @@ describe("useTransaction:", () => {
             symbol: "LINK",
             name: "ChainLink Token (goerli)",
             decimals: 18,
-            usdPrice: "1",
+            usdPrice: 1,
           },
           from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
           to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
@@ -416,6 +414,9 @@ describe("useTransaction:", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: 220000000000,
+                usdPrice: 1800,
               },
             },
             {
@@ -432,6 +433,9 @@ describe("useTransaction:", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: 220000000000,
+                usdPrice: 1800,
               },
             },
           ],
@@ -558,6 +562,9 @@ describe("useTransaction:", () => {
               symbol: "ETH",
               name: "Ether",
               decimals: 18,
+              iconURL: null,
+              liquidity: 220000000000,
+              usdPrice: 1800,
             },
           },
         ],

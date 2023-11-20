@@ -43,7 +43,7 @@ export class TokenService {
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Token>> {
     const queryBuilder = this.tokenRepository.createQueryBuilder("token");
-    if (minLiquidity > 0) {
+    if (minLiquidity >= 0) {
       queryBuilder.where({
         liquidity: MoreThanOrEqual(minLiquidity),
       });

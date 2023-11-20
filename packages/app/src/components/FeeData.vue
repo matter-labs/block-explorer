@@ -62,7 +62,7 @@ import useToken from "@/composables/useToken";
 import type { Token } from "@/composables/useToken";
 import type { FeeData } from "@/composables/useTransaction";
 
-import { ETH_TOKEN } from "@/utils/constants";
+import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
 
 const props = defineProps({
   showDetails: {
@@ -81,7 +81,7 @@ const collapsed = ref(false);
 const buttonTitle = computed(() =>
   collapsed.value ? t("transactions.table.feeDetails.closeDetails") : t("transactions.table.feeDetails.moreDetails")
 );
-getTokenInfo(ETH_TOKEN.l2Address);
+getTokenInfo(ETH_TOKEN_L2_ADDRESS);
 
 const initialFee = computed(() => {
   if (props.feeData) {
@@ -89,8 +89,8 @@ const initialFee = computed(() => {
   }
   return null;
 });
-const token = computed<Token>(() => {
-  return tokenInfo.value ?? { ...ETH_TOKEN, usdPrice: null };
+const token = computed<Token | null>(() => {
+  return tokenInfo.value;
 });
 </script>
 <style lang="scss" scoped>

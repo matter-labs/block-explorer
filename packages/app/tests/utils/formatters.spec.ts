@@ -63,16 +63,18 @@ describe("formatters:", () => {
   });
   describe("convert:", () => {
     const token = {
-      address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" as Address,
+      l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" as Address,
+      l1Address: null,
       symbol: "ETH",
       name: "ETH",
       decimals: 18,
-
-      usdPrice: "3500",
+      usdPrice: 3500,
+      liquidity: null,
+      iconURL: null,
     };
 
     it("return correct price", () => {
-      expect(convert("0x56bc75e2d63100000", token, token.usdPrice!)).toBe("350000.0");
+      expect(convert("0x56bc75e2d63100000", token, token.usdPrice.toString())).toBe("350000.0");
     });
     it("handles float price", () => {
       expect(convert("0x56bc75e2d63100000", token, "0.001")).toBe("0.1");

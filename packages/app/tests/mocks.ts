@@ -20,6 +20,20 @@ import * as useTransfers from "@/composables/useTransfers";
 import type { NetworkConfig } from "@/configs";
 import type { Provider } from "zksync-web3";
 
+import { checksumAddress } from "@/utils/formatters";
+
+export const ETH_TOKEN_MOCK = {
+  address: checksumAddress("0x000000000000000000000000000000000000800A"),
+  l1Address: checksumAddress("0x0000000000000000000000000000000000000000"),
+  l2Address: checksumAddress("0x000000000000000000000000000000000000800A"),
+  symbol: "ETH",
+  name: "Ether",
+  decimals: 18,
+  liquidity: 220000000000,
+  usdPrice: 1800,
+  iconURL: null,
+};
+
 export const GOERLI_NETWORK: NetworkConfig = {
   name: "goerli",
   verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",

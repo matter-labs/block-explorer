@@ -5,6 +5,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
 
+import { ETH_TOKEN_MOCK } from "../../mocks";
+
 import Table from "@/components/balances/Table.vue";
 
 import enUS from "@/locales/en.json";
@@ -12,15 +14,17 @@ import enUS from "@/locales/en.json";
 import type { Balances } from "@/composables/useAddress";
 
 import $testId from "@/plugins/testId";
-import { ETH_TOKEN } from "@/utils/constants";
 
-const tokenETH: Api.Response.Token = ETH_TOKEN;
+const tokenETH: Api.Response.Token = ETH_TOKEN_MOCK;
 const tokenLINK: Api.Response.Token = {
   l1Address: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
   l2Address: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
   symbol: "LINK",
   name: "ChainLink Token (goerli)",
   decimals: 18,
+  usdPrice: 100,
+  liquidity: 100000000,
+  iconURL: null,
 };
 const tokenWBTC: Api.Response.Token = {
   l1Address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
@@ -28,16 +32,11 @@ const tokenWBTC: Api.Response.Token = {
   symbol: "wBTC",
   name: "Wrapped BTC",
   decimals: 8,
+  usdPrice: 35000,
+  liquidity: 10000000000,
+  iconURL: null,
 };
 
-vi.mock("@/composables/useTokenPrice", () => {
-  return {
-    default: () => ({
-      getTokenPrice: () => undefined,
-      tokenPrice: computed(() => "150"),
-    }),
-  };
-});
 vi.mock("@/composables/useTokenLibrary", () => {
   return {
     default: () => ({
@@ -94,7 +93,7 @@ describe("Table:", () => {
     const row = wrapper.find("tbody tr");
     const col = row.findAll("td");
     expect(col[0].find("span").text()).toBe("ETH");
-    expect(col[1].text()).toBe("100.0$15,000.00");
+    expect(col[1].text()).toBe("100.0$180,000.00");
     expect(col[2].find("span").text()).toBe("0x000000000000000000000000000000000000800A");
   });
   it("renders loading state", () => {
@@ -142,7 +141,7 @@ describe("Table:", () => {
               symbol: null,
               name: null,
               decimals: 8,
-            },
+            } as Api.Response.Token,
           },
         },
       },
