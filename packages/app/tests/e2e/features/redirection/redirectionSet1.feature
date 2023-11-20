@@ -67,7 +67,7 @@ Feature: Redirection
       | Portal      | https://goerli.staging-portal.zksync.dev/     |
 
 
-  @id253:IIII @stagingEnv @testnet
+  @id253:IIII @productionEnv @testnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I click by text "Tools "
     When I click by element with partial href "<url>" and text "<Sub-Section>"
@@ -75,7 +75,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                 |
-      | Portal      | https://goerli.portal.zksync.io/    |
+      | Portal      | https://zksync.io/explore#bridges   |
 
   @id253:IV @featureEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
@@ -88,7 +88,7 @@ Feature: Redirection
       | Portal      | https://staging-portal.zksync.dev/     |
 
 
-  @id253:IV @stagingEnv @mainnet
+  @id253:IV @productionEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I click by text "Tools "
     When I click by element with partial href "<url>" and text "<Sub-Section>"
@@ -96,7 +96,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                 |
-      | Portal      | https://portal.zksync.io/    |
+      | Portal      | https://zksync.io/explore#bridges   |
 
   #Account page
   @id259 @testnet

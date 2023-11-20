@@ -28,7 +28,7 @@ Feature: Main Page
       | Smart Contract Verification | /contracts/verify                         |
       | Portal                      | https://staging-portal.zksync.dev/        |
 
-  @id253:I @stagingEnv @testnet
+  @id253:I @productionEnv @testnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
@@ -40,7 +40,7 @@ Feature: Main Page
       | Smart Contract Verification | /contracts/verify                         |
       | Portal                      | https://goerli.portal.zksync.io/          |
 
-  @id253:I @stagingEnv @mainnet
+  @id253:I @productionEnv @mainnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
@@ -71,7 +71,6 @@ Feature: Main Page
 
     Examples:
       | Value                      | Dropdown |
-      | zkSync Era Goerli Testnet  | network  |
       | zkSync Era Mainnet         | network  |
       | EN                         | language |
       | UA                         | language |
@@ -82,8 +81,19 @@ Feature: Main Page
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher
 
   Examples:
+      | Value                       | Dropdown |
+      | zkSync Era Sepolia Testnet  | network  |
+      | zkSync Era Goerli Testnet   | network  |
+      | Goerli (Stage2)             | network  |
+  
+  @id254:II @productionEnv
+  Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
+    Given Set the "<Value>" value for "<Dropdown>" switcher
+    Then Check the "<Value>" value is actual for "<Dropdown>" switcher
+
+  Examples:
       | Value               | Dropdown |
-      | Goerli (Stage2)     | network  |
+      | zkSync Era Testnet  | network  |
 
   Scenario: Network stats is displayed
     Then Element with "text" "Network Stats" should be "visible"
