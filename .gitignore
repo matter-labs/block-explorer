@@ -17,7 +17,7 @@ volumes
 cypress/videos/
 cypress/screenshots/
 tests/e2e/reports/
-tests/e2e/artifacts/
+**/tests/e2e/artifacts/
 
 # Logs
 logs
