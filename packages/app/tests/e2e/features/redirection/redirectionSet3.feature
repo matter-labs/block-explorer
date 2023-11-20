@@ -64,9 +64,10 @@ Feature: Redirection
      | Initial page                                             | Network                   | url                                                                      |
      | /address/0x000000000000000000000000000000000000800A      | zkSync Era Goerli Testnet | /address/0x000000000000000000000000000000000000800A/?network=goerli      | 
      | /address/0x000000000000000000000000000000000000800A      | Goerli (Stage2)           | /address/0x000000000000000000000000000000000000800A/?network=goerli-beta | 
-     | /address/0x000000000000000000000000000000000000800A      | zkSync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 
+     | /address/0x000000000000000000000000000000000000800A      | zkSync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     |
+     | /address/0x000000000000000000000000000000000000800A      | zkSync Era Sepolia Testnet | /address/0x000000000000000000000000000000000000800A/?network=sepolia      |  
 
-  @id561:I @id562:I @id563:I @stagingEnv
+  @id561:I @id562:I @id563:I @productionEnv
   Scenario Outline: Verify redirection to "<Network>" network 
     Given I go to page "<Initial page>" 
     When Set the "<Network>" value for "network" switcher
@@ -75,4 +76,4 @@ Feature: Redirection
     Examples: 
      | Initial page                                         | Network                   | url                                                                      | 
      | /address/0x000000000000000000000000000000000000800A  | zkSync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 
-     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Goerli Testnet | /address/0x000000000000000000000000000000000000800A/?network=goerli      | 
+     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Testnet        | /address/0x000000000000000000000000000000000000800A/?network=goerli      | 

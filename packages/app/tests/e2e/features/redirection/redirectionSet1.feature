@@ -67,15 +67,15 @@ Feature: Redirection
       | Portal      | https://goerli.staging-portal.zksync.dev/     |
 
 
-  @id253:IIII @stagingEnv @testnet
+  @id253:IIII @productionEnv @testnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I click by text "Tools "
-    When I click by element with partial href "<url>" and text "<Sub-Section>"
+    When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
     Then New page have "<url>" address
 
     Examples:
-      | Sub-Section | url                                 |
-      | Portal      | https://goerli.portal.zksync.io/    |
+      | Sub-Section | url                                 | redirect_url                    |
+      | Portal      | https://zksync.io/explore#bridges   | https://goerli.portal.zksync.io |
 
   @id253:IV @featureEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
@@ -88,15 +88,15 @@ Feature: Redirection
       | Portal      | https://staging-portal.zksync.dev/     |
 
 
-  @id253:IV @stagingEnv @mainnet
+  @id253:IV @productionEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I click by text "Tools "
-    When I click by element with partial href "<url>" and text "<Sub-Section>"
+    When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
     Then New page have "<url>" address
 
     Examples:
-      | Sub-Section | url                                 |
-      | Portal      | https://portal.zksync.io/    |
+      | Sub-Section | url                                 | redirect_url              |
+      | Portal      | https://zksync.io/explore#bridges   | https://portal.zksync.io  |
 
   #Account page
   @id259 @testnet
