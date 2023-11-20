@@ -7,7 +7,7 @@ import { setTimeout } from "timers/promises";
 import * as rxjs from "rxjs";
 import { PortalsFiTokenOffChainDataProvider } from "./portalsFiTokenOffChainDataProvider";
 
-const MIN_TOKENS_LIQUIDITY_FILTER = 1000000;
+const MIN_TOKENS_LIQUIDITY_FILTER = 0;
 const TOKENS_INFO_API_URL = "https://api.portals.fi/v2/tokens";
 const TOKENS_INFO_API_QUERY = `networks=ethereum&limit=250&sortBy=liquidity&minLiquidity=${MIN_TOKENS_LIQUIDITY_FILTER}&sortDirection=desc`;
 

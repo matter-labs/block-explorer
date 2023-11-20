@@ -33,7 +33,7 @@ const { getTokenInfo, tokenInfo, isRequestPending } = useToken();
 
 watchEffect(() => {
   if (props.address) {
-    getTokenInfo(props.address!);
+    getTokenInfo(props.address);
   }
 });
 
@@ -42,7 +42,7 @@ const priceAmount = computed(() => {
     return formatPricePretty(
       "1".padEnd(tokenInfo.value.decimals + 1, "0"),
       tokenInfo.value.decimals,
-      tokenInfo.value.usdPrice
+      tokenInfo.value.usdPrice.toString()
     );
   }
   return "";

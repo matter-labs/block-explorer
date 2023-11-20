@@ -1,6 +1,6 @@
 <template>
-  <Table class="transactions-table" :class="{ 'high-rows': isHighRowsSize }" :items="transactions" :loading="pending">
-    <template v-if="transactions?.length || pending" #table-head>
+  <Table class="transactions-table" :class="{ 'high-rows': isHighRowsSize }" :items="transactions" :loading="isLoading">
+    <template v-if="transactions?.length || isLoading" #table-head>
       <TableHeadColumn v-if="columns.includes('status')">{{ t("transactions.table.status") }}</TableHeadColumn>
       <TableHeadColumn v-if="columns.includes('transactionHash')">
         {{ t("transactions.table.transactionHash") }}
@@ -143,18 +143,18 @@
         :data-heading="t('transactions.table.value')"
         class="tablet-column-hidden"
       >
-        <TokenAmountPriceTableCell :amount="item.value" :show-price="true" />
+        <TokenAmountPriceTableCell :token="ethToken" :amount="item.value" :show-price="true" />
       </TableBodyColumn>
       <TableBodyColumn
         v-if="columns.includes('value') && columns.includes('fee')"
         :data-heading="t('transactions.table.value')"
         class="tablet-column"
       >
-        <TokenAmountPriceTableCell :amount="item.value" :show-price="false" />
+        <TokenAmountPriceTableCell :token="ethToken" :amount="item.value" :show-price="false" />
 
         <div class="tablet-column-fee">
           {{ t("transactions.table.fee") }}:&nbsp;
-          <TokenAmountPriceTableCell :amount="item.fee" :show-price="false" />
+          <TokenAmountPriceTableCell :token="ethToken" :amount="item.fee" :show-price="false" />
         </div>
       </TableBodyColumn>
       <TableBodyColumn
@@ -162,7 +162,7 @@
         :data-heading="t('transactions.table.fee')"
         class="tablet-column-hidden"
       >
-        <TokenAmountPriceTableCell :amount="item.fee" :show-price="true" />
+        <TokenAmountPriceTableCell :token="ethToken" :amount="item.fee" :show-price="true" />
       </TableBodyColumn>
     </template>
     <template #empty>
@@ -177,7 +177,7 @@
           :use-query="useQueryPagination"
           :total-items="total!"
           :page-size="pageSize"
-          :disabled="pending"
+          :disabled="isLoading"
         />
       </div>
     </template>
@@ -212,6 +212,7 @@ import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPric
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
 
+import useToken, { type Token } from "@/composables/useToken";
 import { decodeDataWithABI } from "@/composables/useTransactionData";
 import useTransactions, { type TransactionListItem, type TransactionSearchParams } from "@/composables/useTransactions";
 
@@ -219,6 +220,7 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 import type { NetworkOrigin } from "@/types";
 
+import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
 import { utcStringFromISOString } from "@/utils/helpers";
 
 const { t, te } = useI18n();
@@ -247,6 +249,16 @@ const props = defineProps({
 const route = useRoute();
 const searchParams = computed(() => props.searchParams ?? {});
 const { data, load, total, pending, pageSize } = useTransactions(searchParams);
+
+const { getTokenInfo, tokenInfo, isRequestPending: isLoadingEthTokenInfo } = useToken();
+getTokenInfo(ETH_TOKEN_L2_ADDRESS);
+
+const ethToken = computed<Token | null>(() => {
+  return tokenInfo.value;
+});
+
+const isLoading = computed(() => pending.value || isLoadingEthTokenInfo.value);
+
 const activePage = ref(props.useQueryPagination ? parseInt(route.query.page as string) || 1 : 1);
 const toDate = new Date();
 

@@ -6,16 +6,13 @@ import { describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/vue";
 import { mount, RouterLinkStub } from "@vue/test-utils";
 
-import { useTokenLibraryMock } from "../mocks";
+import { ETH_TOKEN_MOCK, useTokenLibraryMock } from "../mocks";
 
 import TokenIconLabel from "@/components/TokenIconLabel.vue";
 
 import enUS from "@/locales/en.json";
 
-import type { Token } from "@matterlabs/token-library";
-
 import $testId from "@/plugins/testId";
-import { ETH_TOKEN } from "@/utils/constants";
 
 describe("TokenIconLabel", () => {
   const i18n = createI18n({
@@ -37,16 +34,16 @@ describe("TokenIconLabel", () => {
       tokens: computed(() => []),
       getTokens: vi.fn(),
       getToken: () =>
-        <Token>{
-          ...ETH_TOKEN,
-          imageUrl: "https://test.link",
+        <Api.Response.Token>{
+          ...ETH_TOKEN_MOCK,
+          iconURL: "https://test.link",
         },
     });
     const wrapper = mount(TokenIconLabel, {
       global,
       props: {
-        symbol: ETH_TOKEN.symbol,
-        address: ETH_TOKEN.l2Address,
+        symbol: ETH_TOKEN_MOCK.symbol,
+        address: ETH_TOKEN_MOCK.l2Address,
       },
     });
     expect(wrapper.find("img")?.attributes("src")).toBe("https://test.link");

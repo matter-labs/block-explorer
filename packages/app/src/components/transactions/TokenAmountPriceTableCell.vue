@@ -1,45 +1,35 @@
 <template>
-  <TokenAmountPrice :token="tokenWithUsdPrice" :amount="amount" v-slot="{ token, decimalAmount, priceAmount }">
-    <div class="token-amount-symbol">
-      <Tooltip class="token-amount-short" :disabled="decimalAmount.length < 10">
-        {{ shortenFitText(decimalAmount, "right", 100, 10) }}
+  <TokenAmountPrice :token="token" :amount="amount" v-slot="{ token: tokenInfo, decimalAmount, priceAmount }">
+    <template v-if="tokenInfo && decimalAmount">
+      <div class="token-amount-symbol">
+        <Tooltip class="token-amount-short" :disabled="decimalAmount.length < 10">
+          {{ shortenFitText(decimalAmount, "right", 100, 10) }}
 
-        <template #content>{{ decimalAmount }} {{ token?.symbol }}</template>
-      </Tooltip>
-      <div class="token-amount" :data-testid="$testId.tokenAmount">{{ decimalAmount }}</div>
-      <TokenIconLabel
-        v-if="token"
-        class="token-icon"
-        :address="token.address"
-        :symbol="token.symbol"
-        show-link-symbol
-      />
-    </div>
-    <span v-if="showPrice" class="token-price" :data-testid="$testId.tokenAmountPrice">
-      <ContentLoader v-if="isTokenPricePending" class="inline-block h-full w-8" />
-      <template v-else>{{ priceAmount }}</template>
-    </span>
+          <template #content>{{ decimalAmount }} {{ tokenInfo.symbol }}</template>
+        </Tooltip>
+        <div class="token-amount" :data-testid="$testId.tokenAmount">{{ decimalAmount }}</div>
+        <TokenIconLabel class="token-icon" :address="tokenInfo.l2Address" :symbol="tokenInfo.symbol" show-link-symbol />
+      </div>
+      <span v-if="showPrice" class="token-price" :data-testid="$testId.tokenAmountPrice">
+        {{ priceAmount }}
+      </span>
+    </template>
+    <template v-else>—</template>
   </TokenAmountPrice>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
-
 import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
 import TokenIconLabel from "@/components/TokenIconLabel.vue";
 import { shortenFitText } from "@/components/common/HashLabel.vue";
 import Tooltip from "@/components/common/Tooltip.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 
-import useTokenPrice from "@/composables/useTokenPrice";
-
-import type { ApiToken, Token } from "@/composables/useToken";
+import type { Token } from "@/composables/useToken";
 import type { BigNumberish } from "ethers";
+import type { PropType } from "vue";
 
-import { ETH_TOKEN } from "@/utils/constants";
-
-const props = defineProps({
+defineProps({
   amount: {
-    type: String as PropType<BigNumberish>,
+    type: String as PropType<BigNumberish | null>,
     default: "0",
     required: true,
   },
@@ -48,20 +38,13 @@ const props = defineProps({
     default: true,
   },
   token: {
-    type: Object as PropType<ApiToken | null>,
+    type: Object as PropType<Token | null>,
     default: () => null,
     required: false,
   },
 });
-
-const { getTokenPrice, tokenPrice, isRequestPending: isTokenPricePending } = useTokenPrice();
-getTokenPrice(props.token?.l2Address || ETH_TOKEN.l2Address);
-
-const tokenWithUsdPrice = computed<Token>(() => {
-  const tokenData = props.token ? { ...props.token, address: props.token.l2Address } : ETH_TOKEN;
-  return { ...tokenData, usdPrice: tokenPrice.value };
-});
 </script>
+
 <style lang="scss" scoped>
 .token-amount-symbol {
   @apply flex items-center;

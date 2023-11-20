@@ -12,7 +12,7 @@
           icon-size="xl"
           :address="item.l2Address"
           :name="item.name"
-          :image-url="item.imageUrl"
+          :icon-url="item.iconURL"
         />
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('tokenListView.table.price')">
@@ -78,7 +78,7 @@ import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TokenPrice from "@/components/common/table/fields/TokenPrice.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
 
-import type { Token } from "@matterlabs/token-library";
+import type { Token } from "@/composables/useToken";
 
 defineProps({
   tokens: {
