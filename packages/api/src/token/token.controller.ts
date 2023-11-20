@@ -35,7 +35,7 @@ export class TokenController {
     name: "minLiquidity",
     type: "integer",
     description: "Min liquidity filter",
-    example: 1000000,
+    example: 100000,
     required: false,
   })
   public async getTokens(

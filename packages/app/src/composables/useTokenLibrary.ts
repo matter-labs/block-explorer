@@ -8,7 +8,7 @@ import useContext, { type Context } from "@/composables/useContext";
 const retrieveTokens = useMemoize(
   async (context: Context): Promise<Api.Response.Token[]> => {
     const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
-      `${context.currentNetwork.value.apiUrl}/tokens?minLiquidity=1000000&limit=100`
+      `${context.currentNetwork.value.apiUrl}/tokens?minLiquidity=0&limit=100`
     );
     return tokensResponse.items;
   },
