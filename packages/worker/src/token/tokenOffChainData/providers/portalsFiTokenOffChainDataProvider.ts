@@ -91,7 +91,17 @@ export class PortalsFiTokenOffChainDataProvider implements TokenOffChainDataProv
     page: number;
     minLiquidity: number;
   }): Promise<ITokensOffChainDataPage> {
-    const queryString = `networks=ethereum&limit=250&sortBy=liquidity&minLiquidity=${minLiquidity}&sortDirection=desc&page=${page}`;
+    const query = {
+      networks: "ethereum",
+      limit: "250",
+      sortBy: "liquidity",
+      sortDirection: "desc",
+      page: page.toString(),
+      ...(minLiquidity && {
+        minLiquidity: minLiquidity.toString(),
+      }),
+    };
+    const queryString = new URLSearchParams(query).toString();
 
     const { data } = await firstValueFrom<{ data: ITokensOffChainDataProviderResponse }>(
       this.httpService.get(`${TOKENS_INFO_API_URL}?${queryString}`).pipe(
