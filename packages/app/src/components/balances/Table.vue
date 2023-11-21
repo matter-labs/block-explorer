@@ -11,6 +11,7 @@
           class="token-icon"
           :address="item.token.l2Address"
           :symbol="item.token.symbol"
+          :icon-url="item.token.iconURL"
           show-link-symbol
         />
       </TableBodyColumn>
