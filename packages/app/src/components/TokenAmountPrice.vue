@@ -3,7 +3,13 @@
     <div class="token-amount-price">
       <template v-if="token && decimalAmount">
         <div class="token-amount">{{ decimalAmount }}</div>
-        <TokenIconLabel class="token-icon" :address="token.l2Address" :symbol="token.symbol" show-link-symbol />
+        <TokenIconLabel
+          class="token-icon"
+          :address="token.l2Address"
+          :symbol="token.symbol"
+          :icon-url="token.iconURL"
+          show-link-symbol
+        />
         <span class="token-price" v-if="priceAmount">{{ priceAmount }}</span>
       </template>
       <template v-else>—</template>
