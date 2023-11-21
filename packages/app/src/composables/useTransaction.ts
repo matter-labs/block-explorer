@@ -209,7 +209,7 @@ export function mapTransaction(
     feeData: {
       amountPaid: transaction.fee!,
       isPaidByPaymaster,
-      paymasterAddress,
+      paymasterAddress: isPaidByPaymaster ? paymasterAddress : undefined,
       refunds,
       amountRefunded: sumAmounts(mapTransfers(filterRefunds(transfers))),
     },
