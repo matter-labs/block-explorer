@@ -20,6 +20,7 @@
         class="token-icon"
         :address="transfer.tokenInfo.l2Address"
         :symbol="transfer.tokenInfo.symbol"
+        :icon-url="transfer.tokenInfo.iconURL"
         icon-size="md"
         show-link-symbol
       />

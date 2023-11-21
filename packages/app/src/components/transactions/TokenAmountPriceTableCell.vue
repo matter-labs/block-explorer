@@ -8,7 +8,13 @@
           <template #content>{{ decimalAmount }} {{ tokenInfo.symbol }}</template>
         </Tooltip>
         <div class="token-amount" :data-testid="$testId.tokenAmount">{{ decimalAmount }}</div>
-        <TokenIconLabel class="token-icon" :address="tokenInfo.l2Address" :symbol="tokenInfo.symbol" show-link-symbol />
+        <TokenIconLabel
+          class="token-icon"
+          :address="tokenInfo.l2Address"
+          :symbol="tokenInfo.symbol"
+          :icon-url="tokenInfo.iconURL"
+          show-link-symbol
+        />
       </div>
       <span v-if="showPrice" class="token-price" :data-testid="$testId.tokenAmountPrice">
         {{ priceAmount }}
