@@ -9,7 +9,7 @@ import { PortalsFiTokenOffChainDataProvider } from "./portalsFiTokenOffChainData
 
 const MIN_TOKENS_LIQUIDITY_FILTER = 0;
 const TOKENS_INFO_API_URL = "https://api.portals.fi/v2/tokens";
-const TOKENS_INFO_API_QUERY = `networks=ethereum&limit=250&sortBy=liquidity&minLiquidity=${MIN_TOKENS_LIQUIDITY_FILTER}&sortDirection=desc`;
+const TOKENS_INFO_API_QUERY = `networks=ethereum&limit=250&sortBy=liquidity&sortDirection=desc`;
 
 const providerTokensResponse = [
   {
@@ -138,6 +138,25 @@ describe("PortalsFiTokenOffChainDataProvider", () => {
           iconURL: "http://image2.com",
         },
       ]);
+    });
+
+    it("includes minLiquidity filter when provided minLiquidity filter > 0", async () => {
+      pipeMock.mockReturnValueOnce(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: {
+              more: false,
+              tokens: [providerTokensResponse[0]],
+            },
+          });
+        })
+      );
+
+      await provider.getTokensOffChainData(1000000);
+      expect(httpServiceMock.get).toBeCalledTimes(1);
+      expect(httpServiceMock.get).toBeCalledWith(
+        `${TOKENS_INFO_API_URL}?${TOKENS_INFO_API_QUERY}&page=0&minLiquidity=1000000`
+      );
     });
 
     it("retries when provider API call fails", async () => {
