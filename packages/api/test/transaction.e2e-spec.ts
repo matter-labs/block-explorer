@@ -5,9 +5,10 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetail } from "../src/block/blockDetail.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
+import { ETH_TOKEN } from "../src/token/token.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
@@ -89,6 +90,7 @@ describe("TransactionController (e2e)", () => {
       isL1Originated: true,
       gasLimit: "1000000",
       gasPrice: "100",
+      type: 255,
     };
 
     for (let i = 0; i < 10; i++) {
@@ -156,20 +158,20 @@ describe("TransactionController (e2e)", () => {
     }
 
     await tokenRepository.insert({
-      l2Address: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
-      l1Address: "0xf754ff5e8a6f257e162f72578a4bb0493c068101",
-      symbol: "TEST",
-      name: "TEST token",
-      decimals: 18,
-      blockNumber: 1,
+      l2Address: ETH_TOKEN.l2Address,
+      l1Address: ETH_TOKEN.l1Address,
+      symbol: ETH_TOKEN.symbol,
+      name: ETH_TOKEN.name,
+      decimals: ETH_TOKEN.decimals,
+      blockNumber: 0,
       logIndex: 0,
     });
 
     await tokenRepository.insert({
-      l2Address: "0x000000000000000000000000000000000000800a",
-      l1Address: "0x0000000000000000000000000000000000000000",
-      symbol: "ETH",
-      name: "Ether",
+      l2Address: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
+      l1Address: "0xf754ff5e8a6f257e162f72578a4bb0493c068101",
+      symbol: "TEST",
+      name: "TEST token",
       decimals: 18,
       blockNumber: 1,
       logIndex: 0,
@@ -188,6 +190,7 @@ describe("TransactionController (e2e)", () => {
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress:
           i % 2 ? "0xd754ff5e8a6f257e162f72578a4bb0493c068101" : "0x000000000000000000000000000000000000800a",
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
         amount: "2000",
         type,
         logIndex: i,
@@ -250,6 +253,7 @@ describe("TransactionController (e2e)", () => {
               status: "failed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233106,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -272,6 +276,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233105,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -294,6 +299,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233104,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -316,6 +322,7 @@ describe("TransactionController (e2e)", () => {
               status: "proved",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -338,6 +345,7 @@ describe("TransactionController (e2e)", () => {
               status: "proved",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233102,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -360,6 +368,7 @@ describe("TransactionController (e2e)", () => {
               status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233101,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -382,6 +391,7 @@ describe("TransactionController (e2e)", () => {
               status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233100,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -404,6 +414,7 @@ describe("TransactionController (e2e)", () => {
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233099,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -426,6 +437,7 @@ describe("TransactionController (e2e)", () => {
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233098,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -448,6 +460,7 @@ describe("TransactionController (e2e)", () => {
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233097,
+              type: 255,
               value: "0x2386f26fc10000",
             },
           ])
@@ -480,6 +493,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233105,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -502,6 +516,7 @@ describe("TransactionController (e2e)", () => {
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233104,
+              type: 255,
               value: "0x2386f26fc10000",
             },
             {
@@ -524,6 +539,7 @@ describe("TransactionController (e2e)", () => {
               status: "proved",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
+              type: 255,
               value: "0x2386f26fc10000",
             },
           ])
@@ -602,6 +618,7 @@ describe("TransactionController (e2e)", () => {
                 status: "included",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233098,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
             ],
@@ -649,6 +666,7 @@ describe("TransactionController (e2e)", () => {
                 status: "included",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233098,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
             ],
@@ -696,6 +714,7 @@ describe("TransactionController (e2e)", () => {
                 status: "verified",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233104,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
               {
@@ -718,6 +737,7 @@ describe("TransactionController (e2e)", () => {
                 status: "proved",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233103,
+                type: 255,
                 value: "0x2386f26fc10000",
               },
             ],
@@ -801,6 +821,7 @@ describe("TransactionController (e2e)", () => {
             status: "verified",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233105,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -831,6 +852,7 @@ describe("TransactionController (e2e)", () => {
             status: "proved",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233102,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -861,6 +883,7 @@ describe("TransactionController (e2e)", () => {
             status: "committed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233100,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -891,6 +914,7 @@ describe("TransactionController (e2e)", () => {
             status: "included",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233097,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -921,6 +945,7 @@ describe("TransactionController (e2e)", () => {
             status: "failed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233106,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -951,6 +976,7 @@ describe("TransactionController (e2e)", () => {
             status: "included",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233097,
+            type: 255,
             value: "0x2386f26fc10000",
           })
         );
@@ -1001,10 +1027,14 @@ describe("TransactionController (e2e)", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1020,10 +1050,14 @@ describe("TransactionController (e2e)", () => {
                 l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
                 name: "TEST token",
                 symbol: "TEST",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1039,10 +1073,14 @@ describe("TransactionController (e2e)", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1058,10 +1096,14 @@ describe("TransactionController (e2e)", () => {
                 l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
                 name: "TEST token",
                 symbol: "TEST",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "fee",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1077,10 +1119,14 @@ describe("TransactionController (e2e)", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1096,10 +1142,14 @@ describe("TransactionController (e2e)", () => {
                 l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
                 name: "TEST token",
                 symbol: "TEST",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "refund",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1115,10 +1165,14 @@ describe("TransactionController (e2e)", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1134,10 +1188,14 @@ describe("TransactionController (e2e)", () => {
                 l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
                 name: "TEST token",
                 symbol: "TEST",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1153,10 +1211,14 @@ describe("TransactionController (e2e)", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
+              tokenType: "ETH",
               isInternal: false,
             },
           ])
@@ -1217,10 +1279,14 @@ describe("TransactionController (e2e)", () => {
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
+                  iconURL: null,
+                  liquidity: null,
+                  usdPrice: null,
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "deposit",
+                tokenType: "ETH",
                 isInternal: false,
               },
             ],

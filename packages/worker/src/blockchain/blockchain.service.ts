@@ -132,7 +132,11 @@ export class BlockchainService implements OnModuleInit {
       erc20Contract.decimals(),
       erc20Contract.name(),
     ]);
-    return { symbol, decimals, name };
+    return {
+      symbol,
+      decimals,
+      name,
+    };
   }
 
   public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<BigNumber> {

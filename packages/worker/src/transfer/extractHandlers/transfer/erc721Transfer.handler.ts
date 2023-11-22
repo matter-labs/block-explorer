@@ -2,6 +2,7 @@ import { utils, types } from "zksync-web3";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
@@ -34,6 +35,7 @@ export const erc721TransferHandler: ExtractTransferHandler = {
       },
       tokenAddress: log.address.toLowerCase(),
       type,
+      tokenType: TokenType.ERC721,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

@@ -2,6 +2,7 @@ import { utils, types } from "zksync-web3";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../../entities/transfer.entity";
+import { TokenType } from "../../../entities/token.entity";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
@@ -22,6 +23,7 @@ export const ethWithdrawalToL1Handler: ExtractTransferHandler = {
       amount: parsedLog.args._amount,
       tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
       type: TransferType.Withdrawal,
+      tokenType: TokenType.ETH,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

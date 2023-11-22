@@ -127,13 +127,17 @@
             "value": "Value",
             "valueTooltip": "Amount of Ether being transferred from one address to another within a transaction.",
             "fee": "Fee",
+            "paidByPaymaster": "Paid by Paymaster",
             "feeDetails": {
                 "moreDetails": "More Details",
                 "closeDetails": "Close Details",
                 "initial": "Initial:",
                 "refunded": "Refunded:",
                 "refunds": "Refunds:",
-                "whyRefunded": "Why I'm being refunded?"
+                "whyRefunded": "Why am I being refunded?",
+                "whyPaymasterRefunded": "Why is Paymaster being refunded?",
+                "whatIsPaymaster": "What is Paymaster?",
+                "paymaster": "Paymaster"
             },
             "feeTooltip": "Fee which sender paid for this transaction, amount in chosen asset & price in USD at the current time",
             "direction": "Direction",
@@ -285,6 +289,7 @@
             "portal": "Portal",
             "documentation": "Documentation",
             "tools": "Tools",
+            "apiDocs": "API Documentation",
             "contractVerification": "Smart Contract Verification",
             "debugger": "zkEVM Debugger",
             "bridge": "Bridge"

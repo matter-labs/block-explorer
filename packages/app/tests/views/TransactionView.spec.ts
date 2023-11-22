@@ -22,6 +22,14 @@ const router = {
   },
 };
 
+vi.mock("@/composables/useSearch", () => {
+  return {
+    default: () => ({
+      getSearchRoute: () => null,
+    }),
+  };
+});
+
 vi.mock("vue-router", () => ({
   useRouter: () => router,
   useRoute: () => ({
@@ -48,7 +56,7 @@ describe("TransactionView:", () => {
   });
 
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "transaction")?.meta.title as string)).toBe("Transaction");
+    expect(i18n.global.t(routes.find((e) => e.name === "transaction")?.meta?.title as string)).toBe("Transaction");
   });
 
   it("route is replaced with not found view on request 404 error", async () => {

@@ -1,9 +1,8 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual, IsNull, Not } from "typeorm";
+import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
-import { L2_ETH_TOKEN_ADDRESS } from "../common/constants";
 import { IPaginationOptions, SortingOrder } from "../common/types";
 import { Transfer } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
@@ -100,20 +99,20 @@ export class TransferService {
         "transaction.data",
         "transaction.fee",
         "transaction.l1BatchNumber",
+        "transaction.type",
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
       queryBuilder.where({
         address,
-        fields: tokenType === TokenType.ERC721 ? Not(IsNull()) : IsNull(),
       });
       if (tokenAddress) {
         queryBuilder.andWhere(`"addressTransfer"."tokenAddress" = :tokenAddress`, {
           tokenAddress: normalizeAddressTransformer.to(tokenAddress),
         });
       } else {
-        queryBuilder.andWhere(`"addressTransfer"."tokenAddress" != :tokenAddress`, {
-          tokenAddress: normalizeAddressTransformer.to(L2_ETH_TOKEN_ADDRESS),
+        queryBuilder.andWhere(`"addressTransfer"."tokenType" = :tokenType`, {
+          tokenType,
         });
       }
       if (startBlock !== undefined) {
@@ -149,12 +148,12 @@ export class TransferService {
       "transaction.data",
       "transaction.fee",
       "transaction.l1BatchNumber",
+      "transaction.type",
     ]);
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
     queryBuilder.where({
       tokenAddress,
-      fields: tokenType === TokenType.ERC721 ? Not(IsNull()) : IsNull(),
     });
     if (startBlock !== undefined) {
       queryBuilder.andWhere({
@@ -194,6 +193,7 @@ export class TransferService {
         "transaction.gasLimit",
         "transaction.fee",
         "transaction.l1BatchNumber",
+        "transaction.type",
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
@@ -226,6 +226,7 @@ export class TransferService {
       "transaction.gasLimit",
       "transaction.fee",
       "transaction.l1BatchNumber",
+      "transaction.type",
     ]);
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);

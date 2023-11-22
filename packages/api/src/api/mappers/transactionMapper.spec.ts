@@ -30,6 +30,7 @@ describe("transactionMapper", () => {
         cumulativeGasUsed: "1200000",
         gasUsed: "900000",
       },
+      type: 255,
     },
   } as AddressTransaction;
 
@@ -62,6 +63,7 @@ describe("transactionMapper", () => {
         transactionIndex: "10",
         txreceipt_status: "1",
         value: "1000000",
+        type: "255",
       });
     });
 

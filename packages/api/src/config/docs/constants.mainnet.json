@@ -1,0 +1,13 @@
+{
+    "verifiedContractAddress": "0x2da10A1e27bF85cEdD8FFb1AbBe97e53391C0295",
+    "verifiedContractAddress2": "0x1fa66e2B38d0cC496ec51F81c3e05E6A6708986F",
+    "contractAddressWithLogs": "0x1fa66e2B38d0cC496ec51F81c3e05E6A6708986F",
+    "txHash": "0xbca76582802d8172fe5bf6ba9c42d675a2ceab858dff555929f2c4021bf77386",
+    "address": "0xd3D526A8CCA22Fe072cD1852faA4F0a6F2C21765",
+    "addressWithInternalTx": "0x8B021d2BeD73675F7715422C4BFcBfE759890308",
+    "addressTxWithInternalTransfers": "0x4683986b4d6b07aa5a8ba6c4a6aa7b1a420a0dfd944ac7128f3e4ab7bd74567c",
+    "tokenAddress": "0x000000000000000000000000000000000000800A",
+    "erc20TokenAddress": "0x319897e0F6bEBDf39B46c2eFc5549701C53B53C0",
+    "erc721TokenAddress": "0xF27e53EDC24Be11B4C5dc4631Fd75EA0Ed896D64",
+    "erc721TokenHolderAddress": "0x96a337e1B3ccf03E78D5a41272615ee02cb14473"
+}

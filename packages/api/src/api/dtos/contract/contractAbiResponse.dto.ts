@@ -66,5 +66,5 @@ export class ContractAbiResponseDto extends ResponseBaseDto {
       },
     ]),
   })
-  public readonly result: any;
+  public readonly result: string;
 }

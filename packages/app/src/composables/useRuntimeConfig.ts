@@ -1,4 +1,4 @@
-import type { NetworkConfig } from "@/configs";
+import type { NetworkConfig, RuntimeConfig } from "@/configs";
 
 export const DEFAULT_NETWORK: NetworkConfig = {
   apiUrl: "https://block-explorer-api.testnets.zksync.dev",
@@ -17,11 +17,7 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   rpcUrl: "https://testnet.era.zksync.dev",
 };
 
-export default (): {
-  version: string;
-  sentryDSN: string;
-  appEnvironment: string;
-} => {
+export default (): RuntimeConfig => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   const runtimeConfig = window && window["##runtimeConfig"];
@@ -30,5 +26,6 @@ export default (): {
     version: import.meta.env?.VITE_VERSION || "localhost",
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
     appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default",
+    environmentConfig: runtimeConfig?.environmentConfig,
   };
 };

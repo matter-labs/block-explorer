@@ -16,7 +16,6 @@ import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import * as utils from "../common/utils";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
-import { L2_ETH_TOKEN_ADDRESS } from "../common/constants";
 
 jest.mock("../common/utils");
 
@@ -228,18 +227,17 @@ describe("TransferService", () => {
       });
 
       describe("when token type is ERC20", () => {
-        it("adds ERC20 filter", async () => {
+        it("adds tokenAddress filter", async () => {
           await service.findTokenTransfers(filterOptions);
           expect(queryBuilderMock.where).toBeCalledTimes(1);
           expect(queryBuilderMock.where).toHaveBeenCalledWith({
             tokenAddress: filterOptions.tokenAddress,
-            fields: typeorm.IsNull(),
           });
         });
       });
 
       describe("when token type is ERC721", () => {
-        it("adds ERC721 filter", async () => {
+        it("adds tokenAddress filter", async () => {
           await service.findTokenTransfers({
             ...filterOptions,
             tokenType: TokenType.ERC721,
@@ -247,7 +245,6 @@ describe("TransferService", () => {
           expect(queryBuilderMock.where).toBeCalledTimes(1);
           expect(queryBuilderMock.where).toHaveBeenCalledWith({
             tokenAddress: "tokenAddress",
-            fields: typeorm.Not(typeorm.IsNull()),
           });
         });
       });
@@ -260,9 +257,25 @@ describe("TransferService", () => {
 
       it("joins transactions and transaction receipts records to the transfers", async () => {
         await service.findTokenTransfers(filterOptions);
-        expect(queryBuilderMock.leftJoin).toBeCalledTimes(2);
+        expect(queryBuilderMock.leftJoin).toHaveBeenCalledTimes(2);
+        expect(queryBuilderMock.addSelect).toHaveBeenCalledTimes(2);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transfer.transaction", "transaction");
+        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transaction.nonce",
+          "transaction.blockHash",
+          "transaction.transactionIndex",
+          "transaction.gasLimit",
+          "transaction.gasPrice",
+          "transaction.data",
+          "transaction.fee",
+          "transaction.l1BatchNumber",
+          "transaction.type",
+        ]);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
+        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transactionReceipt.gasUsed",
+          "transactionReceipt.cumulativeGasUsed",
+        ]);
       });
 
       it("adds start block filter when startBlock is specified", async () => {
@@ -345,13 +358,19 @@ describe("TransferService", () => {
       });
 
       describe("when token type is ERC20", () => {
-        it("adds ERC20 filter", async () => {
+        it("adds address and ERC20 filter", async () => {
           await service.findTokenTransfers(filterOptions);
           expect(addressTransfersQueryBuilderMock.where).toBeCalledTimes(1);
           expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({
             address: filterOptions.address,
-            fields: typeorm.IsNull(),
           });
+          expect(addressTransfersQueryBuilderMock.andWhere).toBeCalledTimes(1);
+          expect(addressTransfersQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+            `"addressTransfer"."tokenType" = :tokenType`,
+            {
+              tokenType: TokenType.ERC20,
+            }
+          );
         });
       });
 
@@ -364,8 +383,14 @@ describe("TransferService", () => {
           expect(addressTransfersQueryBuilderMock.where).toBeCalledTimes(1);
           expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({
             address: filterOptions.address,
-            fields: typeorm.Not(typeorm.IsNull()),
           });
+          expect(addressTransfersQueryBuilderMock.andWhere).toBeCalledTimes(1);
+          expect(addressTransfersQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+            `"addressTransfer"."tokenType" = :tokenType`,
+            {
+              tokenType: TokenType.ERC721,
+            }
+          );
         });
       });
 
@@ -385,19 +410,6 @@ describe("TransferService", () => {
         });
       });
 
-      describe("when token address is not specified", () => {
-        it("adds filter to exclude ETH token", async () => {
-          await service.findTokenTransfers(filterOptions);
-          expect(addressTransfersQueryBuilderMock.andWhere).toBeCalledTimes(1);
-          expect(addressTransfersQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-            `"addressTransfer"."tokenAddress" != :tokenAddress`,
-            {
-              tokenAddress: normalizeAddressTransformer.to(L2_ETH_TOKEN_ADDRESS),
-            }
-          );
-        });
-      });
-
       it("joins transfers and tokens records to the address transfers", async () => {
         await service.findTokenTransfers(filterOptions);
         expect(addressTransfersQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(2);
@@ -411,11 +423,27 @@ describe("TransferService", () => {
       it("joins transactions and transaction receipts records to the transfers", async () => {
         await service.findTokenTransfers(filterOptions);
         expect(addressTransfersQueryBuilderMock.leftJoin).toBeCalledTimes(2);
+        expect(addressTransfersQueryBuilderMock.addSelect).toBeCalledTimes(2);
         expect(addressTransfersQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transfer.transaction", "transaction");
+        expect(addressTransfersQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transaction.nonce",
+          "transaction.blockHash",
+          "transaction.transactionIndex",
+          "transaction.gasLimit",
+          "transaction.gasPrice",
+          "transaction.data",
+          "transaction.fee",
+          "transaction.l1BatchNumber",
+          "transaction.type",
+        ]);
         expect(addressTransfersQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
           "transaction.transactionReceipt",
           "transactionReceipt"
         );
+        expect(addressTransfersQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transactionReceipt.gasUsed",
+          "transactionReceipt.cumulativeGasUsed",
+        ]);
       });
 
       it("adds start block filter when startBlock is specified", async () => {
@@ -531,8 +559,20 @@ describe("TransferService", () => {
       it("joins transactions and transaction receipts records to the transfers", async () => {
         await service.findInternalTransfers(filterOptions);
         expect(queryBuilderMock.leftJoin).toBeCalledTimes(2);
+        expect(queryBuilderMock.addSelect).toBeCalledTimes(2);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transfer.transaction", "transaction");
+        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transaction.receiptStatus",
+          "transaction.gasLimit",
+          "transaction.fee",
+          "transaction.l1BatchNumber",
+          "transaction.type",
+        ]);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
+        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transactionReceipt.gasUsed",
+          "transactionReceipt.contractAddress",
+        ]);
       });
 
       it("adds start block filter when startBlock is specified", async () => {
@@ -635,11 +675,23 @@ describe("TransferService", () => {
       it("joins transactions and transaction receipts records to the transfers", async () => {
         await service.findInternalTransfers(filterOptions);
         expect(addressTransfersQueryBuilderMock.leftJoin).toBeCalledTimes(2);
+        expect(addressTransfersQueryBuilderMock.addSelect).toBeCalledTimes(2);
         expect(addressTransfersQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transfer.transaction", "transaction");
+        expect(addressTransfersQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transaction.receiptStatus",
+          "transaction.gasLimit",
+          "transaction.fee",
+          "transaction.l1BatchNumber",
+          "transaction.type",
+        ]);
         expect(addressTransfersQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
           "transaction.transactionReceipt",
           "transactionReceipt"
         );
+        expect(addressTransfersQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transactionReceipt.gasUsed",
+          "transactionReceipt.contractAddress",
+        ]);
       });
 
       it("adds start block filter when startBlock is specified", async () => {

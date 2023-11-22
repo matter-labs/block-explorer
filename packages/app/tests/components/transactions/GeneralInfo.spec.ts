@@ -1,9 +1,11 @@
-import { nextTick } from "vue";
+import { computed, nextTick } from "vue";
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
+
+import { ETH_TOKEN_MOCK } from "../../mocks";
 
 import Badge from "@/components/common/Badge.vue";
 import Tooltip from "@/components/common/Tooltip.vue";
@@ -36,6 +38,7 @@ const transaction: TransactionItem = {
   fee: "0x521f303519100",
   feeData: {
     amountPaid: "0x521f303519100",
+    isPaidByPaymaster: false,
     refunds: [
       {
         amount: "116665569251910",
@@ -45,9 +48,9 @@ const transaction: TransactionItem = {
         toNetwork: "L2",
         type: "refund",
         tokenInfo: {
-          address: "0x0000000000000000000000000000000000000000",
+          address: "0x000000000000000000000000000000000000800A",
           l1Address: "0x0000000000000000000000000000000000000000",
-          l2Address: "0x0000000000000000000000000000000000000000",
+          l2Address: "0x000000000000000000000000000000000000800A",
           symbol: "ETH",
           name: "Ether",
           decimals: 18,
@@ -61,9 +64,9 @@ const transaction: TransactionItem = {
         toNetwork: "L2",
         type: "refund",
         tokenInfo: {
-          address: "0x0000000000000000000000000000000000000000",
+          address: "0x000000000000000000000000000000000000800A",
           l1Address: "0x0000000000000000000000000000000000000000",
-          l2Address: "0x0000000000000000000000000000000000000000",
+          l2Address: "0x000000000000000000000000000000000000800A",
           symbol: "ETH",
           name: "Ether",
           decimals: 18,
@@ -150,8 +153,34 @@ const transaction: TransactionItem = {
         symbol: "YourTokenSymbol",
       },
     },
+    {
+      amount: null,
+      from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+      to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+      fromNetwork: "L2",
+      toNetwork: "L2",
+      type: "transfer",
+      tokenInfo: {
+        address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
+        l1Address: undefined,
+        l2Address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
+        decimals: 18,
+        name: "Your Token Name",
+        symbol: "NoAmountTransfer",
+      },
+    },
   ],
 };
+
+vi.mock("@/composables/useToken", () => {
+  return {
+    default: () => ({
+      getTokenInfo: vi.fn(),
+      tokenInfo: computed(() => ETH_TOKEN_MOCK),
+      isRequestPending: computed(() => false),
+    }),
+  };
+});
 
 describe("Transaction info table", () => {
   const i18n = createI18n({

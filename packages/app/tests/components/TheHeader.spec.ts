@@ -25,6 +25,7 @@ vi.mock("@/composables/useContext", () => {
         maintenance: maintenanceMock(),
         l2WalletUrl: "https://portal.zksync.io/",
         bridgeUrl: "https://bridge.zksync.io/",
+        apiUrl: "https://api-url",
       })),
     }),
   };
@@ -57,9 +58,9 @@ describe("TheHeader:", () => {
     await fireEvent.click(dropdown[1].find("button")!.element);
     const toolsLinksRouter = dropdown[1].findAllComponents(RouterLinkStub);
     const toolsLinks = dropdown[1].findAll("a");
+    expect(toolsLinks[0].attributes("href")).toBe("https://api-url/docs");
     expect(toolsLinksRouter[0].props().to.name).toBe("contract-verification");
-    // expect(toolsLinksRouter[1].props().to.name).toBe("debugger");
-    expect(toolsLinks[1].attributes("href")).toBe("https://portal.zksync.io/");
+    expect(toolsLinks[2].attributes("href")).toBe("https://portal.zksync.io/");
 
     expect(wrapper.findAll(".navigation-container > .navigation-link")[0].attributes("href")).toBe(
       "https://era.zksync.io/docs/dev/"

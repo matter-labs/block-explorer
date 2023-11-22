@@ -1,5 +1,5 @@
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "./sourceCodeMapper";
-import { ContractVerificationInfo } from "../types";
+import { ContractVerificationInfo, SourceCodeData } from "../types";
 
 describe("SOURCE_CODE_EMPTY_INFO", () => {
   it("returns ContractSourceCodeDto with empty or default values", () => {
@@ -64,7 +64,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      CompilerZksolcVersion: "v1.3.9",
+      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -92,7 +92,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      CompilerZksolcVersion: "v1.3.9",
+      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -126,7 +126,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
-      CompilerZkvyperVersion: "v1.3.9",
+      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -162,7 +162,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
-      CompilerZkvyperVersion: "v1.3.9",
+      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -196,7 +196,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
-      CompilerZkvyperVersion: "v1.3.9",
+      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -222,7 +222,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      CompilerZksolcVersion: "v1.3.9",
+      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "123",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -245,12 +245,12 @@ describe("mapContractSourceCode", () => {
         optimizationUsed: false,
       },
     };
-    (verificationInfo.request.sourceCode as any).settings.optimizer.enabled = false;
+    (verificationInfo.request.sourceCode as SourceCodeData).settings.optimizer.enabled = false;
 
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      CompilerZksolcVersion: "v1.3.9",
+      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -262,6 +262,108 @@ describe("mapContractSourceCode", () => {
       Runs: "",
       SourceCode:
         '{{"language":"Solidity","settings":{"optimizer":{"enabled":false}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
+      SwarmSource: "",
+    });
+  });
+
+  it("returns Runs if specified", () => {
+    (verificationInfo.request.sourceCode as SourceCodeData).settings.optimizer.runs = 500;
+
+    expect(mapContractSourceCode(verificationInfo)).toEqual({
+      ABI: "[]",
+      CompilerVersion: "0.8.17",
+      ZkCompilerVersion: "v1.3.9",
+      ConstructorArguments: "",
+      ContractName: "Greeter",
+      EVMVersion: "Default",
+      Implementation: "",
+      Library: "",
+      LicenseType: "",
+      OptimizationUsed: "1",
+      Proxy: "0",
+      Runs: "500",
+      SourceCode:
+        '{{"language":"Solidity","settings":{"optimizer":{"enabled":true,"runs":500}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
+      SwarmSource: "",
+    });
+  });
+
+  it("returns empty Runs if there are no optimizer settings specified", () => {
+    (verificationInfo.request.sourceCode as SourceCodeData).settings.optimizer = undefined;
+
+    expect(mapContractSourceCode(verificationInfo)).toEqual({
+      ABI: "[]",
+      CompilerVersion: "0.8.17",
+      ZkCompilerVersion: "v1.3.9",
+      ConstructorArguments: "",
+      ContractName: "Greeter",
+      EVMVersion: "Default",
+      Implementation: "",
+      Library: "",
+      LicenseType: "",
+      OptimizationUsed: "1",
+      Proxy: "0",
+      Runs: "",
+      SourceCode:
+        '{{"language":"Solidity","settings":{},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
+      SwarmSource: "",
+    });
+  });
+
+  it("returns Library for single library specified", () => {
+    (verificationInfo.request.sourceCode as SourceCodeData).settings.libraries = {
+      "contracts/MiniMath.sol": {
+        MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+      },
+    };
+
+    expect(mapContractSourceCode(verificationInfo)).toEqual({
+      ABI: "[]",
+      CompilerVersion: "0.8.17",
+      ZkCompilerVersion: "v1.3.9",
+      ConstructorArguments: "",
+      ContractName: "Greeter",
+      EVMVersion: "Default",
+      Implementation: "",
+      Library: "contracts/MiniMath.sol:MiniMath:0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+      LicenseType: "",
+      OptimizationUsed: "1",
+      Proxy: "0",
+      Runs: "",
+      SourceCode:
+        '{{"language":"Solidity","settings":{"optimizer":{"enabled":true},"libraries":{"contracts/MiniMath.sol":{"MiniMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913"}}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
+      SwarmSource: "",
+    });
+  });
+
+  it("returns Library for multiple libraries specified", () => {
+    (verificationInfo.request.sourceCode as SourceCodeData).settings.libraries = {
+      "contracts/MiniMath.sol": {
+        MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+        MiniMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914",
+      },
+      "contracts/MaxiMath.sol": {
+        MaxiMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5915",
+        MaxiMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5916",
+      },
+    };
+
+    expect(mapContractSourceCode(verificationInfo)).toEqual({
+      ABI: "[]",
+      CompilerVersion: "0.8.17",
+      ZkCompilerVersion: "v1.3.9",
+      ConstructorArguments: "",
+      ContractName: "Greeter",
+      EVMVersion: "Default",
+      Implementation: "",
+      Library:
+        "contracts/MiniMath.sol:MiniMath:0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913;contracts/MiniMath.sol:MiniMath2:0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914;contracts/MaxiMath.sol:MaxiMath:0x1c1cEFA394748048BE6b04Ea6081fE44B26a5915;contracts/MaxiMath.sol:MaxiMath2:0x1c1cEFA394748048BE6b04Ea6081fE44B26a5916",
+      LicenseType: "",
+      OptimizationUsed: "1",
+      Proxy: "0",
+      Runs: "",
+      SourceCode:
+        '{{"language":"Solidity","settings":{"optimizer":{"enabled":true},"libraries":{"contracts/MiniMath.sol":{"MiniMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913","MiniMath2":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914"},"contracts/MaxiMath.sol":{"MaxiMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5915","MaxiMath2":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5916"}}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
     });
   });
