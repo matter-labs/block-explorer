@@ -180,6 +180,10 @@ const blockExplorerLinks = reactive([
 
 const links = [
   {
+    label: computed(() => t("header.nav.apiDocs")),
+    url: computed(() => `${currentNetwork.value.apiUrl}/docs`),
+  },
+  {
     label: computed(() => t("header.nav.contractVerification")),
     to: { name: "contract-verification" },
   },

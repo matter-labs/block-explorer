@@ -12,54 +12,57 @@ export default (context = useContext()) => {
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
 
-  const search = async (param: string) => {
-    const endpoints = [
-      {
-        routeParam: { address: param },
-        apiRoute: "address",
-        isValid: isAddress(param),
-        routeName: "address",
-      },
-      {
-        routeParam: { id: param },
-        apiRoute: "batches",
-        isValid: isBlockNumber(param),
-        routeName: "batch",
-      },
-      {
-        routeParam: { hash: param },
-        apiRoute: "transactions",
-        isValid: isTransactionHash(param),
-        routeName: "transaction",
-      },
-    ];
-    isRequestPending.value = true;
+  const getSearchRoute = (param: string) => {
     try {
-      for (const item of endpoints) {
-        try {
-          if (!item.isValid) {
-            continue;
-          }
-          await $fetch(`${context.currentNetwork.value.apiUrl}/${item.apiRoute}/${param}`);
+      const searchRoutes = [
+        {
+          routeParam: { address: param },
+          apiRoute: "address",
+          isValid: () => isAddress(param),
+          routeName: "address",
+        },
+        {
+          routeParam: { id: param },
+          apiRoute: "batches",
+          isValid: () => isBlockNumber(param),
+          routeName: "batch",
+        },
+        {
+          routeParam: { hash: param },
+          apiRoute: "transactions",
+          isValid: () => isTransactionHash(param),
+          routeName: "transaction",
+        },
+      ];
 
-          await router.push({ name: item.routeName, params: item.routeParam });
-          return;
-        } catch (error) {
-          if (!(error instanceof FetchError) || (error instanceof FetchError && error.response?.status !== 404)) {
-            throw error;
-          }
-        }
-      }
-      await router.push({ name: "not-found" });
-    } catch (error) {
-      isRequestFailed.value = true;
-    } finally {
-      isRequestPending.value = false;
+      return searchRoutes.find((searchRoute) => searchRoute.isValid());
+    } catch {
+      return null;
     }
+  };
+
+  const search = async (param: string) => {
+    isRequestPending.value = true;
+    const searchRoute = getSearchRoute(param);
+    if (searchRoute) {
+      try {
+        await $fetch(`${context.currentNetwork.value.apiUrl}/${searchRoute.apiRoute}/${param}`);
+        await router.push({ name: searchRoute.routeName, params: searchRoute.routeParam });
+        return;
+      } catch (error) {
+        if (!(error instanceof FetchError) || (error instanceof FetchError && error.response?.status !== 404)) {
+          isRequestFailed.value = true;
+        }
+      } finally {
+        isRequestPending.value = false;
+      }
+    }
+    await router.push({ name: "not-found" });
   };
 
   return {
     search,
+    getSearchRoute,
     isRequestPending,
     isRequestFailed,
   };

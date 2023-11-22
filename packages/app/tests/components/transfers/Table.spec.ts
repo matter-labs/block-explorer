@@ -7,7 +7,7 @@ import { render, type RenderResult } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 import { useTimeAgo } from "@vueuse/core";
 
-import { useContextMock, useTransfersMock } from "./../../mocks";
+import { ETH_TOKEN_MOCK, useContextMock, useTransfersMock } from "./../../mocks";
 
 import Table from "@/components/transfers/Table.vue";
 
@@ -15,7 +15,6 @@ import enUS from "@/locales/en.json";
 import elements from "tests/e2e/testId.json";
 
 import $testId from "@/plugins/testId";
-import { ETH_TOKEN } from "@/utils/constants";
 
 vi.mock("vue-router", () => ({
   useRoute: vi.fn(),
@@ -24,23 +23,15 @@ vi.mock("@/composables/useTokenLibrary", () => {
   return {
     default: () => ({
       getToken: (address: string) =>
-        address === ETH_TOKEN.l2Address
+        address === ETH_TOKEN_MOCK.l2Address
           ? {
-              ...ETH_TOKEN,
-              imageUrl: "https://test.link",
+              ...ETH_TOKEN_MOCK,
+              iconURL: "https://test.link",
             }
           : null,
       getTokens: () => undefined,
       isRequestFailed: computed(() => false),
       isRequestPending: computed(() => false),
-    }),
-  };
-});
-vi.mock("@/composables/useTokenPrice", () => {
-  return {
-    default: () => ({
-      getTokenPrice: () => undefined,
-      tokenPrice: computed(() => "1"),
     }),
   };
 });
@@ -61,6 +52,7 @@ const transfer = {
     symbol: "USDC",
     name: "USD Coin (goerli)",
     decimals: 6,
+    usdPrice: 1,
   },
   fromNetwork: "L1",
   toNetwork: "L1",

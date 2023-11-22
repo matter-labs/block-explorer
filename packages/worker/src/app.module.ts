@@ -2,6 +2,7 @@ import { Module, Logger } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule } from "@nestjs/config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
+import { HttpModule } from "@nestjs/axios";
 import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 import config from "./config";
 import { HealthModule } from "./health/health.module";
@@ -16,6 +17,9 @@ import { AddressService } from "./address/address.service";
 import { BalanceService, BalancesCleanerService } from "./balance";
 import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
+import { TokenOffChainDataProvider } from "./token/tokenOffChainData/tokenOffChainDataProvider.abstract";
+import { PortalsFiTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/portalsFiTokenOffChainDataProvider";
+import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import { CounterModule } from "./counter/counter.module";
 import {
   BatchRepository,
@@ -84,6 +88,7 @@ import { UnitOfWorkModule } from "./unitOfWork";
     UnitOfWorkModule,
     CounterModule,
     HealthModule,
+    HttpModule,
   ],
   providers: [
     AppService,
@@ -93,6 +98,11 @@ import { UnitOfWorkModule } from "./unitOfWork";
     BalancesCleanerService,
     TransferService,
     TokenService,
+    {
+      provide: TokenOffChainDataProvider,
+      useClass: PortalsFiTokenOffChainDataProvider,
+    },
+    TokenOffChainDataSaverService,
     BatchRepository,
     BlockRepository,
     TransactionRepository,

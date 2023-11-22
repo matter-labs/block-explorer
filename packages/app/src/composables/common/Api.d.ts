@@ -23,6 +23,9 @@ declare namespace Api {
       name: string | null;
       symbol: string | null;
       decimals: number;
+      usdPrice: number | null;
+      liquidity: number | null;
+      iconURL: string | null;
     };
 
     type BatchListItem = {

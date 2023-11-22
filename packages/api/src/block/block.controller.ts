@@ -1,5 +1,12 @@
 import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiOkResponse, ApiBadRequestResponse, ApiNotFoundResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiExcludeController,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { buildDateFilter } from "../common/utils";
 import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
@@ -8,10 +15,12 @@ import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkRespons
 import { BlockService } from "./block.service";
 import { BlockDto } from "./block.dto";
 import { BlockDetailDto } from "./blockDetail.dto";
+import { swagger } from "../config/featureFlags";
 
 const entityName = "blocks";
 
-@ApiTags(entityName)
+@ApiTags("Block BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class BlockController {
   constructor(private readonly blockService: BlockService) {}

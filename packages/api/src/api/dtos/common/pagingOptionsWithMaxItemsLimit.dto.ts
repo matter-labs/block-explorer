@@ -6,7 +6,7 @@ import { PagingOptionsDto } from "./pagingOptions.dto";
 import { config } from "dotenv";
 config();
 
-const maxItemsLimit = parseInt(process.env.LIMITED_PAGINATION_MAX_ITEMS, 10) || 10000;
+const maxItemsLimit = parseInt(process.env.API_LIMITED_PAGINATION_MAX_ITEMS, 10) || 1000;
 
 export class PagingOptionsWithMaxItemsLimitDto extends PagingOptionsDto {
   @ApiPropertyOptional({

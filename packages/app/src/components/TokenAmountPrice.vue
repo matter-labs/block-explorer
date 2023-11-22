@@ -1,25 +1,18 @@
 <template>
   <slot :token="token" :decimal-amount="decimalAmount" :price-amount="priceAmount">
     <div class="token-amount-price">
-      <template v-if="!token">
-        <div class="token-amount-symbol">
-          <ContentLoader />
-        </div>
-        <span class="token-price">
-          <ContentLoader />
-        </span>
-      </template>
-      <template v-else>
+      <template v-if="token && decimalAmount">
         <div class="token-amount">{{ decimalAmount }}</div>
         <TokenIconLabel
-          v-if="token.address && token.symbol"
           class="token-icon"
-          :address="token.address"
+          :address="token.l2Address"
           :symbol="token.symbol"
+          :icon-url="token.iconURL"
           show-link-symbol
         />
         <span class="token-price" v-if="priceAmount">{{ priceAmount }}</span>
       </template>
+      <template v-else>—</template>
     </div>
   </slot>
 </template>
@@ -28,7 +21,6 @@
 import { computed } from "vue";
 
 import TokenIconLabel from "@/components/TokenIconLabel.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 
 import type { Token } from "@/composables/useToken";
 import type { BigNumberish } from "ethers";
@@ -38,25 +30,27 @@ import { formatBigNumberish, formatPricePretty } from "@/utils/formatters";
 
 const props = defineProps({
   amount: {
-    type: String as PropType<BigNumberish>,
+    type: String as PropType<BigNumberish | null>,
     default: "0",
     required: true,
   },
   token: {
-    type: Object as PropType<Token>,
-    default: () => ({}),
-    required: true,
+    type: Object as PropType<Token | null>,
+    default: null,
+    required: false,
   },
 });
 
 const priceAmount = computed(() => {
-  if (props.token && props.token.usdPrice) {
-    return formatPricePretty(props.amount, props.token.decimals, props.token.usdPrice);
+  if (props.amount && props.token && props.token.usdPrice) {
+    return formatPricePretty(props.amount, props.token.decimals, props.token.usdPrice.toString());
   }
   return "";
 });
 
-const decimalAmount = computed(() => (props.token ? formatBigNumberish(props.amount, props.token.decimals) : ""));
+const decimalAmount = computed(() =>
+  props.amount && props.token ? formatBigNumberish(props.amount, props.token.decimals) : ""
+);
 </script>
 
 <style lang="scss" scoped>

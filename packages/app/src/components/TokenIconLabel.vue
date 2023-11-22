@@ -9,7 +9,12 @@
       </span>
       <div class="token-icon-container" :class="iconSize">
         <div class="token-img-loader"></div>
-        <img class="token-img" :class="{ loaded: isImageReady }" :src="imgSource" :alt="symbol!" />
+        <img
+          class="token-img"
+          :class="{ loaded: isImageLoaded }"
+          :src="imgSource"
+          :alt="symbol || t('balances.table.unknownSymbol')"
+        />
       </div>
     </AddressLink>
     <div class="token-info" v-if="name && symbol">
@@ -30,8 +35,6 @@ import { useImage } from "@vueuse/core";
 
 import AddressLink from "@/components/AddressLink.vue";
 
-import useTokenLibrary from "@/composables/useTokenLibrary";
-
 import type { Hash } from "@/types";
 
 export type IconSize = "sm" | "md" | "lg" | "xl";
@@ -45,14 +48,14 @@ const props = defineProps({
   },
   symbol: {
     type: [String, null] as PropType<string | null>,
-    required: true,
+    default: null,
   },
   iconSize: {
     type: String as PropType<IconSize>,
     default: "sm",
   },
-  imageUrl: {
-    type: String,
+  iconUrl: {
+    type: [String, null] as PropType<string | null>,
     default: "",
   },
   showLinkSymbol: {
@@ -65,26 +68,10 @@ const props = defineProps({
   },
 });
 
-const {
-  isRequestPending: isTokensRequestPending,
-  isRequestFailed: isTokensRequestFailed,
-  getToken,
-  getTokens,
-} = useTokenLibrary();
-
-getTokens();
-
 const imgSource = computed(() => {
-  if (props.imageUrl) {
-    return props.imageUrl;
-  }
-  const tokenFromLibrary = getToken(props.address);
-  return tokenFromLibrary ? tokenFromLibrary.imageUrl : "/images/currencies/customToken.svg";
+  return props.iconUrl || "/images/currencies/customToken.svg";
 });
 const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
-const isImageReady = computed(
-  () => (!isTokensRequestPending.value && !isTokensRequestFailed.value && isImageLoaded.value) || props.imageUrl
-);
 </script>
 
 <style lang="scss">

@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } fro
 import { render, type RenderResult } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 
-import { useContextMock, useTransactionsMock } from "../../mocks";
+import { ETH_TOKEN_MOCK, useContextMock, useTransactionsMock } from "../../mocks";
 
 import Table from "@/components/transactions/Table.vue";
 
@@ -17,7 +17,6 @@ import type { AbiFragment } from "@/composables/useAddress";
 import type { TransactionListItem } from "@/composables/useTransactions";
 
 import $testId from "@/plugins/testId";
-import { ETH_TOKEN } from "@/utils/constants";
 
 vi.mock("vue-router", () => ({
   useRoute: vi.fn(() => ({ query: {} })),
@@ -26,23 +25,15 @@ vi.mock("@/composables/useTokenLibrary", () => {
   return {
     default: () => ({
       getToken: (address: string) =>
-        address === ETH_TOKEN.l2Address
+        address === ETH_TOKEN_MOCK.l2Address
           ? {
-              ...ETH_TOKEN,
-              imageUrl: "https://test.link",
+              ...ETH_TOKEN_MOCK,
+              iconURL: "https://test.link",
             }
           : null,
       getTokens: () => undefined,
       isRequestFailed: computed(() => false),
       isRequestPending: computed(() => false),
-    }),
-  };
-});
-vi.mock("@/composables/useTokenPrice", () => {
-  return {
-    default: () => ({
-      getTokenPrice: () => undefined,
-      tokenPrice: computed(() => "1"),
     }),
   };
 });
@@ -243,12 +234,12 @@ describe("Transfers:", () => {
 
     it("renders value column", () => {
       expect(renderResult!.getAllByTestId(elements.tokenAmount)[0].textContent).toEqual("0.0000123213123");
-      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[0].textContent).toEqual("$0.00001");
+      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[0].textContent).toEqual("$0.02");
     });
 
     it("renders fee column", () => {
       expect(renderResult!.getAllByTestId(elements.tokenAmount)[2].textContent).toEqual("0.00006550325");
-      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[1].textContent).toEqual("$0.00007");
+      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[1].textContent).toEqual("$0.12");
     });
   });
 

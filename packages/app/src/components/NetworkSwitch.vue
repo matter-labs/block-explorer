@@ -73,7 +73,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
   @apply relative;
 
   .network-list-wrapper {
-    @apply absolute right-0 top-full h-auto w-full lg:w-[200px];
+    @apply absolute right-0 top-full h-auto w-full lg:w-[260px];
   }
   .network-list {
     @apply absolute right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;

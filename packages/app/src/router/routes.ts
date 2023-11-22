@@ -1,4 +1,9 @@
+import useSearch from "@/composables/useSearch";
+
+import type { RouteLocation, RouteRecordRaw } from "vue-router";
+
 import HomeView from "@/views/HomeView.vue";
+const { getSearchRoute } = useSearch();
 
 export default [
   {
@@ -95,6 +100,20 @@ export default [
     },
   },
   {
+    path: "/search",
+    name: "search",
+    redirect: (to: RouteLocation) => {
+      const searchQueryParam = to.query?.q instanceof Array ? to.query.q.at(-1) : to.query?.q;
+      if (searchQueryParam) {
+        const searchRoute = getSearchRoute(searchQueryParam);
+        if (searchRoute) {
+          return { name: searchRoute.routeName, params: searchRoute.routeParam, query: null };
+        }
+      }
+      return { name: "not-found", query: null };
+    },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "not-found",
     component: () => import("@/views/NotFound.vue"),
@@ -102,4 +121,4 @@ export default [
       title: "document.home",
     },
   },
-];
+] as RouteRecordRaw[];

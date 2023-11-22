@@ -46,7 +46,7 @@ describe("ContractVerificationView:", () => {
   });
 
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "contract-verification")?.meta.title as string)).toBe(
+    expect(i18n.global.t(routes.find((e) => e.name === "contract-verification")?.meta?.title as string)).toBe(
       "Smart Contract Verification"
     );
   });

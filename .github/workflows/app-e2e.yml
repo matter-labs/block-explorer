@@ -58,7 +58,7 @@ jobs:
     name: '${{ matrix.tags }}'
     container:
       image: mcr.microsoft.com/playwright:v1.27.0-focal
-      options: --user root
+      options: --user 1001
     steps:
       - uses: actions/checkout@v3
         with:
@@ -75,6 +75,8 @@ jobs:
         uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
+          # Workaround for bug https://github.com/typicode/husky/issues/991
+          HUSKY: 0
         with:
           path: node_modules
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}

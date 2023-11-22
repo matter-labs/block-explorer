@@ -8,6 +8,8 @@ import { ApiAccountModule } from "./api/account/account.module";
 import { ApiContractModule } from "./api/contract/contract.module";
 import { ApiTransactionModule } from "./api/transaction/transaction.module";
 import { ApiLogModule } from "./api/log/log.module";
+import { ApiTokenModule } from "./api/token/token.module";
+import { ApiStatsModule } from "./api/stats/stats.module";
 import { TokenModule } from "./token/token.module";
 import { BatchModule } from "./batch/batch.module";
 import { BlockModule } from "./block/block.module";
@@ -20,10 +22,8 @@ import { StatsModule } from "./stats/stats.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
+import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
-
-// TMP: disable external API until release
-const { disableExternalAPI } = config();
 
 @Module({
   imports: [
@@ -35,7 +35,10 @@ const { disableExternalAPI } = config();
     }),
     ApiModule,
     ApiContractModule,
-    ...(disableExternalAPI ? [] : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule]),
+    // TMP: disable external API until release
+    ...(disableExternalAPI
+      ? []
+      : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
     TokenModule,
     AddressModule,
     BalanceModule,

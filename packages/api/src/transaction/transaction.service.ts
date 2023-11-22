@@ -82,7 +82,8 @@ export class TransactionService {
       queryBuilder.leftJoin("transaction.batch", "batch");
       queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
       queryBuilder.where(filterOptions);
-      queryBuilder.orderBy("transaction.receivedAt", "DESC");
+      queryBuilder.orderBy("transaction.blockNumber", "DESC");
+      queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
       queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
       return await paginate<Transaction>(queryBuilder, paginationOptions);
     }

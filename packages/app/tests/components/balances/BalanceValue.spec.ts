@@ -1,6 +1,4 @@
-import { computed } from "vue";
-
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { mount } from "@vue/test-utils";
 
@@ -12,15 +10,10 @@ const token: Api.Response.Token = {
   symbol: "ETH",
   name: "Ether",
   decimals: 18,
+  liquidity: 220000000000,
+  usdPrice: 150,
+  iconURL: null,
 };
-vi.mock("@/composables/useTokenPrice", () => {
-  return {
-    default: () => ({
-      getTokenPrice: async () => undefined,
-      tokenPrice: computed(() => "150"),
-    }),
-  };
-});
 
 describe("BalanceValue:", () => {
   it("renders component based on input", async () => {

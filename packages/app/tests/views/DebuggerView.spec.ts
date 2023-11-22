@@ -76,7 +76,7 @@ describe("DebuggerView:", () => {
     useRoute: () => vi.fn(),
   }));
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "debugger")?.meta.title as string)).toBe("zkEVM Debugger");
+    expect(i18n.global.t(routes.find((e) => e.name === "debugger")?.meta?.title as string)).toBe("zkEVM Debugger");
   });
 
   it("renders empty state when trace is empty", () => {

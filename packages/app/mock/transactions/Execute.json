@@ -11,6 +11,7 @@
   "fee": "0x2279f530c00",
   "feeData": {
     "amountPaid": "0x2279f530c00",
+    "isPaidByPaymaster": false,
     "refunds": [],
     "amountRefunded": "0x00"
   },
@@ -33,7 +34,7 @@
         "symbol": "LINK",
         "name": "ChainLink Token (goerli)",
         "decimals": 18,
-        "usdPrice": "1"
+        "usdPrice": 1
       },
       "from": "0xcfa3DD0CBa60484d1C8D0cDd22C5432013368875",
       "to": "0xde03a0B5963f75f1C8485B355fF6D30f3093BDE7",
@@ -47,7 +48,7 @@
         "symbol": "LINK",
         "name": "ChainLink Token (goerli)",
         "decimals": 18,
-        "usdPrice": "1"
+        "usdPrice": 1
       },
       "from": "0xcfa3DD0CBa60484d1C8D0cDd22C5432013368875",
       "to": "0x6c557bc88804254760Be210c01fd9B6B5dE96e53",
@@ -62,7 +63,7 @@
       "symbol": "LINK",
       "name": "ChainLink Token (goerli)",
       "decimals": 18,
-      "usdPrice": "1"
+      "usdPrice": 1
     },
     "from": "0xcfa3DD0CBa60484d1C8D0cDd22C5432013368875",
     "to": "0x6c557bc88804254760Be210c01fd9B6B5dE96e53",
@@ -77,7 +78,7 @@
         "symbol": "ETH",
         "name": "Ether",
         "decimals": 18,
-        "usdPrice": "1"
+        "usdPrice": 1
       },
       "from": "0xcfa3DD0CBa60484d1C8D0cDd22C5432013368875",
       "to": "0xde03a0B5963f75f1C8485B355fF6D30f3093BDE7",
@@ -94,7 +95,7 @@
         "symbol": "LINK",
         "name": "ChainLink Token (goerli)",
         "decimals": 18,
-        "usdPrice": "1"
+        "usdPrice": 1
       },
       "from": "0xcfa3DD0CBa60484d1C8D0cDd22C5432013368875",
       "to": "0x6c557bc88804254760Be210c01fd9B6B5dE96e53",
@@ -113,7 +114,7 @@
         "symbol": "LINK",
         "name": "ChainLink Token (goerli)",
         "decimals": 18,
-        "usdPrice": "1"
+        "usdPrice": 1
       },
       "from": "0xcfa3DD0CBa60484d1C8D0cDd22C5432013368875",
       "to": "0x6c557bc88804254760Be210c01fd9B6B5dE96e53",

@@ -1,5 +1,12 @@
 import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiBadRequestResponse, ApiNotFoundResponse, ApiOkResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiExcludeController,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
@@ -12,10 +19,13 @@ import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
+import { swagger } from "../config/featureFlags";
+import { constants } from "../config/docs";
 
 const entityName = "transactions";
 
-@ApiTags(entityName)
+@ApiTags("Transaction BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class TransactionController {
   constructor(
@@ -54,7 +64,7 @@ export class TransactionController {
   @ApiParam({
     name: "transactionHash",
     schema: { pattern: TX_HASH_REGEX_PATTERN },
-    example: "0xd99bd0a1ed5de1c258637e40f3e4e1f461375f5ca4712339031a8dade8079e88",
+    example: constants.txHash,
     description: "Valid transaction hash",
   })
   @ApiOkResponse({ description: "Transaction was returned successfully", type: TransactionDto })
@@ -74,7 +84,7 @@ export class TransactionController {
   @ApiParam({
     name: "transactionHash",
     schema: { pattern: TX_HASH_REGEX_PATTERN },
-    example: "0xd99bd0a1ed5de1c258637e40f3e4e1f461375f5ca4712339031a8dade8079e88",
+    example: constants.txHash,
     description: "Valid transaction hash",
   })
   @ApiListPageOkResponse(TransferDto, { description: "Successfully returned transaction transfers list" })
@@ -103,7 +113,7 @@ export class TransactionController {
   @ApiParam({
     name: "transactionHash",
     schema: { pattern: TX_HASH_REGEX_PATTERN },
-    example: "0xd99bd0a1ed5de1c258637e40f3e4e1f461375f5ca4712339031a8dade8079e88",
+    example: constants.txHash,
     description: "Valid transaction hash",
   })
   @ApiListPageOkResponse(LogDto, { description: "Successfully returned transaction logs list" })
