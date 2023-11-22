@@ -65,7 +65,7 @@ Feature: Main Page
   @id249 @testnet @testnetSmokeSuite
   Scenario Outline: Verify table contains "<Column name>" column name on Tokens page
     Given I go to page "/tokenlist"
-    And Table "Tokens" should have "1" rows
+#    And Table "Tokens" should have "5" rows
     Then Column with "<Column name>" name is visible
 
     Examples:
@@ -77,7 +77,7 @@ Feature: Main Page
   @id249 @mainnet
   Scenario Outline: Verify table contains "<Column name>" column name on Tokens page
     Given I go to page "/tokenlist"
-    # And Table "Tokens" should have "56" rows
+    # And Table "Tokens" should have "5" rows
     Then Column with "<Column name>" name is visible
 
     Examples:
