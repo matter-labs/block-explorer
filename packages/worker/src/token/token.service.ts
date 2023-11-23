@@ -61,11 +61,13 @@ export class TokenService {
       l1Address?: string;
     };
 
-    const bridgeLog = transactionReceipt.logs?.find(
-      (log) =>
-        isLogOfType(log, [LogType.BridgeInitialization, LogType.BridgeInitialize]) &&
-        log.address.toLowerCase() === contractAddress.address.toLowerCase()
-    );
+    const bridgeLog =
+      transactionReceipt.to.toLowerCase() === this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge &&
+      transactionReceipt.logs?.find(
+        (log) =>
+          isLogOfType(log, [LogType.BridgeInitialization, LogType.BridgeInitialize]) &&
+          log.address.toLowerCase() === contractAddress.address.toLowerCase()
+      );
 
     if (bridgeLog) {
       const parsedLog = parseLog(CONTRACT_INTERFACES.L2_STANDARD_ERC20, bridgeLog);
