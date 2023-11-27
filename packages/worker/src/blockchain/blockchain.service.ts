@@ -121,6 +121,18 @@ export class BlockchainService implements OnModuleInit {
     }, "getDefaultBridgeAddresses");
   }
 
+  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<any> {
+    return await this.rpcCall(async () => {
+      return await this.provider.send("debug_traceTransaction", [
+        txHash,
+        {
+          tracer: "callTracer",
+          tracerConfig: { onlyTopCall },
+        },
+      ]);
+    }, "debugTraceTransaction");
+  }
+
   public async on(eventName: EventType, listener: Listener): Promise<void> {
     this.provider.on(eventName, listener);
   }
