@@ -61,7 +61,11 @@ jobs:
         run: docker ps
 
       - name: API tests run (parallel)
-        run: npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
+        run: |
+          cd packages/integration-tests
+          ls
+          pwd
+          npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
 
       - name: Stop containers
         if: always()
