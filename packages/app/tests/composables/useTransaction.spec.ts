@@ -234,9 +234,7 @@ vi.mock("ohmyfetch", async () => {
           },
         });
       }
-      if (url.endsWith(".bin")) {
-        return Promise.resolve({});
-      }
+
       if (url.includes("/0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf")) {
         const error = new mod.FetchError("Not found");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -602,7 +600,6 @@ describe("useTransaction:", () => {
         const { transaction, isRequestFailed, getByHash } = useTransaction({
           currentNetwork: {
             value: {
-              newProverUrl: "http://prover.url",
               apiUrl: "http://api.url",
             },
           },

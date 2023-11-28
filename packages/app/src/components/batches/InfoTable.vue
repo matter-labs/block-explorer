@@ -11,7 +11,6 @@ import { useI18n } from "vue-i18n";
 
 import { useWindowSize } from "@vueuse/core";
 
-import NewProverInfoBox from "@/components/NewProverInfoBox.vue";
 import InfoTableSection from "@/components/batches/InfoTableSection.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
@@ -88,11 +87,6 @@ const tableInfoItems = computed(() => {
           url: currentNetwork.value.l1ExplorerUrl
             ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.batch[key]}`
             : undefined,
-          ...(key === "proveTxHash" &&
-            props.batch.isProvenByNewProver && {
-              additionalContentComponent: NewProverInfoBox,
-              additionalContentProps: { context: "batch" },
-            }),
         },
         {
           label: t(`batches.${timeKey}`),
