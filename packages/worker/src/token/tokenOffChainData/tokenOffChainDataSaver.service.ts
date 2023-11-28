@@ -10,7 +10,6 @@ const UPDATE_TOKENS_BATCH_SIZE = 100;
 @Injectable()
 export class TokenOffChainDataSaverService extends Worker {
   private readonly updateTokenOffChainDataInterval: number;
-  private readonly tokenOffChainDataMinLiquidityFilter: number;
   private readonly logger: Logger;
 
   public constructor(
@@ -20,7 +19,6 @@ export class TokenOffChainDataSaverService extends Worker {
   ) {
     super();
     this.updateTokenOffChainDataInterval = configService.get<number>("tokens.updateTokenOffChainDataInterval");
-    this.tokenOffChainDataMinLiquidityFilter = configService.get<number>("tokens.tokenOffChainDataMinLiquidityFilter");
     this.logger = new Logger(TokenOffChainDataSaverService.name);
   }
 
@@ -38,12 +36,9 @@ export class TokenOffChainDataSaverService extends Worker {
       if (!nextUpdateTimeout) {
         const bridgedTokens = await this.tokenRepository.getBridgedTokens();
         if (bridgedTokens.length) {
-          const tokensInfo = await this.tokenOffChainDataProvider.getTokensOffChainData(
-            this.tokenOffChainDataMinLiquidityFilter
-          );
-          const tokensToUpdate = tokensInfo.filter((token) =>
-            bridgedTokens.find((t) => t.l1Address === token.l1Address)
-          );
+          const tokensToUpdate = await this.tokenOffChainDataProvider.getTokensOffChainData({
+            bridgedTokensToInclude: bridgedTokens.map((t) => t.l1Address),
+          });
           const updatedAt = new Date();
 
           let updateTokensTasks = [];
@@ -51,6 +46,7 @@ export class TokenOffChainDataSaverService extends Worker {
             updateTokensTasks.push(
               this.tokenRepository.updateTokenOffChainData({
                 l1Address: tokensToUpdate[i].l1Address,
+                l2Address: tokensToUpdate[i].l2Address,
                 liquidity: tokensToUpdate[i].liquidity,
                 usdPrice: tokensToUpdate[i].usdPrice,
                 updatedAt,

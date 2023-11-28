@@ -1,10 +1,11 @@
 export interface ITokenOffChainData {
-  l1Address: string;
-  liquidity: number;
-  usdPrice: number;
+  l1Address?: string;
+  l2Address?: string;
+  liquidity?: number;
+  usdPrice?: number;
   iconURL?: string;
 }
 
 export abstract class TokenOffChainDataProvider {
-  abstract getTokensOffChainData: (minLiquidity: number) => Promise<ITokenOffChainData[]>;
+  abstract getTokensOffChainData: (settings: { bridgedTokensToInclude: string[] }) => Promise<ITokenOffChainData[]>;
 }

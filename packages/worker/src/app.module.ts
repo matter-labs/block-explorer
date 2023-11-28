@@ -1,8 +1,8 @@
 import { Module, Logger } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
-import { HttpModule } from "@nestjs/axios";
+import { HttpModule, HttpService } from "@nestjs/axios";
 import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 import config from "./config";
 import { HealthModule } from "./health/health.module";
@@ -18,7 +18,8 @@ import { BalanceService, BalancesCleanerService } from "./balance";
 import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
 import { TokenOffChainDataProvider } from "./token/tokenOffChainData/tokenOffChainDataProvider.abstract";
-import { PortalsFiTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/portalsFiTokenOffChainDataProvider";
+import { CoingeckoTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/coingecko/coingeckoTokenOffChainDataProvider";
+import { PortalsFiTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/portalsFi/portalsFiTokenOffChainDataProvider";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import { CounterModule } from "./counter/counter.module";
 import {
@@ -100,7 +101,16 @@ import { UnitOfWorkModule } from "./unitOfWork";
     TokenService,
     {
       provide: TokenOffChainDataProvider,
-      useClass: PortalsFiTokenOffChainDataProvider,
+      useFactory: (configService: ConfigService, httpService: HttpService) => {
+        const selectedProvider = configService.get<string>("tokens.selectedTokenOffChainDataProvider");
+        switch (selectedProvider) {
+          case "portalsFi":
+            return new PortalsFiTokenOffChainDataProvider(httpService);
+          default:
+            return new CoingeckoTokenOffChainDataProvider(configService, httpService);
+        }
+      },
+      inject: [ConfigService, HttpService],
     },
     TokenOffChainDataSaverService,
     BatchRepository,
