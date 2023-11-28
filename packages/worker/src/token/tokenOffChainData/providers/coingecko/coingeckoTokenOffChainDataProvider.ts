@@ -104,7 +104,16 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     if (!list) {
       return [];
     }
-    return list.filter((item) => item.id === "ethereum" || item.platforms.zksync || item.platforms.ethereum);
+    return list
+      .filter((item) => item.id === "ethereum" || item.platforms.zksync || item.platforms.ethereum)
+      .map((item) => ({
+        ...item,
+        platforms: {
+          // use substring(0, 42) to fix some instances when after address there is some additional text
+          zksync: item.platforms.zksync?.substring(0, 42),
+          ethereum: item.platforms.ethereum?.substring(0, 42),
+        },
+      }));
   }
 
   private async makeApiRequestRetryable<T>({
