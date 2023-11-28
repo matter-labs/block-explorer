@@ -10,9 +10,9 @@ jobs:
       contents: read
       pull-requests: write
       checks: write
-    defaults:
-      run:
-        working-directory: ./packages/integration-tests
+#    defaults:
+#      run:
+#        working-directory: ./packages/integration-tests
     strategy:
       matrix:
         node-version: ['lts/*']
