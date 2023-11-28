@@ -12,7 +12,7 @@ jobs:
       checks: write
     strategy:
       matrix:
-        node-version: ['lts/*']
+        node-version: ['18'] # or lts/*
         test-pattern:
           - addresses.test.ts
           - batches.test.ts
