@@ -24,7 +24,7 @@ interface ITokenMarketDataProviderResponse {
 }
 
 class ProviderResponseError extends Error {
-  constructor(message: string, public readonly status: number, public readonly retryAfter?: number) {
+  constructor(message: string, public readonly status: number, public readonly rateLimitResetDate?: Date) {
     super(message);
   }
 }
@@ -134,9 +134,8 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
         return null;
       }
       if (err.status === 429) {
-        // retry after N seconds specified in response or 60 seconds by default
-        const retryAfterSec = parseInt(err.retryAfter, 10) || 60;
-        await setTimeout((retryAfterSec + 1) * 1000);
+        const rateLimitResetIn = err.rateLimitResetDate.getTime() - new Date().getTime();
+        await setTimeout(rateLimitResetIn >= 0 ? rateLimitResetIn + 1000 : 0);
         return this.makeApiRequestRetryable<T>({
           path,
           query,
@@ -174,25 +173,29 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     const { data } = await firstValueFrom<{ data: T }>(
       this.httpService.get(`${this.apiUrl}/${path}?${queryString}`).pipe(
         catchError((error: AxiosError) => {
-          if (error.status === 429) {
-            const retryAfter = error.response?.headers["Retry-After"];
+          if (error.response?.status === 429) {
+            const rateLimitReset = error.response?.headers["x-ratelimit-reset"];
+            // use specified reset date or 60 seconds by default
+            const rateLimitResetDate = rateLimitReset
+              ? new Date(rateLimitReset)
+              : new Date(new Date().getTime() + 60000);
             this.logger.debug({
-              message: `Reached coingecko rate limit, retry after ${retryAfter} sec`,
+              message: `Reached coingecko rate limit, reset at ${rateLimitResetDate}`,
               stack: error.stack,
-              status: error.status,
+              status: error.response?.status,
               response: error.response?.data,
               provider: CoingeckoTokenOffChainDataProvider.name,
             });
-            throw new ProviderResponseError(error.message, error.status, retryAfter);
+            throw new ProviderResponseError(error.message, error.response?.status, rateLimitResetDate);
           }
           this.logger.error({
             message: `Failed to fetch data at ${path} from coingecko`,
             stack: error.stack,
-            status: error.status,
+            status: error.response?.status,
             response: error.response?.data,
             provider: CoingeckoTokenOffChainDataProvider.name,
           });
-          throw new ProviderResponseError(error.message, error.status);
+          throw new ProviderResponseError(error.message, error.response?.status);
         })
       )
     );
