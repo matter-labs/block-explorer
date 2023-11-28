@@ -13,16 +13,40 @@ vi.mock("ohmyfetch", async () => {
   const mod = await vi.importActual<typeof import("ohmyfetch")>("ohmyfetch");
   return {
     ...mod,
-    $fetch: vi.fn().mockResolvedValue([
-      {
-        decimals: 18,
-        iconURL: "https://icon.url",
-        l1Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        name: "Ether",
-        symbol: "ETH",
-      } as Api.Response.Token,
-    ]),
+    $fetch: vi
+      .fn()
+      .mockResolvedValueOnce({
+        items: [
+          {
+            decimals: 18,
+            iconURL: "https://icon.url",
+            l1Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            name: "Ether",
+            symbol: "ETH",
+          } as Api.Response.Token,
+        ],
+        meta: {
+          totalPages: 2,
+          currentPage: 1,
+        },
+      })
+      .mockResolvedValueOnce({
+        items: [
+          {
+            decimals: 18,
+            iconURL: "https://icon2.url",
+            l1Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef",
+            l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeef",
+            name: "Ether2",
+            symbol: "ETH2",
+          } as Api.Response.Token,
+        ],
+        meta: {
+          totalPages: 2,
+          currentPage: 2,
+        },
+      }),
   };
 });
 
@@ -31,7 +55,9 @@ describe("useTokenLibrary:", () => {
     const { getTokens } = useTokenLibrary();
     await getTokens();
     await getTokens();
-    expect($fetch).toHaveBeenCalledTimes(1);
+    await getTokens();
+    await getTokens();
+    expect($fetch).toHaveBeenCalledTimes(2);
   });
   it("sets isRequestPending to true when request is pending", async () => {
     const { isRequestPending, getTokens } = useTokenLibrary();

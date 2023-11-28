@@ -45,6 +45,8 @@ describe("config", () => {
       tokens: {
         enableTokenOffChainDataSaver: false,
         updateTokenOffChainDataInterval: 86_400_000,
+        tokenOffChainDataProviders: ["coingecko", "portalsFi"],
+        selectedTokenOffChainDataProvider: "coingecko",
         coingecko: {
           isProPlan: false,
         },

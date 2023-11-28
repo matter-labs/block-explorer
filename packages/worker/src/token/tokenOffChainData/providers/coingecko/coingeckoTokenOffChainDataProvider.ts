@@ -171,10 +171,10 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     }).toString();
 
     const { data } = await firstValueFrom<{ data: T }>(
-      this.httpService.get(`${this.apiUrl}/${path}?${queryString}`).pipe(
+      this.httpService.get(`${this.apiUrl}${path}?${queryString}`).pipe(
         catchError((error: AxiosError) => {
           if (error.response?.status === 429) {
-            const rateLimitReset = error.response?.headers["x-ratelimit-reset"];
+            const rateLimitReset = error.response.headers["x-ratelimit-reset"];
             // use specified reset date or 60 seconds by default
             const rateLimitResetDate = rateLimitReset
               ? new Date(rateLimitReset)
@@ -182,11 +182,11 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
             this.logger.debug({
               message: `Reached coingecko rate limit, reset at ${rateLimitResetDate}`,
               stack: error.stack,
-              status: error.response?.status,
-              response: error.response?.data,
+              status: error.response.status,
+              response: error.response.data,
               provider: CoingeckoTokenOffChainDataProvider.name,
             });
-            throw new ProviderResponseError(error.message, error.response?.status, rateLimitResetDate);
+            throw new ProviderResponseError(error.message, error.response.status, rateLimitResetDate);
           }
           this.logger.error({
             message: `Failed to fetch data at ${path} from coingecko`,

@@ -35,34 +35,32 @@ export class TokenOffChainDataSaverService extends Worker {
 
       if (!nextUpdateTimeout) {
         const bridgedTokens = await this.tokenRepository.getBridgedTokens();
-        if (bridgedTokens.length) {
-          const tokensToUpdate = await this.tokenOffChainDataProvider.getTokensOffChainData({
-            bridgedTokensToInclude: bridgedTokens.map((t) => t.l1Address),
-          });
-          const updatedAt = new Date();
+        const tokensToUpdate = await this.tokenOffChainDataProvider.getTokensOffChainData({
+          bridgedTokensToInclude: bridgedTokens.map((t) => t.l1Address),
+        });
+        const updatedAt = new Date();
 
-          let updateTokensTasks = [];
-          for (let i = 0; i < tokensToUpdate.length; i++) {
-            updateTokensTasks.push(
-              this.tokenRepository.updateTokenOffChainData({
-                l1Address: tokensToUpdate[i].l1Address,
-                l2Address: tokensToUpdate[i].l2Address,
-                liquidity: tokensToUpdate[i].liquidity,
-                usdPrice: tokensToUpdate[i].usdPrice,
-                updatedAt,
-                iconURL: tokensToUpdate[i].iconURL,
-              })
-            );
-            if (updateTokensTasks.length === UPDATE_TOKENS_BATCH_SIZE || i === tokensToUpdate.length - 1) {
-              await Promise.all(updateTokensTasks);
-              updateTokensTasks = [];
-            }
+        let updateTokensTasks = [];
+        for (let i = 0; i < tokensToUpdate.length; i++) {
+          updateTokensTasks.push(
+            this.tokenRepository.updateTokenOffChainData({
+              l1Address: tokensToUpdate[i].l1Address,
+              l2Address: tokensToUpdate[i].l2Address,
+              liquidity: tokensToUpdate[i].liquidity,
+              usdPrice: tokensToUpdate[i].usdPrice,
+              updatedAt,
+              iconURL: tokensToUpdate[i].iconURL,
+            })
+          );
+          if (updateTokensTasks.length === UPDATE_TOKENS_BATCH_SIZE || i === tokensToUpdate.length - 1) {
+            await Promise.all(updateTokensTasks);
+            updateTokensTasks = [];
           }
-
-          this.logger.log("Updated tokens offchain data", {
-            totalTokensUpdated: tokensToUpdate.length,
-          });
         }
+
+        this.logger.log("Updated tokens offchain data", {
+          totalTokensUpdated: tokensToUpdate.length,
+        });
 
         nextUpdateTimeout = this.updateTokenOffChainDataInterval;
       }

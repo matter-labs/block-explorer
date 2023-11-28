@@ -71,9 +71,9 @@ export class TokenRepository extends BaseRepository<Token> {
   }: {
     l1Address?: string;
     l2Address?: string;
-    liquidity: number;
-    usdPrice: number;
-    updatedAt: Date;
+    liquidity?: number;
+    usdPrice?: number;
+    updatedAt?: Date;
     iconURL?: string;
   }): Promise<void> {
     if (!l1Address && !l2Address) {
