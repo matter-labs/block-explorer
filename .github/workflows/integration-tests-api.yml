@@ -55,7 +55,7 @@ jobs:
       - name: Start docker containers
         run: |
           ls
-          docker-compose -f "docker-compose-cli.yaml" up -d --build
+          docker-compose -f "docker-compose.yaml" up -d
 
       - name: List running containers
         run: docker ps
@@ -71,4 +71,4 @@ jobs:
         if: always()
         run: |
           ls
-          docker-compose -f "docker-compose-cli.yaml" down
+          docker-compose -f "docker-compose.yaml" down
