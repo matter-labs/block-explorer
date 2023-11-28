@@ -12,7 +12,6 @@
       "l2WalletUrl": "http://localhost:3000",
       "maintenance": false,
       "name": "local",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "http://localhost:3050"
     },
@@ -30,7 +29,6 @@
       "l2WalletUrl": "https://goerli.staging-portal.zksync.dev/",
       "maintenance": false,
       "name": "goerli",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://testnet.era.zksync.dev"
     },
@@ -46,7 +44,6 @@
       "l2WalletUrl": "https://staging-portal.zksync.dev/?network=era-boojnet",
       "maintenance": false,
       "name": "sepolia",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://sepolia.era.zksync.dev"
     },
@@ -63,7 +60,6 @@
       "l2WalletUrl": "https://goerli-beta.staging-portal.zksync.dev/",
       "maintenance": false,
       "name": "goerli-beta",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-stage-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://z2-dev-api.zksync.dev"
     },
@@ -81,7 +77,6 @@
       "l2WalletUrl": "https://staging-portal.zksync.dev/",
       "maintenance": false,
       "name": "mainnet",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-mainnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://mainnet.era.zksync.io"
     }

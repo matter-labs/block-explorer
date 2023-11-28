@@ -12,7 +12,6 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   l2WalletUrl: "https://goerli.portal.zksync.io/",
   maintenance: false,
   name: "goerli",
-  newProverUrl: "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
   published: true,
   rpcUrl: "https://testnet.era.zksync.dev",
 };

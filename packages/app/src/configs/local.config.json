@@ -12,7 +12,6 @@
       "l2WalletUrl": "http://localhost:3000",
       "maintenance": false,
       "name": "local",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "http://localhost:3050"
     }
