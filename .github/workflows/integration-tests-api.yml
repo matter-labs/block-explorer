@@ -10,9 +10,6 @@ jobs:
       contents: read
       pull-requests: write
       checks: write
-#    defaults:
-#      run:
-#        working-directory: ./packages/integration-tests
     strategy:
       matrix:
         node-version: ['lts/*']
@@ -42,10 +39,6 @@ jobs:
           npm ci --no-audit
           npx playwright install --with-deps chromium
 
-#      - name: Spin up the BE frontend
-#        run: |
-#          npm run --prefix repos/zksync-dapp-scan-v2 dev &
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -54,8 +47,7 @@ jobs:
 
       - name: Start docker containers
         run: |
-          ls
-          docker-compose -f "docker-compose.yaml" up -d
+          docker-compose -f "docker-compose.yaml" up -d --build
 
       - name: List running containers
         run: docker ps
@@ -63,12 +55,9 @@ jobs:
       - name: API tests run (parallel)
         run: |
           cd packages/integration-tests
-          ls
-          pwd
           npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
 
       - name: Stop containers
         if: always()
         run: |
-          ls
           docker-compose -f "docker-compose.yaml" down
