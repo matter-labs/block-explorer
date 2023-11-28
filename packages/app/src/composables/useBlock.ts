@@ -43,25 +43,12 @@ export default (context = useContext()) => {
   const isRequestFailed = ref(false);
   const blockItem = ref(<null | Block>null);
 
-  const getBatchNewProof = async (id: number) => {
-    try {
-      return await $fetch(`${context.currentNetwork.value.newProverUrl}/proof_${id}.bin`, { method: "HEAD" });
-    } catch (error: unknown) {
-      return null;
-    }
-  };
-
   const getById = async (id: string) => {
     isRequestPending.value = true;
     isRequestFailed.value = false;
 
     try {
-      const data = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
-      if (data.l1BatchNumber && data.proveTxHash) {
-        const proof = await getBatchNewProof(data.l1BatchNumber);
-        data.isProvenByNewProver = !!proof;
-      }
-      blockItem.value = data;
+      blockItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
     } catch (error: unknown) {
       blockItem.value = null;
       if (!(error instanceof FetchError) || error.response?.status !== 404) {

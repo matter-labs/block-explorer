@@ -92,8 +92,8 @@ Feature: Main Page
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher
 
   Examples:
-      | Value               | Dropdown |
-      | zkSync Era Testnet  | network  |
+      | Value                      | Dropdown |
+      | zkSync Era Goerli Testnet  | network  |
 
   Scenario: Network stats is displayed
     Then Element with "text" "Network Stats" should be "visible"
