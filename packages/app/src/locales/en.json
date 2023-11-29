@@ -1,6 +1,5 @@
 {
     "general": {
-        "checkHere": "Check here",
         "l2NetworkName": "zkSync Era",
         "l1NetworkName": "Ethereum"
     },
@@ -60,8 +59,7 @@
             "executedAtTooltip": "Time when block was executed",
             "notYetExecuted": "Not yet executed",
             "notFound": "Not Found",
-            "notFoundHomePage": "We haven't had any blocks yet. Please, check again later.",
-            "newProverInfo": "This block was also proved with our upcoming new prover, Boojum. Want to learn more and verify yourself?"
+            "notFoundHomePage": "We haven't had any blocks yet. Please, check again later."
         },
         "status": {
             "verified": "Verified",
@@ -164,8 +162,7 @@
                 "unableToLoadMore": "Unable to load more",
                 "tryAgain": "Try again ->"
             },
-            "unknown": "Unknown",
-            "newProverInfo": "This transaction was also proved with our upcoming new prover, Boojum. Want to learn more and verify yourself?"
+            "unknown": "Unknown"
         },
         "logs": {
             "name": "Name",
@@ -273,8 +270,7 @@
             "age": "Age",
             "notFound": "Not Found",
             "notFoundHomePage": "We haven't had any batches yet. Please, check again later.",
-            "transactionsShort": "txns",
-            "newProverInfo": "This batch was also proved with our upcoming new prover, Boojum. Want to learn more and verify yourself?"
+            "transactionsShort": "txns"
         },
         "tooltipInfo": "Latest batches submitted to Ethereum Network",
         "status": {

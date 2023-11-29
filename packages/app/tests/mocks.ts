@@ -47,7 +47,6 @@ export const GOERLI_NETWORK: NetworkConfig = {
   maintenance: false,
   published: true,
   hostnames: [],
-  newProverUrl: "",
 };
 export const GOERLI_BETA_NETWORK: NetworkConfig = {
   name: "goerli-beta",
@@ -62,7 +61,6 @@ export const GOERLI_BETA_NETWORK: NetworkConfig = {
   maintenance: false,
   published: true,
   hostnames: ["https://goerli-beta.staging-scan-v2.zksync.dev/"],
-  newProverUrl: "",
 };
 
 export const useContractEventsMock = (params: any = {}) => {
