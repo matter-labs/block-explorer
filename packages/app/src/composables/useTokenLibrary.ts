@@ -7,10 +7,20 @@ import useContext, { type Context } from "@/composables/useContext";
 
 const retrieveTokens = useMemoize(
   async (context: Context): Promise<Api.Response.Token[]> => {
-    const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
-      `${context.currentNetwork.value.apiUrl}/tokens?minLiquidity=0&limit=100`
-    );
-    return tokensResponse.items;
+    const tokens = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore) {
+      const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
+        `${context.currentNetwork.value.apiUrl}/tokens?minLiquidity=0&limit=100&page=${page}`
+      );
+      tokens.push(...tokensResponse.items);
+      page++;
+      hasMore = tokensResponse.meta.totalPages > tokensResponse.meta.currentPage;
+    }
+
+    return tokens;
   },
   {
     getKey(context: Context) {

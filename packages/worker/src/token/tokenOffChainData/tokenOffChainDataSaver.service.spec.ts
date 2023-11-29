@@ -20,9 +20,9 @@ jest.mock("../../utils/waitFor");
 
 describe("TokenOffChainDataSaverService", () => {
   const OFFCHAIN_DATA_UPDATE_INTERVAL = 86_400_000;
-  const MIN_LIQUIDITY_FILTER = 1000000;
   const tokenOffChainDataMock = {
-    l1Address: "address",
+    l1Address: "l1Address",
+    l2Address: "l2Address",
     liquidity: 100000,
     usdPrice: 12.6789,
     iconURL: "http://icon.com",
@@ -46,11 +46,7 @@ describe("TokenOffChainDataSaverService", () => {
       tokenRepositoryMock,
       tokenOffChainDataProviderMock,
       mock<ConfigService>({
-        get: jest
-          .fn()
-          .mockImplementation((key) =>
-            key === "tokens.updateTokenOffChainDataInterval" ? OFFCHAIN_DATA_UPDATE_INTERVAL : MIN_LIQUIDITY_FILTER
-          ),
+        get: jest.fn().mockReturnValue(OFFCHAIN_DATA_UPDATE_INTERVAL),
       })
     );
   });
@@ -91,31 +87,21 @@ describe("TokenOffChainDataSaverService", () => {
       expect(tokenOffChainDataProviderMock.getTokensOffChainData).not.toBeCalled();
     });
 
-    it("does not update offchain data when there are no bridged token atm and waits for the next update", async () => {
-      tokenOffChainDataSaverService.start();
-      await tokenOffChainDataSaverService.stop();
-
-      const [conditionPredicate, waitTime] = (waitFor as jest.Mock).mock.calls[0];
-      expect(tokenRepositoryMock.getOffChainDataLastUpdatedAt).toBeCalledTimes(1);
-      expect(waitFor).toBeCalledTimes(1);
-      expect(conditionPredicate()).toBeTruthy();
-      expect(waitTime).toBe(OFFCHAIN_DATA_UPDATE_INTERVAL);
-      expect(tokenRepositoryMock.getBridgedTokens).toBeCalledTimes(1);
-      expect(tokenOffChainDataProviderMock.getTokensOffChainData).not.toBeCalled();
-    });
-
-    it("updates offchain data when data is too old and there are bridged tokens to update", async () => {
+    it("updates offchain data when data is too old", async () => {
       const lastUpdatedAt = new Date("2022-01-01T01:00:00.000Z");
       jest.spyOn(tokenRepositoryMock, "getOffChainDataLastUpdatedAt").mockResolvedValueOnce(lastUpdatedAt);
-      jest.spyOn(tokenRepositoryMock, "getBridgedTokens").mockResolvedValueOnce([{ l1Address: "address" } as Token]);
+      jest.spyOn(tokenRepositoryMock, "getBridgedTokens").mockResolvedValueOnce([{ l1Address: "l1Address" } as Token]);
 
       tokenOffChainDataSaverService.start();
       await tokenOffChainDataSaverService.stop();
 
-      expect(tokenOffChainDataProviderMock.getTokensOffChainData).toBeCalledWith(MIN_LIQUIDITY_FILTER);
+      expect(tokenOffChainDataProviderMock.getTokensOffChainData).toBeCalledWith({
+        bridgedTokensToInclude: ["l1Address"],
+      });
       expect(tokenRepositoryMock.updateTokenOffChainData).toHaveBeenCalledTimes(1);
       expect(tokenRepositoryMock.updateTokenOffChainData).toHaveBeenCalledWith({
-        l1Address: "address",
+        l1Address: "l1Address",
+        l2Address: "l2Address",
         liquidity: 100000,
         usdPrice: 12.6789,
         updatedAt: new Date(),
@@ -123,16 +109,19 @@ describe("TokenOffChainDataSaverService", () => {
       });
     });
 
-    it("updates offchain data when data was never updated and there are bridged tokens to update", async () => {
-      jest.spyOn(tokenRepositoryMock, "getBridgedTokens").mockResolvedValueOnce([{ l1Address: "address" } as Token]);
+    it("updates offchain data when data was never updated", async () => {
+      jest.spyOn(tokenRepositoryMock, "getBridgedTokens").mockResolvedValueOnce([{ l1Address: "l1Address" } as Token]);
 
       tokenOffChainDataSaverService.start();
       await tokenOffChainDataSaverService.stop();
 
-      expect(tokenOffChainDataProviderMock.getTokensOffChainData).toBeCalledWith(MIN_LIQUIDITY_FILTER);
+      expect(tokenOffChainDataProviderMock.getTokensOffChainData).toBeCalledWith({
+        bridgedTokensToInclude: ["l1Address"],
+      });
       expect(tokenRepositoryMock.updateTokenOffChainData).toHaveBeenCalledTimes(1);
       expect(tokenRepositoryMock.updateTokenOffChainData).toHaveBeenCalledWith({
-        l1Address: "address",
+        l1Address: "l1Address",
+        l2Address: "l2Address",
         liquidity: 100000,
         usdPrice: 12.6789,
         updatedAt: new Date(),
@@ -141,7 +130,7 @@ describe("TokenOffChainDataSaverService", () => {
     });
 
     it("waits for specified timeout or worker stoppage after offchain data update", async () => {
-      jest.spyOn(tokenRepositoryMock, "getBridgedTokens").mockResolvedValueOnce([{ l1Address: "address" } as Token]);
+      jest.spyOn(tokenRepositoryMock, "getBridgedTokens").mockResolvedValueOnce([{ l1Address: "l1Address" } as Token]);
 
       tokenOffChainDataSaverService.start();
       await tokenOffChainDataSaverService.stop();

@@ -325,6 +325,7 @@
     "tokenListView": {
         "title": "Список Токенів",
         "heading": "Токени",
+        "offChainDataPoweredBy": "Off-chain дані взяті з",
         "table": {
             "tokenName": "Назва Токена",
             "price": "Ціна",
