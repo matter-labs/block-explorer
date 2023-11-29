@@ -7,10 +7,10 @@ import { setTimeout } from "timers/promises";
 import * as rxjs from "rxjs";
 import { PortalsFiTokenOffChainDataProvider } from "./portalsFiTokenOffChainDataProvider";
 
-const MIN_TOKENS_LIQUIDITY_FILTER = 0;
 const TOKENS_INFO_API_URL = "https://api.portals.fi/v2/tokens";
 const TOKENS_INFO_API_QUERY = `networks=ethereum&limit=250&sortBy=liquidity&sortDirection=desc`;
 
+const bridgedTokens = ["address1", "address2", "address3"];
 const providerTokensResponse = [
   {
     address: "address1",
@@ -28,6 +28,11 @@ const providerTokensResponse = [
     address: "address3",
     liquidity: 3000000,
     price: 10.7678787,
+  },
+  {
+    address: "unknown-token-address",
+    liquidity: 0,
+    price: 0,
   },
 ];
 
@@ -77,7 +82,13 @@ describe("PortalsFiTokenOffChainDataProvider", () => {
         } as AxiosError);
       });
 
-      const tokens = await provider.getTokensOffChainData(MIN_TOKENS_LIQUIDITY_FILTER);
+      const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
+      expect(tokens).toEqual([]);
+    });
+
+    it("returns empty array when no bridgedTokensToInclude provided", async () => {
+      const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: [] });
+      expect(httpServiceMock.get).not.toBeCalled();
       expect(tokens).toEqual([]);
     });
 
@@ -92,7 +103,7 @@ describe("PortalsFiTokenOffChainDataProvider", () => {
         } as AxiosError);
       });
 
-      await provider.getTokensOffChainData(MIN_TOKENS_LIQUIDITY_FILTER);
+      await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
       expect(httpServiceMock.get).toBeCalledTimes(6);
       expect(setTimeout).toBeCalledTimes(5);
     });
@@ -120,7 +131,7 @@ describe("PortalsFiTokenOffChainDataProvider", () => {
           })
         );
 
-      const tokens = await provider.getTokensOffChainData(MIN_TOKENS_LIQUIDITY_FILTER);
+      const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
       expect(httpServiceMock.get).toBeCalledTimes(2);
       expect(httpServiceMock.get).toBeCalledWith(`${TOKENS_INFO_API_URL}?${TOKENS_INFO_API_QUERY}&page=0`);
       expect(httpServiceMock.get).toBeCalledWith(`${TOKENS_INFO_API_URL}?${TOKENS_INFO_API_QUERY}&page=1`);
@@ -138,25 +149,6 @@ describe("PortalsFiTokenOffChainDataProvider", () => {
           iconURL: "http://image2.com",
         },
       ]);
-    });
-
-    it("includes minLiquidity filter when provided minLiquidity filter > 0", async () => {
-      pipeMock.mockReturnValueOnce(
-        new rxjs.Observable((subscriber) => {
-          subscriber.next({
-            data: {
-              more: false,
-              tokens: [providerTokensResponse[0]],
-            },
-          });
-        })
-      );
-
-      await provider.getTokensOffChainData(1000000);
-      expect(httpServiceMock.get).toBeCalledTimes(1);
-      expect(httpServiceMock.get).toBeCalledWith(
-        `${TOKENS_INFO_API_URL}?${TOKENS_INFO_API_QUERY}&page=0&minLiquidity=1000000`
-      );
     });
 
     it("retries when provider API call fails", async () => {
@@ -181,7 +173,7 @@ describe("PortalsFiTokenOffChainDataProvider", () => {
           })
         );
 
-      const tokens = await provider.getTokensOffChainData(MIN_TOKENS_LIQUIDITY_FILTER);
+      const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
       expect(httpServiceMock.get).toBeCalledTimes(2);
       expect(httpServiceMock.get).toBeCalledWith(`${TOKENS_INFO_API_URL}?${TOKENS_INFO_API_QUERY}&page=0`);
       expect(httpServiceMock.get).toBeCalledWith(`${TOKENS_INFO_API_URL}?${TOKENS_INFO_API_QUERY}&page=0`);

@@ -6,6 +6,7 @@ interface IPaginationFilterOptions {
   blockNumber?: number;
   address?: string;
   l1BatchNumber?: number;
+  minLiquidity?: number;
 }
 
 export interface IPaginationOptions<CustomMetaType = IPaginationMeta> extends NestIPaginationOptions<CustomMetaType> {

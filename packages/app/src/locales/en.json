@@ -583,6 +583,7 @@
     "tokenListView": {
         "title": "Token List",
         "heading": "Tokens",
+        "offChainDataPoweredBy": "Off-chain data powered by",
         "table": {
             "tokenName": "Token Name",
             "price": "Price",

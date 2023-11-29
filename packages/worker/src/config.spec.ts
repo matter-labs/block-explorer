@@ -45,7 +45,11 @@ describe("config", () => {
       tokens: {
         enableTokenOffChainDataSaver: false,
         updateTokenOffChainDataInterval: 86_400_000,
-        tokenOffChainDataMinLiquidityFilter: 0,
+        tokenOffChainDataProviders: ["coingecko", "portalsFi"],
+        selectedTokenOffChainDataProvider: "coingecko",
+        coingecko: {
+          isProPlan: false,
+        },
       },
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,

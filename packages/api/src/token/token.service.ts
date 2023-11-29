@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, FindOptionsSelect, MoreThanOrEqual } from "typeorm";
-import { Pagination, IPaginationOptions } from "nestjs-typeorm-paginate";
+import { Pagination } from "nestjs-typeorm-paginate";
+import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Token, ETH_TOKEN } from "./token.entity";
 

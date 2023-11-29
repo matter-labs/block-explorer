@@ -4,7 +4,13 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <h1>{{ t("tokenListView.heading") }}</h1>
+    <div class="tokens-header">
+      <h1>{{ t("tokenListView.heading") }}</h1>
+      <div v-if="tokens[0]?.iconURL" class="coingecko-attribution">
+        <span>{{ t("tokenListView.offChainDataPoweredBy") }}{{ " " }}</span>
+        <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
+      </div>
+    </div>
     <div class="tokens-container">
       <span v-if="isTokensFailed" class="error-message">
         {{ t("failedRequest") }}
@@ -50,5 +56,17 @@ getTokens();
 }
 .tokens-container {
   @apply mt-8;
+}
+
+.tokens-header {
+  @apply flex justify-between items-end gap-4;
+
+  .coingecko-attribution {
+    @apply mr-1 text-gray-300;
+
+    a {
+      @apply text-blue-100;
+    }
+  }
 }
 </style>
