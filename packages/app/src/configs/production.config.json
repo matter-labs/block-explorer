@@ -31,7 +31,7 @@
       "l2WalletUrl": "https://portal.zksync.io/",
       "maintenance": false,
       "name": "sepolia",
-      "published": true,
+      "published": false,
       "rpcUrl": "https://sepolia.era.zksync.dev"
     },
     {
