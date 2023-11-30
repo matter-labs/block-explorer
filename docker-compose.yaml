@@ -9,8 +9,7 @@ services:
     ports:
       - '3010:3010'
     volumes:
-      - ./packages/app:/usr/src/app/packages/app
-      - /usr/src/app/packages/app/node_modules
+      - ./packages/app/src:/usr/src/app/packages/app/src
     depends_on:
       - api
     restart: unless-stopped
@@ -30,14 +29,13 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
       - BLOCKCHAIN_RPC_URL=http://zksync:3050
-      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
+      - BATCHES_PROCESSING_POLLING_INTERVAL=60000
     ports:
       - '3001:3001'
       - '9229:9229'
       - '9230:9230'
     volumes:
-      - ./packages/worker:/usr/src/app/packages/worker
-      - /usr/src/app/packages/worker/node_modules
+      - ./packages/worker/src:/usr/src/app/packages/worker/src
     depends_on:
       zksync:
         condition: service_healthy
@@ -61,8 +59,7 @@ services:
       - '9231:9229'
       - '9232:9230'
     volumes:
-      - ./packages/api:/usr/src/app/packages/api
-      - /usr/src/app/packages/api/node_modules
+      - ./packages/api/src:/usr/src/app/packages/api/src
     depends_on:
       - worker
     restart: unless-stopped
