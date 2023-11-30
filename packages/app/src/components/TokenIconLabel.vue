@@ -8,6 +8,7 @@
         <span class="unknown-token-symbol" v-else>{{ t("balances.table.unknownSymbol") }}</span>
       </span>
       <div class="token-icon-container" :class="iconSize">
+        <span v-if="!iconUrl && symbol" class="token-icon-symbol caption">{{ symbol[0].toUpperCase() }}</span>
         <div class="token-img-loader"></div>
         <img
           class="token-img"
@@ -79,14 +80,18 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
   @apply flex items-center gap-x-2 text-sm;
 
   .token-link {
-    @apply flex items-center gap-x-1;
+    @apply flex items-center gap-x-1 no-underline;
+
+    .token-symbol {
+      @apply underline;
+    }
 
     .unknown-token-symbol {
       @apply italic;
     }
 
     .token-icon-container {
-      @apply relative overflow-hidden rounded-full;
+      @apply relative flex items-center justify-center overflow-hidden rounded-full;
       &.sm {
         @apply h-4 w-4;
       }
@@ -112,6 +117,9 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
         &.loaded {
           @apply opacity-100;
         }
+      }
+      .token-icon-symbol {
+        @apply z-10 text-[0.65rem];
       }
     }
   }
