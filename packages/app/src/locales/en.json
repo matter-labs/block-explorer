@@ -73,12 +73,8 @@
         "transactionTable": {
             "title": "Block Transactions",
             "showMore": "Show more transactions ->",
-            "notFound": {
-                "title": "This Block doesn't have any transactions",
-                "subtitle": "We always have a zero block at the end of the batch. Want to know why?",
-                "urlTitle": "Visit our docs page",
-                "url": "https://docs-v2-zksync.web.app/dev/developer-guides/transactions/blocks.html#blocks-in-zksync-2-0"
-            }
+            "noTransactions": "This Block doesn't have any transactions",
+            "blockNotFound": "This Block has not been created or sealed yet"
         }
     },
     "transfers": {
@@ -258,10 +254,8 @@
         "transactionTable": {
             "title": "Batch Transactions",
             "error": "Something went wrong",
-            "notFound": {
-                "title": "This Batch doesn't have any transactions",
-                "subtitle": "We can't find transactions for this batch \n We'll fix it in a moment; please refresh the page"
-            }
+            "noTransactions": "This Batch doesn't have any transactions",
+            "batchNotFound": "This Batch has not been created or sealed yet"
         },
         "table": {
             "status": "Status",
@@ -409,7 +403,7 @@
     },
     "contractVerification": {
         "title": "Smart Contract Verification",
-        "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, zkScan will match the compiled code with that on the blockchain.",
+        "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Era Explorer will match the compiled code with that on the blockchain.",
         "resources": {
             "title": "You can also verify your smart-contract using {hardhat}",
             "links": {
