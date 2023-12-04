@@ -8,6 +8,7 @@ import { SortingOrder } from "../common/types";
 import { CounterService } from "../counter/counter.service";
 import { TransactionService, FilterTransactionsOptions } from "./transaction.service";
 import { Transaction } from "./entities/transaction.entity";
+import { TransactionDetail } from "./entities/transactionDetail.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 
@@ -17,6 +18,7 @@ describe("TransactionService", () => {
   let transaction;
   let service: TransactionService;
   let repositoryMock: typeorm.Repository<Transaction>;
+  let repositoryDetailMock: typeorm.Repository<TransactionDetail>;
   let addressTransactionRepositoryMock: typeorm.Repository<AddressTransaction>;
   let batchRepositoryMock: typeorm.Repository<Batch>;
   let counterServiceMock: CounterService;
@@ -25,6 +27,7 @@ describe("TransactionService", () => {
   beforeEach(async () => {
     counterServiceMock = mock<CounterService>();
     repositoryMock = mock<typeorm.Repository<Transaction>>();
+    repositoryDetailMock = mock<typeorm.Repository<TransactionDetail>>();
     addressTransactionRepositoryMock = mock<typeorm.Repository<AddressTransaction>>();
     batchRepositoryMock = mock<typeorm.Repository<Batch>>();
     transaction = {
@@ -37,6 +40,10 @@ describe("TransactionService", () => {
         {
           provide: getRepositoryToken(Transaction),
           useValue: repositoryMock,
+        },
+        {
+          provide: getRepositoryToken(TransactionDetail),
+          useValue: repositoryDetailMock,
         },
         {
           provide: getRepositoryToken(AddressTransaction),
@@ -61,21 +68,45 @@ describe("TransactionService", () => {
   });
 
   describe("findOne", () => {
+    let queryBuilderMock;
+    const hash = "txHash";
+
     beforeEach(() => {
-      (repositoryMock.findOne as jest.Mock).mockResolvedValue(transaction);
+      queryBuilderMock = mock<typeorm.SelectQueryBuilder<Transaction>>();
+      (repositoryDetailMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
+      (queryBuilderMock.getOne as jest.Mock).mockResolvedValue(null);
     });
 
-    it("queries transactions by specified transaction hash", async () => {
-      await service.findOne(transactionHash);
-      expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
-      expect(repositoryMock.findOne).toHaveBeenCalledWith({
-        where: { hash: transactionHash },
-        relations: { batch: true },
-      });
+    it("creates query builder with proper params", async () => {
+      await service.findOne(hash);
+      expect(repositoryDetailMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
     });
 
-    it("returns transaction by hash", async () => {
-      const result = await service.findOne(transactionHash);
+    it("filters transactions by the specified hash", async () => {
+      await service.findOne(hash);
+      expect(queryBuilderMock.where).toHaveBeenCalledWith({ hash });
+    });
+
+    it("joins batch record to get batch specific fields", async () => {
+      await service.findOne(hash);
+      expect(queryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith("transaction.batch", "batch");
+    });
+
+    it("joins transactionReceipt record to get transactionReceipt specific fields", async () => {
+      await service.findOne(hash);
+      expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
+    });
+
+    it("selects only needed transactionReceipt fields", async () => {
+      await service.findOne(hash);
+      expect(queryBuilderMock.addSelect).toHaveBeenCalledWith(["transactionReceipt.gasUsed"]);
+    });
+
+    it("returns paginated result", async () => {
+      const transaction = mock<Transaction>();
+      (queryBuilderMock.getOne as jest.Mock).mockResolvedValue(transaction);
+
+      const result = await service.findOne(hash);
       expect(result).toBe(transaction);
     });
   });

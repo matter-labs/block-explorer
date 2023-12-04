@@ -9,6 +9,7 @@ import { configureApp } from "../src/configureApp";
 import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetail } from "../src/block/blockDetail.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
+import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { ETH_TOKEN } from "../src/token/token.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
@@ -20,6 +21,7 @@ describe("TransactionController (e2e)", () => {
   let tokenRepository: Repository<Token>;
   let blockRepository: Repository<BlockDetail>;
   let transactionRepository: Repository<Transaction>;
+  let transactionReceiptRepository: Repository<TransactionReceipt>;
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transferRepository: Repository<Transfer>;
   let logRepository: Repository<Log>;
@@ -39,6 +41,7 @@ describe("TransactionController (e2e)", () => {
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
+    transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
@@ -143,6 +146,14 @@ describe("TransactionController (e2e)", () => {
           transactionIndex: transactionSpec.transactionIndex,
         });
       }
+
+      await transactionReceiptRepository.insert({
+        transactionHash: transactionSpec.hash,
+        from: transactionSpec.from,
+        status: 1,
+        gasUsed: (7000 + i).toString(),
+        cumulativeGasUsed: (10000 + i).toString(),
+      });
     }
 
     for (let i = 0; i < 20; i++) {
@@ -214,6 +225,7 @@ describe("TransactionController (e2e)", () => {
     await tokenRepository.delete({});
     await addressTransactionRepository.delete({});
     await transactionRepository.delete({});
+    await transactionReceiptRepository.delete({});
     await blockRepository.delete({});
     await batchRepository.delete({});
 
@@ -868,6 +880,7 @@ describe("TransactionController (e2e)", () => {
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2008",
             gasPrice: "1008",
+            gasUsed: "7008",
             gasPerPubdata: "5008",
             maxFeePerGas: "3008",
             maxPriorityFeePerGas: "4008",
@@ -902,6 +915,7 @@ describe("TransactionController (e2e)", () => {
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2005",
             gasPrice: "1005",
+            gasUsed: "7005",
             gasPerPubdata: "5005",
             maxFeePerGas: "3005",
             maxPriorityFeePerGas: "4005",
@@ -936,6 +950,7 @@ describe("TransactionController (e2e)", () => {
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2003",
             gasPrice: "1003",
+            gasUsed: "7003",
             gasPerPubdata: "5003",
             maxFeePerGas: "3003",
             maxPriorityFeePerGas: "4003",
@@ -970,6 +985,7 @@ describe("TransactionController (e2e)", () => {
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2000",
             gasPrice: "1000",
+            gasUsed: "7000",
             gasPerPubdata: "5000",
             maxFeePerGas: "3000",
             maxPriorityFeePerGas: "4000",
@@ -1004,6 +1020,7 @@ describe("TransactionController (e2e)", () => {
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2009",
             gasPrice: "1009",
+            gasUsed: "7009",
             gasPerPubdata: "5009",
             maxFeePerGas: "3009",
             maxPriorityFeePerGas: "4009",
@@ -1038,6 +1055,7 @@ describe("TransactionController (e2e)", () => {
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2000",
             gasPrice: "1000",
+            gasUsed: "7000",
             gasPerPubdata: "5000",
             maxFeePerGas: "3000",
             maxPriorityFeePerGas: "4000",
