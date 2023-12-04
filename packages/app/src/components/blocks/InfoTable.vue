@@ -32,6 +32,10 @@ const props = defineProps({
     type: Object as PropType<Block | null>,
     default: null,
   },
+  blockNumber: {
+    type: String,
+    required: true,
+  },
   loading: {
     type: Boolean,
     default: true,
@@ -52,11 +56,13 @@ const tableInfoItems = computed(() => {
       disabledTooltip?: string;
     };
   };
-  if (!props.block) {
-    return [];
-  }
   let tableItems: InfoTableItem[] = [
-    { label: t("blocks.table.blockNumber"), tooltip: t("blocks.table.blockNumberTooltip"), value: props.block.number },
+    { label: t("blocks.table.blockNumber"), tooltip: t("blocks.table.blockNumberTooltip"), value: props.blockNumber },
+  ];
+  if (!props.block) {
+    return [tableItems];
+  }
+  tableItems.push(
     {
       label: t("blocks.table.blockSize"),
       tooltip: t("blocks.table.blockSizeTooltip"),
@@ -95,8 +101,8 @@ const tableInfoItems = computed(() => {
       tooltip: t("blocks.table.timestampTooltip"),
       value: { value: props.block.timestamp },
       component: TimeField,
-    },
-  ];
+    }
+  );
   for (const [key, timeKey] of [
     ["commitTxHash", "committedAt", "notYetCommitted"],
     ["proveTxHash", "provenAt", "notYetProven"],
@@ -135,6 +141,7 @@ const tableInfoItems = computed(() => {
 .two-section-view {
   @apply grid gap-4 pb-1.5 lg:grid-cols-2;
 }
+
 .hide-mobile {
   @apply hidden lg:block;
 }

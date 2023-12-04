@@ -1,14 +1,10 @@
 <template>
   <div class="transactions-empty-state">
-    <EmptyState>
+    <EmptyState class="empty-state">
       <template #title>
-        {{ t("batches.transactionTable.notFound.title") }}
+        {{ batchExists ? t("batches.transactionTable.noTransactions") : t("batches.transactionTable.batchNotFound") }}
       </template>
-      <template #description>
-        <div class="transactions-empty-description">
-          {{ t("batches.transactionTable.notFound.subtitle") }}
-        </div>
-      </template>
+      <template #description><span></span></template>
     </EmptyState>
   </div>
 </template>
@@ -19,16 +15,17 @@ import { useI18n } from "vue-i18n";
 import EmptyState from "@/components/common/EmptyState.vue";
 
 const { t } = useI18n();
+
+defineProps({
+  batchExists: {
+    type: Boolean,
+    required: true,
+  },
+});
 </script>
 
 <style scoped lang="scss">
-.transactions-empty-state {
-  @apply flex py-8 lg:justify-center;
-  .transactions-empty-description {
-    @apply max-w-[24rem] whitespace-pre-line;
-    a {
-      @apply text-neutral-400;
-    }
-  }
+.empty-state {
+  @apply items-center justify-center whitespace-normal py-10;
 }
 </style>

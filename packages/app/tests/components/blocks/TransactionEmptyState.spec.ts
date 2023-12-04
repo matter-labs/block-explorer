@@ -4,7 +4,7 @@ import { describe, it } from "vitest";
 
 import { render } from "@testing-library/vue";
 
-import TransactionEmptyState from "@/components/batches/TransactionEmptyState.vue";
+import TransactionEmptyState from "@/components/blocks/TransactionEmptyState.vue";
 
 import enUS from "@/locales/en.json";
 
@@ -16,26 +16,26 @@ describe("TransactionEmptyState", () => {
       en: enUS,
     },
   });
-  it("renders component properly for existing batch", async () => {
+  it("renders component properly for existing block", async () => {
     const { getByText } = render(TransactionEmptyState, {
       global: {
         plugins: [i18n],
       },
       props: {
-        batchExists: true,
+        blockExists: true,
       },
     });
-    getByText("This Batch doesn't have any transactions");
+    getByText("This Block doesn't have any transactions");
   });
-  it("renders component properly for nonexisting batch", async () => {
+  it("renders component properly for nonexisting block", async () => {
     const { getByText } = render(TransactionEmptyState, {
       global: {
         plugins: [i18n],
       },
       props: {
-        batchExists: false,
+        blockExists: false,
       },
     });
-    getByText("This Batch has not been created or sealed yet");
+    getByText("This Block has not been created or sealed yet");
   });
 });
