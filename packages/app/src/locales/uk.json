@@ -323,8 +323,8 @@
         "title": "Транзакції"
     },
     "tokenListView": {
-        "title": "Список Токенів",
-        "heading": "Токени",
+        "title": "Top токени",
+        "heading": "Top токени",
         "offChainDataPoweredBy": "Off-chain дані взяті з",
         "table": {
             "tokenName": "Назва Токена",

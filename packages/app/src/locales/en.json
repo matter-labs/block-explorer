@@ -575,8 +575,8 @@
         "title": "Transactions"
     },
     "tokenListView": {
-        "title": "Token List",
-        "heading": "Tokens",
+        "title": "Top tokens",
+        "heading": "Top tokens",
         "offChainDataPoweredBy": "Off-chain data powered by",
         "table": {
             "tokenName": "Token Name",
