@@ -60,6 +60,7 @@ describe("InfoTable:", () => {
       },
       props: {
         batch: batchItem,
+        batchNumber: batchItem.number.toString(),
         loading: false,
       },
     });
@@ -118,6 +119,33 @@ describe("InfoTable:", () => {
 
     wrapper.unmount();
   });
+
+  describe("when batch is not set", () => {
+    it("renders only batch number", () => {
+      const wrapper = mount(InfoTable, {
+        global: {
+          stubs: {
+            InfoTooltip: { template: "<div><slot /></div>" },
+          },
+          plugins: [i18n],
+        },
+        props: {
+          batchNumber: batchItem.number.toString(),
+          loading: false,
+        },
+      });
+
+      const rowArray = wrapper.findAll("tr");
+      expect(rowArray.length).toBe(1);
+
+      const batchIndex = rowArray[0].findAll("td");
+      expect(batchIndex[0].find(".batch-info-field-label").text()).toBe(i18n.global.t("batches.index"));
+      expect(batchIndex[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("batches.indexTooltip"));
+      expect(batchIndex[1].text()).toBe("42");
+      wrapper.unmount();
+    });
+  });
+
   it("renders loading state", () => {
     const wrapper = mount(InfoTable, {
       global: {
@@ -125,6 +153,7 @@ describe("InfoTable:", () => {
       },
       props: {
         loading: true,
+        batchNumber: batchItem.number.toString(),
       },
     });
     expect(wrapper.findAll(".content-loader").length).toBe(20);
@@ -141,6 +170,7 @@ describe("InfoTable:", () => {
       props: {
         batch: batchItem,
         loading: false,
+        batchNumber: batchItem.number.toString(),
       },
     });
 
@@ -175,6 +205,7 @@ describe("InfoTable:", () => {
         },
         props: {
           batch: batchItem,
+          batchNumber: batchItem.number.toString(),
           loading: false,
         },
       });

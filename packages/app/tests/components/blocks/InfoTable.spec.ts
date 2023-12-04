@@ -59,6 +59,7 @@ describe("InfoTable:", () => {
           executeTxHash: "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364",
           executedAt: "2022-04-13T16:54:37.784185Z",
         },
+        blockNumber: "1",
         loading: false,
       },
     });
@@ -113,6 +114,33 @@ describe("InfoTable:", () => {
     expect(executed[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.executedAtTooltip"));
     expect(executed[1].text()).includes(localDateFromISOString("2022-04-13T16:54:37.784185Z"));
   });
+  describe("when block is not set", () => {
+    it("renders only block number", () => {
+      const wrapper = mount(InfoTable, {
+        global: {
+          stubs: {
+            RouterLink: RouterLinkStub,
+            InfoTooltip: { template: "<div><slot /></div>" },
+          },
+          plugins: [i18n],
+        },
+        props: {
+          blockNumber: "1",
+          loading: false,
+        },
+      });
+
+      const rowArray = wrapper.findAll("tr");
+      expect(rowArray.length).toBe(1);
+
+      const blockNumber = rowArray[0].findAll("td");
+      expect(blockNumber[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.blockNumber"));
+      expect(blockNumber[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.blockNumberTooltip"));
+      expect(blockNumber[1].text()).toBe("1");
+
+      wrapper.unmount();
+    });
+  });
   it("renders loading state", () => {
     const wrapper = mount(InfoTable, {
       global: {
@@ -123,6 +151,7 @@ describe("InfoTable:", () => {
       },
       props: {
         loading: true,
+        blockNumber: "1",
       },
     });
     expect(wrapper.findAll(".content-loader").length).toBe(24);
@@ -150,6 +179,7 @@ describe("InfoTable:", () => {
           executeTxHash: "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364",
           executedAt: "2022-04-13T16:54:37.784185Z",
         },
+        blockNumber: "1",
         loading: false,
       },
     });
@@ -180,6 +210,7 @@ describe("InfoTable:", () => {
           executeTxHash: "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364",
           executedAt: "2022-04-13T16:54:37.784185Z",
         },
+        blockNumber: "1",
         loading: false,
       },
     });
@@ -210,6 +241,7 @@ describe("InfoTable:", () => {
           executeTxHash: "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364",
           executedAt: "2022-04-13T16:54:37.784185Z",
         },
+        blockNumber: "1",
         loading: false,
       },
     });
@@ -243,6 +275,7 @@ describe("InfoTable:", () => {
           executeTxHash: "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364",
           executedAt: "2022-04-13T16:54:37.784185Z",
         },
+        blockNumber: "1",
         loading: false,
       },
     });
@@ -284,6 +317,7 @@ describe("InfoTable:", () => {
             executeTxHash: "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364",
             executedAt: "2022-04-13T16:54:37.784185Z",
           },
+          blockNumber: "1",
           loading: false,
         },
       });
