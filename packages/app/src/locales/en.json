@@ -98,6 +98,8 @@
         "table": {
             "status": "Status",
             "statusTooltip": "The status of the transaction",
+            "reason": "Reason",
+            "reasonTooltip": "The failure reason of the transaction",
             "txnHash": "Txn hash",
             "transactionHash": "Transaction Hash",
             "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",

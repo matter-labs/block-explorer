@@ -64,6 +64,8 @@ export type TransactionItem = {
   status: TransactionStatus;
   l1BatchNumber: number | null;
   isL1BatchSealed: boolean;
+  error?: string | null;
+  revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
 };
@@ -222,6 +224,8 @@ export function mapTransaction(
     status: transaction.status,
     l1BatchNumber: transaction.l1BatchNumber,
     isL1BatchSealed: transaction.isL1BatchSealed,
+    error: transaction.error,
+    revertReason: transaction.revertReason,
 
     logs: logs.map((item) => ({
       address: item.address,
