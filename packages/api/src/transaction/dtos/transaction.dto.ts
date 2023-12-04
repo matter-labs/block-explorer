@@ -145,4 +145,22 @@ export class TransactionDto {
     examples: ["included", "committed", "proved", "verified", "failed"],
   })
   public readonly status: TransactionStatus;
+
+  @ApiProperty({
+    type: String,
+    description: "Transaction error",
+    example: "Some test error",
+    examples: ["Some test error", null],
+    nullable: true,
+  })
+  public readonly error?: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Transaction revert reason",
+    example: "Some test revert reason",
+    examples: ["Some test revert reason", null],
+    nullable: true,
+  })
+  public readonly revertReason?: string;
 }

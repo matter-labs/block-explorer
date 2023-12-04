@@ -91,6 +91,12 @@ export class Transaction extends BaseEntity {
   @OneToMany(() => Transfer, (transfer) => transfer.transaction)
   public readonly transfers: Transfer[];
 
+  @Column({ nullable: true })
+  public readonly error?: string;
+
+  @Column({ nullable: true })
+  public readonly revertReason?: string;
+
   public get status(): TransactionStatus {
     if (this.receiptStatus === 0) {
       return TransactionStatus.Failed;
