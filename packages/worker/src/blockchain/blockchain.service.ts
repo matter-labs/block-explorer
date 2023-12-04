@@ -15,6 +15,14 @@ export interface BridgeAddresses {
   l2Erc20DefaultBridge: string;
 }
 
+export interface TraceTransactionResult {
+  type: string;
+  from: string;
+  to: string;
+  error: string | null;
+  revertReason: string | null;
+}
+
 @Injectable()
 export class BlockchainService implements OnModuleInit {
   private readonly logger: Logger;
@@ -121,7 +129,7 @@ export class BlockchainService implements OnModuleInit {
     }, "getDefaultBridgeAddresses");
   }
 
-  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<any> {
+  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TraceTransactionResult> {
     return await this.rpcCall(async () => {
       return await this.provider.send("debug_traceTransaction", [
         txHash,

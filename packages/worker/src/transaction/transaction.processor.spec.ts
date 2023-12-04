@@ -3,7 +3,7 @@ import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import { types } from "zksync-web3";
 import { TransactionRepository, TransactionReceiptRepository } from "../repositories";
-import { BlockchainService } from "../blockchain";
+import { BlockchainService, TraceTransactionResult } from "../blockchain";
 import { TransactionProcessor } from "./transaction.processor";
 import { LogProcessor } from "../log";
 
@@ -83,11 +83,16 @@ describe("TransactionProcessor", () => {
       status: 1,
     });
     const transactionDetails = mock<types.TransactionDetails>();
+    const traceTransactionResult = mock<TraceTransactionResult>({
+      error: "Some error",
+      revertReason: "Some revert reason",
+    });
 
     beforeEach(() => {
       jest.spyOn(blockchainServiceMock, "getTransaction").mockResolvedValue(transaction);
       jest.spyOn(blockchainServiceMock, "getTransactionReceipt").mockResolvedValue(transactionReceipt);
       jest.spyOn(blockchainServiceMock, "getTransactionDetails").mockResolvedValue(transactionDetails);
+      jest.spyOn(blockchainServiceMock, "debugTraceTransaction").mockResolvedValue(traceTransactionResult);
     });
 
     it("starts the transaction duration metric", async () => {
@@ -175,6 +180,51 @@ describe("TransactionProcessor", () => {
     it("stops the transaction duration metric", async () => {
       await transactionProcessor.add(transaction.hash, blockDetails);
       expect(stopTxProcessingDurationMetricMock).toHaveBeenCalledTimes(1);
+    });
+
+    describe("when transaction has failed status", () => {
+      beforeEach(() => {
+        (blockchainServiceMock.getTransactionReceipt as jest.Mock).mockResolvedValueOnce({
+          transactionIndex: 0,
+          logs: [],
+          status: 0,
+        });
+      });
+
+      it("reads transaction trace", async () => {
+        await transactionProcessor.add(transaction.hash, blockDetails);
+        expect(blockchainServiceMock.debugTraceTransaction).toHaveBeenCalledTimes(1);
+        expect(blockchainServiceMock.debugTraceTransaction).toHaveBeenCalledWith(transaction.hash, true);
+      });
+
+      describe("when transaction trace contains error and revert reason", () => {
+        it("adds the transaction info with error and revert reason", async () => {
+          await transactionProcessor.add(transaction.hash, blockDetails);
+          expect(transactionRepositoryMock.add).toHaveBeenCalledTimes(1);
+          expect(transactionRepositoryMock.add).toHaveBeenCalledWith({
+            ...transaction,
+            ...transactionDetails,
+            l1BatchNumber: blockDetails.l1BatchNumber,
+            receiptStatus: 0,
+            error: traceTransactionResult.error,
+            revertReason: traceTransactionResult.revertReason,
+          });
+        });
+      });
+
+      describe("when transaction trace doe not contain error and revert reason", () => {
+        it("adds the transaction info without error and revert reason", async () => {
+          (blockchainServiceMock.debugTraceTransaction as jest.Mock).mockResolvedValueOnce(null);
+          await transactionProcessor.add(transaction.hash, blockDetails);
+          expect(transactionRepositoryMock.add).toHaveBeenCalledTimes(1);
+          expect(transactionRepositoryMock.add).toHaveBeenCalledWith({
+            ...transaction,
+            ...transactionDetails,
+            l1BatchNumber: blockDetails.l1BatchNumber,
+            receiptStatus: 0,
+          });
+        });
+      });
     });
   });
 });
