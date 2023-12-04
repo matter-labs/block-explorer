@@ -1,17 +1,10 @@
 <template>
   <div class="transactions-empty-state">
-    <EmptyState>
+    <EmptyState class="empty-state">
       <template #title>
-        {{ t("blocks.transactionTable.notFound.title") }}
+        {{ blockExists ? t("blocks.transactionTable.noTransactions") : t("blocks.transactionTable.blockNotFound") }}
       </template>
-      <template #description>
-        <div class="transactions-empty-description">
-          {{ t("blocks.transactionTable.notFound.subtitle") }}
-          <a :href="t('blocks.transactionTable.notFound.url')" target="_blank">
-            {{ t("blocks.transactionTable.notFound.urlTitle") }}
-          </a>
-        </div>
-      </template>
+      <template #description><span></span></template>
     </EmptyState>
   </div>
 </template>
@@ -22,16 +15,17 @@ import { useI18n } from "vue-i18n";
 import EmptyState from "@/components/common/EmptyState.vue";
 
 const { t } = useI18n();
+
+defineProps({
+  blockExists: {
+    type: Boolean,
+    required: true,
+  },
+});
 </script>
 
 <style scoped lang="scss">
-.transactions-empty-state {
-  @apply flex py-8 lg:justify-center;
-  .transactions-empty-description {
-    @apply max-w-[24rem] whitespace-normal;
-    a {
-      @apply text-neutral-400;
-    }
-  }
+.empty-state {
+  @apply items-center justify-center whitespace-normal py-10;
 }
 </style>

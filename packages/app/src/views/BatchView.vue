@@ -7,19 +7,19 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <Title v-if="!batchPending && batchItem" :title="t('batches.batchNumber')" :value="id">
+    <Title v-if="!batchPending" :title="t('batches.batchNumber')" :value="id">
       {{ parseInt(id) }}
     </Title>
     <Spinner v-else size="md" />
 
     <div class="tables-container">
-      <BatchTable class="batch-table" :loading="batchPending" :batch="batchItem" />
+      <BatchTable class="batch-table" :loading="batchPending" :batch="batchItem" :batch-number="id" />
 
-      <div v-if="batchItem" ref="transactionsContainer">
+      <div ref="transactionsContainer">
         <h2 class="table-transaction-title">{{ t("batches.transactionTable.title") }}</h2>
         <TransactionsTable class="transactions-table" :search-params="transactionsSearchParams">
           <template #not-found>
-            <TransactionEmptyState />
+            <TransactionEmptyState :batch-exists="!!batchItem" />
           </template>
         </TransactionsTable>
       </div>
@@ -49,7 +49,7 @@ import { isBlockNumber } from "@/utils/validators";
 
 const { t } = useI18n();
 
-const { useNotFoundView, setNotFoundView } = useNotFound();
+const { setNotFoundView } = useNotFound();
 const { getById, batchItem, isRequestPending: batchPending, isRequestFailed: batchFailed } = useBatch();
 
 const props = defineProps({
@@ -88,8 +88,6 @@ watch(transactionsContainer, () => {
 const transactionsSearchParams = computed(() => ({
   l1BatchNumber: parseInt(props.id),
 }));
-
-useNotFoundView(batchPending, batchFailed, batchItem);
 
 watchEffect(() => {
   if (!props.id || !isBlockNumber(props.id)) {

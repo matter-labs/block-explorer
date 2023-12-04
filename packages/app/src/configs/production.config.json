@@ -10,13 +10,29 @@
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://goerli.etherscan.io",
       "l2ChainId": 280,
-      "l2NetworkName": "zkSync Era Testnet",
+      "l2NetworkName": "zkSync Era Goerli Testnet",
       "l2WalletUrl": "https://goerli.portal.zksync.io/",
       "maintenance": false,
       "name": "goerli",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://testnet.era.zksync.dev"
+    },
+    {
+      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://bridge.zksync.io",
+      "hostnames": [
+        "https://sepolia.explorer.zksync.io"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "l2ChainId": 300,
+      "l2NetworkName": "zkSync Era Sepolia Testnet",
+      "l2WalletUrl": "https://portal.zksync.io/",
+      "maintenance": false,
+      "name": "sepolia",
+      "published": false,
+      "rpcUrl": "https://sepolia.era.zksync.dev"
     },
     {
       "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
@@ -32,7 +48,6 @@
       "l2WalletUrl": "https://portal.zksync.io/",
       "maintenance": false,
       "name": "mainnet",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-mainnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://mainnet.era.zksync.io"
     }

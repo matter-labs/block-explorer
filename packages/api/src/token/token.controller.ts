@@ -47,6 +47,7 @@ export class TokenController {
         minLiquidity,
       },
       {
+        filterOptions: { minLiquidity },
         ...pagingOptions,
         route: entityName,
       }

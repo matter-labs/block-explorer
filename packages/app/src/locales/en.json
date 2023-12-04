@@ -1,6 +1,5 @@
 {
     "general": {
-        "checkHere": "Check here",
         "l2NetworkName": "zkSync Era",
         "l1NetworkName": "Ethereum"
     },
@@ -60,8 +59,7 @@
             "executedAtTooltip": "Time when block was executed",
             "notYetExecuted": "Not yet executed",
             "notFound": "Not Found",
-            "notFoundHomePage": "We haven't had any blocks yet. Please, check again later.",
-            "newProverInfo": "This block was also proved with our upcoming new prover, Boojum. Want to learn more and verify yourself?"
+            "notFoundHomePage": "We haven't had any blocks yet. Please, check again later."
         },
         "status": {
             "verified": "Verified",
@@ -75,12 +73,8 @@
         "transactionTable": {
             "title": "Block Transactions",
             "showMore": "Show more transactions ->",
-            "notFound": {
-                "title": "This Block doesn't have any transactions",
-                "subtitle": "We always have a zero block at the end of the batch. Want to know why?",
-                "urlTitle": "Visit our docs page",
-                "url": "https://docs-v2-zksync.web.app/dev/developer-guides/transactions/blocks.html#blocks-in-zksync-2-0"
-            }
+            "noTransactions": "This Block doesn't have any transactions",
+            "blockNotFound": "This Block has not been created or sealed yet"
         }
     },
     "transfers": {
@@ -164,8 +158,7 @@
                 "unableToLoadMore": "Unable to load more",
                 "tryAgain": "Try again ->"
             },
-            "unknown": "Unknown",
-            "newProverInfo": "This transaction was also proved with our upcoming new prover, Boojum. Want to learn more and verify yourself?"
+            "unknown": "Unknown"
         },
         "logs": {
             "name": "Name",
@@ -261,10 +254,8 @@
         "transactionTable": {
             "title": "Batch Transactions",
             "error": "Something went wrong",
-            "notFound": {
-                "title": "This Batch doesn't have any transactions",
-                "subtitle": "We can't find transactions for this batch \n We'll fix it in a moment; please refresh the page"
-            }
+            "noTransactions": "This Batch doesn't have any transactions",
+            "batchNotFound": "This Batch has not been created or sealed yet"
         },
         "table": {
             "status": "Status",
@@ -273,8 +264,7 @@
             "age": "Age",
             "notFound": "Not Found",
             "notFoundHomePage": "We haven't had any batches yet. Please, check again later.",
-            "transactionsShort": "txns",
-            "newProverInfo": "This batch was also proved with our upcoming new prover, Boojum. Want to learn more and verify yourself?"
+            "transactionsShort": "txns"
         },
         "tooltipInfo": "Latest batches submitted to Ethereum Network",
         "status": {
@@ -413,7 +403,7 @@
     },
     "contractVerification": {
         "title": "Smart Contract Verification",
-        "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, zkScan will match the compiled code with that on the blockchain.",
+        "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Era Explorer will match the compiled code with that on the blockchain.",
         "resources": {
             "title": "You can also verify your smart-contract using {hardhat}",
             "links": {
@@ -585,8 +575,9 @@
         "title": "Transactions"
     },
     "tokenListView": {
-        "title": "Token List",
-        "heading": "Tokens",
+        "title": "Top tokens",
+        "heading": "Top tokens",
+        "offChainDataPoweredBy": "Off-chain data powered by",
         "table": {
             "tokenName": "Token Name",
             "price": "Price",

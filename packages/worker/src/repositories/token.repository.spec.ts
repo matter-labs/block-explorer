@@ -174,6 +174,61 @@ describe("TokenRepository", () => {
   });
 
   describe("updateTokenOffChainData", () => {
+    it("throws error when no l1Address or l2Address provided", async () => {
+      const updatedAt = new Date();
+      await expect(
+        repository.updateTokenOffChainData({
+          liquidity: 1000000,
+          usdPrice: 55.89037747,
+          updatedAt,
+        })
+      ).rejects.toThrowError("l1Address or l2Address must be provided");
+    });
+
+    it("updates token offchain data using l1Address when provided", async () => {
+      const updatedAt = new Date();
+      await repository.updateTokenOffChainData({
+        l1Address: "0xD754fF5e8A6f257E162F72578A4Bb0493C0681d1",
+        liquidity: 1000000,
+        usdPrice: 55.89037747,
+        updatedAt,
+      });
+
+      expect(entityManagerMock.update).toBeCalledWith(
+        Token,
+        {
+          l1Address: "0xD754fF5e8A6f257E162F72578A4Bb0493C0681d1",
+        },
+        {
+          liquidity: 1000000,
+          usdPrice: 55.89037747,
+          offChainDataUpdatedAt: updatedAt,
+        }
+      );
+    });
+
+    it("updates token offchain data using l2Address when provided", async () => {
+      const updatedAt = new Date();
+      await repository.updateTokenOffChainData({
+        l2Address: "0xD754fF5e8A6f257E162F72578A4Bb0493C0681d1",
+        liquidity: 1000000,
+        usdPrice: 55.89037747,
+        updatedAt,
+      });
+
+      expect(entityManagerMock.update).toBeCalledWith(
+        Token,
+        {
+          l2Address: "0xD754fF5e8A6f257E162F72578A4Bb0493C0681d1",
+        },
+        {
+          liquidity: 1000000,
+          usdPrice: 55.89037747,
+          offChainDataUpdatedAt: updatedAt,
+        }
+      );
+    });
+
     it("updates token offchain data when iconURL is not provided", async () => {
       const updatedAt = new Date();
       await repository.updateTokenOffChainData({

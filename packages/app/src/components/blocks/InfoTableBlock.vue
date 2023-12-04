@@ -26,9 +26,6 @@
             <component v-else-if="item.component" :is="item.component" v-bind="item.value"></component>
             <template v-else>{{ item.value }}</template>
           </div>
-          <div v-if="item.additionalContentComponent">
-            <component :is="item.additionalContentComponent" v-bind="item.additionalContentProps"></component>
-          </div>
         </table-body-column>
       </template>
     </template>
