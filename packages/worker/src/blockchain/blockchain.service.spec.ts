@@ -1471,6 +1471,146 @@ describe("BlockchainService", () => {
     });
   });
 
+  describe("debugTraceTransaction", () => {
+    const traceTransactionResult = {
+      type: "Call",
+      from: "0x0000000000000000000000000000000000000000",
+      to: "0x0000000000000000000000000000000000008001",
+      error: null,
+      revertReason: "Exceed daily limit",
+    };
+    let timeoutSpy;
+
+    beforeEach(() => {
+      jest.spyOn(provider, "send").mockResolvedValue(traceTransactionResult);
+      timeoutSpy = jest.spyOn(timersPromises, "setTimeout");
+    });
+
+    it("starts the rpc call duration metric", async () => {
+      await blockchainService.debugTraceTransaction(
+        "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+      );
+      expect(startRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("gets transaction trace", async () => {
+      await blockchainService.debugTraceTransaction(
+        "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+      );
+      expect(provider.send).toHaveBeenCalledTimes(1);
+      expect(provider.send).toHaveBeenCalledWith("debug_traceTransaction", [
+        "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
+        {
+          tracer: "callTracer",
+          tracerConfig: { onlyTopCall: false },
+        },
+      ]);
+    });
+
+    it("gets transaction trace with only top call", async () => {
+      await blockchainService.debugTraceTransaction(
+        "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
+        true
+      );
+      expect(provider.send).toHaveBeenCalledTimes(1);
+      expect(provider.send).toHaveBeenCalledWith("debug_traceTransaction", [
+        "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
+        {
+          tracer: "callTracer",
+          tracerConfig: { onlyTopCall: true },
+        },
+      ]);
+    });
+
+    it("stops the rpc call duration metric", async () => {
+      await blockchainService.debugTraceTransaction(
+        "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+      );
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "debugTraceTransaction" });
+    });
+
+    it("returns transaction trace", async () => {
+      const result = await blockchainService.debugTraceTransaction(
+        "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+      );
+      expect(result).toEqual(traceTransactionResult);
+    });
+
+    describe("if the call throws an error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "send")
+          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockResolvedValueOnce(traceTransactionResult);
+      });
+
+      it("retries RPC call with a default timeout", async () => {
+        await blockchainService.debugTraceTransaction(
+          "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+        );
+        expect(provider.send).toHaveBeenCalledTimes(3);
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, defaultRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, defaultRetryTimeout);
+      });
+
+      it("stops the rpc call duration metric only for the successful retry", async () => {
+        await blockchainService.debugTraceTransaction(
+          "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+        );
+        expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+        expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "debugTraceTransaction" });
+      });
+
+      it("returns result of the successful RPC call", async () => {
+        const result = await blockchainService.debugTraceTransaction(
+          "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+        );
+        expect(result).toEqual(traceTransactionResult);
+      });
+    });
+
+    describe("if the call throws a timeout error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "send")
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockResolvedValueOnce(traceTransactionResult);
+      });
+
+      it("retries RPC call with a quick timeout", async () => {
+        await blockchainService.debugTraceTransaction(
+          "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+        );
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+    });
+
+    describe("if the call throws a connection refused error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "send")
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockResolvedValueOnce(traceTransactionResult);
+      });
+
+      it("retries RPC call with a quick timeout", async () => {
+        await blockchainService.debugTraceTransaction(
+          "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+        );
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+    });
+  });
+
   describe("onModuleInit", () => {
     let bridgeAddresses;
     beforeEach(() => {

@@ -88,6 +88,8 @@ vi.mock("ohmyfetch", async () => {
     commitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
     executeTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
     proveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
+    error: null,
+    revertReason: null,
   };
   return {
     ...mod,
@@ -444,6 +446,8 @@ describe("useTransaction:", () => {
         nonce: 24,
         receivedAt: "2023-02-28T08:42:08.198Z",
         status: "verified",
+        error: null,
+        revertReason: null,
         l1BatchNumber: 11014,
         isL1BatchSealed: true,
         logs: [

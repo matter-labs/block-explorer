@@ -85,6 +85,56 @@ describe("TransactionController", () => {
         },
       });
     });
+
+    it("returns transaction error in errDescription when transaction is failed and transaction error is present", async () => {
+      jest.spyOn(transactionServiceMock, "findOne").mockResolvedValue({
+        status: TransactionStatus.Failed,
+        error: "Error",
+        revertReason: "Reverted",
+      } as TransactionDetails);
+
+      const response = await controller.getTransactionStatus(transactionHash);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: {
+          isError: "1",
+          errDescription: "Error",
+        },
+      });
+    });
+
+    it("returns transaction revert reason in errDescription when transaction is failed and transaction revert reason is present", async () => {
+      jest
+        .spyOn(transactionServiceMock, "findOne")
+        .mockResolvedValue({ status: TransactionStatus.Failed, revertReason: "Reverted" } as TransactionDetails);
+
+      const response = await controller.getTransactionStatus(transactionHash);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: {
+          isError: "1",
+          errDescription: "Reverted",
+        },
+      });
+    });
+
+    it("returns empty errDescription when transaction is failed and transaction error and revert reason are not present", async () => {
+      jest
+        .spyOn(transactionServiceMock, "findOne")
+        .mockResolvedValue({ status: TransactionStatus.Failed } as TransactionDetails);
+
+      const response = await controller.getTransactionStatus(transactionHash);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: {
+          isError: "1",
+          errDescription: "",
+        },
+      });
+    });
   });
 
   describe("getTransactionReceiptStatus", () => {

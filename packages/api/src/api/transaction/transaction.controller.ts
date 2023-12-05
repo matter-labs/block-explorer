@@ -36,7 +36,7 @@ export class TransactionController {
       message: ResponseMessage.OK,
       result: {
         isError: hasError ? ResponseStatus.OK : ResponseStatus.NOTOK,
-        errDescription: "",
+        errDescription: transaction?.error || transaction?.revertReason || "",
       },
     };
   }

@@ -44,17 +44,29 @@ export class TransactionProcessor {
       throw new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transactionHash}`);
     }
 
+    const transactionToAdd = {
+      ...transaction,
+      ...transactionDetails,
+      l1BatchNumber: blockDetails.l1BatchNumber,
+      receiptStatus: transactionReceipt.status,
+    } as TransactionDto;
+
+    if (transactionReceipt.status === 0) {
+      const debugTraceTransactionResult = await this.blockchainService.debugTraceTransaction(transactionHash, true);
+      if (debugTraceTransactionResult?.error) {
+        transactionToAdd.error = debugTraceTransactionResult.error;
+      }
+      if (debugTraceTransactionResult?.revertReason) {
+        transactionToAdd.revertReason = debugTraceTransactionResult.revertReason;
+      }
+    }
+
     this.logger.debug({
       message: "Adding transaction data to the DB",
       blockNumber: blockDetails.number,
       transactionHash,
     });
-    await this.transactionRepository.add({
-      ...transaction,
-      ...transactionDetails,
-      l1BatchNumber: blockDetails.l1BatchNumber,
-      receiptStatus: transactionReceipt.status,
-    } as TransactionDto);
+    await this.transactionRepository.add(transactionToAdd);
 
     this.logger.debug({
       message: "Adding transaction receipt data to the DB",
