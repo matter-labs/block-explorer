@@ -5,6 +5,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, CounterCriteria, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
+import { TransactionDetails } from "./entities/transactionDetails.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 import { CounterService } from "../counter/counter.service";
@@ -29,6 +30,8 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+    @InjectRepository(TransactionDetails)
+    private readonly transactionDetailsRepository: Repository<TransactionDetails>,
     @InjectRepository(AddressTransaction)
     private readonly addressTransactionRepository: Repository<AddressTransaction>,
     @InjectRepository(Batch)
@@ -36,8 +39,13 @@ export class TransactionService {
     private readonly counterService: CounterService
   ) {}
 
-  public async findOne(hash: string): Promise<Transaction> {
-    return await this.transactionRepository.findOne({ where: { hash }, relations: { batch: true } });
+  public async findOne(hash: string): Promise<TransactionDetails> {
+    const queryBuilder = this.transactionDetailsRepository.createQueryBuilder("transaction");
+    queryBuilder.leftJoinAndSelect("transaction.batch", "batch");
+    queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
+    queryBuilder.addSelect(["transactionReceipt.gasUsed"]);
+    queryBuilder.where({ hash });
+    return await queryBuilder.getOne();
   }
 
   public async exists(hash: string): Promise<boolean> {

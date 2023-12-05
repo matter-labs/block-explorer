@@ -4,7 +4,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import * as request from "supertest";
 import { Repository } from "typeorm";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { AppModule } from "../src/app.module";
@@ -14,7 +14,7 @@ describe("Transaction API (e2e)", () => {
   let app: INestApplication;
   let transactionRepository: Repository<Transaction>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let batchRepository: Repository<BatchDetails>;
 
   beforeAll(async () => {
@@ -28,7 +28,7 @@ describe("Transaction API (e2e)", () => {
 
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
 
     await batchRepository.insert({

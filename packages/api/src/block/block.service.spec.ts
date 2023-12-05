@@ -6,7 +6,7 @@ import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { BlockService, FindManyOptions } from "./block.service";
 import { Block } from "./block.entity";
-import { BlockDetail } from "./blockDetail.entity";
+import { BlockDetails } from "./blockDetails.entity";
 
 jest.mock("../common/utils");
 
@@ -14,11 +14,11 @@ describe("BlockService", () => {
   let blockRecord;
   let service: BlockService;
   let repositoryMock: Repository<Block>;
-  let blockDetailRepositoryMock: Repository<BlockDetail>;
+  let blockDetailRepositoryMock: Repository<BlockDetails>;
 
   beforeEach(async () => {
     repositoryMock = mock<Repository<Block>>();
-    blockDetailRepositoryMock = mock<Repository<BlockDetail>>();
+    blockDetailRepositoryMock = mock<Repository<BlockDetails>>();
 
     blockRecord = {
       number: 123,
@@ -32,7 +32,7 @@ describe("BlockService", () => {
           useValue: repositoryMock,
         },
         {
-          provide: getRepositoryToken(BlockDetail),
+          provide: getRepositoryToken(BlockDetails),
           useValue: blockDetailRepositoryMock,
         },
       ],
@@ -305,7 +305,7 @@ describe("BlockService", () => {
     let filterOptions: FindManyOptions;
 
     beforeEach(() => {
-      queryBuilderMock = mock<SelectQueryBuilder<BlockDetail>>({
+      queryBuilderMock = mock<SelectQueryBuilder<BlockDetails>>({
         getMany: jest.fn().mockResolvedValue([
           {
             number: 1,

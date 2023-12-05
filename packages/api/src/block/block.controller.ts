@@ -14,7 +14,7 @@ import { PagingOptionsDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { BlockService } from "./block.service";
 import { BlockDto } from "./block.dto";
-import { BlockDetailDto } from "./blockDetail.dto";
+import { BlockDetailsDto } from "./blockDetails.dto";
 import { swagger } from "../config/featureFlags";
 
 const entityName = "blocks";
@@ -48,12 +48,12 @@ export class BlockController {
     example: "1",
     description: "Block number",
   })
-  @ApiOkResponse({ description: "Block was returned successfully", type: BlockDetailDto })
+  @ApiOkResponse({ description: "Block was returned successfully", type: BlockDetailsDto })
   @ApiBadRequestResponse({ description: "Block number is invalid" })
   @ApiNotFoundResponse({ description: "Block with the specified number does not exist" })
   public async getBlock(
     @Param("blockNumber", new ParseLimitedIntPipe({ min: 0 })) blockNumber: number
-  ): Promise<BlockDetailDto> {
+  ): Promise<BlockDetailsDto> {
     const block = await this.blockService.findOne(blockNumber);
     if (!block) {
       throw new NotFoundException();
