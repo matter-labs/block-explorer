@@ -40,7 +40,7 @@ export class TransactionDto {
   @ApiProperty({
     type: String,
     description: "The amount this transaction sent",
-    example: "0x2386f26fc10000",
+    example: "100000000",
   })
   public readonly value: string;
 
@@ -57,6 +57,47 @@ export class TransactionDto {
     example: 42,
   })
   public readonly nonce: number;
+
+  @ApiProperty({
+    type: String,
+    description: "Gas price",
+    example: "100000000",
+  })
+  public readonly gasPrice: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Gas limit",
+    example: "100000000",
+  })
+  public readonly gasLimit: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Gas per pubdata limit",
+    example: "100000000",
+    examples: ["100000000", null],
+    required: false,
+  })
+  public readonly gasPerPubdata?: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Max fee per gas",
+    example: "100000000",
+    examples: ["100000000", null],
+    required: false,
+  })
+  public readonly maxFeePerGas?: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Max priority fee per gas",
+    example: "100000000",
+    examples: ["100000000", null],
+    required: false,
+  })
+  public readonly maxPriorityFeePerGas?: string;
 
   @ApiProperty({
     type: Number,

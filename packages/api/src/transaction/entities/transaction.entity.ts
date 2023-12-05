@@ -3,6 +3,7 @@ import { BaseEntity } from "../../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
+import { hexToDecimalNumberTransformer } from "../../common/transformers/hexToDecimalNumber.transformer";
 import { TransactionReceipt } from "./transactionReceipt.entity";
 import { Transfer } from "../../transfer/transfer.entity";
 import { Block } from "../../block/block.entity";
@@ -60,6 +61,15 @@ export class Transaction extends BaseEntity {
 
   @Column({ type: "varchar", length: 128 })
   public readonly gasPrice: string;
+
+  @Column({ type: "varchar", length: 128, nullable: true, transformer: hexToDecimalNumberTransformer })
+  public readonly gasPerPubdata?: string;
+
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly maxFeePerGas?: string;
+
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly maxPriorityFeePerGas?: string;
 
   @ManyToOne(() => Block)
   @JoinColumn({ name: "blockNumber" })
