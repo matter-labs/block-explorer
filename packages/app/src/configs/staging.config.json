@@ -21,7 +21,9 @@
       "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
       "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
       "bridgeUrl": "https://staging.goerli.bridge.zksync.dev",
-      "hostnames": [],
+      "hostnames": [
+        "https://sepolia.staging-scan-v2.zksync.dev"
+      ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "l2ChainId": 300,
