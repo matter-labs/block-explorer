@@ -7,7 +7,7 @@ import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Address } from "../src/address/address.entity";
 import { Balance } from "../src/balance/balance.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
@@ -21,7 +21,7 @@ import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 describe("AddressController (e2e)", () => {
   let app: INestApplication;
   let addressRepository: Repository<Address>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
@@ -45,7 +45,7 @@ describe("AddressController (e2e)", () => {
     await app.init();
 
     addressRepository = app.get<Repository<Address>>(getRepositoryToken(Address));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));

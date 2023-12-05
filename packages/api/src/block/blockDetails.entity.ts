@@ -3,7 +3,7 @@ import { Block } from "./block.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 
 @Entity({ name: "blocks" })
-export class BlockDetail extends Block {
+export class BlockDetails extends Block {
   @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
   public readonly parentHash?: string;
 

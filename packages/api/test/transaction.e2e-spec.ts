@@ -2,12 +2,14 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import * as request from "supertest";
 import { Repository } from "typeorm";
+import { BigNumber } from "ethers";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Token, TokenType } from "../src/token/token.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
+import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { ETH_TOKEN } from "../src/token/token.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
@@ -17,8 +19,9 @@ import { BatchDetails } from "../src/batch/batchDetails.entity";
 describe("TransactionController (e2e)", () => {
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
+  let transactionReceiptRepository: Repository<TransactionReceipt>;
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transferRepository: Repository<Transfer>;
   let logRepository: Repository<Log>;
@@ -36,8 +39,9 @@ describe("TransactionController (e2e)", () => {
     await app.init();
 
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
+    transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
@@ -125,6 +129,11 @@ describe("TransactionController (e2e)", () => {
         receivedAt: `2022-11-21T18:16:0${i}.000Z`,
         l1BatchNumber: i < 3 ? 1 : i,
         receiptStatus: i < 9 ? 1 : 0,
+        gasPrice: BigNumber.from(1000 + i).toString(),
+        gasLimit: BigNumber.from(2000 + i).toString(),
+        maxFeePerGas: BigNumber.from(3000 + i).toString(),
+        maxPriorityFeePerGas: BigNumber.from(4000 + i).toString(),
+        gasPerPubdata: BigNumber.from(5000 + i).toHexString(),
       };
       await transactionRepository.insert(transactionSpec);
 
@@ -137,6 +146,14 @@ describe("TransactionController (e2e)", () => {
           transactionIndex: transactionSpec.transactionIndex,
         });
       }
+
+      await transactionReceiptRepository.insert({
+        transactionHash: transactionSpec.hash,
+        from: transactionSpec.from,
+        status: 1,
+        gasUsed: (7000 + i).toString(),
+        cumulativeGasUsed: (10000 + i).toString(),
+      });
     }
 
     for (let i = 0; i < 20; i++) {
@@ -208,6 +225,7 @@ describe("TransactionController (e2e)", () => {
     await tokenRepository.delete({});
     await addressTransactionRepository.delete({});
     await transactionRepository.delete({});
+    await transactionReceiptRepository.delete({});
     await blockRepository.delete({});
     await batchRepository.delete({});
 
@@ -241,8 +259,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2009",
+              gasPrice: "1009",
+              gasPerPubdata: "5009",
+              maxFeePerGas: "3009",
+              maxPriorityFeePerGas: "4009",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e19",
               isL1BatchSealed: false,
               isL1Originated: true,
@@ -264,8 +285,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab8",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2008",
+              gasPrice: "1008",
+              gasPerPubdata: "5008",
+              maxFeePerGas: "3008",
+              maxPriorityFeePerGas: "4008",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -287,8 +311,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab7",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2007",
+              gasPrice: "1007",
+              gasPerPubdata: "5007",
+              maxFeePerGas: "3007",
+              maxPriorityFeePerGas: "4007",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -310,8 +337,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2006",
+              gasPrice: "1006",
+              gasPerPubdata: "5006",
+              maxFeePerGas: "3006",
+              maxPriorityFeePerGas: "4006",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -333,8 +363,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2005",
+              gasPrice: "1005",
+              gasPerPubdata: "5005",
+              maxFeePerGas: "3005",
+              maxPriorityFeePerGas: "4005",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -356,8 +389,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasPrice: "1004",
+              gasLimit: "2004",
+              gasPerPubdata: "5004",
+              maxFeePerGas: "3004",
+              maxPriorityFeePerGas: "4004",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e14",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -379,8 +415,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2003",
+              gasPrice: "1003",
+              gasPerPubdata: "5003",
+              maxFeePerGas: "3003",
+              maxPriorityFeePerGas: "4003",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e13",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -402,8 +441,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasPrice: "1002",
+              gasLimit: "2002",
+              gasPerPubdata: "5002",
+              maxFeePerGas: "3002",
+              maxPriorityFeePerGas: "4002",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e12",
               isL1BatchSealed: false,
               isL1Originated: true,
@@ -425,8 +467,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasPrice: "1001",
+              gasLimit: "2001",
+              gasPerPubdata: "5001",
+              maxFeePerGas: "3001",
+              maxPriorityFeePerGas: "4001",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               isL1BatchSealed: false,
               isL1Originated: true,
@@ -448,8 +493,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2000",
+              gasPrice: "1000",
+              gasPerPubdata: "5000",
+              maxFeePerGas: "3000",
+              maxPriorityFeePerGas: "4000",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               isL1BatchSealed: false,
               isL1Originated: true,
@@ -481,8 +529,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab8",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2008",
+              gasPrice: "1008",
+              gasPerPubdata: "5008",
+              maxFeePerGas: "3008",
+              maxPriorityFeePerGas: "4008",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -504,8 +555,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab7",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2007",
+              gasPrice: "1007",
+              gasPerPubdata: "5007",
+              maxFeePerGas: "3007",
+              maxPriorityFeePerGas: "4007",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -527,8 +581,11 @@ describe("TransactionController (e2e)", () => {
               executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-              gasLimit: "1000000",
-              gasPrice: "100",
+              gasLimit: "2006",
+              gasPrice: "1006",
+              gasPerPubdata: "5006",
+              maxFeePerGas: "3006",
+              maxPriorityFeePerGas: "4006",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
               isL1BatchSealed: true,
               isL1Originated: true,
@@ -606,8 +663,11 @@ describe("TransactionController (e2e)", () => {
                 executeTxHash: null,
                 fee: "0x2386f26fc10000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                gasLimit: "1000000",
-                gasPrice: "100",
+                gasLimit: "2001",
+                gasPrice: "1001",
+                gasPerPubdata: "5001",
+                maxFeePerGas: "3001",
+                maxPriorityFeePerGas: "4001",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
                 isL1BatchSealed: false,
                 isL1Originated: true,
@@ -654,8 +714,11 @@ describe("TransactionController (e2e)", () => {
                 executeTxHash: null,
                 fee: "0x2386f26fc10000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                gasLimit: "1000000",
-                gasPrice: "100",
+                gasLimit: "2001",
+                gasPrice: "1001",
+                gasPerPubdata: "5001",
+                maxFeePerGas: "3001",
+                maxPriorityFeePerGas: "4001",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
                 isL1BatchSealed: false,
                 isL1Originated: true,
@@ -702,8 +765,11 @@ describe("TransactionController (e2e)", () => {
                 executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab7",
                 fee: "0x2386f26fc10000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                gasLimit: "1000000",
-                gasPrice: "100",
+                gasLimit: "2007",
+                gasPrice: "1007",
+                gasPerPubdata: "5007",
+                maxFeePerGas: "3007",
+                maxPriorityFeePerGas: "4007",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
                 isL1BatchSealed: true,
                 isL1Originated: true,
@@ -725,8 +791,11 @@ describe("TransactionController (e2e)", () => {
                 executeTxHash: null,
                 fee: "0x2386f26fc10000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                gasLimit: "1000000",
-                gasPrice: "100",
+                gasLimit: "2006",
+                gasPrice: "1006",
+                gasPerPubdata: "5006",
+                maxFeePerGas: "3006",
+                maxPriorityFeePerGas: "4006",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
                 isL1BatchSealed: true,
                 isL1Originated: true,
@@ -809,8 +878,12 @@ describe("TransactionController (e2e)", () => {
             executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab8",
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-            gasLimit: "1000000",
-            gasPrice: "100",
+            gasLimit: "2008",
+            gasPrice: "1008",
+            gasUsed: "7008",
+            gasPerPubdata: "5008",
+            maxFeePerGas: "3008",
+            maxPriorityFeePerGas: "4008",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
             isL1BatchSealed: true,
             isL1Originated: true,
@@ -840,8 +913,12 @@ describe("TransactionController (e2e)", () => {
             executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-            gasLimit: "1000000",
-            gasPrice: "100",
+            gasLimit: "2005",
+            gasPrice: "1005",
+            gasUsed: "7005",
+            gasPerPubdata: "5005",
+            maxFeePerGas: "3005",
+            maxPriorityFeePerGas: "4005",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
             isL1BatchSealed: true,
             isL1Originated: true,
@@ -871,8 +948,12 @@ describe("TransactionController (e2e)", () => {
             executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-            gasLimit: "1000000",
-            gasPrice: "100",
+            gasLimit: "2003",
+            gasPrice: "1003",
+            gasUsed: "7003",
+            gasPerPubdata: "5003",
+            maxFeePerGas: "3003",
+            maxPriorityFeePerGas: "4003",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e13",
             isL1BatchSealed: true,
             isL1Originated: true,
@@ -902,8 +983,12 @@ describe("TransactionController (e2e)", () => {
             executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-            gasLimit: "1000000",
-            gasPrice: "100",
+            gasLimit: "2000",
+            gasPrice: "1000",
+            gasUsed: "7000",
+            gasPerPubdata: "5000",
+            maxFeePerGas: "3000",
+            maxPriorityFeePerGas: "4000",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
             isL1BatchSealed: true,
             isL1Originated: true,
@@ -933,8 +1018,12 @@ describe("TransactionController (e2e)", () => {
             executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-            gasLimit: "1000000",
-            gasPrice: "100",
+            gasLimit: "2009",
+            gasPrice: "1009",
+            gasUsed: "7009",
+            gasPerPubdata: "5009",
+            maxFeePerGas: "3009",
+            maxPriorityFeePerGas: "4009",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e19",
             isL1BatchSealed: true,
             isL1Originated: true,
@@ -964,8 +1053,12 @@ describe("TransactionController (e2e)", () => {
             executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-            gasLimit: "1000000",
-            gasPrice: "100",
+            gasLimit: "2000",
+            gasPrice: "1000",
+            gasUsed: "7000",
+            gasPerPubdata: "5000",
+            maxFeePerGas: "3000",
+            maxPriorityFeePerGas: "4000",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
             isL1BatchSealed: true,
             isL1Originated: true,

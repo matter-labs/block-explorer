@@ -6,7 +6,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
@@ -14,7 +14,7 @@ import { BatchDetails } from "../src/batch/batchDetails.entity";
 describe("TokenController (e2e)", () => {
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let transferRepository: Repository<Transfer>;
   let batchRepository: Repository<BatchDetails>;
@@ -31,7 +31,7 @@ describe("TokenController (e2e)", () => {
     await app.init();
 
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));

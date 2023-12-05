@@ -4,7 +4,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import * as request from "supertest";
 import { Repository } from "typeorm";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
@@ -23,7 +23,7 @@ describe("Account API (e2e)", () => {
   let addressTransferRepository: Repository<AddressTransfer>;
   let transferRepository: Repository<Transfer>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let batchRepository: Repository<BatchDetails>;
   let tokenRepository: Repository<Token>;
   let balanceRepository: Repository<Balance>;
@@ -42,7 +42,7 @@ describe("Account API (e2e)", () => {
     addressTransferRepository = app.get<Repository<AddressTransfer>>(getRepositoryToken(AddressTransfer));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     balanceRepository = app.get<Repository<Balance>>(getRepositoryToken(Balance));
