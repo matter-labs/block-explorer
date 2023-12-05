@@ -27,6 +27,8 @@ const transaction: TransactionListItem = {
   executeTxHash: null,
   proveTxHash: null,
   isL1BatchSealed: false,
+  error: null,
+  revertReason: null,
 };
 
 vi.mock("ohmyfetch", () => {

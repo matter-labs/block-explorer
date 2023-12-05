@@ -310,15 +310,17 @@ describe("Transaction info table", () => {
         plugins: [i18n, $testId],
       },
       props: {
-        transaction: { ...transaction, status: "failed" },
+        transaction: { ...transaction, status: "failed", revertReason: "Revert reason" },
         loading: false,
       },
     });
     await nextTick();
     const status = wrapper.findAll("tbody tr td:nth-child(2)")[1];
     const badges = status.findAllComponents(Badge);
+    const reason = wrapper.find(".transaction-reason-value");
     expect(badges.length).toBe(1);
     expect(badges[0].text()).toBe(i18n.global.t("transactions.statusComponent.failed"));
+    expect(reason.text()).toBe("Revert reason");
   });
   it("renders included transaction status", async () => {
     const wrapper = mount(Table, {
