@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { TransactionDto } from "./transaction.dto";
 
-export class TransactionDetailDto extends TransactionDto {
+export class TransactionDetailsDto extends TransactionDto {
   @ApiProperty({
     type: String,
     description: "Gas used by the transaction",

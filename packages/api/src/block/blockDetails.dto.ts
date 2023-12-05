@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { BlockDto } from "./block.dto";
 
-export class BlockDetailDto extends BlockDto {
+export class BlockDetailsDto extends BlockDto {
   @ApiProperty({
     type: String,
     description: "The hash of the previous block",

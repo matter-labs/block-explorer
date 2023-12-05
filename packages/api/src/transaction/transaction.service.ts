@@ -5,7 +5,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, CounterCriteria, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
-import { TransactionDetail } from "./entities/transactionDetail.entity";
+import { TransactionDetails } from "./entities/transactionDetails.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 import { CounterService } from "../counter/counter.service";
@@ -30,8 +30,8 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    @InjectRepository(TransactionDetail)
-    private readonly transactionDetailsRepository: Repository<TransactionDetail>,
+    @InjectRepository(TransactionDetails)
+    private readonly transactionDetailsRepository: Repository<TransactionDetails>,
     @InjectRepository(AddressTransaction)
     private readonly addressTransactionRepository: Repository<AddressTransaction>,
     @InjectRepository(Batch)
@@ -39,7 +39,7 @@ export class TransactionService {
     private readonly counterService: CounterService
   ) {}
 
-  public async findOne(hash: string): Promise<TransactionDetail> {
+  public async findOne(hash: string): Promise<TransactionDetails> {
     const queryBuilder = this.transactionDetailsRepository.createQueryBuilder("transaction");
     queryBuilder.leftJoinAndSelect("transaction.batch", "batch");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");

@@ -8,7 +8,7 @@ import { SortingOrder } from "../common/types";
 import { CounterService } from "../counter/counter.service";
 import { TransactionService, FilterTransactionsOptions } from "./transaction.service";
 import { Transaction } from "./entities/transaction.entity";
-import { TransactionDetail } from "./entities/transactionDetail.entity";
+import { TransactionDetails } from "./entities/transactionDetails.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 
@@ -18,7 +18,7 @@ describe("TransactionService", () => {
   let transaction;
   let service: TransactionService;
   let repositoryMock: typeorm.Repository<Transaction>;
-  let repositoryDetailMock: typeorm.Repository<TransactionDetail>;
+  let repositoryDetailMock: typeorm.Repository<TransactionDetails>;
   let addressTransactionRepositoryMock: typeorm.Repository<AddressTransaction>;
   let batchRepositoryMock: typeorm.Repository<Batch>;
   let counterServiceMock: CounterService;
@@ -27,7 +27,7 @@ describe("TransactionService", () => {
   beforeEach(async () => {
     counterServiceMock = mock<CounterService>();
     repositoryMock = mock<typeorm.Repository<Transaction>>();
-    repositoryDetailMock = mock<typeorm.Repository<TransactionDetail>>();
+    repositoryDetailMock = mock<typeorm.Repository<TransactionDetails>>();
     addressTransactionRepositoryMock = mock<typeorm.Repository<AddressTransaction>>();
     batchRepositoryMock = mock<typeorm.Repository<Batch>>();
     transaction = {
@@ -42,7 +42,7 @@ describe("TransactionService", () => {
           useValue: repositoryMock,
         },
         {
-          provide: getRepositoryToken(TransactionDetail),
+          provide: getRepositoryToken(TransactionDetails),
           useValue: repositoryDetailMock,
         },
         {

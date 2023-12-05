@@ -14,7 +14,7 @@ import { buildDateFilter } from "../common/utils";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { TransactionDto } from "./dtos/transaction.dto";
-import { TransactionDetailDto } from "./dtos/transactionDetail.dto";
+import { TransactionDetailsDto } from "./dtos/transactionDetails.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
@@ -73,7 +73,7 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
-  ): Promise<TransactionDetailDto> {
+  ): Promise<TransactionDetailsDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();

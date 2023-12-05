@@ -7,7 +7,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Token, TokenType } from "../src/token/token.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { ETH_TOKEN } from "../src/token/token.entity";
@@ -19,7 +19,7 @@ import { BatchDetails } from "../src/batch/batchDetails.entity";
 describe("TransactionController (e2e)", () => {
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
   let addressTransactionRepository: Repository<AddressTransaction>;
@@ -39,7 +39,7 @@ describe("TransactionController (e2e)", () => {
     await app.init();
 
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));

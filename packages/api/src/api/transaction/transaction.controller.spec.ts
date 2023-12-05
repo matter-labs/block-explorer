@@ -4,7 +4,7 @@ import { Logger } from "@nestjs/common";
 import { TransactionService } from "../../transaction/transaction.service";
 import { TransactionReceiptService } from "../../transaction/transactionReceipt.service";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { TransactionDetail } from "../../transaction/entities/transactionDetail.entity";
+import { TransactionDetails } from "../../transaction/entities/transactionDetails.entity";
 import { TransactionReceipt } from "../../transaction/entities/transactionReceipt.entity";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { TransactionController } from "./transaction.controller";
@@ -57,7 +57,7 @@ describe("TransactionController", () => {
     it("returns isError as 0 when transaction is successful", async () => {
       jest
         .spyOn(transactionServiceMock, "findOne")
-        .mockResolvedValue({ status: TransactionStatus.Included } as TransactionDetail);
+        .mockResolvedValue({ status: TransactionStatus.Included } as TransactionDetails);
 
       const response = await controller.getTransactionStatus(transactionHash);
       expect(response).toEqual({
@@ -73,7 +73,7 @@ describe("TransactionController", () => {
     it("returns isError as 1 when transaction is failed", async () => {
       jest
         .spyOn(transactionServiceMock, "findOne")
-        .mockResolvedValue({ status: TransactionStatus.Failed } as TransactionDetail);
+        .mockResolvedValue({ status: TransactionStatus.Failed } as TransactionDetails);
 
       const response = await controller.getTransactionStatus(transactionHash);
       expect(response).toEqual({
