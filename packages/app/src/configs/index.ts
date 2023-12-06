@@ -7,7 +7,7 @@ export type NetworkConfig = {
   bridgeUrl?: string;
   l2NetworkName: string;
   l2WalletUrl: string;
-  l2ChainId: 270 | 280 | 324;
+  l2ChainId: 270 | 280 | 324 | 300;
   l1ExplorerUrl?: string;
   maintenance: boolean;
   published: boolean;

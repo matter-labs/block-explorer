@@ -16,7 +16,7 @@ export default {
     "summary",
     "progress-bar",
     "@cucumber/pretty-formatter",
-    "./tests/e2e/src/support/reporters/allure-reporter.js",
+    // "./tests/e2e/src/support/reporters/allure-reporter.js",
   ],
   formatOptions: { snippetInterface: "async-await" },
   worldParameters: getWorldParams(),
