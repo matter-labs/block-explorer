@@ -1,19 +1,19 @@
 import type { NetworkConfig, RuntimeConfig } from "@/configs";
 
 export const DEFAULT_NETWORK: NetworkConfig = {
-  apiUrl: "https://block-explorer-api.sepolia.zksync.dev",
-  verificationApiUrl: "https://explorer.sepolia.era.zksync.dev",
-  bridgeUrl: "https://staging.goerli.bridge.zksync.dev",
-  hostnames: ["https://sepolia.explorer.zksync.io"],
+  apiUrl: "https://block-explorer-api.testnets.zksync.dev",
+  verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
+  bridgeUrl: "https://goerli.bridge.zksync.io",
+  hostnames: ["https://goerli.explorer.zksync.io"],
   icon: "/images/icons/zksync-arrows.svg",
-  l1ExplorerUrl: "https://sepolia.etherscan.io",
-  l2ChainId: 300,
-  l2NetworkName: "zkSync Era Sepolia Testnet",
-  l2WalletUrl: "https://staging-portal.zksync.dev/?network=era-boojnet",
+  l1ExplorerUrl: "https://goerli.etherscan.io",
+  l2ChainId: 280,
+  l2NetworkName: "zkSync Era Goerli Testnet",
+  l2WalletUrl: "https://goerli.portal.zksync.io/",
   maintenance: false,
-  name: "sepolia",
+  name: "goerli",
   published: true,
-  rpcUrl: "https://sepolia.era.zksync.dev",
+  rpcUrl: "https://testnet.era.zksync.dev",
 };
 
 export default (): RuntimeConfig => {
