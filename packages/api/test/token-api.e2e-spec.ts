@@ -4,14 +4,14 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import * as request from "supertest";
 import { Repository } from "typeorm";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Token, ETH_TOKEN } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 
 describe("Token API (e2e)", () => {
   let app: INestApplication;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let batchRepository: Repository<BatchDetails>;
   let tokenRepository: Repository<Token>;
 
@@ -24,7 +24,7 @@ describe("Token API (e2e)", () => {
     configureApp(app);
     await app.init();
 
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
 

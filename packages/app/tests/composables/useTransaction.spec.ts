@@ -94,6 +94,8 @@ vi.mock("ohmyfetch", async () => {
     gasPerPubdata: "800",
     maxFeePerGas: "7000",
     maxPriorityFeePerGas: "8000",
+    error: null,
+    revertReason: null,
   };
   return {
     ...mod,
@@ -450,6 +452,8 @@ describe("useTransaction:", () => {
         nonce: 24,
         receivedAt: "2023-02-28T08:42:08.198Z",
         status: "verified",
+        error: null,
+        revertReason: null,
         l1BatchNumber: 11014,
         isL1BatchSealed: true,
         logs: [

@@ -30,6 +30,19 @@
           />
         </TableBodyColumn>
       </tr>
+      <tr v-if="transaction?.status === 'failed'" class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label transaction-reason-label">
+            {{ t("transactions.table.reason") }}
+          </span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.reasonTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value transaction-reason-value">
+          {{ transaction.error || transaction.revertReason || "" }}
+        </TableBodyColumn>
+      </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.block") }}</span>
@@ -283,9 +296,6 @@ const gasUsedPercent = computed(() => {
 
 <style lang="scss">
 .transaction-info-table {
-  .table-body {
-    @apply md:overflow-visible;
-  }
   .table-body-col {
     @apply py-4;
   }
@@ -334,6 +344,9 @@ const gasUsedPercent = computed(() => {
   }
   .transaction-status-value {
     @apply py-2;
+  }
+  .transaction-reason-value {
+    @apply text-error-600 whitespace-normal;
   }
 }
 </style>

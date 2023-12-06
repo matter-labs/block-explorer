@@ -72,6 +72,9 @@
         },
         "table": {
             "status": "Статус",
+            "statusTooltip": "Статус транзакції",
+            "reason": "Причина",
+            "reasonTooltip": "Причина невиконання транзакції",
             "transactionHash": "Хеш Транзакції",
             "nonce": "Нонс",
             "created": "Створено",

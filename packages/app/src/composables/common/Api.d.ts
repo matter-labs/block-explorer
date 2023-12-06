@@ -92,6 +92,8 @@ declare namespace Api {
       l1BatchNumber: number | null;
       isL1BatchSealed: boolean;
       status: "included" | "committed" | "proved" | "verified" | "failed";
+      error: string | null;
+      revertReason: string | null;
     };
 
     type Transfer = {

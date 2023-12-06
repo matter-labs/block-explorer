@@ -90,4 +90,10 @@ export class Transaction extends CountableEntity {
 
   @Column({ type: "int", default: 1 })
   public readonly receiptStatus: number;
+
+  @Column({ nullable: true })
+  public readonly error?: string;
+
+  @Column({ nullable: true })
+  public readonly revertReason?: string;
 }

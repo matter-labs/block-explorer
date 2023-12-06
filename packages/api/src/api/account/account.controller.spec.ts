@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { BadRequestException, Logger } from "@nestjs/common";
 import { L2_ETH_TOKEN_ADDRESS } from "../../common/constants";
 import { BlockService } from "../../block/block.service";
-import { BlockDetail } from "../../block/blockDetail.entity";
+import { BlockDetails } from "../../block/blockDetails.entity";
 import { TransactionService } from "../../transaction/transaction.service";
 import { BalanceService } from "../../balance/balance.service";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
@@ -629,7 +629,7 @@ describe("AccountController", () => {
     it("returns blocks list response when block by miner are found", async () => {
       jest
         .spyOn(blockServiceMock, "findMany")
-        .mockResolvedValue([{ number: 1, timestamp: new Date("2023-03-03") } as BlockDetail]);
+        .mockResolvedValue([{ number: 1, timestamp: new Date("2023-03-03") } as BlockDetails]);
       const response = await controller.getAccountMinedBlocks(address, {
         page: 1,
         offset: 10,

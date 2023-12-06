@@ -33,6 +33,8 @@ const transaction: TransactionListItem = {
   gasPerPubdata: "800",
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
+  error: null,
+  revertReason: null,
 };
 
 vi.mock("ohmyfetch", () => {
