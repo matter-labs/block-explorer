@@ -74,7 +74,7 @@ Feature: Redirection
     Then Current page have "<url>" address 
 
     Examples: 
-     | Initial page                                         | Network                           | url                                                     | 
-     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Mainnet                | /address/0x000000000000000000000000000000000000800A     | 
-     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Goerli Testnet         | /address/0x000000000000000000000000000000000000800A     |
-     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Sepolia Testnet        | /address/0x000000000000000000000000000000000000800A     | 
+     | Initial page                                         | Network                           | url                                                                      | 
+     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Goerli Testnet         | /address/0x000000000000000000000000000000000000800A/?network=goerli      |
+     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Sepolia Testnet        | /address/0x000000000000000000000000000000000000800A/?network=sepolia     | 
+     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Mainnet                | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 
