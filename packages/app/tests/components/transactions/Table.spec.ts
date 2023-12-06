@@ -57,6 +57,12 @@ const transaction: TransactionListItem = {
   executeTxHash: null,
   proveTxHash: null,
   isL1BatchSealed: false,
+  gasPrice: "4000",
+  gasLimit: "5000",
+  gasUsed: "3000",
+  gasPerPubdata: "800",
+  maxFeePerGas: "7000",
+  maxPriorityFeePerGas: "8000",
 };
 
 const contractAbi: AbiFragment[] = [

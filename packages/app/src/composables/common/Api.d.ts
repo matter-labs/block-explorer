@@ -78,6 +78,12 @@ declare namespace Api {
       nonce: number;
       blockNumber: number;
       blockHash: string;
+      gasPrice: string;
+      gasLimit: string;
+      gasUsed: string;
+      gasPerPubdata: string | null;
+      maxFeePerGas: string | null;
+      maxPriorityFeePerGas: string | null;
       receivedAt: string;
       commitTxHash: string | null;
       proveTxHash: string | null;

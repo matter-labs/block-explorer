@@ -158,7 +158,15 @@
                 "unableToLoadMore": "Unable to load more",
                 "tryAgain": "Try again ->"
             },
-            "unknown": "Unknown"
+            "unknown": "Unknown",
+            "gasLimitAndUsed": "Gas limit & used",
+            "gasLimitAndUsedTooltip": "Maximum amount of gas allocated for the transaction & the amount eventually used.",
+            "gasPerPubdata": "Gas per pubdata",
+            "gasPerPubdataTooltip": "Maximum amount of gas the user is willing to pay for a single byte of published data (pubdata).",
+            "maxFeePerGas": "Max fee",
+            "maxFeePerGasTooltip": "Maximum amount a user is willing to pay for their tx.",
+            "maxPriorityFeePerGas": "Max priority fee",
+            "maxPriorityFeePerGasTooltip": "Maximum amount a user is willing to give to the block producer."
         },
         "logs": {
             "name": "Name",

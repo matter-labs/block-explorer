@@ -153,7 +153,48 @@
           <FeeData :fee-data="transaction?.feeData" :show-details="transaction?.status !== 'indexing'" />
         </TableBodyColumn>
       </tr>
-
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.gasLimitAndUsed") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasLimitAndUsedTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value"
+          >{{ transaction?.gasLimit }} | {{ transaction?.gasUsed }} ({{ gasUsedPercent }}%)</TableBodyColumn
+        >
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.gasPerPubdata") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">{{ transaction.gasPerPubdata }}</TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.maxFeePerGas">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.maxFeePerGas") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.maxFeePerGasTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <EthAmountPrice :amount="transaction.maxFeePerGas"></EthAmountPrice>
+        </TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.maxPriorityFeePerGas">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.maxPriorityFeePerGas") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.maxPriorityFeePerGasTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <EthAmountPrice :amount="transaction.maxPriorityFeePerGas"></EthAmountPrice>
+        </TableBodyColumn>
+      </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.nonce") }}</span>
@@ -228,6 +269,15 @@ const props = defineProps({
 const tokenTransfers = computed(() => {
   // exclude transfers with no amount, such as NFT until we fully support them
   return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
+});
+
+const gasUsedPercent = computed(() => {
+  if (props.transaction) {
+    const gasLimit = parseInt(props.transaction.gasLimit, 10);
+    const gasUsed = parseInt(props.transaction.gasUsed, 10);
+    return parseFloat(((gasUsed / gasLimit) * 100).toFixed(2));
+  }
+  return null;
 });
 </script>
 
