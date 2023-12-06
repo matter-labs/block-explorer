@@ -50,7 +50,7 @@ flowchart
 ## 🛠 Installation
 
 ```bash
-$ npm install
+npm install
 ```
 
 ## ⚙️ Setting up env variables
@@ -63,7 +63,7 @@ Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo 
 
 The following script sets `.env` files for [Worker](./packages/worker) and [API](./packages/api) packages as well as environment configuration file for [App](./packages/app) package based on your local [zksync-era](https://github.com/matter-labs/zksync-era) repo setup.
 ```bash
-$ npm run hyperchain:configure
+npm run hyperchain:configure
 ```
 You can review and edit generated files if you need to change any settings.
 
@@ -72,18 +72,18 @@ You can review and edit generated files if you need to change any settings.
 Before running the solution, make sure you have a database server up and running, you have created a database and set up all the required environment variables.
 To create a database run the following command:
 ```bash
-$ npm run db:create
+npm run db:create
 ```
 
 To run all the packages (`Worker`, `API` and front-end `App`) in `development` mode run the following command from the root directory.
 ```bash
-$ npm run dev
+npm run dev
 ```
 
 For `production` mode run:
 ```bash
-$ npm run build
-$ npm run start
+npm run build
+npm run start
 ```
 
 Each component can also be started individually. Follow individual packages `README` for details.
@@ -105,15 +105,15 @@ To verify front-end `App` is running open http://localhost:3010 in your browser.
 ## 🕵️‍♂️ Testing
 Run unit tests for all packages:
 ```bash
-$ npm run test
+npm run test
 ```
 Run e2e tests for all packages:
 ```bash
-$ npm run test:e2e
+npm run test:e2e
 ```
 Run tests for a specific package:
 ```bash
-$ npm run test -w {package}
+npm run test -w {package}
 ```
 For more details on testing please check individual packages `README`.
 
@@ -129,7 +129,9 @@ zkSync Era Block Explorer is distributed under the terms of either
 at your option.
 
 ## 🔗 Production links
-- Testnet API: https://block-explorer-api.testnets.zksync.dev
+- Testnet Goerli API: https://block-explorer-api.testnets.zksync.dev
+- Testnet Sepolia API: https://block-explorer-api.sepolia.zksync.dev
 - Mainnet API: https://block-explorer-api.mainnet.zksync.io
-- Testnet App: https://goerli.explorer.zksync.io
+- Testnet Goerli App: https://goerli.explorer.zksync.io
+- Testnet Sepolia App: https://sepolia.explorer.zksync.io
 - Mainnet App: https://explorer.zksync.io
