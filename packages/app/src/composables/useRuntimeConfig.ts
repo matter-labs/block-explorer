@@ -13,7 +13,7 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   maintenance: false,
   name: "sepolia",
   published: true,
-  rpcUrl: "https://sepolia.era.zksync.dev"
+  rpcUrl: "https://sepolia.era.zksync.dev",
 };
 
 export default (): RuntimeConfig => {
