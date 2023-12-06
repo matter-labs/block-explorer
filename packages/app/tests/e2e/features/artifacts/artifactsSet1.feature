@@ -94,6 +94,7 @@ Feature: Main Page
   Examples:
       | Value                      | Dropdown |
       | zkSync Era Goerli Testnet  | network  |
+      | zkSync Era Sepolia Testnet | network  |
 
   Scenario: Network stats is displayed
     Then Element with "text" "Network Stats" should be "visible"
