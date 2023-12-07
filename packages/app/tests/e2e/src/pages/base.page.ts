@@ -121,6 +121,7 @@ export class BasePage {
   }
 
   async getElementByClassAndText(className: string, text: string) {
+    await this.world.page?.waitForTimeout(config.defaultTimeout.timeout);
     element = await this.world.page?.locator(`//*[@class='${className}' and contains(text(), '${text}')]`);
     return await element;
   }
