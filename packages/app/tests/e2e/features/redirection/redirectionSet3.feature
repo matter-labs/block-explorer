@@ -14,8 +14,8 @@ Feature: Redirection
 
     Examples:
     | Block Number     | Artifact type       | url         |
-    |  1003            | from address        | /address/   |
-    |  1003            | to address          | /address/   |
+    |  100            | from address        | /address/   |
+    |  100            | to address          | /address/   |
 
   @id368:I @mainnet 
   Scenario: Verify redirection from Block page L1 addresses to etherscan after address click
@@ -25,8 +25,8 @@ Feature: Redirection
 
     Examples:
     | Block Number  | Artifact type       | url         |
-    |  1003         | from address        | /address/   |
-    |  1003         | to address          | /address/   |
+    |  100          | from address        | /address/   |
+    |  100          | to address          | /address/   |
 
   #Main Page - Transaction page
   @id338 @testnetSmokeSuite
@@ -43,7 +43,7 @@ Feature: Redirection
   #369 Contract page - Pages - Redirection
   @id369 @testnet @testnetSmokeSuite
   Scenario: Verify contract link on the Contacts page
-    Given I go to page "/address/0x0BfcE1D53451B4a8175DD94e6e029F7d8a701e9c"
+    Given I go to page "/address/0xed7175341f123f7718aBaCF1702d6980CFc08784"
     When I click on the first "from address" link
     Given Page with part address "/address/" includes ID result
 

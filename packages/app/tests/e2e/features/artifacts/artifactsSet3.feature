@@ -120,7 +120,7 @@ Feature: Main Page
     # When I click by text "Show more transactions ->"
     #Then Element with "text" "self" should be "visible"
 
-  @id580 @id578 @id619 @testnet @testnetSmokeSuite
+  @id580 @id578 @id619 @testnet
   Scenario Outline: Verify label "<label name>" for method column on Contract page
     Given I go to page "<Page>"
     Then Column with "Method" name includes "<label name>" cell
@@ -142,7 +142,7 @@ Feature: Main Page
 
   @id258 @testnet @testnetSmokeSuite
   Scenario Outline: Check data type dropdown for "<Row>" and select "<Value>"
-    Given I go to page "/tx/0x4f7406f5565d875ce1a2ebb7c83f582e9795294ad57276eae3909b59537ab051"
+    Given I go to page "/tx/0x4dca9c536124e5e2b29af17d075c3e55d15f119acf5f3327c9fdb1a3ffeab427"
     When I select "Logs" tab on "Transaction" page
     When I click on datatype dropdown of "<Row>" row
     When I click by text "<Value>"
@@ -153,11 +153,11 @@ Feature: Main Page
       | Topics | Hex     |
       | Topics | Number  |
       | Topics | Text    |
-      | Topics | Address |
+      | Topics | Addres  |
       | Data   | Hex     |
       | Data   | Number  |
       | Data   | Text    |
-      | Data   | Address |
+      | Data   | Addres  |
 
   @id258 @mainnet 
   Scenario Outline: Check data type dropdown for "<Row>" and select "<Value>"
@@ -189,13 +189,13 @@ Feature: Main Page
 
   @id588 @testnet @testnetSmokeSuite
   Scenario: Check Processed status component for Transaction page
-    Given I go to page "/tx/0x51cef3cdc8237635c6151b664c1925281766fabe2fa3d60e63f1369829c2f881"
+    Given I go to page "/tx/0x4dca9c536124e5e2b29af17d075c3e55d15f119acf5f3327c9fdb1a3ffeab427"
     Then Verify the badge with "Processed" status is visible
     Then Verify the badge with "Executed" status is visible
     Then Element with "text" "Executed" should be "visible"
     # Then Status component color with "Executed" status should be "green"
 
-  @id589 @testnet @testnetSmokeSuite
+  @id589 @testnet
   Scenario: Check Failed status component for Transaction page
     Given I go to page "/tx/0xb556d6cd77cf37002c668156b0ea7a1c18050decc1c99a67d6aa3b214647d2ae"
     Then Verify the badge with "Failed" status is visible

@@ -157,7 +157,8 @@ Feature: Copying
 #    And Element with "text" "Copied!" should be "visible"
 #    Then Clipboard value is not empty
 
-  @id275 @testnet @testnetSmokeSuite
+  #@testnetSmokeSuite no tokens in tokenlist
+  @id275 @testnet 
   Scenario Outline: Check "<Row>" hashes copying for Tokens page
     Given I go to page "/tokenlist"
     When I click on the copy button with "<Row>" row on "Tokens" page

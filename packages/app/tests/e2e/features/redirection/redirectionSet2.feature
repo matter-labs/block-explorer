@@ -29,7 +29,7 @@ Feature: Redirection
 
   @id242:I @testnet @testnetSmokeSuite
   Scenario Outline: Verify redirection from Contracts page after "<Artifact type>" click
-    Given I go to page "/address/0xAB2e93b557ef5FD04ABc6f57De6a1D1DE18924c4"
+    Given I go to page "/address/0x000000000000000000000000000000000000800A"
     When I click on the first "<Artifact type>" link
     Given Page with part address "<url>" includes ID result
 
@@ -91,7 +91,7 @@ Feature: Redirection
   #Transaction page 241 - navigation, 553 - redirection
   @id241 @id553 @id339 @id340 @testnet @testnetSmokeSuite
   Scenario Outline: Verify redirection from Transaction page after "<Artifact type>" click
-    Given I go to page "/tx/0x6fc015405255af17fb38f5a1408557f5f00d094e07a2f8f6af933a889d9a3330"
+    Given I go to page "/tx/0x095ba0e946b09767085c7ddfb0f9ff36fab230fc819b56d41185a3033de27bea"
     When I click on the first "<Artifact type>" link
     Given Page with part address "<url>" includes ID result
 
@@ -132,8 +132,8 @@ Feature: Redirection
       | Fee               | /address/   |
 
 
-  #Tokens page
-  @id250 @testnetSmokeSuite
+  #Tokens page @testnetSmokeSuite
+  @id250 
   Scenario Outline: Verify redirection from Tokens page after "<Artifact type>" click
     Given I go to page "/tokenlist/"
     When I click on the first "<Artifact type>" link
