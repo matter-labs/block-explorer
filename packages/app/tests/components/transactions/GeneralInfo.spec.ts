@@ -170,6 +170,12 @@ const transaction: TransactionItem = {
       },
     },
   ],
+  gasPrice: "4000",
+  gasLimit: "5000",
+  gasUsed: "3000",
+  gasPerPubdata: "800",
+  maxFeePerGas: "7000",
+  maxPriorityFeePerGas: "8000",
 };
 
 vi.mock("@/composables/useToken", () => {
@@ -206,8 +212,24 @@ describe("Transaction info table", () => {
       },
     });
     await nextTick();
-    const [txHash, status, block, batch, from, to, tokensTransferred, inputData, value, fee, nonce, createdAt] =
-      wrapper.findAll("tbody tr td:nth-child(2)");
+    const [
+      txHash,
+      status,
+      block,
+      batch,
+      from,
+      to,
+      tokensTransferred,
+      inputData,
+      value,
+      fee,
+      gasLimitAndUsed,
+      gasPerPubdata,
+      maxFee,
+      maxFeePriority,
+      nonce,
+      createdAt,
+    ] = wrapper.findAll("tbody tr td:nth-child(2)");
     expect(txHash.find(".displayed-string").text()).toBe("0x9c526cc47ca...ff8a629cffa3c");
 
     const badges = status.findAllComponents(Badge);
@@ -248,6 +270,15 @@ describe("Transaction info table", () => {
     expect(inputData.find(".displayed-string").text()).toBe("0xa9059cbb000...000000000000c");
     expect(`${value.find(".token-amount").text()} ${fee.find(".token-symbol").text()}`).toBe("0 ETH");
     expect(`${fee.find(".token-amount").text()} ${fee.find(".token-symbol").text()}`).toBe("0.0014447025 ETH");
+
+    expect(gasLimitAndUsed.text()).toBe("5000 | 3000 (60%)");
+    expect(gasPerPubdata.text()).toBe("800");
+    expect(`${maxFee.find(".token-amount").text()} ${maxFee.find(".token-symbol").text()}`).toBe(
+      "0.000000000000007 ETH"
+    );
+    expect(`${maxFeePriority.find(".token-amount").text()} ${maxFeePriority.find(".token-symbol").text()}`).toBe(
+      "0.000000000000008 ETH"
+    );
     expect(nonce.text()).toBe("24");
     expect(createdAt.find(".full-date").text()).toBe("2023-02-28 11:42");
 
@@ -262,6 +293,10 @@ describe("Transaction info table", () => {
       inputDataTooltip,
       valueTooltip,
       feeTooltip,
+      gasLimitAndUsedTooltip,
+      gasPerPubdataTooltip,
+      maxFeeTooltip,
+      maxPriorityFeeTooltip,
       nonceTooltip,
       createdAtTooltip,
     ] = wrapper.findAll("tbody .transaction-info-field-tooltip").map((e) => e.text());
@@ -275,6 +310,10 @@ describe("Transaction info table", () => {
     expect(inputDataTooltip).toBe(i18n.global.t("transactions.table.inputDataTooltip"));
     expect(valueTooltip).toBe(i18n.global.t("transactions.table.valueTooltip"));
     expect(feeTooltip).toBe(i18n.global.t("transactions.table.feeTooltip"));
+    expect(gasLimitAndUsedTooltip).toBe(i18n.global.t("transactions.table.gasLimitAndUsedTooltip"));
+    expect(gasPerPubdataTooltip).toBe(i18n.global.t("transactions.table.gasPerPubdataTooltip"));
+    expect(maxFeeTooltip).toBe(i18n.global.t("transactions.table.maxFeePerGasTooltip"));
+    expect(maxPriorityFeeTooltip).toBe(i18n.global.t("transactions.table.maxPriorityFeePerGasTooltip"));
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
     expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.createdTooltip"));
   });

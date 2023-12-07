@@ -88,6 +88,12 @@ vi.mock("ohmyfetch", async () => {
     commitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
     executeTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
     proveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
+    gasPrice: "4000",
+    gasLimit: "5000",
+    gasUsed: "3000",
+    gasPerPubdata: "800",
+    maxFeePerGas: "7000",
+    maxPriorityFeePerGas: "8000",
     error: null,
     revertReason: null,
   };
@@ -538,6 +544,12 @@ describe("useTransaction:", () => {
             },
           },
         ],
+        gasPrice: "4000",
+        gasLimit: "5000",
+        gasUsed: "3000",
+        gasPerPubdata: "800",
+        maxFeePerGas: "7000",
+        maxPriorityFeePerGas: "8000",
       });
     });
     it("adds paymaster fields to fee data when transaction is paid by paymaster", async () => {
@@ -586,6 +598,10 @@ describe("useTransaction:", () => {
             value: "0",
             nonce: 24,
             l1BatchNumber: 11014,
+            gasPrice: "4000",
+            gasLimit: "5000",
+            maxFeePerGas: "7000",
+            maxPriorityFeePerGas: "8000",
           }),
           getTransactionDetails: vi.fn().mockResolvedValue({
             status: "verified",
@@ -595,10 +611,12 @@ describe("useTransaction:", () => {
             fee: "0x521f303519100",
             isL1Originated: false,
             receivedAt: "2023-02-28T08:42:08.198Z",
+            gasPerPubdata: "0x320",
           }),
           getTransactionReceipt: vi.fn().mockResolvedValue({
             transactionIndex: 0,
             logs,
+            gasUsed: "3000",
           }),
         };
         const { transaction, isRequestFailed, getByHash } = useTransaction({
@@ -709,6 +727,12 @@ describe("useTransaction:", () => {
             },
           ],
           transfers: [],
+          gasPrice: "4000",
+          gasLimit: "5000",
+          gasUsed: "3000",
+          gasPerPubdata: "800",
+          maxFeePerGas: "7000",
+          maxPriorityFeePerGas: "8000",
         });
       });
     });
