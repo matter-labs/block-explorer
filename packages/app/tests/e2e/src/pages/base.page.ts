@@ -120,6 +120,11 @@ export class BasePage {
     return await element;
   }
 
+  async getElementByClassAndText(className: string, text: string) {
+    element = await this.world.page?.locator(`//*[@class='${className}' and contains(text(), '${text}')]`);
+    return await element;
+  }
+
   async getNetworkLayer(testid: string, selectorType: string) {
     helper = new Helper(this.world);
     const dataLinkId = `//*[@class='transactions-data-link-network']`;

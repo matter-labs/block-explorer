@@ -135,6 +135,13 @@ When("I click by element with partial href {string}", async function (this: ICus
   await element.click();
 });
 
+When("I click by element with class {string} and text {string}", async function (this: ICustomWorld, className: string, text: string) {
+  basePage = new BasePage(this);
+  element = await basePage.getElementByClassAndText(className, text);
+
+  await element.click();
+});
+
 When(
   "I click by element with partial href {string} and text {string}",
   async function (this: ICustomWorld, partialHref: string, text: string) {

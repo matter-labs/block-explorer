@@ -114,11 +114,11 @@ Feature: Main Page
     # When I click by text "Show more transactions ->"
     Then Element with "text" "in" should be "visible"
 
-  #@id382 @mainnet
-  #Scenario: Verify label "self" for Account info on Account page
-    #Given I go to page "/address/0x94124252B5D343AB6E950A15982599ee1AADE660"
-    # When I click by text "Show more transactions ->"
-    #Then Element with "text" "self" should be "visible"
+  @id382 @mainnet
+  Scenario: Verify label "self" for Account info on Account page
+    Given I go to page "/address/0x94124252B5D343AB6E950A15982599ee1AADE660"
+    When I click by element with class "sr-only" and text "Next"
+    Then Element with "text" "self" should be "visible"
 
   @id580 @id578 @id619 @testnet
   Scenario Outline: Verify label "<label name>" for method column on Contract page
