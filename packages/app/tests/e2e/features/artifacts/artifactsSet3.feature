@@ -111,13 +111,11 @@ Feature: Main Page
   @id380 @mainnet
   Scenario: Verify label "in" for Account info on Account page
     Given I go to page "/address/0x0000000000000000000000000000000000000000"
-    # When I click by text "Show more transactions ->"
     Then Element with "text" "in" should be "visible"
 
   @id382 @mainnet
   Scenario: Verify label "self" for Account info on Account page
-    Given I go to page "/address/0x94124252B5D343AB6E950A15982599ee1AADE660"
-    When I click by element with class "sr-only" and text "Next"
+    Given I go to page "/address/0xed7175341f123f7718aBaCF1702d6980CFc08784"
     Then Element with "text" "self" should be "visible"
 
   @id580 @id578 @id619 @testnet
@@ -195,9 +193,9 @@ Feature: Main Page
     Then Element with "text" "Executed" should be "visible"
     # Then Status component color with "Executed" status should be "green"
 
-  @id589 @testnet
+  @id589 @testnet @testnetSmokeSuite
   Scenario: Check Failed status component for Transaction page
-    Given I go to page "/tx/0xb556d6cd77cf37002c668156b0ea7a1c18050decc1c99a67d6aa3b214647d2ae"
+    Given I go to page "/tx/0xd5f436a8f6785ae6d4d21375c5f497e4d0350407582a584a867cd7e01efbbc15"
     Then Verify the badge with "Failed" status is visible
     Then Element with "text" "Failed" should be "visible"
     # Then Status component color with "failed" status should be "red"
