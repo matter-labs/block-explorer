@@ -132,8 +132,8 @@ Feature: Redirection
       | Fee               | /address/   |
 
 
-  #Tokens page @testnetSmokeSuite
-  @id250 
+  #Tokens page 
+  @id250 @testnetSmokeSuite
   Scenario Outline: Verify redirection from Tokens page after "<Artifact type>" click
     Given I go to page "/tokenlist/"
     When I click on the first "<Artifact type>" link
