@@ -144,18 +144,18 @@ Feature: Main Page
     When I select "Logs" tab on "Transaction" page
     When I click on datatype dropdown of "<Row>" row
     When I click by text "<Value>"
-    Then Check the element contains text "<Value>"
+    Then Check the element have the exact text "<Value>"
 
     Examples:
       | Row    | Value   |
       | Topics | Hex     |
       | Topics | Number  |
       | Topics | Text    |
-      | Topics | Addres  |
+      | Topics | Address |
       | Data   | Hex     |
       | Data   | Number  |
       | Data   | Text    |
-      | Data   | Addres  |
+      | Data   | Address |
 
   @id258 @mainnet 
   Scenario Outline: Check data type dropdown for "<Row>" and select "<Value>"
@@ -163,7 +163,7 @@ Feature: Main Page
     When I select "Logs" tab on "Transaction" page
     When I click on datatype dropdown of "<Row>" row
     When I click by text "<Value>"
-    Then Check the element contains text "<Value>"
+    Then Check the element have the exact text "<Value>"
 
     Examples:
       | Row    | Value   |
