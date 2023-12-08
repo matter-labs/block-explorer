@@ -19,6 +19,10 @@ on:
         type: string
         default: '/?network=mainnet'
         required: true
+      testnet_network_value_for_e2e:
+          type: string
+          default: '/?network=sepolia'
+          required: true
       publish_to_allure: #Here we define the variable that can be overwritten by caller workflow
         type: boolean
         description: "Publish test results to allure"
@@ -106,7 +110,7 @@ jobs:
           echo "Run tests"
             if [ "${{ matrix.tags }}" = "@testnetSmokeSuite" ]; then
                 echo "Run in testnetSmokeSuite only"
-                E2ENETWORK='/?network=goerli' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @mainnet"
+                E2ENETWORK='${{ inputs.testnet_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @mainnet"
             else
                 echo "Run in mainnet"
                 E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
