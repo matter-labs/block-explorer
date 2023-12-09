@@ -1,0 +1,731 @@
+{
+    "general": {
+        "l2NetworkName": "zkSync Era",
+        "l1NetworkName": "Ethereum"
+    },
+    "copyButton": {
+        "tooltip": "Kopyalandı!"
+    },
+    "connectMetamaskButton": {
+        "label": "MetaMask ile bağlan",
+        "connecting": "Bağlanılıyor...",
+        "metaMaskNotFound": "MetaMask bulunamadı",
+        "logout": "Çıkış Yap"
+    },
+    "networkStats": {
+        "title": "Ağ İstatistikleri",
+        "subtitleTestnet": "Test ağında istatistikler zaman zaman sıfırlanır",
+        "subtitleMainnet": "zkSync Era Mainnet'i herkese açıktır.",
+        "committed": "Oluşturulmuş Bloklar",
+        "verified": "Doğrulanmış Bloklar",
+        "transactions": "İşlemler",
+        "totalLocked": "Toplam Kilitli Değer"
+    },
+    "breadcrumbs": {
+        "home": "Ana Sayfa"
+    },
+    "blocks": {
+        "table": {
+            "block": "Blok",
+            "status": "Durum",
+            "statusTooltip": "Bloğun son durumu",
+            "batch": "Toplu İşlem İndeksi",
+            "unknown": "Bilinmiyor",
+            "batchTooltip": "Bloğun işlemlerinin L1'e gönderildiği toplu işlem indeksi",
+            "age": "Oluşturulma Zamanı",
+            "transactionsShort": "tx sayısı",
+            "timestamp": "Zaman Damgası",
+            "timestampTooltip": "Bir bloğun madenciliği yapıldığı tarih ve saat",
+            "blockNumber": "Blok Numarası",
+            "blockNumberTooltip": "Blok yüksekliği, blok zincirinin uzunluğunu gösterir, yeni blok eklemelerinden sonra artar",
+            "blockSize": "Blok Büyüklüğü",
+            "blockSizeTooltip": "Blok içindeki işlemlerin sayısı",
+            "rootHash": "Root Hashi",
+            "rootHashTooltip": "Bu blok çalıştırıldıktan sonra elde edilen durum kökü hash'i",
+            "noRootHashYet": "Henüz root hash yok",
+            "commitTxHash": "Oluşturma tx hashi",
+            "commitTxHashTooltip": "Bloğu oluşturmak için akıllı sözleşmeye gönderilen L1 işleminin hash'i",
+            "committedAt": "Oluşturulma Zamanı",
+            "committedAtTooltip": "Bloğun oluşturulduğu zaman",
+            "notYetCommitted": "Henüz oluşturulmadı",
+            "proveTxHash": "Kanıt tx hashi",
+            "proveTxHashTooltip": "Bloğun kanıtlandığı L1 işleminin hash'i",
+            "provenAt": "Kanıtlandı",
+            "provenAtTooltip": "Bloğun kanıtlandığı zaman",
+            "notYetProven": "Henüz kanıtlanmadı",
+            "executeTxHash": "Yürütme tx hashi",
+            "executeTxHashTooltip": "Bloğun yürütüldüğü L1 işleminin hash'i",
+            "executedAt": "Yürütüldü",
+            "executedAtTooltip": "Bloğun yürütüldüğü zaman",
+            "notYetExecuted": "Henüz yürütülmedi",
+            "notFound": "Bulunamadı",
+            "notFoundHomePage": "Henüz hiç blok yok. Lütfen daha sonra tekrar kontrol edin."
+        },
+        "status": {
+            "verified": "Doğrulanmış",
+            "sealed": "Mühürlenmiş"
+        },
+        "blocks": "Bloklar",
+        "blockNumber": "Blok #",
+        "infoTableTitle": "Blok Bilgisi",
+        "infoTableError": "Bir Hata oluştu",
+        "transactionTableError": "Bir şeyler ters gitti",
+        "transactionTable": {
+            "title": "Blok İşlemleri",
+            "showMore": "Daha fazla işlem göster ->",
+            "noTransactions": "Bu blok hiçbir işleme sahip değil",
+            "blockNotFound": "Bu blok oluşturulmamış veya kapatılmamış."
+        }
+    },
+    "transfers": {
+        "notFound": "Bu adresin şu an hiçbir işlemi bulunmuyor",
+        "table": {
+            "transactionHash": "İşlem Hash'i",
+            "age": "Oluşturulma Zamanı",
+            "type": "Tip",
+            "from": "Gönderen",
+            "direction": "Yönü",
+            "to": "Alıcı",
+            "amount": "Miktar",
+            "value": "Değer"
+        }
+    },
+    "transactions": {
+        "tabs": {
+            "generalInfo": "Genel Bilgi",
+            "logs": "Kayıtlar"
+        },
+        "table": {
+            "status": "Durum",
+            "statusTooltip": "İşlemin durumu",
+            "reason": "Sebep",
+            "reasonTooltip": "İşlemin başarısız olma sebebi",
+            "txnHash": "İşlem hash'i",
+            "transactionHash": "İşlem Hash'i",
+            "transactionHashTooltip": "İşlem Hash'i bir işlem gerçekleştirildiğinde oluşturulan benzersiz 66 karakterlik bir tanımlayıcıdır",
+            "nonce": "Nonce",
+            "nonceTooltip": "Gönderen adres tarafından gönderilen işlem sayısı",
+            "created": "Oluşturulma Zamanı",
+            "createdTooltip": "İşlemin bloğa eklenme tarihi ve zamanı",
+            "sendersNonce": "Gönderenin Nonce'u",
+            "from": "Gönderen",
+            "fromTooltip": "İşlemin gönderici kısmı",
+            "to": "Alıcı",
+            "toTooltip": "İşlemin alıcı kısmı",
+            "tokensTransferred": "Transfer edilen Tokenler",
+            "tokensTransferredTooltip": "Bu işlem ile transfer edilen tokenler",
+            "for": "Miktar",
+            "transferTo": "Alıcı",
+            "block": "Blok",
+            "batch": "Toplu İşlem",
+            "blockTooltip": "Number of the block in which the transaction is recorded",
+            "batchTooltip": "The batch index where this transaction is submitted to L1",
+            "value": "Değer",
+            "valueTooltip": "Bir işlem içinde bir adresten diğerine transfer edilen Ether miktarı",
+            "fee": "Gaz Ücreti",
+            "paidByPaymaster": "Sağlayıcı tarafından ödendi",
+            "feeDetails": {
+                "moreDetails": "Daha fazla Detay",
+                "closeDetails": "Daha az Detay",
+                "initial": "Başlangıç:",
+                "refunded": "İade Edildi:",
+                "refunds": "İadeler:",
+                "whyRefunded": "Neden iade aldım?",
+                "whyPaymasterRefunded": "Neden sağlayıcı iade sağlıyor",
+                "whatIsPaymaster": "Sağlayıcı nedir?",
+                "paymaster": "Sağlayıcı"
+            },
+            "feeTooltip": "Gönderenin bu işlem için ödediği ücret, seçilen varlık cinsinden miktar ve mevcut zamandaki USD fiyatı",
+            "direction": "Yön",
+            "initiator": "Başlatıcı",
+            "amount": "Miktar",
+            "method": "Metot",
+            "transferMethodName": "Transfer",
+            "timestamp": "Zaman Damgası",
+            "age": "Oluşturulma Zamanı",
+            "tokenAddress": "Token adresi",
+            "tokenName": "Token adı",
+            "tokenSymbol": "Token sembolü",
+            "decimals": "Ondalık",
+            "contractAddress": "Sözleşme adresi",
+            "contractAddressTooltip": "İşlemin alıcı tarafı (bir sözleşme adresi olabilir)",
+            "inputData": "Giriş verisi",
+            "inputDataTooltip": "Bu işlem için dahil edilen ek veri. Genellikle sözleşme etkileşiminin bir parçası olarak veya alıcıya gönderilen bir ileti olarak kullanılır.",
+            "contractHash": "Sözleşme hash'i",
+            "notYetSentOnTheChain": "Henüz zincire gönderilmedi",
+            "notFound": "Bulunamadı",
+            "notFoundHomePage": "Henüz herhangi bir işlem yapmadık. Lütfen daha sonra tekrar kontrol edin.",
+            "footer": {
+            "showMore": "Daha fazla işlemi göster ->",
+            "unableToLoadMore": "Daha fazlasını yükleyemiyor",
+            "tryAgain": "Tekrar dene ->"
+            },
+            "unknown": "Bilinmiyor",
+            "gasLimitAndUsed": "Gaz sınırı ve kullanılan",
+            "gasLimitAndUsedTooltip": "İşlem için tahsis edilen maksimum gaz miktarı ve sonunda kullanılan miktar.",
+            "gasPerPubdata": "Pubdata başına gaz",
+            "gasPerPubdataTooltip": "Kullanıcının bir yayın verisi (pubdata) için bir byte için ödemeye istekli olduğu maksimum gaz miktarı.",
+            "maxFeePerGas": "Maksimum ücret",
+            "maxFeePerGasTooltip": "Kullanıcının işlemi için ödemeye istekli olduğu maksimum miktar.",
+            "maxPriorityFeePerGas": "Maksimum öncelik ücreti",
+            "maxPriorityFeePerGasTooltip": "Kullanıcının blok üreticiye vermek istediği maksimum miktar."
+        },
+        "logs": {
+            "name": "İsim",
+            "address": "Adres",
+            "topics": "Başlıklar",
+            "data": "Veri",
+            "matchesTopic": "Eşleşen Başlıklar",
+            "options": {
+                "hex": "Hex",
+                "number": "Sayı",
+                "text": "Metin",
+                "address": "Adres"
+            },
+            "matchesTopicAlert": "Adres, işlem alıcısıyla eşleşiyor"
+        },
+        "status": {
+            "included": "Gerçekleşti",
+            "committed": "Gönderildi",
+            "proved": "Kanıtlandı",
+            "verified": "Yürütüldü",
+            "failed": "Başarısız oldu"
+        },
+        "statusComponent": {
+            "processed": "İşlendi",
+            "indexing": "İndexleniyor...",
+            "sending": "Gönderiliyor",
+            "sent": "Gönderildi",
+            "validating": "Doğrulanıyor",
+            "validated": "Doğrulanmış",
+            "executing": "Yürütülüyor",
+            "executed": "Gerçekleşti",
+            "failed": "Başarısız",
+            "indexingTooltip": "İşlem indexleniyor ve yakında tam olarak yansıtılacak.",
+            "ethereumNetwork": "Ethereum ağı"
+        },
+        "transaction": "İşlem",
+        "transactionNumber": "İşlem #",
+        "loadingInfoFailed": "İşlem bilgisi yükleme başarısız",
+        "transactionNotFound": "Böyle bir işlem bulunamadı",
+        "transactionInfo": "İşlem Bilgisi",
+        "tryRequestAgain": "Tekrar Dene"
+    },
+    "transactionData": {
+        "showOriginalInput": "Orijinal girdiyi göster",
+        "showDecodedInput": "Decode edilmiş girdiyi göster",
+        "decodingInProgress": "İşlem verisi decode ediliyor...",
+        "parametersTable": {
+            "name": "Ad",
+            "type": "Tür",
+            "data": "Veri"
+        },
+        "viewOptions": {
+            "decoded": "Decode Hali",
+            "original": "Binary Hali"
+        },
+        "errors": {
+            "unableToDecode": "Girdi verisi decode edilemiyor ({error})",
+            "contract_not_verified": "Kontrat doğrulanmamış",
+            "contract_request_failed": "Kontrat isteği başarısız oldu",
+            "unknown_error": "Bilinmeyen hata"
+        }
+    },
+    "batches": {
+        "batch": "Toplu İşlem",
+        "batchNumber": "Toplu İşlem #",
+        "title": "Toplu İşlemler",
+        "breadcrumbsTitle": "Toplu İşlemler",
+        "index": "Toplu İşlem İndeksi",
+        "indexTooltip": "L1 Toplu İşlem numarası, Ethereum üzerinde ispat edilmek üzere L2 bloklarını gruplayarak oluşturulan L1 Batch'lerin uzunluğunu gösterir",
+        "size": "Toplu İşlem Büyüklüğü",
+        "sizeTooltip": "L1 Batch içindeki işlem sayısı",
+        "timestamp": "Oluşturulma Zamanı",
+        "timestampTooltip": "L1 Batch'ın üretildiği tarih ve saat",
+        "rootHash": "Toplu İşlem Hash'i",
+        "rootHashTooltip": "L1 Batch Hash'i, bir L2 işlem veya veri topluluğunu özetleyen ve tek bir işlem olarak L1 blockchain'e gönderilen bir kriptografik hash (veya Merkle kökü) olarak özetlenebilir",
+        "noRootHashYet": "Henüz toplu işlem hash'i yok",
+        "commitTxHash": "İşlenmiş İşlem hash'i",
+        "commitTxHashTooltip": "Bu L1 Batchi taahhüt eden L1 işleminin hash değeri",
+        "committedAt": "İşlendi",
+        "committedAtTooltip": "L1 Batch'in Ethereum'a işlendiği tarih ve saat",
+        "notYetCommitted": "Henüz işlenmedi",
+        "proveTxHash": "Kanıtlanmış İşlem hash'i",
+        "proveTxHashTooltip": "L1 Batch'in Ethereum'a kanıtlandığı tarih ve saat",
+        "provenAt": "Kanıtlandı",
+        "provenAtTooltip": "L1 Batch'in Ethereum'a kanıtlandığı tarih ve saat",
+        "notYetProven": "Henüz Kanıtlanmadı",
+        "executeTxHash": "Yürütülmüş İşlem hash'i",
+        "executeTxHashTooltip": "Bu L1 Batch'in yürütüldüğü L1 işleminin hash değeri",
+        "executedAt": "Yürütüldü",
+        "executedAtTooltip": "L1 Batch'in Ethereum'da yürütüldüğü tarih ve saat",
+        "notYetExecuted": "Henüz Yürütülmedi",
+        "notYetSealed": "Bu toplu işlem henüz mühürlenmedi",
+        "transactionTable": {
+            "title": "Toplu İşlem İşlemleri",
+            "error": "Bir şeyler ters gitti",
+            "noTransactions": "Bu Toplu İşlemde herhangi bir işlem yok",
+            "batchNotFound": "Bu Toplu İşlem henüz oluşturulmadı veya mühürlenmedi"
+        },
+        "table": {
+            "status": "Durum",
+            "txnBatch": "Toplu İşlem",
+            "size": "Büyüklük",
+            "age": "Oluşturulma Zamanı",
+            "notFound": "Bulunamadı",
+            "notFoundHomePage": "Henüz herhangi bir toplu işlemimiz olmadı. Lütfen daha sonra tekrar kontrol edin.",
+            "transactionsShort": "tx sayısı"
+        },
+        "tooltipInfo": "Ethereum Ağına Gönderilen En Son Toplu İşlemler",
+        "status": {
+            "verified": "Yürütüldü",
+            "sealed": "İşlendi",
+            "failed": "Başarısız oldu"
+        }
+    },
+    "header": {
+        "nav": {
+            "blockExplorer": "Blok Gezgini",
+            "portal": "Portal",
+            "documentation": "Dokümentasyon",
+            "tools": "Araçlar",
+            "apiDocs": "API Dokümentasyonu",
+            "contractVerification": "Akıllı Kontrat Doğrulama",
+            "debugger": "zkEVM Hata Ayıklayıcısı",
+            "bridge": "Köprü"
+        }
+    },
+    "locale": {
+        "en": "EN",
+        "uk": "UA",
+        "tr": "TR"
+    },
+    "footer": {
+        "nav": {
+            "docs": "Dokümanlar",
+            "terms": "Şartlar",
+            "contact": "İletişim"
+        }
+    },
+    "searchForm": {
+        "placeholder": "Adrese, toplu işlem numarasına, sözleşmeye veya işlem hash'ine göre arama yapın",
+        "errorMessage": "Lütfen doğru bir sorgu girin"
+    },
+    "estimatedCost": {
+        "title": "Transferler ve etkileşimlerin tahmini maliyeti",
+        "subtitle": "zkRollup'lar, L1 veya Optimistic Rollup'lardan önemli ölçüde daha ucuzdur"
+    },
+    "blockExplorer": {
+        "title": "zkSync Era Blok Gezgini",
+        "subtitle": "zkSync Era Blok Gezgini, işlemler, bloklar, akıllı sözleşmeler ve çok daha fazlasına derinlemesine bir bakış sunar. zkSync Era'ya derinlemesine dalın ve ağı keşfedin.",
+        "latestBlocks": "Son Bloklar",
+        "latestTransactions": "Son İşlemler",
+        "batches": "Son Toplu İşlemler"
+    },
+    "failedRequest": "Gösterilemedi .... Lütfen sayfayı yenilemeyi deneyin.",
+    "addressView": {
+        "title": "Adres"
+    },
+    "contract": {
+        "title": "Kontrat",
+        "contractNumber": "Kontrat ",
+        "infoTableTitle": "Kontrat Bilgisi",
+        "infoTableError": "Bir Hata oluştu",
+        "balanceTableTitle": "Bakiyeler",
+        "notFound": "Bulunamadı",
+        "transactionTable": {
+            "error": "Bir şeyler ters gitti",
+            "notFound": {
+                "title": "Bu akıllı sözleşmenin herhangi bir işlemi yok",
+                "subtitle": "Bu akıllı sözleşme ile ilgili herhangi bir işlem bulamıyoruz. Bu ilk olman için bir şans olabilir"
+            }
+        },
+        "balances": {
+            "error": {
+                "title": "Bakiyeler:",
+                "subtitle": "Bir şeyler ters gitti.\nLütfen bir kaç dakika sonra bu sayfaya geri dönün."
+            },
+            "notFound": {
+                "title": "Bu akıllı sözleşmenin herhangi bir bakiyesi yok",
+                "subtitle": "Bu akıllı sözleşme ile ilgili herhangi bir bakiye bulamıyoruz."
+            }
+        },
+        "table": {
+            "address": "Adres",
+            "creator": "Oluşturan",
+            "transactions": "İşlemler",
+            "fees": "Ödenen Gaz Ücretleri"
+        },
+        "bytecode": {
+            "areYouAnOwner": "Bu akıllı kontratın sahibi misin?",
+            "verifyAndPublishToday": "Şimdi kontratınızın kaynak kodunu doğrulayın ve yayınlayın!\nBu kontrat, şu adreste oluşturuldu ",
+            "verifyButton": "Akıllı Kontratı Doğrula",
+            "readWriteMissingMessage": "Bu kontratın etkileşim için Okuma/Yazma işlevleri yok",
+            "writeMissingMessage": "Bu kontratın etkileşim için Yazma işlevleri yok",
+            "readMissingMessage": "Bu kontratın etkileşim için Okuma işlevleri yok",
+            "deployedBytecode": "Yayınlanmış bytecode"
+        },
+        "sourceCode": {
+            "label": "Kontrat'ın Kaynak Kodu",
+            "singleFileContract": "Tek dosya Kontrat",
+            "fileLabel": "{total} dosyadan {index}.dosya: {fileName}"
+        },
+        "events": {
+            "txnHash": "tx adresi",
+            "method": "metot",
+            "logs": "kayıtlar",
+            "notFound": "Akıllı Kontrat şu anda herhangi bir olaya sahip değil",
+            "value": "değer",
+            "showMore": "Daha Fazla",
+            "hide": "Gizle"
+        },
+        "abiInteraction": {
+            "transactionHash": "İşlem Hash'i: {transactionHash}",
+            "connectWalletToInteract": "Yazmak için cüzdan bağla",
+            "metaMaskNotFound": "MetaMask bulunamadı. Lütfen devam etmek için MetaMask indirin.",
+            "contractImplementationFound": "Ana kontrat şu adreste bulundu",
+            "contractImplementationAt": "Ana kontrat adresi",
+            "contractNotVerified": "Doğrulanmamış",
+            "verifyImplementationMessage": "Lütfen ana kontratı doğrulayın, böylece Proxy olarak kontratı Okuma/Yazma yetkisine sahip olabilirsiniz.",
+            "proxyCautionMessage": "Lütfen, proxy tanımlama sürecinin popüler proxy standartlarının analizi ile gerçekleştirildiğini ve her zaman doğru olmayabileceğini unutmayın. Herhangi bir akıllı kontrat ile etkileşimde bulunurken dikkatli olun.",
+            "method": {
+                "read": {
+                    "name": "Oku",
+                    "action": "Sorgu"
+                },
+                "write": {
+                    "name": "Yaz",
+                    "action": "Yaz"
+                },
+                "readAsProxy": {
+                    "name": "Proxy olarak oku",
+                    "action": "Sorgu"
+                },
+                "writeAsProxy": {
+                    "name": "Proxy olarak yaz",
+                    "action": "Yaz"
+                }
+            },
+            "validation": {
+                "required": "Zorunlu değer",
+                "invalid": "Geçersiz değer"
+            }
+        }
+    },
+    "contractVerification": {
+        "title": "Akıllı Kontrat Doğrulaması",
+        "subtitle": "Kaynak kodu doğrulama, akıllı sözleşmelerle etkileşimde bulunan kullanıcılar için şeffaflık sağlar. Kaynak kodunu yüklediğinde, Era Gezgini, derlenmiş kodu blokzincirdekiyle karşılaştırır.",
+        "resources": {
+            "title": "Akıllı-kontratları ayrıca {hardhat} kullanarak doğrulayabilirsin",
+            "links": {
+                "hardhat": "HardHat Eklentisi"
+            }
+        },
+        "form": {
+            "compilationInfo": "Derleme Bilgisi",
+            "contractAddress": {
+                "title": "Kontrat Adresi",
+                "underline": "Kontrat oluşturulduğunda verilen 0x ile başlayan adres.",
+                "placeholder": "0x0000...",
+                "validation": {
+                    "required": "Kontrat adresi girmek zorunludur",
+                    "not_valid": "Lütfen, geçerli bir kontrat adresi girin"
+                }
+            },
+            "contractName": {
+                "label": "Kontrat Adı",
+                "solcUnderline": "Koddaki belirlenmiş isim ile uyuşmalı. Örneğin, kontrata göre BenimKontratim { '{..}' } ise, BenimKontratim kontratın adıdır.",
+                "vyperUnderline": "Dosya adı ile uyuşmalı. Örneğin, kontrat BenimKontratim.vy ise girmeniz gereken isim BenimKontratim olmalıdır.",
+                "placeholder": "Adı",
+                "validation": {
+                    "required": "Contract adı girmek zorunludur"
+                }
+            },
+            "contractPath": {
+                "label": "Kontrat Yolu",
+                "underline": "Derleme anındaki kontratınızın göreceli yolu",
+                "solcPlaceholder": "/kontratlar/Kontrat.sol",
+                "vyperPlaceholder": "/kontratlar/Kontrat.vy",
+                "validation": {
+                    "required": "Kontrat yolu girmek zorunludur"
+                }
+            },
+            "optimizationUsed": {
+                "label": "Optimizasyon",
+                "options": {
+                    "yes": "Evet",
+                    "no": "Hayır"
+                },
+                "underline": "Derleme sırasında optimizasyonu açtıysanız, Evet'i işaretleyin."
+            },
+            "solcVersion": {
+                "label": "Solc Versiyonu",
+                "placeholder": "Versiyon seç",
+                "validation": {
+                    "required": "Solc versiyonu seçmek zorunludur"
+                },
+                "error": "Solc versiyonları listesi alınamadı"
+            },
+            "zksolcVersion": {
+                "label": "Zksolc Versiyonu",
+                "placeholder": "Versiyon seç",
+                "validation": {
+                    "required": "Zksolc versiyonu seçmek zorunludur"
+                },
+                "error": "Zksolc versiyonları listesi alınamadı",
+                "details": "Detaylar"
+            },
+            "vyperVersion": {
+                "label": "Vyper Versiyonu",
+                "placeholder": "Versiyon seç",
+                "validation": {
+                    "required": "Vyper versiyonu seçmek zorunludur"
+                },
+                "error": "Vyper versiyonları listesi alınamadı"
+            },
+            "zkvyperVersion": {
+                "label": "Zkvyper Versiyonu",
+                "placeholder": "Versiyon seç",
+                "validation": {
+                    "required": "Zkvyper versiyonu seçmek zorunludur"
+                },
+                "error": "Zkvyper versiyonları listesi alınamadı",
+                "details": "Detaylar"
+            },
+            "compilerType": {
+                "label": "Derleyici türü",
+                "underline": "Kontrat doğrulama metodu",
+                "soliditySingleFile": "Solidity (Tek dosya)",
+                "solidityMultiPart": "Solidity (Çoklu kontrat)",
+                "vyperSingleFile": "Vyper (Tek dosya)",
+                "vyperMultiPart": "Vyper (Çoklu kontrat)"
+            },
+            "sourceCode": {
+                "solcLabel": "Solidity Kontrat Kodu",
+                "vyperLabel": "Vyper Kontrat Kodu",
+                "validation": {
+                    "required": "Kontrat kaynak kodu girmek zorunludur"
+                }
+            },
+            "constructorArguments": {
+                "label": "Constructor Argümanları",
+                "placeholder": "0x"
+            },
+            "buttonVerify": "Akıllı Kontratı Doğrula",
+            "buttonVerifying": "Doğrulanıyor...",
+            "buttonClear": "Temizle",
+            "unknownError": "Başarısız kontrat doğrulama! Bilgileriniz doğrultusunda kontratınızı doğrulayamıyoruz, lütfen kontrol edin",
+            "flattenerInfo": {
+                "title": "Eğer kontratınızda \"imports\" kullanıyorsanız, bunları tek bir dosyada birleştirmelisiniz (ayrıca \"flattening\" olarak biliniyor). Bunun için {flattener} veya {flattery} gibi araçlar kullanabilirsiniz.",
+                "solidityFlattener": "solidity-flattener",
+                "solidityFlattery": "SolidityFlattery"
+            }
+        },
+        "compilationError": {
+            "title": "Başarısız Derleme",
+            "showMoreButton": "Daha fazla",
+            "showLessButton": "Daha az"
+        },
+        "verified": {
+            "title": "Kontrat doğrulandı!",
+            "underline": "{link} linkine sahip herkes kontratını inceleyebilir veya onunla etkileşime geçebilir",
+            "blockExplorer": "blok gezgini",
+            "back": "Kontrat'a Geri Dön"
+        },
+        "compilationInfo": {
+            "contractName": "Kontrat Adı",
+            "compilerVersion": "Derleyici Versiyonu",
+            "zksolcVersion": "Zksolc Versiyonu",
+            "zkvyperVersion": "Zkvyper Versiyonu",
+            "optimization": "Optimizasyon"
+        },
+        "multiFileVerification": {
+            "solcTitle": "Lütfen yüklemek için Solidity (*.sol) dosyalarını seçin",
+            "vyperTitle": "Lütfen yüklemek için Vyper (*.vy) dosyalarını seçin",
+            "chooseFiles": "Dosyaları Seçin",
+            "yourFiles": "Dosyaların",
+            "bytes": "Bytes",
+            "files": {
+                "label": "Dosyaları Seçin",
+                "validation": {
+                    "required": "Lütfen en az bir dosya seç"
+                }
+            },
+            "mainFile": {
+                "label": "Ana Dosya",
+                "placeholder": "Ana Dosyayı Seç",
+                "validation": {
+                    "required": "Lütfen kontratınızın tanımlandığı dosyayı seçin"
+                }
+            }
+        }
+    },
+    "blockView": {
+        "blockNumber": "Blok #",
+        "infoTableTitle": "Blok Bilgisi",
+        "infoTableError": "Bir Hata oluştu",
+        "transactionTableError": "Bir şeyler ters gitti",
+        "transactionTable": {
+            "title": "Blok İşlemleri",
+            "footer": "Daha fazla işlem göster ->"
+        },
+        "blockInfo": {
+            "number": "Blok Numarası",
+            "blockSize": "Blok Büyüklüğü",
+            "rootHash": "Yeni root hash'i",
+            "commitTxHash": "İşlem hash'ini işle",
+            "committedAt": "İşlendi",
+            "status": "Durum",
+            "proveTxHash": "İşlem hash'ini kanıtla"
+        }
+    },
+    "blocksView": {
+        "title": "Bloklar"
+    },
+    "transactionsView": {
+        "title": "İşlemler"
+    },
+    "tokenListView": {
+        "title": "En İyi Tokenler",
+        "heading": "En İyi Tokenler",
+        "offChainDataPoweredBy": "Off-chain veri sağlayıcısı",
+        "table": {
+            "tokenName": "Token Adı",
+            "price": "Fiyat",
+            "tokenAddress": "Token Adresi"
+        }
+    },
+    "pageError": {
+        "title": "Bir şeyler ters gitti",
+        "subtitle": "Bilinmeyen istek. Lütfen ana sayfaya gidin veya tekrar deneyin.",
+        "button": "Ana sayfa"
+    },
+    "timeMessages": {
+        "justNow": "hemen şimdi",
+        "past": "önce",
+        "future": "gelecek",
+        "lastMonth": "geçmiş ay",
+        "nextMonth": "gelecek ay",
+        "month": "ay",
+        "monthPlural": "ay",
+        "yesterday": "dün",
+        "tomorrow": "yarın",
+        "day": "gün",
+        "dayPlural": "gün",
+        "lastYear": "geçmiş yıl",
+        "nextYear": "gelecek yıl",
+        "year": "yıl",
+        "yearPlural": "yıl",
+        "lastWeek": "geçmiş hafta",
+        "nextWeek": "gelecek hafta",
+        "week": "hafta",
+        "weekPlural": "hafta",
+        "hourPlural": "saat",
+        "hour": "saat",
+        "minute": "dakika",
+        "minutePlural": "dakika",
+        "second": "saniye",
+        "secondPlural": "saniye"
+    },
+    "accountView": {
+        "title": "Hesap",
+        "infoTableError": "Bir Hata oluştu",
+        "accountNumber": "Hesap ",
+        "accountInfo": {
+            "address": "Adres",
+            "verifiedNonce": "Doğrulanmış nonce",
+            "sealedNonce": "İşlenmiş nonce"
+        },
+        "infoTableTitle": "Hesap Bilgisi",
+        "transactionTableError": "Bir şeyler ters gitti",
+        "transactionTable": {
+            "title": "Son İşlemler",
+            "notFound": {
+                "title": "Bu hesabın hiçbir işlemi bulunmuyor",
+                "subtitle": "Bu hesap ile ilgili herhangi bir işlem bulamıyoruz. Bu ilk olman için bir şans olabilir"
+            },
+            "error": "Bir şeyler ters gitti"
+        },
+        "balanceTableTitle": "Bakiyeler",
+        "balances": {
+            "error": {
+                "title": "Bakiyeler:",
+                "subtitle": "Bir şeyler ters gitti.\nLütfen bir kaç dakika sonra bu sayfaya geri dönün."
+            },
+            "notFound": {
+                "title": "Bu hesabın herhangi bir bakiyesi yok",
+                "subtitle": "Bu hesap ile ilgili herhangi bir bakiye bulamıyoruz."
+            }
+        }
+    },
+    "balances": {
+        "table": {
+            "asset": "Varlık",
+            "balance": "Bakiye",
+            "address": "Token Adresi",
+            "notFound": "Bulunamadı",
+            "error": "Bir hata oluştu",
+            "unknownSymbol": "bilinmiyor",
+            "showAll": "Tüm bakiyeleri göster"
+        }
+    },
+    "document": {
+        "title": "zkSync Era Blok Gezgini",
+        "home": "İşlemler, Bloklar, Kontratlar ve çok daha fazlası"
+    },
+    "notFound": {
+        "title": "Oops, hiçbir şey bulamadık",
+        "description": "Üzgünüz arama sonucuna göre hiçbir şey bulamadık, istersen bir kez daha aşağıdaki arama kutusunu deneyebilirsin",
+        "contactSupportTitle": "Eğer bizden kaynaklı olduğunu düşünüyorsan, lütfen",
+        "contactSupport": "destekle iletişime geç"
+    },
+    "maintenance": {
+        "title": "zkSync {network} şu anda bakımda",
+        "description": "zkSync {network} bakımdan dolayı şu anda kullanımda değil, güncellemeleri {twitter} veya {uptime} hesaplarımızdan takip edebilirsin",
+        "twitterLink": "zkSync Geliştiricileri",
+        "uptimeLink": "UpTime",
+        "twitterButton": "zkSync Geliştiricileri"
+    },
+    "tabs": {
+        "transactions": "İşlemler",
+        "contract": "Kontrat",
+        "events": "Olaylar",
+        "transfers": "Transferler"
+    },
+    "contractInfoTabs": {
+        "contract": "Kontrat",
+        "read": "Oku",
+        "write": "Yaz",
+        "readAsProxy": "Proxy olarak oku",
+        "writeAsProxy": "Proxy olarak yaz"
+    },
+    "debuggerTool": {
+        "title": "zkEVM Hata Ayıklayıcısı",
+        "whatFor": "Bu araç ile akıllı sözleşmelerinizin işleyişini yeniden oynatabilir ve her talimatı okuyabilirsiniz",
+        "uploadJSON": "JSON dosyası yükle",
+        "orDropHere": "veya buraya sürükle",
+        "unableToParseTrace": "Üzgünüz, bu dosyayı parse edemedik.",
+        "transaction": "İşlem: yüklenen dosyadan",
+        "executionStepNavigation": "Adım Sol/Sağ",
+        "searchPlaceholder": "Ara",
+        "start": "Başlat",
+        "child": "Çocuk",
+        "parent": "Ebeveyn",
+        "hex": "Hex",
+        "dec": "Dec",
+        "metadataBlock": {
+            "contract": "Mevcut Kontrat",
+            "tag": "Etiket",
+            "registers": "Kayıtlar",
+            "memory": "Hafıza",
+            "memoryChanges": "Hafıza Değişiklikleri",
+            "memoryPageIndex": {
+                "stack": "stack",
+                "heap": "heap",
+                "code": "code",
+                "returnData": "returndata",
+                "callData": "calldata"
+            }
+        }
+    }
+}
