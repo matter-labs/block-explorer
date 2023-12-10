@@ -6,7 +6,7 @@ import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { ConfigService } from "@nestjs/config";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { BalanceRepository } from "../repositories";
-import { Balance } from "../entities";
+import { Balance, TokenType } from "../entities";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 
 import { DELETE_OLD_BALANCES_DURATION_METRIC_NAME, DELETE_ZERO_BALANCES_DURATION_METRIC_NAME } from "../metrics";
@@ -15,7 +15,7 @@ import { DELETE_OLD_BALANCES_DURATION_METRIC_NAME, DELETE_ZERO_BALANCES_DURATION
 export class BalanceService {
   private readonly disableBalancesProcessing: boolean;
   private readonly logger: Logger;
-  public changedBalances: Map<number, Map<string, Map<string, BigNumber>>>;
+  public changedBalances: Map<number, Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>>;
 
   constructor(
     private readonly blockchainService: BlockchainService,
@@ -27,7 +27,7 @@ export class BalanceService {
     configService: ConfigService
   ) {
     this.logger = new Logger(BalanceService.name);
-    this.changedBalances = new Map<number, Map<string, Map<string, BigNumber>>>();
+    this.changedBalances = new Map<number, Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>>();
     this.disableBalancesProcessing = configService.get<boolean>("balances.disableBalancesProcessing");
   }
 
@@ -41,7 +41,8 @@ export class BalanceService {
     }
 
     const blockChangedBalances =
-      this.changedBalances.get(transfers[0].blockNumber) || new Map<string, Map<string, BigNumber>>();
+      this.changedBalances.get(transfers[0].blockNumber) ||
+      new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>();
 
     for (const transfer of transfers) {
       const changedBalancesAddresses = new Set([transfer.from, transfer.to]);
@@ -51,10 +52,15 @@ export class BalanceService {
         }
 
         if (!blockChangedBalances.has(changedBalanceAddress)) {
-          blockChangedBalances.set(changedBalanceAddress, new Map<string, BigNumber>());
+          blockChangedBalances.set(
+            changedBalanceAddress,
+            new Map<string, { balance: BigNumber; tokenType: TokenType }>()
+          );
         }
 
-        blockChangedBalances.get(changedBalanceAddress).set(transfer.tokenAddress, undefined);
+        blockChangedBalances
+          .get(changedBalanceAddress)
+          .set(transfer.tokenAddress, { balance: undefined, tokenType: transfer.tokenType });
       }
     }
 
@@ -84,7 +90,11 @@ export class BalanceService {
       for (let i = 0; i < balances.length; i++) {
         const [address, tokenAddress] = balanceAddresses[i];
         if (balances[i].status === "fulfilled") {
-          blockChangedBalances.get(address).set(tokenAddress, (balances[i] as PromiseFulfilledResult<BigNumber>).value);
+          const blockChangedBalancesForAddress = blockChangedBalances.get(address);
+          blockChangedBalancesForAddress.set(tokenAddress, {
+            balance: (balances[i] as PromiseFulfilledResult<BigNumber>).value,
+            tokenType: blockChangedBalancesForAddress.get(tokenAddress).tokenType,
+          });
         } else {
           this.logger.warn({
             message: "Get balance for token failed",
@@ -103,18 +113,34 @@ export class BalanceService {
 
     const balanceRecords: Partial<Balance>[] = [];
 
-    for (const [address, balances] of blockChangedBalances) {
-      for (const [tokenAddress, balance] of balances) {
+    for (const [address, addressTokenBalances] of blockChangedBalances) {
+      for (const [tokenAddress, addressTokenBalance] of addressTokenBalances) {
         balanceRecords.push({
           address,
           tokenAddress,
           blockNumber,
-          balance: this.disableBalancesProcessing ? BigNumber.from("-1") : balance,
+          balance: this.disableBalancesProcessing ? BigNumber.from("-1") : addressTokenBalance.balance,
         });
       }
     }
 
     await this.balanceRepository.addMany(balanceRecords);
+  }
+
+  public getERC20TokensForChangedBalances(blockNumber: number): string[] {
+    if (!this.changedBalances.has(blockNumber)) {
+      return [];
+    }
+    const blockChangedBalances = this.changedBalances.get(blockNumber);
+    const tokens = new Set<string>();
+    for (const [_, tokenAddresses] of blockChangedBalances) {
+      for (const [tokenAddress, tokenAddressBalance] of tokenAddresses) {
+        if (tokenAddressBalance.tokenType === TokenType.ERC20) {
+          tokens.add(tokenAddress);
+        }
+      }
+    }
+    return Array.from(tokens);
   }
 
   public async deleteOldBalances(fromBlockNumber: number, toBlockNumber: number): Promise<void> {
