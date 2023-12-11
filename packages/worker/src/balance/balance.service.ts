@@ -133,6 +133,7 @@ export class BalanceService {
     }
     const blockChangedBalances = this.changedBalances.get(blockNumber);
     const tokens = new Set<string>();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [_, tokenAddresses] of blockChangedBalances) {
       for (const [tokenAddress, tokenAddressBalance] of tokenAddresses) {
         if (tokenAddressBalance.tokenType === TokenType.ERC20) {
