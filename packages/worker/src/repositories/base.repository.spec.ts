@@ -87,6 +87,17 @@ describe("BaseRepository", () => {
     });
   });
 
+  describe("find", () => {
+    it("calls transactionManager find with provided options and returns result of the call", async () => {
+      const entity = { createdAt: new Date(), updatedAt: new Date() };
+      (entityManagerMock.find as jest.Mock).mockResolvedValue([entity]);
+
+      const result = await repository.find({ select: ["createdAt", "updatedAt"] });
+      expect(entityManagerMock.find).toBeCalledWith(BaseEntity, { select: ["createdAt", "updatedAt"] });
+      expect(result).toEqual([entity]);
+    });
+  });
+
   describe("delete", () => {
     it("calls transactionManager delete with provided params", async () => {
       const entity = { createdAt: new Date(), updatedAt: new Date() };

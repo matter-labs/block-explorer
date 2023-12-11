@@ -8,6 +8,7 @@ import { UnitOfWork } from "../unitOfWork";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { BlockInfo, BlockWatcher } from "./block.watcher";
 import { BalanceService } from "../balance/balance.service";
+import { TokenService } from "../token/token.service";
 import { BlockRepository } from "../repositories";
 import { Block } from "../entities";
 import { TransactionProcessor } from "../transaction";
@@ -35,6 +36,7 @@ export class BlockProcessor {
     private readonly transactionProcessor: TransactionProcessor,
     private readonly logProcessor: LogProcessor,
     private readonly balanceService: BalanceService,
+    private readonly tokenService: TokenService,
     private readonly blockWatcher: BlockWatcher,
     private readonly blockRepository: BlockRepository,
     private readonly eventEmitter: EventEmitter2,
@@ -152,8 +154,13 @@ export class BlockProcessor {
 
       const stopBalancesDurationMeasuring = this.balancesProcessingDurationMetric.startTimer();
 
-      this.logger.debug({ message: "Updating balances", blockNumber });
-      await this.balanceService.saveChangedBalances(blockNumber);
+      this.logger.debug({ message: "Updating balances and tokens", blockNumber });
+
+      const erc20TokensForChangedBalances = this.balanceService.getERC20TokensForChangedBalances(blockNumber);
+      await Promise.all([
+        this.balanceService.saveChangedBalances(blockNumber),
+        this.tokenService.saveERC20Tokens(erc20TokensForChangedBalances),
+      ]);
 
       stopBalancesDurationMeasuring();
     } catch (error) {
