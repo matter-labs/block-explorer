@@ -4,13 +4,16 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenRepository } from "../repositories/token.repository";
+import { AddressRepository } from "../repositories/address.repository";
 import { TokenService } from "./token.service";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
+import { Token } from "../entities";
 
 describe("TokenService", () => {
   let tokenService: TokenService;
   let blockchainServiceMock: BlockchainService;
   let tokenRepositoryMock: TokenRepository;
+  let addressRepositoryMock: AddressRepository;
   let startGetTokenInfoDurationMetricMock: jest.Mock;
   let stopGetTokenInfoDurationMetricMock: jest.Mock;
 
@@ -21,6 +24,7 @@ describe("TokenService", () => {
       },
     });
     tokenRepositoryMock = mock<TokenRepository>();
+    addressRepositoryMock = mock<AddressRepository>();
 
     stopGetTokenInfoDurationMetricMock = jest.fn();
     startGetTokenInfoDurationMetricMock = jest.fn().mockReturnValue(stopGetTokenInfoDurationMetricMock);
@@ -35,6 +39,10 @@ describe("TokenService", () => {
         {
           provide: TokenRepository,
           useValue: tokenRepositoryMock,
+        },
+        {
+          provide: AddressRepository,
+          useValue: addressRepositoryMock,
         },
         {
           provide: "PROM_METRIC_GET_TOKEN_INFO_DURATION_SECONDS",
@@ -430,6 +438,75 @@ describe("TokenService", () => {
       it("does not upsert the token", async () => {
         await tokenService.saveERC20Token(deployedContractAddress, transactionReceipt);
         expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(0);
+      });
+    });
+
+    describe("when transactionReceipt param is not provided", () => {
+      it("upserts the token without l1Address when token is valid", async () => {
+        await tokenService.saveERC20Token(deployedContractAddress);
+        expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(1);
+        expect(tokenRepositoryMock.upsert).toHaveBeenCalledWith({
+          ...tokenData,
+          blockNumber: deployedContractAddress.blockNumber,
+          transactionHash: deployedContractAddress.transactionHash,
+          l2Address: deployedContractAddress.address,
+          l1Address: undefined,
+          logIndex: deployedContractAddress.logIndex,
+        });
+      });
+    });
+  });
+
+  describe("saveERC20Tokens", () => {
+    beforeEach(() => {
+      jest.spyOn(tokenService, "saveERC20Token").mockResolvedValue(null);
+      jest.spyOn(tokenRepositoryMock, "find").mockResolvedValue([
+        {
+          l2Address: "0x0000000000000000000000000000000000000001",
+        } as Token,
+      ]);
+      jest.spyOn(addressRepositoryMock, "find").mockResolvedValue([]);
+    });
+
+    describe("when all the specified tokens are already saved", () => {
+      it("does not save tokens", async () => {
+        await tokenService.saveERC20Tokens(["0x0000000000000000000000000000000000000001"]);
+        expect(tokenService.saveERC20Token).not.toBeCalled();
+      });
+    });
+
+    describe("when there is no saved contract for all the tokens to save", () => {
+      it("does not save tokens", async () => {
+        await tokenService.saveERC20Tokens([
+          "0x0000000000000000000000000000000000000001",
+          "0x0000000000000000000000000000000000000002",
+        ]);
+        expect(tokenService.saveERC20Token).not.toBeCalled();
+      });
+    });
+
+    it("saves only tokens not saved yet and for which there is a contract already saved in DB", async () => {
+      (addressRepositoryMock.find as jest.Mock).mockResolvedValueOnce([
+        {
+          address: "0x0000000000000000000000000000000000000003",
+          createdInBlockNumber: 10,
+          creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+          creatorAddress: "0x0000000000000000000000000000000000000009",
+          createdInLogIndex: 1,
+        },
+      ]);
+      await tokenService.saveERC20Tokens([
+        "0x0000000000000000000000000000000000000001",
+        "0x0000000000000000000000000000000000000002",
+        "0x0000000000000000000000000000000000000003",
+      ]);
+      expect(tokenService.saveERC20Token).toBeCalledTimes(1);
+      expect(tokenService.saveERC20Token).toBeCalledWith({
+        address: "0x0000000000000000000000000000000000000003",
+        blockNumber: 10,
+        transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+        creatorAddress: "0x0000000000000000000000000000000000000009",
+        logIndex: 1,
       });
     });
   });
