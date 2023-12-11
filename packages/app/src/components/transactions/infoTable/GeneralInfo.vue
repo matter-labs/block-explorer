@@ -186,28 +186,6 @@
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">{{ transaction.gasPerPubdata }}</TableBodyColumn>
       </tr>
-      <tr class="transaction-table-row" v-if="transaction?.maxFeePerGas">
-        <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.maxFeePerGas") }}</span>
-          <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.maxFeePerGasTooltip") }}
-          </InfoTooltip>
-        </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value">
-          <EthAmountPrice :amount="transaction.maxFeePerGas"></EthAmountPrice>
-        </TableBodyColumn>
-      </tr>
-      <tr class="transaction-table-row" v-if="transaction?.maxPriorityFeePerGas">
-        <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.maxPriorityFeePerGas") }}</span>
-          <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.maxPriorityFeePerGasTooltip") }}
-          </InfoTooltip>
-        </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value">
-          <EthAmountPrice :amount="transaction.maxPriorityFeePerGas"></EthAmountPrice>
-        </TableBodyColumn>
-      </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.nonce") }}</span>
