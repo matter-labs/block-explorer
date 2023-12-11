@@ -1,10 +1,11 @@
 import { types, utils } from "zksync-web3";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
+import { In } from "typeorm";
 import { Histogram } from "prom-client";
 import { LogType, isLogOfType } from "../log/logType";
 import { BlockchainService } from "../blockchain/blockchain.service";
-import { TokenRepository } from "../repositories";
+import { AddressRepository, TokenRepository } from "../repositories";
 import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
 import parseLog from "../utils/parseLog";
@@ -27,6 +28,7 @@ export class TokenService {
 
   constructor(
     private readonly blockchainService: BlockchainService,
+    private readonly addressRepository: AddressRepository,
     private readonly tokenRepository: TokenRepository,
     @InjectMetric(GET_TOKEN_INFO_DURATION_METRIC_NAME)
     private readonly getTokenInfoDurationMetric: Histogram
@@ -52,7 +54,7 @@ export class TokenService {
 
   public async saveERC20Token(
     contractAddress: ContractAddress,
-    transactionReceipt: types.TransactionReceipt
+    transactionReceipt?: types.TransactionReceipt
   ): Promise<void> {
     let erc20Token: {
       symbol: string;
@@ -62,6 +64,7 @@ export class TokenService {
     };
 
     const bridgeLog =
+      transactionReceipt &&
       transactionReceipt.to.toLowerCase() === this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge &&
       transactionReceipt.logs?.find(
         (log) =>
@@ -105,5 +108,64 @@ export class TokenService {
         }),
       });
     }
+  }
+
+  public async saveERC20Tokens(tokenAddresses: string[]): Promise<void> {
+    const existingTokens = await this.findWhereInList(
+      (tokenAddressesBatch) =>
+        this.tokenRepository.find({
+          where: {
+            l2Address: In(tokenAddressesBatch),
+          },
+          select: ["l2Address"],
+        }),
+      tokenAddresses
+    );
+
+    const tokensToSave = tokenAddresses.filter(
+      (token) => !existingTokens.find((t) => t.l2Address.toLowerCase() === token.toLowerCase())
+    );
+    // fetch tokens contracts, if contract is not saved yet skip saving token
+    const tokensToSaveContracts = await this.findWhereInList(
+      (tokenAddressesBatch) =>
+        this.addressRepository.find({
+          where: {
+            address: In(tokenAddressesBatch),
+          },
+        }),
+      tokensToSave
+    );
+
+    await Promise.all(
+      tokensToSaveContracts.map((tokenContract) =>
+        this.saveERC20Token({
+          address: tokenContract.address,
+          blockNumber: tokenContract.createdInBlockNumber,
+          transactionHash: tokenContract.creatorTxHash,
+          creatorAddress: tokenContract.creatorAddress,
+          logIndex: tokenContract.createdInLogIndex,
+        } as ContractAddress)
+      )
+    );
+  }
+
+  private async findWhereInList<T>(
+    handler: (list: string[]) => Promise<T[]>,
+    list: string[],
+    batchSize = 500
+  ): Promise<T[]> {
+    const result: T[] = [];
+
+    let batch = [];
+    for (let i = 0; i < list.length; i++) {
+      batch.push(list[i]);
+      if (batch.length === batchSize || i === list.length - 1) {
+        const batchResult = await handler(batch);
+        result.push(...batchResult);
+        batch = [];
+      }
+    }
+
+    return result;
   }
 }

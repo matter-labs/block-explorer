@@ -11,6 +11,7 @@ import { TransactionProcessor } from "../transaction";
 import { LogProcessor } from "../log";
 import { BlockchainService } from "../blockchain";
 import { BalanceService } from "../balance";
+import { TokenService } from "../token/token.service";
 import { Block } from "../entities";
 import { BlockRepository } from "../repositories";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
@@ -24,6 +25,7 @@ describe("BlockProcessor", () => {
   let transactionProcessorMock: TransactionProcessor;
   let logProcessorMock: LogProcessor;
   let balanceServiceMock: BalanceService;
+  let tokenServiceMock: TokenService;
   let blockRepositoryMock: BlockRepository;
   let eventEmitterMock: EventEmitter2;
   let configServiceMock: ConfigService;
@@ -64,6 +66,10 @@ describe("BlockProcessor", () => {
         {
           provide: BalanceService,
           useValue: balanceServiceMock,
+        },
+        {
+          provide: TokenService,
+          useValue: tokenServiceMock,
         },
         {
           provide: BlockRepository,
@@ -125,6 +131,10 @@ describe("BlockProcessor", () => {
     balanceServiceMock = mock<BalanceService>({
       saveChangedBalances: jest.fn().mockResolvedValue(null),
       clearTrackedState: jest.fn(),
+      getERC20TokensForChangedBalances: jest.fn().mockReturnValue(["0x0000000000000000000000000000000000000001"]),
+    });
+    tokenServiceMock = mock<TokenService>({
+      saveERC20Tokens: jest.fn().mockResolvedValue(null),
     });
     blockRepositoryMock = mock<BlockRepository>({
       getLastBlock: jest.fn().mockResolvedValue(null),
@@ -599,6 +609,18 @@ describe("BlockProcessor", () => {
               await blockProcessor.processNextBlocksRange();
               expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledTimes(1);
               expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledWith(blocksToProcess[0].block.number);
+            });
+
+            it("identifies and saves ERC20 tokens based on balances", async () => {
+              await blockProcessor.processNextBlocksRange();
+              expect(balanceServiceMock.getERC20TokensForChangedBalances).toHaveBeenCalledTimes(1);
+              expect(balanceServiceMock.getERC20TokensForChangedBalances).toHaveBeenCalledWith(
+                blocksToProcess[0].block.number
+              );
+              expect(tokenServiceMock.saveERC20Tokens).toHaveBeenCalledTimes(1);
+              expect(tokenServiceMock.saveERC20Tokens).toHaveBeenCalledWith([
+                "0x0000000000000000000000000000000000000001",
+              ]);
             });
 
             it("stops the balances duration metric", async () => {
