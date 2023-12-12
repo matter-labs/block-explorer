@@ -68,10 +68,14 @@ export default [
   },
   {
     path: "/tokenlist",
-    name: "token-list",
+    redirect: "tokens",
+  },
+  {
+    path: "/tokens",
+    name: "tokens",
     component: () => import("@/views/TokensView.vue"),
     meta: {
-      title: "tokenListView.title",
+      title: "tokensView.title",
     },
   },
   {
