@@ -68,14 +68,14 @@ describe("Tokens", () => {
           expect(res.body).toStrictEqual({
             l2Address: l2Token,
             l1Address: null,
+            liquidity: null,
+            usdPrice: null,
+            iconURL: null,
             symbol: Token.customL2TokenSymbol,
             name: Token.customL2TokenName,
             decimals: Token.customL2TokenDecimals,
           })
-        )
-        .expect((res) => expect(res.body.liquidity).toStrictEqual("number"))
-        .expect((res) => expect(res.body.usdPrice).toStrictEqual("number"))
-        .expect((res) => expect(res.body.iconURL).toStrictEqual("string"));
+        );
     });
 
     describe("/tokens/{address}/transfers", () => {
