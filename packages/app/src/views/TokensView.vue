@@ -5,9 +5,9 @@
       <SearchForm class="search-form" />
     </div>
     <div class="tokens-header">
-      <h1>{{ t("tokenListView.heading") }}</h1>
+      <h1>{{ t("tokensView.heading") }}</h1>
       <div v-if="tokens[0]?.iconURL" class="coingecko-attribution">
-        <span>{{ t("tokenListView.offChainDataPoweredBy") }}{{ " " }}</span>
+        <span>{{ t("tokensView.offChainDataPoweredBy") }}{{ " " }}</span>
         <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
       </div>
     </div>
@@ -39,7 +39,7 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
     to: { name: "home" },
   },
   {
-    text: `${t("tokenListView.title")}`,
+    text: `${t("tokensView.title")}`,
   },
 ]);
 
