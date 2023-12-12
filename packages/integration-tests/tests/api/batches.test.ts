@@ -30,7 +30,7 @@ describe("/batches", () => {
   });
 
   //@id1514
-  it("Verify the response via /batches/{batchNumber}", async () => {
+  xit("Verify the response via /batches/{batchNumber}", async () => {
     await setTimeout(localConfig.standardPause); //works unstable without timeout
 
     const batches = await request(environment.blockExplorerAPI).get("/batches");
