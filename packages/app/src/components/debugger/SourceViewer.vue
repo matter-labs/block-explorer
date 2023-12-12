@@ -15,7 +15,22 @@
       :data-testid="item.expandable ? 'instruction-list-item-expandable' : 'instruction-list-item'"
     >
       <label class="instruction-list-line">{{ item.line + 1 }}</label>
-      <span class="instruction-list-item-text-container">
+      <span
+        class="instruction-list-item-text-container"
+        :style="{
+          color:
+            traceCountPercentage[
+              `${address}_${Object.keys(pcLineMapping).find((key) => pcLineMapping[parseInt(key)] === item.index)}`
+            ] > 0.4
+              ? 'white'
+              : 'black',
+          backgroundColor: `rgba(200, 0, 0, ${
+            traceCountPercentage[
+              `${address}_${Object.keys(pcLineMapping).find((key) => pcLineMapping[parseInt(key)] === item.index)}`
+            ]
+          }`,
+        }"
+      >
         <span class="instruction-list-item-text" v-html="highlight(item.label, searchText)"></span>
         <span v-if="item.error" class="instruction-list-item-error" :title="item.error">{{ item.error }}</span>
       </span>
@@ -68,6 +83,12 @@ const props = defineProps({
   searchText: {
     type: String,
     default: "",
+  },
+  traceCountPercentage: {
+    type: Object as PropType<{ [key: string]: number }>,
+  },
+  pcLineMapping: {
+    type: Object as PropType<{ [key: number]: number }>,
   },
 });
 
