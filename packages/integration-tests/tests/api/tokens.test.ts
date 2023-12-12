@@ -72,7 +72,10 @@ describe("Tokens", () => {
             name: Token.customL2TokenName,
             decimals: Token.customL2TokenDecimals,
           })
-        );
+        )
+        .expect((res) => expect(res.body.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(res.body.usdPrice).toStrictEqual("number"))
+        .expect((res) => expect(res.body.iconURL).toStrictEqual("string"));
     });
 
     describe("/tokens/{address}/transfers", () => {

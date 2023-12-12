@@ -53,7 +53,7 @@ jobs:
       - name: API tests run (parallel)
         run: |
           cd packages/integration-tests
-          npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
+          npx jest --verbose --silent --testPathPattern=${{ matrix.test-pattern }}
       - name: Stop containers
         if: always()
         run: |

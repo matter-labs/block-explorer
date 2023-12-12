@@ -56,6 +56,6 @@ describe("/batches", () => {
       .expect((res) => expect(typeof res.body.l1GasPrice).toStrictEqual("string"))
       .expect((res) => expect(typeof res.body.l2FairGasPrice).toStrictEqual("string"))
       .expect((res) => expect(typeof res.body.size).toStrictEqual("number"))
-      .expect((res) => expect(res.body.status).toStrictEqual("verified"));
+      .expect((res) => expect(res.body.status).toStrictEqual("string"));
   });
 });
