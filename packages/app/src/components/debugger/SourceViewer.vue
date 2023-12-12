@@ -18,17 +18,8 @@
       <span
         class="instruction-list-item-text-container"
         :style="{
-          color:
-            traceCountPercentage[
-              `${address}_${Object.keys(pcLineMapping).find((key) => pcLineMapping[parseInt(key)] === item.index)}`
-            ] > 0.4
-              ? 'white'
-              : 'black',
-          backgroundColor: `rgba(200, 0, 0, ${
-            traceCountPercentage[
-              `${address}_${Object.keys(pcLineMapping).find((key) => pcLineMapping[parseInt(key)] === item.index)}`
-            ]
-          }`,
+          color: item.traceCountPercentage > 0.4 ? 'white' : 'black',
+          backgroundColor: `rgba(200, 0, 0, ${item.traceCountPercentage}`,
         }"
       >
         <span class="instruction-list-item-text" v-html="highlight(item.label, searchText)"></span>
@@ -86,9 +77,11 @@ const props = defineProps({
   },
   traceCountPercentage: {
     type: Object as PropType<{ [key: string]: number }>,
+    required: true,
   },
   pcLineMapping: {
     type: Object as PropType<{ [key: number]: number }>,
+    required: true,
   },
 });
 
@@ -100,7 +93,10 @@ type InstructionNode = {
   expandable: boolean;
 };
 
-type VirtualInstructionNode = InstructionNode & { index: number };
+type VirtualInstructionNode = InstructionNode & {
+  index: number;
+  traceCountPercentage: number;
+};
 
 const expanded = ref<number[]>([]);
 const isReady = ref(false);
@@ -155,7 +151,17 @@ watchEffect(() => {
       }
       return val;
     })
-    .map((item, index) => ({ ...item, index, line: item.line }));
+    .map((item, index) => ({
+      ...item,
+      index,
+      line: item.line,
+      traceCountPercentage:
+        props.traceCountPercentage[
+          `${props.address}_${Object.keys(props.pcLineMapping).find(
+            (key) => props.pcLineMapping[parseInt(key)] === index
+          )}`
+        ],
+    }));
   if (isReady.value) {
     rebuild();
   }
