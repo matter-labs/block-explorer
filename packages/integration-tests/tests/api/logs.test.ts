@@ -23,7 +23,7 @@ describe("Logs API", () => {
     //@id1808
     it("Verify the response via /api?module=logs&action=getLogs&page={page}&offset={offset}0&toBlock={toBlock}&fromBlock={fromBlock}&address={address}", async () => {
       contractAddress = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
-      txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
+      // txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
 
       const apiRoute = `/api?module=logs&action=getLogs&page=1&offset=10&toBlock=10000&fromBlock=1&address=${contractAddress}`;
 
