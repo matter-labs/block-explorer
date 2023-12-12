@@ -15,16 +15,6 @@ import $testId from "@/plugins/testId";
 import routes from "@/router/routes";
 import DebuggerView from "@/views/DebuggerView.vue";
 
-// vi.mock("@/composables/useTrace", () => {
-//   return {
-//     default: () => ({
-//       useTraceNavigation: () => ({
-//         traceCountPercentage: {}
-//       }),
-//     }),
-//   };
-// });
-
 describe("DebuggerView:", () => {
   const file = ref({
     sources: {
