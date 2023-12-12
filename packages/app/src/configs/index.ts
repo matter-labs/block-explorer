@@ -12,6 +12,7 @@ export type NetworkConfig = {
   maintenance: boolean;
   published: boolean;
   hostnames: string[];
+  tokensMinLiquidity?: number;
 };
 
 export type EnvironmentConfig = {
