@@ -173,8 +173,8 @@ const blockExplorerLinks = reactive([
     to: { name: "transactions" },
   },
   {
-    label: computed(() => t("tokenListView.title")),
-    to: { name: "token-list" },
+    label: computed(() => t("tokensView.title")),
+    to: { name: "tokens" },
   },
 ]);
 
