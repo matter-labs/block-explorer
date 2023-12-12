@@ -31,6 +31,8 @@ describe("SourceViewer:", () => {
         address: "0x00",
         source: ["Hello World"],
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -49,6 +51,8 @@ describe("SourceViewer:", () => {
         source: ["Hello World"],
         errors: ["Error text"],
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -68,6 +72,8 @@ describe("SourceViewer:", () => {
         address: "0x00",
         source: ["Hello", "", "World"],
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -85,6 +91,8 @@ describe("SourceViewer:", () => {
         address: "0x00",
         source: ["foo", ".func_begin", "Hello", "World", "!", ".func_end"],
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -107,6 +115,8 @@ describe("SourceViewer:", () => {
         address: "0x00",
         source: ["foo", ".func_begin", "Hello", "World", "!", ".func_end"],
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -133,6 +143,8 @@ describe("SourceViewer:", () => {
         address: "0x00",
         source: ["foo", ".func_begin", "Hello", "World", "!", ".func_end"],
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -159,6 +171,8 @@ describe("SourceViewer:", () => {
         address: "0x00",
         source,
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -184,6 +198,8 @@ describe("SourceViewer:", () => {
         address: "0x00",
         source,
         container,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -218,6 +234,8 @@ describe("SourceViewer:", () => {
           line: 2,
           step: {},
         },
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -242,6 +260,8 @@ describe("SourceViewer:", () => {
         source,
         container: container as unknown as HTMLElement,
         activeStep: { address: "0x00", line: 2, step: {} } as ActiveStep,
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -268,6 +288,8 @@ describe("SourceViewer:", () => {
         },
         container,
         searchText: "Wo",
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -294,6 +316,8 @@ describe("SourceViewer:", () => {
         },
         container,
         searchText: "o",
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -315,6 +339,8 @@ describe("SourceViewer:", () => {
         container: container as unknown as HTMLElement,
         activeStep: { address: "0x00", line: 2, step: {} } as ActiveStep,
         activeLines: [1, 3],
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
@@ -342,6 +368,8 @@ describe("SourceViewer:", () => {
         container: container as unknown as HTMLElement,
         activeStep: { address: "0x00", line: 2, step: {} } as ActiveStep,
         activeLines: [1],
+        traceCountPercentage: {},
+        pcLineMapping: {},
       },
       global: {
         plugins: [i18n],
