@@ -441,6 +441,7 @@ describe("DebuggerView:", () => {
       }),
       index: ref(0),
       total: computed(() => 2),
+      traceCountPercentage: computed(() => ({})),
     });
     const { unmount, container } = render(DebuggerView, {
       global: {
@@ -486,6 +487,7 @@ describe("DebuggerView:", () => {
       }),
       index: ref(1),
       total: computed(() => 2),
+      traceCountPercentage: computed(() => ({})),
     });
     const { unmount, container } = render(DebuggerView, {
       global: {
