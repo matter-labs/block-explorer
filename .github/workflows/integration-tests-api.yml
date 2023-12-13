@@ -1,4 +1,4 @@
-name: Run API integration tests
+name: Test API
 on: pull_request
 
 jobs:
@@ -12,7 +12,7 @@ jobs:
       checks: write
     strategy:
       matrix:
-        node-version: ['18.17.1'] # or lts/*
+        node-version: ['lts/*'] # 18.17.1 or lts/* 
         test-pattern:
           - addresses.test.ts
           - batches.test.ts
