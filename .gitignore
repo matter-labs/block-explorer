@@ -53,8 +53,12 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# Allure
-**allure-results/
+#Allure results and artifacts
+**/allure-results/
+**/e2e/artifacts/
+**/playbook/artifacts*
+**/playbook/cache*
+**/buffer/*.txt
 
 # App hyperchain config
 hyperchain.config.json
