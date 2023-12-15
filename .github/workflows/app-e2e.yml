@@ -116,8 +116,8 @@ jobs:
                 E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
             fi
 
-      - if: always()
-        name: Upload artifacts to Git
+      - name: Upload artifacts to Git
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: allure-results
@@ -129,7 +129,8 @@ jobs:
           ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
         run: |
           ./allurectl upload allure-results
-          echo "Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
+          echo "*Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
+          echo "*Public report link will be available when the 'Allure Report' job will be succesfully executed."
 
       - if: failure()
         name: Save artifacts
