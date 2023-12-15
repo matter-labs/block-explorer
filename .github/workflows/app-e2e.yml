@@ -116,8 +116,15 @@ jobs:
                 E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
             fi
 
-      - name: Upload tests to the Allure proj
-        if: always() && inputs.publish_to_allure == true
+      - if: always()
+        name: Upload artifacts to Git
+        uses: actions/upload-artifact@v3
+        with:
+          name: allure-results
+          path: packages/app/allure-results
+
+      - name: Upload tests to Allure
+        if: always()
         env:
           ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
         run: |
