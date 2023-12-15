@@ -1,10 +1,17 @@
+version: '3.8'
+
 services:
   app:
     build:
       context: .
       dockerfile: ./packages/app/Dockerfile
+      target: development-stage
+    command: npm run --prefix packages/app dev -- --host
     ports:
       - '3010:3010'
+    volumes:
+      - ./packages/app:/usr/src/app/packages/app
+      - /usr/src/app/packages/app/node_modules
     depends_on:
       - api
     restart: unless-stopped
@@ -13,33 +20,25 @@ services:
     build:
       context: .
       dockerfile: ./packages/worker/Dockerfile
+      target: development-stage
+    command: npm run --prefix packages/worker dev:debug
     environment:
       - PORT=3001
       - LOG_LEVEL=verbose
+      - NODE_ENV=development
       - DATABASE_HOST=postgres
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
       - BLOCKCHAIN_RPC_URL=http://zksync:3050
-      - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
       - '3001:3001'
-    depends_on:
-      zksync:
-        condition: service_healthy
-    restart: unless-stopped
-
-  data-fetcher:
-    build:
-      context: .
-      dockerfile: ./packages/data-fetcher/Dockerfile
-    environment:
-      - PORT=3040
-      - LOG_LEVEL=verbose
-      - BLOCKCHAIN_RPC_URL=http://zksync:3050
-    ports:
-      - '3040:3040'
+      - '9229:9229'
+      - '9230:9230'
+    volumes:
+      - ./packages/worker:/usr/src/app/packages/worker
+      - /usr/src/app/packages/worker/node_modules
     depends_on:
       zksync:
         condition: service_healthy
@@ -49,14 +48,22 @@ services:
     build:
       context: .
       dockerfile: ./packages/api/Dockerfile
+      target: development-stage
+    command: npm run --prefix packages/api dev:debug
     environment:
       - PORT=3020
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
+      - NODE_ENV=development
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
     ports:
       - '3020:3020'
       - '3005:3005'
+      - '9231:9229'
+      - '9232:9230'
+    volumes:
+      - ./packages/api:/usr/src/app/packages/api
+      - /usr/src/app/packages/api/node_modules
     depends_on:
       - worker
     restart: unless-stopped
@@ -113,7 +120,7 @@ services:
       test: "curl -H \"Content-Type: application/json\" -X POST --data '{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}' 127.0.0.1:3050 || exit 1"
       interval: 5s
       timeout: 5s
-      retries: 300
+      retries: 120
     restart: unless-stopped
 
 volumes:
