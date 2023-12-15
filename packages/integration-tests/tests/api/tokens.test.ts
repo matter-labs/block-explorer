@@ -68,6 +68,9 @@ describe("Tokens", () => {
           expect(res.body).toStrictEqual({
             l2Address: l2Token,
             l1Address: null,
+            liquidity: null,
+            usdPrice: null,
+            iconURL: null,
             symbol: Token.customL2TokenSymbol,
             name: Token.customL2TokenName,
             decimals: Token.customL2TokenDecimals,

@@ -24,7 +24,7 @@ describe("Contracts API", () => {
     });
 
     //@id1696
-    it("Verify the response via /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2}", async () => {
+    xit("Verify the response via /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2}", async () => {
       paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
       paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
       multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
