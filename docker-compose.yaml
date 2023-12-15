@@ -1,4 +1,3 @@
-name: block-explorer
 version: '3.8'
 
 services:
