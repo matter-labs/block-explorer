@@ -63,22 +63,27 @@ export class TokenRepository extends BaseRepository<Token> {
 
   public async updateTokenOffChainData({
     l1Address,
+    l2Address,
     liquidity,
     usdPrice,
     updatedAt,
     iconURL,
   }: {
-    l1Address: string;
-    liquidity: number;
-    usdPrice: number;
-    updatedAt: Date;
+    l1Address?: string;
+    l2Address?: string;
+    liquidity?: number;
+    usdPrice?: number;
+    updatedAt?: Date;
     iconURL?: string;
   }): Promise<void> {
+    if (!l1Address && !l2Address) {
+      throw new Error("l1Address or l2Address must be provided");
+    }
     const transactionManager = this.unitOfWork.getTransactionManager();
     await transactionManager.update(
       this.entityTarget,
       {
-        l1Address,
+        ...(l1Address ? { l1Address } : { l2Address }),
       },
       {
         liquidity,

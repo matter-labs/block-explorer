@@ -11,7 +11,6 @@ import { useI18n } from "vue-i18n";
 
 import { useWindowSize } from "@vueuse/core";
 
-import NewProverInfoBox from "@/components/NewProverInfoBox.vue";
 import InfoTableSection from "@/components/batches/InfoTableSection.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
@@ -32,6 +31,10 @@ const props = defineProps({
     type: Object as PropType<BatchDetails | null>,
     default: null,
   },
+  batchNumber: {
+    type: String,
+    required: true,
+  },
   loading: {
     type: Boolean,
     default: true,
@@ -46,15 +49,20 @@ const tableInfoItems = computed(() => {
     component?: Component;
     url?: string;
   };
-  if (!props.batch) {
-    return [];
-  }
+
   let tableItems: InfoTableItem[] = [
     {
       label: t("batches.index"),
       tooltip: t("batches.indexTooltip"),
-      value: props.batch.number,
+      value: props.batchNumber,
     },
+  ];
+
+  if (!props.batch) {
+    return [tableItems];
+  }
+
+  tableItems.push(
     {
       label: t("batches.size"),
       tooltip: t("batches.sizeTooltip"),
@@ -71,8 +79,8 @@ const tableInfoItems = computed(() => {
       tooltip: t("batches.rootHashTooltip"),
       value: props.batch.rootHash ? { value: props.batch.rootHash } : t("batches.noRootHashYet"),
       component: props.batch.rootHash ? CopyContent : undefined,
-    },
-  ];
+    }
+  );
   for (const [key, timeKey] of [
     ["commitTxHash", "committedAt", "notYetCommitted"],
     ["proveTxHash", "provenAt", "notYetProven"],
@@ -88,11 +96,6 @@ const tableInfoItems = computed(() => {
           url: currentNetwork.value.l1ExplorerUrl
             ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.batch[key]}`
             : undefined,
-          ...(key === "proveTxHash" &&
-            props.batch.isProvenByNewProver && {
-              additionalContentComponent: NewProverInfoBox,
-              additionalContentProps: { context: "batch" },
-            }),
         },
         {
           label: t(`batches.${timeKey}`),

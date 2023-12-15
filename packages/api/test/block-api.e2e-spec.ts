@@ -5,12 +5,12 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 
 describe("Block API (e2e)", () => {
   let app: INestApplication;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let batchRepository: Repository<BatchDetails>;
 
   beforeAll(async () => {
@@ -24,7 +24,7 @@ describe("Block API (e2e)", () => {
 
     await app.init();
 
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
 
     for (let i = 0; i < 9; i++) {

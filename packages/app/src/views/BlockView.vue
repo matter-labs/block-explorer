@@ -7,15 +7,15 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <Title v-if="!blockPending && blockItem" :title="t('blocks.blockNumber')" :value="id">
+    <Title v-if="!blockPending" :title="t('blocks.blockNumber')" :value="id">
       {{ parseInt(id) }}
     </Title>
     <Spinner v-else size="md" />
     <div class="tables-container">
       <div>
-        <BlockTable class="block-table" :loading="blockPending" :block="blockItem" />
+        <BlockTable class="block-table" :loading="blockPending" :block="blockItem" :block-number="id" />
       </div>
-      <div v-if="blockItem">
+      <div>
         <h2 class="table-transaction-title">{{ t("blocks.transactionTable.title") }}</h2>
         <TransactionsTable
           class="transactions-table"
@@ -23,7 +23,7 @@
           data-testid="block-transactions-table"
         >
           <template #not-found>
-            <TransactionEmptyState />
+            <TransactionEmptyState :block-exists="!!blockItem" />
           </template>
         </TransactionsTable>
       </div>
@@ -53,7 +53,7 @@ import { isBlockNumber } from "@/utils/validators";
 
 const { t } = useI18n();
 
-const { useNotFoundView, setNotFoundView } = useNotFound();
+const { setNotFoundView } = useNotFound();
 const { getById, blockItem, isRequestPending: blockPending, isRequestFailed: blockFailed } = useBlock();
 
 const props = defineProps({
@@ -80,8 +80,6 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
 const transactionsSearchParams = computed(() => ({
   blockNumber: parseInt(props.id),
 }));
-
-useNotFoundView(blockPending, blockFailed, blockItem);
 
 watchEffect(() => {
   if (!props.id || !isBlockNumber(props.id)) {

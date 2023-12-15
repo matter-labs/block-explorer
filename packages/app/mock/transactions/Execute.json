@@ -165,5 +165,11 @@
   ],
   "isL1BatchSealed": false,
   "to": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
-  "value": "0x00"
+  "value": "0x00",
+  "gasPrice": "4000",
+  "gasLimit": "5000",
+  "gasUsed": "3000",
+  "gasPerPubdata": "800",
+  "maxFeePerGas": "7000",
+  "maxPriorityFeePerGas": "8000"
 }

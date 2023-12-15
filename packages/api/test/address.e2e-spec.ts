@@ -7,7 +7,7 @@ import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Address } from "../src/address/address.entity";
 import { Balance } from "../src/balance/balance.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
@@ -21,7 +21,7 @@ import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 describe("AddressController (e2e)", () => {
   let app: INestApplication;
   let addressRepository: Repository<Address>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
@@ -45,7 +45,7 @@ describe("AddressController (e2e)", () => {
     await app.init();
 
     addressRepository = app.get<Repository<Address>>(getRepositoryToken(Address));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
@@ -785,7 +785,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -844,7 +844,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -903,7 +903,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -962,7 +962,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -982,7 +982,7 @@ describe("AddressController (e2e)", () => {
                 blockNumber: 10,
                 bytecode: "0x000012",
                 createdInBlockNumber: 10,
-                creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+                creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
                 creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
                 totalTransactions: 0,
                 type: "contract",

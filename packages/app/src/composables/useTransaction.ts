@@ -7,6 +7,7 @@ import useContext from "./useContext";
 
 import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
+import type { types } from "zksync-web3";
 
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
@@ -29,6 +30,10 @@ export type TokenTransfer = {
   fromNetwork: NetworkOrigin;
   toNetwork: NetworkOrigin;
   tokenInfo?: TokenInfo;
+};
+
+export type TransactionDetails = types.TransactionDetails & {
+  gasPerPubdata: string | null;
 };
 
 export type FeeData = {
@@ -61,9 +66,17 @@ export type TransactionItem = {
   nonce: null | number;
   receivedAt: string;
   feeData: FeeData;
+  gasPrice: string;
+  gasLimit: string;
+  gasUsed: string;
+  gasPerPubdata: string | null;
+  maxFeePerGas: string | null;
+  maxPriorityFeePerGas: string | null;
   status: TransactionStatus;
   l1BatchNumber: number | null;
   isL1BatchSealed: boolean;
+  error?: string | null;
+  revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
 };
@@ -95,6 +108,7 @@ export default (context = useContext()) => {
       if (transactionDetails.status === "pending") {
         return null;
       }
+      const gasPerPubdata = (<TransactionDetails>transactionDetails).gasPerPubdata;
       return {
         hash: transactionData.hash,
         blockHash: transactionData.blockHash!,
@@ -136,8 +150,14 @@ export default (context = useContext()) => {
           transactionHash: item.transactionHash,
           transactionIndex: item.transactionIndex.toString(16),
         })),
-
         transfers: [],
+
+        gasPrice: transactionData.gasPrice!.toString(),
+        gasLimit: transactionData.gasLimit.toString(),
+        gasUsed: transactionReceipt.gasUsed.toString(),
+        gasPerPubdata: gasPerPubdata ? BigNumber.from(gasPerPubdata).toString() : null,
+        maxFeePerGas: transactionData.maxFeePerGas?.toString() ?? null,
+        maxPriorityFeePerGas: transactionData.maxPriorityFeePerGas?.toString() ?? null,
       };
     } catch (err) {
       return null;
@@ -222,6 +242,8 @@ export function mapTransaction(
     status: transaction.status,
     l1BatchNumber: transaction.l1BatchNumber,
     isL1BatchSealed: transaction.isL1BatchSealed,
+    error: transaction.error,
+    revertReason: transaction.revertReason,
 
     logs: logs.map((item) => ({
       address: item.address,
@@ -234,6 +256,13 @@ export function mapTransaction(
     })),
 
     transfers: mapTransfers(filterTransfers(transfers)),
+
+    gasPrice: transaction.gasPrice,
+    gasLimit: transaction.gasLimit,
+    gasUsed: transaction.gasUsed,
+    gasPerPubdata: transaction.gasPerPubdata,
+    maxFeePerGas: transaction.maxFeePerGas,
+    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
   };
 }
 

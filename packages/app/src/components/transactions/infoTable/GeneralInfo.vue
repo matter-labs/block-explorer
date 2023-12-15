@@ -30,6 +30,19 @@
           />
         </TableBodyColumn>
       </tr>
+      <tr v-if="transaction?.status === 'failed'" class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label transaction-reason-label">
+            {{ t("transactions.table.reason") }}
+          </span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.reasonTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value transaction-reason-value">
+          {{ transaction.error || transaction.revertReason || "" }}
+        </TableBodyColumn>
+      </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.block") }}</span>
@@ -153,7 +166,26 @@
           <FeeData :fee-data="transaction?.feeData" :show-details="transaction?.status !== 'indexing'" />
         </TableBodyColumn>
       </tr>
-
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.gasLimitAndUsed") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasLimitAndUsedTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value"
+          >{{ transaction?.gasLimit }} | {{ transaction?.gasUsed }} ({{ gasUsedPercent }}%)</TableBodyColumn
+        >
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.gasPerPubdata") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">{{ transaction.gasPerPubdata }}</TableBodyColumn>
+      </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.nonce") }}</span>
@@ -229,13 +261,19 @@ const tokenTransfers = computed(() => {
   // exclude transfers with no amount, such as NFT until we fully support them
   return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
 });
+
+const gasUsedPercent = computed(() => {
+  if (props.transaction) {
+    const gasLimit = parseInt(props.transaction.gasLimit, 10);
+    const gasUsed = parseInt(props.transaction.gasUsed, 10);
+    return parseFloat(((gasUsed / gasLimit) * 100).toFixed(2));
+  }
+  return null;
+});
 </script>
 
 <style lang="scss">
 .transaction-info-table {
-  .table-body {
-    @apply md:overflow-visible;
-  }
   .table-body-col {
     @apply py-4;
   }
@@ -284,6 +322,9 @@ const tokenTransfers = computed(() => {
   }
   .transaction-status-value {
     @apply py-2;
+  }
+  .transaction-reason-value {
+    @apply text-error-600 whitespace-normal;
   }
 }
 </style>

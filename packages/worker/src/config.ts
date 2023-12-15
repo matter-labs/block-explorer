@@ -21,9 +21,11 @@ export default () => {
     DISABLE_BLOCKS_REVERT,
     ENABLE_TOKEN_OFFCHAIN_DATA_SAVER,
     UPDATE_TOKEN_OFFCHAIN_DATA_INTERVAL,
-    TOKEN_OFFCHAIN_DATA_MIN_LIQUIDITY_FILTER,
+    SELECTED_TOKEN_OFFCHAIN_DATA_PROVIDER,
     FROM_BLOCK,
     TO_BLOCK,
+    COINGECKO_IS_PRO_PLAN,
+    COINGECKO_API_KEY,
   } = process.env;
 
   return {
@@ -59,7 +61,12 @@ export default () => {
     tokens: {
       enableTokenOffChainDataSaver: ENABLE_TOKEN_OFFCHAIN_DATA_SAVER === "true",
       updateTokenOffChainDataInterval: parseInt(UPDATE_TOKEN_OFFCHAIN_DATA_INTERVAL, 10) || 86_400_000,
-      tokenOffChainDataMinLiquidityFilter: parseInt(TOKEN_OFFCHAIN_DATA_MIN_LIQUIDITY_FILTER, 10) || 0,
+      tokenOffChainDataProviders: ["coingecko", "portalsFi"],
+      selectedTokenOffChainDataProvider: SELECTED_TOKEN_OFFCHAIN_DATA_PROVIDER || "coingecko",
+      coingecko: {
+        isProPlan: COINGECKO_IS_PRO_PLAN === "true",
+        apiKey: COINGECKO_API_KEY,
+      },
     },
     metrics: {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,

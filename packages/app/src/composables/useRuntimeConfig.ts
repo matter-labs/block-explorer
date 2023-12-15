@@ -8,11 +8,10 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   icon: "/images/icons/zksync-arrows.svg",
   l1ExplorerUrl: "https://goerli.etherscan.io",
   l2ChainId: 280,
-  l2NetworkName: "zkSync Era Testnet",
+  l2NetworkName: "zkSync Era Goerli Testnet",
   l2WalletUrl: "https://goerli.portal.zksync.io/",
   maintenance: false,
   name: "goerli",
-  newProverUrl: "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
   published: true,
   rpcUrl: "https://testnet.era.zksync.dev",
 };

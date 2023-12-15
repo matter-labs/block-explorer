@@ -7,8 +7,6 @@ import { BalanceService } from "../balance/balance.service";
 import { BlockService } from "../block/block.service";
 import { LogService } from "../log/log.service";
 import { TransactionService } from "../transaction/transaction.service";
-import { TransactionReceiptService } from "../transaction/transactionReceipt.service";
-import { TransactionReceipt } from "../transaction/entities/transactionReceipt.entity";
 import { Log } from "../log/log.entity";
 import { Token } from "../token/token.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
@@ -28,7 +26,6 @@ describe("AddressController", () => {
   let logServiceMock: LogService;
   let balanceServiceMock: BalanceService;
   let transactionServiceMock: TransactionService;
-  let transactionReceiptServiceMock: TransactionReceiptService;
   let transferServiceMock: TransferService;
   const blockchainAddress = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
   const normalizedAddress = "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF";
@@ -38,7 +35,6 @@ describe("AddressController", () => {
     serviceMock = mock<AddressService>();
     blockServiceMock = mock<BlockService>();
     transactionServiceMock = mock<TransactionService>();
-    transactionReceiptServiceMock = mock<TransactionReceiptService>();
     logServiceMock = mock<LogService>();
     balanceServiceMock = mock<BalanceService>();
     transferServiceMock = mock<TransferService>();
@@ -57,10 +53,6 @@ describe("AddressController", () => {
         {
           provide: TransactionService,
           useValue: transactionServiceMock,
-        },
-        {
-          provide: TransactionReceiptService,
-          useValue: transactionReceiptServiceMock,
         },
         {
           provide: LogService,
@@ -104,9 +96,8 @@ describe("AddressController", () => {
 
     describe("when contract address exists", () => {
       const transactionHash = "transactionHash";
-      const transactionFrom = "transactionFrom";
+      const creatorAddress = "creatorAddress";
       const totalTxCount = 20;
-      let transactionReceipt;
       const addressBalances = {
         balances: {
           "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF": {
@@ -128,19 +119,11 @@ describe("AddressController", () => {
           bytecode: "0x123",
           createdInBlockNumber: 30,
           creatorTxHash: transactionHash,
-          creatorAddress: transactionFrom,
+          creatorAddress,
         };
-        transactionReceipt = mock<TransactionReceipt>({ from: transactionFrom });
         (serviceMock.findOne as jest.Mock).mockResolvedValue(addressRecord);
-        (transactionReceiptServiceMock.findOne as jest.Mock).mockResolvedValue(transactionReceipt);
         (transactionServiceMock.count as jest.Mock).mockResolvedValue(totalTxCount);
         (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue(addressBalances);
-      });
-
-      it("queries creatorAddress value from transaction receipt", async () => {
-        await controller.getAddress(blockchainAddress);
-        expect(transactionReceiptServiceMock.findOne).toHaveBeenCalledTimes(1);
-        expect(transactionReceiptServiceMock.findOne).toHaveBeenCalledWith(transactionHash, ["from"]);
       });
 
       it("queries totalTransactions value from transaction receipt repo with formatted contractAddress", async () => {
