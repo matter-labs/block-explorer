@@ -116,7 +116,7 @@ jobs:
                 E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
             fi
 
-      - name: Upload artifacts to Git
+      - name: Save artifacts to Git
         if: always()
         uses: actions/upload-artifact@v3
         with:
