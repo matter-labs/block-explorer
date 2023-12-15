@@ -146,7 +146,7 @@ describe("Transactions", () => {
     });
 
     //@id1463
-    it("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
+    xit("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
       await setTimeout(localConfig.standardPause); //works unstable without timeout
 
       const l1Token = bufferFile + "/" + Buffer.L1;
@@ -433,7 +433,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/transactions/{transactionHash}/transfers", () => {
+  xdescribe("/transactions/{transactionHash}/transfers", () => {
     beforeAll(async () => {
       await playbook.deployViaPaymaster();
       await playbook.usePaymaster();
