@@ -305,7 +305,7 @@ describe("Transaction info table", () => {
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
     expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.createdTooltip"));
   });
-  it("renders indexing transaction status and tooltip", async () => {
+  it("renders indexing transaction status", async () => {
     const wrapper = mount(Table, {
       global: {
         stubs: {
@@ -322,10 +322,11 @@ describe("Transaction info table", () => {
     await nextTick();
     const status = wrapper.findAll("tbody tr td:nth-child(2)")[1];
     const badges = status.findAllComponents(Badge);
-    expect(badges.length).toBe(1);
-    expect(badges[0].text()).toBe(i18n.global.t("transactions.statusComponent.indexing"));
-    const indexingTooltip = wrapper.find(".transaction-status .info-tooltip");
-    expect(indexingTooltip.text()).toBe(i18n.global.t("transactions.statusComponent.indexingTooltip"));
+
+    const [l2StatusBadgeTitle, l2StatusBadgeValue, indexingBadge] = badges;
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
+    expect(indexingBadge.text()).toBe(i18n.global.t("transactions.statusComponent.indexing"));
   });
   it("renders failed transaction status", async () => {
     const wrapper = mount(Table, {

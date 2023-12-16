@@ -189,7 +189,7 @@
         },
         "statusComponent": {
             "processed": "Processed",
-            "indexing": "Indexing...",
+            "indexing": "Being indexed by explorer",
             "sending": "Sending",
             "sent": "Sent",
             "validating": "Validating",
@@ -197,7 +197,6 @@
             "executing": "Executing",
             "executed": "Executed",
             "failed": "Failed",
-            "indexingTooltip": "Transaction is indexing and will be fully reflected shortly",
             "ethereumNetwork": "Ethereum network"
         },
         "transaction": "Transaction",
