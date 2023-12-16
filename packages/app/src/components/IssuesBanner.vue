@@ -20,7 +20,7 @@
   @apply flex text-white rounded-2xl border border-amber-400/50 bg-amber-400/10 mb-6 py-3 px-4;
 
   svg {
-    @apply mr-2;
+    @apply mr-2 shrink-0;
   }
 
   a {
