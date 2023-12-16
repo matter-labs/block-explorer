@@ -128,7 +128,7 @@
         },
         "statusComponent": {
             "processed": "Оброблено",
-            "indexing": "Індексується...",
+            "indexing": "Індексується експлорером",
             "sending": "Надсилається",
             "sent": "Надіслано",
             "validating": "Перевіряється",
@@ -136,7 +136,6 @@
             "executing": "Виконується",
             "executed": "Виконано",
             "failed": "Невдало",
-            "indexingTooltip": "Транзакція індексується, всі деталі будуть доступні згодом",
             "ethereumNetwork": "мережа Ethereum"
         },
         "transaction": "Транзакція",
