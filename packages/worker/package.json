@@ -42,7 +42,6 @@
     "@willsoto/nestjs-prometheus": "^4.7.0",
     "axios": "^1.4.0",
     "ethers": "^5.7.1",
-    "firebase": "^10.7.1",
     "nest-winston": "^1.7.0",
     "pg": "^8.8.0",
     "prom-client": "^14.1.0",
