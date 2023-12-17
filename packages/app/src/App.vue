@@ -3,7 +3,6 @@
     <the-header :class="$route?.name" />
     <div class="container-app">
       <NetworkDeprecated v-if="!currentNetwork.maintenance && currentNetwork.name === 'goerli'" />
-      <IssuesBanner v-if="!currentNetwork.maintenance && currentNetwork.name === 'mainnet'" />
       <MaintenanceView v-if="currentNetwork.maintenance" />
       <router-view v-else />
     </div>
@@ -14,7 +13,6 @@
 <script setup lang="ts">
 import { useTitle } from "@vueuse/core";
 
-import IssuesBanner from "@/components/IssuesBanner.vue";
 import NetworkDeprecated from "@/components/NetworkDeprecated.vue";
 import TheFooter from "@/components/TheFooter.vue";
 import TheHeader from "@/components/header/TheHeader.vue";
