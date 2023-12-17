@@ -305,10 +305,6 @@ const hasContent = computed(() => {
   .hero-banner-container {
     @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-primary-900;
 
-    &.mainnet {
-      @apply h-[27rem] md:h-[23rem] lg:h-[20rem];
-    }
-
     &.goerli {
       @apply h-[25rem] md:h-[23rem] lg:h-[19rem];
     }
@@ -319,10 +315,6 @@ const hasContent = computed(() => {
   }
   .home-banner {
     @apply h-80;
-
-    &.mainnet {
-      @apply h-[32rem] md:h-[28rem] lg:h-[25rem];
-    }
 
     &.goerli {
       @apply h-[30rem] md:h-[27rem] lg:h-[24rem];
