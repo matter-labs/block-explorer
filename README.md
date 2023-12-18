@@ -120,16 +120,6 @@ For more details on testing please check individual packages `README`.
 ## 💻 Conventional Commits
 We follow the Conventional Commits [specification](https://www.conventionalcommits.org/en/v1.0.0/#specification).
 
-## 🔍 Verify Block Explorer UI test results in GitHug Actions
-GutHub actions test results is available in:
-
-- GitHug Actions --> Summary page at the very end of a page.
-- Inside of each test run in the log: Feature on Mainnet + Sepolia --> @search --> Upload test results to Allure reporter --> https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html 
-- Directly throw a link https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html after each PR running. The history of test runs for public view locates in gh-pages branch.
-
-In case of 404 page, make sure that the folder with its github.run_number exists in the gh-pages. If the folder exist, try again in a few minutes as https://raw.githack.com needs to update the data.
-
-
 ## 📘 License
 zkSync Era Block Explorer is distributed under the terms of either
 
