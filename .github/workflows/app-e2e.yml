@@ -123,7 +123,7 @@ jobs:
           name: allure-results
           path: packages/app/allure-results
 
-      - name: Upload tests to Allure
+      - name: Upload test results to Allure reporter
         if: always()
         env:
           ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
