@@ -109,10 +109,10 @@ npm run lint
 
 
 ## Verify Block Explorer UI test results in GitHug Actions
-GutHub actions test results is available in:
+GutHub actions test results are available in:
 
-- GitHug Actions --> Summary page at the very end of a page.
-- Inside of each test run in the log: Feature on Mainnet + Sepolia --> @search --> Upload test results to Allure reporter --> `https://raw.githack.com/matter-labs/block-explorer/gh-pages/_github.run_number_/index.html`
-- Directly via a link `https://raw.githack.com/matter-labs/block-explorer/gh-pages/_github.run_number_/index.html` after each PR running. The history of test runs for public view locates in gh-pages branch.
+- `GitHug Actions` --> `Summary` page at the very end of a page.
+- Inside of each test run in the log: `Feature on Mainnet + Sepolia` --> `@search` --> `Upload test results to Allure reporter` --> `https://raw.githack.com/matter-labs/block-explorer/gh-pages/_github.run_number_/index.html`
+- Directly via a link `https://raw.githack.com/matter-labs/block-explorer/gh-pages/_github.run_number_/index.html` after each PR running. The history of test runs for public view locates in `gh-pages` branch.
 
-In case of 404 page, make sure that the folder with its github.run_number exists in the gh-pages. If the folder exist, try again in a few minutes as `https://raw.githack.com` needs to update the data.
+In case of 404 page, make sure that the folder with its `github.run_number` exists in the `gh-pages`. If the folder exist, try again in a few minutes as `https://raw.githack.com` needs to update the data.
