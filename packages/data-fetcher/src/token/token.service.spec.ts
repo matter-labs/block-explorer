@@ -401,11 +401,48 @@ describe("TokenService", () => {
       });
     });
 
+    describe("if the token symbol or name has special symbols", () => {
+      beforeEach(() => {
+        jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
+          ...tokenData,
+          symbol: "\0\0\0\0\0\0test symbol",
+          name: "\0\0\0\0\0\0test name",
+        });
+      });
+
+      it("returns token with special chars replaced", async () => {
+        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        expect(token).toEqual({
+          blockNumber: 10,
+          decimals: 18,
+          l2Address: "0xdc187378edd8ed1585fb47549cc5fe633295d571",
+          logIndex: 20,
+          name: "test name",
+          symbol: "test symbol",
+          transactionHash: "transactionHash",
+        });
+      });
+    });
+
     describe("if the token symbol is empty", () => {
       beforeEach(() => {
         jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
           ...tokenData,
           symbol: "",
+        });
+      });
+
+      it("returns null", async () => {
+        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        expect(token).toBeNull();
+      });
+    });
+
+    describe("if the token symbol has special symbols only", () => {
+      beforeEach(() => {
+        jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
+          ...tokenData,
+          symbol: "\0\0\0\0\0\0",
         });
       });
 

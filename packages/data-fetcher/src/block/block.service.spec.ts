@@ -6,7 +6,7 @@ import { TransactionService } from "../transaction";
 import { LogService } from "../log";
 import { BlockchainService } from "../blockchain";
 import { BalanceService } from "../balance";
-import { BlockService } from "./block.service";
+import { BlockService } from "./";
 import { BigNumber } from "ethers";
 
 describe("BlockService", () => {

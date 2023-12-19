@@ -4,7 +4,7 @@ import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 import config from "./config";
 import { HealthModule } from "./health/health.module";
 import { BlockchainService } from "./blockchain";
-import { BlockService } from "./block";
+import { BlockService, BlockController } from "./block";
 import { TransactionService } from "./transaction";
 import { LogService } from "./log";
 import { AddressService } from "./address/address.service";
@@ -22,6 +22,7 @@ import { MetricsModule } from "./metrics";
     MetricsModule,
     HealthModule,
   ],
+  controllers: [BlockController],
   providers: [
     BlockchainService,
     AddressService,

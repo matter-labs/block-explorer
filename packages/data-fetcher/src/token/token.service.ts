@@ -54,6 +54,13 @@ export class TokenService {
     }
   }
 
+  private removeSpecialChars(str: string | null): string {
+    if (!str) {
+      return str;
+    }
+    return str.replace(/\0/g, "");
+  }
+
   public async getERC20Token(
     contractAddress: ContractAddress,
     transactionReceipt?: types.TransactionReceipt
@@ -90,25 +97,30 @@ export class TokenService {
       }
     }
 
-    if (erc20Token?.symbol) {
-      this.logger.debug({
-        message: "Adding ERC20 token to the DB",
-        blockNumber: contractAddress.blockNumber,
-        transactionHash: contractAddress.transactionHash,
-        tokenAddress: contractAddress.address,
-      });
+    if (erc20Token) {
+      erc20Token.symbol = this.removeSpecialChars(erc20Token.symbol);
+      erc20Token.name = this.removeSpecialChars(erc20Token.name);
 
-      return {
-        ...erc20Token,
-        blockNumber: contractAddress.blockNumber,
-        transactionHash: contractAddress.transactionHash,
-        l2Address: contractAddress.address,
-        logIndex: contractAddress.logIndex,
-        // add L1 address for ETH token
-        ...(contractAddress.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS && {
-          l1Address: utils.ETH_ADDRESS,
-        }),
-      };
+      if (erc20Token.symbol) {
+        this.logger.debug({
+          message: "Adding ERC20 token to the DB",
+          blockNumber: contractAddress.blockNumber,
+          transactionHash: contractAddress.transactionHash,
+          tokenAddress: contractAddress.address,
+        });
+
+        return {
+          ...erc20Token,
+          blockNumber: contractAddress.blockNumber,
+          transactionHash: contractAddress.transactionHash,
+          l2Address: contractAddress.address,
+          logIndex: contractAddress.logIndex,
+          // add L1 address for ETH token
+          ...(contractAddress.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS && {
+            l1Address: utils.ETH_ADDRESS,
+          }),
+        };
+      }
     }
 
     return null;
