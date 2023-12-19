@@ -2,10 +2,13 @@ export default () => {
   const {
     PORT,
     BLOCKCHAIN_RPC_URL,
+    BLOCKCHAIN_WS_RPC_URL,
     RPC_CALLS_DEFAULT_RETRY_TIMEOUT,
     RPC_CALLS_QUICK_RETRY_TIMEOUT,
     RPC_CALLS_CONNECTION_TIMEOUT,
     RPC_CALLS_CONNECTION_QUICK_TIMEOUT,
+    WS_MAX_CONNECTIONS,
+    USE_WEBSOCKETS_FOR_TRANSACTIONS,
     WAIT_FOR_BLOCKS_INTERVAL,
     BLOCKS_PROCESSING_BATCH_SIZE,
     BATCHES_PROCESSING_POLLING_INTERVAL,
@@ -32,10 +35,13 @@ export default () => {
     port: parseInt(PORT, 10) || 3001,
     blockchain: {
       rpcUrl: BLOCKCHAIN_RPC_URL || "http://localhost:3050",
+      wsRpcUrl: BLOCKCHAIN_WS_RPC_URL || "http://localhost:3050/ws",
       rpcCallDefaultRetryTimeout: parseInt(RPC_CALLS_DEFAULT_RETRY_TIMEOUT, 10) || 30000,
       rpcCallQuickRetryTimeout: parseInt(RPC_CALLS_QUICK_RETRY_TIMEOUT, 10) || 500,
       rpcCallConnectionTimeout: parseInt(RPC_CALLS_CONNECTION_TIMEOUT, 10) || 20000,
       rpcCallConnectionQuickTimeout: parseInt(RPC_CALLS_CONNECTION_QUICK_TIMEOUT, 10) || 10000,
+      wsMaxConnections: parseInt(WS_MAX_CONNECTIONS, 10) || 5,
+      useWebSocketsForTransactions: USE_WEBSOCKETS_FOR_TRANSACTIONS === "true",
     },
     blocks: {
       waitForBlocksInterval: parseInt(WAIT_FOR_BLOCKS_INTERVAL, 10) || 1000,

@@ -6,7 +6,7 @@ import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { EventType, Listener } from "@ethersproject/abstract-provider";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
-import { JsonRpcProviderBase } from "../rpcProvider";
+import { JsonRpcProviderBase, WrappedWebSocketProvider } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
 
@@ -28,18 +28,21 @@ export class BlockchainService implements OnModuleInit {
   private readonly logger: Logger;
   private readonly rpcCallsDefaultRetryTimeout: number;
   private readonly rpcCallsQuickRetryTimeout: number;
+  private readonly useWebSocketsForTransactions: boolean;
   private readonly errorCodesForQuickRetry: string[] = ["NETWORK_ERROR", "ECONNRESET", "ECONNREFUSED", "TIMEOUT"];
   public bridgeAddresses: BridgeAddresses;
 
   public constructor(
     configService: ConfigService,
     private readonly provider: JsonRpcProviderBase,
+    private readonly wsProvider: WrappedWebSocketProvider,
     @InjectMetric(BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME)
     private readonly rpcCallDurationMetric: Histogram<BlockchainRpcCallMetricLabel>
   ) {
     this.logger = new Logger(BlockchainService.name);
     this.rpcCallsDefaultRetryTimeout = configService.get<number>("blockchain.rpcCallDefaultRetryTimeout");
     this.rpcCallsQuickRetryTimeout = configService.get<number>("blockchain.rpcCallQuickRetryTimeout");
+    this.useWebSocketsForTransactions = configService.get<boolean>("blockchain.useWebSocketsForTransactions");
   }
 
   private async rpcCall<T>(action: () => Promise<T>, functionName: string): Promise<T> {
@@ -95,18 +98,29 @@ export class BlockchainService implements OnModuleInit {
 
   public async getTransaction(transactionHash: string): Promise<types.TransactionResponse> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        return (await this.wsProvider.getProvider().getTransaction(transactionHash)) as any;
+      }
       return await this.provider.getTransaction(transactionHash);
     }, "getTransaction");
   }
 
   public async getTransactionDetails(transactionHash: string): Promise<types.TransactionDetails> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        return await this.wsProvider.getProvider().send("zks_getTransactionDetails", [transactionHash]);
+      }
       return await this.provider.getTransactionDetails(transactionHash);
     }, "getTransactionDetails");
   }
 
   public async getTransactionReceipt(transactionHash: string): Promise<types.TransactionReceipt> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        const receipt = (await this.wsProvider.getProvider().getTransactionReceipt(transactionHash)) as any;
+        return receipt;
+        // TODO add modifications from zksync-ethers!!!!
+      }
       return await this.provider.getTransactionReceipt(transactionHash);
     }, "getTransactionReceipt");
   }

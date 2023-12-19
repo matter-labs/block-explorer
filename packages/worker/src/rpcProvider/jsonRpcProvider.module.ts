@@ -1,6 +1,6 @@
 import { Module, DynamicModule, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { JsonRpcProviderBase, JsonRpcProviderExtended } from "./index";
+import { JsonRpcProviderBase, JsonRpcProviderExtended, WrappedWebSocketProvider } from "./index";
 
 @Module({
   providers: [
@@ -25,8 +25,22 @@ import { JsonRpcProviderBase, JsonRpcProviderExtended } from "./index";
       },
       inject: [ConfigService, Logger],
     },
+    {
+      provide: WrappedWebSocketProvider,
+      useFactory: (configService: ConfigService, logger: Logger) => {
+        const providerUrl = configService.get<string>("blockchain.wsRpcUrl");
+        const connectionTimeout = configService.get<number>("blockchain.rpcCallConnectionTimeout");
+        const connectionQuickTimeout = configService.get<number>("blockchain.rpcCallConnectionQuickTimeout");
+        const maxConnections = configService.get<number>("blockchain.wsMaxConnections");
+
+        logger.debug(`Initializing WS RPC provider with the following URL: ${providerUrl}.`, "RpcProviderModule");
+
+        return new WrappedWebSocketProvider(providerUrl, connectionTimeout, connectionQuickTimeout, maxConnections);
+      },
+      inject: [ConfigService, Logger],
+    },
   ],
-  exports: [JsonRpcProviderBase],
+  exports: [JsonRpcProviderBase, WrappedWebSocketProvider],
 })
 export class JsonRpcProviderModule {
   static forRoot(): DynamicModule {
