@@ -32,6 +32,11 @@ import { JsonRpcProviderBase, JsonRpcProviderExtended, WrappedWebSocketProvider 
         const connectionTimeout = configService.get<number>("blockchain.rpcCallConnectionTimeout");
         const connectionQuickTimeout = configService.get<number>("blockchain.rpcCallConnectionQuickTimeout");
         const maxConnections = configService.get<number>("blockchain.wsMaxConnections");
+        const useWebSocketsForTransactions = configService.get<boolean>("blockchain.useWebSocketsForTransactions");
+
+        if (!useWebSocketsForTransactions) {
+          return null;
+        }
 
         logger.debug(`Initializing WS RPC provider with the following URL: ${providerUrl}.`, "RpcProviderModule");
 

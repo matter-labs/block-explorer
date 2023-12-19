@@ -13,9 +13,7 @@ export class WrappedWebSocketProvider {
     this.providerUrl = providerUrl;
     this.connectionTimeout = connectionTimeout;
     this.connectionQuickTimeout = connectionQuickTimeout;
-    if (!this.providerUrl) {
-      return;
-    }
+
     for (let i = 0; i < maxConnections; i++) {
       this.instances[i] = new WebSocketProviderExtended(
         this.providerUrl,
