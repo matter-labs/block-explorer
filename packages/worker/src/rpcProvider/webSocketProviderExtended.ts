@@ -86,7 +86,7 @@ export class WebSocketProviderExtended extends providers.WebSocketProvider {
             message: "No response for the ping request. Web socket connection will be terminated",
             context: WebSocketProviderExtended.name,
           });
-          this._websocket.terminate();
+          //this._websocket.terminate();
         }, expectedPongBack);
 
         if (Object.keys(this._requests).length > pendingRequestsLimit) {
