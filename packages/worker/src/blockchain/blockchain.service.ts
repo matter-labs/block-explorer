@@ -178,6 +178,9 @@ export class BlockchainService implements OnModuleInit {
 
     if (utils.isETH(tokenAddress)) {
       return await this.rpcCall(async () => {
+        if (this.useWebSocketsForTransactions) {
+          return await this.wsProvider.getProvider().getBalance(address, blockTag);
+        }
         return await this.provider.getBalance(address, blockTag);
       }, "getBalance");
     }
