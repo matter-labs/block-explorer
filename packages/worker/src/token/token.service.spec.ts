@@ -441,6 +441,20 @@ describe("TokenService", () => {
       });
     });
 
+    describe("if the token symbol has special symbols only", () => {
+      beforeEach(() => {
+        jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
+          ...tokenData,
+          symbol: "\0\0\0\0\0\0",
+        });
+      });
+
+      it("does not upsert the token", async () => {
+        await tokenService.saveERC20Token(deployedContractAddress, transactionReceipt);
+        expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(0);
+      });
+    });
+
     describe("when transactionReceipt param is not provided", () => {
       it("upserts the token without l1Address when token is valid", async () => {
         await tokenService.saveERC20Token(deployedContractAddress);
