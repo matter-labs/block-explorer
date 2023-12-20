@@ -30,6 +30,7 @@ describe("config", () => {
         fromBlock: 0,
         toBlock: null,
         disableBlocksRevert: false,
+        numberOfBlocksPerDbTransaction: 50,
       },
       batches: {
         batchesProcessingPollingInterval: 60000,
