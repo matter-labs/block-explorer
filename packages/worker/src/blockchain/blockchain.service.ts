@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
 import { BigNumber } from "ethers";
+import { hexValue } from "ethers/lib/utils";
 import { utils, types } from "zksync-web3";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
@@ -64,13 +65,22 @@ export class BlockchainService implements OnModuleInit {
 
   public async getL1BatchNumber(): Promise<number> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        const number = await this.wsProvider.getProvider().send("zks_L1BatchNumber", []);
+        return BigNumber.from(number).toNumber();
+      }
       return await this.provider.getL1BatchNumber();
     }, "getL1BatchNumber");
   }
 
   public async getL1BatchDetails(batchNumber: number): Promise<types.BatchDetails> {
     return await this.rpcCall(async () => {
-      const batchDetails = await this.provider.getL1BatchDetails(batchNumber);
+      let batchDetails = null;
+      if (this.useWebSocketsForTransactions) {
+        batchDetails = await this.wsProvider.getProvider().send("zks_getL1BatchDetails", [batchNumber]);
+      } else {
+        batchDetails = await this.provider.getL1BatchDetails(batchNumber);
+      }
       if (batchDetails && batchNumber === 0) {
         batchDetails.committedAt = batchDetails.provenAt = batchDetails.executedAt = new Date(0);
       }
@@ -80,18 +90,27 @@ export class BlockchainService implements OnModuleInit {
 
   public async getBlock(blockHashOrBlockTag: types.BlockTag): Promise<types.Block> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        return (await this.wsProvider.getProvider().getBlock(blockHashOrBlockTag)) as any;
+      }
       return await this.provider.getBlock(blockHashOrBlockTag);
     }, "getBlock");
   }
 
   public async getBlockNumber(): Promise<number> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        return (await this.wsProvider.getProvider().getBlockNumber()) as any;
+      }
       return await this.provider.getBlockNumber();
     }, "getBlockNumber");
   }
 
   public async getBlockDetails(blockNumber: number): Promise<types.BlockDetails> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        return await this.wsProvider.getProvider().send("zks_getBlockDetails", [blockNumber]);
+      }
       return await this.provider.getBlockDetails(blockNumber);
     }, "getBlockDetails");
   }
@@ -117,9 +136,7 @@ export class BlockchainService implements OnModuleInit {
   public async getTransactionReceipt(transactionHash: string): Promise<types.TransactionReceipt> {
     return await this.rpcCall(async () => {
       if (this.useWebSocketsForTransactions) {
-        const receipt = (await this.wsProvider.getProvider().getTransactionReceipt(transactionHash)) as any;
-        return receipt;
-        // TODO add modifications from zksync-ethers!!!!
+        return (await this.wsProvider.getProvider().getTransactionReceipt(transactionHash)) as any;
       }
       return await this.provider.getTransactionReceipt(transactionHash);
     }, "getTransactionReceipt");
@@ -127,12 +144,30 @@ export class BlockchainService implements OnModuleInit {
 
   public async getLogs(eventFilter: { fromBlock: number; toBlock: number }): Promise<types.Log[]> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        const logs = await this.wsProvider.getProvider().send("eth_getLogs", [
+          {
+            fromBlock: hexValue(<number | string>eventFilter.fromBlock),
+            toBlock: hexValue(<number | string>eventFilter.toBlock),
+          },
+        ]);
+        return logs.map((log) => ({
+          ...log,
+          blockNumber: Number(log.blockNumber),
+          l1BatchNumber: Number(log.l1BatchNumber),
+          transactionIndex: Number(log.transactionIndex),
+          logIndex: Number(log.logIndex),
+        }));
+      }
       return await this.provider.getLogs(eventFilter);
     }, "getLogs");
   }
 
   public async getCode(address: string): Promise<string> {
     return await this.rpcCall(async () => {
+      if (this.useWebSocketsForTransactions) {
+        return (await this.wsProvider.getProvider().getCode(address)) as any;
+      }
       return await this.provider.getCode(address);
     }, "getCode");
   }
