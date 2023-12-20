@@ -151,22 +151,6 @@ describe("TransactionService", () => {
       expect(txData.transactionReceipt).toEqual(transactionReceipt);
     });
 
-    it("returns data with transaction logs", async () => {
-      const logsData = {
-        logs: [{ logIndex: 1 }],
-      };
-      (logServiceMock.getData as jest.Mock).mockResolvedValueOnce(logsData);
-      const txData = await transactionProcessor.getData(transaction.hash, blockDetails);
-      expect(logServiceMock.getData).toHaveBeenCalledTimes(1);
-      expect(logServiceMock.getData).toHaveBeenCalledWith(
-        transactionReceipt.logs,
-        blockDetails,
-        transactionDetails,
-        transactionReceipt
-      );
-      expect(txData.logs).toEqual(logsData.logs);
-    });
-
     it("stops the transaction duration metric", async () => {
       await transactionProcessor.getData(transaction.hash, blockDetails);
       expect(stopTxProcessingDurationMetricMock).toHaveBeenCalledTimes(1);

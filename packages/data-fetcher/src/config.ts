@@ -6,6 +6,7 @@ export default () => {
     RPC_CALLS_QUICK_RETRY_TIMEOUT,
     RPC_CALLS_CONNECTION_TIMEOUT,
     RPC_CALLS_CONNECTION_QUICK_TIMEOUT,
+    MAX_BLOCKS_BATCH_SIZE,
   } = process.env;
 
   return {
@@ -17,5 +18,6 @@ export default () => {
       rpcCallConnectionTimeout: parseInt(RPC_CALLS_CONNECTION_TIMEOUT, 10) || 20000,
       rpcCallConnectionQuickTimeout: parseInt(RPC_CALLS_CONNECTION_QUICK_TIMEOUT, 10) || 10000,
     },
+    maxBlocksBatchSize: parseInt(MAX_BLOCKS_BATCH_SIZE, 10) || 20,
   };
 };

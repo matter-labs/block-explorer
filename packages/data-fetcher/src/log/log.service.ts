@@ -7,14 +7,8 @@ import { TokenService } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
 import { Token } from "../token/token.service";
-import { unixTimeToDate } from "../utils/date";
-
-export interface ExtractedLog extends types.Log {
-  timestamp: Date;
-}
 
 export interface LogsData {
-  logs: ExtractedLog[];
   transfers: Transfer[];
   contractAddresses?: ContractAddress[];
   tokens?: Token[];
@@ -42,11 +36,6 @@ export class LogService {
     const transfers = this.transferService.getTransfers(logs, blockDetails, transactionDetails, transactionReceipt);
 
     const logsData: LogsData = {
-      logs:
-        logs?.map((log) => ({
-          ...log,
-          timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
-        })) || [],
       transfers,
     };
 

@@ -2,7 +2,7 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import { types } from "zksync-web3";
-import { LogService, ExtractedLog } from "./log.service";
+import { LogService } from "./log.service";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { TokenService, Token } from "../token/token.service";
@@ -75,8 +75,8 @@ describe("LogService", () => {
       } as Token,
     ];
 
-    let logsWithTransactionTimestamp: Partial<ExtractedLog>[];
-    let logsWithBlockTimestamp: Partial<ExtractedLog>[];
+    let logsWithTransactionTimestamp: Partial<types.Log>[];
+    let logsWithBlockTimestamp: Partial<types.Log>[];
     let transactionReceipt: types.TransactionReceipt;
     let transactionDetails: types.TransactionDetails;
 
@@ -100,16 +100,6 @@ describe("LogService", () => {
           transactionIndex: 0,
           logs: logs,
         });
-      });
-
-      it("returns data with logs", async () => {
-        const logsData = await logService.getData(logs, blockDetails, transactionDetails, transactionReceipt);
-        expect(logsData.logs).toEqual(logsWithTransactionTimestamp);
-      });
-
-      it("returns data with empty array logs if logs argument is not defined", async () => {
-        const logsData = await logService.getData(null, blockDetails, transactionDetails, transactionReceipt);
-        expect(logsData.logs).toEqual([]);
       });
 
       it("returns data with transaction transfers", async () => {
@@ -147,11 +137,6 @@ describe("LogService", () => {
     });
 
     describe("when transaction details and receipt are not defined", () => {
-      it("returns data with logs", async () => {
-        const logsData = await logService.getData(logs, blockDetails);
-        expect(logsData.logs).toEqual(logsWithBlockTimestamp);
-      });
-
       it("tracks changed balances", async () => {
         await logService.getData(logs, blockDetails);
         expect(balanceServiceMock.trackChangedBalances).toHaveBeenCalledTimes(1);

@@ -21,6 +21,7 @@ describe("config", () => {
         rpcCallConnectionTimeout: 20000,
         rpcCallConnectionQuickTimeout: 10000,
       },
+      maxBlocksBatchSize: 20,
     });
   });
 });

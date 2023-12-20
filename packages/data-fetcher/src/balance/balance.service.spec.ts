@@ -446,29 +446,44 @@ describe("BalanceService", () => {
     });
 
     it("returns changed balances", async () => {
-      const expectedBalances = new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>();
-      expectedBalances.set(
-        utils.ETH_ADDRESS,
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [utils.ETH_ADDRESS, { balance: BigNumber.from(1), tokenType: TokenType.ETH }],
-        ])
-      );
-      expectedBalances.set(
-        addresses[0],
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [tokenAddresses[0][0], { balance: BigNumber.from(2), tokenType: TokenType.ERC20 }],
-          [tokenAddresses[0][1], { balance: BigNumber.from(3), tokenType: TokenType.ETH }],
-        ])
-      );
-      expectedBalances.set(
-        addresses[1],
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [tokenAddresses[1][0], { balance: BigNumber.from(4), tokenType: TokenType.ERC20 }],
-          [tokenAddresses[1][1], { balance: BigNumber.from(5), tokenType: TokenType.ETH }],
-        ])
-      );
       const changedBalances = await balanceService.getChangedBalances(blockNumber);
-      expect(changedBalances).toEqual(expectedBalances);
+      expect(changedBalances).toEqual([
+        {
+          address: "0x0000000000000000000000000000000000000000",
+          blockNumber: 5,
+          tokenAddress: "0x0000000000000000000000000000000000000000",
+          balance: BigNumber.from(1),
+          tokenType: TokenType.ETH,
+        },
+        {
+          address: addresses[0],
+          blockNumber: 5,
+          tokenAddress: tokenAddresses[0][0],
+          balance: BigNumber.from(2),
+          tokenType: TokenType.ERC20,
+        },
+        {
+          address: addresses[0],
+          blockNumber: 5,
+          tokenAddress: tokenAddresses[0][1],
+          balance: BigNumber.from(3),
+          tokenType: TokenType.ETH,
+        },
+        {
+          address: addresses[1],
+          blockNumber: 5,
+          tokenAddress: tokenAddresses[1][0],
+          balance: BigNumber.from(4),
+          tokenType: TokenType.ERC20,
+        },
+        {
+          address: addresses[1],
+          blockNumber: 5,
+          tokenAddress: tokenAddresses[1][1],
+          balance: BigNumber.from(5),
+          tokenType: TokenType.ETH,
+        },
+      ]);
     });
 
     describe("when some getBalance throw errors", () => {
@@ -482,29 +497,37 @@ describe("BalanceService", () => {
       });
 
       it("returns only successfully fetched balances", async () => {
-        const expectedBalances = new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>();
-        expectedBalances.set(
-          utils.ETH_ADDRESS,
-          new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-            [utils.ETH_ADDRESS, { balance: BigNumber.from(1), tokenType: TokenType.ETH }],
-          ])
-        );
-        expectedBalances.set(
-          addresses[0],
-          new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-            [tokenAddresses[0][0], { balance: BigNumber.from(2), tokenType: TokenType.ERC20 }],
-          ])
-        );
-        expectedBalances.set(
-          addresses[1],
-          new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-            [tokenAddresses[1][0], { balance: BigNumber.from(4), tokenType: TokenType.ERC20 }],
-            [tokenAddresses[1][1], { balance: BigNumber.from(5), tokenType: TokenType.ETH }],
-          ])
-        );
-
         const changedBalances = await balanceService.getChangedBalances(blockNumber);
-        expect(changedBalances).toEqual(expectedBalances);
+        expect(changedBalances).toEqual([
+          {
+            address: "0x0000000000000000000000000000000000000000",
+            blockNumber: 5,
+            tokenAddress: "0x0000000000000000000000000000000000000000",
+            balance: BigNumber.from(1),
+            tokenType: TokenType.ETH,
+          },
+          {
+            address: addresses[0],
+            blockNumber: 5,
+            tokenAddress: tokenAddresses[0][0],
+            balance: BigNumber.from(2),
+            tokenType: TokenType.ERC20,
+          },
+          {
+            address: addresses[1],
+            blockNumber: 5,
+            tokenAddress: tokenAddresses[1][0],
+            balance: BigNumber.from(4),
+            tokenType: TokenType.ERC20,
+          },
+          {
+            address: addresses[1],
+            blockNumber: 5,
+            tokenAddress: tokenAddresses[1][1],
+            balance: BigNumber.from(5),
+            tokenType: TokenType.ETH,
+          },
+        ]);
       });
     });
   });

@@ -3,10 +3,10 @@ import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
 import { types } from "zksync-web3";
 import { BlockchainService } from "../blockchain/blockchain.service";
-import { BalanceService, BlockChangedBalances } from "../balance/balance.service";
+import { BalanceService, Balance } from "../balance/balance.service";
 import { TransactionService, TransactionData } from "../transaction";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
-import { LogService, ExtractedLog, LogsData } from "../log";
+import { LogService, LogsData } from "../log";
 import {
   BLOCK_PROCESSING_DURATION_METRIC_NAME,
   BALANCES_PROCESSING_DURATION_METRIC_NAME,
@@ -19,9 +19,9 @@ export interface BlockData {
   block: types.Block;
   blockDetails: types.BlockDetails;
   transactions: TransactionData[];
-  logs?: ExtractedLog[];
+  logs?: types.Log[];
   transfers?: Transfer[];
-  changedBalances: BlockChangedBalances;
+  changedBalances: Balance[];
 }
 
 @Injectable()
@@ -57,7 +57,8 @@ export class BlockService {
 
     let transactions: TransactionData[] = [];
     let blockLogData: LogsData;
-    let changedBalances: BlockChangedBalances;
+    let changedBalances: Balance[];
+    let blockLogs: types.Log[];
 
     const stopDurationMeasuring = this.processingDurationMetric.startTimer();
     try {
@@ -66,12 +67,12 @@ export class BlockService {
       );
 
       if (block.transactions.length === 0) {
-        const logs = await this.blockchainService.getLogs({
+        blockLogs = await this.blockchainService.getLogs({
           fromBlock: blockNumber,
           toBlock: blockNumber,
         });
 
-        blockLogData = await this.logService.getData(logs, blockDetails);
+        blockLogData = await this.logService.getData(blockLogs, blockDetails);
       }
 
       const stopBalancesDurationMeasuring = this.balancesProcessingDurationMetric.startTimer();
@@ -89,7 +90,7 @@ export class BlockService {
     return {
       block,
       blockDetails,
-      logs: blockLogData?.logs,
+      logs: blockLogs,
       transfers: blockLogData?.transfers,
       transactions,
       changedBalances,

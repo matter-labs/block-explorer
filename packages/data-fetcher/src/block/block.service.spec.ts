@@ -2,12 +2,13 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { types } from "zksync-web3";
 import { mock } from "jest-mock-extended";
+import { BigNumber } from "ethers";
 import { TransactionService } from "../transaction";
 import { LogService } from "../log";
 import { BlockchainService } from "../blockchain";
 import { BalanceService } from "../balance";
 import { BlockService } from "./";
-import { BigNumber } from "ethers";
+import { TokenType } from "../token/token.service";
 
 describe("BlockService", () => {
   let blockService: BlockService;
@@ -98,14 +99,15 @@ describe("BlockService", () => {
     blockHash: "blockHash",
   };
 
-  const blockChangedBalances = {
-    address: {
-      tokenAddress: {
-        balance: BigNumber.from(10),
-        type: "ERC20",
-      },
+  const blockChangedBalances = [
+    {
+      address: "0x0000000000000000000000000000000000000000",
+      blockNumber: 5,
+      tokenAddress: "0x0000000000000000000000000000000000000000",
+      balance: BigNumber.from(1),
+      tokenType: TokenType.ETH,
     },
-  };
+  ];
 
   beforeEach(async () => {
     blockchainServiceMock = mock<BlockchainService>({
@@ -221,7 +223,7 @@ describe("BlockService", () => {
         } as types.Block;
         jest.spyOn(blockchainServiceMock, "getBlock").mockReset();
         jest.spyOn(blockchainServiceMock, "getBlock").mockResolvedValueOnce(blockData);
-        logs = [mock<types.Log>({ logIndex: 0 }), mock<types.Log>({ logIndex: 1 })];
+        logs = [{ logIndex: 0 } as types.Log, { logIndex: 1 } as types.Log];
         jest.spyOn(blockchainServiceMock, "getLogs").mockResolvedValueOnce(logs);
       });
 

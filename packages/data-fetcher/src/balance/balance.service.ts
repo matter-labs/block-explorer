@@ -5,16 +5,15 @@ import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 
-export type BlockChangedBalances = Map<
-  string,
-  Map<
-    string,
-    {
-      balance: BigNumber;
-      tokenType: TokenType;
-    }
-  >
->;
+export type BlockChangedBalances = Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>;
+
+export interface Balance {
+  address: string;
+  tokenAddress: string;
+  blockNumber: number;
+  balance: BigNumber;
+  tokenType: TokenType;
+}
 
 @Injectable()
 export class BalanceService {
@@ -62,7 +61,7 @@ export class BalanceService {
     this.changedBalances.set(transfers[0].blockNumber, blockChangedBalances);
   }
 
-  public async getChangedBalances(blockNumber: number): Promise<BlockChangedBalances> {
+  public async getChangedBalances(blockNumber: number): Promise<Balance[]> {
     if (!this.changedBalances.has(blockNumber)) {
       return null;
     }
@@ -104,6 +103,20 @@ export class BalanceService {
       }
     }
 
-    return blockChangedBalances;
+    const balanceRecords: Balance[] = [];
+
+    for (const [address, addressTokenBalances] of blockChangedBalances) {
+      for (const [tokenAddress, addressTokenBalance] of addressTokenBalances) {
+        balanceRecords.push({
+          address,
+          tokenAddress,
+          blockNumber,
+          balance: addressTokenBalance.balance,
+          tokenType: addressTokenBalance.tokenType,
+        });
+      }
+    }
+
+    return balanceRecords;
   }
 }
