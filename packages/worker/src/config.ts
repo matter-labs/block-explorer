@@ -11,6 +11,7 @@ export default () => {
     USE_WEBSOCKETS_FOR_TRANSACTIONS,
     WAIT_FOR_BLOCKS_INTERVAL,
     BLOCKS_PROCESSING_BATCH_SIZE,
+    NUMBER_OF_BLOCKS_PER_DB_TRANSACTION,
     BATCHES_PROCESSING_POLLING_INTERVAL,
     DELETE_BALANCES_INTERVAL,
     COUNTERS_PROCESSING_POLLING_INTERVAL,
@@ -49,6 +50,7 @@ export default () => {
       fromBlock: parseInt(FROM_BLOCK, 10) || 0,
       toBlock: parseInt(TO_BLOCK, 10) || null,
       disableBlocksRevert: DISABLE_BLOCKS_REVERT === "true",
+      numberOfBlocksPerDbTransaction: parseInt(NUMBER_OF_BLOCKS_PER_DB_TRANSACTION, 10) || 50,
     },
     batches: {
       batchesProcessingPollingInterval: parseInt(BATCHES_PROCESSING_POLLING_INTERVAL, 10) || 60000,

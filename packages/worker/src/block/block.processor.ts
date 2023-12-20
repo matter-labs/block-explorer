@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
 import { MoreThanOrEqual, LessThanOrEqual, Between, FindOptionsWhere } from "typeorm";
-import { UnitOfWork } from "../unitOfWork";
+import { IDbTransaction, UnitOfWork } from "../unitOfWork";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { BlockInfo, BlockWatcher } from "./block.watcher";
 import { BalanceService } from "../balance/balance.service";
@@ -14,6 +14,7 @@ import { Block } from "../entities";
 import { TransactionProcessor } from "../transaction";
 import { LogProcessor } from "../log";
 import { validateBlocksLinking } from "./block.utils";
+import splitIntoChunks from "../utils/splitIntoChunks";
 import {
   BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME,
   BLOCK_PROCESSING_DURATION_METRIC_NAME,
@@ -29,6 +30,7 @@ export class BlockProcessor {
   private readonly fromBlock: number;
   private readonly toBlock: number;
   private readonly disableBlocksRevert: boolean;
+  private readonly numberOfBlocksPerDbTransaction: number;
 
   public constructor(
     private readonly unitOfWork: UnitOfWork,
@@ -52,6 +54,7 @@ export class BlockProcessor {
     this.fromBlock = configService.get<number>("blocks.fromBlock");
     this.toBlock = configService.get<number>("blocks.toBlock");
     this.disableBlocksRevert = configService.get<boolean>("blocks.disableBlocksRevert");
+    this.numberOfBlocksPerDbTransaction = configService.get<number>("blocks.numberOfBlocksPerDbTransaction");
   }
 
   public async processNextBlocksRange(): Promise<boolean> {
@@ -108,12 +111,25 @@ export class BlockProcessor {
     }
 
     const stopDurationMeasuring = this.blocksBatchProcessingDurationMetric.startTimer();
+    let dbTransactions: IDbTransaction[] = [];
+
     try {
-      await this.unitOfWork.useTransaction(async () => {
-        await Promise.all(blocksToProcess.map((blockInfo) => this.addBlock(blockInfo)));
-      });
+      const blocksToProcessChunks = splitIntoChunks(blocksToProcess, this.numberOfBlocksPerDbTransaction);
+
+      dbTransactions = blocksToProcessChunks.map((blocksToProcessChunk) =>
+        this.unitOfWork.useTransaction(async () => {
+          await Promise.all(blocksToProcessChunk.map((blockInfo) => this.addBlock(blockInfo)));
+        }, true)
+      );
+      await Promise.all(dbTransactions.map((t) => t.waitForExecution()));
+
+      // sequentially commit transactions to preserve blocks order in DB
+      for (const dbTransaction of dbTransactions) {
+        await dbTransaction.commit();
+      }
       stopDurationMeasuring({ status: "success" });
     } catch (error) {
+      await Promise.all(dbTransactions.map((dbTransaction) => dbTransaction.ensureRollbackIfNotCommitted()));
       stopDurationMeasuring({ status: "error" });
       throw error;
     }

@@ -56,7 +56,7 @@ export class BlocksRevertService {
         }
       }
 
-      await this.unitOfWork.useTransaction(async () => {
+      const dbTransaction = this.unitOfWork.useTransaction(async () => {
         this.logger.log("Reverting counters", { lastCorrectBlockNumber });
         await this.counterService.revert(lastCorrectBlockNumber);
 
@@ -66,6 +66,7 @@ export class BlocksRevertService {
           this.blockRepository.delete({ number: MoreThan(lastCorrectBlockNumber) }),
         ]);
       });
+      await dbTransaction.waitForExecution();
 
       this.logger.log("Blocks revert completed", { lastCorrectBlockNumber });
     } catch (error) {
