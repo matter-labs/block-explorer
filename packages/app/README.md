@@ -111,7 +111,7 @@ npm run lint
 ## Verify Block Explorer UI test results in GitHub Actions
 GitHub Actions test results are available in:
 
-- `GitHug Actions` --> `Summary` page at the very end of a page.
+- `GitHub Actions` --> `Summary` page at the very end of a page.
 - Inside of each test run in the log: `Feature on Mainnet + Sepolia` --> `@search` --> `Upload test results to Allure reporter` --> `https://raw.githack.com/matter-labs/block-explorer/gh-pages/_github.run_number_/index.html`
 - Directly via a link `https://raw.githack.com/matter-labs/block-explorer/gh-pages/_github.run_number_/index.html` after each PR running. The history of test runs for public view locates in `gh-pages` branch.
 
