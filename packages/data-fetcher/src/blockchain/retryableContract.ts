@@ -2,6 +2,9 @@ import { Logger } from "@nestjs/common";
 import { Provider } from "@ethersproject/abstract-provider";
 import { setTimeout } from "timers/promises";
 import { Contract, ContractInterface, Signer, errors } from "ethers";
+import config from "../config";
+
+const { blockchain } = config();
 
 interface EthersError {
   code: string;
@@ -40,27 +43,47 @@ const retryableFunctionCall = async (
   logger: Logger,
   functionName: string,
   addressOrName: string,
-  retryTimeout: number
+  retryTimeout: number,
+  retriesTotalTimeAwaited = 0
 ): Promise<any> => {
   try {
     return await result;
   } catch (error) {
     const isRetryable = shouldRetry(functionName, error);
+    if (!isRetryable) {
+      logger.warn({
+        message: `Requested contract function ${functionName} failed to execute, not retryable`,
+        contractAddress: addressOrName,
+        error,
+      });
+      throw error;
+    }
+
+    const exceededRetriesTotalTimeout =
+      retriesTotalTimeAwaited + retryTimeout > blockchain.rpcCallRetriesMaxTotalTimeout;
+    const failedStatus = exceededRetriesTotalTimeout ? "exceeded total retries timeout" : "retrying...";
     logger.warn({
-      message: `Requested contract function ${functionName} failed to execute, ${
-        isRetryable ? "retrying..." : "not retryable"
-      }`,
+      message: `Requested contract function ${functionName} failed to execute, ${failedStatus}`,
       contractAddress: addressOrName,
       error,
     });
-    if (!isRetryable) {
+
+    if (exceededRetriesTotalTimeout) {
       throw error;
     }
   }
   await setTimeout(retryTimeout);
 
   const nextRetryTimeout = Math.min(retryTimeout * 2, MAX_RETRY_INTERVAL);
-  return retryableFunctionCall(functionCall(), functionCall, logger, functionName, addressOrName, nextRetryTimeout);
+  return retryableFunctionCall(
+    functionCall(),
+    functionCall,
+    logger,
+    functionName,
+    addressOrName,
+    nextRetryTimeout,
+    retriesTotalTimeAwaited + retryTimeout
+  );
 };
 
 const getProxyHandler = (addressOrName: string, logger: Logger, retryTimeout: number) => {

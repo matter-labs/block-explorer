@@ -28,6 +28,7 @@ export class BlockchainService implements OnModuleInit {
   private readonly logger: Logger;
   private readonly rpcCallsDefaultRetryTimeout: number;
   private readonly rpcCallsQuickRetryTimeout: number;
+  private readonly rpcCallRetriesMaxTotalTimeout: number;
   private readonly errorCodesForQuickRetry: string[] = ["NETWORK_ERROR", "ECONNRESET", "ECONNREFUSED", "TIMEOUT"];
   public bridgeAddresses: BridgeAddresses;
 
@@ -40,9 +41,10 @@ export class BlockchainService implements OnModuleInit {
     this.logger = new Logger(BlockchainService.name);
     this.rpcCallsDefaultRetryTimeout = configService.get<number>("blockchain.rpcCallDefaultRetryTimeout");
     this.rpcCallsQuickRetryTimeout = configService.get<number>("blockchain.rpcCallQuickRetryTimeout");
+    this.rpcCallRetriesMaxTotalTimeout = configService.get<number>("blockchain.rpcCallRetriesMaxTotalTimeout");
   }
 
-  private async rpcCall<T>(action: () => Promise<T>, functionName: string): Promise<T> {
+  private async rpcCall<T>(action: () => Promise<T>, functionName: string, retriesTotalTimeAwaited = 0): Promise<T> {
     const stopDurationMeasuring = this.rpcCallDurationMetric.startTimer();
     try {
       const result = await action();
@@ -50,13 +52,19 @@ export class BlockchainService implements OnModuleInit {
       return result;
     } catch (error) {
       this.logger.error({ message: error.message, code: error.code }, error.stack);
-      if (this.errorCodesForQuickRetry.includes(error.code)) {
-        await setTimeout(this.rpcCallsQuickRetryTimeout);
-      } else {
-        await setTimeout(this.rpcCallsDefaultRetryTimeout);
+      const retryTimeout = this.errorCodesForQuickRetry.includes(error.code)
+        ? this.rpcCallsQuickRetryTimeout
+        : this.rpcCallsDefaultRetryTimeout;
+
+      const totalTimeAwaited = retriesTotalTimeAwaited + retryTimeout;
+      if (totalTimeAwaited > this.rpcCallRetriesMaxTotalTimeout) {
+        this.logger.error({ message: "Exceeded retries total timeout, failing the request", functionName });
+        throw error;
       }
+
+      await setTimeout(retryTimeout);
+      return this.rpcCall(action, functionName, totalTimeAwaited);
     }
-    return this.rpcCall(action, functionName);
   }
 
   public async getL1BatchNumber(): Promise<number> {
