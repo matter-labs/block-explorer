@@ -69,9 +69,3 @@ const latestTPS = computed(() => {
   return tps;
 });
 </script>
-
-<style scoped lang="scss">
-a {
-  @apply text-inherit;
-}
-</style>
