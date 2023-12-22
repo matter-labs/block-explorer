@@ -48,9 +48,6 @@ const indexerDelay = computed(() => {
 const indexerDelayInHours = computed(() => (indexerDelay.value / (1000 * 60 * 60)).toFixed(1));
 
 const isIndexerDelayed = computed(() => {
-  if (!latestBlock.value?.number || !latestIndexedBlocks.value?.length) {
-    return false;
-  }
   if (indexerDelay.value > MIN_DELAY_TO_SHOW_ALERT) {
     return true;
   }
