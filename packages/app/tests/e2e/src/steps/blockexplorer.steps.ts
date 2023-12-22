@@ -377,6 +377,13 @@ Then("Clipboard contains {string} value", async function (this: ICustomWorld, te
   await expect(result).toBe(text);
 });
 
+Then("Clipboard includes {string} value", async function (this: ICustomWorld, text: string) {
+  helper = new Helper(this);
+  result = await helper.getClipboardValue();
+
+  await expect(result.includes(text)).toBe(true);
+});
+
 Then("Clipboard value is not empty", async function (this: ICustomWorld) {
   helper = new Helper(this);
   result = await helper.getClipboardValue();
