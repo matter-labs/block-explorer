@@ -172,6 +172,18 @@ describe("BlockService", () => {
       expect(blockData.blockDetails).toEqual(blockDetailsData);
     });
 
+    it("returns null if block does not exist in blockchain", async () => {
+      (blockchainServiceMock.getBlock as jest.Mock).mockResolvedValue(null);
+      const blockData = await blockService.getData(blockNumber);
+      expect(blockData).toBeNull();
+    });
+
+    it("returns null if block details does not exist in blockchain", async () => {
+      (blockchainServiceMock.getBlockDetails as jest.Mock).mockResolvedValue(null);
+      const blockData = await blockService.getData(blockNumber);
+      expect(blockData).toBeNull();
+    });
+
     it("returns block transactions data", async () => {
       const blockData = await blockService.getData(blockNumber);
       expect(transactionServiceMock.getData).toHaveBeenCalledTimes(2);
@@ -240,8 +252,8 @@ describe("BlockService", () => {
         const blockData = await blockService.getData(blockNumber);
         expect(logServiceMock.getData).toHaveBeenCalledTimes(1);
         expect(logServiceMock.getData).toHaveBeenCalledWith(logs, blockDetailsData);
-        expect(blockData.logs).toEqual(blockLogData.logs);
-        expect(blockData.transfers).toEqual(blockLogData.transfers);
+        expect(blockData.blockLogs).toEqual(blockLogData.logs);
+        expect(blockData.blockTransfers).toEqual(blockLogData.transfers);
       });
     });
 
@@ -255,6 +267,15 @@ describe("BlockService", () => {
       expect(balanceServiceMock.getChangedBalances).toHaveBeenCalledTimes(1);
       expect(balanceServiceMock.getChangedBalances).toHaveBeenCalledWith(blockNumber);
       expect(blockData.changedBalances).toEqual(blockChangedBalances);
+    });
+
+    it("returns empty array as changed balances if there are no any", async () => {
+      (balanceServiceMock.getChangedBalances as jest.Mock).mockReset();
+      (balanceServiceMock.getChangedBalances as jest.Mock).mockResolvedValue(null);
+      const blockData = await blockService.getData(blockNumber);
+      expect(balanceServiceMock.getChangedBalances).toHaveBeenCalledTimes(1);
+      expect(balanceServiceMock.getChangedBalances).toHaveBeenCalledWith(blockNumber);
+      expect(blockData.changedBalances).toEqual([]);
     });
 
     it("stops the balances duration metric", async () => {
@@ -281,14 +302,14 @@ describe("BlockService", () => {
       expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledWith(blockNumber);
     });
 
-    it("returns empty block logs", async () => {
+    it("returns empty block logs array", async () => {
       const blockData = await blockService.getData(blockNumber);
-      expect(blockData.logs).toBeUndefined();
+      expect(blockData.blockLogs).toEqual([]);
     });
 
-    it("returns empty block transfers", async () => {
+    it("returns empty block transfers array", async () => {
       const blockData = await blockService.getData(blockNumber);
-      expect(blockData.transfers).toBeUndefined();
+      expect(blockData.blockTransfers).toEqual([]);
     });
   });
 });

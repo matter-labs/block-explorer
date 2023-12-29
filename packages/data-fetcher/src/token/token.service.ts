@@ -102,13 +102,6 @@ export class TokenService {
       erc20Token.name = this.removeSpecialChars(erc20Token.name);
 
       if (erc20Token.symbol) {
-        this.logger.debug({
-          message: "Adding ERC20 token to the DB",
-          blockNumber: contractAddress.blockNumber,
-          transactionHash: contractAddress.transactionHash,
-          tokenAddress: contractAddress.address,
-        });
-
         return {
           ...erc20Token,
           blockNumber: contractAddress.blockNumber,

@@ -4,6 +4,14 @@ import { utils } from "zksync-web3";
 import { setTimeout } from "timers/promises";
 import { RetryableContract } from "./retryableContract";
 
+jest.mock("../config", () => ({
+  default: () => ({
+    blockchain: {
+      rpcCallRetriesMaxTotalTimeout: 200000,
+    },
+  }),
+}));
+
 jest.mock("ethers", () => ({
   ...jest.requireActual("ethers"),
   Contract: jest.fn(),
@@ -150,11 +158,8 @@ describe("RetryableContract", () => {
 
     describe("when throws a few network errors before returning a result", () => {
       const functionResult = "functionResult";
-      const error = {
-        code: "NETWORK_ERROR",
-        method: "contractFn()",
-        reason: "something went wrong with the connection",
-      };
+      const error = new Error();
+      (error as any).code = "NETWORK_ERROR";
 
       beforeEach(() => {
         let countOfFailedRequests = 0;
@@ -179,13 +184,32 @@ describe("RetryableContract", () => {
         expect(setTimeout).toBeCalledWith(60000);
         expect(setTimeout).toBeCalledWith(60000);
       });
+
+      describe("and retries total time exceeds the retries total max timeout", () => {
+        beforeEach(() => {
+          let countOfFailedRequests = 0;
+          (ethers.Contract as any as jest.Mock).mockReturnValue({
+            contractFn: async () => {
+              if (countOfFailedRequests++ < 5) {
+                throw error;
+              }
+              return functionResult;
+            },
+          });
+
+          contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+        });
+
+        it("throws an error", async () => {
+          await expect(contract.contractFn()).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("when throws a few errors with no method or message before returning a result", () => {
       const functionResult = "functionResult";
-      const error = {
-        code: "CALL_EXCEPTION",
-      };
+      const error = new Error();
+      (error as any).code = "CALL_EXCEPTION";
 
       beforeEach(() => {
         let countOfFailedRequests = 0;
@@ -217,6 +241,26 @@ describe("RetryableContract", () => {
         expect(setTimeout).toBeCalledWith(40000);
         expect(setTimeout).toBeCalledWith(60000);
         expect(setTimeout).toBeCalledWith(60000);
+      });
+
+      describe("and retries total time exceeds the retries total max timeout", () => {
+        beforeEach(() => {
+          let countOfFailedRequests = 0;
+          (ethers.Contract as any as jest.Mock).mockReturnValue({
+            contractFn: async () => {
+              if (countOfFailedRequests++ < 5) {
+                throw error;
+              }
+              return functionResult;
+            },
+          });
+
+          contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+        });
+
+        it("throws an error", async () => {
+          await expect(contract.contractFn()).rejects.toThrowError(error);
+        });
       });
     });
   });

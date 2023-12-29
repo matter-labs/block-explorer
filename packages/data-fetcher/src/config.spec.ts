@@ -18,6 +18,7 @@ describe("config", () => {
         rpcUrl: "http://localhost:3050",
         rpcCallDefaultRetryTimeout: 30000,
         rpcCallQuickRetryTimeout: 500,
+        rpcCallRetriesMaxTotalTimeout: 90000,
         rpcCallConnectionTimeout: 20000,
         rpcCallConnectionQuickTimeout: 10000,
       },

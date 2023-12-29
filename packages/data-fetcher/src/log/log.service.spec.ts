@@ -75,8 +75,6 @@ describe("LogService", () => {
       } as Token,
     ];
 
-    let logsWithTransactionTimestamp: Partial<types.Log>[];
-    let logsWithBlockTimestamp: Partial<types.Log>[];
     let transactionReceipt: types.TransactionReceipt;
     let transactionDetails: types.TransactionDetails;
 
@@ -90,8 +88,6 @@ describe("LogService", () => {
       transactionDetails = mock<types.TransactionDetails>({
         receivedAt: new Date(),
       });
-      logsWithTransactionTimestamp = logs.map((log) => ({ ...log, timestamp: transactionDetails.receivedAt }));
-      logsWithBlockTimestamp = logs.map((log) => ({ ...log, timestamp: new Date(blockDetails.timestamp * 1000) }));
     });
 
     describe("when transaction details and receipt are defined", () => {

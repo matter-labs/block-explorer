@@ -10,8 +10,10 @@ import { JsonRpcProviderBase } from "../rpcProvider";
 import { RetryableContract } from "./retryableContract";
 
 jest.mock("./retryableContract");
+const metricProviderKey = "PROM_METRIC_BLOCKCHAIN_RPC_CALL_DURATION_SECONDS";
 
 describe("BlockchainService", () => {
+  let app: TestingModule;
   const l2Erc20Bridge = "l2Erc20Bridge";
   let blockchainService: BlockchainService;
   let provider: JsonRpcProviderBase;
@@ -21,6 +23,7 @@ describe("BlockchainService", () => {
   let stopRpcCallDurationMetricMock: jest.Mock;
   const defaultRetryTimeout = 2;
   const quickRetryTimeout = 1;
+  const retriesMaxTotalTimeout = 100;
 
   beforeEach(async () => {
     providerFormatterMock = {
@@ -33,14 +36,21 @@ describe("BlockchainService", () => {
 
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockImplementation((configName) => {
-        return configName === "blockchain.rpcCallDefaultRetryTimeout" ? defaultRetryTimeout : quickRetryTimeout;
+        switch (configName) {
+          case "blockchain.rpcCallDefaultRetryTimeout":
+            return defaultRetryTimeout;
+          case "blockchain.rpcCallQuickRetryTimeout":
+            return quickRetryTimeout;
+          case "blockchain.rpcCallRetriesMaxTotalTimeout":
+            return retriesMaxTotalTimeout;
+        }
       }),
     });
 
     stopRpcCallDurationMetricMock = jest.fn();
     startRpcCallDurationMetricMock = jest.fn().mockReturnValue(stopRpcCallDurationMetricMock);
 
-    const app: TestingModule = await Test.createTestingModule({
+    app = await Test.createTestingModule({
       providers: [
         BlockchainService,
         {
@@ -52,7 +62,7 @@ describe("BlockchainService", () => {
           useValue: provider,
         },
         {
-          provide: "PROM_METRIC_BLOCKCHAIN_RPC_CALL_DURATION_SECONDS",
+          provide: metricProviderKey,
           useValue: {
             startTimer: startRpcCallDurationMetricMock,
           },
@@ -104,11 +114,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchNumber")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchNumber);
       });
 
@@ -130,14 +141,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getL1BatchNumber();
         expect(result).toEqual(batchNumber);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchNumber()).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchNumber")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchNumber);
       });
 
@@ -146,15 +174,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchNumber()).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchNumber")
-          .mockRejectedValueOnce({ code: "ECONNREFUSED" })
-          .mockRejectedValueOnce({ code: "ECONNREFUSED" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchNumber);
       });
 
@@ -163,15 +208,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchNumber()).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection reset error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNRESET";
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchNumber")
-          .mockRejectedValueOnce({ code: "ECONNRESET" })
-          .mockRejectedValueOnce({ code: "ECONNRESET" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchNumber);
       });
 
@@ -180,15 +242,33 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchNumber()).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a network error", () => {
+      const error = new Error();
+      (error as any).code = "NETWORK_ERROR";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchNumber")
-          .mockRejectedValueOnce({ code: "NETWORK_ERROR" })
-          .mockRejectedValueOnce({ code: "NETWORK_ERROR" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchNumber);
       });
 
@@ -197,6 +277,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchNumber()).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -245,11 +340,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchDetails")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchDetails);
       });
 
@@ -271,14 +367,32 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getL1BatchDetails(batchNumber);
         expect(result).toEqual(batchDetails);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchDetails(batchNumber)).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchDetails")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchDetails);
       });
 
@@ -287,15 +401,33 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchDetails(batchNumber)).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getL1BatchDetails")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(batchDetails);
       });
 
@@ -304,6 +436,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getL1BatchDetails(batchNumber)).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -341,11 +488,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlock")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(block);
       });
 
@@ -367,14 +515,32 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getBlock(blockNumber);
         expect(result).toEqual(block);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlock(blockNumber)).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlock")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(block);
       });
 
@@ -383,15 +549,33 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlock(blockNumber)).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlock")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(block);
       });
 
@@ -400,6 +584,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlock(blockNumber)).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -435,11 +634,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlockNumber")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(blockNumber);
       });
 
@@ -461,14 +661,32 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getBlockNumber();
         expect(result).toEqual(blockNumber);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlockNumber()).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlockNumber")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(blockNumber);
       });
 
@@ -477,15 +695,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlockNumber()).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlockNumber")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(blockNumber);
       });
 
@@ -494,6 +729,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlockNumber()).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -531,11 +781,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlockDetails")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(blockDetails);
       });
 
@@ -557,14 +808,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getBlockDetails(blockNumber);
         expect(result).toEqual(blockDetails);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlockDetails(blockNumber)).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlockDetails")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(blockDetails);
       });
 
@@ -573,15 +841,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlockDetails(blockNumber)).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getBlockDetails")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(blockDetails);
       });
 
@@ -590,6 +875,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getBlockDetails(blockNumber)).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -627,11 +927,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransaction")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transaction);
       });
 
@@ -653,14 +954,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getTransaction(transactionHash);
         expect(result).toEqual(transaction);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransaction(transactionHash)).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransaction")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transaction);
       });
 
@@ -669,15 +987,33 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransaction(transactionHash)).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransaction")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transaction);
       });
 
@@ -686,6 +1022,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransaction(transactionHash)).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -725,11 +1076,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransactionDetails")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transactionDetails);
       });
 
@@ -751,14 +1103,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getTransactionDetails(transactionHash);
         expect(result).toEqual(transactionDetails);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransactionDetails(transactionHash)).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransactionDetails")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transactionDetails);
       });
 
@@ -767,15 +1136,33 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransactionDetails(transactionHash)).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransactionDetails")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transactionDetails);
       });
 
@@ -784,6 +1171,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransactionDetails(transactionHash)).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -823,11 +1225,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransactionReceipt")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transactionReceipt);
       });
 
@@ -849,14 +1252,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getTransactionReceipt(transactionHash);
         expect(result).toEqual(transactionReceipt);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransactionReceipt(transactionHash)).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransactionReceipt")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transactionReceipt);
       });
 
@@ -865,15 +1285,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransactionReceipt(transactionHash)).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getTransactionReceipt")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(transactionReceipt);
       });
 
@@ -882,6 +1319,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getTransactionReceipt(transactionHash)).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -920,11 +1372,13 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
+
       beforeEach(() => {
         jest
           .spyOn(provider, "getLogs")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(logs);
       });
 
@@ -946,14 +1400,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getLogs({ fromBlock, toBlock });
         expect(result).toEqual(logs);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getLogs({ fromBlock, toBlock })).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getLogs")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(logs);
       });
 
@@ -962,15 +1433,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getLogs({ fromBlock, toBlock })).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getLogs")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(logs);
       });
 
@@ -979,6 +1467,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getLogs({ fromBlock, toBlock })).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -1016,11 +1519,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getCode")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bytecode);
       });
 
@@ -1042,14 +1546,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getCode(address);
         expect(result).toEqual(bytecode);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getCode(address)).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getCode")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bytecode);
       });
 
@@ -1058,15 +1579,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getCode(address)).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getCode")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bytecode);
       });
 
@@ -1075,6 +1613,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getCode(address)).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -1115,11 +1668,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getDefaultBridgeAddresses")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bridgeAddress);
       });
 
@@ -1141,14 +1695,31 @@ describe("BlockchainService", () => {
         const result = await blockchainService.getDefaultBridgeAddresses();
         expect(result).toEqual(bridgeAddress);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getDefaultBridgeAddresses()).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getDefaultBridgeAddresses")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bridgeAddress);
       });
 
@@ -1157,15 +1728,32 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getDefaultBridgeAddresses()).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getDefaultBridgeAddresses")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bridgeAddress);
       });
 
@@ -1174,6 +1762,21 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(blockchainService.getDefaultBridgeAddresses()).rejects.toThrowError(error);
+        });
       });
     });
   });
@@ -1319,11 +1922,12 @@ describe("BlockchainService", () => {
       });
 
       describe("if the call throws an error", () => {
+        const error = new Error("RPC call error");
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce(new Error("RPC call error"))
-            .mockRejectedValueOnce(new Error("RPC call error"))
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1345,14 +1949,31 @@ describe("BlockchainService", () => {
           const result = await blockchainService.getBalance(address, blockNumber, tokenAddress);
           expect(result).toEqual(balance);
         });
+
+        describe("and retries max total timeout is exceeded", () => {
+          beforeEach(() => {
+            (configServiceMock.get as jest.Mock).mockClear();
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+            blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+          });
+
+          it("stops retrying and throws the error", async () => {
+            await expect(blockchainService.getBalance(address, blockNumber, tokenAddress)).rejects.toThrowError(error);
+          });
+        });
       });
 
       describe("if the call throws a timeout error", () => {
+        const error = new Error();
+        (error as any).code = "TIMEOUT";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "TIMEOUT" })
-            .mockRejectedValueOnce({ code: "TIMEOUT" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1361,15 +1982,32 @@ describe("BlockchainService", () => {
           expect(timeoutSpy).toHaveBeenCalledTimes(2);
           expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
           expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+        });
+
+        describe("and retries max total timeout is exceeded", () => {
+          beforeEach(() => {
+            (configServiceMock.get as jest.Mock).mockClear();
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+            blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+          });
+
+          it("stops retrying and throws the error", async () => {
+            await expect(blockchainService.getBalance(address, blockNumber, tokenAddress)).rejects.toThrowError(error);
+          });
         });
       });
 
       describe("if the call throws a connection refused error", () => {
+        const error = new Error();
+        (error as any).code = "ECONNREFUSED";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "ECONNREFUSED" })
-            .mockRejectedValueOnce({ code: "ECONNREFUSED" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1378,15 +2016,32 @@ describe("BlockchainService", () => {
           expect(timeoutSpy).toHaveBeenCalledTimes(2);
           expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
           expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+        });
+
+        describe("and retries max total timeout is exceeded", () => {
+          beforeEach(() => {
+            (configServiceMock.get as jest.Mock).mockClear();
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+            blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+          });
+
+          it("stops retrying and throws the error", async () => {
+            await expect(blockchainService.getBalance(address, blockNumber, tokenAddress)).rejects.toThrowError(error);
+          });
         });
       });
 
       describe("if the call throws a connection reset error", () => {
+        const error = new Error();
+        (error as any).code = "ECONNRESET";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "ECONNRESET" })
-            .mockRejectedValueOnce({ code: "ECONNRESET" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1395,15 +2050,32 @@ describe("BlockchainService", () => {
           expect(timeoutSpy).toHaveBeenCalledTimes(2);
           expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
           expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+        });
+
+        describe("and retries max total timeout is exceeded", () => {
+          beforeEach(() => {
+            (configServiceMock.get as jest.Mock).mockClear();
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+            blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+          });
+
+          it("stops retrying and throws the error", async () => {
+            await expect(blockchainService.getBalance(address, blockNumber, tokenAddress)).rejects.toThrowError(error);
+          });
         });
       });
 
       describe("if the call throws a network error", () => {
+        const error = new Error();
+        (error as any).code = "NETWORK_ERROR";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "NETWORK_ERROR" })
-            .mockRejectedValueOnce({ code: "NETWORK_ERROR" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1412,6 +2084,21 @@ describe("BlockchainService", () => {
           expect(timeoutSpy).toHaveBeenCalledTimes(2);
           expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
           expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+        });
+
+        describe("and retries max total timeout is exceeded", () => {
+          beforeEach(() => {
+            (configServiceMock.get as jest.Mock).mockClear();
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+            (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+            blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+          });
+
+          it("stops retrying and throws the error", async () => {
+            await expect(blockchainService.getBalance(address, blockNumber, tokenAddress)).rejects.toThrowError(error);
+          });
         });
       });
     });
@@ -1538,11 +2225,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "send")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(traceTransactionResult);
       });
 
@@ -1570,14 +2258,35 @@ describe("BlockchainService", () => {
         );
         expect(result).toEqual(traceTransactionResult);
       });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(
+            blockchainService.debugTraceTransaction(
+              "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+            )
+          ).rejects.toThrowError(error);
+        });
+      });
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "send")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(traceTransactionResult);
       });
 
@@ -1588,15 +2297,36 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(
+            blockchainService.debugTraceTransaction(
+              "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+            )
+          ).rejects.toThrowError(error);
+        });
       });
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "send")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(traceTransactionResult);
       });
 
@@ -1607,6 +2337,25 @@ describe("BlockchainService", () => {
         expect(timeoutSpy).toHaveBeenCalledTimes(2);
         expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
         expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+
+      describe("and retries max total timeout is exceeded", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockClear();
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(10);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(20);
+          (configServiceMock.get as jest.Mock).mockReturnValueOnce(1);
+
+          blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+        });
+
+        it("stops retrying and throws the error", async () => {
+          await expect(
+            blockchainService.debugTraceTransaction(
+              "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b"
+            )
+          ).rejects.toThrowError(error);
+        });
       });
     });
   });

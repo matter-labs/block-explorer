@@ -2,6 +2,8 @@ export default () => {
   const {
     PORT,
     BLOCKCHAIN_RPC_URL,
+    DATA_FETCHER_URL,
+    DATA_FETCHER_REQUEST_TIMEOUT,
     RPC_CALLS_DEFAULT_RETRY_TIMEOUT,
     RPC_CALLS_QUICK_RETRY_TIMEOUT,
     RPC_CALLS_CONNECTION_TIMEOUT,
@@ -16,7 +18,6 @@ export default () => {
     COLLECT_BLOCKS_TO_PROCESS_METRIC_INTERVAL,
     DISABLE_BATCHES_PROCESSING,
     DISABLE_COUNTERS_PROCESSING,
-    DISABLE_BALANCES_PROCESSING,
     DISABLE_OLD_BALANCES_CLEANER,
     DISABLE_BLOCKS_REVERT,
     ENABLE_TOKEN_OFFCHAIN_DATA_SAVER,
@@ -37,6 +38,10 @@ export default () => {
       rpcCallConnectionTimeout: parseInt(RPC_CALLS_CONNECTION_TIMEOUT, 10) || 20000,
       rpcCallConnectionQuickTimeout: parseInt(RPC_CALLS_CONNECTION_QUICK_TIMEOUT, 10) || 10000,
     },
+    dataFetcher: {
+      url: DATA_FETCHER_URL || "http://localhost:3040",
+      requestTimeout: parseInt(DATA_FETCHER_REQUEST_TIMEOUT, 10) || 120_000,
+    },
     blocks: {
       waitForBlocksInterval: parseInt(WAIT_FOR_BLOCKS_INTERVAL, 10) || 1000,
       blocksProcessingBatchSize: parseInt(BLOCKS_PROCESSING_BATCH_SIZE, 10) || 50,
@@ -50,7 +55,6 @@ export default () => {
     },
     balances: {
       deleteBalancesInterval: parseInt(DELETE_BALANCES_INTERVAL, 10) || 300000,
-      disableBalancesProcessing: DISABLE_BALANCES_PROCESSING === "true",
       disableOldBalancesCleaner: DISABLE_OLD_BALANCES_CLEANER === "true",
     },
     counters: {

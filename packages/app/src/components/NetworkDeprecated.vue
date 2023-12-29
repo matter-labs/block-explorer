@@ -34,7 +34,6 @@ const newNetworkUrl = computed(() => {
     const { hostname, origin } = getWindowLocation();
 
     if (hostname === "localhost" || hostname.endsWith("web.app") || !network.hostnames?.length) {
-      console.log(route);
       return `${origin}?network=${network.name}`;
     }
     return network.hostnames[0];

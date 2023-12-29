@@ -19,8 +19,8 @@ export interface BlockData {
   block: types.Block;
   blockDetails: types.BlockDetails;
   transactions: TransactionData[];
-  logs?: types.Log[];
-  transfers?: Transfer[];
+  blockLogs: types.Log[];
+  blockTransfers: Transfer[];
   changedBalances: Balance[];
 }
 
@@ -43,7 +43,9 @@ export class BlockService {
     this.logger = new Logger(BlockService.name);
   }
 
-  public async getData(blockNumber: number): Promise<BlockData> {
+  public async getData(blockNumber: number): Promise<BlockData | null> {
+    const stopDurationMeasuring = this.processingDurationMetric.startTimer();
+
     this.logger.debug({ message: "Getting block from the blockchain", blockNumber });
     const stopGetBlockInfoDurationMetric = this.getBlockInfoDurationMetric.startTimer();
     const [block, blockDetails] = await Promise.all([
@@ -52,15 +54,16 @@ export class BlockService {
     ]);
     stopGetBlockInfoDurationMetric();
 
-    let blockProcessingStatus = "success";
-    this.logger.log({ message: `Adding block #${blockNumber}`, blockNumber });
+    if (!block || !blockDetails) {
+      return null;
+    }
 
+    let blockProcessingStatus = "success";
     let transactions: TransactionData[] = [];
     let blockLogData: LogsData;
     let changedBalances: Balance[];
     let blockLogs: types.Log[];
 
-    const stopDurationMeasuring = this.processingDurationMetric.startTimer();
     try {
       transactions = await Promise.all(
         block.transactions.map((transactionHash) => this.transactionService.getData(transactionHash, blockDetails))
@@ -76,7 +79,7 @@ export class BlockService {
       }
 
       const stopBalancesDurationMeasuring = this.balancesProcessingDurationMetric.startTimer();
-      this.logger.debug({ message: "Getting balances and tokens", blockNumber });
+      this.logger.debug({ message: "Getting balances", blockNumber });
       changedBalances = await this.balanceService.getChangedBalances(blockNumber);
       stopBalancesDurationMeasuring();
     } catch (error) {
@@ -90,10 +93,10 @@ export class BlockService {
     return {
       block,
       blockDetails,
-      logs: blockLogs,
-      transfers: blockLogData?.transfers,
+      blockLogs: blockLogs || [],
+      blockTransfers: blockLogData?.transfers || [],
       transactions,
-      changedBalances,
+      changedBalances: changedBalances || [],
     };
   }
 }
