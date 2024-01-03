@@ -21,6 +21,9 @@ describe("BlockProcessor", () => {
   let blockProcessor: BlockProcessor;
   let blockWatcherMock: BlockWatcher;
   let unitOfWorkMock: UnitOfWork;
+  let waitForTransactionExecutionMock: jest.Mock;
+  let commitTransactionMock: jest.Mock;
+  let ensureRollbackIfNotCommittedTransactionMock: jest.Mock;
   let blockchainServiceMock: BlockchainService;
   let transactionProcessorMock: TransactionProcessor;
   let logProcessorMock: LogProcessor;
@@ -110,8 +113,15 @@ describe("BlockProcessor", () => {
   };
 
   beforeEach(async () => {
+    waitForTransactionExecutionMock = jest.fn();
+    commitTransactionMock = jest.fn();
+    ensureRollbackIfNotCommittedTransactionMock = jest.fn();
     unitOfWorkMock = mock<UnitOfWork>({
-      useTransaction: jest.fn().mockImplementation((action: () => Promise<void>) => action()),
+      useTransaction: jest.fn().mockImplementation((action: () => Promise<void>) => ({
+        waitForExecution: waitForTransactionExecutionMock.mockResolvedValue(action()),
+        commit: commitTransactionMock.mockResolvedValue(null),
+        ensureRollbackIfNotCommitted: ensureRollbackIfNotCommittedTransactionMock.mockResolvedValue(null),
+      })),
     });
     blockWatcherMock = mock<BlockWatcher>({
       getNextBlocksToProcess: jest.fn().mockResolvedValue([]),
@@ -492,9 +502,11 @@ describe("BlockProcessor", () => {
               expect(startBlocksBatchDurationMetricMock).toHaveBeenCalledTimes(1);
             });
 
-            it("uses transaction when adding blocks", async () => {
+            it("uses transaction with disabled automatic commit when adding blocks", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(unitOfWorkMock.useTransaction).toHaveBeenCalledTimes(1);
+              expect((unitOfWorkMock.useTransaction as jest.Mock).mock.calls[0][1]).toBe(true);
+              expect(waitForTransactionExecutionMock).toBeCalledTimes(1);
             });
 
             it("starts the duration metric", async () => {
@@ -522,6 +534,11 @@ describe("BlockProcessor", () => {
                 blocksToProcess[0].block.transactions[1],
                 blocksToProcess[0].blockDetails
               );
+            });
+
+            it("commits db transactions after execution", async () => {
+              await blockProcessor.processNextBlocksRange();
+              expect(commitTransactionMock).toBeCalledTimes(1);
             });
 
             describe("when processing fails with an error", () => {
@@ -573,6 +590,16 @@ describe("BlockProcessor", () => {
                 } catch {
                   expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledTimes(1);
                 }
+              });
+
+              it("does not commit db transactions", async () => {
+                await Promise.allSettled([blockProcessor.processNextBlocksRange()]);
+                expect(commitTransactionMock).not.toBeCalled();
+              });
+
+              it("ensures all the db transactions for a given batch of blocks are reverted if not committed", async () => {
+                await Promise.allSettled([blockProcessor.processNextBlocksRange()]);
+                expect(ensureRollbackIfNotCommittedTransactionMock).toBeCalledTimes(1);
               });
             });
 
