@@ -11,7 +11,6 @@
 
 <script lang="ts" setup>
 import { computed } from "vue";
-import { useRoute } from "vue-router";
 
 import SystemAlert from "@/components/common/SystemAlert.vue";
 
@@ -19,7 +18,6 @@ import useContext from "@/composables/useContext";
 
 import { getWindowLocation } from "@/utils/helpers";
 
-const route = useRoute();
 const { networks } = useContext();
 
 const newNetworkUrl = computed(() => {
