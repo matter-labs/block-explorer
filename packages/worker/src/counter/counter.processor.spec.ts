@@ -20,6 +20,7 @@ describe("CounterProcessor", () => {
   let repositoryMock: Repository<Transaction>;
   let counterRepositoryMock: CounterRepository;
   let unitOfWorkMock: UnitOfWork;
+  let waitForTransactionExecutionMock: jest.Mock;
   let counterProcessor: CounterProcessor<Transaction>;
 
   beforeEach(() => {
@@ -31,8 +32,13 @@ describe("CounterProcessor", () => {
       decrementCounters: jest.fn().mockResolvedValue(null),
       getLastProcessedRecordNumber: jest.fn().mockResolvedValue(-1),
     });
+    waitForTransactionExecutionMock = jest.fn();
     unitOfWorkMock = mock<UnitOfWork>({
-      useTransaction: jest.fn().mockImplementation((fn) => fn()),
+      useTransaction: jest.fn().mockImplementation((fn) => ({
+        waitForExecution: waitForTransactionExecutionMock.mockResolvedValue(fn()),
+        commit: jest.fn().mockResolvedValue(null),
+        ensureRollbackIfNotCommitted: jest.fn().mockResolvedValue(null),
+      })),
     });
     counterProcessor = new CounterProcessor<Transaction>(
       Transaction,
@@ -121,6 +127,7 @@ describe("CounterProcessor", () => {
         await counterProcessorWithNoCriteria.processNextRecordsBatch();
 
         expect(unitOfWorkMock.useTransaction).toBeCalledTimes(1);
+        expect(waitForTransactionExecutionMock).toBeCalledTimes(1);
         expect(counterRepositoryMock.incrementCounters).toBeCalledTimes(1);
         expect(counterRepositoryMock.incrementCounters).toBeCalledWith(
           [
@@ -167,6 +174,7 @@ describe("CounterProcessor", () => {
         await counterProcessor.processNextRecordsBatch();
 
         expect(unitOfWorkMock.useTransaction).toBeCalledTimes(1);
+        expect(waitForTransactionExecutionMock).toBeCalledTimes(1);
         expect(counterRepositoryMock.incrementCounters).toBeCalledTimes(1);
         expect(counterRepositoryMock.incrementCounters).toBeCalledWith(
           [
@@ -231,6 +239,7 @@ describe("CounterProcessor", () => {
         await counterProcessor.processNextRecordsBatch();
 
         expect(unitOfWorkMock.useTransaction).toBeCalledTimes(1);
+        expect(waitForTransactionExecutionMock).toBeCalledTimes(1);
         expect(counterRepositoryMock.incrementCounters).toBeCalledTimes(1);
         expect(counterRepositoryMock.incrementCounters).toBeCalledWith(
           [
