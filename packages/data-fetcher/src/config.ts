@@ -14,7 +14,7 @@ export default () => {
   } = process.env;
 
   return {
-    port: parseInt(PORT, 10) || 3001,
+    port: parseInt(PORT, 10) || 3040,
     blockchain: {
       rpcUrl: BLOCKCHAIN_RPC_URL || "http://localhost:3050",
 
