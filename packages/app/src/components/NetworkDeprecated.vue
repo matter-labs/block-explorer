@@ -2,7 +2,7 @@
   <SystemAlert>
     <span
       >We are ending our support of Goerli testnet. Please <a :href="newNetworkUrl!">use Sepolia</a>. For more info see
-      <a target="_blank" href="https://github.com/zkSync-Community-Hub/zkync-developers/discussions/228"
+      <a target="_blank" href="https://github.com/zkSync-Community-Hub/zksync-developers/discussions/228"
         >this announcement</a
       >.</span
     >
