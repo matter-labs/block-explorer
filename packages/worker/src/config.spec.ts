@@ -16,10 +16,13 @@ describe("config", () => {
       port: 3001,
       blockchain: {
         rpcUrl: "http://localhost:3050",
+        wsRpcUrl: "http://localhost:3050/ws",
         rpcCallDefaultRetryTimeout: 30000,
         rpcCallQuickRetryTimeout: 500,
         rpcCallConnectionTimeout: 20000,
         rpcCallConnectionQuickTimeout: 10000,
+        wsMaxConnections: 5,
+        useWebSocketsForTransactions: false,
       },
       dataFetcher: {
         url: "http://localhost:3040",
@@ -31,6 +34,7 @@ describe("config", () => {
         fromBlock: 0,
         toBlock: null,
         disableBlocksRevert: false,
+        numberOfBlocksPerDbTransaction: 50,
       },
       batches: {
         batchesProcessingPollingInterval: 60000,
