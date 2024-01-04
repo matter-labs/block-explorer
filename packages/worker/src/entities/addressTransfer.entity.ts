@@ -5,7 +5,6 @@ import { Transfer } from "./transfer.entity";
 import { TokenType } from "./token.entity";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
-import { stringDateTransformer } from "../transformers/stringDate.transformer";
 import { TransferFields } from "../dataFetcher/types";
 
 @Entity({ name: "addressTransfers" })
@@ -39,7 +38,7 @@ export class AddressTransfer extends BaseEntity {
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
 
-  @Column({ type: "timestamp", transformer: stringDateTransformer })
+  @Column({ type: "timestamp" })
   public readonly timestamp: string;
 
   @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })

@@ -5,7 +5,6 @@ import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { hexArrayTransformer } from "../transformers/hexArray.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
-import { stringDateTransformer } from "../transformers/stringDate.transformer";
 import { BaseEntity } from "./base.entity";
 
 @Entity({ name: "logs" })
@@ -49,6 +48,6 @@ export class Log extends BaseEntity {
   @Column({ type: "int" })
   public readonly logIndex: number;
 
-  @Column({ type: "timestamp", transformer: stringDateTransformer })
+  @Column({ type: "timestamp" })
   public readonly timestamp: string;
 }

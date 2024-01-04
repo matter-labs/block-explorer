@@ -6,7 +6,6 @@ import { TokenType } from "./token.entity";
 import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
-import { stringDateTransformer } from "../transformers/stringDate.transformer";
 import { TransferFields } from "../dataFetcher/types";
 
 export enum TransferType {
@@ -49,7 +48,7 @@ export class Transfer extends CountableEntity {
   @Column({ type: "bytea", nullable: true, transformer: hash64HexTransformer })
   public readonly transactionHash?: string;
 
-  @Column({ type: "timestamp", transformer: stringDateTransformer })
+  @Column({ type: "timestamp" })
   public readonly timestamp: string;
 
   @Column({ type: "int" })

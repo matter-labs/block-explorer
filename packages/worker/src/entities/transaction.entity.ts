@@ -1,5 +1,4 @@
 import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne, Index } from "typeorm";
-import { stringDateTransformer } from "../transformers/stringDate.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { Batch } from "./batch.entity";
@@ -84,7 +83,7 @@ export class Transaction extends CountableEntity {
   @Column({ type: "boolean" })
   public readonly isL1Originated: boolean;
 
-  @Column({ type: "timestamp", transformer: stringDateTransformer })
+  @Column({ type: "timestamp" })
   public readonly receivedAt: string;
 
   @Column({ type: "int", default: 1 })
