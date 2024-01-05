@@ -158,7 +158,8 @@
     },
     "locale": {
         "en": "EN",
-        "uk": "UA"
+        "uk": "UA",
+        "tr": "TR"
     },
     "footer": {
         "nav": {
