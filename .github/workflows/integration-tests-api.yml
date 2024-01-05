@@ -3,7 +3,7 @@ on: pull_request
 
 jobs:
   runTests:
-    name: Run API integration tests
+    name: API test
     timeout-minutes: 30
     runs-on: ubuntu-latest
     permissions:
