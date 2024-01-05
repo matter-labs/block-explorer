@@ -1003,7 +1003,7 @@ describe("Transactions API", () => {
   //@id1697
   it(
     "Verify /api?module=transaction&action=getstatus response returns elements" +
-    " getstatus => getstatus&txhash={tx_hash}",
+      " getstatus => getstatus&txhash={tx_hash}",
     async () => {
       const blocks = await request(environment.blockExplorerAPI).get("/transactions");
 
@@ -1025,7 +1025,7 @@ describe("Transactions API", () => {
   //@id1698
   it(
     "Verify /api?module=transaction&action=gettxreceiptstatus response returns elements" +
-    " gettxreceiptstatus => gettxreceiptstatus&txhash={tx_hash}",
+      " gettxreceiptstatus => gettxreceiptstatus&txhash={tx_hash}",
     async () => {
       const blocks = await request(environment.blockExplorerAPI).get("/transactions");
 
