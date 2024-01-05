@@ -997,48 +997,48 @@ describe("Transactions", () => {
         .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
     });
   });
-});
 
-describe("Transactions API", () => {
-  //@id1697
-  it(
-    "Verify /api?module=transaction&action=getstatus response returns elements" +
-      " getstatus => getstatus&txhash={tx_hash}",
-    async () => {
-      const blocks = await request(environment.blockExplorerAPI).get("/transactions");
+  describe("Transactions API", () => {
+    //@id1697
+    it(
+      "Verify /api?module=transaction&action=getstatus response returns elements" +
+        " getstatus => getstatus&txhash={tx_hash}",
+      async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/transactions");
 
-      const txHash = blocks.body.items[0].hash;
-      const apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
-      await setTimeout(localConfig.extendedPause); //works unstable without timeout
+        const txHash = blocks.body.items[0].hash;
+        const apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
+        await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
-        .expect((res) =>
-          expect(res.body.result).toStrictEqual(expect.objectContaining({ isError: "0", errDescription: "" }))
-        );
-    }
-  );
+        return request(environment.blockExplorerAPI)
+          .get(apiRoute)
+          .expect(200)
+          .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
+          .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
+          .expect((res) =>
+            expect(res.body.result).toStrictEqual(expect.objectContaining({ isError: "0", errDescription: "" }))
+          );
+      }
+    );
 
-  //@id1698
-  it(
-    "Verify /api?module=transaction&action=gettxreceiptstatus response returns elements" +
-      " gettxreceiptstatus => gettxreceiptstatus&txhash={tx_hash}",
-    async () => {
-      const blocks = await request(environment.blockExplorerAPI).get("/transactions");
+    //@id1698
+    it(
+      "Verify /api?module=transaction&action=gettxreceiptstatus response returns elements" +
+        " gettxreceiptstatus => gettxreceiptstatus&txhash={tx_hash}",
+      async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/transactions");
 
-      const txHash = blocks.body.items[0].hash;
-      const apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
-      await setTimeout(localConfig.extendedPause); //works unstable without timeout
+        const txHash = blocks.body.items[0].hash;
+        const apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
+        await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
-        .expect((res) => expect(typeof res.body.result.status).toStrictEqual("string"));
-    }
-  );
+        return request(environment.blockExplorerAPI)
+          .get(apiRoute)
+          .expect(200)
+          .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
+          .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
+          .expect((res) => expect(typeof res.body.result.status).toStrictEqual("string"));
+      }
+    );
+  });
 });
