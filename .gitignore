@@ -18,6 +18,7 @@ cypress/videos/
 cypress/screenshots/
 tests/e2e/reports/
 **/tests/e2e/artifacts/
+**playbook/
 
 # Logs
 logs
