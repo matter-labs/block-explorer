@@ -10,6 +10,8 @@ export default () => {
     RPC_CALLS_RETRIES_MAX_TOTAL_TIMEOUT,
     RPC_CALLS_CONNECTION_TIMEOUT,
     RPC_CALLS_CONNECTION_QUICK_TIMEOUT,
+    WS_MAX_CONNECTIONS,
+    USE_WEBSOCKETS_FOR_TRANSACTIONS,
     MAX_BLOCKS_BATCH_SIZE,
   } = process.env;
 
@@ -24,6 +26,9 @@ export default () => {
 
       rpcCallConnectionTimeout: parseInt(RPC_CALLS_CONNECTION_TIMEOUT, 10) || 20000,
       rpcCallConnectionQuickTimeout: parseInt(RPC_CALLS_CONNECTION_QUICK_TIMEOUT, 10) || 10000,
+
+      wsMaxConnections: parseInt(WS_MAX_CONNECTIONS, 10) || 5,
+      useWebSocketsForTransactions: USE_WEBSOCKETS_FOR_TRANSACTIONS === "true",
     },
     maxBlocksBatchSize: parseInt(MAX_BLOCKS_BATCH_SIZE, 10) || 20,
   };
