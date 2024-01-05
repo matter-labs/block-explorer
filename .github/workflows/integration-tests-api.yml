@@ -21,7 +21,7 @@ jobs:
           - stats.test.ts
           - tokens.test.ts
           - transactions.test.ts
-    name: 'API test set: ${{ matrix.os}} / Node: ${{ matrix.node-version}}'
+    name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
       - name: Checkout with Submodule
         uses: actions/checkout@v3
