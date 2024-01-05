@@ -66,3 +66,58 @@ describe("/blocks", () => {
     );
   });
 });
+
+describe("Block API", () => {
+  //@id1700
+  it("Verify /api?module=block&action=getblockcountdown&blockno={block_number} response returns elements", async () => {
+    const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+
+    const blockNumber = blocks.body.items[0].number + 1;
+    const apiRoute = `/api?module=block&action=getblockcountdown&blockno=${blockNumber}`;
+    await setTimeout(localConfig.extendedPause); //works unstable without timeout
+
+    return request(environment.blockExplorerAPI)
+      .get(apiRoute)
+      .expect(200)
+      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
+      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
+      .expect((res) => expect(typeof res.body.result.CurrentBlock).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.CountdownBlock).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.RemainingBlock).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.EstimateTimeInSec).toStrictEqual("string"));
+  });
+
+  //@id1699
+  it("Verify /api?module=block&action=getblocknobytime&closest=before&timestamp={timestamp} response returns elements", async () => {
+    const apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=1635934550`;
+    await setTimeout(localConfig.extendedPause); //works unstable without timeout
+
+    return request(environment.blockExplorerAPI)
+      .get(apiRoute)
+      .expect(200)
+      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
+      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
+      .expect((res) => expect(typeof res.body.result).toStrictEqual("string"));
+  });
+
+  //@id1701
+  it("Verify /api?module=block&action=getblockreward&blockno={blockNumber} response returns elements", async () => {
+    const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+
+    const blockNumber = blocks.body.items[0].number;
+    const apiRoute = `/api?module=block&action=getblockreward&blockno=${blockNumber}`;
+    await setTimeout(localConfig.extendedPause); //works unstable without timeout
+
+    return request(environment.blockExplorerAPI)
+      .get(apiRoute)
+      .expect(200)
+      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
+      .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
+      .expect((res) => expect(typeof res.body.result.blockNumber).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.timeStamp).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.blockMiner).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.blockReward).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.uncleInclusionReward).toStrictEqual("string"))
+      .expect((res) => expect(typeof res.body.result.uncles).toStrictEqual("object"));
+  });
+});
