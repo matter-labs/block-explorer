@@ -1,8 +1,8 @@
 import { execSync } from "child_process";
 import { ethers } from "ethers";
 import { promises as fs } from "fs";
-import { Provider } from "zksync-web3";
 import * as path from "path";
+import { Provider } from "zksync-web3";
 
 import { localConfig } from "./config";
 import { Logger } from "./entities";
