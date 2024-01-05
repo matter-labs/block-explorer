@@ -1,10 +1,10 @@
-version: '3.2'
+version: "3.2"
+name: "zkcli-block-explorer"
 
 services:
   app:
-    build:
-      context: .
-      dockerfile: ./packages/app/Dockerfile
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-app:${VERSION}"
     ports:
       - '3010:3010'
     depends_on:
@@ -12,9 +12,8 @@ services:
     restart: unless-stopped
 
   worker:
-    build:
-      context: .
-      dockerfile: ./packages/worker/Dockerfile
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-worker:${VERSION}"
     environment:
       - PORT=3001
       - LOG_LEVEL=verbose
@@ -23,14 +22,26 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
-      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:3050
+      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:${RPC_PORT}
+      - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     restart: unless-stopped
 
+  data-fetcher:
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-data-fetcher:${VERSION}"
+    environment:
+      - PORT=3040
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - BLOCKCHAIN_RPC_URL=http://host.docker.internal:${RPC_PORT}
+    ports:
+      - '3040:3040'
+    restart: unless-stopped
+
   api:
-    build:
-      context: .
-      dockerfile: ./packages/api/Dockerfile
+    platform: linux/amd64
+    image: "matterlabs/block-explorer-api:${VERSION}"
     environment:
       - PORT=3020
       - METRICS_PORT=3005

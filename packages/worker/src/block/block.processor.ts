@@ -6,23 +6,23 @@ import { Histogram } from "prom-client";
 import { MoreThanOrEqual, LessThanOrEqual, Between, FindOptionsWhere } from "typeorm";
 import { IDbTransaction, UnitOfWork } from "../unitOfWork";
 import { BlockchainService } from "../blockchain/blockchain.service";
-import { BlockInfo, BlockWatcher } from "./block.watcher";
+import { BlockWatcher } from "./block.watcher";
+import { BlockData } from "../dataFetcher/types";
 import { BalanceService } from "../balance/balance.service";
 import { TokenService } from "../token/token.service";
-import { BlockRepository } from "../repositories";
+import { BlockRepository, LogRepository, TransferRepository } from "../repositories";
 import { Block } from "../entities";
 import { TransactionProcessor } from "../transaction";
-import { LogProcessor } from "../log";
 import { validateBlocksLinking } from "./block.utils";
 import splitIntoChunks from "../utils/splitIntoChunks";
 import {
   BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME,
   BLOCK_PROCESSING_DURATION_METRIC_NAME,
-  BALANCES_PROCESSING_DURATION_METRIC_NAME,
   BlocksBatchProcessingMetricLabels,
   BlockProcessingMetricLabels,
 } from "../metrics";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
+import { unixTimeToDateString } from "../utils/date";
 
 @Injectable()
 export class BlockProcessor {
@@ -36,18 +36,17 @@ export class BlockProcessor {
     private readonly unitOfWork: UnitOfWork,
     private readonly blockchainService: BlockchainService,
     private readonly transactionProcessor: TransactionProcessor,
-    private readonly logProcessor: LogProcessor,
     private readonly balanceService: BalanceService,
     private readonly tokenService: TokenService,
     private readonly blockWatcher: BlockWatcher,
     private readonly blockRepository: BlockRepository,
+    private readonly logRepository: LogRepository,
+    private readonly transferRepository: TransferRepository,
     private readonly eventEmitter: EventEmitter2,
     @InjectMetric(BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME)
     private readonly blocksBatchProcessingDurationMetric: Histogram<BlocksBatchProcessingMetricLabels>,
     @InjectMetric(BLOCK_PROCESSING_DURATION_METRIC_NAME)
     private readonly processingDurationMetric: Histogram<BlockProcessingMetricLabels>,
-    @InjectMetric(BALANCES_PROCESSING_DURATION_METRIC_NAME)
-    private readonly balancesProcessingDurationMetric: Histogram,
     configService: ConfigService
   ) {
     this.logger = new Logger(BlockProcessor.name);
@@ -146,8 +145,10 @@ export class BlockProcessor {
     }
   }
 
-  private async addBlock({ block, blockDetails }: BlockInfo): Promise<void> {
+  private async addBlock(blockData: BlockData): Promise<void> {
     let blockProcessingStatus = "success";
+
+    const { block, blockDetails } = blockData;
     const blockNumber = block.number;
     this.logger.log({ message: `Adding block #${blockNumber}`, blockNumber });
 
@@ -156,34 +157,45 @@ export class BlockProcessor {
       await this.blockRepository.add(block, blockDetails);
 
       await Promise.all(
-        block.transactions.map((transactionHash) => this.transactionProcessor.add(transactionHash, blockDetails))
+        blockData.transactions.map((transaction) => this.transactionProcessor.add(blockNumber, transaction))
       );
 
-      if (block.transactions.length === 0) {
-        const logs = await this.blockchainService.getLogs({
-          fromBlock: blockNumber,
-          toBlock: blockNumber,
+      if (blockData.blockLogs.length) {
+        this.logger.debug({
+          message: "Saving block logs to the DB",
+          blockNumber: blockNumber,
         });
-
-        await this.logProcessor.process(logs, blockDetails);
+        await this.logRepository.addMany(
+          blockData.blockLogs.map((log) => ({
+            ...log,
+            timestamp: unixTimeToDateString(blockDetails.timestamp),
+          }))
+        );
       }
 
-      const stopBalancesDurationMeasuring = this.balancesProcessingDurationMetric.startTimer();
+      if (blockData.blockTransfers.length) {
+        this.logger.debug({
+          message: "Saving block transfers to the DB",
+          blockNumber: blockNumber,
+        });
+        await this.transferRepository.addMany(blockData.blockTransfers);
+      }
 
-      this.logger.debug({ message: "Updating balances and tokens", blockNumber });
+      if (blockData.changedBalances.length) {
+        this.logger.debug({ message: "Updating balances and tokens", blockNumber });
+        const erc20TokensForChangedBalances = this.balanceService.getERC20TokensForChangedBalances(
+          blockData.changedBalances
+        );
 
-      const erc20TokensForChangedBalances = this.balanceService.getERC20TokensForChangedBalances(blockNumber);
-      await Promise.all([
-        this.balanceService.saveChangedBalances(blockNumber),
-        this.tokenService.saveERC20Tokens(erc20TokensForChangedBalances),
-      ]);
-
-      stopBalancesDurationMeasuring();
+        await Promise.all([
+          this.balanceService.saveChangedBalances(blockData.changedBalances),
+          this.tokenService.saveERC20Tokens(erc20TokensForChangedBalances),
+        ]);
+      }
     } catch (error) {
       blockProcessingStatus = "error";
       throw error;
     } finally {
-      this.balanceService.clearTrackedState(blockNumber);
       stopDurationMeasuring({ status: blockProcessingStatus, action: "add" });
     }
   }

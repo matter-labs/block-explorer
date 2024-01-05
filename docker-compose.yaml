@@ -30,6 +30,7 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
       - BLOCKCHAIN_RPC_URL=http://zksync:3050
+      - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
       - '3001:3001'
@@ -38,6 +39,29 @@ services:
     volumes:
       - ./packages/worker:/usr/src/app/packages/worker
       - /usr/src/app/packages/worker/node_modules
+    depends_on:
+      zksync:
+        condition: service_healthy
+    restart: unless-stopped
+
+  data-fetcher:
+    build:
+      context: .
+      dockerfile: ./packages/data-fetcher/Dockerfile
+      target: development-stage
+    command: npm run --prefix packages/data-fetcher dev:debug
+    environment:
+      - PORT=3040
+      - LOG_LEVEL=verbose
+      - NODE_ENV=development
+      - BLOCKCHAIN_RPC_URL=http://zksync:3050
+    ports:
+      - '3040:3040'
+      - '9231:9229'
+      - '9232:9230'
+    volumes:
+      - ./packages/data-fetcher:/usr/src/app/packages/data-fetcher
+      - /usr/src/app/packages/data-fetcher/node_modules
     depends_on:
       zksync:
         condition: service_healthy
@@ -58,8 +82,8 @@ services:
     ports:
       - '3020:3020'
       - '3005:3005'
-      - '9231:9229'
-      - '9232:9230'
+      - '9233:9229'
+      - '9234:9230'
     volumes:
       - ./packages/api:/usr/src/app/packages/api
       - /usr/src/app/packages/api/node_modules

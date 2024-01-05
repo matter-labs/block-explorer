@@ -49,5 +49,5 @@ export class Log extends BaseEntity {
   public readonly logIndex: number;
 
   @Column({ type: "timestamp" })
-  public readonly timestamp: Date;
+  public readonly timestamp: string;
 }

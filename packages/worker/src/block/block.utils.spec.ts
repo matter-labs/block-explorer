@@ -1,4 +1,4 @@
-import { BlockInfo } from "./block.watcher";
+import { BlockData } from "../dataFetcher/types";
 import { validateBlocksLinking } from "./block.utils";
 
 describe("validateBlocksLinking", () => {
@@ -7,10 +7,10 @@ describe("validateBlocksLinking", () => {
       validateBlocksLinking([
         {
           block: { hash: "hash1", parentHash: "hash0" },
-        } as BlockInfo,
+        } as BlockData,
         {
           block: { hash: "hash2", parentHash: "hash1" },
-        } as BlockInfo,
+        } as BlockData,
       ])
     ).toBeTruthy();
   });
@@ -20,7 +20,7 @@ describe("validateBlocksLinking", () => {
       validateBlocksLinking([
         {
           block: { hash: "hash1" },
-        } as BlockInfo,
+        } as BlockData,
       ])
     ).toBeTruthy();
   });
@@ -34,13 +34,13 @@ describe("validateBlocksLinking", () => {
       validateBlocksLinking([
         {
           block: { hash: "hash1", parentHash: "hash0" },
-        } as BlockInfo,
+        } as BlockData,
         {
           block: { hash: "hash2", parentHash: "hash1" },
-        } as BlockInfo,
+        } as BlockData,
         {
           block: { hash: "hash3", parentHash: "hash1" },
-        } as BlockInfo,
+        } as BlockData,
       ])
     ).toBeFalsy();
   });

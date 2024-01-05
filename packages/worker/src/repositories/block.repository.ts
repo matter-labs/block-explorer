@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { FindOptionsWhere, FindOptionsSelect, FindOptionsRelations } from "typeorm";
 import { types } from "zksync-web3";
+import { Block as BlockDto } from "../dataFetcher/types";
 import { unixTimeToDate } from "../utils/date";
 import { Block } from "../entities";
 import { UnitOfWork } from "../unitOfWork";
@@ -40,7 +41,7 @@ export class BlockRepository {
     return lastExecutedBlock?.number || 0;
   }
 
-  public async add(blockDto: types.Block, blockDetailsDto: types.BlockDetails): Promise<void> {
+  public async add(blockDto: BlockDto, blockDetailsDto: types.BlockDetails): Promise<void> {
     const transactionManager = this.unitOfWork.getTransactionManager();
     await transactionManager.insert<Block>(Block, {
       ...blockDto,

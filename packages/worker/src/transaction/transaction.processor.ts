@@ -1,81 +1,99 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
-import { types } from "zksync-web3";
-import { BlockchainService } from "../blockchain/blockchain.service";
-import { TransactionRepository, TransactionDto, TransactionReceiptRepository } from "../repositories";
-import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURATION_METRIC_NAME } from "../metrics";
-import { LogProcessor } from "../log/log.processor";
+import {
+  TransactionRepository,
+  TransactionReceiptRepository,
+  TransferRepository,
+  AddressRepository,
+  TokenRepository,
+  LogRepository,
+} from "../repositories";
+import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME } from "../metrics";
+import { TransactionData } from "../dataFetcher/types";
 
 @Injectable()
 export class TransactionProcessor {
   private readonly logger: Logger;
 
   public constructor(
-    private readonly blockchainService: BlockchainService,
-    private readonly logProcessor: LogProcessor,
     private readonly transactionRepository: TransactionRepository,
     private readonly transactionReceiptRepository: TransactionReceiptRepository,
+    private readonly logRepository: LogRepository,
+    private readonly transferRepository: TransferRepository,
+    private readonly addressRepository: AddressRepository,
+    private readonly tokenRepository: TokenRepository,
     @InjectMetric(TRANSACTION_PROCESSING_DURATION_METRIC_NAME)
-    private readonly transactionProcessingDurationMetric: Histogram,
-    @InjectMetric(GET_TRANSACTION_INFO_DURATION_METRIC_NAME)
-    private readonly getTransactionInfoDurationMetric: Histogram
+    private readonly transactionProcessingDurationMetric: Histogram
   ) {
     this.logger = new Logger(TransactionProcessor.name);
   }
 
-  public async add(transactionHash: string, blockDetails: types.BlockDetails): Promise<void> {
+  public async add(blockNumber: number, transactionData: TransactionData): Promise<void> {
     const stopTransactionProcessingMeasuring = this.transactionProcessingDurationMetric.startTimer();
 
     this.logger.debug({
-      message: "Getting transaction data from the blockchain",
-      blockNumber: blockDetails.number,
-      transactionHash,
+      message: "Saving transactions data to the DB",
+      blockNumber: blockNumber,
+      transactionHash: transactionData.transaction.hash,
     });
-    const stopGetTransactionInfoDurationMetric = this.getTransactionInfoDurationMetric.startTimer();
-    const [transaction, transactionDetails, transactionReceipt] = await Promise.all([
-      this.blockchainService.getTransaction(transactionHash),
-      this.blockchainService.getTransactionDetails(transactionHash),
-      this.blockchainService.getTransactionReceipt(transactionHash),
-    ]);
-    stopGetTransactionInfoDurationMetric();
 
-    if (!transaction || !transactionDetails || !transactionReceipt) {
-      throw new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transactionHash}`);
-    }
-
-    const transactionToAdd = {
-      ...transaction,
-      ...transactionDetails,
-      l1BatchNumber: blockDetails.l1BatchNumber,
-      receiptStatus: transactionReceipt.status,
-    } as TransactionDto;
-
-    if (transactionReceipt.status === 0) {
-      const debugTraceTransactionResult = await this.blockchainService.debugTraceTransaction(transactionHash, true);
-      if (debugTraceTransactionResult?.error) {
-        transactionToAdd.error = debugTraceTransactionResult.error;
-      }
-      if (debugTraceTransactionResult?.revertReason) {
-        transactionToAdd.revertReason = debugTraceTransactionResult.revertReason;
-      }
-    }
+    await this.transactionRepository.add(transactionData.transaction);
 
     this.logger.debug({
-      message: "Adding transaction data to the DB",
-      blockNumber: blockDetails.number,
-      transactionHash,
+      message: "Saving transaction receipts data to the DB",
+      blockNumber: blockNumber,
+      transactionHash: transactionData.transaction.hash,
     });
-    await this.transactionRepository.add(transactionToAdd);
+    await this.transactionReceiptRepository.add(transactionData.transactionReceipt);
 
     this.logger.debug({
-      message: "Adding transaction receipt data to the DB",
-      blockNumber: blockDetails.number,
-      transactionHash,
+      message: "Saving transaction logs data to the DB",
+      blockNumber: blockNumber,
+      transactionHash: transactionData.transaction.hash,
     });
-    await this.transactionReceiptRepository.add(transactionReceipt);
+    await this.logRepository.addMany(
+      transactionData.transactionReceipt.logs.map((log) => ({
+        ...log,
+        timestamp: transactionData.transaction.receivedAt,
+      }))
+    );
 
-    await this.logProcessor.process(transactionReceipt.logs, blockDetails, transactionDetails, transactionReceipt);
+    this.logger.debug({
+      message: "Saving transfers data to the DB",
+      blockNumber: blockNumber,
+      transactionHash: transactionData.transaction.hash,
+    });
+    await this.transferRepository.addMany(transactionData.transfers);
+
+    this.logger.debug({
+      message: "Saving contract addresses data to the DB",
+      blockNumber: blockNumber,
+      transactionHash: transactionData.transaction.hash,
+    });
+    await Promise.all(
+      transactionData.contractAddresses.map((contractAddress) => {
+        return this.addressRepository.upsert({
+          address: contractAddress.address,
+          bytecode: contractAddress.bytecode,
+          createdInBlockNumber: contractAddress.blockNumber,
+          creatorTxHash: contractAddress.transactionHash,
+          creatorAddress: contractAddress.creatorAddress,
+          createdInLogIndex: contractAddress.logIndex,
+        });
+      })
+    );
+
+    this.logger.debug({
+      message: "Saving tokens to the DB",
+      blockNumber: blockNumber,
+      transactionHash: transactionData.transaction.hash,
+    });
+    await Promise.all(
+      transactionData.tokens.map((token) => {
+        return this.tokenRepository.upsert(token);
+      })
+    );
 
     stopTransactionProcessingMeasuring();
   }

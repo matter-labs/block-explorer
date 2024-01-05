@@ -2,7 +2,8 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from "@nestjs/commo
 import { ConfigService } from "@nestjs/config";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Gauge, Histogram } from "prom-client";
-import { types } from "zksync-web3";
+import { DataFetcherService } from "../dataFetcher/dataFetcher.service";
+import { BlockData } from "../dataFetcher/types";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import {
   BLOCKCHAIN_BLOCKS_METRIC_NAME,
@@ -10,11 +11,6 @@ import {
   GET_BLOCK_INFO_DURATION_METRIC_NAME,
   ProcessingActionMetricLabel,
 } from "../metrics";
-
-export interface BlockInfo {
-  block: types.Block;
-  blockDetails: types.BlockDetails;
-}
 
 @Injectable()
 export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
@@ -33,6 +29,7 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
 
   public constructor(
     private readonly blockchainService: BlockchainService,
+    private readonly dataFetchService: DataFetcherService,
     @InjectMetric(BLOCKCHAIN_BLOCKS_METRIC_NAME)
     private readonly blockchainBlocksMetric: Gauge,
     @InjectMetric(BLOCKS_TO_PROCESS_METRIC_NAME)
@@ -50,7 +47,7 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
     );
   }
 
-  public async getNextBlocksToProcess(lastDbBlockNumber: number = null): Promise<BlockInfo[]> {
+  public async getNextBlocksToProcess(lastDbBlockNumber: number = null): Promise<BlockData[]> {
     if (this.lastBlockchainBlockNumber === null) {
       return [];
     }
@@ -82,7 +79,7 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  private getBlockInfoListFromBlockchain(startBlockNumber: number, endBlockNumber: number): Promise<BlockInfo[]> {
+  private getBlockInfoListFromBlockchain(startBlockNumber: number, endBlockNumber: number): Promise<BlockData[]> {
     const getBlockInfoTasks = [];
     for (let blockNumber = startBlockNumber; blockNumber <= endBlockNumber; blockNumber++) {
       getBlockInfoTasks.push(this.getBlockInfoFromBlockChain(blockNumber));
@@ -90,20 +87,14 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
     return Promise.all(getBlockInfoTasks);
   }
 
-  private async getBlockInfoFromBlockChain(blockNumber: number): Promise<BlockInfo> {
+  private async getBlockInfoFromBlockChain(blockNumber: number): Promise<BlockData> {
     this.logger.debug({ message: "Getting block from the blockchain", blockNumber });
 
     const stopGetBlockInfoDurationMetric = this.getBlockInfoDurationMetric.startTimer();
-    const [block, blockDetails] = await Promise.all([
-      this.blockchainService.getBlock(blockNumber),
-      this.blockchainService.getBlockDetails(blockNumber),
-    ]);
+    const blockData = await this.dataFetchService.getBlockData(blockNumber);
     stopGetBlockInfoDurationMetric();
 
-    return {
-      block,
-      blockDetails,
-    };
+    return blockData;
   }
 
   public async onModuleInit(): Promise<void> {

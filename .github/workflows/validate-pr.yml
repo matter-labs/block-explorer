@@ -66,6 +66,7 @@ jobs:
             packages/app/junit.xml
             packages/api/junit.xml
             packages/worker/junit.xml
+            packages/data-fetcher/junit.xml
           check_run_annotations: all tests, skipped tests
           report_individual_runs: "true"
           check_name: Unit Test Results

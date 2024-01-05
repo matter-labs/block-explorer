@@ -5,8 +5,7 @@ import { Transfer } from "./transfer.entity";
 import { TokenType } from "./token.entity";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
-import { transferFieldsTransformer } from "../transformers/transferFields.transformer";
-import { TransferFields } from "../transfer/interfaces/transfer.interface";
+import { TransferFields } from "../dataFetcher/types";
 
 @Entity({ name: "addressTransfers" })
 @Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
@@ -40,7 +39,7 @@ export class AddressTransfer extends BaseEntity {
   public readonly blockNumber: number;
 
   @Column({ type: "timestamp" })
-  public readonly timestamp: Date;
+  public readonly timestamp: string;
 
   @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
   public readonly tokenType: TokenType;
@@ -48,7 +47,7 @@ export class AddressTransfer extends BaseEntity {
   @Column({ type: "boolean" })
   public readonly isFeeOrRefund: boolean;
 
-  @Column({ type: "jsonb", nullable: true, transformer: transferFieldsTransformer })
+  @Column({ type: "jsonb", nullable: true })
   public readonly fields?: TransferFields;
 
   @Column({ type: "int" })

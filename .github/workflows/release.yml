@@ -111,6 +111,20 @@ jobs:
           file: packages/worker/Dockerfile
           no-cache: true
 
+      - name: Build and push Docker image for Data Fetcher
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: |
+              "matterlabs/block-explorer-data-fetcher:latest"
+              "matterlabs/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "matterlabs/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:latest"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
+          file: packages/data-fetcher/Dockerfile
+          no-cache: true
+
       - name: Build and push Docker image for App
         uses: docker/build-push-action@v4
         with:

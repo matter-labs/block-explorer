@@ -12,10 +12,7 @@ import { BlocksRevertService } from "./blocksRevert";
 import { BatchService } from "./batch";
 import { BlockProcessor, BlockWatcher, BlockService } from "./block";
 import { TransactionProcessor } from "./transaction";
-import { LogProcessor } from "./log";
-import { AddressService } from "./address/address.service";
 import { BalanceService, BalancesCleanerService } from "./balance";
-import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
 import { TokenOffChainDataProvider } from "./token/tokenOffChainData/tokenOffChainDataProvider.abstract";
 import { CoingeckoTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/coingecko/coingeckoTokenOffChainDataProvider";
@@ -54,6 +51,7 @@ import { RetryDelayProvider } from "./retryDelay.provider";
 import { MetricsModule } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
 import { UnitOfWorkModule } from "./unitOfWork";
+import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
 
 @Module({
   imports: [
@@ -94,10 +92,9 @@ import { UnitOfWorkModule } from "./unitOfWork";
   providers: [
     AppService,
     BlockchainService,
-    AddressService,
+    DataFetcherService,
     BalanceService,
     BalancesCleanerService,
-    TransferService,
     TokenService,
     {
       provide: TokenOffChainDataProvider,
@@ -128,7 +125,6 @@ import { UnitOfWorkModule } from "./unitOfWork";
     BatchService,
     BlockProcessor,
     TransactionProcessor,
-    LogProcessor,
     BlockWatcher,
     BlockService,
     Logger,
