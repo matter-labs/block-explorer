@@ -1004,9 +1004,7 @@ describe("Transactions", () => {
       "Verify /api?module=transaction&action=getstatus response returns elements" +
         " getstatus => getstatus&txhash={tx_hash}",
       async () => {
-        const blocks = await request(environment.blockExplorerAPI).get("/transactions");
-
-        const txHash = blocks.body.items[0].hash;
+        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
         const apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
         await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
@@ -1026,9 +1024,7 @@ describe("Transactions", () => {
       "Verify /api?module=transaction&action=gettxreceiptstatus response returns elements" +
         " gettxreceiptstatus => gettxreceiptstatus&txhash={tx_hash}",
       async () => {
-        const blocks = await request(environment.blockExplorerAPI).get("/transactions");
-
-        const txHash = blocks.body.items[0].hash;
+        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
         const apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
         await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
