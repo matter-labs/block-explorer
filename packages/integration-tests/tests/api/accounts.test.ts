@@ -4,12 +4,16 @@ import { setTimeout } from "timers/promises";
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 import { Token, Wallets } from "../../src/entities";
+import { Helper } from "../../src/helper";
 
 describe("Accounts API", () => {
+  jest.setTimeout(localConfig.standardTimeout);
+
+  const helper = new Helper();
   //@id1704
   it(
     "Verify /api?module=account&action=balancemulti response returns elements" +
-    " balancemulti => balancemulti&address={account_address1},{account_address2}",
+      " balancemulti => balancemulti&address={account_address1},{account_address2}",
     async () => {
       const apiRoute = `/api?module=account&action=balancemulti&address=${Wallets.richWalletAddress},${Wallets.mainWalletAddress}`;
       const richWalletBalance = await helper.getBalanceETH(Wallets.richWalletAddress, "L2");
@@ -40,7 +44,7 @@ describe("Accounts API", () => {
   //@id1703
   it(
     "Verify /api?module=account&action=balance response returns elements" +
-    "balance => balance&address={account_address}",
+      "balance => balance&address={account_address}",
     async () => {
       const apiRoute = `/api?module=account&action=balance&address=${Wallets.richWalletAddress}`;
       const balance = await helper.getBalanceETH(Wallets.richWalletAddress, "L2");
@@ -58,7 +62,7 @@ describe("Accounts API", () => {
   //@id1705
   it(
     "Verify /api?module=account&action=tokenbalance response returns elements" +
-    " tokenbalance => tokenbalance&contractaddress={contract_address}&address={account_address}",
+      " tokenbalance => tokenbalance&contractaddress={contract_address}&address={account_address}",
     async () => {
       const apiRoute = `/api?module=account&action=tokenbalance&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
       await setTimeout(localConfig.extendedPause); //works unstable without timeout
@@ -75,7 +79,7 @@ describe("Accounts API", () => {
   //@id1702
   it(
     "Verify /api?module=account&action=txlist response returns elements" +
-    " txlist => txlist&page=1&offset=10&sort=desc&endblock{block_number}&startblock=0&address={account_address}",
+      " txlist => txlist&page=1&offset=10&sort=desc&endblock{block_number}&startblock=0&address={account_address}",
     async () => {
       const blocks = await request(environment.blockExplorerAPI).get("/blocks");
 
