@@ -1000,7 +1000,7 @@ describe("Transactions", () => {
 
   describe("/api", () => {
     //@id1697
-    it("Verify /api?module=transaction&action=getstatus response",async () => {
+    it("Verify /api?module=transaction&action=getstatus response", async () => {
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
       const apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
       await setTimeout(localConfig.extendedPause); //works unstable without timeout
@@ -1016,7 +1016,7 @@ describe("Transactions", () => {
     });
 
     //@id1698
-    it("Verify /api?module=transaction&action=gettxreceiptstatus response",async () => {
+    it("Verify /api?module=transaction&action=gettxreceiptstatus response", async () => {
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
       const apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
       await setTimeout(localConfig.extendedPause); //works unstable without timeout
