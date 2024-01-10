@@ -67,9 +67,9 @@ describe("/blocks", () => {
   });
 });
 
-describe("Block API", () => {
+describe("/api", () => {
   //@id1700
-  it("Verify /api?module=block&action=getblockcountdown&blockno={block_number} response returns elements", async () => {
+  it("Verify /api?module=block&action=getblockcountdown&blockno={block_number} response", async () => {
     const blocks = await request(environment.blockExplorerAPI).get("/blocks");
 
     const blockNumber = blocks.body.items[0].number + 1;
@@ -88,7 +88,7 @@ describe("Block API", () => {
   });
 
   //@id1699
-  it("Verify /api?module=block&action=getblocknobytime&closest=before&timestamp={timestamp} response returns elements", async () => {
+  it("Verify /api?module=block&action=getblocknobytime&closest=before&timestamp={timestamp} response", async () => {
     const apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=1635934550`;
     await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
@@ -101,7 +101,7 @@ describe("Block API", () => {
   });
 
   //@id1701
-  it("Verify /api?module=block&action=getblockreward&blockno={blockNumber} response returns elements", async () => {
+  it("Verify /api?module=block&action=getblockreward&blockno={blockNumber} response", async () => {
     const blocks = await request(environment.blockExplorerAPI).get("/blocks");
 
     const blockNumber = blocks.body.items[0].number;
