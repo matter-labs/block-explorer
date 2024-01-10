@@ -506,9 +506,7 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
-        .expect((res) =>
-          expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }))
-        )
+        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" })))
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
         .expect((res) => expect(typeof res.body.items[0].isInternal).toBeTruthy())
         .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
@@ -533,9 +531,7 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }))
         )
-        .expect((res) =>
-          expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }))
-        )
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" })))
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
         .expect((res) => expect(typeof res.body.items[1].isInternal).toBeTruthy())
         .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
@@ -562,9 +558,7 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
-        .expect((res) =>
-          expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }))
-        )
+        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" })))
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null })))
         .expect((res) => expect(typeof res.body.items[2].isInternal).toBeTruthy())
         .expect((res) => expect(typeof res.body.items[2].token.l2Address).toStrictEqual("string"))
