@@ -6,7 +6,7 @@ import { Buffer } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
-xdescribe("Logs API", () => {
+xdescribe("/api", () => {
   jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
   const helper = new Helper();
   const bufferFile = "src/playbook/";
@@ -21,7 +21,7 @@ xdescribe("Logs API", () => {
     });
 
     //@id1808
-    it("Verify the response via /api?module=logs&action=getLogs&page={page}&offset={offset}0&toBlock={toBlock}&fromBlock={fromBlock}&address={address}", async () => {
+    it("Verify /api?module=logs&action=getLogs&page={page}&offset={offset}0&toBlock={toBlock}&fromBlock={fromBlock}&address={address} response", async () => {
       contractAddress = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
 
