@@ -25,7 +25,7 @@ describe("/api", () => {
     });
 
     //@id1696
-    it("Verify the response via /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2}", async () => {
+    it("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
       await setTimeout(localConfig.standardPause);
       paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
       paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
