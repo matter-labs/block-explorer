@@ -1,11 +1,12 @@
 import * as request from "supertest";
+import { setTimeout } from "timers/promises";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 import { Buffer } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
-import { setTimeout } from 'timers/promises';
+
 
 describe("/api", () => {
   jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
