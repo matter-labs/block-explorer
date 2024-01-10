@@ -5,6 +5,7 @@ import { localConfig } from "../../src/config";
 import { Buffer, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
+import { setTimeout } from 'timers/promises';
 
 describe("/api", () => {
   jest.setTimeout(localConfig.standardTimeout);
@@ -24,7 +25,8 @@ describe("/api", () => {
     });
 
     //@id1696
-    xit("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
+    it("Verify the response via /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2}", async () => {
+      await setTimeout(localConfig.standardPause);
       paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
       paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
       multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
