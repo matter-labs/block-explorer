@@ -7,6 +7,8 @@ import { Provider } from "zksync-web3";
 import { localConfig } from "./config";
 import { Logger } from "./entities";
 
+import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
+
 export class Helper {
   async txHashLogger(txType: string, txValue: string, tokenName?: string) {
     const logMessage = `TxHash for ${txType} ${Logger.textSeparator} ${txValue}`;
@@ -42,7 +44,7 @@ export class Helper {
   async getBalanceETH(walletAddress: string, layer: string) {
     let network: string;
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    let provider: any;
+    let provider: BaseProvider;
     if (layer == "L1") {
       network = localConfig.L1Network;
       provider = ethers.getDefaultProvider(network);
@@ -52,7 +54,6 @@ export class Helper {
     } else {
       console.log(`Wrong layer: ${layer}`);
     }
-    const balanceEth = ethers.utils.formatUnits(await provider.getBalance(walletAddress), "wei");
-    return balanceEth;
+    return ethers.utils.formatUnits(await provider.getBalance(walletAddress), "wei");
   }
 }
