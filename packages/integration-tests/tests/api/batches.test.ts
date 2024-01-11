@@ -10,7 +10,7 @@ describe("Batches", () => {
 
   const helper = new Helper();
   let apiRoute: string;
-  let response: any;
+  let response;
 
   //@id1513
   it("Verify the response via /batches", async () => {
