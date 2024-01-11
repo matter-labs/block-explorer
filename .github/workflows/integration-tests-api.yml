@@ -13,6 +13,7 @@ jobs:
       matrix:
         node-version: ['lts/*'] # 18.17.1 or lts/* 
         test-pattern:
+          - accounts.test.ts
           - addresses.test.ts
           - batches.test.ts
           - blocks.test.ts
