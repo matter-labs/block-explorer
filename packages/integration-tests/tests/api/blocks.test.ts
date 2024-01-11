@@ -67,7 +67,7 @@ describe("/blocks", () => {
   });
 });
 
-describe("/api", () => {
+describe("/api?module=block", () => {
   //@id1700
   it("Verify /api?module=block&action=getblockcountdown&blockno={block_number} response", async () => {
     const blocks = await request(environment.blockExplorerAPI).get("/blocks");
