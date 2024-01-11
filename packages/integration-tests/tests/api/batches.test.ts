@@ -3,30 +3,31 @@ import { setTimeout } from "timers/promises";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
+import { Helper } from "../../src/helper";
 
 describe("Batches", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
+  const helper = new Helper();
+  let apiRoute: string;
+  let response: any;
+
   //@id1513
   it("Verify the response via /batches", async () => {
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
+    apiRoute = `/batches`;
+    response = await helper.retryAPIrequest(apiRoute, false);
 
-    const apiRoute = `/batches`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(Array.isArray(res.body.items)).toStrictEqual(true))
-      .expect((res) => expect(res.body.items.length).toBeGreaterThanOrEqual(1))
-      .expect((res) => expect(typeof res.body.meta.totalItems).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.itemCount).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.itemsPerPage).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.totalPages).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.currentPage).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.links.first).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.previous).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.next).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
+    expect(Array.isArray(response.body.items)).toStrictEqual(true);
+    expect(response.body.items.length).toBeGreaterThanOrEqual(1);
+    expect(typeof response.body.meta.totalItems).toStrictEqual("number");
+    expect(typeof response.body.meta.itemCount).toStrictEqual("number");
+    expect(typeof response.body.meta.itemsPerPage).toStrictEqual("number");
+    expect(typeof response.body.meta.totalPages).toStrictEqual("number");
+    expect(typeof response.body.meta.currentPage).toStrictEqual("number");
+    expect(typeof response.body.links.first).toStrictEqual("string");
+    expect(typeof response.body.links.previous).toStrictEqual("string");
+    expect(typeof response.body.links.next).toStrictEqual("string");
+    expect(typeof response.body.links.last).toStrictEqual("string");
   });
 
   //@id1514
