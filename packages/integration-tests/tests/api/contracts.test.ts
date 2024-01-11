@@ -7,7 +7,7 @@ import { Buffer, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
-describe("/api", () => {
+describe("/api?module=contract", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
