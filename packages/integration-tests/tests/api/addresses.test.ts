@@ -13,7 +13,7 @@ describe("Address", () => {
   let contract: string;
   let token: string;
   let txHash: string;
-  let response: any;
+  let response;
 
   describe("/address/{address}", () => {
     beforeAll(async () => {
