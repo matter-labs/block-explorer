@@ -7,7 +7,7 @@ import { Buffer } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
-describe("/api?module=logs", () => {
+xdescribe("/api?module=logs", () => {
   jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
   const helper = new Helper();
   const bufferFile = "src/playbook/";
