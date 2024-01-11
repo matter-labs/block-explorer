@@ -3,9 +3,9 @@ import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
 import { Provider } from "zksync-web3";
-
-import { localConfig } from "./config";
+import { environment, localConfig } from "./config";
 import { Logger } from "./entities";
+import * as request from "supertest";
 
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 
@@ -54,5 +54,31 @@ export class Helper {
       console.log(`Wrong layer: ${layer}`);
     }
     return ethers.utils.formatUnits(await provider.getBalance(walletAddress), "wei");
+  }
+
+  async delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async performGETrequest(apiRoute: string) {
+    return request(environment.blockExplorerAPI).get(apiRoute);
+  }
+
+  async retryAPIrequest(apiRoute, unsucceededResponse = false) {
+    for (let i = 0; i < localConfig.maxAPIretries; i++) {
+      try {
+        const response = await this.performGETrequest(apiRoute);
+
+        if (response.status === 200 || unsucceededResponse) {
+          return response;
+        }
+      } catch (e) {
+        if (localConfig.debugAPIwrapper) {
+          console.error(e);
+        }
+      }
+      await this.delay(localConfig.intervalAPIretries);
+    }
+    throw new Error(`There is error after the request ${localConfig.maxAPIretries} retries`);
   }
 }
