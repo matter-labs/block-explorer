@@ -63,7 +63,7 @@ describe("TheHeader:", () => {
     expect(toolsLinks[2].attributes("href")).toBe("https://portal.zksync.io/");
 
     expect(wrapper.findAll(".navigation-container > .navigation-link")[0].attributes("href")).toBe(
-      "https://era.zksync.io/docs/dev/"
+      "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html"
     );
   });
   it("renders social links", () => {

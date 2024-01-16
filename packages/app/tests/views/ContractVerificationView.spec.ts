@@ -309,7 +309,7 @@ describe("ContractVerificationView:", () => {
 
     expect(wrapper.find(".docs-link").text()).toEqual("Details");
     expect(wrapper.find(".docs-link").attributes("href")).toEqual(
-      "https://era.zksync.io/docs/tools/block-explorer/contract-verification.html#enter-contract-details"
+      "https://docs.zksync.io/build/tooling/block-explorer/contract-verification.html#user-interface"
     );
   });
   it("resets uploaded files block when clicking on clear button", async () => {
