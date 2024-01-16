@@ -27,7 +27,7 @@
       <div>
         <a
           class="refunded-link"
-          href="https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
+          href="https://docs.zksync.io/build/developer-reference/fee-model.html#refunds"
           target="_blank"
           >{{
             t(
