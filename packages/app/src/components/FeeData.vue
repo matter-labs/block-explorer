@@ -40,7 +40,7 @@
         <a
           v-if="feeData?.isPaidByPaymaster"
           class="paymaster-link"
-          href="https://era.zksync.io/docs/reference/concepts/account-abstraction.html#paymasters"
+          href="https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters"
           target="_blank"
           >{{ t("transactions.table.feeDetails.whatIsPaymaster") }}</a
         >

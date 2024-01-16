@@ -16,7 +16,7 @@
       <Alert type="notification" class="full-grid-width">
         <i18n-t scope="global" keypath="contractVerification.resources.title" tag="span">
           <template #hardhat>
-            <a href="https://era.zksync.io/docs/tools/hardhat/hardhat-zksync-verify.html" target="_blank">
+            <a href="https://docs.zksync.io/build/tooling/hardhat/hardhat-zksync-verify.html" target="_blank">
               {{ t("contractVerification.resources.links.hardhat") }}
             </a>
           </template>
@@ -84,7 +84,7 @@
           class="label-inline-block"
         >
           <a
-            href="https://era.zksync.io/docs/tools/block-explorer/contract-verification.html#enter-contract-details"
+            href="https://docs.zksync.io/build/tooling/block-explorer/contract-verification.html#user-interface"
             target="_blank"
             class="docs-link"
             >{{ t(`contractVerification.form.${selectedZkCompiler.name}Version.details`) }}</a
