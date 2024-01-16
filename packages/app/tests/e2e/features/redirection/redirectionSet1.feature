@@ -13,7 +13,7 @@ Feature: Redirection
 
     Examples:
       | Extra button name | url                                     |
-      | Docs              | https://docs.zksync.io/build/tooling/block-explorer/getting-started.html         |
+      | Docs              | https://docs.zksync.io/build/tooling/block-explorer/getting-started.html        |
       | Terms             | https://zksync.io/terms                 |
       | Contact           | https://zksync.io/contact      |
 
