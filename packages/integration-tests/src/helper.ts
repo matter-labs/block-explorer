@@ -43,7 +43,6 @@ export class Helper {
 
   async getBalanceETH(walletAddress: string, layer: string) {
     let network: string;
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     let provider: BaseProvider;
     if (layer == "L1") {
       network = localConfig.L1Network;
