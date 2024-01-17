@@ -1,25 +1,23 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
+import { Helper } from "../../src/helper";
 
 describe("Stats", () => {
   jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
 
+  const helper = new Helper();
+  let apiRoute: string;
+  let response;
+
   //@id1515
   it("Verify the response via /stats", async () => {
-    await setTimeout(localConfig.extendedPause); //works unstable without timeout
+    apiRoute = `/stats`;
+    response = await helper.retryAPIrequest(apiRoute);
 
-    const apiRoute = `/stats`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(typeof res.body.lastSealedBatch).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.lastVerifiedBatch).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.lastSealedBlock).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.lastVerifiedBlock).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.totalTransactions).toStrictEqual("number"));
+    expect(response.status).toBe(200);
+    expect(typeof response.body.lastSealedBatch).toStrictEqual("number");
+    expect(typeof response.body.lastVerifiedBatch).toStrictEqual("number");
+    expect(typeof response.body.lastSealedBlock).toStrictEqual("number");
+    expect(typeof response.body.lastVerifiedBlock).toStrictEqual("number");
+    expect(typeof response.body.totalTransactions).toStrictEqual("number");
   });
 });
