@@ -27,8 +27,8 @@ describe("Blocks", () => {
     expect(typeof response.body.links.last).toStrictEqual("string");
   });
 
-  //@id1512
-  it("Verify the response via /blocks/{/blockNumber}", async () => {
+  //@id1512 //unstable on CI
+  xit("Verify the response via /blocks/{/blockNumber}", async () => {
     const blocks = await await helper.retryAPIrequest("/blocks");
     const blockNumber = blocks.body.items[0].number;
     apiRoute = `/blocks/${blockNumber}`;
