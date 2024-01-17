@@ -1,5 +1,3 @@
-import { setTimeout } from "timers/promises";
-
 import { localConfig } from "../../src/config";
 import { Buffer, Token, TransactionsType, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
