@@ -69,12 +69,23 @@ Feature: Redirection
   @id253:IV @featureEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I click by text "Tools "
-    When I click by element with partial href "<url>" and text "<Sub-Section>"
+    When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
     Then New page have "<url>" address
 
     Examples:
-      | Sub-Section | url                                              |
-      | Bridge      | https://portal.zksync.io/bridge/?network=mainnet |
+      | Sub-Section | url                                         | redirect_url              |
+      | Portal      | https://staging-portal.zksync.dev/bridge/   | https://staging-portal.zksync.dev  |
+
+
+  @id253:IV @productionEnv @mainnet
+  Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
+    Given I click by text "Tools "
+    When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
+    Then New page have "<url>" address
+
+    Examples:
+      | Sub-Section | url                                 | redirect_url              |
+      | Portal      | https://zksync.io/explore#bridges   | https://portal.zksync.io  |
 
   #Account page
   @id259 @testnet
