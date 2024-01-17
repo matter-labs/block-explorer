@@ -146,8 +146,8 @@ describe("Transactions", () => {
     });
 
     //@id1463
-    xit("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
+    it("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
+      await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
       const l1Token = bufferFile + "/" + Buffer.L1;
       const customTokenL1 = await helper.getStringFromFile(l1Token);
@@ -166,17 +166,46 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }))
         )
+        .expect((res) => expect(typeof res.body.items[0].blockNumber).toStrictEqual("number"))
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[0].timestamp).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].amount).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].tokenAddress).toStrictEqual("string"))
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: "fee" })))
+        .expect((res) => expect(typeof res.body.items[0].tokenType).toStrictEqual("string"))
+        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
+        .expect((res) => expect(typeof res.body.items[0].isInternal).toBeTruthy())
+        .expect((res) =>
+          expect(res.body.items[0]).toStrictEqual(
+            expect.objectContaining({
+              token: {
+                l2Address: Token.ETHER_ERC20_Address,
+                l1Address: Token.ETHER_Address,
+                symbol: "ETH",
+                name: "Ether",
+                decimals: 18,
+                iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+                liquidity: 220000000000,
+                usdPrice: 1800,
+              },
+            })
+          )
+        )
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }))
         )
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_Address })))
+        .expect((res) => expect(typeof res.body.items[1].blockNumber).toStrictEqual("number"))
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[1].timestamp).toStrictEqual("string"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "200000000000000000" }))
         )
+        .expect((res) => expect(typeof res.body.items[1].tokenAddress).toStrictEqual("string"))
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: "transfer" })))
+        .expect((res) => expect(typeof res.body.items[1].tokenType).toStrictEqual("string"))
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
+        .expect((res) => expect(typeof res.body.items[1].isInternal).toBeTruthy())
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(
             expect.objectContaining({
@@ -186,6 +215,9 @@ describe("Transactions", () => {
                 symbol: "L1",
                 name: "L1 ERC20 token",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
             })
           )
@@ -196,13 +228,19 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.mainWalletAddress }))
         )
+        .expect((res) => expect(typeof res.body.items[2].blockNumber).toStrictEqual("number"))
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[2].timestamp).toStrictEqual("string"))
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ amount: "200000000000000000" }))
         )
+        .expect((res) => expect(typeof res.body.items[2].tokenAddress).toStrictEqual("string"))
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ type: "withdrawal" })))
+        .expect((res) => expect(typeof res.body.items[2].tokenType).toStrictEqual("string"))
+        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null })))
+        .expect((res) => expect(typeof res.body.items[2].isInternal).toBeTruthy())
         .expect((res) =>
-          expect(res.body.items[1]).toStrictEqual(
+          expect(res.body.items[2]).toStrictEqual(
             expect.objectContaining({
               token: {
                 l2Address: customTokenL2,
@@ -210,6 +248,9 @@ describe("Transactions", () => {
                 symbol: "L1",
                 name: "L1 ERC20 token",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
             })
           )
@@ -433,7 +474,7 @@ describe("Transactions", () => {
     });
   });
 
-  xdescribe("/transactions/{transactionHash}/transfers", () => {
+  describe("/transactions/{transactionHash}/transfers", () => {
     beforeAll(async () => {
       await playbook.deployViaPaymaster();
       await playbook.usePaymaster();
@@ -441,12 +482,11 @@ describe("Transactions", () => {
 
     //@id1481
     it("Verify transaction for the ETH via /transactions/{transactionHash}/transfers", async () => {
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
+      await setTimeout(localConfig.extendedPause); //works unstable without timeout
 
       contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferETH);
       const apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-
       return request(environment.blockExplorerAPI)
         .get(apiRoute)
         .expect(200)
@@ -456,43 +496,79 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }))
         )
+        .expect((res) => expect(typeof res.body.items[0].blockNumber).toStrictEqual("number"))
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[0].timestamp).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].amount).toStrictEqual("string"))
         .expect((res) =>
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address }))
         )
         .expect((res) =>
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
+        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" })))
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[0].isInternal).toBeTruthy())
+        .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }))
         )
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ to: contract })))
+        .expect((res) => expect(typeof res.body.items[1].blockNumber).toStrictEqual("number"))
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[1].timestamp).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].amount).toStrictEqual("string"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address }))
         )
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }))
         )
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" })))
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[1].isInternal).toBeTruthy())
+        .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }))
         )
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }))
         )
+        .expect((res) => expect(typeof res.body.items[2].blockNumber).toStrictEqual("number"))
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash })))
+        .expect((res) => expect(typeof res.body.items[2].timestamp).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].amount).toStrictEqual("string"))
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address }))
         )
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
+        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" })))
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(typeof res.body.items[2].isInternal).toBeTruthy())
+        .expect((res) => expect(typeof res.body.items[2].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1482
@@ -520,6 +596,14 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
+        .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.usdPrice).toStrictEqual("number"))
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }))
@@ -540,6 +624,9 @@ describe("Transactions", () => {
                 symbol: "L2",
                 name: "L2 ERC20 token",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
             })
           )
@@ -558,7 +645,14 @@ describe("Transactions", () => {
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(typeof res.body.items[2].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1483
@@ -611,6 +705,9 @@ describe("Transactions", () => {
                 symbol: "L1",
                 name: "L1 ERC20 token",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
             })
           )
@@ -629,7 +726,14 @@ describe("Transactions", () => {
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(typeof res.body.items[2].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1452
@@ -663,6 +767,9 @@ describe("Transactions", () => {
                 symbol: "MyToken",
                 name: "MyToken",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
             })
           )
@@ -679,7 +786,14 @@ describe("Transactions", () => {
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }))
         )
@@ -692,7 +806,14 @@ describe("Transactions", () => {
           expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
         .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[2]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(typeof res.body.items[2].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[2].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[2].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1455
@@ -720,7 +841,14 @@ describe("Transactions", () => {
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }))
         )
@@ -735,7 +863,14 @@ describe("Transactions", () => {
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
         .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1472
@@ -764,7 +899,14 @@ describe("Transactions", () => {
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }))
         )
@@ -778,8 +920,15 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
+        .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1473
@@ -808,7 +957,14 @@ describe("Transactions", () => {
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }))
         )
@@ -822,8 +978,15 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
+        .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1474
@@ -852,7 +1015,14 @@ describe("Transactions", () => {
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }))
         )
@@ -866,8 +1036,15 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
+        .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.usdPrice).toStrictEqual("number"));
     });
 
     //@id1475
@@ -895,7 +1072,14 @@ describe("Transactions", () => {
           expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }))
         )
         .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })))
+        .expect((res) => expect(typeof res.body.items[0].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[0].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[0].token.usdPrice).toStrictEqual("number"))
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }))
         )
@@ -909,8 +1093,15 @@ describe("Transactions", () => {
         .expect((res) =>
           expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }))
         )
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ token: null })));
+        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null })))
+        .expect((res) => expect(typeof res.body.items[1].token.l2Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.l1Address).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.symbol).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.name).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.decimals).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.iconURL).toStrictEqual("string"))
+        .expect((res) => expect(typeof res.body.items[1].token.liquidity).toStrictEqual("number"))
+        .expect((res) => expect(typeof res.body.items[1].token.usdPrice).toStrictEqual("number"));
     });
   });
 

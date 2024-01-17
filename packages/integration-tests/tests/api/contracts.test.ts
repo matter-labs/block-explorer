@@ -1,4 +1,5 @@
 import * as request from "supertest";
+import { setTimeout } from "timers/promises";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
@@ -24,7 +25,8 @@ describe("/api?module=contract", () => {
     });
 
     //@id1696
-    xit("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
+    it("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
+      await setTimeout(localConfig.standardPause);
       paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
       paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
       multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
