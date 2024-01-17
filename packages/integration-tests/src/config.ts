@@ -11,7 +11,7 @@ export const localConfig = {
   standardTimeout: 60 * 1000,
   extendedPause: 20 * 1000,
   standardPause: 5 * 1000,
-  minimalPause: 1 * 1000,
+  minimalPause: 0.5 * 1000,
   maxAPIretries: 200,
   intervalAPIretries: 0.2 * 1000,
 };
