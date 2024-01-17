@@ -1,7 +1,3 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 import { Buffer, Token, TransactionsStatus, TransactionsType, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
