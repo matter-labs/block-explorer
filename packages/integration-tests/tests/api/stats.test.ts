@@ -4,7 +4,7 @@ import { setTimeout } from "timers/promises";
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 
-describe("/stats", () => {
+describe("Stats", () => {
   jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
 
   //@id1515

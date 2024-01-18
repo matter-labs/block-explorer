@@ -3,7 +3,6 @@ on: pull_request
 
 jobs:
   runTests:
-    name: Run API integration tests
     timeout-minutes: 30
     runs-on: ubuntu-latest
     permissions:
@@ -14,6 +13,7 @@ jobs:
       matrix:
         node-version: ['lts/*'] # 18.17.1 or lts/* 
         test-pattern:
+          - accounts.test.ts
           - addresses.test.ts
           - batches.test.ts
           - blocks.test.ts
@@ -22,6 +22,7 @@ jobs:
           - stats.test.ts
           - tokens.test.ts
           - transactions.test.ts
+    name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
       - name: Checkout with Submodule
         uses: actions/checkout@v3
