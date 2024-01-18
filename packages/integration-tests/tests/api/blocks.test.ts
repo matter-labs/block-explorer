@@ -4,7 +4,7 @@ import { setTimeout } from "timers/promises";
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 
-describe("/blocks", () => {
+describe("Blocks", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   //@id1511
