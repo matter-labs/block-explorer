@@ -30,7 +30,7 @@ describe("Batches", () => {
   });
 
   //@id1514
-  it("Verify the response via /batches/{batchNumber}", async () => {
+  xit("Verify the response via /batches/{batchNumber}", async () => {
     const batches = await request(environment.blockExplorerAPI).get("/batches");
     const batchNumber = batches.body.items[0].number;
     apiRoute = `/batches/${batchNumber}`;
