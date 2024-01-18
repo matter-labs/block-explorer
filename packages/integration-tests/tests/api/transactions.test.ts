@@ -1189,7 +1189,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("API module: Transaction", () => {
+  describe("/api?module=transaction", () => {
     //@id1697
     it("Verify /api?module=transaction&action=getstatus response", async () => {
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
