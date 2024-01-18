@@ -6,7 +6,7 @@ import { localConfig } from "../../src/config";
 import { Token, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 
-describe("/api?module=account", () => {
+describe("API module: Account", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
