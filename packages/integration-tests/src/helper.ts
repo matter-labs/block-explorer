@@ -2,10 +2,11 @@ import { execSync } from "child_process";
 import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
+import * as request from "supertest";
 import { Provider } from "zksync-web3";
+
 import { environment, localConfig } from "./config";
 import { Logger } from "./entities";
-import * as request from "supertest";
 
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 
