@@ -1,5 +1,3 @@
-import { setTimeout } from "timers/promises";
-
 import { localConfig } from "../../src/config";
 import { Buffer, Token, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
@@ -123,8 +121,6 @@ describe("Address", () => {
 
     //@id1510
     it("Verify the transaction via /address/{address}/logs", async () => {
-      await setTimeout(localConfig.minimalPause); //works unstable without timeout
-
       contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
       apiRoute = `/address/${contract}/logs`;
@@ -159,8 +155,6 @@ describe("Address", () => {
 
     //@id1509
     it("Verify the transaction via /address/{address}/transfers", async () => {
-      await setTimeout(localConfig.minimalPause); //works unstable without timeout
-
       contract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
       const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
       txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
