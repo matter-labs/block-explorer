@@ -720,31 +720,25 @@ describe("Transactions", () => {
     //@id1697
     it("Verify /api?module=transaction&action=getstatus response", async () => {
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
-      const apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
-      await setTimeout(localConfig.extendedPause); //works unstable without timeout
+      apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
+      response = await helper.retryAPIrequest(apiRoute);
 
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
-        .expect((res) =>
-          expect(res.body.result).toStrictEqual(expect.objectContaining({ isError: "0", errDescription: "" }))
-        );
+      expect(response.status).toBe(200);
+      expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
+      expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
+      expect(response.body.result).toStrictEqual(expect.objectContaining({ isError: "0", errDescription: "" }));
     });
 
     //@id1698
     it("Verify /api?module=transaction&action=gettxreceiptstatus response", async () => {
       txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
-      const apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
-      await setTimeout(localConfig.extendedPause); //works unstable without timeout
+      apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
+      response = await helper.retryAPIrequest(apiRoute);
 
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ status: "1" })))
-        .expect((res) => expect(res.body).toStrictEqual(expect.objectContaining({ message: "OK" })))
-        .expect((res) => expect(typeof res.body.result.status).toStrictEqual("string"));
+      expect(response.status).toBe(200);
+      expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
+      expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
+      expect(typeof response.body.result.status).toStrictEqual("string");
     });
   });
 });
