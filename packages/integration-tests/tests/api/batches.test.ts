@@ -1,6 +1,3 @@
-import * as request from "supertest";
-
-import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 import { Helper } from "../../src/helper";
 
@@ -14,7 +11,7 @@ describe("Batches", () => {
   //@id1513
   it("Verify the response via /batches", async () => {
     apiRoute = `/batches`;
-    response = await helper.retryAPIrequest(apiRoute, false);
+    response = await helper.retryAPIrequest(apiRoute);
 
     expect(Array.isArray(response.body.items)).toStrictEqual(true);
     expect(response.body.items.length).toBeGreaterThanOrEqual(1);
@@ -29,11 +26,13 @@ describe("Batches", () => {
     expect(typeof response.body.links.last).toStrictEqual("string");
   });
 
-  //@id1514
+  //@id1514 //unstable due to null issue with timestamp
   xit("Verify the response via /batches/{batchNumber}", async () => {
-    const batches = await request(environment.blockExplorerAPI).get("/batches");
+    apiRoute = `/batches`;
+    const batches = await helper.retryAPIrequest(apiRoute);
     const batchNumber = batches.body.items[0].number;
-    apiRoute = `/batches/${batchNumber}`;
+    apiRoute = apiRoute + `/${batchNumber}`;
+    response = await helper.retryAPIrequest(apiRoute);
 
     expect(response.status).toBe(200);
     expect(response.body.number).toStrictEqual(batchNumber);
