@@ -32,31 +32,25 @@ describe("Batches", () => {
 
   //@id1514
   it("Verify the response via /batches/{batchNumber}", async () => {
-    await setTimeout(localConfig.extendedPause); //works unstable without timeout
-
     const batches = await request(environment.blockExplorerAPI).get("/batches");
-
     const batchNumber = batches.body.items[0].number;
+    apiRoute = `/batches/${batchNumber}`;
 
-    const apiRoute = `/batches/${batchNumber}`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body.number).toStrictEqual(batchNumber))
-      .expect((res) => expect(typeof res.body.timestamp).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.rootHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.executedAt).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.l1TxCount).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.l2TxCount).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.commitTxHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.committedAt).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.proveTxHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.provenAt).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.executeTxHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.l1GasPrice).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.l2FairGasPrice).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.size).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.status).toStrictEqual("string"));
+    expect(response.status).toBe(200);
+    expect(response.body.number).toStrictEqual(batchNumber);
+    expect(typeof response.body.timestamp).toStrictEqual("string");
+    expect(typeof response.body.rootHash).toStrictEqual("string");
+    expect(typeof response.body.executedAt).toStrictEqual("string");
+    expect(typeof response.body.l1TxCount).toStrictEqual("number");
+    expect(typeof response.body.l2TxCount).toStrictEqual("number");
+    expect(typeof response.body.commitTxHash).toStrictEqual("string");
+    expect(typeof response.body.committedAt).toStrictEqual("string");
+    expect(typeof response.body.proveTxHash).toStrictEqual("string");
+    expect(typeof response.body.provenAt).toStrictEqual("string");
+    expect(typeof response.body.executeTxHash).toStrictEqual("string");
+    expect(typeof response.body.l1GasPrice).toStrictEqual("string");
+    expect(typeof response.body.l2FairGasPrice).toStrictEqual("string");
+    expect(typeof response.body.size).toStrictEqual("number");
+    expect(typeof response.body.status).toStrictEqual("string");
   });
 });
