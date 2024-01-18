@@ -1,6 +1,4 @@
-import { BigNumber } from "ethers";
 import { Entity, Column, JoinColumn, ManyToOne, PrimaryColumn, Index } from "typeorm";
-import { bigNumberTransformer } from "../transformers/bigNumber.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { Block } from "./block.entity";
@@ -39,11 +37,11 @@ export class TransactionReceipt extends CountableEntity {
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly root: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly gasUsed: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly gasUsed: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly effectiveGasPrice: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly effectiveGasPrice: string;
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly logsBloom: string;
@@ -59,8 +57,8 @@ export class TransactionReceipt extends CountableEntity {
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public override readonly blockNumber: number;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly cumulativeGasUsed: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly cumulativeGasUsed: string;
 
   @Column({ type: "boolean" })
   public readonly byzantium: boolean;

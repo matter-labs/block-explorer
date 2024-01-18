@@ -21,6 +21,12 @@ const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
   }]
 });
 
+const buildDataFetcherConfig = (zkSyncEnvs: { [key: string]: string }) => {
+  return {
+    BLOCKCHAIN_RPC_URL: zkSyncEnvs.API_WEB3_JSON_RPC_HTTP_URL || "",
+  }
+};
+
 const buildWorkerConfig = (zkSyncEnvs: { [key: string]: string }) => {
   const dbConfig = parseConnectionString(zkSyncEnvs.DATABASE_URL);
   return {
@@ -29,6 +35,7 @@ const buildWorkerConfig = (zkSyncEnvs: { [key: string]: string }) => {
     DATABASE_USER: dbConfig.user || "",
     DATABASE_PASSWORD: dbConfig.password || "",
     DATABASE_NAME: "block-explorer",
+    DATA_FETCHER_URL: "http://localhost:3040",
   }
 };
 
@@ -77,12 +84,18 @@ const buildEnvFileContent = (json: { [key: string]: string | number }) => Object
   const envs = dotenv.parse(readFileSync(selectedEnvFilePath));
   const appConfig = buildAppConfig(envs);
   const workerConfig = buildWorkerConfig(envs);
+  const dataFetcherConfig = buildDataFetcherConfig(envs);
   const apiConfig = buildApiConfig(envs);
 
   writeFileSync(path.join(__dirname, "../packages/app/src/configs/hyperchain.config.json"), JSON.stringify(appConfig, null, 2));
   console.log("Updated app config at app/src/configs/hyperchain.config.json");
+
+  writeFileSync(path.join(__dirname, "../packages/data-fetcher/.env"), buildEnvFileContent(dataFetcherConfig));
+  console.log("Updated data-fetcher env file at data-fetcher/.env");
+
   writeFileSync(path.join(__dirname, "../packages/worker/.env"), buildEnvFileContent(workerConfig));
   console.log("Updated worker env file at worker/.env");
+
   writeFileSync(path.join(__dirname, "../packages/api/.env"), buildEnvFileContent(apiConfig));
   console.log("Updated api env file at api/.env");
 })();
