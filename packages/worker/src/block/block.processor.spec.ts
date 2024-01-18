@@ -529,6 +529,69 @@ describe("BlockProcessor", () => {
               );
             });
 
+            describe("when block data contains block logs", () => {
+              beforeEach(() => {
+                blocksToProcess[0].blockLogs = [{ logIndex: 0 } as types.Log, { logIndex: 1 } as types.Log];
+              });
+
+              it("saves block logs to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(logRepositoryMock.addMany).toHaveBeenCalledTimes(1);
+                expect(logRepositoryMock.addMany).toHaveBeenCalledWith(
+                  blocksToProcess[0].blockLogs.map((log) => ({
+                    ...log,
+                    timestamp: unixTimeToDateString(blocksToProcess[0].blockDetails.timestamp),
+                  }))
+                );
+              });
+            });
+
+            describe("when block data contains block transfers", () => {
+              beforeEach(() => {
+                blocksToProcess[0].blockTransfers = [{ logIndex: 2 } as Transfer, { logIndex: 3 } as Transfer];
+              });
+
+              it("saves block transfers to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(transferRepositoryMock.addMany).toHaveBeenCalledTimes(1);
+                expect(transferRepositoryMock.addMany).toHaveBeenCalledWith(blocksToProcess[0].blockTransfers);
+              });
+            });
+
+            describe("when block data contains changed balances", () => {
+              beforeEach(() => {
+                blocksToProcess[0].changedBalances = [
+                  {
+                    address: "address1",
+                    tokenAddress: "tokenAddress1",
+                    balance: "balance1",
+                  } as Balance,
+                  {
+                    address: "address2",
+                    tokenAddress: "tokenAddress2",
+                    balance: "balance2",
+                  } as Balance,
+                ];
+
+                (balanceServiceMock.getERC20TokensForChangedBalances as jest.Mock).mockReturnValue([
+                  "tokenAddress1",
+                  "tokenAddress2",
+                ]);
+              });
+
+              it("saves changed balances to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledTimes(1);
+                expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledWith(blocksToProcess[0].changedBalances);
+              });
+
+              it("saves ERC20 tokens for changed balances to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(tokenServiceMock.saveERC20Tokens).toHaveBeenCalledTimes(1);
+                expect(tokenServiceMock.saveERC20Tokens).toHaveBeenCalledWith(["tokenAddress1", "tokenAddress2"]);
+              });
+            });
+
             it("commits db transactions after execution", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(commitTransactionMock).toBeCalledTimes(1);
@@ -576,41 +639,9 @@ describe("BlockProcessor", () => {
                 }
               });
 
-              it("clears tracked address changes state", async () => {
-                expect.assertions(1);
-                try {
-                  await blockProcessor.processNextBlocksRange();
-                } catch {
-                  expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledTimes(1);
-                }
-              });
-
               it("does not commit db transactions", async () => {
                 await Promise.allSettled([blockProcessor.processNextBlocksRange()]);
                 expect(commitTransactionMock).not.toBeCalled();
-              });
-
-              it("ensures all the db transactions for a given batch of blocks are reverted if not committed", async () => {
-                await Promise.allSettled([blockProcessor.processNextBlocksRange()]);
-                expect(ensureRollbackIfNotCommittedTransactionMock).toBeCalledTimes(1);
-              });
-            });
-
-            describe("when block does not contain transactions", () => {
-              let logs: types.Log[];
-              beforeEach(() => {
-                blocksToProcess[0].block.transactions = [];
-                logs = [mock<types.Log>({ logIndex: 0 }), mock<types.Log>({ logIndex: 1 })];
-                jest.spyOn(blockchainServiceMock, "getLogs").mockResolvedValueOnce(logs);
-              });
-
-              it("reads logs for block from the blockchain", async () => {
-                await blockProcessor.processNextBlocksRange();
-                expect(blockchainServiceMock.getLogs).toHaveBeenCalledTimes(1);
-                expect(blockchainServiceMock.getLogs).toHaveBeenCalledWith({
-                  fromBlock: blocksToProcess[0].block.number,
-                  toBlock: blocksToProcess[0].block.number,
-                });
               });
 
               it("ensures all the db transactions for a given batch of blocks are reverted if not committed", async () => {
