@@ -8,7 +8,7 @@ There are 2 sets of endpoints the service provides. All the endpoints under `/ap
 
 ## Installation
 
-```bash
+
 $ npm install
 ```
 
