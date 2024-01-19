@@ -11,7 +11,7 @@ jobs:
       checks: write
     strategy:
       matrix:
-        node-version: ['lts/*'] # 18.17.1 or lts/* 
+        node-version: ['lts/*'] # 18.17.1 or lts/*
         test-pattern:
           - accounts.test.ts
           - addresses.test.ts
@@ -55,9 +55,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Start docker containers
+      - name: Build Docker container
         run: |
-          docker-compose -f "docker-compose.yaml" up -d --build
+          docker-compose -f "docker-compose.yaml" build
+
+      - name: Start Docker containers
+        run: |
+          docker-compose -f "docker-compose.yaml" up -d
 
       - name: List running containers
         run: docker ps
@@ -66,7 +70,8 @@ jobs:
         run: |
           cd packages/integration-tests
           npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
-      - name: Stop containers
+
+      - name: Stop Docker containers
         if: always()
         run: |
           docker-compose -f "docker-compose.yaml" down
