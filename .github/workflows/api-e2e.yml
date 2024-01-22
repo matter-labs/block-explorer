@@ -41,6 +41,9 @@ jobs:
         run: |
           npm ci --ignore-scripts
 
+      - name: List running containers
+        run: docker ps
+
       - name: Run e2e tests
         run: |
           npm run test:e2e
