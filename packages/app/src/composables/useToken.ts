@@ -9,7 +9,9 @@ import useTokenLibrary from "@/composables/useTokenLibrary";
 import type { Hash } from "@/types";
 
 export type Token = Api.Response.Token;
-
+type NativeERC20ApiResponse = {
+  result: Token;
+};
 export const retrieveToken = useMemoize(
   (tokenAddress: Hash, context: Context = useContext()): Promise<Api.Response.Token> => {
     return $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`);
@@ -20,10 +22,14 @@ export const retrieveToken = useMemoize(
     },
   }
 );
-
+export const retrieveERC20NativeToken = useMemoize(
+  async (context: Context = useContext()): Promise<NativeERC20ApiResponse> => {
+    return $fetch(`${context.currentNetwork.value.apiUrl}/api/token/nativeERC20Info`);
+  }
+);
 export default () => {
+  console.log("Entering use token");
   const { getToken, getTokens } = useTokenLibrary();
-
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
   const tokenInfo = ref(null as Token | null);
@@ -35,10 +41,11 @@ export default () => {
 
     isRequestPending.value = true;
     try {
-      await getTokens();
-      const tokenFromLibrary = getToken(address);
-      const token = tokenFromLibrary || (await retrieveToken(address));
-      tokenInfo.value = token;
+      // await getTokens();
+      // const tokenFromLibrary = getToken(address);
+      // const token = tokenFromLibrary || (await retrieveToken(address));
+      const { result: tokenData } = await retrieveERC20NativeToken();
+      tokenInfo.value = tokenData;
     } catch {
       isRequestFailed.value = true;
     } finally {
