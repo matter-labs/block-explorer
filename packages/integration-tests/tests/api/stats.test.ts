@@ -10,14 +10,16 @@ describe("Stats", () => {
 
   //@id1515
   it("Verify the response via /stats", async () => {
-    apiRoute = `/stats`;
-    response = await helper.retryAPIrequest(apiRoute);
+    await helper.retryTestAction(async () => {
+      apiRoute = `/stats`;
+      response = await helper.performGETrequest(apiRoute);
 
-    expect(response.status).toBe(200);
-    expect(typeof response.body.lastSealedBatch).toStrictEqual("number");
-    expect(typeof response.body.lastVerifiedBatch).toStrictEqual("number");
-    expect(typeof response.body.lastSealedBlock).toStrictEqual("number");
-    expect(typeof response.body.lastVerifiedBlock).toStrictEqual("number");
-    expect(typeof response.body.totalTransactions).toStrictEqual("number");
+      expect(response.status).toBe(200);
+      expect(typeof response.body.lastSealedBatch).toStrictEqual("number");
+      expect(typeof response.body.lastVerifiedBatch).toStrictEqual("number");
+      expect(typeof response.body.lastSealedBlock).toStrictEqual("number");
+      expect(typeof response.body.lastVerifiedBlock).toStrictEqual("number");
+      expect(typeof response.body.totalTransactions).toStrictEqual("number");
+    });
   });
 });

@@ -1,5 +1,3 @@
-import { setTimeout } from "timers/promises";
-
 import { localConfig } from "../../src/config";
 import { Buffer, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
@@ -26,27 +24,28 @@ describe("API module: Contract", () => {
 
     //@id1696
     it("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
-      await setTimeout(localConfig.standardPause);
-      paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-      paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
-      multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
-      multicallCallerTx = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
-      apiRoute = `/api?module=contract&action=getcontractcreation&contractaddresses=${paymasterContract},${multicallCallerContract}`;
-      response = await helper.retryAPIrequest(apiRoute);
+      await helper.retryTestAction(async () => {
+        paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
+        paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
+        multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
+        multicallCallerTx = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
+        apiRoute = `/api?module=contract&action=getcontractcreation&contractaddresses=${paymasterContract},${multicallCallerContract}`;
+        response = await helper.performGETrequest(apiRoute);
 
-      expect(response.status).toBe(200);
-      expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ contractAddress: paymasterContract }));
-      expect(response.body.result[0]).toStrictEqual(
-        expect.objectContaining({ contractCreator: Wallets.richWalletAddress })
-      );
-      expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ txHash: paymasterTx }));
-      expect(response.body.result[1]).toStrictEqual(
-        expect.objectContaining({ contractAddress: multicallCallerContract })
-      );
-      expect(response.body.result[1]).toStrictEqual(
-        expect.objectContaining({ contractCreator: Wallets.richWalletAddress })
-      );
-      expect(response.body.result[1]).toStrictEqual(expect.objectContaining({ txHash: multicallCallerTx }));
+        expect(response.status).toBe(200);
+        expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ contractAddress: paymasterContract }));
+        expect(response.body.result[0]).toStrictEqual(
+          expect.objectContaining({ contractCreator: Wallets.richWalletAddress })
+        );
+        expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ txHash: paymasterTx }));
+        expect(response.body.result[1]).toStrictEqual(
+          expect.objectContaining({ contractAddress: multicallCallerContract })
+        );
+        expect(response.body.result[1]).toStrictEqual(
+          expect.objectContaining({ contractCreator: Wallets.richWalletAddress })
+        );
+        expect(response.body.result[1]).toStrictEqual(expect.objectContaining({ txHash: multicallCallerTx }));
+      });
     });
   });
 });
