@@ -2,12 +2,8 @@ name: Integration test - API
 on: pull_request
 
 jobs:
-  startDocker:
+  dockerSetup:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
     steps:
       - name: Checkout with Submodule
         uses: actions/checkout@v3
@@ -26,7 +22,7 @@ jobs:
           docker-compose -f "docker-compose.yaml" up -d
 
   runTests:
-    needs: startDocker
+    needs: dockerSetup
     timeout-minutes: 30
     runs-on: ubuntu-latest
     permissions:
@@ -48,6 +44,11 @@ jobs:
           - transactions.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
+      - name: Checkout with Submodule
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
