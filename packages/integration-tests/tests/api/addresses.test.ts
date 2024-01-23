@@ -184,7 +184,7 @@ describe("Address", () => {
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].timestamp).toBe("string");
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ amount: "1" }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: customTokenAddress }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: "transfer" }));
