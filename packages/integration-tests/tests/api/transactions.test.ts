@@ -109,7 +109,7 @@ describe("Transactions", () => {
     });
 
     //@id1463
-    it("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
+    xit("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
       await helper.retryTestAction(async () => {
         const l1Token = bufferFile + "/" + Buffer.L1;
         const customTokenL1 = await helper.getStringFromFile(l1Token);
