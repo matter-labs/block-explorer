@@ -65,21 +65,25 @@ export class Helper {
     return request(environment.blockExplorerAPI).get(apiRoute);
   }
 
-  async retryAPIrequest(apiRoute, unsucceededResponse = false) {
+  /**
+   * A retry wrapper method to enhance test stability in API testing.
+   * Useful when API response fields may not immediately reflect the expected state,
+   * but can update to the correct response after a delay.
+   * Attempts to execute the action a specified number of times (defined in localConfig.maxAPIretries)
+   * with a delay between attempts (localConfig.intervalAPIretries).
+   * Throws an error if the action consistently fails after all retries.
+   */
+  async retryTestAction(action) {
     for (let i = 0; i < localConfig.maxAPIretries; i++) {
       try {
-        const response = await this.performGETrequest(apiRoute);
-
-        if (response.status === 200 || unsucceededResponse) {
-          return response;
+        await action();
+        return;
+      } catch (error) {
+        if (i === localConfig.maxAPIretries - 1) {
+          throw error;
         }
-      } catch (e) {
-        if (localConfig.debugAPIwrapper) {
-          console.error(e);
-        }
+        await new Promise((resolve) => setTimeout(resolve, localConfig.intervalAPIretries));
       }
-      await this.delay(localConfig.intervalAPIretries);
     }
-    throw new Error(`There is error after the request ${localConfig.maxAPIretries} retries`);
   }
 }
