@@ -9,6 +9,5 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "reporters": ["default"],
-  "maxWorkers": 1,
-  "retryTimes": 2
+  "maxWorkers": 1
 }
