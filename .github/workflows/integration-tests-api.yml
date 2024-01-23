@@ -48,11 +48,6 @@ jobs:
           - transactions.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
-      - name: Checkout with Submodule
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
