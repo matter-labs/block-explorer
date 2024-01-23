@@ -1,7 +1,6 @@
 import { Wallets } from "./entities";
 
 export const localConfig = {
-  debugAPIwrapper: false,
   gasLimit: { gasLimit: 10000000 },
   l2GasLimit: 10000000,
   L1Network: "http://localhost:8545",
