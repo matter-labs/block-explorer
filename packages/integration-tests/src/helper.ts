@@ -2,9 +2,10 @@ import { execSync } from "child_process";
 import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
+import * as request from "supertest";
 import { Provider } from "zksync-web3";
 
-import { localConfig } from "./config";
+import { environment, localConfig } from "./config";
 import { Logger } from "./entities";
 
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
@@ -54,5 +55,35 @@ export class Helper {
       console.log(`Wrong layer: ${layer}`);
     }
     return ethers.utils.formatUnits(await provider.getBalance(walletAddress), "wei");
+  }
+
+  async delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async performGETrequest(apiRoute: string) {
+    return request(environment.blockExplorerAPI).get(apiRoute);
+  }
+
+  /**
+   * A retry wrapper method to enhance test stability in API testing.
+   * Useful when API response fields may not immediately reflect the expected state,
+   * but can update to the correct response after a delay.
+   * Attempts to execute the action a specified number of times (defined in localConfig.maxAPIretries)
+   * with a delay between attempts (localConfig.intervalAPIretries).
+   * Throws an error if the action consistently fails after all retries.
+   */
+  async retryTestAction(action) {
+    for (let i = 0; i < localConfig.maxAPIretries; i++) {
+      try {
+        await action();
+        return;
+      } catch (error) {
+        if (i === localConfig.maxAPIretries - 1) {
+          throw error;
+        }
+        await this.delay(localConfig.intervalAPIretries);
+      }
+    }
   }
 }

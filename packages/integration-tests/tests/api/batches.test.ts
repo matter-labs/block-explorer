@@ -1,61 +1,58 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
+import { Helper } from "../../src/helper";
 
 describe("Batches", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
+  const helper = new Helper();
+  let apiRoute: string;
+  let response;
+
   //@id1513
   it("Verify the response via /batches", async () => {
-    await setTimeout(localConfig.standardPause); //works unstable without timeout
+    await helper.retryTestAction(async () => {
+      apiRoute = `/batches`;
+      response = await helper.performGETrequest(apiRoute);
 
-    const apiRoute = `/batches`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(Array.isArray(res.body.items)).toStrictEqual(true))
-      .expect((res) => expect(res.body.items.length).toBeGreaterThanOrEqual(1))
-      .expect((res) => expect(typeof res.body.meta.totalItems).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.itemCount).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.itemsPerPage).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.totalPages).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.meta.currentPage).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.links.first).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.previous).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.next).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
+      expect(Array.isArray(response.body.items)).toStrictEqual(true);
+      expect(response.body.items.length).toBeGreaterThanOrEqual(1);
+      expect(typeof response.body.meta.totalItems).toStrictEqual("number");
+      expect(typeof response.body.meta.itemCount).toStrictEqual("number");
+      expect(typeof response.body.meta.itemsPerPage).toStrictEqual("number");
+      expect(typeof response.body.meta.totalPages).toStrictEqual("number");
+      expect(typeof response.body.meta.currentPage).toStrictEqual("number");
+      expect(typeof response.body.links.first).toStrictEqual("string");
+      expect(typeof response.body.links.previous).toStrictEqual("string");
+      expect(typeof response.body.links.next).toStrictEqual("string");
+      expect(typeof response.body.links.last).toStrictEqual("string");
+    });
   });
 
-  //@id1514
+  //@id1514 //unstable due to null issue with timestamp
   it("Verify the response via /batches/{batchNumber}", async () => {
-    await setTimeout(localConfig.extendedPause); //works unstable without timeout
+    await helper.retryTestAction(async () => {
+      apiRoute = `/batches`;
+      const batches = await helper.performGETrequest(apiRoute);
+      const batchNumber = batches.body.items[0].number;
+      apiRoute = apiRoute + `/${batchNumber}`;
+      response = await helper.performGETrequest(apiRoute);
 
-    const batches = await request(environment.blockExplorerAPI).get("/batches");
-
-    const batchNumber = batches.body.items[0].number;
-
-    const apiRoute = `/batches/${batchNumber}`;
-
-    return request(environment.blockExplorerAPI)
-      .get(apiRoute)
-      .expect(200)
-      .expect((res) => expect(res.body.number).toStrictEqual(batchNumber))
-      .expect((res) => expect(typeof res.body.timestamp).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.rootHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.executedAt).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.l1TxCount).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.l2TxCount).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.commitTxHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.committedAt).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.proveTxHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.provenAt).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.executeTxHash).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.l1GasPrice).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.l2FairGasPrice).toStrictEqual("string"))
-      .expect((res) => expect(typeof res.body.size).toStrictEqual("number"))
-      .expect((res) => expect(typeof res.body.status).toStrictEqual("string"));
+      expect(response.status).toBe(200);
+      expect(response.body.number).toStrictEqual(batchNumber);
+      expect(typeof response.body.timestamp).toStrictEqual("string");
+      expect(typeof response.body.rootHash).toStrictEqual("string");
+      expect(typeof response.body.executedAt).toStrictEqual("string");
+      expect(typeof response.body.l1TxCount).toStrictEqual("number");
+      expect(typeof response.body.l2TxCount).toStrictEqual("number");
+      expect(typeof response.body.commitTxHash).toStrictEqual("string");
+      expect(typeof response.body.committedAt).toStrictEqual("string");
+      expect(typeof response.body.proveTxHash).toStrictEqual("string");
+      expect(typeof response.body.provenAt).toStrictEqual("string");
+      expect(typeof response.body.executeTxHash).toStrictEqual("string");
+      expect(typeof response.body.l1GasPrice).toStrictEqual("string");
+      expect(typeof response.body.l2FairGasPrice).toStrictEqual("string");
+      expect(typeof response.body.size).toStrictEqual("number");
+      expect(typeof response.body.status).toStrictEqual("string");
+    });
   });
 });
