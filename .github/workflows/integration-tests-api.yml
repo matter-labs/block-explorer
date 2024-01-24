@@ -2,6 +2,49 @@ name: Integration test - API
 on: pull_request
 
 jobs:
+  build_and_cache:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker Image
+        run: docker build -t my-docker-image:latest .
+
+      - name: Cache Docker Image
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.docker
+          key: docker-image-${{ runner.os }}-${{ hashFiles('**/*.dockerfile') }}
+        if: success()
+
+  use_cached_docker_image:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Restore Cached Docker Image
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.docker
+          key: docker-image-${{ runner.os }}-${{ hashFiles('**/*.dockerfile') }}
+
+      #- name: Use Docker Image in Another Job
+      #  run: |
+      #    # Your commands to use the Docker image
+
+
   runTests:
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -29,15 +72,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache Docker images
-        id: cache-docker-images
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.docker
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
+#      - name: Cache Docker images
+#        id: cache-docker-images
+#        uses: actions/cache@v3
+#        with:
+#          path: |
+#            ~/.docker
+#          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
+#          restore-keys: |
+#            ${{ runner.os }}-docker-
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -49,12 +92,6 @@ jobs:
         run: |
           npm ci --no-audit
           npx playwright install --with-deps chromium
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Start docker containers
         run: |
