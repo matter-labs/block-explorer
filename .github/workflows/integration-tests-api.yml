@@ -16,13 +16,13 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build Docker Image
-        run: docker build -t my-docker-image:latest .
+        run: docker build -t block-explorer_app:latest -t block-explorer_api:latest -t block-explorer_worker:latest -t matterlabs/local-node:latest2.0 -t postgres:14 -t matterlabs/geth:latest
 
       - name: Cache Docker Image
         uses: actions/cache@v2
         with:
           path: |
-            ~/.docker
+            /var/lib/docker
           key: docker-image-${{ runner.os }}-${{ hashFiles('**/*.dockerfile') }}
         if: success()
 
@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/.docker
+            /var/lib/docker
           key: docker-image-${{ runner.os }}-${{ hashFiles('**/*.dockerfile') }}
 
       #- name: Use Docker Image in Another Job
@@ -93,9 +93,9 @@ jobs:
           npm ci --no-audit
           npx playwright install --with-deps chromium
 
-      - name: Start docker containers
-        run: |
-          docker-compose -f "docker-compose.yaml" up -d --build
+      #- name: Start docker containers
+      #  run: |
+      #    docker-compose -f "docker-compose.yaml" up -d --build
 
       - name: List running containers
         run: docker ps
