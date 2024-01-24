@@ -325,7 +325,7 @@ describe("AddressController (e2e)", () => {
         transactionIndex: i,
         timestamp: new Date("2022-11-21T18:16:51.000Z"),
         type,
-        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ChainNative,
         tokenAddress:
           i % 2 ? "0x97d0a23f34e535e44df8ba84c53a0945cf0eeb67" : "0x000000000000000000000000000000000000800a",
         logIndex: i,

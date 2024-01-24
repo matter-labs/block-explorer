@@ -6,6 +6,7 @@ import { TokenType } from "../../../entities/token.entity";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
+import { isNativeToken } from "src/common/token";
 
 export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
@@ -26,7 +27,7 @@ export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
       amount: parsedLog.args.amount,
       tokenAddress,
       type: TransferType.Deposit,
-      tokenType: tokenAddress === utils.L2_ETH_TOKEN_ADDRESS ? TokenType.ETH : TokenType.ERC20,
+      tokenType: isNativeToken(tokenAddress) ? TokenType.ChainNative : TokenType.ERC20,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

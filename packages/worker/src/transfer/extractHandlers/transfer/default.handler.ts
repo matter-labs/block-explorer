@@ -6,6 +6,7 @@ import { TokenType } from "../../../entities/token.entity";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
+import { isNativeToken } from "src/common/token";
 
 export const defaultTransferHandler: ExtractTransferHandler = {
   matches: (log: types.Log): boolean => log.topics.length === 3,
@@ -36,7 +37,7 @@ export const defaultTransferHandler: ExtractTransferHandler = {
       amount: parsedLog.args.value,
       tokenAddress,
       type: transferType,
-      tokenType: tokenAddress === utils.L2_ETH_TOKEN_ADDRESS ? TokenType.ETH : TokenType.ERC20,
+      tokenType: isNativeToken(tokenAddress) ? TokenType.ChainNative : TokenType.ERC20,
       isFeeOrRefund: [TransferType.Fee, TransferType.Refund].includes(transferType),
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

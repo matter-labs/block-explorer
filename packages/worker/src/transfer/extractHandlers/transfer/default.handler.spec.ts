@@ -102,7 +102,7 @@ describe("defaultTransferHandler", () => {
       log.address = utils.L2_ETH_TOKEN_ADDRESS;
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
-      expect(result.tokenType).toBe(TokenType.ETH);
+      expect(result.tokenType).toBe(TokenType.ChainNative);
     });
 
     it("extracts transfer with tokenAddress field populated with lower cased log address", () => {

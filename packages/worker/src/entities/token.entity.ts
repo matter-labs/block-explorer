@@ -7,7 +7,7 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { BaseEntity } from "./base.entity";
 
 export enum TokenType {
-  ETH = "ETH",
+  ChainNative = "CHAINNATIVE",
   ERC20 = "ERC20",
   ERC721 = "ERC721",
 }

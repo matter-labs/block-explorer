@@ -27,7 +27,7 @@ export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
       amount: parsedLog.args.amount,
       tokenAddress,
       type: TransferType.Withdrawal,
-      tokenType: tokenAddress === utils.L2_ETH_TOKEN_ADDRESS ? TokenType.ETH : TokenType.ERC20,
+      tokenType: isNativeToken(tokenAddress) ? TokenType.ChainNative : TokenType.ERC20,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

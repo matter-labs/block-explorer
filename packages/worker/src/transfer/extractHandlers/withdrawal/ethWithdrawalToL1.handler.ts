@@ -23,7 +23,7 @@ export const ethWithdrawalToL1Handler: ExtractTransferHandler = {
       amount: parsedLog.args._amount,
       tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
       type: TransferType.Withdrawal,
-      tokenType: TokenType.ETH,
+      tokenType: TokenType.ChainNative,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,
