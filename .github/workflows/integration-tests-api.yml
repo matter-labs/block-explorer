@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Build Docker Image
-        run: docker build -t block-explorer_app:latest -t block-explorer_api:latest -t block-explorer_worker:latest -t matterlabs/local-node:latest2.0 -t postgres:14 -t matterlabs/geth:latest
+        run: docker build -t block-explorer_app:latest 
 
       - name: Cache Docker Image
         uses: actions/cache@v2
