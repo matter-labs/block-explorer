@@ -57,10 +57,7 @@ jobs:
           key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
           restore-keys: |
             ${{ runner.os }} docker
-  use_cached_docker_image:
-    runs-on: ubuntu-latest
 
-    steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
@@ -70,10 +67,6 @@ jobs:
           path: |
             /var/lib/docker/
           key: docker-image-${{ runner.os }}-${{ hashFiles('**/*.dockerfile') }}
-
-      - name: Use Docker Image in Another Job
-        run: |
-          # Your commands to use the Docker image
 
       - name: Start docker containers
         run: |
