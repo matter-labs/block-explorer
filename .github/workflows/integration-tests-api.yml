@@ -46,10 +46,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Start docker containers
-        run: |
-          docker-compose -f "docker-compose.yaml" up -d --build
-
       - name: Cache Docker images
         id: cache-docker-images
         uses: actions/cache@v3
@@ -60,6 +56,10 @@ jobs:
           key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
           restore-keys: |
             ${{ runner.os }} docker
+
+      - name: Start docker containers
+        run: |
+          docker-compose -f "docker-compose.yaml" up -d --build
 
       - name: List running containers
         run: docker ps
