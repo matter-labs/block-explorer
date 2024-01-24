@@ -39,18 +39,31 @@ jobs:
         run: |
           npm ci --no-audit
           npx playwright install --with-deps chromium
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Print Working Directory
         run: |
           pwd
 
-      - name: Start docker containers
+      - name: Check Docker cache and use if available
         run: |
-          docker-compose -f "docker-compose.yaml" up -d --build
+          SERVICES=("block-explorer_worker" "postgres" "matterlabs_local_node")  # List of services
+          for SERVICE in "${SERVICES[@]}"; do
+            CACHE_IMAGE=$(docker images -q "$SERVICE:latest")
+            if [ -n "$CACHE_IMAGE" ]; then
+              echo "Using cached image for $SERVICE: $CACHE_IMAGE"
+              docker-compose -f "docker-compose.yaml" up -d --build $SERVICE
+            else
+              echo "No cached image found for $SERVICE. Building from scratch."
+              docker-compose -f "docker-compose.yaml" up -d --build $SERVICE
+            fi
+          done
+
       - name: List running containers
         run: docker ps
 
@@ -58,6 +71,7 @@ jobs:
         run: |
           cd packages/integration-tests
           npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
+
       - name: Stop containers
         if: always()
         run: |
