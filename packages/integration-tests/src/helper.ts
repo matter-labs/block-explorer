@@ -82,7 +82,7 @@ export class Helper {
         if (i === localConfig.maxAPIretries - 1) {
           throw error;
         }
-        await new Promise((resolve) => setTimeout(resolve, localConfig.intervalAPIretries));
+        await this.delay(localConfig.intervalAPIretries);
       }
     }
   }
