@@ -15,8 +15,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Build Docker Image
-        run: docker build -t block-explorer_app:latest .
+     # - name: Build Docker Image
+     #   run: docker build -t block-explorer_app:latest .
 
       - name: Cache Docker Image
         uses: actions/cache@v2
