@@ -44,6 +44,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Print Working Directory
+        run: |
+          pwd
 
       - name: Start docker containers
         run: |

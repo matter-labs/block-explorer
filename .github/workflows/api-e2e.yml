@@ -31,6 +31,10 @@ jobs:
         run: |
           docker-compose -f "docker-compose.e2e.yaml" up -d --build
 
+      - name: Print Working Directory
+        run: |
+          pwd
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
