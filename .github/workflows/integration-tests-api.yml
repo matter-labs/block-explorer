@@ -2,27 +2,7 @@ name: Integration test - API
 on: pull_request
 
 jobs:
-  dockerSetup:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout with Submodule
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build and Start Docker container
-        run: |
-          docker-compose -f "docker-compose.yaml" build
-          docker-compose -f "docker-compose.yaml" up -d
-
   runTests:
-    needs: dockerSetup
     timeout-minutes: 30
     runs-on: ubuntu-latest
     permissions:
@@ -59,19 +39,23 @@ jobs:
         run: |
           npm ci --no-audit
           npx playwright install --with-deps chromium
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: List running containers (for debug purposes)
+      - name: Start docker containers
+        run: |
+          docker-compose -f "docker-compose.yaml" up -d --build
+      - name: List running containers
         run: docker ps
 
-      - name: API tests run
+      - name: API tests run (parallel)
         run: |
           cd packages/integration-tests
           npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
-
-  stopDocker:
-    needs: runTests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Stop Docker containers
+      - name: Stop containers
+        if: always()
         run: |
           docker-compose -f "docker-compose.yaml" down
