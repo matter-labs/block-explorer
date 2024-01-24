@@ -11,7 +11,7 @@ jobs:
       checks: write
     strategy:
       matrix:
-        node-version: ['lts/*']
+        node-version: ['lts/*'] # 18.17.1 or lts/* 
         test-pattern:
           - accounts.test.ts
           - addresses.test.ts
