@@ -11,7 +11,7 @@ jobs:
       checks: write
     strategy:
       matrix:
-        node-version: ['lts/*'] # 18.17.1 or lts/*
+        node-version: ['lts/*']
         test-pattern:
           - accounts.test.ts
           - addresses.test.ts
@@ -29,6 +29,16 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Cache Docker images
+        id: cache-docker-images
+        uses: actions/cache@v3
+        with:
+          path: |
+            /var/lib/docker
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-docker-
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -39,6 +49,7 @@ jobs:
         run: |
           npm ci --no-audit
           npx playwright install --with-deps chromium
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -48,6 +59,7 @@ jobs:
       - name: Start docker containers
         run: |
           docker-compose -f "docker-compose.yaml" up -d --build
+
       - name: List running containers
         run: docker ps
 
@@ -55,6 +67,7 @@ jobs:
         run: |
           cd packages/integration-tests
           npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
+
       - name: Stop containers
         if: always()
         run: |
