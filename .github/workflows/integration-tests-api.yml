@@ -45,12 +45,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Auth to google artifact registry
-        run: |
-          gcloud auth configure-docker us-docker.pkg.dev -q
-          docker pull us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:latest
-          docker pull us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:latest
-          docker pull us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:latest
+      - name: Cache Docker images.
+        uses: ScribeMD/docker-cache@0.3.7
+        with:
+          key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
       - name: Start docker containers
         run: |
