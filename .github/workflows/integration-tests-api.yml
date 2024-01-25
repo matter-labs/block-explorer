@@ -13,14 +13,14 @@ jobs:
       matrix:
         node-version: ['lts/*'] # 18.17.1 or lts/*
         test-pattern:
-          #- accounts.test.ts
-          #- addresses.test.ts
-          #- batches.test.ts
-          #- blocks.test.ts
-          #- contracts.test.ts
-          #- logs.test.ts
-          #- stats.test.ts
-          #- tokens.test.ts
+          - accounts.test.ts
+          - addresses.test.ts
+          - batches.test.ts
+          - blocks.test.ts
+          - contracts.test.ts
+          - logs.test.ts
+          - stats.test.ts
+          - tokens.test.ts
           - transactions.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
@@ -39,53 +39,29 @@ jobs:
         run: |
           npm ci --no-audit
           npx playwright install --with-deps chromium
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Print Working Directory
+      - name: Auth to google artifact registry
         run: |
-          pwd
-
-#      - name: List files in ci cd
-#        run: sudo ls -la /var/lib/docker/ci\ cd
-
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Restore Cached Docker Image
-        uses: actions/cache@v2
-        with:
-          path: |
-            /var/lib/docker/
-          key: docker-image-${{ runner.os }}-${{ hashFiles('**/*.dockerfile') }}
+          gcloud auth configure-docker us-docker.pkg.dev -q
+          docker pull us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:latest
+          docker pull us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:latest
+          docker pull us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:latest
 
       - name: Start docker containers
         run: |
           docker-compose -f "docker-compose.yaml" up -d --build
-
       - name: List running containers
         run: docker ps
-
-      - name: Cache Docker images
-        id: cache-docker-images
-        uses: actions/cache@v3
-        with:
-          path: |
-            /var/lib/docker/
-          # where the cache is stored -> /var/lib/docker/
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
-          restore-keys: |
-            ${{ runner.os }} docker
 
       - name: API tests run (parallel)
         run: |
           cd packages/integration-tests
           npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
-
       - name: Stop containers
         if: always()
         run: |
