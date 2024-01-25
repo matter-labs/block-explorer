@@ -46,17 +46,6 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Cache Docker images
-        id: cache-docker-images
-        uses: actions/cache@v3
-        with:
-          path: |
-            /var/lib/docker/
-          # where the cache is stored -> /var/lib/docker/
-          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
-          restore-keys: |
-            ${{ runner.os }} docker
-
       - name: Print Working Directory
         run: |
           pwd
@@ -80,6 +69,17 @@ jobs:
 
       - name: List running containers
         run: docker ps
+        
+      - name: Cache Docker images
+        id: cache-docker-images
+        uses: actions/cache@v3
+        with:
+          path: |
+            /var/lib/docker/
+          # where the cache is stored -> /var/lib/docker/
+          key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
+          restore-keys: |
+            ${{ runner.os }} docker
 
       - name: API tests run (parallel)
         run: |
