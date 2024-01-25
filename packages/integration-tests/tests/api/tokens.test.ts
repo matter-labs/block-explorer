@@ -127,6 +127,56 @@ describe("Tokens", () => {
             expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }))
           );
       });
+
+      //id1803
+      it("Verify the response via /tokens/{address}/transfers", async () => {
+        await setTimeout(localConfig.standardPause); //works unstable without timeout
+
+        l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
+        const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
+        const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
+        txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+        const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+        const decapitalizedTokenAddress = l2Token.toLowerCase();
+
+        return request(environment.blockExplorerAPI)
+          .get(apiRoute)
+          .expect(200)
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet })))
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster })))
+          .expect((res) => expect(typeof res.body.items[0].blockNumber).toStrictEqual("number"))
+          .expect((res) =>
+            expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }))
+          )
+          .expect((res) => expect(typeof res.body.items[0].timestamp).toStrictEqual("string"))
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ amount: "1" })))
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: l2Token })))
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: "transfer" })))
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null })))
+          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false })))
+          .expect((res) =>
+            expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: l2Token }))
+          )
+          .expect((res) => expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ l1Address: null })))
+          .expect((res) =>
+            expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ symbol: "MyToken" }))
+          )
+          .expect((res) => expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ name: "MyToken" })))
+          .expect((res) => expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ decimals: 18 })))
+          .expect((res) => expect(typeof res.body.meta.currentPage).toStrictEqual("number"))
+          .expect((res) => expect(typeof res.body.meta.itemCount).toStrictEqual("number"))
+          .expect((res) => expect(typeof res.body.meta.itemsPerPage).toStrictEqual("number"))
+          .expect((res) => expect(typeof res.body.meta.totalItems).toStrictEqual("number"))
+          .expect((res) => expect(typeof res.body.meta.totalPages).toStrictEqual("number"))
+          .expect((res) =>
+            expect(res.body.links.first).toStrictEqual(`tokens/${decapitalizedTokenAddress}/transfers?limit=10`)
+          )
+          .expect((res) => expect(res.body.links.previous).toStrictEqual(""))
+          .expect((res) => expect(res.body.links.next).toStrictEqual(""))
+          .expect((res) =>
+            expect(res.body.links.last).toStrictEqual(`tokens/${decapitalizedTokenAddress}/transfers?page=1&limit=10`)
+          );
+      });
     });
   });
 });
