@@ -56,13 +56,13 @@ jobs:
           key: ${{ runner.os }}-docker-${{ hashFiles('**/docker-compose.yaml') }}
           restore-keys: |
             ${{ runner.os }} docker
-            
+
       - name: Print Working Directory
         run: |
           pwd
 
       - name: List files in ci cd
-        run: ls -la /var/lib/docker/ci\ cd
+        run: sudo ls -la /var/lib/docker/ci\ cd
 
       - name: Checkout Repository
         uses: actions/checkout@v2
