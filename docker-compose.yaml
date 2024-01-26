@@ -6,8 +6,6 @@ services:
       context: .
       dockerfile: ./packages/app/Dockerfile
       target: development-stage
-      cache_from:
-        - matterlabs/local-node:latest
     command: npm run --prefix packages/app dev -- --host
     ports:
       - '3010:3010'
@@ -23,8 +21,6 @@ services:
       context: .
       dockerfile: ./packages/worker/Dockerfile
       target: development-stage
-      cache_from:
-        - block-explorer_worker:latest
     command: npm run --prefix packages/worker dev:debug
     environment:
       - PORT=3001
@@ -53,8 +49,6 @@ services:
       context: .
       dockerfile: ./packages/api/Dockerfile
       target: development-stage
-      cache_from:
-        - postgres:latest #not sure here about the name
     command: npm run --prefix packages/api dev:debug
     environment:
       - PORT=3020
