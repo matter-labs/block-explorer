@@ -144,10 +144,13 @@ describe("Address", () => {
         expect(response.body.items[0]).toEqual(expect.objectContaining({ address: contract }));
         expect(Array.isArray(response.body.items[0].topics)).toStrictEqual(true);
         expect(typeof response.body.items[0].data).toStrictEqual("string");
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(response.body.items[0].blockNumber).toBeGreaterThanOrEqual(1);
         expect(response.body.items[0]).toEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(typeof response.body.items[0].transactionIndex).toStrictEqual("number");
         expect(typeof response.body.items[0].logIndex).toStrictEqual("number");
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(response.body.items[0].timestamp.length).toBe(24);
         expect(response.body.meta).toEqual(expect.objectContaining({ totalItems: 1 }));
         expect(response.body.meta).toEqual(expect.objectContaining({ itemCount: 1 }));
         expect(response.body.meta).toEqual(expect.objectContaining({ itemsPerPage: 10 }));
