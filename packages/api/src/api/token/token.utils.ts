@@ -1,10 +1,11 @@
-import { NativeERC20 } from "../dtos/token/tokenInfo.dto";
 import * as ethers from "zksync-web3";
-export async function fetch_native_erc20_info(): Promise<NativeERC20> {
+import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
+export async function fetchNativeTokenData() {
   const abi = [
     "function balanceOf(address owner) view returns (string)",
     "function decimals() view returns (uint8)",
     "function symbol() view returns (string)",
+    "function name() view returns (string)",
   ];
   const gethUrl = "http://localhost:8545";
   const url = "http://127.0.0.1:3050";
@@ -24,15 +25,34 @@ export async function fetch_native_erc20_info(): Promise<NativeERC20> {
   const response = await fetch(url, requestOptions);
   const response_json = await response.json();
   const l1Address: string = response_json.result;
-  const l2Address = "0x0000000000000000000000000000000000000000";
-  const provider = new ethers.Provider(gethUrl);
-  const erc20_api = new ethers.Contract(l1Address, abi, provider);
-  const symbol: string = await erc20_api.symbol();
-  const decimals: string = await erc20_api.decimals();
-  return {
-    symbol,
-    decimals,
-    l1Address,
-    l2Address,
-  };
+  if (isEthereum(l1Address)) {
+    return {
+      l2Address: "0x000000000000000000000000000000000000800A",
+      l1Address: "0x0000000000000000000000000000000000000000",
+      symbol: "ETH",
+      name: "Ether",
+      decimals: 18,
+      // Fallback data in case ETH token is not in the DB
+      iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+      liquidity: 220000000000,
+      usdPrice: 1800,
+    };
+  } else {
+    const l2Address = NATIVE_TOKEN_L2_ADDRESS;
+    const provider = new ethers.Provider(gethUrl);
+    const erc20_api = new ethers.Contract(l1Address, abi, provider);
+    const symbol: string = await erc20_api.symbol();
+    const decimals: number = await erc20_api.decimals();
+    return {
+      symbol,
+      decimals,
+      l1Address,
+      l2Address,
+      iconURL: "/images/currencies/lamba-iso-negro.png",
+    };
+  }
+}
+
+function isEthereum(l1Address: string): boolean {
+  return l1Address === "0x0000000000000000000000000000000000000000";
 }

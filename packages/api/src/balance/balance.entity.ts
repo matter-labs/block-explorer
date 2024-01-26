@@ -1,8 +1,9 @@
 import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn, AfterLoad } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { Token, ETH_TOKEN } from "../token/token.entity";
+import { Token, chainNativeToken } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
+import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
 
 @Entity({ name: "balances" })
 export class Balance extends BaseEntity {
@@ -24,9 +25,10 @@ export class Balance extends BaseEntity {
   public readonly balance: string;
 
   @AfterLoad()
-  populateEthToken() {
-    if (this.tokenAddress === ETH_TOKEN.l2Address && !this.token) {
-      this.token = ETH_TOKEN;
+  async populateEthToken() {
+    if (!this.token && this.tokenAddress.toLowerCase() === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
+      const nativeTokenData = (await chainNativeToken()) as Token;
+      this.token = nativeTokenData;
     }
   }
 }

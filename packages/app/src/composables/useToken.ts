@@ -8,6 +8,8 @@ import useTokenLibrary from "@/composables/useTokenLibrary";
 
 import type { Hash } from "@/types";
 
+import { NATIVE_TOKEN_L2_ADDRESS } from "@/utils/constants";
+
 export type Token = Api.Response.Token;
 type NativeERC20ApiResponse = {
   result: Token;
@@ -28,7 +30,6 @@ export const retrieveERC20NativeToken = useMemoize(
   }
 );
 export default () => {
-  console.log("Entering use token");
   const { getToken, getTokens } = useTokenLibrary();
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
@@ -41,10 +42,10 @@ export default () => {
 
     isRequestPending.value = true;
     try {
-      // await getTokens();
-      // const tokenFromLibrary = getToken(address);
-      // const token = tokenFromLibrary || (await retrieveToken(address));
-      const { result: tokenData } = await retrieveERC20NativeToken();
+      await getTokens();
+      const tokenFromLibrary = getToken(address);
+      const token = tokenFromLibrary || (await retrieveToken(address));
+      const tokenData = await retrieveToken(address);
       tokenInfo.value = tokenData;
     } catch {
       isRequestFailed.value = true;

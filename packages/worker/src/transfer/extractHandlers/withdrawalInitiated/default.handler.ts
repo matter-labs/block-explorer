@@ -6,6 +6,7 @@ import { TokenType } from "../../../entities/token.entity";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
+import { isNativeToken } from "src/common/token";
 
 export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
   matches: (): boolean => true,

@@ -3,10 +3,8 @@ import { ApiTags, ApiExcludeController } from "@nestjs/swagger";
 import { ParseAddressPipe } from "../../common/pipes/parseAddress.pipe";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
-import { NativeERC20InfoResponse, TokenInfoResponseDto } from "../dtos/token/tokenInfo.dto";
+import { TokenInfoResponseDto } from "../dtos/token/tokenInfo.dto";
 import { TokenService } from "../../token/token.service";
-import { fetch_native_erc20_info } from "./token.utils";
-
 const entityName = "token";
 
 @ApiExcludeController()
@@ -39,15 +37,6 @@ export class TokenController {
             },
           ]
         : [],
-    };
-  }
-
-  @Get("/nativeERC20Info")
-  public async nativeERC20Info(): Promise<NativeERC20InfoResponse> {
-    return {
-      status: ResponseStatus.OK,
-      message: ResponseMessage.OK,
-      result: await fetch_native_erc20_info(),
     };
   }
 }

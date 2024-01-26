@@ -1,10 +1,11 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { Token, TokenType, ETH_TOKEN } from "../token/token.entity";
+import { chainNativeToken, Token, TokenType } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
+import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
 
 export enum TransferType {
   Deposit = "deposit",
@@ -64,8 +65,7 @@ export class Transfer extends BaseEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
-  // @Column({ type: "enum", enum: TokenType, default: TokenType.ERC20 })
-  @Column({ type: "enum", enum: TokenType, default: TokenType.Native })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ChainNative })
   public readonly tokenType: TokenType;
 
   @Column({ type: "boolean", select: false })
@@ -87,9 +87,10 @@ export class Transfer extends BaseEntity {
   }
 
   @AfterLoad()
-  populateEthToken() {
-    if (!this.token && this.tokenAddress === ETH_TOKEN.l2Address) {
-      this.token = ETH_TOKEN;
+  async populateEthToken() {
+    if (!this.token && this.tokenAddress.toLowerCase() === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
+      const nativeTokenData = (await chainNativeToken()) as Token;
+      this.token = nativeTokenData;
     }
   }
 }
