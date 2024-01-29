@@ -25,7 +25,7 @@ export async function fetchNativeTokenData() {
   const response = await fetch(url, requestOptions);
   const response_json = await response.json();
   const l1Address: string = response_json.result;
-  if (isEthereum(l1Address) || response_json.error.message === "Method not found") {
+  if (isEthereum(l1Address) || (response_json.error && response_json.error.message === "Method not found")) {
     return {
       l2Address: "0x000000000000000000000000000000000000800A",
       l1Address: "0x0000000000000000000000000000000000000000",
