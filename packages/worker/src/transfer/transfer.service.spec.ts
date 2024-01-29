@@ -2303,7 +2303,7 @@ describe("TransferService", () => {
             timestamp: blockDate,
             to: "0xa9232040bf0e0aea2578a5b2243f2916dbfc0a69",
             tokenAddress: "0x000000000000000000000000000000000000800a",
-            tokenType: "ETH",
+            tokenType: "CHAINNATIVE",
             transactionHash: "0x0000000000000000000000000000000000000000000000000000000000000000",
             transactionIndex: 0,
             type: "transfer",

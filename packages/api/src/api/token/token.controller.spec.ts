@@ -2,7 +2,7 @@ import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
-import { Token, ETH_TOKEN } from "../../token/token.entity";
+import { Token, chainNativeToken } from "../../token/token.entity";
 import { TokenController } from "./token.controller";
 
 describe("TokenController", () => {
@@ -32,22 +32,22 @@ describe("TokenController", () => {
 
   describe("tokenInfo", () => {
     it("returns ok response and token info when token is found", async () => {
-      jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce(ETH_TOKEN);
-
+      const nativeToken = (await chainNativeToken()) as Token;
+      jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce(nativeToken);
       const response = await controller.tokenInfo(contractAddress);
       expect(response).toEqual({
         status: "1",
         message: "OK",
         result: [
           {
-            contractAddress: ETH_TOKEN.l2Address,
-            iconURL: ETH_TOKEN.iconURL,
-            l1Address: ETH_TOKEN.l1Address,
-            liquidity: ETH_TOKEN.liquidity.toString(),
-            symbol: ETH_TOKEN.symbol,
-            tokenDecimal: ETH_TOKEN.decimals.toString(),
-            tokenName: ETH_TOKEN.name,
-            tokenPriceUSD: ETH_TOKEN.usdPrice.toString(),
+            contractAddress: nativeToken.l2Address,
+            iconURL: nativeToken.iconURL,
+            l1Address: nativeToken.l1Address,
+            liquidity: nativeToken.liquidity.toString(),
+            symbol: nativeToken.symbol,
+            tokenDecimal: nativeToken.decimals.toString(),
+            tokenName: nativeToken.name,
+            tokenPriceUSD: nativeToken.usdPrice.toString(),
           },
         ],
       });

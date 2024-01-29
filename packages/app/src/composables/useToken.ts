@@ -8,8 +8,6 @@ import useTokenLibrary from "@/composables/useTokenLibrary";
 
 import type { Hash } from "@/types";
 
-import { NATIVE_TOKEN_L2_ADDRESS } from "@/utils/constants";
-
 export type Token = Api.Response.Token;
 type NativeERC20ApiResponse = {
   result: Token;
@@ -45,8 +43,7 @@ export default () => {
       await getTokens();
       const tokenFromLibrary = getToken(address);
       const token = tokenFromLibrary || (await retrieveToken(address));
-      const tokenData = await retrieveToken(address);
-      tokenInfo.value = tokenData;
+      tokenInfo.value = token;
     } catch {
       isRequestFailed.value = true;
     } finally {

@@ -445,7 +445,7 @@ describe("BalanceService", () => {
       blockBalances.set(
         utils.ETH_ADDRESS,
         new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [utils.ChainNative_ADDRESS, { balance: undefined, tokenType: TokenType.ETH }],
+          [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.ChainNative }],
         ])
       );
       blockBalances.set(
@@ -534,7 +534,7 @@ describe("BalanceService", () => {
         blockBalances.set(
           utils.ETH_ADDRESS,
           new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-            [utils.ChainNative_ADDRESS, { balance: undefined, tokenType: TokenType.ETH }],
+            [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.ChainNative }],
           ])
         );
         blockBalances.set(
@@ -621,7 +621,7 @@ describe("BalanceService", () => {
       blockBalances.set(
         "0x0000000000000000000000000000000000000001",
         new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [utils.ChainNative_ADDRESS, { balance: undefined, tokenType: TokenType.ETH }],
+          [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.ChainNative }],
         ])
       );
       balanceService.changedBalances.set(blockNumber, blockBalances);
@@ -633,7 +633,7 @@ describe("BalanceService", () => {
       blockBalances.set(
         "0x0000000000000000000000000000000000000001",
         new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [utils.ChainNative_ADDRESS, { balance: undefined, tokenType: TokenType.ETH }],
+          [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.ChainNative }],
           ["0x0000000000000000000000000000000000000002", { balance: undefined, tokenType: TokenType.ERC20 }],
           ["0x0000000000000000000000000000000000000003", { balance: undefined, tokenType: TokenType.ERC20 }],
         ])
@@ -641,7 +641,7 @@ describe("BalanceService", () => {
       blockBalances.set(
         "0x0000000000000000000000000000000000000005",
         new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [utils.ChainNative_ADDRESS, { balance: undefined, tokenType: TokenType.ETH }],
+          [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.ChainNative }],
           ["0x0000000000000000000000000000000000000002", { balance: undefined, tokenType: TokenType.ERC20 }],
         ])
       );

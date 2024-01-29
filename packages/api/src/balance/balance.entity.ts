@@ -3,7 +3,7 @@ import { BaseEntity } from "../common/entities/base.entity";
 import { Token, chainNativeToken } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
-import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
+import { NATIVE_TOKEN_L2_ADDRESS } from "../../src/common/constants";
 
 @Entity({ name: "balances" })
 export class Balance extends BaseEntity {

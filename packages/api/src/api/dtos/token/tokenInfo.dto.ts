@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
 import { ResponseBaseDto } from "../common/responseBase.dto";
 
 export class TokenInfoDto {

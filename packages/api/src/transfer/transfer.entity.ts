@@ -5,7 +5,7 @@ import { normalizeAddressTransformer } from "../common/transformers/normalizeAdd
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
-import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
+import { NATIVE_TOKEN_L2_ADDRESS } from "../../src/common/constants";
 
 export enum TransferType {
   Deposit = "deposit",
