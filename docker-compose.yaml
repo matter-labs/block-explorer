@@ -122,7 +122,7 @@ services:
       timeout: 5s
       retries: 120
     restart: unless-stopped
-#
+
 volumes:
   geth:
   postgres:
