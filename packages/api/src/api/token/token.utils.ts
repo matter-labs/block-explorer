@@ -1,5 +1,5 @@
 import * as ethers from "zksync-web3";
-import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
+import { NATIVE_TOKEN_L2_ADDRESS } from "../../common/constants";
 export async function fetchNativeTokenData() {
   const abi = [
     "function balanceOf(address owner) view returns (string)",
@@ -48,7 +48,8 @@ export async function fetchNativeTokenData() {
       decimals,
       l1Address,
       l2Address,
-      iconURL: "/images/currencies/lamba-iso-negro.png",
+      liquidity: 220000000000,
+      iconURL: "/images/currencies/black-lambda-symbol.png",
     };
   }
 }

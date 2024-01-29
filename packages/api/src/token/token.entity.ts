@@ -1,4 +1,4 @@
-import { fetchNativeTokenData } from "src/api/token/token.utils";
+import { fetchNativeTokenData } from "../api/token/token.utils";
 import { Entity, Column, PrimaryColumn, Index } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";

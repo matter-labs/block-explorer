@@ -5,7 +5,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Token, chainNativeToken } from "./token.entity";
-import { NATIVE_TOKEN_L2_ADDRESS } from "src/common/constants";
+import { NATIVE_TOKEN_L2_ADDRESS } from "../common/constants";
 
 export interface FilterTokensOptions {
   minLiquidity?: number;
