@@ -12,13 +12,14 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { Log } from "../src/log/log.entity";
-import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
+import { Token, TokenType, chainNativeToken } from "../src/token/token.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 
 describe("AddressController (e2e)", () => {
+  const ETH_TOKEN = await chainNativeToken();
   let app: INestApplication;
   let addressRepository: Repository<Address>;
   let blockRepository: Repository<BlockDetails>;

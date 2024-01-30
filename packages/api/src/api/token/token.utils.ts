@@ -49,7 +49,9 @@ export async function fetchNativeTokenData() {
       l1Address,
       l2Address,
       liquidity: 220000000000,
-      iconURL: "/images/currencies/black-lambda-symbol.png",
+      iconURL: "",
+      name: "",
+      usdPrice: 1800,
     };
   }
 }
