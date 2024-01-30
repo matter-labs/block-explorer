@@ -112,6 +112,51 @@ describe("Tokens", () => {
           expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
         });
       });
+
+      //id1803
+      it("Verify the response via /tokens/{address}/transfers", async () => {
+        await helper.retryTestAction(async () => {
+          l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
+          const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
+          const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
+          txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+          const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+          const decapitalizedTokenAddress = l2Token.toLowerCase();
+          response = await helper.performGETrequest(apiRoute);
+
+          expect(response.status).toBe(200);
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster }));
+          expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
+          expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ amount: "1" }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: l2Token }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ERC20" }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: l2Token }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ l1Address: null }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ symbol: "MyToken" }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ name: "MyToken" }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ decimals: 18 }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ usdPrice: null }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ liquidity: null }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ iconURL: null }));
+          expect(typeof response.body.meta.totalItems).toStrictEqual("number");
+          expect(typeof response.body.meta.itemCount).toStrictEqual("number");
+          expect(typeof response.body.meta.itemsPerPage).toStrictEqual("number");
+          expect(typeof response.body.meta.totalPages).toStrictEqual("number");
+          expect(typeof response.body.meta.currentPage).toStrictEqual("number");
+          expect(response.body.links.first).toStrictEqual(`tokens/${decapitalizedTokenAddress}/transfers?limit=10`);
+          expect(response.body.links.previous).toStrictEqual("");
+          expect(response.body.links.next).toStrictEqual("");
+          expect(response.body.links.last).toStrictEqual(
+            `tokens/${decapitalizedTokenAddress}/transfers?page=1&limit=10`
+          );
+        });
+      });
     });
   });
 });
