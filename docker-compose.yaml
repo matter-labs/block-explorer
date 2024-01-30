@@ -113,7 +113,7 @@ services:
       test: "curl -H \"Content-Type: application/json\" -X POST --data '{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}' 127.0.0.1:3050 || exit 1"
       interval: 5s
       timeout: 5s
-      retries: 120
+      retries: 300
     restart: unless-stopped
 
 volumes:
