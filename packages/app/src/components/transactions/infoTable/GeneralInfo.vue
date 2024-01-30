@@ -30,7 +30,7 @@
           />
         </TableBodyColumn>
       </tr>
-      <tr v-if="transaction?.status === 'failed'" class="transaction-table-row">
+      <tr v-if="transaction?.error || transaction?.revertReason" class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label transaction-reason-label">
             {{ t("transactions.table.reason") }}

@@ -1,4 +1,3 @@
-name: block-explorer
 services:
   app:
     build:

@@ -1,6 +1,3 @@
-version: "3.2"
-name: "zkcli-block-explorer"
-
 services:
   app:
     platform: linux/amd64
@@ -26,6 +23,8 @@ services:
       - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   data-fetcher:
     platform: linux/amd64
@@ -38,6 +37,8 @@ services:
     ports:
       - '3040:3040'
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   api:
     platform: linux/amd64

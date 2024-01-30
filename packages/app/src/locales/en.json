@@ -281,7 +281,6 @@
     "header": {
         "nav": {
             "blockExplorer": "Block Explorer",
-            "portal": "Portal",
             "documentation": "Documentation",
             "tools": "Tools",
             "apiDocs": "API Documentation",

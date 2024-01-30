@@ -191,10 +191,6 @@ const links = [
     label: computed(() => t("header.nav.contractVerification")),
     to: { name: "contract-verification" },
   },
-  {
-    label: computed(() => t("header.nav.portal")),
-    url: computed(() => currentNetwork.value.l2WalletUrl),
-  },
 ];
 
 if (currentNetwork.value.bridgeUrl) {
