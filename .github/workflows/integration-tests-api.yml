@@ -47,6 +47,7 @@ jobs:
 
       - name: Cache Docker images.
         uses: ScribeMD/docker-cache@0.3.7
+        if: steps.cache.outputs.cache-hit != 'true'
         with:
           key: docker-${{ runner.os }}-${{ hashFiles('docker-compose.yaml') }}
 
