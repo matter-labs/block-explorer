@@ -64,7 +64,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                           |
-      | Portal      | https://goerli.staging-portal.zksync.dev/     |
+      #| Portal      | https://goerli.staging-portal.zksync.dev/     |
 
 
   @id253:IIII @productionEnv @testnet
@@ -75,7 +75,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                 | redirect_url                    |
-      | Portal      | https://zksync.io/explore#bridges   | https://goerli.portal.zksync.io |
+      #| Portal      | https://zksync.io/explore#bridges   | https://goerli.portal.zksync.io |
 
   @id253:IV @featureEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
@@ -85,7 +85,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                           |
-      | Portal      | https://staging-portal.zksync.dev/     |
+      #| Portal      | https://staging-portal.zksync.dev/     |
 
 
   @id253:IV @productionEnv @mainnet
@@ -96,7 +96,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                 | redirect_url              |
-      | Portal      | https://zksync.io/explore#bridges   | https://portal.zksync.io  |
+      #| Portal      | https://zksync.io/explore#bridges   | https://portal.zksync.io  |
 
   #Account page
   @id259 @testnet

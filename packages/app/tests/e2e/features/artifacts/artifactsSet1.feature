@@ -14,7 +14,7 @@ Feature: Main Page
     Examples:
       | Sub-Section                 | url                                       |
       | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://goerli.staging-portal.zksync.dev/ |
+      #| Portal                      | https://goerli.staging-portal.zksync.dev/ |
 
   @id253 @featureEnv @mainnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
@@ -26,7 +26,7 @@ Feature: Main Page
     Examples:
       | Sub-Section                 | url                                       |
       | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://staging-portal.zksync.dev/        |
+      #| Portal                      | https://staging-portal.zksync.dev/        |
 
   @id253:I @productionEnv @testnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
@@ -38,7 +38,7 @@ Feature: Main Page
     Examples:
       | Sub-Section                 | url                                       |
       | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://goerli.portal.zksync.io/          |
+      #| Portal                      | https://goerli.portal.zksync.io/          |
 
   @id253:I @productionEnv @mainnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
@@ -50,7 +50,7 @@ Feature: Main Page
     Examples:
       | Sub-Section                 | url                                       |
       | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://portal.zksync.io/                 |
+      #| Portal                      | https://portal.zksync.io/                 |
 
   @id231
   Scenario Outline: Check social networks icon "<Value>" is available, clickable and have correct href

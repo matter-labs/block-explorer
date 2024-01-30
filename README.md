@@ -96,7 +96,7 @@ Each component can also be started individually. Follow individual packages `REA
 ## 🐳 Running in Docker
 There is a docker compose configuration that allows you to run Block Explorer and all its dependencies in docker. Just run the following command to spin up the whole environment:
 ```
-docker-compose up
+docker compose up
 ```
 It will run local Ethereum node, ZkSync Era, Postgres DB and all Block Explorer services.
 
