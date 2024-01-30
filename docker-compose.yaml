@@ -128,4 +128,3 @@ volumes:
   postgres:
   zksync-config:
   zksync-data:
-  
