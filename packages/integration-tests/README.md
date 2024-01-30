@@ -21,7 +21,7 @@ cp .env.example packages/integration-tests/src/playbook/.env
 
 Make sure you have `Docker` installed. Before running the tests you need to spin up a local environment (use `docker-compose.yaml` from the root directory):
 ```bash
-docker-compose up
+docker compose up
 ```
 
 ## Running API tests
