@@ -64,3 +64,7 @@ jobs:
       - name: Stop containers
         if: always()
         run: docker-compose -f "docker-compose.e2e.yaml" down
+        
+      - name: Get Docker Storage Version
+        run: |
+          docker info --format '{{.DriverStatus}}'
