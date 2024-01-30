@@ -17,6 +17,7 @@ describe("Address", () => {
 
   describe("/address/{address}", () => {
     beforeAll(async () => {
+      await playbook.deployNFTtoL1();
       await playbook.deployNFTtoL2();
       await playbook.deployMultiCallContracts();
       await playbook.deployMultiTransferETH();
