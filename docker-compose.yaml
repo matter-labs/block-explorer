@@ -71,7 +71,7 @@ services:
   postgres:
     image: "postgres:14"
     logging:
-      driver: none
+      driver: none 
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
@@ -122,7 +122,7 @@ services:
       timeout: 5s
       retries: 120
     restart: unless-stopped
-#
+
 volumes:
   geth:
   postgres:
