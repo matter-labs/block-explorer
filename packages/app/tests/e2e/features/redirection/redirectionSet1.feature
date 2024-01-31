@@ -79,7 +79,7 @@ Feature: Redirection
       | Sub-Section | url                                              | redirect_url                    |
       | Portal      | https://portal.zksync.io/bridge/?network=sepolia | https://goerli.portal.zksync.io |
 
-  @id253:IV @featureEnv @mainnet
+  @id253:IV @productionEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I go to page "/?network=mainnet"
     Given I click by text "Tools "
