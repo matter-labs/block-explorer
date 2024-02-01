@@ -66,7 +66,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                             | redirect_url                    |
-      | Portal      | https://portal.zksync.io/bridge/?network=goerli | https://goerli.portal.zksync.io |
+      | Bridge      | https://portal.zksync.io/bridge/?network=goerli | https://goerli.portal.zksync.io |
 
   @id253:III @testnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu (Sepolia)
@@ -77,7 +77,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                              | redirect_url                    |
-      | Portal      | https://portal.zksync.io/bridge/?network=sepolia | https://goerli.portal.zksync.io |
+      | Bridge      | https://portal.zksync.io/bridge/?network=sepolia | https://goerli.portal.zksync.io |
 
   @id253:IV @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
@@ -88,7 +88,7 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                              |
-      | Portal      | https://portal.zksync.io/bridge/?network=mainnet |
+      | Bridge      | https://portal.zksync.io/bridge/?network=mainnet |
 
   #Account page
   @id259 @testnet
