@@ -5,7 +5,7 @@ Feature: Main Page
     Given I am on main page
 
 
-  @id253:I @featureEnv @testnetSmokeSuite @tesnet
+  @id253:I @featureEnv @testnetSmokeSuite @testnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Sepolia)
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
@@ -18,7 +18,7 @@ Feature: Main Page
       | Bridge                      | https://portal.zksync.io/bridge/?network=sepolia |
 
   @id253:II @featureEnv @mainnet
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
+  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Mainnet)
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
     When Element with "text" "<Sub-Section>" should be "clickable"
