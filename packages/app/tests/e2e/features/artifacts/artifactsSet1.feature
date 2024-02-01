@@ -5,7 +5,7 @@ Feature: Main Page
     Given I am on main page
 
 
-  @id253:I @testnet
+  @id253:I @testnetSmokeSuite
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Goerli)
     Given I go to page "/?network=goerli"
     Given I click by text "Tools"
@@ -18,7 +18,7 @@ Feature: Main Page
       | Smart Contract Verification | /contracts/verify                                |
       | Bridge                      | https://portal.zksync.io/bridge/?network=goerli  |
 
-  @id253:I @testnet
+  @id253:I @testnetSmokeSuite
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Sepolia)
     Given I go to page "/?network=sepolia"
     Given I click by text "Tools"
