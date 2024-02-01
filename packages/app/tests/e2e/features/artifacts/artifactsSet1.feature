@@ -17,7 +17,7 @@ Feature: Main Page
       | Smart Contract Verification | /contracts/verify                                |
       | Bridge                      | https://portal.zksync.io/bridge/?network=sepolia |
 
-  @id253:II @featureEnv @mainnet
+  @id253:II @mainnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Mainnet)
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
