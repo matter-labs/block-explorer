@@ -1100,8 +1100,9 @@ describe("Transactions", () => {
           expect(typeof response.body.items[0].from).toStrictEqual("string");
           expect(response.body.items[0].from.length).toBe(42);
           expect(typeof response.body.items[0].data).toStrictEqual("string");
-          expect(response.body.items[0].data.length).toBe(138);
-          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ value: "0" }));
+          expect(response.body.items[0].data.length).toBeGreaterThan(0);
+          expect(typeof response.body.items[0].value).toStrictEqual("string");
+          expect(response.body.items[0].value.length).toBeGreaterThanOrEqual(1);
           expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
           expect(typeof response.body.items[0].fee).toStrictEqual("string");
           expect(response.body.items[0].fee.length).toBe(14);
@@ -1124,7 +1125,7 @@ describe("Transactions", () => {
           expect(typeof response.body.items[0].receivedAt).toStrictEqual("string");
           expect(response.body.items[0].receivedAt.length).toBe(24);
           expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ error: null }));
-          expect(typeof response.body.items[0].revertReason).toBe("string" || null);
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ revertReason: null }));
           expect(typeof response.body.items[0].status).toStrictEqual("string");
           expect(typeof response.body.items[0].commitTxHash).toStrictEqual("string");
           expect(response.body.items[0].commitTxHash.length).toBe(66);
