@@ -5,22 +5,8 @@ Feature: Main Page
     Given I am on main page
 
 
-  @id253:I @testnetSmokeSuite
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Goerli)
-    Given I go to page "/?network=goerli"
-    Given I click by text "Tools"
-    Given Element with "text" "<Sub-Section>" should be "visible"
-    When Element with "text" "<Sub-Section>" should be "clickable"
-    Then Element with "text" "<Sub-Section>" should have "<url>" value
-
-    Examples:
-      | Sub-Section                 | url                                              |
-      | Smart Contract Verification | /contracts/verify                                |
-      | Bridge                      | https://portal.zksync.io/bridge/?network=goerli  |
-
-  @id253:I @testnetSmokeSuite
+  @id253:I @featureEnv @testnetSmokeSuite
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Sepolia)
-    Given I go to page "/?network=sepolia"
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
     When Element with "text" "<Sub-Section>" should be "clickable"
@@ -31,7 +17,7 @@ Feature: Main Page
       | Smart Contract Verification | /contracts/verify                                |
       | Bridge                      | https://portal.zksync.io/bridge/?network=sepolia |
 
-  @id253:I @mainnet
+  @id253:II @mainnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
