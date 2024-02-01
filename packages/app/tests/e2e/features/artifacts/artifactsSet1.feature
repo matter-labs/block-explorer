@@ -5,7 +5,7 @@ Feature: Main Page
     Given I am on main page
 
 
-  @id253:I @featureEnv @testnetSmokeSuite
+  @id253:I @featureEnv @testnetSmokeSuite @tesnet
   Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Sepolia)
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"

@@ -56,7 +56,7 @@ Feature: Redirection
       | Smart Contract Verification | /contracts/verify |
       # | zkEVM Debugger              | /tools/debugger   |
 
-  @id253:III @featureEnv @testnetSmokeSuite
+  @id253:III @featureEnv @testnetSmokeSuite @testnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu (Sepolia)
     Given I click by text "Tools "
     When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
