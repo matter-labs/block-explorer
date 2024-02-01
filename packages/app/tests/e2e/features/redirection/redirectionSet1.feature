@@ -57,7 +57,7 @@ Feature: Redirection
       # | zkEVM Debugger              | /tools/debugger   |
 
 
-  @id253:II @productionEnv @testnet
+  @id253:II @testnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu (Goerli)
     Given I go to page "/?network=goerli"
     Given I click by text "Tools "
@@ -68,7 +68,7 @@ Feature: Redirection
       | Sub-Section | url                                             | redirect_url                    |
       | Portal      | https://portal.zksync.io/bridge/?network=goerli | https://goerli.portal.zksync.io |
 
-  @id253:III @productionEnv @testnet
+  @id253:III @testnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu (Sepolia)
     Given I go to page "/?network=sepolia"
     Given I click by text "Tools "
@@ -79,7 +79,7 @@ Feature: Redirection
       | Sub-Section | url                                              | redirect_url                    |
       | Portal      | https://portal.zksync.io/bridge/?network=sepolia | https://goerli.portal.zksync.io |
 
-  @id253:IV @productionEnv @mainnet
+  @id253:IV @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I go to page "/?network=mainnet"
     Given I click by text "Tools "
