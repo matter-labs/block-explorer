@@ -64,11 +64,10 @@ Feature: Redirection
 
     Examples:
       | Sub-Section | url                                              | redirect_url                    |
-      | Bridge      | https://portal.zksync.io/bridge/?network=sepolia | https://goerli.portal.zksync.io |
+      | Bridge      | https://portal.zksync.io/bridge/?network=sepolia | https://portal.zksync.io/bridge/?network=sepolia |
 
-  @id253:IV @mainnet
+  @id253:IV @featureEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
-    #Given I go to page "/?network=mainnet"
     Given I click by text "Tools "
     When I click by element with partial href "<url>" and text "<Sub-Section>"
     Then New page have "<url>" address
