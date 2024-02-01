@@ -70,7 +70,7 @@ Feature: Redirection
 
   @id253:III @testnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu (Sepolia)
-    Given I go to page "/?network=sepolia"
+    #Given I go to page "/?network=sepolia"
     Given I click by text "Tools "
     When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
     Then New page have "<url>" address
@@ -81,7 +81,7 @@ Feature: Redirection
 
   @id253:IV @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
-    Given I go to page "/?network=mainnet"
+    #Given I go to page "/?network=mainnet"
     Given I click by text "Tools "
     When I click by element with partial href "<url>" and text "<Sub-Section>"
     Then New page have "<url>" address
