@@ -5,8 +5,8 @@ Feature: Main Page
     Given I am on main page
 
 
-  @id253:I @productionEnv @goerli
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
+  @id253:I @productionEnv @testnet
+  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Goerli)
     Given I go to page "/?network=goerli"
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
@@ -16,10 +16,10 @@ Feature: Main Page
     Examples:
       | Sub-Section                 | url                                              |
       | Smart Contract Verification | /contracts/verify                                |
-      | Bridge                      | https://portal.zksync.io/bridge/?network=goerli |
+      | Bridge                      | https://portal.zksync.io/bridge/?network=goerli  |
 
-  @id253:I @productionEnv @sepolia
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
+  @id253:I @productionEnv @testnet
+  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Sepolia)
     Given I go to page "/?network=sepolia"
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"

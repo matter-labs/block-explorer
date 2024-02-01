@@ -57,8 +57,8 @@ Feature: Redirection
       # | zkEVM Debugger              | /tools/debugger   |
 
 
-  @id253:II @productionEnv @goerli
-  Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
+  @id253:II @productionEnv @testnet
+  Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu (Goerli)
     Given I go to page "/?network=goerli"
     Given I click by text "Tools "
     When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
@@ -68,8 +68,8 @@ Feature: Redirection
       | Sub-Section | url                                             | redirect_url                    |
       | Portal      | https://portal.zksync.io/bridge/?network=goerli | https://goerli.portal.zksync.io |
 
-  @id253:III @productionEnv @sepolia
-  Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
+  @id253:III @productionEnv @testnet
+  Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu (Sepolia)
     Given I go to page "/?network=sepolia"
     Given I click by text "Tools "
     When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
