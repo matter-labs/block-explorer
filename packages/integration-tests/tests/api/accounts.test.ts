@@ -168,7 +168,7 @@ describe("API module: Account", () => {
     await helper.retryTestAction(async () => {
       const blocks = await request(environment.blockExplorerAPI).get("/blocks");
       const blockNumber = blocks.body.items[0].number;
-      apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
+      apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Token.ETHER_ERC20_Address}`;
       response = await helper.performGETrequest(apiRoute);
 
       expect(response.status).toBe(200);
