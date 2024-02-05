@@ -47,16 +47,16 @@ jobs:
       fail-fast: false
       matrix:
         tags: [
-               # "@artifactsSet1",
-               # "@artifactsSet2",
-               # "@artifactsSet3",
-               # "@artifactsSet4",
-               # "@redirectionSet1",
-               # "@redirectionSet2",
-               # "@redirectionSet3",
-               # "@copying",
+                "@artifactsSet1",
+                "@artifactsSet2",
+                "@artifactsSet3",
+                "@artifactsSet4",
+                "@redirectionSet1",
+                "@redirectionSet2",
+                "@redirectionSet3",
+                "@copying",
                 "@search",
-               # "@testnetSmokeSuite"
+                "@testnetSmokeSuite"
               ]
 
     name: '${{ matrix.tags }}'
