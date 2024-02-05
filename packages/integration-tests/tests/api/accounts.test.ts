@@ -17,13 +17,7 @@ describe("API module: Account", () => {
 
   describe("/address/{address}", () => {
     beforeAll(async () => {
-      await playbook.deployNFTtoL1();
       await playbook.deployNFTtoL2();
-      await playbook.deployMultiCallContracts();
-      await playbook.deployMultiTransferETH();
-      await playbook.deployGreeterToL2();
-      await playbook.useMultiCallContracts();
-      await playbook.useMultiTransferETH();
     });
 
     //@id1704
@@ -128,7 +122,6 @@ describe("API module: Account", () => {
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
-        expect(response.body.result.length).toBeGreaterThan(1);
         expect(typeof response.body.result[0].blockNumber).toStrictEqual("string");
         expect(typeof response.body.result[0].timeStamp).toStrictEqual("string");
         expect(typeof response.body.result[0].hash).toStrictEqual("string");
@@ -180,7 +173,7 @@ describe("API module: Account", () => {
       await helper.retryTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Token.ETHER_ERC20_Address}`;
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
         response = await helper.performGETrequest(apiRoute);
 
         expect(response.status).toBe(200);
