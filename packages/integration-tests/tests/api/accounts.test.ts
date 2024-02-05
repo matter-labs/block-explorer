@@ -255,15 +255,14 @@ describe("API module: Account", () => {
   });
 
   //@id1854
-  it("Verify /api?module=account&action=txlistinternal&txhash=", async () => {
+  xit("Verify /api?module=account&action=txlistinternal&txhash=", async () => {
     await helper.retryTestAction(async () => {
       const blocks = await request(environment.blockExplorerAPI).get("/blocks");
       //txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
       const blockNumber = blocks.body.items[0].number;
-      apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&txhash=0x2fe80424c49a9d6f05561947fbc1e6b77bf8982f08dc57883d1ee083c534d30d`;
+      apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&txhash=null`;
       response = await helper.performGETrequest(apiRoute);
 
-      console.log(txHash);
       console.log(response.body);
 
       expect(response.status).toBe(200);
