@@ -19,7 +19,7 @@ describe("API module: Account", () => {
     beforeAll(async () => {
       await playbook.deployNFTtoL2();
       await playbook.deployMultiTransferETH();
-      await playbook.useMultiTransferETH();
+      //await playbook.useMultiTransferETH();
       await playbook.withdrawETH();
     });
 
