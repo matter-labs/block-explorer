@@ -13,7 +13,6 @@ describe("API module: Account", () => {
   const bufferFile = "src/playbook/";
   let apiRoute: string;
   let response;
-  let txHash: string;
   const playbook = new Playbook();
 
   describe("/address/{address}", () => {
