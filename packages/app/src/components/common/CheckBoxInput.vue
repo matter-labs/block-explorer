@@ -1,6 +1,6 @@
 <template>
-  <label class="checkbox-input-container" :class="{ checked: value }">
-    <input type="checkbox" :checked="value" v-model="inputted" v-bind="$attrs" />
+  <label class="checkbox-input-container" :class="{ checked: inputted }">
+    <input type="checkbox" :checked="inputted" v-model="inputted" v-bind="$attrs" />
     <slot />
   </label>
 </template>
@@ -17,10 +17,6 @@ const props = defineProps({
   modelValue: {
     type: Boolean,
     default: null,
-  },
-  value: {
-    type: Boolean,
-    required: true,
   },
 });
 const emit = defineEmits<{

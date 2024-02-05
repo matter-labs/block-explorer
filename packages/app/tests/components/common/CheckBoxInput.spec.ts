@@ -13,7 +13,7 @@ describe("CheckBoxInput", () => {
         },
       },
       props: {
-        value: true,
+        modelValue: true,
       },
     });
     expect(container.textContent).toBe("CheckBox Input");
@@ -22,7 +22,6 @@ describe("CheckBoxInput", () => {
     const { container } = render(CheckBoxInput, {
       props: {
         modelValue: true,
-        value: true,
       },
     });
     expect(container.querySelector(".checkbox-input-container")!.classList.contains("checked")).toBe(true);
@@ -32,7 +31,6 @@ describe("CheckBoxInput", () => {
     const { container } = render(CheckBoxInput, {
       props: {
         modelValue: false,
-        value: false,
       },
     });
     expect(container.querySelector(".checkbox-input-container")!.classList.contains("checked")).toBe(false);

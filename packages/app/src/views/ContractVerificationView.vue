@@ -112,7 +112,6 @@
           <CheckBoxInput
             v-if="selectedCompiler.name === CompilerEnum.solc"
             v-model="isZkVMSolcCompiler"
-            :value="false"
             @update:model-value="onZkVMSelectionChanged"
             >{{ t("contractVerification.form.solcVersion.zkVM") }}</CheckBoxInput
           >

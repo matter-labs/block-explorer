@@ -6,7 +6,6 @@ export default {
 };
 
 type Args = {
-  value: boolean;
   modelValue: boolean;
 };
 
@@ -21,12 +20,10 @@ const Template = (args: Args) => ({
 
 export const Checked = Template.bind({}) as unknown as { args: Args };
 Checked.args = {
-  value: true,
   modelValue: true,
 };
 
 export const Unchecked = Template.bind({}) as unknown as { args: Args };
 Unchecked.args = {
-  value: false,
   modelValue: false,
 };
