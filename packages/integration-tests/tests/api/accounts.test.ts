@@ -10,15 +10,21 @@ describe("API module: Account", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
-  const playbook = new Playbook();
   const bufferFile = "src/playbook/";
   let apiRoute: string;
   let response;
   let txHash: string;
+  const playbook = new Playbook();
 
-  describe("/api?module=account", () => {
+  describe("/address/{address}", () => {
     beforeAll(async () => {
+      await playbook.deployNFTtoL1();
       await playbook.deployNFTtoL2();
+      await playbook.deployMultiCallContracts();
+      await playbook.deployMultiTransferETH();
+      await playbook.deployGreeterToL2();
+      await playbook.useMultiCallContracts();
+      await playbook.useMultiTransferETH();
     });
 
     //@id1704
