@@ -4,15 +4,22 @@ import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 import { Buffer, Token, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
+import { Playbook } from "../../src/playbook/playbook";
 
 describe("API module: Account", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
+  const playbook = new Playbook();
   const bufferFile = "src/playbook/";
   let apiRoute: string;
   let response;
   let txHash: string;
+
+  describe("/api?module=account", () => {
+    beforeAll(async () => {
+      await playbook.deployNFTtoL2();
+    });
 
   //@id1704
   it("Verify /api?module=account&action=balancemulti response", async () => {
