@@ -15,11 +15,11 @@ export default {
 import { computed } from "vue";
 const props = defineProps({
   modelValue: {
-    type: [Boolean],
+    type: Boolean,
     default: null,
   },
   value: {
-    type: [Boolean],
+    type: Boolean,
     required: true,
   },
 });
