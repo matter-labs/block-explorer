@@ -171,8 +171,6 @@ describe("API module: Account", () => {
       apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
       response = await helper.performGETrequest(apiRoute);
 
-      console.log(response.body);
-
       expect(response.status).toBe(200);
       expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
       expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
