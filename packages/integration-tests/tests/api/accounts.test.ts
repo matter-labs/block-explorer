@@ -251,37 +251,4 @@ describe("API module: Account", () => {
       expect(typeof response.body.result[0].blockReward).toStrictEqual("string");
     });
   });
-
-  //@id1854
-  xit("Verify /api?module=account&action=txlistinternal&txhash=", async () => {
-    await helper.retryTestAction(async () => {
-      const blocks = await request(environment.blockExplorerAPI).get("/blocks");
-      //txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
-      const blockNumber = blocks.body.items[0].number;
-      apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&txhash=null`;
-      response = await helper.performGETrequest(apiRoute);
-
-      console.log(response.body);
-
-      expect(response.status).toBe(200);
-      expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
-      expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
-      expect(response.body.result.length).toBeGreaterThan(1);
-      expect(typeof response.body.result[0].blockNumber).toStrictEqual("string");
-      expect(typeof response.body.result[0].timeStamp).toStrictEqual("string");
-      expect(typeof response.body.result[0].hash).toStrictEqual("string");
-      expect(typeof response.body.result[0].from).toStrictEqual("string");
-      expect(typeof response.body.result[0].to).toStrictEqual("string");
-      expect(typeof response.body.result[0].value).toStrictEqual("string");
-      expect(typeof response.body.result[0].gas).toStrictEqual("string");
-      expect(typeof response.body.result[0].input).toStrictEqual("string");
-      expect(typeof response.body.result[0].type).toStrictEqual("string");
-      expect(typeof response.body.result[0].contractAddress).toBeTruthy();
-      expect(typeof response.body.result[0].gasUsed).toStrictEqual("string");
-      expect(typeof response.body.result[0].fee).toStrictEqual("string");
-      expect(typeof response.body.result[0].l1BatchNumber).toStrictEqual("string");
-      expect(typeof response.body.result[0].traceId).toBeTruthy();
-      expect(typeof response.body.result[0].isError).toStrictEqual("string");
-    });
-  });
 });
