@@ -18,6 +18,9 @@ describe("API module: Account", () => {
   describe("/address/{address}", () => {
     beforeAll(async () => {
       await playbook.deployNFTtoL2();
+      await playbook.deployMultiTransferETH();
+      await playbook.useMultiTransferETH();
+      await playbook.withdrawETH();
     });
 
     //@id1704
