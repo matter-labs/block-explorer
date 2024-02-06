@@ -1032,6 +1032,8 @@ describe("Transactions", () => {
     });
 
     describe("/transactions/${txHash}/logs", () => {
+      //test
+
       //@id1507
       it("Verify the transaction via /transactions/{transactionHash}/logs", async () => {
         await helper.retryTestAction(async () => {
