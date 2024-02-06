@@ -216,7 +216,6 @@ describe("API module: Account", () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
         const nftAddress = await helper.getStringFromFile(bufferFile + Buffer.NFTtoL2);
-        console.log(nftAddress);
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${nftAddress}&address=${nftAddress}`;
         response = await helper.performGETrequest(apiRoute);
 
