@@ -22,17 +22,17 @@ const { t } = useI18n();
 const config = useRuntimeConfig();
 
 const navigation = reactive([
-  {
-    label: computed(() => t("footer.nav.docs")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
-  },
-  {
-    label: computed(() => t("footer.nav.terms")),
-    url: "https://zksync.io/terms",
-  },
+  // {
+  //   label: computed(() => t("footer.nav.docs")),
+  //   url: "https://docs.zklink.network",
+  // },
+  // {
+  //   label: computed(() => t("footer.nav.terms")),
+  //   url: "https://zksync.io/terms",
+  // },
   {
     label: computed(() => t("footer.nav.contact")),
-    url: "https://zksync.io/contact",
+    url: "https://discord.com/invite/zklink",
   },
 ]);
 </script>

@@ -1,5 +1,6 @@
 <template>
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 729.32 137.91" height="28">
+  <img src="@/assets/logo.png" alt="" style="width: 148px" />
+  <!-- <svg xmlns="../../../pubilc/logo.png" viewBox="0 0 729.32 137.91" height="28">
     <g fill="#fff">
       <g>
         <path
@@ -16,5 +17,5 @@
         <polygon points="55.16 13.79 0 68.95 55.16 124.12 55.16 82.75 110.33 41.37 55.16 41.37 55.16 13.79" />
       </g>
     </g>
-  </svg>
+  </svg> -->
 </template>
