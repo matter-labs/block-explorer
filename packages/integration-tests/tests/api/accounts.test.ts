@@ -210,7 +210,6 @@ describe("API module: Account", () => {
     });
 
     //@id1806
-
     it("Verify /api?module=account&action=tokennfttx", async () => {
       await helper.retryTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
