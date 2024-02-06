@@ -78,7 +78,7 @@ describe("API module: Account", () => {
       await helper.retryTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        apiRoute = `/api?module=account&action=txlist&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        apiRoute = `/api?module=account&action=txlist&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performGETrequest(apiRoute);
 
         expect(response.status).toBe(200);
@@ -119,7 +119,7 @@ describe("API module: Account", () => {
       await helper.retryTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performGETrequest(apiRoute);
 
         expect(response.status).toBe(200);
@@ -176,8 +176,9 @@ describe("API module: Account", () => {
       await helper.retryTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
         response = await helper.performGETrequest(apiRoute);
+        console.log(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -216,7 +217,7 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         const nftAddress = await helper.getStringFromFile(bufferFile + Buffer.NFTtoL2);
         console.log(nftAddress);
-        apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock${blockNumber}&startblock=0&contractaddress=${nftAddress}&address=${nftAddress}`;
+        apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${nftAddress}&address=${nftAddress}`;
         response = await helper.performGETrequest(apiRoute);
 
         expect(response.status).toBe(200);
