@@ -44,13 +44,11 @@ describe("ContractVerificationView:", () => {
       en: enUS,
     },
   });
-
   it("has correct title", async () => {
     expect(i18n.global.t(routes.find((e) => e.name === "contract-verification")?.meta?.title as string)).toBe(
       "Smart Contract Verification"
     );
   });
-
   it("uses contract address from query", async () => {
     const wrapper = mount(ContractVerificationView, {
       global: {
@@ -112,6 +110,52 @@ describe("ContractVerificationView:", () => {
     await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(4)`).trigger("click");
     expect(wrapper.find("#sourceCode").exists()).toBe(false);
     expect(wrapper.find(".multi-file-verification").exists()).toBe(true);
+  });
+  it("shows zkVM checkbox by default", async () => {
+    const wrapper = mount(ContractVerificationView, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n, $testId],
+      },
+    });
+
+    expect(wrapper.find(".checkbox-input-container").exists()).toBe(true);
+  });
+  it("shows zkVM checkbox when solidity MFV was selected", async () => {
+    const wrapper = mount(ContractVerificationView, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n, $testId],
+      },
+    });
+
+    await wrapper.find("#compilerType").trigger("click");
+    await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(2)`).trigger("click");
+    expect(wrapper.find(".checkbox-input-container").exists()).toBe(true);
+  });
+  it("doesn't show zkVM checkbox when vyper single file verification was select", async () => {
+    const wrapper = mount(ContractVerificationView, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n, $testId],
+      },
+    });
+
+    await wrapper.find("#compilerType").trigger("click");
+    await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(3)`).trigger("click");
+    expect(wrapper.find(".checkbox-input-container").exists()).toBe(false);
+  });
+  it("doesn't show zkVM checkbox when vyper MFV was select", async () => {
+    const wrapper = mount(ContractVerificationView, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n, $testId],
+      },
+    });
+
+    await wrapper.find("#compilerType").trigger("click");
+    await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(4)`).trigger("click");
+    expect(wrapper.find(".checkbox-input-container").exists()).toBe(false);
   });
   it("shows custom error text", async () => {
     const mock = vi.spyOn(useContractVerification, "default").mockReturnValue({

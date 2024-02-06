@@ -281,7 +281,6 @@
     "header": {
         "nav": {
             "blockExplorer": "Block Explorer",
-            "portal": "Portal",
             "documentation": "Documentation",
             "tools": "Tools",
             "apiDocs": "API Documentation",
@@ -458,7 +457,8 @@
                 "validation": {
                     "required": "Solc version is required"
                 },
-                "error": "Unable to get list of supported Solc versions"
+                "error": "Unable to get list of supported Solc versions",
+                "zkVM": "zkVM"
             },
             "zksolcVersion": {
                 "label": "Zksolc Version",

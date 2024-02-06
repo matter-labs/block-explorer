@@ -152,7 +152,6 @@
             "contractVerification": "Верифікація Смарт контракту",
             "debugger": "zkEVM Налагоджувач",
             "blockExplorer": "Провідник",
-            "portal": "Портал",
             "documentation": "Документація"
         }
     },
