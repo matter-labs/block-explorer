@@ -55,6 +55,7 @@ export enum TransactionsType {
   fee = "fee",
   transfer = "transfer",
   refund = "refund",
+  withdrawal = "withdrawal",
 }
 
 export enum TransactionsStatus {
