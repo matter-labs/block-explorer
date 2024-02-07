@@ -1,9 +1,9 @@
-import { Logger, Controller, Get } from "@nestjs/common";
+import { Logger, Controller, Get, OnApplicationShutdown } from "@nestjs/common";
 import { HealthCheckService, HealthCheck, HealthCheckResult } from "@nestjs/terminus";
 import { JsonRpcHealthIndicator } from "./jsonRpcProvider.health";
 
 @Controller(["health", "ready"])
-export class HealthController {
+export class HealthController implements OnApplicationShutdown {
   private readonly logger: Logger;
 
   constructor(
@@ -17,10 +17,18 @@ export class HealthController {
   @HealthCheck()
   public async check(): Promise<HealthCheckResult> {
     try {
-      return await this.healthCheckService.check([() => this.jsonRpcHealthIndicator.isHealthy("jsonRpcProvider")]);
+      const healthCheckResult = await this.healthCheckService.check([
+        () => this.jsonRpcHealthIndicator.isHealthy("jsonRpcProvider"),
+      ]);
+      this.logger.debug({ message: "Health check result", ...healthCheckResult });
+      return healthCheckResult;
     } catch (error) {
       this.logger.error({ message: error.message, response: error.getResponse() }, error.stack);
       throw error;
     }
+  }
+
+  onApplicationShutdown(signal?: string): void {
+    this.logger.debug({ message: "Received a signal", signal });
   }
 }
