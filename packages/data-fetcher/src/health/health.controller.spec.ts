@@ -81,4 +81,11 @@ describe("HealthController", () => {
       });
     });
   });
+
+  describe("onApplicationShutdown", () => {
+    it("defined and returns void", async () => {
+      const result = healthController.onApplicationShutdown();
+      expect(result).toBeUndefined();
+    });
+  });
 });
