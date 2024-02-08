@@ -46,7 +46,7 @@ export class BlockService {
   public async getData(blockNumber: number): Promise<BlockData | null> {
     const stopDurationMeasuring = this.processingDurationMetric.startTimer();
 
-    this.logger.debug({ message: "Getting block from the blockchain", blockNumber });
+    this.logger.debug({ message: "Getting block data from the blockchain", blockNumber });
     const stopGetBlockInfoDurationMetric = this.getBlockInfoDurationMetric.startTimer();
     const [block, blockDetails] = await Promise.all([
       this.blockchainService.getBlock(blockNumber),
@@ -90,6 +90,7 @@ export class BlockService {
       stopDurationMeasuring({ status: blockProcessingStatus, action: "get" });
     }
 
+    this.logger.debug({ message: "Successfully generated block data", blockNumber });
     return {
       block,
       blockDetails,
