@@ -4,9 +4,6 @@ import { ConfigService } from "@nestjs/config";
 import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 import { BlockData } from "./types";
-import { setTimeout } from "node:timers/promises";
-
-const DATA_FETCHER_RETRY_TIMEOUT = 1000;
 
 @Injectable()
 export class DataFetcherService {
@@ -21,20 +18,8 @@ export class DataFetcherService {
   }
 
   public async getBlockData(blockNumber: number): Promise<BlockData> {
-    const blocksData = await this.getBlocksDataRetryable(blockNumber, blockNumber);
+    const blocksData = await this.getBlocksData(blockNumber, blockNumber);
     return blocksData[0];
-  }
-
-  private async getBlocksDataRetryable(from: number, to: number): Promise<BlockData[]> {
-    try {
-      return await this.getBlocksData(from, to);
-    } catch {
-      this.logger.debug({
-        message: `Retrying to fetch data for blocks: [${from}, ${to}]`,
-      });
-      await setTimeout(DATA_FETCHER_RETRY_TIMEOUT);
-      return this.getBlocksDataRetryable(from, to);
-    }
   }
 
   private async getBlocksData(from: number, to: number): Promise<BlockData[]> {

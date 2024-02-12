@@ -23,6 +23,15 @@ export enum TransferType {
   Refund = "refund",
 }
 
+export enum TransferType {
+  Deposit = "deposit",
+  Transfer = "transfer",
+  Withdrawal = "withdrawal",
+  Fee = "fee",
+  Mint = "mint",
+  Refund = "refund",
+}
+
 const extractTransfersHandlers: Record<string, ExtractTransferHandler[]> = {
   [LogType.FinalizeDeposit]: [defaultFinalizeDepositHandler],
   [LogType.WithdrawalInitiated]: [defaultWithdrawalInitiatedHandler],
