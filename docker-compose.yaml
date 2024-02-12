@@ -23,6 +23,7 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
       - BLOCKCHAIN_RPC_URL=http://zksync:3050
+      - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
       - '3001:3001'
@@ -118,8 +119,7 @@ services:
       test: curl --fail http://localhost:3071/health || exit 1
       interval: 10s
       timeout: 5s
-      retries: 60
-      start_period: 30s
+      retries: 300
     restart: unless-stopped
 
 volumes:
