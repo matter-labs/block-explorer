@@ -21,12 +21,17 @@ describe("config", () => {
         rpcCallConnectionTimeout: 20000,
         rpcCallConnectionQuickTimeout: 10000,
       },
+      dataFetcher: {
+        url: "http://localhost:3040",
+        requestTimeout: 120_000,
+      },
       blocks: {
         waitForBlocksInterval: 1000,
         blocksProcessingBatchSize: 50,
         fromBlock: 0,
         toBlock: null,
         disableBlocksRevert: false,
+        numberOfBlocksPerDbTransaction: 50,
       },
       batches: {
         batchesProcessingPollingInterval: 60000,
@@ -34,7 +39,6 @@ describe("config", () => {
       },
       balances: {
         deleteBalancesInterval: 300000,
-        disableBalancesProcessing: false,
         disableOldBalancesCleaner: false,
       },
       counters: {

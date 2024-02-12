@@ -1,6 +1,4 @@
-import { BigNumber } from "ethers";
 import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn } from "typeorm";
-import { bigNumberTransformer } from "../transformers/bigNumber.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
@@ -30,17 +28,17 @@ export class Block extends BaseEntity {
   @Column({ type: "int" })
   public readonly difficulty: number;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly _difficulty: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly _difficulty: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly gasLimit: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly gasLimit: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly gasUsed: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly gasUsed: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly baseFeePerGas: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly baseFeePerGas: string;
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly miner: string;

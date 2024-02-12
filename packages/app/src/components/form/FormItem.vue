@@ -42,7 +42,7 @@ defineProps({
 }
 .label-inline-block {
   .form-item-label {
-    @apply inline-block;
+    @apply float-left;
   }
 }
 </style>

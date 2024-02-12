@@ -6,7 +6,7 @@ import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenRepository } from "../repositories/token.repository";
 import { AddressRepository } from "../repositories/address.repository";
 import { TokenService } from "./token.service";
-import { ContractAddress } from "../address/interface/contractAddress.interface";
+import { ContractAddress } from "../dataFetcher/types";
 import { Token } from "../entities";
 
 describe("TokenService", () => {
@@ -432,6 +432,20 @@ describe("TokenService", () => {
         jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
           ...tokenData,
           symbol: "",
+        });
+      });
+
+      it("does not upsert the token", async () => {
+        await tokenService.saveERC20Token(deployedContractAddress, transactionReceipt);
+        expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(0);
+      });
+    });
+
+    describe("if the token symbol has special symbols only", () => {
+      beforeEach(() => {
+        jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
+          ...tokenData,
+          symbol: "\0\0\0\0\0\0",
         });
       });
 

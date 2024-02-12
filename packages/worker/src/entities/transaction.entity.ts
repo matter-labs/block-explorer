@@ -1,6 +1,4 @@
-import { BigNumber } from "ethers";
 import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne, Index } from "typeorm";
-import { bigNumberTransformer } from "../transformers/bigNumber.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { Batch } from "./batch.entity";
@@ -32,23 +30,23 @@ export class Transaction extends CountableEntity {
   @Column({ type: "int" })
   public readonly transactionIndex: number;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly gasLimit: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly gasLimit: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly gasPrice: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly gasPrice: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer, nullable: true })
-  public readonly maxFeePerGas?: BigNumber;
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly maxFeePerGas?: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer, nullable: true })
-  public readonly maxPriorityFeePerGas?: BigNumber;
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly maxPriorityFeePerGas?: string;
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly data: string;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly value: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly value: string;
 
   @Column({ type: "int" })
   public readonly chainId: number;
@@ -86,7 +84,7 @@ export class Transaction extends CountableEntity {
   public readonly isL1Originated: boolean;
 
   @Column({ type: "timestamp" })
-  public readonly receivedAt: Date;
+  public readonly receivedAt: string;
 
   @Column({ type: "int", default: 1 })
   public readonly receiptStatus: number;
