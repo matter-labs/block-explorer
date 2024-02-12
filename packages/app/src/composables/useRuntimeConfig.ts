@@ -1,14 +1,14 @@
 import type { NetworkConfig, RuntimeConfig } from "@/configs";
 
 export const DEFAULT_NETWORK: NetworkConfig = {
-  apiUrl: "https://block-explorer-api.sepolia.zksync.dev",
-  verificationApiUrl: "https://explorer.sepolia.era.zksync.dev",
-  bridgeUrl: "https://portal.zksync.io/bridge/?network=sepolia",
-  hostnames: ["https://sepolia.explorer.zksync.io"],
+  apiUrl: "https://block-explorer-api.testnets.zksync.dev",
+  verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
+  bridgeUrl: "https://portal.zksync.io/bridge/?network=goerli",
+  hostnames: ["https://goerli.explorer.zksync.io"],
   icon: "/images/icons/zksync-arrows.svg",
-  l1ExplorerUrl: "https://sepolia.etherscan.io",
-  l2ChainId: 300,
-  l2NetworkName: "zkSync Era Sepolia Testnet",
+  l1ExplorerUrl: "https://goerli.etherscan.io",
+  l2ChainId: 280,
+  l2NetworkName: "zkSync Era Goerli Testnet",
   maintenance: false,
   name: "sepolia",
   published: true,

@@ -13,7 +13,7 @@ Feature: Redirection
 
     Examples:
       | Extra button name | url                                     |
-      | Docs              | https://docs.zksync.io/build/        |
+      | Docs              | https://docs.zksync.io/build/tooling/block-explorer/getting-started.html         |
       | Terms             | https://zksync.io/terms                 |
       | Contact           | https://zksync.io/contact      |
 
@@ -32,7 +32,7 @@ Feature: Redirection
   @id251
   Scenario: Verify redirection for Documentation link
     Given I click by text "Documentation"
-    Then New page have "https://docs.zksync.io/build/" address
+    Then New page have "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html" address
 
   @id252
   Scenario Outline: Verify redirection for "<Sub-Section>" in BE menu
@@ -69,23 +69,12 @@ Feature: Redirection
   @id253:IV @featureEnv @mainnet
   Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
     Given I click by text "Tools "
-    When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
+    When I click by element with partial href "<url>" and text "<Sub-Section>"
     Then New page have "<url>" address
 
     Examples:
-      | Sub-Section | url                                         | redirect_url              |
-      | Portal      | https://staging-portal.zksync.dev/bridge/   | https://staging-portal.zksync.dev  |
-
-
-  @id253:IV @productionEnv @mainnet
-  Scenario Outline: Verify redirection for "<Sub-Section>" in Tools menu
-    Given I click by text "Tools "
-    When I click by element with partial href "<redirect_url>" and text "<Sub-Section>"
-    Then New page have "<url>" address
-
-    Examples:
-      | Sub-Section | url                                 | redirect_url              |
-      | Portal      | https://zksync.io/explore#bridges   | https://portal.zksync.io  |
+      | Sub-Section | url                                              |
+      | Bridge      | https://portal.zksync.io/bridge/?network=mainnet |
 
   #Account page
   @id259 @testnet
