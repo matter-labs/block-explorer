@@ -67,7 +67,7 @@ jobs:
     uses: ./.github/workflows/app-e2e.yml
     secrets: inherit
     permissions:
-      contents: read
+      contents: write
     with:
       targetUrl: ${{ needs.deploy.outputs.dappUrl }}
       testnet_network_value_for_e2e: "/?network=sepolia"
