@@ -189,7 +189,7 @@ describe("FeeToken", () => {
       await fireEvent.click(container.querySelector(".toggle-button")!);
       const link = container.querySelector(".refunded-link");
       expect(link?.getAttribute("href")).toBe(
-        "https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
+        "https://docs.zksync.io/build/developer-reference/fee-model.html#refunds"
       );
       expect(link?.getAttribute("target")).toBe("_blank");
       expect(link?.textContent).toBe("Why am I being refunded?");
@@ -240,14 +240,14 @@ describe("FeeToken", () => {
 
       const refundedLink = container.querySelector(".refunded-link");
       expect(refundedLink?.getAttribute("href")).toBe(
-        "https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
+        "https://docs.zksync.io/build/developer-reference/fee-model.html#refunds"
       );
       expect(refundedLink?.getAttribute("target")).toBe("_blank");
       expect(refundedLink?.textContent).toBe("Why is Paymaster being refunded?");
 
       const paymasterLink = container.querySelector(".paymaster-link");
       expect(paymasterLink?.getAttribute("href")).toBe(
-        "https://era.zksync.io/docs/reference/concepts/account-abstraction.html#paymasters"
+        "https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters"
       );
       expect(paymasterLink?.getAttribute("target")).toBe("_blank");
       expect(paymasterLink?.textContent).toBe("What is Paymaster?");

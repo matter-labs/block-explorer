@@ -31,7 +31,7 @@ export class AddressTransaction extends BaseEntity {
   public readonly blockNumber: number;
 
   @Column({ type: "timestamp" })
-  public readonly receivedAt: Date;
+  public readonly receivedAt: string;
 
   @Column({ type: "int" })
   public readonly transactionIndex: number;

@@ -159,7 +159,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://era.zksync.io/docs/dev/",
+    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
   },
 ]);
 
@@ -190,10 +190,6 @@ const links = [
   {
     label: computed(() => t("header.nav.contractVerification")),
     to: { name: "contract-verification" },
-  },
-  {
-    label: computed(() => t("header.nav.portal")),
-    url: computed(() => currentNetwork.value.l2WalletUrl),
   },
 ];
 
