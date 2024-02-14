@@ -21,7 +21,7 @@ export interface Token {
 }
 
 export enum TokenType {
-  ETH = "ETH",
+  ChainNative = "CHAINNATIVE",
   ERC20 = "ERC20",
   ERC721 = "ERC721",
 }
