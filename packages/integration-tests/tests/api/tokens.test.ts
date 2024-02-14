@@ -113,6 +113,26 @@ describe("Tokens", () => {
         });
       });
 
+      //id1907
+      it("Verify /api?module=token&action=tokeninfo response", async () => {
+        await helper.retryTestAction(async () => {
+          apiRoute = `/api?module=token&action=tokeninfo&contractaddress=${Token.ETHER_ERC20_Address}`;
+          response = await helper.performGETrequest(apiRoute);
+
+          expect(response.status).toBe(200);
+          expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
+          expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
+          expect(typeof response.body.result[0].contractAddress).toStrictEqual("string");
+          expect(typeof response.body.result[0].tokenName).toStrictEqual("string");
+          expect(typeof response.body.result[0].symbol).toStrictEqual("string");
+          expect(typeof response.body.result[0].tokenDecimal).toStrictEqual("string");
+          expect(typeof response.body.result[0].tokenPriceUSD).toStrictEqual("string");
+          expect(typeof response.body.result[0].liquidity).toStrictEqual("string");
+          expect(typeof response.body.result[0].l1Address).toStrictEqual("string");
+          expect(typeof response.body.result[0].iconURL).toStrictEqual("string");
+        });
+      });
+
       //id1803
       it("Verify the response via /tokens/{address}/transfers", async () => {
         await helper.retryTestAction(async () => {

@@ -1,5 +1,6 @@
 export enum Buffer {
   greeterL2 = "./buffer/greeterL2.txt",
+  greeterL2VerifiedSepolia = "./buffer/sepoliaGreeterVerified.txt",
   executeGreeterTx = "./buffer/executeGreeterTx.txt",
   NFTtoL1 = "./buffer/NFTtoL1.txt",
   NFTtoL2 = "./buffer/NFTtoL2.txt",

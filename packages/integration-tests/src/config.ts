@@ -17,4 +17,5 @@ export const localConfig = {
 
 export const environment = {
   blockExplorerAPI: "http://localhost:3020",
+  blockExplorerSepoliaAPI: "https://block-explorer-api.sepolia.zksync.dev",
 };
