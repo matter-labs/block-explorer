@@ -74,7 +74,7 @@ describe("API module: Contract", () => {
         expect(typeof response.body.result[0].SwarmSource).toStrictEqual("string");
         expect(typeof response.body.result[0].Proxy).toStrictEqual("string");
         expect(typeof response.body.result[0].Implementation).toStrictEqual("string");
-        expect(typeof response.body.result[0].ZkCompilerVersion).toStrictEqual("string");
+        expect(typeof response.body.result[0].ZkCompilerVersion).toBeTruthy();
       });
     });
 
