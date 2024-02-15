@@ -1,11 +1,22 @@
-import { Controller, Get, Query, Req, Next, UseFilters } from "@nestjs/common";
-import { ApiTags, ApiOkResponse, ApiExcludeEndpoint, ApiQuery, ApiExtraModels, ApiOperation } from "@nestjs/swagger";
+import { Controller, Get, Query, Req, Next, UseFilters, Post, Body } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOkResponse,
+  ApiExcludeEndpoint,
+  ApiQuery,
+  ApiExtraModels,
+  ApiOperation,
+  ApiBody,
+} from "@nestjs/swagger";
 import { Request, NextFunction } from "express";
 import { PagingOptionsWithMaxItemsLimitDto } from "./dtos/common/pagingOptionsWithMaxItemsLimit.dto";
 import { SortingOptionsDto } from "./dtos/common/sortingOptions.dto";
 import { ContractAbiResponseDto } from "./dtos/contract/contractAbiResponse.dto";
 import { ContractCreationResponseDto, ContractCreationInfoDto } from "./dtos/contract/contractCreationResponse.dto";
 import { ContractSourceCodeResponseDto } from "./dtos/contract/contractSourceCodeResponse.dto";
+import { VerifyContractRequestDto } from "./dtos/contract/verifyContractRequest.dto";
+import { VerifyContractResponseDto } from "./dtos/contract/verifyContractResponse.dto";
+import { ContractVerificationStatusResponseDto } from "./dtos/contract/contractVerificationStatusResponse.dto";
 import { TransactionStatusResponseDto, TransactionStatusDto } from "./dtos/transaction/transactionStatusResponse.dto";
 import { TransactionReceiptStatusResponseDto } from "./dtos/transaction/transactionReceiptStatusResponse.dto";
 import { AccountTransactionDto } from "./dtos/account/accountTransaction.dto";
@@ -22,6 +33,8 @@ import {
   AccountsEtherBalancesResponseDto,
 } from "./dtos/account/accountEtherBalanceResponse.dto";
 import { AccountTokenBalanceResponseDto } from "./dtos/account/accountTokenBalanceResponse.dto";
+import { AccountMinedBlock } from "./dtos/account/accountMinedBlock.dto";
+import { AccountMinedBlocksResponseDto } from "./dtos/account/accountMinedBlocksResponse.dto";
 import { BlockNumberResponseDto } from "./dtos/block/blockNumberResponse.dto";
 import { BlockCountdownResponseDto } from "./dtos/block/blockCountdownResponse.dto";
 import { BlockRewardResponseDto } from "./dtos/block/blockRewardResponse.dto";
@@ -30,17 +43,20 @@ import { ParseModulePipe } from "./pipes/parseModule.pipe";
 import { ParseActionPipe } from "./pipes/parseAction.pipe";
 import { ApiExceptionFilter } from "./exceptionFilter";
 import { LogsResponseDto, LogApiDto } from "./dtos/log/logs.dto";
+import { TokenInfoResponseDto, TokenInfoDto } from "./dtos/token/tokenInfo.dto";
+import { EthPriceResponseDto, EthPriceDto } from "./dtos/stats/ethPrice.dto";
+import { constants } from "../config/docs";
 
 @Controller("")
 export class ApiController {
   @ApiExcludeEndpoint()
   @Get("api")
   @UseFilters(ApiExceptionFilter)
-  public async apiHandler(
+  public async apiGetHandler(
     @Req() request: Request,
     @Next() next: NextFunction,
-    @Query("module", new ParseModulePipe()) module: ApiModule,
     @Query(new ParseActionPipe()) action: string,
+    @Query("module", new ParseModulePipe()) module: ApiModule,
     @Query() query: ApiRequestQuery
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -50,13 +66,26 @@ export class ApiController {
     next();
   }
 
+  @ApiExcludeEndpoint()
+  @Post("api")
+  @UseFilters(ApiExceptionFilter)
+  public async apiPostHandler(
+    @Req() request: Request,
+    @Next() next: NextFunction,
+    @Body(new ParseActionPipe()) action: string,
+    @Body("module", new ParseModulePipe()) module: ApiModule
+  ) {
+    request.url = `/api/${module}/${action}`;
+    next();
+  }
+
   @ApiTags("Contract API")
   @Get("api?module=contract&action=getabi")
   @ApiOperation({ summary: "Fetch the ABI for a given contract address" })
   @ApiQuery({
     name: "address",
     description: "The contract address that has a verified source code",
-    example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
+    example: constants.verifiedContractAddress,
     required: true,
   })
   @ApiOkResponse({
@@ -73,7 +102,7 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The contract address that has a verified source code",
-    example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
+    example: constants.verifiedContractAddress,
     required: true,
   })
   @ApiOkResponse({
@@ -92,7 +121,7 @@ export class ApiController {
     explode: false,
     name: "contractaddresses",
     description: "List of contract addresses, up to 5 at a time",
-    example: ["0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594", "0x0E03197d697B592E5AE49EC14E952cddc9b28e14"],
+    example: [constants.verifiedContractAddress, constants.verifiedContractAddress2],
     required: true,
   })
   @ApiExtraModels(ContractCreationInfoDto)
@@ -104,13 +133,42 @@ export class ApiController {
     return null;
   }
 
+  @ApiTags("Contract API")
+  @Post("api")
+  @ApiOperation({ summary: "Submits a contract source code for verification" })
+  @ApiBody({ type: VerifyContractRequestDto })
+  @ApiOkResponse({
+    description: "Verification ID for the submission",
+    type: VerifyContractResponseDto,
+  })
+  public async verifyContractSourceCode(): Promise<VerifyContractResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Contract API")
+  @Get("api?module=contract&action=checkverifystatus")
+  @ApiOperation({ summary: "Check source code verification submission status" })
+  @ApiQuery({
+    name: "guid",
+    description: "Verification ID",
+    example: "44071",
+    required: true,
+  })
+  @ApiOkResponse({
+    description: "Source code verification status",
+    type: ContractVerificationStatusResponseDto,
+  })
+  public async getVerificationStatus(): Promise<ContractVerificationStatusResponseDto> {
+    return null;
+  }
+
   @ApiTags("Transaction API")
   @Get("api?module=transaction&action=getstatus")
   @ApiOperation({ summary: "Fetch the status for a given transaction hash" })
   @ApiQuery({
     name: "txhash",
     description: "The transaction hash to check the execution status",
-    example: "0x04a4757cd59681b037c1e7bd2402cc45a23c66ed7497614879376719d34e020a",
+    example: constants.txHash,
     required: true,
   })
   @ApiExtraModels(TransactionStatusDto)
@@ -128,7 +186,7 @@ export class ApiController {
   @ApiQuery({
     name: "txhash",
     description: "The transaction hash to check the execution status",
-    example: "0x04a4757cd59681b037c1e7bd2402cc45a23c66ed7497614879376719d34e020a",
+    example: constants.txHash,
     required: true,
   })
   @ApiOkResponse({
@@ -145,7 +203,7 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to filter transactions by",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: true,
   })
   @ApiQuery({
@@ -178,18 +236,47 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=txlistinternal")
-  @ApiOperation({ summary: "Retrieve internal transactions for a given address or transaction hash" })
+  @ApiOperation({
+    summary: "Retrieve internal transactions for a given blocks range (only transfers are supported for now)",
+  })
   @ApiQuery({
-    name: "address",
-    description: "The address to filter internal transactions by",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    name: "startblock",
+    type: "integer",
+    description: "The block number to start searching for internal transactions",
+    example: 0,
     required: false,
   })
   @ApiQuery({
-    name: "txhash",
-    description: "The transaction hash to filter internal transaction by",
-    example: "0x04a4757cd59681b037c1e7bd2402cc45a23c66ed7497614879376719d34e020a",
+    name: "endblock",
+    type: "integer",
+    description: "The block number to stop searching for internal transactions",
+    example: 99999999,
     required: false,
+  })
+  @ApiExtraModels(AccountInternalTransactionDto)
+  @ApiOkResponse({
+    description: "Internal transactions list",
+    type: AccountInternalTransactionsResponseDto,
+  })
+  public async getInternalTransactions(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
+  ): Promise<AccountInternalTransactionsResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
+  @Get("api?module=account&action=txlistinternal&address=")
+  @ApiOperation({
+    summary: "Retrieve internal transactions for a given address (only transfers are supported for now)",
+  })
+  @ApiQuery({
+    name: "address",
+    description: "The address to filter internal transactions by",
+    example: constants.addressWithInternalTx,
+    required: true,
   })
   @ApiQuery({
     name: "startblock",
@@ -220,12 +307,51 @@ export class ApiController {
   }
 
   @ApiTags("Account API")
+  @Get("api?module=account&action=txlistinternal&txhash=")
+  @ApiOperation({
+    summary: "Retrieve internal transactions for a given transaction hash (only transfers are supported for now)",
+  })
+  @ApiQuery({
+    name: "txhash",
+    description: "The transaction hash to filter internal transaction by",
+    example: constants.addressTxWithInternalTransfers,
+    required: true,
+  })
+  @ApiQuery({
+    name: "startblock",
+    type: "integer",
+    description: "The block number to start searching for internal transactions",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: "endblock",
+    type: "integer",
+    description: "The block number to stop searching for internal transactions",
+    example: 99999999,
+    required: false,
+  })
+  @ApiExtraModels(AccountInternalTransactionDto)
+  @ApiOkResponse({
+    description: "Internal transactions list",
+    type: AccountInternalTransactionsResponseDto,
+  })
+  public async getInternalTransactionsByTxHash(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
+  ): Promise<AccountInternalTransactionsResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
   @Get("api?module=account&action=balance")
   @ApiOperation({ summary: "Retrieve the balance for a given address" })
   @ApiQuery({
     name: "address",
     description: "The address to get Ether balance for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: true,
   })
   @ApiOkResponse({
@@ -244,7 +370,7 @@ export class ApiController {
     explode: false,
     name: "address",
     description: "List of addresses to get Ether balance for",
-    example: ["0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28", "0x0E03197d697B592E5AE49EC14E952cddc9b28e14"],
+    example: [constants.address, constants.addressWithInternalTx],
     required: true,
   })
   @ApiOkResponse({
@@ -261,13 +387,13 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to get Token balance for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: true,
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get balance for",
-    example: "0x0faF6df7054946141266420b43783387A78d82A9",
+    example: constants.erc20TokenAddress,
     required: true,
   })
   @ApiOkResponse({
@@ -284,13 +410,13 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to get transfers for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.address,
     required: false,
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
-    example: "0x0faF6df7054946141266420b43783387A78d82A9",
+    example: constants.erc20TokenAddress,
     required: false,
   })
   @ApiQuery({
@@ -327,13 +453,13 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to get transfers for",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.erc721TokenHolderAddress,
     required: false,
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
-    example: "0x0faF6df7054946141266420b43783387A78d82A9",
+    example: constants.erc721TokenAddress,
     required: false,
   })
   @ApiQuery({
@@ -361,6 +487,27 @@ export class ApiController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() sortingOptions: SortingOptionsDto
   ): Promise<AccountNFTTransfersResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
+  @Get("api?module=account&action=getminedblocks")
+  @ApiOperation({ summary: "Get list of Blocks Validated by Address" })
+  @ApiQuery({
+    name: "address",
+    description: "The address to get validated blocks by",
+    example: "0x0000000000000000000000000000000000000000",
+    required: true,
+  })
+  @ApiExtraModels(AccountMinedBlock)
+  @ApiOkResponse({
+    description: "Blocks validated by address",
+    type: AccountMinedBlocksResponseDto,
+  })
+  public async getAccountMinedBlocks(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+  ): Promise<AccountMinedBlocksResponseDto> {
     return null;
   }
 
@@ -396,7 +543,7 @@ export class ApiController {
     name: "blockno",
     type: "integer",
     description: "The integer block number to estimate time remaining to be mined",
-    example: 12697906,
+    example: 20697906,
     required: true,
   })
   @ApiOkResponse({
@@ -414,7 +561,7 @@ export class ApiController {
     name: "blockno",
     type: "integer",
     description: "The integer block number to check block rewards",
-    example: 12697906,
+    example: 1500,
     required: true,
   })
   @ApiOkResponse({
@@ -431,21 +578,21 @@ export class ApiController {
   @ApiQuery({
     name: "address",
     description: "The address to filter logs by",
-    example: "0xFb7E0856e44Eff812A44A9f47733d7d55c39Aa28",
+    example: constants.contractAddressWithLogs,
     required: true,
   })
   @ApiQuery({
     name: "fromBlock",
     type: "integer",
     description: "The integer block number to start searching for logs",
-    example: 12878196,
+    example: 0,
     required: false,
   })
   @ApiQuery({
     name: "toBlock",
     type: "integer",
     description: "The integer block number to stop searching for logs ",
-    example: 12879196,
+    example: 99999999,
     required: false,
   })
   @ApiExtraModels(LogApiDto)
@@ -457,6 +604,39 @@ export class ApiController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<LogsResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Token API")
+  @Get("api?module=token&action=tokeninfo")
+  @ApiOperation({
+    summary:
+      "Returns token information. Token price, liquidity and icon are retrieved from CoinGecko. The data is updated every 24 hours.",
+  })
+  @ApiQuery({
+    name: "contractaddress",
+    description: "The contract address of the ERC-20/ERC-721 token to retrieve token info",
+    example: constants.tokenAddress,
+    required: true,
+  })
+  @ApiExtraModels(TokenInfoDto)
+  @ApiOkResponse({
+    description: "Token information",
+    type: TokenInfoResponseDto,
+  })
+  public async tokenInfo(): Promise<TokenInfoResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Stats API")
+  @Get("api?module=stats&action=ethprice")
+  @ApiOperation({ summary: "Returns price of 1 ETH" })
+  @ApiExtraModels(EthPriceDto)
+  @ApiOkResponse({
+    description: "ETH price",
+    type: EthPriceResponseDto,
+  })
+  public async ethPrice(): Promise<EthPriceResponseDto> {
     return null;
   }
 }

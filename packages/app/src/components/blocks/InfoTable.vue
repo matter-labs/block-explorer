@@ -11,7 +11,6 @@ import { useI18n } from "vue-i18n";
 
 import { useWindowSize } from "@vueuse/core";
 
-import NewProverInfoBox from "@/components/NewProverInfoBox.vue";
 import InfoTableBlock from "@/components/blocks/InfoTableBlock.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
@@ -33,6 +32,10 @@ const props = defineProps({
     type: Object as PropType<Block | null>,
     default: null,
   },
+  blockNumber: {
+    type: String,
+    required: true,
+  },
   loading: {
     type: Boolean,
     default: true,
@@ -53,11 +56,13 @@ const tableInfoItems = computed(() => {
       disabledTooltip?: string;
     };
   };
-  if (!props.block) {
-    return [];
-  }
   let tableItems: InfoTableItem[] = [
-    { label: t("blocks.table.blockNumber"), tooltip: t("blocks.table.blockNumberTooltip"), value: props.block.number },
+    { label: t("blocks.table.blockNumber"), tooltip: t("blocks.table.blockNumberTooltip"), value: props.blockNumber },
+  ];
+  if (!props.block) {
+    return [tableItems];
+  }
+  tableItems.push(
     {
       label: t("blocks.table.blockSize"),
       tooltip: t("blocks.table.blockSizeTooltip"),
@@ -96,8 +101,8 @@ const tableInfoItems = computed(() => {
       tooltip: t("blocks.table.timestampTooltip"),
       value: { value: props.block.timestamp },
       component: TimeField,
-    },
-  ];
+    }
+  );
   for (const [key, timeKey] of [
     ["commitTxHash", "committedAt", "notYetCommitted"],
     ["proveTxHash", "provenAt", "notYetProven"],
@@ -110,12 +115,9 @@ const tableInfoItems = computed(() => {
           tooltip: t(`blocks.table.${key}Tooltip`),
           value: { value: props.block[key] },
           component: CopyContent,
-          url: `${currentNetwork.value.l1ExplorerUrl}/tx/${props.block[key]}`,
-          ...(key === "proveTxHash" &&
-            props.block.isProvenByNewProver && {
-              additionalContentComponent: NewProverInfoBox,
-              additionalContentProps: { context: "block" },
-            }),
+          url: currentNetwork.value.l1ExplorerUrl
+            ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.block[key]}`
+            : undefined,
         },
         {
           label: t(`blocks.table.${timeKey}`),
@@ -139,6 +141,7 @@ const tableInfoItems = computed(() => {
 .two-section-view {
   @apply grid gap-4 pb-1.5 lg:grid-cols-2;
 }
+
 .hide-mobile {
   @apply hidden lg:block;
 }

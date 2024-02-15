@@ -23,8 +23,8 @@ vi.mock("@/composables/useContext", () => {
     default: () => ({
       currentNetwork: computed(() => ({
         maintenance: maintenanceMock(),
-        l2WalletUrl: "https://portal.zksync.io/",
         bridgeUrl: "https://bridge.zksync.io/",
+        apiUrl: "https://api-url",
       })),
     }),
   };
@@ -52,17 +52,17 @@ describe("TheHeader:", () => {
     expect(blockExplorerLinks[0].props().to.name).toBe("blocks");
     expect(blockExplorerLinks[1].props().to.name).toBe("batches");
     expect(blockExplorerLinks[2].props().to.name).toBe("transactions");
-    expect(blockExplorerLinks[3].props().to.name).toBe("token-list");
+    expect(blockExplorerLinks[3].props().to.name).toBe("tokens");
 
     await fireEvent.click(dropdown[1].find("button")!.element);
     const toolsLinksRouter = dropdown[1].findAllComponents(RouterLinkStub);
     const toolsLinks = dropdown[1].findAll("a");
+    expect(toolsLinks[0].attributes("href")).toBe("https://api-url/docs");
     expect(toolsLinksRouter[0].props().to.name).toBe("contract-verification");
-    // expect(toolsLinksRouter[1].props().to.name).toBe("debugger");
-    expect(toolsLinks[1].attributes("href")).toBe("https://portal.zksync.io/");
+    expect(toolsLinks[2].attributes("href")).toBe("https://bridge.zksync.io/");
 
     expect(wrapper.findAll(".navigation-container > .navigation-link")[0].attributes("href")).toBe(
-      "https://era.zksync.io/docs/dev/"
+      "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html"
     );
   });
   it("renders social links", () => {

@@ -35,7 +35,7 @@ const i18n = createI18n<[MessageSchema], "en">({
 app.use(router);
 app.use(i18n);
 app.use(testId);
-const config = useRuntimeConfig();
+const runtimeConfig = useRuntimeConfig();
 
 const context = useContext();
 
@@ -50,11 +50,11 @@ const { initialize: initializeWallet } = useWallet({
 });
 initializeWallet();
 
-if (config.sentryDSN?.length) {
-  useSentry(app, config.sentryDSN, config.appEnvironment, config.version, router);
+if (runtimeConfig.sentryDSN?.length) {
+  useSentry(app, runtimeConfig.sentryDSN, runtimeConfig.appEnvironment, runtimeConfig.version, router);
 }
 
-(process.env.NODE_ENV === "test" ? Promise.resolve() : loadEnvironmentConfig(config.appEnvironment))
+(process.env.NODE_ENV === "test" ? Promise.resolve() : loadEnvironmentConfig(runtimeConfig))
   .catch(() => null)
   .then(context.identifyNetwork);
 

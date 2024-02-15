@@ -1,5 +1,13 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiOkResponse, ApiBadRequestResponse, ApiExtraModels, refs } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiExtraModels,
+  refs,
+  ApiExcludeController,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { utils } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
@@ -8,7 +16,6 @@ import { formatHexAddress, buildDateFilter } from "../common/utils";
 import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
-import { TransactionReceiptService } from "../transaction/transactionReceipt.service";
 import { BalanceService } from "../balance/balance.service";
 import { AddressType, ContractDto, AccountDto, TokenAddressDto } from "./dtos";
 import { LogDto } from "../log/log.dto";
@@ -16,17 +23,19 @@ import { LogService } from "../log/log.service";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
+import { swagger } from "../config/featureFlags";
+import { constants } from "../config/docs";
 
 const entityName = "address";
 
-@ApiTags(entityName)
+@ApiTags("Address BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class AddressController {
   constructor(
     private readonly addressService: AddressService,
     private readonly blockService: BlockService,
     private readonly transactionService: TransactionService,
-    private readonly transactionReceiptService: TransactionReceiptService,
     private readonly logService: LogService,
     private readonly balanceService: BalanceService,
     private readonly transferService: TransferService
@@ -36,7 +45,7 @@ export class AddressController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.address,
     description: "Valid hex address",
   })
   @ApiExtraModels(AccountDto, ContractDto)
@@ -55,11 +64,7 @@ export class AddressController {
     ]);
 
     if (addressRecord?.bytecode.length > 2) {
-      const [txReceipt, totalTransactions] = await Promise.all([
-        this.transactionReceiptService.findOne(addressRecord.creatorTxHash, ["from"]),
-        this.transactionService.count({ "from|to": formatHexAddress(address) }),
-      ]);
-
+      const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
       return {
         type: AddressType.Contract,
         ...addressRecord,
@@ -68,7 +73,7 @@ export class AddressController {
         createdInBlockNumber: addressRecord.createdInBlockNumber,
         creatorTxHash: addressRecord.creatorTxHash,
         totalTransactions,
-        creatorAddress: txReceipt.from,
+        creatorAddress: addressRecord.creatorAddress,
       };
     }
 
@@ -102,7 +107,7 @@ export class AddressController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.contractAddressWithLogs,
     description: "Valid hex address",
   })
   @ApiListPageOkResponse(LogDto, { description: "Successfully returned address logs" })
@@ -126,7 +131,7 @@ export class AddressController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.address,
     description: "Valid hex address",
   })
   @ApiListPageOkResponse(TransferDto, { description: "Successfully returned address transfers" })

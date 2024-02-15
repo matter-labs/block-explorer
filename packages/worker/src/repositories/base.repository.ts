@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { EntityTarget, FindOptionsWhere } from "typeorm";
+import { EntityTarget, FindOptionsWhere, FindManyOptions } from "typeorm";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { UnitOfWork } from "../unitOfWork";
 
@@ -60,5 +60,10 @@ export abstract class BaseRepository<T> {
   public async findOneBy(where: FindOptionsWhere<T> | FindOptionsWhere<T>[]): Promise<T | null> {
     const transactionManager = this.unitOfWork.getTransactionManager();
     return await transactionManager.findOneBy(this.entityTarget, where);
+  }
+
+  public async find(options: FindManyOptions<T>): Promise<T[]> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    return await transactionManager.find(this.entityTarget, options);
   }
 }

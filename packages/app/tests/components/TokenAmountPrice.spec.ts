@@ -12,20 +12,20 @@ import type { Token } from "@/composables/useToken";
 
 import $testId from "@/plugins/testId";
 
-const ethToken: Token = {
-  address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+const ethToken = {
+  l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
   symbol: "ETH",
   name: "ETH",
   decimals: 18,
-  usdPrice: "3500",
-};
-const usdcToken: Token = {
-  address: "0xf6947d8dd3a019a151c1a44dc94033be15cb12f8",
+  usdPrice: 3500,
+} as Token;
+const usdcToken = {
+  l2Address: "0xf6947d8dd3a019a151c1a44dc94033be15cb12f8",
   symbol: "USDC",
   name: "USDC",
   decimals: 3,
-  usdPrice: "3500",
-};
+  usdPrice: 3500,
+} as Token;
 
 const i18n = createI18n({
   locale: "en",

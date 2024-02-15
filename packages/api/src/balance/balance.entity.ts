@@ -1,6 +1,6 @@
-import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn, AfterLoad } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { Token } from "../token/token.entity";
+import { Token, ETH_TOKEN } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 
@@ -9,9 +9,9 @@ export class Balance extends BaseEntity {
   @PrimaryColumn({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly address: string;
 
-  @ManyToOne(() => Token)
+  @ManyToOne(() => Token, { createForeignKeyConstraints: false })
   @JoinColumn({ name: "tokenAddress" })
-  public readonly token?: Token;
+  public token?: Token;
 
   @PrimaryColumn({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly tokenAddress: string;
@@ -22,4 +22,11 @@ export class Balance extends BaseEntity {
 
   @Column({ type: "varchar", length: 128 })
   public readonly balance: string;
+
+  @AfterLoad()
+  populateEthToken() {
+    if (this.tokenAddress === ETH_TOKEN.l2Address && !this.token) {
+      this.token = ETH_TOKEN;
+    }
+  }
 }

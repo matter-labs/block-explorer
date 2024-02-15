@@ -20,35 +20,45 @@ import * as useTransfers from "@/composables/useTransfers";
 import type { NetworkConfig } from "@/configs";
 import type { Provider } from "zksync-web3";
 
+import { checksumAddress } from "@/utils/formatters";
+
+export const ETH_TOKEN_MOCK = {
+  address: checksumAddress("0x000000000000000000000000000000000000800A"),
+  l1Address: checksumAddress("0x0000000000000000000000000000000000000000"),
+  l2Address: checksumAddress("0x000000000000000000000000000000000000800A"),
+  symbol: "ETH",
+  name: "Ether",
+  decimals: 18,
+  liquidity: 220000000000,
+  usdPrice: 1800,
+  iconURL: null,
+};
+
 export const GOERLI_NETWORK: NetworkConfig = {
   name: "goerli",
-  verificationApiUrl: "",
+  verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   apiUrl: "https://block-explorer-api.testnets.zksync.dev",
   icon: "",
   l2ChainId: 280,
   rpcUrl: "",
   l2NetworkName: "Goerli",
-  l2WalletUrl: "",
-  l1ExplorerUrl: "",
+  l1ExplorerUrl: "http://goerli-block-explorer",
   maintenance: false,
   published: true,
   hostnames: [],
-  newProverUrl: "",
 };
 export const GOERLI_BETA_NETWORK: NetworkConfig = {
   name: "goerli-beta",
-  verificationApiUrl: "",
+  verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   apiUrl: "https://block-explorer-api.mock.zksync.dev",
   icon: "",
   l2ChainId: 270,
   rpcUrl: "",
   l2NetworkName: "Goerli Beta",
-  l2WalletUrl: "",
-  l1ExplorerUrl: "",
+  l1ExplorerUrl: "http://goerli-beta-block-explorer",
   maintenance: false,
   published: true,
   hostnames: ["https://goerli-beta.staging-scan-v2.zksync.dev/"],
-  newProverUrl: "",
 };
 
 export const useContractEventsMock = (params: any = {}) => {
@@ -68,7 +78,7 @@ export const useWalletMock = (params: any = {}) => {
     ...composablesFactory.useWallet({
       currentNetwork: computed(() => ({
         chainName: GOERLI_NETWORK.name,
-        explorerUrl: GOERLI_NETWORK.l1ExplorerUrl,
+        explorerUrl: GOERLI_NETWORK.l1ExplorerUrl!,
         l1ChainId: 5,
         l2ChainId: GOERLI_NETWORK.l2ChainId,
         rpcUrl: GOERLI_NETWORK.rpcUrl,

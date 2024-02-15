@@ -1,5 +1,13 @@
 import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
-import { ApiTags, ApiParam, ApiOkResponse, ApiBadRequestResponse, ApiNotFoundResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiParam,
+  ApiOkResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+  ApiExcludeController,
+  ApiQuery,
+} from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
@@ -7,11 +15,15 @@ import { TokenService } from "./token.service";
 import { TransferService } from "../transfer/transfer.service";
 import { TokenDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
+import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
+import { swagger } from "../config/featureFlags";
+import { constants } from "../config/docs";
 
 const entityName = "tokens";
 
-@ApiTags(entityName)
+@ApiTags("Token BFF")
+@ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class TokenController {
   constructor(private readonly tokenService: TokenService, private readonly transferService: TransferService) {}
@@ -19,18 +31,34 @@ export class TokenController {
   @Get("")
   @ApiListPageOkResponse(TokenDto, { description: "Successfully returned token list" })
   @ApiBadRequestResponse({ description: "Paging query params are not valid or out of range" })
-  public async getTokens(@Query() pagingOptions: PagingOptionsDto): Promise<Pagination<TokenDto>> {
-    return await this.tokenService.findAll({
-      ...pagingOptions,
-      route: entityName,
-    });
+  @ApiQuery({
+    name: "minLiquidity",
+    type: "integer",
+    description: "Min liquidity filter",
+    example: 100000,
+    required: false,
+  })
+  public async getTokens(
+    @Query() pagingOptions: PagingOptionsDto,
+    @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number
+  ): Promise<Pagination<TokenDto>> {
+    return await this.tokenService.findAll(
+      {
+        minLiquidity,
+      },
+      {
+        filterOptions: { minLiquidity },
+        ...pagingOptions,
+        route: entityName,
+      }
+    );
   }
 
   @Get(":address")
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.tokenAddress,
     description: "Valid hex address",
   })
   @ApiOkResponse({ description: "Token was returned successfully", type: TokenDto })
@@ -48,7 +76,7 @@ export class TokenController {
   @ApiParam({
     name: "address",
     schema: { pattern: ADDRESS_REGEX_PATTERN },
-    example: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
+    example: constants.tokenAddress,
     description: "Valid hex address",
   })
   @ApiListPageOkResponse(TransferDto, { description: "Successfully returned token transfers list" })

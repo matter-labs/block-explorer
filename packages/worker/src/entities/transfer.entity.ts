@@ -1,14 +1,12 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index, PrimaryColumn } from "typeorm";
-import { BigNumber } from "ethers";
 import { CountableEntity } from "./countable.entity";
 import { Block } from "./block.entity";
 import { Transaction } from "./transaction.entity";
-import { bigNumberTransformer } from "../transformers/bigNumber.transformer";
-import { transferFieldsTransformer } from "../transformers/transferFields.transformer";
+import { TokenType } from "./token.entity";
 import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
-import { TransferFields } from "../transfer/interfaces/transfer.interface";
+import { TransferFields } from "../dataFetcher/types";
 
 export enum TransferType {
   Deposit = "deposit",
@@ -22,7 +20,7 @@ export enum TransferType {
 @Entity({ name: "transfers" })
 @Index(["transactionHash", "timestamp", "logIndex"])
 @Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["tokenAddress", "fields", "blockNumber", "logIndex"])
+@Index(["tokenAddress", "blockNumber", "logIndex"])
 @Index(["transactionHash", "isInternal", "blockNumber", "logIndex"])
 @Index(["isInternal", "blockNumber", "logIndex"])
 export class Transfer extends CountableEntity {
@@ -51,13 +49,13 @@ export class Transfer extends CountableEntity {
   public readonly transactionHash?: string;
 
   @Column({ type: "timestamp" })
-  public readonly timestamp: Date;
+  public readonly timestamp: string;
 
   @Column({ type: "int" })
   public readonly transactionIndex: number;
 
-  @Column({ type: "varchar", length: 128, nullable: true, transformer: bigNumberTransformer })
-  public readonly amount?: BigNumber;
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly amount?: string;
 
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly tokenAddress?: string;
@@ -65,10 +63,13 @@ export class Transfer extends CountableEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  public readonly tokenType: TokenType;
+
   @Column({ type: "boolean" })
   public readonly isFeeOrRefund: boolean;
 
-  @Column({ type: "jsonb", nullable: true, transformer: transferFieldsTransformer })
+  @Column({ type: "jsonb", nullable: true })
   public readonly fields?: TransferFields;
 
   @Column({ type: "int" })

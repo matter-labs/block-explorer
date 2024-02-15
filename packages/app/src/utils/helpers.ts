@@ -92,20 +92,24 @@ export const mapOrder = (array: any[], order: string[], key: string) => {
   });
 };
 
-export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): TransactionEvent {
+export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): TransactionEvent | undefined {
   const contractInterface = new utils.Interface(abi);
-  const decodedLog = contractInterface.parseLog({
-    topics: log.topics,
-    data: log.data,
-  });
-  return {
-    name: decodedLog.name,
-    inputs: decodedLog.eventFragment.inputs.map((input) => ({
-      name: input.name,
-      type: input.type as InputType,
-      value: decodedLog.args[input.name]?.toString(),
-    })),
-  };
+  try {
+    const decodedLog = contractInterface.parseLog({
+      topics: log.topics,
+      data: log.data,
+    });
+    return {
+      name: decodedLog.name,
+      inputs: decodedLog.eventFragment.inputs.map((input) => ({
+        name: input.name,
+        type: input.type as InputType,
+        value: decodedLog.args[input.name]?.toString(),
+      })),
+    };
+  } catch {
+    return undefined;
+  }
 }
 
 export function sortTokenTransfers(transfers: TokenTransfer[]): TokenTransfer[] {

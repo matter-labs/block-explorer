@@ -15,6 +15,9 @@ export enum ResponseMessage {
 
 export enum ResponseResultMessage {
   INVALID_PARAM = "Error! Invalid parameter",
+  VERIFICATION_SUCCESSFUL = "Pass - Verified",
+  VERIFICATION_QUEUED = "Pending in queue",
+  VERIFICATION_IN_PROGRESS = "In progress",
 }
 
 export class ResponseBaseDto {

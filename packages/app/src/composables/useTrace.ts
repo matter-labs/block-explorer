@@ -200,6 +200,28 @@ export function useTraceNavigation(trace: ComputedRef<TraceFile | null>, initial
     }
   };
 
+  const traceCountPercentage = computed<{ [key: string]: number }>(() => {
+    if (!trace.value || !trace.value.steps || !trace.value.sources || index.value === null) {
+      return {};
+    }
+
+    let maxCount = 0;
+    const countDictionary = trace.value.steps.reduce((acc: { [key: string]: number }, step) => {
+      const key = `${step.contract_address}_${step.pc}`;
+      acc[key] = (acc[key] || 0) + 1;
+      maxCount = Math.max(maxCount, acc[key]);
+      return acc;
+    }, {});
+
+    const countPercentageDictionary: { [key: string]: number } = {};
+
+    for (const [key, value] of Object.entries(countDictionary)) {
+      countPercentageDictionary[key] = value / maxCount;
+    }
+
+    return countPercentageDictionary;
+  });
+
   watch(trace, () => {
     index.value = null;
   });
@@ -208,6 +230,7 @@ export function useTraceNavigation(trace: ComputedRef<TraceFile | null>, initial
     index,
     total: computed(() => trace.value?.steps.length),
 
+    traceCountPercentage,
     activeStep,
     activeLines,
 

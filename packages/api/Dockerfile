@@ -38,5 +38,6 @@ ENV METRICS_PORT $METRICS_PORT
 EXPOSE $PORT $METRICS_PORT 9229 9230
 
 USER node
+WORKDIR /usr/src/app/packages/api
 
-CMD [ "node", "packages/api/dist/main.js" ]
+CMD [ "node", "dist/main.js" ]

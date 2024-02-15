@@ -16,13 +16,26 @@ describe("TransactionEmptyState", () => {
       en: enUS,
     },
   });
-  it("renders component properly", async () => {
+  it("renders component properly for existing batch", async () => {
     const { getByText } = render(TransactionEmptyState, {
       global: {
         plugins: [i18n],
       },
+      props: {
+        batchExists: true,
+      },
     });
     getByText("This Batch doesn't have any transactions");
-    getByText("We can't find transactions for this batch We'll fix it in a moment; please refresh the page");
+  });
+  it("renders component properly for nonexisting batch", async () => {
+    const { getByText } = render(TransactionEmptyState, {
+      global: {
+        plugins: [i18n],
+      },
+      props: {
+        batchExists: false,
+      },
+    });
+    getByText("This Batch has not been created or sealed yet");
   });
 });

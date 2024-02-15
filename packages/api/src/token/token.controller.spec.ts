@@ -50,9 +50,12 @@ describe("TokenController", () => {
     });
 
     it("queries tokens with the specified options", async () => {
-      await controller.getTokens(pagingOptions);
+      await controller.getTokens(pagingOptions, 1000);
       expect(serviceMock.findAll).toHaveBeenCalledTimes(1);
-      expect(serviceMock.findAll).toHaveBeenCalledWith({ ...pagingOptions, route: "tokens" });
+      expect(serviceMock.findAll).toHaveBeenCalledWith(
+        { minLiquidity: 1000 },
+        { ...pagingOptions, filterOptions: { minLiquidity: 1000 }, route: "tokens" }
+      );
     });
 
     it("returns the tokens", async () => {

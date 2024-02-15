@@ -1,11 +1,11 @@
+import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import { mount } from "@vue/test-utils";
 
 import Badge from "@/components/common/Badge.vue";
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import Spinner from "@/components/common/Spinner.vue";
 import Status from "@/components/transactions/Status.vue";
 
@@ -16,6 +16,15 @@ import enUS from "@/locales/en.json";
 import $testId from "@/plugins/testId";
 
 const { currentNetwork } = useContext();
+
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+vi.mock("@/composables/useContext", () => {
+  return {
+    default: () => ({
+      currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+    }),
+  };
+});
 
 describe("Status", () => {
   const i18n = createI18n({
@@ -148,6 +157,32 @@ describe("Status", () => {
     expect(spinnerComponents.length).toBe(1);
     expect(spinnerComponents[0].props().color).toBe("dark-neutral");
   });
+  describe("when L1 explorer url is not set", () => {
+    let mock1ExplorerUrl: Mock;
+    beforeEach(() => {
+      mock1ExplorerUrl = l1ExplorerUrlMock.mockReturnValue(null);
+    });
+
+    afterEach(() => {
+      mock1ExplorerUrl.mockRestore();
+    });
+
+    it("does not render links for 'committed' status", async () => {
+      const wrapper = mount(Status, {
+        global,
+        props: {
+          status: "committed",
+          commitTxHash: "commitTxHash",
+          proveTxHash: "proveTxHash",
+          executeTxHash: "executeTxHash",
+        },
+      });
+      const badges = wrapper.findAllComponents(Badge);
+      const l1StatusBadgeValueDesktop = badges[3];
+      const [sentLink] = l1StatusBadgeValueDesktop.findAll(".badge-pre-content a");
+      expect(sentLink.attributes("href")).toBeUndefined();
+    });
+  });
   it("shows l2 completed badge and l1 validating badge for 'proved' status", async () => {
     const wrapper = mount(Status, {
       global,
@@ -203,6 +238,33 @@ describe("Status", () => {
     expect(spinnerComponents.length).toBe(1);
     expect(spinnerComponents[0].props().color).toBe("dark-neutral");
   });
+  describe("when L1 explorer url is not set", () => {
+    let mock1ExplorerUrl: Mock;
+    beforeEach(() => {
+      mock1ExplorerUrl = l1ExplorerUrlMock.mockReturnValue(null);
+    });
+
+    afterEach(() => {
+      mock1ExplorerUrl.mockRestore();
+    });
+
+    it("does not render links for 'proved' status", async () => {
+      const wrapper = mount(Status, {
+        global,
+        props: {
+          status: "proved",
+          commitTxHash: "commitTxHash",
+          proveTxHash: "proveTxHash",
+          executeTxHash: "executeTxHash",
+        },
+      });
+      const badges = wrapper.findAllComponents(Badge);
+      const l1StatusBadgeValueDesktop = badges[3];
+      const [sentLink, validatedLink] = l1StatusBadgeValueDesktop.findAll(".badge-pre-content a");
+      expect(sentLink.attributes("href")).toBeUndefined();
+      expect(validatedLink.attributes("href")).toBeUndefined();
+    });
+  });
   it("shows l2 completed badge and l1 executed badge for 'verified' status", async () => {
     const wrapper = mount(Status, {
       global,
@@ -257,7 +319,37 @@ describe("Status", () => {
     expect(l1StatusBadgeValueMobile.text()).toBe(i18n.global.t("transactions.statusComponent.executed"));
     expect(l1StatusBadgeValueMobile.props().color).toBe("dark-success");
   });
-  it("shows icon tooltip and single indexing badge for 'indexing' status", async () => {
+  describe("when L1 explorer url is not set", () => {
+    let mock1ExplorerUrl: Mock;
+    beforeEach(() => {
+      mock1ExplorerUrl = l1ExplorerUrlMock.mockReturnValue(null);
+    });
+
+    afterEach(() => {
+      mock1ExplorerUrl.mockRestore();
+    });
+
+    it("does not render links for 'verified' status", async () => {
+      const wrapper = mount(Status, {
+        global,
+        props: {
+          status: "verified",
+          commitTxHash: "commitTxHash",
+          proveTxHash: "proveTxHash",
+          executeTxHash: "executeTxHash",
+        },
+      });
+      const badges = wrapper.findAllComponents(Badge);
+      const l1StatusBadgeValueDesktop = badges[3];
+      const [sentLink, validatedLink] = l1StatusBadgeValueDesktop.findAll(".badge-pre-content a");
+      expect(sentLink.attributes("href")).toBeUndefined();
+      expect(validatedLink.attributes("href")).toBeUndefined();
+
+      const l1ExecutedLink = l1StatusBadgeValueDesktop.find(".badge-content a");
+      expect(l1ExecutedLink.attributes("href")).toBeUndefined();
+    });
+  });
+  it("shows indexing badge for 'indexing' status", async () => {
     const wrapper = mount(Status, {
       global,
       props: {
@@ -269,15 +361,18 @@ describe("Status", () => {
     });
 
     const badges = wrapper.findAllComponents(Badge);
-    expect(badges.length).toBe(1);
+    expect(badges.length).toBe(3);
 
-    const [indexingBadge] = badges;
+    const [l2StatusBadgeTitle, l2StatusBadgeValue, indexingBadge] = badges;
+
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeTitle.props().color).toBe("success");
+    expect(l2StatusBadgeTitle.props().textColor).toBe("neutral");
+
+    expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
+    expect(l2StatusBadgeValue.props().color).toBe("dark-success");
 
     expect(indexingBadge.props().color).toBe("neutral");
     expect(indexingBadge.text()).toBe(i18n.global.t("transactions.statusComponent.indexing"));
-
-    const infoTooltip = wrapper.findAllComponents(InfoTooltip);
-    expect(infoTooltip.length).toBe(1);
-    expect(infoTooltip[0].text()).toBe(i18n.global.t("transactions.statusComponent.indexingTooltip"));
   });
 });

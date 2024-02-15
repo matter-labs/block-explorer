@@ -2,13 +2,14 @@ import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } fro
 
 import { $fetch, FetchError } from "ohmyfetch";
 
-import { useContextMock } from "./../mocks";
+import { ETH_TOKEN_MOCK, useContextMock } from "./../mocks";
 
 import useTransaction, { getTransferNetworkOrigin } from "@/composables/useTransaction";
 
 import type { Context } from "@/composables/useContext";
 
-import { ETH_TOKEN } from "@/utils/constants";
+const hash = "0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
+const hashPaidByPaymaster = "0x111b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
 
 const logs = [
   {
@@ -20,7 +21,7 @@ const logs = [
     ],
     data: "0x000000000000000000000000000000000000000000000000000314f4b9af9680",
     blockNumber: 1162235,
-    transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+    transactionHash: hash,
     transactionIndex: 0,
     logIndex: 3,
   },
@@ -33,7 +34,7 @@ const logs = [
     ],
     data: "0x000000000000000000000000000000000000000000000000000000000000000c",
     blockNumber: 1162235,
-    transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+    transactionHash: hash,
     transactionIndex: 0,
     logIndex: 2,
   },
@@ -46,7 +47,7 @@ const logs = [
     ],
     data: "0x00000000000000000000000000000000000000000000000000006a1b51d01246",
     blockNumber: 1162235,
-    transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+    transactionHash: hash,
     transactionIndex: 0,
     logIndex: 1,
   },
@@ -59,7 +60,7 @@ const logs = [
     ],
     data: "0x00000000000000000000000000000000000000000000000000058c0e5521a346",
     blockNumber: 1162235,
-    transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+    transactionHash: hash,
     transactionIndex: 0,
     logIndex: 0,
   },
@@ -68,65 +69,70 @@ const logs = [
 vi.mock("ohmyfetch", async () => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   const mod = await vi.importActual<typeof import("ohmyfetch")>("ohmyfetch");
+  const transactionDetails = {
+    hash: "0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce",
+    to: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
+    from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+    data: "0xa9059cbb00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36000000000000000000000000000000000000000000000000000000000000000c",
+    value: "0",
+    isL1Originated: false,
+    fee: "0x521f303519100",
+    nonce: 24,
+    blockNumber: 1162235,
+    l1BatchNumber: 11014,
+    isL1BatchSealed: true,
+    blockHash: "0x1fc6a30903866bf91cede9f831e71f2c7ba0dd023ffc044fe469c51b215d950b",
+    transactionIndex: 0,
+    receivedAt: "2023-02-28T08:42:08.198Z",
+    status: "verified",
+    commitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
+    executeTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
+    proveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
+    gasPrice: "4000",
+    gasLimit: "5000",
+    gasUsed: "3000",
+    gasPerPubdata: "800",
+    maxFeePerGas: "7000",
+    maxPriorityFeePerGas: "8000",
+    error: null,
+    revertReason: null,
+  };
   return {
     ...mod,
     $fetch: vi.fn((url: string) => {
-      if (url.endsWith("/transactions/0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce")) {
-        return Promise.resolve({
-          hash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
-          to: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-          from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-          data: "0xa9059cbb00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36000000000000000000000000000000000000000000000000000000000000000c",
-          value: "0",
-          isL1Originated: false,
-          fee: "0x521f303519100",
-          nonce: 24,
-          blockNumber: 1162235,
-          l1BatchNumber: 11014,
-          isL1BatchSealed: true,
-          blockHash: "0x1fc6a30903866bf91cede9f831e71f2c7ba0dd023ffc044fe469c51b215d950b",
-          transactionIndex: 0,
-          receivedAt: "2023-02-28T08:42:08.198Z",
-          status: "verified",
-          commitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
-          executeTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
-          proveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
-        });
+      if (url.endsWith(`/transactions/${hash}`) || url.endsWith(`/transactions/${hashPaidByPaymaster}`)) {
+        return Promise.resolve(transactionDetails);
       }
-      if (
-        url.endsWith(
-          "transactions/0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce/transfers?limit=100&page=1"
-        )
-      ) {
+      if (url.endsWith(`transactions/${hash}/transfers?limit=100&page=1`)) {
         return Promise.resolve({
           items: [
             {
               from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
               to: "0x0000000000000000000000000000000000008001",
               blockNumber: 1162235,
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               amount: "1561368069251910",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "fee",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
             {
               from: "0x0000000000000000000000000000000000008001",
               to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
               blockNumber: 1162235,
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               amount: "116665569251910",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "refund",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
             {
               from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
               to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
               blockNumber: 1162235,
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               amount: "1",
               tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47D",
               type: "transfer",
@@ -137,7 +143,7 @@ vi.mock("ohmyfetch", async () => {
               from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
               to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
               blockNumber: 1162235,
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               amount: "12",
               tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
               type: "transfer",
@@ -154,12 +160,12 @@ vi.mock("ohmyfetch", async () => {
               from: "0x0000000000000000000000000000000000008001",
               to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
               blockNumber: 1162235,
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               amount: "867466250000000",
-              tokenAddress: ETH_TOKEN.address,
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
               type: "refund",
               fields: null,
-              token: ETH_TOKEN,
+              token: ETH_TOKEN_MOCK,
             },
           ],
           meta: {
@@ -170,19 +176,55 @@ vi.mock("ohmyfetch", async () => {
             currentPage: 1,
           },
           links: {
-            first:
-              "transactions/0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c/transfers?limit=100",
+            first: `transactions/${hash}/transfers?limit=100`,
             previous: "",
             next: "",
-            last: "transactions/0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c/transfers?page=1&limit=100",
+            last: `transactions/${hash}/transfers?page=1&limit=100`,
           },
         });
       }
-      if (
-        url.endsWith(
-          "/transactions/0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce/logs?limit=100&page=1"
-        )
-      ) {
+      if (url.endsWith(`transactions/${hashPaidByPaymaster}/transfers?limit=100&page=1`)) {
+        return Promise.resolve({
+          items: [
+            {
+              from: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
+              to: "0x0000000000000000000000000000000000008001",
+              blockNumber: 1162235,
+              transactionHash: hashPaidByPaymaster,
+              amount: "1561368069251910",
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
+              type: "fee",
+              fields: null,
+              token: ETH_TOKEN_MOCK,
+            },
+            {
+              from: "0x0000000000000000000000000000000000008001",
+              to: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
+              blockNumber: 1162235,
+              transactionHash: hashPaidByPaymaster,
+              amount: "116665569251910",
+              tokenAddress: ETH_TOKEN_MOCK.l2Address,
+              type: "refund",
+              fields: null,
+              token: ETH_TOKEN_MOCK,
+            },
+          ],
+          meta: {
+            totalItems: 2,
+            itemCount: 2,
+            itemsPerPage: 100,
+            totalPages: 1,
+            currentPage: 1,
+          },
+          links: {
+            first: `transactions/${hashPaidByPaymaster}/transfers?limit=100`,
+            previous: "",
+            next: "",
+            last: `transactions/${hashPaidByPaymaster}/transfers?page=1&limit=100`,
+          },
+        });
+      }
+      if (url.includes("/logs?limit=100&page=1")) {
         return Promise.resolve({
           items: logs,
           meta: {
@@ -193,16 +235,14 @@ vi.mock("ohmyfetch", async () => {
             currentPage: 1,
           },
           links: {
-            first: "transactions/0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c/logs?limit=100",
+            first: `transactions/${hash}/logs?limit=100`,
             previous: "",
             next: "",
-            last: "transactions/0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c/logs?page=1&limit=100",
+            last: `transactions/${hash}/logs?page=1&limit=100`,
           },
         });
       }
-      if (url.endsWith(".bin")) {
-        return Promise.resolve({});
-      }
+
       if (url.includes("/0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf")) {
         const error = new mod.FetchError("Not found");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -212,8 +252,6 @@ vi.mock("ohmyfetch", async () => {
     }),
   };
 });
-
-const hash = "0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
 
 describe("useTransaction:", () => {
   let mockContext: SpyInstance;
@@ -244,7 +282,7 @@ describe("useTransaction:", () => {
             symbol: "LINK",
             name: "ChainLink Token (goerli)",
             decimals: 18,
-            usdPrice: "1",
+            usdPrice: 1,
           },
           from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
           to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
@@ -267,7 +305,7 @@ describe("useTransaction:", () => {
             symbol: "LINK",
             name: "ChainLink Token (goerli)",
             decimals: 18,
-            usdPrice: "1",
+            usdPrice: 1,
           },
           from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
           to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
@@ -290,7 +328,7 @@ describe("useTransaction:", () => {
             symbol: "LINK",
             name: "ChainLink Token (goerli)",
             decimals: 18,
-            usdPrice: "1",
+            usdPrice: 1,
           },
           from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
           to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
@@ -347,7 +385,7 @@ describe("useTransaction:", () => {
 
       expect(isRequestFailed.value).toEqual(false);
       expect(transaction.value).toEqual({
-        hash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+        hash,
         blockHash: "0x1fc6a30903866bf91cede9f831e71f2c7ba0dd023ffc044fe469c51b215d950b",
         blockNumber: 1162235,
         data: {
@@ -366,6 +404,7 @@ describe("useTransaction:", () => {
         fee: "0x521f303519100",
         feeData: {
           amountPaid: "0x521f303519100",
+          isPaidByPaymaster: false,
           refunds: [
             {
               amount: "116665569251910",
@@ -381,6 +420,9 @@ describe("useTransaction:", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: 220000000000,
+                usdPrice: 1800,
               },
             },
             {
@@ -397,6 +439,9 @@ describe("useTransaction:", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: 220000000000,
+                usdPrice: 1800,
               },
             },
           ],
@@ -407,6 +452,8 @@ describe("useTransaction:", () => {
         nonce: 24,
         receivedAt: "2023-02-28T08:42:08.198Z",
         status: "verified",
+        error: null,
+        revertReason: null,
         l1BatchNumber: 11014,
         isL1BatchSealed: true,
         logs: [
@@ -420,7 +467,7 @@ describe("useTransaction:", () => {
               "0x0000000000000000000000000000000000000000000000000000000000008001",
               "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
             ],
-            transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+            transactionHash: hash,
             transactionIndex: "0",
           },
           {
@@ -433,7 +480,7 @@ describe("useTransaction:", () => {
               "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
               "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
             ],
-            transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+            transactionHash: hash,
             transactionIndex: "0",
           },
           {
@@ -446,7 +493,7 @@ describe("useTransaction:", () => {
               "0x0000000000000000000000000000000000000000000000000000000000008001",
               "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
             ],
-            transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+            transactionHash: hash,
             transactionIndex: "0",
           },
           {
@@ -459,7 +506,7 @@ describe("useTransaction:", () => {
               "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
               "0x0000000000000000000000000000000000000000000000000000000000008001",
             ],
-            transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+            transactionHash: hash,
             transactionIndex: "0",
           },
         ],
@@ -497,6 +544,45 @@ describe("useTransaction:", () => {
             },
           },
         ],
+        gasPrice: "4000",
+        gasLimit: "5000",
+        gasUsed: "3000",
+        gasPerPubdata: "800",
+        maxFeePerGas: "7000",
+        maxPriorityFeePerGas: "8000",
+      });
+    });
+    it("adds paymaster fields to fee data when transaction is paid by paymaster", async () => {
+      const { transaction, isRequestFailed, getByHash } = useTransaction();
+      await getByHash(hashPaidByPaymaster);
+
+      expect(isRequestFailed.value).toEqual(false);
+      expect(transaction.value?.feeData).toEqual({
+        amountPaid: "0x521f303519100",
+        isPaidByPaymaster: true,
+        paymasterAddress: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
+        refunds: [
+          {
+            amount: "116665569251910",
+            from: "0x0000000000000000000000000000000000008001",
+            to: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
+            fromNetwork: "L2",
+            toNetwork: "L2",
+            type: "refund",
+            tokenInfo: {
+              address: "0x000000000000000000000000000000000000800A",
+              l1Address: "0x0000000000000000000000000000000000000000",
+              l2Address: "0x000000000000000000000000000000000000800A",
+              symbol: "ETH",
+              name: "Ether",
+              decimals: 18,
+              iconURL: null,
+              liquidity: 220000000000,
+              usdPrice: 1800,
+            },
+          },
+        ],
+        amountRefunded: "0x6a1b51d01246",
       });
     });
     describe("when transaction request fails with not found error", () => {
@@ -512,6 +598,10 @@ describe("useTransaction:", () => {
             value: "0",
             nonce: 24,
             l1BatchNumber: 11014,
+            gasPrice: "4000",
+            gasLimit: "5000",
+            maxFeePerGas: "7000",
+            maxPriorityFeePerGas: "8000",
           }),
           getTransactionDetails: vi.fn().mockResolvedValue({
             status: "verified",
@@ -521,16 +611,17 @@ describe("useTransaction:", () => {
             fee: "0x521f303519100",
             isL1Originated: false,
             receivedAt: "2023-02-28T08:42:08.198Z",
+            gasPerPubdata: "0x320",
           }),
           getTransactionReceipt: vi.fn().mockResolvedValue({
             transactionIndex: 0,
             logs,
+            gasUsed: "3000",
           }),
         };
         const { transaction, isRequestFailed, getByHash } = useTransaction({
           currentNetwork: {
             value: {
-              newProverUrl: "http://prover.url",
               apiUrl: "http://api.url",
             },
           },
@@ -570,6 +661,7 @@ describe("useTransaction:", () => {
           fee: "0x521f303519100",
           feeData: {
             amountPaid: "0x521f303519100",
+            isPaidByPaymaster: false,
             refunds: [],
             amountRefunded: "0x00",
           },
@@ -591,7 +683,7 @@ describe("useTransaction:", () => {
                 "0x0000000000000000000000000000000000000000000000000000000000008001",
                 "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
               ],
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               transactionIndex: "0",
             },
             {
@@ -604,7 +696,7 @@ describe("useTransaction:", () => {
                 "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
                 "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
               ],
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               transactionIndex: "0",
             },
             {
@@ -617,7 +709,7 @@ describe("useTransaction:", () => {
                 "0x0000000000000000000000000000000000000000000000000000000000008001",
                 "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
               ],
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               transactionIndex: "0",
             },
             {
@@ -630,11 +722,17 @@ describe("useTransaction:", () => {
                 "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
                 "0x0000000000000000000000000000000000000000000000000000000000008001",
               ],
-              transactionHash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
+              transactionHash: hash,
               transactionIndex: "0",
             },
           ],
           transfers: [],
+          gasPrice: "4000",
+          gasLimit: "5000",
+          gasUsed: "3000",
+          gasPerPubdata: "800",
+          maxFeePerGas: "7000",
+          maxPriorityFeePerGas: "8000",
         });
       });
     });

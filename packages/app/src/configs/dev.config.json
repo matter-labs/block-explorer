@@ -1,0 +1,80 @@
+{
+  "networks": [
+    {
+      "apiUrl": "http://localhost:3020",
+      "bridgeUrl": "http://localhost:3000/bridge",
+      "hostnames": [
+        "localhost"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l2ChainId": 270,
+      "l2NetworkName": "Local",
+      "maintenance": false,
+      "name": "local",
+      "published": true,
+      "rpcUrl": "http://localhost:3050"
+    },
+    {
+      "apiUrl": "https://block-explorer-api.testnets.zksync.dev",
+      "verificationApiUrl": "https://zksync2-testnet-explorer.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=goerli",
+      "hostnames": [
+        "https://goerli.staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://goerli.etherscan.io",
+      "l2ChainId": 280,
+      "l2NetworkName": "zkSync Era Goerli Testnet",
+      "maintenance": false,
+      "name": "goerli",
+      "published": true,
+      "rpcUrl": "https://testnet.era.zksync.dev"
+    },
+    {
+      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "l2ChainId": 300,
+      "l2NetworkName": "zkSync Era Sepolia Testnet",
+      "maintenance": false,
+      "name": "sepolia",
+      "published": true,
+      "rpcUrl": "https://sepolia.era.zksync.dev"
+    },
+    {
+      "apiUrl": "https://block-explorer-api.stage.zksync.dev",
+      "verificationApiUrl": "https://z2-dev-api-explorer.zksync.dev",
+      "hostnames": [
+        "https://goerli-beta.staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://goerli.etherscan.io",
+      "l2ChainId": 270,
+      "l2NetworkName": "Goerli (Stage2)",
+      "maintenance": false,
+      "name": "goerli-beta",
+      "published": true,
+      "rpcUrl": "https://z2-dev-api.zksync.dev"
+    },
+    {
+      "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
+      "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
+      "hostnames": [
+        "https://staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://etherscan.io",
+      "l2ChainId": 324,
+      "l2NetworkName": "zkSync Era Mainnet",
+      "maintenance": false,
+      "name": "mainnet",
+      "published": true,
+      "rpcUrl": "https://mainnet.era.zksync.io",
+      "tokensMinLiquidity": 0
+    }
+  ]
+}

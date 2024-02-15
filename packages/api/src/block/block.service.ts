@@ -5,15 +5,22 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions } from "../common/types";
 import { Block } from "./block.entity";
-import { BlockDetail } from "./blockDetail.entity";
+import { BlockDetails } from "./blockDetails.entity";
+
+export interface FindManyOptions {
+  miner?: string;
+  page?: number;
+  offset?: number;
+  selectFields?: (keyof BlockDetails)[];
+}
 
 @Injectable()
 export class BlockService {
   public constructor(
     @InjectRepository(Block)
     private readonly blocksRepository: Repository<Block>,
-    @InjectRepository(BlockDetail)
-    private readonly blockDetailsRepository: Repository<BlockDetail>
+    @InjectRepository(BlockDetails)
+    private readonly blockDetailsRepository: Repository<BlockDetails>
   ) {}
 
   private getBlock(filterOptions: FindOptionsWhere<Block>, orderOptions: FindOptionsOrder<Block>): Promise<Block> {
@@ -43,9 +50,9 @@ export class BlockService {
 
   public async findOne(
     number: number,
-    selectFields?: (keyof BlockDetail)[],
-    relations: FindOptionsRelations<BlockDetail> = { batch: true }
-  ): Promise<BlockDetail> {
+    selectFields?: (keyof BlockDetails)[],
+    relations: FindOptionsRelations<BlockDetails> = { batch: true }
+  ): Promise<BlockDetails> {
     return await this.blockDetailsRepository.findOne({
       where: { number },
       relations: relations,
@@ -81,5 +88,19 @@ export class BlockService {
       .orderBy("block.number", "DESC");
 
     return await paginate<Block>(queryBuilder, paginationOptions, () => this.count(filterOptions));
+  }
+
+  public async findMany({ miner, page = 1, offset = 10, selectFields }: FindManyOptions): Promise<BlockDetails[]> {
+    const queryBuilder = this.blockDetailsRepository.createQueryBuilder("block");
+    queryBuilder.addSelect(selectFields);
+    if (miner) {
+      queryBuilder.where({
+        miner,
+      });
+    }
+    queryBuilder.offset((page - 1) * offset);
+    queryBuilder.limit(offset);
+    queryBuilder.orderBy("block.number", "DESC");
+    return await queryBuilder.getMany();
   }
 }

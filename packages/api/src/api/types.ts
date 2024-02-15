@@ -10,6 +10,8 @@ export enum ApiModule {
   Transaction = "transaction",
   Block = "block",
   Logs = "logs",
+  Token = "token",
+  Stats = "stats",
 }
 
 export enum ApiAccountAction {
@@ -20,12 +22,15 @@ export enum ApiAccountAction {
   TokenBalance = "tokenbalance",
   TokenTransfers = "tokentx",
   NFTTransfers = "tokennfttx",
+  GetMinedBlocks = "getminedblocks",
 }
 
 export enum ApiContractAction {
   GetAbi = "getabi",
   GetSourceCode = "getsourcecode",
   GetContractCreation = "getcontractcreation",
+  VerifySourceCode = "verifysourcecode",
+  GetVerificationStatus = "checkverifystatus",
 }
 
 export enum ApiTransactionAction {
@@ -43,12 +48,22 @@ export enum ApiLogsAction {
   getLogs = "getLogs",
 }
 
+export enum ApiTokenAction {
+  tokenInfo = "tokeninfo",
+}
+
+export enum ApiStatsAction {
+  ethPrice = "ethprice",
+}
+
 export const apiActionsMap = {
   [ApiModule.Account]: Object.values(ApiAccountAction) as string[],
   [ApiModule.Contract]: Object.values(ApiContractAction) as string[],
   [ApiModule.Transaction]: Object.values(ApiTransactionAction) as string[],
   [ApiModule.Block]: Object.values(ApiBlockAction) as string[],
   [ApiModule.Logs]: Object.values(ApiLogsAction) as string[],
+  [ApiModule.Token]: Object.values(ApiTokenAction) as string[],
+  [ApiModule.Stats]: Object.values(ApiStatsAction) as string[],
 };
 
 type ContractFunctionInput = {
@@ -71,6 +86,26 @@ export type AbiFragment = {
   type: string;
 };
 
+export type SourceCodeData = {
+  language: string;
+  settings: {
+    optimizer?: {
+      enabled: boolean;
+      runs?: number;
+    };
+    libraries?: {
+      [file: string]: {
+        [library: string]: string;
+      };
+    };
+  };
+  sources: {
+    [key: string]: {
+      content: string;
+    };
+  };
+};
+
 type ContractVerificationRequest = {
   id: number;
   codeFormat: string;
@@ -81,22 +116,7 @@ type ContractVerificationRequest = {
   compilerVyperVersion?: string;
   compilerZkvyperVersion?: string;
   constructorArguments: string;
-  sourceCode:
-    | string
-    | {
-        language: string;
-        settings: {
-          optimizer: {
-            enabled: boolean;
-          };
-        };
-        sources: {
-          [key: string]: {
-            content: string;
-          };
-        };
-      }
-    | Record<string, string>;
+  sourceCode: string | SourceCodeData | Record<string, string>;
   optimizationUsed: boolean;
 };
 
@@ -107,4 +127,15 @@ export type ContractVerificationInfo = {
   };
   request: ContractVerificationRequest;
   verifiedAt: string;
+};
+
+export enum ContractVerificationCodeFormatEnum {
+  soliditySingleFile = "solidity-single-file",
+  solidityJsonInput = "solidity-standard-json-input",
+  vyperMultiFile = "vyper-multi-file",
+}
+
+export type ContractVerificationStatusResponse = {
+  status: "successful" | "failed" | "in_progress" | "queued";
+  error?: string;
 };

@@ -38,6 +38,7 @@ describe("internalTransactionMapper", () => {
         cumulativeGasUsed: "1200000",
         gasUsed: "900000",
       },
+      type: 255,
     },
   } as Transfer;
 
@@ -60,6 +61,7 @@ describe("internalTransactionMapper", () => {
         traceId: "0",
         type: "call",
         value: "1000000",
+        transactionType: "255",
       });
     });
 

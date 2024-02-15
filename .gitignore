@@ -17,10 +17,17 @@ volumes
 cypress/videos/
 cypress/screenshots/
 tests/e2e/reports/
-tests/e2e/artifacts/
+**/tests/e2e/artifacts/
+**/playbook/artifacts-zk/
+**/playbook/artifacts/
+**/playbook/buffer/
+**/playbook/cache-zk/
+**/playbook/cache/
 
 # Logs
 logs
+!/packages/worker/test/logs/
+!/packages/data-fetcher/test/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -53,12 +60,7 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Allure
-#Allure results and artifacts
-**/allure-results/
-**/e2e/artifacts/
-**/playbook/artifacts*
-**/playbook/cache*
-**/buffer/*.txt
+**allure-results/
 
 # App hyperchain config
 hyperchain.config.json

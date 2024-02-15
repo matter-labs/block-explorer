@@ -10,6 +10,8 @@ export interface TransactionDto extends types.TransactionResponse {
   receiptStatus: number;
   isL1Originated: boolean;
   receivedAt: Date;
+  error?: string;
+  revertReason?: string;
 }
 
 @Injectable()

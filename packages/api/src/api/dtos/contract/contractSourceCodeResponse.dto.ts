@@ -138,18 +138,10 @@ export class ContractSourceCodeDto {
   public readonly CompilerVersion: string;
 
   @ApiProperty({
-    description: "Zksolc compiler version",
-    example: "0.8.12",
-    required: false,
+    description: "Zk compiler version",
+    example: "v1.3.14",
   })
-  public readonly CompilerZksolcVersion?: string;
-
-  @ApiProperty({
-    description: "Zkvyper compiler version",
-    example: "0.8.12",
-    required: false,
-  })
-  public readonly CompilerZkvyperVersion?: string;
+  public readonly ZkCompilerVersion?: string;
 
   @ApiProperty({
     description: "EVM version",

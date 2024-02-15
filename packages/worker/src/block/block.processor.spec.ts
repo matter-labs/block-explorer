@@ -6,25 +6,33 @@ import { types } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { MoreThanOrEqual, LessThanOrEqual, Between } from "typeorm";
 import { UnitOfWork } from "../unitOfWork";
-import { BlockInfo, BlockWatcher } from "./block.watcher";
+import { BlockWatcher } from "./block.watcher";
+import { BlockData } from "../dataFetcher/types";
 import { TransactionProcessor } from "../transaction";
-import { LogProcessor } from "../log";
 import { BlockchainService } from "../blockchain";
 import { BalanceService } from "../balance";
+import { TokenService } from "../token/token.service";
 import { Block } from "../entities";
-import { BlockRepository } from "../repositories";
+import { BlockRepository, LogRepository, TransferRepository } from "../repositories";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 import { BlockProcessor } from "./block.processor";
+import { unixTimeToDateString } from "../utils/date";
+import { Transfer, Balance } from "../dataFetcher/types";
 
 describe("BlockProcessor", () => {
   let blockProcessor: BlockProcessor;
   let blockWatcherMock: BlockWatcher;
   let unitOfWorkMock: UnitOfWork;
+  let waitForTransactionExecutionMock: jest.Mock;
+  let commitTransactionMock: jest.Mock;
+  let ensureRollbackIfNotCommittedTransactionMock: jest.Mock;
   let blockchainServiceMock: BlockchainService;
   let transactionProcessorMock: TransactionProcessor;
-  let logProcessorMock: LogProcessor;
   let balanceServiceMock: BalanceService;
+  let tokenServiceMock: TokenService;
   let blockRepositoryMock: BlockRepository;
+  let logRepositoryMock: LogRepository;
+  let transferRepositoryMock: TransferRepository;
   let eventEmitterMock: EventEmitter2;
   let configServiceMock: ConfigService;
 
@@ -33,9 +41,6 @@ describe("BlockProcessor", () => {
 
   let startBlockDurationMetricMock: jest.Mock;
   let stopBlockDurationMetricMock: jest.Mock;
-
-  let startBalancesDurationMetricMock: jest.Mock;
-  let stopBalancesDurationMetricMock: jest.Mock;
 
   const getBlockProcessor = async () => {
     const app = await Test.createTestingModule({
@@ -58,16 +63,24 @@ describe("BlockProcessor", () => {
           useValue: transactionProcessorMock,
         },
         {
-          provide: LogProcessor,
-          useValue: logProcessorMock,
-        },
-        {
           provide: BalanceService,
           useValue: balanceServiceMock,
         },
         {
+          provide: TokenService,
+          useValue: tokenServiceMock,
+        },
+        {
           provide: BlockRepository,
           useValue: blockRepositoryMock,
+        },
+        {
+          provide: LogRepository,
+          useValue: logRepositoryMock,
+        },
+        {
+          provide: TransferRepository,
+          useValue: transferRepositoryMock,
         },
         {
           provide: EventEmitter2,
@@ -89,12 +102,6 @@ describe("BlockProcessor", () => {
             startTimer: startBlockDurationMetricMock,
           },
         },
-        {
-          provide: "PROM_METRIC_BALANCES_PROCESSING_DURATION_SECONDS",
-          useValue: {
-            startTimer: startBalancesDurationMetricMock,
-          },
-        },
       ],
     }).compile();
 
@@ -104,8 +111,15 @@ describe("BlockProcessor", () => {
   };
 
   beforeEach(async () => {
+    waitForTransactionExecutionMock = jest.fn();
+    commitTransactionMock = jest.fn();
+    ensureRollbackIfNotCommittedTransactionMock = jest.fn();
     unitOfWorkMock = mock<UnitOfWork>({
-      useTransaction: jest.fn().mockImplementation((action: () => Promise<void>) => action()),
+      useTransaction: jest.fn().mockImplementation((action: () => Promise<void>) => ({
+        waitForExecution: waitForTransactionExecutionMock.mockResolvedValue(action()),
+        commit: commitTransactionMock.mockResolvedValue(null),
+        ensureRollbackIfNotCommitted: ensureRollbackIfNotCommittedTransactionMock.mockResolvedValue(null),
+      })),
     });
     blockWatcherMock = mock<BlockWatcher>({
       getNextBlocksToProcess: jest.fn().mockResolvedValue([]),
@@ -116,23 +130,13 @@ describe("BlockProcessor", () => {
       }),
       getLogs: jest.fn().mockResolvedValue([]),
     });
-    transactionProcessorMock = mock<TransactionProcessor>({
-      add: jest.fn().mockResolvedValue(null),
-    });
-    logProcessorMock = mock<LogProcessor>({
-      process: jest.fn().mockResolvedValue(null),
-    });
-    balanceServiceMock = mock<BalanceService>({
-      saveChangedBalances: jest.fn().mockResolvedValue(null),
-      clearTrackedState: jest.fn(),
-    });
-    blockRepositoryMock = mock<BlockRepository>({
-      getLastBlock: jest.fn().mockResolvedValue(null),
-      add: jest.fn().mockResolvedValue(null),
-    });
-    eventEmitterMock = mock<EventEmitter2>({
-      emit: jest.fn(),
-    });
+    transactionProcessorMock = mock<TransactionProcessor>();
+    tokenServiceMock = mock<TokenService>();
+    blockRepositoryMock = mock<BlockRepository>();
+    logRepositoryMock = mock<LogRepository>();
+    transferRepositoryMock = mock<TransferRepository>();
+    balanceServiceMock = mock<BalanceService>();
+    eventEmitterMock = mock<EventEmitter2>();
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockReturnValue(null),
     });
@@ -142,9 +146,6 @@ describe("BlockProcessor", () => {
 
     stopBlockDurationMetricMock = jest.fn();
     startBlockDurationMetricMock = jest.fn().mockReturnValue(stopBlockDurationMetricMock);
-
-    stopBalancesDurationMetricMock = jest.fn();
-    startBalancesDurationMetricMock = jest.fn().mockReturnValue(stopBalancesDurationMetricMock);
 
     blockProcessor = await getBlockProcessor();
   });
@@ -324,7 +325,7 @@ describe("BlockProcessor", () => {
             {
               block: { number: 101, parentHash: "another-hash" },
               blockDetails: null,
-            } as BlockInfo,
+            } as BlockData,
           ]);
 
           await blockProcessor.processNextBlocksRange();
@@ -346,7 +347,7 @@ describe("BlockProcessor", () => {
               {
                 block: { number: 101, parentHash: "another-hash" },
                 blockDetails: {},
-              } as BlockInfo,
+              } as BlockData,
             ]);
           });
 
@@ -378,7 +379,7 @@ describe("BlockProcessor", () => {
               {
                 block: null,
                 blockDetails: null,
-              } as BlockInfo,
+              } as BlockData,
             ]);
           });
 
@@ -414,11 +415,11 @@ describe("BlockProcessor", () => {
                     parentHash: "hash",
                   },
                   blockDetails: {},
-                } as BlockInfo,
+                } as BlockData,
                 {
                   block: null,
                   blockDetails: null,
-                } as BlockInfo,
+                } as BlockData,
               ]);
 
               const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
@@ -438,7 +439,7 @@ describe("BlockProcessor", () => {
                     parentHash: "hash",
                   },
                   blockDetails: {},
-                } as BlockInfo,
+                } as BlockData,
                 {
                   block: {
                     number: 102,
@@ -446,7 +447,7 @@ describe("BlockProcessor", () => {
                     parentHash: "wrong-parent-hash",
                   },
                   blockDetails: {},
-                } as BlockInfo,
+                } as BlockData,
               ]);
 
               const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
@@ -457,7 +458,7 @@ describe("BlockProcessor", () => {
           });
 
           describe("and all the blocks are good to be added", () => {
-            let blocksToProcess: BlockInfo[];
+            let blocksToProcess: BlockData[];
 
             beforeEach(() => {
               blocksToProcess = [
@@ -471,23 +472,37 @@ describe("BlockProcessor", () => {
                   blockDetails: {
                     number: 10,
                     l1BatchNumber: 3,
+                    timestamp: 1703845168,
                   },
-                } as BlockInfo,
+                  transactions: [
+                    {
+                      transaction: { hash: "transactionHash1" },
+                    },
+                    {
+                      transaction: { hash: "transactionHash2" },
+                    },
+                  ],
+                  blockLogs: [],
+                  blockTransfers: [],
+                  changedBalances: [],
+                } as BlockData,
               ];
               jest.spyOn(blockWatcherMock, "getNextBlocksToProcess").mockResolvedValue(blocksToProcess);
             });
 
-            it("starts the duration metric", async () => {
+            it("starts the blocks batch processing duration metric", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(startBlocksBatchDurationMetricMock).toHaveBeenCalledTimes(1);
             });
 
-            it("uses transaction when adding blocks", async () => {
+            it("uses transaction with disabled automatic commit when adding blocks", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(unitOfWorkMock.useTransaction).toHaveBeenCalledTimes(1);
+              expect((unitOfWorkMock.useTransaction as jest.Mock).mock.calls[0][1]).toBe(true);
+              expect(waitForTransactionExecutionMock).toBeCalledTimes(1);
             });
 
-            it("starts the duration metric", async () => {
+            it("starts the block processing duration metric", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(startBlockDurationMetricMock).toHaveBeenCalledTimes(1);
             });
@@ -505,13 +520,81 @@ describe("BlockProcessor", () => {
               await blockProcessor.processNextBlocksRange();
               expect(transactionProcessorMock.add).toHaveBeenCalledTimes(2);
               expect(transactionProcessorMock.add).toHaveBeenCalledWith(
-                blocksToProcess[0].block.transactions[0],
-                blocksToProcess[0].blockDetails
+                blocksToProcess[0].block.number,
+                blocksToProcess[0].transactions[0]
               );
               expect(transactionProcessorMock.add).toHaveBeenCalledWith(
-                blocksToProcess[0].block.transactions[1],
-                blocksToProcess[0].blockDetails
+                blocksToProcess[0].block.number,
+                blocksToProcess[0].transactions[1]
               );
+            });
+
+            describe("when block data contains block logs", () => {
+              beforeEach(() => {
+                blocksToProcess[0].blockLogs = [{ logIndex: 0 } as types.Log, { logIndex: 1 } as types.Log];
+              });
+
+              it("saves block logs to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(logRepositoryMock.addMany).toHaveBeenCalledTimes(1);
+                expect(logRepositoryMock.addMany).toHaveBeenCalledWith(
+                  blocksToProcess[0].blockLogs.map((log) => ({
+                    ...log,
+                    timestamp: unixTimeToDateString(blocksToProcess[0].blockDetails.timestamp),
+                  }))
+                );
+              });
+            });
+
+            describe("when block data contains block transfers", () => {
+              beforeEach(() => {
+                blocksToProcess[0].blockTransfers = [{ logIndex: 2 } as Transfer, { logIndex: 3 } as Transfer];
+              });
+
+              it("saves block transfers to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(transferRepositoryMock.addMany).toHaveBeenCalledTimes(1);
+                expect(transferRepositoryMock.addMany).toHaveBeenCalledWith(blocksToProcess[0].blockTransfers);
+              });
+            });
+
+            describe("when block data contains changed balances", () => {
+              beforeEach(() => {
+                blocksToProcess[0].changedBalances = [
+                  {
+                    address: "address1",
+                    tokenAddress: "tokenAddress1",
+                    balance: "balance1",
+                  } as Balance,
+                  {
+                    address: "address2",
+                    tokenAddress: "tokenAddress2",
+                    balance: "balance2",
+                  } as Balance,
+                ];
+
+                (balanceServiceMock.getERC20TokensForChangedBalances as jest.Mock).mockReturnValue([
+                  "tokenAddress1",
+                  "tokenAddress2",
+                ]);
+              });
+
+              it("saves changed balances to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledTimes(1);
+                expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledWith(blocksToProcess[0].changedBalances);
+              });
+
+              it("saves ERC20 tokens for changed balances to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(tokenServiceMock.saveERC20Tokens).toHaveBeenCalledTimes(1);
+                expect(tokenServiceMock.saveERC20Tokens).toHaveBeenCalledWith(["tokenAddress1", "tokenAddress2"]);
+              });
+            });
+
+            it("commits db transactions after execution", async () => {
+              await blockProcessor.processNextBlocksRange();
+              expect(commitTransactionMock).toBeCalledTimes(1);
             });
 
             describe("when processing fails with an error", () => {
@@ -523,7 +606,7 @@ describe("BlockProcessor", () => {
                 await expect(blockProcessor.processNextBlocksRange()).rejects.toThrowError(new Error("getBlock error"));
               });
 
-              it("stops block batch duration metric and sets label to error", async () => {
+              it("stops block batch processing duration metric and sets label to error", async () => {
                 expect.assertions(2);
                 try {
                   await blockProcessor.processNextBlocksRange();
@@ -535,7 +618,7 @@ describe("BlockProcessor", () => {
                 }
               });
 
-              it("stops the duration metric", async () => {
+              it("stops the block processing duration metric", async () => {
                 expect.assertions(1);
                 try {
                   await blockProcessor.processNextBlocksRange();
@@ -544,7 +627,7 @@ describe("BlockProcessor", () => {
                 }
               });
 
-              it("sets duration metric label to error", async () => {
+              it("sets block processing duration metric label to error", async () => {
                 expect.assertions(1);
                 try {
                   await blockProcessor.processNextBlocksRange();
@@ -556,62 +639,23 @@ describe("BlockProcessor", () => {
                 }
               });
 
-              it("clears tracked address changes state", async () => {
-                expect.assertions(1);
-                try {
-                  await blockProcessor.processNextBlocksRange();
-                } catch {
-                  expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledTimes(1);
-                }
+              it("does not commit db transactions", async () => {
+                await Promise.allSettled([blockProcessor.processNextBlocksRange()]);
+                expect(commitTransactionMock).not.toBeCalled();
+              });
+
+              it("ensures all the db transactions for a given batch of blocks are reverted if not committed", async () => {
+                await Promise.allSettled([blockProcessor.processNextBlocksRange()]);
+                expect(ensureRollbackIfNotCommittedTransactionMock).toBeCalledTimes(1);
               });
             });
 
-            describe("when block does not contain transactions", () => {
-              let logs: types.Log[];
-              beforeEach(() => {
-                blocksToProcess[0].block.transactions = [];
-                logs = [mock<types.Log>({ logIndex: 0 }), mock<types.Log>({ logIndex: 1 })];
-                jest.spyOn(blockchainServiceMock, "getLogs").mockResolvedValueOnce(logs);
-              });
-
-              it("reads logs for block from the blockchain", async () => {
-                await blockProcessor.processNextBlocksRange();
-                expect(blockchainServiceMock.getLogs).toHaveBeenCalledTimes(1);
-                expect(blockchainServiceMock.getLogs).toHaveBeenCalledWith({
-                  fromBlock: blocksToProcess[0].block.number,
-                  toBlock: blocksToProcess[0].block.number,
-                });
-              });
-
-              it("processes the logs", async () => {
-                await blockProcessor.processNextBlocksRange();
-                expect(logProcessorMock.process).toHaveBeenCalledTimes(1);
-                expect(logProcessorMock.process).toHaveBeenCalledWith(logs, blocksToProcess[0].blockDetails);
-              });
-            });
-
-            it("starts the balances duration metric", async () => {
-              await blockProcessor.processNextBlocksRange();
-              expect(startBalancesDurationMetricMock).toHaveBeenCalledTimes(1);
-            });
-
-            it("saves changed balances", async () => {
-              await blockProcessor.processNextBlocksRange();
-              expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledTimes(1);
-              expect(balanceServiceMock.saveChangedBalances).toHaveBeenCalledWith(blocksToProcess[0].block.number);
-            });
-
-            it("stops the balances duration metric", async () => {
-              await blockProcessor.processNextBlocksRange();
-              expect(stopBalancesDurationMetricMock).toHaveBeenCalledTimes(1);
-            });
-
-            it("stops the duration metric", async () => {
+            it("stops the block processing duration metric", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(stopBlockDurationMetricMock).toHaveBeenCalledTimes(1);
             });
 
-            it("sets duration metric label to success", async () => {
+            it("sets block processing duration metric label to success", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(stopBlockDurationMetricMock).toHaveBeenCalledWith({
                 status: "success",
@@ -619,12 +663,7 @@ describe("BlockProcessor", () => {
               });
             });
 
-            it("clears tracked address changes state", async () => {
-              await blockProcessor.processNextBlocksRange();
-              expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledTimes(1);
-            });
-
-            it("stops block batch duration metric and sets label to success", async () => {
+            it("stops block batch processing duration metric and sets label to success", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(stopBlocksBatchDurationMetricMock).toHaveBeenCalledTimes(1);
               expect(stopBlocksBatchDurationMetricMock).toHaveBeenCalledWith({
