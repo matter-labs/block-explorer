@@ -25,10 +25,6 @@ describe("config", () => {
         url: "http://localhost:3040",
         requestTimeout: 120_000,
       },
-      dataFetcher: {
-        url: "http://localhost:3040",
-        requestTimeout: 120_000,
-      },
       blocks: {
         waitForBlocksInterval: 1000,
         blocksProcessingBatchSize: 50,
