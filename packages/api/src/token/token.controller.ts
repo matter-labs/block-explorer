@@ -40,8 +40,16 @@ export class TokenController {
   })
   public async getTokens(
     @Query() pagingOptions: PagingOptionsDto,
-    @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number
+    @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number,
+    @Query("key") key?: string
   ): Promise<Pagination<TokenDto>> {
+    console.log(key);
+    if (key && key !== "primary") {
+      return await this.tokenService.findNone_OnlyForTest({
+        ...pagingOptions,
+        route: entityName,
+      });
+    }
     return await this.tokenService.findAll(
       {
         minLiquidity,
@@ -102,5 +110,17 @@ export class TokenController {
         route: `${entityName}/${address}/transfers`,
       }
     );
+  }
+
+  @Get("maincontract/:key")
+  @ApiParam({
+    name: "key",
+    description: "",
+  })
+  @ApiOkResponse({ description: "Token was returned successfully", type: String })
+  @ApiBadRequestResponse({ description: "Token address is invalid" })
+  @ApiNotFoundResponse({ description: "Token with the specified address does not exist" })
+  public async getMainContract(@Param("key") key: string): Promise<String> {
+    return "";
   }
 }

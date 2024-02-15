@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOptionsSelect, MoreThanOrEqual } from "typeorm";
+import { Repository, FindOptionsSelect, MoreThanOrEqual, LessThan } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
@@ -52,6 +52,15 @@ export class TokenService {
     queryBuilder.orderBy("token.liquidity", "DESC", "NULLS LAST");
     queryBuilder.addOrderBy("token.blockNumber", "DESC");
     queryBuilder.addOrderBy("token.logIndex", "DESC");
+    return await paginate<Token>(queryBuilder, paginationOptions);
+  }
+
+  //TODO
+  public async findNone_OnlyForTest(paginationOptions: IPaginationOptions): Promise<Pagination<Token>> {
+    const queryBuilder = this.tokenRepository.createQueryBuilder("token");
+    queryBuilder.where({
+      number: LessThan(0),
+    });
     return await paginate<Token>(queryBuilder, paginationOptions);
   }
 }
