@@ -40,7 +40,7 @@ describe("API module: Contract", () => {
     //id1695
     it("Verify /api?module=contract&action=getabi response", async () => {
       await helper.retryTestAction(async () => {
-        const greeterContract = "0xB0927430b017860BB0Af99f192Aa4a79D74f75bB";
+        const greeterContract = "0x180faDac8ce638C67640a6C29BdfB5CB60eCDB76";
         apiRoute = `/api?module=contract&action=getabi&address=${greeterContract}`;
         response = await helper.performGETrequest(apiRoute, "sepolia");
 
@@ -54,7 +54,7 @@ describe("API module: Contract", () => {
     //id1802
     it("Verify /api?module=contract&action=getsourcecode response", async () => {
       await helper.retryTestAction(async () => {
-        const greeterContract = "0xB0927430b017860BB0Af99f192Aa4a79D74f75bB";
+        const greeterContract = "0x180faDac8ce638C67640a6C29BdfB5CB60eCDB76";
         apiRoute = `/api?module=contract&action=getsourcecode&address=${greeterContract}`;
         response = await helper.performGETrequest(apiRoute, "sepolia");
 
