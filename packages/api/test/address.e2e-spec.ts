@@ -7,12 +7,12 @@ import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Address } from "../src/address/address.entity";
 import { Balance } from "../src/balance/balance.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { Log } from "../src/log/log.entity";
-import { Token } from "../src/token/token.entity";
+import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
@@ -21,7 +21,7 @@ import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 describe("AddressController (e2e)", () => {
   let app: INestApplication;
   let addressRepository: Repository<Address>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
@@ -45,7 +45,7 @@ describe("AddressController (e2e)", () => {
     await app.init();
 
     addressRepository = app.get<Repository<Address>>(getRepositoryToken(Address));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
@@ -110,6 +110,7 @@ describe("AddressController (e2e)", () => {
         receiptStatus: 1,
         gasLimit: "1000000",
         gasPrice: "100",
+        type: 255,
       };
 
       await transactionRepository.insert(transactionSpec);
@@ -149,6 +150,16 @@ describe("AddressController (e2e)", () => {
       bytecode: "0x",
     });
 
+    await tokenRepository.insert({
+      l2Address: ETH_TOKEN.l2Address,
+      l1Address: ETH_TOKEN.l1Address,
+      symbol: ETH_TOKEN.symbol,
+      name: ETH_TOKEN.name,
+      decimals: ETH_TOKEN.decimals,
+      blockNumber: 0,
+      logIndex: 0,
+    });
+
     // tokens for balances
     for (let i = 0; i <= 9; i++) {
       await tokenRepository.insert({
@@ -184,6 +195,13 @@ describe("AddressController (e2e)", () => {
         blockNumber: i + 3,
         balance: (345 * i).toString(),
       });
+
+      await balanceRepository.insert({
+        address: "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67",
+        tokenAddress: "0x000000000000000000000000000000000000800A",
+        blockNumber: i + 3,
+        balance: (345 * i).toString(),
+      });
     }
 
     // balances without address record
@@ -205,6 +223,13 @@ describe("AddressController (e2e)", () => {
       await balanceRepository.insert({
         address: "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb71",
         tokenAddress: "0x9488fc54fccc6f319d4863ddc2c2899ed35d8956",
+        blockNumber: i + 3,
+        balance: (345 * i).toString(),
+      });
+
+      await balanceRepository.insert({
+        address: "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb71",
+        tokenAddress: "0x000000000000000000000000000000000000800A",
         blockNumber: i + 3,
         balance: (345 * i).toString(),
       });
@@ -278,16 +303,6 @@ describe("AddressController (e2e)", () => {
       logIndex: 0,
     });
 
-    await tokenRepository.insert({
-      l2Address: "0x000000000000000000000000000000000000800a",
-      l1Address: "0x0000000000000000000000000000000000000000",
-      symbol: "ETH",
-      name: "Ether",
-      decimals: 18,
-      blockNumber: 1,
-      logIndex: 0,
-    });
-
     for (let i = 0; i < 30; i++) {
       let type = TransferType.Transfer;
       if (i % 6 === 1) {
@@ -310,6 +325,7 @@ describe("AddressController (e2e)", () => {
         transactionIndex: i,
         timestamp: new Date("2022-11-21T18:16:51.000Z"),
         type,
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
         tokenAddress:
           i % 2 ? "0x97d0a23f34e535e44df8ba84c53a0945cf0eeb67" : "0x000000000000000000000000000000000000800a",
         logIndex: i,
@@ -326,6 +342,7 @@ describe("AddressController (e2e)", () => {
           tokenAddress: transferSpec.tokenAddress,
           blockNumber: transferSpec.blockNumber,
           timestamp: transferSpec.timestamp,
+          tokenType: transferSpec.tokenType,
           isFeeOrRefund: transferSpec.isFeeOrRefund,
           logIndex: transferSpec.logIndex,
           isInternal: transferSpec.isInternal,
@@ -376,6 +393,19 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: "0x0000000000000000000000000000000000000000",
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -384,6 +414,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956",
                     name: "TEST 6",
                     symbol: "TEST 6",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -394,6 +427,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954",
                     name: "TEST 4",
                     symbol: "TEST 4",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -404,6 +440,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955",
                     name: "TEST 5",
                     symbol: "TEST 5",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
@@ -423,6 +462,19 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: "0x0000000000000000000000000000000000000000",
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -431,6 +483,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956",
                     name: "TEST 6",
                     symbol: "TEST 6",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -441,6 +496,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954",
                     name: "TEST 4",
                     symbol: "TEST 4",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -451,6 +509,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955",
                     name: "TEST 5",
                     symbol: "TEST 5",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
@@ -470,6 +531,19 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: "0x0000000000000000000000000000000000000000",
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -478,6 +552,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956",
                     name: "TEST 6",
                     symbol: "TEST 6",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -488,6 +565,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954",
                     name: "TEST 4",
                     symbol: "TEST 4",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -498,6 +578,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955",
                     name: "TEST 5",
                     symbol: "TEST 5",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
@@ -517,6 +600,19 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: "0x0000000000000000000000000000000000000000",
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -525,6 +621,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956",
                     name: "TEST 6",
                     symbol: "TEST 6",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -535,6 +634,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954",
                     name: "TEST 4",
                     symbol: "TEST 4",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -545,6 +647,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955",
                     name: "TEST 5",
                     symbol: "TEST 5",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
@@ -566,6 +671,19 @@ describe("AddressController (e2e)", () => {
             expect(res.body).toStrictEqual({
               address: "0x91d0A23F34e535E44dF8ba84c53a0945cf0EEB71",
               balances: {
+                "0x000000000000000000000000000000000000800A": {
+                  balance: "34500",
+                  token: {
+                    decimals: 18,
+                    l1Address: "0x0000000000000000000000000000000000000000",
+                    l2Address: "0x000000000000000000000000000000000000800A",
+                    name: "Ether",
+                    symbol: "ETH",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
+                  },
+                },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
                   balance: "34500",
                   token: {
@@ -574,6 +692,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956",
                     name: "TEST 6",
                     symbol: "TEST 6",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -584,6 +705,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954",
                     name: "TEST 4",
                     symbol: "TEST 4",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -594,6 +718,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955",
                     name: "TEST 5",
                     symbol: "TEST 5",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
@@ -623,6 +750,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fcCC6f319D4863Ddc2C2899ED35d8957",
                     name: "TEST 7",
                     symbol: "TEST 7",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -633,6 +763,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959",
                     name: "TEST 9",
                     symbol: "TEST 9",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -643,13 +776,16 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958",
                     name: "TEST 8",
                     symbol: "TEST 8",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -673,6 +809,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fcCC6f319D4863Ddc2C2899ED35d8957",
                     name: "TEST 7",
                     symbol: "TEST 7",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -683,6 +822,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959",
                     name: "TEST 9",
                     symbol: "TEST 9",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -693,13 +835,16 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958",
                     name: "TEST 8",
                     symbol: "TEST 8",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -723,6 +868,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fcCC6f319D4863Ddc2C2899ED35d8957",
                     name: "TEST 7",
                     symbol: "TEST 7",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -733,6 +881,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959",
                     name: "TEST 9",
                     symbol: "TEST 9",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -743,13 +894,16 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958",
                     name: "TEST 8",
                     symbol: "TEST 8",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -773,6 +927,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fcCC6f319D4863Ddc2C2899ED35d8957",
                     name: "TEST 7",
                     symbol: "TEST 7",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -783,6 +940,9 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959",
                     name: "TEST 9",
                     symbol: "TEST 9",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -793,13 +953,16 @@ describe("AddressController (e2e)", () => {
                     l2Address: "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958",
                     name: "TEST 8",
                     symbol: "TEST 8",
+                    iconURL: null,
+                    liquidity: null,
+                    usdPrice: null,
                   },
                 },
               },
               blockNumber: 106,
               bytecode: "0x000012",
               createdInBlockNumber: 10,
-              creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+              creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               totalTransactions: 4,
               type: "contract",
@@ -819,7 +982,7 @@ describe("AddressController (e2e)", () => {
                 blockNumber: 10,
                 bytecode: "0x000012",
                 createdInBlockNumber: 10,
-                creatorAddress: "0xc7e0220d02D549C4846A6EC31D89C3B670eBE355",
+                creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
                 creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
                 totalTransactions: 0,
                 type: "contract",
@@ -1025,10 +1188,14 @@ describe("AddressController (e2e)", () => {
                 l2Address: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
                 name: "TEST",
                 symbol: "TST",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               type: "mint",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -1044,10 +1211,14 @@ describe("AddressController (e2e)", () => {
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               type: "transfer",
+              tokenType: "ETH",
               isInternal: false,
             },
             {
@@ -1063,10 +1234,14 @@ describe("AddressController (e2e)", () => {
                 l2Address: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
                 name: "TEST",
                 symbol: "TST",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
               },
               tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               type: "deposit",
+              tokenType: "ERC20",
               isInternal: false,
             },
           ])

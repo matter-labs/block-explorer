@@ -6,14 +6,14 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
-import { BlockDetail } from "../src/block/blockDetail.entity";
+import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Counter } from "../src/counter/counter.entity";
 
 describe("StatsController (e2e)", () => {
   let app: INestApplication;
   let batchRepository: Repository<BatchDetails>;
-  let blockRepository: Repository<BlockDetail>;
+  let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let counterRepository: Repository<Counter>;
 
@@ -29,7 +29,7 @@ describe("StatsController (e2e)", () => {
     await app.init();
 
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
-    blockRepository = app.get<Repository<BlockDetail>>(getRepositoryToken(BlockDetail));
+    blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     counterRepository = app.get<Repository<Counter>>(getRepositoryToken(Counter));
 
@@ -86,6 +86,7 @@ describe("StatsController (e2e)", () => {
         receiptStatus: 1,
         gasLimit: "1000000",
         gasPrice: "100",
+        type: 255,
       });
     }
 

@@ -8,5 +8,5 @@ export class TransactionReceiptStatusResponseDto extends ResponseBaseDto {
       status: "0",
     },
   })
-  public readonly result: { status: "0" | "1" | "" } | string;
+  public readonly result: { status: string } | string;
 }

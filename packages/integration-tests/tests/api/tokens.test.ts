@@ -1,7 +1,3 @@
-import * as request from "supertest";
-import { setTimeout } from "timers/promises";
-
-import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
 import { Buffer, Token, TransactionsType, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
@@ -13,8 +9,10 @@ describe("Tokens", () => {
   const helper = new Helper();
   const playbook = new Playbook();
   const bufferFile = "src/playbook/";
+  let apiRoute: string;
   let l2Token: string;
   let txHash: string;
+  let response;
 
   beforeAll(async () => {
     l2Token = await helper.getStringFromFile(bufferFile + Buffer.L2);
@@ -23,56 +21,54 @@ describe("Tokens", () => {
   describe("/tokens", () => {
     //@id1508
     it("Verify the response via /tokens", async () => {
-      await setTimeout(localConfig.standardPause); //works unstable without timeout
+      await helper.retryTestAction(async () => {
+        const l2DepositedToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
+        const l1Token = await helper.getStringFromFile(bufferFile + Buffer.L1);
+        apiRoute = `/tokens`;
+        response = await helper.performGETrequest(apiRoute);
 
-      const l2DepositedToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
-      const l1Token = await helper.getStringFromFile(bufferFile + Buffer.L1);
-      const apiRoute = `/tokens`;
-
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) => expect(Array.isArray(res.body.items)).toStrictEqual(true))
-        .expect((res) =>
-          expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ l2Address: l2DepositedToken }))
-        )
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ l1Address: l1Token })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ symbol: "L1" })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ name: "L1 ERC20 token" })))
-        .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ decimals: 18 })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ l2Address: l2Token })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ l1Address: null })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ symbol: "L2" })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ name: "L2 ERC20 token" })))
-        .expect((res) => expect(res.body.items[1]).toStrictEqual(expect.objectContaining({ decimals: 18 })))
-        .expect((res) => expect(typeof res.body.meta.totalItems).toStrictEqual("number"))
-        .expect((res) => expect(typeof res.body.meta.itemCount).toStrictEqual("number"))
-        .expect((res) => expect(typeof res.body.meta.itemsPerPage).toStrictEqual("number"))
-        .expect((res) => expect(typeof res.body.meta.totalPages).toStrictEqual("number"))
-        .expect((res) => expect(typeof res.body.meta.currentPage).toStrictEqual("number"))
-        .expect((res) => expect(res.body.links.first).toStrictEqual("tokens?limit=10"))
-        .expect((res) => expect(res.body.links.previous).toStrictEqual(""))
-        .expect((res) => expect(typeof res.body.links.next).toStrictEqual("string"))
-        .expect((res) => expect(typeof res.body.links.last).toStrictEqual("string"));
+        expect(response.status).toBe(200);
+        expect(Array.isArray(response.body.items)).toStrictEqual(true);
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ l2Address: l2DepositedToken }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ l1Address: l1Token }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ symbol: "L1" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ name: "L1 ERC20 token" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ decimals: 18 }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ l2Address: l2Token }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ l1Address: null }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ symbol: "L2" }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ name: "L2 ERC20 token" }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ decimals: 18 }));
+        expect(typeof response.body.meta.totalItems).toStrictEqual("number");
+        expect(typeof response.body.meta.itemCount).toStrictEqual("number");
+        expect(typeof response.body.meta.itemsPerPage).toStrictEqual("number");
+        expect(typeof response.body.meta.totalPages).toStrictEqual("number");
+        expect(typeof response.body.meta.currentPage).toStrictEqual("number");
+        expect(response.body.links.first).toStrictEqual("tokens?limit=10");
+        expect(response.body.links.previous).toStrictEqual("");
+        expect(typeof response.body.links.next).toStrictEqual("string");
+        expect(typeof response.body.links.last).toStrictEqual("string");
+      });
     });
+
     //@id1456
     it("Verify deployed to L2 custom token via /tokens/{tokenAddress}", async () => {
-      await setTimeout(localConfig.extendedPause); //works unstable without timeout
+      await helper.retryTestAction(async () => {
+        apiRoute = `/tokens/${l2Token}`;
+        response = await helper.performGETrequest(apiRoute);
 
-      const apiRoute = `/tokens/${l2Token}`;
-
-      return request(environment.blockExplorerAPI)
-        .get(apiRoute)
-        .expect(200)
-        .expect((res) =>
-          expect(res.body).toStrictEqual({
-            l2Address: l2Token,
-            l1Address: null,
-            symbol: Token.customL2TokenSymbol,
-            name: Token.customL2TokenName,
-            decimals: Token.customL2TokenDecimals,
-          })
-        );
+        expect(response.status).toBe(200);
+        expect(response.body).toStrictEqual({
+          l2Address: l2Token,
+          l1Address: null,
+          liquidity: null,
+          usdPrice: null,
+          iconURL: null,
+          symbol: Token.customL2TokenSymbol,
+          name: Token.customL2TokenName,
+          decimals: Token.customL2TokenDecimals,
+        });
+      });
     });
 
     describe("/tokens/{address}/transfers", () => {
@@ -84,45 +80,82 @@ describe("Tokens", () => {
 
       //@id1448
       it("Verify the custom ERC20 token transfer via /tokens/{address}/transfers", async () => {
-        await setTimeout(localConfig.standardPause); //works unstable without timeout
+        await helper.retryTestAction(async () => {
+          apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+          response = await helper.performGETrequest(apiRoute);
 
-        const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
-
-        return request(environment.blockExplorerAPI)
-          .get(apiRoute)
-          .expect(200)
-          .expect((res) => expect(res.body.items[0].amount).toBe("10000000000000000"))
-          .expect((res) => expect(res.body.items[0].from).toBe(Wallets.richWalletAddress))
-          .expect((res) => expect(res.body.items[0].to).toBe(Wallets.secondWalletAddress))
-          .expect((res) => expect(res.body.items[0].token).toEqual(expect.objectContaining({ l2Address: l2Token })))
-          .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ transactionHash: txHash })))
-          .expect((res) => expect(res.body.items[0]).toEqual(expect.objectContaining({ type: "transfer" })));
+          expect(response.status).toBe(200);
+          expect(response.body.items[0].amount).toBe("10000000000000000");
+          expect(response.body.items[0].from).toBe(Wallets.richWalletAddress);
+          expect(response.body.items[0].to).toBe(Wallets.secondWalletAddress);
+          expect(response.body.items[0].token).toEqual(expect.objectContaining({ l2Address: l2Token }));
+          expect(response.body.items[0]).toEqual(expect.objectContaining({ transactionHash: txHash }));
+          expect(response.body.items[0]).toEqual(expect.objectContaining({ type: "transfer" }));
+        });
       });
 
       //@id1451
       it("Verify the custom token includes paymaster transaction via /tokens/{address}/transfers", async () => {
-        await setTimeout(localConfig.standardPause); //works unstable without timeout
+        await helper.retryTestAction(async () => {
+          l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
+          const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
+          const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
+          txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+          apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+          response = await helper.performGETrequest(apiRoute);
 
-        l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
-        const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
-        const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
-        const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+          expect(response.status).toBe(200);
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: l2Token }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
+        });
+      });
 
-        return request(environment.blockExplorerAPI)
-          .get(apiRoute)
-          .expect(200)
-          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet })))
-          .expect((res) => expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster })))
-          .expect((res) =>
-            expect(res.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: l2Token }))
-          )
-          .expect((res) =>
-            expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }))
-          )
-          .expect((res) =>
-            expect(res.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }))
+      //id1803
+      it("Verify the response via /tokens/{address}/transfers", async () => {
+        await helper.retryTestAction(async () => {
+          l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
+          const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
+          const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
+          txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+          const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
+          const decapitalizedTokenAddress = l2Token.toLowerCase();
+          response = await helper.performGETrequest(apiRoute);
+
+          expect(response.status).toBe(200);
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: paymaster }));
+          expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
+          expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ amount: "1" }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: l2Token }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ERC20" }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+          expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ l2Address: l2Token }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ l1Address: null }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ symbol: "MyToken" }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ name: "MyToken" }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ decimals: 18 }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ usdPrice: null }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ liquidity: null }));
+          expect(response.body.items[0].token).toStrictEqual(expect.objectContaining({ iconURL: null }));
+          expect(typeof response.body.meta.totalItems).toStrictEqual("number");
+          expect(typeof response.body.meta.itemCount).toStrictEqual("number");
+          expect(typeof response.body.meta.itemsPerPage).toStrictEqual("number");
+          expect(typeof response.body.meta.totalPages).toStrictEqual("number");
+          expect(typeof response.body.meta.currentPage).toStrictEqual("number");
+          expect(response.body.links.first).toStrictEqual(`tokens/${decapitalizedTokenAddress}/transfers?limit=10`);
+          expect(response.body.links.previous).toStrictEqual("");
+          expect(response.body.links.next).toStrictEqual("");
+          expect(response.body.links.last).toStrictEqual(
+            `tokens/${decapitalizedTokenAddress}/transfers?page=1&limit=10`
           );
+        });
       });
     });
   });

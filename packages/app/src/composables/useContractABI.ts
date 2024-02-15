@@ -12,6 +12,9 @@ import { checksumAddress } from "@/utils/formatters";
 
 const retrieveAddressInfo = useMemoize(
   async (address: Address, context: Context = useContext()) => {
+    if (!context.currentNetwork.value.verificationApiUrl) {
+      return null;
+    }
     return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
   },
   {

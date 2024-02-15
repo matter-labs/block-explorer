@@ -1,12 +1,14 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { Transfer } from "./transfer.entity";
+import { TokenType } from "../token/token.entity";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 
 @Entity({ name: "addressTransfers" })
 @Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["address", "tokenAddress", "fields", "blockNumber", "logIndex"])
+@Index(["address", "tokenType", "blockNumber", "logIndex"])
+@Index(["address", "tokenAddress", "blockNumber", "logIndex"])
 export class AddressTransfer extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;
@@ -31,6 +33,9 @@ export class AddressTransfer extends BaseEntity {
 
   @Column({ type: "timestamp" })
   public readonly timestamp: Date;
+
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  public readonly tokenType: TokenType;
 
   @Column({ type: "boolean" })
   public readonly isFeeOrRefund: boolean;

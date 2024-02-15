@@ -1,8 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { computed } from "vue";
+
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
 
 import AddressLink from "@/components/AddressLink.vue";
+
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+vi.mock("@/composables/useContext", () => {
+  return {
+    default: () => ({
+      currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+    }),
+  };
+});
 
 const global = {
   stubs: {
@@ -57,5 +68,27 @@ describe("Address Link", () => {
     expect(wrapper.find("a").attributes().href).toBe(
       "https://goerli.etherscan.io/address/0x0000000000000000000000000000000000000001"
     );
+  });
+  describe("when L1 explorer url is not set", () => {
+    let mock1ExplorerUrl: Mock;
+    beforeEach(() => {
+      mock1ExplorerUrl = l1ExplorerUrlMock.mockReturnValue(null);
+    });
+
+    afterEach(() => {
+      mock1ExplorerUrl.mockRestore();
+    });
+
+    it("renders L1 address as text instead of link", async () => {
+      const wrapper = mount(AddressLink, {
+        global,
+        props: {
+          address: "0x0000000000000000000000000000000000000001",
+          network: "L1",
+        },
+      });
+      expect(wrapper.findAll("a").length).toBe(0);
+      expect(wrapper.find("span").text()).toBe("0x0000000000000000000000000000000000000001");
+    });
   });
 });

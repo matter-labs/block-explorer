@@ -10,7 +10,7 @@ export const mapTransferListItem = (transfer: Transfer, lastBlockNumber: number)
   transactionIndex: transfer.transaction?.transactionIndex.toString(),
   from: transfer.from,
   to: transfer.to,
-  value: transfer.amount,
+  value: transfer.amount || undefined,
   tokenID: transfer.fields?.tokenId,
   tokenName: transfer.token?.name,
   tokenSymbol: transfer.token?.symbol,
@@ -24,4 +24,5 @@ export const mapTransferListItem = (transfer: Transfer, lastBlockNumber: number)
   confirmations: (lastBlockNumber - transfer.blockNumber).toString(),
   fee: transfer.transaction?.fee ? BigNumber.from(transfer.transaction.fee).toString() : undefined,
   l1BatchNumber: transfer.transaction?.l1BatchNumber.toString(),
+  transactionType: transfer.transaction?.type.toString(),
 });

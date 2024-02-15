@@ -17,6 +17,7 @@ describe("BlocksRevertService", () => {
   let blockRepositoryMock: BlockRepository;
   let counterServiceMock: CounterService;
   let unitOfWorkMock: UnitOfWork;
+  let waitForTransactionExecutionMock: jest.Mock;
   let revertDurationMetricMock: jest.Mock;
   let stopRevertDurationMetricMock: jest.Mock;
 
@@ -24,8 +25,13 @@ describe("BlocksRevertService", () => {
   let stopRevertDetectMetricMock: jest.Mock;
 
   beforeEach(async () => {
+    waitForTransactionExecutionMock = jest.fn();
     unitOfWorkMock = mock<UnitOfWork>({
-      useTransaction: jest.fn().mockImplementation((action: () => Promise<void>) => action()),
+      useTransaction: jest.fn().mockImplementation((action: () => Promise<void>) => ({
+        waitForExecution: waitForTransactionExecutionMock.mockResolvedValue(action()),
+        commit: jest.fn().mockResolvedValue(null),
+        ensureRollbackIfNotCommitted: jest.fn().mockResolvedValue(null),
+      })),
     });
     blockchainServiceMock = mock<BlockchainService>({
       getL1BatchDetails: jest.fn().mockResolvedValue(null),

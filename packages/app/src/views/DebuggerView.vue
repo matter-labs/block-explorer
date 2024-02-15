@@ -60,6 +60,8 @@ SourceNode
               :activeStep="activeStep"
               :searchText="searchText"
               :active-lines="activeLines[item.address]"
+              :traceCountPercentage="traceCountPercentage"
+              :pcLineMapping="item.pcLineMapping"
               @nav:navigateToLine="navigateToLine"
             />
             <MetadataBlockPopup
@@ -214,6 +216,7 @@ const {
   activeStep,
   goTo,
   index: activeIndex,
+  traceCountPercentage,
   activeLines,
   total,
   navigateToLine,
@@ -225,6 +228,9 @@ type SourceNode = {
   source: string[];
   errors: Array<undefined | string>;
   expanded: boolean;
+  pcLineMapping: {
+    [key: number]: number;
+  };
 };
 const collection = ref<SourceNode[]>();
 const opened = ref(false);
@@ -353,6 +359,7 @@ watchEffect(() => {
         source,
         errors,
         expanded: false,
+        pcLineMapping: item.pc_line_mapping,
       };
     });
   } else {

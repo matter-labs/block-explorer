@@ -1,7 +1,8 @@
 import { Module, Logger } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { EventEmitterModule } from "@nestjs/event-emitter";
+import { HttpModule, HttpService } from "@nestjs/axios";
 import { PrometheusModule } from "@willsoto/nestjs-prometheus";
 import config from "./config";
 import { HealthModule } from "./health/health.module";
@@ -11,11 +12,12 @@ import { BlocksRevertService } from "./blocksRevert";
 import { BatchService } from "./batch";
 import { BlockProcessor, BlockWatcher, BlockService } from "./block";
 import { TransactionProcessor } from "./transaction";
-import { LogProcessor } from "./log";
-import { AddressService } from "./address/address.service";
 import { BalanceService, BalancesCleanerService } from "./balance";
-import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
+import { TokenOffChainDataProvider } from "./token/tokenOffChainData/tokenOffChainDataProvider.abstract";
+import { CoingeckoTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/coingecko/coingeckoTokenOffChainDataProvider";
+import { PortalsFiTokenOffChainDataProvider } from "./token/tokenOffChainData/providers/portalsFi/portalsFiTokenOffChainDataProvider";
+import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import { CounterModule } from "./counter/counter.module";
 import {
   BatchRepository,
@@ -49,6 +51,7 @@ import { RetryDelayProvider } from "./retryDelay.provider";
 import { MetricsModule } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
 import { UnitOfWorkModule } from "./unitOfWork";
+import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
 
 @Module({
   imports: [
@@ -84,15 +87,29 @@ import { UnitOfWorkModule } from "./unitOfWork";
     UnitOfWorkModule,
     CounterModule,
     HealthModule,
+    HttpModule,
   ],
   providers: [
     AppService,
     BlockchainService,
-    AddressService,
+    DataFetcherService,
     BalanceService,
     BalancesCleanerService,
-    TransferService,
     TokenService,
+    {
+      provide: TokenOffChainDataProvider,
+      useFactory: (configService: ConfigService, httpService: HttpService) => {
+        const selectedProvider = configService.get<string>("tokens.selectedTokenOffChainDataProvider");
+        switch (selectedProvider) {
+          case "portalsFi":
+            return new PortalsFiTokenOffChainDataProvider(httpService);
+          default:
+            return new CoingeckoTokenOffChainDataProvider(configService, httpService);
+        }
+      },
+      inject: [ConfigService, HttpService],
+    },
+    TokenOffChainDataSaverService,
     BatchRepository,
     BlockRepository,
     TransactionRepository,
@@ -108,7 +125,6 @@ import { UnitOfWorkModule } from "./unitOfWork";
     BatchService,
     BlockProcessor,
     TransactionProcessor,
-    LogProcessor,
     BlockWatcher,
     BlockService,
     Logger,

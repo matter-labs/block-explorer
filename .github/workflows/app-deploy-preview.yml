@@ -63,14 +63,14 @@ jobs:
 
   mainnet:
     needs: deploy
-    name: Staging Env, Mainnet+
+    name: Staging on Mainnet + Sepolia
     uses: ./.github/workflows/app-e2e.yml
     secrets: inherit
     permissions:
-      contents: read
+      contents: write
     with:
       targetUrl: ${{ needs.deploy.outputs.dappUrl }}
+      testnet_network_value_for_e2e: "/?network=sepolia"
       default_network_value_for_e2e: "/?network=mainnet"
       publish_to_allure: true
       environmentTags: "and not @featureEnv"
-      

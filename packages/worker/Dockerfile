@@ -38,5 +38,6 @@ ENV PORT $PORT
 EXPOSE $PORT 9229 9230
 
 USER node
+WORKDIR /usr/src/app/packages/worker
 
-CMD [ "node", "packages/worker/dist/main.js" ]
+CMD [ "node", "dist/main.js" ]

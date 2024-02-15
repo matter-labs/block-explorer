@@ -1,6 +1,7 @@
+import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
 
@@ -12,6 +13,15 @@ import enUS from "@/locales/en.json";
 import type { BatchDetails } from "@/composables/useBatch";
 
 import { localDateFromISOString } from "@/utils/helpers";
+
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+vi.mock("@/composables/useContext", () => {
+  return {
+    default: () => ({
+      currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+    }),
+  };
+});
 
 describe("InfoTable:", () => {
   const i18n = createI18n({
@@ -50,6 +60,7 @@ describe("InfoTable:", () => {
       },
       props: {
         batch: batchItem,
+        batchNumber: batchItem.number.toString(),
         loading: false,
       },
     });
@@ -108,6 +119,33 @@ describe("InfoTable:", () => {
 
     wrapper.unmount();
   });
+
+  describe("when batch is not set", () => {
+    it("renders only batch number", () => {
+      const wrapper = mount(InfoTable, {
+        global: {
+          stubs: {
+            InfoTooltip: { template: "<div><slot /></div>" },
+          },
+          plugins: [i18n],
+        },
+        props: {
+          batchNumber: batchItem.number.toString(),
+          loading: false,
+        },
+      });
+
+      const rowArray = wrapper.findAll("tr");
+      expect(rowArray.length).toBe(1);
+
+      const batchIndex = rowArray[0].findAll("td");
+      expect(batchIndex[0].find(".batch-info-field-label").text()).toBe(i18n.global.t("batches.index"));
+      expect(batchIndex[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("batches.indexTooltip"));
+      expect(batchIndex[1].text()).toBe("42");
+      wrapper.unmount();
+    });
+  });
+
   it("renders loading state", () => {
     const wrapper = mount(InfoTable, {
       global: {
@@ -115,6 +153,7 @@ describe("InfoTable:", () => {
       },
       props: {
         loading: true,
+        batchNumber: batchItem.number.toString(),
       },
     });
     expect(wrapper.findAll(".content-loader").length).toBe(20);
@@ -131,6 +170,7 @@ describe("InfoTable:", () => {
       props: {
         batch: batchItem,
         loading: false,
+        batchNumber: batchItem.number.toString(),
       },
     });
 
@@ -144,5 +184,44 @@ describe("InfoTable:", () => {
       "https://goerli.etherscan.io/tx/0x57c44d7c183633f81bfa155bd30e68a94e3ff12c1e6265a4b5e06b6d4a7a1fa8"
     );
     wrapper.unmount();
+  });
+  describe("when L1 explorer url is not set", () => {
+    let mock1ExplorerUrl: Mock;
+    beforeEach(() => {
+      mock1ExplorerUrl = l1ExplorerUrlMock.mockReturnValue(null);
+    });
+
+    afterEach(() => {
+      mock1ExplorerUrl.mockRestore();
+    });
+
+    it("renders L1 hashes as texts instead of links", async () => {
+      const wrapper = mount(InfoTable, {
+        global: {
+          stubs: {
+            RouterLink: RouterLinkStub,
+          },
+          plugins: [i18n],
+        },
+        props: {
+          batch: batchItem,
+          batchNumber: batchItem.number.toString(),
+          loading: false,
+        },
+      });
+      expect(wrapper.findAll(".actual-string")[0].text()).toEqual(
+        "0x8983f748ff6c2f9038904d65dc63a344db33c29d97f1741a931e90689f86b2be"
+      );
+      expect(wrapper.findAll(".actual-string")[1].text()).toEqual(
+        "0x0ab34d8523b67f80783305760a2989ffe6ab205621813db5420a3012845f5ac7"
+      );
+      expect(wrapper.findAll(".actual-string")[2].text()).toEqual(
+        "0x87c5c5bf78100d88766101f13ec78d3b3356929556ee971cfacb6fe2a53b210a"
+      );
+      expect(wrapper.findAll(".actual-string")[3].text()).toEqual(
+        "0x57c44d7c183633f81bfa155bd30e68a94e3ff12c1e6265a4b5e06b6d4a7a1fa8"
+      );
+      wrapper.unmount();
+    });
   });
 });

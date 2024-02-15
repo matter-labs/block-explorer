@@ -7,6 +7,7 @@ import useContext from "./useContext";
 
 import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
+import type { types } from "zksync-web3";
 
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
@@ -16,10 +17,13 @@ type TokenInfo = {
   l2Address: Hash;
   name?: string;
   symbol: string;
+  usdPrice?: number;
+  liquidity?: number;
+  iconURL?: string;
 };
 
 export type TokenTransfer = {
-  amount: Hash;
+  amount: string | null;
   from: Hash;
   to: Hash;
   type: "fee" | "transfer" | "withdrawal" | "deposit" | "refund" | "mint";
@@ -28,8 +32,14 @@ export type TokenTransfer = {
   tokenInfo?: TokenInfo;
 };
 
+export type TransactionDetails = types.TransactionDetails & {
+  gasPerPubdata: string | null;
+};
+
 export type FeeData = {
   amountPaid: Hash;
+  isPaidByPaymaster: boolean;
+  paymasterAddress?: Hash;
   refunds: TokenTransfer[];
   amountRefunded: Hash;
 };
@@ -56,9 +66,17 @@ export type TransactionItem = {
   nonce: null | number;
   receivedAt: string;
   feeData: FeeData;
+  gasPrice: string;
+  gasLimit: string;
+  gasUsed: string;
+  gasPerPubdata: string | null;
+  maxFeePerGas: string | null;
+  maxPriorityFeePerGas: string | null;
   status: TransactionStatus;
   l1BatchNumber: number | null;
   isL1BatchSealed: boolean;
+  error?: string | null;
+  revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
 };
@@ -90,6 +108,7 @@ export default (context = useContext()) => {
       if (transactionDetails.status === "pending") {
         return null;
       }
+      const gasPerPubdata = (<TransactionDetails>transactionDetails).gasPerPubdata;
       return {
         hash: transactionData.hash,
         blockHash: transactionData.blockHash!,
@@ -109,6 +128,7 @@ export default (context = useContext()) => {
         fee: transactionDetails.fee.toString(),
         feeData: {
           amountPaid: transactionDetails.fee.toString(),
+          isPaidByPaymaster: false,
           refunds: [],
           amountRefunded: BigNumber.from(0).toHexString(),
         },
@@ -130,8 +150,14 @@ export default (context = useContext()) => {
           transactionHash: item.transactionHash,
           transactionIndex: item.transactionIndex.toString(16),
         })),
-
         transfers: [],
+
+        gasPrice: transactionData.gasPrice!.toString(),
+        gasLimit: transactionData.gasLimit.toString(),
+        gasUsed: transactionReceipt.gasUsed.toString(),
+        gasPerPubdata: gasPerPubdata ? BigNumber.from(gasPerPubdata).toString() : null,
+        maxFeePerGas: transactionData.maxFeePerGas?.toString() ?? null,
+        maxPriorityFeePerGas: transactionData.maxPriorityFeePerGas?.toString() ?? null,
       };
     } catch (err) {
       return null;
@@ -178,6 +204,11 @@ export function mapTransaction(
   transfers: Api.Response.Transfer[],
   logs: Api.Response.Log[]
 ): TransactionItem {
+  const fees = mapTransfers(filterFees(transfers));
+  const refunds = mapTransfers(filterRefunds(transfers));
+  const paymasterFee = fees.find((fee) => fee.from !== transaction.from);
+  const paymasterAddress = paymasterFee?.from;
+  const isPaidByPaymaster = !transaction.isL1Originated && !!paymasterFee;
   return {
     hash: transaction.hash,
     blockHash: transaction.blockHash,
@@ -197,7 +228,9 @@ export function mapTransaction(
     fee: transaction.fee,
     feeData: {
       amountPaid: transaction.fee!,
-      refunds: mapTransfers(filterRefunds(transfers)),
+      isPaidByPaymaster,
+      paymasterAddress: isPaidByPaymaster ? paymasterAddress : undefined,
+      refunds,
       amountRefunded: sumAmounts(mapTransfers(filterRefunds(transfers))),
     },
     indexInBlock: transaction.transactionIndex,
@@ -209,6 +242,8 @@ export function mapTransaction(
     status: transaction.status,
     l1BatchNumber: transaction.l1BatchNumber,
     isL1BatchSealed: transaction.isL1BatchSealed,
+    error: transaction.error,
+    revertReason: transaction.revertReason,
 
     logs: logs.map((item) => ({
       address: item.address,
@@ -221,12 +256,19 @@ export function mapTransaction(
     })),
 
     transfers: mapTransfers(filterTransfers(transfers)),
+
+    gasPrice: transaction.gasPrice,
+    gasLimit: transaction.gasLimit,
+    gasUsed: transaction.gasUsed,
+    gasPerPubdata: transaction.gasPerPubdata,
+    maxFeePerGas: transaction.maxFeePerGas,
+    maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
   };
 }
 
 function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
   return transfers.map((item) => ({
-    amount: item.amount!,
+    amount: item.amount,
     from: item.from,
     to: item.to,
     fromNetwork: getTransferNetworkOrigin(item, "from"),
@@ -239,21 +281,28 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
       decimals: item.token?.decimals || 0,
       name: item.token?.name,
       symbol: item.token?.symbol,
+      usdPrice: item.token?.usdPrice,
+      liquidity: item.token?.liquidity,
+      iconURL: item.token?.iconURL,
     } as TokenInfo,
   }));
 }
 
 function sumAmounts(balanceChanges: TokenTransfer[]) {
-  const total = balanceChanges.reduce((acc, cur) => acc.add(cur.amount), BigNumber.from(0));
+  const total = balanceChanges.reduce((acc, cur) => acc.add(cur.amount || 0), BigNumber.from(0));
   return total.toHexString() as Hash;
 }
 
-export function filterRefunds(balanceChanges: Api.Response.Transfer[]) {
-  return balanceChanges.filter((item) => item.type === "refund");
+export function filterRefunds(transfers: Api.Response.Transfer[]) {
+  return transfers.filter((item) => item.type === "refund");
 }
 
-export function filterTransfers(balanceChanges: Api.Response.Transfer[]) {
-  return balanceChanges.filter((item) => item.type !== "fee" && item.type !== "refund");
+export function filterFees(transfers: Api.Response.Transfer[]) {
+  return transfers.filter((item) => item.type === "fee");
+}
+
+export function filterTransfers(transfers: Api.Response.Transfer[]) {
+  return transfers.filter((item) => item.type !== "fee" && item.type !== "refund");
 }
 
 async function all<T>(url: URL): Promise<T[]> {

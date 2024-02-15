@@ -76,7 +76,7 @@ describe("DebuggerView:", () => {
     useRoute: () => vi.fn(),
   }));
   it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "debugger")?.meta.title as string)).toBe("zkEVM Debugger");
+    expect(i18n.global.t(routes.find((e) => e.name === "debugger")?.meta?.title as string)).toBe("zkEVM Debugger");
   });
 
   it("renders empty state when trace is empty", () => {
@@ -441,6 +441,7 @@ describe("DebuggerView:", () => {
       }),
       index: ref(0),
       total: computed(() => 2),
+      traceCountPercentage: computed(() => ({})),
     });
     const { unmount, container } = render(DebuggerView, {
       global: {
@@ -486,6 +487,7 @@ describe("DebuggerView:", () => {
       }),
       index: ref(1),
       total: computed(() => 2),
+      traceCountPercentage: computed(() => ({})),
     });
     const { unmount, container } = render(DebuggerView, {
       global: {

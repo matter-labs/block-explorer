@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { IsNull, Not, FindOptionsSelect } from "typeorm";
 import { Token } from "../entities";
 import { BaseRepository } from "./base.repository";
 import { UnitOfWork } from "../unitOfWork";
@@ -31,5 +32,67 @@ export class TokenRepository extends BaseRepository<Token> {
           (EXCLUDED."blockNumber" = tokens."blockNumber" AND EXCLUDED."logIndex" > tokens."logIndex")
       `);
     await queryBuilder.execute();
+  }
+
+  public async getOffChainDataLastUpdatedAt(): Promise<Date> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    const token = await transactionManager.findOne(this.entityTarget, {
+      where: {
+        offChainDataUpdatedAt: Not(IsNull()),
+      },
+      select: {
+        offChainDataUpdatedAt: true,
+      },
+      order: {
+        offChainDataUpdatedAt: "DESC",
+      },
+    });
+    return token?.offChainDataUpdatedAt;
+  }
+
+  public async getBridgedTokens(fields: FindOptionsSelect<Token> = { l1Address: true }): Promise<Token[]> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    const tokens = await transactionManager.find(this.entityTarget, {
+      where: {
+        l1Address: Not(IsNull()),
+      },
+      select: fields,
+    });
+    return tokens;
+  }
+
+  public async updateTokenOffChainData({
+    l1Address,
+    l2Address,
+    liquidity,
+    usdPrice,
+    updatedAt,
+    iconURL,
+  }: {
+    l1Address?: string;
+    l2Address?: string;
+    liquidity?: number;
+    usdPrice?: number;
+    updatedAt?: Date;
+    iconURL?: string;
+  }): Promise<void> {
+    if (!l1Address && !l2Address) {
+      throw new Error("l1Address or l2Address must be provided");
+    }
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    await transactionManager.update(
+      this.entityTarget,
+      {
+        ...(l1Address ? { l1Address } : { l2Address }),
+      },
+      {
+        liquidity,
+        usdPrice,
+        offChainDataUpdatedAt: updatedAt,
+        ...(iconURL && {
+          iconURL,
+        }),
+      }
+    );
   }
 }

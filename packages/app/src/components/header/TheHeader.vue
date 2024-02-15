@@ -48,7 +48,11 @@
         </div>
       </div>
     </div>
-    <div v-if="hasContent" class="hero-banner-container" :class="{ 'home-banner': route.path === '/' }">
+    <div
+      v-if="hasContent"
+      class="hero-banner-container"
+      :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
+    >
       <hero-arrows class="hero-image" />
     </div>
     <transition
@@ -155,7 +159,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://era.zksync.io/docs/dev/",
+    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
   },
 ]);
 
@@ -173,19 +177,19 @@ const blockExplorerLinks = reactive([
     to: { name: "transactions" },
   },
   {
-    label: computed(() => t("tokenListView.title")),
-    to: { name: "token-list" },
+    label: computed(() => t("tokensView.title")),
+    to: { name: "tokens" },
   },
 ]);
 
 const links = [
   {
-    label: computed(() => t("header.nav.contractVerification")),
-    to: { name: "contract-verification" },
+    label: computed(() => t("header.nav.apiDocs")),
+    url: computed(() => `${currentNetwork.value.apiUrl}/docs`),
   },
   {
-    label: computed(() => t("header.nav.portal")),
-    url: computed(() => currentNetwork.value.l2WalletUrl),
+    label: computed(() => t("header.nav.contractVerification")),
+    to: { name: "contract-verification" },
   },
 ];
 
@@ -297,12 +301,20 @@ const hasContent = computed(() => {
   .hero-banner-container {
     @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-primary-900;
 
+    &.goerli {
+      @apply h-[25rem] md:h-[23rem] lg:h-[19rem];
+    }
+
     .hero-image {
       @apply h-5/6 w-auto;
     }
   }
   .home-banner {
     @apply h-80;
+
+    &.goerli {
+      @apply h-[30rem] md:h-[27rem] lg:h-[24rem];
+    }
   }
 }
 .header-mobile-popover {

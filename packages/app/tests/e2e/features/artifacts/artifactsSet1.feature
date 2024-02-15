@@ -4,53 +4,30 @@ Feature: Main Page
   Background:
     Given I am on main page
 
-  @id253 @featureEnv @testnet
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
+
+  @id253:I @featureEnv @testnetSmokeSuite @testnet
+  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Sepolia)
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
     When Element with "text" "<Sub-Section>" should be "clickable"
     Then Element with "text" "<Sub-Section>" should have "<url>" value
 
     Examples:
-      | Sub-Section                 | url                                       |
-      | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://goerli.staging-portal.zksync.dev/ |
+      | Sub-Section                 | url                                              |
+      | Smart Contract Verification | /contracts/verify                                |
+      | Bridge                      | https://portal.zksync.io/bridge/?network=sepolia |
 
-  @id253 @featureEnv @mainnet
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
+  @id253:II @mainnet
+  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href (Mainnet)
     Given I click by text "Tools"
     Given Element with "text" "<Sub-Section>" should be "visible"
     When Element with "text" "<Sub-Section>" should be "clickable"
     Then Element with "text" "<Sub-Section>" should have "<url>" value
 
     Examples:
-      | Sub-Section                 | url                                       |
-      | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://staging-portal.zksync.dev/        |
-
-  @id253:I @stagingEnv @testnet
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
-    Given I click by text "Tools"
-    Given Element with "text" "<Sub-Section>" should be "visible"
-    When Element with "text" "<Sub-Section>" should be "clickable"
-    Then Element with "text" "<Sub-Section>" should have "<url>" value
-
-    Examples:
-      | Sub-Section                 | url                                       |
-      | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://goerli.portal.zksync.io/          |
-
-  @id253:I @stagingEnv @mainnet
-  Scenario Outline: Check the element "<Sub-Section>" in Tools section is available, clickable and have correct href
-    Given I click by text "Tools"
-    Given Element with "text" "<Sub-Section>" should be "visible"
-    When Element with "text" "<Sub-Section>" should be "clickable"
-    Then Element with "text" "<Sub-Section>" should have "<url>" value
-
-    Examples:
-      | Sub-Section                 | url                                       |
-      | Smart Contract Verification | /contracts/verify                         |
-      | Portal                      | https://portal.zksync.io/                 |
+      | Sub-Section                 | url                                              |
+      | Smart Contract Verification | /contracts/verify                                |
+      | Bridge                      | https://portal.zksync.io/bridge/?network=mainnet |
 
   @id231
   Scenario Outline: Check social networks icon "<Value>" is available, clickable and have correct href
@@ -70,11 +47,10 @@ Feature: Main Page
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher
 
     Examples:
-      | Value               | Dropdown |
-      | zkSync Era Testnet  | network  |
-      | zkSync Era Mainnet  | network  |
-      | EN                  | language |
-      | UA                  | language |
+      | Value                      | Dropdown |
+      | zkSync Era Mainnet         | network  |
+      | EN                         | language |
+      | UA                         | language |
 
   @id254:II @featureEnv
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
@@ -82,8 +58,20 @@ Feature: Main Page
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher
 
   Examples:
-      | Value               | Dropdown |
-      | Goerli (Stage2)     | network  |
+      | Value                       | Dropdown |
+      | zkSync Era Sepolia Testnet  | network  |
+      | zkSync Era Goerli Testnet   | network  |
+      | Goerli (Stage2)             | network  |
+
+  @id254:II @productionEnv
+  Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
+    Given Set the "<Value>" value for "<Dropdown>" switcher
+    Then Check the "<Value>" value is actual for "<Dropdown>" switcher
+
+  Examples:
+      | Value                      | Dropdown |
+      | zkSync Era Goerli Testnet  | network  |
+      | zkSync Era Sepolia Testnet | network  |
 
   Scenario: Network stats is displayed
     Then Element with "text" "Network Stats" should be "visible"
@@ -128,7 +116,7 @@ Feature: Main Page
     Given I go to page "/address/0x8f0F33583a56908F7F933cd6F0AaE382aC3fd8f6"
     Then Element with "id" "search" should be "visible"
 
-  @id209:I @testnet 
+  @id209:I @testnet
   Scenario Outline: Verify Transaction table contains "<Row>" row
     Given I go to page "/tx/0xe7a91cc9b270d062328ef995e0ef67195a3703d43ce4e1d375f87d5c64e51981"
     When Table contains row with "<Row>"
@@ -190,7 +178,7 @@ Feature: Main Page
       | Created            | 2023-05-14                                                         |
 
 
-  @id211 @testnet 
+  @id211 @testnet
   Scenario Outline: Verify Contract info table contains "<Row>" row
     Given I go to page "/address/0x3e7676937A7E96CFB7616f255b9AD9FF47363D4b"
     Then Element with "text" "<Row>" should be "visible"

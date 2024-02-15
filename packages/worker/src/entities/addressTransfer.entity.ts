@@ -2,14 +2,15 @@ import { Entity, Column, ManyToOne, JoinColumn, Index, PrimaryColumn } from "typ
 import { BaseEntity } from "./base.entity";
 import { Block } from "./block.entity";
 import { Transfer } from "./transfer.entity";
+import { TokenType } from "./token.entity";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
-import { transferFieldsTransformer } from "../transformers/transferFields.transformer";
-import { TransferFields } from "../transfer/interfaces/transfer.interface";
+import { TransferFields } from "../dataFetcher/types";
 
 @Entity({ name: "addressTransfers" })
 @Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["address", "tokenAddress", "fields", "blockNumber", "logIndex"])
+@Index(["address", "tokenAddress", "blockNumber", "logIndex"])
+@Index(["address", "tokenType", "blockNumber", "logIndex"])
 @Index(["address", "isInternal", "blockNumber", "logIndex"])
 export class AddressTransfer extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
@@ -38,12 +39,15 @@ export class AddressTransfer extends BaseEntity {
   public readonly blockNumber: number;
 
   @Column({ type: "timestamp" })
-  public readonly timestamp: Date;
+  public readonly timestamp: string;
+
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  public readonly tokenType: TokenType;
 
   @Column({ type: "boolean" })
   public readonly isFeeOrRefund: boolean;
 
-  @Column({ type: "jsonb", nullable: true, transformer: transferFieldsTransformer })
+  @Column({ type: "jsonb", nullable: true })
   public readonly fields?: TransferFields;
 
   @Column({ type: "int" })

@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@matterlabs/composables": "1.1.7",
-    "@matterlabs/token-library": "2.9.0",
     "@vueuse/components": "8.9.2",
     "@vueuse/core": "8.9.2",
     "date-fns": "2.28.0",

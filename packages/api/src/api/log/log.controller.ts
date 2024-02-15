@@ -26,7 +26,7 @@ export class LogController {
     @Query("fromBlock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) fromBlock?: number,
     @Query("toBlock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) toBlock?: number
   ): Promise<LogsResponseDto> {
-    const logs = await this.logService.findLogs({
+    const logs = await this.logService.findMany({
       address,
       fromBlock,
       toBlock,

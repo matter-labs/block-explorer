@@ -30,6 +30,19 @@
           />
         </TableBodyColumn>
       </tr>
+      <tr v-if="transaction?.error || transaction?.revertReason" class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label transaction-reason-label">
+            {{ t("transactions.table.reason") }}
+          </span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.reasonTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value transaction-reason-value">
+          {{ transaction.error || transaction.revertReason || "" }}
+        </TableBodyColumn>
+      </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.block") }}</span>
@@ -105,7 +118,7 @@
           </div>
         </TableBodyColumn>
       </tr>
-      <tr v-if="transaction?.transfers.length">
+      <tr v-if="tokenTransfers.length">
         <TableBodyColumn class="transaction-table-label transaction-token-transferred">
           <span class="transaction-info-field-label">{{ t("transactions.table.tokensTransferred") }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
@@ -113,7 +126,7 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <div v-for="transfer in transaction.transfers" :key="transfer.to + transfer.from">
+          <div v-for="transfer in tokenTransfers" :key="transfer.to + transfer.from">
             <TransferTableCell :transfer="transfer" />
           </div>
         </TableBodyColumn>
@@ -153,7 +166,26 @@
           <FeeData :fee-data="transaction?.feeData" :show-details="transaction?.status !== 'indexing'" />
         </TableBodyColumn>
       </tr>
-
+      <tr class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.gasLimitAndUsed") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasLimitAndUsedTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value"
+          >{{ transaction?.gasLimit }} | {{ transaction?.gasUsed }} ({{ gasUsedPercent }}%)</TableBodyColumn
+        >
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.gasPerPubdata") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">{{ transaction.gasPerPubdata }}</TableBodyColumn>
+      </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.nonce") }}</span>
@@ -189,6 +221,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
 import AddressLink from "@/components/AddressLink.vue";
@@ -207,11 +240,10 @@ import TransactionData from "@/components/transactions/infoTable/TransactionData
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
 import type { TransactionItem } from "@/composables/useTransaction";
-import type { PropType } from "vue";
 
 const { t } = useI18n();
 
-defineProps({
+const props = defineProps({
   transaction: {
     type: Object as PropType<TransactionItem | null>,
     default: null,
@@ -224,13 +256,24 @@ defineProps({
     type: String,
   },
 });
+
+const tokenTransfers = computed(() => {
+  // exclude transfers with no amount, such as NFT until we fully support them
+  return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
+});
+
+const gasUsedPercent = computed(() => {
+  if (props.transaction) {
+    const gasLimit = parseInt(props.transaction.gasLimit, 10);
+    const gasUsed = parseInt(props.transaction.gasUsed, 10);
+    return parseFloat(((gasUsed / gasLimit) * 100).toFixed(2));
+  }
+  return null;
+});
 </script>
 
 <style lang="scss">
 .transaction-info-table {
-  .table-body {
-    @apply md:overflow-visible;
-  }
   .table-body-col {
     @apply py-4;
   }
@@ -279,6 +322,9 @@ defineProps({
   }
   .transaction-status-value {
     @apply py-2;
+  }
+  .transaction-reason-value {
+    @apply text-error-600 whitespace-normal;
   }
 }
 </style>

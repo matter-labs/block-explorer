@@ -3,20 +3,34 @@
     {
       "apiUrl": "https://block-explorer-api.testnets.zksync.dev",
       "verificationApiUrl": "https://zksync2-testnet-explorer.zksync.dev",
-      "bridgeUrl": "https://staging.goerli.bridge.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=goerli",
       "hostnames": [
         "https://goerli.staging-scan-v2.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://goerli.etherscan.io",
       "l2ChainId": 280,
-      "l2NetworkName": "zkSync Era Testnet",
-      "l2WalletUrl": "https://goerli.staging-portal.zksync.dev/",
+      "l2NetworkName": "zkSync Era Goerli Testnet",
       "maintenance": false,
       "name": "goerli",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-testnet-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://testnet.era.zksync.dev"
+    },
+    {
+      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://sepolia.staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "l2ChainId": 300,
+      "l2NetworkName": "zkSync Era Sepolia Testnet",
+      "maintenance": false,
+      "name": "sepolia",
+      "published": true,
+      "rpcUrl": "https://sepolia.era.zksync.dev"
     },
     {
       "apiUrl": "https://block-explorer-api.stage.zksync.dev",
@@ -28,17 +42,15 @@
       "l1ExplorerUrl": "https://goerli.etherscan.io",
       "l2ChainId": 270,
       "l2NetworkName": "Goerli (Stage2)",
-      "l2WalletUrl": "https://goerli-beta.staging-portal.zksync.dev/",
       "maintenance": false,
       "name": "goerli-beta",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-stage-proofs/proofs_fri",
       "published": true,
       "rpcUrl": "https://z2-dev-api.zksync.dev"
     },
     {
       "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
       "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
-      "bridgeUrl": "https://staging.bridge.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
       "hostnames": [
         "https://staging-scan-v2.zksync.dev"
       ],
@@ -46,12 +58,11 @@
       "l1ExplorerUrl": "https://etherscan.io",
       "l2ChainId": 324,
       "l2NetworkName": "zkSync Era Mainnet",
-      "l2WalletUrl": "https://staging-portal.zksync.dev/",
       "maintenance": false,
       "name": "mainnet",
-      "newProverUrl": "https://storage.googleapis.com/zksync-era-mainnet-proofs/proofs_fri",
       "published": true,
-      "rpcUrl": "https://mainnet.era.zksync.io"
+      "rpcUrl": "https://mainnet.era.zksync.io",
+      "tokensMinLiquidity": 0
     }
   ]
 }

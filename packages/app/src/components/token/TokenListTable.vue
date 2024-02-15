@@ -1,24 +1,24 @@
 <template>
   <Table :data-testid="$testId.tokensTable" :loading="loading" :items="tokens" ref="table">
     <template #table-head>
-      <table-head-column>{{ t("tokenListView.table.tokenName") }}</table-head-column>
-      <table-head-column>{{ t("tokenListView.table.price") }}</table-head-column>
-      <table-head-column>{{ t("tokenListView.table.tokenAddress") }}</table-head-column>
+      <table-head-column>{{ t("tokensView.table.tokenName") }}</table-head-column>
+      <table-head-column>{{ t("tokensView.table.price") }}</table-head-column>
+      <table-head-column>{{ t("tokensView.table.tokenAddress") }}</table-head-column>
     </template>
     <template #table-row="{ item }: { item: any }">
-      <TableBodyColumn :data-heading="t('tokenListView.table.tokenName')">
+      <TableBodyColumn :data-heading="t('tokensView.table.tokenName')">
         <TokenIconLabel
           :symbol="item.symbol"
           icon-size="xl"
           :address="item.l2Address"
           :name="item.name"
-          :image-url="item.imageUrl"
+          :icon-url="item.iconURL"
         />
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('tokenListView.table.price')">
+      <TableBodyColumn :data-heading="t('tokensView.table.price')">
         <TokenPrice :address="item.l2Address" />
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('tokenListView.table.tokenAddress')">
+      <TableBodyColumn :data-heading="t('tokensView.table.tokenAddress')">
         <div class="token-address-container max-w-sm">
           <TransactionNetworkSquareBlock network="L2" />
           <AddressLink
@@ -78,7 +78,7 @@ import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TokenPrice from "@/components/common/table/fields/TokenPrice.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
 
-import type { Token } from "@matterlabs/token-library";
+import type { Token } from "@/composables/useToken";
 
 defineProps({
   tokens: {

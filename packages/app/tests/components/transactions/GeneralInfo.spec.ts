@@ -1,9 +1,11 @@
-import { nextTick } from "vue";
+import { computed, nextTick } from "vue";
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
+
+import { ETH_TOKEN_MOCK } from "../../mocks";
 
 import Badge from "@/components/common/Badge.vue";
 import Tooltip from "@/components/common/Tooltip.vue";
@@ -36,6 +38,7 @@ const transaction: TransactionItem = {
   fee: "0x521f303519100",
   feeData: {
     amountPaid: "0x521f303519100",
+    isPaidByPaymaster: false,
     refunds: [
       {
         amount: "116665569251910",
@@ -45,9 +48,9 @@ const transaction: TransactionItem = {
         toNetwork: "L2",
         type: "refund",
         tokenInfo: {
-          address: "0x0000000000000000000000000000000000000000",
+          address: "0x000000000000000000000000000000000000800A",
           l1Address: "0x0000000000000000000000000000000000000000",
-          l2Address: "0x0000000000000000000000000000000000000000",
+          l2Address: "0x000000000000000000000000000000000000800A",
           symbol: "ETH",
           name: "Ether",
           decimals: 18,
@@ -61,9 +64,9 @@ const transaction: TransactionItem = {
         toNetwork: "L2",
         type: "refund",
         tokenInfo: {
-          address: "0x0000000000000000000000000000000000000000",
+          address: "0x000000000000000000000000000000000000800A",
           l1Address: "0x0000000000000000000000000000000000000000",
-          l2Address: "0x0000000000000000000000000000000000000000",
+          l2Address: "0x000000000000000000000000000000000000800A",
           symbol: "ETH",
           name: "Ether",
           decimals: 18,
@@ -150,8 +153,40 @@ const transaction: TransactionItem = {
         symbol: "YourTokenSymbol",
       },
     },
+    {
+      amount: null,
+      from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+      to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+      fromNetwork: "L2",
+      toNetwork: "L2",
+      type: "transfer",
+      tokenInfo: {
+        address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
+        l1Address: undefined,
+        l2Address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
+        decimals: 18,
+        name: "Your Token Name",
+        symbol: "NoAmountTransfer",
+      },
+    },
   ],
+  gasPrice: "4000",
+  gasLimit: "5000",
+  gasUsed: "3000",
+  gasPerPubdata: "800",
+  maxFeePerGas: "7000",
+  maxPriorityFeePerGas: "8000",
 };
+
+vi.mock("@/composables/useToken", () => {
+  return {
+    default: () => ({
+      getTokenInfo: vi.fn(),
+      tokenInfo: computed(() => ETH_TOKEN_MOCK),
+      isRequestPending: computed(() => false),
+    }),
+  };
+});
 
 describe("Transaction info table", () => {
   const i18n = createI18n({
@@ -177,8 +212,22 @@ describe("Transaction info table", () => {
       },
     });
     await nextTick();
-    const [txHash, status, block, batch, from, to, tokensTransferred, inputData, value, fee, nonce, createdAt] =
-      wrapper.findAll("tbody tr td:nth-child(2)");
+    const [
+      txHash,
+      status,
+      block,
+      batch,
+      from,
+      to,
+      tokensTransferred,
+      inputData,
+      value,
+      fee,
+      gasLimitAndUsed,
+      gasPerPubdata,
+      nonce,
+      createdAt,
+    ] = wrapper.findAll("tbody tr td:nth-child(2)");
     expect(txHash.find(".displayed-string").text()).toBe("0x9c526cc47ca...ff8a629cffa3c");
 
     const badges = status.findAllComponents(Badge);
@@ -219,6 +268,9 @@ describe("Transaction info table", () => {
     expect(inputData.find(".displayed-string").text()).toBe("0xa9059cbb000...000000000000c");
     expect(`${value.find(".token-amount").text()} ${fee.find(".token-symbol").text()}`).toBe("0 ETH");
     expect(`${fee.find(".token-amount").text()} ${fee.find(".token-symbol").text()}`).toBe("0.0014447025 ETH");
+
+    expect(gasLimitAndUsed.text()).toBe("5000 | 3000 (60%)");
+    expect(gasPerPubdata.text()).toBe("800");
     expect(nonce.text()).toBe("24");
     expect(createdAt.find(".full-date").text()).toBe("2023-02-28 11:42");
 
@@ -233,6 +285,8 @@ describe("Transaction info table", () => {
       inputDataTooltip,
       valueTooltip,
       feeTooltip,
+      gasLimitAndUsedTooltip,
+      gasPerPubdataTooltip,
       nonceTooltip,
       createdAtTooltip,
     ] = wrapper.findAll("tbody .transaction-info-field-tooltip").map((e) => e.text());
@@ -246,10 +300,12 @@ describe("Transaction info table", () => {
     expect(inputDataTooltip).toBe(i18n.global.t("transactions.table.inputDataTooltip"));
     expect(valueTooltip).toBe(i18n.global.t("transactions.table.valueTooltip"));
     expect(feeTooltip).toBe(i18n.global.t("transactions.table.feeTooltip"));
+    expect(gasLimitAndUsedTooltip).toBe(i18n.global.t("transactions.table.gasLimitAndUsedTooltip"));
+    expect(gasPerPubdataTooltip).toBe(i18n.global.t("transactions.table.gasPerPubdataTooltip"));
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
     expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.createdTooltip"));
   });
-  it("renders indexing transaction status and tooltip", async () => {
+  it("renders indexing transaction status", async () => {
     const wrapper = mount(Table, {
       global: {
         stubs: {
@@ -266,10 +322,11 @@ describe("Transaction info table", () => {
     await nextTick();
     const status = wrapper.findAll("tbody tr td:nth-child(2)")[1];
     const badges = status.findAllComponents(Badge);
-    expect(badges.length).toBe(1);
-    expect(badges[0].text()).toBe(i18n.global.t("transactions.statusComponent.indexing"));
-    const indexingTooltip = wrapper.find(".transaction-status .info-tooltip");
-    expect(indexingTooltip.text()).toBe(i18n.global.t("transactions.statusComponent.indexingTooltip"));
+
+    const [l2StatusBadgeTitle, l2StatusBadgeValue, indexingBadge] = badges;
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
+    expect(indexingBadge.text()).toBe(i18n.global.t("transactions.statusComponent.indexing"));
   });
   it("renders failed transaction status", async () => {
     const wrapper = mount(Table, {
@@ -281,15 +338,17 @@ describe("Transaction info table", () => {
         plugins: [i18n, $testId],
       },
       props: {
-        transaction: { ...transaction, status: "failed" },
+        transaction: { ...transaction, status: "failed", revertReason: "Revert reason" },
         loading: false,
       },
     });
     await nextTick();
     const status = wrapper.findAll("tbody tr td:nth-child(2)")[1];
     const badges = status.findAllComponents(Badge);
+    const reason = wrapper.find(".transaction-reason-value");
     expect(badges.length).toBe(1);
     expect(badges[0].text()).toBe(i18n.global.t("transactions.statusComponent.failed"));
+    expect(reason.text()).toBe("Revert reason");
   });
   it("renders included transaction status", async () => {
     const wrapper = mount(Table, {

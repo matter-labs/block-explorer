@@ -2,6 +2,7 @@ import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { DataFetcherService } from "../dataFetcher/dataFetcher.service";
 import { BlockWatcher } from "./block.watcher";
 import { BlockchainService } from "../blockchain";
 
@@ -14,6 +15,7 @@ describe("BlockWatcher", () => {
 
   let blockWatcher: BlockWatcher;
   let blockchainServiceMock: BlockchainService;
+  let dataFetcherServiceMock: DataFetcherService;
   let blockchainBlocksMetricMock: jest.Mock;
   let blocksToProcessMetricMock: jest.Mock;
   let getBlockInfoDurationMetricStartMock: jest.Mock;
@@ -27,6 +29,10 @@ describe("BlockWatcher", () => {
         {
           provide: BlockchainService,
           useValue: blockchainServiceMock,
+        },
+        {
+          provide: DataFetcherService,
+          useValue: dataFetcherServiceMock,
         },
         {
           provide: "PROM_METRIC_BLOCKCHAIN_BLOCKS",
@@ -77,9 +83,13 @@ describe("BlockWatcher", () => {
     });
     blockchainServiceMock = mock<BlockchainService>({
       getBlockNumber: jest.fn().mockResolvedValue(lastBlockchainBlockNumber),
-      getBlock: jest.fn().mockImplementation((number: number) => Promise.resolve({ number })),
-      getBlockDetails: jest.fn().mockImplementation((number: number) => Promise.resolve({ number })),
       on: jest.fn(),
+    });
+
+    dataFetcherServiceMock = mock<DataFetcherService>({
+      getBlockData: jest
+        .fn()
+        .mockImplementation((number: number) => Promise.resolve({ block: { number }, blockDetails: { number } })),
     });
 
     jest.spyOn(global, "setInterval").mockImplementation((callback: () => void) => {

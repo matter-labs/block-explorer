@@ -190,4 +190,11 @@ export class AccountTransactionDto {
     example: "transfer(address to, uint256 tokens)",
   })
   public readonly functionName: string;
+
+  @ApiProperty({
+    type: String,
+    description: "The type of the transaction",
+    example: "255",
+  })
+  public readonly type: string;
 }
