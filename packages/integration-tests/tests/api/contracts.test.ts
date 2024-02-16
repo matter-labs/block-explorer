@@ -20,7 +20,6 @@ describe("API module: Contract", () => {
     beforeAll(async () => {
       await playbook.deployViaPaymaster();
       await playbook.deployMultiCallContracts();
-      await playbook.deployGreeterToL2();
     });
 
     //id1851
