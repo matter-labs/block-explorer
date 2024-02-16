@@ -2,12 +2,12 @@
   "networks": [
     {
       "apiUrl": "https://sepolia.explorer-api.zklink.network",
-      "verificationApiUrl": "https://sepolia.explorer.zklink.network",
+      "verificationApiUrl": "https://sepolia.verification.zklink.network",
       "bridgeUrl": "https://sepolia.portal.zklink.network",
       "hostnames": [],
       "icon": "/images/icons/cion.png",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "l2ChainId": 300,
+      "l1ExplorerUrl": "https://sepolia.arbiscan.io",
+      "l2ChainId": 810181,
       "l2NetworkName": "zkLink Nova Sepolia Testnet",
       "maintenance": false,
       "name": "sepolia",
