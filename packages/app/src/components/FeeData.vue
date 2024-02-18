@@ -27,8 +27,7 @@
       <div>
         <a
           class="refunded-link"
-          href="https://docs.zksync.io/build/developer-reference/fee-model.html#refunds"
-          target="_blank"
+          @click="showPopup"
           >{{
             t(
               feeData?.isPaidByPaymaster
@@ -46,6 +45,10 @@
         >
       </div>
     </div>
+     <AskGotoZksyncDialog 
+          :outsideLink="linkAddress"
+          :opened="isShowPopUp"  
+          @close="closeModal" />
   </div>
 </template>
 <script lang="ts" setup>
@@ -56,6 +59,7 @@ import { BigNumber } from "ethers";
 
 import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
+import AskGotoZksyncDialog from "@/components/AskGotoZksyncDialog.vue";
 
 import useToken from "@/composables/useToken";
 
@@ -92,6 +96,17 @@ const initialFee = computed(() => {
 const token = computed<Token | null>(() => {
   return tokenInfo.value;
 });
+const isShowPopUp = ref(false)
+const linkAddress = ref('https://docs.zksync.io/build/developer-reference/fee-model.html#refunds')
+const closeModal = () => {
+  isShowPopUp.value = false
+}
+const showPopup=()=>{
+  console.log(111);
+  
+   isShowPopUp.value = true
+}
+
 </script>
 <style lang="scss" scoped>
 .fee-info-container {
@@ -120,6 +135,10 @@ const token = computed<Token | null>(() => {
   }
   .paymaster-link {
     @apply ml-2;
+  }
+  .refunded-link{
+    cursor: pointer;
+
   }
 }
 </style>

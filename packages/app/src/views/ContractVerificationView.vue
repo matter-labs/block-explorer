@@ -16,9 +16,9 @@
       <Alert type="notification" class="full-grid-width">
         <i18n-t scope="global" keypath="contractVerification.resources.title" tag="span">
           <template #hardhat>
-            <a href="https://docs.zksync.io/build/tooling/hardhat/hardhat-zksync-verify.html" target="_blank">
-              {{ t("contractVerification.resources.links.hardhat") }}
-            </a>
+            <a @click="changeLink(1)" class="btn-link">
+                {{ t("contractVerification.resources.links.hardhat") }}
+              </a>
           </template>
         </i18n-t>
       </Alert>
@@ -83,9 +83,7 @@
           :label="t(`contractVerification.form.${selectedZkCompiler.name}Version.label`)"
           class="label-inline-block"
         >
-          <a
-            href="https://docs.zksync.io/build/tooling/block-explorer/contract-verification.html#user-interface"
-            target="_blank"
+          <a @click="changeLink(2)"
             class="docs-link"
             >{{ t(`contractVerification.form.${selectedZkCompiler.name}Version.details`) }}</a
           >
@@ -263,6 +261,10 @@
       </div>
     </ContentCard>
     <SuccessScreen v-else class="content-container" :contract-address="(form.contractAddress as Address)" />
+    <AskGotoZksyncDialog 
+        :outsideLink="linkAddress"
+        :opened="isShowPopUp"  
+        @close="closeModal" />
   </div>
 </template>
 
@@ -289,6 +291,7 @@ import RadioInput from "@/components/common/RadioInput.vue";
 import MultiFileVerification from "@/components/contract/verification/MultiFileVerification.vue";
 import SuccessScreen from "@/components/contract/verification/SuccessScreen.vue";
 import FormItem from "@/components/form/FormItem.vue";
+import AskGotoZksyncDialog from "@/components/AskGotoZksyncDialog.vue";
 
 import useContractVerification from "@/composables/useContractVerification";
 
@@ -353,6 +356,22 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
 ]);
 
 const isZkVMSolcCompiler = ref(false);
+const isShowPopUp=ref(false)
+const linkAddress=ref('')
+const closeModal=()=>{
+  isShowPopUp.value=false
+  
+}
+const changeLink=(val:number)=>{
+  isShowPopUp.value=true;
+  if(val===1){
+    linkAddress.value = "https://docs.zksync.io/build/tooling/hardhat/hardhat-zksync-verify.html"
+  }else{
+    linkAddress.value = "https://docs.zksync.io/build/tooling/block-explorer/contract-verification.html#user-interface"
+  }
+  
+    
+}
 const selectedCompilationType = ref(CompilationTypeOptionsEnum.soliditySingleFile);
 const isSingleFile = computed(() =>
   [CompilationTypeOptionsEnum.soliditySingleFile, CompilationTypeOptionsEnum.vyperSingleFile].includes(
@@ -604,6 +623,9 @@ async function submitForm() {
 }
 .form-container {
   @apply md:grid-cols-4;
+  .btn-link{
+    cursor: pointer;
+  }
 
   .half-grid-width {
     @apply md:col-span-2;
@@ -662,6 +684,7 @@ async function submitForm() {
     @apply grid gap-4 md:grid-cols-2;
     .docs-link {
       @apply float-right rounded-md px-0.5 pt-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-600;
+      cursor: pointer;
     }
   }
 }

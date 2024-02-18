@@ -112,7 +112,7 @@ defineProps({
   }
 
   &.color-success {
-    @apply bg-success-200 text-success-600;
+    @apply bg-design-200 text-success-600;
   }
 
   &.color-warning {
@@ -132,7 +132,7 @@ defineProps({
   }
 
   &.color-dark-success {
-    @apply bg-success-600 text-white;
+    @apply bg-design-600 text-white;
   }
 
   &.text-color-neutral {

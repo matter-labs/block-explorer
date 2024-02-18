@@ -159,7 +159,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zklink.network ",
+    url: "https://zklink-team.gitbook.io/zklink-nova-testnet ",
   },
 ]);
 

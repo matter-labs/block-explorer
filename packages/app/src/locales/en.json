@@ -586,7 +586,8 @@
         "table": {
             "tokenName": "Token Name",
             "price": "Price",
-            "tokenAddress": "Token Address"
+            "tokenAddress": "Token Address",
+            "fromChain":"From Chain"
         }
     },
     "pageError": {
