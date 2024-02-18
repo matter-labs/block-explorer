@@ -23,6 +23,9 @@ export class Token extends BaseEntity {
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly l1Address?: string;
 
+  @Column({ transformer: stringTransformer })
+  public readonly networkKey?: string;
+
   @Column({ generated: true, type: "bigint" })
   public readonly number: number;
 

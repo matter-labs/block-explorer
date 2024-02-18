@@ -42,6 +42,7 @@ export interface Token {
   blockNumber: number;
   transactionHash: string;
   logIndex: number;
+  networkKey?: string;
 }
 
 export interface ContractAddress {
