@@ -1,3 +1,4 @@
+export type NetworkKey = string;
 export default () => {
   const {
     PORT,
@@ -28,7 +29,30 @@ export default () => {
     TO_BLOCK,
     COINGECKO_IS_PRO_PLAN,
     COINGECKO_API_KEY,
+    BRIDGE_NETWORK_KEYS,
   } = process.env;
+
+  const networkKeys = BRIDGE_NETWORK_KEYS.split(",");
+  const key2L1 = Object.fromEntries(
+    networkKeys.map((key) => {
+      return [key, process.env[`L1_ERC20_BRIDGE_${key.toUpperCase()}`]];
+    })
+  );
+  const key2L2 = Object.fromEntries(
+    networkKeys.map((key) => {
+      return [key, process.env[`L2_ERC20_BRIDGE_${key.toUpperCase()}`]];
+    })
+  );
+  const L12Key = Object.fromEntries(
+    networkKeys.map((key) => {
+      return [(process.env[`L1_ERC20_BRIDGE_${key.toUpperCase()}`] || "").toLowerCase(), key];
+    })
+  );
+  const L22Key = Object.fromEntries(
+    networkKeys.map((key) => {
+      return [(process.env[`L2_ERC20_BRIDGE_${key.toUpperCase()}`] || "").toLowerCase(), key];
+    })
+  );
 
   return {
     port: parseInt(PORT, 10) || 3001,
@@ -77,6 +101,15 @@ export default () => {
     metrics: {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
       collectBlocksToProcessMetricInterval: parseInt(COLLECT_BLOCKS_TO_PROCESS_METRIC_INTERVAL, 10) || 10000,
+    },
+    bridge: {
+      networkKeys,
+      getL1Erc20Bridge: (networkKey: NetworkKey): string | undefined => key2L1[networkKey],
+      getL2Erc20Bridge: (networkKey: NetworkKey): string | undefined => key2L2[networkKey],
+      getNetworkKeyByL1Erc20Bridge: (bridgeAddress: string): NetworkKey | undefined =>
+        L12Key[bridgeAddress.toLowerCase()],
+      getNetworkKeyByL2Erc20Bridge: (bridgeAddress: string): NetworkKey | undefined =>
+        L22Key[bridgeAddress.toLowerCase()],
     },
   };
 };
