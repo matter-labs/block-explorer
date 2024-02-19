@@ -12,6 +12,7 @@ import {
   defaultTransferHandler,
   ethMintFromL1Handler,
   ethWithdrawalToL1Handler,
+  ethWithdrawalWithMessageToL1Handler,
 } from "./extractHandlers";
 
 export enum TransferType {
@@ -29,6 +30,7 @@ const extractTransfersHandlers: Record<string, ExtractTransferHandler[]> = {
   [LogType.Transfer]: [erc721TransferHandler, contractDeployerTransferHandler, defaultTransferHandler],
   [LogType.Mint]: [ethMintFromL1Handler],
   [LogType.Withdrawal]: [ethWithdrawalToL1Handler],
+  [LogType.WithdrawalWithMessage]: [ethWithdrawalWithMessageToL1Handler],
 };
 
 @Injectable()

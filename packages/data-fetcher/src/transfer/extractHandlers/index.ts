@@ -5,3 +5,4 @@ export * from "./transfer/erc721Transfer.handler";
 export * from "./withdrawalInitiated/default.handler";
 export * from "./mint/ethMintFromL1.handler";
 export * from "./withdrawal/ethWithdrawalToL1.handler";
+export * from "./withdrawal/ethWithdrawalWithMessageToL1.handler";
