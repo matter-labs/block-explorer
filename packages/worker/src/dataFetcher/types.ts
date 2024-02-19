@@ -31,6 +31,7 @@ export interface Transfer {
   logIndex: number;
   fields?: TransferFields;
   isInternal: boolean;
+  gateway?: string;
 }
 
 export interface Token {
