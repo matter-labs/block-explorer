@@ -23,12 +23,27 @@ module.exports = {
           800: "#27274E",
           900: "#11142B",
         },
+
         secondary: colors.yellow,
         neutral: colors.gray,
 
         success: colors.green,
         error: colors.red,
         warning: colors.yellow,
+        design:{
+          50: "#F3F5FF",
+          100: "#D9D9F9",
+          200: "#5089DD",
+          300: "#8C8DFC",
+          400: "#5D65B9",
+          500: "#53579f",
+          600: "#3C67E9",
+          700: "#32325D",
+          800: "#27274E",
+          900: "#11142B",
+
+        }
+      
       },
       screens: {
         xs: "480px",

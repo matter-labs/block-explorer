@@ -13,9 +13,12 @@ export type NetworkConfig = {
   hostnames: string[];
   tokensMinLiquidity?: number;
 };
-
+export type IconsList={
+  [key:string]:string
+}
 export type EnvironmentConfig = {
   networks: NetworkConfig[];
+  iconsList:IconsList
 };
 
 export type RuntimeConfig = {

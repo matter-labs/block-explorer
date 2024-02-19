@@ -14,5 +14,12 @@
       "published": true,
       "rpcUrl": "https://sepolia.rpc.zklink.network"
     }
-  ]
+  ],
+  "iconsList":{
+    "sepolia": "/img/ethereum.svg",
+    "primary":"/img/arbitrum-arb-logo.svg",
+    "zksyncsepolia":"/img/era.svg",
+    "scrollsepolia":"/img/sepolia.jpg"
+
+  }
 }
