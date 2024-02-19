@@ -61,6 +61,9 @@ export class Transfer extends BaseEntity {
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly tokenAddress: string;
 
+  @Column({ type: "bytea", nullable: true, transformer: normalizeAddressTransformer })
+  public readonly gateway?: string;
+
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 

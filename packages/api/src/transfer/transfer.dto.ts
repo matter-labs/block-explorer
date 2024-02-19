@@ -59,6 +59,13 @@ export class TransferDto {
   public readonly tokenAddress: string;
 
   @ApiProperty({
+    type: String,
+    description: "The address of the gateway that was transferred. null for ETH",
+    example: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
+  })
+  public readonly gateway?: string;
+
+  @ApiProperty({
     enum: TransferType,
     description: "The type of the transfer",
     example: "transfer",
