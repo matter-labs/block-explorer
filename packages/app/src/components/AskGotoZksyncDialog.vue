@@ -4,7 +4,7 @@
             <div class="ask-popup">
                 <div class="ask-popup-header">
                     <h3 class="ask-popup-title">
-                        {{ t("transactions.statusComponent.ethereumNetwork") }}
+                        {{ t("GoOutsidePageDialog.title") }}
                     </h3>
 
                     <button @click="closeAskPopup" class="ask-popup-close">
@@ -12,8 +12,7 @@
                     </button>
                 </div>
                 <div class="ask-popup-content">
-                    <h6>Payment successful</h6>
-                    <p>Your payment has been successfully submitted. We’ve sent you an email with all of the details of your order.</p>
+                    <p>{{ t('GoOutsidePageDialog.subtitle') }}</p>
 
                 </div>
                 <div class="ask-popup-footer">
@@ -23,7 +22,7 @@
                           type="button"
                           class="inline-flex justify-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                         >
-                            GO now!
+                            {{ t("GoOutsidePageDialog.accessNow") }}
                         </button>
                   </div>
                 </div>
@@ -39,7 +38,6 @@ import { useRouter } from "vue-router";
 import { OnClickOutside } from "@vueuse/components";
 import { XIcon } from "@heroicons/vue/outline";
 import { useI18n } from "vue-i18n";
-import { log } from "console";
 const router = useRouter();
 
 

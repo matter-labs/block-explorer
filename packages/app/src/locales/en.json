@@ -310,7 +310,7 @@
     },
     "blockExplorer": {
         "title": "zkLink Nova Block Explorer",
-        "subtitle": "zkLink Nova Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into zkLink Nova and explore the network.",
+        "subtitle": "zkLink Nova Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into zkLink Nova and explore the first Aggregated Layer3 Rollup.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions",
         "batches": "Latest Batches"
@@ -407,7 +407,7 @@
     },
     "contractVerification": {
         "title": "Smart Contract Verification",
-        "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Era Explorer will match the compiled code with that on the blockchain.",
+        "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, zkLink Nova Explorer will match the compiled code with that on the blockchain.",
         "resources": {
             "title": "You can also verify your smart-contract using {hardhat}",
             "links": {
@@ -726,5 +726,10 @@
     "systemAlert": {
         "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
         "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
+    },
+    "GoOutsidePageDialog":{
+        "title":"Greetings",
+        "subtitle":"zkLink Nova leverages the combined capabilities of zkLink Nexus and zkSync ZK Stack. In light of this, we highly recommend referring the official zkSync documentation for a deeper understanding, providing comprehensive context, details, and information on specific topics.",
+        "accessNow":"Access Now"
     }
 }
