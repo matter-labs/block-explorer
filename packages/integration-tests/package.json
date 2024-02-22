@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "cd src/playbook && npm install",
-    "integration-test:api": "jest --verbose --testPathPattern=transactions.test.ts",
+    "integration-test:api": "jest --verbose",
     "integration-test:ui": "npx playwright test",
     "block-explorer:start": "docker-compose up",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-pattern 'repos' --ignore-pattern 'git add .'"
