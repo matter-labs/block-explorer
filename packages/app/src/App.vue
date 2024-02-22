@@ -2,7 +2,7 @@
   <template v-if="isReady">
     <the-header :class="$route?.name" />
     <div class="container-app">
-      <NetworkDeprecated v-if="!currentNetwork.maintenance && currentNetwork.name === 'goerli'" />
+      <!-- <NetworkDeprecated v-if="!currentNetwork.maintenance && currentNetwork.name === 'goerli'" /> -->
       <IndexerDelayAlert v-if="!currentNetwork.maintenance && currentNetwork.name === 'mainnet'" />
       <MaintenanceView v-if="currentNetwork.maintenance" />
       <router-view v-else />
