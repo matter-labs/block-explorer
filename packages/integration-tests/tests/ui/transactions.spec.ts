@@ -1,6 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { address } from "hardhat/internal/core/config/config-validation";
-import getWallet from "src/playbook/utils/getWallet";
 
 import { config } from "./config";
 import { BlockExplorer, Buffer, Token, Wallets } from "../../src/entities";
