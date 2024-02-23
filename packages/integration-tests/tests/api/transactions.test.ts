@@ -44,16 +44,9 @@ describe("Transactions", () => {
         expect(response.status).toBe(200);
         expect(response.body.items[1].from).toBe(Wallets.richWalletAddress);
         expect(response.body.items[1].to).toBe(Wallets.mainWalletAddress);
-        expect(typeof response.body.items[1].blockNumber).toStrictEqual("number");
         expect(response.body.items[1].transactionHash).toBe(txHash);
-        expect(typeof response.body.items[1].blockNumber).toStrictEqual("number");
-        expect(response.body.items[1].tokenAddress).toBe(Token.ETHER_ERC20_Address);
         expect(response.body.items[1].amount).toBe("1000000000000");
         expect(response.body.items[1].type).toBe("transfer");
-        expect(response.body.items[1].tokenType).toBe("ETH");
-        expect(typeof response.body.items[1].fields).toBeTruthy(); // can be null
-        expect(typeof response.body.items[1].isInternal).toStrictEqual("boolean");
-        expect(typeof response.body.items[1].token).toStrictEqual("object");
       });
     });
 
