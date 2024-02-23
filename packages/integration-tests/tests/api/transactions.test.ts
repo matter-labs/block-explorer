@@ -41,8 +41,6 @@ describe("Transactions", () => {
         apiRoute = `/transactions/${txHash}/transfers`;
         response = await helper.performGETrequest(apiRoute);
 
-        console.log(response.body);
-
         expect(response.status).toBe(200);
         expect(response.body.items[1].from).toBe(Wallets.richWalletAddress);
         expect(response.body.items[1].to).toBe(Wallets.mainWalletAddress);
