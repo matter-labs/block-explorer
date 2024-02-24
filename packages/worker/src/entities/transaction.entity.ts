@@ -6,6 +6,7 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { Batch } from "./batch.entity";
 import { Block } from "./block.entity";
 import { CountableEntity } from "./countable.entity";
+import { stringTransformer } from "../transformers/string.transformer";
 
 @Entity({ name: "transactions" })
 @Index(["receivedAt", "transactionIndex"])
@@ -91,9 +92,9 @@ export class Transaction extends CountableEntity {
   @Column({ type: "int", default: 1 })
   public readonly receiptStatus: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, transformer: stringTransformer })
   public readonly error?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, transformer: stringTransformer })
   public readonly revertReason?: string;
 }

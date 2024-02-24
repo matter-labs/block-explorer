@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - '[0-9]+.*'
+      - prod
 
 jobs:
   createReleaseVersion:
@@ -59,7 +60,7 @@ jobs:
     permissions:
       contents: read
     needs: createReleaseVersion
-    if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
+    if: ${{ needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
       - uses: actions/checkout@v3
 
@@ -83,95 +84,11 @@ jobs:
         run: |
           gcloud auth configure-docker us-docker.pkg.dev -q 
 
-      - name: Build and push Docker image for API
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          tags: |
-              "matterlabs/block-explorer-api:latest"
-              "matterlabs/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "matterlabs/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:latest"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
-          file: packages/api/Dockerfile
-          no-cache: true
-
       - name: Build and push Docker image for Worker
         uses: docker/build-push-action@v4
         with:
           push: true
           tags: |
-              "matterlabs/block-explorer-worker:latest"
-              "matterlabs/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "matterlabs/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:latest"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:prod"
           file: packages/worker/Dockerfile
           no-cache: true
-
-      - name: Build and push Docker image for App
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          tags: |
-              "matterlabs/block-explorer-app:latest"
-              "matterlabs/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "matterlabs/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:latest"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
-          file: packages/app/Dockerfile
-          no-cache: true
-
-  deployFrontendToStaging:
-    name: Deploy Block Explorer frontend to staging
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    needs: createReleaseVersion
-    if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Download Dist package
-        uses: dsaltares/fetch-gh-release-asset@master
-        with:
-          version: "tags/v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-          file: "dist.zip"
-          target: "dist.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Unzip Dist package
-        run: |
-          unzip dist.zip -d packages/app
-
-      - name: Update config
-        run: |
-          echo "window[\"##runtimeConfig\"] = { appEnvironment: \"staging\", sentryDSN: \"${{ vars.SENTRY_DSN }}\"  };" > packages/app/dist/config.js
-
-      - name: Download Storybook package
-        uses: dsaltares/fetch-gh-release-asset@master
-        with:
-          version: "tags/v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-          file: "storybook-static.zip"
-          target: "storybook-static.zip"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Unzip Storybook package
-        run: |
-          unzip storybook-static.zip -d packages/app
-
-      - name: Deploy
-        uses: matter-labs/action-hosting-deploy@main
-        id: deploy
-        with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING_SCAN_V2 }}"
-          projectId: staging-scan-v2
-          channelID: live
-          entryPoint: ./packages/app
