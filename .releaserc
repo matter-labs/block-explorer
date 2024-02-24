@@ -4,7 +4,10 @@
     "main",
     "next",
     "next-major",
-    "prod",
+    {
+      "name": "prod",
+      "prerelease": true
+    },
     {
       "name": "beta",
       "prerelease": true
