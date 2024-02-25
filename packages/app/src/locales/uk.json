@@ -157,7 +157,8 @@
     },
     "locale": {
         "en": "EN",
-        "uk": "UA"
+        "uk": "UA",
+        "ru": "RU"
     },
     "footer": {
         "nav": {
@@ -364,7 +365,7 @@
         "second": "сек.",
         "secondPlural": "сек."
     },
-    "addressView" : {
+    "addressView": {
         "title": "Адреса"
     },
     "accountView": {
@@ -421,7 +422,7 @@
         "orDropHere": "або перенесіть сюди",
         "unableToParseTrace": "На жаль, не вдалося проаналізувати цей файл трасування",
         "transaction": "Транзакція: з файлу трасування",
-        "executionStepNavigation":"Стрілка Вліво/Вправо",
+        "executionStepNavigation": "Стрілка Вліво/Вправо",
         "searchPlaceholder": "Пошук",
         "metadataBlock": {
             "contract": "Контракт",

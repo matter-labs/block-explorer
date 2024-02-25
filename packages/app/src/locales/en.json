@@ -291,7 +291,8 @@
     },
     "locale": {
         "en": "EN",
-        "uk": "UA"
+        "uk": "UA",
+        "ru": "RU"
     },
     "footer": {
         "nav": {
