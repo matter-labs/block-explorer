@@ -114,6 +114,9 @@ defineProps({
   &.color-success {
     @apply bg-design-200 text-success-600;
   }
+  &.color-success.text-color-neutral {
+    color: rgba(255, 255, 255, 0.8);
+  }
 
   &.color-warning {
     @apply bg-warning-200 text-warning-600;
