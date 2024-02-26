@@ -290,7 +290,7 @@
         }
     },
     "locale": {
-        "en": "RU",
+        "en": "EN",
         "uk": "UA",
         "ru": "RU"
     },
@@ -628,8 +628,8 @@
         "accountNumber": "Аккаунт ",
         "accountInfo": {
             "address": "Адрес",
-            "verifiedNonce": "Проверенный nonce",
-            "sealedNonce": "Запакованный nonce"
+            "verifiedNonce": "Подтвержденный nonce",
+            "sealedNonce": "Текущий nonce"
         },
         "infoTableTitle": "Информация об аккаунте",
         "transactionTableError": "Что-то пошло не так",
