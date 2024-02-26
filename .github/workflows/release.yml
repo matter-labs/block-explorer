@@ -89,6 +89,6 @@ jobs:
         with:
           push: true
           tags: |
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:prod"
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
           file: packages/worker/Dockerfile
           no-cache: true
