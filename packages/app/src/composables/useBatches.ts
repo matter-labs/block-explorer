@@ -5,6 +5,6 @@ export type BatchListItem = Api.Response.BatchListItem;
 
 export default (context = useContext()) => {
   return useFetchCollection<Api.Response.BatchListItem>(
-    new URL(`/batches?toDate=${new Date().toISOString()}`, context.currentNetwork.value.apiUrl)
+    new URL(`${context.currentNetwork.value.apiUrl}/batches?toDate=${new Date().toISOString()}`)
   );
 };
