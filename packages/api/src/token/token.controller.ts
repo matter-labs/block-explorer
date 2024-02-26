@@ -40,11 +40,16 @@ export class TokenController {
   })
   public async getTokens(
     @Query() pagingOptions: PagingOptionsDto,
-    @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number
+    @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number,
+    @Query("key") key?: string
   ): Promise<Pagination<TokenDto>> {
+    if (key === "") {
+      key = undefined;
+    }
     return await this.tokenService.findAll(
       {
         minLiquidity,
+        networkKey: key,
       },
       {
         filterOptions: { minLiquidity },

@@ -25,7 +25,8 @@ export class TokenRepository extends BaseRepository<Token> {
           "blockNumber" = EXCLUDED."blockNumber",
           "l1Address" = EXCLUDED."l1Address",
           "transactionHash" = EXCLUDED."transactionHash",
-          "logIndex" = EXCLUDED."logIndex"
+          "logIndex" = EXCLUDED."logIndex",
+          "networkKey" = EXCLUDED."networkKey"
         WHERE 
           tokens."blockNumber" IS NULL OR
           EXCLUDED."blockNumber" > tokens."blockNumber" OR 

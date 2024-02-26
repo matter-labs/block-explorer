@@ -1,0 +1,22 @@
+{
+  "networks": [
+    {
+      "apiUrl": "https://goerli.explorer-api.zklink.network",
+      "verificationApiUrl": "https://goerli.verification.zklink.network",
+      "bridgeUrl": "https://goerli.portal.zklink.network",
+      "hostnames": [],
+      "icon": "/images/icons/cion.png",
+      "l1ExplorerUrl": "https://goerli.lineascan.build",
+      "l2ChainId": 810182,
+      "l2NetworkName": "zkLink Nova Goerli Testnet",
+      "maintenance": false,
+      "name": "goerli",
+      "published": true,
+      "rpcUrl": "https://goerli.rpc.zklink.network"
+    }
+  ],
+  "iconsList":{
+    "goerli": "/img/ethereum.svg",
+    "primary":"/img/linea.svg"
+  }
+}

@@ -1,5 +1,5 @@
 import { utils } from "ethers";
-import { abi as ethTokenAbi } from "zksync-web3/abi/IEthToken.json";
+import { abi as _ethTokenAbi } from "zksync-web3/abi/IEthToken.json";
 import { abi as erc20Abi } from "zksync-web3/abi/IERC20.json";
 import { abi as l2BridgeAbi } from "zksync-web3/abi/IL2Bridge.json";
 import * as erc721Abi from "./abis/erc721.json";
@@ -7,7 +7,40 @@ import * as transferEventWithNoIndexesAbi from "./abis/transferEventWithNoIndexe
 import * as l2StandardERC20Abi from "./abis/l2StandardERC20.json";
 
 export const ZERO_HASH_64 = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
+const ethTokenAbi = [
+  ..._ethTokenAbi,
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_l2Sender",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_l1Receiver",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bytes",
+        name: "_additionalData",
+        type: "bytes",
+      },
+    ],
+    name: "WithdrawalWithMessage",
+    type: "event",
+  },
+];
 export const CONTRACT_INTERFACES = {
   ERC20: {
     interface: new utils.Interface(erc20Abi),

@@ -1,13 +1,14 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { paginate } from "../common/utils";
+import { BatchAmountDto } from "src/batch/batchAmount.dto";
+import { FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
+import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { IPaginationOptions, SortingOrder } from "../common/types";
-import { Transfer } from "./transfer.entity";
+import { paginate } from "../common/utils";
 import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
-import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
+import { Transfer } from "./transfer.entity";
 
 export interface FilterTransfersOptions {
   tokenAddress?: string;
@@ -253,5 +254,29 @@ export class TransferService {
     queryBuilder.limit(offset);
     const transfers = await queryBuilder.getMany();
     return transfers;
+  }
+
+  public async sumAmount(batchNumber: number, gateway: string): Promise<Array<BatchAmountDto>> {
+    const query = this.transferRepository
+      .createQueryBuilder("t")
+      .select("t.gateway", "gateway")
+      .addSelect("b.l1BatchNumber", "batchNumber")
+      .addSelect("SUM(CAST(t.amount AS NUMERIC))", "total_amount")
+      .innerJoin("blocks", "b", "t.blockNumber = b.number")
+      .where("t.type = :type", { type: "withdrawal" })
+      .andWhere("b.l1BatchNumber = :batchNumber", { batchNumber })
+      .andWhere("t.gateway = decode(:gateway, 'hex')", {
+        gateway: gateway.startsWith("0x") ? gateway.slice(2) : gateway,
+      })
+      .groupBy("t.gateway")
+      .addGroupBy("b.l1BatchNumber");
+
+    const result = await query.getRawMany();
+
+    return result.map((item) => ({
+      batchNumber: item.batchNumber,
+      gateway: gateway,
+      amount: item.total_amount,
+    }));
   }
 }

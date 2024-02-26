@@ -47,6 +47,9 @@ export enum LogType {
 
   // event Withdrawal(address indexed _l2Sender, address indexed _l1Receiver, uint256 _amount)
   Withdrawal = "0x2717ead6b9200dd235aad468c9809ea400fe33ac69b5bfaa6d3e90fc922b6398",
+
+  // event WithdrawalWithMessage(address indexed _l2Sender, address indexed _l1Receiver, uint256 _amount, bytes _additionalData);
+  WithdrawalWithMessage = "0xc405fe8958410bbaf0c73b7a0c3e20859e86ca168a4c9b0def9c54d2555a306b",
 }
 
 export const isLogOfType = (log: types.Log, types: LogType[]): boolean => {

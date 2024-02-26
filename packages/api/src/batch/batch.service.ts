@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { Repository, FindOptionsWhere } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { paginate } from "../common/utils";
+import { FindOptionsWhere, Repository } from "typeorm";
 import { IPaginationOptions } from "../common/types";
+import { paginate } from "../common/utils";
 import { Batch } from "./batch.entity";
 import { BatchDetails } from "./batchDetails.entity";
 

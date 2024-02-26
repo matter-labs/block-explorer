@@ -18,6 +18,7 @@ export interface Token {
   blockNumber: number;
   transactionHash: string;
   logIndex: number;
+  networkKey?: string;
 }
 
 export enum TokenType {
@@ -70,11 +71,13 @@ export class TokenService {
       decimals: number;
       name: string;
       l1Address?: string;
+      networkKey?: string;
     };
-
+    const networkKey = transactionReceipt
+      ? this.blockchainService.getNetworkKeyByL2Erc20Bridge(transactionReceipt.to.toLowerCase())
+      : undefined;
     const bridgeLog =
-      transactionReceipt &&
-      transactionReceipt.to.toLowerCase() === this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge &&
+      networkKey &&
       transactionReceipt.logs?.find(
         (log) =>
           isLogOfType(log, [LogType.BridgeInitialization, LogType.BridgeInitialize]) &&
@@ -88,6 +91,7 @@ export class TokenService {
         symbol: parsedLog.args.symbol,
         decimals: parsedLog.args.decimals,
         l1Address: parsedLog.args.l1Token,
+        networkKey: networkKey,
       };
     } else {
       const stopGetTokenInfoDurationMetric = this.getTokenInfoDurationMetric.startTimer();

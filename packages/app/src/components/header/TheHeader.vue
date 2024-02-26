@@ -4,7 +4,7 @@
       <div class="header-container">
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
-            <span class="sr-only">zkSync</span>
+            <span class="sr-only">zkLink</span>
             <zk-sync-era />
           </router-link>
         </div>
@@ -30,7 +30,7 @@
         </PopoverGroup>
         <div class="header-right-side">
           <NetworkSwitch />
-          <LocaleSwitch
+          <!-- <LocaleSwitch
             :value="(locale as string)"
             @update:value="changeLanguage"
             :options="
@@ -39,7 +39,7 @@
                 label: t(`locale.${value}`),
               }))
             "
-          />
+          /> -->
           <div class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
@@ -159,7 +159,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
+    url: "https://zklink-team.gitbook.io/zklink-nova-testnet ",
   },
 ]);
 
@@ -203,8 +203,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
+  { url: "https://discord.com/invite/zklink", component: DiscordIcon },
+  { url: "https://twitter.com/zkLink_Official", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
@@ -227,6 +227,7 @@ const hasContent = computed(() => {
 <style lang="scss">
 .header-popover-container {
   @apply relative bg-primary-900;
+  background-color: #0e0e0e;
   .header-wrap {
     @apply container z-50;
   }
@@ -300,7 +301,7 @@ const hasContent = computed(() => {
   }
   .hero-banner-container {
     @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-primary-900;
-
+    background-color: #0e0e0e;
     &.goerli {
       @apply h-[25rem] md:h-[23rem] lg:h-[19rem];
     }

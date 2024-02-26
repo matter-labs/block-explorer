@@ -1,21 +1,24 @@
-import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
+import { Controller, Get, NotFoundException, Param, Query } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiParam,
-  ApiOkResponse,
   ApiBadRequestResponse,
-  ApiNotFoundResponse,
   ApiExcludeController,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
+  ApiTags,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
-import { PagingOptionsDto, ListFiltersDto } from "../common/dtos";
-import { buildDateFilter } from "../common/utils";
+import { ADDRESS_REGEX_PATTERN, ParseAddressPipe } from "src/common/pipes/parseAddress.pipe";
+import { TransferService } from "src/transfer/transfer.service";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
-import { BatchService } from "./batch.service";
-import { BatchDto } from "./batch.dto";
-import { BatchDetailsDto } from "./batchDetails.dto";
+import { ListFiltersDto, PagingOptionsDto } from "../common/dtos";
+import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
+import { buildDateFilter } from "../common/utils";
 import { swagger } from "../config/featureFlags";
+import { BatchDto } from "./batch.dto";
+import { BatchService } from "./batch.service";
+import { BatchAmountDto } from "./batchAmount.dto";
+import { BatchDetailsDto } from "./batchDetails.dto";
 
 const entityName = "batches";
 
@@ -23,7 +26,7 @@ const entityName = "batches";
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class BatchController {
-  constructor(private readonly batchService: BatchService) {}
+  constructor(private readonly batchService: BatchService, private readonly transferService: TransferService) {}
 
   @Get("")
   @ApiListPageOkResponse(BatchDto, { description: "Successfully returned batch list" })
@@ -59,5 +62,33 @@ export class BatchController {
       throw new NotFoundException();
     }
     return batch;
+  }
+
+  @Get("amount/:batchNumber/:gateway")
+  @ApiParam({
+    name: "batchNumber",
+    type: "integer",
+    example: "1",
+    description: "Batch number",
+  })
+  @ApiParam({
+    name: "gateway",
+    type: "string",
+    schema: { pattern: ADDRESS_REGEX_PATTERN },
+    example: "0xabe785340e1c1ed3228bc7ec460d2fedd82260a0",
+    description: "gateway address",
+  })
+  @ApiOkResponse({ description: "Batch amount was returned successfully", type: BatchAmountDto })
+  @ApiBadRequestResponse({ description: "Batch number or gateway is invalid" })
+  @ApiNotFoundResponse({ description: "Can't find batch amount for the specified batch number and gateway" })
+  public async getBatchAmount(
+    @Param("batchNumber", new ParseLimitedIntPipe({ min: 1 })) batchNumber: number,
+    @Param("gateway", new ParseAddressPipe({ errorMessage: "Invalid gateway address" })) gateway: string
+  ): Promise<BatchAmountDto> {
+    const result = await this.transferService.sumAmount(batchNumber, gateway);
+    if (!result) {
+      throw new NotFoundException();
+    }
+    return result[0] ?? null;
   }
 }

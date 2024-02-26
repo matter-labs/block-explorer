@@ -34,6 +34,9 @@ export class Token extends BaseEntity {
   public readonly l1Address?: string;
 
   @Column()
+  public readonly networkKey?: string;
+
+  @Column()
   public readonly symbol: string;
 
   @Column()

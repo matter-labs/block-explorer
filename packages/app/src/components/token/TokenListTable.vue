@@ -3,6 +3,7 @@
     <template #table-head>
       <table-head-column>{{ t("tokensView.table.tokenName") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.price") }}</table-head-column>
+      <table-head-column class="text-center">{{ t("tokensView.table.fromChain") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.tokenAddress") }}</table-head-column>
     </template>
     <template #table-row="{ item }: { item: any }">
@@ -17,6 +18,10 @@
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('tokensView.table.price')">
         <TokenPrice :address="item.l2Address" />
+      </TableBodyColumn>
+      <TableBodyColumn class="text-center" :data-heading="t('tokensView.table.fromChain')">
+        <img class="icon" v-if="iconsList[item.networkKey]" :src="iconsList[item.networkKey]" :alt="item.networkKey" />
+        <div v-else>Native Token</div>
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('tokensView.table.tokenAddress')">
         <div class="token-address-container max-w-sm">
@@ -77,6 +82,10 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TokenPrice from "@/components/common/table/fields/TokenPrice.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+// import { iconList } from "@/configs/hyperchain.config.json"
+import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
+
+const { iconsList } = useEnvironmentConfig();
 
 import type { Token } from "@/composables/useToken";
 
@@ -120,5 +129,13 @@ watch(width, () => {
   .tokens-not-found {
     @apply px-1.5 py-2 text-gray-700;
   }
+  .icon {
+    width: 30px;
+    height: 30px;
+  }
+}
+.text-center {
+  min-width: 240px;
+  @apply flex items-center justify-center;
 }
 </style>

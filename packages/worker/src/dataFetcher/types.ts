@@ -31,6 +31,7 @@ export interface Transfer {
   logIndex: number;
   fields?: TransferFields;
   isInternal: boolean;
+  gateway?: string;
 }
 
 export interface Token {
@@ -42,6 +43,7 @@ export interface Token {
   blockNumber: number;
   transactionHash: string;
   logIndex: number;
+  networkKey?: string;
 }
 
 export interface ContractAddress {

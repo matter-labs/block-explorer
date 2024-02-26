@@ -10,11 +10,7 @@ import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
 
-export interface BridgeAddresses {
-  l1Erc20DefaultBridge: string;
-  l2Erc20DefaultBridge: string;
-}
-
+type BridgeConfigFunction = (input: String) => string | undefined;
 export interface TraceTransactionResult {
   type: string;
   from: string;
@@ -29,7 +25,7 @@ export class BlockchainService implements OnModuleInit {
   private readonly rpcCallsDefaultRetryTimeout: number;
   private readonly rpcCallsQuickRetryTimeout: number;
   private readonly errorCodesForQuickRetry: string[] = ["NETWORK_ERROR", "ECONNRESET", "ECONNREFUSED", "TIMEOUT"];
-  public bridgeAddresses: BridgeAddresses;
+  public readonly getNetworkKeyByL2Erc20Bridge: BridgeConfigFunction;
 
   public constructor(
     configService: ConfigService,
@@ -40,6 +36,7 @@ export class BlockchainService implements OnModuleInit {
     this.logger = new Logger(BlockchainService.name);
     this.rpcCallsDefaultRetryTimeout = configService.get<number>("blockchain.rpcCallDefaultRetryTimeout");
     this.rpcCallsQuickRetryTimeout = configService.get<number>("blockchain.rpcCallQuickRetryTimeout");
+    this.getNetworkKeyByL2Erc20Bridge = configService.get<BridgeConfigFunction>("bridge.getNetworkKeyByL2Erc20Bridge");
   }
 
   private async rpcCall<T>(action: () => Promise<T>, functionName: string): Promise<T> {
@@ -172,14 +169,5 @@ export class BlockchainService implements OnModuleInit {
     return await erc20Contract.balanceOf(address, { blockTag });
   }
 
-  public async onModuleInit(): Promise<void> {
-    const bridgeAddresses = await this.getDefaultBridgeAddresses();
-
-    this.bridgeAddresses = {
-      l1Erc20DefaultBridge: bridgeAddresses.erc20L1.toLowerCase(),
-      l2Erc20DefaultBridge: bridgeAddresses.erc20L2.toLowerCase(),
-    };
-
-    this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
-  }
+  public async onModuleInit(): Promise<void> {}
 }

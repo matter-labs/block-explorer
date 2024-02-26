@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOptionsSelect, MoreThanOrEqual } from "typeorm";
+import { Repository, FindOptionsSelect, MoreThanOrEqual, Brackets } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
@@ -8,6 +8,7 @@ import { Token, ETH_TOKEN } from "./token.entity";
 
 export interface FilterTokensOptions {
   minLiquidity?: number;
+  networkKey?: string;
 }
 
 @Injectable()
@@ -40,12 +41,19 @@ export class TokenService {
   }
 
   public async findAll(
-    { minLiquidity }: FilterTokensOptions,
+    { minLiquidity, networkKey }: FilterTokensOptions,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Token>> {
     const queryBuilder = this.tokenRepository.createQueryBuilder("token");
+    if (networkKey) {
+      queryBuilder.where(
+        new Brackets((qb) =>
+          qb.where("token.networkKey IS NULL").orWhere("token.networkKey = :networkKey", { networkKey: networkKey })
+        )
+      );
+    }
     if (minLiquidity >= 0) {
-      queryBuilder.where({
+      queryBuilder.andWhere({
         liquidity: MoreThanOrEqual(minLiquidity),
       });
     }

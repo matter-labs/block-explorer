@@ -60,6 +60,9 @@ export class Transfer extends CountableEntity {
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly tokenAddress?: string;
 
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly gateway?: string;
+
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
