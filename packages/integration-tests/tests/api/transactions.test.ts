@@ -519,7 +519,7 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
-        // expect(response.body).toStrictEqual(expect.objectContaining({ to: contract })) //unstable on CI
+        expect(response.body).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
         expect(response.body.value).toBe("0");
