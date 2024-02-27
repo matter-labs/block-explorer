@@ -13,6 +13,7 @@ export enum Buffer {
   paymasterTx = "paymasterTx.txt",
   addressMultiTransferETH = "multiTransferETH.txt",
   txMultiTransferETH = "txMultiTransferETH.txt",
+  txMultiTransferCall = "txMultiTransferCall.txt",
   txMultiTransferCustomTokenI = "txMultiTransferCustomTokenI.txt",
   txMultiTransferCustomTokenII = "txMultiTransferCustomTokenII.txt",
   addressMultiCallMiddle = "multiCallMiddle.txt",
