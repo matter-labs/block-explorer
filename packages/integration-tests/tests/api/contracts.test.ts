@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Wallets } from "../../src/entities";
+import { Buffer, FixedValues, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -39,8 +39,7 @@ describe("API module: Contract", () => {
     //id1695
     it("Verify /api?module=contract&action=getabi response", async () => {
       await helper.retryTestAction(async () => {
-        const greeterContract = "0x180faDac8ce638C67640a6C29BdfB5CB60eCDB76";
-        apiRoute = `/api?module=contract&action=getabi&address=${greeterContract}`;
+        apiRoute = `/api?module=contract&action=getabi&address=${FixedValues.greeterContractSepolia}`;
         response = await helper.performGETrequest(apiRoute, "sepolia");
 
         expect(response.status).toBe(200);
@@ -53,8 +52,7 @@ describe("API module: Contract", () => {
     //id1802
     it("Verify /api?module=contract&action=getsourcecode response", async () => {
       await helper.retryTestAction(async () => {
-        const greeterContract = "0x180faDac8ce638C67640a6C29BdfB5CB60eCDB76";
-        apiRoute = `/api?module=contract&action=getsourcecode&address=${greeterContract}`;
+        apiRoute = `/api?module=contract&action=getsourcecode&address=${FixedValues.greeterContractSepolia}`;
         response = await helper.performGETrequest(apiRoute, "sepolia");
 
         expect(response.status).toBe(200);

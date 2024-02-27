@@ -71,6 +71,10 @@ export enum Wallets {
   richWalletPrivateKey = "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110",
 }
 
+export enum FixedValues {
+  greeterContractSepolia = "0x180faDac8ce638C67640a6C29BdfB5CB60eCDB76",
+}
+
 export enum BlockExplorer {
   baseUrl = "http://localhost:3010",
   localNetwork = "/?network=local",
