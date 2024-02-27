@@ -109,7 +109,7 @@
                 :value="(locale as string)"
                 @update:value="changeLanguage"
                 :options="
-                  ['en', 'uk'].map((value) => ({
+                  ['en', 'uk', 'ru'].map((value) => ({
                     value,
                     label: t(`locale.${value}`),
                   }))

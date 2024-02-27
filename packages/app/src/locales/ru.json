@@ -220,7 +220,7 @@
             "original": "Показать в двоичном виде"
         },
         "errors": {
-            "unableToDecode": "Невозможно декодировать входные данные ({ошибка})",
+            "unableToDecode": "Невозможно декодировать входные данные ({error})",
             "contract_not_verified": "Контракт не проверен",
             "contract_request_failed": "Запрос контракта не выполнен",
             "unknown_error": "Неизвестная ошибка"
