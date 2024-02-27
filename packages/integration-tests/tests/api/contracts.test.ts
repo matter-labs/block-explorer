@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, FixedValues, Wallets } from "../../src/entities";
+import { Buffer, Contracts, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -39,7 +39,7 @@ describe("API module: Contract", () => {
     //id1695
     it("Verify /api?module=contract&action=getabi response", async () => {
       await helper.retryTestAction(async () => {
-        apiRoute = `/api?module=contract&action=getabi&address=${FixedValues.greeterContractSepolia}`;
+        apiRoute = `/api?module=contract&action=getabi&address=${Contracts.greeterContractSepolia}`;
         response = await helper.performGETrequest(apiRoute, "sepolia");
 
         expect(response.status).toBe(200);
@@ -52,7 +52,7 @@ describe("API module: Contract", () => {
     //id1802
     it("Verify /api?module=contract&action=getsourcecode response", async () => {
       await helper.retryTestAction(async () => {
-        apiRoute = `/api?module=contract&action=getsourcecode&address=${FixedValues.greeterContractSepolia}`;
+        apiRoute = `/api?module=contract&action=getsourcecode&address=${Contracts.greeterContractSepolia}`;
         response = await helper.performGETrequest(apiRoute, "sepolia");
 
         expect(response.status).toBe(200);
