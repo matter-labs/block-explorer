@@ -13,7 +13,6 @@ export enum Buffer {
   paymasterTx = "paymasterTx.txt",
   addressMultiTransferETH = "multiTransferETH.txt",
   txMultiTransferETH = "txMultiTransferETH.txt",
-  txMultiTransferCall = "txMultiTransferCall.txt",
   txMultiTransferCustomTokenI = "txMultiTransferCustomTokenI.txt",
   txMultiTransferCustomTokenII = "txMultiTransferCustomTokenII.txt",
   addressMultiCallMiddle = "multiCallMiddle.txt",
@@ -84,3 +83,8 @@ export enum BlockExplorer {
   baseUrl = "http://localhost:3010",
   localNetwork = "/?network=local",
 }
+
+const txSumETH = "0.000009";
+export const Values = {
+  txSumETH: txSumETH,
+};
