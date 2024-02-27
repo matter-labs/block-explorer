@@ -7,7 +7,7 @@ import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
 describe("API module: Account", () => {
-  jest.setTimeout(localConfig.standardTimeout);
+  jest.setTimeout(localConfig.extendedTimeout);
 
   const helper = new Helper();
   let apiRoute: string;
@@ -256,6 +256,38 @@ describe("API module: Account", () => {
         expect(typeof response.body.result[0].blockNumber).toStrictEqual("string");
         expect(typeof response.body.result[0].timeStamp).toStrictEqual("string");
         expect(typeof response.body.result[0].blockReward).toStrictEqual("string");
+      });
+    });
+
+    //id1854
+    it("Verify /api?module=account&action=txlistinternal&txhash=", async () => {
+      await helper.retryTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        const txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCall);
+        apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&txhash=${txHash}`;
+        response = await helper.performGETrequest(apiRoute);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
+        expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ hash: txHash }));
+        expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
+        expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ type: "call" }));
+        expect(typeof response.body.result[0].blockNumber).toStrictEqual("string");
+        expect(typeof response.body.result[0].timeStamp).toStrictEqual("string");
+        expect(typeof response.body.result[0].from).toStrictEqual("string");
+        expect(typeof response.body.result[0].value).toStrictEqual("string");
+        expect(typeof response.body.result[0].gas).toStrictEqual("string");
+        expect(typeof response.body.result[0].input).toStrictEqual("string");
+        expect(typeof response.body.result[0].contractAddress).toBeTruthy();
+        expect(typeof response.body.result[0].gasUsed).toStrictEqual("string");
+        expect(typeof response.body.result[0].fee).toStrictEqual("string");
+        expect(typeof response.body.result[0].l1BatchNumber).toStrictEqual("string");
+        expect(typeof response.body.result[0].traceId).toBeTruthy();
+        expect(typeof response.body.result[0].transactionType).toStrictEqual("string");
+        expect(typeof response.body.result[0].isError).toStrictEqual("string");
+        expect(typeof response.body.result[0].errCode).toStrictEqual("string");
       });
     });
   });

@@ -61,6 +61,9 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   );
   if (transferFromContract) {
     console.log(`Contract transfer to us!`);
+    const transferReceipt = await transferFromContract.wait(1);
+    console.log(`Contract transfer transaction hash: ${transferReceipt.transactionHash}`);
+    await fs.writeFile(Buffer.txMultiTransferCall, transferReceipt.transactionHash);
   } else {
     console.error(`Contract said something unexpected: ${transferFromContract}`);
   }
