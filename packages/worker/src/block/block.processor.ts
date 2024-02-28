@@ -10,7 +10,7 @@ import { BlockWatcher } from "./block.watcher";
 import { BlockData } from "../dataFetcher/types";
 import { BalanceService } from "../balance/balance.service";
 import { TokenService } from "../token/token.service";
-import { BlockRepository, LogRepository, TransferRepository } from "../repositories";
+import {AddressRepository, BlockRepository, LogRepository, TransferRepository} from "../repositories";
 import { Block } from "../entities";
 import { TransactionProcessor } from "../transaction";
 import { validateBlocksLinking } from "./block.utils";
@@ -23,6 +23,13 @@ import {
 } from "../metrics";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 import { unixTimeToDateString } from "../utils/date";
+import {BigNumber} from "ethers";
+import {BlockScanRange} from "../entities/blockScanRange.entity";
+import {BlockScanRangeRepository} from "../repositories/blockScanRange.repository";
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 @Injectable()
 export class BlockProcessor {
@@ -31,6 +38,8 @@ export class BlockProcessor {
   private readonly toBlock: number;
   private readonly disableBlocksRevert: boolean;
   private readonly numberOfBlocksPerDbTransaction: number;
+  private readonly pointsStatisticalPeriodSecs: number;
+  private timer?: NodeJS.Timeout;
 
   public constructor(
     private readonly unitOfWork: UnitOfWork,
@@ -41,6 +50,7 @@ export class BlockProcessor {
     private readonly blockWatcher: BlockWatcher,
     private readonly blockRepository: BlockRepository,
     private readonly logRepository: LogRepository,
+    private readonly blockScanRangeRepository: BlockScanRangeRepository,
     private readonly transferRepository: TransferRepository,
     private readonly eventEmitter: EventEmitter2,
     @InjectMetric(BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME)
@@ -54,6 +64,60 @@ export class BlockProcessor {
     this.toBlock = configService.get<number>("blocks.toBlock");
     this.disableBlocksRevert = configService.get<boolean>("blocks.disableBlocksRevert");
     this.numberOfBlocksPerDbTransaction = configService.get<number>("blocks.numberOfBlocksPerDbTransaction");
+    this.pointsStatisticalPeriodSecs = configService.get<number>("blocks.pointsStatisticalPeriodSecs");
+  }
+
+  public async handlePointsPeriod(fromBlock: number,toBlock: number): Promise<()> {
+      // clear timer
+      if (this.timer) {
+        clearTimeout(this.timer);
+      }
+      // get all addresses
+      const addresses = await this.balanceService.getAllAddresses();
+      if (!addresses.length) {
+        return;
+      }
+
+      // get all tokens
+      const tokens = await this.tokenService.getAllTokens();
+      if (!tokens.length) {
+        return;
+      }
+
+      for ( const address of addresses ) {
+        // calc points for every account
+        let balances = await this.balanceService.getAccountBalancesByBlock(address,toBlock);
+        let totalAmount = 0;
+        for ( const balance of balances ) {
+           const tokenBalance: BigNumber = new BigNumber(balance.balance);
+           const token = tokens.find(token => token.l2Address === balance.tokenAddress);
+           const tokenPrice: number = token.usdPrice;
+           const tokenAmount = tokenBalance.times(tokenPrice);
+           totalAmount += tokenAmount;
+        }
+        //todo: get multiplier and unitPoint from config or database
+        const multiplier = 1;
+        const unitPoint = 10;
+        const point = totalAmount.times(multiplier*unitPoint);
+        // todo:save point
+        console.log(`account ${address} point ${point} at ${fromBlock} - ${toBlock}`);
+
+        // todo: save point history
+        console.log(`save point history`);
+
+        // save scan blocks
+        await this.blockScanRangeRepository.add(fromBlock,toBlock);
+
+        // set timer
+        const timeOutFromBlock = toBlock;
+        const timeOutToBlock =  timeOutFromBlock;
+        this.timer = setTimeout(
+            async function() {
+              await this.handlePointsPeriod(timeOutFromBlock, timeOutToBlock);
+              console.log("timer triggered");
+            }, this.pointsStatisticalPeriodSecs*1000,timeOutFromBlock,timeOutToBlock,
+        )
+      }
   }
 
   public async processNextBlocksRange(): Promise<boolean> {
@@ -126,6 +190,36 @@ export class BlockProcessor {
       for (const dbTransaction of dbTransactions) {
         await dbTransaction.commit();
       }
+
+      //points handler
+      let blockData = blocksToProcess[0];
+      const { block, blockDetails } = blockData;
+      const blockTs = block.timestamp;
+      // get previous handled block timestamp
+      const preBlockRange = await this.blockRepository.getLastScanToBlock({});
+      const preBlock = await this.blockRepository.getLastBlock({
+        where: { number: preBlockRange.to }
+      })
+      const prePointsBlockTs = preBlock.timestamp.getTime();
+      const ts_interval = blockTs - prePointsBlockTs;
+      if ( ts_interval  > this.pointsStatisticalPeriodSecs ) {
+        let periods = (blockTs - prePointsBlockTs) / this.pointsStatisticalPeriodSecs;
+        //todo: handle periods?
+        //for (let i = 0; i < periods; i++) {
+            let from_block = Math.min(preBlock.number+1,block.number - 1);
+            let to_block = block.number - 1;
+            await this.handlePointsPeriod(from_block,to_block);
+        //}
+      } else if ( ts_interval == this.pointsStatisticalPeriodSecs ) {
+        await this.handlePointsPeriod(preBlock.number+1,block.number);
+      } else {
+        console.log(`${preBlock.number} - ${block.number} block time interval does not reach the statistical period `);
+      }
+      // let blockData = blocksToProcess[0];
+      // const { block, blockDetails } = blockData;
+      // if ( block.number > 20) {
+      //   await sleep(60 * 10 * 1000);
+      // }
       stopDurationMeasuring({ status: "success" });
     } catch (error) {
       await Promise.all(dbTransactions.map((dbTransaction) => dbTransaction.ensureRollbackIfNotCommitted()));

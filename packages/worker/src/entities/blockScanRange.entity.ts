@@ -3,7 +3,7 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 import { BaseEntity } from "./base.entity";
 
 @Entity({ name: "blockScanRange" })
-export class BlockScanRange extends BaseEntity {
+export class BlockScanRange {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly id: number;
 

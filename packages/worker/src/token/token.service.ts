@@ -11,6 +11,7 @@ import { ContractAddress } from "../dataFetcher/types";
 import parseLog from "../utils/parseLog";
 import { stringTransformer } from "../transformers/string.transformer";
 import { CONTRACT_INTERFACES } from "../constants";
+import { Token as TokenEntity } from "../entities";
 
 export interface Token {
   l2Address: string;
@@ -35,6 +36,10 @@ export class TokenService {
     private readonly getTokenInfoDurationMetric: Histogram
   ) {
     this.logger = new Logger(TokenService.name);
+  }
+
+  public async getAllTokens(): Promise<TokenEntity[]> {
+    return await this.tokenRepository.getAllTokens();
   }
 
   private async getERC20Token(contractAddress: string): Promise<{

@@ -4,9 +4,9 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 
 @Entity({ name: "points" })
-export class Transfer extends CountableEntity {
+export class Point extends CountableEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
-  public override readonly number: number;
+  public readonly id: number;
 
   @Index()
   @Column({ type: "bytea", transformer: hexTransformer })

@@ -62,9 +62,10 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     if (!disableCountersProcessing) {
       tasks.push(this.counterService.start());
     }
-    if (!disableOldBalancesCleaner) {
-      tasks.push(this.balancesCleanerService.start());
-    }
+    // remove this clean task since it will delete the balance history
+    // if (!disableOldBalancesCleaner) {
+    //   tasks.push(this.balancesCleanerService.start());
+    // }
     if (enableTokenOffChainDataSaver) {
       tasks.push(this.tokenOffChainDataSaverService.start());
     }
