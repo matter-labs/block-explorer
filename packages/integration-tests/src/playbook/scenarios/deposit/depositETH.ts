@@ -2,10 +2,10 @@ import * as ethers from "ethers";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { CustomValue, Logger } from "../../../entities";
+import { CustomValue, Logger, txSumEth } from "../../../entities";
 import { Helper } from "../../../helper";
 
-export const depositEth = async function (sum = CustomValue.txSumEth.toString()) {
+export const depositEth = async function (sum = txSumEth) {
   const helper = new Helper();
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);

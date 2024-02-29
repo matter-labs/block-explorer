@@ -79,3 +79,5 @@ export enum BlockExplorer {
 export enum CustomValue {
   txSumEth = "0.000009",
 }
+
+export const txSumEth: string = CustomValue.txSumEth;

@@ -3,10 +3,10 @@ import { promises as fs } from "fs";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, CustomValue, Logger } from "../../../entities";
+import { Buffer, CustomValue, Logger, txSumEth } from "../../../entities";
 import { Helper } from "../../../helper";
 
-export const withdrawETH = async function (sum = CustomValue.txSumEth.toString()) {
+export const withdrawETH = async function (sum = txSumEth) {
   const helper = new Helper();
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
