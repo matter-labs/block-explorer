@@ -1,14 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 import { config } from "./config";
-import { BlockExplorer, Buffer, Token, Wallets } from "../../src/entities";
+import { BlockExplorer, Buffer, CustomValue, Token, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 
 import type { Locator } from "@playwright/test";
 
 const bufferRoute = "src/playbook/";
 const helper = new Helper();
-const txSum = "0.000009";
+const txSum = CustomValue.txSumEth;
 let url: string;
 let bufferFile;
 let failedTxHash: string;
