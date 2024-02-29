@@ -2,7 +2,7 @@ import * as ethers from "ethers";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { CustomValue, Logger, txSumEth } from "../../../entities";
+import { Logger, txSumEth } from "../../../entities";
 import { Helper } from "../../../helper";
 
 export const depositEth = async function (sum = txSumEth) {

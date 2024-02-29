@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, CustomValue, Logger, txSumEth, Wallets } from "../../../entities";
+import { Buffer, Logger, txSumEth, Wallets } from "../../../entities";
 import { Helper } from "../../../helper";
 
 export const withdrawETHtoOtherAddress = async function (sum = txSumEth) {
