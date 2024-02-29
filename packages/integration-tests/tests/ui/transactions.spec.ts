@@ -1,14 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 import { config } from "./config";
-import { BlockExplorer, Buffer, Token, txSumEth, Wallets } from "../../src/entities";
+import { BlockExplorer, Buffer, Token, Values, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 
 import type { Locator } from "@playwright/test";
 
 const bufferRoute = "src/playbook/";
 const helper = new Helper();
-const txSum = txSumEth;
 let url: string;
 let bufferFile;
 let failedTxHash: string;
@@ -69,7 +68,7 @@ test(" Check on BE Transfer ETH token via Portal", async ({ page }) => {
   await expect(element).toBeVisible(config.extraTimeout);
 
   //Check transaction amount
-  selector = `text=${txSum}`;
+  selector = `text=${Values.txSumETH}`;
   element = await page.locator(selector).first();
 
   await expect(element).toBeVisible(config.extraTimeout);
