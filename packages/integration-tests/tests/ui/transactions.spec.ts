@@ -68,7 +68,7 @@ test(" Check on BE Transfer ETH token via Portal", async ({ page }) => {
 
   await expect(element).toBeVisible(config.extraTimeout);
 
-  //Check transactino amount
+  //Check transaction amount
   selector = `text=${txSum}`;
   element = await page.locator(selector).first();
 
