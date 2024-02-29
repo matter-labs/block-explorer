@@ -76,8 +76,4 @@ export enum BlockExplorer {
   localNetwork = "/?network=local",
 }
 
-export enum CustomValue {
-  txSumEth = "0.000009",
-}
-
-export const txSumEth: string = CustomValue.txSumEth;
+export const txSumEth = "0.000009";
