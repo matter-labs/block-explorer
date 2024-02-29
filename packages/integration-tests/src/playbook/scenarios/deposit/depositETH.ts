@@ -5,7 +5,7 @@ import { localConfig } from "../../../config";
 import { CustomValue, Logger } from "../../../entities";
 import { Helper } from "../../../helper";
 
-export const depositEth = async function (sum = CustomValue.txSumEth) {
+export const depositEth = async function (sum = CustomValue.txSumEth.toString()) {
   const helper = new Helper();
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
