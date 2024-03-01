@@ -57,4 +57,10 @@ export class Batch extends BaseEntity {
 
   @Column({ type: "int" })
   public readonly l2TxCount: number;
+
+  @Column({ type: "bytea", unique: true, nullable: true, transformer: hexTransformer })
+  public readonly signedStateRoot?: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly stateRootSigningPubkey?: string;
 }

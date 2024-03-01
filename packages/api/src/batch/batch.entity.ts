@@ -20,6 +20,12 @@ export class Batch extends BaseEntity {
   @Column({ type: "bytea", unique: true, nullable: true, transformer: hexTransformer })
   public readonly rootHash?: string;
 
+  @Column({ type: "bytea", unique: true, transformer: hexTransformer })
+  public readonly signedStateRoot?: string;
+
+  @Column({ type: "bytea", transformer: hexTransformer })
+  public readonly stateRootSigningPubkey?: string;
+
   @Index()
   @Column({ type: "timestamp", nullable: true })
   public readonly executedAt?: Date;

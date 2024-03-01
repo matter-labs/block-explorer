@@ -276,7 +276,9 @@
             "verified": "Executed on",
             "sealed": "Processed on",
             "failed": "Failed"
-        }
+        },
+        "signedStateRoot": "Signed Batch Root",
+        "stateRootSigningPubkey" : "Batch Root Signing Key"
     },
     "header": {
         "nav": {

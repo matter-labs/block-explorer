@@ -64,6 +64,18 @@ const tableInfoItems = computed(() => {
 
   tableItems.push(
     {
+      label: t("batches.signedStateRoot"),
+      tooltip: t("batches.signedStateRootTooltip"),
+      value: { value: props.batch.signedStateRoot },
+      component: CopyContent,
+    },
+    {
+      label: t("batches.stateRootSigningPubkey"),
+      tooltip: t("publicKeyTooltip"),
+      value: { value: props.batch.stateRootSigningPubkey },
+      component: CopyContent,
+    },
+    {
       label: t("batches.size"),
       tooltip: t("batches.sizeTooltip"),
       value: props.batch.l1TxCount + props.batch.l2TxCount,
