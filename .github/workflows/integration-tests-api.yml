@@ -3,13 +3,51 @@ name: Integration test - API
 on: pull_request
 
 jobs:
-  runTests:
+  build-docker-images:
+    name: Build docker images with cache
+    strategy:
+      matrix:
+        include:
+          - image: matterlabs/block-explorer-app:pr
+            dockerfile: ./packages/app/Dockerfile
+            name: docker-block-explorer-app
+          - image: matterlabs/block-explorer-worker:pr
+            dockerfile: ./packages/worker/Dockerfile
+            name: docker-block-explorer-worker
+          - image: matterlabs/block-explorer-data-fetcher:pr
+            dockerfile: ./packages/data-fetcher/Dockerfile
+            name: docker-block-explorer-data-fetcher
+          - image: matterlabs/block-explorer-api:pr
+            dockerfile: ./packages/api/Dockerfile
+            name: docker-block-explorer-api
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push block-explorer-app
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          tags: ${{ matrix.image }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=docker,dest=/tmp/${{ matrix.name }}.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: {{ matrix.name }}
+          path: /tmp/{{ matrix.name }}.tar
+
+  run-tests:
     timeout-minutes: 30
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
+    needs: build-docker-images
     strategy:
       matrix:
         node-version: ['lts/*'] # 18.17.1 or lts/* 
@@ -25,42 +63,38 @@ jobs:
           # - transactions.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
-      - name: Checkout with Submodule
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+      - name: Download prebuilt docker images
+        uses: actions/download-artifact@v4
         with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          pattern: docker-*
+          path: /tmp
 
-      - run: docker-compose pull
+      - name: Load image
+        run: |
+          docker load --input /tmp/*.tar
+          docker image ls -a 
 
-      - uses: satackey/action-docker-layer-caching@v0.0.11
-      
-      - name: Start docker containers
-        run: |
-          docker-compose -f "docker-compose.yaml" up -d --build
-
-      - name: API tests run (parallel)
-        working-directory: packages/integration-tests
-        run: |
-          npm ci --no-audit
-          npx playwright install --with-deps chromium
-      
-      - name: API tests run (parallel)
-        working-directory: packages/integration-tests
-        run: |
-          npx jest
-      - name: Stop containers
-        if: always()
-        run: |
-          docker-compose -f "docker-compose.yaml" down
+#      - uses: isbang/compose-action@v1.5.1
+#        with:
+#          compose-file: "./docker/docker-compose-prebuilt.yaml"
+#          down-flags: "--volumes"
+#
+#      - name: API tests run (parallel)
+#        working-directory: packages/integration-tests
+#        run: |
+#          npm ci --no-audit
+#          npx playwright install --with-deps chromium
+#
+#      - name: API tests run (parallel)
+#        working-directory: packages/integration-tests
+#        run: |
+#          npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
