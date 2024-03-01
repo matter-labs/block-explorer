@@ -233,7 +233,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0x000000000000000000000000000000000000800A",
         amount: "1000",
         type: TransferType.Refund,
-        tokenType: TokenType.ChainNative,
+        tokenType: TokenType.BaseToken,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",

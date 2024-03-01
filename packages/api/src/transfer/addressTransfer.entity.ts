@@ -34,7 +34,7 @@ export class AddressTransfer extends BaseEntity {
   @Column({ type: "timestamp" })
   public readonly timestamp: Date;
 
-  @Column({ type: "enum", enum: TokenType, default: TokenType.ChainNative })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.BaseToken })
   public readonly tokenType: TokenType;
 
   @Column({ type: "boolean" })

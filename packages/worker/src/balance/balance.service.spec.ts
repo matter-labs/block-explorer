@@ -91,7 +91,7 @@ describe("BalanceService", () => {
         address: "address4",
         tokenAddress: "tokenAddresses3",
         balance: "400",
-        tokenType: TokenType.ChainNative,
+        tokenType: TokenType.BaseToken,
       } as ChangedBalance,
     ];
 

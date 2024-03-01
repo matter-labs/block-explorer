@@ -63,7 +63,7 @@ export class Transfer extends CountableEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
-  @Column({ type: "enum", enum: TokenType, default: TokenType.ChainNative })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.BaseToken })
   // @Column({ type: "enum", enum: TokenType, default: TokenType.ERC20 })
   public readonly tokenType: TokenType;
 

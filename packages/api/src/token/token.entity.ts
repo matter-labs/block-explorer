@@ -4,7 +4,7 @@ import { BaseEntity } from "../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 
 export enum TokenType {
-  ChainNative = "CHAINNATIVE",
+  BaseToken = "BASETOKEN",
   ERC20 = "ERC20",
   ERC721 = "ERC721",
 }

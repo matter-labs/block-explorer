@@ -79,7 +79,7 @@ describe("ethWithdrawalToL1Handler", () => {
 
     it("extracts transfer of ETH token type", () => {
       const result = ethWithdrawalToL1Handler.extract(log, blockDetails);
-      expect(result.tokenType).toBe(TokenType.ChainNative);
+      expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 
     it("adds isFeeOrRefund as false", () => {

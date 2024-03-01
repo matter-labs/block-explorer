@@ -125,7 +125,7 @@ describe("Account API (e2e)", () => {
 
     const tokens = [
       {
-        tokenType: TokenType.ChainNative,
+        tokenType: TokenType.BaseToken,
         tokenAddress: "0x000000000000000000000000000000000000800a",
       },
       {

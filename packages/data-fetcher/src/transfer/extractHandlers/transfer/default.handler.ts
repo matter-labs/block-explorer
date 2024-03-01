@@ -37,7 +37,7 @@ export const defaultTransferHandler: ExtractTransferHandler = {
       amount: parsedLog.args.value,
       tokenAddress,
       type: transferType,
-      tokenType: isNativeToken(tokenAddress) ? TokenType.ChainNative : TokenType.ERC20,
+      tokenType: isNativeToken(tokenAddress) ? TokenType.BaseToken : TokenType.ERC20,
       isFeeOrRefund: [TransferType.Fee, TransferType.Refund].includes(transferType),
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

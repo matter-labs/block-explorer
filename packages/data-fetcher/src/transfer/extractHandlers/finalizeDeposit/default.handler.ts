@@ -27,7 +27,7 @@ export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
       amount: parsedLog.args.amount,
       tokenAddress,
       type: TransferType.Deposit,
-      tokenType: isNativeToken(tokenAddress) ? TokenType.ChainNative : TokenType.ERC20,
+      tokenType: isNativeToken(tokenAddress) ? TokenType.BaseToken : TokenType.ERC20,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

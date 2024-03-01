@@ -63,7 +63,7 @@ describe("ethMintFromL1Handler", () => {
 
     it("extracts transfer with tokenType as ETH", () => {
       const result = ethMintFromL1Handler.extract(log, blockDetails);
-      expect(result.tokenType).toBe(TokenType.ChainNative);
+      expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 
     it("extracts transfer with populated amount", () => {
