@@ -1,7 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { L2_ETH_TOKEN_ADDRESS } from "../../common/constants";
+import { NATIVE_TOKEN_L2_ADDRESS } from "../../common/constants";
 import { BlockService } from "../../block/block.service";
 import { BlockDetails } from "../../block/blockDetails.entity";
 import { TransactionService } from "../../transaction/transaction.service";
@@ -557,7 +557,7 @@ describe("AccountController", () => {
   describe("getAccountEtherBalance", () => {
     it("calls balanceService.getBalance and returns account ether balance", async () => {
       const response = await controller.getAccountEtherBalance(address);
-      expect(balanceServiceMock.getBalance).toBeCalledWith(address, L2_ETH_TOKEN_ADDRESS);
+      expect(balanceServiceMock.getBalance).toBeCalledWith(address, NATIVE_TOKEN_L2_ADDRESS);
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
@@ -588,7 +588,7 @@ describe("AccountController", () => {
 
     it("calls balanceService.getBalancesByAddresses and returns accounts ether balances", async () => {
       const response = await controller.getAccountsEtherBalances([address, "address2"]);
-      expect(balanceServiceMock.getBalancesByAddresses).toBeCalledWith([address, "address2"], L2_ETH_TOKEN_ADDRESS);
+      expect(balanceServiceMock.getBalancesByAddresses).toBeCalledWith([address, "address2"], NATIVE_TOKEN_L2_ADDRESS);
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,

@@ -73,6 +73,8 @@ export default () => {
     },
     typeORM: getTypeOrmModuleOptions(),
     contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
+    l2RpcProviderApiUrl: process.env.BLOCKCHAIN_RPC_URL || "http://127.0.0.1:3050",
+    l1RpcProviderApiUrl: process.env.ETH_RPC_URL || "http://127.0.0.1:8545",
     featureFlags,
   };
 };

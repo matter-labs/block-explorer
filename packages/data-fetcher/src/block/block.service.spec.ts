@@ -105,7 +105,7 @@ describe("BlockService", () => {
       blockNumber: 5,
       tokenAddress: "0x0000000000000000000000000000000000000000",
       balance: BigNumber.from(1),
-      tokenType: TokenType.ETH,
+      tokenType: TokenType.BaseToken,
     },
   ];
 

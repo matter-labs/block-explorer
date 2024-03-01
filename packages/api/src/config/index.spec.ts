@@ -42,6 +42,8 @@ describe("config", () => {
         applicationName: "block-explorer-api",
       },
       contractVerificationApiUrl: "http://127.0.0.1:3070",
+      l2RpcProviderApiUrl: "http://127.0.0.1:3050",
+      l1RpcProviderApiUrl: "http://127.0.0.1:8545",
       featureFlags: {
         feature1Enabled: true,
         feature2Enabled: false,

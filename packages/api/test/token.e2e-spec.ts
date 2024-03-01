@@ -5,13 +5,14 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
+import { Token, TokenType, baseToken } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 
 describe("TokenController (e2e)", () => {
+  let ETH_TOKEN;
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
   let blockRepository: Repository<BlockDetails>;
@@ -23,7 +24,7 @@ describe("TokenController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
+    ETH_TOKEN = await baseToken();
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);
@@ -232,7 +233,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0x000000000000000000000000000000000000800A",
         amount: "1000",
         type: TransferType.Refund,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
