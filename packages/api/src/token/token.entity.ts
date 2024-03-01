@@ -9,7 +9,7 @@ export enum TokenType {
   ERC721 = "ERC721",
 }
 
-export const chainNativeToken = async () => {
+export const baseToken = async () => {
   return await fetchNativeTokenData();
 };
 @Entity({ name: "tokens" })

@@ -4,7 +4,7 @@ import { Repository, FindOptionsSelect, MoreThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
-import { Token, chainNativeToken } from "./token.entity";
+import { Token, baseToken } from "./token.entity";
 import { NATIVE_TOKEN_L2_ADDRESS } from "../common/constants";
 
 export interface FilterTokensOptions {
@@ -26,7 +26,7 @@ export class TokenService {
       select: fields,
     });
     if (!token && address.toLowerCase() === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
-      return (await chainNativeToken()) as Token;
+      return (await baseToken()) as Token;
     }
     return token;
   }

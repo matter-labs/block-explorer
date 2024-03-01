@@ -4,7 +4,7 @@ import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { EthPriceResponseDto } from "../dtos/stats/ethPrice.dto";
 import { TokenService } from "../../token/token.service";
-import { chainNativeToken } from "../../token/token.entity";
+import { baseToken } from "../../token/token.entity";
 import { dateToTimestamp } from "../../common/utils";
 
 const entityName = "stats";
@@ -18,7 +18,7 @@ export class StatsController {
 
   @Get("/ethprice")
   public async ethPrice(): Promise<EthPriceResponseDto> {
-    const nativeToken = await chainNativeToken();
+    const nativeToken = await baseToken();
     const token = await this.tokenService.findOne(nativeToken.l2Address, {
       usdPrice: true,
       offChainDataUpdatedAt: true,

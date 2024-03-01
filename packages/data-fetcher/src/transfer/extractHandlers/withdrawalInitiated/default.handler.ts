@@ -5,7 +5,7 @@ import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
-import { isNativeToken } from "../../../utils/token";
+import { isBaseToken } from "../../../utils/token";
 import { CONTRACT_INTERFACES } from "../../../constants";
 
 export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
@@ -28,7 +28,7 @@ export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
       amount: parsedLog.args.amount,
       tokenAddress,
       type: TransferType.Withdrawal,
-      tokenType: isNativeToken(tokenAddress) ? TokenType.BaseToken : TokenType.ERC20,
+      tokenType: isBaseToken(tokenAddress) ? TokenType.BaseToken : TokenType.ERC20,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

@@ -10,7 +10,7 @@ import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
-import { chainNativeToken } from "../src/token/token.entity";
+import { baseToken } from "../src/token/token.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
@@ -32,7 +32,7 @@ describe("TransactionController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    ETH_TOKEN = await chainNativeToken();
+    ETH_TOKEN = await baseToken();
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);

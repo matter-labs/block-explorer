@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder, MoreThanOrEqual } from "typeorm";
 import { TokenService } from "./token.service";
-import { Token, chainNativeToken } from "./token.entity";
+import { Token, baseToken } from "./token.entity";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 
@@ -73,7 +73,7 @@ describe("TokenService", () => {
 
       it("returns ETH token for ETH address", async () => {
         const result = await service.findOne("0x000000000000000000000000000000000000800a");
-        expect(result).toEqual(await chainNativeToken());
+        expect(result).toEqual(await baseToken());
       });
 
       it("returns null for non ETH address", async () => {

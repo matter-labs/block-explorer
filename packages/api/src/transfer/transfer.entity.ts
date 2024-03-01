@@ -1,6 +1,6 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { chainNativeToken, Token, TokenType } from "../token/token.entity";
+import { baseToken, Token, TokenType } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
@@ -89,7 +89,7 @@ export class Transfer extends BaseEntity {
   @AfterLoad()
   async populateEthToken() {
     if (!this.token && this.tokenAddress.toLowerCase() === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
-      const nativeTokenData = (await chainNativeToken()) as Token;
+      const nativeTokenData = (await baseToken()) as Token;
       this.token = nativeTokenData;
     }
   }

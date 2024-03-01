@@ -2,7 +2,7 @@ import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
-import { Token, chainNativeToken } from "../../token/token.entity";
+import { Token, baseToken } from "../../token/token.entity";
 import { TokenController } from "./token.controller";
 
 describe("TokenController", () => {
@@ -32,7 +32,7 @@ describe("TokenController", () => {
 
   describe("tokenInfo", () => {
     it("returns ok response and token info when token is found", async () => {
-      const nativeToken = (await chainNativeToken()) as Token;
+      const nativeToken = (await baseToken()) as Token;
       jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce(nativeToken);
       const response = await controller.tokenInfo(contractAddress);
       expect(response).toEqual({
