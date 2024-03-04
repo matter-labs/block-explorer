@@ -94,7 +94,6 @@ jobs:
           down-flags: "--volumes"
 
       - name: Prepare test env
-        working-directory: packages/integration-tests
         run: |
           npm ci --no-audit
           npx playwright install --with-deps chromium
