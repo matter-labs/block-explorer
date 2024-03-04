@@ -34,8 +34,8 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           tags: ${{ matrix.image }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,ref=${{ matrix.image }}
+          cache-to: type=gha,ref=${{ matrix.image }},mode=max
           outputs: type=docker,dest=/tmp/${{ matrix.name }}.tar
 
       - name: Upload artifact
