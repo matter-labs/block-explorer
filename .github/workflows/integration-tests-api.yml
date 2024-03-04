@@ -88,10 +88,21 @@ jobs:
           ls -1 /tmp/**/*.tar | xargs --no-run-if-empty -L 1 docker load --input
           docker image ls -a 
 
-      - uses: isbang/compose-action@v1.5.1
+      - uses: alexkainzinger/compose-action@v2
         with:
           compose-file: docker-compose-prebuilt.yaml
           down-flags: "--volumes"
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        env:
+          HUSKY: 0
+        with:
+          path: '~/.npm'
+          key: ${{ runner.os }}-integration-tests-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-integration-tests-
+            ${{ runner.os }}-
 
       - name: Prepare test env
         run: |
