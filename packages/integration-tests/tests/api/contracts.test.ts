@@ -22,12 +22,11 @@ describe("API module: Contract", () => {
       await playbook.deployMultiCallContracts();
     });
 
-    //id1851
+    //id1851 @Sepolia
     it("Verify /api?module=contract&action=checkverifystatus response", async () => {
       await helper.retryTestAction(async () => {
         apiRoute = `/api?module=contract&action=checkverifystatus&guid=3177`;
         response = await helper.performGETrequest(apiRoute, "sepolia");
-        console.log(response.body);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -36,7 +35,7 @@ describe("API module: Contract", () => {
       });
     });
 
-    //id1695
+    //id1695 @Sepolia
     it("Verify /api?module=contract&action=getabi response", async () => {
       await helper.retryTestAction(async () => {
         apiRoute = `/api?module=contract&action=getabi&address=${Contracts.greeterContractSepolia}`;
@@ -49,7 +48,7 @@ describe("API module: Contract", () => {
       });
     });
 
-    //id1802
+    //id1802 @Sepolia
     it("Verify /api?module=contract&action=getsourcecode response", async () => {
       await helper.retryTestAction(async () => {
         apiRoute = `/api?module=contract&action=getsourcecode&address=${Contracts.greeterContractSepolia}`;
