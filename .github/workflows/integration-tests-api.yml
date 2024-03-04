@@ -90,7 +90,7 @@ jobs:
 
       - uses: isbang/compose-action@v1.5.1
         with:
-          compose-file: "./docker/docker-compose-prebuilt.yaml"
+          compose-file: docker-compose-prebuilt.yaml
           down-flags: "--volumes"
 
       - name: Prepare test env
