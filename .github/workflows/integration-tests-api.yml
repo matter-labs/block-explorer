@@ -4,7 +4,7 @@ on: pull_request
 
 jobs:
   build-docker-images:
-    name: Build docker images with cache
+    name: Build ${{ matrix.name }}
     strategy:
       matrix:
         include:
@@ -39,7 +39,7 @@ jobs:
           outputs: type=docker,dest=/tmp/${{ matrix.name }}.tar
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
           path: /tmp/${{ matrix.name }}.tar
