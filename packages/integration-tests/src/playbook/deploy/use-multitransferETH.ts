@@ -37,6 +37,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   const ethTransfer = await makeTransfer(etherAddress, ethers.utils.parseEther("0.101"));
   const customToken1Transfer = await makeTransfer(customTokenI, ethers.utils.parseUnits("1", 18));
   const customToken2Transfer = await makeTransfer(customTokenII, ethers.utils.parseUnits("1", 18));
+  const multiTransferResult = await makeMultiTransfer();
 
   async function makeTransfer(token: string, amount: ethers.BigNumber) {
     const transfer = await wallet.transfer({
@@ -54,18 +55,20 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   }
 
   //call the deployed contract.
-  const transferFromContract = await attachedContract.multiTransfer(
-    [richWalletAddress, mainWalletAddress, secondaryWalletAddress],
-    [etherAddress, customTokenI, customTokenII],
-    [ethAmount, customTokenIAmount, customTokenIIAmount]
-  );
-  if (transferFromContract) {
-    console.log(`Contract transfer to us!`);
-    const transferReceipt = await transferFromContract.wait(1);
-    console.log(`Contract transfer transaction hash: ${transferReceipt.transactionHash}`);
-    await fs.writeFile(Buffer.txMultiTransferCall, transferReceipt.transactionHash);
-  } else {
-    console.error(`Contract said something unexpected: ${transferFromContract}`);
+  async function makeMultiTransfer() {
+    const transferFromContract = await attachedContract.multiTransfer(
+      [richWalletAddress, mainWalletAddress, secondaryWalletAddress],
+      [etherAddress, customTokenI, customTokenII],
+      [ethAmount, customTokenIAmount, customTokenIIAmount]
+    );
+    if (transferFromContract) {
+      console.log(`Contract transfer to us!`);
+      const transferReceipt = await transferFromContract.wait(1);
+      console.log(`Contract transfer transaction hash: ${transferReceipt.transactionHash}`);
+      return transferReceipt.transactionHash;
+    } else {
+      console.error(`Contract said something unexpected: ${transferFromContract}`);
+    }
   }
 
   // Show the contract balance
@@ -93,6 +96,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
     )}" Custom token II`
   );
 
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCall, multiTransferResult);
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferETH, ethTransfer);
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenI, customToken1Transfer);
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenII, customToken2Transfer);
