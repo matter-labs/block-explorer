@@ -88,18 +88,18 @@ jobs:
           ls -1 /tmp/**/*.tar | xargs --no-run-if-empty -L 1 docker load --input
           docker image ls -a 
 
-#      - uses: isbang/compose-action@v1.5.1
-#        with:
-#          compose-file: "./docker/docker-compose-prebuilt.yaml"
-#          down-flags: "--volumes"
-#
-#      - name: API tests run (parallel)
-#        working-directory: packages/integration-tests
-#        run: |
-#          npm ci --no-audit
-#          npx playwright install --with-deps chromium
-#
-#      - name: API tests run (parallel)
-#        working-directory: packages/integration-tests
-#        run: |
-#          npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
+      - uses: isbang/compose-action@v1.5.1
+        with:
+          compose-file: "./docker/docker-compose-prebuilt.yaml"
+          down-flags: "--volumes"
+
+      - name: Prepare test env
+        working-directory: packages/integration-tests
+        run: |
+          npm ci --no-audit
+          npx playwright install --with-deps chromium
+
+      - name: Run ${{ matrix.test-pattern }}
+        working-directory: packages/integration-tests
+        run: |
+          npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
