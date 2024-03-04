@@ -41,8 +41,13 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: {{ matrix.name }}
-          path: /tmp/{{ matrix.name }}.tar
+          name: ${{ matrix.name }}
+          path: /tmp/${{ matrix.name }}.tar
+
+  # SPLIT TESTS BY CHUNKS LIKE THAT:
+  # https://gist.github.com/imhoffd/b4ca0a94c2496d81303ebb00063a863d
+  # removes necessity to always update CI file when new .ts added
+  # you control number of parallel chunks
 
   run-tests:
     timeout-minutes: 30
