@@ -35,19 +35,15 @@ jobs:
           file: ${{ matrix.dockerfile }}
           tags: ${{ matrix.image }}
           cache-from: type=gha,scope=${{ matrix.name }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=matrix.name
           outputs: type=docker,dest=/tmp/${{ matrix.name }}.tar
+#          cache-to: ${{ github.event_name == 'push' && 'type=gha,mode=max,scope=matrix.name' || '' }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.name }}
           path: /tmp/${{ matrix.name }}.tar
-
-  # SPLIT TESTS BY CHUNKS LIKE THAT:
-  # https://gist.github.com/imhoffd/b4ca0a94c2496d81303ebb00063a863d
-  # removes necessity to always update CI file when new .ts added
-  # you control number of parallel chunks
 
   run-tests:
     timeout-minutes: 30
@@ -58,14 +54,14 @@ jobs:
         node-version: ['lts/*'] # 18.17.1 or lts/* 
         test-pattern:
           - accounts.test.ts
-#          - addresses.test.ts
-#          - batches.test.ts
-#          - blocks.test.ts
-#          - contracts.test.ts
-#          - logs.test.ts
-#          - stats.test.ts
-#          - tokens.test.ts
-#          - transactions.test.ts
+          - addresses.test.ts
+          - batches.test.ts
+          - blocks.test.ts
+          - contracts.test.ts
+          - logs.test.ts
+          - stats.test.ts
+          - tokens.test.ts
+          - transactions.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
       - name: Checkout repo
@@ -112,4 +108,4 @@ jobs:
       - name: Run ${{ matrix.test-pattern }}
         working-directory: packages/integration-tests
         run: |
-          npx jest --verbose --maxWorkers=9 
+          npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
