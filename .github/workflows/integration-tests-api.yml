@@ -112,4 +112,4 @@ jobs:
       - name: Run ${{ matrix.test-pattern }}
         working-directory: packages/integration-tests
         run: |
-          npx jest --verbose
+          npx jest --verbose --maxWorkers=9 
