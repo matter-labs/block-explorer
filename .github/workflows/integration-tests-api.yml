@@ -1,6 +1,10 @@
 name: Integration test - API
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   build-docker-images:
@@ -35,9 +39,8 @@ jobs:
           file: ${{ matrix.dockerfile }}
           tags: ${{ matrix.image }}
           cache-from: type=gha,scope=${{ matrix.name }}
-          cache-to: type=gha,mode=max,scope=matrix.name
+          cache-to: ${{ github.event_name == 'push' && 'type=gha,mode=max,scope=matrix.name' || '' }}
           outputs: type=docker,dest=/tmp/${{ matrix.name }}.tar
-#          cache-to: ${{ github.event_name == 'push' && 'type=gha,mode=max,scope=matrix.name' || '' }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
