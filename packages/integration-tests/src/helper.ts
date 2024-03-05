@@ -62,7 +62,7 @@ export class Helper {
   }
 
   async performGETrequest(apiRoute: string, network?: string) {
-    if (network && network === `sepolia`) {
+    if (network === `sepolia`) {
       return request(environment.blockExplorerSepoliaAPI).get(apiRoute);
     } else if (!network || network === `local`) {
       return request(environment.blockExplorerAPI).get(apiRoute);
