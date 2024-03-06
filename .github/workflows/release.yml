@@ -84,6 +84,15 @@ jobs:
         run: |
           gcloud auth configure-docker us-docker.pkg.dev -q 
 
+      - name: Build and push Docker image for API
+        uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: |
+              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+          file: packages/api/Dockerfile
+          no-cache: true
+
       - name: Build and push Docker image for Worker
         uses: docker/build-push-action@v4
         with:
