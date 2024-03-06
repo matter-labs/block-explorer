@@ -15,7 +15,7 @@ npm install
 cp .env.example packages/integration-tests/src/playbook/.env
 ```
 
-- Add your private wallet key to `WALLET_PRIVATE_KEY=` By default we use `richWalletPrivateKey` private key in `integration-tests/src/playbook/utils/getWallet.ts` from `integration-tests/src/entities.ts`. 
+- Add your private wallet key to `WALLET_PRIVATE_KEY={YOUR_PRIVATE_KEY}`. By default we use `richWalletPrivateKey` private key in `integration-tests/src/playbook/utils/getWallet.ts` from `integration-tests/src/entities.ts`. 
 
 ## Preparing a local environment
 
