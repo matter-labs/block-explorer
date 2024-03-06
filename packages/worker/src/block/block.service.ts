@@ -33,6 +33,7 @@ export class BlockService extends Worker {
       this.logger.error(`Error on processing next block range, waiting ${nextIterationDelay} ms to retry`, error.stack);
     }
     if (nextIterationDelay) {
+      this.logger.debug(`Waiting for ${nextIterationDelay}ms`);
       await waitFor(() => !this.currentProcessPromise, nextIterationDelay);
     }
     if (!this.currentProcessPromise) {
