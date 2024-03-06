@@ -42,7 +42,7 @@ npm run integration-test:ui
 If you need to run the exact test or/and suite you can change 
 key-words from `it` to `fit` (for the test) and `describe` to `fdescribe` for suite.
 
-If you need to exclude some specific test/suites, you can change keywords `it` to `xit` and/or
+If you need to exclude some specific test/suite, you can change keywords `it` to `xit` and/or
 `describe` to `xdescribe`.
 
 The test solution contains two main folders: [src](./src) and [tests](./tests).
