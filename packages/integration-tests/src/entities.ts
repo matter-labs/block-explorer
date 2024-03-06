@@ -60,7 +60,7 @@ export enum TransactionsType {
   withdrawal = "withdrawal",
 }
 
-export enum TransactionsStatus {
+export enum TransactionStatus {
   failed = "failed",
 }
 
