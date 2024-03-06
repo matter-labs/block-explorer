@@ -61,7 +61,7 @@ export class Helper {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async performGETrequest(apiRoute: string) {
+  async performBlockExplorerApiGetRequest(apiRoute: string) {
     return request(environment.blockExplorerAPI).get(apiRoute);
   }
 
