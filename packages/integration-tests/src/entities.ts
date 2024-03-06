@@ -30,6 +30,8 @@ export enum Buffer {
   emptyWalletAddress = "./buffer/emptyWalletAddress.txt",
   failedState = "./buffer/failedState.txt",
   customToken = "./buffer/customToken.txt",
+  txEthDeposit = "./buffer/txEthDeposit.txt",
+  txERC20Deposit = "./buffer/txERC20Deposit.txt",
 }
 
 export enum Logger {
