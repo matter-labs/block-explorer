@@ -33,7 +33,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   console.log("Multicall contract caller: ", txHash);
   console.log(`Contract said after new greeting: ${await attachedContract.newCallGreeter()}`);
 
-  await fs.writeFile(Buffer.txUseMultiCallContracts, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txUseMultiCallContracts, txHash);
 
   return txHash;
 }

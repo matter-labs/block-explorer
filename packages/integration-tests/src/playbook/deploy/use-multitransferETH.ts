@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import { promises as fs } from "fs";
 import { Provider, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
@@ -91,7 +90,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
     )}" Custom token II`
   );
 
-  await fs.writeFile(Buffer.txMultiTransferETH, ethTransfer);
-  await fs.writeFile(Buffer.txMultiTransferCustomTokenI, customToken1Transfer);
-  await fs.writeFile(Buffer.txMultiTransferCustomTokenII, customToken2Transfer);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferETH, ethTransfer);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenI, customToken1Transfer);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenII, customToken2Transfer);
 }

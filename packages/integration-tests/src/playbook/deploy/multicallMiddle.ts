@@ -34,8 +34,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const address = deployedContract.address;
   const txHash = deployedContract.deployTransaction.hash;
 
-  await fs.writeFile(Buffer.addressMultiCallMiddle, address);
-  await fs.writeFile(Buffer.txMultiCallMiddle, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallMiddle, address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle, txHash);
 
   return [address, txHash];
 }

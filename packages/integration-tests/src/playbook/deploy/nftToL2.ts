@@ -1,13 +1,14 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { promises as fs } from "fs";
 
-import { Buffer, Wallets } from "../../constants";
+import { Buffer, Path, Wallets } from "../../constants";
+import { Helper } from "../../helper";
 import displayVerificationInfo from "../utils/displayVerificationInfo";
 import getWallet from "../utils/getWallet";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export default async function (hre: HardhatRuntimeEnvironment) {
+  const helper = new Helper();
   console.log(`Running deploy script for the Greeter contract`);
 
   const wallet = await getWallet(hre);
@@ -30,5 +31,5 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   displayVerificationInfo({ hre, contract: myNFT, contractConstructorArguments, artifact });
 
-  await fs.writeFile(Buffer.NFTtoL2, myNFT.address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL2, myNFT.address);
 }

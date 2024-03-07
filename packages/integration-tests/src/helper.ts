@@ -26,6 +26,7 @@ export class Helper {
       exec(script, { encoding: "utf-8" }, (error, stdout, stderr) => {
         if (error) {
           console.error(`Error executing script "${script}":`, error);
+          console.error(`stderr executing script "${script}":`, stderr);
           reject(error);
         } else {
           console.log(`> Run NPM Script "${script}":\n`, stdout);
@@ -35,8 +36,17 @@ export class Helper {
     });
   }
 
+  async writeFile(filePath: string, fileName: string, data: string) {
+    const absoluteRoute = path.join(filePath, fileName);
+    try {
+      await fs.writeFile(absoluteRoute, data);
+    } catch {
+      console.log(`Cannot write: ${fileName} to ${filePath}`);
+    }
+  }
+
   async readFile(filePath: string, fileName: string) {
-    const absoluteRoute = path.join(filePath + fileName);
+    const absoluteRoute = path.join(filePath, fileName);
 
     try {
       return await fs.readFile(absoluteRoute, { encoding: "utf-8" });

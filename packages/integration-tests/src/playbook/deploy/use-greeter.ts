@@ -32,7 +32,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`Transaction hash: ${transactionReceipt.transactionHash}`);
 
-  await fs.writeFile(Buffer.executeGreeterTx, transactionReceipt.transactionHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx, transactionReceipt.transactionHash);
 
   return transactionReceipt.transactionHash;
 }

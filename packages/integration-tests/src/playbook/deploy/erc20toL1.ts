@@ -1,9 +1,10 @@
-import { promises as fs } from "fs";
 import { ethers } from "hardhat";
 
 import { localConfig } from "../../config";
-import { Buffer, Wallets } from "../../constants";
+import { Buffer, Path, Wallets } from "../../constants";
+import { Helper } from "../../helper";
 
+const helper = new Helper();
 async function main() {
   const [deployer] = await ethers.getSigners();
 
@@ -16,7 +17,7 @@ async function main() {
   const contract = await ethers.getContractFactory("L1");
   const token = await contract.deploy(Wallets.richWalletAddress, localConfig.gasLimit);
 
-  await fs.writeFile(Buffer.L1, token.address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.L1, token.address);
 }
 
 main()

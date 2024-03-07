@@ -13,7 +13,6 @@ export const transferEth = async function (sum = "0.000009", address: string = W
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
   const syncWallet2 = new zksync.Wallet(address, syncProvider, ethProvider);
-  const bufferFile = path.join(Path.playbookRoot + Buffer.txEthTransfer);
 
   const transfer = await syncWallet.transfer({
     to: syncWallet2.address,
@@ -23,7 +22,7 @@ export const transferEth = async function (sum = "0.000009", address: string = W
 
   const txHash = transfer.hash;
   await helper.logTransaction(Logger.transfer, txHash, "ETH");
-  await fs.writeFile(bufferFile, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txEthTransfer, txHash);
 
   return txHash;
 };

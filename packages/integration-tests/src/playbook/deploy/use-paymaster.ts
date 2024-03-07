@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import { promises as fs } from "fs";
 import { Provider, utils, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
@@ -62,7 +61,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`Balance of the user after mint: ${await emptyWallet.getBalance(TOKEN_ADDRESS)}`);
 
-  await fs.writeFile(Buffer.paymasterTx, receipt.transactionHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.paymasterTx, receipt.transactionHash);
   console.log(`Transaction hash: ${receipt.transactionHash}`);
 
   return receipt.transactionHash;

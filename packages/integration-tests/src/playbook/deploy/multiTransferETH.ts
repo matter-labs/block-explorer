@@ -1,11 +1,12 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { promises as fs } from "fs";
 
-import { Buffer, Wallets } from "../../constants";
+import { Buffer, Path, Wallets } from "../../constants";
+import { Helper } from "../../helper";
 import verify from "../utils/displayVerificationInfo";
 import getWallet from "../utils/getWallet";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
+const helper = new Helper();
 
 const contract_name = "TokenF2L2"; // insert the name of the contract you want to deploy
 const constructor_arguments = [Wallets.richWalletAddress]; // insert the constructor arguments of the contract you want to deploy
@@ -27,7 +28,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   // Show the contract info.
   console.log(`Contract "${artifact.contractName}" was deployed to ${deployedContract.address}`);
-  await fs.writeFile(Buffer.addressMultiTransferETH, deployedContract.address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH, deployedContract.address);
 
   await verify({ hre, contract: deployedContract, contractConstructorArguments: constructor_arguments, artifact });
 

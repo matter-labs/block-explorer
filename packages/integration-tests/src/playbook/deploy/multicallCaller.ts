@@ -1,5 +1,4 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { promises as fs } from "fs";
 
 import { Buffer, Path } from "../../constants";
 import { Helper } from "../../helper";
@@ -33,8 +32,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const address = deployedContract.address;
   const txHash = deployedContract.deployTransaction.hash;
 
-  await fs.writeFile(Buffer.addressMultiCallCaller, address);
-  await fs.writeFile(Buffer.txMultiCallCaller, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallCaller, address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallCaller, txHash);
 
   return [address, txHash];
 }
