@@ -64,7 +64,7 @@ export class Helper {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async performGETrequest(apiRoute: string, network?: string) {
+  async performBlockExplorerApiGetRequest(apiRoute: string, network?: string) {
     if (network === `sepolia`) {
       return request(environment.blockExplorerSepoliaAPI).get(apiRoute);
     } else if (!network || network === `local`) {

@@ -116,7 +116,7 @@ describe("Tokens", () => {
       it("Verify /api?module=token&action=tokeninfo response", async () => {
         await helper.retryTestAction(async () => {
           apiRoute = `/api?module=token&action=tokeninfo&contractaddress=${Token.ETHER_ERC20_Address}`;
-          response = await helper.performGETrequest(apiRoute);
+          response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
           expect(response.status).toBe(200);
           expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
