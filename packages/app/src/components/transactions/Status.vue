@@ -249,6 +249,16 @@ const badges = computed(() => {
     });
     return badgesArr;
   }
+  if (props.status === "indexing") {
+    badgesArr.push({
+      testId: "indexing",
+      color: "neutral",
+      text: t("transactions.statusComponent.indexing"),
+      infoTooltip: t("transactions.statusComponent.indexingTooltip"),
+      icon: Spinner,
+    });
+    return badgesArr;
+  }
 
   badgesArr.push({
     testId: "l2-badge-title",
@@ -262,16 +272,6 @@ const badges = computed(() => {
     text: t("transactions.statusComponent.processed"),
     icon: CheckIcon,
   });
-
-  if (props.status === "indexing") {
-    badgesArr.push({
-      testId: "indexing",
-      color: "neutral",
-      text: t("transactions.statusComponent.indexing"),
-      icon: Spinner,
-    });
-    return badgesArr;
-  }
 
   badgesArr.push({
     testId: "l1-badge-title",

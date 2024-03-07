@@ -10,6 +10,7 @@ export type BlockProcessingMetricLabels = "status" | "action";
 export const TRANSACTION_PROCESSING_DURATION_METRIC_NAME = "transaction_processing_duration_seconds";
 export type ProcessingActionMetricLabel = "action";
 
+export const BALANCES_PROCESSING_DURATION_METRIC_NAME = "balances_processing_duration_seconds";
 export const DELETE_OLD_BALANCES_DURATION_METRIC_NAME = "delete_old_balances_duration_seconds";
 export const DELETE_ZERO_BALANCES_DURATION_METRIC_NAME = "delete_zero_balances_duration_seconds";
 
@@ -50,6 +51,11 @@ export const metricProviders: Provider<any>[] = [
   makeHistogramProvider({
     name: TRANSACTION_PROCESSING_DURATION_METRIC_NAME,
     help: "transaction processing duration in seconds.",
+    buckets: metricsBuckets,
+  }),
+  makeHistogramProvider({
+    name: BALANCES_PROCESSING_DURATION_METRIC_NAME,
+    help: "balances processing duration in seconds.",
     buckets: metricsBuckets,
   }),
   makeHistogramProvider({

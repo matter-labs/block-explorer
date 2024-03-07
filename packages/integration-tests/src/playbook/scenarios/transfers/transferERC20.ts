@@ -11,7 +11,7 @@ export const transferERC20 = async function (sum: string, tokenAddress: string, 
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
-  const syncWallet2 = new zksync.Wallet(Wallets.secondaryWalletPrivateKey, syncProvider, ethProvider);
+  const syncWallet2 = new zksync.Wallet(Wallets.secondWalletPrivateKey, syncProvider, ethProvider);
   const playbookRoot = "src/playbook/";
   const bufferFile = playbookRoot + Buffer.txEthTransfer;
 

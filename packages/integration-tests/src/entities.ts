@@ -30,8 +30,6 @@ export enum Buffer {
   emptyWalletAddress = "./buffer/emptyWalletAddress.txt",
   failedState = "./buffer/failedState.txt",
   customToken = "./buffer/customToken.txt",
-  txEthDeposit = "./buffer/txEthDeposit.txt",
-  txERC20Deposit = "./buffer/txERC20Deposit.txt",
 }
 
 export enum Logger {
@@ -60,16 +58,16 @@ export enum TransactionsType {
   withdrawal = "withdrawal",
 }
 
-export enum TransactionStatus {
+export enum TransactionsStatus {
   failed = "failed",
 }
 
 export enum Wallets {
   mainWalletAddress = "0x586607935E1462ab762F438E0A7b2968A4158975",
-  secondaryWalletAddress = "0x26A4c5Dfe2cA3c9E7E8C417B689F41b6b5745C37",
+  secondWalletAddress = "0x26A4c5Dfe2cA3c9E7E8C417B689F41b6b5745C37",
   richWalletAddress = "0x36615Cf349d7F6344891B1e7CA7C72883F5dc049",
   mainWalletPrivateKey = "0x06ac1584dd1cf69f97a784b2b7812cd0c65a867ec997add028cdf56483c1c299",
-  secondaryWalletPrivateKey = "e14e6e0b3b610411cf15c3a5aa3252cac9e0a40a9bbe67ceb3b5d506f56576fd",
+  secondWalletPrivateKey = "e14e6e0b3b610411cf15c3a5aa3252cac9e0a40a9bbe67ceb3b5d506f56576fd",
   richWalletPrivateKey = "0x7726827caac94a7f9e1b160f7ea819f172f7b6f9d2a97f992c38edeab82d4110",
 }
 

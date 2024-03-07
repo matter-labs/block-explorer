@@ -189,7 +189,7 @@
         },
         "statusComponent": {
             "processed": "Processed",
-            "indexing": "Being indexed by explorer",
+            "indexing": "Indexing...",
             "sending": "Sending",
             "sent": "Sent",
             "validating": "Validating",
@@ -197,6 +197,7 @@
             "executing": "Executing",
             "executed": "Executed",
             "failed": "Failed",
+            "indexingTooltip": "Transaction is indexing and will be fully reflected shortly",
             "ethereumNetwork": "Ethereum network"
         },
         "transaction": "Transaction",
@@ -281,6 +282,7 @@
     "header": {
         "nav": {
             "blockExplorer": "Block Explorer",
+            "portal": "Portal",
             "documentation": "Documentation",
             "tools": "Tools",
             "apiDocs": "API Documentation",
@@ -457,8 +459,7 @@
                 "validation": {
                     "required": "Solc version is required"
                 },
-                "error": "Unable to get list of supported Solc versions",
-                "zkVM": "zkVM"
+                "error": "Unable to get list of supported Solc versions"
             },
             "zksolcVersion": {
                 "label": "Zksolc Version",
@@ -721,9 +722,5 @@
                 "callData": "calldata"
             }
         }
-    },
-    "systemAlert": {
-        "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
-        "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
     }
 }

@@ -87,7 +87,7 @@ describe("Tokens", () => {
           expect(response.status).toBe(200);
           expect(response.body.items[0].amount).toBe("10000000000000000");
           expect(response.body.items[0].from).toBe(Wallets.richWalletAddress);
-          expect(response.body.items[0].to).toBe(Wallets.secondaryWalletAddress);
+          expect(response.body.items[0].to).toBe(Wallets.secondWalletAddress);
           expect(response.body.items[0].token).toEqual(expect.objectContaining({ l2Address: l2Token }));
           expect(response.body.items[0]).toEqual(expect.objectContaining({ transactionHash: txHash }));
           expect(response.body.items[0]).toEqual(expect.objectContaining({ type: "transfer" }));

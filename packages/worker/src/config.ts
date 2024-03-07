@@ -2,15 +2,12 @@ export default () => {
   const {
     PORT,
     BLOCKCHAIN_RPC_URL,
-    DATA_FETCHER_URL,
-    DATA_FETCHER_REQUEST_TIMEOUT,
     RPC_CALLS_DEFAULT_RETRY_TIMEOUT,
     RPC_CALLS_QUICK_RETRY_TIMEOUT,
     RPC_CALLS_CONNECTION_TIMEOUT,
     RPC_CALLS_CONNECTION_QUICK_TIMEOUT,
     WAIT_FOR_BLOCKS_INTERVAL,
     BLOCKS_PROCESSING_BATCH_SIZE,
-    NUMBER_OF_BLOCKS_PER_DB_TRANSACTION,
     BATCHES_PROCESSING_POLLING_INTERVAL,
     DELETE_BALANCES_INTERVAL,
     COUNTERS_PROCESSING_POLLING_INTERVAL,
@@ -19,6 +16,7 @@ export default () => {
     COLLECT_BLOCKS_TO_PROCESS_METRIC_INTERVAL,
     DISABLE_BATCHES_PROCESSING,
     DISABLE_COUNTERS_PROCESSING,
+    DISABLE_BALANCES_PROCESSING,
     DISABLE_OLD_BALANCES_CLEANER,
     DISABLE_BLOCKS_REVERT,
     ENABLE_TOKEN_OFFCHAIN_DATA_SAVER,
@@ -39,17 +37,12 @@ export default () => {
       rpcCallConnectionTimeout: parseInt(RPC_CALLS_CONNECTION_TIMEOUT, 10) || 20000,
       rpcCallConnectionQuickTimeout: parseInt(RPC_CALLS_CONNECTION_QUICK_TIMEOUT, 10) || 10000,
     },
-    dataFetcher: {
-      url: DATA_FETCHER_URL || "http://localhost:3040",
-      requestTimeout: parseInt(DATA_FETCHER_REQUEST_TIMEOUT, 10) || 120_000,
-    },
     blocks: {
       waitForBlocksInterval: parseInt(WAIT_FOR_BLOCKS_INTERVAL, 10) || 1000,
       blocksProcessingBatchSize: parseInt(BLOCKS_PROCESSING_BATCH_SIZE, 10) || 50,
       fromBlock: parseInt(FROM_BLOCK, 10) || 0,
       toBlock: parseInt(TO_BLOCK, 10) || null,
       disableBlocksRevert: DISABLE_BLOCKS_REVERT === "true",
-      numberOfBlocksPerDbTransaction: parseInt(NUMBER_OF_BLOCKS_PER_DB_TRANSACTION, 10) || 50,
     },
     batches: {
       batchesProcessingPollingInterval: parseInt(BATCHES_PROCESSING_POLLING_INTERVAL, 10) || 60000,
@@ -57,6 +50,7 @@ export default () => {
     },
     balances: {
       deleteBalancesInterval: parseInt(DELETE_BALANCES_INTERVAL, 10) || 300000,
+      disableBalancesProcessing: DISABLE_BALANCES_PROCESSING === "true",
       disableOldBalancesCleaner: DISABLE_OLD_BALANCES_CLEANER === "true",
     },
     counters: {

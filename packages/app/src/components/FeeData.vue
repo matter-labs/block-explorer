@@ -27,7 +27,7 @@
       <div>
         <a
           class="refunded-link"
-          href="https://docs.zksync.io/build/developer-reference/fee-model.html#refunds"
+          href="https://era.zksync.io/docs/dev/developer-guides/transactions/fee-model.html#refunds"
           target="_blank"
           >{{
             t(
@@ -40,7 +40,7 @@
         <a
           v-if="feeData?.isPaidByPaymaster"
           class="paymaster-link"
-          href="https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters"
+          href="https://era.zksync.io/docs/reference/concepts/account-abstraction.html#paymasters"
           target="_blank"
           >{{ t("transactions.table.feeDetails.whatIsPaymaster") }}</a
         >

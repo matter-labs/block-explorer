@@ -128,7 +128,7 @@
         },
         "statusComponent": {
             "processed": "Оброблено",
-            "indexing": "Індексується експлорером",
+            "indexing": "Індексується...",
             "sending": "Надсилається",
             "sent": "Надіслано",
             "validating": "Перевіряється",
@@ -136,6 +136,7 @@
             "executing": "Виконується",
             "executed": "Виконано",
             "failed": "Невдало",
+            "indexingTooltip": "Транзакція індексується, всі деталі будуть доступні згодом",
             "ethereumNetwork": "мережа Ethereum"
         },
         "transaction": "Транзакція",
@@ -152,6 +153,7 @@
             "contractVerification": "Верифікація Смарт контракту",
             "debugger": "zkEVM Налагоджувач",
             "blockExplorer": "Провідник",
+            "portal": "Портал",
             "documentation": "Документація"
         }
     },
@@ -437,9 +439,5 @@
                 "callData": "дані виклику"
             }
         }
-    },
-    "systemAlert": {
-        "indexerDelayed": "Індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі.",
-        "indexerDelayedDueToHeavyLoad": "Мережа наразі перебуває під великим навантаженням, індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі."
     }
 }

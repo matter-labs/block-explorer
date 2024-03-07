@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vite
 import { mount } from "@vue/test-utils";
 
 import Badge from "@/components/common/Badge.vue";
+import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import Spinner from "@/components/common/Spinner.vue";
 import Status from "@/components/transactions/Status.vue";
 
@@ -349,7 +350,7 @@ describe("Status", () => {
       expect(l1ExecutedLink.attributes("href")).toBeUndefined();
     });
   });
-  it("shows indexing badge for 'indexing' status", async () => {
+  it("shows icon tooltip and single indexing badge for 'indexing' status", async () => {
     const wrapper = mount(Status, {
       global,
       props: {
@@ -361,18 +362,15 @@ describe("Status", () => {
     });
 
     const badges = wrapper.findAllComponents(Badge);
-    expect(badges.length).toBe(3);
+    expect(badges.length).toBe(1);
 
-    const [l2StatusBadgeTitle, l2StatusBadgeValue, indexingBadge] = badges;
-
-    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
-    expect(l2StatusBadgeTitle.props().color).toBe("success");
-    expect(l2StatusBadgeTitle.props().textColor).toBe("neutral");
-
-    expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l2StatusBadgeValue.props().color).toBe("dark-success");
+    const [indexingBadge] = badges;
 
     expect(indexingBadge.props().color).toBe("neutral");
     expect(indexingBadge.text()).toBe(i18n.global.t("transactions.statusComponent.indexing"));
+
+    const infoTooltip = wrapper.findAllComponents(InfoTooltip);
+    expect(infoTooltip.length).toBe(1);
+    expect(infoTooltip[0].text()).toBe(i18n.global.t("transactions.statusComponent.indexingTooltip"));
   });
 });

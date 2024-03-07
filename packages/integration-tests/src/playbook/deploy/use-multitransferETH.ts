@@ -20,7 +20,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   //wallets, To
   const richWalletAddress = Wallets.richWalletAddress;
   const mainWalletAddress = Wallets.mainWalletAddress;
-  const secondaryWalletAddress = Wallets.secondaryWalletAddress;
+  const secondWalletAddress = Wallets.secondWalletAddress;
   // type of coin, contract
   const etherAddress = Token.ETHER_Address; //ETH
   const customTokenI = await helper.getStringFromFile(firstToken);
@@ -60,7 +60,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
 
   //call the deployed contract.
   const transferFromContract = await attachedContract.multiTransfer(
-    [richWalletAddress, mainWalletAddress, secondaryWalletAddress],
+    [richWalletAddress, mainWalletAddress, secondWalletAddress],
     [etherAddress, customTokenI, customTokenII],
     [ethAmount, customTokenIAmount, customTokenIIAmount]
   );
@@ -90,7 +90,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   );
   console.log(
     `balance of wallet 3 is: "${ethers.utils.formatUnits(
-      await provider.getBalance(secondaryWalletAddress, "latest", customTokenII),
+      await provider.getBalance(secondWalletAddress, "latest", customTokenII),
       18
     )}" Custom token II`
   );

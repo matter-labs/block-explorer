@@ -20,21 +20,18 @@ export default (context = useContext()) => {
           apiRoute: "address",
           isValid: () => isAddress(param),
           routeName: "address",
-          prefetch: true,
         },
         {
           routeParam: { id: param },
           apiRoute: "batches",
           isValid: () => isBlockNumber(param),
           routeName: "batch",
-          prefetch: true,
         },
         {
           routeParam: { hash: param },
           apiRoute: "transactions",
           isValid: () => isTransactionHash(param),
           routeName: "transaction",
-          prefetch: false,
         },
       ];
 
@@ -49,9 +46,7 @@ export default (context = useContext()) => {
     const searchRoute = getSearchRoute(param);
     if (searchRoute) {
       try {
-        if (searchRoute.prefetch) {
-          await $fetch(`${context.currentNetwork.value.apiUrl}/${searchRoute.apiRoute}/${param}`);
-        }
+        await $fetch(`${context.currentNetwork.value.apiUrl}/${searchRoute.apiRoute}/${param}`);
         await router.push({ name: searchRoute.routeName, params: searchRoute.routeParam });
         return;
       } catch (error) {

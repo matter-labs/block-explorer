@@ -16,7 +16,7 @@
       <Alert type="notification" class="full-grid-width">
         <i18n-t scope="global" keypath="contractVerification.resources.title" tag="span">
           <template #hardhat>
-            <a href="https://docs.zksync.io/build/tooling/hardhat/hardhat-zksync-verify.html" target="_blank">
+            <a href="https://era.zksync.io/docs/tools/hardhat/hardhat-zksync-verify.html" target="_blank">
               {{ t("contractVerification.resources.links.hardhat") }}
             </a>
           </template>
@@ -84,13 +84,12 @@
           class="label-inline-block"
         >
           <a
-            href="https://docs.zksync.io/build/tooling/block-explorer/contract-verification.html#user-interface"
+            href="https://era.zksync.io/docs/tools/block-explorer/contract-verification.html#enter-contract-details"
             target="_blank"
             class="docs-link"
             >{{ t(`contractVerification.form.${selectedZkCompiler.name}Version.details`) }}</a
           >
           <Dropdown
-            class="clear-both"
             v-model="selectedZkCompilerVersion"
             id="zkCompilerVersion"
             :pending="selectedZkCompiler.isRequestPending"
@@ -104,19 +103,8 @@
             "
           />
         </FormItem>
-        <FormItem
-          id="compilerVersion"
-          :label="t(`contractVerification.form.${selectedCompiler.name}Version.label`)"
-          class="label-inline-block"
-        >
-          <CheckBoxInput
-            v-if="selectedCompiler.name === CompilerEnum.solc"
-            v-model="isZkVMSolcCompiler"
-            @update:model-value="onZkVMSelectionChanged"
-            >{{ t("contractVerification.form.solcVersion.zkVM") }}</CheckBoxInput
-          >
+        <FormItem id="compilerVersion" :label="t(`contractVerification.form.${selectedCompiler.name}Version.label`)">
           <Dropdown
-            class="clear-both"
             v-model="selectedCompilerVersion"
             id="compilerVersion"
             :pending="selectedCompiler.isRequestPending"
@@ -281,7 +269,6 @@ import SolidityEditor from "@/components/SolidityEditor.vue";
 import Alert from "@/components/common/Alert.vue";
 import Breadcrumbs from "@/components/common/Breadcrumbs.vue";
 import Button from "@/components/common/Button.vue";
-import CheckBoxInput from "@/components/common/CheckBoxInput.vue";
 import Dropdown from "@/components/common/Dropdown.vue";
 import ExpandableText from "@/components/common/ExpandableText.vue";
 import Input from "@/components/common/Input.vue";
@@ -335,7 +322,6 @@ const {
   requestCompilerVersions,
   compilerVersions,
 } = useContractVerification();
-const zkVMVersionPrefix = "zkVM";
 
 requestCompilerVersions(CompilerEnum.zksolc);
 requestCompilerVersions(CompilerEnum.solc);
@@ -352,7 +338,6 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
   },
 ]);
 
-const isZkVMSolcCompiler = ref(false);
 const selectedCompilationType = ref(CompilationTypeOptionsEnum.soliditySingleFile);
 const isSingleFile = computed(() =>
   [CompilationTypeOptionsEnum.soliditySingleFile, CompilationTypeOptionsEnum.vyperSingleFile].includes(
@@ -365,16 +350,7 @@ const selectedZkCompiler = computed(() => {
 });
 const selectedCompiler = computed(() => {
   const compiler = compilerTypeMap[selectedCompilationType.value].compiler;
-  const compilerInfo = compilerVersions.value[compiler];
-  if (compiler === CompilerEnum.solc) {
-    return {
-      ...compilerInfo,
-      versions: compilerInfo.versions?.filter((version) =>
-        isZkVMSolcCompiler.value ? version.startsWith(zkVMVersionPrefix) : !version.startsWith(zkVMVersionPrefix)
-      ),
-    };
-  }
-  return compilerInfo;
+  return compilerVersions.value[compiler];
 });
 const selectedZkCompilerVersion = ref(
   selectedZkCompiler.value.versions[selectedZkCompiler.value.versions.length - 1] || ""
@@ -519,10 +495,6 @@ const v$ = useVuelidate(
   },
   form
 );
-
-function onZkVMSelectionChanged() {
-  selectedCompilerVersion.value = selectedCompiler.value.versions[0] || "";
-}
 
 function onCompilationTypeChange() {
   selectedZkCompilerVersion.value = selectedZkCompiler.value.versions[0] || "";

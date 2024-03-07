@@ -1,7 +1,9 @@
 import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn } from "typeorm";
+import { BigNumber } from "ethers";
 import { BaseEntity } from "./base.entity";
 import { Block } from "./block.entity";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
+import { bigNumberTransformer } from "../transformers/bigNumber.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 
 @Entity({ name: "balances" })
@@ -20,6 +22,6 @@ export class Balance extends BaseEntity {
   @PrimaryColumn({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
 
-  @Column({ type: "varchar", length: 128 })
-  public readonly balance: string;
+  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
+  public readonly balance: BigNumber;
 }
