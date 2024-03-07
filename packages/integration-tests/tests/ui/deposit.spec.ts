@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { config } from "./config";
-import { BlockExplorer, Buffer, Wallets } from "../../src/entities";
+import { BlockExplorer, Buffer, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 
 import type { Locator } from "@playwright/test";
@@ -17,7 +17,7 @@ let hash, initiatorAddressElement, ethValue, erc20Value: Locator;
 //@id1660
 test("Check Deposit ETH transaction on BE", async ({ page }) => {
   bufferFile = bufferRoute + Buffer.txEthDeposit;
-  depositTxHash = await helper.getStringFromFile(bufferFile);
+  depositTxHash = await helper.readFile(bufferFile);
   url = BlockExplorer.baseUrl + `/tx/${depositTxHash}` + BlockExplorer.localNetwork;
   initiatorAddress = Wallets.richWalletAddress;
 
@@ -35,7 +35,7 @@ test("Check Deposit ETH transaction on BE", async ({ page }) => {
 //@id1681
 test("Check on BE Deposit the custom ERC-20 token", async ({ page }) => {
   bufferFile = bufferRoute + Buffer.txERC20Deposit;
-  depositTxHash = await helper.getStringFromFile(bufferFile);
+  depositTxHash = await helper.readFile(bufferFile);
   url = BlockExplorer.baseUrl + `/tx/${depositTxHash}` + BlockExplorer.localNetwork;
   initiatorAddress = Wallets.richWalletAddress;
 

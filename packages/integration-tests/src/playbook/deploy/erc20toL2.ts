@@ -2,7 +2,7 @@ import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import { promises as fs } from "fs";
 
 import { localConfig } from "../../config";
-import { Buffer } from "../../entities";
+import { Buffer } from "../../constants";
 import getWallet from "../utils/getWallet";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";

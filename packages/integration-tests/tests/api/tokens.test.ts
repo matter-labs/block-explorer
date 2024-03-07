@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Token, TransactionsType, Wallets } from "../../src/entities";
+import { Buffer, Path, Token, TransactionsType, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -8,24 +8,23 @@ describe("Tokens", () => {
 
   const helper = new Helper();
   const playbook = new Playbook();
-  const bufferFile = "src/playbook/";
   let apiRoute: string;
   let l2Token: string;
   let txHash: string;
   let response;
 
   beforeAll(async () => {
-    l2Token = await helper.getStringFromFile(bufferFile + Buffer.L2);
+    l2Token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
   });
 
   describe("/tokens", () => {
     //@id1508
     it("Verify the response via /tokens", async () => {
-      await helper.retryTestAction(async () => {
-        const l2DepositedToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
-        const l1Token = await helper.getStringFromFile(bufferFile + Buffer.L1);
+      await helper.runRetriableTestAction(async () => {
+        const l2DepositedToken = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        const l1Token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L1);
         apiRoute = `/tokens`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body.items)).toStrictEqual(true);
@@ -53,9 +52,9 @@ describe("Tokens", () => {
 
     //@id1456
     it("Verify deployed to L2 custom token via /tokens/{tokenAddress}", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/tokens/${l2Token}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual({
@@ -80,9 +79,9 @@ describe("Tokens", () => {
 
       //@id1448
       it("Verify the custom ERC20 token transfer via /tokens/{address}/transfers", async () => {
-        await helper.retryTestAction(async () => {
+        await helper.runRetriableTestAction(async () => {
           apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
-          response = await helper.performGETrequest(apiRoute);
+          response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
           expect(response.status).toBe(200);
           expect(response.body.items[0].amount).toBe("10000000000000000");
@@ -96,13 +95,13 @@ describe("Tokens", () => {
 
       //@id1451
       it("Verify the custom token includes paymaster transaction via /tokens/{address}/transfers", async () => {
-        await helper.retryTestAction(async () => {
-          l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
-          const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
-          const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-          txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+        await helper.runRetriableTestAction(async () => {
+          l2Token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.customToken);
+          const emptyWallet = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.emptyWalletAddress);
+          const paymaster = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymaster);
+          txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymasterTx);
           apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
-          response = await helper.performGETrequest(apiRoute);
+          response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
           expect(response.status).toBe(200);
           expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));
@@ -135,14 +134,14 @@ describe("Tokens", () => {
 
       //id1803
       it("Verify the response via /tokens/{address}/transfers", async () => {
-        await helper.retryTestAction(async () => {
-          l2Token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
-          const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
-          const paymaster = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-          txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+        await helper.runRetriableTestAction(async () => {
+          l2Token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.customToken);
+          const emptyWallet = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.emptyWalletAddress);
+          const paymaster = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymaster);
+          txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymasterTx);
           const apiRoute = `/tokens/${l2Token}/transfers?page=1&limit=10`;
           const decapitalizedTokenAddress = l2Token.toLowerCase();
-          response = await helper.performGETrequest(apiRoute);
+          response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
           expect(response.status).toBe(200);
           expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));

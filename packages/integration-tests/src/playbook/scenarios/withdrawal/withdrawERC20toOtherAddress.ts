@@ -1,9 +1,10 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
+import * as path from "path";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger, Wallets } from "../../../entities";
+import { Buffer, Logger, Path, Wallets } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const withdrawERC20toOtherAddress = async function (tokenAddress: string, sum = "0.2") {
@@ -12,8 +13,7 @@ export const withdrawERC20toOtherAddress = async function (tokenAddress: string,
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
   const bridges = await syncProvider.getDefaultBridgeAddresses();
-  const playbookRoot = "src/playbook/";
-  const bufferFile = playbookRoot + Buffer.txERC20WithdrawOtherAddress;
+  const bufferFile = path.join(Path.playbookRoot, Buffer.txERC20WithdrawOtherAddress);
 
   const balance = await syncWallet.getBalance(tokenAddress);
 
@@ -36,7 +36,7 @@ export const withdrawERC20toOtherAddress = async function (tokenAddress: string,
 
   console.log(`Your balance is ${balanceAfter.toString()}`);
 
-  await helper.txHashLogger(Logger.withdraw, txHash, "Custom token");
+  await helper.logTransaction(Logger.withdraw, txHash, "Custom token");
   await fs.writeFile(bufferFile, txHash);
 
   return txHash;

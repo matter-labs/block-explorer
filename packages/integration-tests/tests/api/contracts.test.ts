@@ -26,7 +26,7 @@ describe("API module: Contract", () => {
     it("Verify /api?module=contract&action=checkverifystatus response", async () => {
       await helper.retryTestAction(async () => {
         apiRoute = `/api?module=contract&action=checkverifystatus&guid=3177`;
-        response = await helper.performGETrequest(apiRoute, "sepolia");
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute, "sepolia");
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -39,7 +39,7 @@ describe("API module: Contract", () => {
     it("Verify /api?module=contract&action=getabi response", async () => {
       await helper.retryTestAction(async () => {
         apiRoute = `/api?module=contract&action=getabi&address=${Contracts.greeterContractSepolia}`;
-        response = await helper.performGETrequest(apiRoute, "sepolia");
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute, "sepolia");
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -52,7 +52,7 @@ describe("API module: Contract", () => {
     it("Verify /api?module=contract&action=getsourcecode response", async () => {
       await helper.retryTestAction(async () => {
         apiRoute = `/api?module=contract&action=getsourcecode&address=${Contracts.greeterContractSepolia}`;
-        response = await helper.performGETrequest(apiRoute, "sepolia");
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute, "sepolia");
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -76,13 +76,13 @@ describe("API module: Contract", () => {
 
     //@id1696
     it("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
-      await helper.retryTestAction(async () => {
-        paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-        paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
-        multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
-        multicallCallerTx = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
+      await helper.runRetriableTestAction(async () => {
+        paymasterContract = await helper.readFile(bufferFile + Buffer.paymaster);
+        paymasterTx = await helper.readFile(bufferFile + Buffer.paymasterDeployTx);
+        multicallCallerContract = await helper.readFile(bufferFile + Buffer.addressMultiCallCaller);
+        multicallCallerTx = await helper.readFile(bufferFile + Buffer.txMultiCallCaller);
         apiRoute = `/api?module=contract&action=getcontractcreation&contractaddresses=${paymasterContract},${multicallCallerContract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ contractAddress: paymasterContract }));

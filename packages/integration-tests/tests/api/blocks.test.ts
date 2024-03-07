@@ -10,9 +10,9 @@ describe("Blocks", () => {
     jest.setTimeout(localConfig.standardTimeout);
     //@id1511
     it("Verify the response via /blocks", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/blocks`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body.items)).toStrictEqual(true);
@@ -31,11 +31,11 @@ describe("Blocks", () => {
 
     //@id1512 //unstable on CI
     it("Verify the response via /blocks/{/blockNumber}", async () => {
-      await helper.retryTestAction(async () => {
-        const blocks = await helper.performGETrequest("/blocks");
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await helper.performBlockExplorerApiGetRequest("/blocks");
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/blocks/${blockNumber}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.number).toStrictEqual(blockNumber);
@@ -65,11 +65,11 @@ describe("Blocks", () => {
   describe("/api?module=block", () => {
     //@id1700
     it("Verify /api?module=block&action=getblockcountdown&blockno={block_number} response", async () => {
-      await helper.retryTestAction(async () => {
-        const blocks = await helper.performGETrequest("/blocks");
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await helper.performBlockExplorerApiGetRequest("/blocks");
         const blockNumber = blocks.body.items[0].number + 1;
         apiRoute = `/api?module=block&action=getblockcountdown&blockno=${blockNumber}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -83,9 +83,9 @@ describe("Blocks", () => {
 
     //@id1699
     it("Verify /api?module=block&action=getblocknobytime&closest=before&timestamp={timestamp} response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=1635934550`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -96,11 +96,11 @@ describe("Blocks", () => {
 
     //@id1701
     it("Verify /api?module=block&action=getblockreward&blockno={blockNumber} response", async () => {
-      await helper.retryTestAction(async () => {
-        const blocks = await helper.performGETrequest("/blocks");
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await helper.performBlockExplorerApiGetRequest("/blocks");
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=block&action=getblockreward&blockno=${blockNumber}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));

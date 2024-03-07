@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { config } from "./config";
-import { BlockExplorer, Buffer } from "../../src/entities";
+import { BlockExplorer, Buffer } from "../../src/constants";
 import { Helper } from "../../src/helper";
 
 import type { Locator } from "@playwright/test";
@@ -18,7 +18,7 @@ let selector: string;
 //@id1656
 test("Verify failed tx", async ({ page }) => {
   bufferFile = bufferRoute + Buffer.failedState;
-  failedTxHash = await helper.getStringFromFile(bufferFile);
+  failedTxHash = await helper.readFile(bufferFile);
   url = BlockExplorer.baseUrl + `/tx/${failedTxHash}` + BlockExplorer.localNetwork;
 
   await page.goto(url);
@@ -32,7 +32,7 @@ test("Verify failed tx", async ({ page }) => {
 //@id1655
 test("Verify deployed the own ERC20 token contract", async ({ page }) => {
   bufferFile = bufferRoute + Buffer.L2;
-  contract = await helper.getStringFromFile(bufferFile);
+  contract = await helper.readFile(bufferFile);
   url = BlockExplorer.baseUrl + `/address/${contract}` + BlockExplorer.localNetwork;
 
   await page.goto(url);

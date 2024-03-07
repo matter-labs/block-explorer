@@ -1,7 +1,7 @@
 import { getDefaultProvider, utils } from "ethers";
 import { Provider, Wallet } from "zksync-web3";
 
-import { Wallets } from "../../entities";
+import { Wallets } from "../../constants";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default async function (hre: any) {

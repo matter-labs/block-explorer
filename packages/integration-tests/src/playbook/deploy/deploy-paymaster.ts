@@ -3,7 +3,7 @@ import * as ethers from "ethers";
 import { promises as fs } from "fs";
 import { Wallet } from "zksync-web3";
 
-import { Buffer, Wallets } from "../../entities";
+import { Buffer, Wallets } from "../../constants";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 

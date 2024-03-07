@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { exec } from "child_process";
 import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
@@ -6,12 +6,12 @@ import * as request from "supertest";
 import { Provider } from "zksync-web3";
 
 import { environment, localConfig } from "./config";
-import { Logger } from "./entities";
+import { Logger } from "./constants";
 
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 
 export class Helper {
-  async txHashLogger(txType: string, txValue: string, tokenName?: string) {
+  async logTransaction(txType: string, txValue: string, tokenName?: string) {
     const logMessage = `TxHash for ${txType} ${Logger.textSeparator} ${txValue}`;
 
     if (tokenName === undefined) {
@@ -22,23 +22,26 @@ export class Helper {
   }
 
   async executeScript(script: string) {
-    const output = execSync(script, { encoding: "utf-8" });
-
-    try {
-      console.log(`> Run NPM Script "${script}":\n`, output);
-      return output;
-    } catch (e) {
-      console.log(e);
-    }
+    return new Promise((resolve, reject) => {
+      exec(script, { encoding: "utf-8" }, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error executing script "${script}":`, error);
+          reject(error);
+        } else {
+          console.log(`> Run NPM Script "${script}":\n`, stdout);
+          resolve(stdout);
+        }
+      });
+    });
   }
 
-  async getStringFromFile(fileName: string) {
-    const absoluteRoute = path.join(__dirname, "..", fileName);
+  async readFile(filePath: string, fileName: string) {
+    const absoluteRoute = path.join(filePath + fileName);
 
     try {
       return await fs.readFile(absoluteRoute, { encoding: "utf-8" });
     } catch {
-      console.log(`There is no the expected file: ${fileName}`);
+      console.log(`There is no the expected file: ${fileName} in ${filePath}`);
     }
   }
 

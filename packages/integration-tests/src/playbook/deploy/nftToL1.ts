@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import { ethers } from "hardhat";
 import * as hardhatConfig from "hardhat";
 
-import { Buffer, Wallets } from "../../entities";
+import { Buffer, Wallets } from "../../constants";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
