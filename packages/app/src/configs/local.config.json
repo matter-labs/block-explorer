@@ -9,7 +9,6 @@
       "icon": "/images/icons/zksync-arrows.svg",
       "l2ChainId": 270,
       "l2NetworkName": "Local",
-      "l2WalletUrl": "http://localhost:3000",
       "maintenance": false,
       "name": "local",
       "published": true,

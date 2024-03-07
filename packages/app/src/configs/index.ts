@@ -6,7 +6,6 @@ export type NetworkConfig = {
   rpcUrl: string;
   bridgeUrl?: string;
   l2NetworkName: string;
-  l2WalletUrl: string;
   l2ChainId: 270 | 280 | 324;
   l1ExplorerUrl?: string;
   maintenance: boolean;

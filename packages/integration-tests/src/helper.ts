@@ -79,7 +79,7 @@ export class Helper {
    * with a delay between attempts (localConfig.intervalAPIretries).
    * Throws an error if the action consistently fails after all retries.
    */
-  async retryTestAction(action) {
+  async runRetriableTestAction(action) {
     for (let i = 0; i < localConfig.maxAPIretries; i++) {
       try {
         await action();

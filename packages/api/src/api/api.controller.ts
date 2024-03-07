@@ -609,7 +609,10 @@ export class ApiController {
 
   @ApiTags("Token API")
   @Get("api?module=token&action=tokeninfo")
-  @ApiOperation({ summary: "Returns token information" })
+  @ApiOperation({
+    summary:
+      "Returns token information. Token price, liquidity and icon are retrieved from CoinGecko. The data is updated every 24 hours.",
+  })
   @ApiQuery({
     name: "contractaddress",
     description: "The contract address of the ERC-20/ERC-721 token to retrieve token info",
