@@ -4,7 +4,6 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import * as request from "supertest";
 import { setTimeout } from "timers/promises";
-import { Provider } from "zksync-web3";
 
 import { environment, localConfig } from "./config";
 import { Logger } from "./constants";
