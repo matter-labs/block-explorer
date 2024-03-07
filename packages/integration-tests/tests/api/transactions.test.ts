@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Token, TransactionsStatus, TransactionsType, Wallets } from "../../src/entities";
+import { Buffer, Token, TransactionStatus, TransactionsType, Wallets } from "../../src/entities";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -853,7 +853,7 @@ describe("Transactions", () => {
         expect(response.body.from).toStrictEqual(Wallets.richWalletAddress);
         expect(response.body.to).toStrictEqual(token);
         expect(response.body.hash).toStrictEqual(txHash);
-        expect(response.body.status).toStrictEqual(TransactionsStatus.failed);
+        expect(response.body.status).toStrictEqual(TransactionStatus.failed);
         expect(response.body).toStrictEqual(expect.objectContaining({ value: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
         expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
