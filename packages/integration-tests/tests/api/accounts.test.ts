@@ -63,7 +63,7 @@ describe("API module: Account", () => {
     //@id1705
     it("Verify /api?module=account&action=tokenbalance response", async () => {
       await helper.runRetriableTestAction(async () => {
-        apiRoute = `/api?module=account&action=tokenbalance&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
+        apiRoute = `/api?module=account&action=tokenbalance&contractaddress=${Token.ERC20AddressETH}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
@@ -176,7 +176,7 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Token.ERC20AddressETH}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
         console.log(apiRoute);
 

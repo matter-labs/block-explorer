@@ -22,7 +22,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   const mainWalletAddress = Wallets.mainWalletAddress;
   const secondaryWalletAddress = Wallets.secondaryWalletAddress;
   // type of coin, contract
-  const etherAddress = Token.ETHER_Address; //ETH
+  const etherAddress = Token.addressETH; //ETH
   const customTokenI = await helper.getStringFromFile(firstToken);
   const customTokenII = await helper.getStringFromFile(secondToken);
   // amount of funds

@@ -43,14 +43,12 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
         expect(typeof response.body.items[0].amount).toStrictEqual("string");
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: "fee" }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
@@ -60,8 +58,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -86,15 +84,13 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: "fee" }));
         expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
         expect(typeof response.body.items[0].amount).toStrictEqual("string");
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -103,8 +99,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -113,7 +109,7 @@ describe("Transactions", () => {
           })
         );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: "transfer" }));
@@ -122,7 +118,7 @@ describe("Transactions", () => {
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: "withdrawal" }));
-        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ type: "refund" }));
@@ -138,15 +134,13 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: "fee" }));
         expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
         expect(typeof response.body.items[0].amount).toStrictEqual("string");
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -155,8 +149,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -165,7 +159,7 @@ describe("Transactions", () => {
           })
         );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: "transfer" }));
@@ -174,7 +168,7 @@ describe("Transactions", () => {
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: "withdrawal" }));
-        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ type: "refund" }));
@@ -200,19 +194,17 @@ describe("Transactions", () => {
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -228,7 +220,7 @@ describe("Transactions", () => {
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.addressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: customTokenL2 }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
@@ -277,22 +269,20 @@ describe("Transactions", () => {
         expect(typeof response.body.items[3].amount).toStrictEqual("string");
         expect(typeof response.body.items[3].blockNumber).toStrictEqual("number");
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ fields: null }));
-        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[3].timestamp).toStrictEqual("string");
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[3]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[3]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -907,11 +897,9 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
@@ -924,8 +912,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -936,9 +924,7 @@ describe("Transactions", () => {
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -946,8 +932,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -955,12 +941,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -968,8 +952,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -991,11 +975,9 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -1008,8 +990,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1037,12 +1019,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -1050,8 +1030,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1074,11 +1054,9 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -1091,8 +1069,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1120,12 +1098,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -1133,8 +1109,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1183,11 +1159,9 @@ describe("Transactions", () => {
           })
         );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: paymasterAddress }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -1195,8 +1169,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1204,12 +1178,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: paymasterAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -1217,8 +1189,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1244,11 +1216,9 @@ describe("Transactions", () => {
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
         expect(response.body.items[0]).toStrictEqual(
@@ -1256,8 +1226,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1269,22 +1239,20 @@ describe("Transactions", () => {
         expect(typeof response.body.items[1].amount).toStrictEqual("string");
         expect(typeof response.body.items[1].blockNumber).toStrictEqual("number");
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1319,11 +1287,9 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -1336,8 +1302,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1345,12 +1311,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -1358,8 +1322,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1380,11 +1344,9 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -1397,8 +1359,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1406,12 +1368,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -1419,8 +1379,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1441,11 +1401,9 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -1458,8 +1416,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1467,12 +1425,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -1480,8 +1436,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1501,11 +1457,9 @@ describe("Transactions", () => {
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
@@ -1518,8 +1472,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1527,12 +1481,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -1540,8 +1492,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1564,7 +1516,7 @@ describe("Transactions", () => {
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ address: Token.ERC20AddressETH }));
         expect(Array.isArray(response.body.items[0].topics)).toStrictEqual(true);
         expect(typeof response.body.items[0].data).toStrictEqual("string");
         expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
@@ -1580,7 +1532,7 @@ describe("Transactions", () => {
         expect(typeof response.body.items[1].transactionIndex).toStrictEqual("number");
         expect(typeof response.body.items[1].logIndex).toStrictEqual("number");
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ address: Token.ERC20AddressETH }));
         expect(Array.isArray(response.body.items[2].topics)).toStrictEqual(true);
         expect(typeof response.body.items[2].data).toStrictEqual("string");
         expect(typeof response.body.items[2].blockNumber).toStrictEqual("number");

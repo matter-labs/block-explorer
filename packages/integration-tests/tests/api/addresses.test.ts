@@ -203,9 +203,7 @@ describe("Address", () => {
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "30000000000000000" }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: "transfer" }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.meta).toStrictEqual(expect.objectContaining({ totalItems: 2 }));
