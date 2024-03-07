@@ -1,49 +1,14 @@
 import * as ethers from "zksync-web3";
 import { NATIVE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { catchError, firstValueFrom } from "rxjs";
+import { AxiosError } from "axios";
+import { Logger, OnApplicationBootstrap, Injectable } from "@nestjs/common";
+import { HttpService } from "@nestjs/axios";
 import config from "../config";
 const { l1RpcProviderApiUrl, l2RpcProviderApiUrl } = config();
-export async function baseTokenData(l1Address: string, l1RpcProviderApiUrl: string): Promise<BaseTokenData> {
-  if (isEthereum(l1Address)) {
-    return {
-      l2Address: "0x0000000000000000000000000000000000000001",
-      l1Address: "0x0000000000000000000000000000000000000000",
-      symbol: "ETH",
-      name: "Ether",
-      decimals: 18,
-      // Fallback data in case ETH token is not in the DB
-      iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-      liquidity: 220000000000,
-      usdPrice: 1800,
-    };
-  } else {
-    const abi = [
-      "function balanceOf(address owner) view returns (string)",
-      "function decimals() view returns (uint8)",
-      "function symbol() view returns (string)",
-      "function name() view returns (string)",
-    ];
-    const l2Address = NATIVE_TOKEN_L2_ADDRESS;
-    const provider = new ethers.Provider(l1RpcProviderApiUrl);
-    const erc20_api = new ethers.Contract(l1Address, abi, provider);
-    const symbol: string = await erc20_api.symbol();
-    const decimals: number = await erc20_api.decimals();
-    return {
-      symbol,
-      decimals,
-      l1Address,
-      l2Address,
-      liquidity: 220000000000,
-      iconURL: "",
-      name: "",
-      usdPrice: 1800,
-    };
-  }
-}
-
 function isEthereum(l1Address: string): boolean {
   return l1Address === "0x0000000000000000000000000000000000000000";
 }
-
 type BaseTokenData = {
   symbol: string;
   decimals: number;
@@ -60,11 +25,6 @@ type BaseTokenRpcResponse = {
     message: string;
   };
 };
-
-import { catchError, firstValueFrom } from "rxjs";
-import { AxiosError } from "axios";
-import { Logger, OnApplicationBootstrap, Injectable } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
 @Injectable()
 export class BaseTokenService implements OnApplicationBootstrap {
   private l1Address: string;
