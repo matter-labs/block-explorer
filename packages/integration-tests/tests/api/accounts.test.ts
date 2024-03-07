@@ -98,7 +98,7 @@ describe("API module: Account", () => {
         expect(typeof response.body.result[0].isError).toStrictEqual("string");
         expect(typeof response.body.result[0].txreceipt_status).toStrictEqual("string");
         expect(typeof response.body.result[0].input).toStrictEqual("string");
-        expect(typeof response.body.result[0].contractAddress).toBeTruthy(); // can be null
+        expect(typeof response.body.result[0].contractAddress).toBeTruthy();
         expect(typeof response.body.result[0].cumulativeGasUsed).toStrictEqual("string");
         expect(typeof response.body.result[0].gasUsed).toStrictEqual("string");
         expect(typeof response.body.result[0].confirmations).toStrictEqual("string");

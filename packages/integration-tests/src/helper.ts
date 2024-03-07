@@ -3,10 +3,12 @@ import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as request from "supertest";
+import { setTimeout } from "timers/promises";
 import { Provider } from "zksync-web3";
 
 import { environment, localConfig } from "./config";
 import { Logger } from "./constants";
+import { getProviderForL1, getProviderForL2 } from "./provider";
 
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 
@@ -38,21 +40,12 @@ export class Helper {
 
   async writeFile(filePath: string, fileName: string, data: string) {
     const absoluteRoute = path.join(filePath, fileName);
-    try {
-      await fs.writeFile(absoluteRoute, data);
-    } catch {
-      console.log(`Cannot write: ${fileName} to ${filePath}`);
-    }
+    await fs.writeFile(absoluteRoute, data);
   }
 
   async readFile(filePath: string, fileName: string) {
     const absoluteRoute = path.join(filePath, fileName);
-
-    try {
-      return await fs.readFile(absoluteRoute, { encoding: "utf-8" });
-    } catch {
-      console.log(`There is no the expected file: ${fileName} in ${filePath}`);
-    }
+    return await fs.readFile(absoluteRoute, { encoding: "utf-8" });
   }
 
   async getBalanceETH(walletAddress: string, layer: string) {
@@ -60,10 +53,10 @@ export class Helper {
     let provider: BaseProvider;
     if (layer == "L1") {
       network = localConfig.L1Network;
-      provider = ethers.getDefaultProvider(network);
+      provider = getProviderForL1(network);
     } else if (layer == "L2") {
       network = localConfig.L2Network;
-      provider = new Provider(network);
+      provider = getProviderForL2(network);
     } else {
       console.log(`Wrong layer: ${layer}`);
     }
@@ -71,7 +64,7 @@ export class Helper {
   }
 
   async delay(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    await setTimeout(ms);
   }
 
   async performBlockExplorerApiGetRequest(apiRoute: string) {
