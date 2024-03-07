@@ -1,9 +1,10 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
+import * as path from "path";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger, Wallets } from "../../../constants";
+import { Buffer, Logger, Path, Wallets } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const withdrawETHtoOtherAddress = async function (sum = "0.000009") {
@@ -11,8 +12,7 @@ export const withdrawETHtoOtherAddress = async function (sum = "0.000009") {
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
-  const playbookRoot = "src/playbook/";
-  const bufferFile = playbookRoot + Buffer.txEthWithdrawOtherAddress;
+  const bufferFile = path.join(Path.playbookRoot + Buffer.txEthWithdrawOtherAddress);
 
   const withdrawL2 = await syncWallet.withdraw({
     token: zksync.utils.ETH_ADDRESS,

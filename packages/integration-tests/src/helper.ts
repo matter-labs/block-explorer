@@ -33,24 +33,15 @@ export class Helper {
         }
       });
     });
-
-    // const output = execSync(script, { encoding: "utf-8" });
-
-    // try {
-    //   console.log(`> Run NPM Script "${script}":\n`, output);
-    //   return output;
-    // } catch (e) {
-    //   console.log(e);
-    // }
   }
 
-  async getStringFromFile(fileName: string) {
-    const absoluteRoute = path.join(__dirname, "..", fileName);
+  async readFile(filePath: string, fileName: string) {
+    const absoluteRoute = path.join(filePath + fileName);
 
     try {
       return await fs.readFile(absoluteRoute, { encoding: "utf-8" });
     } catch {
-      console.log(`There is no the expected file: ${fileName}`);
+      console.log(`There is no the expected file: ${fileName} in ${filePath}`);
     }
   }
 

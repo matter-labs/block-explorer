@@ -11,6 +11,6 @@ export default async () => {
   await playbook.deployERC20toL1();
   await playbook.depositETH("0.0000001");
   const bufferFile = bufferRoute + Buffer.L1;
-  const token = await helper.getStringFromFile(bufferFile);
+  const token = await helper.readFile(bufferFile);
   await playbook.depositERC20("100", token, 18);
 };

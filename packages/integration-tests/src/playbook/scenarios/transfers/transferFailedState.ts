@@ -1,9 +1,10 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
+import * as path from "path";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger } from "../../../constants";
+import { Buffer, Logger, Path } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const transferFailedState = async function (tokenAddress: string, tokenName?: string) {
@@ -12,8 +13,7 @@ export const transferFailedState = async function (tokenAddress: string, tokenNa
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
   const amount = ethers.utils.parseEther("1.0");
-  const playbookRoot = "src/playbook/";
-  const bufferFile = playbookRoot + Buffer.failedState;
+  const bufferFile = path.join(Path.playbookRoot + Buffer.failedState);
 
   const transfer = await syncWallet.transfer({
     to: "0x0000000000000000000000000000000000000000",

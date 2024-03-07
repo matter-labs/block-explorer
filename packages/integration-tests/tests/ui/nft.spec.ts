@@ -16,7 +16,7 @@ let element: Locator;
 //@id1658
 test("Check the L2 NFT contract address", async ({ page }) => {
   bufferFile = bufferRoute + Buffer.NFTtoL2;
-  contract = await helper.getStringFromFile(bufferFile);
+  contract = await helper.readFile(bufferFile);
   url = BlockExplorer.baseUrl + BlockExplorer.localNetwork;
   const targetUrl = BlockExplorer.baseUrl + `/address/${contract}`;
 
@@ -31,7 +31,7 @@ test("Check the L2 NFT contract address", async ({ page }) => {
 //@id1657
 test("Check the L1 NFT contract address", async ({ page }) => {
   bufferFile = bufferRoute + Buffer.NFTtoL1;
-  contract = await helper.getStringFromFile(bufferFile);
+  contract = await helper.readFile(bufferFile);
   url = BlockExplorer.baseUrl + BlockExplorer.localNetwork;
   const targetUrl = BlockExplorer.baseUrl + `/address/${contract}`;
 

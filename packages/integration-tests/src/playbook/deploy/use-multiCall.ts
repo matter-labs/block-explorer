@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import { Provider } from "zksync-web3";
 
 import { localConfig } from "../../config";
-import { Buffer } from "../../constants";
+import { Buffer, Path } from "../../constants";
 import { Helper } from "../../helper";
 import getWallet from "../utils/getWallet";
 
@@ -11,8 +11,10 @@ import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export default async function (hre: HardhatRuntimeEnvironment) {
   const helper = new Helper();
-  const playbookRoot = "src/playbook/";
-  const TRANSFER_CONTRACT_ADDRESS = await helper.getStringFromFile(playbookRoot + Buffer.addressMultiCallCaller);
+  const TRANSFER_CONTRACT_ADDRESS = await helper.readFile(
+    Path.absolutePathToBufferFiles,
+    Buffer.addressMultiCallCaller
+  );
   const CONTRACT_NAME = "GCaller";
 
   console.log(`Running deploy script for the contract`);

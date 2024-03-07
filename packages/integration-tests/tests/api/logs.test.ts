@@ -23,8 +23,8 @@ describe("API module: Logs", () => {
     //@id1808
     it("Verify /api?module=logs&action=getLogs&page={page}&offset={offset}0&toBlock={toBlock}&fromBlock={fromBlock}&address={address} response", async () => {
       await helper.runRetriableTestAction(async () => {
-        contractAddress = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
+        contractAddress = await helper.readFile(bufferFile + Buffer.greeterL2);
+        txHash = await helper.readFile(bufferFile + Buffer.executeGreeterTx);
         apiRoute = `/api?module=logs&action=getLogs&page=1&offset=10&toBlock=10000&fromBlock=1&address=${contractAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 

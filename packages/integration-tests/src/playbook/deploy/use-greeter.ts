@@ -14,7 +14,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const helper = new Helper();
   let contract: any; // eslint-disable-line
 
-  const greeterContractAddress = await helper.getStringFromFile(bufferRoute + Buffer.greeterL2);
+  const greeterContractAddress = await helper.readFile(bufferRoute + Buffer.greeterL2);
 
   const provider = new Provider(localConfig.L2Network);
   const wallet = new Wallet(Wallets.richWalletPrivateKey, provider);

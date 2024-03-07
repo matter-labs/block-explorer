@@ -1,18 +1,18 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
+import * as path from "path";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger, Wallets } from "../../../constants";
+import { Buffer, Logger, Path, Wallets } from "../../../constants";
 import { Helper } from "../../../helper";
 
 const helper = new Helper();
 const syncProvider = new zksync.Provider(localConfig.L2Network);
 const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
 const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
-const playbookRoot = "src/playbook";
-const bufferAddressL2DepositedFile = playbookRoot + "/" + Buffer.L2deposited;
-const bufferTxErc20DepositFile = playbookRoot + "/" + Buffer.txERC20Deposit;
+const bufferAddressL2DepositedFile = path.join(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+const bufferTxErc20DepositFile = path.join(Path.absolutePathToBufferFiles, Buffer.txERC20Deposit);
 
 export const depositERC20 = async function (sum = "0.5", tokenAddress: string, units = 18) {
   const deposit = await syncWallet.deposit({

@@ -3,19 +3,15 @@ import { promises as fs } from "fs";
 import { Provider, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
-import { Buffer, Token, Wallets } from "../../constants";
+import { Buffer, Path, Token, Wallets } from "../../constants";
 import { Helper } from "../../helper";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironment) {
   const helper = new Helper();
-  const playbookRoot = "src/playbook/";
-  const firstToken = playbookRoot + Buffer.L2;
-  const secondToken = playbookRoot + Buffer.L2deposited;
-  const buffer = playbookRoot + Buffer.addressMultiTransferETH;
   const contractName = "TokenF2L2"; // insert the name of the contract you want to deploy
-  const contractAddress = await helper.getStringFromFile(buffer);
+  const contractAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
 
   //wallets, To
   const richWalletAddress = Wallets.richWalletAddress;
@@ -23,8 +19,8 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   const secondaryWalletAddress = Wallets.secondaryWalletAddress;
   // type of coin, contract
   const etherAddress = Token.addressETH; //ETH
-  const customTokenI = await helper.getStringFromFile(firstToken);
-  const customTokenII = await helper.getStringFromFile(secondToken);
+  const customTokenI = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
+  const customTokenII = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
   // amount of funds
   const ethAmount = ethers.utils.parseEther("0.0001");
   const customTokenIAmount = ethers.utils.parseUnits("0.01", 18);
