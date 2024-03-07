@@ -22,11 +22,11 @@ describe("API module: Logs", () => {
 
     //@id1808
     it("Verify /api?module=logs&action=getLogs&page={page}&offset={offset}0&toBlock={toBlock}&fromBlock={fromBlock}&address={address} response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         contractAddress = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
         txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
         apiRoute = `/api?module=logs&action=getLogs&page=1&offset=10&toBlock=10000&fromBlock=1&address=${contractAddress}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ address: contractAddress }));

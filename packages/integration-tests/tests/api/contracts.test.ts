@@ -24,13 +24,13 @@ describe("API module: Contract", () => {
 
     //@id1696
     it("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
         paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
         multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
         multicallCallerTx = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
         apiRoute = `/api?module=contract&action=getcontractcreation&contractaddresses=${paymasterContract},${multicallCallerContract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ contractAddress: paymasterContract }));
