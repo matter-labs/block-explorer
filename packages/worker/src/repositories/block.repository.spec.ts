@@ -2,13 +2,14 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { EntityManager, SelectQueryBuilder } from "typeorm";
 import { mock } from "jest-mock-extended";
 import { types } from "zksync-web3";
+import { Block as BlockDto } from "../dataFetcher/types";
 import { BlockRepository } from "./block.repository";
 import { UnitOfWork } from "../unitOfWork";
 import { Block } from "../entities";
 
 describe("BlockRepository", () => {
   let repository: BlockRepository;
-  let blockDto: types.Block;
+  let blockDto: BlockDto;
   let blockDetailsDto: types.BlockDetails;
   let unitOfWorkMock: UnitOfWork;
   let entityManagerMock: EntityManager;
@@ -20,7 +21,7 @@ describe("BlockRepository", () => {
       getTransactionManager: jest.fn().mockReturnValue(entityManagerMock),
     });
 
-    blockDto = mock<types.Block>({
+    blockDto = mock<BlockDto>({
       number: 1,
     });
 

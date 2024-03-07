@@ -61,9 +61,10 @@ export class CounterProcessor<T extends CountableEntity> {
       const counters = calculateCounters(this.tableName, records, this.criteriaList);
       const newLastProcessedRecordNumber = Number(records[records.length - 1].number);
 
-      await this.unitOfWork.useTransaction(() =>
+      const dbTransaction = this.unitOfWork.useTransaction(() =>
         this.counterRepository.incrementCounters(counters, newLastProcessedRecordNumber)
       );
+      await dbTransaction.waitForExecution();
 
       this.lastProcessedRecordNumber = newLastProcessedRecordNumber;
       return records.length === this.recordsBatchSize;

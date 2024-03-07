@@ -7,8 +7,9 @@ import { LogType, isLogOfType } from "../log/logType";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { AddressRepository, TokenRepository } from "../repositories";
 import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
-import { ContractAddress } from "../address/interface/contractAddress.interface";
+import { ContractAddress } from "../dataFetcher/types";
 import parseLog from "../utils/parseLog";
+import { stringTransformer } from "../transformers/string.transformer";
 import { CONTRACT_INTERFACES } from "../constants";
 
 export interface Token {
@@ -88,7 +89,7 @@ export class TokenService {
       }
     }
 
-    if (erc20Token?.symbol) {
+    if (this.removeSpecialChars(erc20Token?.symbol)) {
       this.logger.debug({
         message: "Adding ERC20 token to the DB",
         blockNumber: contractAddress.blockNumber,
@@ -108,6 +109,10 @@ export class TokenService {
         }),
       });
     }
+  }
+
+  private removeSpecialChars(str: string | null): string {
+    return stringTransformer.to(str);
   }
 
   public async saveERC20Tokens(tokenAddresses: string[]): Promise<void> {
