@@ -2,6 +2,7 @@ import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
+import { BaseTokenService } from "./token.utils";
 import { Token, baseToken } from "../../token/token.entity";
 import { TokenController } from "./token.controller";
 

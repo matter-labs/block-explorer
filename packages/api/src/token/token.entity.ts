@@ -1,8 +1,6 @@
-import { fetchNativeTokenData } from "../api/token/token.utils";
 import { Entity, Column, PrimaryColumn, Index } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
-
 export enum TokenType {
   BaseToken = "BASETOKEN",
   ERC20 = "ERC20",
@@ -10,7 +8,7 @@ export enum TokenType {
 }
 
 export const baseToken = async () => {
-  return await fetchNativeTokenData();
+  return { l2Address: "0x1" };
 };
 @Entity({ name: "tokens" })
 @Index(["liquidity", "blockNumber", "logIndex"])

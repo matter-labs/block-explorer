@@ -126,9 +126,17 @@ export class BlockchainService implements OnModuleInit {
   public async getDefaultBridgeAddresses(): Promise<{ erc20L1: string; erc20L2: string }> {
     return await this.rpcCall(async () => {
       return await this.provider.getDefaultBridgeAddresses();
-    }, "getDefaultBridgeAddresses");
+    }, "getBridgeAddress");
   }
-
+  public async getBridgeContracts(): Promise<{
+    l1Erc20Bridge: string;
+    l1SharedDefaultBridge: string;
+    l2SharedDefaultBridge;
+  }> {
+    return await this.rpcCall(async () => {
+      return await this.provider.send("zks_getBridgeContracts", []);
+    }, "getBridgeContracts");
+  }
   public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TraceTransactionResult> {
     return await this.rpcCall(async () => {
       return await this.provider.send("debug_traceTransaction", [
@@ -173,13 +181,11 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async onModuleInit(): Promise<void> {
-    const bridgeAddresses = await this.getDefaultBridgeAddresses();
-
+    const bridgeAddresses = await this.getBridgeContracts();
     this.bridgeAddresses = {
-      l1Erc20DefaultBridge: bridgeAddresses.erc20L1.toLowerCase(),
-      l2Erc20DefaultBridge: bridgeAddresses.erc20L2.toLowerCase(),
+      l1Erc20DefaultBridge: bridgeAddresses.l1SharedDefaultBridge,
+      l2Erc20DefaultBridge: bridgeAddresses.l2SharedDefaultBridge,
     };
-
     this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
   }
 }

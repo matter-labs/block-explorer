@@ -6,6 +6,7 @@ import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Token, baseToken } from "./token.entity";
 import { NATIVE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { BaseTokenService } from "src/base_token/base_token.service";
 
 export interface FilterTokensOptions {
   minLiquidity?: number;
@@ -15,7 +16,8 @@ export interface FilterTokensOptions {
 export class TokenService {
   constructor(
     @InjectRepository(Token)
-    private readonly tokenRepository: Repository<Token>
+    private readonly tokenRepository: Repository<Token>,
+    private readonly baseToken: BaseTokenService
   ) {}
 
   public async findOne(address: string, fields?: FindOptionsSelect<Token>): Promise<Token> {
@@ -26,7 +28,7 @@ export class TokenService {
       select: fields,
     });
     if (!token && address.toLowerCase() === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
-      return (await baseToken()) as Token;
+      return this.baseToken.baseTokenData() as Token;
     }
     return token;
   }

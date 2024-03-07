@@ -1,6 +1,5 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
-
 export default () => {
   const {
     NODE_ENV,
@@ -31,7 +30,7 @@ export default () => {
   };
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
-    const master = { url: DATABASE_URL || "postgres://postgres:postgres@localhost:5432/block-explorer" };
+    const master = { url: DATABASE_URL || "postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer" };
     const replicaSet = getDatabaseReplicaSet();
 
     return {
@@ -64,6 +63,9 @@ export default () => {
     };
   };
 
+  const l2RpcProviderApiUrl = process.env.BLOCKCHAIN_RPC_URL || "http://127.0.0.1:3050";
+  const l1RpcProviderApiUrl = process.env.ETH_RPC_URL || "http://127.0.0.1:8545";
+
   return {
     NODE_ENV,
     port: parseInt(PORT, 10) || 3020,
@@ -73,8 +75,8 @@ export default () => {
     },
     typeORM: getTypeOrmModuleOptions(),
     contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
-    l2RpcProviderApiUrl: process.env.BLOCKCHAIN_RPC_URL || "http://127.0.0.1:3050",
-    l1RpcProviderApiUrl: process.env.ETH_RPC_URL || "http://127.0.0.1:8545",
+    l2RpcProviderApiUrl,
+    l1RpcProviderApiUrl,
     featureFlags,
   };
 };
