@@ -21,7 +21,7 @@ export const depositEth = async function (sum = "0.000009") {
   });
   await deposit.wait(1);
   const txHash = await deposit.waitFinalize();
-  await helper.txHashLogger(Logger.deposit, txHash.transactionHash, "ETH");
+  await helper.logTransaction(Logger.deposit, txHash.transactionHash, "ETH");
   await fs.writeFile(bufferFile, txHash.transactionHash);
 
   return txHash;

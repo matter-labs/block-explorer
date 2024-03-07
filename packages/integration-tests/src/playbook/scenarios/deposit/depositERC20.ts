@@ -29,7 +29,7 @@ export const depositERC20 = async function (sum = "0.5", tokenAddress: string, u
   const l2TokenAddress = await syncProvider.l2TokenAddress(tokenAddress);
   console.log("L2 token address ", l2TokenAddress);
   const txHash = await deposit.waitFinalize();
-  await helper.txHashLogger(Logger.deposit, txHash.transactionHash, "ERC20 token");
+  await helper.logTransaction(Logger.deposit, txHash.transactionHash, "ERC20 token");
   await fs.writeFile(bufferAddressL2DepositedFile, l2TokenAddress);
   await fs.writeFile(bufferTxErc20DepositFile, txHash.transactionHash);
 

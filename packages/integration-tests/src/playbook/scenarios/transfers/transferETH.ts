@@ -22,7 +22,7 @@ export const transferEth = async function (sum = "0.000009", address: string = W
   });
 
   const txHash = transfer.hash;
-  await helper.txHashLogger(Logger.transfer, txHash, "ETH");
+  await helper.logTransaction(Logger.transfer, txHash, "ETH");
   await fs.writeFile(bufferFile, txHash);
 
   return txHash;

@@ -23,7 +23,7 @@ export const transferERC20 = async function (sum: string, tokenAddress: string, 
   });
 
   const txHash = transfer.hash;
-  await helper.txHashLogger(Logger.transfer, txHash, tokenName);
+  await helper.logTransaction(Logger.transfer, txHash, tokenName);
   await fs.writeFile(bufferFile, txHash);
 
   return txHash;

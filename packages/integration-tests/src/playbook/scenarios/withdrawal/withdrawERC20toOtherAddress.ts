@@ -36,7 +36,7 @@ export const withdrawERC20toOtherAddress = async function (tokenAddress: string,
 
   console.log(`Your balance is ${balanceAfter.toString()}`);
 
-  await helper.txHashLogger(Logger.withdraw, txHash, "Custom token");
+  await helper.logTransaction(Logger.withdraw, txHash, "Custom token");
   await fs.writeFile(bufferFile, txHash);
 
   return txHash;

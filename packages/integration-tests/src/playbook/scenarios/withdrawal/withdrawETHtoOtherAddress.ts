@@ -23,7 +23,7 @@ export const withdrawETHtoOtherAddress = async function (sum = "0.000009") {
   const txHash = withdrawL2.hash;
 
   await withdrawL2.waitFinalize();
-  await helper.txHashLogger(Logger.withdraw, txHash, "ETH");
+  await helper.logTransaction(Logger.withdraw, txHash, "ETH");
   await fs.writeFile(bufferFile, txHash);
 
   return txHash;

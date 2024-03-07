@@ -1,4 +1,4 @@
-import { execSync } from "child_process";
+import { exec } from "child_process";
 import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
@@ -11,7 +11,7 @@ import { Logger } from "./constants";
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 
 export class Helper {
-  async txHashLogger(txType: string, txValue: string, tokenName?: string) {
+  async logTransaction(txType: string, txValue: string, tokenName?: string) {
     const logMessage = `TxHash for ${txType} ${Logger.textSeparator} ${txValue}`;
 
     if (tokenName === undefined) {
@@ -22,14 +22,26 @@ export class Helper {
   }
 
   async executeScript(script: string) {
-    const output = execSync(script, { encoding: "utf-8" });
+    return new Promise((resolve, reject) => {
+      exec(script, { encoding: "utf-8" }, (error, stdout, stderr) => {
+        if (error) {
+          console.error(`Error executing script "${script}":`, error);
+          reject(error);
+        } else {
+          console.log(`> Run NPM Script "${script}":\n`, stdout);
+          resolve(stdout);
+        }
+      });
+    });
 
-    try {
-      console.log(`> Run NPM Script "${script}":\n`, output);
-      return output;
-    } catch (e) {
-      console.log(e);
-    }
+    // const output = execSync(script, { encoding: "utf-8" });
+
+    // try {
+    //   console.log(`> Run NPM Script "${script}":\n`, output);
+    //   return output;
+    // } catch (e) {
+    //   console.log(e);
+    // }
   }
 
   async getStringFromFile(fileName: string) {

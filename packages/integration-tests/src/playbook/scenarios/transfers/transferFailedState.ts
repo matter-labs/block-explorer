@@ -23,7 +23,7 @@ export const transferFailedState = async function (tokenAddress: string, tokenNa
   });
 
   const txHash = transfer.hash;
-  await helper.txHashLogger(Logger.txFailedState, txHash, tokenName);
+  await helper.logTransaction(Logger.txFailedState, txHash, tokenName);
   await fs.writeFile(bufferFile, txHash);
 
   return txHash;
