@@ -21,7 +21,7 @@ export const withdrawERC20toOtherAddress = async function (tokenAddress: string,
     amount: ethers.utils.parseEther(sum),
     token: tokenAddress,
     bridgeAddress: bridges.erc20L2,
-    overrides: localConfig.gasLimit,
+    overrides: localConfig.l1GasLimit,
   });
 
   const txHash = withdrawL2.hash;

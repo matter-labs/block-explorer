@@ -15,7 +15,7 @@ async function main() {
   console.log("Account balance:", await ethers.utils.formatEther(weiAmount));
 
   const contract = await ethers.getContractFactory("L1");
-  const token = await contract.deploy(Wallets.richWalletAddress, localConfig.gasLimit);
+  const token = await contract.deploy(Wallets.richWalletAddress, localConfig.l1GasLimit);
 
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.L1, token.address);
 }

@@ -17,7 +17,7 @@ export const depositERC20 = async function (sum = "0.5", tokenAddress: string, u
     amount: ethers.utils.parseUnits(sum, units),
     approveERC20: true,
     l2GasLimit: localConfig.l2GasLimit,
-    overrides: localConfig.gasLimit,
+    overrides: localConfig.l1GasLimit,
   });
 
   await deposit.wait(1);

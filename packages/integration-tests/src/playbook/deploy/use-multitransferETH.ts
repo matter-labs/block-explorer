@@ -43,7 +43,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
       to: contractAddress,
       token: token,
       amount,
-      overrides: localConfig.gasLimit,
+      overrides: localConfig.l1GasLimit,
     });
 
     // await commitment

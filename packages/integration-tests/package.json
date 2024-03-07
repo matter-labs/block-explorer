@@ -2,7 +2,7 @@
   "name": "integration-tests",
   "version": "0.0.0",
   "title": "Integration tests",
-  "description": "The test solution for transaction processing`",
+  "description": "The test solution for Block Explorer API and UI",
   "repository": "https://github.com/matter-labs/block-explorer",
   "private": true,
   "author": "Matter Labs",

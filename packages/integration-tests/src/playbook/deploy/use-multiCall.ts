@@ -24,7 +24,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const attachedContract = new ethers.Contract(TRANSFER_CONTRACT_ADDRESS, factoryArtifact.abi, wallet);
   console.log(`Contract said something like this by default: ${await attachedContract.newCallGreeter()}`);
   const newGreet = "New Greet!";
-  const setNewGreetingHandle = await attachedContract.newSetGreet(newGreet, localConfig.gasLimit);
+  const setNewGreetingHandle = await attachedContract.newSetGreet(newGreet, localConfig.l1GasLimit);
   await setNewGreetingHandle.wait(1);
 
   const txHash = setNewGreetingHandle.hash;

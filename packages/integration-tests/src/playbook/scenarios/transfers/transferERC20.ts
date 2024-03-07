@@ -16,7 +16,7 @@ export const transferERC20 = async function (sum: string, tokenAddress: string, 
     to: syncWallet2.address,
     token: tokenAddress,
     amount: ethers.utils.parseEther(sum),
-    overrides: localConfig.gasLimit,
+    overrides: localConfig.l1GasLimit,
   });
 
   const txHash = transfer.hash;

@@ -16,7 +16,7 @@ export const transferFailedState = async function (tokenAddress: string, tokenNa
     to: "0x0000000000000000000000000000000000000000",
     token: tokenAddress,
     amount,
-    overrides: localConfig.gasLimit,
+    overrides: localConfig.l1GasLimit,
   });
 
   const txHash = transfer.hash;
