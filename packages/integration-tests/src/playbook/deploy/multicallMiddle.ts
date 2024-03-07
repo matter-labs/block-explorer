@@ -1,5 +1,4 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { promises as fs } from "fs";
 
 import { Buffer, Path } from "../../constants";
 import { Helper } from "../../helper";

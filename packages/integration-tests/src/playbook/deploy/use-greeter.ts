@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import { promises as fs } from "fs";
 import { Provider, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
