@@ -1,4 +1,4 @@
-import { Buffer, Logger } from "../../../entities";
+import { Buffer, Logger } from "../../../constants";
 import { Helper } from "../../../helper";
 
 let deployedContract: string;

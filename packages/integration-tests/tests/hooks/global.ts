@@ -1,4 +1,4 @@
-import { Buffer } from "../../src/entities";
+import { Buffer } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 

@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Token, Wallets } from "../../src/entities";
+import { Buffer, Token, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 

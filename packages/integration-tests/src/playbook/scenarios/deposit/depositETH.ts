@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger } from "../../../entities";
+import { Buffer, Logger } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const depositEth = async function (sum = "0.000009") {

@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger, Wallets } from "../../../entities";
+import { Buffer, Logger, Wallets } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const transferERC20 = async function (sum: string, tokenAddress: string, tokenName?: string /*, units = 18*/) {

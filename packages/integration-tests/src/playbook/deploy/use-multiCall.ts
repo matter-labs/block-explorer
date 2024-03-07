@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import { Provider } from "zksync-web3";
 
 import { localConfig } from "../../config";
-import { Buffer } from "../../entities";
+import { Buffer } from "../../constants";
 import { Helper } from "../../helper";
 import getWallet from "../utils/getWallet";
 

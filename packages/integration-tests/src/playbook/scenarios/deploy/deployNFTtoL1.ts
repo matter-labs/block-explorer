@@ -1,4 +1,4 @@
-import { Buffer, Logger } from "../../../entities";
+import { Buffer, Logger } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const deployNFTtoL1 = async function () {

@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import { ethers } from "hardhat";
 
 import { localConfig } from "../../config";
-import { Buffer, Wallets } from "../../entities";
+import { Buffer, Wallets } from "../../constants";
 
 async function main() {
   const [deployer] = await ethers.getSigners();

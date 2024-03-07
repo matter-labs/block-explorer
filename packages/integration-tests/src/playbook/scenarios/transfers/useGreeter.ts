@@ -1,4 +1,4 @@
-import { Buffer } from "../../../entities";
+import { Buffer } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const useGreeter = async function () {

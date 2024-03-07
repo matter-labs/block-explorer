@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 import { config } from "./config";
-import { BlockExplorer, Buffer } from "../../src/entities";
+import { BlockExplorer, Buffer } from "../../src/constants";
 import { Helper } from "../../src/helper";
 
 import type { Locator } from "@playwright/test";

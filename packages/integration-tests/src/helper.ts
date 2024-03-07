@@ -6,7 +6,7 @@ import * as request from "supertest";
 import { Provider } from "zksync-web3";
 
 import { environment, localConfig } from "./config";
-import { Logger } from "./entities";
+import { Logger } from "./constants";
 
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 

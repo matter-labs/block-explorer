@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import { Provider, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
-import { Buffer, Token, Wallets } from "../../entities";
+import { Buffer, Token, Wallets } from "../../constants";
 import { Helper } from "../../helper";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";

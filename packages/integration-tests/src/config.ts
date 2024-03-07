@@ -1,4 +1,4 @@
-import { Wallets } from "./entities";
+import { Wallets } from "./constants";
 
 export const localConfig = {
   gasLimit: { gasLimit: 10000000 },
