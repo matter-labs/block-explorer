@@ -51,17 +51,17 @@ test(" Check on BE Transfer ETH token via Portal", async ({ page }) => {
   url = BlockExplorer.baseUrl + `/tx/${transaction}` + BlockExplorer.localNetwork;
 
   await page.goto(url);
-  //Check tx hash
+  //Check transaction hash
   selector = `text=${transaction}`;
   element = await page.locator(selector).first();
 
   await expect(element).toBeVisible(config.extraTimeout);
-  //Check address From
+  //Check address of sender
   selector = `text=${Wallets.richWalletAddress}`;
   element = await page.locator(selector).first();
 
   await expect(element).toBeVisible(config.extraTimeout);
-  //Check address To
+  //Check address of receiver
   selector = `text=${Token.ETHER_ERC20_Address}`;
   element = await page.locator(selector).first();
 
@@ -83,17 +83,17 @@ test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) =>
   url = BlockExplorer.baseUrl + `/tx/${transaction}` + BlockExplorer.localNetwork;
 
   await page.goto(url);
-  //Check tx hash
+  //Check transaction hash
   selector = `text=${transaction}`;
   element = await page.locator(selector).first();
 
   await expect(element).toBeVisible(config.extraTimeout);
-  //Check address From
+  //Check address of receiver
   selector = `text=${Wallets.richWalletAddress}`;
   element = await page.locator(selector).first();
 
   await expect(element).toBeVisible(config.extraTimeout);
-  //Check address To
+  //Check address of receiver
   selector = `text=${adressTo}`;
   element = await page.locator(selector).first();
 
@@ -108,10 +108,9 @@ test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) =>
 
 //@id1683
 test("Check on BE contract that makes multiple transfers based on stored/retrieved ETH + ERC20", async ({ page }) => {
-  //contract address
   bufferFile = bufferRoute + Buffer.addressMultiTransferETH;
   contract = await helper.getStringFromFile(bufferFile);
-  //tx hash from deployed contract
+
   const bufferFileAddress = bufferRoute + Buffer.txMultiTransferETH;
   const txAddress = await helper.getStringFromFile(bufferFileAddress);
   url = BlockExplorer.baseUrl + `/address/${contract}` + BlockExplorer.localNetwork;
@@ -122,7 +121,8 @@ test("Check on BE contract that makes multiple transfers based on stored/retriev
   element = await page.locator(selector).first();
 
   await expect(element).toBeVisible(config.extraTimeout);
-  //Check tx hash
+  //Check transaction hash
   selector = `text=${txAddress}`;
   element = await page.locator(selector).first();
+  await expect(element).toBeVisible(config.extraTimeout);
 });

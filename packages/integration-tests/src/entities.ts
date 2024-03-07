@@ -80,3 +80,8 @@ const txSumETH = "0.000009";
 export const Values = {
   txSumETH: txSumETH,
 };
+
+/*
+export enum Values {
+  txSumETH = "0.000009",
+}*/
