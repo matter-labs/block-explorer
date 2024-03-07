@@ -10,7 +10,6 @@ describe("API module: Account", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
-  const bufferFile = "src/playbook/";
   let apiRoute: string;
   let response;
   const playbook = new Playbook();
@@ -215,7 +214,7 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        const nftAddress = await helper.readFile(bufferFile + Buffer.NFTtoL2);
+        const nftAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL2);
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${nftAddress}&address=${nftAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 

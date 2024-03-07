@@ -3,18 +3,16 @@ import { promises as fs } from "fs";
 import { Provider, utils, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
-import { Buffer } from "../../constants";
+import { Buffer, Path } from "../../constants";
 import { Helper } from "../../helper";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 const helper = new Helper();
 
 export default async function (hre: HardhatRuntimeEnvironment) {
-  const bufferRoute = "src/playbook/";
-
-  const PAYMASTER_ADDRESS = await helper.readFile(bufferRoute + Buffer.paymaster);
-  const TOKEN_ADDRESS = await helper.readFile(bufferRoute + Buffer.customToken);
-  const EMPTY_WALLET_PRIVATE_KEY = await helper.readFile(bufferRoute + Buffer.emptyWalletPrivateKey);
+  const PAYMASTER_ADDRESS = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymaster);
+  const TOKEN_ADDRESS = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.customToken);
+  const EMPTY_WALLET_PRIVATE_KEY = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.emptyWalletPrivateKey);
 
   const provider = new Provider(localConfig.L2Network);
   const emptyWallet = new Wallet(EMPTY_WALLET_PRIVATE_KEY, provider);

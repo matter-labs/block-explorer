@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Token, TransactionStatus, TransactionsType, Wallets } from "../../src/constants";
+import { Buffer, Path, Token, TransactionStatus, TransactionsType, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -7,7 +7,6 @@ describe("Transactions", () => {
   jest.setTimeout(localConfig.extendedTimeout);
 
   const helper = new Helper();
-  const bufferFile = "src/playbook/";
   const playbook = new Playbook();
   let apiRoute: string;
   let contract: string;
@@ -16,7 +15,7 @@ describe("Transactions", () => {
   let response;
 
   beforeAll(async () => {
-    const customToken = await helper.readFile(bufferFile + Buffer.L2deposited);
+    const customToken = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
     await playbook.withdrawETHtoOtherAddress();
     await playbook.withdrawERC20(customToken);
     await playbook.withdrawERC20toOtherAddress(customToken);
@@ -37,7 +36,7 @@ describe("Transactions", () => {
     //@id1447
     it("Verify transfer ETH L2-L2 via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txEthTransfer);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthTransfer);
         apiRoute = `/transactions/${txHash}/transfers`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -78,7 +77,7 @@ describe("Transactions", () => {
     //@id1459
     it("Verify the ETH withdrawal via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txEthWithdraw);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdraw);
         apiRoute = `/transactions/${txHash}/transfers`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -128,7 +127,7 @@ describe("Transactions", () => {
     //@id1461
     it("Verify the ETH withdrawal to the other address via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txEthWithdrawOtherAddress);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdrawOtherAddress);
         apiRoute = `/transactions/${txHash}/transfers`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -178,11 +177,9 @@ describe("Transactions", () => {
     //@id1463
     it("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        const l1Token = bufferFile + "/" + Buffer.L1;
-        const customTokenL1 = await helper.readFile(l1Token);
-        const l2Token = bufferFile + "/" + Buffer.L2deposited;
-        const customTokenL2 = await helper.readFile(l2Token);
-        txHash = await helper.readFile(bufferFile + Buffer.txERC20WithdrawOtherAddress);
+        const customTokenL1 = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L1);
+        const customTokenL2 = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txERC20WithdrawOtherAddress);
         apiRoute = `/transactions/${txHash}/transfers`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
@@ -310,14 +307,14 @@ describe("Transactions", () => {
 
   describe("/transactions/{transactionHash}", () => {
     beforeAll(async () => {
-      const customToken = await helper.readFile(bufferFile + Buffer.L2deposited);
+      const customToken = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
       await playbook.transferFailedState(customToken);
     });
 
     //@id1460
     it("Verify the ETH withdrawal to the other address via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txEthWithdrawOtherAddress);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdrawOtherAddress);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -363,7 +360,7 @@ describe("Transactions", () => {
     //@id1462
     it("Verify the custom token withdrawal via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txERC20Withdraw);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txERC20Withdraw);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -409,7 +406,7 @@ describe("Transactions", () => {
     //@id1458
     it("Verify the ETH withdrawal via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txEthWithdraw);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdraw);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -455,8 +452,8 @@ describe("Transactions", () => {
     //@id1478
     it("Verify transaction for the ETH via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiTransferETH);
-        contract = await helper.readFile(bufferFile + Buffer.addressMultiTransferETH);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferETH);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -502,8 +499,8 @@ describe("Transactions", () => {
     //@id1479
     it("Verify transaction for the Custom Token I via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.L2);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiTransferCustomTokenI);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenI);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -549,8 +546,8 @@ describe("Transactions", () => {
     //@id1480
     it("Verify transaction for the Custom Token II via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.L2deposited);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiTransferCustomTokenII);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenII);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -596,8 +593,8 @@ describe("Transactions", () => {
     //@id1454
     it("Verify the transaction after SetGreeting execution via transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.greeterL2);
-        txHash = await helper.readFile(bufferFile + Buffer.executeGreeterTx);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.greeterL2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/transactions/${txHash}?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -644,7 +641,7 @@ describe("Transactions", () => {
     //@id1464:I --> @id1468
     it("Verify transaction for the Root contract via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallRoot);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -692,7 +689,7 @@ describe("Transactions", () => {
     //@id1465:I --> @id1469
     it("Verify transaction for the Middle contract via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiCallMiddle);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -740,7 +737,7 @@ describe("Transactions", () => {
     //@id1466:I --> @id1470
     it("Verify transaction for the Caller contract via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiCallCaller);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallCaller);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -788,7 +785,7 @@ describe("Transactions", () => {
     //@id1471
     it("Verify transaction for the use multicall contract via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txUseMultiCallContracts);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txUseMultiCallContracts);
         apiRoute = `/transactions/${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -834,8 +831,8 @@ describe("Transactions", () => {
     //@id645
     it("Verify the transactions with failed state via /transactions/{transactionHash}", async () => {
       await helper.runRetriableTestAction(async () => {
-        token = await helper.readFile(bufferFile + Buffer.L2deposited);
-        txHash = await helper.readFile(bufferFile + Buffer.failedState);
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.failedState);
         apiRoute = `/transactions/${txHash}?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -890,8 +887,8 @@ describe("Transactions", () => {
     //@id1481
     it("Verify transaction for the ETH via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.addressMultiTransferETH);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiTransferETH);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferETH);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -967,9 +964,9 @@ describe("Transactions", () => {
     //@id1482
     it("Verify transaction for the Custom tokenI via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        token = await helper.readFile(bufferFile + Buffer.L2);
-        contract = await helper.readFile(bufferFile + Buffer.addressMultiTransferETH);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiTransferCustomTokenI);
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenI);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1045,10 +1042,10 @@ describe("Transactions", () => {
     //@id1483
     it("Verify transaction for the Custom tokenII via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        const tokenL1 = await helper.readFile(bufferFile + Buffer.L1);
-        token = await helper.readFile(bufferFile + Buffer.L2deposited);
-        contract = await helper.readFile(bufferFile + Buffer.addressMultiTransferETH);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiTransferCustomTokenII);
+        const tokenL1 = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L1);
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenII);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1124,10 +1121,10 @@ describe("Transactions", () => {
     //@id1452
     it("Verify transaction through Paymaster via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        const paymasterAddress = await helper.readFile(bufferFile + Buffer.paymaster);
-        const emptyWallet = await helper.readFile(bufferFile + Buffer.emptyWalletAddress);
-        token = await helper.readFile(bufferFile + Buffer.customToken);
-        txHash = await helper.readFile(bufferFile + Buffer.paymasterTx);
+        const paymasterAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymaster);
+        const emptyWallet = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.emptyWalletAddress);
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.customToken);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymasterTx);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1204,7 +1201,7 @@ describe("Transactions", () => {
     //@id1455
     it("Verify the transaction after SetGreeting execution via transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.executeGreeterTx);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/transactions/${txHash}/transfers`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
@@ -1280,8 +1277,8 @@ describe("Transactions", () => {
     //@id1472
     it("Verify transaction for the Root contract via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.addressMultiCallRoot);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiCallRoot);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallRoot);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1337,8 +1334,8 @@ describe("Transactions", () => {
     //@id1473
     it("Verify transaction for the Middle contract via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.addressMultiCallRoot);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiCallMiddle);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1394,8 +1391,8 @@ describe("Transactions", () => {
     //@id1474
     it("Verify transaction for the Caller contract via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.addressMultiCallRoot);
-        txHash = await helper.readFile(bufferFile + Buffer.txMultiCallCaller);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallCaller);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1451,7 +1448,7 @@ describe("Transactions", () => {
     //@id1475
     it("Verify transaction for the use multicall contract via /transactions/{transactionHash}/transfers", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txUseMultiCallContracts);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txUseMultiCallContracts);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1509,8 +1506,8 @@ describe("Transactions", () => {
     //@id1507
     it("Verify the transaction via /transactions/{transactionHash}/logs", async () => {
       await helper.runRetriableTestAction(async () => {
-        contract = await helper.readFile(bufferFile + Buffer.greeterL2);
-        txHash = await helper.readFile(bufferFile + Buffer.executeGreeterTx);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.greeterL2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/transactions/${txHash}/logs`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
@@ -1625,7 +1622,7 @@ describe("Transactions", () => {
     //@id1697
     it("Verify /api?module=transaction&action=getstatus response", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txEthTransfer);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthTransfer);
         apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
@@ -1639,7 +1636,7 @@ describe("Transactions", () => {
     //@id1698
     it("Verify /api?module=transaction&action=gettxreceiptstatus response", async () => {
       await helper.runRetriableTestAction(async () => {
-        txHash = await helper.readFile(bufferFile + Buffer.txEthTransfer);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthTransfer);
         apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
