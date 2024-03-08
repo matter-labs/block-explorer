@@ -3,7 +3,7 @@ import { DataSource } from "typeorm";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { setTimeout } from "timers/promises";
-import typeOrmCliDataSource from "../typeorm.config";
+import { typeOrmModuleOptions } from "../typeorm.config";
 
 config();
 
@@ -55,6 +55,7 @@ const updateAddressTransfers = async (dataSource: DataSource, from: number, to: 
 };
 
 const main = async () => {
+  const typeOrmCliDataSource = new DataSource(typeOrmModuleOptions);
   await typeOrmCliDataSource.initialize();
 
   if (!toTransferNumber) {
