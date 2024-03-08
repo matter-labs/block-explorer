@@ -89,7 +89,7 @@ export class TransferService {
       return;
     }
     const ethDeposits = transfers.filter(
-      (t) => t.type === TransferType.Deposit && t.tokenAddress === utils.L2_ETH_TOKEN_ADDRESS
+      (t) => t.type === TransferType.Deposit && t.tokenAddress === utils.BASE_TOKEN_ADDRESS
     );
     const feeDeposit = ethDeposits.find((t) => t.to === utils.BOOTLOADER_FORMAL_ADDRESS);
     if (!feeDeposit) {

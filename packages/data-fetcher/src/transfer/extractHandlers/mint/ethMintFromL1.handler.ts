@@ -8,7 +8,7 @@ import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
 
 export const ethMintFromL1Handler: ExtractTransferHandler = {
-  matches: (log: types.Log): boolean => log.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS,
+  matches: (log: types.Log): boolean => log.address.toLowerCase() === utils.BASE_TOKEN_ADDRESS,
   extract: (
     log: types.Log,
     blockDetails: types.BlockDetails,
@@ -22,7 +22,7 @@ export const ethMintFromL1Handler: ExtractTransferHandler = {
       transactionHash: log.transactionHash,
       blockNumber: log.blockNumber,
       amount: parsedLog.args.amount,
-      tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+      tokenAddress: utils.BASE_TOKEN_ADDRESS,
       type: TransferType.Deposit,
       tokenType: TokenType.BaseToken,
       isFeeOrRefund: false,

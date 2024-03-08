@@ -18,7 +18,7 @@ export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_BRIDGE, log);
 
     const tokenAddress =
-      parsedLog.args.l2Token === utils.ETH_ADDRESS ? utils.L2_ETH_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
+      parsedLog.args.l2Token === utils.ETH_ADDRESS ? utils.BASE_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
 
     return {
       from: parsedLog.args.l2Sender.toLowerCase(),

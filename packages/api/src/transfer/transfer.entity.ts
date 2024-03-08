@@ -89,8 +89,8 @@ export class Transfer extends BaseEntity {
   @AfterLoad()
   async populateEthToken() {
     if (!this.token && this.tokenAddress.toLowerCase() === BASE_TOKEN_ADDRESS.toLowerCase()) {
-      const nativeTokenData = (await baseToken()) as Token;
-      this.token = nativeTokenData;
+      const baseTokenData = (await baseToken()) as Token;
+      this.token = baseTokenData;
     }
   }
 }

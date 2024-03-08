@@ -33,22 +33,22 @@ describe("TokenController", () => {
 
   describe("tokenInfo", () => {
     it("returns ok response and token info when token is found", async () => {
-      const nativeToken = (await baseToken()) as Token;
-      jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce(nativeToken);
+      const baseToken = (await baseToken()) as Token;
+      jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce(baseToken);
       const response = await controller.tokenInfo(contractAddress);
       expect(response).toEqual({
         status: "1",
         message: "OK",
         result: [
           {
-            contractAddress: nativeToken.l2Address,
-            iconURL: nativeToken.iconURL,
-            l1Address: nativeToken.l1Address,
-            liquidity: nativeToken.liquidity.toString(),
-            symbol: nativeToken.symbol,
-            tokenDecimal: nativeToken.decimals.toString(),
-            tokenName: nativeToken.name,
-            tokenPriceUSD: nativeToken.usdPrice.toString(),
+            contractAddress: baseToken.l2Address,
+            iconURL: baseToken.iconURL,
+            l1Address: baseToken.l1Address,
+            liquidity: baseToken.liquidity.toString(),
+            symbol: baseToken.symbol,
+            tokenDecimal: baseToken.decimals.toString(),
+            tokenName: baseToken.name,
+            tokenPriceUSD: baseToken.usdPrice.toString(),
           },
         ],
       });

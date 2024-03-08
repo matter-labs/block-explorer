@@ -105,7 +105,7 @@ describe("TokenService", () => {
             name: "Ethers",
           };
           const deployedETHContractAddress = mock<ContractAddress>({
-            address: utils.L2_ETH_TOKEN_ADDRESS,
+            address: utils.BASE_TOKEN_ADDRESS,
             blockNumber: 0,
             transactionHash: "transactionHash",
             logIndex: 0,

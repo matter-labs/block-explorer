@@ -109,7 +109,7 @@ export class TokenService {
           l2Address: contractAddress.address,
           logIndex: contractAddress.logIndex,
           // add L1 address for ETH token
-          ...(contractAddress.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS && {
+          ...(contractAddress.address.toLowerCase() === utils.BASE_TOKEN_ADDRESS && {
             l1Address: utils.ETH_ADDRESS,
           }),
         };

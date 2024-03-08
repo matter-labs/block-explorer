@@ -19,7 +19,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: utils.BASE_TOKEN_ADDRESS,
           from: "FROM",
           to: "to",
         } as Transfer,
@@ -36,7 +36,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: utils.BASE_TOKEN_ADDRESS,
           from: "from1",
           to: "to",
         } as Transfer,
@@ -53,7 +53,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: utils.BASE_TOKEN_ADDRESS,
           from: "from",
           to: "to1",
         } as Transfer,
@@ -70,7 +70,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: utils.BASE_TOKEN_ADDRESS,
           from: "from1",
           to: "to1",
         } as Transfer,
@@ -86,7 +86,7 @@ describe("isInternalTransaction", () => {
     expect(
       isInternalTransaction({
         type: TransferType.Transfer,
-        tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+        tokenAddress: utils.BASE_TOKEN_ADDRESS,
         from: "from",
         to: "to1",
       } as Transfer)

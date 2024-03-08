@@ -66,7 +66,7 @@ describe("defaultWithdrawalInitiatedHandler", () => {
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as a tokenAddress if l2Token is 0x0000000000000000000000000000000000000000", () => {
       log.topics[3] = ZERO_HASH_64;
       const result = defaultWithdrawalInitiatedHandler.extract(log, blockDetails);
-      expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
+      expect(result.tokenAddress).toBe(utils.BASE_TOKEN_ADDRESS);
       expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 

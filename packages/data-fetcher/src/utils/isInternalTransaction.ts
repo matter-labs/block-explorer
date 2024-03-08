@@ -6,7 +6,7 @@ export default function isInternalTransaction(transfer: Transfer, transactionRec
   if (transfer.type !== TransferType.Transfer) {
     return false;
   }
-  if (transfer.tokenAddress.toLowerCase() !== utils.L2_ETH_TOKEN_ADDRESS.toLowerCase()) {
+  if (transfer.tokenAddress.toLowerCase() !== utils.BASE_TOKEN_ADDRESS.toLowerCase()) {
     return false;
   }
   if (

@@ -99,9 +99,9 @@ describe("defaultTransferHandler", () => {
     });
 
     it("extracts transfer with 0x000000000000000000000000000000000000800a as a tokenAddress if log address is 0x000000000000000000000000000000000000800a", () => {
-      log.address = utils.L2_ETH_TOKEN_ADDRESS;
+      log.address = utils.BASE_TOKEN_ADDRESS;
       const result = defaultTransferHandler.extract(log, blockDetails);
-      expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
+      expect(result.tokenAddress).toBe(utils.BASE_TOKEN_ADDRESS);
       expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 

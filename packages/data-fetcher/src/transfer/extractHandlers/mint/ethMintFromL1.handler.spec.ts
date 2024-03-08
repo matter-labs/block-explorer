@@ -73,7 +73,7 @@ describe("ethMintFromL1Handler", () => {
 
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as tokenAddress", () => {
       const result = ethMintFromL1Handler.extract(log, blockDetails);
-      expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
+      expect(result.tokenAddress).toBe(utils.BASE_TOKEN_ADDRESS);
     });
 
     it("extracts transfer of deposit type", () => {
