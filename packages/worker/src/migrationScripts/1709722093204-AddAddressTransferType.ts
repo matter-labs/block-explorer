@@ -56,8 +56,6 @@ const updateAddressTransfers = async (dataSource: DataSource, from: number, to: 
 const main = async () => {
   await typeOrmCliDataSource.initialize();
 
-  // add index concurrently and column here if not exists
-
   if (!toTransferNumber) {
     const lastTransferNumber = await typeOrmCliDataSource.query(
       `Select "number" from "transfers" order by "number" DESC limit 1;`
