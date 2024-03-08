@@ -1,6 +1,4 @@
 import * as ethers from "ethers";
-import { promises as fs } from "fs";
-import * as path from "path";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
@@ -13,7 +11,6 @@ export const withdrawERC20 = async function (tokenAddress: string, sum = "0.2") 
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
   const bridges = await syncProvider.getDefaultBridgeAddresses();
-  const bufferFile = path.join(Path.playbookRoot, Buffer.txERC20Withdraw);
 
   const balance = await syncWallet.getBalance(tokenAddress);
 
@@ -24,7 +21,7 @@ export const withdrawERC20 = async function (tokenAddress: string, sum = "0.2") 
     amount: ethers.utils.parseEther(sum),
     token: tokenAddress,
     bridgeAddress: bridges.erc20L2,
-    // overrides: localConfig.gasLimit,
+    // overrides: localConfig.l1GasLimit,
   });
 
   const txHash = withdrawL2.hash;
@@ -37,7 +34,7 @@ export const withdrawERC20 = async function (tokenAddress: string, sum = "0.2") 
   console.log(`Your balance is ${balanceAfter.toString()}`);
 
   await helper.logTransaction(Logger.withdraw, txHash, "Custom token");
-  await fs.writeFile(bufferFile, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txERC20Withdraw, txHash);
 
   return txHash;
 };

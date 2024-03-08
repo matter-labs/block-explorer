@@ -2,7 +2,7 @@ import * as request from "supertest";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
-import { Buffer, Token, Wallets } from "../../src/constants";
+import { Buffer, Path, Token, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -10,7 +10,6 @@ describe("API module: Account", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
-  const bufferFile = "src/playbook/";
   let apiRoute: string;
   let response;
   const playbook = new Playbook();
@@ -99,7 +98,7 @@ describe("API module: Account", () => {
         expect(typeof response.body.result[0].isError).toStrictEqual("string");
         expect(typeof response.body.result[0].txreceipt_status).toStrictEqual("string");
         expect(typeof response.body.result[0].input).toStrictEqual("string");
-        expect(typeof response.body.result[0].contractAddress).toBeTruthy(); // can be null
+        expect(typeof response.body.result[0].contractAddress).toBeTruthy();
         expect(typeof response.body.result[0].cumulativeGasUsed).toStrictEqual("string");
         expect(typeof response.body.result[0].gasUsed).toStrictEqual("string");
         expect(typeof response.body.result[0].confirmations).toStrictEqual("string");
@@ -215,7 +214,7 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        const nftAddress = await helper.readFile(bufferFile + Buffer.NFTtoL2);
+        const nftAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL2);
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${nftAddress}&address=${nftAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 

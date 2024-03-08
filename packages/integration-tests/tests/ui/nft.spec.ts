@@ -1,22 +1,19 @@
 import { expect, test } from "@playwright/test";
 
 import { config } from "./config";
-import { BlockExplorer, Buffer } from "../../src/constants";
+import { BlockExplorer, Buffer, Path } from "../../src/constants";
 import { Helper } from "../../src/helper";
 
 import type { Locator } from "@playwright/test";
 
-const bufferRoute = "src/playbook/";
 const helper = new Helper();
 let url: string;
-let bufferFile;
 let contract: string;
 let element: Locator;
 
 //@id1658
 test("Check the L2 NFT contract address", async ({ page }) => {
-  bufferFile = bufferRoute + Buffer.NFTtoL2;
-  contract = await helper.readFile(bufferFile);
+  contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL2);
   url = BlockExplorer.baseUrl + BlockExplorer.localNetwork;
   const targetUrl = BlockExplorer.baseUrl + `/address/${contract}`;
 
@@ -30,8 +27,7 @@ test("Check the L2 NFT contract address", async ({ page }) => {
 
 //@id1657
 test("Check the L1 NFT contract address", async ({ page }) => {
-  bufferFile = bufferRoute + Buffer.NFTtoL1;
-  contract = await helper.readFile(bufferFile);
+  contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL1);
   url = BlockExplorer.baseUrl + BlockExplorer.localNetwork;
   const targetUrl = BlockExplorer.baseUrl + `/address/${contract}`;
 

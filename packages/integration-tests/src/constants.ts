@@ -51,7 +51,6 @@ export enum Logger {
 }
 
 export enum Token {
-  // CUST_Address = "0x0928008B245A76E105E02C522b5d309c0887ecA5",// probably unused
   customL2TokenName = "L2 ERC20 token",
   customL2TokenSymbol = "L2",
   customL2TokenDecimals = 18,

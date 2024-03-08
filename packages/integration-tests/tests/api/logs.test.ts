@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer } from "../../src/constants";
+import { Buffer, Path } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -7,7 +7,6 @@ describe("API module: Logs", () => {
   jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
 
   const helper = new Helper();
-  const bufferFile = "src/playbook/";
   const playbook = new Playbook();
   let apiRoute: string;
   let contractAddress: string;
@@ -23,8 +22,8 @@ describe("API module: Logs", () => {
     //@id1808
     it("Verify /api?module=logs&action=getLogs&page={page}&offset={offset}0&toBlock={toBlock}&fromBlock={fromBlock}&address={address} response", async () => {
       await helper.runRetriableTestAction(async () => {
-        contractAddress = await helper.readFile(bufferFile + Buffer.greeterL2);
-        txHash = await helper.readFile(bufferFile + Buffer.executeGreeterTx);
+        contractAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.greeterL2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/api?module=logs&action=getLogs&page=1&offset=10&toBlock=10000&fromBlock=1&address=${contractAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 

@@ -1,5 +1,4 @@
 import * as ethers from "ethers";
-import { promises as fs } from "fs";
 import { Provider } from "zksync-web3";
 
 import { localConfig } from "../../config";
@@ -25,7 +24,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const attachedContract = new ethers.Contract(TRANSFER_CONTRACT_ADDRESS, factoryArtifact.abi, wallet);
   console.log(`Contract said something like this by default: ${await attachedContract.newCallGreeter()}`);
   const newGreet = "New Greet!";
-  const setNewGreetingHandle = await attachedContract.newSetGreet(newGreet, localConfig.gasLimit);
+  const setNewGreetingHandle = await attachedContract.newSetGreet(newGreet, localConfig.l1GasLimit);
   await setNewGreetingHandle.wait(1);
 
   const txHash = setNewGreetingHandle.hash;
@@ -33,7 +32,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   console.log("Multicall contract caller: ", txHash);
   console.log(`Contract said after new greeting: ${await attachedContract.newCallGreeter()}`);
 
-  await fs.writeFile(Buffer.txUseMultiCallContracts, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txUseMultiCallContracts, txHash);
 
   return txHash;
 }

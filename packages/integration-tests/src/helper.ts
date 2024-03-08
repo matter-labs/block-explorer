@@ -3,10 +3,11 @@ import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as request from "supertest";
-import { Provider } from "zksync-web3";
+import { setTimeout } from "timers/promises";
 
 import { environment, localConfig } from "./config";
 import { Logger } from "./constants";
+import { getProviderForL1, getProviderForL2 } from "./provider";
 
 import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 
@@ -26,6 +27,7 @@ export class Helper {
       exec(script, { encoding: "utf-8" }, (error, stdout) => {
         if (error) {
           console.error(`Error executing script "${script}":`, error);
+          console.error(`stderr executing script "${script}":`, stderr);
           reject(error);
         } else {
           console.log(`> Run NPM Script "${script}":\n`, stdout);
@@ -35,14 +37,14 @@ export class Helper {
     });
   }
 
-  async readFile(filePath: string, fileName: string) {
-    const absoluteRoute = path.join(filePath + fileName);
+  async writeFile(filePath: string, fileName: string, data: string) {
+    const absoluteRoute = path.join(filePath, fileName);
+    await fs.writeFile(absoluteRoute, data);
+  }
 
-    try {
-      return await fs.readFile(absoluteRoute, { encoding: "utf-8" });
-    } catch {
-      console.log(`There is no the expected file: ${fileName} in ${filePath}`);
-    }
+  async readFile(filePath: string, fileName: string) {
+    const absoluteRoute = path.join(filePath, fileName);
+    return await fs.readFile(absoluteRoute, { encoding: "utf-8" });
   }
 
   async getBalanceETH(walletAddress: string, layer: string) {
@@ -50,10 +52,10 @@ export class Helper {
     let provider: BaseProvider;
     if (layer == "L1") {
       network = localConfig.L1Network;
-      provider = ethers.getDefaultProvider(network);
+      provider = getProviderForL1(network);
     } else if (layer == "L2") {
       network = localConfig.L2Network;
-      provider = new Provider(network);
+      provider = getProviderForL2(network);
     } else {
       console.log(`Wrong layer: ${layer}`);
     }
@@ -61,7 +63,7 @@ export class Helper {
   }
 
   async delay(ms: number) {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    await setTimeout(ms);
   }
 
   async performBlockExplorerApiGetRequest(apiRoute: string, network?: string) {
