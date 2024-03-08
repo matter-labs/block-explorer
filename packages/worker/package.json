@@ -108,7 +108,8 @@
       ".module.ts",
       "src/logger.ts",
       "src/typeorm.config.ts",
-      "src/migrations"
+      "src/migrations",
+      "src/migrationScripts"
     ],
     "reporters": [
       "default",
