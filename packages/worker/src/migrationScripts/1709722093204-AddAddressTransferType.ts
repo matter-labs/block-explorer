@@ -4,6 +4,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { setTimeout } from "timers/promises";
 import { typeOrmModuleOptions } from "../typeorm.config";
+import logger from "../logger";
 
 config();
 
@@ -45,11 +46,11 @@ const updateAddressTransfers = async (dataSource: DataSource, from: number, to: 
     );
   } catch (error) {
     if (attempt >= QUERY_MAX_RETRIES) {
-      console.error(`Failed to update AddressTransfers from ${from} to ${to} after ${QUERY_MAX_RETRIES} retries.`);
+      logger.error(`Failed to update AddressTransfers from ${from} to ${to} after ${QUERY_MAX_RETRIES} retries.`);
       throw error;
     }
     await setTimeout(QUERY_RETRY_MIN_INTERVAL_MS * Math.pow(2, attempt));
-    console.error(`Failed to update AddressTransfers from ${from} to ${to}, retrying...`);
+    logger.error(`Failed to update AddressTransfers from ${from} to ${to}, retrying...`);
     return updateAddressTransfers(dataSource, from, to, attempt + 1);
   }
 };
@@ -64,7 +65,7 @@ const main = async () => {
     );
     toTransferNumber = parseInt(lastTransferNumber[0].number, 10);
   }
-  console.log(
+  logger.log(
     `Starting migration with params: { fromTransferNumber: ${fromTransferNumber}, toTransferNumber: ${toTransferNumber}, updateBatchSize: ${updateBatchSize}, parallelWorkers: ${parallelWorkers} }`
   );
 
@@ -84,7 +85,7 @@ const main = async () => {
     }
     await Promise.all(tasks);
 
-    console.log(
+    logger.log(
       `Updated address transfers from ${cursor} to ${
         cursor + parallelWorkers * updateBatchSize
       }. Time: ${new Date().toJSON()}.`
@@ -95,11 +96,11 @@ const main = async () => {
 
 main()
   .then(() => {
-    console.log(`Migration script 1709722093204-AddAddressTransferType executed successfully.`);
+    logger.log(`Migration script 1709722093204-AddAddressTransferType executed successfully.`);
     process.exit(0);
   })
   .catch((error) => {
-    console.error(`Migration script 1709722093204-AddAddressTransferType failed.`);
-    console.error(error);
+    logger.error(`Migration script 1709722093204-AddAddressTransferType failed.`);
+    logger.error(error);
     process.exit(0);
   });
