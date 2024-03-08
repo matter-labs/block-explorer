@@ -1,5 +1,5 @@
 import * as ethers from "zksync-web3";
-import { NATIVE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { BASE_TOKEN_ADDRESS } from "../common/constants";
 import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 import { Logger, OnApplicationBootstrap, Injectable } from "@nestjs/common";
@@ -86,7 +86,7 @@ export class BaseTokenService implements OnApplicationBootstrap {
         usdPrice: 1800,
       };
     } else {
-      const l2Address = NATIVE_TOKEN_L2_ADDRESS;
+      const l2Address = BASE_TOKEN_ADDRESS;
       const provider = new ethers.Provider(this.l1ProviderUrl);
       const erc20_api = new ethers.Contract(this.l1Address, this.erc20ContractAbi, provider);
       const symbol: string = await erc20_api.symbol();

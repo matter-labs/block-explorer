@@ -5,7 +5,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Token, baseToken } from "./token.entity";
-import { NATIVE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { BASE_TOKEN_ADDRESS } from "../common/constants";
 import { BaseTokenService } from "src/base_token/base_token.service";
 
 export interface FilterTokensOptions {
@@ -27,7 +27,7 @@ export class TokenService {
       },
       select: fields,
     });
-    if (!token && address.toLowerCase() === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
+    if (!token && address.toLowerCase() === BASE_TOKEN_ADDRESS.toLowerCase()) {
       return this.baseToken.baseTokenData() as Token;
     }
     return token;
@@ -36,7 +36,7 @@ export class TokenService {
   public async exists(address: string): Promise<boolean> {
     const tokenExists =
       (await this.tokenRepository.findOne({ where: { l2Address: address }, select: { l2Address: true } })) != null;
-    if (!tokenExists && address === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
+    if (!tokenExists && address === BASE_TOKEN_ADDRESS.toLowerCase()) {
       return true;
     }
     return tokenExists;

@@ -5,7 +5,7 @@ import { normalizeAddressTransformer } from "../common/transformers/normalizeAdd
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
-import { NATIVE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { BASE_TOKEN_ADDRESS } from "../common/constants";
 
 export enum TransferType {
   Deposit = "deposit",
@@ -88,7 +88,7 @@ export class Transfer extends BaseEntity {
 
   @AfterLoad()
   async populateEthToken() {
-    if (!this.token && this.tokenAddress.toLowerCase() === NATIVE_TOKEN_L2_ADDRESS.toLowerCase()) {
+    if (!this.token && this.tokenAddress.toLowerCase() === BASE_TOKEN_ADDRESS.toLowerCase()) {
       const nativeTokenData = (await baseToken()) as Token;
       this.token = nativeTokenData;
     }
