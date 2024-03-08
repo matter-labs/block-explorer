@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import { DataSource } from "typeorm";
 import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 import { setTimeout } from "timers/promises";
 import typeOrmCliDataSource from "../typeorm.config";
 
@@ -9,7 +10,7 @@ config();
 const QUERY_MAX_RETRIES = 5;
 const QUERY_RETRY_MIN_INTERVAL_MS = 1000;
 
-let { fromTransferNumber, toTransferNumber, updateBatchSize, parallelWorkers } = yargs
+let { fromTransferNumber, toTransferNumber, updateBatchSize, parallelWorkers } = yargs(hideBin(process.argv))
   .options({
     fromTransferNumber: {
       default: 0,
@@ -46,7 +47,7 @@ const updateAddressTransfers = async (dataSource: DataSource, from: number, to: 
       console.error(`Failed to update AddressTransfers from ${from} to ${to} after ${QUERY_MAX_RETRIES} retries.`);
       throw error;
     }
-    await setTimeout(QUERY_RETRY_MIN_INTERVAL_MS * (2 * attempt || 1));
+    await setTimeout(QUERY_RETRY_MIN_INTERVAL_MS * Math.pow(2, attempt));
     console.error(`Failed to update AddressTransfers from ${from} to ${to}, retrying...`);
     return updateAddressTransfers(dataSource, from, to, attempt + 1);
   }
