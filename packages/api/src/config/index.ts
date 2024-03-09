@@ -30,7 +30,7 @@ export default () => {
   };
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
-    const master = { url: DATABASE_URL || "postgres://postgres:notsecurepassword@127.0.0.1:5432/block-explorer" };
+    const master = { url: DATABASE_URL || "postgres://postgres:postgres@127.0.0.1:5432/block-explorer" };
     const replicaSet = getDatabaseReplicaSet();
 
     return {
