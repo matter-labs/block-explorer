@@ -9,9 +9,6 @@ import useTokenLibrary from "@/composables/useTokenLibrary";
 import type { Hash } from "@/types";
 
 export type Token = Api.Response.Token;
-type NativeERC20ApiResponse = {
-  result: Token;
-};
 export const retrieveToken = useMemoize(
   (tokenAddress: Hash, context: Context = useContext()): Promise<Api.Response.Token> => {
     return $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`);
@@ -20,11 +17,6 @@ export const retrieveToken = useMemoize(
     getKey(tokenAddress: Hash, context: Context = useContext()) {
       return tokenAddress + context.currentNetwork.value.name;
     },
-  }
-);
-export const retrieveERC20NativeToken = useMemoize(
-  async (context: Context = useContext()): Promise<NativeERC20ApiResponse> => {
-    return $fetch(`${context.currentNetwork.value.apiUrl}/api/token/nativeERC20Info`);
   }
 );
 export default () => {
