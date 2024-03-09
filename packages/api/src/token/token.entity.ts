@@ -8,6 +8,8 @@ export enum TokenType {
 }
 
 export const baseToken = async () => {
+  // TODO: Properly do and remove this,
+  // this is still here to avoid compilation issues.
   return { l2Address: "0x1" };
 };
 @Entity({ name: "tokens" })

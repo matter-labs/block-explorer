@@ -18,8 +18,8 @@ export class StatsController {
 
   @Get("/ethprice")
   public async ethPrice(): Promise<EthPriceResponseDto> {
-    const baseToken = await baseToken();
-    const token = await this.tokenService.findOne(baseToken.l2Address, {
+    const baseTokenData = await baseToken();
+    const token = await this.tokenService.findOne(baseTokenData.l2Address, {
       usdPrice: true,
       offChainDataUpdatedAt: true,
     });
