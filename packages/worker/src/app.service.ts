@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { OnEvent } from "@nestjs/event-emitter";
 import { DataSource } from "typeorm";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
+import { ScriptMigrationRepository } from "./repositories/scriptMigration.repository";
 import { BlocksRevertService } from "./blocksRevert";
 import { BlockService } from "./block";
 import { BatchService } from "./batch";
@@ -10,12 +11,14 @@ import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
+import runScriptMigrations from "./utils/runScriptMigrations";
 
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger;
 
   public constructor(
+    private readonly scriptMigrationRepository: ScriptMigrationRepository,
     private readonly counterService: CounterService,
     private readonly batchService: BatchService,
     private readonly blockService: BlockService,
@@ -30,6 +33,11 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   public onModuleInit() {
     runMigrations(this.dataSource, this.logger).then(() => {
+      const enableScriptMigrations = this.configService.get<boolean>("scriptMigrations.enabled");
+      if (enableScriptMigrations) {
+        // Run script migrations on background if there are any to run.
+        runScriptMigrations(this.scriptMigrationRepository, this.dataSource, this.logger);
+      }
       this.startWorkers();
     });
   }
