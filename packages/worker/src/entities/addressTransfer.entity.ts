@@ -1,7 +1,7 @@
 import { Entity, Column, ManyToOne, JoinColumn, Index, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { Block } from "./block.entity";
-import { Transfer } from "./transfer.entity";
+import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "./token.entity";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
@@ -10,6 +10,7 @@ import { TransferFields } from "../transfer/interfaces/transfer.interface";
 
 @Entity({ name: "addressTransfers" })
 @Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
+@Index(["address", "type", "timestamp", "logIndex"])
 @Index(["address", "tokenAddress", "blockNumber", "logIndex"])
 @Index(["address", "tokenType", "blockNumber", "logIndex"])
 @Index(["address", "isInternal", "blockNumber", "logIndex"])
@@ -41,6 +42,9 @@ export class AddressTransfer extends BaseEntity {
 
   @Column({ type: "timestamp" })
   public readonly timestamp: Date;
+
+  @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
+  public readonly type: TransferType;
 
   @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
   public readonly tokenType: TokenType;
