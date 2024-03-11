@@ -48,7 +48,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
     });
 
     // await commitment
-    const transferReceipt = await transfer.wait(1);
+    const transferReceipt = await transfer.waitFinalize();
     console.log(`Tx transfer hash for ${token}: ${transferReceipt.transactionHash}`);
 
     return transferReceipt.transactionHash;
@@ -63,7 +63,7 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
     );
     if (transferFromContract) {
       console.log(`Contract transfer to us!`);
-      const transferReceipt = await transferFromContract.wait(1);
+      const transferReceipt = await transferFromContract.waitFinalize();
       console.log(`Contract transfer transaction hash: ${transferReceipt.transactionHash}`);
       return transferReceipt.transactionHash;
     } else {
