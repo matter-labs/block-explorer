@@ -261,12 +261,12 @@ describe("API module: Account", () => {
 
     //id1854
     it("Verify /api?module=account&action=txlistinternal&txhash=", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        const txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCall);
+        const txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCall);
         apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&txhash=${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
