@@ -342,6 +342,7 @@ describe("AddressController (e2e)", () => {
           tokenAddress: transferSpec.tokenAddress,
           blockNumber: transferSpec.blockNumber,
           timestamp: transferSpec.timestamp,
+          type: transferSpec.type,
           tokenType: transferSpec.tokenType,
           isFeeOrRefund: transferSpec.isFeeOrRefund,
           logIndex: transferSpec.logIndex,
@@ -1165,6 +1166,22 @@ describe("AddressController (e2e)", () => {
             totalPages: 2,
           })
         );
+    });
+
+    it("returns HTTP 200 and address transfers for the specified transfer type", () => {
+      return request(app.getHttpServer())
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?type=withdrawal")
+        .expect(200)
+        .expect((res) =>
+          expect(res.body.meta).toMatchObject({
+            currentPage: 1,
+            itemCount: 5,
+            itemsPerPage: 10,
+            totalItems: 5,
+            totalPages: 1,
+          })
+        )
+        .expect((res) => expect(res.body.items[0].type).toBe(TransferType.Withdrawal));
     });
 
     it("returns HTTP 200 and address transfers for the specified paging configuration", () => {
