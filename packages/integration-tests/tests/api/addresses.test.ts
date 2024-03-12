@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Token, Wallets } from "../../src/entities";
+import { Buffer, Path, Token, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -8,7 +8,6 @@ describe("Address", () => {
 
   const helper = new Helper();
   const playbook = new Playbook();
-  const bufferFile = "src/playbook/";
   let apiRoute: string;
   let contract: string;
   let token: string;
@@ -28,10 +27,10 @@ describe("Address", () => {
 
     //@id1457
     it("Verify deployed to L2 NFT via /address/{address}", async () => {
-      await helper.retryTestAction(async () => {
-        token = await helper.getStringFromFile(bufferFile + Buffer.NFTtoL2);
+      await helper.runRetriableTestAction(async () => {
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL2);
         apiRoute = `/address/${token}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(
@@ -51,11 +50,11 @@ describe("Address", () => {
 
     //@id1464
     it("Verify the deployed Root contract via /address/{address}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallRoot);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallRoot);
         apiRoute = `/address/${contract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(expect.objectContaining({ type: "contract" }));
@@ -68,11 +67,11 @@ describe("Address", () => {
 
     //@id1465
     it("Verify the deployed Middle contract via /address/{address}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallMiddle);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallMiddle);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallMiddle);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle);
         apiRoute = `/address/${contract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(expect.objectContaining({ type: "contract" }));
@@ -85,11 +84,11 @@ describe("Address", () => {
 
     //@id1466
     it("Verify the deployed Caller contract via /address/{address}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallCaller);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallCaller);
         apiRoute = `/address/${contract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(expect.objectContaining({ type: "contract" }));
@@ -102,10 +101,10 @@ describe("Address", () => {
 
     //@id1476
     it("Verify the deployed multitransfer contract via /address/{address}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
         apiRoute = `/address/${contract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(expect.objectContaining({ address: contract }));
@@ -115,10 +114,10 @@ describe("Address", () => {
 
     //@id1449
     it("Verify the deployed Greeter contract via /address/{address}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.greeterL2);
         apiRoute = `/address/${contract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual(expect.objectContaining({ address: contract }));
@@ -134,12 +133,12 @@ describe("Address", () => {
 
     //@id1510
     it("Verify the transaction via /address/{address}/logs", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.greeterL2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/address/${contract}/logs`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toEqual(expect.objectContaining({ address: contract }));
@@ -175,14 +174,14 @@ describe("Address", () => {
 
     //@id1509
     it("Verify the transaction via /address/{address}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-        const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
-        const customTokenAddress = await helper.getStringFromFile(bufferFile + Buffer.customToken);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymaster);
+        const emptyWallet = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.emptyWalletAddress);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymasterTx);
+        const customTokenAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.customToken);
         apiRoute = `/address/${contract}/transfers`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));
@@ -203,9 +202,7 @@ describe("Address", () => {
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "30000000000000000" }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: "transfer" }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.meta).toStrictEqual(expect.objectContaining({ totalItems: 2 }));

@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Wallets } from "../../src/entities";
+import { Buffer, Path, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -8,7 +8,6 @@ describe("API module: Contract", () => {
 
   const helper = new Helper();
   const playbook = new Playbook();
-  const bufferFile = "src/playbook/";
   let apiRoute: string;
   let paymasterContract: string;
   let paymasterTx: string;
@@ -24,13 +23,13 @@ describe("API module: Contract", () => {
 
     //@id1696
     it("Verify /api?module=contract&action=getcontractcreation&contractaddresses={address1},{address2} response", async () => {
-      await helper.retryTestAction(async () => {
-        paymasterContract = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-        paymasterTx = await helper.getStringFromFile(bufferFile + Buffer.paymasterDeployTx);
-        multicallCallerContract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallCaller);
-        multicallCallerTx = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
+      await helper.runRetriableTestAction(async () => {
+        paymasterContract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymaster);
+        paymasterTx = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymasterDeployTx);
+        multicallCallerContract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallCaller);
+        multicallCallerTx = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallCaller);
         apiRoute = `/api?module=contract&action=getcontractcreation&contractaddresses=${paymasterContract},${multicallCallerContract}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.result[0]).toStrictEqual(expect.objectContaining({ contractAddress: paymasterContract }));

@@ -15,7 +15,7 @@ npm install
 cp .env.example packages/integration-tests/src/playbook/.env
 ```
 
-- Add your private wallet key to `WALLET_PRIVATE_KEY=` By default we use `richWalletPrivateKey` private key in `integration-tests/src/playbook/utils/getWallet.ts` from `integration-tests/src/entities.ts`. 
+- Add your private wallet key to `WALLET_PRIVATE_KEY={YOUR_PRIVATE_KEY}`. By default we use `richWalletPrivateKey` private key in `integration-tests/src/playbook/utils/getWallet.ts` from `integration-tests/src/constants.ts`. 
 
 ## Preparing a local environment
 
@@ -42,13 +42,13 @@ npm run integration-test:ui
 If you need to run the exact test or/and suite you can change 
 key-words from `it` to `fit` (for the test) and `describe` to `fdescribe` for suite.
 
-If you need to exclude some specific test/suites, you can change keywords `it` to `xit` and/or
+If you need to exclude some specific test/suite, you can change keywords `it` to `xit` and/or
 `describe` to `xdescribe`.
 
 The test solution contains two main folders: [src](./src) and [tests](./tests).
 [src](./src) folder contains: 
 - essential [scenarios](./src/playbook/scenarios/)
-- predefined [entities](./src/entities.ts) and [config](./src/config.ts) config files
+- predefined [constants](./src/constants.ts) and [config](./src/config.ts) config files
 - [contracts](./src/playbook/contracts/) folder with a set of contracts
 - [deploy](./src/playbook/deploy/) folder with a set of deploy scripts
 - [buffer](./src/playbook/buffer/) folder as a temporary storage of transaction hashes and addresses 

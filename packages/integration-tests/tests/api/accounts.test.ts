@@ -2,7 +2,7 @@ import * as request from "supertest";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
-import { Buffer, Token, Wallets } from "../../src/entities";
+import { Buffer, Path, Token, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -10,7 +10,6 @@ describe("API module: Account", () => {
   jest.setTimeout(localConfig.standardTimeout);
 
   const helper = new Helper();
-  const bufferFile = "src/playbook/";
   let apiRoute: string;
   let response;
   const playbook = new Playbook();
@@ -25,13 +24,13 @@ describe("API module: Account", () => {
 
     //@id1704
     it("Verify /api?module=account&action=balancemulti response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=balancemulti&address=${Wallets.richWalletAddress},${Wallets.mainWalletAddress}`;
         const richWalletBalance = await helper.getBalanceETH(Wallets.richWalletAddress, "L2");
         const mainWalletBalance = await helper.getBalanceETH(Wallets.mainWalletAddress, "L2");
         const richWalletLowerCase = Wallets.richWalletAddress.toLowerCase();
         const mainWalletLowerCase = Wallets.mainWalletAddress.toLowerCase();
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.result.length).toBeGreaterThan(1);
@@ -48,10 +47,10 @@ describe("API module: Account", () => {
 
     //@id1703
     it("Verify /api?module=account&action=balance response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         const balance = await helper.getBalanceETH(Wallets.richWalletAddress, "L2");
         apiRoute = `/api?module=account&action=balance&address=${Wallets.richWalletAddress}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -62,9 +61,9 @@ describe("API module: Account", () => {
 
     //@id1705
     it("Verify /api?module=account&action=tokenbalance response", async () => {
-      await helper.retryTestAction(async () => {
-        apiRoute = `/api?module=account&action=tokenbalance&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
-        response = await helper.performGETrequest(apiRoute);
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=account&action=tokenbalance&contractaddress=${Token.ERC20AddressETH}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -75,11 +74,11 @@ describe("API module: Account", () => {
 
     //@id1702
     it("Verify /api?module=account&action=txlist response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlist&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.result.length).toBeGreaterThan(1);
@@ -99,7 +98,7 @@ describe("API module: Account", () => {
         expect(typeof response.body.result[0].isError).toStrictEqual("string");
         expect(typeof response.body.result[0].txreceipt_status).toStrictEqual("string");
         expect(typeof response.body.result[0].input).toStrictEqual("string");
-        expect(typeof response.body.result[0].contractAddress).toBeTruthy(); // can be null
+        expect(typeof response.body.result[0].contractAddress).toBeTruthy();
         expect(typeof response.body.result[0].cumulativeGasUsed).toStrictEqual("string");
         expect(typeof response.body.result[0].gasUsed).toStrictEqual("string");
         expect(typeof response.body.result[0].confirmations).toStrictEqual("string");
@@ -116,11 +115,11 @@ describe("API module: Account", () => {
 
     //@id1852
     it("Verify /api?module=account&action=txlistinternal&address=", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -147,11 +146,11 @@ describe("API module: Account", () => {
 
     //@id1804
     it("Verify /api?module=account&action=txlistinternal", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=1`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -173,11 +172,11 @@ describe("API module: Account", () => {
 
     //@id1805
     it("Verify /api?module=account&action=tokentx", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Token.ETHER_ERC20_Address}&address=${Wallets.richWalletAddress}`;
-        response = await helper.performGETrequest(apiRoute);
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Token.ERC20AddressETH}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
         console.log(apiRoute);
 
         expect(response.status).toBe(200);
@@ -212,12 +211,12 @@ describe("API module: Account", () => {
 
     //@id1806
     it("Verify /api?module=account&action=tokennfttx", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        const nftAddress = await helper.getStringFromFile(bufferFile + Buffer.NFTtoL2);
+        const nftAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL2);
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${nftAddress}&address=${nftAddress}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -246,9 +245,9 @@ describe("API module: Account", () => {
 
     //@id1807
     it("Verify /api?module=account&action=getminedblocks", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=getminedblocks&page=1&offset=10&address=0x0000000000000000000000000000000000000000`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));

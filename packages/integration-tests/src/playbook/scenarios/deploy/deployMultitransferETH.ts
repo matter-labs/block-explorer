@@ -1,15 +1,16 @@
-import { Buffer } from "../../../entities";
+import { Buffer, Path } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const deployMultitransferETH = async function () {
   const helper = new Helper();
-  const playbookRoot = "src/playbook";
-  const bufferFile = playbookRoot + "/" + Buffer.addressMultiTransferETH;
 
-  await helper.executeScript(`cd ${playbookRoot} && npm run compile`);
-  await helper.executeScript(`cd ${playbookRoot} && npm run deploy:multitransfer`);
+  await helper.executeScript(`cd ${Path.playbookRoot} && npm run compile`);
+  await helper.executeScript(`cd ${Path.playbookRoot} && npm run deploy:multitransfer`);
 
-  const multiTransferContractETH = await helper.getStringFromFile(bufferFile);
+  const multiTransferContractETH = await helper.readFile(
+    Path.absolutePathToBufferFiles,
+    Buffer.addressMultiTransferETH
+  );
 
   console.log("The custom multitransfer contract ETH has been deployed to the address: ", multiTransferContractETH);
 

@@ -1,9 +1,8 @@
 import * as ethers from "ethers";
-import { promises as fs } from "fs";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger } from "../../../entities";
+import { Buffer, Logger, Path } from "../../../constants";
 import { Helper } from "../../../helper";
 
 export const transferFailedState = async function (tokenAddress: string, tokenName?: string) {
@@ -12,19 +11,17 @@ export const transferFailedState = async function (tokenAddress: string, tokenNa
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
   const syncWallet = new zksync.Wallet(localConfig.privateKey, syncProvider, ethProvider);
   const amount = ethers.utils.parseEther("1.0");
-  const playbookRoot = "src/playbook/";
-  const bufferFile = playbookRoot + Buffer.failedState;
 
   const transfer = await syncWallet.transfer({
     to: "0x0000000000000000000000000000000000000000",
     token: tokenAddress,
     amount,
-    overrides: localConfig.gasLimit,
+    overrides: localConfig.l1GasLimit,
   });
 
   const txHash = transfer.hash;
-  await helper.txHashLogger(Logger.txFailedState, txHash, tokenName);
-  await fs.writeFile(bufferFile, txHash);
+  await helper.logTransaction(Logger.txFailedState, txHash, tokenName);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.failedState, txHash);
 
   return txHash;
 };

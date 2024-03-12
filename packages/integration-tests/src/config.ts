@@ -1,7 +1,7 @@
-import { Wallets } from "./entities";
+import { Wallets } from "./constants";
 
 export const localConfig = {
-  gasLimit: { gasLimit: 10000000 },
+  l1GasLimit: { gasLimit: 10000000 },
   l2GasLimit: 10000000,
   L1Network: "http://localhost:8545",
   L2Network: "http://localhost:3050",

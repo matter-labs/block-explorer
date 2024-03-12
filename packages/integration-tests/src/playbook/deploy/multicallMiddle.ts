@@ -1,7 +1,6 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { promises as fs } from "fs";
 
-import { Buffer } from "../../entities";
+import { Buffer, Path } from "../../constants";
 import { Helper } from "../../helper";
 import getWallet from "../utils/getWallet";
 
@@ -11,7 +10,6 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Running deploy script for the contract`);
 
   const helper = new Helper();
-  const playbookRoot = "src/playbook/";
   const wallet = await getWallet(hre);
 
   // Create deployer object and load the artifact of the contract we want to deploy.
@@ -19,7 +17,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const artifact = await deployer.loadArtifact("Middle");
 
   // Deploy this contract. The returned object will be of a `Contract` type, similarly to ones in `ethers`.
-  const addressContractRoot = await helper.getStringFromFile(playbookRoot + Buffer.addressMultiCallRoot);
+  const addressContractRoot = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
   const contractConstructorArguments = [addressContractRoot];
   console.log(`Arguments for the contract constructor: ${JSON.stringify(contractConstructorArguments)}`);
   const deployedContract = await deployer.deploy(artifact, contractConstructorArguments);
@@ -35,8 +33,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const address = deployedContract.address;
   const txHash = deployedContract.deployTransaction.hash;
 
-  await fs.writeFile(Buffer.addressMultiCallMiddle, address);
-  await fs.writeFile(Buffer.txMultiCallMiddle, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallMiddle, address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle, txHash);
 
   return [address, txHash];
 }

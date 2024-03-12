@@ -1,12 +1,13 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import { promises as fs } from "fs";
 
-import { Buffer } from "../../entities";
+import { Buffer, Path } from "../../constants";
+import { Helper } from "../../helper";
 import getWallet from "../utils/getWallet";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
 export default async function (hre: HardhatRuntimeEnvironment) {
+  const helper = new Helper();
   console.log(`Running deploy script for the Greeter contract`);
 
   const wallet = await getWallet(hre);
@@ -48,8 +49,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const address = deployedContract.address;
   const txHash = deployedContract.deployTransaction.hash;
 
-  await fs.writeFile(Buffer.addressMultiCallRoot, address);
-  await fs.writeFile(Buffer.txMultiCallRoot, txHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot, address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallRoot, txHash);
 
   return [address, txHash];
 }

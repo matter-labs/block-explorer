@@ -2,10 +2,10 @@ import * as ethers from "ethers";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Logger, Values } from "../../../entities";
+import { Buffer, Logger, Path } from "../../../constants";
 import { Helper } from "../../../helper";
 
-export const depositEth = async function (sum = Values.txSumETH) {
+export const depositEth = async function (sum = "0.000009") {
   const helper = new Helper();
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
@@ -16,11 +16,10 @@ export const depositEth = async function (sum = Values.txSumETH) {
     amount: ethers.utils.parseEther(sum),
     l2GasLimit: localConfig.l2GasLimit,
   });
-
-  const txHash = deposit.hash;
-
   await deposit.wait(1);
-  await helper.txHashLogger(Logger.deposit, txHash, "ETH");
+  const txHash = await deposit.waitFinalize();
+  await helper.logTransaction(Logger.deposit, txHash.transactionHash, "ETH");
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txEthDeposit, txHash.transactionHash);
 
   return txHash;
 };

@@ -10,9 +10,9 @@ describe("Stats", () => {
 
   //@id1515
   it("Verify the response via /stats", async () => {
-    await helper.retryTestAction(async () => {
+    await helper.runRetriableTestAction(async () => {
       apiRoute = `/stats`;
-      response = await helper.performGETrequest(apiRoute);
+      response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
       expect(response.status).toBe(200);
       expect(typeof response.body.lastSealedBatch).toStrictEqual("number");

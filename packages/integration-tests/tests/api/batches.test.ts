@@ -10,9 +10,9 @@ describe("Batches", () => {
 
   //@id1513
   it("Verify the response via /batches", async () => {
-    await helper.retryTestAction(async () => {
+    await helper.runRetriableTestAction(async () => {
       apiRoute = `/batches`;
-      response = await helper.performGETrequest(apiRoute);
+      response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body.items)).toStrictEqual(true);
@@ -48,12 +48,12 @@ describe("Batches", () => {
 
   //@id1514 //unstable due to null issue with timestamp
   it("Verify the response via /batches/{batchNumber}", async () => {
-    await helper.retryTestAction(async () => {
+    await helper.runRetriableTestAction(async () => {
       apiRoute = `/batches`;
-      const batches = await helper.performGETrequest(apiRoute);
+      const batches = await helper.performBlockExplorerApiGetRequest(apiRoute);
       const batchNumber = batches.body.items[0].number;
       apiRoute = apiRoute + `/${batchNumber}`;
-      response = await helper.performGETrequest(apiRoute);
+      response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
       expect(response.status).toBe(200);
       expect(response.body.number).toStrictEqual(batchNumber);

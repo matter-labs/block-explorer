@@ -1,10 +1,11 @@
-import { promises as fs } from "fs";
 import { ethers } from "hardhat";
 import * as hardhatConfig from "hardhat";
 
-import { Buffer, Wallets } from "../../entities";
+import { Buffer, Path, Wallets } from "../../constants";
+import { Helper } from "../../helper";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
+const helper = new Helper();
 
 async function main() {
   const hre: HardhatRuntimeEnvironment = hardhatConfig;
@@ -22,7 +23,7 @@ async function main() {
     console.error(`The NFT minting has been unsuccessful: ${mintNFT}`);
   }
 
-  await fs.writeFile(Buffer.NFTtoL1, myNFT.address);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.NFTtoL1, myNFT.address);
 }
 
 main()

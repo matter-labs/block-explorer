@@ -1,5 +1,5 @@
 import { localConfig } from "../../src/config";
-import { Buffer, Token, TransactionsStatus, TransactionsType, Wallets } from "../../src/entities";
+import { Buffer, Path, Token, TransactionStatus, TransactionsType, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -7,7 +7,6 @@ describe("Transactions", () => {
   jest.setTimeout(localConfig.extendedTimeout);
 
   const helper = new Helper();
-  const bufferFile = "src/playbook/";
   const playbook = new Playbook();
   let apiRoute: string;
   let contract: string;
@@ -16,7 +15,7 @@ describe("Transactions", () => {
   let response;
 
   beforeAll(async () => {
-    const customToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
+    const customToken = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
     await playbook.withdrawETHtoOtherAddress();
     await playbook.withdrawERC20(customToken);
     await playbook.withdrawERC20toOtherAddress(customToken);
@@ -36,12 +35,37 @@ describe("Transactions", () => {
 
     //@id1447
     it("Verify transfer ETH L2-L2 via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthTransfer);
         apiRoute = `/transactions/${txHash}/transfers`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: "fee" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(
+          expect.objectContaining({
+            token: {
+              decimals: 18,
+              iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
+              liquidity: 220000000000,
+              symbol: "ETH",
+              name: "Ether",
+              usdPrice: 1800,
+            },
+          })
+        );
         expect(response.body.items[1].from).toBe(Wallets.richWalletAddress);
         expect(response.body.items[1].to).toBe(Wallets.mainWalletAddress);
         expect(response.body.items[1].transactionHash).toBe(txHash);
@@ -52,18 +76,39 @@ describe("Transactions", () => {
 
     //@id1459
     it("Verify the ETH withdrawal via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthWithdraw);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdraw);
         apiRoute = `/transactions/${txHash}/transfers`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: "fee" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(
+          expect.objectContaining({
+            token: {
+              decimals: 18,
+              iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
+              liquidity: 220000000000,
+              symbol: "ETH",
+              name: "Ether",
+              usdPrice: 1800,
+            },
+          })
+        );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: "transfer" }));
@@ -72,7 +117,7 @@ describe("Transactions", () => {
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: "withdrawal" }));
-        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ type: "refund" }));
@@ -81,18 +126,39 @@ describe("Transactions", () => {
 
     //@id1461
     it("Verify the ETH withdrawal to the other address via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthWithdrawOtherAddress);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdrawOtherAddress);
         apiRoute = `/transactions/${txHash}/transfers`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: "fee" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(
+          expect.objectContaining({
+            token: {
+              decimals: 18,
+              iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
+              liquidity: 220000000000,
+              symbol: "ETH",
+              name: "Ether",
+              usdPrice: 1800,
+            },
+          })
+        );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: "transfer" }));
@@ -101,7 +167,7 @@ describe("Transactions", () => {
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ amount: "9000000000000" }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: "withdrawal" }));
-        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ type: "refund" }));
@@ -110,15 +176,13 @@ describe("Transactions", () => {
 
     //@id1463
     it("Verify the custom token withdrawal via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        const l1Token = bufferFile + "/" + Buffer.L1;
-        const customTokenL1 = await helper.getStringFromFile(l1Token);
-        const l2Token = bufferFile + "/" + Buffer.L2deposited;
-        const customTokenL2 = await helper.getStringFromFile(l2Token);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txERC20WithdrawOtherAddress);
+      await helper.runRetriableTestAction(async () => {
+        const customTokenL1 = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L1);
+        const customTokenL2 = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txERC20WithdrawOtherAddress);
         apiRoute = `/transactions/${txHash}/transfers`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(typeof response.body.items[0].amount).toStrictEqual("string");
@@ -127,19 +191,17 @@ describe("Transactions", () => {
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -155,7 +217,7 @@ describe("Transactions", () => {
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.addressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: customTokenL2 }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
@@ -204,22 +266,20 @@ describe("Transactions", () => {
         expect(typeof response.body.items[3].amount).toStrictEqual("string");
         expect(typeof response.body.items[3].blockNumber).toStrictEqual("number");
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ fields: null }));
-        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[3].timestamp).toStrictEqual("string");
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[3]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[3]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[3]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -247,123 +307,343 @@ describe("Transactions", () => {
 
   describe("/transactions/{transactionHash}", () => {
     beforeAll(async () => {
-      const customToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
+      const customToken = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
       await playbook.transferFailedState(customToken);
     });
 
     //@id1460
     it("Verify the ETH withdrawal to the other address via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthWithdrawOtherAddress);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdrawOtherAddress);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.hash).toBe(txHash);
         expect(response.body.to).toBe("0x000000000000000000000000000000000000800A");
         expect(response.body.from).toBe(Wallets.richWalletAddress);
         expect(response.body.value).toBe("9000000000000");
+        expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1462
     it("Verify the custom token withdrawal via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txERC20Withdraw);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txERC20Withdraw);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.hash).toBe(txHash);
         expect(response.body.from).toBe(Wallets.richWalletAddress);
+        expect(typeof response.body.to).toStrictEqual("string");
+        expect(response.body.value).toBe("0");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1458
     it("Verify the ETH withdrawal via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthWithdraw);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdraw);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.hash).toBe(txHash);
         expect(response.body.to).toBe("0x000000000000000000000000000000000000800A");
         expect(response.body.from).toBe(Wallets.richWalletAddress);
         expect(response.body.value).toBe("9000000000000");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1478
     it("Verify transaction for the ETH via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferETH);
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferETH);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
         expect(response.body).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(response.body.value).toBe("101000000000000000");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1479
     it("Verify transaction for the Custom Token I via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.L2);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenI);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenI);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
-        // expect(response.body).toStrictEqual(expect.objectContaining({ to: contract })) //unstable on CI
+        expect(response.body).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(response.body.value).toBe("0");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1480
     it("Verify transaction for the Custom Token II via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenII);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenII);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
         expect(response.body).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(response.body.value).toBe("0");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1454
     it("Verify the transaction after SetGreeting execution via transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.greeterL2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/transactions/${txHash}?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
         expect(response.body).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body).toStrictEqual(expect.objectContaining({ value: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
+        expect(typeof response.body.from).toStrictEqual("string");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1464:I --> @id1468
     it("Verify transaction for the Root contract via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallRoot);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallRoot);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
@@ -371,15 +651,47 @@ describe("Transactions", () => {
         expect(response.body).toStrictEqual(expect.objectContaining({ value: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
         expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ to: "0x0000000000000000000000000000000000008006" })
+        );
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1465:I --> @id1469
     it("Verify transaction for the Middle contract via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallMiddle);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
@@ -387,15 +699,47 @@ describe("Transactions", () => {
         expect(response.body).toStrictEqual(expect.objectContaining({ value: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
         expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ to: "0x0000000000000000000000000000000000008006" })
+        );
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1466:I --> @id1470
     it("Verify transaction for the Caller contract via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallCaller);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
@@ -403,15 +747,47 @@ describe("Transactions", () => {
         expect(response.body).toStrictEqual(expect.objectContaining({ value: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
         expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ to: "0x0000000000000000000000000000000000008006" })
+        );
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id1471
     it("Verify transaction for the use multicall contract via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txUseMultiCallContracts);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txUseMultiCallContracts);
         apiRoute = `/transactions/${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ hash: txHash }));
@@ -419,22 +795,85 @@ describe("Transactions", () => {
         expect(response.body).toStrictEqual(expect.objectContaining({ value: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
         expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.to).toStrictEqual("string");
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ revertReason: null }));
+        expect(typeof response.body.status).toStrictEqual("string");
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
 
     //@id645
     it("Verify the transactions with failed state via /transactions/{transactionHash}", async () => {
-      await helper.retryTestAction(async () => {
-        token = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.failedState);
+      await helper.runRetriableTestAction(async () => {
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.failedState);
         apiRoute = `/transactions/${txHash}?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.from).toStrictEqual(Wallets.richWalletAddress);
         expect(response.body.to).toStrictEqual(token);
         expect(response.body.hash).toStrictEqual(txHash);
-        expect(response.body.status).toStrictEqual(TransactionsStatus.failed);
+        expect(response.body.status).toStrictEqual(TransactionStatus.failed);
+        expect(response.body).toStrictEqual(expect.objectContaining({ value: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ transactionIndex: 0 }));
+        expect(typeof response.body.data).toStrictEqual("string");
+        expect(typeof response.body.fee).toStrictEqual("string");
+        expect(typeof response.body.nonce).toStrictEqual("number");
+        expect(typeof response.body.gasLimit).toStrictEqual("string");
+        expect(typeof response.body.gasPrice).toStrictEqual("string");
+        expect(typeof response.body.gasPerPubdata).toStrictEqual("string");
+        expect(typeof response.body.maxFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.maxPriorityFeePerGas).toStrictEqual("string");
+        expect(typeof response.body.blockNumber).toStrictEqual("number");
+        expect(response.body.blockNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.l1BatchNumber).toStrictEqual("number");
+        expect(response.body.l1BatchNumber).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.blockHash).toStrictEqual("string");
+        expect(response.body.blockHash.length).toBe(66);
+        expect(typeof response.body.type).toStrictEqual("number");
+        expect(response.body.type).toBeGreaterThanOrEqual(0);
+        expect(typeof response.body.receivedAt).toStrictEqual("string");
+        expect(response.body.receivedAt.length).toBe(24);
+        expect(response.body).toStrictEqual(expect.objectContaining({ error: null }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ revertReason: "ERC20: transfer to the zero address" })
+        );
+        expect(typeof response.body.commitTxHash).toStrictEqual("string");
+        expect(response.body.commitTxHash.length).toBe(66);
+        expect(typeof response.body.executeTxHash).toStrictEqual("string");
+        expect(response.body.executeTxHash.length).toBe(66);
+        expect(typeof response.body.proveTxHash).toStrictEqual("string");
+        expect(response.body.proveTxHash.length).toBe(66);
+        expect(typeof response.body.isL1BatchSealed).toStrictEqual("boolean");
+        expect(typeof response.body.gasUsed).toStrictEqual("string");
       });
     });
   });
@@ -447,28 +886,31 @@ describe("Transactions", () => {
 
     //@id1481
     it("Verify transaction for the ETH via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferETH);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferETH);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -479,9 +921,7 @@ describe("Transactions", () => {
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -489,8 +929,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -498,12 +938,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -511,8 +949,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -525,22 +963,39 @@ describe("Transactions", () => {
 
     //@id1482
     it("Verify transaction for the Custom tokenI via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        token = await helper.getStringFromFile(bufferFile + Buffer.L2);
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenI);
+      await helper.runRetriableTestAction(async () => {
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenI);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
+        expect(response.body.items[0]).toStrictEqual(
+          expect.objectContaining({
+            token: {
+              decimals: 18,
+              iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
+              liquidity: 220000000000,
+              symbol: "ETH",
+              name: "Ether",
+              usdPrice: 1800,
+            },
+          })
+        );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
@@ -561,12 +1016,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -574,8 +1027,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -588,23 +1041,40 @@ describe("Transactions", () => {
 
     //@id1483
     it("Verify transaction for the Custom tokenII via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        const tokenL1 = await helper.getStringFromFile(bufferFile + Buffer.L1);
-        token = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiTransferETH);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiTransferCustomTokenII);
+      await helper.runRetriableTestAction(async () => {
+        const tokenL1 = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L1);
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2deposited);
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenII);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
+        expect(response.body.items[0]).toStrictEqual(
+          expect.objectContaining({
+            token: {
+              decimals: 18,
+              iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
+              liquidity: 220000000000,
+              symbol: "ETH",
+              name: "Ether",
+              usdPrice: 1800,
+            },
+          })
+        );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: contract }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
@@ -625,12 +1095,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -638,8 +1106,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -652,13 +1120,13 @@ describe("Transactions", () => {
 
     //@id1452
     it("Verify transaction through Paymaster via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        const paymasterAddress = await helper.getStringFromFile(bufferFile + Buffer.paymaster);
-        const emptyWallet = await helper.getStringFromFile(bufferFile + Buffer.emptyWalletAddress);
-        token = await helper.getStringFromFile(bufferFile + Buffer.customToken);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.paymasterTx);
+      await helper.runRetriableTestAction(async () => {
+        const paymasterAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymaster);
+        const emptyWallet = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.emptyWalletAddress);
+        token = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.customToken);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.paymasterTx);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: emptyWallet }));
@@ -668,6 +1136,11 @@ describe("Transactions", () => {
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: token }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.transfer }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ERC20" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
@@ -683,11 +1156,9 @@ describe("Transactions", () => {
           })
         );
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: paymasterAddress }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -695,8 +1166,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -704,12 +1175,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ to: paymasterAddress }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[2]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[2]).toStrictEqual(
@@ -717,8 +1186,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -731,11 +1200,11 @@ describe("Transactions", () => {
 
     //@id1455
     it("Verify the transaction after SetGreeting execution via transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/transactions/${txHash}/transfers`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(typeof response.body.items[0].amount).toStrictEqual("string");
@@ -744,19 +1213,18 @@ describe("Transactions", () => {
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -768,22 +1236,20 @@ describe("Transactions", () => {
         expect(typeof response.body.items[1].amount).toStrictEqual("string");
         expect(typeof response.body.items[1].blockNumber).toStrictEqual("number");
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ isInternal: false }));
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -810,28 +1276,31 @@ describe("Transactions", () => {
 
     //@id1472
     it("Verify transaction for the Root contract via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallRoot);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallRoot);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -839,12 +1308,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -852,8 +1319,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -866,28 +1333,31 @@ describe("Transactions", () => {
 
     //@id1473
     it("Verify transaction for the Middle contract via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallMiddle);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -895,12 +1365,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -908,8 +1376,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -922,28 +1390,31 @@ describe("Transactions", () => {
 
     //@id1474
     it("Verify transaction for the Caller contract via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.addressMultiCallRoot);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txMultiCallCaller);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallCaller);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -951,12 +1422,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -964,8 +1433,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -978,27 +1447,30 @@ describe("Transactions", () => {
 
     //@id1475
     it("Verify transaction for the use multicall contract via /transactions/{transactionHash}/transfers", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txUseMultiCallContracts);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txUseMultiCallContracts);
         apiRoute = `/transactions/${txHash}/transfers?page=1&limit=10`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ from: Wallets.richWalletAddress }));
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.ETHER_PULL_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ to: Token.pullAddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[0]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ type: TransactionsType.fee }));
         expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ fields: null }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isInternal: false }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
+        expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
+        expect(typeof response.body.items[0].amount).toStrictEqual("string");
         expect(response.body.items[0]).toStrictEqual(
           expect.objectContaining({
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1006,12 +1478,10 @@ describe("Transactions", () => {
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.ETHER_PULL_Address }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ from: Token.pullAddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ to: Wallets.richWalletAddress }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ transactionHash: txHash }));
-        expect(response.body.items[1]).toStrictEqual(
-          expect.objectContaining({ tokenAddress: Token.ETHER_ERC20_Address })
-        );
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenAddress: Token.ERC20AddressETH }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ type: TransactionsType.refund }));
         expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ fields: null }));
         expect(response.body.items[1]).toStrictEqual(
@@ -1019,8 +1489,8 @@ describe("Transactions", () => {
             token: {
               decimals: 18,
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-              l1Address: Token.ETHER_Address,
-              l2Address: Token.ETHER_ERC20_Address,
+              l1Address: Token.addressETH,
+              l2Address: Token.ERC20AddressETH,
               liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
@@ -1035,15 +1505,15 @@ describe("Transactions", () => {
   describe("/transactions/${txHash}/logs", () => {
     //@id1507
     it("Verify the transaction via /transactions/{transactionHash}/logs", async () => {
-      await helper.retryTestAction(async () => {
-        contract = await helper.getStringFromFile(bufferFile + Buffer.greeterL2);
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.executeGreeterTx);
+      await helper.runRetriableTestAction(async () => {
+        contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.greeterL2);
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.executeGreeterTx);
         apiRoute = `/transactions/${txHash}/logs`;
         const decapitalizedAddress = apiRoute.slice(1).toLowerCase();
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ address: Token.ERC20AddressETH }));
         expect(Array.isArray(response.body.items[0].topics)).toStrictEqual(true);
         expect(typeof response.body.items[0].data).toStrictEqual("string");
         expect(typeof response.body.items[0].blockNumber).toStrictEqual("number");
@@ -1059,7 +1529,7 @@ describe("Transactions", () => {
         expect(typeof response.body.items[1].transactionIndex).toStrictEqual("number");
         expect(typeof response.body.items[1].logIndex).toStrictEqual("number");
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ address: Token.ERC20AddressETH }));
         expect(Array.isArray(response.body.items[2].topics)).toStrictEqual(true);
         expect(typeof response.body.items[2].data).toStrictEqual("string");
         expect(typeof response.body.items[2].blockNumber).toStrictEqual("number");
@@ -1087,9 +1557,9 @@ describe("Transactions", () => {
   describe("/transactions", () => {
     //@id1506
     it("Verify the transaction via /transactions", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/transactions`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(Array.isArray(response.body.items)).toStrictEqual(true);
@@ -1151,10 +1621,10 @@ describe("Transactions", () => {
   describe("/api?module=transaction", () => {
     //@id1697
     it("Verify /api?module=transaction&action=getstatus response", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthTransfer);
         apiRoute = `/api?module=transaction&action=getstatus&txhash=${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -1165,10 +1635,10 @@ describe("Transactions", () => {
 
     //@id1698
     it("Verify /api?module=transaction&action=gettxreceiptstatus response", async () => {
-      await helper.retryTestAction(async () => {
-        txHash = await helper.getStringFromFile(bufferFile + Buffer.txEthTransfer);
+      await helper.runRetriableTestAction(async () => {
+        txHash = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthTransfer);
         apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=${txHash}`;
-        response = await helper.performGETrequest(apiRoute);
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
