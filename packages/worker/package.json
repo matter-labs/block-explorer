@@ -28,8 +28,7 @@
     "migration:generate": "npm run typeorm migration:generate ./src/migrations/$npm_config_name -- -d ./src/typeorm.config.ts",
     "migration:create": "npm run typeorm migration:create ./src/migrations/$npm_config_name",
     "migration:run": "npm run typeorm migration:run -- -d ./src/typeorm.config.ts",
-    "migration:revert": "npm run typeorm migration:revert -- -d ./src/typeorm.config.ts",
-    "migration-script:run": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register ./src/migrationScripts/{migrationFileName}.ts --runInBand"
+    "migration:revert": "npm run typeorm migration:revert -- -d ./src/typeorm.config.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.0",
@@ -109,7 +108,7 @@
       "src/logger.ts",
       "src/typeorm.config.ts",
       "src/migrations",
-      "src/migrationScripts"
+      "src/scriptMigrations"
     ],
     "reporters": [
       "default",
