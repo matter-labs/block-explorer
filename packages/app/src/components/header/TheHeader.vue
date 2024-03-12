@@ -53,7 +53,7 @@
       class="hero-banner-container"
       :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
     >
-      <hero-arrows class="hero-image" />
+      <!-- <hero-arrows class="hero-image" /> -->
     </div>
     <transition
       enter-active-class="duration-200 ease-out"
@@ -299,7 +299,9 @@ const hasContent = computed(() => {
     }
   }
   .hero-banner-container {
-    @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-primary-900;
+    @apply absolute left-0 top-0 flex h-[20rem] w-full items-end justify-end overflow-hidden bg-primary-900;
+
+    background: url(/images/banner-bg.png) center / cover no-repeat;
 
     &.goerli {
       @apply h-[25rem] md:h-[23rem] lg:h-[19rem];
@@ -310,10 +312,10 @@ const hasContent = computed(() => {
     }
   }
   .home-banner {
-    @apply h-80;
+    @apply h-[25rem];
 
     &.goerli {
-      @apply h-[30rem] md:h-[27rem] lg:h-[24rem];
+      @apply h-[30rem] md:h-[27rem] lg:h-[29rem];
     }
   }
 }

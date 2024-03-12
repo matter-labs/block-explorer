@@ -1,0 +1,4 @@
+{
+  "i18n-ally.localesPaths": ["src/locales"],
+  "prettier.tabWidth": 4
+}
