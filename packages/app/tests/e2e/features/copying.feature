@@ -33,7 +33,7 @@ Feature: Copying
       | To                  | 0x0faF6df7054946141266420b43783387A78d82A9                         |
       | Input data          | 0xa9059cbb0000000000000000000000000faf6df7054946141266420b43783387a78d82a90000000000000000000000000000000000000000000000000000000000989680 |
 
-  @id239 @mainnet
+  @id239 @mainnet 
   Scenario Outline: Check "<Row>" hashes copying for Transaction page
     Given I go to page "/tx/0x97e3d593e03e764df14e352e73ba6af487faf8d04bd65a1fd3d55208b6e0d972"
     When I click on the copy button with "<Row>" row on "Transaction" page
@@ -47,7 +47,7 @@ Feature: Copying
       | To                  | 0xA0924Cc8792836F48D94759c76D32986BC74B54c                         |
       | Input data          | 0x2e4dbe8f000000000000000000000000000000000000000000000000000000000001bc45000000000000000000000000d613effb65b11e301f1338f71013b390985380300000000000000000000000000000000000000000000000000000000008116e2b000000000000000000000000000000000000000000000000000000000001bc4500000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000004123131c5b6401f42c98f7e84ae00ef577fa5e580f313a83a135c8fc893103ec884bc0bbd4b5d3ef32ec774eb20529ffebb7aae5d250d2568cff65e5ac412f99f21c00000000000000000000000000000000000000000000000000000000000000 |
 
-  @id257 @testnet
+  @id257 @testnet 
   Scenario Outline: Check "<Row>" hashes copying for Logs tab on Transaction page
     Given I go to page "/tx/0xe7a91cc9b270d062328ef995e0ef67195a3703d43ce4e1d375f87d5c64e51981"
     And I select "Logs" tab on "Transaction" page
@@ -111,7 +111,7 @@ Feature: Copying
       | Text |
       | 0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869207468657265210000000000000000000000000000000000000000000000 |
 
-  @id266:I @testnet
+  @id266:I @testnet 
   Scenario Outline: Check "<Row>" hashes copying on Block page
     Given I go to page "/block/1"
     When I click on the copy button with "<Row>" row on "Block" page
@@ -125,7 +125,7 @@ Feature: Copying
       | Prove tx hash   | 0xfbd3a89cee83e4f28999bc8fd5e96d133b7ebc367d5c7026f173d21687998379 |
       | Execute tx hash | 0x5131c1bb47dca3d42ccdfd12d1ab7224cbb88fb9ad91b94e2da26631602f6fab |
 
-  @id266:III @mainnet
+  @id266:III @mainnet 
   Scenario Outline: Check "<Row>" hashes copying on Block page
     Given I go to page "/block/1"
     When I click on the copy button with "<Row>" row on "Block" page
