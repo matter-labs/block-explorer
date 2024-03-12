@@ -83,3 +83,7 @@ export enum BlockExplorer {
   baseUrl = "http://localhost:3010",
   localNetwork = "/?network=local",
 }
+
+export enum Values {
+  txSumETH = "0.000009",
+}
