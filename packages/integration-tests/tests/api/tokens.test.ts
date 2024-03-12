@@ -114,8 +114,8 @@ describe("Tokens", () => {
 
       //id1907
       it("Verify /api?module=token&action=tokeninfo response", async () => {
-        await helper.retryTestAction(async () => {
-          apiRoute = `/api?module=token&action=tokeninfo&contractaddress=${Token.ETHER_ERC20_Address}`;
+        await helper.runRetriableTestAction(async () => {
+          apiRoute = `/api?module=token&action=tokeninfo&contractaddress=${Token.ERC20AddressETH}`;
           response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
           expect(response.status).toBe(200);

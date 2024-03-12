@@ -1,5 +1,6 @@
 import { localConfig } from "../../src/config";
 import { Buffer, Path, Wallets } from "../../src/constants";
+import { Contracts } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -23,7 +24,7 @@ describe("API module: Contract", () => {
 
     //id1851 @Sepolia
     it("Verify /api?module=contract&action=checkverifystatus response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=contract&action=checkverifystatus&guid=3177`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute, "sepolia");
 
@@ -36,7 +37,7 @@ describe("API module: Contract", () => {
 
     //id1695 @Sepolia
     it("Verify /api?module=contract&action=getabi response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=contract&action=getabi&address=${Contracts.greeterContractSepolia}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute, "sepolia");
 
@@ -49,7 +50,7 @@ describe("API module: Contract", () => {
 
     //id1802 @Sepolia
     it("Verify /api?module=contract&action=getsourcecode response", async () => {
-      await helper.retryTestAction(async () => {
+      await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=contract&action=getsourcecode&address=${Contracts.greeterContractSepolia}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute, "sepolia");
 

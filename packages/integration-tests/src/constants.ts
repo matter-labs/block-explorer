@@ -83,3 +83,7 @@ export enum BlockExplorer {
   baseUrl = "http://localhost:3010",
   localNetwork = "/?network=local",
 }
+
+export enum Contracts {
+  greeterContractSepolia = "0x9c6D777A35D127f17eB28B75F80Bb7486118FbE0",
+}
