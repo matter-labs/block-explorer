@@ -1,8 +1,8 @@
 {
   "name": "app",
   "version": "0.0.0",
-  "title": "zkSync Era Block Explorer App",
-  "description": "zkSync Era Block Explorer App",
+  "title": "ZuluPrime Block Explorer App",
+  "description": "ZuluPrime Block Explorer App",
   "author": "Matter Labs",
   "private": true,
   "license": "MIT",
