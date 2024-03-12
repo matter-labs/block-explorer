@@ -24,7 +24,7 @@ export class Helper {
 
   async executeScript(script: string) {
     return new Promise((resolve, reject) => {
-      exec(script, { encoding: "utf-8" }, (error, stdout) => {
+      exec(script, { encoding: "utf-8" }, (error, stdout, stderr) => {
         if (error) {
           console.error(`Error executing script "${script}":`, error);
           console.error(`stderr executing script "${script}":`, stderr);
