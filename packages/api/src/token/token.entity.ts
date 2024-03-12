@@ -1,6 +1,8 @@
 import { Entity, Column, PrimaryColumn, Index } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
+import config from "../config/index";
+const { baseTokenData } = config();
 export enum TokenType {
   BaseToken = "BASETOKEN",
   ERC20 = "ERC20",
@@ -10,7 +12,7 @@ export enum TokenType {
 export const baseToken = async () => {
   // TODO: Properly do and remove this,
   // this is still here to avoid compilation issues.
-  return { l2Address: "0x1" };
+  return baseTokenData;
 };
 @Entity({ name: "tokens" })
 @Index(["liquidity", "blockNumber", "logIndex"])

@@ -1,6 +1,6 @@
 import { Controller, Get, Query, Logger, UseFilters, ParseArrayPipe, BadRequestException } from "@nestjs/common";
 import { ApiTags, ApiExcludeController } from "@nestjs/swagger";
-import { BASE_TOKEN_ADDRESS } from "../../common/constants";
+import { BASE_TOKEN_L2_ADDRESS } from "../../common/constants";
 import { TokenType } from "../../token/token.entity";
 import { dateToTimestamp } from "../../common/utils";
 import { BlockService } from "../../block/block.service";
@@ -176,7 +176,7 @@ export class AccountController {
   public async getAccountEtherBalance(
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<AccountEtherBalanceResponseDto> {
-    const balance = await this.balanceService.getBalance(address, BASE_TOKEN_ADDRESS);
+    const balance = await this.balanceService.getBalance(address, BASE_TOKEN_L2_ADDRESS);
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
@@ -201,7 +201,7 @@ export class AccountController {
     if (uniqueAddresses.length > 20) {
       throw new BadRequestException("Maximum 20 addresses per request");
     }
-    const balances = await this.balanceService.getBalancesByAddresses(addresses, BASE_TOKEN_ADDRESS);
+    const balances = await this.balanceService.getBalancesByAddresses(addresses, BASE_TOKEN_L2_ADDRESS);
     const result = addresses.map((address) => ({
       account: address,
       balance: balances.find((balance) => balance.address.toLowerCase() === address.toLowerCase())?.balance || "0",

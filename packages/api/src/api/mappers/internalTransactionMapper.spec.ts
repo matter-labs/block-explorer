@@ -1,6 +1,6 @@
 import { Transfer } from "../../transfer/transfer.entity";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { BASE_TOKEN_ADDRESS } from "../../common/constants";
+import { BASE_TOKEN_L2_ADDRESS } from "../../common/constants";
 import { mapInternalTransactionListItem } from "./internalTransactionMapper";
 
 describe("internalTransactionMapper", () => {
@@ -11,7 +11,7 @@ describe("internalTransactionMapper", () => {
     from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
     to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
     amount: "1000000",
-    tokenAddress: BASE_TOKEN_ADDRESS,
+    tokenAddress: BASE_TOKEN_L2_ADDRESS,
     transaction: {
       blockNumber: 20,
       receivedAt: new Date("2023-01-01"),
