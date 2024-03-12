@@ -106,9 +106,7 @@ test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) =>
 
 //@id1683
 test("Check on BE contract that makes multiple transfers based on stored/retrieved ETH + ERC20", async ({ page }) => {
-  //contract address
   contract = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH);
-  //tx hash from deployed contract
   const txAddress = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferETH);
   url = BlockExplorer.baseUrl + `/address/${contract}` + BlockExplorer.localNetwork;
 
@@ -120,8 +118,8 @@ test("Check on BE contract that makes multiple transfers based on stored/retriev
   selector = `text=${txAddress}`;
   elementContract = await page.locator(selector).first();
 
-  //Check contract address
+  //Check contract Address
   await expect(element).toBeVisible(config.extraTimeout);
-  //Check tx hash
+  //Check tx Hash
   await expect(element).toBeVisible(config.extraTimeout);
 });
