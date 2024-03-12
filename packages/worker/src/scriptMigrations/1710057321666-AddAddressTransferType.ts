@@ -3,7 +3,6 @@ import { Logger } from "@nestjs/common";
 import { setTimeout } from "timers/promises";
 import { ScriptMigrationRunner } from "../utils/runScriptMigrations";
 import { ScriptMigrationRepository } from "../repositories/scriptMigration.repository";
-import { ScriptMigrationStatus } from "../entities/scriptMigration.entity";
 
 const QUERY_MAX_RETRIES = 5;
 const QUERY_RETRY_MIN_INTERVAL_MS = 1000;

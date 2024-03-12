@@ -11,7 +11,13 @@ export class AddAddressTransferType1709722093204 implements MigrationInterface {
       `ALTER TABLE "addressTransfers" ADD "type" "public"."addressTransfers_type_enum" NOT NULL DEFAULT 'transfer'`
     );
     await queryRunner.query(
-      `CREATE INDEX "IDX_aa5a147f1f6a4acde1a13de594" ON "addressTransfers" ("address", "type", "timestamp", "logIndex") `
+      `CREATE INDEX "IDX_aa5a147f1f6a4acde1a13de594" ON "addressTransfers" ("address", "type", "timestamp", "logIndex" DESC) `
+    );
+    await queryRunner.query(
+      `UPDATE "addressTransfers" Set "type" = "transfers".type::VARCHAR::"addressTransfers_type_enum"
+        FROM "transfers"
+        WHERE "transfers"."number" = "addressTransfers"."transferNumber"
+        AND "transfers"."type" != 'transfer'`
     );
   }
 
