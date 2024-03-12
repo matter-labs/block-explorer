@@ -12,14 +12,11 @@ class AddAddressTransferType1710057321666 implements ScriptMigrationRunner {
   public readonly name = "AddAddressTransferType1710057321666";
 
   public async run(scriptMigrationRepository: ScriptMigrationRepository, dataSource: DataSource, logger: Logger) {
-    const migration = await scriptMigrationRepository.findOneBy({
+    const scriptMigration = await scriptMigrationRepository.findOneBy({
       name: this.name,
     });
-    if (migration.status !== ScriptMigrationStatus.Pending) {
-      await scriptMigrationRepository.update({ number: migration.number }, { status: ScriptMigrationStatus.Pending });
-    }
 
-    const params = migration.params || {};
+    const params = scriptMigration.params || {};
     const fromTransferNumber = Number(params.fromTransferNumber) || 0;
     let toTransferNumber = Number(params.toTransferNumber) || 0;
     const updateBatchSize = Number(params.updateBatchSize) || 4000;
@@ -57,11 +54,13 @@ class AddAddressTransferType1710057321666 implements ScriptMigrationRunner {
         }. Time: ${new Date().toJSON()}.`
       );
       await scriptMigrationRepository.update(
-        { number: migration.number },
+        { number: scriptMigration.number },
         {
           params: {
             fromTransferNumber: (cursor + parallelWorkers * updateBatchSize).toString(),
             toTransferNumber: toTransferNumber.toString(),
+            updateBatchSize: updateBatchSize.toString(),
+            parallelWorkers: parallelWorkers.toString(),
           },
         }
       );
