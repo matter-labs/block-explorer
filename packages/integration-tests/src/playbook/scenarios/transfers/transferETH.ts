@@ -2,10 +2,10 @@ import * as ethers from "ethers";
 import * as zksync from "zksync-web3";
 
 import { localConfig } from "../../../config";
-import { Buffer, Logger, Path, Wallets } from "../../../constants";
+import { Buffer, Logger, Path, Values, Wallets } from "../../../constants";
 import { Helper } from "../../../helper";
 
-export const transferEth = async function (sum = "0.000009", address: string = Wallets.mainWalletPrivateKey) {
+export const transferEth = async function (sum = Values.txSumETH, address: string = Wallets.mainWalletPrivateKey) {
   const helper = new Helper();
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);

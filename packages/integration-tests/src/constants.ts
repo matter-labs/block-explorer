@@ -87,3 +87,9 @@ export enum BlockExplorer {
 export enum Values {
   txSumETH = "0.000009",
 }
+
+/*
+const txSumETH = "0.000009";
+export const Values = {
+  txSumETH: txSumETH,
+};*/
