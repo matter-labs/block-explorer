@@ -1,11 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 import { config } from "./config";
-import { BlockExplorer, Buffer, Wallets, Path, Values } from "../../src/constants";
+import { BlockExplorer, Buffer, Path, Values, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
+
 import type { Locator } from "@playwright/test";
 
-const bufferRoute = "src/playbook/";
 const helper = new Helper();
 let url: string;
 let withdrawTxHash: string;
