@@ -113,13 +113,13 @@ test("Check on BE contract that makes multiple transfers based on stored/retriev
   await page.goto(url);
 
   selector = `text=${contract}`;
-  element = await page.locator(selector).first();
-
-  selector = `text=${txAddress}`;
   elementContract = await page.locator(selector).first();
 
+  selector = `text=${txAddress}`;
+  element = await page.locator(selector).first();
+
   //Check contract Address
-  await expect(element).toBeVisible(config.extraTimeout);
+  await expect(elementContract).toBeVisible(config.extraTimeout);
   //Check tx Hash
   await expect(element).toBeVisible(config.extraTimeout);
 });
