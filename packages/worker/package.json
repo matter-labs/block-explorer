@@ -28,7 +28,8 @@
     "migration:generate": "npm run typeorm migration:generate ./src/migrations/$npm_config_name -- -d ./src/typeorm.config.ts",
     "migration:create": "npm run typeorm migration:create ./src/migrations/$npm_config_name",
     "migration:run": "npm run typeorm migration:run -- -d ./src/typeorm.config.ts",
-    "migration:revert": "npm run typeorm migration:revert -- -d ./src/typeorm.config.ts"
+    "migration:revert": "npm run typeorm migration:revert -- -d ./src/typeorm.config.ts",
+    "script-migrations:run": "ts-node ./scripts/run-script-migrations.ts"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.0",

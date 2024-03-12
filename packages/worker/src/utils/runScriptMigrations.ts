@@ -2,30 +2,24 @@ import { DataSource, Not, Equal, And } from "typeorm";
 import { Logger } from "@nestjs/common";
 import { readdir } from "fs/promises";
 import * as path from "path";
-import { ScriptMigrationRepository } from "../repositories/scriptMigration.repository";
-import { ScriptMigrationStatus } from "../entities/scriptMigration.entity";
+import { ScriptMigration, ScriptMigrationStatus } from "../entities/scriptMigration.entity";
 
-const GET_LATEST_MIGRATION_SQL = `SELECT * FROM migrations ORDER BY timestamp DESC limit 1`;
+const GET_LATEST_MIGRATION_SQL = `SELECT timestamp FROM migrations ORDER BY timestamp DESC limit 1`;
 
 export interface ScriptMigrationRunner {
   name: string;
-  run: (scriptMigrationRepository: ScriptMigrationRepository, dataSource: DataSource, logger: Logger) => Promise<void>;
+  run: (dataSource: DataSource, logger: Logger) => Promise<void>;
 }
 
-export default async (scriptMigrationRepository: ScriptMigrationRepository, dataSource: DataSource, logger: Logger) => {
+export default async (dataSource: DataSource, logger: Logger) => {
   const latestMigration = (await dataSource.query(GET_LATEST_MIGRATION_SQL))[0];
-  await addScriptMigrationsToDB(scriptMigrationRepository, logger, Number(latestMigration?.timestamp || 0));
-  await runScriptMigrations(scriptMigrationRepository, dataSource, logger, Number(latestMigration?.timestamp || 0));
+  await addScriptMigrationsToDB(dataSource, logger, Number(latestMigration?.timestamp || 0));
+  await runScriptMigrations(dataSource, logger, Number(latestMigration?.timestamp || 0));
 };
 
-const runScriptMigrations = async (
-  scriptMigrationRepository: ScriptMigrationRepository,
-  dataSource: DataSource,
-  logger: Logger,
-  latestDBMigrationTimestamp: number
-) => {
+const runScriptMigrations = async (dataSource: DataSource, logger: Logger, latestDBMigrationTimestamp: number) => {
   try {
-    const scriptMigrationsToRun = await scriptMigrationRepository.find({
+    const scriptMigrationsToRun = await dataSource.manager.find(ScriptMigration, {
       where: {
         status: And(Not(Equal(ScriptMigrationStatus.Completed)), Not(Equal(ScriptMigrationStatus.Outdated))),
       },
@@ -35,13 +29,15 @@ const runScriptMigrations = async (
     });
 
     if (!scriptMigrationsToRun.length) {
+      logger.log(`No script migrations to run`);
       return;
     }
 
     for (const scriptMigration of scriptMigrationsToRun) {
       if (latestDBMigrationTimestamp > scriptMigration.timestamp) {
         // skip script migration if there are already newer regular DB migrations executed as it might be outdated and impossible to execute
-        await scriptMigrationRepository.update(
+        await dataSource.manager.update(
+          ScriptMigration,
           { number: scriptMigration.number },
           { status: ScriptMigrationStatus.Outdated }
         );
@@ -52,26 +48,30 @@ const runScriptMigrations = async (
       try {
         logger.log(`Starting script migration ${scriptMigration.name}`);
         if (scriptMigration.status !== ScriptMigrationStatus.Pending) {
-          await scriptMigrationRepository.update(
+          await dataSource.manager.update(
+            ScriptMigration,
             { number: scriptMigration.number },
             { status: ScriptMigrationStatus.Pending }
           );
         }
-        await migrationRunner.run(scriptMigrationRepository, dataSource, logger);
+        await migrationRunner.run(dataSource, logger);
         logger.log(`Script migration ${scriptMigration.name} completed`);
-        await scriptMigrationRepository.update(
+        await dataSource.manager.update(
+          ScriptMigration,
           { number: scriptMigration.number },
           { status: ScriptMigrationStatus.Completed }
         );
       } catch (error) {
         logger.error(`Script migration ${scriptMigration.name} failed`);
-        await scriptMigrationRepository.update(
+        await dataSource.manager.update(
+          ScriptMigration,
           { number: scriptMigration.number },
           { status: ScriptMigrationStatus.Failed }
         );
         throw error;
       }
     }
+    logger.log(`Completed script migrations`);
   } catch (error) {
     logger.error({
       message: "Failed to execute script migrations",
@@ -80,11 +80,7 @@ const runScriptMigrations = async (
   }
 };
 
-const addScriptMigrationsToDB = async (
-  scriptMigrationRepository: ScriptMigrationRepository,
-  logger: Logger,
-  latestDBMigrationTimestamp: number
-) => {
+const addScriptMigrationsToDB = async (dataSource: DataSource, logger: Logger, latestDBMigrationTimestamp: number) => {
   try {
     let scriptMigrationFileNames = await readdir(path.join(__dirname, "../scriptMigrations"), "utf-8");
     scriptMigrationFileNames = scriptMigrationFileNames
@@ -102,11 +98,11 @@ const addScriptMigrationsToDB = async (
         // skip script migration if there are already newer regular DB migrations executed as it might be outdated and impossible to execute
         continue;
       }
-      const existingScriptMigration = await scriptMigrationRepository.findOneBy({
+      const existingScriptMigration = await dataSource.manager.findOneBy(ScriptMigration, {
         name: scriptMigrationName,
       });
       if (!existingScriptMigration) {
-        await scriptMigrationRepository.add({
+        await dataSource.manager.insert(ScriptMigration, {
           name: scriptMigrationName,
           timestamp: scriptMigrationTimestamp,
         });

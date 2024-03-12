@@ -2,7 +2,7 @@ import { DataSource } from "typeorm";
 import { Logger } from "@nestjs/common";
 import { setTimeout } from "timers/promises";
 import { ScriptMigrationRunner } from "../utils/runScriptMigrations";
-import { ScriptMigrationRepository } from "../repositories/scriptMigration.repository";
+import { ScriptMigration } from "../entities";
 
 const QUERY_MAX_RETRIES = 5;
 const QUERY_RETRY_MIN_INTERVAL_MS = 1000;
@@ -10,8 +10,8 @@ const QUERY_RETRY_MIN_INTERVAL_MS = 1000;
 class AddAddressTransferType1710057321666 implements ScriptMigrationRunner {
   public readonly name = "AddAddressTransferType1710057321666";
 
-  public async run(scriptMigrationRepository: ScriptMigrationRepository, dataSource: DataSource, logger: Logger) {
-    const scriptMigration = await scriptMigrationRepository.findOneBy({
+  public async run(dataSource: DataSource, logger: Logger) {
+    const scriptMigration = await dataSource.manager.findOneBy(ScriptMigration, {
       name: this.name,
     });
 
@@ -52,8 +52,11 @@ class AddAddressTransferType1710057321666 implements ScriptMigrationRunner {
           cursor + parallelWorkers * updateBatchSize
         }. Time: ${new Date().toJSON()}.`
       );
-      await scriptMigrationRepository.update(
-        { number: scriptMigration.number },
+      await dataSource.manager.update(
+        ScriptMigration,
+        {
+          number: scriptMigration.number,
+        },
         {
           params: {
             fromTransferNumber: (cursor + parallelWorkers * updateBatchSize).toString(),
