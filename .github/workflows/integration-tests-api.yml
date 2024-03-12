@@ -11,7 +11,7 @@ jobs:
       checks: write
     strategy:
       matrix:
-        node-version: ['lts/*'] # 18.17.1 or lts/* 
+        node-version: ['lts/*'] # 18.17.1 or lts/*
         test-pattern:
           - accounts.test.ts
           - addresses.test.ts
@@ -47,7 +47,7 @@ jobs:
 
       - name: Start docker containers
         run: |
-          docker-compose -f "docker-compose.yaml" up -d --build
+          docker-compose -f "docker-compose-api-integration.yaml" up -d --build
       - name: List running containers
         run: docker ps
 
@@ -58,4 +58,4 @@ jobs:
       - name: Stop containers
         if: always()
         run: |
-          docker-compose -f "docker-compose.yaml" down
+          docker-compose -f "docker-compose-api-integration.yaml" down
