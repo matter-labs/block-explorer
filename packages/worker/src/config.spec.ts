@@ -59,6 +59,9 @@ describe("config", () => {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,
       },
+      scriptMigrations: {
+        enabled: false,
+      },
     });
   });
 });
