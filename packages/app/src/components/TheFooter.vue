@@ -6,8 +6,8 @@
           {{ item.label }}
         </a>
       </div>
-      <div class="version-text-container">
-        <p>{{ config.version }}</p>
+      <div class="version-text-container text-sm">
+        <p>&copy; 2024 Zulu Network All Rights Reserved</p>
       </div>
     </div>
   </footer>

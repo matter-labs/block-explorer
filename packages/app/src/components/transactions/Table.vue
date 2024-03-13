@@ -39,8 +39,10 @@
       >
         <Badge :color="item.statusColor" :data-testid="$testId.statusBadge">
           <template #default>
-            {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status
-            }}<component :is="item.statusIcon" />
+            <div class="inline-flex h-5 items-center">
+              {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status }}
+            </div>
+            <component :is="item.statusIcon" />
           </template>
         </Badge>
       </TableBodyColumn>
@@ -297,6 +299,7 @@ type TransactionListItemMapped = TransactionListItem & {
   statusColor: "danger" | "dark-success";
 };
 
+// @todo: support for bitcoin verify
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
   return data.value?.map((transaction) => ({
     ...transaction,
@@ -304,7 +307,7 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
     fromNetwork: transaction.isL1Originated ? "L1" : "L2",
     toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
     statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-    statusIcon: ["failed", "included"].includes(transaction.status) ? ZuluIcon : EthereumIcon,
+    statusIcon: ["failed", "included"].includes(transaction.status) ? ZuluIcon : "span",
   }));
 });
 

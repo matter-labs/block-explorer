@@ -1,7 +1,7 @@
 {
   "general": {
-    "l2NetworkName": "zkSync Era",
-    "l1NetworkName": "Ethereum"
+    "l2NetworkName": "Zulu Network",
+    "l1NetworkName": "Bitcoin"
   },
   "copyButton": {
     "tooltip": "Copied!"
@@ -182,9 +182,9 @@
     },
     "status": {
       "included": "Processed on",
-      "committed": "Sent on",
-      "proved": "Validated on",
-      "verified": "Executed on",
+      "committed": "Sent",
+      "proved": "Validated",
+      "verified": "Executed",
       "failed": "Failed on"
     },
     "statusComponent": {
@@ -273,7 +273,7 @@
     },
     "tooltipInfo": "Latest batches submitted to Ethereum Network",
     "status": {
-      "verified": "Executed on",
+      "verified": "Executed",
       "sealed": "Processed on",
       "failed": "Failed"
     }

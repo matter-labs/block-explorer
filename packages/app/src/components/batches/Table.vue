@@ -18,8 +18,10 @@
         <div class="status-badge-container">
           <Badge color="dark-success" :data-testid="$testId.statusBadge">
             <template #default>
-              {{ te(`batches.status.${item.status}`) ? t(`batches.status.${item.status}`) : item.status
-              }}<component :is="getBadgeIconByStatus(item.status)" />
+              <div class="inline-flex h-5 items-center">
+                {{ te(`batches.status.${item.status}`) ? t(`batches.status.${item.status}`) : item.status }}
+              </div>
+              <component :is="getBadgeIconByStatus(item.status)" />
             </template>
           </Badge>
         </div>
@@ -92,7 +94,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
   if (status === "sealed") {
     return ZuluIcon;
   }
-  return EthereumIcon;
+  return "span";
 }
 </script>
 
