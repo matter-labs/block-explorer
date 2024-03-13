@@ -7,7 +7,7 @@ import { BlockchainService } from "../blockchain/blockchain.service";
 import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
 import parseLog from "../utils/parseLog";
-import { CONTRACT_INTERFACES } from "../constants";
+import { CONTRACT_INTERFACES, BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
 
 export interface Token {
   l2Address: string;
@@ -109,8 +109,8 @@ export class TokenService {
           l2Address: contractAddress.address,
           logIndex: contractAddress.logIndex,
           // add L1 address for ETH token
-          ...(contractAddress.address.toLowerCase() === utils.BASE_TOKEN_ADDRESS && {
-            l1Address: utils.ETH_ADDRESS,
+          ...(contractAddress.address.toLowerCase() === BASE_TOKEN_ADDRESS && {
+            l1Address: ETH_L1_ADDRESS,
           }),
         };
       }

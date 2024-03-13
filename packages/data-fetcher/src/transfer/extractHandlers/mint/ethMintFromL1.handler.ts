@@ -21,7 +21,7 @@ export const ethMintFromL1Handler: ExtractTransferHandler = {
       transactionHash: log.transactionHash,
       blockNumber: log.blockNumber,
       amount: parsedLog.args.amount,
-      tokenAddress: utils.BASE_TOKEN_ADDRESS,
+      tokenAddress: BASE_TOKEN_ADDRESS,
       type: TransferType.Deposit,
       tokenType: TokenType.BaseToken,
       isFeeOrRefund: false,

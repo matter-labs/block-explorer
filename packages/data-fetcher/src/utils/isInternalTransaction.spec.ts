@@ -2,7 +2,7 @@ import { types, utils } from "zksync-web3";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { TransferType } from "../transfer/transfer.service";
 import isInternalTransaction from "./isInternalTransaction";
-
+import { BASE_TOKEN_ADDRESS } from "../../src/constants";
 describe("isInternalTransaction", () => {
   it("returns false when transfer type is not transfer", () => {
     expect(isInternalTransaction({ type: TransferType.Deposit } as Transfer)).toBeFalsy();
@@ -19,7 +19,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.BASE_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "FROM",
           to: "to",
         } as Transfer,
@@ -36,7 +36,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.BASE_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "from1",
           to: "to",
         } as Transfer,
@@ -53,7 +53,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.BASE_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "from",
           to: "to1",
         } as Transfer,
@@ -70,7 +70,7 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.BASE_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "from1",
           to: "to1",
         } as Transfer,
@@ -86,7 +86,7 @@ describe("isInternalTransaction", () => {
     expect(
       isInternalTransaction({
         type: TransferType.Transfer,
-        tokenAddress: utils.BASE_TOKEN_ADDRESS,
+        tokenAddress: BASE_TOKEN_ADDRESS,
         from: "from",
         to: "to1",
       } as Transfer)

@@ -104,7 +104,6 @@ describe("TransferService", () => {
     describe("eth", () => {
       describe("deposit with no fee", () => {
         const txReceipt = toTxReceipt(ethDepositNoFee);
-
         it("returns proper transfers", async () => {
           const expectedTransfers = [
             {

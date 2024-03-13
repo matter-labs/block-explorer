@@ -2364,21 +2364,25 @@ describe("BlockchainService", () => {
     let bridgeAddresses;
     beforeEach(() => {
       bridgeAddresses = {
-        erc20L1: "l1Erc20DefaultBridge",
-        erc20L2: "l2Erc20DefaultBridge",
+        l1SharedDefaultBridge: "l1erc20defaultbridge",
+        l2SharedDefaultBridge: "l2erc20defaultbridge",
       };
 
-      jest.spyOn(provider, "getDefaultBridgeAddresses").mockResolvedValueOnce(bridgeAddresses);
+      jest.spyOn(provider, "send").mockResolvedValueOnce(bridgeAddresses);
     });
 
     it("inits L2 ERC20 bridge address", async () => {
       await blockchainService.onModuleInit();
-      expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(bridgeAddresses.erc20L2.toLowerCase());
+      expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(
+        bridgeAddresses.l2SharedDefaultBridge.toLowerCase()
+      );
     });
 
     it("inits L1 ERC20 bridge address", async () => {
       await blockchainService.onModuleInit();
-      expect(blockchainService.bridgeAddresses.l1Erc20DefaultBridge).toBe(bridgeAddresses.erc20L1.toLowerCase());
+      expect(blockchainService.bridgeAddresses.l1Erc20DefaultBridge).toBe(
+        bridgeAddresses.l1SharedDefaultBridge.toLowerCase()
+      );
     });
   });
 });
