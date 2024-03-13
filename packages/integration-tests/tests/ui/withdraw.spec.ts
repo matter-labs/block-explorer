@@ -1,6 +1,5 @@
 import { expect, test } from "@playwright/test";
 
-import { config } from "./config";
 import { BlockExplorer, Buffer, Path, Values, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 
@@ -27,10 +26,10 @@ test("Check Withdraw ETH transaction on BE", async ({ page }) => {
     .first();
   ethValue = await page.locator(`text=${Values.txSumETH}`).first();
 
-  await expect(hash).toBeVisible(config.defaultTimeout);
-  await expect(ethValue).toBeVisible(config.defaultTimeout);
-  await expect(initiatorAddressElement).toBeVisible(config.defaultTimeout);
-  await expect(toAddressElement).toBeVisible(config.defaultTimeout);
+  await expect(hash).toBeVisible();
+  await expect(ethValue).toBeVisible();
+  await expect(initiatorAddressElement).toBeVisible();
+  await expect(toAddressElement).toBeVisible();
 });
 
 //@id1686
@@ -48,10 +47,10 @@ test("Verify the ETH withdrawal to the other address", async ({ page }) => {
     .first();
   ethValue = await page.locator(`text=${Values.txSumETH}`).first();
 
-  await expect(hash).toBeVisible(config.defaultTimeout);
-  await expect(ethValue).toBeVisible(config.defaultTimeout);
-  await expect(initiatorAddressElement).toBeVisible(config.defaultTimeout);
-  await expect(toAddressElement).toBeVisible(config.defaultTimeout);
+  await expect(hash).toBeVisible();
+  await expect(ethValue).toBeVisible();
+  await expect(initiatorAddressElement).toBeVisible();
+  await expect(toAddressElement).toBeVisible();
 });
 
 //@id1685
@@ -69,10 +68,10 @@ test("Check on BE Withdraw the custom ERC-20 via Portal", async ({ page }) => {
     .first();
   erc20Value = await page.locator(`//*[text()="0x36615Cf349d...c049"]/..//..//*[text()="0.2"]`).first();
 
-  await expect(hash).toBeVisible(config.defaultTimeout);
-  await expect(erc20Value).toBeVisible(config.defaultTimeout);
-  await expect(initiatorAddressElement).toBeVisible(config.defaultTimeout);
-  await expect(toAddressElement).toBeVisible(config.defaultTimeout);
+  await expect(hash).toBeVisible();
+  await expect(erc20Value).toBeVisible();
+  await expect(initiatorAddressElement).toBeVisible();
+  await expect(toAddressElement).toBeVisible();
 });
 
 //@id1664
@@ -90,8 +89,8 @@ test("Check Withdraw transaction on BE for custom ERC-20 token to a different ad
     .first();
   erc20Value = await page.locator(`//*[text()="0x586607935E1...8975"]/..//..//*[text()="0.2"]`).first();
 
-  await expect(hash).toBeVisible(config.defaultTimeout);
-  await expect(erc20Value).toBeVisible(config.defaultTimeout);
-  await expect(initiatorAddressElement).toBeVisible(config.defaultTimeout);
-  await expect(toAddressElement).toBeVisible(config.defaultTimeout);
+  await expect(hash).toBeVisible();
+  await expect(erc20Value).toBeVisible();
+  await expect(initiatorAddressElement).toBeVisible();
+  await expect(toAddressElement).toBeVisible();
 });
