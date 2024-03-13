@@ -33,7 +33,7 @@ const navigation = reactive([
   },
   {
     label: computed(() => t("footer.nav.contact")),
-    url: "https://zulunetwork.io",
+    url: "https://docs.zulunetwork.io/support-and-community/join-the-community",
   },
 ]);
 </script>
