@@ -1,10 +1,11 @@
 import { BigNumber } from "ethers";
-import { types, utils } from "zksync-web3";
+import { types } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { defaultWithdrawalInitiatedHandler } from "./default.handler";
+import { BASE_TOKEN_ADDRESS } from "../../../../src/constants";
 
 describe("defaultWithdrawalInitiatedHandler", () => {
   let log: types.Log;
@@ -66,7 +67,7 @@ describe("defaultWithdrawalInitiatedHandler", () => {
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as a tokenAddress if l2Token is 0x0000000000000000000000000000000000000000", () => {
       log.topics[3] = ZERO_HASH_64;
       const result = defaultWithdrawalInitiatedHandler.extract(log, blockDetails);
-      expect(result.tokenAddress).toBe(utils.BASE_TOKEN_ADDRESS);
+      expect(result.tokenAddress).toBe(BASE_TOKEN_ADDRESS);
       expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 

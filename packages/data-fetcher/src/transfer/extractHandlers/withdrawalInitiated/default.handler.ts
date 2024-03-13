@@ -6,7 +6,7 @@ import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { isBaseToken } from "../../../utils/token";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 
 export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
@@ -18,7 +18,7 @@ export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_BRIDGE, log);
 
     const tokenAddress =
-      parsedLog.args.l2Token === utils.ETH_ADDRESS ? utils.BASE_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
+      parsedLog.args.l2Token === utils.ETH_ADDRESS ? BASE_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
 
     return {
       from: parsedLog.args.l2Sender.toLowerCase(),

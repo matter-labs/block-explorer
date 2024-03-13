@@ -4,7 +4,7 @@ import { mock } from "jest-mock-extended";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { defaultTransferHandler } from "./default.handler";
-
+import { BASE_TOKEN_ADDRESS } from "../../../../src/constants";
 describe("defaultTransferHandler", () => {
   let log: types.Log;
   let blockDetails: types.BlockDetails;
@@ -99,9 +99,9 @@ describe("defaultTransferHandler", () => {
     });
 
     it("extracts transfer with 0x000000000000000000000000000000000000800a as a tokenAddress if log address is 0x000000000000000000000000000000000000800a", () => {
-      log.address = utils.BASE_TOKEN_ADDRESS;
+      log.address = BASE_TOKEN_ADDRESS;
       const result = defaultTransferHandler.extract(log, blockDetails);
-      expect(result.tokenAddress).toBe(utils.BASE_TOKEN_ADDRESS);
+      expect(result.tokenAddress).toBe(BASE_TOKEN_ADDRESS);
       expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 
