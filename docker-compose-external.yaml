@@ -49,7 +49,7 @@ services:
       - PORT=3020
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5433/block-explorer
     ports:
       - '3020:3020'
       - '3005:3005'
