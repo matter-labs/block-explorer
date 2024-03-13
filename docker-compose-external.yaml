@@ -18,6 +18,7 @@ services:
       - PORT=3001
       - LOG_LEVEL=verbose
       - DATABASE_HOST=postgres
+      - DATABASE_PORT=5433
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
@@ -62,8 +63,6 @@ services:
       driver: none
     volumes:
       - postgres:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -73,6 +72,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=block-explorer
+    expose:
+      - "5433" # Publishes 5433 to other containers but NOT to host machine
+    ports:
+      - "5433:5433"
+    command: -p 5433
 
 volumes:
   geth:
