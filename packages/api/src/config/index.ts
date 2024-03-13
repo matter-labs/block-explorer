@@ -13,7 +13,7 @@ type BaseToken = {
 };
 const defaultEthBaseToken: BaseToken = {
   l2Address: BASE_TOKEN_L2_ADDRESS,
-  l1Address: "0x0000000000000000000000000000000000000000",
+  l1Address: "0x0000000000000000000000000000000000000001",
   symbol: "ETH",
   name: "Ether",
   decimals: 18,

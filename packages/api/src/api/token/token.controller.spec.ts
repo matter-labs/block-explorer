@@ -2,10 +2,10 @@ import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
-import { BaseTokenService } from "./token.utils";
-import { Token, baseToken } from "../../token/token.entity";
+import { Token } from "../../token/token.entity";
 import { TokenController } from "./token.controller";
-
+import config from "../../config/index";
+const { baseTokenData } = config();
 describe("TokenController", () => {
   let controller: TokenController;
   let tokenServiceMock: TokenService;
@@ -33,7 +33,7 @@ describe("TokenController", () => {
 
   describe("tokenInfo", () => {
     it("returns ok response and token info when token is found", async () => {
-      const baseToken = (await baseToken()) as Token;
+      const baseToken = baseTokenData as Token;
       jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce(baseToken);
       const response = await controller.tokenInfo(contractAddress);
       expect(response).toEqual({

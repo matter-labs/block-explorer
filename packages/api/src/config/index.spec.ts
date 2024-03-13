@@ -1,5 +1,4 @@
 import config from "../config";
-
 jest.mock("./featureFlags", () => ({
   feature1Enabled: true,
   feature2Enabled: false,
@@ -20,6 +19,17 @@ describe("config", () => {
 
   it("sets default values", () => {
     expect(config()).toEqual({
+      baseTokenData: {
+        l2Address: "0x000000000000000000000000000000000000800a",
+        l1Address: "0x0000000000000000000000000000000000000001",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        // Fallback data in case ETH token is not in the DB
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+        liquidity: 220000000000,
+        usdPrice: 1800,
+      },
       NODE_ENV: "test",
       port: 3020,
       metrics: {
@@ -28,7 +38,7 @@ describe("config", () => {
       },
       typeORM: {
         type: "postgres",
-        url: "postgres://postgres:postgres@localhost:5432/block-explorer",
+        url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
         poolSize: 300,
         extra: {
           idleTimeoutMillis: 60000,
@@ -42,8 +52,6 @@ describe("config", () => {
         applicationName: "block-explorer-api",
       },
       contractVerificationApiUrl: "http://127.0.0.1:3070",
-      l2RpcProviderApiUrl: "http://127.0.0.1:3050",
-      l1RpcProviderApiUrl: "http://127.0.0.1:8545",
       featureFlags: {
         feature1Enabled: true,
         feature2Enabled: false,
