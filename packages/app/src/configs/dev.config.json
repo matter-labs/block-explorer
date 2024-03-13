@@ -6,7 +6,7 @@
       "bridgeUrl": "https://testnet.zulunetwork.xyz/bridge",
       "hostnames": [],
       "icon": "/images/icons/zulu-logo.svg",
-      "l1ExplorerUrl": "https://bitcoinexplorer.org/",
+      "l1ExplorerUrl": "",
       "l2ChainId": 90104,
       "l2NetworkName": "Testnet-Alpha",
       "maintenance": false,

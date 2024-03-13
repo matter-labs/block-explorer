@@ -24,15 +24,16 @@ const config = useRuntimeConfig();
 const navigation = reactive([
   {
     label: computed(() => t("footer.nav.docs")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
+    // url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",// TODO write docs later
+    url: "https://docs.zulunetwork.io/introduction/welcome-to-zulu",
   },
   {
     label: computed(() => t("footer.nav.terms")),
-    url: "https://zksync.io/terms",
+    url: "https://zulunetwork.io",
   },
   {
     label: computed(() => t("footer.nav.contact")),
-    url: "https://zksync.io/contact",
+    url: "https://zulunetwork.io",
   },
 ]);
 </script>

@@ -4,7 +4,7 @@
       <div class="header-container">
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
-            <span class="sr-only">zkSync</span>
+            <span class="sr-only">ZuluPrime</span>
             <zk-sync-era />
           </router-link>
         </div>
@@ -159,7 +159,8 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
+    // url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",// TODO write docs later
+    url: "https://docs.zulunetwork.io/introduction/welcome-to-zulu",
   },
 ]);
 
@@ -203,8 +204,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
+  { url: "https://discord.com/invite/cTTfb8gaES", component: DiscordIcon },
+  { url: "https://twitter.com/zulu_network", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
