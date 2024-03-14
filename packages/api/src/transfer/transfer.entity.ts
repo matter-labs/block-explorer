@@ -87,7 +87,7 @@ export class Transfer extends BaseEntity {
   }
 
   @AfterLoad()
-  async populateEthToken() {
+  async populateBaseToken() {
     if (!this.token && this.tokenAddress.toLowerCase() === baseTokenData.l2Address.toLowerCase()) {
       this.token = baseTokenData as Token;
     }

@@ -25,7 +25,7 @@ export class Balance extends BaseEntity {
   public readonly balance: string;
 
   @AfterLoad()
-  async populateEthToken() {
+  async populateBaseToken() {
     if (!this.token && this.tokenAddress.toLowerCase() === baseTokenData.l2Address) {
       this.token = baseTokenData as Token;
     }
