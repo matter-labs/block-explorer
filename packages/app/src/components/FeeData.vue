@@ -27,7 +27,7 @@
       <div>
         <a
           class="refunded-link"
-          href="https://docs.zksync.io/build/developer-reference/fee-model.html#refunds"
+          href="https://docs.zulunetwork.io/introduction/welcome-to-zulu"
           target="_blank"
           >{{
             t(
@@ -40,7 +40,7 @@
         <a
           v-if="feeData?.isPaidByPaymaster"
           class="paymaster-link"
-          href="https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters"
+          href="https://docs.zulunetwork.io/introduction/welcome-to-zulu"
           target="_blank"
           >{{ t("transactions.table.feeDetails.whatIsPaymaster") }}</a
         >
