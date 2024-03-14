@@ -276,7 +276,7 @@ const badges = computed(() => {
   badgesArr.push({
     testId: "l1-badge-title",
     color: props.status === "verified" ? "success" : "neutral",
-    text: t("general.l1NetworkName"),
+    text: "",
     textColor: "neutral",
   });
 
