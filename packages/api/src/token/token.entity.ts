@@ -9,11 +9,6 @@ export enum TokenType {
   ERC721 = "ERC721",
 }
 
-export const baseToken = async () => {
-  // TODO: Properly do and remove this,
-  // this is still here to avoid compilation issues.
-  return baseTokenData;
-};
 @Entity({ name: "tokens" })
 @Index(["liquidity", "blockNumber", "logIndex"])
 export class Token extends BaseEntity {
