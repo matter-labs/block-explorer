@@ -1,7 +1,8 @@
 <template v-if="newNetworkUrl">
   <SystemAlert>
     <span
-      >We are ending our support of Goerli testnet. Please <a :href="newNetworkUrl!">use Sepolia</a>. For more info see
+      >zkSync Era Goerli Testnet will be shutdown on March 31st. Please use
+      <a :href="newNetworkUrl!">zkSync Era Sepolia Testnet</a> instead. For more info see
       <a target="_blank" href="https://github.com/zkSync-Community-Hub/zksync-developers/discussions/228"
         >this announcement</a
       >.</span
