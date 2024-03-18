@@ -93,7 +93,6 @@ test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) =>
   //Check transaction amount
   selector = `text= 1 `;
   element = await page.locator(selector).first();
-
   //Check tx Hash
   await expect(elementTx).toBeVisible(config.extraTimeout);
   //Check address From
