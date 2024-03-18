@@ -12,6 +12,7 @@ export type NetworkConfig = {
   published: boolean;
   hostnames: string[];
   tokensMinLiquidity?: number;
+  baseTokenAddress: string;
 };
 
 export type EnvironmentConfig = {
