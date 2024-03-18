@@ -5,7 +5,7 @@ import { localConfig } from "../../../config";
 import { Buffer, Logger, Path, Values } from "../../../constants";
 import { Helper } from "../../../helper";
 
-export const depositEth = async function (sum = Values.txSumETH) {
+export const depositEth = async function (sum: string = Values.txSumETH) {
   const helper = new Helper();
   const syncProvider = new zksync.Provider(localConfig.L2Network);
   const ethProvider = ethers.getDefaultProvider(localConfig.L1Network);
