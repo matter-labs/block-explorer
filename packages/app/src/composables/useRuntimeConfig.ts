@@ -1,5 +1,6 @@
 import type { NetworkConfig, RuntimeConfig } from "@/configs";
 
+import { checksumAddress } from "@/utils/formatters";
 export const DEFAULT_NETWORK: NetworkConfig = {
   apiUrl: "https://block-explorer-api.testnets.zksync.dev",
   verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
@@ -13,6 +14,7 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   name: "goerli",
   published: true,
   rpcUrl: "https://testnet.era.zksync.dev",
+  baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
 };
 
 export default (): RuntimeConfig => {

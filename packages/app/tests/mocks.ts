@@ -46,7 +46,9 @@ export const GOERLI_NETWORK: NetworkConfig = {
   maintenance: false,
   published: true,
   hostnames: [],
+  baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
 };
+
 export const GOERLI_BETA_NETWORK: NetworkConfig = {
   name: "goerli-beta",
   verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
@@ -59,6 +61,7 @@ export const GOERLI_BETA_NETWORK: NetworkConfig = {
   maintenance: false,
   published: true,
   hostnames: ["https://goerli-beta.staging-scan-v2.zksync.dev/"],
+  baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
 };
 
 export const useContractEventsMock = (params: any = {}) => {

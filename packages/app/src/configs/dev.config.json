@@ -13,7 +13,7 @@
       "name": "local",
       "published": true,
       "rpcUrl": "http://localhost:3050",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+      "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     },
     {
       "apiUrl": "https://block-explorer-api.testnets.zksync.dev",
