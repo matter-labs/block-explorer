@@ -203,7 +203,7 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://discord.com/invite/cTTfb8gaES", component: DiscordIcon },
+  { url: "https://discord.gg/ZVaQPjhxTG", component: DiscordIcon },
   { url: "https://twitter.com/zulu_network", component: TwitterIcon },
 ];
 
