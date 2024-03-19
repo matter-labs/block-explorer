@@ -16,6 +16,7 @@ let elementTx: Locator;
 let elementFrom: Locator;
 let elementTo: Locator;
 let elementContract: Locator;
+let elementTxAmount: Locator;
 let selector: string;
 
 //@id1656
@@ -91,7 +92,7 @@ test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) =>
   elementTo = await page.locator(selector).first();
 
   selector = `text= 1 `;
-  element = await page.locator(selector).first();
+  elementTxAmount = await page.locator(selector).first();
 
   //Check tx Hash
   await expect(elementTx).toBeVisible(config.extraTimeout);
@@ -100,7 +101,7 @@ test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) =>
   //Check address To
   await expect(elementTo).toBeVisible(config.extraTimeout);
   //Check transaction Amount
-  await expect(element).toBeVisible(config.extraTimeout);
+  await expect(elementTxAmount).toBeVisible(config.extraTimeout);
 });
 
 //@id1683
@@ -115,10 +116,10 @@ test("Check on BE contract that makes multiple transfers based on stored/retriev
   elementContract = await page.locator(selector).first();
 
   selector = `text=${txAddress}`;
-  element = await page.locator(selector).first();
+  elementTx = await page.locator(selector).first();
 
   //Check contract Address
   await expect(elementContract).toBeVisible(config.extraTimeout);
   //Check tx Hash
-  await expect(element).toBeVisible(config.extraTimeout);
+  await expect(elementTx).toBeVisible(config.extraTimeout);
 });
