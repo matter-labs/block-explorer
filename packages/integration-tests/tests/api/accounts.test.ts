@@ -1,4 +1,3 @@
-import getWallet from "src/playbook/utils/getWallet";
 import * as request from "supertest";
 
 import { environment } from "../../src/config";

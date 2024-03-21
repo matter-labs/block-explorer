@@ -176,7 +176,11 @@ describe("Blocks", () => {
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
-        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991]." }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({
+            result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991].",
+          })
+        );
       });
     });
   });
