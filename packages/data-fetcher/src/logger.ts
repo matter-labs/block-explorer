@@ -9,7 +9,7 @@ const loggerFormatters: Logform.Format[] = [
     format: "DD/MM/YYYY HH:mm:ss.SSS",
   }),
   format.ms(),
-  utilities.format.nestLike("Worker", {}),
+  utilities.format.nestLike("DataFetcher", {}),
 ];
 
 if (NODE_ENV === "production") {
