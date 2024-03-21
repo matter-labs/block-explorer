@@ -1,8 +1,9 @@
+import getWallet from "src/playbook/utils/getWallet";
 import * as request from "supertest";
 
 import { environment } from "../../src/config";
 import { localConfig } from "../../src/config";
-import { Buffer, Path, Token, Wallets } from "../../src/constants";
+import { Buffer, IncorrectValues, Path, Token, Wallets } from "../../src/constants";
 import { Helper } from "../../src/helper";
 import { Playbook } from "../../src/playbook/playbook";
 
@@ -288,6 +289,327 @@ describe("API module: Account", () => {
         expect(typeof response.body.result[0].transactionType).toStrictEqual("string");
         expect(typeof response.body.result[0].isError).toStrictEqual("string");
         expect(typeof response.body.result[0].errCode).toStrictEqual("string");
+      });
+    });
+  });
+  describe("API module: Account - Negative test cases", () => {
+    //id1968
+    it("/balance endpoint - Incorrect address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=account&action=balance&address=${IncorrectValues.incorrectAddressFormat}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Invalid Address format" }));
+      });
+    });
+    //id1944
+    it("/balancemulti endpoint - Incorrect address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=account&action=balancemulti&address=${IncorrectValues.incorrectAddressFormat}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Invalid address format" }));
+      });
+    });
+
+    it("/balancemulti endpoint - No address in URL parameters", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=account&action=balancemulti&address=`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Missing address" }));
+      });
+    });
+
+    //id1943
+    it("/tokennfttx endpoint - Incorrect contract address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ result: "Error! Invalid contract address format" })
+        );
+      });
+    });
+    it("/tokennfttx endpoint - Incorrect address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ result: "Error! Invalid contract address format" })
+        );
+      });
+    });
+
+    it("/tokennfttx endpoint - Incorrect offset position in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "offset must not be less than 1" }));
+      });
+    });
+
+    it("/tokennfttx endpoint - Incorrect block number in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blockNumber = "-99999999";
+        apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({
+            result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991].",
+          })
+        );
+      });
+    });
+
+    //id1940
+    it("/tokentx endpoint - Incorrect contract address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ result: "Error! Invalid contract address format" })
+        );
+      });
+    });
+    it("/tokentx endpoint - Incorrect address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({ result: "Error! Invalid contract address format" })
+        );
+      });
+    });
+
+    it("/tokentx endpoint - Incorrect offset position in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "offset must not be less than 1" }));
+      });
+    });
+
+    it("/tokentx endpoint - Incorrect block number in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blockNumber = "-99999999";
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({
+            result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991].",
+          })
+        );
+      });
+    });
+
+    //id1969
+    it("/getminedblocks endpoint - Incorrect contract address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=account&action=getminedblocks&page=1&offset=10&address=${IncorrectValues.incorrectAddressFormat}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Invalid Address format" }));
+      });
+    });
+
+    it("/getminedblocks endpoint - Incorrect offset position in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=account&action=getminedblocks&page=1&offset=0&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "offset must not be less than 1" }));
+      });
+    });
+
+    it("/getminedblocks endpoint - Incorrect page number in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=account&action=getminedblocks&page=-1&offset=10&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "page must not be less than 1" }));
+      });
+    });
+
+    //id1967
+    it("/txlist endpoint - Incorrect contract address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=txlist&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${IncorrectValues.incorrectAddressFormat}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Invalid Address format" }));
+      });
+    });
+
+    it("/txlist endpoint - Incorrect offset position in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=txlist&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "offset must not be less than 1" }));
+      });
+    });
+
+    it("/txlist endpoint - Incorrect block number in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blockNumber = "-99999999";
+        apiRoute = `/api?module=account&action=txlist&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({
+            result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991].",
+          })
+        );
+      });
+    });
+
+    it("/txlist endpoint - Incorrect page number in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=txlist&page=-1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "page must not be less than 1" }));
+      });
+    });
+
+    //id1935
+    it("/txlistinternal endpoint - Incorrect contract address format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${IncorrectValues.incorrectAddressFormat}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Invalid address format" }));
+      });
+    });
+
+    it("/txlistinternal endpoint - Incorrect offset position in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "offset must not be less than 1" }));
+      });
+    });
+
+    it("/txlistinternal endpoint - Incorrect block number in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blockNumber = "-99999999";
+        apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({
+            result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991].",
+          })
+        );
+      });
+    });
+
+    it("/txlistinternal endpoint - Incorrect page number in request", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number;
+        apiRoute = `/api?module=account&action=txlistinternal&page=-1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "page must not be less than 1" }));
       });
     });
   });

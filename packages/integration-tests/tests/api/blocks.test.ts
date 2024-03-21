@@ -1,4 +1,6 @@
-import { localConfig } from "../../src/config";
+import * as request from "supertest";
+
+import { environment, localConfig } from "../../src/config";
 import { Helper } from "../../src/helper";
 
 describe("Blocks", () => {
@@ -111,6 +113,19 @@ describe("Blocks", () => {
         expect(typeof response.body.result.blockReward).toStrictEqual("string");
         expect(typeof response.body.result.uncleInclusionReward).toStrictEqual("string");
         expect(typeof response.body.result.uncles).toStrictEqual("object");
+      });
+    });
+  });
+
+  describe("Blocks - Negative tests", () => {
+    it("/blocks - No closes block present", async () => {
+      await helper.runRetriableTestAction(async () => {
+        const blocks = await request(environment.blockExplorerAPI).get("/blocks");
+        const blockNumber = blocks.body.items[0].number + 10000000000;
+        apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=${blockNumber}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+        console.log(response.body);
       });
     });
   });
