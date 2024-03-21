@@ -46,7 +46,7 @@ test("Verify deployed the own ERC20 token contract", async ({ page }) => {
 });
 
 //@id1682
-test(" Check on BE Transfer ETH token via Portal", async ({ page }) => {
+test("Check on BE Transfer ETH token via Portal", async ({ page }) => {
   transaction = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txEthWithdraw);
   url = BlockExplorer.baseUrl + `/tx/${transaction}` + BlockExplorer.localNetwork;
 
@@ -75,9 +75,9 @@ test(" Check on BE Transfer ETH token via Portal", async ({ page }) => {
 });
 
 //@id1680
-test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) => {
+test("Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) => {
   transaction = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.txMultiTransferCustomTokenI);
-  const adressTo = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
+  const addressTo = await helper.readFile(Path.absolutePathToBufferFiles, Buffer.L2);
   url = BlockExplorer.baseUrl + `/tx/${transaction}` + BlockExplorer.localNetwork;
 
   await page.goto(url);
@@ -88,7 +88,7 @@ test(" Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) =>
   selector = `text=${Wallets.richWalletAddress}`;
   elementFrom = await page.locator(selector).first();
 
-  selector = `text=${adressTo}`;
+  selector = `text=${addressTo}`;
   elementTo = await page.locator(selector).first();
 
   selector = `text= 1 `;
