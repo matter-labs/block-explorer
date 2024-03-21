@@ -91,7 +91,7 @@ test("Check on BE Transfer custom ERC-20 token via Portal", async ({ page }) => 
   selector = `text=${addressTo}`;
   elementTo = await page.locator(selector).first();
 
-  selector = `text= 1 `;
+  selector = `text=1`;
   elementTxAmount = await page.locator(selector).first();
 
   //Check tx Hash
