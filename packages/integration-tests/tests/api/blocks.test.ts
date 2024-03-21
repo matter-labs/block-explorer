@@ -140,8 +140,6 @@ describe("Blocks", () => {
         apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=9999999999999`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
-        console.log(response.body);
-
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Invalid parameter" }));
@@ -153,8 +151,6 @@ describe("Blocks", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=block&action=getblockreward&blockno=999999999999999`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "No record found" }));
@@ -171,8 +167,6 @@ describe("Blocks", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=block&action=getblockreward&blockno=123123123123123123123`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));

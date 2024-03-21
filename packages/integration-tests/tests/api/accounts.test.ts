@@ -177,7 +177,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Token.ERC20AddressETH}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(apiRoute);
 
         expect(response.status).toBe(200);
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
@@ -297,7 +296,6 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=balance&address=${IncorrectValues.incorrectAddressFormat}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -309,7 +307,6 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=balancemulti&address=${IncorrectValues.incorrectAddressFormat}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -321,7 +318,6 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=balancemulti&address=`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -336,7 +332,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -351,7 +346,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -367,7 +361,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -380,7 +373,6 @@ describe("API module: Account", () => {
         const blockNumber = "-99999999";
         apiRoute = `/api?module=account&action=tokennfttx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -399,7 +391,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -414,7 +405,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -430,7 +420,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=tokentx&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -443,7 +432,6 @@ describe("API module: Account", () => {
         const blockNumber = "-99999999";
         apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -460,7 +448,6 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=getminedblocks&page=1&offset=10&address=${IncorrectValues.incorrectAddressFormat}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -472,7 +459,6 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=getminedblocks&page=1&offset=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -484,7 +470,6 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=account&action=getminedblocks&page=-1&offset=10&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -499,7 +484,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlist&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${IncorrectValues.incorrectAddressFormat}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -513,7 +497,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlist&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -526,7 +509,6 @@ describe("API module: Account", () => {
         const blockNumber = "-99999999";
         apiRoute = `/api?module=account&action=txlist&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -544,7 +526,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlist&page=-1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -559,7 +540,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${IncorrectValues.incorrectAddressFormat}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -573,7 +553,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=0&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -586,7 +565,6 @@ describe("API module: Account", () => {
         const blockNumber = "-99999999";
         apiRoute = `/api?module=account&action=txlistinternal&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
@@ -604,7 +582,6 @@ describe("API module: Account", () => {
         const blockNumber = blocks.body.items[0].number;
         apiRoute = `/api?module=account&action=txlistinternal&page=-1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&address=${Wallets.richWalletAddress}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
-        console.log(response.body);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
