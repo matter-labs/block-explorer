@@ -118,14 +118,65 @@ describe("Blocks", () => {
   });
 
   describe("Blocks - Negative tests", () => {
-    it("/blocks - No closes block present", async () => {
+    //id1946
+    it("/getblocknobytime - No closes block present", async () => {
       await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
-        const blockNumber = blocks.body.items[0].number + 10000000000;
-        apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=${blockNumber}`;
+        const blockTimestamp = blocks.body.items[0].timestamp;
+        const timestampMilliseconds: number = new Date(blockTimestamp).getTime();
+        const timestampSeconds: number = Math.floor(timestampMilliseconds / 1000) + 10000;
+
+        apiRoute = `/api?module=block&action=getblocknobytime&closest=after&timestamp=${timestampSeconds}`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! No closest block found" }));
+      });
+    });
+
+    it("/getblocknobytime - Incorrect timestamp format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=9999999999999`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Invalid parameter" }));
+      });
+    });
+
+    //id1948
+    it("/getblockreward - No record found", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=block&action=getblockreward&blockno=999999999999999`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "No record found" }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ blockNumber: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ timeStamp: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ blockMiner: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ blockReward: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ uncles: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ uncleInclusionReward: null }));
+      });
+    });
+
+    it("/getblockreward - Validation error for block number", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=block&action=getblockreward&blockno=123123123123123123123`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+        console.log(response.body);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991]." }));
       });
     });
   });
