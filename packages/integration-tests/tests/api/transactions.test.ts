@@ -1633,6 +1633,19 @@ describe("Transactions", () => {
       });
     });
 
+    //@id1958
+    it("Verify /api?module=transaction&action=getstatus response - negative case", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=transaction&action=getstatus&txhash=0x04a4757cd59681b037c1e7bdd2402cc45a23c66ed7497614879376719d34e020a`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Invalid transaction hash format" }));
+      });
+    });
+
     //@id1698
     it("Verify /api?module=transaction&action=gettxreceiptstatus response", async () => {
       await helper.runRetriableTestAction(async () => {
@@ -1644,6 +1657,32 @@ describe("Transactions", () => {
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "OK" }));
         expect(typeof response.body.result.status).toStrictEqual("string");
+      });
+    });
+
+    //@id1957:I
+    it("Verify /api?module=transaction&action=gettxreceiptstatus response - Invalid transaction hash format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=0x04a4757cd59681b037c1e7bd2402cc45a23c66ed7497614879376719d34e020as`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Invalid transaction hash format" }));
+      });
+    });
+
+    //@id1957:II
+    it("Verify /api?module=transaction&action=gettxreceiptstatus response - Invalid transaction hash format", async () => {
+      await helper.runRetriableTestAction(async () => {
+        apiRoute = `/api?module=transaction&action=gettxreceiptstatus&txhash=`;
+        response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Invalid transaction hash format" }));
       });
     });
   });
