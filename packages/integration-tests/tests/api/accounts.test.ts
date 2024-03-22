@@ -403,14 +403,12 @@ describe("API module: Account", () => {
       await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockNumber = blocks.body.items[0].number;
-        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${IncorrectValues.incorrectAddressFormat}&address=${Wallets.richWalletAddress}`;
+        apiRoute = `/api?module=account&action=tokentx&page=1&offset=10&sort=desc&endblock=${blockNumber}&startblock=0&contractaddress=${Wallets.richWalletAddress}&address=${IncorrectValues.incorrectAddressFormat}`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);
 
         expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
         expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
-        expect(response.body).toStrictEqual(
-          expect.objectContaining({ result: "Error! Invalid contract address format" })
-        );
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Invalid address format" }));
       });
     });
 

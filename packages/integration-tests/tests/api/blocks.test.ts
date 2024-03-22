@@ -119,7 +119,7 @@ describe("Blocks", () => {
 
   describe("Blocks - Negative tests", () => {
     //id1946
-    it("/getblocknobytime - No closes block present", async () => {
+    it("/getblocknobytime - No closest block present", async () => {
       await helper.runRetriableTestAction(async () => {
         const blocks = await request(environment.blockExplorerAPI).get("/blocks");
         const blockTimestamp = blocks.body.items[0].timestamp;
