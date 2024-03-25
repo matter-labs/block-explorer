@@ -5,9 +5,11 @@ import { format, transports, Logform } from "winston";
 export const getLogger = (environment: string, logLevel: string): LoggerService => {
   let defaultLogLevel = "debug";
   const loggerFormatters: Logform.Format[] = [
-    format.timestamp({
-      format: "DD/MM/YYYY HH:mm:ss.SSS",
-    }),
+    environment === "production"
+      ? format.timestamp()
+      : format.timestamp({
+          format: "DD/MM/YYYY HH:mm:ss.SSS",
+        }),
     format.ms(),
     utilities.format.nestLike("API", {}),
   ];
