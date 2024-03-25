@@ -6,7 +6,7 @@ describe("overrideBigNumberToJson", () => {
     const before = BigNumber.from(15).toJSON();
     overrideBigNumberToJson();
     const after = BigNumber.from(15).toJSON();
-    expect(before).toBe({ hex: "0x0f", type: "BigNumber" });
+    expect(before).toStrictEqual({ hex: "0x0f", type: "BigNumber" });
     expect(after).toBe("15");
   });
 });
