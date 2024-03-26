@@ -28,7 +28,7 @@ describe("useLocalization:", () => {
 
       const result = useLocalization(
         {
-          availableLocales: ["en", "uk"],
+          availableLocales: ["en", "uk", "ru"],
           locale,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
