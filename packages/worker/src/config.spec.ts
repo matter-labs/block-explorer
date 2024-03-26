@@ -23,7 +23,7 @@ describe("config", () => {
       },
       dataFetcher: {
         url: "http://localhost:3040",
-        requestTimeout: 120_000,
+        requestTimeout: 60_000,
       },
       blocks: {
         waitForBlocksInterval: 1000,

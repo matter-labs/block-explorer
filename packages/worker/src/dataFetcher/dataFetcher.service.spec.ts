@@ -5,9 +5,10 @@ import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
 import { AxiosResponse, AxiosError } from "axios";
 import * as rxjs from "rxjs";
+import { setTimeout } from "node:timers/promises";
 import { DataFetcherService } from "./dataFetcher.service";
 
-jest.mock("timers/promises", () => ({
+jest.mock("node:timers/promises", () => ({
   setTimeout: jest.fn().mockResolvedValue(null),
 }));
 
@@ -48,6 +49,7 @@ describe("DataFetcherService", () => {
 
   describe("getBlockData", () => {
     let pipeMock = jest.fn();
+    const blockData = { block: { number: 1 } };
 
     beforeEach(() => {
       pipeMock = jest.fn();
@@ -58,7 +60,6 @@ describe("DataFetcherService", () => {
     });
 
     it("returns block data", async () => {
-      const blockData = { block: { number: 1 } };
       pipeMock.mockReturnValueOnce(
         new rxjs.Observable((subscriber) => {
           subscriber.next({
@@ -75,25 +76,49 @@ describe("DataFetcherService", () => {
       expect(returnedBlockData).toEqual(blockData);
     });
 
-    it("throws an error if the request fails with populated response details", async () => {
+    it("retries the request if the request fails with populated response details", async () => {
       const error = new AxiosError("server error", "500", null, null, {
         status: 500,
         data: "error data",
       } as AxiosResponse<string, any>);
-      pipeMock.mockImplementation((callback) => {
+      pipeMock.mockImplementationOnce((callback) => {
         callback(error);
       });
 
-      await expect(dataFetcherService.getBlockData(1)).rejects.toThrowError(error);
+      pipeMock.mockReturnValueOnce(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: [blockData],
+          });
+        })
+      );
+
+      const returnedBlockData = await dataFetcherService.getBlockData(1);
+      expect(httpServiceMock.get).toBeCalledTimes(2);
+      expect(setTimeout).toBeCalledTimes(1);
+      expect(setTimeout).toBeCalledWith(1000);
+      expect(returnedBlockData).toEqual(blockData);
     });
 
-    it("throws an error if the request fails without populated response details", async () => {
+    it("retries the request if the request fails without populated response details", async () => {
       const error = new AxiosError("server error", "500");
-      pipeMock.mockImplementation((callback) => {
+      pipeMock.mockImplementationOnce((callback) => {
         callback(error);
       });
 
-      await expect(dataFetcherService.getBlockData(1)).rejects.toThrowError(error);
+      pipeMock.mockReturnValueOnce(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: [blockData],
+          });
+        })
+      );
+
+      const returnedBlockData = await dataFetcherService.getBlockData(1);
+      expect(httpServiceMock.get).toBeCalledTimes(2);
+      expect(setTimeout).toBeCalledTimes(1);
+      expect(setTimeout).toBeCalledWith(1000);
+      expect(returnedBlockData).toEqual(blockData);
     });
   });
 });
