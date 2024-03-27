@@ -37,10 +37,6 @@ flowchart
   Worker-."Request data (HTTP)".->Blockchain
 ```
 
-[Worker](./packages/worker) service retrieves aggregated data from the [Data Fetcher](./packages/data-fetcher) via HTTP and also directly from the blockchain using [zkSync Era JSON-RPC API](https://era.zksync.io/docs/api/api.html), processes it and saves into the database. [API](./packages/api) service is connected to the same database where it gets the data from to handle API requests. It performs only read requests to the database. The front-end [App](./packages/app) makes HTTP calls to the Block Explorer [API](./packages/api) to get blockchain data and to the [zkSync Era JSON-RPC API](https://era.zksync.io/docs/api/api.html) for reading contracts, performing transactions etc.
-
-## 🚀 Features
-
 - ✅ View transactions, blocks, transfers and logs.
 - ✅ Inspect accounts, contracts, tokens and balances.
 - ✅ Verify smart contracts.
