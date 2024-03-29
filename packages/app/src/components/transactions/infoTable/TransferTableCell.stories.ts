@@ -34,7 +34,7 @@ Default.args = {
       decimals: 6,
       l1Address: "0xd35cceead182dcee0f148ebac9447da2c4d449c4",
       l2Address: "0x54a14d7559baf2c8e8fa504e019d32479739018c",
-      name: "USD Coin (goerli)",
+      name: "USD Coin (sepolia)",
       symbol: "USDC",
     },
   },

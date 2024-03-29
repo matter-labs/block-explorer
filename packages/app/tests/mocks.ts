@@ -34,31 +34,31 @@ export const ETH_TOKEN_MOCK = {
   iconURL: null,
 };
 
-export const GOERLI_NETWORK: NetworkConfig = {
-  name: "goerli",
+export const TESTNET_NETWORK: NetworkConfig = {
+  name: "testnet",
   verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   apiUrl: "https://block-explorer-api.testnets.zksync.dev",
   icon: "",
   l2ChainId: 280,
   rpcUrl: "",
-  l2NetworkName: "Goerli",
-  l1ExplorerUrl: "http://goerli-block-explorer",
+  l2NetworkName: "Testnet",
+  l1ExplorerUrl: "http://testnet-block-explorer",
   maintenance: false,
   published: true,
   hostnames: [],
 };
-export const GOERLI_BETA_NETWORK: NetworkConfig = {
-  name: "goerli-beta",
+export const TESTNET_BETA_NETWORK: NetworkConfig = {
+  name: "testnet-beta",
   verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   apiUrl: "https://block-explorer-api.mock.zksync.dev",
   icon: "",
   l2ChainId: 270,
   rpcUrl: "",
-  l2NetworkName: "Goerli Beta",
-  l1ExplorerUrl: "http://goerli-beta-block-explorer",
+  l2NetworkName: "Testnet Beta",
+  l1ExplorerUrl: "http://testnet-beta-block-explorer",
   maintenance: false,
   published: true,
-  hostnames: ["https://goerli-beta.staging-scan-v2.zksync.dev/"],
+  hostnames: ["https://testnet-beta.staging-scan-v2.zksync.dev/"],
 };
 
 export const useContractEventsMock = (params: any = {}) => {
@@ -77,11 +77,11 @@ export const useWalletMock = (params: any = {}) => {
   const mockWallet = vi.spyOn(composablesFactory, "useWallet").mockReturnValue({
     ...composablesFactory.useWallet({
       currentNetwork: computed(() => ({
-        chainName: GOERLI_NETWORK.name,
-        explorerUrl: GOERLI_NETWORK.l1ExplorerUrl!,
+        chainName: TESTNET_NETWORK.name,
+        explorerUrl: TESTNET_NETWORK.l1ExplorerUrl!,
         l1ChainId: 5,
-        l2ChainId: GOERLI_NETWORK.l2ChainId,
-        rpcUrl: GOERLI_NETWORK.rpcUrl,
+        l2ChainId: TESTNET_NETWORK.l2ChainId,
+        rpcUrl: TESTNET_NETWORK.rpcUrl,
       })),
       getL2Provider: () => undefined as unknown as Provider,
     }),
@@ -184,10 +184,10 @@ export const useTransactionMock = (params: any = {}) => {
 export const useContextMock = (params: any = {}) => {
   const mockContextConfig = vi.spyOn(useContext, "default").mockReturnValue({
     getL2Provider: () => vi.fn(() => null),
-    currentNetwork: computed(() => GOERLI_NETWORK),
+    currentNetwork: computed(() => TESTNET_NETWORK),
     identifyNetwork: () => undefined,
     isReady: computed(() => true),
-    networks: computed(() => [GOERLI_NETWORK]),
+    networks: computed(() => [TESTNET_NETWORK]),
     ...params,
   });
 
