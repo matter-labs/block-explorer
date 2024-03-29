@@ -39,7 +39,7 @@ export const TESTNET_NETWORK: NetworkConfig = {
   verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
   apiUrl: "https://block-explorer-api.testnets.zksync.dev",
   icon: "",
-  l2ChainId: 280,
+  l2ChainId: 300,
   rpcUrl: "",
   l2NetworkName: "Testnet",
   l1ExplorerUrl: "http://testnet-block-explorer",

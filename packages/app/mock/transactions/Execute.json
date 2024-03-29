@@ -32,7 +32,7 @@
         "l2Address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "symbol": "LINK",
-        "name": "ChainLink Token (sepolia)",
+        "name": "ChainLink Token (testnet)",
         "decimals": 18,
         "usdPrice": 1
       },
@@ -46,7 +46,7 @@
         "l2Address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "symbol": "LINK",
-        "name": "ChainLink Token (sepolia)",
+        "name": "ChainLink Token (testnet)",
         "decimals": 18,
         "usdPrice": 1
       },
@@ -61,7 +61,7 @@
       "l2Address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
       "address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
       "symbol": "LINK",
-      "name": "ChainLink Token (sepolia)",
+      "name": "ChainLink Token (testnet)",
       "decimals": 18,
       "usdPrice": 1
     },
@@ -93,7 +93,7 @@
         "l2Address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "symbol": "LINK",
-        "name": "ChainLink Token (sepolia)",
+        "name": "ChainLink Token (testnet)",
         "decimals": 18,
         "usdPrice": 1
       },
@@ -112,7 +112,7 @@
         "l2Address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "address": "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
         "symbol": "LINK",
-        "name": "ChainLink Token (sepolia)",
+        "name": "ChainLink Token (testnet)",
         "decimals": 18,
         "usdPrice": 1
       },

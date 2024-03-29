@@ -14,7 +14,7 @@ import type { BatchDetails } from "@/composables/useBatch";
 
 import { localDateFromISOString } from "@/utils/helpers";
 
-const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.io/");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -175,13 +175,13 @@ describe("InfoTable:", () => {
     });
 
     expect(wrapper.findAll("a")[0].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0x0ab34d8523b67f80783305760a2989ffe6ab205621813db5420a3012845f5ac7"
+      "https://sepolia.etherscan.io//tx/0x0ab34d8523b67f80783305760a2989ffe6ab205621813db5420a3012845f5ac7"
     );
     expect(wrapper.findAll("a")[1].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0x87c5c5bf78100d88766101f13ec78d3b3356929556ee971cfacb6fe2a53b210a"
+      "https://sepolia.etherscan.io//tx/0x87c5c5bf78100d88766101f13ec78d3b3356929556ee971cfacb6fe2a53b210a"
     );
     expect(wrapper.findAll("a")[2].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0x57c44d7c183633f81bfa155bd30e68a94e3ff12c1e6265a4b5e06b6d4a7a1fa8"
+      "https://sepolia.etherscan.io//tx/0x57c44d7c183633f81bfa155bd30e68a94e3ff12c1e6265a4b5e06b6d4a7a1fa8"
     );
     wrapper.unmount();
   });
