@@ -62,7 +62,7 @@ test("Check on BE Transfer ETH token via Portal", async ({ page }) => {
   elementTo = await page.locator(selector).first();
 
   selector = `text=${Values.txSumETH}`;
-  element = await page.locator(selector).first();
+  elementTxAmount = await page.locator(selector).first();
 
   //Check tx Hash
   await expect(elementTx).toBeVisible(config.extraTimeout);
@@ -71,7 +71,7 @@ test("Check on BE Transfer ETH token via Portal", async ({ page }) => {
   //Check address To
   await expect(elementTo).toBeVisible(config.extraTimeout);
   //Check transaction Amount
-  await expect(element).toBeVisible(config.extraTimeout);
+  await expect(elementTxAmount).toBeVisible(config.extraTimeout);
 });
 
 //@id1680
