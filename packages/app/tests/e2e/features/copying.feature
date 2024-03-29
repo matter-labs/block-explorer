@@ -178,7 +178,7 @@ Feature: Copying
     Examples:
       | Row             | Text                                       |
       | ETH             | 0x000000000000000000000000000000000000800A |
-      | USDC            | 0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4 |
+      | USDC.e          | 0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4 |
       | MUTE            | 0x0e97C7a0F8B2C9885C8ac9fC6136e829CbC21d42 |
       | COMBO           | 0xc2B13Bb90E33F1E191b8aA8F44Ce11534D5698E3 |
       | PERP            | 0x42c1c56be243c250AB24D2ecdcC77F9cCAa59601 |
