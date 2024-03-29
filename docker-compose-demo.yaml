@@ -1,4 +1,4 @@
-# Run the explorer with db
+# run with sequencer and db
 services:
   app:
     build:
@@ -18,15 +18,17 @@ services:
       - PORT=3001
       - LOG_LEVEL=verbose
       - DATABASE_HOST=postgres
-      - DATABASE_PORT=5433
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
-      - BLOCKCHAIN_RPC_URL= https://testnet.zulunetwork.xyz/rpc
+      - BLOCKCHAIN_RPC_URL=http://zksync:3050
       - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
       - '3001:3001'
+    depends_on:
+      zksync:
+        condition: service_healthy
     restart: unless-stopped
 
   data-fetcher:
@@ -36,9 +38,12 @@ services:
     environment:
       - PORT=3040
       - LOG_LEVEL=verbose
-      - BLOCKCHAIN_RPC_URL= https://testnet.zulunetwork.xyz/rpc
+      - BLOCKCHAIN_RPC_URL=http://zksync:3050
     ports:
       - '3040:3040'
+    depends_on:
+      zksync:
+        condition: service_healthy
     restart: unless-stopped
 
   api:
@@ -49,7 +54,7 @@ services:
       - PORT=3020
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5433/block-explorer
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
     ports:
       - '3020:3020'
       - '3005:3005'
@@ -60,9 +65,11 @@ services:
   postgres:
     image: "postgres:14"
     logging:
-      driver: none
+      driver: none 
     volumes:
       - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -72,13 +79,46 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=block-explorer
-    expose:
-      - "5433" # Publishes 5433 to other containers but NOT to host machine
+
+  geth:
+    image: "matterlabs/geth:latest"
+    logging:
+      driver: none
     ports:
-      - "5433:5433"
-    command: -p 5433
+      - "8545:8545"
+      - "8546:8546"
+    volumes:
+      - geth:/var/lib/geth/data
+
+  zksync:
+    stdin_open: true
+    tty: true
+    image: matterlabs/local-node:latest2.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      geth:
+        condition: service_started
+    ports:
+      - "3050:3050" # JSON RPC HTTP port
+      - "3051:3051" # JSON RPC WS port
+    volumes:
+      # Configs folder bind
+      - zksync-config:/etc/env/
+      # Storage folder bind
+      - zksync-data:/var/lib/zksync/data
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/zksync_local
+      - ETH_CLIENT_WEB3_URL=http://geth:8545
+    healthcheck:
+      test: "curl -H \"Content-Type: application/json\" -X POST --data '{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}' 127.0.0.1:3050 || exit 1"
+      interval: 5s
+      timeout: 5s
+      retries: 300
+    restart: unless-stopped
 
 volumes:
   geth:
   postgres:
-
+  zksync-config:
+  zksync-data:
