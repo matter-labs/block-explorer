@@ -22,7 +22,7 @@ services:
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
-      - BLOCKCHAIN_RPC_URL= https://testnet.zulunetwork.xyz/rpc
+      - BLOCKCHAIN_RPC_URL=https://rpc-testnet.zulunetwork.io
       - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
@@ -36,7 +36,7 @@ services:
     environment:
       - PORT=3040
       - LOG_LEVEL=verbose
-      - BLOCKCHAIN_RPC_URL= https://testnet.zulunetwork.xyz/rpc
+      - BLOCKCHAIN_RPC_URL=https://rpc-testnet.zulunetwork.io
     ports:
       - '3040:3040'
     restart: unless-stopped
