@@ -62,7 +62,6 @@ Feature: Redirection
 
     Examples: 
      | Initial page                                             | Network                   | url                                                                      |
-     | /address/0x000000000000000000000000000000000000800A      | zkSync Era Goerli Testnet | /address/0x000000000000000000000000000000000000800A/?network=goerli      | 
      | /address/0x000000000000000000000000000000000000800A      | Goerli (Stage2)           | /address/0x000000000000000000000000000000000000800A/?network=goerli-beta | 
      | /address/0x000000000000000000000000000000000000800A      | zkSync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     |
      | /address/0x000000000000000000000000000000000000800A      | zkSync Era Sepolia Testnet | /address/0x000000000000000000000000000000000000800A/?network=sepolia    |  
@@ -75,6 +74,5 @@ Feature: Redirection
 
     Examples: 
      | Initial page                                         | Network                           | url                                                                      | 
-     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Goerli Testnet         | /address/0x000000000000000000000000000000000000800A/?network=goerli      |
      | /address/0x000000000000000000000000000000000000800A  | zkSync Era Sepolia Testnet        | /address/0x000000000000000000000000000000000000800A/?network=sepolia     | 
      | /address/0x000000000000000000000000000000000000800A  | zkSync Era Mainnet                | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 
