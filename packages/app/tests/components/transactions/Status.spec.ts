@@ -17,7 +17,7 @@ import $testId from "@/plugins/testId";
 
 const { currentNetwork } = useContext();
 
-const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.io/");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({

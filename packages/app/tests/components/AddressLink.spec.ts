@@ -6,7 +6,7 @@ import { mount, RouterLinkStub } from "@vue/test-utils";
 
 import AddressLink from "@/components/AddressLink.vue";
 
-const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.io/");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -66,7 +66,7 @@ describe("Address Link", () => {
       },
     });
     expect(wrapper.find("a").attributes().href).toBe(
-      "https://goerli.etherscan.io/address/0x0000000000000000000000000000000000000001"
+      "https://sepolia.etherscan.io//address/0x0000000000000000000000000000000000000001"
     );
   });
   describe("when L1 explorer url is not set", () => {
