@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } fro
 
 import { $fetch, FetchError } from "ohmyfetch";
 
-import { GOERLI_BETA_NETWORK } from "../mocks";
+import { TESTNET_BETA_NETWORK } from "../mocks";
 
 import useTokenLibrary from "@/composables/useTokenLibrary";
 
@@ -73,9 +73,9 @@ describe("useTokenLibrary:", () => {
   it("requests all tokens from using if min liquidity is defined", async () => {
     const { getTokens, tokens } = useTokenLibrary({
       currentNetwork: computed(() => ({
-        ...GOERLI_BETA_NETWORK,
+        ...TESTNET_BETA_NETWORK,
         tokensMinLiquidity: 0,
-        name: "goerli_with_liquidity",
+        name: "testnet_with_liquidity",
       })),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
@@ -104,7 +104,7 @@ describe("useTokenLibrary:", () => {
     fetchSpy.mockReset();
     fetchSpy.mockRejectedValue(new FetchError("An error occurred"));
     const { isRequestFailed, getTokens } = useTokenLibrary({
-      currentNetwork: computed(() => GOERLI_BETA_NETWORK),
+      currentNetwork: computed(() => TESTNET_BETA_NETWORK),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     await getTokens();

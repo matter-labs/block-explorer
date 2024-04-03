@@ -87,12 +87,11 @@ export class BlockProcessor {
     if (!allBlocksExist) {
       // We don't need to handle this potential revert as these blocks are not in DB yet,
       // try again later once these blocks are present in blockchain again.
-      this.logger.warn(
-        "Not all the requested blocks from the next blocks to process range exist in blockchain, likely revert has happened",
-        {
-          lastDbBlockNumber,
-        }
-      );
+      this.logger.warn({
+        message:
+          "Not all the requested blocks from the next blocks to process range exist in blockchain, likely revert has happened",
+        lastDbBlockNumber,
+      });
       return false;
     }
     const isBlocksLinkingValid = validateBlocksLinking(blocksToProcess);
@@ -100,12 +99,11 @@ export class BlockProcessor {
       // We don't need to handle this revert as these blocks are not in DB yet,
       // we just need to wait for blockchain to complete this revert before inserting these blocks.
       // This is very unlikely to ever happen.
-      this.logger.warn(
-        "Some of the requested blocks from the next blocks to process range have invalid link to previous block, likely revert has happened",
-        {
-          lastDbBlockNumber: lastDbBlockNumber,
-        }
-      );
+      this.logger.warn({
+        message:
+          "Some of the requested blocks from the next blocks to process range have invalid link to previous block, likely revert has happened",
+        lastDbBlockNumber: lastDbBlockNumber,
+      });
       return false;
     }
 
@@ -137,7 +135,10 @@ export class BlockProcessor {
   }
 
   private triggerBlocksRevertEvent(detectedIncorrectBlockNumber: number) {
-    this.logger.warn("Blocks revert detected", { detectedIncorrectBlockNumber });
+    this.logger.warn({
+      message: "Blocks revert detected",
+      detectedIncorrectBlockNumber,
+    });
     if (!this.disableBlocksRevert) {
       this.eventEmitter.emit(BLOCKS_REVERT_DETECTED_EVENT, {
         detectedIncorrectBlockNumber,

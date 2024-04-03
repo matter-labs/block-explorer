@@ -62,6 +62,7 @@ export default () => {
     DATABASE_CONNECTION_IDLE_TIMEOUT_MS,
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
+    GRACEFUL_SHUTDOWN_TIMEOUT_MS,
   } = process.env;
 
   const baseTokenData: BaseToken = baseTokenFromEnv();
@@ -127,5 +128,6 @@ export default () => {
     contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
     featureFlags,
     baseTokenData,
+    gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
   };
 };

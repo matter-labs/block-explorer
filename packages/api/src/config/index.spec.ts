@@ -56,6 +56,7 @@ describe("config", () => {
         feature1Enabled: true,
         feature2Enabled: false,
       },
+      gracefulShutdownTimeoutMs: 0,
     });
   });
 
