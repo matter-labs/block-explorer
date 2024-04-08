@@ -2,10 +2,13 @@ import helmet from "helmet";
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { configureApp } from "./configureApp";
 import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
+
+const BODY_PARSER_SIZE_LIMIT = "10mb";
 
 async function bootstrap() {
   const logger = getLogger(process.env.NODE_ENV, process.env.LOG_LEVEL);
@@ -15,8 +18,9 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     logger,
+    rawBody: true,
   });
   const configService = app.get(ConfigService);
   const metricsApp = await NestFactory.create(AppMetricsModule);
@@ -32,6 +36,8 @@ async function bootstrap() {
     SwaggerModule.setup("docs", app, document);
   }
 
+  app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
+  app.useBodyParser("urlencoded", { limit: BODY_PARSER_SIZE_LIMIT, extended: true });
   app.enableCors();
   app.use(helmet());
   configureApp(app);

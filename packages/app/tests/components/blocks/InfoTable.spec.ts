@@ -15,7 +15,7 @@ import type { Block } from "@/composables/useBlock";
 
 import { localDateFromISOString } from "@/utils/helpers";
 
-const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.io/");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -184,7 +184,7 @@ describe("InfoTable:", () => {
       },
     });
     expect(wrapper.findAll("a")[0].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0x5b5a05691d974803f5f095c1b918d2dd19152ed0a9de506d545c96df6cb9cac2"
+      "https://sepolia.etherscan.io//tx/0x5b5a05691d974803f5f095c1b918d2dd19152ed0a9de506d545c96df6cb9cac2"
     );
   });
   it("renders proveTxHash url properly", () => {
@@ -215,7 +215,7 @@ describe("InfoTable:", () => {
       },
     });
     expect(wrapper.findAll("a")[1].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0xfb3532f4c38c2eaf78248da64cf80a354429d58204761d6ea6439391043f6fa9"
+      "https://sepolia.etherscan.io//tx/0xfb3532f4c38c2eaf78248da64cf80a354429d58204761d6ea6439391043f6fa9"
     );
   });
   it("renders executeTxHash url properly", () => {
@@ -246,7 +246,7 @@ describe("InfoTable:", () => {
       },
     });
     expect(wrapper.findAll("a")[2].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364"
+      "https://sepolia.etherscan.io//tx/0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364"
     );
   });
   it("renders batch number as text with tooltip when batch is not sealed yet", () => {

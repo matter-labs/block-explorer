@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render } from "@testing-library/vue";
 
-import { GOERLI_BETA_NETWORK, GOERLI_NETWORK } from "./../mocks";
+import { TESTNET_BETA_NETWORK, TESTNET_NETWORK } from "./../mocks";
 
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
 
@@ -29,13 +29,13 @@ vi.mock("@/utils/helpers", () => ({
 describe("NetworkSwitch:", () => {
   beforeEach(() => {
     vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
-      networks: computed(() => [GOERLI_NETWORK, GOERLI_BETA_NETWORK]),
+      networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
     });
   });
 
   it("renders listbox button with selected option", async () => {
     const { container } = render(NetworkSwitch);
-    expect(container.querySelector(".network-item-label")?.textContent).toBe("Goerli");
+    expect(container.querySelector(".network-item-label")?.textContent).toBe("Testnet");
   });
 
   it("renders list of networks when button is clicked", async () => {
@@ -45,14 +45,14 @@ describe("NetworkSwitch:", () => {
     await fireEvent.click(container.querySelector(".toggle-button")!);
 
     const options = container.querySelectorAll(".network-list-item-container > *");
-    expect(options[0].getAttribute("href")).toBe("?network=goerli");
-    expect(options[0].textContent).toBe("Goerli");
+    expect(options[0].getAttribute("href")).toBe("?network=testnet");
+    expect(options[0].textContent).toBe("Testnet");
     expect(options[0].tagName).toBe("LABEL");
-    expect(options[0].querySelector("img")?.getAttribute("alt")).toBe("Goerli logo");
-    expect(options[1].getAttribute("href")).toBe("https://goerli-beta.staging-scan-v2.zksync.dev/");
-    expect(options[1].textContent).toBe("Goerli Beta");
+    expect(options[0].querySelector("img")?.getAttribute("alt")).toBe("Testnet logo");
+    expect(options[1].getAttribute("href")).toBe("https://testnet-beta.staging-scan-v2.zksync.dev/");
+    expect(options[1].textContent).toBe("Testnet Beta");
     expect(options[1].tagName).toBe("A");
-    expect(options[1].querySelector("img")?.getAttribute("alt")).toBe("Goerli Beta logo");
+    expect(options[1].querySelector("img")?.getAttribute("alt")).toBe("Testnet Beta logo");
   });
 
   it("uses relative url schema for networks when on localhost", async () => {
@@ -64,11 +64,11 @@ describe("NetworkSwitch:", () => {
     await fireEvent.click(container.querySelector(".toggle-button")!);
 
     const options = container.querySelectorAll(".network-list-item-container > *");
-    expect(options[0].getAttribute("href")).toBe("?network=goerli");
-    expect(options[0].textContent).toBe("Goerli");
+    expect(options[0].getAttribute("href")).toBe("?network=testnet");
+    expect(options[0].textContent).toBe("Testnet");
     expect(options[0].tagName).toBe("LABEL");
-    expect(options[1].getAttribute("href")).toBe("?network=goerli-beta");
-    expect(options[1].textContent).toBe("Goerli Beta");
+    expect(options[1].getAttribute("href")).toBe("?network=testnet-beta");
+    expect(options[1].textContent).toBe("Testnet Beta");
     expect(options[1].tagName).toBe("A");
   });
 
@@ -80,11 +80,11 @@ describe("NetworkSwitch:", () => {
     await fireEvent.click(container.querySelector(".toggle-button")!);
 
     const options = container.querySelectorAll(".network-list-item-container > *");
-    expect(options[0].getAttribute("href")).toBe("?network=goerli");
-    expect(options[0].textContent).toBe("Goerli");
+    expect(options[0].getAttribute("href")).toBe("?network=testnet");
+    expect(options[0].textContent).toBe("Testnet");
     expect(options[0].tagName).toBe("LABEL");
-    expect(options[1].getAttribute("href")).toBe("?network=goerli-beta");
-    expect(options[1].textContent).toBe("Goerli Beta");
+    expect(options[1].getAttribute("href")).toBe("?network=testnet-beta");
+    expect(options[1].textContent).toBe("Testnet Beta");
     expect(options[1].tagName).toBe("A");
   });
 });

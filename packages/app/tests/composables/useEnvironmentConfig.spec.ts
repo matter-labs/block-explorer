@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { GOERLI_BETA_NETWORK, GOERLI_NETWORK } from "../mocks";
+import { TESTNET_BETA_NETWORK, TESTNET_NETWORK } from "../mocks";
 
 import useEnvironmentConfig, { loadEnvironmentConfig } from "@/composables/useEnvironmentConfig";
 
@@ -9,7 +9,7 @@ import type { RuntimeConfig } from "@/configs";
 vi.mock("../../src/configs/local.config", () => {
   return {
     default: {
-      networks: [GOERLI_BETA_NETWORK, GOERLI_NETWORK],
+      networks: [TESTNET_BETA_NETWORK, TESTNET_NETWORK],
     },
   };
 });
@@ -17,7 +17,7 @@ vi.mock("../../src/configs/local.config", () => {
 vi.mock("../../src/configs/staging.config", () => {
   return {
     default: {
-      networks: [GOERLI_BETA_NETWORK, { ...GOERLI_NETWORK, published: false }],
+      networks: [TESTNET_BETA_NETWORK, { ...TESTNET_NETWORK, published: false }],
     },
   };
 });
@@ -42,7 +42,7 @@ describe("useEnvironmentConfig:", () => {
     it("sets networks data to config", async () => {
       const { networks } = useEnvironmentConfig();
       await loadEnvironmentConfig({ appEnvironment: "local" } as RuntimeConfig);
-      expect(networks.value).toEqual([GOERLI_BETA_NETWORK, GOERLI_NETWORK]);
+      expect(networks.value).toEqual([TESTNET_BETA_NETWORK, TESTNET_NETWORK]);
     });
 
     it("sets networks to values from runtime config if specified", async () => {
@@ -77,7 +77,7 @@ describe("useEnvironmentConfig:", () => {
     it("returns only published network configs", async () => {
       const { networks } = useEnvironmentConfig();
       await loadEnvironmentConfig({ appEnvironment: "staging" } as RuntimeConfig);
-      expect(networks.value).toEqual([GOERLI_BETA_NETWORK]);
+      expect(networks.value).toEqual([TESTNET_BETA_NETWORK]);
     });
   });
 });

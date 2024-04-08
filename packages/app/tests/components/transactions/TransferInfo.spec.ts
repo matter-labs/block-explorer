@@ -16,7 +16,7 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
-const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.io/");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -74,7 +74,7 @@ describe("TransferInfo:", () => {
     });
     expect(wrapper.find("span")?.text()).toBe("From");
     expect(wrapper.findAll("a")[0].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/address/0x6c10d9c1744f149d4b17660e14faa247964749c7"
+      "https://sepolia.etherscan.io//address/0x6c10d9c1744f149d4b17660e14faa247964749c7"
     );
     expect(wrapper.findAll("a")[0].text()).toEqual("0x6c10d9c1744...49c7");
     expect(wrapper.find(".copy-btn")).toBeTruthy();

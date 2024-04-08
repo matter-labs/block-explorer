@@ -12,6 +12,7 @@ export default () => {
     DATABASE_CONNECTION_IDLE_TIMEOUT_MS,
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
+    GRACEFUL_SHUTDOWN_TIMEOUT_MS,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -74,5 +75,6 @@ export default () => {
     typeORM: getTypeOrmModuleOptions(),
     contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
     featureFlags,
+    gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
   };
 };
