@@ -20,8 +20,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         working-directory: ./packages/testing-docs
-        run: yarn install --frozen-lockfile
+        run: npm ci
       - name: Build website
         working-directory: ./packages/testing-docs
-        run: yarn build
+        run: npm run build
 
