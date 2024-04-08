@@ -66,10 +66,10 @@ export class Helper {
     await setTimeout(ms);
   }
 
-  async performBlockExplorerApiGetRequest(apiRoute: string, network?: string) {
+  async performBlockExplorerApiGetRequest(apiRoute: string, network = "local") {
     if (network === `sepolia`) {
       return request(environment.blockExplorerSepoliaAPI).get(apiRoute);
-    } else if (!network || network === `local`) {
+    } else if (network === `local`) {
       return request(environment.blockExplorerAPI).get(apiRoute);
     } else {
       throw new Error(`The API route for the network ${network} is undefined.`);

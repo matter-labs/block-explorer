@@ -88,3 +88,7 @@ export enum BlockExplorer {
 export enum Values {
   txSumETH = "0.000009",
 }
+
+export enum Contracts {
+  greeterContractSepolia = "0x9c6D777A35D127f17eB28B75F80Bb7486118FbE0",
+}
