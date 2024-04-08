@@ -20,7 +20,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         working-directory: ./packages/testing-docs
-        run: npm ci
+        run: npm i
       - name: Build website
         working-directory: ./packages/testing-docs
         run: npm run build
