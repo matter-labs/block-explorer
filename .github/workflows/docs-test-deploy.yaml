@@ -23,7 +23,7 @@ jobs:
           repository: matter-labs/block-explorer
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: npm
       - uses: webfactory/ssh-agent@v0.5.0
         with:
@@ -35,5 +35,5 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
-          npm i
+          npm ci
           npm run deploy
