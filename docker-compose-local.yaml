@@ -1,5 +1,4 @@
-# Run the explorer in another service compared with node.
-# Run it with external db.
+# Run the explorer with db
 services:
   app:
     build:
@@ -19,7 +18,7 @@ services:
       - PORT=3001
       - LOG_LEVEL=verbose
       - DATABASE_HOST=postgres
-      - DATABASE_PORT=5432
+      - DATABASE_PORT=5433
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
@@ -50,11 +49,36 @@ services:
       - PORT=3020
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5433/block-explorer
     ports:
       - '3020:3020'
       - '3005:3005'
     depends_on:
       - worker
     restart: unless-stopped
+
+  postgres:
+    image: "postgres:14"
+    logging:
+      driver: none
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=block-explorer
+    expose:
+      - "5433" # Publishes 5433 to other containers but NOT to host machine
+    ports:
+      - "5433:5433"
+    command: -p 5433
+
+volumes:
+  geth:
+  postgres:
 

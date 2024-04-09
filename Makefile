@@ -6,8 +6,11 @@ help: ## Display this help screen
 login_db: ## if need use pswd: notsecurepassword
 	@psql -h localhost -U postgres -p 5433
 
-run: ## run docker
-	@docker-compose -f docker-compose-external.yaml up -d
+run_local: ## run explorer with local db
+	@docker-compose -f docker-compose-local.yaml up -d
+
+run: ## run explorer with external db
+	@docker-compose -f docker-compose.yaml up -d
 
 
 clear: ## clear docker
