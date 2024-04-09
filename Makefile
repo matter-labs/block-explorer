@@ -14,8 +14,8 @@ run: ## run explorer with external db
 
 
 clear: ## clear docker
-	docker-compose down --volumes
-	docker-compose pull
+	docker compose down --volumes
+	docker compose pull
 
 
 .PHONY: clippy fmt test
