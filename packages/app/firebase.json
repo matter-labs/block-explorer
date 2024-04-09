@@ -1,0 +1,84 @@
+{
+  "hosting": [
+    {
+      "target": "web",
+      "public": "dist",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "**/*.map"],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer, strict-origin-when-cross-origin"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-Frame-Options",
+              "value": "DENY"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "1; mode=block"
+            },
+            {
+              "key": "Content-Security-Policy-Report-Only",
+              "value": "default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src https://*.ingest.sentry.io https://firestore.googleapis.com/ https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "storybook",
+      "public": "storybook-static",
+      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "**",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache, no-store, must-revalidate"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "no-referrer, strict-origin-when-cross-origin"
+            },
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "X-Frame-Options",
+              "value": "SAMEORIGIN"
+            },
+            {
+              "key": "X-XSS-Protection",
+              "value": "1; mode=block"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

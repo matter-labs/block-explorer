@@ -1,0 +1,55 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+.debugger-trace-height, .parent-child-section {
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+    background: #cbcfd6;
+  }
+  &::-webkit-scrollbar-track {
+    background: #cbcfd6;
+    border-radius: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: white;
+    border-radius: 14px;
+    border: 1px solid #cbcfd6;
+  }
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    position: relative;
+    font-weight: normal;
+  }
+
+  h1 {
+    @apply text-4xl font-bold text-neutral-50;
+  }
+  h2 {
+    @apply text-3xl font-bold text-neutral-50;
+  }
+  h3 {
+    @apply text-2xl font-bold text-neutral-50;
+  }
+
+  body {
+    @apply min-h-screen bg-neutral-50 font-sans text-base text-neutral-700;
+  }
+
+  #app {
+    @apply grid h-full min-h-screen w-full grid-cols-1 grid-rows-[max-content_1fr_max-content];
+  }
+
+  a {
+    @apply text-primary-600 underline hover:text-[#7379E5];
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "transactionHash": "0x3628b3b2e5613d27fe371342b4d8eae9a847f28793833ad3de02bbfb30474ea6",
+  "data": {
+    "contractAddress": "0x924cAc2775E44EcE8FFa7AA6183D2d3F32a2DFE0",
+    "calldata": "0xa9059cbb000000000000000000000000c2675ae7f35b7d85ed1e828ccf6d0376b01adea30000000000000000000000000000000000000000000000000000000000000001",
+    "value": "0x0",
+    "factoryDeps": null
+  },
+  "isL1Originated": false,
+  "status": "verified",
+  "fee": "0x384126cd04c00",
+  "nonce": 24,
+  "blockNumber": 2373686,
+  "l1BatchNumber": 589602,
+  "blockHash": "0xf8550f7f36b041c82480751bf909e94f766f525683da1c5b419c83ef3d501b01",
+  "indexInBlock": 0,
+  "initiatorAddress": "0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3",
+  "receivedAt": "2022-11-18T10:14:47.358Z",
+  "ethCommitTxHash": "0xf018386cee9c509d79078e3069ad2443eaaee67f4bbbdcaa68ab1abe749b9283",
+  "ethProveTxHash": "0xd697f3e9c8b951786b8f04a4d220dd0dfb49812a642f6a3724721a2d2840b756",
+  "ethExecuteTxHash": "0x3bb60afbcf95702f9ecdc5170d32e24be185c91b94b596c2a888c4a08ffe7e21",
+  "erc20Transfers": [
+    {
+      "tokenInfo": {
+        "l1Address": "0x0000000000000000000000000000000000000000",
+        "l2Address": "0x0000000000000000000000000000000000000000",
+        "address": "0x0000000000000000000000000000000000000000",
+        "symbol": "ETH",
+        "name": "Ether",
+        "decimals": 18,
+        "usdPrice": "3500"
+      },
+      "from": "0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3",
+      "to": "0x0000000000000000000000000000000000008001",
+      "amount": "0x384126cd04c00"
+    }
+  ],
+  "balanceChanges": [
+    {
+      "tokenInfo": {
+        "l1Address": "0x0000000000000000000000000000000000000000",
+        "l2Address": "0x0000000000000000000000000000000000000000",
+        "address": "0x0000000000000000000000000000000000000000",
+        "symbol": "ETH",
+        "name": "Ether",
+        "decimals": 18,
+        "usdPrice": "3500"
+      },
+      "from": "0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3",
+      "to": "0x0000000000000000000000000000000000008001",
+      "amount": "0x384126cd04c00",
+      "type": "fee"
+    }
+  ]
+}

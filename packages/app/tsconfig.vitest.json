@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue", "tests/**/*.*"],
+  "exclude": [],
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["DOM.Iterable"],
+    "types": ["node", "jsdom"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
