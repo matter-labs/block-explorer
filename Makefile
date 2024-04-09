@@ -10,7 +10,7 @@ run_local: ## run explorer with local db
 	@docker-compose -f docker-compose-local.yaml up -d
 
 run: ## run explorer with external db
-	@docker-compose -f docker-compose.yaml up -d
+	@docker-compose up -d
 
 
 clear: ## clear docker
