@@ -29,7 +29,6 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.BE_TEST_DOCS_DEPLOY_KEY }}
       - name: Deploy to GitHub Pages
-        working-directory: ./testing-docs
         env:
           USE_SSH: true
         run: |

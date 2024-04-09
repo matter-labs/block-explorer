@@ -19,9 +19,7 @@ jobs:
           node-version: 20
           cache: npm
       - name: Install dependencies
-        working-directory: ./testing-docs
         run: npm ci
       - name: Build website
-        working-directory: ./testing-docs
         run: npm run build
 
