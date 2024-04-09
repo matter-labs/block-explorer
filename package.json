@@ -19,6 +19,7 @@
     "dev": "lerna run dev",
     "build": "lerna run build",
     "start": "lerna run start",
+    "serve": "lerna run serve",
     "db:create": "lerna run db:create",
     "db:drop": "lerna run db:drop",
     "hyperchain:configure": "ts-node scripts/setup-hyperchain-config"
