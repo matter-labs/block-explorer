@@ -21,5 +21,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build website
-        run: npm run build:docs
+        working-directory: ./packages/testing-docs
+        run: npm run build
 
