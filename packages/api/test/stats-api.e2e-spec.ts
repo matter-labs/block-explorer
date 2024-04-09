@@ -5,7 +5,7 @@ import * as request from "supertest";
 import { Repository } from "typeorm";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
-import { Token } from "../src/token/token.entity";
+import { Token, baseTokenData } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 
@@ -20,7 +20,7 @@ describe("Stats API (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    ETH_TOKEN = await baseToken();
+    ETH_TOKEN = baseTokenData;
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();

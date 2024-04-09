@@ -6,7 +6,7 @@ import { BigNumber } from "ethers";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token, TokenType } from "../src/token/token.entity";
+import { Token, TokenType, baseTokenData } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
@@ -31,7 +31,7 @@ describe("TransactionController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    ETH_TOKEN = await baseToken();
+    ETH_TOKEN = baseTokenData;
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);
