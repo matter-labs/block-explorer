@@ -7,10 +7,10 @@ login_db: ## if need use pswd: notsecurepassword
 	@psql -h localhost -U postgres -p 5433
 
 run_local: ## run explorer with local db
-	@docker-compose -f docker-compose-local.yaml up -d
+	@docker compose -f docker-compose-local.yaml up -d
 
 run: ## run explorer with external db
-	@docker-compose up -d
+	@docker compose -f docker-compose.yaml up -d
 
 
 clear: ## clear docker
