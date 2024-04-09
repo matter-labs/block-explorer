@@ -1,9 +1,9 @@
 {
   "networks": [
     {
-      "apiUrl": "https://api-testnet.zuluscan.io",
-      "verificationApiUrl": "https://testnet.zuluscan.io",
-      "bridgeUrl": "https://bridge-testnet.zulunetwork.io",
+      "apiUrl": "https://explorer-api-testnet.zulunetwork.xyz",
+      "verificationApiUrl": "https://explorer-testnet.zulunetwork.xyz",
+      "bridgeUrl": "https://testnet.zulunetwork.xyz/bridge",
       "hostnames": [],
       "icon": "/images/icons/zulu-logo.svg",
       "l1ExplorerUrl": "",
@@ -12,7 +12,7 @@
       "maintenance": false,
       "name": "testnet-alpha",
       "published": true,
-      "rpcUrl": "https://rpc-testnet.zulunetwork.io"
+      "rpcUrl": "https://rpc-testnet.zulunetwork.xyz"
     }
   ]
 }

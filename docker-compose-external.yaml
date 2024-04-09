@@ -19,11 +19,11 @@ services:
       - PORT=3001
       - LOG_LEVEL=verbose
       - DATABASE_HOST=postgres
-      - DATABASE_PORT=5433
+      - DATABASE_PORT=5432
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=block-explorer
-      - BLOCKCHAIN_RPC_URL=https://rpc-testnet.zulunetwork.io
+      - BLOCKCHAIN_RPC_URL=https://rpc-testnet.zulunetwork.xyz
       - DATA_FETCHER_URL=http://data-fetcher:3040
       - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
@@ -37,7 +37,7 @@ services:
     environment:
       - PORT=3040
       - LOG_LEVEL=verbose
-      - BLOCKCHAIN_RPC_URL=https://rpc-testnet.zulunetwork.io
+      - BLOCKCHAIN_RPC_URL=https://rpc-testnet.zulunetwork.xyz
     ports:
       - '3040:3040'
     restart: unless-stopped
@@ -50,7 +50,7 @@ services:
       - PORT=3020
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5433/block-explorer
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
     ports:
       - '3020:3020'
       - '3005:3005'
