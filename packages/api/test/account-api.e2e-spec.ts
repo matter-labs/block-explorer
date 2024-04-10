@@ -12,7 +12,7 @@ import { Token, TokenType } from "../src/token/token.entity";
 import { Balance } from "../src/balance/balance.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
-import { L2_ETH_TOKEN_ADDRESS } from "../src/common/constants";
+import { BASE_TOKEN_L2_ADDRESS } from "../src/common/constants";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 
@@ -170,14 +170,14 @@ describe("Account API (e2e)", () => {
 
     await balanceRepository.insert({
       address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-      tokenAddress: L2_ETH_TOKEN_ADDRESS,
+      tokenAddress: BASE_TOKEN_L2_ADDRESS,
       blockNumber: 1,
       balance: "1000",
     });
 
     await balanceRepository.insert({
       address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
-      tokenAddress: L2_ETH_TOKEN_ADDRESS,
+      tokenAddress: BASE_TOKEN_L2_ADDRESS,
       blockNumber: 1,
       balance: "100",
     });
