@@ -1162,7 +1162,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: "0x0000000000000000000000000000000000000001",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1173,7 +1173,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1208,7 +1208,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: "0x0000000000000000000000000000000000000001",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1219,7 +1219,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1254,7 +1254,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: "0x0000000000000000000000000000000000000001",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1265,7 +1265,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1300,7 +1300,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: "0x0000000000000000000000000000000000000001",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1311,7 +1311,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1346,7 +1346,7 @@ describe("TransactionController (e2e)", () => {
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: "0x0000000000000000000000000000000000000001",
                 symbol: "ETH",
                 name: "Ether",
                 decimals: 18,
@@ -1357,7 +1357,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
           ])
@@ -1414,7 +1414,7 @@ describe("TransactionController (e2e)", () => {
                 to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
                 token: {
                   decimals: 18,
-                  l1Address: "0x0000000000000000000000000000000000000000",
+                  l1Address: "0x0000000000000000000000000000000000000001",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -1425,7 +1425,7 @@ describe("TransactionController (e2e)", () => {
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "deposit",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 isInternal: false,
               },
             ],
