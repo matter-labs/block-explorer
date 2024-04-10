@@ -415,7 +415,7 @@ describe("useTransaction:", () => {
               type: "refund",
               tokenInfo: {
                 address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: "0x0000000000000000000000000000000000000001",
                 l2Address: "0x000000000000000000000000000000000000800A",
                 symbol: "ETH",
                 name: "Ether",
@@ -434,7 +434,7 @@ describe("useTransaction:", () => {
               type: "refund",
               tokenInfo: {
                 address: "0x000000000000000000000000000000000000800A",
-                l1Address: "0x0000000000000000000000000000000000000000",
+                l1Address: "0x0000000000000000000000000000000000000001",
                 l2Address: "0x000000000000000000000000000000000000800A",
                 symbol: "ETH",
                 name: "Ether",
@@ -571,7 +571,7 @@ describe("useTransaction:", () => {
             type: "refund",
             tokenInfo: {
               address: "0x000000000000000000000000000000000000800A",
-              l1Address: "0x0000000000000000000000000000000000000000",
+              l1Address: "0x0000000000000000000000000000000000000001",
               l2Address: "0x000000000000000000000000000000000000800A",
               symbol: "ETH",
               name: "Ether",
