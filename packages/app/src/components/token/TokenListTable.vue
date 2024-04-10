@@ -1,6 +1,6 @@
 <template>
   <Table :data-testid="$testId.tokensTable" :loading="loading" :items="tokens" ref="table">
-    <template #table-head>
+    <template #table-body-head>
       <table-head-column>{{ t("tokensView.table.tokenName") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.price") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.tokenAddress") }}</table-head-column>

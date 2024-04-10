@@ -1,6 +1,9 @@
 <template>
   <Table class="blocks-table" :class="{ loading }" :items="blocks" :loading="loading">
-    <template v-if="blocks?.length || loading" #table-head>
+    <template v-if="$slots['table-head']" #table-head>
+      <slot name="table-head"></slot>
+    </template>
+    <template v-if="blocks?.length || loading" #table-body-head>
       <TableHeadColumn>{{ t("blocks.table.block") }}</TableHeadColumn>
       <TableHeadColumn>{{ t("blocks.table.status") }}</TableHeadColumn>
       <TableHeadColumn>{{ t("blocks.table.age") }}</TableHeadColumn>
@@ -129,7 +132,7 @@ defineProps({
     @apply text-xs font-bold capitalize text-gray-700;
   }
   .table-body {
-    @apply rounded-t-lg;
+    // @apply rounded-t-lg;
 
     td {
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;

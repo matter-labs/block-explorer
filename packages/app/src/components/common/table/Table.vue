@@ -1,10 +1,20 @@
 <template>
-  <div class="table-container" :class="[{ 'has-head': !!$slots['table-head'] }, { 'has-footer': !!$slots['footer'] }]">
+  <div
+    class="table-container"
+    :class="[
+      { 'has-head': !!$slots['table-head'] },
+      { 'has-body-head': !!$slots['table-body-head'] },
+      { 'has-footer': !!$slots['footer'] },
+    ]"
+  >
+    <div v-if="$slots['table-head']" class="table-head" :class="[items?.length! % 2 ? 'bg-neutral-50' : 'bg-white']">
+      <slot name="table-head"></slot>
+    </div>
     <div class="table-body">
       <table cellspacing="0" cellpadding="0">
-        <thead v-if="$slots['table-head']">
+        <thead v-if="$slots['table-body-head']">
           <tr>
-            <slot name="table-head"></slot>
+            <slot name="table-body-head"></slot>
           </tr>
         </thead>
         <tbody v-if="!loading">
@@ -64,11 +74,19 @@ defineProps({
     }
   }
   &.has-head {
-    table thead tr th {
-      @apply first:rounded-tl-lg last:rounded-tr-lg;
+    .table-head {
+      @apply rounded-t-lg;
     }
   }
-  &:not(.has-head) {
+  &.has-body-head:not(.has-head) {
+    // table thead tr th {
+    //   @apply first:rounded-tl-lg last:rounded-tr-lg;
+    // }
+    .table-body {
+      @apply rounded-t-lg;
+    }
+  }
+  &:not(.has-head):not(.has-body-head) {
     table tbody tr:first-child td {
       @apply first:rounded-tl-lg last:rounded-tr-lg;
     }

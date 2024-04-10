@@ -2,6 +2,8 @@ import { computed, type ComputedRef, ref, type Ref } from "vue";
 
 import { $fetch } from "ohmyfetch";
 
+import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
+
 export type UseFetchCollection<T> = {
   pending: ComputedRef<boolean>;
   failed: ComputedRef<boolean>;
@@ -12,7 +14,7 @@ export type UseFetchCollection<T> = {
   page: ComputedRef<null | number>;
   pageSize: ComputedRef<number>;
 
-  load: (nextPage: number, toDate?: Date) => Promise<void>;
+  load: (nextPage: number, nextPageSize?: number, toDate?: Date) => Promise<void>;
 };
 
 export function useFetchCollection<T, TApiResponse = T>(
@@ -24,12 +26,11 @@ export function useFetchCollection<T, TApiResponse = T>(
   const pending = ref(false);
   const failed = ref(false);
 
-  const pageSize = ref(10);
-
   const page = ref<null | number>(null);
+  const pageSize = ref(DEFAULT_PAGE_SIZE);
   const total = ref<null | number>(null);
 
-  async function load(nextPage: number, toDate?: Date) {
+  async function load(nextPage: number, nextPageSize?: number, toDate?: Date) {
     page.value = nextPage;
 
     pending.value = true;
@@ -37,8 +38,12 @@ export function useFetchCollection<T, TApiResponse = T>(
 
     try {
       const url = typeof resource === "function" ? resource() : resource;
-      url.searchParams.set("pageSize", pageSize.value.toString());
       url.searchParams.set("page", nextPage.toString());
+      if (nextPageSize) {
+        url.searchParams.set("limit", nextPageSize.toString());
+      } else {
+        url.searchParams.set("limit", pageSize.value.toString());
+      }
 
       if (toDate && +new Date(toDate) > 0) {
         url.searchParams.set("toDate", toDate.toISOString());

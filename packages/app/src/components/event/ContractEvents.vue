@@ -5,7 +5,18 @@
     :loading="isRequestPending"
     :class="{ empty: !collection?.length }"
   >
-    <template v-if="total > 0 && collection?.length" #table-head>
+    <template v-if="total > DEFAULT_PAGE_SIZE && collection?.length" #table-head>
+      <div class="pagination">
+        <Pagination
+          v-model:active-page="activePage"
+          v-model:page-size="pageSize"
+          :use-query="false"
+          :total-items="total"
+          :disabled="isRequestPending"
+        />
+      </div>
+    </template>
+    <template v-if="total > 0 && collection?.length" #table-body-head>
       <TableHeadColumn v-for="item in tableHead" :key="item">{{ item }}</TableHeadColumn>
     </template>
 
@@ -84,6 +95,8 @@ import useContractEvents from "@/composables/useContractEvents";
 
 import type { Contract } from "@/composables/useAddress";
 
+import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
+
 const { t } = useI18n();
 
 const props = defineProps({
@@ -106,13 +119,13 @@ const tableHead = computed(() => [
 const activePage = ref(1);
 const toDate = new Date();
 watch(
-  [activePage, () => props.contract.address],
-  ([page]) => {
+  [activePage, pageSize, () => props.contract.address],
+  ([page, size]) => {
     getCollection(
       {
         contractAddress: props.contract.address,
         page: page,
-        pageSize: pageSize.value,
+        pageSize: size,
         toDate: toDate,
       },
       props.contract.verificationInfo?.artifacts.abi

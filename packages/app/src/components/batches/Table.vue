@@ -1,6 +1,9 @@
 <template>
   <Table class="batches-table" :class="{ loading }" :items="batches" :loading="loading">
     <template v-if="batches?.length || loading" #table-head>
+      <slot name="table-head"></slot>
+    </template>
+    <template v-if="batches?.length || loading" #table-body-head>
       <TableHeadColumn v-if="columns.includes('status')">{{ t("batches.table.status") }}</TableHeadColumn>
       <TableHeadColumn v-if="columns.includes('txnBatch')">{{ t("batches.table.txnBatch") }}</TableHeadColumn>
       <TableHeadColumn v-if="columns.includes('size')">{{ t("batches.table.size") }}</TableHeadColumn>
@@ -113,7 +116,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
   }
 
   .table-body {
-    @apply rounded-t-lg;
+    // @apply rounded-t-lg;
 
     td {
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;

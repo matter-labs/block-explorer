@@ -10,9 +10,26 @@
         {{ t("failedRequest") }}
       </span>
       <BatchesTable v-else :loading="pending" :loading-rows="pageSize" :batches="data ?? []">
-        <template v-if="total && total > pageSize" #footer>
-          <div class="pagination-container">
-            <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
+        <template v-if="total && total > DEFAULT_PAGE_SIZE" #table-head>
+          <div class="pagination">
+            <Pagination
+              v-model:active-page="activePage"
+              :total-items="total!"
+              v-model:page-size="pageSize"
+              :disabled="pending"
+              :header="true"
+            />
+          </div>
+        </template>
+        <template v-if="total && total > DEFAULT_PAGE_SIZE" #footer>
+          <div class="pagination">
+            <Pagination
+              v-model:active-page="activePage"
+              :total-items="total!"
+              v-model:page-size="pageSize"
+              :disabled="pending"
+              :header="false"
+            />
           </div>
         </template>
       </BatchesTable>
@@ -20,7 +37,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
@@ -32,12 +49,14 @@ import Pagination from "@/components/common/Pagination.vue";
 import useBatches from "@/composables/useBatches";
 import useContext from "@/composables/useContext";
 
+import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
+
 const { t } = useI18n();
 
 const context = useContext();
 const route = useRoute();
 
-const { load, pending, failed, data, total, pageSize, page } = useBatches(context);
+const { load, pending, failed, data, total } = useBatches(context);
 
 const breadcrumbItems = computed((): BreadcrumbItem[] => [
   {
@@ -49,11 +68,15 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
   },
 ]);
 
+const activePage = ref(route.query.page ? parseInt(route.query.page as string) : 1);
+const pageSize = ref(route.query.pageSize ? parseInt(route.query.pageSize as string) : DEFAULT_PAGE_SIZE);
+
 watch(
-  () => route.query.page,
-  (page) => {
-    const currentPage = page ? parseInt(page as string) : 1;
-    load(currentPage, currentPage === 1 ? new Date() : undefined);
+  [activePage, pageSize],
+  ([page, size]) => {
+    const currentPage = page ?? 1;
+    const pageSize = size ?? DEFAULT_PAGE_SIZE;
+    load(currentPage, pageSize, currentPage === 1 ? new Date() : undefined);
   },
   { immediate: true }
 );
