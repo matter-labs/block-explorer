@@ -1,8 +1,8 @@
 {
   "name": "data-fetcher",
   "version": "0.0.0",
-  "title": "zkSync Era Block Explorer Data Fetcher",
-  "description": "zkSync Era Block Explorer Data Fetcher",
+  "title": "ZuluPrime Block Explorer Data Fetcher",
+  "description": "ZuluPrime Block Explorer Data Fetcher",
   "author": "Matter Labs",
   "private": true,
   "license": "MIT",

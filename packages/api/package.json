@@ -1,8 +1,8 @@
 {
   "name": "api",
   "version": "0.0.0",
-  "title": "zkSync Era Block Explorer API",
-  "description": "zkSync Era Block Explorer API",
+  "title": "ZuluPrime Block Explorer API",
+  "description": "ZuluPrime Block Explorer API",
   "author": "Matter Labs",
   "private": true,
   "license": "MIT",

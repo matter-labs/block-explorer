@@ -1,7 +1,7 @@
-# zkSync Era Block Explorer Worker
+# ZuluPrime Block Explorer Worker
 ## Overview
 
-`zkSync Era Block Explorer Worker` is an indexer service for zkSync Era blockchain data. It retrieves aggregated data from the [Data Fetcher](/packages/data-fetcher) via HTTP and also directly from the blockchain using [zkSync Era JSON-RPC API](https://era.zksync.io/docs/api/api.html), processes it and saves into the database in a way that makes it easy to read by the [Block Explorer API](/packages/api).
+`ZuluPrime Block Explorer Worker` is an indexer service for ZuluPrime blockchain data. It retrieves aggregated data from the [Data Fetcher](/packages/data-fetcher) via HTTP and also directly from the blockchain using [ZuluPrime JSON-RPC API](https://era.zksync.io/docs/api/api.html), processes it and saves into the database in a way that makes it easy to read by the [Block Explorer API](/packages/api).
 
 ## Installation
 
@@ -15,7 +15,7 @@ $ npm install
 ```
 cp .env.example .env
 ```
-- In order to tell the service where to get the blockchain data from set the value of the `BLOCKCHAIN_RPC_URL` env var to your blockchain RPC API URL. For zkSync Era testnet it can be set to `https://zksync2-testnet.zksync.dev`. For zkSync Era mainnet - `https://zksync2-mainnet.zksync.io`.
+- In order to tell the service where to get the blockchain data from set the value of the `BLOCKCHAIN_RPC_URL` env var to your blockchain RPC API URL. For ZuluPrime testnet it can be set to `https://zksync2-testnet.zksync.dev`. For ZuluPrime mainnet - `https://zksync2-mainnet.zksync.io`.
 - To retrieve aggregated blockchain data for a certain block, the Worker service calls the [Data Fetcher](/packages/data-fetcher) service via HTTP. To specify Data Fetcher URL use `DATA_FETCHER_URL` env variable. By default, it is set to `http://localhost:3040` which is a default value for the local environment.
 - Set up env variables for Postgres database connection. By default it points to `localhost:5432` and database name is `block-explorer`.
 You need to have a running Postgres server, set the following env variables to point the service to your database:

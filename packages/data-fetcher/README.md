@@ -1,7 +1,7 @@
-# zkSync Era Block Explorer Data Fetcher
+# ZuluPrime Block Explorer Data Fetcher
 ## Overview
 
-`zkSync Era Block Explorer Data Fetcher` service exposes and implements an HTTP endpoint to retrieve aggregated data for a certain block / range of blocks from the blockchain. This endpoint is called by the [Block Explorer Worker](/packages/worker) service.
+`ZuluPrime Block Explorer Data Fetcher` service exposes and implements an HTTP endpoint to retrieve aggregated data for a certain block / range of blocks from the blockchain. This endpoint is called by the [Block Explorer Worker](/packages/worker) service.
 
 ## Installation
 
