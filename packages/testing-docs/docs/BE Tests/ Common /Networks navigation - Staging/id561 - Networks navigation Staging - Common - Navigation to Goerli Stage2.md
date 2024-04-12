@@ -2,7 +2,7 @@
 tags: ['Full test', 'manual', 'Navigation', 'Network', 'Smoke test', 'ZKF-2507', 'Automated']
 ---
 
-# id561 Networks navigation (Staging) - Common - Navigation to Goerli (Stage2)
+# id561 Networks navigation Staging - Common - Navigation to Goerli - Stage 2
 
 ## Description
   - Preconditions: user opens any BE page with zkSync Era Mainnet or local network selected

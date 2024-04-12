@@ -2,7 +2,7 @@
 tags: ['automated', 'ExternalLinks', 'Full test', 'Header', 'Redirection', 'Automated']
 ---
 
-# id231 Header - Common - External links (SN icons)
+# id231 Header - Common - External links - SN icons
 
 ## Description
 

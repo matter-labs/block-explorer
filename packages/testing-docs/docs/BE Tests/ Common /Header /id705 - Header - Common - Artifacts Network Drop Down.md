@@ -2,7 +2,7 @@
 tags: ['Artifacts', 'DropDown', 'Full test', 'Header', 'manual', 'regression', 'ZKF-3179', 'Active']
 ---
 
-# id705 Header - Common - Artifacts (Network Drop Down)
+# id705 Header - Common - Artifacts - Network Drop Down
 
 ## Description
   - https://explorer.zksync.io/
