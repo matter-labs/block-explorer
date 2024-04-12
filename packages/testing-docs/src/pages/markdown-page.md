@@ -2,6 +2,6 @@
 title: Markdown page example
 ---
 
-# Markdown page example
+# Tests for zkSync Era Block Explorer
 
-You don't need React to write simple standalone pages.
+Online blockchain browser for viewing and analyzing zkSync Era blockchain.
