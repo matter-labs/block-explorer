@@ -2,7 +2,7 @@
 tags: ['Full test', 'manual', 'Navigation', 'Network', 'regression', 'To Automate', 'ZKF-2507', 'Active']
 ---
 
-# id566 Networks navigation (Prod) - Common - Navigation to Mainnet
+# id566 Networks navigation Production - Common - Navigation to Mainnet
 
 ## Description
   - Preconditions: user opens any production BE page (https://explorer.zksync.io/) with zkSync Era Sepolia network selected
