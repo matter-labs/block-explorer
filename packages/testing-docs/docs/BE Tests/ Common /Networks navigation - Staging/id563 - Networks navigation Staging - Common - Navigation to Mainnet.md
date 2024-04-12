@@ -2,7 +2,7 @@
 tags: ['Full test', 'manual', 'Navigation', 'Network', 'Smoke test', 'ZKF-2507', 'Automated']
 ---
 
-# id563 Networks navigation (Staging) - Common - Navigation to Mainnet
+# id563 Networks navigation Staging - Common - Navigation to Mainnet
 
 ## Description
   - Preconditions: user opens any BE page with zkSync Era Testnet or Goerli (Stage2) network selected
