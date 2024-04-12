@@ -1,0 +1,47 @@
+allure_id;name;description;precondition;status;scenario;tag
+568;Block page - Pages - Verify informational tooltips on hover (Left table);/block/63781;;Active;"Informational tooltip of icon reveal the next content on hover (left block table):
+	Block Number
+		Block height, indicates the length of the blockchain, increases after the addition of the new block.
+	Block Size
+		Numer of transactions inside the block
+	Status
+		The finality status of the block.
+	Batch
+		The batch index where the block transactions are submitted to L1
+	Root Hash
+		State root hash obtained after this block execution.
+	Timestamp
+		The date and time at which a block is mined.
+Tooltips displayed correctly in mobile view";Artifacts,Block,Full test,manual,Pages,Smoke test,Tooltip,ZKF-2463
+575;Contract page - Pages - Artifacts (Empty state of Events tab);Open any contract with no events;;Active;"Events tab of Contract page in empty state (no events) contains:
+	Text
+		Smart Contract doesn't have any events at this moment
+	Search icon";Artifacts,Contract,Empty state,Events,Full test,manual,Pages,regression,ZKF-2363
+673;Contract page - Pages - Connect MetaMask with incorrect network;"https://staging-scan-v2.zksync.dev/address/contract_address
+
+* Prerequisites: (you can use https://github.com/JackHamer09/zkSync-2.0-Hardhat-example guide) or search for 0x772ab24587013a106e08f3868ef18361c8f3a4da contract
+
+* upload your own contract for token with methods
+verify this contract
+* you need to have MetaMask with Mainnet network only";;Active;"Open Contract's page
+Click on the ""Contract"" tab
+Click ""Connect MetaMask"" button
+MetaMask message for adding a network shown
+MetaMask message for switching a network shown
+Verify MetaMask wallet switched to correct testnet network from Mainnet
+Verify appropriate testnet network added in MetaMask (open MetaMask network list to check)
+Verify wallet is connected
+""Connect Metamask"" label changed to the wallet address";ABI,Contract,Full test,MetaMask,Pages,regression,ZKF-2661
+772;Common - Check social image for BE;"Environment: https://explorer.zksync.io/
+https://socialsharepreview.com/";;Active;"Open environment page from the description
+Check social image
+	Logo: ""Era Block Explorer""
+	Description: ""Deep dive into zkSync Era and explore the network.
+The zkSync Era Block Explorer provides information on transactions, blocks, contracts, and much more.""";Artifacts,Common,Full test,Logs,Pages,regression,ZKF-3284
+1865;Common - URL query support - Transaction Hash;"https://linear.app/matterlabs/issue/UEXP-4596/be-fe-search-query-url
+
+https://explorer.zksync.io/search?q={txhash} - will open a transaction page for the specified tx hash.";;Active;"Open https://goerli.explorer.zksync.io/
+:
+	add {Basic URL}/search?q=0xa125a1072d2e8f0a27e6ffa0d29973bb07ef166448fdcaa0aef5bde40ad707c7 to the Basic page URL (note this tx hash is for Mainnet Network)
+	URL is converted to ""{Basic URL}/tx/0xa125a1072d2e8f0a27e6ffa0d29973bb07ef166448fdcaa0aef5bde40ad707c7""
+	Transaction page is opened";Navigation,Pages,Positive,regression,Search,URL
