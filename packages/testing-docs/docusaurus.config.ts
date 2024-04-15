@@ -8,15 +8,17 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://github.com/',
+  url: 'https://be-test-docs.zksync.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'MatterLabs', // Usually your GitHub org/user name.
-  projectName: 'blockexplorer', // Usually your repo name.
+  organizationName: 'matter-labs', // Usually your GitHub org/user name.
+  projectName: 'be-test-docs', // Usually your repo name.
+  deploymentBranch: 'main',
+  trailingSlash: false,
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
