@@ -33,13 +33,15 @@ Example: https://zksync2-testnet.zkscan.io/api?module=account&action=tokenlist&a
 
 ## Precondition
 
-
 ## Scenario
 - Prepare a custom token on L2
 - Make a request to show the balance
     - ?module=account&action=tokenlist&address=\{hash\}
 - You can see the token with its balance
+- ![Screenshot](../../../../static/img/screenshots/common/BlockscoutAPI/id546_1.png);
 - Default balance is empty
     - Inspect -\> Network -\> Address -\> Empty balance list
+![Screenshot](../../../../static/img/screenshots/common/BlockscoutAPI/id546_2.png);
 - Blockscout API shows balance
     - Inspect -\> Network - \> api?module... -\> Balance
+      ![Screenshot](../../../../static/img/screenshots/common/BlockscoutAPI/id546_3.png);

@@ -54,3 +54,4 @@ return count;
 - Select "Multi-file contract" in "Compiler type" dropdown
 - Fill all the fields
 - Click "Verify smart contract"
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id717_1.png)
