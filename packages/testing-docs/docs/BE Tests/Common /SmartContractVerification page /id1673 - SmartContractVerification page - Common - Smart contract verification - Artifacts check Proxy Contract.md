@@ -13,11 +13,9 @@ tags: ['Common', 'Full test', 'manual', 'Positive', 'Proxy Contract', 'Smart Con
 ## Scenario
 - Deploy the contract (according to the manual in description)
     - Open Proxy contract you will see next 2 new tabs:
-      ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id1673_1.png)
-- "Read as Proxy"
-- "Write as Proxy"
-- "The implementation contract at \{Contract Address\} is not verified.
+- : "Read as Proxy"
+- : "Write as Proxy"
+- : "The implementation contract at \{Contract Address\} is not verified.
 - Please verifv the implementation contract in order to Read/Write the contract as Proxv."
 - Verify implementation contract:
-    - "Implementation contract found at \{Contract Address\}"
-      ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id1673_2.png)
+    - : "Implementation contract found at \{Contract Address\}"

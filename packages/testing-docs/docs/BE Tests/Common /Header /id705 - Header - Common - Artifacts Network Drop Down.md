@@ -15,4 +15,3 @@ tags: ['Artifacts', 'DropDown', 'Full test', 'Header', 'manual', 'regression', '
     - "zkSync Era Sepolia Testnet" item
 - "zkSync Era Mainnet" item
 - zkSync logo available for each network
-![Screenshot](../../../../static/img/screenshots/common/Header/id705_1.png)

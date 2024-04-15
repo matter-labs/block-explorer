@@ -14,7 +14,6 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Multi-contract', 'Positive', 'Sm
 - Pass the tutorial
 - Open https://goerli.explorer.zksync.io/contracts/verify
 - Select "Vyper (Multi-part contract)" in "Compiler type"
-  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id1625_1.png)
 - Fill all the fields and verify the contract
 - Success screen shown after contract verification
     - Success mark displayed
@@ -24,4 +23,3 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Multi-contract', 'Positive', 'Sm
     - Anyone on block explorer could check it's code and interact with it
 - "Block explorer" is a link
 - "Back to Contract" button
-  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id1625_2.png)
