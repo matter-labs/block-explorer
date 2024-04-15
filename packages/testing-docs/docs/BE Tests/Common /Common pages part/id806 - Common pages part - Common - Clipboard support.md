@@ -1,8 +1,8 @@
 ---
-tags: ['Account', 'Actions', 'Artifacts', 'Block', 'Common', 'Contract', 'Copying', 'Events', 'Active']
+tags: ['Account', 'Actions', 'Common', 'Copying', 'Events', 'Active']
 ---
 
-# id806 Common - Copy button should be disabled without Clipboard support
+# id806 Common pages part - Common - Clipboard support 
 
 ## Description
   - Open environment:
