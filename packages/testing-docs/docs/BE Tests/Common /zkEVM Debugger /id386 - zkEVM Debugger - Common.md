@@ -2,7 +2,7 @@
 tags: ['Actions', 'Common', 'Debugger', 'Full test', 'regression', 'ZKF-2240', 'Active']
 ---
 
-# id387 zkEVM Debugger - Common - Verify "Start" button
+# id387 zkEVM Debugger - Common - Verify Start button
 
 ## Description
   - I'm on https://staging-scan-v2.zksync.dev/tools/debugger
