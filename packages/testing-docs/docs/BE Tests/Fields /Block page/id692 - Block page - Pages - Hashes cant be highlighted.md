@@ -13,9 +13,11 @@ tags: ['Artifacts', 'Block', 'Copying', 'Full test', 'manual', 'Positive', 'regr
 ## Scenario
 - Open Block # 13874
 - Check that user can't highlight "Root hash" value
-    - By double left click
-- By hold of left mouse
-- By right mouse click
+  - By double left click
+  - By hold of left mouse
+  - By right mouse click
+![id692_1](../../../../static/img/Fields/Block%20page/id692_1.png)
 - Press Copy button
-    - Tooltip "Copied!" is displayed
-- Root hash value is copied
+  - Tooltip "Copied!" is displayed
+  - Root hash value is copied
+![id692_2](../../../../static/img/Fields/Block%20page/id692_2.png)

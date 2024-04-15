@@ -13,3 +13,4 @@ tags: ['automated', 'Full test', 'Positive', 'Search', 'Automated']
 ## Scenario
 - Check correct account address
     - You are redirected to the account page
+![id213](../../../../../static/img/Fields/Search%20field%20-%20Addresses%7CAccounts/id213.png)

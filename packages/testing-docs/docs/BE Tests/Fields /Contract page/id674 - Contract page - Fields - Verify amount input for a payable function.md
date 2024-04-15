@@ -1,12 +1,12 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'Fields', 'regression', 'ZKF-2700', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'Fields', 'regression', 'Active']
 ---
 
 # id674 Contract page - Pages - Verify amount input for a payable function
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/address/0xAED6e18d8fe6397fc622A17402e8EB350d6D6c45#contract
-  - Example of contract is added to the attachments section.
+Example of contract:
+https://sepolia.explorer.zksync.io/address/0x000000000000000000000000000000000000800A#contract
 
 ## Precondition
 
@@ -15,3 +15,4 @@ tags: ['ABI', 'Contract', 'Full test', 'Fields', 'regression', 'ZKF-2700', 'Acti
 - Open Contract's page
 - Click on "Contract" tab
 - Verify that input for payable function is present
+![id674](../../../../static/img/Fields/Contract%20page/id674.png)

@@ -13,3 +13,5 @@ tags: ['automated', 'Full test', 'Positive', 'Search', 'Txn Batch', 'Automated']
 ## Scenario
 - Check correct batch number
     - You are redirected to batch page
+![id218](../../../../static/img/Fields/Search%20field%20-%20Batch%20Numbers/id218.png)
+

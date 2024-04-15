@@ -6,7 +6,6 @@ tags: ['UAT', 'Active']
 
 ## Description
   - General test cases (common for all BE users)
-  - Notion Page: https://www.notion.so/matterlabs/UAT-checklist-for-Block-Explorer-00bfcb41b88d4d1fb3a70089892d5429?pvs=4#7a26e80004f84fd2b593449e6edea523
 
 ## Precondition
 

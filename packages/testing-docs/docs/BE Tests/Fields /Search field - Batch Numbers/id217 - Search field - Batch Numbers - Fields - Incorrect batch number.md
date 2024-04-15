@@ -14,3 +14,4 @@ tags: ['automated', 'Full test', 'Negative', 'Search', 'Txn Batch', 'Automated']
 - Check incorrect batch number
     - The search field will change the color to red
 - User remains on the same page
+![id217](../../../../static/img/Fields/Search%20field%20-%20Batch%20Numbers/id217.png)

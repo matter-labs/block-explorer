@@ -7,7 +7,6 @@ tags: ['UAT', 'Active']
 ## Description
   - Experienced user test cases (user type - Developer)
   - In this part we will focus on the areas of Block Explorer which require interaction from user (like connecting MetaMask wallet for adding data to contracts via ABI, verifying smart contracts and working with Debugger tool)
-  - Notion Page: https://www.notion.so/matterlabs/UAT-checklist-for-Block-Explorer-00bfcb41b88d4d1fb3a70089892d5429?pvs=4#23f2fb8a2b5e4d92bd6aa6cb2fcecd53
 
 ## Precondition
 
@@ -26,10 +25,10 @@ tags: ['UAT', 'Active']
 - In case uploaded JSON file can’t be parsed user receives appropriate error notification
 - User can upload JSON trace file in any state of debugger (no matter if he already inspecting any file or just has empty state with no file uploaded)
 - User has all the necessary toolkit for interacting with JSON trace file
-    - Instruction list
-- Search
-- Step counter/navigation
-- Memory state etc.
+  - Instruction list
+  - Search
+  - Step counter/navigation
+  - Memory state etc.
 - User can switch between data types available
 - User has a possibility to use full screen/collapsed modes
 - User can interact with Debugger via buttons to keyboard hotkeys (commands highlighted)

@@ -12,5 +12,6 @@ tags: ['automated', 'Full test', 'Negative', 'Search', 'Automated']
 
 ## Scenario
 - Check incorrect contract hash
-    - The search field will change the color to red
-- User remains on the same page
+  - The search field will change the color to red
+  - User remains on the same page
+![id220](../../../../static/img/Fields/Search%20field%20-%20Contract%20hash/id220.png)
