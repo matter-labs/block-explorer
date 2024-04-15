@@ -267,7 +267,7 @@ describe("BalanceService", () => {
       await service.getBalancesByAddresses(addresses, tokenAddress);
       expect(mainQueryBuilderMock.select).toHaveBeenCalledTimes(1);
       expect(mainQueryBuilderMock.select).toHaveBeenCalledWith("balances.address");
-      expect(mainQueryBuilderMock.addSelect).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.addSelect).toHaveBeenCalledTimes(3);
       expect(mainQueryBuilderMock.addSelect).toHaveBeenCalledWith("balances.balance");
     });
 
