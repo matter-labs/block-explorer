@@ -20,3 +20,4 @@ tags: ['automated', 'Full test', 'Header', 'Redirection', 'regression', 'ZKF-244
     - https://staging-scan-v2.zksync.dev/tools/debugger
 - Bridge
     - https://portal.zksync.io/bridge/
+![Screenshot](../../../../static/img/screenshots/common/Header/id253_1.png)

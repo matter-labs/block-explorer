@@ -17,6 +17,7 @@ tags: ['Artifacts', 'automated', 'Full test', 'Smart Contract Verification page'
 
 ## Scenario
 - SCV interface:
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id301_1.png)
 - Contract address field
 - Contract Name
 - Optimization

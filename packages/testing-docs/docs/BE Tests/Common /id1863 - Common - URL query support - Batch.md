@@ -13,7 +13,7 @@ tags: ['Navigation', 'Pages', 'Positive', 'regression', 'Search', 'URL', 'Active
 
 ## Scenario
 - Open https://goerli.explorer.zksync.io/
-- :
     - Add "\{Basic URL\}/search?q=303647 to the URL address (note this batch number is for Mainnet Network)
 - URL is converted to "\{Basic URL\}/batch/303647"
 - Page for Batch information page is opened
+  ![Screenshot](../../../static/img/screenshots/common/id1863_1.png)

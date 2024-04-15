@@ -13,7 +13,7 @@ tags: ['Navigation', 'Pages', 'Positive', 'regression', 'Search', 'URL', 'Active
 
 ## Scenario
 - Open https://goerli.explorer.zksync.io/
-- :
     - add "\{Basic URL\}/search?q=0xd04DC491640f9cE57b343b404C277246272f6ee6" (note this address is for Mainnet Network)
 - URL is converted automatically to "\{Basic URL\}/address/0xd04DC491640f9cE57b343b404C277246272f6ee6"
 - Page with information about specified address is opened
+  ![Screenshot](../../../static/img/screenshots/common/id1864_1.png)

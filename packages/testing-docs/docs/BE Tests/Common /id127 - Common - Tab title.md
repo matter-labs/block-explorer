@@ -16,3 +16,4 @@ tags: ['Artifacts', 'automated', 'Flaky', 'Full test', 'To Automate']
 ## Scenario
 - Tabs titles have general pattern
     - page specific | zkSync Era Block Explorer
+      ![Screenshot](../../../static/img/screenshots/common/id127_1.png)

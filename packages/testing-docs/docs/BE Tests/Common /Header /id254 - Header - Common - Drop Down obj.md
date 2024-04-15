@@ -16,4 +16,4 @@ tags: ['Artifacts', 'automated', 'Full test', 'Header', 'Automated']
 - Mainnet
 - Drop down list to change language exist
     - EN
-- UA
+    - UA
