@@ -1,5 +1,5 @@
 import { BigNumber } from "ethers";
-import { types, utils } from "zksync-web3";
+import { types } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";

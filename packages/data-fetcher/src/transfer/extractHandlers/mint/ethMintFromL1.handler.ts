@@ -1,4 +1,4 @@
-import { utils, types } from "zksync-web3";
+import { types } from "zksync-web3";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";

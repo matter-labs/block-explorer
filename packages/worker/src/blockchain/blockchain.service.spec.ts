@@ -6,7 +6,7 @@ import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as timersPromises from "timers/promises";
 import { BlockchainService, BridgeAddresses } from "./blockchain.service";
-import { JsonRpcProviderExtended, JsonRpcProviderBase } from "../rpcProvider";
+import { JsonRpcProviderBase } from "../rpcProvider";
 import { RetryableContract } from "./retryableContract";
 
 jest.mock("./retryableContract");

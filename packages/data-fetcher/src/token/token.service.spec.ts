@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { types, utils } from "zksync-web3";
+import { types } from "zksync-web3";
 import { BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
