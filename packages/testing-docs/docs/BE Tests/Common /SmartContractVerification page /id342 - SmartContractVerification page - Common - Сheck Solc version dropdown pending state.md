@@ -15,3 +15,4 @@ tags: ['Common', 'Full test', 'regression', 'Smart Contract Verification page', 
 - Click Solc version dropdown
 - Verify loader shown when request is pending
 - Verify form buttons are disabled when request to list of versions is pending
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id342_1.png)
