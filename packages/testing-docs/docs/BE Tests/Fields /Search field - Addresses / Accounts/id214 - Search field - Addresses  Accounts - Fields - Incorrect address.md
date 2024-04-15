@@ -15,3 +15,4 @@ tags: ['automated', 'Full test', 'Negative', 'Search', 'Automated']
 - Check incorrect address
     - The search field will change the color to red
 - User remains on the same page
+![id214](../../../../../static/img/Fields/Search%20field%20-%20Addresses%7CAccounts/id214.png)

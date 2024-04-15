@@ -11,5 +11,6 @@ tags: ['automated', 'Full test', 'Search', 'Automated']
 
 
 ## Scenario
-- Insert any random address
+- Insert any random valid address
     - Account address contains empty values
+![id226](../../../../../static/img/Fields/Search%20field%20-%20Addresses%7CAccounts/id226.png)

@@ -13,4 +13,5 @@ tags: ['automated', 'Full test', 'Search', 'Automated']
 ## Scenario
 - Try to make search for without any input
     - The search field will change the color to red
-- Nothing will happen
+    - Nothing will happen
+![id225](../../../static/img/Fields/id225.png)
