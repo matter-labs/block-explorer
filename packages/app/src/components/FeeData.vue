@@ -59,10 +59,11 @@ import TransferTableCell from "@/components/transactions/infoTable/TransferTable
 
 import useContext from "@/composables/useContext";
 import useToken from "@/composables/useToken";
-const { currentNetwork } = useContext();
 
 import type { Token } from "@/composables/useToken";
 import type { FeeData } from "@/composables/useTransaction";
+
+const { currentNetwork } = useContext();
 
 const props = defineProps({
   showDetails: {

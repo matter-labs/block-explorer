@@ -59,11 +59,11 @@ import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 
 import useContext from "@/composables/useContext";
-const { currentNetwork } = useContext();
 import useTokenLibrary from "@/composables/useTokenLibrary";
 
 import type { Balances } from "@/composables/useAddress";
 
+const { currentNetwork } = useContext();
 const { t } = useI18n();
 
 const props = defineProps({

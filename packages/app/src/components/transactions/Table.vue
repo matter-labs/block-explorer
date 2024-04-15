@@ -215,7 +215,6 @@ import TransactionNetworkSquareBlock from "@/components/transactions/Transaction
 import useContext from "@/composables/useContext";
 import useToken, { type Token } from "@/composables/useToken";
 import { decodeDataWithABI } from "@/composables/useTransactionData";
-const { currentNetwork } = useContext();
 import useTransactions, { type TransactionListItem, type TransactionSearchParams } from "@/composables/useTransactions";
 
 import type { Direction } from "@/components/transactions/TransactionDirectionTableCell.vue";
@@ -223,6 +222,8 @@ import type { AbiFragment } from "@/composables/useAddress";
 import type { NetworkOrigin } from "@/types";
 
 import { utcStringFromISOString } from "@/utils/helpers";
+
+const { currentNetwork } = useContext();
 
 const { t, te } = useI18n();
 

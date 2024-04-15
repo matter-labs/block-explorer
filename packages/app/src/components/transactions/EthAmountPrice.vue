@@ -22,7 +22,7 @@ defineProps({
 });
 
 const { getTokenInfo, tokenInfo } = useToken();
-getTokenInfo(currentNetwork.value.basetokenAddress);
+getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const token = computed<Token | null>(() => {
   return tokenInfo.value;
