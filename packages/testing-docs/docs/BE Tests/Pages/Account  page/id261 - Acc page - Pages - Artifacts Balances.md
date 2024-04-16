@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'automated', 'Balances', 'Full test', 'manual', 'Smoke test', 'Active Partly Manual']
+tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'Smoke test', 'Active Partly Manual']
 ---
 
 # id261 Acc page - Pages - Artifacts (Balances)
@@ -17,3 +17,4 @@ tags: ['Account', 'Artifacts', 'automated', 'Balances', 'Full test', 'manual', '
 - Address/smart contract hash
 - USD price is displayed for ERC20 tokens
 - USD prices have 2 figures after the dot maximum (1 figure in case it is 0)
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id261_1.png)

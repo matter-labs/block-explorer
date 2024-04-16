@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'automated', 'Copying', 'Full test', 'manual', 'Automated']
+tags: ['Account', 'Copying', 'Full test', 'Automated']
 ---
 
 # id244 Acc page - Pages - hashes copying
@@ -13,5 +13,8 @@ tags: ['Account', 'automated', 'Copying', 'Full test', 'manual', 'Automated']
 ## Scenario
 - The following hashes can be copied:
     - Account
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id244_1.png)
 - Address
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id244_2.png)
 - Smart contract address from the tokens list
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id244_3.png)
