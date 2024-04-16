@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2371', 'Active']
+tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Transaction', 'Active']
 ---
 
 # id579 Contract page - Pages - Verify "Method" column for verified contract
@@ -14,3 +14,4 @@ tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Transaction', 
 - Open page for verified contract
 - Verify "Method" column displayed for verified contract in "Transactions" tab
 - Verify method name displayed in "Method" column for verified contract
+  ![Screenshot](../../../../static/img/Pages/Contracts/id579_1.png)

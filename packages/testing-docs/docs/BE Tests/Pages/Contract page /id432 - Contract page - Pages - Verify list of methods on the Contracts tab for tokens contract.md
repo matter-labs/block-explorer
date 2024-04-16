@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'ZKF-2704', 'Active']
+tags: ['Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id432 Contract page - Pages - Verify list of methods on the "Contracts" tab for token's contract
@@ -18,4 +18,6 @@ tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'ZKF-2704', '
 - Open Contract's page
 - Click on the "Contract" tab
 - Verify correct Read and Write methods for interacting with this smart contract displayed
+  ![Screenshot](../../../../static/img/Pages/Contracts/id432_1.png)
 - Verify  exact method name displayed  for method name with abbereviation (with no extra spaces)
+  ![Screenshot](../../../../static/img/Pages/Contracts/id432_2.png)

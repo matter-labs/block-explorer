@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-3181', 'Active']
+tags: ['Artifacts', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id707 Contract page - Pages - Artifacts ("Read" tab for verified contract)
@@ -20,3 +20,4 @@ tags: ['Artifacts', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-3181', 
 - Label - Type of this parameter
 - Input for this parameter (if available)
 - "Query" button
+  ![Screenshot](../../../../static/img/Pages/Contracts/id707_1.png)

@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'automated', 'Contract', 'Full test', 'Navigation', 'regression', 'Active Partly Manual']
+tags: ['APIv1-APIv2', 'Contract', 'Full test', 'Navigation', 'regression', 'Active Partly Manual']
 ---
 
 # id242 Contract page - Pages - Navigation (Transactions)
@@ -14,6 +14,8 @@ tags: ['APIv1-APIv2', 'automated', 'Contract', 'Full test', 'Navigation', 'regre
 - Item \{\} navigates to \{\}:
     - Creator to an Account page
     - https://goerli.explorer.zksync.io/address/0xA38EDFcc55164a59e0f33918D13a2d559BC11df8
+
+  ![Screenshot](../../../../static/img/Pages/Contracts/id242_1.png)
 - Transaction Hash to a Transaction page
     - https://goerli.explorer.zksync.io/tx/0xae9287595367760af18e1a7ed347a496a57b46a660c8d06c241c3a94e3cb6314
 - L2 From -\> to Account page
@@ -22,5 +24,9 @@ tags: ['APIv1-APIv2', 'automated', 'Contract', 'Full test', 'Navigation', 'regre
     - https://goerli.explorer.zksync.io/address/0xA80Fce6A62F46ea8f59C8540aAa3F620c17593Ec
 - VALUE to contract
     - https://goerli.explorer.zksync.io/address/0x000000000000000000000000000000000000800A
+
+  ![Screenshot](../../../../static/img/Pages/Contracts/id242_2.png)
 - FEE to contract
     - https://goerli.explorer.zksync.io/address/0x000000000000000000000000000000000000800A
+
+  ![Screenshot](../../../../static/img/Pages/Contracts/id242_3.png)

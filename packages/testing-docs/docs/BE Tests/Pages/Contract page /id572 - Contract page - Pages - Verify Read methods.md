@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'ZKF-2090', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'Active']
 ---
 
 # id572 Contract page - Pages - Verify Read methods
@@ -18,7 +18,9 @@ tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'ZKF-2
 - Open Contract's page
 - Click on the "Contract" tab
 - Verify can interact with Read Methods without connecting a wallet
+  ![Screenshot](../../../../static/img/Pages/Contracts/id572_1.png)
 - Verify all the data types work correctly
     - uint256
 - string
 - bool
+  ![Screenshot](../../../../static/img/Pages/Contracts/id571_2.png)

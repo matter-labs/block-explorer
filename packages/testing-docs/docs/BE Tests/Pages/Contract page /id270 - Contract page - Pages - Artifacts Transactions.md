@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'Smoke test', 'Transaction', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'Smoke test', 'Transaction', 'Active Partly Manual']
 ---
 
 # id270 Contract page - Pages - Artifacts (Transactions)
@@ -25,6 +25,8 @@ tags: ['Artifacts', 'automated', 'Full test', 'Smoke test', 'Transaction', 'Acti
 - Value
 - Fee
 - Check that address has 4 digits after ...
+  ![Screenshot](../../../../static/img/Pages/Contracts/id270_1.png)
 - Pagination element displayed for 'Latest transactions' (in case there are 10+ txs for this contract)
+  ![Screenshot](../../../../static/img/Pages/Contracts/id270_2.png)
 - Open any page
 - Verify 10 other transactions loaded (if so many exist)

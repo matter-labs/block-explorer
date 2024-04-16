@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2704', 'Automated']
+tags: ['Contract', 'Full test', 'Pages', 'regression', 'Transaction', 'Automated']
 ---
 
 # id619 Contract page - Pages - Verify "Method" column for method names with abbreviations
@@ -14,3 +14,4 @@ tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Transaction', 
 - Open page for verified contract
 - Verify "Method" column displayed for verified contract in "Transactions" tab
 - Verify  exact method name displayed in method name column  (with no extra spaces)
+  ![Screenshot](../../../../static/img/Pages/Contracts/id619_1.png)

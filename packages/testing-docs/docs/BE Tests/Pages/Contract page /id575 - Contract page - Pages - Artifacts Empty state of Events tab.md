@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Contract', 'Empty state', 'Events', 'Full test', 'manual', 'Pages', 'regression', 'ZKF-2363', 'Active']
+tags: ['Artifacts', 'Contract', 'Empty state', 'Events', 'Full test', 'manual', 'Pages', 'regression', 'Active']
 ---
 
 # id575 Contract page - Pages - Artifacts (Empty state of Events tab)
@@ -15,3 +15,4 @@ tags: ['Artifacts', 'Contract', 'Empty state', 'Events', 'Full test', 'manual', 
     - Text
     - Smart Contract doesn't have any events at this moment
 - Search icon
+  ![Screenshot](../../../../static/img/Pages/Contracts/id575_1.png)

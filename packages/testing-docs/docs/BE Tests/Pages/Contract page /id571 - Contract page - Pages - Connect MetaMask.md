@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'Smoke test', 'ZKF-2090', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'Smoke test', 'Active']
 ---
 
 # id571 Contract page - Pages - Connect MetaMask
@@ -19,7 +19,9 @@ tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'Smoke test', 'ZKF-2
 - Go to "Write" tab
 - Verify "Connect MetaMask" button available
 - Click "Connect MetaMask" button
+  ![Screenshot](../../../../static/img/Pages/Contracts/id571_1.png)
 - Approve your connection in pop-up window
 - Verify wallet is connected
 - "Connect Metamask" label changed to the wallet address
 - 3 dots button appears next to the wallet address
+  ![Screenshot](../../../../static/img/Pages/Contracts/id571_2.png)

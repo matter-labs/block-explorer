@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'Smoke test', 'ZKF-2090', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'Smoke test', 'Active']
 ---
 
 # id581 Contract page - Pages - Disconnect MetaMask (Logout)
@@ -21,6 +21,8 @@ tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'Smoke test', 'ZKF-2
 - Go to "Write" tab of Contract
 - Click 3 dots button next to the wallet address
 - "Logout" option available
+  ![Screenshot](../../../../static/img/Pages/Contracts/id581_1.png)
 - Click "Logout"
 - Verify Metamask disconnected
 - Verify wallet address changed to  "Connect MetaMask" button
+  ![Screenshot](../../../../static/img/Pages/Contracts/id581_2.png)

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Contract', 'Full test', 'Automated']
+tags: ['Artifacts', 'Contract', 'Full test', 'Automated']
 ---
 
 # id211 Contract page - Pages - Artifacts (Contract Info)
@@ -15,3 +15,4 @@ tags: ['Artifacts', 'automated', 'Contract', 'Full test', 'Automated']
     - Address
 - Creator
 - Transactions
+  ![Screenshot](../../../../static/img/Pages/Contracts/id211_1.png)
