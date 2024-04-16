@@ -12,7 +12,7 @@ import { Token } from "../token/token.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { AddressType } from "./dtos/baseAddress.dto";
 import { TransferService } from "../transfer/transfer.service";
-import { Transfer } from "../transfer/transfer.entity";
+import { Transfer, TransferType } from "../transfer/transfer.entity";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -286,8 +286,8 @@ describe("AddressController", () => {
       (transferServiceMock.findAll as jest.Mock).mockResolvedValueOnce(transfers);
     });
 
-    it("queries transfers with the specified options", async () => {
-      await controller.getAddressTransfers(address, listFilterOptions, pagingOptions);
+    it("queries transfers with the specified options when no filters provided", async () => {
+      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
       expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
       expect(transferServiceMock.findAll).toHaveBeenCalledWith(
         {
@@ -303,8 +303,25 @@ describe("AddressController", () => {
       );
     });
 
+    it("queries transfers with the specified options when filters are provided", async () => {
+      await controller.getAddressTransfers(address, { type: TransferType.Transfer }, listFilterOptions, pagingOptions);
+      expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
+      expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+        {
+          address,
+          type: TransferType.Transfer,
+          timestamp: "timestamp",
+        },
+        {
+          filterOptions: { type: TransferType.Transfer, ...listFilterOptions },
+          ...pagingOptions,
+          route: `address/${address}/transfers`,
+        }
+      );
+    });
+
     it("returns the transfers", async () => {
-      const result = await controller.getAddressTransfers(address, listFilterOptions, pagingOptions);
+      const result = await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
       expect(result).toBe(transfers);
     });
   });

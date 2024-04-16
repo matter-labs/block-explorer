@@ -38,7 +38,7 @@ describe("TransferTableCell:", () => {
             decimals: 18,
             l1Address: "0x63bfb2118771bd0da7a6936667a7bb705a06c1ba",
             l2Address: "0x4732c03b2cf6ede46500e799de79a15df44929eb",
-            name: "ChainLink Token (goerli)",
+            name: "ChainLink Token (testnet)",
             symbol: "LINK",
             usdPrice: 1,
           },
