@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'ZKF-2841', 'Active']
+tags: ['Artifacts', 'Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'Active']
 ---
 
 # id711 SmartContractVerification page - Common - Artifacts - Smart contract verification (UI for Multi-Contract Solidity)
@@ -12,6 +12,7 @@ tags: ['Artifacts', 'Full test', 'manual', 'Multi-contract', 'regression', 'Smar
 
 ## Scenario
 - SCV interface:
+- ![Screenshot](../../../../static/img/Common/SmartContractVerification/id711_1.png)
 - Notification
     - You can also verify your smart-contract using HardHat Plugin
 - Link - "HardHat Plugin"
@@ -40,8 +41,10 @@ tags: ['Artifacts', 'Full test', 'manual', 'Multi-contract', 'regression', 'Smar
     - File number
 - File name
 - "Remove" button
+  ![Screenshot](../../../../static/img/Common/SmartContractVerification/id711_2.png)
 - Main File (shown after uploading files)
     - "Choose main file" dropdown
+      ![Screenshot](../../../../static/img/Common/SmartContractVerification/id711_3.png)
 - Constructor Arguments
 - "Verify Smart Contract" button
 - Clear button

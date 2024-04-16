@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'DropDown', 'Full test', 'Header', 'manual', 'regression', 'ZKF-3179', 'Active']
+tags: ['Artifacts', 'DropDown', 'Full test', 'Header', 'manual', 'regression', 'Active']
 ---
 
 # id705 Header - Common - Artifacts - Network Drop Down
@@ -15,3 +15,4 @@ tags: ['Artifacts', 'DropDown', 'Full test', 'Header', 'manual', 'regression', '
     - "zkSync Era Sepolia Testnet" item
 - "zkSync Era Mainnet" item
 - zkSync logo available for each network
+![Screenshot](../../../../static/img/Common/Header/id705_1.png)

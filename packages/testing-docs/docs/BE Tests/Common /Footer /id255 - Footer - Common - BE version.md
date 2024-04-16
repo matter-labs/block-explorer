@@ -13,3 +13,4 @@ tags: ['Artifacts', 'Footer', 'Full test', 'manual', 'Smoke test', 'Active']
 ## Scenario
 - Right down corner contains correct version of the Block Explorer
     - f.e. 1.34.0
+      ![Screenshot](../../../../static/img/Common/Foot/id255_1.png)

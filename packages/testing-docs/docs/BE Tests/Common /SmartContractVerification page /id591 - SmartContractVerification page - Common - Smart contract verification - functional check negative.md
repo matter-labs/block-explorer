@@ -12,3 +12,4 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'regression', 'Smart 
 
 ## Scenario
 - In the "Enter the Solidity Contract Code" field instead of real solidity code use any array of symbols
+  ![Screenshot](../../../../static/img/Common/SmartContractVerification/id591_1.png)

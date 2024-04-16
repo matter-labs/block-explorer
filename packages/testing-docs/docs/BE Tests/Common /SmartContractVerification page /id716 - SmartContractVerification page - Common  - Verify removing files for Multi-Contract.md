@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'ZKF-2841', 'Active']
+tags: ['Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'Active']
 ---
 
 # id716 SmartContractVerification page - Common  - Verify removing files for Multi-Contract
