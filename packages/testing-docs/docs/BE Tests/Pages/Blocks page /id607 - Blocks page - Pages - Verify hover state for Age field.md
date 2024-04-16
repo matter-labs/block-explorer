@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'Hover state', 'manual', 'regression', 'ZKF-2694', 'Active']
+tags: ['Block', 'Full test', 'Hover state', 'manual', 'regression', 'Active']
 ---
 
 # id607 Blocks page - Pages - Verify hover state for 'Age' field
@@ -14,3 +14,4 @@ tags: ['Block', 'Full test', 'Hover state', 'manual', 'regression', 'ZKF-2694', 
 - Open blocks page
 - Hover the cursor over "Age" field of any block raw
 - Verify tooltip with timestamp shown on hover
+  ![Screenshot](../../../../static/img/Pages/BlocksPage/id607_1.png)

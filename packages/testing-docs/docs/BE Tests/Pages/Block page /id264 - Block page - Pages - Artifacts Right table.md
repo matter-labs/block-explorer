@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke test', 'ZKF-2535', 'Active Partly Manual']
+tags: ['Artifacts', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke test', 'Active Partly Manual']
 ---
 
 # id264 Block page - Pages - Artifacts (Right table)
@@ -21,3 +21,4 @@ tags: ['Artifacts', 'automated', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke 
 - Execute tx hash
     - Link to goerli.etherscan.io
 - Executed
+  ![Screenshot](../../../../static/img/Pages/BlockPage/id264_1.png)

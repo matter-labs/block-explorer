@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'Smoke test', 'Tooltip', 'ZKF-2463', 'Active']
+tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'Smoke test', 'Tooltip', 'Active']
 ---
 
 # id570 Block page - Pages - Verify informational tooltips on hover (Right table)
@@ -24,4 +24,5 @@ tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'Smoke test', 'Tool
     - Hash of the L1 transaction in which block was executed.
 - Executed
     - Time when block was executed.
+      ![Screenshot](../../../../static/img/Pages/BlockPage/id570_1.png)
 - Tooltips displayed correctly in mobile view

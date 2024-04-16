@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'Hover state', 'manual', 'Pages', 'regression', 'ZKF-2535', 'Active']
+tags: ['Block', 'Full test', 'Hover state', 'manual', 'Pages', 'regression', 'Active']
 ---
 
 # id554 Block page - Pages - Verify hover state for links
@@ -27,3 +27,4 @@ tags: ['Block', 'Full test', 'Hover state', 'manual', 'Pages', 'regression', 'ZK
     - https://staging-scan-v2--pr167-zkf-2535-commit-prov-4myhh1jq.web.app/address/0xb3ff73f6d56f381d093d1b2fb20215aa2c79da0e
 - Amount token links
 - Fee token links
+  ![Screenshot](../../../../static/img/Pages/BlockPage/id554_1.png)

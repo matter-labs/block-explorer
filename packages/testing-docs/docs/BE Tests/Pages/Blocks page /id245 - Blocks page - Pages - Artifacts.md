@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Block', 'Full test', 'Automated']
+tags: ['Artifacts', 'Block', 'Full test', 'Automated']
 ---
 
 # id245 Blocks page - Pages - Artifacts
@@ -16,4 +16,7 @@ tags: ['Artifacts', 'automated', 'Block', 'Full test', 'Automated']
 - Status
 - Age
     - Timestamp can be copied on click
+
+  ![Screenshot](../../../../static/img/Pages/BlocksPage/id245_1.png)
 - Navigation between blocks
+  ![Screenshot](../../../../static/img/Pages/BlocksPage/id245_2.png)
