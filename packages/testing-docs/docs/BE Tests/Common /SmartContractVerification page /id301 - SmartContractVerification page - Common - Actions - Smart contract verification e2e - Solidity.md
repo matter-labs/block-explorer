@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Automated', 'Full test', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
 ---
 
 # id301 SmartContractVerification page - Common - Actions - Smart contract verification (e2e - Solidity)

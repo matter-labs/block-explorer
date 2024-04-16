@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Header', 'Redirection', 'regression', 'Active Partly Manual', 'Automated']
+tags: ['Full test', 'Header', 'Redirection', 'regression', 'Active Partly Manual']
 ---
 
 # id253 Header - Common - Internal links-Tools
