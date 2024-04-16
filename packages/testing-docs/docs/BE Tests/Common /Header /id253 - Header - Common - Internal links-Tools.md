@@ -20,4 +20,4 @@ tags: ['Full test', 'Header', 'Redirection', 'regression', 'Active Partly Manual
     - https://staging-scan-v2.zksync.dev/tools/debugger
 - Bridge
     - https://portal.zksync.io/bridge/
-![Screenshot](../../../../static/img/screenshots/common/Header/id253_1.png)
+![Screenshot](../../../../static/img/Common/Header/id253_1.png)

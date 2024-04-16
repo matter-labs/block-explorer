@@ -15,4 +15,4 @@ tags: ['Common', 'Error', 'Full test', 'regression', 'Smart Contract Verificatio
 - Emulate an error when receiving the list of Solc versions
                 - (e.g. block solc_versions request in Dev Tools when loading "Smart Contract Verification" page)
     - Verify error shown when failed to get list of versions below the dropdown: dropdown highlighted with red border + "Unable to get list of supported Solc versions" message shown
-      ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id343_1.png)
+      ![Screenshot](../../../../static/img/Common/SmartContractVerification/id343_1.png)

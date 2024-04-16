@@ -13,7 +13,7 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verif
 ## Scenario
 - Open https://goerli.explorer.zksync.io/contracts/verify
 - Select Solidity (Single file) in "Compiler type"
-  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id243_2.png)
+  ![Screenshot](../../../../static/img/Common/SmartContractVerification/id243_2.png)
 - Fill all the fields and verify the contract
 - Success screen shown after contract verification
     - Success mark displayed
@@ -23,4 +23,4 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verif
     - Anyone on block explorer could check it's code and interact with it
 - "Block explorer" is a link
 - "Back to Contract" button
-  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id243_1.png)
+  ![Screenshot](../../../../static/img/Common/SmartContractVerification/id243_1.png)

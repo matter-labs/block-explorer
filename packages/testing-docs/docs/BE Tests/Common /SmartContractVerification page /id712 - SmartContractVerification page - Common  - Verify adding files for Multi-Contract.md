@@ -22,4 +22,4 @@ tags: ['Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Ve
 - Verify "Choose main file" dropdown displayed
 - Open "Choose main file" dropdown
 - Verify main file can be selected from added files
-  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id712_1.png)
+  ![Screenshot](../../../../static/img/Common/SmartContractVerification/id712_1.png)
