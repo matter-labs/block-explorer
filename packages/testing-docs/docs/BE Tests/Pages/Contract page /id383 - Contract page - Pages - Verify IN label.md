@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 'Active']
+tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'Active']
 ---
 
 # id383 Contract page - Pages - Verify "IN" label
@@ -15,3 +15,4 @@ tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 
 - Open Contract page ("Transaction" tab) for the token you transferred
 - Find the transaction you made previously
 - Verify "IN" label displayed for the transaction
+  ![Screenshot](../../../../static/img/Pages/Contracts/id383_1.png)

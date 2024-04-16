@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'ZKF-2090', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'Active']
 ---
 
 # id573 Contract page - Pages - Verify Write methods
@@ -21,7 +21,9 @@ tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'ZKF-2
 - Verify user has the instruction to connect the wallet (button name "Connect wallet to write"
 - Connect MM wallet
 - Verify user can interact with Write Methods when MetaMask wallet is connected - Write Methods should be active
+  ![Screenshot](../../../../static/img/Pages/Contracts/id573_1.png)
 - Verify all the data types work correctly as inputs
     - uint256
 - string
 - bool
+  ![Screenshot](../../../../static/img/Pages/Contracts/id573_2.png)

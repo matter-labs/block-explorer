@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Contract', 'Full test', 'Automated']
+tags: ['Artifacts', 'Contract', 'Full test', 'Automated']
 ---
 
 # id271 Contract page - Pages - Artifacts (Contract)
@@ -20,3 +20,4 @@ tags: ['Artifacts', 'automated', 'Contract', 'Full test', 'Automated']
     - Verify Smart Contract
 - Drop Down menu
     - DEPLOYED BYTECODE HASH
+      ![Screenshot](../../../../static/img/Pages/Contracts/id270_1.png)

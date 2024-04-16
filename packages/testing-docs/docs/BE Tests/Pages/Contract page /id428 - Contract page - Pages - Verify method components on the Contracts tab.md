@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'Active']
+tags: ['Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id428 Contract page - Pages - Verify method components on the "Contracts" tab
@@ -19,3 +19,4 @@ tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'Active']
 - Verify method components are displayed as drop downs
 - Verify all of the drop downs are collapsed by default
 - Verify the component reveals after clicking on the drop down
+  ![Screenshot](../../../../static/img/Pages/Contracts/id428_1.png)

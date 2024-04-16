@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'Active']
+tags: ['Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id429 Contract page - Pages - Verify the content of method components on the "Contracts" tab
@@ -17,7 +17,9 @@ tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'Active']
 - Open Contract's page
 - Click on the "Contract" tab
 - Open any method component
+  ![Screenshot](../../../../static/img/Pages/Contracts/id429_1.png)
 - Verify method contains:
     - Description of the parameter
 - Type of this parameter
 - Input for this parameter (optional)
+  ![Screenshot](../../../../static/img/Pages/Contracts/id429_2.png)

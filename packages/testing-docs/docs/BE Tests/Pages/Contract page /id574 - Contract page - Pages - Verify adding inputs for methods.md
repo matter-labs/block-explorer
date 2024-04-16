@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id574 Contract page - Pages - Verify adding inputs for methods
@@ -15,3 +15,4 @@ tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Activ
 - Click on the "Contract" tab
 - Click "+" button for the method which can accept several values
 - Verify one more input for this parameter added
+  ![Screenshot](../../../../static/img/Pages/Contracts/id574_1.png)

@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id658 Contract page - Pages - Verify removing inputs for methods
@@ -17,4 +17,5 @@ tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Activ
 - Click "+" button
 - One more input for this parameter is added
 - Click "Remove" button
+  ![Screenshot](../../../../static/img/Pages/Contracts/id658_1.png)
 - Verify the input for parameter is removed

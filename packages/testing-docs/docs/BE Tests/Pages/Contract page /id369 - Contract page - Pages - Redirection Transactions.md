@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'automated', 'Contract', 'Full test', 'Navigation', 'Smoke test', 'Automated']
+tags: ['APIv1-APIv2', 'Contract', 'Full test', 'Navigation', 'Smoke test', 'Automated']
 ---
 
 # id369 Contract page - Pages - Redirection (Transactions)
@@ -15,3 +15,4 @@ tags: ['APIv1-APIv2', 'automated', 'Contract', 'Full test', 'Navigation', 'Smoke
 - Item \{\} navigates to \{\}:
     - L1 From -\> to goerli.etherscan.io page (*if any)
     - https://goerli.etherscan.io/address/0x388ea662ef2c223ec0b047d41bf3c0f362142ad5
+      ![Screenshot](../../../../static/img/Pages/Contracts/id369_1.png)

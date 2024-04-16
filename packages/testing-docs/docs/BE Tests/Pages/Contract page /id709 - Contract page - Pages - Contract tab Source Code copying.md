@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Copying', 'Full test', 'Pages', 'regression', 'ZKF-2842', 'Active']
+tags: ['Contract', 'Copying', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id709 Contract page - Pages - Contract tab (Source Code copying)
@@ -13,3 +13,4 @@ tags: ['Contract', 'Copying', 'Full test', 'Pages', 'regression', 'ZKF-2842', 'A
 ## Scenario
 - Click "Copy" button of Source Code block
 - Contract Source Code can be copied
+  ![Screenshot](../../../../static/img/Pages/Contracts/id709_1.png)

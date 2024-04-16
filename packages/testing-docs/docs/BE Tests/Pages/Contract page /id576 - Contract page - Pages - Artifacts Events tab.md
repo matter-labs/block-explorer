@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Contract', 'Events', 'Full test', 'manual', 'Pages', 'regression', 'ZKF-2363', 'Active']
+tags: ['Artifacts', 'Contract', 'Events', 'Full test', 'manual', 'Pages', 'regression', 'Active']
 ---
 
 # id576 Contract page - Pages - Artifacts (Events tab)
@@ -27,3 +27,4 @@ tags: ['Artifacts', 'Contract', 'Events', 'Full test', 'manual', 'Pages', 'regre
 - Topics
 - Data
 - Verify 25 items per one page displayed
+  ![Screenshot](../../../../static/img/Pages/Contracts/id576_1.png)

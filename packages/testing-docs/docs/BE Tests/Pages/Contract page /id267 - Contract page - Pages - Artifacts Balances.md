@@ -16,4 +16,5 @@ tags: ['Artifacts', 'Balances', 'Full test', 'manual', 'To Automate']
     - Asset
 - Balance
 - Address
+  ![Screenshot](../../../../static/img/Pages/Contracts/id267_1.png)
 - Balances table values are optional

@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'ZKF-2661', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'Active']
 ---
 
 # id673 Contract page - Pages - Connect MetaMask with incorrect network
@@ -18,9 +18,14 @@ tags: ['ABI', 'Contract', 'Full test', 'MetaMask', 'Pages', 'regression', 'ZKF-2
 - Open Contract's page
 - Click on the "Contract" tab
 - Click "Connect MetaMask" button
+  ![Screenshot](../../../../static/img/Pages/Contracts/id673_1.png)
 - MetaMask message for adding a network shown
+  ![Screenshot](../../../../static/img/Pages/Contracts/id673_2.png)
 - MetaMask message for switching a network shown
+  ![Screenshot](../../../../static/img/Pages/Contracts/id673_3.png)
 - Verify MetaMask wallet switched to correct testnet network from Mainnet
 - Verify appropriate testnet network added in MetaMask (open MetaMask network list to check)
+  ![Screenshot](../../../../static/img/Pages/Contracts/id673_4.png)
 - Verify wallet is connected
 - "Connect Metamask" label changed to the wallet address
+  ![Screenshot](../../../../static/img/Pages/Contracts/id673_5.png)

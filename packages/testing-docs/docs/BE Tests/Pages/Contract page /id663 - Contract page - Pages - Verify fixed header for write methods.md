@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id663 Contract page - Pages - Verify fixed header for "write" methods
@@ -18,3 +18,4 @@ tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Activ
 - Add 15 new inputs
 - Scroll the page
 - Verify "setDynamicArray" dropdown header is sticked on the top of the page while scrolling
+  ![Screenshot](../../../../static/img/Pages/Contracts/id663_1.png)

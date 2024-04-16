@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'automated', 'Full test', 'Search', 'Smoke test', 'Automated']
+tags: ['Account', 'Artifacts', 'Full test', 'Search', 'Smoke test', 'Automated']
 ---
 
 # id103 Common - Pages - Artifacts (Search field)
@@ -12,3 +12,4 @@ tags: ['Account', 'Artifacts', 'automated', 'Full test', 'Search', 'Smoke test',
 
 ## Scenario
 - Search field is displayed
+  ![Screenshot](../../../../static/img/Pages/CommonPagesPart/id103_1.png)

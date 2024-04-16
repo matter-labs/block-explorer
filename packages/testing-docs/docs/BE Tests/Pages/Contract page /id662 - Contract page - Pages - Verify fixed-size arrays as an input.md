@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id662 Contract page - Pages - Verify fixed-size arrays as an input
@@ -17,3 +17,4 @@ tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Activ
 - Verify none of the inputs can be empty
 - Verify amount of inputs is equal to predefined array size (3)
 - Verify inputs can't be added or removed - buttons "+" and "remove" not shown
+  ![Screenshot](../../../../static/img/Pages/Contracts/id662_1.png)

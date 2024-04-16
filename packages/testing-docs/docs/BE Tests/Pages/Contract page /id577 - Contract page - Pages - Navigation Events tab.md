@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Events', 'Full test', 'manual', 'Navigation', 'Pages', 'regression', 'ZKF-2363', 'Active']
+tags: ['Contract', 'Events', 'Full test', 'manual', 'Navigation', 'Pages', 'regression', 'Active']
 ---
 
 # id577 Contract page - Pages - Navigation (Events tab)
@@ -19,3 +19,4 @@ tags: ['Contract', 'Events', 'Full test', 'manual', 'Navigation', 'Pages', 'regr
 - Txn Hash link navigates to the Transaction page
 - Block link navigates to the Block page
 - Address link navigates to Contract page
+  ![Screenshot](../../../../static/img/Pages/Contracts/id577_1.png)

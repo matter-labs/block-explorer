@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Contract', 'Full test', 'Pages', 'Smoke test', 'Transaction', 'ZKF-2371', 'Automated']
+tags: ['Contract', 'Full test', 'Pages', 'Smoke test', 'Transaction', 'Automated']
 ---
 
 # id580 Contract page - Pages - Verify "Method" column for verified token's contract
@@ -14,3 +14,5 @@ tags: ['automated', 'Contract', 'Full test', 'Pages', 'Smoke test', 'Transaction
 - Open page for verified token's contract
 - Verify "Method" column displayed for verified contract in "Transactions" tab
 - Verify method name displayed in "Method" column for verified contract
+
+  ![Screenshot](../../../../static/img/Pages/Contracts/id580_1.png)
