@@ -23,3 +23,4 @@ tags: ['404 page', 'Artifacts', 'Full test', 'Pages', 'regression', 'Active']
 - Text
     - If you think this is a problem with us, please contact support
 - "contact support" link
+  ![Screenshot](../../../../static/img/Pages/404pages/id713_1.png)

@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'ZKF-2144', 'Automated']
+tags: ['Full test', 'Smoke test', 'Transaction', 'Automated']
 ---
 
 # id380 Acc page - Pages - Verify "IN" label
@@ -15,3 +15,4 @@ tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'ZKF-2144', 'Autom
 - Open reveiver Account page
 - Find the transaction you made previously
 - Verify "IN" label displayed for the transaction
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id380_1.png)

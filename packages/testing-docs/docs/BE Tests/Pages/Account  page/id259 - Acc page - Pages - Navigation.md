@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'APIv1-APIv2', 'automated', 'Full test', 'Navigation', 'Automated']
+tags: ['Account', 'APIv1-APIv2', 'Full test', 'Navigation', 'Automated']
 ---
 
 # id259 Acc page - Pages - Navigation
@@ -23,3 +23,4 @@ tags: ['Account', 'APIv1-APIv2', 'automated', 'Full test', 'Navigation', 'Automa
     - https://goerli.explorer.zksync.io/address/0x000000000000000000000000000000000000800A
 - Value - \> Contract page
     - https://goerli.explorer.zksync.io/address/0x000000000000000000000000000000000000800A
+    ![Screenshot](../../../../static/img/Pages/AccountsPage/id259_1.png)

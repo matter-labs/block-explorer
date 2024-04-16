@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'automated', 'Full test', 'manual', 'Smoke test', 'Active Partly Manual']
+tags: ['Account', 'Artifacts', 'Full test', 'Smoke test', 'Active Partly Manual']
 ---
 
 # id262 Acc page - Pages - Artifacts (Transactions)
@@ -34,6 +34,8 @@ tags: ['Account', 'Artifacts', 'automated', 'Full test', 'manual', 'Smoke test',
 - Value (in ETH only)
 - Fee (Fee in ETH only)
     - 0.01 ETH
+      ![Screenshot](../../../../static/img/Pages/AccountsPage/id262_1.png)
 - Pagination element with pages displayed in case there are 10+ txs for this account
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id262_2.png)
 - Open any page
 - Verify 10 other transactions loaded (if so many exist)

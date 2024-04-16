@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'ZKF-2144', 'Automated']
+tags: ['Full test', 'Smoke test', 'Transaction', 'Automated']
 ---
 
 # id381 Acc page - Pages - Verify "OUT" label
@@ -15,3 +15,4 @@ tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'ZKF-2144', 'Autom
 - Open sender Account page
 - Find the transaction you made previously
 - Verify "OUT" label displayed for the transaction
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id381_1.png)
