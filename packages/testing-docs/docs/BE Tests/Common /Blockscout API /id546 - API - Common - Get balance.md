@@ -1,5 +1,5 @@
 ---
-tags: ['API', 'Common', 'Full test', 'regression', 'ZKF-2450', 'Active']
+tags: ['API', 'Common', 'Full test', 'regression', 'Active']
 ---
 
 # id546 API - Common - Get balance

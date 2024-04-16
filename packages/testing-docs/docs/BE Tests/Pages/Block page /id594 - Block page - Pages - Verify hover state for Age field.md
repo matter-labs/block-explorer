@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-2301', 'Active']
+tags: ['Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Active']
 ---
 
 # id594 Block page - Pages - Verify hover state for 'Age' field

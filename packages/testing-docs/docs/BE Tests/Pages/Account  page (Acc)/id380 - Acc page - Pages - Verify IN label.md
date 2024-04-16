@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'ZKF-2144', 'Automated']
+tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'Automated']
 ---
 
 # id380 Acc page - Pages - Verify "IN" label

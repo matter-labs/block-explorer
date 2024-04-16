@@ -1,5 +1,5 @@
 ---
-tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verification page', 'Smoke test', 'ZKF-2841', 'Active']
+tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verification page', 'Smoke test', 'Active']
 ---
 
 # id717 SmartContractVerification page - Common - Smart contract verification - functional check (multi-file contract)

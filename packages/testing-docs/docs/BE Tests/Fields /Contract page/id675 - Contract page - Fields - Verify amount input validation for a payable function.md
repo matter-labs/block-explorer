@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'Fields', 'regression', 'ZKF-2700', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'Fields', 'regression', 'Active']
 ---
 
 # id675 Contract page - Pages - Verify amount input validation for a payable function

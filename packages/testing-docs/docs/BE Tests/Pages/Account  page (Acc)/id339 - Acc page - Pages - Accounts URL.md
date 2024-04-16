@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'automated', 'Full test', 'Pages', 'Smoke test', 'ZKF-2246', 'Automated']
+tags: ['Account', 'automated', 'Full test', 'Pages', 'Smoke test', 'Automated']
 ---
 
 # id339 Acc page - Pages - Account's URL

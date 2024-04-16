@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'Single-file', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
+tags: ['Artifacts', 'Automated', 'Full test', 'Single-file', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
 ---
 
 # id212 SmartContractVerification page - Common - Artifacts - Smart contract verification (UI for Single-Contract Solidity)

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Flaky', 'Full test', 'To Automate']
+tags: ['Artifacts',  'Flaky', 'Full test', 'To Automate']
 ---
 
 # id127 Common - Tab title

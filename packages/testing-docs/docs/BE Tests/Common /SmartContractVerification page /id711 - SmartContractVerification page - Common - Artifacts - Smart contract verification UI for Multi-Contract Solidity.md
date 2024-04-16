@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'ZKF-2841', 'Active']
+tags: ['Artifacts', 'Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'Active']
 ---
 
 # id711 SmartContractVerification page - Common - Artifacts - Smart contract verification (UI for Multi-Contract Solidity)

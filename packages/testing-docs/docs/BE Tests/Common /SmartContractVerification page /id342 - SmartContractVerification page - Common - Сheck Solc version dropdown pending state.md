@@ -1,5 +1,5 @@
 ---
-tags: ['Common', 'Full test', 'regression', 'Smart Contract Verification page', 'ZKF-2258', 'Active']
+tags: ['Common', 'Full test', 'regression', 'Smart Contract Verification page', 'Active']
 ---
 
 # id342 SmartContractVerification page - Common - Сheck Solc version dropdown pending state

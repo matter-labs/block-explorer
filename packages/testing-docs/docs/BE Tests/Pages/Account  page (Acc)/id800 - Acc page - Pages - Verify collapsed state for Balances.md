@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'manual', 'regression', 'ZKF-2858', 'Active']
+tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'manual', 'regression', 'Active']
 ---
 
 # id800 Acc page - Pages - Verify collapsed state for Balances

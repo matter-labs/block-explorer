@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke test', 'ZKF-2535', 'Active Partly Manual']
+tags: ['Artifacts', 'automated', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke test', 'Active Partly Manual']
 ---
 
 # id236 Block page - Pages - Artifacts (Left table)

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'DropDown', 'Full test', 'Header', 'manual', 'regression', 'ZKF-3179', 'Active']
+tags: ['Artifacts', 'DropDown', 'Full test', 'Header', 'manual', 'regression', 'Active']
 ---
 
 # id705 Header - Common - Artifacts - Network Drop Down

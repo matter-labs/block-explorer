@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'manual', 'Pages', 'Redirection', 'Smoke test', 'To Automate', 'ZKF-2535', 'Active']
+tags: ['Block', 'Full test', 'manual', 'Pages', 'Redirection', 'Smoke test', 'To Automate', 'Active']
 ---
 
 # id553 Block page - Pages - Redirection (Hashes)

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-2463', 'Active']
+tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Active']
 ---
 
 # id567 Block page - Pages - Verify icons for informational tooltips (Left table)

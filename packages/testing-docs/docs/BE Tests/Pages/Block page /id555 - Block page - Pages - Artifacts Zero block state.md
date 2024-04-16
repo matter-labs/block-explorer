@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Zero block', 'ZKF-2427', 'Active']
+tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Zero block', 'Active']
 ---
 
 # id555 Block page - Pages - Artifacts (Zero block state)

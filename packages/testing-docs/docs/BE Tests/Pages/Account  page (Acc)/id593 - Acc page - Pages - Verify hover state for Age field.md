@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-2301', 'Active']
+tags: ['Account', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Active']
 ---
 
 # id593 Acc page - Pages - Verify hover state for 'Age' field

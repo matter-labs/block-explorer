@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Header', 'Redirection', 'regression', 'ZKF-2447', 'Active Partly Manual']
+tags: ['Full test', 'Header', 'Redirection', 'regression', 'Active Partly Manual', 'Automated']
 ---
 
 # id253 Header - Common - Internal links-Tools

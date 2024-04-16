@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'Smoke test', 'Tooltip', 'ZKF-2463', 'Active']
+tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'Smoke test', 'Tooltip', 'Active']
 ---
 
 # id570 Block page - Pages - Verify informational tooltips on hover (Right table)

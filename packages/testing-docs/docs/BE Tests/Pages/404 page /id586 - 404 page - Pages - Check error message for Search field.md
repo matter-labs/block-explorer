@@ -1,5 +1,5 @@
 ---
-tags: ['404 page', 'Error', 'Full test', 'regression', 'Search', 'ZKF-2591', 'Active']
+tags: ['404 page', 'Error', 'Full test', 'regression', 'Search', 'Active']
 ---
 
 # id586 404 page - Pages - Check error message for Search field

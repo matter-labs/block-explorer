@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Navigation', 'Network', 'Smoke test', 'ZKF-2507', 'Automated']
+tags: ['Full test', 'Navigation', 'Network', 'Smoke test', 'Automated']
 ---
 
 # id563 Networks navigation Staging - Common - Navigation to Mainnet

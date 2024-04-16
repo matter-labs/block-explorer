@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'Hover state', 'manual', 'Pages', 'regression', 'ZKF-2535', 'Active']
+tags: ['Block', 'Full test', 'Hover state', 'manual', 'Pages', 'regression', 'Active']
 ---
 
 # id554 Block page - Pages - Verify hover state for links

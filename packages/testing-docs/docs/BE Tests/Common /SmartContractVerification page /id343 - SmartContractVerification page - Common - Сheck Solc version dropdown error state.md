@@ -1,5 +1,5 @@
 ---
-tags: ['Common', 'Error', 'Full test', 'regression', 'Smart Contract Verification page', 'ZKF-2258', 'Active']
+tags: ['Common', 'Error', 'Full test', 'regression', 'Smart Contract Verification page', 'Active']
 ---
 
 # id343 SmartContractVerification page - Common - Сheck Solc version dropdown error state
