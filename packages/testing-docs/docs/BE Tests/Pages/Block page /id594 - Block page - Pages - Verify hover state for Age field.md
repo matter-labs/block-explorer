@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-2301', 'Active']
+tags: ['Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Active']
 ---
 
 # id594 Block page - Pages - Verify hover state for 'Age' field
@@ -14,3 +14,4 @@ tags: ['Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-23
 - Open block page
 - Homer the cursor over "Age" field of any transaction raw
 - Verify tooltip with timestamp shown on hover
+  ![Screenshot](../../../../static/img/Pages/BlockPage/id594_1.png)

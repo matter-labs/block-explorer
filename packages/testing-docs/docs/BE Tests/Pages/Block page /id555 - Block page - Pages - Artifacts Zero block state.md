@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Zero block', 'ZKF-2427', 'Active']
+tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Zero block', 'Active']
 ---
 
 # id555 Block page - Pages - Artifacts (Zero block state)
@@ -15,3 +15,4 @@ tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Zero
     - Block Transactions
     - Headline - "This Block doesn't have any transactions"
 - Search icon
+  ![Screenshot](../../../../static/img/Pages/BlockPage/id555_1.png)
