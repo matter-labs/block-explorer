@@ -1,5 +1,5 @@
 ---
-tags: ['Empty state', 'Full test', 'main page', 'Pages', 'regression', 'ZKF-2497', 'Active']
+tags: ['Empty state', 'Full test', 'main page', 'Pages', 'regression', 'Active']
 ---
 
 # id584 Dashboard - Pages - Verify empty state enabling (Latest Transactions)
@@ -16,4 +16,6 @@ tags: ['Empty state', 'Full test', 'main page', 'Pages', 'regression', 'ZKF-2497
 ## Scenario
 - Simulate empty transactions request response
     - Modify response file - set '\{"list":[],"total":0\}' as response
+![Screenshot](../../../../static/img/Pages/DashboardPage/id584_1.png)
 - Verify empty state shown for Latest Transactions
+  ![Screenshot](../../../../static/img/Pages/DashboardPage/id584_2.png)

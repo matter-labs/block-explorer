@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'main page', 'Smoke test', 'ZKF-2447', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Active Partly Manual']
 ---
 
 # id273 Dashboard - Pages - Artifacts (Network stats) [Testnet]
@@ -20,3 +20,4 @@ tags: ['Artifacts', 'automated', 'Full test', 'main page', 'Smoke test', 'ZKF-24
     - Number of blocks displayed under the title
 - Transactions
     - Number of txs displayed under the title
+![Screenshot](../../../../static/img/Pages/DashboardPage/id273_1.png)

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'main page', 'Smoke test', 'UEXP-4354', 'ZKF-2447', 'Automated']
+tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Automated']
 ---
 
 # id274 Dashboard - Pages - Artifacts (Latest Batches)
@@ -21,3 +21,4 @@ tags: ['Artifacts', 'automated', 'Full test', 'main page', 'Smoke test', 'UEXP-4
 - Batch
 - Size
 - Age
+  ![Screenshot](../../../../static/img/Pages/DashboardPage/id274_1.png)

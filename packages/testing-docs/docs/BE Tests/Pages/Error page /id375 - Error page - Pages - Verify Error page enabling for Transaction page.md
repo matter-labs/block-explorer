@@ -15,3 +15,4 @@ tags: ['Error', 'Full test', 'Pages', 'Smoke test', 'ZKF-2235', 'Active']
 - Emulate an error when receiving the Tx request
                 - (e.g. block tx request in Dev Tools when loading "Transaction" page)
     - Verify "Something went wrong" error shown on Transaction page
+![Screenshot](../../../../static/img/Pages/ErrorPage/id375_1.png)
