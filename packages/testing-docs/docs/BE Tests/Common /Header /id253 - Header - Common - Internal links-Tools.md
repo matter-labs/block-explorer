@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Header', 'Redirection', 'regression', 'ZKF-2447', 'Active Partly Manual']
+tags: ['Full test', 'Header', 'Redirection', 'regression', 'Active Partly Manual', 'Automated']
 ---
 
 # id253 Header - Common - Internal links-Tools
@@ -20,3 +20,4 @@ tags: ['automated', 'Full test', 'Header', 'Redirection', 'regression', 'ZKF-244
     - https://staging-scan-v2.zksync.dev/tools/debugger
 - Bridge
     - https://portal.zksync.io/bridge/
+![Screenshot](../../../../static/img/screenshots/common/Header/id253_1.png)

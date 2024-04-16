@@ -22,7 +22,11 @@ tags: ['Actions', 'Artifacts', 'Full test', 'Multi-contract', 'Smart Contract Ve
 - Select Main file in "Main File" dropdown
 - Constructor Arguments
 - Click on Clear button
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id809_1.png)
 - Verify text fields are cleared
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id809_2.png)
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id809_3.png)
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id809_4.png)
 - Verify "ZkSolc version" and "Solc Version" dropdowns  set to default values (latest versions)
 - Verify "Optimization" radio buttons set to default values (Yes)
 - Verify uploaded files removed

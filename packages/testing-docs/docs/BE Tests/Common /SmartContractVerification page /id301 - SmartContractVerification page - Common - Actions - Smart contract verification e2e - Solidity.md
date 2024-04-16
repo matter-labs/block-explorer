@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
+tags: ['Artifacts', 'Automated', 'Full test', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
 ---
 
 # id301 SmartContractVerification page - Common - Actions - Smart contract verification (e2e - Solidity)
@@ -17,6 +17,7 @@ tags: ['Artifacts', 'automated', 'Full test', 'Smart Contract Verification page'
 
 ## Scenario
 - SCV interface:
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id301_1.png)
 - Contract address field
 - Contract Name
 - Optimization

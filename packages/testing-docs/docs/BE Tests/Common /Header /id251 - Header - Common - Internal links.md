@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Header', 'Redirection', 'Automated']
+tags: ['Full test', 'Header', 'Redirection', 'Automated']
 ---
 
 # id251 Header - Common - Internal links

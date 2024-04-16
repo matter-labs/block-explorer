@@ -1,5 +1,5 @@
 ---
-tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verification page', 'Smoke test', 'ZKF-2841', 'Active']
+tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verification page', 'Smoke test', 'Active']
 ---
 
 # id717 SmartContractVerification page - Common - Smart contract verification - functional check (multi-file contract)
@@ -9,34 +9,37 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verif
   - 2) Go to https://goerli.staging-scan-v2.zksync.dev/contracts/verify
   - Example multifile contract:
   - First file - Main.sol
-  - // SPDX-License-Identifier: MIT
-  - pragma solidity ^0.8.0;
-  - import "./Counter.sol";
-  - contract Main \{
-  - Counter private counter;
-  - constructor() \{
-  - counter = new Counter();
-  - \}
-  - function incrementCounter() public \{
-  - counter.increment();
-  - \}
-  - function getCounter() public view returns (uint256) \{
-  - return counter.getCount();
-  - \}
-  - \}
-  - _________________________________________________
+```
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+import "./Counter.sol";
+contract Main \{
+Counter private counter;
+constructor() \{
+counter = new Counter();
+\}
+function incrementCounter() public \{
+counter.increment();
+\}
+function getCounter() public view returns (uint256) \{
+return counter.getCount();
+\}
+\}
+```
+_________________________________________________
   - Second file - Counter.sol
-  - // SPDX-License-Identifier: MIT
-  - pragma solidity ^0.8.0;
-  - contract Counter \{
-  - uint256 private count;
-  - function increment() public \{
-  - count++;
-  - \}
-  - function getCount() public view returns (uint256) \{
-  - return count;
-  - \}
-  - \}
+``` // SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+contract Counter \{
+uint256 private count;
+function increment() public \{
+count++;
+\}
+function getCount() public view returns (uint256) \{
+return count;
+\}
+\}) 
+```
 
 ## Precondition
 
@@ -51,3 +54,4 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verif
 - Select "Multi-file contract" in "Compiler type" dropdown
 - Fill all the fields
 - Click "Verify smart contract"
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id717_1.png)

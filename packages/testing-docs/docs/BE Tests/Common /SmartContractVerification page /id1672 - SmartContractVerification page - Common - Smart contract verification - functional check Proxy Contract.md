@@ -15,6 +15,7 @@ tags: ['Common', 'Full test', 'manual', 'Positive', 'Proxy Contract', 'regressio
 - Open https://goerli.explorer.zksync.io/contracts/verify
 - Select "Solidity (Single file)" in "Compiler type"
 - Fill all the fields and verify the contract
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id1672_1.png)
 - Success screen shown after contract verification
     - Success mark displayed
 - Headline
@@ -23,3 +24,4 @@ tags: ['Common', 'Full test', 'manual', 'Positive', 'Proxy Contract', 'regressio
     - Anyone on block explorer could check it's code and interact with it
 - "Block explorer" is a link
 - "Back to Contract" button
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id1672_2.png)

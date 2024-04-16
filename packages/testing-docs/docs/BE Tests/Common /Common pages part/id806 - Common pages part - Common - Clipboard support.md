@@ -20,5 +20,6 @@ tags: ['Account', 'Actions', 'Common', 'Copying', 'Events', 'Active']
 - Enter in Search field "goerli.explorer.zksync.io"
 - Click on the correct record
 - Find and disable Clipboard
+  ![Screenshot](../../../../static/img/screenshots/common/Common_pages_part/id806_1.png)
 - Open pages with Copy buttons (e.g. TX page)
     - Check that no copy button is present

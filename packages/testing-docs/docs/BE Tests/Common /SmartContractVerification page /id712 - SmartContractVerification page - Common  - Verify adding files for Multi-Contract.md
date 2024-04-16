@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'ZKF-2841', 'Active']
+tags: ['Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Verification page', 'Active']
 ---
 
 # id712 SmartContractVerification page - Common  - Verify adding files for Multi-Contract
@@ -22,3 +22,4 @@ tags: ['Full test', 'manual', 'Multi-contract', 'regression', 'Smart Contract Ve
 - Verify "Choose main file" dropdown displayed
 - Open "Choose main file" dropdown
 - Verify main file can be selected from added files
+  ![Screenshot](../../../../static/img/screenshots/common/SmartContractVerification/id712_1.png)
