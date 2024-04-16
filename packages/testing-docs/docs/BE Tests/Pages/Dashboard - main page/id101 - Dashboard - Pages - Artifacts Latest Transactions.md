@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'main page', 'Smoke test', 'UEXP-4342', 'ZKF-2447', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Active Partly Manual']
 ---
 
 # id101 Dashboard - Pages - Artifacts (Latest Transactions)
@@ -17,3 +17,4 @@ tags: ['Artifacts', 'automated', 'Full test', 'main page', 'Smoke test', 'UEXP-4
     - Status
 - Transaction hash
 - Age
+  ![Screenshot](../../../../static/img/Pages/DashboardPage/id101_1.png)

@@ -1,5 +1,5 @@
 ---
-tags: ['Error', 'Full test', 'Navigation', 'Pages', 'regression', 'ZKF-2235', 'Active']
+tags: ['Error', 'Full test', 'Navigation', 'Pages', 'regression', 'Active']
 ---
 
 # id373 Error page - Pages - Navigation

@@ -15,3 +15,4 @@ tags: ['Error', 'Full test', 'Pages', 'regression', 'ZKF-2235', 'Active']
 - Emulate an error when receiving the Block request
                 - (e.g. block the block request in Dev Tools when loading "Block" page)
     - Verify "Something went wrong" error shown on Block's page
+![Screenshot](../../../../static/img/Pages/ErrorPage/id374_1.png)

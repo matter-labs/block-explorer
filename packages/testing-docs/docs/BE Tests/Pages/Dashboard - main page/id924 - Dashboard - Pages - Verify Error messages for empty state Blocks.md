@@ -16,3 +16,4 @@ tags: ['Artifacts', 'Block', 'Error', 'Full test', 'main page', 'Pages', 'regres
                 - (e.g. block the block request in Dev Tools when loading "Block" page)
     - Verify error message is present:
     - "Block information is unavailable. Please reload the page.
+![Screenshot](../../../../static/img/Pages/DashboardPage/id924_1.png)
