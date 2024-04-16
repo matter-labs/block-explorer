@@ -15,3 +15,4 @@ tags: ['Error', 'Full test', 'Pages', 'regression', 'ZKF-2235', 'Active']
 - Emulate an error when receiving the address request
                 - (e.g. block address request in Dev Tools when loading "Address" page)
     - Verify "Something went wrong" error shown on Address page
+![Screenshot](../../../../static/img/Pages/ErrorPage/id376_1.png)
