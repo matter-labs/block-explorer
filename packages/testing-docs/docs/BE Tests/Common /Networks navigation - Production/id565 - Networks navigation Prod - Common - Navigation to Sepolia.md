@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Navigation', 'Network', 'regression', 'To Automate', 'ZKF-2507', 'Active']
+tags: ['Full test', 'manual', 'Navigation', 'Network', 'regression', 'To Automate', 'Active']
 ---
 
 # id565 Networks navigation Production - Common - Navigation to Sepolia

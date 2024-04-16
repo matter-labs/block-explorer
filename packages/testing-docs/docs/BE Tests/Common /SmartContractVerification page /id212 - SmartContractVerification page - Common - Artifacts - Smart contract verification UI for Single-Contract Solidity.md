@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'Single-file', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'Single-file', 'Smart Contract Verification page', 'Smoke test', 'Solidity', 'Active Partly Manual']
 ---
 
 # id212 SmartContractVerification page - Common - Artifacts - Smart contract verification (UI for Single-Contract Solidity)
@@ -12,6 +12,7 @@ tags: ['Artifacts', 'automated', 'Full test', 'Single-file', 'Smart Contract Ver
 
 ## Scenario
 - SCV interface:
+  ![Screenshot](../../../../static/img/Common/SmartContractVerification/id212_1.png)
 - Notification
     - You can also verify your smart-contract using HardHat Plugin
 - Link - "HardHat Plugin"
@@ -40,7 +41,7 @@ tags: ['Artifacts', 'automated', 'Full test', 'Single-file', 'Smart Contract Ver
 - Text under the field: Relative path to your contract at the moment of compilation
 - Enter the Solidity Contract Code
 - Field for Solidity code
-    - Text: "If your contract uses "imports", you will need to concatenate the code into one file ( otherwise known as "flattening" ). For that purpose you can use solidity-flattener or SolidityFlattery"
+    - Text: "If your contract uses "imports", you will need to concatenate the code into one file (otherwise known as "flattening"). For that purpose you can use solidity-flattener or SolidityFlattery"
 - Link: solidity-flattener
 - Link: SolidityFlattery
 - Constructor Arguments

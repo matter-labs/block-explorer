@@ -13,6 +13,7 @@ tags: ['Artifacts', 'Full test', 'Multi-contract', 'Smart Contract Verification 
 
 ## Scenario
 - SCV interface:
+  ![Screenshot](../../../../static/img/Common/SmartContractVerification/id1626_1.png)
 - Notification
     - You can also verify your smart-contract using HardHat Plugin
 - Link - "HardHat Plugin"

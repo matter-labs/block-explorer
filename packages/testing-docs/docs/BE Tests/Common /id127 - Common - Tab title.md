@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Flaky', 'Full test', 'To Automate']
+tags: ['Artifacts',  'Flaky', 'Full test', 'To Automate']
 ---
 
 # id127 Common - Tab title
@@ -16,3 +16,4 @@ tags: ['Artifacts', 'automated', 'Flaky', 'Full test', 'To Automate']
 ## Scenario
 - Tabs titles have general pattern
     - page specific | zkSync Era Block Explorer
+      ![Screenshot](../../../static/img/Common/id127_1.png)

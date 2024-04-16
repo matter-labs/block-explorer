@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'ExternalLinks', 'Full test', 'Header', 'Redirection', 'Automated']
+tags: ['ExternalLinks', 'Full test', 'Header', 'Redirection', 'Automated']
 ---
 
 # id231 Header - Common - External links - SN icons
