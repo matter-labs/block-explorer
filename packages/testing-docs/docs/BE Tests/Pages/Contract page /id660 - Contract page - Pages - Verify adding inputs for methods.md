@@ -2,7 +2,7 @@
 tags: ['ABI', 'Contract', 'Error', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
-# id660 Contract page - Pages - Verify plus button
+# id660 Contract page - Pages - test
 
 ## Description
 - https://https://goerli.staging-scan-v2.zksync.dev/address/0xAED6e18d8fe6397fc622A17402e8EB350d6D6c45#contract
