@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'automated', 'Full test', 'manual', 'Automated']
+tags: ['Account', 'Artifacts', 'Full test', 'Automated']
 ---
 
 # id260 Acc page - Pages - Artifacts (Account info)
@@ -15,3 +15,4 @@ tags: ['Account', 'Artifacts', 'automated', 'Full test', 'manual', 'Automated']
     - Contains Address
 - Committed nonce
 - Verified nonce
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id260_1.png)
