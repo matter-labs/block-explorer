@@ -1,5 +1,5 @@
 ---
-tags: ['404 page', 'Full test', 'Pages', 'Redirection', 'regression', 'ZKF-3228', 'Active']
+tags: ['404 page', 'Full test', 'Pages', 'Redirection', 'regression', 'Active']
 ---
 
 # id714 404 page - Pages - Redirection

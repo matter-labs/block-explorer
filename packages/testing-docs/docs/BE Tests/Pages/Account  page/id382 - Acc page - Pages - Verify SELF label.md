@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'ZKF-2144', 'Automated']
+tags: ['Full test', 'Smoke test', 'Transaction', 'Automated']
 ---
 
 # id382 Acc page - Pages - Verify "SELF" label
@@ -15,3 +15,4 @@ tags: ['automated', 'Full test', 'Smoke test', 'Transaction', 'ZKF-2144', 'Autom
 - Open Account page
 - Find the transaction you made previously
 - Verify "SELF" label displayed for the transaction
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id382_1.png)

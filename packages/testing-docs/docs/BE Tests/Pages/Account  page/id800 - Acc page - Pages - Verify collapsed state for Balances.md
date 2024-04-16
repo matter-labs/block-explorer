@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'manual', 'regression', 'ZKF-2858', 'Active']
+tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'manual', 'regression', 'Active']
 ---
 
 # id800 Acc page - Pages - Verify collapsed state for Balances
@@ -19,5 +19,7 @@ tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'manual', 'regression', 
 - 5 tokens displayed in the table
 - "Show all Balances \{number\}" button displayed under the tokens list
 - Number of all tokens displayed on "Show all Balances \{number\}" button
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id800_1.png)
 - Click on "Show all Balances \{number\}" button
 - Verify expanded list of tokens displayed
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id800_2.png)

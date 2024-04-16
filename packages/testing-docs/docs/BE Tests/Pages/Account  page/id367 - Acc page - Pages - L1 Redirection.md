@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'APIv1-APIv2', 'automated', 'Full test', 'Redirection', 'regression', 'Automated']
+tags: ['Account', 'APIv1-APIv2', 'Full test', 'Redirection', 'regression', 'Automated']
 ---
 
 # id367 Acc page - Pages - L1 Redirection
@@ -18,3 +18,4 @@ tags: ['Account', 'APIv1-APIv2', 'automated', 'Full test', 'Redirection', 'regre
     - https://goerli.etherscan.io/address/0xb5f25275c24b7dcc3012fef2e3519b1a2af6bf27
 - To hash -\> to Etherscan (external link)
     - https://goerli.etherscan.io/address/0xb5f25275c24b7dcc3012fef2e3519b1a2af6bf27
+      ![Screenshot](../../../../static/img/Pages/AccountsPage/id367_1.png)

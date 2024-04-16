@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-2301', 'Active']
+tags: ['Account', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Active']
 ---
 
 # id593 Acc page - Pages - Verify hover state for 'Age' field
@@ -14,3 +14,4 @@ tags: ['Account', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-
 - Open account page
 - Homer the cursor over "Age" field of any transaction raw
 - Verify tooltip with timestamp shown on hover
+  ![Screenshot](../../../../static/img/Pages/AccountsPage/id593_1.png)

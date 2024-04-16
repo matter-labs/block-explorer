@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'Balances', 'Empty state', 'Full test', 'manual', 'regression', 'Active']
+tags: ['Account', 'Artifacts', 'Balances', 'Empty state', 'Full test', 'regression', 'Active']
 ---
 
 # id807 Acc page - Pages - Artifacts (Empty state)
@@ -25,3 +25,4 @@ tags: ['Account', 'Artifacts', 'Balances', 'Empty state', 'Full test', 'manual',
     - This account doesn’t have any transactions
 - Text
     - We can’t find any transaction related to this account. It’s your chance to be the first
+      ![Screenshot](../../../../static/img/Pages/AccountsPage/id807_1.png)
