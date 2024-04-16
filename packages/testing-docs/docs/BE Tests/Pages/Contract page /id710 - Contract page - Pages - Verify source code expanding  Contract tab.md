@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2842', 'Active']
+tags: ['Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id710 Contract page - Pages - Verify source code expanding  (Contract tab)
@@ -12,5 +12,7 @@ tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2842', 'Active']
 
 ## Scenario
 - Click "Expand" button of Source Code block
+  ![Screenshot](../../../../static/img/Pages/Contracts/id710_1.png)
 - Contract Source Code block expanded
 - "Expand" button changed to "Compress"
+  ![Screenshot](../../../../static/img/Pages/Contracts/id710_2.png)

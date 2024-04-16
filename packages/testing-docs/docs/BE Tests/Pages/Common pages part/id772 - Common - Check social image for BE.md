@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Common', 'Full test', 'Logs', 'Pages', 'regression', 'ZKF-3284', 'Active']
+tags: ['Artifacts', 'Common', 'Full test', 'Logs', 'Pages', 'regression', 'Active']
 ---
 
 # id772 Common - Check social image for BE
@@ -17,3 +17,4 @@ tags: ['Artifacts', 'Common', 'Full test', 'Logs', 'Pages', 'regression', 'ZKF-3
     - Logo: "Era Block Explorer"
 - Description: "Deep dive into zkSync Era and explore the network.
 - The zkSync Era Block Explorer provides information on transactions, blocks, contracts, and much more."
+  ![Screenshot](../../../../static/img/Pages/CommonPagesPart/id722_1.png)

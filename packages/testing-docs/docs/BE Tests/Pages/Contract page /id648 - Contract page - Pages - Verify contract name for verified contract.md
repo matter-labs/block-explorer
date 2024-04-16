@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'ZKF-2478', 'Active']
+tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Active']
 ---
 
 # id648 Contract page - Pages - Verify contract name for verified contract
@@ -14,3 +14,4 @@ tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'ZKF-2478', 'Ac
 - Open Contract's page
 - Verify contract address not shown in a headline on the top of the page
 - Verify the name of the contract added to the headline of the page.
+  ![Screenshot](../../../../static/img/Pages/Contracts/id648_1.png)

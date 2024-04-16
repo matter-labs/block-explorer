@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'automated', 'Full test', 'Navigation', 'Automated']
+tags: ['Account', 'Full test', 'Navigation', 'Automated']
 ---
 
 # id238 Common - Pages - Navigation  (Home -> Logo)
@@ -14,3 +14,4 @@ tags: ['Account', 'automated', 'Full test', 'Navigation', 'Automated']
 ## Scenario
 - Redirects to the main page:
     - Logo
+      ![Screenshot](../../../../static/img/Pages/CommonPagesPart/id103_2.png)

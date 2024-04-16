@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Error', 'Full test', 'Pages', 'regression', 'ZKF-2699', 'Active']
+tags: ['ABI', 'Contract', 'Error', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id659 Contract page - Pages - Verify error message when submitting incorrect input
@@ -19,3 +19,4 @@ tags: ['ABI', 'Contract', 'Error', 'Full test', 'Pages', 'regression', 'ZKF-2699
 - Enter incorrect input (e.g. text string in uint256 field)
 - Click "Write" button
 - Verify error message displayed for the field with incorrect input
+  ![Screenshot](../../../../static/img/Pages/Contracts/id659_1.png)

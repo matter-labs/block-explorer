@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Pages', 'Smoke test', 'ZKF-2246', 'Automated']
+tags: ['Full test', 'Pages', 'Smoke test', 'Automated']
 ---
 
 # id340 Contract page - Pages - Token's URL
@@ -14,3 +14,4 @@ tags: ['automated', 'Full test', 'Pages', 'Smoke test', 'ZKF-2246', 'Automated']
 - Open transactions's link from "Latest Transactions" section
 - Click on the token ticker's link
 - Verify opened page has \<BLOCK_EXPORER_URL\>/address/\<ACCOUNT_ADDRESS\> structure
+  ![Screenshot](../../../../static/img/Pages/Contracts/id340_1.png)

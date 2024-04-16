@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Contract', 'Copying', 'Full test', 'Automated']
+tags: ['Contract', 'Copying', 'Full test', 'Automated']
 ---
 
 # id269 Contract page - Pages - Hashes copying
@@ -15,3 +15,4 @@ tags: ['automated', 'Contract', 'Copying', 'Full test', 'Automated']
     - Address
 - *Contract hashes - if any
 - Contract hash from the title
+  ![Screenshot](../../../../static/img/Pages/Contracts/id269_1.png)

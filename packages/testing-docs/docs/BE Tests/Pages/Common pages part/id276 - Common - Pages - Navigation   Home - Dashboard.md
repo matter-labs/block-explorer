@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'automated', 'Full test', 'Navigation', 'Automated']
+tags: ['Account', 'Full test', 'Navigation', 'Automated']
 ---
 
 # id276 Common - Pages - Navigation   (Home -> Dashboard)
@@ -14,3 +14,5 @@ tags: ['Account', 'automated', 'Full test', 'Navigation', 'Automated']
 ## Scenario
 - Navigation to the main page:
     - Dashboard
+
+![Screenshot](../../../../static/img/Pages/CommonPagesPart/id276_1.png)

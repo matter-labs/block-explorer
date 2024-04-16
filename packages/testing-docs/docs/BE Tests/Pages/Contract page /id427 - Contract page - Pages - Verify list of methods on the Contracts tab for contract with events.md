@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'Active']
+tags: ['Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id427 Contract page - Pages - Verify list of methods on the "Contracts" tab for contract with events
@@ -21,3 +21,5 @@ tags: ['Contract', 'Full test', 'Pages', 'regression', 'ZKF-2134', 'Active']
     - greet
 - Write
     - setGreeting
+
+![Screenshot](../../../../static/img/Pages/Contracts/id427_1.png)

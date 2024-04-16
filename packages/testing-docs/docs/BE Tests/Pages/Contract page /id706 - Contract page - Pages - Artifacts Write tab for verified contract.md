@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-3181', 'Active']
+tags: ['Artifacts', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id706 Contract page - Pages - Artifacts ("Write" tab for verified contract)
@@ -20,3 +20,4 @@ tags: ['Artifacts', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-3181', 
 - Label - Type of this parameter
 - Optional - Input for this parameter
 - "Write" button (if MetaMask is connected)
+  ![Screenshot](../../../../static/img/Pages/Contracts/id706_1.png)

@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2701', 'Active']
+tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id617 Contract page - Pages - Verify "Contract" tab of pure functions with only Read methods
@@ -16,3 +16,4 @@ tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'ZKF-2701', 'Activ
 - Click on the "Contract" tab
 - Verify functions are visible under a Read section
 - Verify no MetaMask connect button displayed
+  ![Screenshot](../../../../static/img/Pages/Contracts/id617_1.png)

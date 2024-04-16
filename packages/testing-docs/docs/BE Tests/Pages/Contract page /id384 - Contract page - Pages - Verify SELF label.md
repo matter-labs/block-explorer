@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 'Active']
+tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'Active']
 ---
 
 # id384 Contract page - Pages - Verify "SELF" label
@@ -15,3 +15,4 @@ tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 
 - Open Contract page ("Transaction" tab) for the token you transferred
 - Find the transaction you made previously
 - Verify "SELF" label displayed for the transaction
+  ![Screenshot](../../../../static/img/Pages/Contracts/id384_1.png)

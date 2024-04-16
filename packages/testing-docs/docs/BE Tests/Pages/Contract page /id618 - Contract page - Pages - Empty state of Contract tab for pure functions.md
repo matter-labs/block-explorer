@@ -1,5 +1,5 @@
 ---
-tags: ['ABI', 'Contract', 'Empty state', 'Full test', 'Pages', 'regression', 'ZKF-2701', 'Active']
+tags: ['ABI', 'Contract', 'Empty state', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id618 Contract page - Pages - Empty state of "Contract" tab for pure functions
@@ -15,6 +15,7 @@ tags: ['ABI', 'Contract', 'Empty state', 'Full test', 'Pages', 'regression', 'ZK
 - Open Contract's page
 - Click on the "Contract" tab
 - Verify no Write/Read headers displayed
+  ![Screenshot](../../../../static/img/Pages/Contracts/id618_1.png)
 - Verify no MetaMask connect button displayed
 - Text shown
     - This contract does not have Read/Write functions for interaction
