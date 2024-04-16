@@ -12,7 +12,7 @@ tags: ['ABI', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 
 ## Scenario
 - Open Contract's page
-- Click o the "Contract" tab
+- Click on the "Contract" tab
 - Verify "+" button shown only for writing methods which can receive an array as an input - value type has [] (e.g. uint 256[])
 - Verify button "+" isn't available for parameter if this parameter could accept single value (e.g. uint256).
   ![Screenshot](../../../../static/img/Pages/Contracts/id660_1.png)
