@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'manual', 'Navigation', 'Pages', 'Smoke test', 'Txn Batch', 'Active']
+tags: ['Block', 'Full test', 'Navigation', 'Pages', 'Smoke test', 'Txn Batch', 'Active']
 ---
 
 # id752 Block page - Pages - Navigation (Block info table)
@@ -13,3 +13,4 @@ tags: ['Block', 'Full test', 'manual', 'Navigation', 'Pages', 'Smoke test', 'Txn
 ## Scenario
 - Batch link redirects to to batch page
     - https://goerli.staging-scan-v2.zksync.dev/batch/1
+      ![Screenshot](../../../../static/img/Pages/BlockPage/id752_1.png)

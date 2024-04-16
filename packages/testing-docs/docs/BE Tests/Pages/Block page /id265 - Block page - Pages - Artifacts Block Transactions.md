@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Block', 'Full test', 'regression', 'Active Partly Manual']
+tags: ['Artifacts', 'Block', 'Full test', 'regression', 'Active Partly Manual']
 ---
 
 # id265 Block page - Pages - Artifacts (Block Transactions)
@@ -26,3 +26,4 @@ tags: ['Artifacts', 'automated', 'Block', 'Full test', 'regression', 'Active Par
 - Value
 - Fee (Fee in ETH only)
 - Pagination element (if any) can be displayed under Block Transaction table (optional) in case block contains 10+ txs
+  ![Screenshot](../../../../static/img/Pages/BlockPage/id265_1.png)

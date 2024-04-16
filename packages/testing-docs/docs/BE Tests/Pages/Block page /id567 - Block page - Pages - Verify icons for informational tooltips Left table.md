@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'ZKF-2463', 'Active']
+tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Active']
 ---
 
 # id567 Block page - Pages - Verify icons for informational tooltips (Left table)
@@ -18,3 +18,5 @@ tags: ['Artifacts', 'Block', 'Full test', 'manual', 'Pages', 'regression', 'Tool
 - Batch
 - Root Hash
 - Timestamp
+
+  ![Screenshot](../../../../static/img/Pages/BlockPage/id567_1.png)
