@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 'Active']
+tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'Active']
 ---
 
 # id377 Txs page - Pages - Verify "IN" label
@@ -15,3 +15,4 @@ tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 
 - Open reveiver Account page
 - Find the transaction you made previously
 - Verify "IN" label displayed for the transaction
+  ![Screenshot](../../../../static/img/Pages/TransactionsPage/id377_1.png)
