@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Navigation', 'Smoke test', 'Token', 'Automated']
+tags: ['Full test', 'Navigation', 'Smoke test', 'Token', 'Automated']
 ---
 
 # id250 Tokens page - Pages - Navigation
@@ -14,3 +14,4 @@ tags: ['automated', 'Full test', 'Navigation', 'Smoke test', 'Token', 'Automated
 - Open Tokens page
 - Click on the link of token address
 - Token address link navigates to appropriate token page
+  ![Screenshot](../../../../static/img/Pages/MaintenancePage/id250_1.png)

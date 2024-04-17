@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Maintenance', 'Pages', 'regression', 'ZKF-1970', 'Active']
+tags: ['Full test', 'Maintenance', 'Pages', 'regression', 'Active']
 ---
 
 # id366 Maintenance page - Pages - Verify Maintenance enabling
@@ -15,3 +15,4 @@ tags: ['Full test', 'Maintenance', 'Pages', 'regression', 'ZKF-1970', 'Active']
 - Set "Maintenance" parameter ON
 - Open Block Explorer URL
 - Verify Maintenance page shown
+  ![Screenshot](../../../../static/img/Pages/MaintenancePage/id366_1.png)

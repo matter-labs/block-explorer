@@ -13,7 +13,8 @@ tags: ['DropDown', 'Full test', 'Logs', 'manual', 'Smoke test', 'Transaction', '
 ## Scenario
 - Logs tab contains Drop Down lists for:
     - Topics
-- Data
+    - Data
+![Screenshot](../../../../static/img/Pages/TransactionLogsPage/id258_1.png)
 - Verify drop down list values:
     - Hex
 - Number

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'Smoke test', 'Token', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'Smoke test', 'Token', 'Active Partly Manual']
 ---
 
 # id249 Tokens page - Pages - Artifacts
@@ -21,3 +21,4 @@ tags: ['Artifacts', 'automated', 'Full test', 'Smoke test', 'Token', 'Active Par
 - Price
 - Token address
     - L2 label for contract address is displayed
+      ![Screenshot](../../../../static/img/Pages/MaintenancePage/id249_1.png)

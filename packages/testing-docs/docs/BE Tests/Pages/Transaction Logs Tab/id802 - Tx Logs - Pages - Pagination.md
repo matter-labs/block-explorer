@@ -12,6 +12,7 @@ tags: ['Full test', 'Logs', 'Pages', 'Pagination', 'Positive', 'regression', 'Tr
 
 ## Scenario
 - Pagination element available in the end of page
+  ![Screenshot](../../../../static/img/Pages/TransactionLogsPage/id802_1.png)
 - Displayed for transactions with 25+ logs
 - User can navigate to the next page via "\>" buitton
 - User can navigate to previous page via "\<" button

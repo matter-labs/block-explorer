@@ -15,3 +15,4 @@ tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 
 - Open transactions page
 - Find the transaction you made previously
 - Verify "SELF" label displayed for the transaction
+  ![Screenshot](../../../../static/img/Pages/TransactionsPage/id379_1.png)

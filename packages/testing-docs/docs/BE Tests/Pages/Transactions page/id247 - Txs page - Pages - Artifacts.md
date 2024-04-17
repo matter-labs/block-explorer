@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'Artifacts', 'automated', 'Full test', 'Transaction', 'UEXP-4361', 'Active Partly Manual']
+tags: ['APIv1-APIv2', 'Artifacts', 'Full test', 'Transaction', 'Active Partly Manual']
 ---
 
 # id247 Txs page - Pages - Artifacts
@@ -15,8 +15,14 @@ tags: ['APIv1-APIv2', 'Artifacts', 'automated', 'Full test', 'Transaction', 'UEX
 - Transactions page contains 10 rows of:
     - Statuses
     - Failled on \<zkSync logo\>
-- Processed on \<zkSync logo\>
-- Executed on \<ETH logo\>
+
+  ![Screenshot](../../../../static/img/Pages/TransactionsPage/id247_1.png)
+    - Processed on \<zkSync logo\>
+
+![Screenshot](../../../../static/img/Pages/TransactionsPage/id247_2.png)
+    - Executed on \<ETH logo\>
+
+![Screenshot](../../../../static/img/Pages/TransactionsPage/id247_3.png)
 - Transaction Hash
 - From Hash
 - To In/Out/Self
@@ -25,3 +31,4 @@ tags: ['APIv1-APIv2', 'Artifacts', 'automated', 'Full test', 'Transaction', 'UEX
 - Fee (Fee in ETH only)
 - Age
     - Timestamp can be copied on click
+      ![Screenshot](../../../../static/img/Pages/TransactionsPage/id247_4.png)
