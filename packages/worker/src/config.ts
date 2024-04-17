@@ -41,7 +41,7 @@ export default () => {
     },
     dataFetcher: {
       url: DATA_FETCHER_URL || "http://localhost:3040",
-      requestTimeout: parseInt(DATA_FETCHER_REQUEST_TIMEOUT, 10) || 60_000,
+      requestTimeout: parseInt(DATA_FETCHER_REQUEST_TIMEOUT, 10) || 150_000,
     },
     blocks: {
       waitForBlocksInterval: parseInt(WAIT_FOR_BLOCKS_INTERVAL, 10) || 1000,
