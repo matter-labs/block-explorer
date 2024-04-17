@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Contract', 'Full test', 'Smoke test', 'Transaction', 'Activ
 # id927 Contract page - Pages - Artifacts (Transactions) -  Transfers tab
 
 ## Description
-  - https://goerli.explorer.zksync.io/address/0x40609141Db628BeEE3BfAB8034Fc2D8278D0Cc78
+  - https://sepolia.explorer.zksync.io/address/0x53d67E04c777a725C05399850eb942348444B5AF
 
 ## Precondition
 

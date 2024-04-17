@@ -5,7 +5,7 @@ tags: ['Account', 'Copying', 'Full test', 'Automated']
 # id266 Block page - Pages - Hashes copying
 
 ## Description
-  - USDC example: 0x54a14d7559baf2c8e8fa504e019d32479739018c
+  - USDC example: 0x1d17CBcF0D6D143135aE902365D2E5e2A16538D4
 
 ## Precondition
 

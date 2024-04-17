@@ -11,5 +11,5 @@ tags: ['Full test', 'Pages', 'Redirection', 'Transaction', 'Active Partly Manual
 
 
 ## Scenario
-- L1 Tokens Transferred -\>  to goerli.etherscan.io
+- L1 Tokens Transferred -\>  to sepolia.etherscan.io
     - https://etherscan.io/address/0x08d211E22dB19741FF25838A22e4e696FeE7eD36

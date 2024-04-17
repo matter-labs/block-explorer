@@ -16,8 +16,6 @@ tags: ['Full test', 'Header', 'Redirection', 'regression', 'Active Partly Manual
     - https://block-explorer-api.mainnet.zksync.io/docs
 - Smart Contract Verification
     - https://staging-scan-v2.zksync.dev/contracts/verify
-- zkEVM Debugger (not visible in the menu)
-    - https://staging-scan-v2.zksync.dev/tools/debugger
 - Bridge
     - https://portal.zksync.io/bridge/
 ![Screenshot](../../../../static/img/Common/Header/id253_1.png)

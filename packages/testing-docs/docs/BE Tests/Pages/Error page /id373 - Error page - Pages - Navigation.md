@@ -12,4 +12,4 @@ tags: ['Error', 'Full test', 'Navigation', 'Pages', 'regression', 'Active']
 
 ## Scenario
 - CTA: Homepage - link navigates to the Home page
-    - https://goerli.explorer.zksync.io/
+    - https://sepolia.explorer.zksync.io/

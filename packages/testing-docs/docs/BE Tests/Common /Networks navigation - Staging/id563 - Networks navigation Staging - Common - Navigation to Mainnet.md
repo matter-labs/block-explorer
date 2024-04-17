@@ -5,7 +5,7 @@ tags: ['Full test', 'Navigation', 'Network', 'Smoke test', 'Automated']
 # id563 Networks navigation Staging - Common - Navigation to Mainnet
 
 ## Description
-  - Preconditions: user opens any BE page with zkSync Era Testnet or Goerli (Stage2) network selected
+  - Preconditions: user opens any BE page with zkSync Era Testnet or Sepolia (Stage2) network selected
 
 ## Precondition
 

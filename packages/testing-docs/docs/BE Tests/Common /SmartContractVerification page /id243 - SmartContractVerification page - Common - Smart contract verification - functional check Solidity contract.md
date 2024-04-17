@@ -11,7 +11,7 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verif
 
 
 ## Scenario
-- Open https://goerli.explorer.zksync.io/contracts/verify
+- Open https://sepolia.explorer.zksync.io/contracts/verify
 - Select Solidity (Single file) in "Compiler type"
   ![Screenshot](../../../../static/img/Common/SmartContractVerification/id243_2.png)
 - Fill all the fields and verify the contract

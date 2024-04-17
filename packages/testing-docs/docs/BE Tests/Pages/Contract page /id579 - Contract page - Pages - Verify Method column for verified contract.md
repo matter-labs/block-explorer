@@ -5,7 +5,7 @@ tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Transaction', 
 # id579 Contract page - Pages - Verify "Method" column for verified contract
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/address/0x614cbc518294b54bd41f41b31c4f1ebfdd81cd39#transactions - page for verified contract with at least 1 tx
+  - https://sepolia.staging-scan-v2.zksync.dev/address/0x614cbc518294b54bd41f41b31c4f1ebfdd81cd39#transactions - page for verified contract with at least 1 tx
 
 ## Precondition
 

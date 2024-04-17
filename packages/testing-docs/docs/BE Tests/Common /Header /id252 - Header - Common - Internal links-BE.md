@@ -15,8 +15,8 @@ tags: ['Full test', 'Header', 'Redirection', 'Active Partly Manual']
     - Blocks
     - https://staging-scan-v2.zksync.dev/blocks/
 - Batches
-    - https://goerli.explorer.zksync.io/batches/
+    - https://sepolia.explorer.zksync.io/batches/
 - Transactions
     - https://staging-scan-v2.zksync.dev/transactions/
 - Tokens
-    - https://goerli.explorer.zksync.io/tokens
+    - https://sepolia.explorer.zksync.io/tokens

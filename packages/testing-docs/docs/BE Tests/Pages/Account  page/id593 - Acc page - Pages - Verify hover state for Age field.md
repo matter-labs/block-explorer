@@ -5,7 +5,7 @@ tags: ['Account', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Acti
 # id593 Acc page - Pages - Verify hover state for 'Age' field
 
 ## Description
-  - https://goerli.explorer.zksync.io/address/0xef531e111c4ce761e9b6a9f53046c6fdcf53187d
+  - https://sepolia.explorer.zksync.io/address/0xd0a16CBeb6da098B872785bFAc282f84F8Ca5993
 
 ## Precondition
 

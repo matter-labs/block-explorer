@@ -5,7 +5,7 @@ tags: ['Contract', 'Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Act
 # id595 Contract page - Pages - Verify hover state for 'Age' field
 
 ## Description
-  - https://goerli.explorer.zksync.io/address/0x0000000000000000000000000000000000000000
+  - https://sepolia.explorer.zksync.io/address/0x0000000000000000000000000000000000000000
 
 ## Precondition
 

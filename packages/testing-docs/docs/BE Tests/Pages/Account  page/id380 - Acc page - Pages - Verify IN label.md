@@ -5,7 +5,7 @@ tags: ['Full test', 'Smoke test', 'Transaction', 'Automated']
 # id380 Acc page - Pages - Verify "IN" label
 
 ## Description
-  - - I am on https://staging-scan-v2.zksync.dev/address/addresshash page (https://goerli.explorer.zksync.io/address/0xd0d84927ff84183ca8899b21116e480a3863fe61)
+  - - I am on https://staging-scan-v2.zksync.dev/address/addresshash page (https://sepolia.explorer.zksync.io/address/0xd0a16CBeb6da098B872785bFAc282f84F8Ca5993)
   - Preconditions: Make transaction from L1/L2 address to another L2 address
 
 ## Precondition

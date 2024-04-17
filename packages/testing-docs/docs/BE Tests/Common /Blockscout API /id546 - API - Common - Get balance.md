@@ -9,7 +9,7 @@ Create a Custom token
 
 ###### Step 1
 
-Create your own ERC20 token on L1 on Goerli network:
+Create your own ERC20 token on L1 on Sepolia network:
 - it should have the following name: 
   - 2 first letters of your First Name and 2 first letters of your Last Name.
 For example for me it would be ANdrii DRebot, so ANDR.- 

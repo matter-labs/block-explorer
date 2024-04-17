@@ -5,7 +5,7 @@ tags: ['404 page', 'Artifacts', 'Full test', 'Pages', 'regression', 'Active']
 # id713 404 page - Pages - Artifacts
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/a
+  - https://sepolia.staging-scan-v2.zksync.dev/a
 
 ## Precondition
 

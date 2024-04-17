@@ -18,5 +18,5 @@ tags: ['Full test', 'manual', 'Pages', 'Redirection', 'Smoke test', 'Transaction
     - Sent
 - Validated
 - Executed
-- Verify each dropdown item link redirects to it's https://goerli.etherscan.io/tx/\{tx_hash\} page
+- Verify each dropdown item link redirects to it's https://sepolia.etherscan.io/tx/\{tx_hash\} page
 ![Screenshot](../../../../static/img/Pages/Transaction%20page/id1671.png)

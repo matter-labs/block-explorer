@@ -12,7 +12,7 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verif
 
 ## Scenario
 - Pass the tutorial
-- Open https://goerli.explorer.zksync.io/contracts/verify
+- Open https://sepolia.explorer.zksync.io/contracts/verify
 - Select Vyper (Single file) in "Compiler type"
   ![Screenshot](../../../../static/img/Common/SmartContractVerification/id1621_1.png)
 - Fill all the fields and verify the contract

@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Full test', 'Smoke test', 'Token', 'Active Partly Manual']
 # id249 Tokens page - Pages - Artifacts
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/tokenlist
+  - https://sepolia.staging-scan-v2.zksync.dev/tokenlist
 
 ## Precondition
 

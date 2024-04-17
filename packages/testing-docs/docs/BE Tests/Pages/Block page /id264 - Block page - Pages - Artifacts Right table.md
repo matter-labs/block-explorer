@@ -13,12 +13,12 @@ tags: ['Artifacts', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke test', 'Activ
 ## Scenario
 - Right block table contains the following fields:
     - Commit tx hash
-    - Link to goerli.etherscan.io
+    - Link to sepolia.etherscan.io
 - Committed
 - Prove tx hash
-    - Link to goerli.etherscan.io
+    - Link to sepolia.etherscan.io
 - Proven
 - Execute tx hash
-    - Link to goerli.etherscan.io
+    - Link to sepolia.etherscan.io
 - Executed
   ![Screenshot](../../../../static/img/Pages/BlockPage/id264_1.png)

@@ -6,7 +6,6 @@ tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Automated']
 
 ## Description
   - New status design
-  - https://linear.app/matterlabs/issue/UEXP-4354/be-fe-redesign-batch-statuses-on-batches-list-page
 
 ## Precondition
 
