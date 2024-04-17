@@ -32,7 +32,7 @@ export default function Home(): JSX.Element {
   const {siteConfig} = useDocusaurusContext();
   return (
     <Layout
-      title={`Hello from ${siteConfig.title}`}
+      title={`zkSync Test Docs for ${siteConfig.title}`}
       description="">
       <HomepageHeader />
       <main>
