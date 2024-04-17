@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Contract', 'Full test', 'Pages', 'regression', 'Active']
 # id708 Contract page - Pages - Artifacts ("Contracts" tab for verified multi-file contract)
 
 ## Description
-  - https://staging-scan-v2--pr292-dr-zkf-2842-support-hzmgsgbc.web.app/address/0x894DFD731681a8615614533637938a4e337d1F8f#contract
+  - https://sepolia.explorer.zksync.io/address/0x53d67E04c777a725C05399850eb942348444B5AF
 
 ## Precondition
 

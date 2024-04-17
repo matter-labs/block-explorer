@@ -5,7 +5,7 @@ tags: ['Contract', 'Full test', 'Pages', 'Smoke test', 'Transaction', 'Automated
 # id578 Contract page - Pages - Verify "Method" column for non verified contract
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/address/0x0000000000000000000000000000000000000000
+  - https://sepolia.staging-scan-v2.zksync.dev/address/0x0000000000000000000000000000000000000000
 
 ## Precondition
 

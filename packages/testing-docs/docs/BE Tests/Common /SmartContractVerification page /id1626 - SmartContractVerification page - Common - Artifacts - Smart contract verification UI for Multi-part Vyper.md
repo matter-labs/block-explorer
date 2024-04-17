@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Full test', 'Multi-contract', 'Smart Contract Verification 
 # id1626 SmartContractVerification page - Common - Artifacts - Smart contract verification (UI for Multi-part Vyper)
 
 ## Description
-  - https://goerli.explorer.zksync.io/contracts/verify
+  - https://sepolia.explorer.zksync.io/contracts/verify
   - Select "Vyper (Multi-part contract)" in "Compiler type" dropdown
 
 ## Precondition

@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Common', 'Full test', 'main page', 'regression', 'Active']
 # id695 Common - Check metadata of the page (ENG)
 
 ## Description
-  - Environment:https://goerli-beta.staging-scan-v2.zksync.dev/
+  - Environment:https://sepolia.staging-scan-v2.zksync.dev/
 
 ## Precondition
 

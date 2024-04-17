@@ -5,12 +5,12 @@ tags: ['Block', 'Full test', 'Navigation', 'Pages', 'Smoke test', 'Txn Batch', '
 # id752 Block page - Pages - Navigation (Block info table)
 
 ## Description
-  - Open https://goerli.staging-scan-v2.zksync.dev/block/1 page
+  - Open https://sepolia.staging-scan-v2.zksync.dev/block/1 page
 
 ## Precondition
 
 
 ## Scenario
 - Batch link redirects to to batch page
-    - https://goerli.staging-scan-v2.zksync.dev/batch/1
+    - https://sepolia.staging-scan-v2.zksync.dev/batch/1
       ![Screenshot](../../../../static/img/Pages/BlockPage/id752_1.png)

@@ -13,6 +13,6 @@ tags: ['APIv1-APIv2', 'Contract', 'Full test', 'Navigation', 'Smoke test', 'Auto
 
 ## Scenario
 - Item \{\} navigates to \{\}:
-    - L1 From -\> to goerli.etherscan.io page (*if any)
-    - https://goerli.etherscan.io/address/0x388ea662ef2c223ec0b047d41bf3c0f362142ad5
+    - L1 From -\> to sepolia.etherscan.io page (*if any)
+    - https://sepolia.etherscan.io/address/0x388ea662ef2c223ec0b047d41bf3c0f362142ad5
       ![Screenshot](../../../../static/img/Pages/Contracts/id369_1.png)

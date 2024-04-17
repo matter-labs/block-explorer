@@ -6,7 +6,6 @@ tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Active Partly Manua
 
 ## Description
   - New satus design component:
-  - https://linear.app/matterlabs/issue/UEXP-4342/be-fe-improve-tx-statuses-on-tx-list-page
 
 ## Precondition
 

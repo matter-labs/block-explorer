@@ -5,7 +5,7 @@ tags: ['ABI', 'Contract', 'Error', 'Full test', 'Pages', 'regression', 'Active']
 # id659 Contract page - Pages - Verify error message when submitting incorrect input
 
 ## Description
-  - https://https://goerli.staging-scan-v2.zksync.dev/address/0xAED6e18d8fe6397fc622A17402e8EB350d6D6c45#contract
+  - https://sepolia.staging-scan-v2.zksync.dev/address/0x53d67E04c777a725C05399850eb942348444B5AF#contract
 
 ## Precondition
 

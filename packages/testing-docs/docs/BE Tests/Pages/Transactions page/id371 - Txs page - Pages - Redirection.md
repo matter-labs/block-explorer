@@ -11,7 +11,7 @@ tags: ['Full test', 'manual', 'Redirection', 'Smoke test', 'To Automate', 'Trans
 
 
 ## Scenario
-- L1 From redirects to goerli.etherscan.io
-    - https://goerli.etherscan.io/address/0x1a09ebdce481335c809c766a221909f1cabe9947
-- L1 To redirects to goerli.etherscan.io
-    - https://goerli.etherscan.io/address/0x1a09ebdce481335c809c766a221909f1cabe9947
+- L1 From redirects to sepolia.etherscan.io
+    - https://sepolia.etherscan.io/address/0x1a09ebdce481335c809c766a221909f1cabe9947
+- L1 To redirects to sepolia.etherscan.io
+    - https://sepolia.etherscan.io/address/0x1a09ebdce481335c809c766a221909f1cabe9947

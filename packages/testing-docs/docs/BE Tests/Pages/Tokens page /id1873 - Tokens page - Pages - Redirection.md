@@ -5,7 +5,7 @@ tags: ['Full test', 'manual', 'Redirection', 'Token', 'Active']
 # id1873 Tokens page - Pages - Redirection
 
 ## Description
-  - https://goerli.explorer.zksync.io/tokenlist
+  - https://sepolia.explorer.zksync.io/tokenlist
 
 ## Precondition
 

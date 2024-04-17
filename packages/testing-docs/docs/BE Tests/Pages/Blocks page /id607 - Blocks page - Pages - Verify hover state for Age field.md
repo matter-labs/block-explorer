@@ -5,7 +5,7 @@ tags: ['Block', 'Full test', 'Hover state', 'manual', 'regression', 'Active']
 # id607 Blocks page - Pages - Verify hover state for 'Age' field
 
 ## Description
-  - https://goerli.explorer.zksync.io/blocks/
+  - https://sepolia.explorer.zksync.io/blocks/
 
 ## Precondition
 
