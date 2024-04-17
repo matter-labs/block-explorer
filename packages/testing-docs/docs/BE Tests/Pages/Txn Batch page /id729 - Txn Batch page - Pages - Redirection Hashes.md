@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'Redirection', 'regression', 'Txn Batch', 'ZKF-3254', 'Active']
+tags: ['Full test', 'manual', 'Pages', 'Redirection', 'regression', 'Txn Batch', 'Active']
 ---
 
 # id729 Txn Batch page - Pages - Redirection (Hashes)
@@ -11,6 +11,9 @@ tags: ['Full test', 'manual', 'Pages', 'Redirection', 'regression', 'Txn Batch',
 
 
 ## Scenario
-- Commit tx hash link redirects to to goerli.etherscan.io
-- Prove tx hash link redirects to to goerli.etherscan.io
-- Execute tx hash link redirects to to goerli.etherscan.io
+- Commit tx hash link redirects to to sepolia.etherscan.io
+![Screenshot](../../../../static/img/Pages/Batch%20page/id729_1.png)
+- Prove tx hash link redirects to to sepolia.etherscan.io
+![Screenshot](../../../../static/img/Pages/Batch%20page/id729_2.png)
+- Execute tx hash link redirects to to sepolia.etherscan.io
+![Screenshot](../../../../static/img/Pages/Batch%20page/id729_3.png)

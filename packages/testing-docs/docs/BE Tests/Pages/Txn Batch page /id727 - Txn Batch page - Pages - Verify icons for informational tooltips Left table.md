@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Txn Batch', 'ZKF-3254', 'Active']
+tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Txn Batch', 'Active']
 ---
 
 # id727 Txn Batch page - Pages - Verify icons for informational tooltips (Left table)
@@ -13,7 +13,9 @@ tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Txn Batch', 'ZK
 ## Scenario
 - Informational tooltip icon available for the fields labels of left Batch :
     - Batch Index
-- Batch Size
-- Timestamp
-- Batch Root
-- Commit tx hash
+    - Batch Size
+    - Timestamp
+    - Batch Root
+    - Commit tx hash
+
+![Screenshot](../../../../static/img/Pages/Batch%20page/id727.png)
