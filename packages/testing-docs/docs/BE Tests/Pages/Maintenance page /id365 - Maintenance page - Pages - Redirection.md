@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Maintenance', 'Pages', 'Redirection', 'regression', 'ZKF-1970', 'Active']
+tags: ['Full test', 'Maintenance', 'Pages', 'Redirection', 'regression', 'Active']
 ---
 
 # id365 Maintenance page - Pages - Redirection

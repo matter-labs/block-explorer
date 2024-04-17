@@ -73,3 +73,4 @@ tags: ['Artifacts', 'Full test', 'Mainnet', 'manual', 'Smoke test', 'Token', 'Ac
 - Full name
 - Icon
 - Tokens are sorted by liquidity
+  ![Screenshot](../../../../static/img/Pages/MaintenancePage/id815_1.png)

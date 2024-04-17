@@ -18,6 +18,7 @@ tags: ['Artifacts', 'Full test', 'manual', 'Smoke test', 'Token', 'Active']
 - ZKSP
 - DOGE
 - veVC
+  ![Screenshot](../../../../static/img/Pages/MaintenancePage/id816_1.png)
 - Each token has:
     - Ticker
 - Full name

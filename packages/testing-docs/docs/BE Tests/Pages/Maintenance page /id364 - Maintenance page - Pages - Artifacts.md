@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'Maintenance', 'Pages', 'regression', 'ZKF-1970', 'Active']
+tags: ['Artifacts', 'Full test', 'Maintenance', 'Pages', 'regression', 'Active']
 ---
 
 # id364 Maintenance page - Pages - Artifacts
@@ -18,3 +18,4 @@ tags: ['Artifacts', 'Full test', 'Maintenance', 'Pages', 'regression', 'ZKF-1970
 - Text: zkSync [Network] is unavailable due to maintainance, you can find updates in out zkSync Developers or on UpTime
 - UpTime link
 - CTA: zkSync Developers
+  ![Screenshot](../../../../static/img/Pages/MaintenancePage/id364_1.png)

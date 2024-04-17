@@ -14,3 +14,4 @@ tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Transaction', '
 - Open transactions page
 - Homer the cursor over "Age" field of any transaction raw
 - Verify tooltip with timestamp shown on hover
+  ![Screenshot](../../../../static/img/Pages/TransactionsPage/id596_1.png)
