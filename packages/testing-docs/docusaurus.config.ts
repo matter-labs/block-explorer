@@ -5,7 +5,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 const config: Config = {
   title: 'Block Explorer',
   tagline: '',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/logo_black_zk.png',
 
   // Set the production url of your site here
   url: 'https://be-test-docs.zksync.io/',
@@ -67,19 +67,51 @@ const config: Config = {
       ],
     },
     footer: {
+      logo: {
+        alt: 'zkSync Logo',
+        src: 'img/logo_footer.svg',
+        href: 'https://matter-labs.io/',
+        width: 120,
+        height: 30,
+      },
       style: 'dark',
       links: [
         {
-          title: 'Block Explorer',
+          title: 'zkSync Links',
           items: [
             {
-              label: 'Main link',
-              href: 'https://explorer.zksync.io/',
+              label: 'ZK Credo',
+              href: 'https://github.com/zksync/credo',
+            },
+            {
+              label: 'Ecosystem',
+              href: 'https://zksync.dappradar.com/',
+            },
+            {
+              label: 'Terms of Service',
+              href: 'https://zksync.io/terms',
             },
           ],
         },
         {
-          title: 'More',
+          title: 'ZK Project Links',
+          items: [
+            {
+              label: 'Block Explorer',
+              href: 'https://sepolia.explorer.zksync.io/',
+            },
+            {
+              label: 'Bridges & Wallets',
+              href: 'https://zksync.io/explore#bridges',
+            },
+            {
+              label: 'Github Discussions',
+              href: 'https://github.com/zkSync-Community-Hub/zksync-developers/discussions',
+            },
+          ],
+        },
+        {
+          title: 'Current project link',
           items: [
             {
               label: 'GitHub',
@@ -87,8 +119,22 @@ const config: Config = {
             },
           ],
         },
+        {
+          title: 'Contact Links',
+          items: [
+            {
+              label: 'Twitter',
+              href: 'https://twitter.com/zksync',
+            },
+            {
+              label: 'Discord',
+              href: 'https://join.zksync.dev/',
+            },
+
+          ],
+        },
       ],
-      // copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+       //copyright: `Made with ❤️ by Matter Labs`,
     },
     prism: {
       theme: prismThemes.github,
