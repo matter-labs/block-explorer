@@ -1634,7 +1634,7 @@ describe("Transactions", () => {
     });
 
     //@id1958
-    it("Verify /api?module=transaction&action=getstatus response - negative case", async () => {
+    it("Verify /api?module=transaction&action=getstatus response - incorrect transaction hash format", async () => {
       await helper.runRetriableTestAction(async () => {
         apiRoute = `/api?module=transaction&action=getstatus&txhash=0x04a4757cd59681b037c1e7bdd2402cc45a23c66ed7497614879376719d34e020a`;
         response = await helper.performBlockExplorerApiGetRequest(apiRoute);

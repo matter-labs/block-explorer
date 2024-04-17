@@ -24,7 +24,7 @@ describe("Stats", () => {
   });
 
   //@id1955
-  it("Verify the response via /action=ethprice endpoint", async () => {
+  it("Verify the response via /action=ethprice endpoint - incorrect token name", async () => {
     await helper.runRetriableTestAction(async () => {
       apiRoute = `/api?module=stats&action=ethprisce2`;
       response = await helper.performBlockExplorerApiGetRequest(apiRoute);
