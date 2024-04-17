@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Copying', 'Full test', 'Logs', 'Positive', 'Transaction', 'Automated']
+tags: ['Copying', 'Full test', 'Logs', 'Positive', 'Transaction', 'Automated']
 ---
 
 # id257 Tx Logs - Pages - Hashes copying
@@ -12,6 +12,7 @@ tags: ['automated', 'Copying', 'Full test', 'Logs', 'Positive', 'Transaction', '
 
 ## Scenario
 - Address hash can be copied
+  ![Screenshot](../../../../static/img/Pages/TransactionLogsPage/id257_1.png)
 - Topics hashes can be copied in the format of:
     - Hex
 - Number
