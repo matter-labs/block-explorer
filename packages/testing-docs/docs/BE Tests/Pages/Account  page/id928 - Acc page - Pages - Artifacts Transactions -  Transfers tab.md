@@ -5,7 +5,7 @@ tags: ['Account', 'Artifacts', 'Full test', 'Smoke test', 'Transaction', 'Active
 # id928 Acc page - Pages - Artifacts (Transactions) -  Transfers tab
 
 ## Description
-  - https://goerli.explorer.zksync.io/address/0x40609141Db628BeEE3BfAB8034Fc2D8278D0Cc78
+  - https://sepolia.explorer.zksync.io/address/0x46D8e47b9A6487FDAB0a700b269A452cFeED49Aa
 
 ## Precondition
 

@@ -6,7 +6,7 @@ tags: ['Artifacts', 'Balances', 'Full test', 'manual', 'To Automate']
 
 ## Description
   - Automation temporary switched off due to regenesis, check before release
-  - https://staging-scan-v2.zksync.dev/address/0xe9f4149276e8a4f8db89e0e3bb78fd853f01e87d
+  - https://staging-scan-v2.zksync.dev/address/0x4E14EC08875c88f9B0Cf2A075F481EDa0143d1f0
 
 ## Precondition
 

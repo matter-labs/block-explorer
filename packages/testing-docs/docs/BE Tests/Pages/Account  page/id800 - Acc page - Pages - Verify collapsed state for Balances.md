@@ -5,7 +5,7 @@ tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'manual', 'regression', 
 # id800 Acc page - Pages - Verify collapsed state for Balances
 
 ## Description
-  - Open page with a lot of tokens balance (5+ tokens) (https://goerli.staging-scan-v2.zksync.dev/address/0xd0d84927ff84183ca8899b21116e480a3863fe61)
+  - Open page with a lot of tokens balance (5+ tokens) (https://sepolia.staging-scan-v2.zksync.dev/address/0x46D8e47b9A6487FDAB0a700b269A452cFeED49Aa)
 
 ## Precondition
 

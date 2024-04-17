@@ -6,18 +6,18 @@ tags: ['Account', 'Actions', 'Common', 'Copying', 'Events', 'Active']
 
 ## Description
   - Open environment:
-  - https://goerli.explorer.zksync.io/
+  - https://sepolia.explorer.zksync.io/
 
 ## Precondition
 
 
 ## Scenario
-- Open environment page https://goerli.explorer.zksync.io/
+- Open environment page https://sepolia.explorer.zksync.io/
 - Proceed to Chrome settings
     - Navigate to "Privacy and security"
 - Navigate to "Site settings"
 - Navigate to  "View permissions and data stored across sites"
-- Enter in Search field "goerli.explorer.zksync.io"
+- Enter in Search field "sepolia.explorer.zksync.io"
 - Click on the correct record
 - Find and disable Clipboard
   ![Screenshot](../../../../static/img/Common/Common_pages_part/id806_1.png)

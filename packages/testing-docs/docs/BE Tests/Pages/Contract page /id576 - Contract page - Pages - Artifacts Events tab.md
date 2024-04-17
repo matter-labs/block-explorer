@@ -6,7 +6,7 @@ tags: ['Artifacts', 'Contract', 'Events', 'Full test', 'manual', 'Pages', 'regre
 
 ## Description
   - Open Contract page of a contract that has tx with events
-  - E.g. https://goerli.staging-scan-v2.zksync.dev/address/0x0000000000000000000000000000000000008006 (Events tab)
+  - E.g. https://sepolia.staging-scan-v2.zksync.dev/address/0x0000000000000000000000000000000000008006 (Events tab)
   - Prerequisites: (you can use https://github.com/JackHamer09/zkSync-2.0-Hardhat-example guide)
   - 1. upload your own contract with event
   - 2. verify this contract

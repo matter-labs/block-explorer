@@ -5,7 +5,7 @@ tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Transaction', '
 # id596 Txs page - Pages - Verify hover state for 'Age' field
 
 ## Description
-  - https://goerli.explorer.zksync.io/transactions
+  - https://sepolia.explorer.zksync.io/transactions
 
 ## Precondition
 

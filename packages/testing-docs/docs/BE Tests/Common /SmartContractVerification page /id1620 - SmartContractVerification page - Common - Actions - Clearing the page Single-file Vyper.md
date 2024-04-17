@@ -5,7 +5,7 @@ tags: ['Actions', 'Artifacts', 'Full test', 'Single-file', 'Smart Contract Verif
 # id1620 SmartContractVerification page - Common - Actions - Clearing the page (Single-file Vyper)
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/contracts/verify
+  - https://sepolia.staging-scan-v2.zksync.dev/contracts/verify
 
 ## Precondition
 

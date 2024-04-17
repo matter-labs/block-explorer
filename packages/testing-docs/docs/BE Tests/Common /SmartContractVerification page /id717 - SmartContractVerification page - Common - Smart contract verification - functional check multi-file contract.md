@@ -6,7 +6,7 @@ tags: ['Common', 'FNC', 'Full test', 'manual', 'Positive', 'Smart Contract Verif
 
 ## Description
   - 1) Download the latest version of repo https://github.com/JackHamer09/zkSync-era-Hardhat-example
-  - 2) Go to https://goerli.staging-scan-v2.zksync.dev/contracts/verify
+  - 2) Go to https://sepolia.staging-scan-v2.zksync.dev/contracts/verify
   - Example multifile contract:
   - First file - Main.sol
 ```

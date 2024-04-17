@@ -11,8 +11,8 @@ tags: ['APIv1-APIv2', 'Block', 'Full test', 'Redirection', 'Smoke test', 'Automa
 
 
 ## Scenario
-- FROM L1 (if any) hash redirects to goerli.etherscan.io
-    - https://goerli.etherscan.io/address/0x388ea662ef2c223ec0b047d41bf3c0f362142ad5
+- FROM L1 (if any) hash redirects to sepolia.etherscan.io
+    - https://sepolia.etherscan.io/address/0x388ea662ef2c223ec0b047d41bf3c0f362142ad5
       ![Screenshot](../../../../static/img/Pages/BlockPage/id368_1.png)
-- TO L1 (if any) hash redirects to goerli.etherscan.io
-    - https://goerli.etherscan.io/address/0x388ea662ef2c223ec0b047d41bf3c0f362142ad5
+- TO L1 (if any) hash redirects to sepolia.etherscan.io
+    - https://sepolia.etherscan.io/address/0x388ea662ef2c223ec0b047d41bf3c0f362142ad5

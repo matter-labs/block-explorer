@@ -5,13 +5,12 @@ tags: ['Navigation', 'Negative', 'Pages', 'regression', 'Search', 'URL', 'Active
 # id1866 Common - URL query support - Incorrect values
 
 ## Description
-  - https://linear.app/matterlabs/issue/UEXP-4596/be-fe-search-query-url
 
 ## Precondition
 
 
 ## Scenario
-- Open https://goerli.explorer.zksync.io/
+- Open https://sepolia.explorer.zksync.io/
 - Transaction Hash
     - add \{Basic URL\}/search?q=0xa125a1072d2e8f0a27e6ffa973bb07ef166448fdcaa0aef5bde40ad707c7
     - "Oops, we can’t find anything" page is opened

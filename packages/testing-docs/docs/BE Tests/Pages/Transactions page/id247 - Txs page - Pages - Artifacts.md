@@ -6,7 +6,6 @@ tags: ['APIv1-APIv2', 'Artifacts', 'Full test', 'Transaction', 'Active Partly Ma
 
 ## Description
   - New status design
-  - https://linear.app/matterlabs/issue/UEXP-4342/be-fe-improve-tx-statuses-on-tx-list-page
 
 ## Precondition
 

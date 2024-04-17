@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Contract', 'Full test', 'Automated']
 # id211 Contract page - Pages - Artifacts (Contract Info)
 
 ## Description
-  - https://staging-scan-v2.zksync.dev/address/0xe9f4149276e8a4f8db89e0e3bb78fd853f01e87d
+  - https://staging-scan-v2.zksync.dev/address/0x0231B3DE40B6B3BDd28dcEf037F1b7a3fCf5A95a
 
 ## Precondition
 

@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Active Partly Manua
 # id273 Dashboard - Pages - Artifacts (Network stats) [Testnet]
 
 ## Description
-  - url: https://goerli.explorer.zksync.io/
+  - url: https://sepolia.explorer.zksync.io/
 
 ## Precondition
 

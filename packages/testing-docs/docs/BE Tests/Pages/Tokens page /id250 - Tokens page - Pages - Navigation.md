@@ -5,7 +5,7 @@ tags: ['Full test', 'Navigation', 'Smoke test', 'Token', 'Automated']
 # id250 Tokens page - Pages - Navigation
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/tokenlist
+  - https://sepolia.staging-scan-v2.zksync.dev/tokenlist
 
 ## Precondition
 

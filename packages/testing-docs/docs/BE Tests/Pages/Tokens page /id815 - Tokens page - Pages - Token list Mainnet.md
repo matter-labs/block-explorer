@@ -12,62 +12,62 @@ tags: ['Artifacts', 'Full test', 'Mainnet', 'manual', 'Smoke test', 'Token', 'Ac
 
 ## Scenario
 - List if tokens available on Mainnet:
-    - ETH
-- USDT
-- USDC
-- WBTC
-- DAI
-- SHIB
-- BUSD
-- rETH
-- RPL
-- PEPE
-- WOO
-- cbETH
-- 1INCH
-- FLOKI
-- LUSD
-- BAL
-- crvUSD
-- LQTY
-- KNC
-- STORJ
-- BITCOIN
-- MAV
-- PERP
-- BEL
-- xcRMRK
-- DEXTF
-- MUTE
-- BLID
-- ZKS
-- TGT
-- SIS
-- DVF
-- ZZ
-- SLR
-- GOVI
-- XWG
-- JRT
-- DERI
-- POOL
-- UFI
-- IDO
-- COMBO
-- LSD
-- UNIDX
-- SCM
-- BYN
-- TiUSD
-- PNDC
-- CNG
-- EPEP
-- iZi
-- iFARM
-- TiTi
-- WETH
-- wTBT
-- IBEX
+  - ETH
+  - USDT
+  - USDC
+  - WBTC
+  - DAI
+  - SHIB
+  - BUSD
+  - rETH
+  - RPL
+  - PEPE
+  - WOO
+  - cbETH
+  - 1INCH
+  - FLOKI
+  - LUSD
+  - BAL
+  - crvUSD
+  - LQTY
+  - KNC
+  - STORJ
+  - BITCOIN
+  - MAV
+  - PERP
+  - BEL
+  - xcRMRK
+  - DEXTF
+  - MUTE
+  - BLID
+  - ZKS
+  - TGT
+  - SIS
+  - DVF
+  - ZZ
+  - SLR
+  - GOVI
+  - XWG
+  - JRT
+  - DERI
+  - POOL
+  - UFI
+  - IDO
+  - COMBO
+  - LSD
+  - UNIDX
+  - SCM
+  - BYN
+  - TiUSD
+  - PNDC
+  - CNG
+  - EPEP
+  - iZi
+  - iFARM
+  - TiTi
+  - WETH
+  - wTBT
+  - IBEX
 - Each token has:
     - Ticker
 - Full name

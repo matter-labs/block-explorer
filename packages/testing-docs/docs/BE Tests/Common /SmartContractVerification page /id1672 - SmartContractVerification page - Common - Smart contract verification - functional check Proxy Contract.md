@@ -12,7 +12,7 @@ tags: ['Common', 'Full test', 'manual', 'Positive', 'Proxy Contract', 'regressio
 
 ## Scenario
 - Pass the tutorial
-- Open https://goerli.explorer.zksync.io/contracts/verify
+- Open https://sepolia.explorer.zksync.io/contracts/verify
 - Select "Solidity (Single file)" in "Compiler type"
 - Fill all the fields and verify the contract
   ![Screenshot](../../../../static/img/Common/SmartContractVerification/id1672_1.png)

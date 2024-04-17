@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Common', 'Full test', 'Header', 'Smart Contract Verificatio
 # id1871 SmartContractVerification page - Common - Artifacts - Header
 
 ## Description
-  - https://goerli.explorer.zksync.io/contracts/verify
+  - https://sepolia.explorer.zksync.io/contracts/verify
 
 ## Precondition
 

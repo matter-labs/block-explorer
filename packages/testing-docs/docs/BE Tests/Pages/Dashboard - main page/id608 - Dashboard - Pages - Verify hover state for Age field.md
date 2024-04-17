@@ -5,7 +5,7 @@ tags: ['Full test', 'Hover state', 'main page', 'manual', 'regression', 'Active'
 # id608 Dashboard - Pages - Verify hover state for 'Age' field
 
 ## Description
-  - https://goerli.explorer.zksync.io/
+  - https://sepolia.explorer.zksync.io/
 
 ## Precondition
 

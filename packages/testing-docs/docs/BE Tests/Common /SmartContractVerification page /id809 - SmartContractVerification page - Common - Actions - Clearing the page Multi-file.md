@@ -5,7 +5,7 @@ tags: ['Actions', 'Artifacts', 'Full test', 'Multi-contract', 'Smart Contract Ve
 # id809 SmartContractVerification page - Common - Actions - Clearing the page (Multi-file)
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/contracts/verify
+  - https://sepolia.staging-scan-v2.zksync.dev/contracts/verify
 
 ## Precondition
 

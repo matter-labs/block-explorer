@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Full test', 'Single-file', 'Smart Contract Verification pag
 # id1619 SmartContractVerification page - Common - Artifacts - Smart contract verification (UI for Single-Contract Vyper)
 
 ## Description
-  - https://goerli.explorer.zksync.io/contracts/verify
+  - https://sepolia.explorer.zksync.io/contracts/verify
   - Select "Vyper (Single file)" in "Compiler type" dropdown
 
 ## Precondition

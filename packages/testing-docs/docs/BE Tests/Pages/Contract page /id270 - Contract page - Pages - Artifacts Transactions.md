@@ -5,7 +5,7 @@ tags: ['Artifacts', 'Full test', 'Smoke test', 'Transaction', 'Active Partly Man
 # id270 Contract page - Pages - Artifacts (Transactions)
 
 ## Description
-  - https://goerli.staging-scan-v2.zksync.dev/address/0x614cbc518294b54bd41f41b31c4f1ebfdd81cd39
+  - https://sepolia.staging-scan-v2.zksync.dev/address/0xAFe4cA0Bbe6215cBdA12857e723134Bc3809F766
 
 ## Precondition
 
