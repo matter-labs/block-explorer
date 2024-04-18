@@ -5,9 +5,6 @@ sidebar_position: 1
 # Tests for zkSync Era Block Explorer
 
 \<-- Use left sidebar for navigation
-
-![Screenshot](../static/img/main.png)
-
 # How to contribute to project
 
 ## What you'll need
@@ -47,3 +44,6 @@ After making changes to the project
 - make sure all the checks passed (all have to be green)
 - request a review from a QAs
 After successull review PR with changes will be merged to main branch
+
+![Screenshot](../static/img/main.png)
+
