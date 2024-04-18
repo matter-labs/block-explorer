@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke test', 'Active Partly Manual']
+tags: ['Artifacts', 'Block', 'Flaky', 'Full test', 'Pages', 'Smoke test', 'Active Partly Manual', 'Active']
 ---
 
 # id264 Block page - Pages - Artifacts (Right table)

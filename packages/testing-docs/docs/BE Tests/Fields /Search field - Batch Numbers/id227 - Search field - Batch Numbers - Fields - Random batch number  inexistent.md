@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Search', 'Txn Batch', 'Automated']
+tags: ['Active', 'Full test', 'Search', 'Txn Batch', 'Automated']
 ---
 
 # id227 Search field - Batch Numbers - Fields - Random batch number / inexistent

@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Copying', 'Full test', 'Automated']
+tags: ['Contract', 'Copying', 'Full test', 'Automated', 'Active']
 ---
 
 # id272 Contract page - Pages - Contract tab (hashes copying)

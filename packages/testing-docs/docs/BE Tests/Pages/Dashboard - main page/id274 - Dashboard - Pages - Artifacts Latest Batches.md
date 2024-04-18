@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Automated']
+tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Automated', 'Active']
 ---
 
 # id274 Dashboard - Pages - Artifacts (Latest Batches)

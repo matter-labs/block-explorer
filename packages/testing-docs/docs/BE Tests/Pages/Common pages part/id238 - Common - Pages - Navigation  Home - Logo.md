@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Full test', 'Navigation', 'Automated']
+tags: ['Account', 'Full test', 'Navigation', 'Automated', 'Active']
 ---
 
 # id238 Common - Pages - Navigation  (Home -> Logo)

@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'Block', 'Full test', 'Redirection', 'Smoke test', 'Automated']
+tags: ['APIv1-APIv2', 'Block', 'Full test', 'Redirection', 'Smoke test', 'Automated', 'Active']
 ---
 
 # id368 Block page - Pages - Redirection (Addresses)

@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Navigation', 'Automated']
+tags: ['Contract', 'Full test', 'Navigation', 'Automated', 'Active']
 ---
 
 # id268 Contract page - Pages - Navigation (Contract)

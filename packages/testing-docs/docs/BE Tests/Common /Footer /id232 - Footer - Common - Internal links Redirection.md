@@ -1,5 +1,5 @@
 ---
-tags: ['Footer', 'Full test', 'Redirection', 'Automated']
+tags: ['Footer', 'Full test', 'Redirection', 'Automated', 'Active']
 ---
 
 # id232 Footer - Common - Internal links Redirection

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'regression', 'Active Partly Manual']
+tags: ['Artifacts', 'Block', 'Full test', 'regression', 'Active Partly Manual', 'Active']
 ---
 
 # id265 Block page - Pages - Artifacts (Block Transactions)

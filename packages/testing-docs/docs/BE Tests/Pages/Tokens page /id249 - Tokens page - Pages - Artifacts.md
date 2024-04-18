@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'Smoke test', 'Token', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'Smoke test', 'Token', 'Active Partly Manual', 'Active']
 ---
 
 # id249 Tokens page - Pages - Artifacts

@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'Smoke test', 'Active Partly Manual']
+tags: ['Account', 'Artifacts', 'Balances', 'Full test', 'Smoke test', 'Active Partly Manual', 'Active']
 ---
 
 # id261 Acc page - Pages - Artifacts (Balances)

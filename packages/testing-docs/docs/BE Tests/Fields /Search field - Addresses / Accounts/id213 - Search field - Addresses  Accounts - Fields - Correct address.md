@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Positive', 'Search', 'Automated']
+tags: [ 'Full test', 'Positive', 'Search', 'Automated', 'Active']
 ---
 
 # id213 Search field - Addresses / Accounts - Fields - Correct address

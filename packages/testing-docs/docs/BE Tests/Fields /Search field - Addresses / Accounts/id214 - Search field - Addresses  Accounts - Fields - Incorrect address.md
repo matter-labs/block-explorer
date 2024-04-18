@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Negative', 'Search', 'Automated']
+tags: ['Full test', 'Negative', 'Search', 'Automated', 'Active']
 ---
 
 # id214 Search field - Addresses / Accounts - Fields - Incorrect address

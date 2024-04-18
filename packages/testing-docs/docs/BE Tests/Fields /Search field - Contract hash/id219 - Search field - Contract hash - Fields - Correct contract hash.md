@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Positive', 'Search', 'Automated']
+tags: ['Active', 'Full test', 'Positive', 'Search', 'Automated']
 ---
 
 # id219 Search field - Contract hash - Fields - Correct contract hash

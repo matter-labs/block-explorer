@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Contract', 'Full test', 'Automated']
+tags: ['Artifacts', 'Contract', 'Full test', 'Automated', 'Active']
 ---
 
 # id271 Contract page - Pages - Artifacts (Contract)

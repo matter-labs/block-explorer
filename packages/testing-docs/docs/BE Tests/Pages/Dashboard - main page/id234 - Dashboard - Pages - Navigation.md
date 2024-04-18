@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'main page', 'Navigation', 'Smoke test','Automated']
+tags: ['Full test', 'main page', 'Navigation', 'Smoke test','Automated', 'Active']
 ---
 
 # id234 Dashboard - Pages - Navigation
