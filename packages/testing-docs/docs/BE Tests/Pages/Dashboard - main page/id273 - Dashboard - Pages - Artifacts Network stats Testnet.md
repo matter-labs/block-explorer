@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'main page', 'Smoke test', 'Active Partly Manual', 'Active']
 ---
 
 # id273 Dashboard - Pages - Artifacts (Network stats) [Testnet]

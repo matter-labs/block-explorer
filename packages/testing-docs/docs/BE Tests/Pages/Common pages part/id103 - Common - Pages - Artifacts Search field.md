@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'Full test', 'Search', 'Smoke test', 'Automated']
+tags: ['Account', 'Artifacts', 'Full test', 'Search', 'Smoke test', 'Automated', 'Active']
 ---
 
 # id103 Common - Pages - Artifacts (Search field)

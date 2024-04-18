@@ -1,5 +1,5 @@
 ---
-tags: ['Copying', 'Full test', 'Logs', 'Positive', 'Transaction', 'Automated']
+tags: ['Copying', 'Full test', 'Logs', 'Positive', 'Transaction', 'Automated', 'Active']
 ---
 
 # id257 Tx Logs - Pages - Hashes copying

@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Search', 'Transaction', 'Automated']
+tags: ['Active', 'Full test', 'Search', 'Transaction', 'Automated']
 ---
 
 # id228 Search field - TX Hash From/To - Fields - Random tx hash / inexistent

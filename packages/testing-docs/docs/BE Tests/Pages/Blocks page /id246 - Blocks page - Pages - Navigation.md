@@ -1,5 +1,5 @@
 ---
-tags: ['Block', 'Full test', 'Navigation', 'Automated']
+tags: ['Block', 'Full test', 'Navigation', 'Automated', 'Active']
 ---
 
 # id246 Blocks page - Pages - Navigation

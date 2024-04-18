@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Positive', 'Search', 'Txn Batch', 'Automated']
+tags: ['Active', 'Full test', 'Positive', 'Search', 'Txn Batch', 'Automated']
 ---
 
 # id218 Search field - Batch Numbers - Fields - Correct batch number

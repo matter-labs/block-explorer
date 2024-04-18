@@ -1,5 +1,5 @@
 ---
-tags: ['DropDown', 'Full test', 'Logs', 'manual', 'Smoke test', 'Transaction', 'Automated']
+tags: ['DropDown', 'Full test', 'Logs', 'manual', 'Smoke test', 'Transaction', 'Automated', 'Active']
 ---
 
 # id258 Tx Logs - Pages - Drop Down lists

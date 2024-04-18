@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'Smoke test', 'Transaction', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'Smoke test', 'Transaction', 'Active Partly Manual', 'Active']
 ---
 
 # id270 Contract page - Pages - Artifacts (Transactions)

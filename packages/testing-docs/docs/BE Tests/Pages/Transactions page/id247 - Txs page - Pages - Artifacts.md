@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'Artifacts', 'Full test', 'Transaction', 'Active Partly Manual']
+tags: ['APIv1-APIv2', 'Artifacts', 'Full test', 'Transaction', 'Active Partly Manual', 'Active']
 ---
 
 # id247 Txs page - Pages - Artifacts

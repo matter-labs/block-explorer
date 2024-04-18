@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Full test', 'Logs', 'Positive', 'Transaction', 'Automated']
+tags: ['Artifacts', 'Full test', 'Logs', 'Positive', 'Transaction', 'Automated', 'Active']
 ---
 
 # id230 Tx Logs - Pages - Artifacts

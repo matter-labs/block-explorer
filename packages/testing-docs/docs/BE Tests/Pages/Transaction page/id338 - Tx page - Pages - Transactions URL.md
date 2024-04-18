@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Pages', 'Smoke test', 'Automated']
+tags: ['Full test', 'Pages', 'Smoke test', 'Automated', 'Active']
 ---
 
 # id338 Tx page - Pages - Transaction's URL

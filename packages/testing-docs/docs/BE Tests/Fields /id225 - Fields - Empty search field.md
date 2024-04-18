@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Search', 'Automated']
+tags: ['Full test', 'Search', 'Automated', 'Active']
 ---
 
 # id225 Fields - Empty search field

@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Pages', 'regression', 'Transaction', 'Automated']
+tags: ['Contract', 'Full test', 'Pages', 'regression', 'Transaction', 'Automated', 'Active']
 ---
 
 # id619 Contract page - Pages - Verify "Method" column for method names with abbreviations

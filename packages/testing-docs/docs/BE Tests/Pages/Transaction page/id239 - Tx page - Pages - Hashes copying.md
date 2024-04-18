@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Copying', 'Full test', 'manual', 'Transaction', 'Active Partly Manual']
+tags: ['Copying', 'Full test', 'Transaction', 'Active Partly Manual', 'Active']
 ---
 
 # id239 Tx page - Pages - Hashes copying

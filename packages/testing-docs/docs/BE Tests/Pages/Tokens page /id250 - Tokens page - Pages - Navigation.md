@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Navigation', 'Smoke test', 'Token', 'Automated']
+tags: ['Full test', 'Navigation', 'Smoke test', 'Token', 'Automated', 'Active']
 ---
 
 # id250 Tokens page - Pages - Navigation

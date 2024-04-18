@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Balances', 'Full test', 'manual', 'To Automate']
+tags: ['Artifacts', 'Balances', 'Full test', 'manual', 'To Automate', 'Active']
 ---
 
 # id267 Contract page - Pages - Artifacts (Balances)

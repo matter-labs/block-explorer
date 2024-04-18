@@ -70,7 +70,7 @@ const config: Config = {
       logo: {
         alt: 'zkSync Logo',
         src: 'img/logo_footer.svg',
-        href: 'https://matter-labs.io/',
+        href: 'https://zksync.io/',
         width: 120,
         height: 30,
       },
