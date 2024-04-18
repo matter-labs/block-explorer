@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Transaction', 'ZKF-2301', 'Active']
+tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Transaction', 'Active']
 ---
 
 # id596 Txs page - Pages - Verify hover state for 'Age' field

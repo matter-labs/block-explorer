@@ -1,5 +1,5 @@
 ---
-tags: ['Error', 'Full test', 'Pages', 'Smoke test', 'ZKF-2235', 'Active']
+tags: ['Error', 'Full test', 'Pages', 'Smoke test', 'Active']
 ---
 
 # id375 Error page - Pages - Verify Error page enabling for Transaction page
