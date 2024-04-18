@@ -1,5 +1,5 @@
 ---
-tags: ['Error', 'Full test', 'Pages', 'regression', 'ZKF-2235', 'Active']
+tags: ['Error', 'Full test', 'Pages', 'regression', 'Active']
 ---
 
 # id376 Error page - Pages - Verify Error page enabling for Address page

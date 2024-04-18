@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'ZKF-2144', 'Active']
+tags: ['Full test', 'manual', 'Pages', 'regression', 'Transaction', 'Active']
 ---
 
 # id379 Txs page - Pages - Verify "SELF" label
