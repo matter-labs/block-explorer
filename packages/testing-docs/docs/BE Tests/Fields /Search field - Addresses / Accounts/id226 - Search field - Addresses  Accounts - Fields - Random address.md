@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Search', 'Automated']
+tags: ['Full test', 'Search', 'Automated', 'Active']
 ---
 
 # id226 Search field - Addresses / Accounts - Fields - Random address

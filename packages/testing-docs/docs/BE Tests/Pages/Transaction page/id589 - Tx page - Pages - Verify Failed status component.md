@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'manual', 'Pages', 'Smoke test', 'Transaction', 'Automated']
+tags: ['Full test', 'manual', 'Pages', 'Smoke test', 'Transaction', 'Automated', 'Active']
 ---
 
 # id589 Tx page - Pages - Verify "Failed" status component

@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'APIv1-APIv2', 'Full test', 'Navigation', 'Automated']
+tags: ['Account', 'APIv1-APIv2', 'Full test', 'Navigation', 'Automated', 'Active']
 ---
 
 # id259 Acc page - Pages - Navigation

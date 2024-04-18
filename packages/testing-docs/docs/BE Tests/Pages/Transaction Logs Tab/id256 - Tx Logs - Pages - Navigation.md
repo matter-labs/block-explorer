@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Logs', 'Navigation', 'Positive', 'Transaction', 'Automated']
+tags: ['Full test', 'Logs', 'Navigation', 'Positive', 'Transaction', 'Automated', 'Active']
 ---
 
 # id256 Tx Logs - Pages - Navigation

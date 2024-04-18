@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Negative', 'Search', 'Automated']
+tags: ['Active', 'Full test', 'Negative', 'Search', 'Automated']
 ---
 
 # id220 Search field - Contract hash - Fields - Incorrect contract hash

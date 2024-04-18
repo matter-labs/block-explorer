@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'Full test', 'Navigation', 'Pages', 'Transaction', 'Automated']
+tags: ['APIv1-APIv2', 'Full test', 'Navigation', 'Pages', 'Transaction', 'Automated', 'Active']
 ---
 
 # id248 Txs page - Pages - Navigation

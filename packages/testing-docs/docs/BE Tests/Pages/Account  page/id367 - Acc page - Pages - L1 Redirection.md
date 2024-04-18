@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'APIv1-APIv2', 'Full test', 'Redirection', 'regression', 'Automated']
+tags: ['Account', 'APIv1-APIv2', 'Full test', 'Redirection', 'regression', 'Automated', 'Active']
 ---
 
 # id367 Acc page - Pages - L1 Redirection

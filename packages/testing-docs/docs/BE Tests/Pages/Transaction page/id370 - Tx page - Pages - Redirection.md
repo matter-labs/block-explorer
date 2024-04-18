@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Pages', 'Redirection', 'Transaction', 'Active Partly Manual']
+tags: ['Full test', 'Pages', 'Redirection', 'Transaction', 'Active Partly Manual', 'Active']
 ---
 
 # id370 Tx page - Pages - Redirection

@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'Block', 'Full test', 'Automated']
+tags: ['Artifacts', 'Block', 'Full test', 'Automated', 'Active']
 ---
 
 # id245 Blocks page - Pages - Artifacts

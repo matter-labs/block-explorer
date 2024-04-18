@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Positive', 'Search', 'Transaction', 'Automated']
+tags: ['Active', 'Full test', 'Positive', 'Search', 'Transaction', 'Automated']
 ---
 
 # id224 Search field - TX Hash From/To - Fields - Correct tx hash

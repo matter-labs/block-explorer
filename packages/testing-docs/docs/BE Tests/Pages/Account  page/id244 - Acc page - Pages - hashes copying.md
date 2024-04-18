@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Copying', 'Full test', 'Automated']
+tags: ['Account', 'Copying', 'Full test', 'Automated', 'Active']
 ---
 
 # id244 Acc page - Pages - hashes copying

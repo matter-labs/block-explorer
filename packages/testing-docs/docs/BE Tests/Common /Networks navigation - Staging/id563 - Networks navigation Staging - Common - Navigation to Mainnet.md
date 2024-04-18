@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Navigation', 'Network', 'Smoke test', 'Automated']
+tags: ['Full test', 'Navigation', 'Network', 'Smoke test', 'Automated', 'Active']
 ---
 
 # id563 Networks navigation Staging - Common - Navigation to Mainnet

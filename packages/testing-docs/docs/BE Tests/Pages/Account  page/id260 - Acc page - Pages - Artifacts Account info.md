@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Artifacts', 'Full test', 'Automated']
+tags: ['Account', 'Artifacts', 'Full test', 'Automated', 'Active']
 ---
 
 # id260 Acc page - Pages - Artifacts (Account info)

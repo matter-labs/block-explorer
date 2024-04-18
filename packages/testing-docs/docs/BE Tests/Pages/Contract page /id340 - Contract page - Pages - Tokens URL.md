@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Pages', 'Smoke test', 'Automated']
+tags: ['Full test', 'Pages', 'Smoke test', 'Automated', 'Active']
 ---
 
 # id340 Contract page - Pages - Token's URL

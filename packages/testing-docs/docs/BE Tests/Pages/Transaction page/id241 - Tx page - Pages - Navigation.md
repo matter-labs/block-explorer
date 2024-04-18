@@ -1,5 +1,5 @@
 ---
-tags: ['Full test', 'Navigation', 'Pages', 'Smoke test', 'Transaction', 'Active Partly Manual']
+tags: ['Full test', 'Navigation', 'Pages', 'Smoke test', 'Transaction', 'Active Partly Manual', 'Active']
 ---
 
 # id241 Tx page - Pages - Navigation

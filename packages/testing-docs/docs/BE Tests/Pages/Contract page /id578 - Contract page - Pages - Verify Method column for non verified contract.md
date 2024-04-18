@@ -1,5 +1,5 @@
 ---
-tags: ['Contract', 'Full test', 'Pages', 'Smoke test', 'Transaction', 'Automated']
+tags: ['Contract', 'Full test', 'Pages', 'Smoke test', 'Transaction', 'Automated', 'Active']
 ---
 
 # id578 Contract page - Pages - Verify "Method" column for non verified contract

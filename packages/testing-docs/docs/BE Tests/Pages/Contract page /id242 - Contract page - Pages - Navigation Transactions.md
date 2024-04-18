@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'Contract', 'Full test', 'Navigation', 'regression', 'Active Partly Manual']
+tags: ['APIv1-APIv2', 'Contract', 'Full test', 'Navigation', 'regression', 'Active Partly Manual', 'Active']
 ---
 
 # id242 Contract page - Pages - Navigation (Transactions)

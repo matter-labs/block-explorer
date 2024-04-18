@@ -1,5 +1,5 @@
 ---
-tags: ['Artifacts', 'automated', 'Full test', 'Pages', 'Smoke test', 'Transaction', 'Active Partly Manual']
+tags: ['Artifacts', 'Full test', 'Pages', 'Smoke test', 'Transaction', 'Active Partly Manual', 'Active']
 ---
 
 # id209 Tx page - Pages - Artifacts

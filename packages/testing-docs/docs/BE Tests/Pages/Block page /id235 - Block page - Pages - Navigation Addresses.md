@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'Block', 'Full test', 'Navigation', 'Automated']
+tags: ['APIv1-APIv2', 'Block', 'Full test', 'Navigation', 'Automated', 'Active']
 ---
 
 # id235 Block page - Pages - Navigation (Addresses)

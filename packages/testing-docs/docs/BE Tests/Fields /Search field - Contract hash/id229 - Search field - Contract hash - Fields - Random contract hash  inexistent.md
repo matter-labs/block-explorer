@@ -1,5 +1,5 @@
 ---
-tags: ['automated', 'Full test', 'Search', 'Automated']
+tags: ['Active', 'Full test', 'Search', 'Automated']
 ---
 
 # id229 Search field - Contract hash - Fields - Random contract hash / inexistent

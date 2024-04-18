@@ -1,5 +1,5 @@
 ---
-tags: ['Account', 'Full test', 'Navigation', 'Automated']
+tags: ['Account', 'Full test', 'Navigation', 'Automated', 'Active']
 ---
 
 # id276 Common - Pages - Navigation   (Home -> Dashboard)

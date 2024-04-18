@@ -1,5 +1,5 @@
 ---
-tags: ['APIv1-APIv2', 'Contract', 'Full test', 'Navigation', 'Smoke test', 'Automated']
+tags: ['APIv1-APIv2', 'Contract', 'Full test', 'Navigation', 'Smoke test', 'Automated', 'Active']
 ---
 
 # id369 Contract page - Pages - Redirection (Transactions)
