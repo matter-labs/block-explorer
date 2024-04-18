@@ -2,11 +2,10 @@
 sidebar_position: 1
 ---
 
-# Tests for zkSync Era Block Explorer
+# How to contribute to the project
+
 
 \<-- Use left sidebar for navigation
-# How to contribute to project
-
 ## What you'll need
 
 - [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
@@ -44,6 +43,7 @@ After making changes to the project
 - make sure all the checks passed (all have to be green)
 - request a review from a QAs
 After successull review PR with changes will be merged to main branch
+
 
 ![Screenshot](../static/img/main.png)
 
