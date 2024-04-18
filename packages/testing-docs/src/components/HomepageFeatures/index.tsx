@@ -10,11 +10,29 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'zkSync Block Explorer',
-    Svg: require('@site/static/img/main.PNG').default,
+    title: 'Build',
+    Svg: require('@site/static/img/1.svg').default,
     description: (
       <>
-        Some text
+
+      </>
+    ),
+  },
+  {
+    title: 'Test',
+    Svg: require('@site/static/img/2.svg').default,
+    description: (
+      <>
+
+      </>
+    ),
+  },
+  {
+    title: 'Repeat',
+    Svg: require('@site/static/img/3.svg').default,
+    description: (
+      <>
+
       </>
     ),
   },
