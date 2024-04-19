@@ -21,8 +21,7 @@
     "start": "lerna run start",
     "db:create": "lerna run db:create",
     "db:drop": "lerna run db:drop",
-    "hyperchain:configure": "ts-node scripts/setup-hyperchain-config",
-    "basetoken": "ts-node scripts/base-token-data"
+    "hyperchain:configure": "ts-node scripts/setup-hyperchain-config"
   },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
