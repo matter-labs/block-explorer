@@ -1079,104 +1079,104 @@ describe("BlockchainService", () => {
     });
   });
 
-  // describe("getDefaultBridgeAddresses", () => {
-  //   const bridgeAddress = {
-  //     erc20L1: "erc20L1",
-  //     erc20L2: "erc20L2",
-  //     wethL1: "wethL1",
-  //     wethL2: "wethL2",
-  //   };
-  //   let timeoutSpy;
+  describe("getDefaultBridgeAddresses", () => {
+    const bridgeAddress = {
+      erc20L1: "erc20L1",
+      erc20L2: "erc20L2",
+      wethL1: "wethL1",
+      wethL2: "wethL2",
+    };
+    let timeoutSpy;
 
-  //   beforeEach(() => {
-  //     jest.spyOn(provider, "getDefaultBridgeAddresses").mockResolvedValue(bridgeAddress);
-  //     timeoutSpy = jest.spyOn(timersPromises, "setTimeout");
-  //   });
+    beforeEach(() => {
+      jest.spyOn(provider, "getDefaultBridgeAddresses").mockResolvedValue(bridgeAddress);
+      timeoutSpy = jest.spyOn(timersPromises, "setTimeout");
+    });
 
-  //   it("starts the rpc call duration metric", async () => {
-  //     await blockchainService.getDefaultBridgeAddresses();
-  //     expect(startRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
-  //   });
+    it("starts the rpc call duration metric", async () => {
+      await blockchainService.getDefaultBridgeAddresses();
+      expect(startRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+    });
 
-  //   it("gets bridge addresses", async () => {
-  //     await blockchainService.getDefaultBridgeAddresses();
-  //     expect(provider.getDefaultBridgeAddresses).toHaveBeenCalledTimes(1);
-  //   });
+    it("gets bridge addresses", async () => {
+      await blockchainService.getDefaultBridgeAddresses();
+      expect(provider.getDefaultBridgeAddresses).toHaveBeenCalledTimes(1);
+    });
 
-  //   it("stops the rpc call duration metric", async () => {
-  //     await blockchainService.getDefaultBridgeAddresses();
-  //     expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
-  //     expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "getDefaultBridgeAddresses" });
-  //   });
+    it("stops the rpc call duration metric", async () => {
+      await blockchainService.getDefaultBridgeAddresses();
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "getDefaultBridgeAddresses" });
+    });
 
-  //   it("returns bridge addresses", async () => {
-  //     const result = await blockchainService.getDefaultBridgeAddresses();
-  //     expect(result).toEqual(bridgeAddress);
-  //   });
+    it("returns bridge addresses", async () => {
+      const result = await blockchainService.getDefaultBridgeAddresses();
+      expect(result).toEqual(bridgeAddress);
+    });
 
-  //   describe("if the call throws an error", () => {
-  //     beforeEach(() => {
-  //       jest
-  //         .spyOn(provider, "getDefaultBridgeAddresses")
-  //         .mockRejectedValueOnce(new Error("RPC call error"))
-  //         .mockRejectedValueOnce(new Error("RPC call error"))
-  //         .mockResolvedValueOnce(bridgeAddress);
-  //     });
+    describe("if the call throws an error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "getDefaultBridgeAddresses")
+          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockResolvedValueOnce(bridgeAddress);
+      });
 
-  //     it("retries RPC call with a default timeout", async () => {
-  //       await blockchainService.getDefaultBridgeAddresses();
-  //       expect(provider.getDefaultBridgeAddresses).toHaveBeenCalledTimes(3);
-  //       expect(timeoutSpy).toHaveBeenCalledTimes(2);
-  //       expect(timeoutSpy).toHaveBeenNthCalledWith(1, defaultRetryTimeout);
-  //       expect(timeoutSpy).toHaveBeenNthCalledWith(2, defaultRetryTimeout);
-  //     });
+      it("retries RPC call with a default timeout", async () => {
+        await blockchainService.getDefaultBridgeAddresses();
+        expect(provider.getDefaultBridgeAddresses).toHaveBeenCalledTimes(3);
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, defaultRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, defaultRetryTimeout);
+      });
 
-  //     it("stops the rpc call duration metric only for the successful retry", async () => {
-  //       await blockchainService.getDefaultBridgeAddresses();
-  //       expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
-  //       expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "getDefaultBridgeAddresses" });
-  //     });
+      it("stops the rpc call duration metric only for the successful retry", async () => {
+        await blockchainService.getDefaultBridgeAddresses();
+        expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+        expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "getDefaultBridgeAddresses" });
+      });
 
-  //     it("returns result of the successful RPC call", async () => {
-  //       const result = await blockchainService.getDefaultBridgeAddresses();
-  //       expect(result).toEqual(bridgeAddress);
-  //     });
-  //   });
+      it("returns result of the successful RPC call", async () => {
+        const result = await blockchainService.getDefaultBridgeAddresses();
+        expect(result).toEqual(bridgeAddress);
+      });
+    });
 
-  //   describe("if the call throws a timeout error", () => {
-  //     beforeEach(() => {
-  //       jest
-  //         .spyOn(provider, "getDefaultBridgeAddresses")
-  //         .mockRejectedValueOnce({ code: "TIMEOUT" })
-  //         .mockRejectedValueOnce({ code: "TIMEOUT" })
-  //         .mockResolvedValueOnce(bridgeAddress);
-  //     });
+    describe("if the call throws a timeout error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "getDefaultBridgeAddresses")
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockResolvedValueOnce(bridgeAddress);
+      });
 
-  //     it("retries RPC call with a quick timeout", async () => {
-  //       await blockchainService.getDefaultBridgeAddresses();
-  //       expect(timeoutSpy).toHaveBeenCalledTimes(2);
-  //       expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
-  //       expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
-  //     });
-  //   });
+      it("retries RPC call with a quick timeout", async () => {
+        await blockchainService.getDefaultBridgeAddresses();
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+    });
 
-  //   describe("if the call throws a connection refused error", () => {
-  //     beforeEach(() => {
-  //       jest
-  //         .spyOn(provider, "getDefaultBridgeAddresses")
-  //         .mockRejectedValueOnce({ code: "TIMEOUT" })
-  //         .mockRejectedValueOnce({ code: "TIMEOUT" })
-  //         .mockResolvedValueOnce(bridgeAddress);
-  //     });
+    describe("if the call throws a connection refused error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "getDefaultBridgeAddresses")
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockResolvedValueOnce(bridgeAddress);
+      });
 
-  //     it("retries RPC call with a quick timeout", async () => {
-  //       await blockchainService.getDefaultBridgeAddresses();
-  //       expect(timeoutSpy).toHaveBeenCalledTimes(2);
-  //       expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
-  //       expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
-  //     });
-  //   });
-  // });
+      it("retries RPC call with a quick timeout", async () => {
+        await blockchainService.getDefaultBridgeAddresses();
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+    });
+  });
 
   describe("on", () => {
     beforeEach(() => {
