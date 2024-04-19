@@ -5,8 +5,8 @@ import { normalizeAddressTransformer } from "../common/transformers/normalizeAdd
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
-import config from "../config/index";
-const { baseTokenData } = config();
+import { baseTokenData } from "../config/index";
+
 export enum TransferType {
   Deposit = "deposit",
   Transfer = "transfer",
@@ -87,7 +87,7 @@ export class Transfer extends BaseEntity {
   }
 
   @AfterLoad()
-  async populateBaseToken() {
+  populateBaseToken() {
     if (!this.token && this.tokenAddress.toLowerCase() === baseTokenData.l2Address.toLowerCase()) {
       this.token = baseTokenData as Token;
     }

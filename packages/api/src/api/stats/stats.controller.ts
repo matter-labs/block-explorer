@@ -5,8 +5,7 @@ import { ApiExceptionFilter } from "../exceptionFilter";
 import { EthPriceResponseDto } from "../dtos/stats/ethPrice.dto";
 import { TokenService } from "../../token/token.service";
 import { dateToTimestamp } from "../../common/utils";
-import config from "../../config";
-const { baseTokenData } = config();
+import { baseTokenData } from "../../config";
 
 const entityName = "stats";
 

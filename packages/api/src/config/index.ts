@@ -32,9 +32,9 @@ const baseTokenFromEnv = (): BaseToken => {
     BASE_TOKEN_LIQUIDITY,
     BASE_TOKEN_USDPRICE,
   } = process.env;
-  const decimals = parseInt(BASE_TOKEN_DECIMALS);
-  const liquidity = parseInt(BASE_TOKEN_LIQUIDITY);
-  const usdPrice = parseInt(BASE_TOKEN_USDPRICE);
+  const decimals = parseFloat(BASE_TOKEN_DECIMALS);
+  const liquidity = parseFloat(BASE_TOKEN_LIQUIDITY);
+  const usdPrice = parseFloat(BASE_TOKEN_USDPRICE);
   if (BASE_TOKEN_L1_ADDRESS && BASE_TOKEN_SYMBOL) {
     return {
       symbol: BASE_TOKEN_SYMBOL,
@@ -131,3 +131,5 @@ export default () => {
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
   };
 };
+
+export const baseTokenData = baseTokenFromEnv();

@@ -4,8 +4,8 @@ import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
 import { Token } from "../../token/token.entity";
 import { StatsController } from "./stats.controller";
-import config from "../../config";
-const { baseTokenData } = config();
+import { baseTokenData } from "../../config";
+
 describe("StatsController", () => {
   let controller: StatsController;
   let tokenServiceMock: TokenService;

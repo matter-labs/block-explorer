@@ -1,8 +1,6 @@
 import { Entity, Column, PrimaryColumn, Index } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
-import config from "../config/index";
-export const { baseTokenData } = config();
 export enum TokenType {
   BaseToken = "BASETOKEN",
   ERC20 = "ERC20",
