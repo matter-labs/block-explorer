@@ -6,7 +6,7 @@ import { BigNumber } from "ethers";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token, TokenType, baseTokenData } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
@@ -14,6 +14,7 @@ import { AddressTransaction } from "../src/transaction/entities/addressTransacti
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { baseTokenData } from "../src/config";
 
 describe("TransactionController (e2e)", () => {
   let ETH_TOKEN;

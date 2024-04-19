@@ -5,9 +5,10 @@ import * as request from "supertest";
 import { Repository } from "typeorm";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
-import { Token, baseTokenData } from "../src/token/token.entity";
+import { Token } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { baseTokenData } from "../src/config";
 
 describe("Stats API (e2e)", () => {
   let ETH_TOKEN;

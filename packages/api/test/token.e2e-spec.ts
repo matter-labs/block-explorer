@@ -5,11 +5,12 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token, TokenType, baseTokenData } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { baseTokenData } from "../src/config";
 
 describe("TokenController (e2e)", () => {
   let ETH_TOKEN;
