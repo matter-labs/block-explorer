@@ -126,7 +126,7 @@ export class BlockchainService implements OnModuleInit {
   public async getDefaultBridgeAddresses(): Promise<{ erc20L1: string; erc20L2: string }> {
     return await this.rpcCall(async () => {
       return await this.provider.getDefaultBridgeAddresses();
-    }, "getBridgeAddress");
+    }, "getDefaultBridgeAddresses");
   }
   public async getBridgeContracts(): Promise<{
     l1Erc20Bridge: string;
