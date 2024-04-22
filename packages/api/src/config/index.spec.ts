@@ -20,7 +20,7 @@ describe("config", () => {
   it("sets default values", () => {
     expect(config()).toEqual({
       baseTokenData: {
-        l2Address: "0x000000000000000000000000000000000000800A",
+        l2Address: "0x000000000000000000000000000000000000800a",
         l1Address: "0x0000000000000000000000000000000000000001",
         symbol: "ETH",
         name: "Ether",
@@ -74,7 +74,7 @@ describe("config", () => {
 
     expect(config()).toEqual({
       baseTokenData: {
-        l2Address: "0x000000000000000000000000000000000000800A",
+        l2Address: "0x000000000000000000000000000000000000800a",
         l1Address: "0xSomeAddress",
         symbol: "MTTL",
         name: "MatterLabs",
