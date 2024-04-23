@@ -22,7 +22,12 @@ export class HealthController implements BeforeApplicationShutdown {
   @Get()
   @HealthCheck()
   public async check(): Promise<HealthCheckResult> {
-    return await this.healthCheckService.check([() => this.dbHealthChecker.pingCheck("database")]);
+    try {
+      return await this.healthCheckService.check([() => this.dbHealthChecker.pingCheck("database")]);
+    } catch (error) {
+      this.logger.error({ message: error.message, response: error.getResponse() }, error.stack);
+      throw error;
+    }
   }
 
   public async beforeApplicationShutdown(signal?: string): Promise<void> {
