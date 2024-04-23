@@ -81,10 +81,10 @@ describe("InfoTable:", () => {
     expect(batch[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.batch"));
     expect(batch[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.batchTooltip"));
     expect(batch[1].findComponent(RouterLinkStub).text()).toBe("1");
-    const rootHash = rowArray[4].findAll("td");
-    expect(rootHash[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.rootHash"));
-    expect(rootHash[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.rootHashTooltip"));
-    expect(rootHash[1].text()).toBe("0xcd7533748f8f0c8f406f366e83d5e92d174845405418745d0f7228b85025cd6e");
+    const blockHash = rowArray[4].findAll("td");
+    expect(blockHash[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.blockHash"));
+    expect(blockHash[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.blockHashTooltip"));
+    expect(blockHash[1].text()).toBe("0xcd7533748f8f0c8f406f366e83d5e92d174845405418745d0f7228b85025cd6e");
     const timestamp = rowArray[5].findAll("td");
     expect(timestamp[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.timestamp"));
     expect(timestamp[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.timestampTooltip"));
