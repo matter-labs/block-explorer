@@ -91,9 +91,9 @@ const tableInfoItems = computed(() => {
         : {}),
     },
     {
-      label: t("blocks.table.rootHash"),
-      tooltip: t("blocks.table.rootHashTooltip"),
-      value: props.block.hash ? { value: props.block.hash } : t("blocks.table.noRootHashYet"),
+      label: t("blocks.table.blockHash"),
+      tooltip: t("blocks.table.blockHashTooltip"),
+      value: props.block.hash ? { value: props.block.hash } : t("blocks.table.noBlockHashYet"),
       component: props.block.hash ? CopyContent : undefined,
     },
     {
