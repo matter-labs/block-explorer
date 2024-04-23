@@ -63,9 +63,6 @@ export class BalanceService {
       },
       select: {
         balance: true,
-        // We need this two other fields for the `where`.
-        address: true,
-        tokenAddress: true,
       },
       order: {
         blockNumber: "DESC",
@@ -87,8 +84,6 @@ export class BalanceService {
     const balancesQuery = this.balanceRepository.createQueryBuilder("balances");
     balancesQuery.select("balances.address");
     balancesQuery.addSelect("balances.balance");
-    balancesQuery.addSelect("balances.tokenAddress");
-    balancesQuery.addSelect("balances.blockNumber");
     balancesQuery.innerJoin(
       `(${latestBalancesQuery.getQuery()})`,
       "latest_balances",
