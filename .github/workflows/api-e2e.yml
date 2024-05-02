@@ -10,6 +10,7 @@ on:
 
 jobs:
   runE2ETests:
+    if: github.event.pull_request.draft == false
     name: Run E2E tests
     timeout-minutes: 10
     runs-on: ubuntu-latest

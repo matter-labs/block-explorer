@@ -3,6 +3,7 @@ on: pull_request
 
 jobs:
   build:
+    if: github.event.pull_request.draft == false
     name: Build and Test App
     runs-on: ubuntu-latest
     permissions:
@@ -65,6 +66,7 @@ jobs:
           entryPoint: ./packages/app
 
   mainnet:
+    if: github.event.pull_request.draft == false
     needs: build
     name: Feature on Mainnet + Sepolia
     uses: ./.github/workflows/app-e2e.yml

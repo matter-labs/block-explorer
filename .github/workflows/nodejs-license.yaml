@@ -29,6 +29,7 @@ env:
 
 jobs:
   generate-matrix:
+    if: github.event.pull_request.draft == false
     name: Lists modules
     runs-on: ubuntu-latest
     permissions:
@@ -43,6 +44,7 @@ jobs:
         id: set-matrix
 
   license-check:
+    if: github.event.pull_request.draft == false
     needs: [generate-matrix]
     runs-on: ubuntu-latest
     permissions:

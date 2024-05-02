@@ -10,6 +10,7 @@ on:
 
 jobs:
   label:
+    if: github.event.pull_request.draft == false
     name: Validate PR title
     runs-on: ubuntu-latest
     permissions:
@@ -22,6 +23,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   build:
+    if: github.event.pull_request.draft == false
     name: Build and Test
     runs-on: ubuntu-latest
     permissions:

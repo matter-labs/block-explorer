@@ -8,6 +8,7 @@ on:
 
 jobs:
   createReleaseVersion:
+    if: github.event.pull_request.draft == false
     name: Create Release Version
     runs-on: ubuntu-latest
     permissions:

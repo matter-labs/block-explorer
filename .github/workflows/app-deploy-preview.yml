@@ -9,6 +9,7 @@ name: Deploy App to Preview
         default: "v2.0.0"
 jobs:
   deploy:
+    if: github.event.pull_request.draft == false
     name: Deploy
     runs-on: ubuntu-latest
     permissions:
@@ -62,6 +63,7 @@ jobs:
           echo "Block explorer app has been deployed to: ${{ steps.deploy.outputs.details_url }}"
 
   mainnet:
+    if: github.event.pull_request.draft == false
     needs: deploy
     name: Staging on Mainnet + Sepolia
     uses: ./.github/workflows/app-e2e.yml

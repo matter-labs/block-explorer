@@ -9,6 +9,7 @@ name: Deploy App to Production
         default: "v2.0.0"
 jobs:
   deploy:
+    if: github.event.pull_request.draft == false
     name: Deploy
     runs-on: ubuntu-latest
     permissions:
