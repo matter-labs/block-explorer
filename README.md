@@ -108,7 +108,10 @@ To get block-explorer connected to your ZK Stack Hyperchain you need to set up a
 To verify front-end `App` is running open http://localhost:3010 in your browser. `API` should be available at http://localhost:3020, `Worker` at http://localhost:3001 and `Data Fetcher` at http://localhost:3040.
 
 ## 🕵️‍♂️ Testing
-Run unit tests for all packages:
+To navigate to the test documentation, go to 
+Run unit tests for all packages: [test-documentation](./packages/test-documentation)
+*make sure that you have downloaded the progect with `git clone --recursive` option.
+
 ```bash
 npm run test
 ```
