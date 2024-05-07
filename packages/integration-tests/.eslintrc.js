@@ -1,3 +1,3 @@
 module.exports = {
-  extends: ["eslint:recommended"],
+  extends: ["@matterlabs/eslint-config-vue"],
 };
