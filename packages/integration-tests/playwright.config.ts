@@ -6,7 +6,7 @@ export default defineConfig({
   fullyParallel: true,
   projects: [
     {
-      name: "chromium",
+      name: "integration-tests",
       use: {
         ...devices["Desktop Chrome"],
         launchOptions: {
