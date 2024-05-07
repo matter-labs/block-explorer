@@ -1,0 +1,17 @@
+---
+tags: ['Full test', 'manual', 'Pages', 'regression', 'Tooltip', 'Transaction', 'Active']
+---
+
+# id596 Txs page - Pages - Verify hover state for 'Age' field
+
+## Description
+  - https://sepolia.explorer.zksync.io/transactions
+
+## Precondition
+
+
+## Scenario
+- Open transactions page
+- Homer the cursor over "Age" field of any transaction raw
+- Verify tooltip with timestamp shown on hover
+  ![Screenshot](../../../../static/img/Pages/TransactionsPage/id596_1.png)

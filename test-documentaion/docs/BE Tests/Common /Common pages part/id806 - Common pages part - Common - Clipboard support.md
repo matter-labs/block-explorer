@@ -1,0 +1,25 @@
+---
+tags: ['Account', 'Actions', 'Common', 'Copying', 'Events', 'Active']
+---
+
+# id806 Common pages part - Common - Clipboard support 
+
+## Description
+  - Open environment:
+  - https://sepolia.explorer.zksync.io/
+
+## Precondition
+
+
+## Scenario
+- Open environment page https://sepolia.explorer.zksync.io/
+- Proceed to Chrome settings
+    - Navigate to "Privacy and security"
+- Navigate to "Site settings"
+- Navigate to  "View permissions and data stored across sites"
+- Enter in Search field "sepolia.explorer.zksync.io"
+- Click on the correct record
+- Find and disable Clipboard
+  ![Screenshot](../../../../static/img/Common/Common_pages_part/id806_1.png)
+- Open pages with Copy buttons (e.g. TX page)
+    - Check that no copy button is present
