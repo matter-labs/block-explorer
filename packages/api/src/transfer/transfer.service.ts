@@ -4,7 +4,7 @@ import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual } from "type
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, SortingOrder } from "../common/types";
-import { Transfer } from "./transfer.entity";
+import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
@@ -15,6 +15,7 @@ export interface FilterTransfersOptions {
   address?: string;
   timestamp?: FindOperator<Date>;
   isFeeOrRefund?: boolean;
+  type?: TransferType;
 }
 
 export interface FilterTokenTransfersOptions {

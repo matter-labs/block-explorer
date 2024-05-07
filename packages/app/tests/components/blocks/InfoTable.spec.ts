@@ -15,7 +15,7 @@ import type { Block } from "@/composables/useBlock";
 
 import { localDateFromISOString } from "@/utils/helpers";
 
-const l1ExplorerUrlMock = vi.fn((): string | null => "https://goerli.etherscan.io");
+const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.io/");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -81,10 +81,10 @@ describe("InfoTable:", () => {
     expect(batch[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.batch"));
     expect(batch[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.batchTooltip"));
     expect(batch[1].findComponent(RouterLinkStub).text()).toBe("1");
-    const rootHash = rowArray[4].findAll("td");
-    expect(rootHash[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.rootHash"));
-    expect(rootHash[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.rootHashTooltip"));
-    expect(rootHash[1].text()).toBe("0xcd7533748f8f0c8f406f366e83d5e92d174845405418745d0f7228b85025cd6e");
+    const blockHash = rowArray[4].findAll("td");
+    expect(blockHash[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.blockHash"));
+    expect(blockHash[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.blockHashTooltip"));
+    expect(blockHash[1].text()).toBe("0xcd7533748f8f0c8f406f366e83d5e92d174845405418745d0f7228b85025cd6e");
     const timestamp = rowArray[5].findAll("td");
     expect(timestamp[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.timestamp"));
     expect(timestamp[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.timestampTooltip"));
@@ -184,7 +184,7 @@ describe("InfoTable:", () => {
       },
     });
     expect(wrapper.findAll("a")[0].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0x5b5a05691d974803f5f095c1b918d2dd19152ed0a9de506d545c96df6cb9cac2"
+      "https://sepolia.etherscan.io//tx/0x5b5a05691d974803f5f095c1b918d2dd19152ed0a9de506d545c96df6cb9cac2"
     );
   });
   it("renders proveTxHash url properly", () => {
@@ -215,7 +215,7 @@ describe("InfoTable:", () => {
       },
     });
     expect(wrapper.findAll("a")[1].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0xfb3532f4c38c2eaf78248da64cf80a354429d58204761d6ea6439391043f6fa9"
+      "https://sepolia.etherscan.io//tx/0xfb3532f4c38c2eaf78248da64cf80a354429d58204761d6ea6439391043f6fa9"
     );
   });
   it("renders executeTxHash url properly", () => {
@@ -246,7 +246,7 @@ describe("InfoTable:", () => {
       },
     });
     expect(wrapper.findAll("a")[2].attributes("href")).toEqual(
-      "https://goerli.etherscan.io/tx/0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364"
+      "https://sepolia.etherscan.io//tx/0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364"
     );
   });
   it("renders batch number as text with tooltip when batch is not sealed yet", () => {

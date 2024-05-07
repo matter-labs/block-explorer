@@ -136,9 +136,7 @@ zkSync Era Block Explorer is distributed under the terms of either
 at your option.
 
 ## 🔗 Production links
-- Testnet Goerli API: https://block-explorer-api.testnets.zksync.dev
 - Testnet Sepolia API: https://block-explorer-api.sepolia.zksync.dev
 - Mainnet API: https://block-explorer-api.mainnet.zksync.io
-- Testnet Goerli App: https://goerli.explorer.zksync.io
 - Testnet Sepolia App: https://sepolia.explorer.zksync.io
 - Mainnet App: https://explorer.zksync.io

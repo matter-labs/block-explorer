@@ -169,7 +169,7 @@ export class BasePage {
 
   async getEtherscanDomain(networkType: string) {
     if (networkType.includes("goerli")) {
-      return "https://goerli.etherscan.io"; // Testnet
+      return "https://goerli.etherscan.io/"; // Testnet
     } else {
       return "https://etherscan.io"; // Mainnet
     }

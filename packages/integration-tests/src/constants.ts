@@ -13,6 +13,7 @@ export enum Buffer {
   paymasterTx = "paymasterTx.txt",
   addressMultiTransferETH = "multiTransferETH.txt",
   txMultiTransferETH = "txMultiTransferETH.txt",
+  txMultiTransferCall = "txMultiTransferCall.txt",
   txMultiTransferCustomTokenI = "txMultiTransferCustomTokenI.txt",
   txMultiTransferCustomTokenII = "txMultiTransferCustomTokenII.txt",
   addressMultiCallMiddle = "multiCallMiddle.txt",
@@ -82,4 +83,12 @@ export enum Wallets {
 export enum BlockExplorer {
   baseUrl = "http://localhost:3010",
   localNetwork = "/?network=local",
+}
+
+export enum Values {
+  txSumETH = "0.000009",
+}
+
+export enum Contracts {
+  greeterContractSepolia = "0x9c6D777A35D127f17eB28B75F80Bb7486118FbE0",
 }
