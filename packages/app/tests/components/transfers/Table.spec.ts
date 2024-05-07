@@ -50,7 +50,7 @@ const transfer = {
     l2Address: "0x0faF6df7054946141266420b43783387A78d82A9",
     l1Address: "0xd35CCeEAD182dcee0F148EbaC9447DA2c4D449c4",
     symbol: "USDC",
-    name: "USD Coin (goerli)",
+    name: "USD Coin (testnet)",
     decimals: 6,
     usdPrice: 1,
   },

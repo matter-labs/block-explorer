@@ -1,4 +1,5 @@
 import { IPaginationOptions as NestIPaginationOptions, IPaginationMeta } from "nestjs-typeorm-paginate";
+import { TransferType } from "../transfer/transfer.entity";
 
 interface IPaginationFilterOptions {
   fromDate?: string;
@@ -7,6 +8,7 @@ interface IPaginationFilterOptions {
   address?: string;
   l1BatchNumber?: number;
   minLiquidity?: number;
+  type?: TransferType;
 }
 
 export interface IPaginationOptions<CustomMetaType = IPaginationMeta> extends NestIPaginationOptions<CustomMetaType> {

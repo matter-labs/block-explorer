@@ -120,7 +120,7 @@ Feature: Copying
 
     Examples:
       | Row             | Text                                                               |
-      | Root hash       | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
+      | Block hash      | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
       | Commit tx hash  | 0x6ad6a118e09a27e39ee57c63e812953788de4974987c76bc954c14a8c32688e8 |
       | Prove tx hash   | 0xfbd3a89cee83e4f28999bc8fd5e96d133b7ebc367d5c7026f173d21687998379 |
       | Execute tx hash | 0x5131c1bb47dca3d42ccdfd12d1ab7224cbb88fb9ad91b94e2da26631602f6fab |
@@ -134,7 +134,7 @@ Feature: Copying
 
     Examples:
       | Row             | Text                                                               |
-      | Root hash       | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
+      | Block hash       | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
       | Commit tx hash  | 0x33143afba6c91f77d18b0d7a50248e6255461ec0e0cd80a06d3bd86f2686768c |
       | Prove tx hash   | 0x424cdbfb877178a909fbbe6dca6ef131a752e6c91c8b24470d919e30c06e3692 |
       | Execute tx hash | 0x51425089db3b2ce38b1893ec2f1dc23e3f5db8e9f48f06bb624e99d77fe76aca |
@@ -176,9 +176,9 @@ Feature: Copying
     Then Clipboard contains "<Text>" value
 
     Examples:
-      | Row               | Text                                       |
-      | ETH               | 0x000000000000000000000000000000000000800A |
-      | USDC.e            | 0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4 |
-      | MUTE              | 0x0e97C7a0F8B2C9885C8ac9fC6136e829CbC21d42 |
-      | COMBO             | 0xc2B13Bb90E33F1E191b8aA8F44Ce11534D5698E3 |
-      | PERP              | 0x42c1c56be243c250AB24D2ecdcC77F9cCAa59601 |
+      | Row             | Text                                       |
+      | ETH             | 0x000000000000000000000000000000000000800A |
+      | USDC.e          | 0x3355df6D4c9C3035724Fd0e3914dE96A5a83aaf4 |
+      | MUTE            | 0x0e97C7a0F8B2C9885C8ac9fC6136e829CbC21d42 |
+      | COMBO           | 0xc2B13Bb90E33F1E191b8aA8F44Ce11534D5698E3 |
+      | PERP            | 0x42c1c56be243c250AB24D2ecdcC77F9cCAa59601 |

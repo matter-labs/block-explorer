@@ -17,7 +17,7 @@ import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { BalanceService } from "../balance/balance.service";
-import { AddressType, ContractDto, AccountDto, TokenAddressDto } from "./dtos";
+import { AddressType, ContractDto, AccountDto, TokenAddressDto, FilterAddressTransfersOptionsDto } from "./dtos";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
@@ -140,19 +140,26 @@ export class AddressController {
   })
   public async getAddressTransfers(
     @Param("address", new ParseAddressPipe()) address: string,
+    @Query() filterAddressTransferOptions: FilterAddressTransfersOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransferDto>> {
-    const filterTransactionsListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
+    const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
 
     return await this.transferService.findAll(
       {
         address,
-        isFeeOrRefund: false,
-        ...filterTransactionsListOptions,
+        ...filterTransfersListOptions,
+        ...(filterAddressTransferOptions.type
+          ? {
+              type: filterAddressTransferOptions.type,
+            }
+          : {
+              isFeeOrRefund: false,
+            }),
       },
       {
-        filterOptions: listFilterOptions,
+        filterOptions: { ...filterAddressTransferOptions, ...listFilterOptions },
         ...pagingOptions,
         route: `${entityName}/${address}/transfers`,
       }

@@ -20,7 +20,7 @@ const tokenLINK: Api.Response.Token = {
   l1Address: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
   l2Address: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
   symbol: "LINK",
-  name: "ChainLink Token (goerli)",
+  name: "ChainLink Token (testnet)",
   decimals: 18,
   usdPrice: 100,
   liquidity: 100000000,
