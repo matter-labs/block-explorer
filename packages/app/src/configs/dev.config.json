@@ -2,31 +2,17 @@
   "networks": [
     {
       "apiUrl": "https://explorer-api-testnet.zulunetwork.xyz",
-      "verificationApiUrl": "https://explorer-testnet.zulunetwork.xyz",
+      "verificationApiUrl": "https://contract-verification-testnet.zulunetwork.xyz",
       "bridgeUrl": "https://testnet.zulunetwork.xyz/bridge",
       "hostnames": [],
       "icon": "/images/icons/zulu-logo.svg",
       "l1ExplorerUrl": "",
       "l2ChainId": 202401,
-      "l2NetworkName": "Testnet-Alpha",
+      "l2NetworkName": "develop",
       "maintenance": false,
       "name": "testnet-alpha",
       "published": true,
       "rpcUrl": "https://rpc-testnet.zulunetwork.xyz"
-    },
-    {
-      "apiUrl": "https://api-testnet.zuluscan.io",
-      "verificationApiUrl": "https://testnet.zuluscan.io",
-      "bridgeUrl": "https://testnet.zulunetwork.io/bridge",
-      "hostnames": [],
-      "icon": "/images/icons/zulu-logo.svg",
-      "l1ExplorerUrl": "",
-      "l2ChainId": 90104,
-      "l2NetworkName": "Testnet",
-      "maintenance": false,
-      "name": "testnet",
-      "published": true,
-      "rpcUrl": "https://rpc-testnet.zulunetwork.io"
     }
   ]
 }

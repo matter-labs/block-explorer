@@ -10,7 +10,8 @@
       "maintenance": false,
       "name": "local",
       "published": true,
-      "rpcUrl": "http://localhost:3050"
+      "rpcUrl": "http://localhost:3050",
+      "verificationApiUrl": "https://contract-verification-testnet.zulunetwork.xyz"
     }
   ]
 }
