@@ -57,7 +57,7 @@ const buildEnvFileContent = (json: { [key: string]: string | number }) => Object
   }
   console.log(`zksync-era repo found at ${zkSyncHome}`);
 
-  const zkSyncEnvFolder = `${zkSyncHome}/etc/env`;
+  const zkSyncEnvFolder = `${zkSyncHome}/etc/env/target`;
   const envFiles = readdirSync(zkSyncEnvFolder)
     .map((fullFileName) => path.parse(fullFileName))
     .filter((file) => {
