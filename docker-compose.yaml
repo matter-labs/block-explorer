@@ -79,15 +79,18 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=block-explorer
 
-  geth:
-    image: "matterlabs/geth:latest"
-    logging:
-      driver: none
-    ports:
-      - "8545:8545"
-      - "8546:8546"
+  reth:
+    restart: always
+    image: "ghcr.io/paradigmxyz/reth:v0.2.0-beta.2"
     volumes:
-      - geth:/var/lib/geth/data
+      - type: bind
+        source: ./reth_chaindata
+        target: /chaindata
+    command: node --dev --datadir /rethdata --http --http.addr 0.0.0.0 --http.port 8545  --dev.block-time 300ms --chain /chaindata/reth_config
+    environment:
+      - RUST_LOG=warn
+    ports:
+      - 127.0.0.1:8545:8545
 
   zksync:
     stdin_open: true
@@ -96,28 +99,30 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      geth:
+      reth:
         condition: service_started
     ports:
-      - "3050:3050" # JSON RPC HTTP port
-      - "3051:3051" # JSON RPC WS port
+      - 127.0.0.1:3050:3050 # JSON RPC HTTP port
+      - 127.0.0.1:3051:3051 # JSON RPC WS port
     volumes:
       # Configs folder bind
       - zksync-config:/etc/env/
       # Storage folder bind
       - zksync-data:/var/lib/zksync/data
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/zksync_local
-      - ETH_CLIENT_WEB3_URL=http://geth:8545
+      - DATABASE_PROVER_URL=postgres://postgres:postgres@postgres/prover_local
+      - DATABASE_URL=postgres://postgres:postgres@postgres/zksync_local
+      - ETH_CLIENT_WEB3_URL=http://reth:8545 
     healthcheck:
-      test: "curl -H \"Content-Type: application/json\" -X POST --data '{\"jsonrpc\":\"2.0\",\"method\":\"web3_clientVersion\",\"params\":[],\"id\":67}' 127.0.0.1:3050 || exit 1"
-      interval: 5s
+      test: curl --fail http://localhost:3071/health || exit 1
+      interval: 10s
       timeout: 5s
-      retries: 300
+      retries: 60
+      start_period: 30s
     restart: unless-stopped
 
 volumes:
-  geth:
+  reth:
   postgres:
   zksync-config:
   zksync-data:
