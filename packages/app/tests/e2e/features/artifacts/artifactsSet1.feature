@@ -39,7 +39,7 @@ Feature: Main Page
       | Value   | url                        |
       # discord renamed to "join"
       | join    | https://join.zksync.dev/   |
-      | twitter | https://x.com/zksync       |
+      | twitter | https://twitter.com/zksync |
 
   @id254:I
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
