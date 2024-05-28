@@ -4,7 +4,6 @@ import { mock } from "jest-mock-extended";
 import { BigNumber } from "ethers";
 import { types } from "zksync-web3";
 import { TransferService } from "./transfer.service";
-import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
 
 import * as ethDepositNoFee from "../../test/transactionReceipts/eth/deposit-no-fee.json";
@@ -68,18 +67,7 @@ describe("TransferService", () => {
 
   beforeEach(async () => {
     const app = await Test.createTestingModule({
-      providers: [
-        TransferService,
-        {
-          provide: BlockchainService,
-          useValue: {
-            bridgeAddresses: {
-              l1Erc20DefaultBridge: "0xc0543dab6ac5d3e3ff2e5a5e39e15186d0306808",
-              l2Erc20DefaultBridge: "0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c",
-            },
-          },
-        },
-      ],
+      providers: [TransferService],
     }).compile();
 
     app.useLogger(mock<Logger>());

@@ -27,7 +27,7 @@ Feature: Redirection
       | Icon    | url                                |
       # discord renamed to "join"
       | join    | https://join.zksync.dev/           |
-      | twitter | https://twitter.com/zksync         |
+      | twitter | https://x.com/zksync               |
 
   @id251
   Scenario: Verify redirection for Documentation link
