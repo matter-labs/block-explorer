@@ -11,8 +11,7 @@ import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel 
 import { RetryableContract } from "./retryableContract";
 
 export interface BridgeAddresses {
-  l1Erc20DefaultBridge: string;
-  l2Erc20DefaultBridge: string;
+  l2Erc20DefaultBridge?: string;
 }
 
 export interface TraceTransactionResult {
@@ -180,25 +179,11 @@ export class BlockchainService implements OnModuleInit {
     return await erc20Contract.balanceOf(address, { blockTag });
   }
 
-  public async getBridgeContracts(): Promise<{
-    l1Erc20Bridge: string;
-    l1SharedDefaultBridge: string;
-    l2SharedDefaultBridge;
-    l1Erc20DefaultBridge: string;
-    l1WethBridge: string;
-    l2Erc20DefaultBridge: string;
-    l2WethBridge: string;
-  }> {
-    return await this.rpcCall(async () => {
-      return await this.provider.send("zks_getBridgeContracts", []);
-    }, "getBridgeContracts");
-  }
-
   public async onModuleInit(): Promise<void> {
-    const bridgeAddresses = await this.getBridgeContracts();
+    const bridgeAddresses = await this.getDefaultBridgeAddresses();
+
     this.bridgeAddresses = {
-      l1Erc20DefaultBridge: bridgeAddresses.l1SharedDefaultBridge ?? bridgeAddresses.l1Erc20DefaultBridge,
-      l2Erc20DefaultBridge: bridgeAddresses.l2SharedDefaultBridge ?? bridgeAddresses.l2Erc20DefaultBridge,
+      l2Erc20DefaultBridge: bridgeAddresses.erc20L2?.toLowerCase(),
     };
     this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
   }

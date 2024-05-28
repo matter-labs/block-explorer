@@ -1613,53 +1613,35 @@ describe("BlockchainService", () => {
 
   describe("onModuleInit", () => {
     let bridgeAddresses;
-    beforeEach(() => {
-      bridgeAddresses = {
-        l1SharedDefaultBridge: "l1erc20defaultbridge",
-        l2SharedDefaultBridge: "l2erc20defaultbridge",
-      };
 
-      jest.spyOn(provider, "send").mockResolvedValueOnce(bridgeAddresses);
+    describe("when l2 ERC20 default bridge is defined", () => {
+      beforeEach(() => {
+        bridgeAddresses = {
+          erc20L2: "l2Erc20DefaultBridge",
+        };
+
+        jest.spyOn(provider, "getDefaultBridgeAddresses").mockResolvedValueOnce(bridgeAddresses);
+      });
+
+      it("inits L2 ERC20 bridge address", async () => {
+        await blockchainService.onModuleInit();
+        expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(bridgeAddresses.erc20L2.toLowerCase());
+      });
     });
 
-    it("inits L2 ERC20 bridge address", async () => {
-      await blockchainService.onModuleInit();
-      expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(
-        bridgeAddresses.l2SharedDefaultBridge.toLowerCase()
-      );
-    });
+    describe("when l2 ERC20 default bridge is not defined", () => {
+      beforeEach(() => {
+        bridgeAddresses = {
+          erc20L2: null,
+        };
 
-    it("inits L1 ERC20 bridge address", async () => {
-      await blockchainService.onModuleInit();
-      expect(blockchainService.bridgeAddresses.l1Erc20DefaultBridge).toBe(
-        bridgeAddresses.l1SharedDefaultBridge.toLowerCase()
-      );
-    });
-  });
+        jest.spyOn(provider, "getDefaultBridgeAddresses").mockResolvedValueOnce(bridgeAddresses);
+      });
 
-  describe("onModuleInit new response", () => {
-    let bridgeAddresses;
-    beforeEach(() => {
-      bridgeAddresses = {
-        l1Erc20DefaultBridge: "l1erc20defaultbridge",
-        l2Erc20DefaultBridge: "l2erc20defaultbridge",
-      };
-
-      jest.spyOn(provider, "send").mockResolvedValueOnce(bridgeAddresses);
-    });
-
-    it("inits L2 ERC20 bridge address", async () => {
-      await blockchainService.onModuleInit();
-      expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(
-        bridgeAddresses.l2Erc20DefaultBridge.toLowerCase()
-      );
-    });
-
-    it("inits L1 ERC20 bridge address", async () => {
-      await blockchainService.onModuleInit();
-      expect(blockchainService.bridgeAddresses.l1Erc20DefaultBridge).toBe(
-        bridgeAddresses.l1Erc20DefaultBridge.toLowerCase()
-      );
+      it("sets L2 ERC20 bridge address to null", async () => {
+        await blockchainService.onModuleInit();
+        expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(undefined);
+      });
     });
   });
 });
