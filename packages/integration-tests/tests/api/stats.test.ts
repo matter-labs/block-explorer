@@ -22,4 +22,17 @@ describe("Stats", () => {
       expect(typeof response.body.totalTransactions).toStrictEqual("number");
     });
   });
+  
+  //@id1955
+  it("Verify the response via /action=ethprice endpoint - incorrect token name", async () => {
+    await helper.runRetriableTestAction(async () => {
+      apiRoute = `/api?module=stats&action=ethprisce2`;
+      response = await helper.performBlockExplorerApiGetRequest(apiRoute);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+      expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+      expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Missing Or invalid Action name" }));
+    });
+  });
 });
