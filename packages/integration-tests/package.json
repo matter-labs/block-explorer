@@ -8,7 +8,9 @@
   "author": "Matter Labs",
   "license": "MIT",
   "scripts": {
-    "postinstall": "cd src/playbook && npm install",
+    "postinstall": "npm run install:playwright && npm run install:playbook",
+    "install:playwright": "npx playwright install --with-deps chromium",
+    "install:playbook": "cd src/playbook && npm install",
     "integration-test:api": "jest --verbose",
     "integration-test:ui": "npx playwright test",
     "block-explorer:start": "docker-compose up",
