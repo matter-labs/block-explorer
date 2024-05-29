@@ -8,8 +8,7 @@
   "author": "Matter Labs",
   "license": "MIT",
   "scripts": {
-    "postinstall": "npm run install:playbook",
-    "install:playbook": "cd src/playbook && npm install",
+    "postinstall": "cd src/playbook && npm install",
     "integration-test:api": "jest --verbose",
     "integration-test:ui": "npx playwright test",
     "block-explorer:start": "docker-compose up",
