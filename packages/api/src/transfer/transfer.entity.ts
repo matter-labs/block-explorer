@@ -1,10 +1,11 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { Token, TokenType, ETH_TOKEN } from "../token/token.entity";
+import { Token, TokenType } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
+import { baseTokenData } from "../config/index";
 
 export enum TransferType {
   Deposit = "deposit",
@@ -64,7 +65,7 @@ export class Transfer extends BaseEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
-  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.BaseToken })
   public readonly tokenType: TokenType;
 
   @Column({ type: "boolean", select: false })
@@ -86,9 +87,9 @@ export class Transfer extends BaseEntity {
   }
 
   @AfterLoad()
-  populateEthToken() {
-    if (!this.token && this.tokenAddress === ETH_TOKEN.l2Address) {
-      this.token = ETH_TOKEN;
+  populateBaseToken() {
+    if (!this.token && this.tokenAddress.toLowerCase() === baseTokenData.l2Address.toLowerCase()) {
+      this.token = baseTokenData as Token;
     }
   }
 }

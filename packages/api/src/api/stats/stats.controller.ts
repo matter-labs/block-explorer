@@ -4,8 +4,8 @@ import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { EthPriceResponseDto } from "../dtos/stats/ethPrice.dto";
 import { TokenService } from "../../token/token.service";
-import { ETH_TOKEN } from "../../token/token.entity";
 import { dateToTimestamp } from "../../common/utils";
+import { baseTokenData } from "../../config";
 
 const entityName = "stats";
 
@@ -18,7 +18,10 @@ export class StatsController {
 
   @Get("/ethprice")
   public async ethPrice(): Promise<EthPriceResponseDto> {
-    const token = await this.tokenService.findOne(ETH_TOKEN.l2Address, { usdPrice: true, offChainDataUpdatedAt: true });
+    const token = await this.tokenService.findOne(baseTokenData.l2Address, {
+      usdPrice: true,
+      offChainDataUpdatedAt: true,
+    });
     return {
       status: token ? ResponseStatus.OK : ResponseStatus.NOTOK,
       message: token ? ResponseMessage.OK : ResponseMessage.NO_DATA_FOUND,

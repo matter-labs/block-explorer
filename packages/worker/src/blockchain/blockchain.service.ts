@@ -177,7 +177,6 @@ export class BlockchainService implements OnModuleInit {
     this.bridgeAddresses = {
       l2Erc20DefaultBridge: bridgeAddresses.erc20L2?.toLowerCase(),
     };
-
     this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
   }
 }

@@ -8,6 +8,7 @@ import { DEFAULT_NETWORK } from "./useRuntimeConfig";
 
 import type { NetworkConfig } from "@/configs";
 
+import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
 
 const network = useStorage("selectedNetwork_v2", DEFAULT_NETWORK.name);
@@ -26,9 +27,12 @@ export default (): Context => {
   const environmentConfig = useEnvironmentConfig();
 
   const networks = computed<NetworkConfig[]>(() => {
-    return Array.isArray(environmentConfig.networks.value) && environmentConfig.networks.value.length
-      ? environmentConfig.networks.value
-      : [DEFAULT_NETWORK];
+    const configuredNetworks =
+      Array.isArray(environmentConfig.networks.value) && environmentConfig.networks.value.length
+        ? environmentConfig.networks.value
+        : [DEFAULT_NETWORK];
+    configuredNetworks.forEach((network) => (network.baseTokenAddress = checksumAddress(network.baseTokenAddress)));
+    return configuredNetworks;
   });
   const currentNetwork = computed(() => {
     return (

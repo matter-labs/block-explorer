@@ -5,9 +5,10 @@ import * as request from "supertest";
 import { Repository } from "typeorm";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
-import { Token, ETH_TOKEN } from "../src/token/token.entity";
+import { Token } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { baseTokenData } from "../src/config";
 
 describe("Token API (e2e)", () => {
   let app: INestApplication;
@@ -55,16 +56,16 @@ describe("Token API (e2e)", () => {
     });
 
     await tokenRepository.insert({
-      l2Address: ETH_TOKEN.l2Address,
-      l1Address: ETH_TOKEN.l1Address,
-      symbol: ETH_TOKEN.symbol,
-      name: ETH_TOKEN.name,
-      decimals: ETH_TOKEN.decimals,
+      l2Address: baseTokenData.l2Address,
+      l1Address: baseTokenData.l1Address,
+      symbol: baseTokenData.symbol,
+      name: baseTokenData.name,
+      decimals: baseTokenData.decimals,
       blockNumber: 0,
       logIndex: 0,
-      usdPrice: ETH_TOKEN.usdPrice,
-      liquidity: ETH_TOKEN.liquidity,
-      iconURL: ETH_TOKEN.iconURL,
+      usdPrice: baseTokenData.usdPrice,
+      liquidity: baseTokenData.liquidity,
+      iconURL: baseTokenData.iconURL,
     });
 
     await tokenRepository.insert({
@@ -128,21 +129,21 @@ describe("Token API (e2e)", () => {
 
     it("returns HTTP 200 and ETH token info for ETH token", () => {
       return request(app.getHttpServer())
-        .get(`/api?module=token&action=tokeninfo&contractaddress=${ETH_TOKEN.l2Address}`)
+        .get(`/api?module=token&action=tokeninfo&contractaddress=${baseTokenData.l2Address}`)
         .expect(200)
         .expect((res) =>
           expect(res.body).toStrictEqual({
             message: "OK",
             result: [
               {
-                contractAddress: ETH_TOKEN.l2Address,
-                iconURL: ETH_TOKEN.iconURL,
-                l1Address: ETH_TOKEN.l1Address,
-                liquidity: ETH_TOKEN.liquidity.toString(),
-                symbol: ETH_TOKEN.symbol,
-                tokenDecimal: ETH_TOKEN.decimals.toString(),
-                tokenName: ETH_TOKEN.name,
-                tokenPriceUSD: ETH_TOKEN.usdPrice.toString(),
+                contractAddress: baseTokenData.l2Address,
+                iconURL: baseTokenData.iconURL,
+                l1Address: baseTokenData.l1Address,
+                liquidity: baseTokenData.liquidity.toString(),
+                symbol: baseTokenData.symbol,
+                tokenDecimal: baseTokenData.decimals.toString(),
+                tokenName: baseTokenData.name,
+                tokenPriceUSD: baseTokenData.usdPrice.toString(),
               },
             ],
             status: "1",

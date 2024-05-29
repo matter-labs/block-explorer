@@ -5,11 +5,13 @@ import * as request from "supertest";
 import { Repository } from "typeorm";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
-import { Token, ETH_TOKEN } from "../src/token/token.entity";
+import { Token } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { baseTokenData } from "../src/config";
 
 describe("Stats API (e2e)", () => {
+  let ETH_TOKEN;
   let app: INestApplication;
   let blockRepository: Repository<BlockDetails>;
   let batchRepository: Repository<BatchDetails>;
@@ -19,7 +21,7 @@ describe("Stats API (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
+    ETH_TOKEN = baseTokenData;
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();

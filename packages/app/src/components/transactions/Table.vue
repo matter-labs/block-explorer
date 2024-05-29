@@ -212,6 +212,7 @@ import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPric
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
 
+import useContext from "@/composables/useContext";
 import useToken, { type Token } from "@/composables/useToken";
 import { decodeDataWithABI } from "@/composables/useTransactionData";
 import useTransactions, { type TransactionListItem, type TransactionSearchParams } from "@/composables/useTransactions";
@@ -220,8 +221,9 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 import type { NetworkOrigin } from "@/types";
 
-import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
 import { utcStringFromISOString } from "@/utils/helpers";
+
+const { currentNetwork } = useContext();
 
 const { t, te } = useI18n();
 
@@ -251,7 +253,7 @@ const searchParams = computed(() => props.searchParams ?? {});
 const { data, load, total, pending, pageSize } = useTransactions(searchParams);
 
 const { getTokenInfo, tokenInfo, isRequestPending: isLoadingEthTokenInfo } = useToken();
-getTokenInfo(ETH_TOKEN_L2_ADDRESS);
+getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const ethToken = computed<Token | null>(() => {
   return tokenInfo.value;
