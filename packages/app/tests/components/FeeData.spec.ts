@@ -46,7 +46,7 @@ const feeData = {
     {
       tokenInfo: {
         decimals: 18,
-        l1Address: "0x0000000000000000000000000000000000000001",
+        l1Address: "0x0000000000000000000000000000000000000000",
         l2Address: "0x0000000000000000000000000000000000000000",
         symbol: "ETH",
         name: "Ether",

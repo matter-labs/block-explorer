@@ -316,7 +316,7 @@ describe("TokenController (e2e)", () => {
         .expect((res) =>
           expect(res.body).toStrictEqual({
             l2Address: "0x000000000000000000000000000000000000800A",
-            l1Address: "0x0000000000000000000000000000000000000001",
+            l1Address: "0x0000000000000000000000000000000000000000",
             symbol: "ETH",
             name: "Ether",
             decimals: 18,
@@ -657,7 +657,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: "0x0000000000000000000000000000000000000001",
+                  l1Address: "0x0000000000000000000000000000000000000000",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -680,7 +680,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: "0x0000000000000000000000000000000000000001",
+                  l1Address: "0x0000000000000000000000000000000000000000",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -703,7 +703,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: "0x0000000000000000000000000000000000000001",
+                  l1Address: "0x0000000000000000000000000000000000000000",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
