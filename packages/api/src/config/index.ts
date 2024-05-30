@@ -1,6 +1,6 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
-import { BASE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
 type BaseToken = {
   symbol: string;
   decimals: number;
@@ -13,7 +13,7 @@ type BaseToken = {
 };
 const defaultEthBaseToken: BaseToken = {
   l2Address: BASE_TOKEN_L2_ADDRESS,
-  l1Address: "0x0000000000000000000000000000000000000001",
+  l1Address: BASE_TOKEN_L1_ADDRESS,
   symbol: "ETH",
   name: "Ether",
   decimals: 18,
