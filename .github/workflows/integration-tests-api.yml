@@ -1,14 +1,57 @@
 name: Integration test - API
-on: pull_request
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
-  runTests:
+  build-docker-images:
+    name: Build ${{ matrix.name }}
+    strategy:
+      matrix:
+        include:
+          - image: matterlabs/block-explorer-app:pr
+            dockerfile: ./packages/app/Dockerfile
+            name: docker-block-explorer-app
+          - image: matterlabs/block-explorer-worker:pr
+            dockerfile: ./packages/worker/Dockerfile
+            name: docker-block-explorer-worker
+          - image: matterlabs/block-explorer-data-fetcher:pr
+            dockerfile: ./packages/data-fetcher/Dockerfile
+            name: docker-block-explorer-data-fetcher
+          - image: matterlabs/block-explorer-api:pr
+            dockerfile: ./packages/api/Dockerfile
+            name: docker-block-explorer-api
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push block-explorer-app
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          tags: ${{ matrix.image }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: ${{ github.event_name == 'push' && 'type=gha,mode=max,scope=matrix.name' || '' }}
+          outputs: type=docker,dest=/tmp/${{ matrix.name }}.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: /tmp/${{ matrix.name }}.tar
+
+  run-tests:
     timeout-minutes: 30
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-      checks: write
+    needs: build-docker-images
     strategy:
       matrix:
         node-version: ['lts/*'] # 18.17.1 or lts/* 
@@ -24,38 +67,48 @@ jobs:
           - transactions.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
-      - name: Checkout with Submodule
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
 
-      - name: Install dependencies
+      - name: Download prebuilt docker images
+        uses: actions/download-artifact@v4
+        with:
+          pattern: docker-*
+          path: /tmp
+
+      - name: Load image
+        run: |
+          ls -1 /tmp/**/*.tar | xargs --no-run-if-empty -L 1 docker load --input
+          docker image ls -a 
+
+      - uses: alexkainzinger/compose-action@v2
+        with:
+          compose-file: docker-compose-prebuilt.yaml
+          down-flags: "--volumes"
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        env:
+          HUSKY: 0
+        with:
+          path: '~/.npm'
+          key: ${{ runner.os }}-integration-tests-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-integration-tests-
+            ${{ runner.os }}-
+
+      - name: Prepare test env
         run: |
           npm ci
           npx playwright install --with-deps chromium
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Start docker containers
+      - name: Run ${{ matrix.test-pattern }}
+        working-directory: packages/integration-tests
         run: |
-          docker-compose -f "docker-compose.yaml" up -d --build
-      - name: List running containers
-        run: docker ps
-
-      - name: API tests run (parallel)
-        run: |
-          cd packages/integration-tests
           npx jest --verbose --testPathPattern=${{ matrix.test-pattern }}
-      - name: Stop containers
-        if: always()
-        run: |
-          docker-compose -f "docker-compose.yaml" down
