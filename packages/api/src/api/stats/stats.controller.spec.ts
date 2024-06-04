@@ -2,8 +2,9 @@ import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
-import { Token, ETH_TOKEN } from "../../token/token.entity";
+import { Token } from "../../token/token.entity";
 import { StatsController } from "./stats.controller";
+import { baseTokenData } from "../../config";
 
 describe("StatsController", () => {
   let controller: StatsController;
@@ -31,7 +32,7 @@ describe("StatsController", () => {
   describe("ethPrice", () => {
     it("returns ok response and ETH price when ETH token is found", async () => {
       jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce({
-        usdPrice: ETH_TOKEN.usdPrice,
+        usdPrice: baseTokenData.usdPrice,
         offChainDataUpdatedAt: new Date("2023-03-03"),
       } as Token);
 
@@ -40,7 +41,7 @@ describe("StatsController", () => {
         status: "1",
         message: "OK",
         result: {
-          ethusd: ETH_TOKEN.usdPrice.toString(),
+          ethusd: baseTokenData.usdPrice.toString(),
           ethusd_timestamp: Math.floor(new Date("2023-03-03").getTime() / 1000).toString(),
         },
       });

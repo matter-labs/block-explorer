@@ -1,9 +1,10 @@
 import { BigNumber } from "ethers";
-import { types, utils } from "zksync-web3";
+import { types } from "zksync-web3";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { ethWithdrawalToL1Handler } from "./ethWithdrawalToL1.handler";
+import { BASE_TOKEN_ADDRESS } from "../../../constants";
 
 describe("ethWithdrawalToL1Handler", () => {
   let log: types.Log;
@@ -69,7 +70,7 @@ describe("ethWithdrawalToL1Handler", () => {
 
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as tokenAddress", () => {
       const result = ethWithdrawalToL1Handler.extract(log, blockDetails);
-      expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
+      expect(result.tokenAddress).toBe(BASE_TOKEN_ADDRESS);
     });
 
     it("extracts transfer of deposit type", () => {
@@ -79,7 +80,7 @@ describe("ethWithdrawalToL1Handler", () => {
 
     it("extracts transfer of ETH token type", () => {
       const result = ethWithdrawalToL1Handler.extract(log, blockDetails);
-      expect(result.tokenType).toBe(TokenType.ETH);
+      expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 
     it("adds isFeeOrRefund as false", () => {

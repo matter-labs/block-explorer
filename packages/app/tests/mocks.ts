@@ -46,6 +46,7 @@ export const TESTNET_NETWORK: NetworkConfig = {
   maintenance: false,
   published: true,
   hostnames: [],
+  baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
 };
 export const TESTNET_BETA_NETWORK: NetworkConfig = {
   name: "testnet-beta",
@@ -58,6 +59,7 @@ export const TESTNET_BETA_NETWORK: NetworkConfig = {
   l1ExplorerUrl: "http://testnet-beta-block-explorer",
   maintenance: false,
   published: true,
+  baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
   hostnames: ["https://testnet-beta.staging-scan-v2.zksync.dev/"],
 };
 

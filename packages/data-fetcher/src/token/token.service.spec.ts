@@ -1,5 +1,6 @@
 import { mock } from "jest-mock-extended";
-import { types, utils } from "zksync-web3";
+import { types } from "zksync-web3";
+import { BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -103,22 +104,22 @@ describe("TokenService", () => {
             symbol: "ETH",
             decimals: 18,
             name: "Ethers",
+            l1Address: ETH_L1_ADDRESS,
           };
           const deployedETHContractAddress = mock<ContractAddress>({
-            address: utils.L2_ETH_TOKEN_ADDRESS,
+            address: BASE_TOKEN_ADDRESS,
             blockNumber: 0,
             transactionHash: "transactionHash",
             logIndex: 0,
           });
           (blockchainServiceMock.getERC20TokenData as jest.Mock).mockResolvedValueOnce(ethTokenData);
-
           const token = await tokenService.getERC20Token(deployedETHContractAddress, transactionReceipt);
           expect(token).toStrictEqual({
             ...ethTokenData,
             blockNumber: deployedETHContractAddress.blockNumber,
             transactionHash: deployedETHContractAddress.transactionHash,
-            l2Address: deployedETHContractAddress.address,
-            l1Address: utils.ETH_ADDRESS,
+            l2Address: BASE_TOKEN_ADDRESS,
+            l1Address: ETH_L1_ADDRESS,
             logIndex: deployedETHContractAddress.logIndex,
           });
         });

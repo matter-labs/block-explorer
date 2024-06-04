@@ -21,7 +21,6 @@ export const typeOrmModuleOptions: DataSourceOptions = {
   subscribers: [],
   migrations: ["dist/migrations/*.js"],
 };
-
 const typeOrmCliDataSource = new DataSource({
   ...typeOrmModuleOptions,
   entities: ["src/**/*.entity.{ts,js}"],

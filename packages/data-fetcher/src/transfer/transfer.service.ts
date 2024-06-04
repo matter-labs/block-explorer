@@ -13,7 +13,7 @@ import {
   ethMintFromL1Handler,
   ethWithdrawalToL1Handler,
 } from "./extractHandlers";
-
+import { BASE_TOKEN_ADDRESS } from "../constants";
 export enum TransferType {
   Deposit = "deposit",
   Transfer = "transfer",
@@ -89,7 +89,7 @@ export class TransferService {
       return;
     }
     const ethDeposits = transfers.filter(
-      (t) => t.type === TransferType.Deposit && t.tokenAddress === utils.L2_ETH_TOKEN_ADDRESS
+      (t) => t.type === TransferType.Deposit && t.tokenAddress === BASE_TOKEN_ADDRESS
     );
     const feeDeposit = ethDeposits.find((t) => t.to === utils.BOOTLOADER_FORMAL_ADDRESS);
     if (!feeDeposit) {
