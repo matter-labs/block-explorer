@@ -4,8 +4,10 @@ import { Repository, FindOptionsSelect, MoreThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
-import { Token, ETH_TOKEN } from "./token.entity";
-
+import { Token } from "./token.entity";
+import { BASE_TOKEN_L2_ADDRESS } from "../common/constants";
+import config from "../config";
+const { baseTokenData } = config();
 export interface FilterTokensOptions {
   minLiquidity?: number;
 }
@@ -24,8 +26,8 @@ export class TokenService {
       },
       select: fields,
     });
-    if (!token && address.toLowerCase() === ETH_TOKEN.l2Address.toLowerCase()) {
-      return ETH_TOKEN;
+    if (!token && address.toLowerCase() === BASE_TOKEN_L2_ADDRESS.toLowerCase()) {
+      return baseTokenData as Token;
     }
     return token;
   }
@@ -33,7 +35,7 @@ export class TokenService {
   public async exists(address: string): Promise<boolean> {
     const tokenExists =
       (await this.tokenRepository.findOne({ where: { l2Address: address }, select: { l2Address: true } })) != null;
-    if (!tokenExists && address === ETH_TOKEN.l2Address.toLowerCase()) {
+    if (!tokenExists && address === BASE_TOKEN_L2_ADDRESS.toLowerCase()) {
       return true;
     }
     return tokenExists;

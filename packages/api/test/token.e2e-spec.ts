@@ -5,13 +5,15 @@ import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { baseTokenData } from "../src/config";
 
 describe("TokenController (e2e)", () => {
+  let ETH_TOKEN;
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
   let blockRepository: Repository<BlockDetails>;
@@ -23,7 +25,7 @@ describe("TokenController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
+    ETH_TOKEN = baseTokenData;
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);
@@ -232,7 +234,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0x000000000000000000000000000000000000800A",
         amount: "1000",
         type: TransferType.Refund,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -314,7 +316,7 @@ describe("TokenController (e2e)", () => {
         .expect((res) =>
           expect(res.body).toStrictEqual({
             l2Address: "0x000000000000000000000000000000000000800A",
-            l1Address: "0x0000000000000000000000000000000000000000",
+            l1Address: "0x0000000000000000000000000000000000000001",
             symbol: "ETH",
             name: "Ether",
             decimals: 18,
@@ -655,7 +657,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: "0x0000000000000000000000000000000000000000",
+                  l1Address: "0x0000000000000000000000000000000000000001",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -664,7 +666,7 @@ describe("TokenController (e2e)", () => {
                   usdPrice: null,
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
               },
@@ -678,7 +680,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: "0x0000000000000000000000000000000000000000",
+                  l1Address: "0x0000000000000000000000000000000000000001",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -687,7 +689,7 @@ describe("TokenController (e2e)", () => {
                   usdPrice: null,
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
               },
@@ -701,7 +703,7 @@ describe("TokenController (e2e)", () => {
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
                   decimals: 18,
-                  l1Address: "0x0000000000000000000000000000000000000000",
+                  l1Address: "0x0000000000000000000000000000000000000001",
                   l2Address: "0x000000000000000000000000000000000000800A",
                   name: "Ether",
                   symbol: "ETH",
@@ -710,7 +712,7 @@ describe("TokenController (e2e)", () => {
                   usdPrice: null,
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
               },

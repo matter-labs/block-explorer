@@ -1,5 +1,55 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
+import { BASE_TOKEN_L2_ADDRESS } from "../common/constants";
+type BaseToken = {
+  symbol: string;
+  decimals: number;
+  l1Address: string;
+  l2Address: string;
+  liquidity: number;
+  iconURL: string;
+  name: string;
+  usdPrice: number;
+};
+const defaultEthBaseToken: BaseToken = {
+  l2Address: BASE_TOKEN_L2_ADDRESS,
+  l1Address: "0x0000000000000000000000000000000000000001",
+  symbol: "ETH",
+  name: "Ether",
+  decimals: 18,
+  // Fallback data in case ETH token is not in the DB
+  iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+  liquidity: 220000000000,
+  usdPrice: 1800,
+};
+const baseTokenFromEnv = (): BaseToken => {
+  const {
+    BASE_TOKEN_SYMBOL,
+    BASE_TOKEN_DECIMALS,
+    BASE_TOKEN_L1_ADDRESS,
+    BASE_TOKEN_ICON_URL,
+    BASE_TOKEN_NAME,
+    BASE_TOKEN_LIQUIDITY,
+    BASE_TOKEN_USDPRICE,
+  } = process.env;
+  const decimals = parseFloat(BASE_TOKEN_DECIMALS);
+  const liquidity = parseFloat(BASE_TOKEN_LIQUIDITY);
+  const usdPrice = parseFloat(BASE_TOKEN_USDPRICE);
+  if (BASE_TOKEN_L1_ADDRESS && BASE_TOKEN_SYMBOL) {
+    return {
+      symbol: BASE_TOKEN_SYMBOL,
+      decimals,
+      l1Address: BASE_TOKEN_L1_ADDRESS,
+      l2Address: BASE_TOKEN_L2_ADDRESS,
+      liquidity,
+      iconURL: BASE_TOKEN_ICON_URL,
+      usdPrice,
+      name: BASE_TOKEN_NAME,
+    };
+  } else {
+    return defaultEthBaseToken;
+  }
+};
 
 export default () => {
   const {
@@ -14,6 +64,8 @@ export default () => {
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
   } = process.env;
+
+  const baseTokenData: BaseToken = baseTokenFromEnv();
 
   const MAX_NUMBER_OF_REPLICA = 100;
 
@@ -32,7 +84,7 @@ export default () => {
   };
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
-    const master = { url: DATABASE_URL || "postgres://postgres:postgres@localhost:5432/block-explorer" };
+    const master = { url: DATABASE_URL || "postgres://postgres:postgres@127.0.0.1:5432/block-explorer" };
     const replicaSet = getDatabaseReplicaSet();
 
     return {
@@ -75,6 +127,9 @@ export default () => {
     typeORM: getTypeOrmModuleOptions(),
     contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
     featureFlags,
+    baseTokenData,
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
   };
 };
+
+export const baseTokenData = baseTokenFromEnv();
