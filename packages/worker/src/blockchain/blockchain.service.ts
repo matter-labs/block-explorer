@@ -11,8 +11,7 @@ import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel 
 import { RetryableContract } from "./retryableContract";
 
 export interface BridgeAddresses {
-  l1Erc20DefaultBridge: string;
-  l2Erc20DefaultBridge: string;
+  l2Erc20DefaultBridge?: string;
 }
 
 export interface TraceTransactionResult {
@@ -176,8 +175,7 @@ export class BlockchainService implements OnModuleInit {
     const bridgeAddresses = await this.getDefaultBridgeAddresses();
 
     this.bridgeAddresses = {
-      l1Erc20DefaultBridge: bridgeAddresses.erc20L1.toLowerCase(),
-      l2Erc20DefaultBridge: bridgeAddresses.erc20L2.toLowerCase(),
+      l2Erc20DefaultBridge: bridgeAddresses.erc20L2?.toLowerCase(),
     };
 
     this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
