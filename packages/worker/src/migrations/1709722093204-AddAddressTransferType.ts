@@ -13,6 +13,12 @@ export class AddAddressTransferType1709722093204 implements MigrationInterface {
     await queryRunner.query(
       `CREATE INDEX "IDX_aa5a147f1f6a4acde1a13de594" ON "addressTransfers" ("address", "type", "timestamp", "logIndex" DESC) `
     );
+    await queryRunner.query(
+      `UPDATE "addressTransfers" Set "type" = "transfers".type::VARCHAR::"addressTransfers_type_enum"
+        FROM "transfers"
+        WHERE "transfers"."number" = "addressTransfers"."transferNumber"
+        AND "transfers"."type" != 'transfer'`
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

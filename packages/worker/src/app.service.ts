@@ -10,6 +10,7 @@ import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
+import runScriptMigrations from "./utils/runScriptMigrations";
 
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
@@ -30,6 +31,11 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   public onModuleInit() {
     runMigrations(this.dataSource, this.logger).then(() => {
+      const enableScriptMigrations = this.configService.get<boolean>("scriptMigrations.enabled");
+      if (enableScriptMigrations) {
+        // Run script migrations on background if there are any to run.
+        runScriptMigrations(this.dataSource, this.logger);
+      }
       this.startWorkers();
     });
   }

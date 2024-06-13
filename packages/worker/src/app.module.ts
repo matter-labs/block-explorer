@@ -31,6 +31,7 @@ import {
   AddressTransferRepository,
   LogRepository,
   BalanceRepository,
+  ScriptMigrationRepository,
 } from "./repositories";
 import {
   Batch,
@@ -44,6 +45,7 @@ import {
   Transfer,
   AddressTransfer,
   Balance,
+  ScriptMigration,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -80,6 +82,7 @@ import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
       AddressTransfer,
       Transfer,
       Balance,
+      ScriptMigration,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -121,6 +124,7 @@ import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
     AddressTransferRepository,
     BalanceRepository,
     LogRepository,
+    ScriptMigrationRepository,
     BlocksRevertService,
     BatchService,
     BlockProcessor,
