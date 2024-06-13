@@ -141,16 +141,24 @@ jobs:
 
   deployFrontendToStaging:
     name: Deploy Block Explorer frontend to staging
-    runs-on: ubuntu-latest
+    runs-on: matterlabs-firebase-deployer
     permissions:
       contents: read
     needs: createReleaseVersion
     if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install Firebase CLI and auth
+        run: |
+          npm install -g firebase-tools
 
       - name: Download Dist package
         uses: dsaltares/fetch-gh-release-asset@master
@@ -181,11 +189,7 @@ jobs:
           unzip storybook-static.zip -d packages/app
 
       - name: Deploy
-        uses: matter-labs/action-hosting-deploy@main
-        id: deploy
-        with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_STAGING_SCAN_V2 }}"
-          projectId: staging-scan-v2
-          channelID: live
-          entryPoint: ./packages/app
+        working-directory: ./packages/app
+        run: |
+          firebase --project staging-scan-v2 deploy
+

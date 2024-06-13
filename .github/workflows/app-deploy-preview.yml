@@ -10,16 +10,27 @@ name: Deploy App to Preview
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
+    runs-on: matterlabs-firebase-deployer
     permissions:
       contents: read
     outputs:
-      dappUrl: ${{ steps.deploy.outputs.details_url }}
+      dappUrl: ${{ steps.check_channel.outputs.channel_url }}
+    env:
+      CHANNEL_NAME: ${{ github.event.inputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Firebase CLI and auth
+        run: |
+          npm install -g firebase-tools
 
       - name: Download Dist package
         uses: dsaltares/fetch-gh-release-asset@master
@@ -45,21 +56,27 @@ jobs:
         run: |
           unzip storybook-static.zip -d packages/app
 
+      - name: Check if Firebase Hosting channel exists
+        working-directory: ./packages/app
+        id: check_channel
+        run: |
+          CHANNEL_URL=$(firebase --project scan-v2 hosting:channel:list --json | jq --arg channel_name "${CHANNEL_NAME}" -r '.result.channels[]|select(.name|contains($channel_name)) | .url')
+          if [ -z "$CHANNEL_URL" ]; then
+            echo "New channel"
+            firebase --project scan-v2 hosting:channel:create $CHANNEL_NAME
+            CHANNEL_URL=$(firebase --project scan-v2 hosting:channel:list --json | jq --arg channel_name "${CHANNEL_NAME}" -r '.result.channels[]|select(.name|contains($channel_name)) | .url')
+          fi          
+          echo "channel_url=${CHANNEL_URL}" >> $GITHUB_OUTPUT
+
       - name: Deploy
-        id: deploy
-        uses: matter-labs/action-hosting-deploy@main
-        with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_SCAN_V2 }}'
-          expires: 7d
-          projectId: scan-v2
-          channelID: ${{ github.event.inputs.version }}
-          entryPoint: ./packages/app
+        working-directory: ./packages/app
+        run: |
+          firebase --project scan-v2 hosting:channel:deploy ${{ env.CHANNEL_NAME }}
 
       - name: Output version url on success
         run: |
           run: |
-          echo "Block explorer app has been deployed to: ${{ steps.deploy.outputs.details_url }}"
+          echo "Block explorer app has been deployed to: ${{ steps.check_channel.outputs.channel_url }}
 
   mainnet:
     needs: deploy
