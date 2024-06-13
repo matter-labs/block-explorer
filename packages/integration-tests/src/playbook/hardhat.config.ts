@@ -3,11 +3,11 @@ require("dotenv").config({ path: __dirname + "/.env" });
 
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
-import "@nomiclabs/hardhat-ethers";
+import "@nomicfoundation/hardhat-toolbox";
 
 import { localConfig } from "../config";
 
-import type { HardhatUserConfig } from "hardhat/types";
+import type { HardhatUserConfig } from "hardhat/config";
 
 const config: HardhatUserConfig = {
   zksolc: {
