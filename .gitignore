@@ -23,6 +23,7 @@ tests/e2e/reports/
 **/playbook/buffer/
 **/playbook/cache-zk/
 **/playbook/cache/
+**/playbook/typechain-types
 
 # Logs
 logs

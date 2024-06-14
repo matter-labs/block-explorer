@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { ethers } from "ethers";
+import { AbstractProvider, ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as request from "supertest";
@@ -8,8 +8,6 @@ import { setTimeout } from "timers/promises";
 import { environment, localConfig } from "./config";
 import { Logger } from "./constants";
 import { getProviderForL1, getProviderForL2 } from "./provider";
-
-import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
 
 export class Helper {
   async logTransaction(txType: string, txValue: string, tokenName?: string) {
@@ -49,7 +47,7 @@ export class Helper {
 
   async getBalanceETH(walletAddress: string, layer: string) {
     let network: string;
-    let provider: BaseProvider;
+    let provider: any;
     if (layer == "L1") {
       network = localConfig.L1Network;
       provider = getProviderForL1(network);
@@ -59,7 +57,7 @@ export class Helper {
     } else {
       console.log(`Wrong layer: ${layer}`);
     }
-    return ethers.utils.formatUnits(await provider.getBalance(walletAddress), "wei");
+    return ethers.formatUnits(await provider.getBalance(walletAddress), "wei");
   }
 
   async delay(ms: number) {

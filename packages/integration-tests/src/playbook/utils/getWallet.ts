@@ -1,5 +1,5 @@
-import { getDefaultProvider, utils } from "ethers";
-import { Provider, Wallet } from "zksync-web3";
+import { formatUnits, getDefaultProvider } from "ethers";
+import { Provider, Wallet } from "zksync-ethers";
 
 import { Wallets } from "../../constants";
 
@@ -15,7 +15,7 @@ export default async function (hre: any) {
 
   // Wallet ETH balance
   const ethBalance = await wallet.getBalance();
-  console.log(`Wallet ETH balance: ${utils.formatUnits(ethBalance)} ETH\n`);
+  console.log(`Wallet ETH balance: ${formatUnits(ethBalance)} ETH\n`);
 
   return wallet;
 }
