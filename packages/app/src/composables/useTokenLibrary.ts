@@ -26,6 +26,17 @@ const retrieveTokens = useMemoize(
       hasMore = !!tokensParams.minLiquidity && tokensResponse.meta.totalPages > tokensResponse.meta.currentPage;
     }
 
+    if (context.currentNetwork.value.zkTokenAddress) {
+      try {
+        const zkTokenResponse = await $fetch<Api.Response.Token>(
+          `${context.currentNetwork.value.apiUrl}/tokens/${context.currentNetwork.value.zkTokenAddress}`
+        );
+        tokens.unshift(zkTokenResponse);
+      } catch (err) {
+        console.error(`Couldn't fetch ZK token by address: ${context.currentNetwork.value.zkTokenAddress}`);
+      }
+    }
+
     return tokens;
   },
   {
