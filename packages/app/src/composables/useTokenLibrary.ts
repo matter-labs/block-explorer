@@ -27,13 +27,22 @@ const retrieveTokens = useMemoize(
     }
 
     if (context.currentNetwork.value.zkTokenAddress) {
-      try {
-        const zkTokenResponse = await $fetch<Api.Response.Token>(
-          `${context.currentNetwork.value.apiUrl}/tokens/${context.currentNetwork.value.zkTokenAddress}`
-        );
-        tokens.unshift(zkTokenResponse);
-      } catch (err) {
-        console.error(`Couldn't fetch ZK token by address: ${context.currentNetwork.value.zkTokenAddress}`);
+      const fetchedZkTokenIndex = tokens.findIndex(
+        (token) => token.l2Address === context.currentNetwork.value.zkTokenAddress
+      );
+      if (fetchedZkTokenIndex !== -1) {
+        const fetchedZkToken = tokens[fetchedZkTokenIndex];
+        tokens.splice(fetchedZkTokenIndex, 1);
+        tokens.unshift(fetchedZkToken);
+      } else {
+        try {
+          const zkTokenResponse = await $fetch<Api.Response.Token>(
+            `${context.currentNetwork.value.apiUrl}/tokens/${context.currentNetwork.value.zkTokenAddress}`
+          );
+          tokens.unshift(zkTokenResponse);
+        } catch (err) {
+          console.error(`Couldn't fetch ZK token by address: ${context.currentNetwork.value.zkTokenAddress}`);
+        }
       }
     }
 
