@@ -92,3 +92,7 @@ export enum Values {
 export enum Contracts {
   greeterContractSepolia = "0x9c6D777A35D127f17eB28B75F80Bb7486118FbE0",
 }
+
+export enum IncorrectValues {
+  incorrectAddressFormat = "0xE4ce1da467a7Ca37727eb7e19857e5167DE25966123",
+}
