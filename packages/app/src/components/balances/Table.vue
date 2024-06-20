@@ -1,6 +1,6 @@
 <template>
   <Table class="balances-table" :loading="loading || isTokenLibraryRequestPending" :items="displayedBalances">
-    <template v-if="validBalances.length" #table-head>
+    <template v-if="validBalances.length" #table-body-head>
       <table-head-column>{{ t("balances.table.asset") }}</table-head-column>
       <table-head-column>{{ t("balances.table.balance") }}</table-head-column>
       <table-head-column>{{ t("balances.table.address") }}</table-head-column>

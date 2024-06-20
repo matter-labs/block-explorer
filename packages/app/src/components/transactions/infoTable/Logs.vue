@@ -76,6 +76,7 @@
           :active-page="activePage"
           :total-items="logs?.length"
           :page-size="pageSize"
+          :header="false"
           @on-page-change="scrollPageToTop"
         />
       </div>

@@ -66,6 +66,8 @@ import TransactionsTable from "@/components/transactions/Table.vue";
 import useBatches from "@/composables/useBatches";
 import useNetworkStats from "@/composables/useNetworkStats";
 
+import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
+
 const { t } = useI18n();
 const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
 const { load: getBatches, pending: isBatchesPending, failed: isBatchesFailed, data: batches } = useBatches();
@@ -76,7 +78,7 @@ const displayedBatches = computed(() => {
 
 fetchNetworkStats();
 
-getBatches(1, new Date());
+getBatches(1, DEFAULT_PAGE_SIZE, new Date());
 </script>
 
 <style lang="scss" scoped>

@@ -1,6 +1,18 @@
 <template>
   <Table :items="data" :loading="pending || !address" :class="{ empty: !data?.length }" class="transfers-table">
-    <template #table-head v-if="total && total > 0">
+    <template v-if="total && total > DEFAULT_PAGE_SIZE && data?.length" #table-head>
+      <div class="pagination">
+        <Pagination
+          v-model:active-page="activePage"
+          v-model:page-size="pageSize"
+          :use-query="false"
+          :total-items="total!"
+          :disabled="pending"
+          :header="true"
+        />
+      </div>
+    </template>
+    <template v-if="total && total > 0" #table-body-head>
       <TableHeadColumn>
         {{ t("transfers.table.transactionHash") }}
       </TableHeadColumn>
@@ -117,14 +129,15 @@
     <template #empty>
       <EmptyState />
     </template>
-    <template v-if="total && total > pageSize && data?.length" #footer>
+    <template v-if="total && total > DEFAULT_PAGE_SIZE && data?.length" #footer>
       <div class="pagination">
         <Pagination
           v-model:active-page="activePage"
+          v-model:page-size="pageSize"
           :use-query="false"
           :total-items="total!"
-          :page-size="pageSize"
           :disabled="pending"
+          :header="false"
         />
       </div>
     </template>
@@ -156,6 +169,7 @@ import TransactionNetworkSquareBlock from "@/components/transactions/Transaction
 
 import useTransfers, { type Transfer } from "@/composables/useTransfers";
 
+import { DEFAULT_PAGE_SIZE } from "@/utils/constants";
 import { utcStringFromISOString } from "@/utils/helpers";
 
 const { t } = useI18n();
@@ -168,7 +182,7 @@ const props = defineProps({
   },
 });
 
-const { data, load, total, pending, pageSize } = useTransfers(
+const { data, load, total, pending } = useTransfers(
   computed(() => {
     return props.address;
   })
@@ -179,12 +193,13 @@ function getTransferDirection(item: Transfer): Direction {
 }
 
 const activePage = ref(1);
+const pageSize = ref(DEFAULT_PAGE_SIZE);
 const toDate = new Date();
 
 watch(
-  [activePage, () => props.address],
-  ([page]) => {
-    load(page, toDate);
+  [activePage, pageSize, () => props.address],
+  ([page, size]) => {
+    load(page, size, toDate);
   },
   { immediate: true }
 );

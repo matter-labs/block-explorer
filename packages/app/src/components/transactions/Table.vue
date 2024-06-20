@@ -1,6 +1,18 @@
 <template>
   <Table class="transactions-table" :class="{ 'high-rows': isHighRowsSize }" :items="transactions" :loading="isLoading">
-    <template v-if="transactions?.length || isLoading" #table-head>
+    <template v-if="pagination && total && total > DEFAULT_PAGE_SIZE && transactions?.length" #table-head>
+      <div class="pagination">
+        <Pagination
+          v-model:active-page="activePage"
+          v-model:page-size="pageSize"
+          :use-query="useQueryPagination"
+          :total-items="total!"
+          :disabled="isLoading"
+          :header="true"
+        />
+      </div>
+    </template>
+    <template v-if="transactions?.length || isLoading" #table-body-head>
       <TableHeadColumn v-if="columns.includes('status')">{{ t("transactions.table.status") }}</TableHeadColumn>
       <TableHeadColumn v-if="columns.includes('transactionHash')">
         {{ t("transactions.table.transactionHash") }}
@@ -170,14 +182,15 @@
         <slot name="not-found">{{ t("transactions.table.notFound") }}</slot>
       </TableBodyColumn>
     </template>
-    <template v-if="pagination && total && total > pageSize && transactions?.length" #footer>
+    <template v-if="pagination && total && total > DEFAULT_PAGE_SIZE && transactions?.length" #footer>
       <div class="pagination">
         <Pagination
           v-model:active-page="activePage"
+          v-model:page-size="pageSize"
           :use-query="useQueryPagination"
           :total-items="total!"
-          :page-size="pageSize"
           :disabled="isLoading"
+          :header="false"
         />
       </div>
     </template>
@@ -220,7 +233,7 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 import type { NetworkOrigin } from "@/types";
 
-import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
+import { DEFAULT_PAGE_SIZE, ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
 import { utcStringFromISOString } from "@/utils/helpers";
 
 const { t, te } = useI18n();
@@ -248,7 +261,7 @@ const props = defineProps({
 
 const route = useRoute();
 const searchParams = computed(() => props.searchParams ?? {});
-const { data, load, total, pending, pageSize } = useTransactions(searchParams);
+const { data, load, total, pending } = useTransactions(searchParams);
 
 const { getTokenInfo, tokenInfo, isRequestPending: isLoadingEthTokenInfo } = useToken();
 getTokenInfo(ETH_TOKEN_L2_ADDRESS);
@@ -260,12 +273,15 @@ const ethToken = computed<Token | null>(() => {
 const isLoading = computed(() => pending.value || isLoadingEthTokenInfo.value);
 
 const activePage = ref(props.useQueryPagination ? parseInt(route.query.page as string) || 1 : 1);
+const pageSize = ref(
+  props.useQueryPagination ? parseInt(route.query.pageSize as string) || DEFAULT_PAGE_SIZE : DEFAULT_PAGE_SIZE
+);
 const toDate = new Date();
 
 watch(
-  [activePage, searchParams],
-  ([page]) => {
-    load(page, toDate);
+  [activePage, pageSize, searchParams],
+  ([page, size]) => {
+    load(page, size, toDate);
   },
   { immediate: true }
 );
@@ -454,6 +470,8 @@ function getDirection(item: TransactionListItem): Direction {
 
     svg {
       @apply ml-1;
+      width: 20px;
+      height: 20px;
     }
   }
   .badge-container.type-label {
@@ -465,7 +483,7 @@ function getDirection(item: TransactionListItem): Direction {
   }
 
   .table-body {
-    @apply rounded-t-lg;
+    // @apply rounded-t-lg;
     th.table-head-col {
       @apply min-w-0 sm:min-w-[7rem];
     }
