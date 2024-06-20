@@ -10,7 +10,7 @@ flowchart
   GetLastBatchFromDB --> SetLastDBBatch(Set lastProcessedBatchNumber variable with last batch number from DB)
   CheckIfLastProcessedBatchNumberIsNull --> |No| GetNextBatchFromBlockchain
   SetLastDBBatch --> GetNextBatchFromBlockchain("Get the next batch from blockchain (lastProcessedBatchNumber + 1)")
-  GetNextBatchFromBlockchain --> CheckIfRequestSuccessful{Is request sucessful ?}
+  GetNextBatchFromBlockchain --> CheckIfRequestSuccessful{Is request successful ?}
   CheckIfRequestSuccessful --> |No| ResetLastDBBatch(Set lastProcessedBatchNumber = NULL)
   CheckIfRequestSuccessful --> |Yes| CheckIfBatchExists{Does the next batch exist ?}
   CheckIfBatchExists --> |No| ResetLastDBBatch(Set lastProcessedBatchNumber = NULL)

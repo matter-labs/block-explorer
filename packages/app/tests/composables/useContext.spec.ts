@@ -18,7 +18,7 @@ import * as useEnvironmentConfig from "@/composables/useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "@/composables/useRuntimeConfig";
 
 describe("useContext:", () => {
-  describe("correctly indentifies network:", () => {
+  describe("correctly identifies network:", () => {
     afterEach(() => {
       location = {
         origin: "",
