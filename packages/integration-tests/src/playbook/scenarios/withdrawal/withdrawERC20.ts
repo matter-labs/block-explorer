@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import * as zksync from "zksync-web3";
+import * as zksync from "zksync-ethers";
 
 import { localConfig } from "../../../config";
 import { Buffer, Logger, Path, Wallets } from "../../../constants";
@@ -18,7 +18,7 @@ export const withdrawERC20 = async function (tokenAddress: string, sum = "0.2") 
 
   const withdrawL2 = await syncWallet.withdraw({
     to: Wallets.richWalletAddress,
-    amount: ethers.utils.parseEther(sum),
+    amount: ethers.parseEther(sum),
     token: tokenAddress,
     bridgeAddress: bridges.erc20L2,
     // overrides: localConfig.l1GasLimit,

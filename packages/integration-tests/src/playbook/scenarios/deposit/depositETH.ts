@@ -17,9 +17,10 @@ export const depositEth = async function (sum: string = Values.txSumETH) {
     l2GasLimit: localConfig.l2GasLimit,
   });
   await deposit.wait(1);
-  const txHash = await deposit.waitFinalize();
-  await helper.logTransaction(Logger.deposit, txHash.transactionHash, "ETH");
-  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txEthDeposit, txHash.transactionHash);
+  const txHash = deposit.hash;
+  await deposit.waitFinalize();
+  await helper.logTransaction(Logger.deposit, txHash, "ETH");
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txEthDeposit, txHash);
 
   return txHash;
 };
