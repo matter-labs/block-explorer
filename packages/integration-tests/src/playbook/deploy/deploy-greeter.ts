@@ -1,6 +1,5 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 
-import { localConfig } from "../../config";
 import { Buffer, Path } from "../../constants";
 import { Helper } from "../../helper";
 import getWallet from "../utils/getWallet";

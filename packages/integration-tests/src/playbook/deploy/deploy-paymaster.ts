@@ -37,18 +37,18 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.paymasterDeployTx, deployTransaction.hash);
 
   // TODO: fix
-  // await (
-  //   await deployer.zkWallet.sendTransaction({
-  //     to: paymaster.address,
-  //     value: parseEther("0.03"),
-  //   })
-  // ).wait();
+  await (
+    await deployer.zkWallet.sendTransaction({
+      to: paymaster.address,
+      value: parseEther("0.03"),
+    })
+  ).wait();
 
-  // await // We will give the empty wallet 3 units of the token:
-  // (await erc20.mint(emptyWallet.address, 3)).wait();
+  await // We will give the empty wallet 3 units of the token:
+  (await erc20.mint(emptyWallet.address, 3)).wait();
 
-  // console.log("Minted 3 tokens for the empty wallet");
-  // console.log(`Done!`);
+  console.log("Minted 3 tokens for the empty wallet");
+  console.log(`Done!`);
 
-  // return deployTransaction.hash;
+  return deployTransaction.hash;
 }
