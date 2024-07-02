@@ -46,8 +46,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     console.error(`Contract said something unexpected: ${newGreetingFromContract}`);
   }
 
-  const address = deployedContract.address;
-  const txHash = deployedContract.deployTransaction.hash;
+  const address = await deployedContract.getAddress();
+  const txHash = deployedContract.deploymentTransaction().hash;
 
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallRoot, address);
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallRoot, txHash);

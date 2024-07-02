@@ -1,5 +1,4 @@
-import * as ethers from "ethers";
-import { Provider, Wallet } from "zksync-web3";
+import { Contract, Provider, Wallet } from "zksync-web3";
 
 import { localConfig } from "../../config";
 import { Path, Wallets } from "../../constants";
@@ -19,7 +18,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   function getContract(hre: HardhatRuntimeEnvironment, wallet: Wallet) {
     const artifact = hre.artifacts.readArtifactSync("Greeter");
-    contract = new ethers.Contract(greeterContractAddress, artifact.abi, wallet);
+    contract = new Contract(greeterContractAddress, artifact.abi, wallet);
     return contract;
   }
 

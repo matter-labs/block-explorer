@@ -19,6 +19,7 @@ cypress/screenshots/
 tests/e2e/reports/
 **/tests/e2e/artifacts/
 **/playbook/artifacts-zk/
+**/deployments-zk/
 **/playbook/artifacts/
 **/playbook/buffer/
 **/playbook/cache-zk/

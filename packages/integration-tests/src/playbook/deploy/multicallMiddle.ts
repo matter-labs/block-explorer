@@ -30,8 +30,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`Contract said something like this: ${greetingFromContract}`);
 
-  const address = deployedContract.address;
-  const txHash = deployedContract.deployTransaction.hash;
+  const address = await deployedContract.getAddress();
+  const txHash = deployedContract.deploymentTransaction().hash;
 
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiCallMiddle, address);
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txMultiCallMiddle, txHash);

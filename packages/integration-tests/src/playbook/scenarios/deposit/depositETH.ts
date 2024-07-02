@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import * as zksync from "zksync-web3";
+import * as zksync from "zksync-ethers";
 
 import { localConfig } from "../../../config";
 import { Buffer, Logger, Path, Values } from "../../../constants";
@@ -13,7 +13,7 @@ export const depositEth = async function (sum: string = Values.txSumETH) {
 
   const deposit = await syncWallet.deposit({
     token: zksync.utils.ETH_ADDRESS,
-    amount: ethers.utils.parseEther(sum),
+    amount: ethers.parseEther(sum),
     l2GasLimit: localConfig.l2GasLimit,
   });
   await deposit.wait(1);

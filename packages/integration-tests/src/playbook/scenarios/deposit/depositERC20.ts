@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import * as zksync from "zksync-web3";
+import * as zksync from "zksync-ethers";
 
 import { localConfig } from "../../../config";
 import { Buffer, Logger, Path, Wallets } from "../../../constants";
@@ -14,7 +14,7 @@ export const depositERC20 = async function (sum = "0.5", tokenAddress: string, u
   const deposit = await syncWallet.deposit({
     to: Wallets.richWalletAddress,
     token: tokenAddress,
-    amount: ethers.utils.parseUnits(sum, units),
+    amount: ethers.parseUnits(sum, units),
     approveERC20: true,
     l2GasLimit: localConfig.l2GasLimit,
     overrides: localConfig.l1GasLimit,
