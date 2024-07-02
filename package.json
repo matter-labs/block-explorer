@@ -36,15 +36,15 @@
     "@semantic-release/npm": "^9.0.0",
     "@semantic-release/release-notes-generator": "^10.0.3",
     "@types/node": "18.17.18",
+    "dotenv": "^16.4.5",
+    "enquirer": "2.3.6",
     "eslint": "8.48.0",
     "husky": "8.0.1",
     "lerna": "^7.2.0",
+    "pg-connection-string": "2.6.2",
     "prettier": "2.8.4",
     "semantic-release": "^21.1.1",
-    "typescript": "4.7.4",
-    "enquirer": "2.3.6",
-    "dotenv": "16.1.4",
-    "pg-connection-string": "2.6.2"
+    "typescript": "^5.4.5"
   },
   "engines": {
     "npm": ">=9.0.0",

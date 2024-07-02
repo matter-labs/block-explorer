@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import * as zksync from "zksync-web3";
+import * as zksync from "zksync-ethers";
 
 import { localConfig } from "../../../config";
 import { Buffer, Logger, Path, Values, Wallets } from "../../../constants";
@@ -18,7 +18,7 @@ export const transferEth = async function (
   const transfer = await syncWallet.transfer({
     to: syncWallet2.address,
     token: zksync.utils.ETH_ADDRESS,
-    amount: ethers.utils.parseEther(sum),
+    amount: ethers.parseEther(sum),
   });
 
   const txHash = transfer.hash;

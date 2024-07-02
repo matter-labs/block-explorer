@@ -24,11 +24,15 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Deploying contract with arguments: ${JSON.stringify(constructor_arguments)}`);
   const deployedContract = await deployer.deploy(artifact, constructor_arguments);
 
-  await deployedContract.deployTransaction.wait(2);
+  await deployedContract.waitForDeployment();
 
   // Show the contract info.
   console.log(`Contract "${artifact.contractName}" was deployed to ${deployedContract.address}`);
-  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.addressMultiTransferETH, deployedContract.address);
+  await helper.writeFile(
+    Path.absolutePathToBufferFiles,
+    Buffer.addressMultiTransferETH,
+    await deployedContract.getAddress()
+  );
 
   await verify({ hre, contract: deployedContract, contractConstructorArguments: constructor_arguments, artifact });
 

@@ -1,4 +1,4 @@
-import { utils } from "ethers";
+import * as ethers from "ethers";
 import * as path from "path";
 
 import type { ZkSyncArtifact } from "@matterlabs/hardhat-zksync-deploy/dist/types";
@@ -26,7 +26,7 @@ export default function ({
   console.log(`Solc Version: ${(hre.userConfig.solidity as SolcUserConfig).version}`);
   console.log(`Source code file path: ${path.join(__dirname, "../", artifact.sourceName)}`);
   // Get constructor arguments
-  const contractInterface = new utils.Interface(artifact.abi);
+  const contractInterface = new ethers.Interface(artifact.abi);
   const constructorArgs = contractInterface.encodeDeploy(contractConstructorArguments);
   console.log(`Constructor arguments: ${constructorArgs}`);
 }

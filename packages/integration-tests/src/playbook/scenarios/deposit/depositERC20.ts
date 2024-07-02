@@ -1,5 +1,5 @@
 import * as ethers from "ethers";
-import * as zksync from "zksync-web3";
+import * as zksync from "zksync-ethers";
 
 import { localConfig } from "../../../config";
 import { Buffer, Logger, Path, Wallets } from "../../../constants";
@@ -14,20 +14,21 @@ export const depositERC20 = async function (sum = "0.5", tokenAddress: string, u
   const deposit = await syncWallet.deposit({
     to: Wallets.richWalletAddress,
     token: tokenAddress,
-    amount: ethers.utils.parseUnits(sum, units),
+    amount: ethers.parseUnits(sum, units),
     approveERC20: true,
     l2GasLimit: localConfig.l2GasLimit,
     overrides: localConfig.l1GasLimit,
   });
 
   await deposit.wait(1);
-
+  const txHash = deposit.hash;
+  console.log("txHash --> ", txHash);
   const l2TokenAddress = await syncProvider.l2TokenAddress(tokenAddress);
   console.log("L2 token address ", l2TokenAddress);
-  const txHash = await deposit.waitFinalize();
-  await helper.logTransaction(Logger.deposit, txHash.transactionHash, "ERC20 token");
+  await deposit.waitFinalize();
+  await helper.logTransaction(Logger.deposit, await txHash, "ERC20 token");
   await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.L2deposited, l2TokenAddress);
-  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txERC20Deposit, txHash.transactionHash);
+  await helper.writeFile(Path.absolutePathToBufferFiles, Buffer.txERC20Deposit, await txHash);
 
   return txHash;
 };
