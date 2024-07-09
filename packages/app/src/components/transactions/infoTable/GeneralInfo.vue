@@ -324,7 +324,7 @@ const gasUsedPercent = computed(() => {
     @apply py-2;
   }
   .transaction-reason-value {
-    @apply text-error-600 whitespace-normal;
+    @apply whitespace-normal text-error-600;
   }
 }
 </style>
