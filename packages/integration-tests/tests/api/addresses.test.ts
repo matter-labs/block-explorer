@@ -17,6 +17,14 @@ describe("Address", () => {
 
   describe("/address/{address}", () => {
     beforeAll(async () => {
+      const richWalletBalanceL2 = await helper.getBalanceETH(Wallets.richWalletAddress, "L2");
+      const richWalletBalanceL1 = await helper.getBalanceETH(Wallets.richWalletAddress, "L1");
+      const mainWalletBalanceL2 = await helper.getBalanceETH(Wallets.mainWalletAddress, "L2");
+      const mainWalletBalanceL1 = await helper.getBalanceETH(Wallets.mainWalletAddress, "L1");
+      console.log("richWalletBalanceL2 = ", richWalletBalanceL2);
+      console.log("richWalletBalanceL1 = ", richWalletBalanceL1);
+      console.log("mainWalletBalanceL2 = ", mainWalletBalanceL2);
+      console.log("mainWalletBalanceL1 = ", mainWalletBalanceL1);
       await playbook.deployNFTtoL1();
       await playbook.deployNFTtoL2();
       await playbook.deployMultiCallContracts();
