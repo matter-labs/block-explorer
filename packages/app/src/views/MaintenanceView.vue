@@ -7,19 +7,10 @@
         <template #network>
           {{ currentNetwork.l2NetworkName }}
         </template>
-        <template #twitter>
-          <a href="https://twitter.com/zkSyncDevs" target="_blank">{{ t("maintenance.twitterLink") }}</a>
-        </template>
-        <template #uptime>
-          <a href="https://uptime.com/s/zkSync-testnet" target="_blank">{{ t("maintenance.uptimeLink") }}</a>
-        </template>
       </i18n-t>
-      <Button class="twitter-button" tag="a" href="https://twitter.com/zkSyncDevs" target="_blank">
+      <Button class="twitter-button" tag="a" href="https://x.com/sophon" target="_blank">
         {{ t("maintenance.twitterButton") }}
       </Button>
-      <a class="uptime-link" href="https://uptime.com/s/zkSync-testnet" target="_blank">
-        {{ t("maintenance.uptimeLink") }}
-      </a>
     </div>
   </div>
 </template>

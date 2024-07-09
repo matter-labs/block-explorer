@@ -80,6 +80,11 @@ defineProps({
   @apply pr-4;
 }
 
+.badge-content svg {
+  max-height: 20px;
+  max-width: 32px;
+}
+
 .badge-additional-content {
   @apply absolute left-0 right-0 z-10 hidden border border-neutral-300 bg-white;
 }

@@ -7,7 +7,8 @@
         </a>
       </div>
       <div class="version-text-container">
-        <p>{{ config.version }}</p>
+        <!-- <p>{{ config.version }}</p> -->
+        <p>0.1.0</p>
       </div>
     </div>
   </footer>
@@ -28,11 +29,11 @@ const navigation = reactive([
   },
   {
     label: computed(() => t("footer.nav.terms")),
-    url: "https://zksync.io/terms",
+    url: "https://farm.sophon.xyz/terms.html",
   },
   {
     label: computed(() => t("footer.nav.contact")),
-    url: "https://zksync.io/contact",
+    url: "https://x.com/sophon",
   },
 ]);
 </script>
