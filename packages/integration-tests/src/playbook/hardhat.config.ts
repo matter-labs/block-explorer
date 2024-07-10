@@ -5,9 +5,21 @@ import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@nomiclabs/hardhat-ethers";
 
+import { task } from "hardhat/config";
+
 import { localConfig } from "../config";
 
 import type { HardhatUserConfig } from "hardhat/types";
+
+// Define the custom task
+task("accounts", "Prints the list of accounts and their balances", async (taskArgs, hre) => {
+  const accounts = await hre.ethers.getSigners();
+
+  for (const account of accounts) {
+    const balance = await account.getBalance();
+    console.log(`${account.address}: ${hre.ethers.utils.formatEther(balance)} ETH`);
+  }
+});
 
 const config: HardhatUserConfig = {
   zksolc: {
