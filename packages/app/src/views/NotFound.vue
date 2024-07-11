@@ -8,7 +8,7 @@
     <SearchForm class="search-form"></SearchForm>
     <div class="contact-support">
       {{ t("notFound.contactSupportTitle") }}
-      <a href="https://zksync.io/contact" target="_blank">{{ t("notFound.contactSupport") }}</a>
+      <a href="https://x.com/sophon" target="_blank">{{ t("notFound.contactSupport") }}</a>
     </div>
   </div>
 </template>

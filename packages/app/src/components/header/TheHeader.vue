@@ -4,8 +4,8 @@
       <div class="header-container">
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
-            <span class="sr-only">zkSync</span>
-            <zk-sync-era />
+            <span class="sr-only">Sophon</span>
+            <sophon />
           </router-link>
         </div>
         <div class="burger-button-container">
@@ -30,16 +30,6 @@
         </PopoverGroup>
         <div class="header-right-side">
           <NetworkSwitch />
-          <LocaleSwitch
-            :value="(locale as string)"
-            @update:value="changeLanguage"
-            :options="
-              ['en', 'uk'].map((value) => ({
-                value,
-                label: t(`locale.${value}`),
-              }))
-            "
-          />
           <div class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
@@ -53,7 +43,7 @@
       class="hero-banner-container"
       :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
     >
-      <hero-arrows class="hero-image" />
+      <sophon class="hero-image" />
     </div>
     <transition
       enter-active-class="duration-200 ease-out"
@@ -67,8 +57,8 @@
         <div class="mobile-header-wrap">
           <div class="mobile-header-container">
             <div class="mobile-popover-navigation">
-              <div class="popover-zksync-logo">
-                <zk-sync class="logo" />
+              <div class="popover-sophon-logo">
+                <sophon class="logo" />
               </div>
               <div class="-mr-2">
                 <PopoverButton class="close-popover-button">
@@ -142,10 +132,8 @@ import LinksPopover from "./LinksPopover.vue";
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
 import DiscordIcon from "@/components/icons/DiscordIcon.vue";
-import HeroArrows from "@/components/icons/HeroArrows.vue";
+import Sophon from "@/components/icons/Sophon.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
-import ZkSync from "@/components/icons/ZkSync.vue";
-import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
 
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
@@ -202,10 +190,7 @@ if (currentNetwork.value.bridgeUrl) {
 
 const toolsLinks = reactive(links);
 
-const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
-];
+const socials = [{ url: "https://x.com/sophon", component: TwitterIcon }];
 
 const hasContent = computed(() => {
   if (route.name !== "not-found" && !currentNetwork.value.maintenance) {
@@ -303,6 +288,7 @@ const hasContent = computed(() => {
 
     .hero-image {
       @apply h-5/6 w-auto;
+      opacity: 0.15;
     }
   }
   .home-banner {
@@ -321,7 +307,7 @@ const hasContent = computed(() => {
       .mobile-popover-navigation {
         @apply flex items-center justify-between;
 
-        .popover-zksync-logo svg {
+        .popover-sophon-logo svg {
           @apply h-[42px] w-[42px] text-black;
         }
 
