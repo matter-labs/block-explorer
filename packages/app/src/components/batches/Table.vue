@@ -113,7 +113,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
   }
 
   .table-body {
-    @apply rounded-t-lg;
+    @apply rounded-t-2xl;
 
     td {
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
@@ -127,7 +127,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
     @apply ml-1 inline-block w-5 align-sub;
   }
   td.batches-not-found {
-    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
+    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray;
   }
   .copy-button-container {
     @apply flex w-fit;

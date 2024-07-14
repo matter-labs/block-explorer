@@ -9,10 +9,7 @@
         <HashLabel :text="value" :subtraction="5" />
         <div class="byte-data-disclosure-icons">
           <CopyButton class="mr-1" tooltipPosition="left" :value="value" />
-          <ChevronDownIcon
-            :class="open ? 'rotate-180 transform' : ''"
-            class="h-5 w-5 text-gray-500 transition-transform"
-          />
+          <ChevronDownIcon :class="open ? 'rotate-180 transform' : ''" class="h-5 w-5 text-gray transition-transform" />
         </div>
       </DisclosureButton>
       <DisclosurePanel class="byte-data-disclosure-panel">
@@ -41,16 +38,16 @@ defineProps({
 <style lang="scss">
 .info-field-byte-data {
   .byte-data-disclosure-btn {
-    @apply flex w-full items-center justify-between bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none;
+    @apply flex w-full items-center justify-between bg-gray px-4 py-2 text-left text-sm font-medium text-gray hover:bg-gray focus:outline-none;
   }
   .byte-data-disclosure-icons {
     @apply flex items-center;
   }
   .byte-data-disclosure-panel {
-    @apply rounded-bl-lg rounded-br-lg border border-t-0 border-dashed border-gray-300 px-4 py-4;
+    @apply rounded-bl-lg rounded-br-lg border border-t-0 border-dashed border-gray px-4 py-4;
 
     .byte-data-full-value {
-      @apply overflow-hidden whitespace-pre-line break-words break-all text-sm text-gray-700;
+      @apply overflow-hidden whitespace-pre-line break-words break-all text-sm text-gray;
     }
   }
 }

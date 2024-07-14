@@ -618,7 +618,7 @@ async function submitForm() {
   }
 
   .form-subheading {
-    @apply text-xl text-neutral-700;
+    @apply text-xl;
   }
   .compilation-error-container {
     @apply font-mono;
@@ -642,7 +642,7 @@ async function submitForm() {
     @apply mt-1 text-sm text-neutral-400;
 
     a {
-      @apply rounded-md px-0.5 focus:outline-none focus:ring-2 focus:ring-primary-600;
+      @apply rounded-md px-0.5 focus:outline-none focus:ring-2 focus:ring-blue;
     }
   }
   .form-divider {
@@ -661,7 +661,7 @@ async function submitForm() {
   .contract-dropdowns-container {
     @apply grid gap-4 md:grid-cols-2;
     .docs-link {
-      @apply float-right rounded-md px-0.5 pt-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-600;
+      @apply float-right rounded-md px-0.5 pt-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue;
     }
   }
 }

@@ -101,11 +101,11 @@ defineProps({
   @apply relative flex w-max items-center;
 
   &.color-primary {
-    @apply bg-primary-200 text-primary-600;
+    @apply bg-blue text-blue;
   }
 
   &.color-secondary {
-    @apply bg-secondary-200 text-secondary-600;
+    @apply bg-gray text-gray;
   }
 
   &.color-neutral {
@@ -219,16 +219,16 @@ defineProps({
   }
 
   &.color-primary {
-    @apply bg-primary-200 text-primary-600;
+    @apply bg-blue text-blue;
     .badge-dot {
-      @apply bg-primary-600;
+      @apply bg-blue;
     }
   }
   &.color-secondary {
-    @apply bg-secondary-200 text-secondary-600;
+    @apply bg-gray text-gray;
 
     .badge-dot {
-      @apply bg-secondary-600;
+      @apply bg-gray;
     }
   }
   &.color-neutral {

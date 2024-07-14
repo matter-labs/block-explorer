@@ -70,7 +70,7 @@ defineProps({
 .block-info-table {
   @apply h-max;
   .table-body {
-    @apply rounded-t-lg;
+    @apply rounded-t-2xl;
   }
   .table-body-col {
     @apply py-[20px];
@@ -95,14 +95,14 @@ defineProps({
     @apply flex items-center;
 
     .block-info-field-label {
-      @apply text-gray-400;
+      @apply text-gray;
     }
     .block-info-field-tooltip {
       @apply ml-1;
     }
   }
   .block-info-field-value {
-    @apply text-gray-800;
+    @apply text-gray;
   }
 }
 </style>

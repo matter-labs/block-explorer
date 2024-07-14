@@ -71,7 +71,7 @@ const inputted = computed({
       @apply text-neutral-400;
     }
     &:not(.error) {
-      @apply border-neutral-300 focus:border-primary-600 focus:ring-primary-600;
+      @apply border-neutral-300 focus:border-blue focus:ring-blue;
     }
     &.error {
       @apply border-error-400 pr-8 text-error-500 focus:border-error-500 focus:ring-error-500;

@@ -447,7 +447,7 @@ function getDirection(item: TransactionListItem): Direction {
     @apply font-bold;
   }
   .transactions-not-found {
-    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
+    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray;
   }
   .badge-content {
     @apply flex items-center;
@@ -465,7 +465,8 @@ function getDirection(item: TransactionListItem): Direction {
   }
 
   .table-body {
-    @apply rounded-t-lg;
+    @apply rounded-t-2xl;
+
     th.table-head-col {
       @apply min-w-0 sm:min-w-[7rem];
     }

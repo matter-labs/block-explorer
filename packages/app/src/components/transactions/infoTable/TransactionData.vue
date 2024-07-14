@@ -119,13 +119,13 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
   @apply grid w-full gap-4 text-sm;
 
   .toggle-decode-button {
-    @apply block h-10 w-fit rounded-md bg-primary-600 bg-opacity-[15%] px-4 py-2 text-primary-600 transition-colors hover:bg-opacity-10 sm:w-full;
+    @apply block h-10 w-fit rounded-md bg-blue bg-opacity-[15%] px-4 py-2 text-blue transition-colors hover:bg-opacity-10 sm:w-full;
   }
   .transaction-byte-data {
     @apply overflow-auto;
   }
   .show-as-dropdown .toggle-button {
-    @apply h-10 border-gray-200 bg-neutral-100 py-2;
+    @apply h-10 border-gray bg-neutral-100 py-2;
   }
   .decoding-loading {
     @apply flex h-10 items-center;
@@ -139,13 +139,13 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
   }
   .encoded-data-container,
   .method-interface {
-    @apply flex h-max flex-col justify-center rounded-md border bg-neutral-100 px-4 py-[0.56rem] font-mono text-neutral-700;
+    @apply flex h-max flex-col justify-center rounded-md border bg-neutral-100 px-4 py-[0.56rem] font-mono;
   }
   .method-interface {
     @apply whitespace-pre-line text-black;
   }
   .encoded-data-container {
-    @apply min-h-[40px] overflow-auto whitespace-nowrap text-xs text-neutral-700;
+    @apply min-h-[40px] overflow-auto whitespace-nowrap text-xs;
   }
   .transaction-data-inputs {
     @apply overflow-auto;

@@ -108,28 +108,28 @@ defineProps({
     @apply flex items-center;
 
     .blocks-number-icon-container {
-      @apply flex h-8 w-8 items-center justify-center rounded-full bg-gray-800;
+      @apply flex h-8 w-8 items-center justify-center rounded-full bg-gray;
     }
     .blocks-number-right {
       @apply ml-3;
 
       .block-data-number {
-        @apply font-bold text-gray-700;
+        @apply font-bold text-gray;
 
         a {
           @apply font-medium;
         }
       }
       .block-data-txns-amount {
-        @apply float-right text-xs text-gray-400 md:float-none;
+        @apply float-right text-xs text-gray md:float-none;
       }
     }
   }
   .block-data-status {
-    @apply text-xs font-bold capitalize text-gray-700;
+    @apply text-xs font-bold capitalize text-gray;
   }
   .table-body {
-    @apply rounded-t-lg;
+    @apply rounded-t-2xl;
 
     td {
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
@@ -140,7 +140,7 @@ defineProps({
     }
   }
   td.blocks-not-found {
-    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
+    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray;
   }
   .copy-button-container {
     @apply flex w-fit;

@@ -83,7 +83,7 @@ defineProps({
     @apply h-4 w-4 min-w-[1rem] text-neutral-600;
   }
   .topic-index-container {
-    @apply h-6 rounded bg-gray-200 px-2 py-0.5 font-mono text-sm leading-5 text-gray-400;
+    @apply h-6 rounded bg-gray px-2 py-0.5 font-mono text-sm leading-5 text-gray;
   }
   .toggle-button {
     @apply h-auto text-neutral-600;

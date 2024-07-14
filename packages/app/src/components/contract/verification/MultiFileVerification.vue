@@ -137,7 +137,7 @@ watch([filesToUpload, selectedMainFileName], ([files, mainFileName]) => {
     @apply mt-2 inline-block border-0 p-0;
 
     .upload-files-label {
-      @apply block w-max cursor-pointer rounded-md bg-neutral-200 px-4 py-2.5 text-primary-600 hover:text-primary-700;
+      @apply block w-max cursor-pointer rounded-md bg-neutral-200 px-4 py-2.5 text-blue hover:text-blue;
     }
   }
   .options-list-container {
@@ -155,7 +155,7 @@ watch([filesToUpload, selectedMainFileName], ([files, mainFileName]) => {
   }
 
   .upload-file-input:focus ~ .upload-files-label {
-    @apply ring-2 ring-primary-600;
+    @apply ring-2 ring-blue;
   }
 }
 </style>

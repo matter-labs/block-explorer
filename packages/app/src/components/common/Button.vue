@@ -47,7 +47,7 @@ export default defineComponent({
 <style lang="scss" scoped>
 .button {
   @apply flex items-center justify-center rounded-md px-4 py-3 text-lg font-light leading-none no-underline shadow-sm;
-  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue focus:ring-offset-2;
   @apply appearance-none disabled:cursor-not-allowed disabled:opacity-50;
 
   &.sm {
@@ -65,11 +65,11 @@ export default defineComponent({
     @apply border border-transparent;
 
     &.primary {
-      @apply bg-primary-600 hover:bg-primary-700 disabled:hover:bg-primary-600;
+      @apply bg-blue hover:bg-blue disabled:hover:bg-blue;
     }
 
     &.secondary {
-      @apply bg-secondary-600 hover:bg-secondary-700 disabled:hover:bg-secondary-600;
+      @apply bg-gray hover:bg-gray disabled:hover:bg-gray;
     }
   }
   &.outlined {
@@ -77,11 +77,11 @@ export default defineComponent({
     @apply bg-white hover:bg-white disabled:hover:bg-white;
 
     &.primary {
-      @apply text-primary-700;
+      @apply text-blue;
     }
 
     &.secondary {
-      @apply text-secondary-700;
+      @apply text-gray;
     }
 
     &.neutral {

@@ -76,7 +76,7 @@ defineProps({
   @apply flex items-center;
 }
 .data-container {
-  @apply w-full rounded bg-neutral-200 p-4 pr-0 text-gray-400 sm:pr-4;
+  @apply w-full rounded bg-neutral-200 p-4 pr-0 text-gray sm:pr-4;
   span {
     @apply flex;
     .expandable-text {

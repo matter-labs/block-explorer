@@ -78,7 +78,7 @@ const selected = computed<Locale>({
       cursor: pointer;
     }
     &.selected {
-      @apply bg-primary-100;
+      @apply bg-blue;
     }
     &:not(.selected).active,
     &:not(.selected):hover {
@@ -89,7 +89,7 @@ const selected = computed<Locale>({
       @apply mr-2 h-[18px] w-[18px] flex-shrink-0;
     }
     .language-list-item-label {
-      @apply w-full font-sans text-base font-normal text-neutral-700;
+      @apply w-full font-sans text-base font-normal;
       &:not(.selected) {
         cursor: pointer;
       }
@@ -97,7 +97,7 @@ const selected = computed<Locale>({
   }
 
   .toggle-button {
-    @apply relative flex w-full items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base text-neutral-700 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:w-max lg:border-primary-800 lg:bg-primary-800 lg:text-white;
+    @apply relative flex w-full items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base hover:cursor-pointer focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue lg:w-max lg:border-blue lg:bg-blue lg:text-white;
 
     .selected-language {
       @apply mr-5 flex items-center gap-1.5;
@@ -115,7 +115,7 @@ const selected = computed<Locale>({
     @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1;
 
     .toggle-button-icon {
-      @apply h-5 w-5 text-neutral-700 lg:text-white;
+      @apply h-5 w-5 lg:text-white;
     }
   }
 }

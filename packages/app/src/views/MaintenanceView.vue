@@ -34,7 +34,7 @@ const { currentNetwork } = useContext();
     @apply grid h-max w-max max-w-[29rem] grid-flow-row justify-items-center gap-4 rounded-lg bg-white p-4 text-center shadow-md;
 
     .title {
-      @apply mt-1 text-2xl text-neutral-700;
+      @apply mt-1 text-2xl;
     }
     .description {
       @apply text-neutral-600;

@@ -1,33 +1,35 @@
 <template>
-  <div class="card">
+  <div
+    class="card bg-white flex flex-col gap-x-12 justify-between px-8 py-5 rounded-2xl shadow-soft w-full lg:flex-row lg:items-center"
+  >
     <div>
-      <div class="title">{{ t("networkStats.title") }}</div>
-      <div class="subtitle">{{ subtitle }}</div>
+      <div class="title font-semibold text-xl">{{ t("networkStats.title") }}</div>
+      <div class="subtitle font-semibold text-base text-gray">{{ subtitle }}</div>
     </div>
     <dl class="description-list">
       <div class="stats-container">
-        <dt>
+        <dt class="font-semibold text-gray">
           <router-link :to="{ name: 'blocks' }">{{ t("networkStats.committed") }}</router-link>
         </dt>
-        <dd>
+        <dd class="font-bold text-3xl">
           <ContentLoader v-if="loading" class="h-full w-24" />
           <span v-else>{{ formatWithSpaces(committed ?? 0) }}</span>
         </dd>
       </div>
       <div class="stats-container">
-        <dt>
+        <dt class="font-semibold text-gray">
           <router-link :to="{ name: 'blocks' }">{{ t("networkStats.verified") }}</router-link>
         </dt>
-        <dd>
+        <dd class="font-bold text-3xl">
           <ContentLoader v-if="loading" class="h-full w-24" />
           <span v-else>{{ formatWithSpaces(verified ?? 0) }}</span>
         </dd>
       </div>
       <div class="stats-container">
-        <dt>
+        <dt class="font-semibold text-gray">
           <router-link :to="{ name: 'transactions' }">{{ t("networkStats.transactions") }}</router-link>
         </dt>
-        <dd>
+        <dd class="font-bold text-3xl">
           <ContentLoader v-if="loading" class="h-full w-36" />
           <span v-else>{{ formatWithSpaces(transactions ?? 0) }}</span>
         </dd>
@@ -36,7 +38,7 @@
         <dt>
           {{ t("networkStats.totalLocked") }}
         </dt>
-        <dd>
+        <dd class="font-bold text-3xl">
           <ContentLoader v-if="loading" class="h-full w-20" />
           <span v-else>{{ formatMoney(totalLocked) }}</span>
         </dd>
@@ -84,22 +86,14 @@ const subtitle = computed(() =>
 
 <style scoped lang="scss">
 .card {
-  @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-white px-8 py-5 shadow lg:flex-row lg:items-center;
-  .title {
-    @apply text-xl font-bold text-neutral-700;
-  }
-  .subtitle {
-    @apply font-sans text-base text-neutral-400;
-  }
   .stats-container {
-    @apply flex flex-col border-neutral-200 py-3 pr-8 text-xl text-neutral-500 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max;
-    dd {
-      @apply text-[1.65rem] font-bold text-primary-800 xl:text-3xl;
-    }
+    @apply flex flex-col border-neutral-200 py-3 pr-8 text-xl last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max;
+
     a {
       @apply text-inherit no-underline;
     }
   }
+
   .description-list {
     @apply mt-4 gap-x-8 divide-y sm:flex sm:divide-y-0 lg:mt-0 lg:justify-end;
   }

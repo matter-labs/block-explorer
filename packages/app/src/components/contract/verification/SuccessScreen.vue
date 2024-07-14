@@ -46,7 +46,7 @@ const { t } = useI18n();
   @apply justify-center py-14 text-center;
 
   .icon-container {
-    @apply mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary-600;
+    @apply mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-blue;
   }
   .block-explorer-link {
     @apply decoration-dashed;

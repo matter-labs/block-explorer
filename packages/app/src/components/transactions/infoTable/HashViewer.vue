@@ -106,13 +106,13 @@ function hexStringToUTF8(hexString: string): string {
   }
 
   .toggle-button {
-    @apply flex h-7 w-max items-center rounded bg-neutral-200 px-2 leading-6 text-neutral-700 hover:cursor-pointer focus:outline-none focus:ring-2;
+    @apply flex h-7 w-max items-center rounded bg-neutral-200 px-2 leading-6 hover:cursor-pointer focus:outline-none focus:ring-2;
 
     .selected-option-label {
       @apply mr-5 block truncate text-sm leading-6;
     }
     .toggle-button-icon {
-      @apply ml-2 h-5 w-5 text-neutral-700;
+      @apply ml-2 h-5 w-5;
     }
   }
 }

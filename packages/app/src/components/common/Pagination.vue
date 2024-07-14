@@ -135,7 +135,7 @@ const nextButtonQuery = computed(() => ({ page: Math.min(currentPage.value + 1, 
   }
 
   .pagination-page-button {
-    @apply rounded-md bg-white px-1.5 py-1 font-mono text-sm font-medium text-neutral-700 no-underline sm:px-2;
+    @apply rounded-md bg-white px-1.5 py-1 font-mono text-sm font-medium no-underline sm:px-2;
     &:not(.disabled):not(.active):not(.dots) {
       @apply hover:bg-neutral-50;
     }
