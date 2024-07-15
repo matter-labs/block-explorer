@@ -15,7 +15,9 @@ export default async function (hre: any) {
 
   // Wallet ETH balance
   const ethBalance = await wallet.getBalance();
-  console.log(`Wallet ETH balance: ${utils.formatUnits(ethBalance)} ETH\n`);
+  const ethBalanceL1 = await wallet.getBalanceL1();
+  console.log(`Wallet ETH L1 balance: ${utils.formatUnits(ethBalanceL1)} ETH\n`);
+  console.log(`Wallet ETH L2 balance: ${utils.formatUnits(ethBalance)} ETH\n`);
 
   return wallet;
 }
