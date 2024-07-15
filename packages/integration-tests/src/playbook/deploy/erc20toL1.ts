@@ -1,20 +1,23 @@
 import { promises as fs } from "fs";
 import { ethers } from "hardhat";
+import * as hardhatConfig from "hardhat";
 
 import { localConfig } from "../../config";
 import { Buffer, Wallets } from "../../entities";
+import getWallet from "../utils/getWallet";
+
+import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
 async function main() {
-  const [deployer] = await ethers.getSigners();
+  const hre: HardhatRuntimeEnvironment = hardhatConfig;
+  const wallet = await getWallet(hre);
+  const deployer = wallet.connect(hre.ethers.provider);
 
-  console.log("Deploying contracts with the account:", deployer.address);
+  const MyERC20Artifact = await hre.artifacts.readArtifact("L1");
+  const MyERC20Factory = new ethers.ContractFactory(MyERC20Artifact.abi, MyERC20Artifact.bytecode, deployer);
 
-  const weiAmount = (await deployer.getBalance()).toString();
-
-  console.log("Account balance:", await ethers.utils.formatEther(weiAmount));
-
-  const contract = await ethers.getContractFactory("L1");
-  const token = await contract.deploy(Wallets.richWalletAddress, localConfig.gasLimit);
+  const token = await MyERC20Factory.deploy(Wallets.richWalletAddress, localConfig.gasLimit);
+  console.log("Contract deployed to L1 address:", token.address);
 
   await fs.writeFile(Buffer.L1, token.address);
 }
