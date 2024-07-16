@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="text"
-    class="label-container"
+    class="label-container h-5 leading-5 rounded-full text-center text-xs uppercase w-12"
     :class="{ incoming: text === 'in', outcoming: text === 'out', self: text === 'self' }"
   >
     {{ text }}
@@ -20,9 +20,6 @@ defineProps({
 });
 </script>
 <style lang="scss" scoped>
-.label-container {
-  @apply h-5 w-8 rounded text-center text-xs uppercase leading-5;
-}
 .incoming {
   @apply bg-[#C7F5D3] text-[#4CA154];
 }

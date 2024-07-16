@@ -11,7 +11,7 @@
       <slot name="precontent"></slot>
     </div>
     <div
-      class="badge-container"
+      class="badge-container flex items-center relative w-max"
       :class="[
         `type-${type}`,
         `color-${color}`,
@@ -98,14 +98,15 @@ defineProps({
 }
 
 .badge-container {
-  @apply relative flex w-max items-center;
+  color: #fff;
 
-  &.color-primary {
-    @apply bg-blue text-blue;
+  &.color-primary,
+  &.color-dark-success {
+    background-color: var(--color-blue);
   }
 
   &.color-secondary {
-    @apply bg-gray text-gray;
+    background-color: var(--color-gray);
   }
 
   &.color-neutral {
@@ -124,20 +125,13 @@ defineProps({
     @apply bg-warning-200 text-warning-600;
   }
 
-  &.color-error {
-    @apply bg-error-200 text-error-600;
-  }
-
+  &.color-error,
   &.color-danger {
-    @apply bg-error-500 text-white;
+    background-color: var(--color-error-red);
   }
 
   &.color-progress {
-    @apply bg-success-500 text-white;
-  }
-
-  &.color-dark-success {
-    @apply bg-success-600 text-white;
+    @apply bg-success-500;
   }
 
   &.text-color-neutral {

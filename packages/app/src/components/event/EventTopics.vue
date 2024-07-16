@@ -1,6 +1,8 @@
 <template>
   <div v-for="(topic, topicIndex) in topics" :key="topic" class="topic-container">
-    <div class="topic-index-container">{{ topicIndex }}</div>
+    <div class="topic-index-container h-6 rounded bg-gray/10 leading-5 px-2 py-0.5 font-mono text-gray text-sm">
+      {{ topicIndex }}
+    </div>
     <span v-if="topicIndex === 0" class="topic-value">
       <span>{{ topic }}</span>
       <CopyButton v-if="showCopyButton" :value="topic" />
@@ -82,9 +84,7 @@ defineProps({
   .arrow-right-icon {
     @apply h-4 w-4 min-w-[1rem] text-neutral-600;
   }
-  .topic-index-container {
-    @apply h-6 rounded bg-gray px-2 py-0.5 font-mono text-sm leading-5 text-gray;
-  }
+
   .toggle-button {
     @apply h-auto text-neutral-600;
     .toggle-button-icon {

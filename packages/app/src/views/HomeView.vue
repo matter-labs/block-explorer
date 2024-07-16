@@ -7,7 +7,7 @@
     <div class="flex justify-center px-6">
       <SearchForm class="search-form max-w-11/12 w-[576px]" />
     </div>
-    <div class="section block justify-between gap-x-4 pt-9 lg:pt-14">
+    <div class="section block border-t-2 border-t-black/5 justify-between gap-x-4 mt-8 pt-8 lg:mt-12 lg:pt-12">
       <NetworkStats
         v-if="networkStats || networkStatsPending"
         :loading="networkStatsPending"
@@ -21,7 +21,7 @@
       <div>
         <div class="batches-label-container flex gap-x-1 items-center">
           <p class="font-semibold mb-3 text-2xl">{{ t("blockExplorer.batches") }}</p>
-          <InfoTooltip class="batches-tooltip mb-3">{{ t("batches.tooltipInfo") }}</InfoTooltip>
+          <!-- <InfoTooltip class="batches-tooltip mb-3">{{ t("batches.tooltipInfo") }}</InfoTooltip> -->
         </div>
         <TableBatches
           v-if="(isBatchesPending || batches) && !isBatchesFailed"

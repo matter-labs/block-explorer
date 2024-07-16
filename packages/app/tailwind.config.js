@@ -16,6 +16,7 @@ module.exports = {
         gray: "#6e6e73",
         "gray-2": "#888",
         secondary: "#0071e3",
+        "error-red": "#ff4f00",
         neutral: colors.gray,
         success: colors.green,
         error: colors.red,

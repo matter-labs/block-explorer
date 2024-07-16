@@ -2,6 +2,12 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
+:root {
+  --color-blue: #0071e3;
+  --color-gray: #6e6e73;
+  --color-error-red: #ff4f00;
+}
+
 .debugger-trace-height,
 .parent-child-section {
   -ms-overflow-style: none;
