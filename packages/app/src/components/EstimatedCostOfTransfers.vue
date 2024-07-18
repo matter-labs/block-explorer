@@ -52,9 +52,9 @@ defineProps({
   .title {
     @apply text-xl font-bold;
   }
-  .subtitle {
-    @apply font-sans text-base text-neutral-400;
-  }
+  // .subtitle {
+  //   @apply font-sans text-base text-neutral-400;
+  // }
 
   .costs {
     @apply mt-2 flex flex-wrap;

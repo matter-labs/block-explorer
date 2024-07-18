@@ -5,7 +5,7 @@
       <span class="text-gray">Every transaction. Every contract. Every block.</span>
     </h1>
     <div class="flex justify-center px-6">
-      <SearchForm class="search-form max-w-11/12 w-[576px]" />
+      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
     </div>
     <div class="section block border-t-2 border-t-black/5 justify-between gap-x-4 mt-8 pt-8 lg:mt-12 lg:pt-12">
       <NetworkStats

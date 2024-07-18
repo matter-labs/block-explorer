@@ -1,14 +1,14 @@
 <template>
   <Listbox as="div" :model-value="selected" class="network-switch relative">
     <ListboxButton
-      class="toggle-button relative flex w-full min-w-[125px] items-center rounded-full bg-white px-2 py-2 font-sans text-base text-black hover:cursor-pointer focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue"
+      class="toggle-button bg-white flex items-center min-w-[125px] px-2 py-2 relative rounded-full text-base text-black w-full focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue hover:cursor-pointer"
     >
-      <span class="network-item">
+      <span class="network-item flex gap-1 items-center">
         <img :src="currentNetwork.icon" alt="Sophon logo" class="network-item-img h-8 w-8 flex-shrink-0" />
-        <span class="network-item-label block font-semibold truncate">{{ currentNetwork.l2NetworkName }}</span>
-      </span>
-      <span class="toggle-button-icon-wrapper">
-        <ChevronDownIcon class="toggle-button-icon" aria-hidden="true" />
+        <span class="network-item-label block font-semibold truncate">
+          {{ currentNetwork.l2NetworkName }}
+        </span>
+        <ChevronDownIcon class="dropdown-icon h-[1em] w-[1em]" aria-hidden="true" />
       </span>
     </ListboxButton>
     <div class="network-list-wrapper absolute right-0 top-full h-auto w-full lg:w-[260px]">
@@ -29,7 +29,7 @@
               class="network-list-item"
               :class="{ selected }"
             >
-              <span class="network-item">
+              <span class="network-item flex gap-1 items-center">
                 <img
                   :src="network.icon"
                   :alt="`${network.l2NetworkName} logo`"
@@ -53,8 +53,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { MinusCircleIcon } from "@heroicons/vue/outline";
-import { ChevronDownIcon } from "@heroicons/vue/solid";
+import { ChevronDownIcon, MinusCircleIcon } from "@heroicons/vue/outline";
 
 import useContext from "@/composables/useContext";
 
@@ -88,7 +87,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
     }
 
     &.selected {
-      @apply bg-blue;
+      background-color: var(--color-blue-lightest);
     }
 
     &:not(.selected).active,
@@ -103,10 +102,6 @@ const getNetworkUrl = (network: NetworkConfig) => {
         cursor: pointer;
       }
     }
-  }
-
-  .network-item {
-    @apply mr-4 flex items-center gap-1;
   }
 
   .toggle-button-icon-wrapper {

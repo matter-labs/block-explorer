@@ -65,7 +65,7 @@ getTokens();
     @apply mr-1 text-gray;
 
     a {
-      @apply text-blue-100;
+      color: var(--color-blue);
     }
   }
 }

@@ -2,10 +2,10 @@
   <div>
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form" />
+      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
     </div>
     <h1>{{ t("contractVerification.title") }}</h1>
-    <p class="subtitle">{{ t("contractVerification.subtitle") }}</p>
+    <p class="subtitle max-w-3xl my-4 text-sm w-full">{{ t("contractVerification.subtitle") }}</p>
     <ContentCard
       v-if="contractVerificationStatus !== 'successful'"
       tag="form"
@@ -595,12 +595,13 @@ async function submitForm() {
 .head-block {
   @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
 
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
+  // .search-form {
+  //   @apply mb-6 w-full max-w-[26rem] lg:mb-0;
+  // }
 }
 .subtitle {
-  @apply mt-2 text-sm text-white;
+  // @apply  text-white;
+  // margin-top: 0.5rem;
 }
 .form-container {
   @apply md:grid-cols-4;

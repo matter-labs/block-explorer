@@ -130,24 +130,31 @@ const nextButtonQuery = computed(() => ({ page: Math.min(currentPage.value + 1, 
 <style lang="scss">
 .pagination-container {
   @apply flex space-x-1 transition-opacity;
+
   &.disabled {
     @apply pointer-events-none opacity-50;
   }
 
   .pagination-page-button {
     @apply rounded-md bg-white px-1.5 py-1 font-mono text-sm font-medium no-underline sm:px-2;
-    &:not(.disabled):not(.active):not(.dots) {
-      @apply hover:bg-neutral-50;
+
+    &:not(.disabled):not(.active):not(.dots):hover {
+      background-color: var(--color-blue-lightest);
     }
+
     &.disabled {
       @apply cursor-not-allowed text-neutral-400;
     }
+
     &.active {
-      @apply z-10 bg-neutral-100;
+      background-color: var(--color-blue-lightest);
+      z-index: 10;
     }
+
     &.dots {
       @apply font-sans text-neutral-400 hover:bg-white;
     }
+
     &.arrow {
       @apply flex items-center;
 

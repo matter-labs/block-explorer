@@ -5,7 +5,7 @@
   <div v-else-if="props.id && isBlockNumber(props.id)">
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form" />
+      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
     </div>
     <Title v-if="!batchPending" :title="t('batches.batchNumber')" :value="id">
       {{ parseInt(id) }}
@@ -102,9 +102,9 @@ watchEffect(() => {
   h1 {
     @apply mt-3 text-gray;
   }
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
+  // .search-form {
+  //   @apply mb-6 w-full max-w-[26rem] lg:mb-0;
+  // }
 }
 .tables-container {
   @apply mt-8 grid grid-cols-1 gap-4;

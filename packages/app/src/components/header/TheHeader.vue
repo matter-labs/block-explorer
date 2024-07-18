@@ -37,6 +37,16 @@
         </PopoverGroup>
         <div class="header-right-side">
           <NetworkSwitch />
+          <LocaleSwitch
+            :value="(locale as string)"
+            @update:value="changeLanguage"
+            :options="
+              ['en', 'uk'].map((value) => ({
+                value,
+                label: t(`locale.${value}`),
+              }))
+            "
+          />
           <div class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
@@ -214,12 +224,13 @@ const hasContent = computed(() => {
 .header-popover-container {
   .navigation-container {
     .dropdown-container {
-      @apply relative;
+      position: relative;
 
       .navigation-link {
         @apply flex items-center;
+
         &.active {
-          @apply bg-blue;
+          background-color: #fff;
 
           .dropdown-icon {
             @apply -rotate-180;
@@ -235,14 +246,15 @@ const hasContent = computed(() => {
 
         .dropdown-item {
           @apply block rounded-md p-2 text-sm text-black no-underline;
+
           &.router-link-exact-active {
-            @apply bg-blue;
+            background-color: #fff;
           }
         }
       }
     }
     .navigation-link {
-      @apply rounded-md py-2.5 text-base font-medium text-black no-underline hover:bg-blue md:px-3.5;
+      @apply rounded-md py-2.5 text-base font-medium text-black no-underline hover:bg-white md:px-3.5;
     }
 
     .router-link-exact-active {

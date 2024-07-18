@@ -45,7 +45,8 @@ const iconColor = computed(() => {
   }
 
   &.notification {
-    @apply bg-neutral-200 text-neutral-600;
+    // @apply bg-neutral-200 text-neutral-600;
+    background-color: var(--color-blue-lightest);
   }
 
   .alert-body {

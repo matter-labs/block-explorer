@@ -5,7 +5,8 @@
         <span class="selected-language-label">{{ selected.label }}</span>
       </span>
       <span class="toggle-button-icon-wrapper">
-        <ChevronDownIcon class="toggle-button-icon" aria-hidden="true" />
+        <!-- <ChevronDownIcon class="toggle-button-icon" aria-hidden="true" /> -->
+        <ChevronDownIcon class="toggle-button-icon dropdown-icon h-[1em] w-[1em]" aria-hidden="true" />
       </span>
     </ListboxButton>
     <div class="language-list-wrapper">
@@ -32,7 +33,7 @@
 import { computed } from "vue";
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { ChevronDownIcon } from "@heroicons/vue/solid";
+import { ChevronDownIcon } from "@heroicons/vue/outline";
 
 import type { PropType } from "vue";
 
@@ -78,7 +79,7 @@ const selected = computed<Locale>({
       cursor: pointer;
     }
     &.selected {
-      @apply bg-blue;
+      background-color: var(--color-blue-lightest);
     }
     &:not(.selected).active,
     &:not(.selected):hover {
@@ -97,10 +98,13 @@ const selected = computed<Locale>({
   }
 
   .toggle-button {
-    @apply relative flex w-full items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base hover:cursor-pointer focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue lg:w-max lg:border-blue lg:bg-blue lg:text-white;
+    @apply bg-white items-center px-3 py-2 rounded-full w-full focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue hover:cursor-pointer lg:w-max;
+    display: flex;
+    font-weight: 500;
+    position: relative;
 
     .selected-language {
-      @apply mr-5 flex items-center gap-1.5;
+      @apply mr-4 flex items-center gap-1.5;
 
       .selected-language-img {
         @apply h-4 w-4 flex-shrink-0;
@@ -112,10 +116,11 @@ const selected = computed<Locale>({
   }
 
   .toggle-button-icon-wrapper {
-    @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1;
+    @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2;
 
     .toggle-button-icon {
-      @apply h-5 w-5 lg:text-white;
+      height: 1em;
+      width: 1em;
     }
   }
 }
