@@ -13,7 +13,7 @@
         :disabled="disabled"
         :placeholder="placeholder"
       />
-      <div class="spinner-container absolute inset-y-0 right-0 flex py-2.5 pr-2.5" v-if="pending">
+      <div class="spinner-container absolute inset-y-0 right-4 flex items-center py-2.5 pr-2.5" v-if="pending">
         <Spinner />
       </div>
       <div v-else class="submit-icon-container absolute inset-y-0 right-3 flex items-center">
