@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="text"
-    class="label-container h-5 leading-5 rounded-full text-center text-xs uppercase w-12"
+    class="label-container h-5 w-12 rounded-full text-center text-xs uppercase leading-5"
     :class="{ incoming: text === 'in', outcoming: text === 'out', self: text === 'self' }"
   >
     {{ text }}

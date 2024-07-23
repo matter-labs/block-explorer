@@ -1,7 +1,7 @@
 <template>
   <Listbox as="div" v-model="selected" class="convert-dropdown-container">
     <ListboxButton
-      class="toggle-button bg-gray/10 flex h-7 items-center leading-6 px-2 rounded w-max focus:outline-none focus:ring-2 hover:cursor-pointer hover:bg-gray/5"
+      class="toggle-button flex h-7 w-max items-center rounded bg-gray/10 px-2 leading-6 hover:cursor-pointer hover:bg-gray/5 focus:outline-none focus:ring-2"
     >
       <div class="selected-option" v-if="selected">
         {{ t(`transactions.logs.options.${selected}`) }}

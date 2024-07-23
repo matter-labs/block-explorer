@@ -1,5 +1,11 @@
 <template>
-  <svg class="inline-block h-[1em] w-[1em]" width="64" height="32" viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    class="inline-block h-[1em] w-[1em]"
+    width="64"
+    height="32"
+    viewBox="0 0 64 32"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <path
       fill="currentColor"
       fill-rule="nonzero"

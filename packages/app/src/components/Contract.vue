@@ -1,7 +1,7 @@
 <template>
   <div class="head-block">
     <Breadcrumbs :items="breadcrumbItems" />
-    <SearchForm class="search-form max-w-full w-[576px]" />
+    <SearchForm class="search-form w-[576px] max-w-full" />
   </div>
   <Title
     v-if="contract?.address && !pending"

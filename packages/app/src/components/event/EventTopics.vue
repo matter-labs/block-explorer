@@ -1,6 +1,6 @@
 <template>
   <div v-for="(topic, topicIndex) in topics" :key="topic" class="topic-container">
-    <div class="topic-index-container h-6 rounded bg-gray/10 leading-5 px-2 py-0.5 font-mono text-gray text-sm">
+    <div class="topic-index-container h-6 rounded bg-gray/10 px-2 py-0.5 font-mono text-sm leading-5 text-gray">
       {{ topicIndex }}
     </div>
     <span v-if="topicIndex === 0" class="topic-value">

@@ -33,6 +33,9 @@ setup();
 </script>
 
 <style lang="scss">
+#app {
+  background: url("/public/background.png") no-repeat center center fixed;
+}
 .container-app {
   @apply container pt-6;
 }

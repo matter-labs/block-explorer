@@ -2,7 +2,7 @@
   <div>
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
+      <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
     <h1>{{ t("batches.title") }}</h1>
     <div class="batches-container">

@@ -3,7 +3,7 @@
     <div class="footer-container container py-12 md:flex md:items-center md:justify-between">
       <div class="links-container flex justify-center space-x-6 md:order-1">
         <a
-          class="font-semibold no-underline text-gray hover:text-black"
+          class="font-semibold text-gray no-underline hover:text-black"
           rel="noopener"
           target="_blank"
           v-for="item in navigation"
@@ -13,7 +13,7 @@
           {{ item.label }}
         </a>
       </div>
-      <div class="version-text-container font-medium mt-8 text-center text-gray md:mt-0 md:order-2">
+      <div class="version-text-container mt-8 text-center font-medium text-gray md:order-2 md:mt-0">
         <!-- <p>{{ config.version }}</p> -->
         <p>0.1.0</p>
       </div>

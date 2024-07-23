@@ -1,9 +1,9 @@
 <template>
   <div>
-    <label class="input-label block font-medium text-sm" v-if="label && label.length" for="search">{{ label }}</label>
-    <div class="search-input-container flex items-center relative">
+    <label class="input-label block text-sm font-medium" v-if="label && label.length" for="search">{{ label }}</label>
+    <div class="search-input-container relative flex items-center">
       <input
-        class="search-input block border-none leading-none placeholder-gray-2 pl-8 pr-16 py-6 ring-inset rounded-full shadow-soft text-black truncate w-full focus:border-blue focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50"
+        class="search-input block w-full truncate rounded-full border-none py-6 pl-8 pr-16 leading-none text-black placeholder-gray-2 shadow-soft ring-inset focus:border-blue focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50"
         id="search"
         type="text"
         name="search"
@@ -20,7 +20,7 @@
         <slot class="submit-icon" name="submit" />
       </div>
     </div>
-    <div class="error-message absolute -bottom-6 left-6 text-error-600 text-xs" v-if="error && error.length">
+    <div class="error-message absolute -bottom-6 left-6 text-xs text-error-600" v-if="error && error.length">
       {{ t("searchForm.errorMessage") }}
     </div>
   </div>

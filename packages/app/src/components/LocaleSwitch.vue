@@ -98,7 +98,7 @@ const selected = computed<Locale>({
   }
 
   .toggle-button {
-    @apply bg-white items-center px-3 py-2 rounded-full w-full focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue hover:cursor-pointer lg:w-max;
+    @apply w-full items-center rounded-full bg-white px-3 py-2 hover:cursor-pointer focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue lg:w-max;
     display: flex;
     font-weight: 500;
     position: relative;

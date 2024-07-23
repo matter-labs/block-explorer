@@ -1,11 +1,11 @@
 <template>
-  <div class="transaction-error flex justify-center mt-24" v-if="isRequestFailed && !isRequestPending">
+  <div class="transaction-error mt-24 flex justify-center" v-if="isRequestFailed && !isRequestPending">
     <PageError />
   </div>
   <div class="transaction-info-page" v-else-if="props.hash && isTransactionHash(props.hash)">
-    <div class="head-block flex flex-col-reverse justify-between mb-8 lg:flex-row lg:mb-10">
+    <div class="head-block mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form max-w-[34rem] mb-6 w-full lg:mb-0" />
+      <SearchForm class="search-form mb-6 w-full max-w-[34rem] lg:mb-0" />
     </div>
     <Title class="transaction-title mb-8" :title="t('transactions.transaction')" :value="hash" />
     <Tabs class="transactions-info-tabs shadow-md" v-if="transaction || isRequestPending" :tabs="tabs">

@@ -4,14 +4,14 @@
       <li class="breadcrumb-item font-medium">
         <router-link
           v-if="item.to"
-          class="breadcrumb-item-link leading-tight text-black text-sm hover:text-gray"
+          class="breadcrumb-item-link text-sm leading-tight text-black hover:text-gray"
           :to="item.to"
           >{{ item.text }}</router-link
         >
-        <span v-else class="breadcrumb-item-active leading-tight text-black text-sm">{{ item.text }}</span>
+        <span v-else class="breadcrumb-item-active text-sm leading-tight text-black">{{ item.text }}</span>
       </li>
       <li
-        class="breadcrumb-divider border-gray border-r border-t h-2 mx-5 rotate-45 w-2"
+        class="breadcrumb-divider mx-5 h-2 w-2 rotate-45 border-r border-t border-gray"
         aria-hidden="true"
         v-if="index < items.length - 1"
       ></li>
