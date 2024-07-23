@@ -1,16 +1,20 @@
 <template>
-  <Listbox as="div" :model-value="selected" class="network-switch">
-    <ListboxButton class="toggle-button">
-      <span class="network-item">
-        <img :src="currentNetwork.icon" alt="zkSync arrows logo" class="network-item-img" />
-        <span class="network-item-label">{{ currentNetwork.l2NetworkName }}</span>
-      </span>
-      <span class="toggle-button-icon-wrapper">
-        <ChevronDownIcon class="toggle-button-icon" aria-hidden="true" />
+  <Listbox as="div" :model-value="selected" class="network-switch relative">
+    <ListboxButton
+      class="toggle-button bg-white flex items-center min-w-[125px] px-2 py-2 relative rounded-full text-base text-black w-full focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue hover:cursor-pointer"
+    >
+      <span class="network-item flex gap-1 items-center">
+        <img :src="currentNetwork.icon" alt="Sophon logo" class="network-item-img h-8 w-8 flex-shrink-0" />
+        <span class="network-item-label block font-semibold truncate">
+          {{ currentNetwork.l2NetworkName }}
+        </span>
+        <ChevronDownIcon class="dropdown-icon h-[1em] w-[1em]" aria-hidden="true" />
       </span>
     </ListboxButton>
-    <div class="network-list-wrapper">
-      <ListboxOptions class="network-list">
+    <div class="network-list-wrapper absolute right-0 top-full h-auto w-full lg:w-[260px]">
+      <ListboxOptions
+        class="network-list absolute bg-white right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+      >
         <ListboxOption
           as="template"
           v-for="network in networks"
@@ -25,9 +29,15 @@
               class="network-list-item"
               :class="{ selected }"
             >
-              <span class="network-item">
-                <img :src="network.icon" :alt="`${network.l2NetworkName} logo`" class="network-item-img" />
-                <span class="network-item-label network-list-item-label">{{ network.l2NetworkName }} </span>
+              <span class="network-item flex gap-1 items-center">
+                <img
+                  :src="network.icon"
+                  :alt="`${network.l2NetworkName} logo`"
+                  class="network-item-img h-8 w-8 flex-shrink-0"
+                />
+                <span class="network-item-label network-list-item-label block font-semibold truncate"
+                  >{{ network.l2NetworkName }}
+                </span>
               </span>
               <MinusCircleIcon v-if="network.maintenance" class="maintenance-icon" aria-hidden="true" />
             </component>
@@ -43,8 +53,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { MinusCircleIcon } from "@heroicons/vue/outline";
-import { ChevronDownIcon } from "@heroicons/vue/solid";
+import { ChevronDownIcon, MinusCircleIcon } from "@heroicons/vue/outline";
 
 import useContext from "@/composables/useContext";
 
@@ -70,46 +79,28 @@ const getNetworkUrl = (network: NetworkConfig) => {
 
 <style scoped lang="scss">
 .network-switch {
-  @apply relative;
-
-  .network-list-wrapper {
-    @apply absolute right-0 top-full h-auto w-full lg:w-[260px];
-  }
-  .network-list {
-    @apply absolute right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
-  }
-
   .network-list-item-container {
     @apply flex items-center gap-2 px-3 py-2 text-neutral-900 lg:py-1;
+
     &:not(.selected) {
       cursor: pointer;
     }
+
     &.selected {
-      @apply bg-primary-100;
+      background-color: var(--color-blue-lightest);
     }
+
     &:not(.selected).active,
     &:not(.selected):hover {
       @apply bg-neutral-100;
     }
 
     .network-list-item {
-      @apply w-full font-sans text-base font-normal text-neutral-700 no-underline;
+      @apply w-full font-sans text-base font-normal no-underline;
+
       &:not(.selected) {
         cursor: pointer;
       }
-    }
-  }
-
-  .toggle-button {
-    @apply relative flex w-full min-w-[125px] items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base text-neutral-700 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:border-primary-800 lg:bg-primary-800 lg:text-white;
-  }
-  .network-item {
-    @apply mr-4 flex items-center gap-1;
-    .network-item-img {
-      @apply h-4 w-4 flex-shrink-0;
-    }
-    .network-item-label {
-      @apply block truncate;
     }
   }
 
@@ -117,7 +108,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
     @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1;
 
     .toggle-button-icon {
-      @apply h-5 w-5 text-neutral-700 lg:text-white;
+      @apply h-5 w-5 lg:text-white;
     }
   }
 }

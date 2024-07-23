@@ -9,7 +9,10 @@
       :pending="isRequestPending"
     >
       <template #submit>
-        <button class="submit-icon" type="submit">
+        <button
+          class="submit-icon aspect-square bg-blue flex h-12 items-center justify-center rounded-full text-center text-white text-2xl"
+          type="submit"
+        >
           <SearchIcon aria-hidden="true" />
         </button>
       </template>
@@ -55,21 +58,21 @@ const submit = async () => {
 </script>
 
 <style lang="scss" scoped>
-.search-form {
-  .submit-icon-container {
-    &:hover:not(:active) {
-      .submit-icon {
-        @apply bg-primary-300;
-      }
-    }
-    &:active {
-      .submit-icon {
-        @apply transition-none;
-      }
-    }
+.submit-icon svg {
+  height: 1em;
+  width: 1em;
+}
 
+.submit-icon-container {
+  &:hover:not(:active) {
     .submit-icon {
-      @apply w-[2.875rem] rounded-r-md bg-primary-500 p-3 text-white;
+      @apply bg-blue;
+    }
+  }
+
+  &:active {
+    .submit-icon {
+      @apply transition-none;
     }
   }
 }

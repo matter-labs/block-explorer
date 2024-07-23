@@ -32,7 +32,7 @@ import { SearchIcon } from "@heroicons/vue/solid";
   .state-text-container {
     @apply ml-6 text-left sm:ml-9;
     .title {
-      @apply mb-1 text-sm font-bold text-primary-700 sm:text-lg;
+      @apply mb-1 text-sm font-bold text-blue sm:text-lg;
     }
     .description {
       @apply text-xs text-neutral-400 sm:text-base;

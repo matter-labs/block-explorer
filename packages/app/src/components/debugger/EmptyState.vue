@@ -66,6 +66,6 @@ const upload = (files: File[]) => {
   @apply mr-1.5 h-6 w-6;
 }
 .upload-file-label {
-  @apply cursor-pointer font-medium text-primary-500 underline;
+  @apply cursor-pointer font-medium text-blue underline;
 }
 </style>

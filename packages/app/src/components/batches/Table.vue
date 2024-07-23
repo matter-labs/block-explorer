@@ -60,7 +60,7 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 import EthereumIcon from "@/components/icons/Ethereum.vue";
-import ZkSyncIcon from "@/components/icons/ZkSync.vue";
+import SophonIcon from "@/components/icons/Sophon.vue";
 
 import type { BatchListItem } from "@/composables/useBatches";
 import type { PropType } from "vue";
@@ -90,7 +90,7 @@ defineProps({
 
 function getBadgeIconByStatus(status: BatchListItem["status"]) {
   if (status === "sealed") {
-    return ZkSyncIcon;
+    return SophonIcon;
   }
   return EthereumIcon;
 }
@@ -113,7 +113,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
   }
 
   .table-body {
-    @apply rounded-t-lg;
+    @apply rounded-t-2xl;
 
     td {
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
@@ -127,7 +127,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
     @apply ml-1 inline-block w-5 align-sub;
   }
   td.batches-not-found {
-    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
+    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray;
   }
   .copy-button-container {
     @apply flex w-fit;

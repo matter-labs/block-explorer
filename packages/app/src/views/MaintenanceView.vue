@@ -7,19 +7,10 @@
         <template #network>
           {{ currentNetwork.l2NetworkName }}
         </template>
-        <template #twitter>
-          <a href="https://twitter.com/zkSyncDevs" target="_blank">{{ t("maintenance.twitterLink") }}</a>
-        </template>
-        <template #uptime>
-          <a href="https://uptime.com/s/zkSync-testnet" target="_blank">{{ t("maintenance.uptimeLink") }}</a>
-        </template>
       </i18n-t>
-      <Button class="twitter-button" tag="a" href="https://twitter.com/zkSyncDevs" target="_blank">
+      <Button class="twitter-button" tag="a" href="https://x.com/sophon" target="_blank">
         {{ t("maintenance.twitterButton") }}
       </Button>
-      <a class="uptime-link" href="https://uptime.com/s/zkSync-testnet" target="_blank">
-        {{ t("maintenance.uptimeLink") }}
-      </a>
     </div>
   </div>
 </template>
@@ -43,7 +34,7 @@ const { currentNetwork } = useContext();
     @apply grid h-max w-max max-w-[29rem] grid-flow-row justify-items-center gap-4 rounded-lg bg-white p-4 text-center shadow-md;
 
     .title {
-      @apply mt-1 text-2xl text-neutral-700;
+      @apply mt-1 text-2xl;
     }
     .description {
       @apply text-neutral-600;

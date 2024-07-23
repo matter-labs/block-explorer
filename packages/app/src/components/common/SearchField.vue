@@ -1,26 +1,28 @@
 <template>
   <div>
-    <label v-if="label && label.length" for="search" class="input-label">{{ label }}</label>
-    <div class="search-input-container">
+    <label class="input-label block font-medium text-sm" v-if="label && label.length" for="search">{{ label }}</label>
+    <div class="search-input-container flex items-center relative">
       <input
+        class="search-input block border-none leading-none placeholder-gray-2 pl-8 pr-16 py-6 ring-inset rounded-full shadow-soft text-black truncate w-full focus:border-blue focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50"
         id="search"
-        v-model="model"
-        :placeholder="placeholder"
         type="text"
-        :disabled="disabled"
         name="search"
-        class="search-input"
-        :class="{ 'has-error': error && error.length }"
         spellcheck="false"
+        v-model="model"
+        :class="{ 'has-error': error && error.length }"
+        :disabled="disabled"
+        :placeholder="placeholder"
       />
-      <div v-if="pending" class="spinner-container">
+      <div class="spinner-container absolute inset-y-0 right-0 flex py-2.5 pr-2.5" v-if="pending">
         <Spinner />
       </div>
-      <div v-else class="submit-icon-container">
+      <div v-else class="submit-icon-container absolute inset-y-0 right-3 flex items-center">
         <slot class="submit-icon" name="submit" />
       </div>
     </div>
-    <div class="error-message" v-if="error && error.length">{{ t("searchForm.errorMessage") }}</div>
+    <div class="error-message absolute -bottom-6 left-6 text-error-600 text-xs" v-if="error && error.length">
+      {{ t("searchForm.errorMessage") }}
+    </div>
   </div>
 </template>
 
@@ -67,31 +69,7 @@ const model = computed({
 </script>
 
 <style scoped lang="scss">
-.input-label {
-  @apply block text-sm font-medium text-neutral-700;
-}
-.search-icon-container {
-  @apply pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3;
-  .search-icon {
-    @apply z-10 h-5 w-5 text-neutral-400;
-  }
-}
-.error-message {
-  @apply absolute -bottom-5 text-xs text-error-600 lg:-bottom-7 lg:text-base;
-}
-.search-input-container {
-  @apply relative flex items-center;
-  .search-input {
-    @apply block w-full truncate rounded-md border border-neutral-50 py-3 pl-4 pr-16 leading-5 text-neutral-700 placeholder-neutral-400 shadow ring-inset placeholder:text-sm focus:border-primary-500 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm;
-  }
-  .has-error {
-    @apply border-error-300 text-error-900 placeholder-error-300 ring-error-300 focus:border-error-500 focus:ring-error-500;
-  }
-}
-.submit-icon-container {
-  @apply absolute inset-y-0 -right-px flex items-center;
-}
-.spinner-container {
-  @apply absolute inset-y-0 right-0 flex py-2.5 pr-2.5;
+.search-input-container .has-error {
+  @apply border-error-300 text-error-900 placeholder-error-300 ring-error-300 focus:border-error-500 focus:ring-error-500;
 }
 </style>

@@ -1,5 +1,8 @@
 <template>
-  <div class="table-container" :class="[{ 'has-head': !!$slots['table-head'] }, { 'has-footer': !!$slots['footer'] }]">
+  <div
+    class="table-container rounded-2xl shadow-soft w-full"
+    :class="[{ 'has-head': !!$slots['table-head'] }, { 'has-footer': !!$slots['footer'] }]"
+  >
     <div class="table-body">
       <table cellspacing="0" cellpadding="0">
         <thead v-if="$slots['table-head']">
@@ -54,8 +57,6 @@ defineProps({
 
 <style lang="scss">
 .table-container {
-  @apply w-full rounded-lg shadow-md;
-
   .table-body {
     @apply w-full overflow-auto;
 
@@ -75,11 +76,11 @@ defineProps({
   }
   &:not(.has-footer) {
     .table-body {
-      @apply rounded-b-lg;
+      @apply rounded-b-2xl;
     }
 
     table tbody tr:last-child td {
-      @apply first:rounded-bl-lg last:rounded-br-lg;
+      @apply first:rounded-bl-2xl last:rounded-br-2xl;
     }
   }
 
@@ -87,15 +88,13 @@ defineProps({
     @apply w-full border-collapse border-none;
 
     thead {
-      @apply md:border-b;
-
       tr th {
-        @apply bg-gray-100;
+        @apply bg-white;
       }
     }
     tbody {
       tr {
-        @apply transition last:border-b-0 odd:bg-white even:bg-gray-50 md:border-b;
+        @apply transition odd:bg-white even:bg-blue-lightest;
       }
     }
   }

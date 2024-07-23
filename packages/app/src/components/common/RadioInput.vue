@@ -51,11 +51,11 @@ const inputted = computed({
   @apply flex cursor-pointer items-center transition-opacity;
 
   input[type="radio"]:focus ~ .radio-handle {
-    @apply ring-2 ring-primary-600;
+    @apply ring-2 ring-blue;
   }
   &:not(.checked):not(.disabled):hover {
     .radio-handle {
-      @apply border-primary-600;
+      @apply border-blue;
     }
   }
   &.checked {
@@ -71,11 +71,11 @@ const inputted = computed({
     @apply relative flex h-5 w-5 items-center justify-center rounded-full border border-neutral-200 transition-colors;
 
     .radio-handle-dot {
-      @apply h-3 w-3 rounded-full bg-primary-600 opacity-0 transition-opacity;
+      @apply h-3 w-3 rounded-full bg-blue opacity-0 transition-opacity;
     }
   }
   .radio-input-text {
-    @apply ml-3 block text-sm font-medium text-neutral-700;
+    @apply ml-3 block text-sm font-medium;
   }
 }
 </style>

@@ -1,14 +1,14 @@
 <template>
-  <div class="transaction-error" v-if="isRequestFailed && !isRequestPending">
+  <div class="transaction-error flex justify-center mt-24" v-if="isRequestFailed && !isRequestPending">
     <PageError />
   </div>
-  <div v-else-if="props.hash && isTransactionHash(props.hash)" class="transaction-info-page">
-    <div class="head-block">
+  <div class="transaction-info-page" v-else-if="props.hash && isTransactionHash(props.hash)">
+    <div class="head-block flex flex-col-reverse justify-between mb-8 lg:flex-row lg:mb-10">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form" />
+      <SearchForm class="search-form max-w-[34rem] mb-6 w-full lg:mb-0" />
     </div>
-    <Title :title="t('transactions.transaction')" :value="hash" class="transaction-title" />
-    <Tabs class="transactions-info-tabs" v-if="transaction || isRequestPending" :tabs="tabs">
+    <Title class="transaction-title mb-8" :title="t('transactions.transaction')" :value="hash" />
+    <Tabs class="transactions-info-tabs shadow-md" v-if="transaction || isRequestPending" :tabs="tabs">
       <template #tab-1-content>
         <GeneralInfo
           :transaction="transactionWithData"
@@ -120,22 +120,7 @@ watchEffect(() => {
 </script>
 
 <style lang="scss" scoped>
-.head-block {
-  @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
-  h1 {
-    @apply mt-3;
-  }
-}
-.transactions-info-tabs {
-  @apply shadow-md;
-}
-.transaction-error {
-  @apply mt-24 flex justify-center;
-}
-.transaction-title {
-  @apply mb-8;
+.head-block h1 {
+  margin-top: 0.75rem;
 }
 </style>

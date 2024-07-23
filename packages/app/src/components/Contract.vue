@@ -1,7 +1,7 @@
 <template>
   <div class="head-block">
     <Breadcrumbs :items="breadcrumbItems" />
-    <SearchForm class="search-form" />
+    <SearchForm class="search-form max-w-full w-[576px]" />
   </div>
   <Title
     v-if="contract?.address && !pending"
@@ -146,9 +146,9 @@ const transactionsSearchParams = computed(() => ({
   h1 {
     @apply mt-3;
   }
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
+  // .search-form {
+  //   @apply mb-6 w-full max-w-[26rem] lg:mb-0;
+  // }
 }
 .tables-container {
   @apply mt-8 grid grid-cols-1 gap-4;

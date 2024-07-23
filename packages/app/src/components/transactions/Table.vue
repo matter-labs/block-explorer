@@ -207,7 +207,7 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 import EthereumIcon from "@/components/icons/Ethereum.vue";
-import ZkSyncIcon from "@/components/icons/ZkSync.vue";
+import SophonIcon from "@/components/icons/Sophon.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
@@ -304,7 +304,7 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
     fromNetwork: transaction.isL1Originated ? "L1" : "L2",
     toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
     statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-    statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
+    statusIcon: ["failed", "included"].includes(transaction.status) ? SophonIcon : EthereumIcon,
   }));
 });
 
@@ -447,7 +447,7 @@ function getDirection(item: TransactionListItem): Direction {
     @apply font-bold;
   }
   .transactions-not-found {
-    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
+    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray;
   }
   .badge-content {
     @apply flex items-center;
@@ -465,7 +465,8 @@ function getDirection(item: TransactionListItem): Direction {
   }
 
   .table-body {
-    @apply rounded-t-lg;
+    @apply rounded-t-2xl;
+
     th.table-head-col {
       @apply min-w-0 sm:min-w-[7rem];
     }

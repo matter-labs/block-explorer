@@ -529,9 +529,9 @@ watchEffect(() => {
     @apply px-2;
   }
   .file-list-item-data {
-    @apply sticky top-9 z-50 flex h-9 w-full cursor-pointer items-center gap-3 overflow-hidden border-b border-b-neutral-200 bg-white p-[6px] px-4 font-mono text-sm font-normal text-neutral-700 focus:bg-primary-100 focus:outline-0;
+    @apply sticky top-9 z-50 flex h-9 w-full cursor-pointer items-center gap-3 overflow-hidden border-b border-b-neutral-200 bg-white p-[6px] px-4 font-mono text-sm font-normal focus:bg-blue focus:outline-0;
     > label {
-      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-neutral-200 bg-neutral-100 px-1 font-sans text-sm font-normal text-neutral-700;
+      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-neutral-200 bg-neutral-100 px-1 font-sans text-sm font-normal;
     }
 
     .file-list-item-data-hash-label {
@@ -539,7 +539,7 @@ watchEffect(() => {
     }
 
     .toggle-button {
-      @apply ml-auto h-5 w-5 min-w-[20px] text-neutral-700;
+      @apply ml-auto h-5 w-5 min-w-[20px];
     }
 
     &.disabled {

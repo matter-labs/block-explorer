@@ -291,10 +291,10 @@ const gasUsedPercent = computed(() => {
     }
   }
   .transaction-info-field-label {
-    @apply text-gray-400;
+    @apply text-gray;
   }
   .transaction-info-field-value {
-    @apply text-gray-800;
+    @apply text-gray;
   }
   .transaction-table-label {
     @apply m-0 inline-flex w-[7rem] items-center whitespace-normal sm:w-[11.5rem];
@@ -324,7 +324,7 @@ const gasUsedPercent = computed(() => {
     @apply py-2;
   }
   .transaction-reason-value {
-    @apply text-error-600 whitespace-normal;
+    @apply whitespace-normal text-error-600;
   }
 }
 </style>

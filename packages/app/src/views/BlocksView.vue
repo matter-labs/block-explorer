@@ -2,7 +2,7 @@
   <div>
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form" />
+      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
     </div>
     <h1>{{ t("blocksView.title") }}</h1>
     <div class="blocks-container">
@@ -70,9 +70,9 @@ watch(
 .head-block {
   @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
 
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
+  // .search-form {
+  //   @apply mb-6 w-full max-w-[26rem] lg:mb-0;
+  // }
 }
 .blocks-container {
   @apply mt-8;

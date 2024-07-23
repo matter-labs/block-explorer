@@ -5,7 +5,7 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   verificationApiUrl: "https://explorer.sepolia.era.zksync.dev",
   bridgeUrl: "https://portal.zksync.io/bridge/?network=sepolia",
   hostnames: ["https://sepolia.explorer.zksync.io"],
-  icon: "/images/icons/zksync-arrows.svg",
+  icon: "/images/icons/sophon.svg",
   l1ExplorerUrl: "https://sepolia.etherscan.io",
   l2ChainId: 300,
   l2NetworkName: "zkSync Era Sepolia Testnet",

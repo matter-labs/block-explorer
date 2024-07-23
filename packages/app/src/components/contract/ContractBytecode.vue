@@ -129,7 +129,7 @@ const sourceCode = computed<undefined | { code: string; label: string }[]>(() =>
     @apply grid gap-4;
 
     .info-field-label {
-      @apply text-sm font-bold text-neutral-700;
+      @apply text-sm font-bold;
     }
     .source-code-container,
     .bytecode-field-container {

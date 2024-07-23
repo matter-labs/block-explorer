@@ -59,13 +59,13 @@ getTokens();
 }
 
 .tokens-header {
-  @apply flex justify-between items-end gap-4;
+  @apply flex items-end justify-between gap-4;
 
   .coingecko-attribution {
-    @apply mr-1 text-gray-300;
+    @apply mr-1 text-gray;
 
     a {
-      @apply text-blue-100;
+      color: var(--color-blue);
     }
   }
 }

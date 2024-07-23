@@ -76,13 +76,13 @@ watchEffect(() => {
     @apply flex border-b md:flex-row;
   }
   .tab-btn {
-    @apply px-4 py-3.5 text-sm text-gray-400 outline-0 sm:text-base;
+    @apply px-4 py-3.5 text-sm text-gray outline-0 sm:text-base;
   }
   .tab-content {
     @apply rounded-b-lg;
   }
   .active {
-    @apply border-b-2 border-primary-600 font-bold text-primary-600;
+    @apply border-b-2 border-blue font-bold text-blue;
   }
 }
 </style>

@@ -18,7 +18,7 @@ defineProps({
   @apply mt-4 grid w-full grid-flow-row grid-cols-1 gap-4 rounded-lg bg-white p-4 shadow-md;
 
   .content-title {
-    @apply text-2xl text-neutral-700;
+    @apply text-2xl;
   }
 }
 </style>
