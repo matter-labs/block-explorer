@@ -1,13 +1,13 @@
 <template>
   <div class="home mt-4">
-    <h1 class="title font-semibold text-center text-5xl text">
+    <h1 class="title text text-center text-5xl font-semibold">
       Explorer.
       <span class="text-gray">Every transaction. Every contract. Every block.</span>
     </h1>
     <div class="flex justify-center px-6">
-      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
+      <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
-    <div class="section block border-t-2 border-t-black/5 justify-between gap-x-4 mt-8 pt-8 lg:mt-12 lg:pt-12">
+    <div class="section mt-8 block justify-between gap-x-4 border-t-2 border-t-black/5 pt-8 lg:mt-12 lg:pt-12">
       <NetworkStats
         v-if="networkStats || networkStatsPending"
         :loading="networkStatsPending"
@@ -19,8 +19,8 @@
     </div>
     <div class="latest-blocks-transactions">
       <div>
-        <div class="batches-label-container flex gap-x-1 items-center">
-          <p class="font-semibold mb-3 text-2xl">{{ t("blockExplorer.batches") }}</p>
+        <div class="batches-label-container flex items-center gap-x-1">
+          <p class="mb-3 text-2xl font-semibold">{{ t("blockExplorer.batches") }}</p>
           <!-- <InfoTooltip class="batches-tooltip mb-3">{{ t("batches.tooltipInfo") }}</InfoTooltip> -->
         </div>
         <TableBatches
@@ -39,7 +39,7 @@
         </span>
       </div>
       <div>
-        <p class="font-semibold mb-3 text-2xl">{{ t("blockExplorer.latestTransactions") }}</p>
+        <p class="mb-3 text-2xl font-semibold">{{ t("blockExplorer.latestTransactions") }}</p>
         <TransactionsTable
           class="transactions-table"
           :columns="['status', 'transactionHash', 'age']"

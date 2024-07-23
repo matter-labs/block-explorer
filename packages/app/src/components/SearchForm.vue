@@ -10,7 +10,7 @@
     >
       <template #submit>
         <button
-          class="submit-icon aspect-square bg-blue flex h-12 items-center justify-center rounded-full text-center text-white text-2xl"
+          class="submit-icon flex aspect-square h-12 items-center justify-center rounded-full bg-blue text-center text-2xl text-white"
           type="submit"
         >
           <SearchIcon aria-hidden="true" />

@@ -2,7 +2,7 @@
   <div class="info-field-byte-data">
     <Disclosure v-slot="{ open }">
       <DisclosureButton
-        class="byte-data-disclosure-btn bg-gray/10 flex font-medium items-center justify-between px-4 py-2 text-gray text-left text-sm w-full focus:outline-none hover:bg-gray/5"
+        class="byte-data-disclosure-btn flex w-full items-center justify-between bg-gray/10 px-4 py-2 text-left text-sm font-medium text-gray hover:bg-gray/5 focus:outline-none"
         :class="open ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-lg'"
         :data-testid="$testId.byteCodeDropDown"
       >
@@ -13,9 +13,9 @@
         </div>
       </DisclosureButton>
       <DisclosurePanel
-        class="byte-data-disclosure-panel border border-dashed border-gray border-t-0 px-4 py-4 rounded-bl-lg rounded-br-lg"
+        class="byte-data-disclosure-panel rounded-bl-lg rounded-br-lg border border-t-0 border-dashed border-gray px-4 py-4"
       >
-        <div class="byte-data-full-value break-all break-words overflow-hidden text-gray text-sm whitespace-pre-line">
+        <div class="byte-data-full-value overflow-hidden whitespace-pre-line break-words break-all text-sm text-gray">
           {{ value }}
         </div>
       </DisclosurePanel>

@@ -2,10 +2,10 @@
   <div>
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
+      <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
     <h1>{{ t("contractVerification.title") }}</h1>
-    <p class="subtitle max-w-3xl my-4 text-sm w-full">{{ t("contractVerification.subtitle") }}</p>
+    <p class="subtitle my-4 w-full max-w-3xl text-sm">{{ t("contractVerification.subtitle") }}</p>
     <ContentCard
       v-if="contractVerificationStatus !== 'successful'"
       tag="form"

@@ -1,17 +1,17 @@
 <template>
   <div
-    class="card bg-white flex flex-col gap-x-12 justify-between px-8 py-5 rounded-2xl shadow-soft w-full lg:flex-row lg:items-center"
+    class="card flex w-full flex-col justify-between gap-x-12 rounded-2xl bg-white px-8 py-5 shadow-soft lg:flex-row lg:items-center"
   >
     <div>
-      <div class="title font-semibold text-xl">{{ t("networkStats.title") }}</div>
-      <div class="subtitle font-semibold text-base text-gray">{{ subtitle }}</div>
+      <div class="title text-xl font-semibold">{{ t("networkStats.title") }}</div>
+      <div class="subtitle text-base font-semibold text-gray">{{ subtitle }}</div>
     </div>
     <dl class="description-list">
       <div class="stats-container">
         <dt class="font-semibold text-gray">
           <router-link :to="{ name: 'blocks' }">{{ t("networkStats.committed") }}</router-link>
         </dt>
-        <dd class="font-bold text-3xl">
+        <dd class="text-3xl font-bold">
           <ContentLoader v-if="loading" class="h-full w-24" />
           <span v-else>{{ formatWithSpaces(committed ?? 0) }}</span>
         </dd>
@@ -20,7 +20,7 @@
         <dt class="font-semibold text-gray">
           <router-link :to="{ name: 'blocks' }">{{ t("networkStats.verified") }}</router-link>
         </dt>
-        <dd class="font-bold text-3xl">
+        <dd class="text-3xl font-bold">
           <ContentLoader v-if="loading" class="h-full w-24" />
           <span v-else>{{ formatWithSpaces(verified ?? 0) }}</span>
         </dd>
@@ -29,7 +29,7 @@
         <dt class="font-semibold text-gray">
           <router-link :to="{ name: 'transactions' }">{{ t("networkStats.transactions") }}</router-link>
         </dt>
-        <dd class="font-bold text-3xl">
+        <dd class="text-3xl font-bold">
           <ContentLoader v-if="loading" class="h-full w-36" />
           <span v-else>{{ formatWithSpaces(transactions ?? 0) }}</span>
         </dd>
@@ -38,7 +38,7 @@
         <dt>
           {{ t("networkStats.totalLocked") }}
         </dt>
-        <dd class="font-bold text-3xl">
+        <dd class="text-3xl font-bold">
           <ContentLoader v-if="loading" class="h-full w-20" />
           <span v-else>{{ formatMoney(totalLocked) }}</span>
         </dd>

@@ -11,7 +11,7 @@
       <slot name="precontent"></slot>
     </div>
     <div
-      class="badge-container flex items-center relative w-max"
+      class="badge-container relative flex w-max items-center"
       :class="[
         `type-${type}`,
         `color-${color}`,
@@ -76,13 +76,18 @@ defineProps({
 </script>
 
 <style lang="scss">
+.badge-container {
+  min-height: 28px;
+}
+
 .badge .badge-content {
   @apply pr-4;
 }
 
 .badge-content svg {
-  max-height: 20px;
+  width: 100%;
   max-width: 32px;
+  max-height: 20px;
 }
 
 .badge-additional-content {

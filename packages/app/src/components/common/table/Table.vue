@@ -1,6 +1,6 @@
 <template>
   <div
-    class="table-container rounded-2xl shadow-soft w-full"
+    class="table-container w-full rounded-2xl shadow-soft"
     :class="[{ 'has-head': !!$slots['table-head'] }, { 'has-footer': !!$slots['footer'] }]"
   >
     <div class="table-body">

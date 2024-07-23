@@ -1,11 +1,11 @@
 <template>
   <Listbox as="div" :model-value="selected" class="network-switch relative">
     <ListboxButton
-      class="toggle-button bg-white flex items-center min-w-[125px] px-2 py-2 relative rounded-full text-base text-black w-full focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue hover:cursor-pointer"
+      class="toggle-button relative flex w-full min-w-[125px] items-center rounded-full bg-white px-2 py-2 text-base text-black hover:cursor-pointer focus:border-blue focus:outline-none focus:ring-1 focus:ring-blue"
     >
-      <span class="network-item flex gap-1 items-center">
+      <span class="network-item flex items-center gap-1">
         <img :src="currentNetwork.icon" alt="Sophon logo" class="network-item-img h-8 w-8 flex-shrink-0" />
-        <span class="network-item-label block font-semibold truncate">
+        <span class="network-item-label block truncate font-semibold">
           {{ currentNetwork.l2NetworkName }}
         </span>
         <ChevronDownIcon class="dropdown-icon h-[1em] w-[1em]" aria-hidden="true" />
@@ -13,7 +13,7 @@
     </ListboxButton>
     <div class="network-list-wrapper absolute right-0 top-full h-auto w-full lg:w-[260px]">
       <ListboxOptions
-        class="network-list absolute bg-white right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
+        class="network-list absolute right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm"
       >
         <ListboxOption
           as="template"
@@ -29,13 +29,13 @@
               class="network-list-item"
               :class="{ selected }"
             >
-              <span class="network-item flex gap-1 items-center">
+              <span class="network-item flex items-center gap-1">
                 <img
                   :src="network.icon"
                   :alt="`${network.l2NetworkName} logo`"
                   class="network-item-img h-8 w-8 flex-shrink-0"
                 />
-                <span class="network-item-label network-list-item-label block font-semibold truncate"
+                <span class="network-item-label network-list-item-label block truncate font-semibold"
                   >{{ network.l2NetworkName }}
                 </span>
               </span>

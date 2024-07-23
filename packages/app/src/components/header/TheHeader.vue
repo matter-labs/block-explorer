@@ -1,21 +1,21 @@
 <template>
-  <Popover class="header-popover-container bg-blue-lightest relative">
+  <Popover class="header-popover-container relative">
     <div class="header-wrap container z-50">
       <div class="header-container flex items-center justify-between py-4 md:space-x-10 lg:justify-start">
         <div class="logo-container flex justify-start">
-          <router-link class="flex gap-2 items-center no-underline text-black" :to="{ name: 'home' }">
+          <router-link class="flex items-center gap-2 text-black no-underline" :to="{ name: 'home' }">
             <span class="text-[46px]">
               <sophon />
             </span>
-            <span class="font-medium text-2xl">Sophon</span>
-            <span class="bg-blue font-semibold px-2 rounded-full text-2xs/4 text-white top-[2px] uppercase"
+            <span class="text-2xl font-medium">Sophon</span>
+            <span class="top-[2px] rounded-full bg-blue px-2 text-2xs/4 font-semibold uppercase text-white"
               >Testnet</span
             >
           </router-link>
         </div>
-        <div class="burger-button-container -mr-2 -my-2 lg:hidden">
+        <div class="burger-button-container -my-2 -mr-2 lg:hidden">
           <PopoverButton
-            class="burger-button border border-neutral-400 inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue"
+            class="burger-button inline-flex items-center justify-center rounded-md border border-neutral-400 p-2 text-black hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue"
           >
             <span class="sr-only">Open menu</span>
             <MenuIcon class="h-6 w-6" aria-hidden="true" />
@@ -37,16 +37,6 @@
         </PopoverGroup>
         <div class="header-right-side">
           <NetworkSwitch />
-          <LocaleSwitch
-            :value="(locale as string)"
-            @update:value="changeLanguage"
-            :options="
-              ['en', 'uk'].map((value) => ({
-                value,
-                label: t(`locale.${value}`),
-              }))
-            "
-          />
           <div class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
@@ -106,16 +96,6 @@
             </div>
             <div class="mobile-network-switch-container">
               <NetworkSwitch />
-              <LocaleSwitch
-                :value="(locale as string)"
-                @update:value="changeLanguage"
-                :options="
-                  ['en', 'uk'].map((value) => ({
-                    value,
-                    label: t(`locale.${value}`),
-                  }))
-                "
-              />
             </div>
             <div class="mobile-socials-container">
               <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
@@ -140,17 +120,13 @@ import { MenuIcon, XIcon } from "@heroicons/vue/outline";
 import LinksMobilePopover from "./LinksMobilePopover.vue";
 import LinksPopover from "./LinksPopover.vue";
 
-import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
-import DiscordIcon from "@/components/icons/DiscordIcon.vue";
 import Sophon from "@/components/icons/Sophon.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 
 import useContext from "@/composables/useContext";
-import useLocalization from "@/composables/useLocalization";
 
 import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
-const { changeLanguage } = useLocalization();
 const { t, locale } = useI18n({ useScope: "global" });
 const route = useRoute();
 const { currentNetwork } = useContext();
@@ -202,22 +178,6 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [{ url: "https://x.com/sophon", component: TwitterIcon }];
-
-const hasContent = computed(() => {
-  if (route.name !== "not-found" && !currentNetwork.value.maintenance) {
-    if (route.params.hash) {
-      return isTransactionHash(route.params.hash as string);
-    }
-    if (route.params.address) {
-      return isAddress(route.params.address as string);
-    }
-    if (route.params.id) {
-      return isBlockNumber(route.params.id as string);
-    }
-    return true;
-  }
-  return false;
-});
 </script>
 
 <style lang="scss">
@@ -325,6 +285,9 @@ const hasContent = computed(() => {
             @apply flex items-center rounded-md p-2 no-underline hover:bg-neutral-50;
             &.router-link-exact-active {
               @apply bg-blue;
+              .mobile-navigation-label {
+                color: white;
+              }
             }
             &.internal-link {
               .mobile-navigation-label {
