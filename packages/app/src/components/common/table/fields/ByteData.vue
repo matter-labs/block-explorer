@@ -2,21 +2,22 @@
   <div class="info-field-byte-data">
     <Disclosure v-slot="{ open }">
       <DisclosureButton
-        class="byte-data-disclosure-btn"
+        class="byte-data-disclosure-btn bg-gray/10 flex font-medium items-center justify-between px-4 py-2 text-gray text-left text-sm w-full focus:outline-none hover:bg-gray/5"
         :class="open ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-lg'"
         :data-testid="$testId.byteCodeDropDown"
       >
         <HashLabel :text="value" :subtraction="5" />
-        <div class="byte-data-disclosure-icons">
+        <div class="byte-data-disclosure-icons flex items-center">
           <CopyButton class="mr-1" tooltipPosition="left" :value="value" />
-          <ChevronDownIcon
-            :class="open ? 'rotate-180 transform' : ''"
-            class="h-5 w-5 text-gray-500 transition-transform"
-          />
+          <ChevronDownIcon :class="open ? 'rotate-180 transform' : ''" class="h-5 w-5 text-gray transition-transform" />
         </div>
       </DisclosureButton>
-      <DisclosurePanel class="byte-data-disclosure-panel">
-        <div class="byte-data-full-value">{{ value }}</div>
+      <DisclosurePanel
+        class="byte-data-disclosure-panel border border-dashed border-gray border-t-0 px-4 py-4 rounded-bl-lg rounded-br-lg"
+      >
+        <div class="byte-data-full-value break-all break-words overflow-hidden text-gray text-sm whitespace-pre-line">
+          {{ value }}
+        </div>
       </DisclosurePanel>
     </Disclosure>
   </div>
@@ -38,20 +39,5 @@ defineProps({
 });
 </script>
 
-<style lang="scss">
-.info-field-byte-data {
-  .byte-data-disclosure-btn {
-    @apply flex w-full items-center justify-between bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none;
-  }
-  .byte-data-disclosure-icons {
-    @apply flex items-center;
-  }
-  .byte-data-disclosure-panel {
-    @apply rounded-bl-lg rounded-br-lg border border-t-0 border-dashed border-gray-300 px-4 py-4;
-
-    .byte-data-full-value {
-      @apply overflow-hidden whitespace-pre-line break-words break-all text-sm text-gray-700;
-    }
-  }
-}
-</style>
+<!-- <style lang="scss">
+</style> -->

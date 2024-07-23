@@ -1,11 +1,20 @@
 <template>
-  <ul class="breadcrumbs">
+  <ul class="breadcrumbs flex flex-wrap items-center">
     <template v-for="(item, index) in items" :key="index">
-      <li class="breadcrumb-item">
-        <router-link v-if="item.to" class="breadcrumb-item-link" :to="item.to">{{ item.text }}</router-link>
-        <span v-else class="breadcrumb-item-active">{{ item.text }}</span>
+      <li class="breadcrumb-item font-medium">
+        <router-link
+          v-if="item.to"
+          class="breadcrumb-item-link leading-tight text-black text-sm hover:text-gray"
+          :to="item.to"
+          >{{ item.text }}</router-link
+        >
+        <span v-else class="breadcrumb-item-active leading-tight text-black text-sm">{{ item.text }}</span>
       </li>
-      <li class="breadcrumb-divider" aria-hidden="true" v-if="index < items.length - 1"></li>
+      <li
+        class="breadcrumb-divider border-gray border-r border-t h-2 mx-5 rotate-45 w-2"
+        aria-hidden="true"
+        v-if="index < items.length - 1"
+      ></li>
     </template>
   </ul>
 </template>
@@ -28,21 +37,5 @@ defineProps({
 });
 </script>
 
-<style lang="scss">
-.breadcrumbs {
-  @apply flex flex-wrap items-center;
-
-  .breadcrumb-item {
-    .breadcrumb-item-link,
-    .breadcrumb-item-active {
-      @apply text-sm leading-tight text-gray-200;
-    }
-    .breadcrumb-item-link {
-      @apply no-underline hover:underline;
-    }
-  }
-  .breadcrumb-divider {
-    @apply mx-5 h-2 w-2 rotate-45 border-r border-t border-gray-300;
-  }
-}
-</style>
+<!-- <style lang="scss">
+</style> -->

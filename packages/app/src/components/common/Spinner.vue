@@ -37,7 +37,7 @@ defineProps({
       @apply border-neutral-700 border-l-transparent;
     }
     &.primary {
-      @apply border-primary-600 border-l-transparent;
+      @apply border-blue border-l-transparent;
     }
   }
   &:not(.is-outlined) {
@@ -45,7 +45,7 @@ defineProps({
       @apply border-l-neutral-700;
     }
     &.primary {
-      @apply border-l-primary-600;
+      @apply border-l-blue;
     }
   }
   &.dark-neutral {

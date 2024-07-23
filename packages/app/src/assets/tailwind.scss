@@ -2,7 +2,15 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-.debugger-trace-height, .parent-child-section {
+:root {
+  --color-blue: #0071e3;
+  --color-blue-lightest: #f5f5f7;
+  --color-gray: #6e6e73;
+  --color-error-red: #ff4f00;
+}
+
+.debugger-trace-height,
+.parent-child-section {
   -ms-overflow-style: none;
   scrollbar-width: thin;
 
@@ -10,10 +18,12 @@
     width: 6px;
     background: #cbcfd6;
   }
+
   &::-webkit-scrollbar-track {
     background: #cbcfd6;
     border-radius: 5px;
   }
+
   &::-webkit-scrollbar-thumb {
     background-color: white;
     border-radius: 14px;
@@ -28,28 +38,32 @@
     box-sizing: border-box;
     margin: 0;
     position: relative;
-    font-weight: normal;
   }
 
   h1 {
-    @apply text-4xl font-bold text-neutral-50;
+    @apply text-4xl;
   }
+
   h2 {
-    @apply text-3xl font-bold text-neutral-50;
+    @apply text-3xl;
   }
+
   h3 {
-    @apply text-2xl font-bold text-neutral-50;
+    @apply text-2xl;
   }
 
   body {
-    @apply min-h-screen bg-neutral-50 font-sans text-base text-neutral-700;
+    @apply bg-blue-lightest min-h-screen font-sans text-base text-black;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  a {
+    @apply text-inherit underline hover:text-blue;
   }
 
   #app {
     @apply grid h-full min-h-screen w-full grid-cols-1 grid-rows-[max-content_1fr_max-content];
-  }
-
-  a {
-    @apply text-primary-600 underline hover:text-[#7379E5];
   }
 }

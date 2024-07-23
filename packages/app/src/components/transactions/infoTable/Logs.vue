@@ -164,7 +164,7 @@ function scrollPageToTop() {
           @apply text-base;
         }
         .address-label {
-          @apply cursor-pointer text-base leading-6 text-primary-500 underline;
+          @apply cursor-pointer text-base leading-6 text-blue underline;
         }
       }
       .log-interface {

@@ -1,12 +1,19 @@
 <template>
   <footer>
-    <div class="footer-container">
-      <div class="links-container">
-        <a v-for="item in navigation" :key="item.label" :href="item.url" target="_blank" rel="noopener">
+    <div class="footer-container container py-12 md:flex md:items-center md:justify-between">
+      <div class="links-container flex justify-center space-x-6 md:order-1">
+        <a
+          class="font-semibold no-underline text-gray hover:text-black"
+          rel="noopener"
+          target="_blank"
+          v-for="item in navigation"
+          :href="item.url"
+          :key="item.label"
+        >
           {{ item.label }}
         </a>
       </div>
-      <div class="version-text-container">
+      <div class="version-text-container font-medium mt-8 text-center text-gray md:mt-0 md:order-2">
         <!-- <p>{{ config.version }}</p> -->
         <p>0.1.0</p>
       </div>
@@ -38,19 +45,5 @@ const navigation = reactive([
 ]);
 </script>
 
-<style scoped lang="scss">
-.footer-container {
-  @apply container py-12 text-neutral-400 md:flex md:items-center md:justify-between;
-
-  .links-container {
-    @apply flex justify-center space-x-6 md:order-1;
-
-    a {
-      @apply text-neutral-400 no-underline;
-    }
-  }
-  .version-text-container {
-    @apply mt-8 text-center md:order-2 md:mt-0;
-  }
-}
-</style>
+<!-- <style scoped lang="scss">
+</style> -->

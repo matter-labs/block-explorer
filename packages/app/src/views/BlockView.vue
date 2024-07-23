@@ -5,7 +5,7 @@
   <div v-else-if="props.id && isBlockNumber(props.id)">
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form" />
+      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
     </div>
     <Title v-if="!blockPending" :title="t('blocks.blockNumber')" :value="id">
       {{ parseInt(id) }}
@@ -92,21 +92,23 @@ watchEffect(() => {
 <style lang="scss" scoped>
 .head-block {
   @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
+
   h1 {
-    @apply mt-3 text-gray-200;
+    @apply mt-3 text-gray;
   }
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
+
+  // .search-form {
+  //   @apply mb-6 w-full max-w-[26rem] lg:mb-0;
+  // }
 }
 .tables-container {
   @apply mt-8 grid grid-cols-1 gap-4;
 
   h2 {
-    @apply mb-4 text-gray-200;
+    @apply mb-4 text-gray;
   }
   .table-transaction-title {
-    @apply text-gray-700;
+    @apply text-gray;
   }
   .block-table {
     @apply mb-8;
@@ -114,7 +116,7 @@ watchEffect(() => {
   .transactions-table {
     @apply shadow-md;
     button {
-      @apply w-full cursor-pointer py-2 text-center text-xs text-gray-500 underline hover:text-gray-400;
+      @apply w-full cursor-pointer py-2 text-center text-xs text-gray underline hover:text-gray;
     }
   }
 }

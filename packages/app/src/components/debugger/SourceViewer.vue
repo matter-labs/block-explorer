@@ -261,7 +261,7 @@ onUnmounted(() => {
   @apply absolute grid h-[v-bind('ITEM_HEIGHT+"px"')] w-full grid-cols-[50px_minmax(0,_1fr)_max-content] items-center gap-4 whitespace-pre px-4 font-mono text-sm font-normal leading-6 text-neutral-600;
 
   .toggle-button {
-    @apply ml-auto h-5 w-5 text-neutral-700;
+    @apply ml-auto h-5 w-5;
   }
   > .instruction-list-item-text-container {
     @apply overflow-hidden text-ellipsis whitespace-pre;
@@ -283,11 +283,11 @@ onUnmounted(() => {
   }
 
   &.highlighted {
-    @apply border-r-2 border-primary-400 bg-primary-100/40;
+    @apply border-r-2 border-blue bg-blue/40;
   }
 
   &.executed {
-    @apply cursor-pointer border-l-2 border-solid border-primary-400;
+    @apply cursor-pointer border-l-2 border-solid border-blue;
     label {
       @apply cursor-pointer;
     }
@@ -297,6 +297,6 @@ onUnmounted(() => {
 
 <style lang="scss">
 .mark {
-  @apply bg-transparent text-primary-500;
+  @apply bg-transparent text-blue;
 }
 </style>

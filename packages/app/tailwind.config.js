@@ -1,34 +1,42 @@
 const colors = require("tailwindcss/colors");
-const defaultTheme = require("tailwindcss/defaultTheme");
+// const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
   content: ["./src/**/*.{html,js,ts,vue}"],
   theme: {
     container: false,
     extend: {
-      fontFamily: {
-        sans: ["Roboto", ...defaultTheme.fontFamily.sans],
-        mono: ["Roboto Mono", ...defaultTheme.fontFamily.mono],
+      boxShadow: {
+        soft: "2px 4px 12px rgba(0, 0, 0, 0.04)",
       },
       colors: {
-        primary: {
-          50: "#F3F5FF",
-          100: "#D9D9F9",
-          200: "#CBCBFF",
-          300: "#8C8DFC",
-          400: "#5D65B9",
-          500: "#53579f",
-          600: "#4E529A",
-          700: "#32325D",
-          800: "#27274E",
-          900: "#11142B",
-        },
-        secondary: colors.yellow,
+        black: "#131313",
+        blue: "#0071e3",
+        "blue-lightest": "#f5f5f7",
+        gray: "#6e6e73",
+        "gray-2": "#888",
+        secondary: "#0071e3",
+        "error-red": "#ff4f00",
         neutral: colors.gray,
-
         success: colors.green,
         error: colors.red,
         warning: colors.yellow,
+      },
+      fontFamily: {
+        sans: [
+          "system-ui",
+          "Segoe UI",
+          "Roboto",
+          "Helvetica",
+          "Arial",
+          "sans-serif",
+          "Apple Color Emoji",
+          "Segoe UI Emoji",
+          "Segoe UI Symbol",
+        ],
+      },
+      fontSize: {
+        "2xs": "0.5rem",
       },
       screens: {
         xs: "480px",

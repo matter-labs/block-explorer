@@ -100,7 +100,7 @@ function focusEditor() {
   &:not(.error) {
     @apply border-neutral-300;
     &.focused:not(.disabled):not(.read-only) {
-      @apply border-primary-600 ring-primary-600;
+      @apply border-blue ring-blue;
     }
   }
   &.error {

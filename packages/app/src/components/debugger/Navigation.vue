@@ -187,7 +187,7 @@ watch(
     @apply absolute right-2 top-2 hidden text-sm text-neutral-400 content-[attr(data-hotkey)] lg:block;
   }
   .navigation-search-input {
-    @apply h-full w-full rounded-none border-0 border-solid border-transparent bg-neutral-50 focus:border-primary-400 focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply h-full w-full rounded-none border-0 border-solid border-transparent bg-neutral-50 focus:border-blue focus:ring-2 focus:ring-inset focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50;
     @apply placeholder:font-mono placeholder:text-sm;
   }
 }
@@ -220,7 +220,7 @@ watch(
 .navigation-button-container {
   @apply inline-flex border-l last:border-x-0;
   .navigation-button {
-    @apply flex h-9 w-6 flex-shrink-0 items-center justify-center rounded-none border-y-0 border-y-neutral-200 border-y-transparent bg-neutral-50 last:border-r-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-9;
+    @apply flex h-9 w-6 flex-shrink-0 items-center justify-center rounded-none border-y-0 border-y-neutral-200 border-y-transparent bg-neutral-50 last:border-r-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50 sm:w-9;
   }
 }
 .arrow-right {

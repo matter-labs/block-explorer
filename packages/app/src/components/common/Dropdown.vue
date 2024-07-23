@@ -97,7 +97,7 @@ const selected = computed({
   }
 
   &:not(.error) {
-    @apply focus:border-primary-600 focus:ring-1 focus:ring-primary-600;
+    @apply focus:border-blue focus:ring-1 focus:ring-blue;
   }
 
   .toggle-button-value {
@@ -113,12 +113,11 @@ const selected = computed({
       @apply rotate-180;
     }
   }
-  .loading {
-    @apply text-neutral-700;
-  }
+
+  // .loading {}
 }
 .toggle-button-focused {
-  @apply border border-primary-600 ring-1 ring-primary-600;
+  @apply border border-blue ring-1 ring-blue;
 }
 .dropdown-error {
   @apply mt-0.5 text-sm text-error-500;

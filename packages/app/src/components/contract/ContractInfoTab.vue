@@ -260,7 +260,7 @@ const tabs = computed(() => {
         @apply border-neutral-200 bg-neutral-200;
       }
       .tab-btn {
-        @apply rounded-md border p-3 font-normal text-neutral-700;
+        @apply rounded-md border p-3 font-normal;
       }
     }
   }
@@ -278,7 +278,7 @@ const tabs = computed(() => {
         @apply flex flex-col justify-between sm:flex-row;
       }
       .function-type-title {
-        @apply text-xl leading-8 text-neutral-700;
+        @apply text-xl leading-8;
       }
     }
   }

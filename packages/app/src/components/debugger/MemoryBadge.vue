@@ -35,10 +35,10 @@ function setBadgeColor(item: string, defaultColor: string) {
     @apply block break-all;
   }
   &.color-primary {
-    @apply bg-primary-400 text-white;
+    @apply bg-blue text-white;
 
     .badge-dot {
-      @apply bg-primary-500;
+      @apply bg-blue;
     }
   }
   &.color-neutral {

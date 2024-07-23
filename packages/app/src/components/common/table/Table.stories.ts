@@ -22,13 +22,13 @@ const Template = (args: Args) => ({
   template: `
     <Table :loading="loading" :items="items">
       <template #table-head>
-        <th v-for="(colItem, colIndex) in headers" :key="colIndex" class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider text-gray-700">{{ colItem }}</th>
+        <th v-for="(colItem, colIndex) in headers" :key="colIndex" class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider text-gray">{{ colItem }}</th>
       </template>
       <template #table-row="{ item }">
-        <td v-for="(colItem, colIndex) in Math.max(1, headers.length)" :key="colIndex" class="whitespace-nowrap py-4 px-6 text-sm text-gray-600">{{ item }}</td>
+        <td v-for="(colItem, colIndex) in Math.max(1, headers.length)" :key="colIndex" class="whitespace-nowrap py-4 px-6 text-sm text-gray">{{ item }}</td>
       </template>
       <template v-if="footer" #footer>
-        <div class="text-gray-500 text-center py-2" v-html="footer"></div>
+        <div class="text-gray text-center py-2" v-html="footer"></div>
       </template>
       <template #loading>
         <tr v-for="row in 5" :key="row">

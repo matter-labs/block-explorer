@@ -1,23 +1,27 @@
 <template>
-  <div class="home">
-    <h1 class="title">{{ t("blockExplorer.title") }}</h1>
-    <div class="subtitle">{{ t("blockExplorer.subtitle") }}</div>
-    <SearchForm class="search-form" />
-    <div class="section">
+  <div class="home mt-4">
+    <h1 class="title font-semibold text-center text-5xl text">
+      Explorer.
+      <span class="text-gray">Every transaction. Every contract. Every block.</span>
+    </h1>
+    <div class="flex justify-center px-6">
+      <SearchForm class="search-form max-w-full w-[576px] max-lg:mb-8" />
+    </div>
+    <div class="section block border-t-2 border-t-black/5 justify-between gap-x-4 mt-8 pt-8 lg:mt-12 lg:pt-12">
       <NetworkStats
         v-if="networkStats || networkStatsPending"
         :loading="networkStatsPending"
         :committed="networkStats?.lastSealedBlock"
         :verified="networkStats?.lastVerifiedBlock"
         :transactions="networkStats?.totalTransactions"
-        class="network-stats"
+        class="network-stats mb-5 lg:mb-0"
       />
     </div>
     <div class="latest-blocks-transactions">
       <div>
-        <div class="batches-label-container">
-          <p>{{ t("blockExplorer.batches") }}</p>
-          <InfoTooltip class="batches-tooltip">{{ t("batches.tooltipInfo") }}</InfoTooltip>
+        <div class="batches-label-container flex gap-x-1 items-center">
+          <p class="font-semibold mb-3 text-2xl">{{ t("blockExplorer.batches") }}</p>
+          <!-- <InfoTooltip class="batches-tooltip mb-3">{{ t("batches.tooltipInfo") }}</InfoTooltip> -->
         </div>
         <TableBatches
           v-if="(isBatchesPending || batches) && !isBatchesFailed"
@@ -35,7 +39,7 @@
         </span>
       </div>
       <div>
-        <p>{{ t("blockExplorer.latestTransactions") }}</p>
+        <p class="font-semibold mb-3 text-2xl">{{ t("blockExplorer.latestTransactions") }}</p>
         <TransactionsTable
           class="transactions-table"
           :columns="['status', 'transactionHash', 'age']"
@@ -80,46 +84,28 @@ getBatches(1, new Date());
 </script>
 
 <style lang="scss" scoped>
+.title {
+  text-wrap: balance;
+}
+
 .home {
-  @apply mt-4;
-
-  .title {
-    @apply text-4xl font-bold text-white;
-  }
-  .subtitle {
-    @apply mt-2 text-base text-white sm:text-2xl;
-  }
-
-  .section {
-    @apply block justify-between gap-x-4 pt-9 lg:pt-14;
-    .network-stats {
-      @apply mb-5 lg:mb-0;
-    }
-  }
-
   .search-form {
     @apply mt-6 max-w-xl sm:mt-14 lg:mt-9;
   }
 
   .latest-blocks-transactions {
     @apply mb-0.5 mt-9 block gap-x-5 lg:flex;
+
     > div:first-child {
       @apply mb-9 lg:mb-0;
     }
+
     > div {
       @apply flex w-full flex-col;
     }
-    p {
-      @apply mb-3 text-2xl font-bold text-neutral-700;
-    }
+
     .error-message {
       @apply h-full;
-    }
-    .batches-label-container {
-      @apply flex items-center gap-x-1;
-      .batches-tooltip {
-        @apply mb-3;
-      }
     }
   }
 
@@ -130,6 +116,7 @@ getBatches(1, new Date());
   .pending {
     @apply mb-5 flex min-h-[calc(100vh-484px)] w-full items-center justify-center lg:mb-0 lg:min-h-0;
   }
+
   .not-found {
     @apply whitespace-normal py-8 text-center text-neutral-400;
   }

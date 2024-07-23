@@ -1,20 +1,27 @@
 <template>
-  <Popover class="header-popover-container">
-    <div class="header-wrap">
-      <div class="header-container">
-        <div class="logo-container">
-          <router-link :to="{ name: 'home' }">
-            <span class="sr-only">Sophon</span>
-            <sophon />
+  <Popover class="header-popover-container bg-blue-lightest relative">
+    <div class="header-wrap container z-50">
+      <div class="header-container flex items-center justify-between py-4 md:space-x-10 lg:justify-start">
+        <div class="logo-container flex justify-start">
+          <router-link class="flex gap-2 items-center no-underline text-black" :to="{ name: 'home' }">
+            <span class="text-[46px]">
+              <sophon />
+            </span>
+            <span class="font-medium text-2xl">Sophon</span>
+            <span class="bg-blue font-semibold px-2 rounded-full text-2xs/4 text-white top-[2px] uppercase"
+              >Testnet</span
+            >
           </router-link>
         </div>
-        <div class="burger-button-container">
-          <PopoverButton class="burger-button">
+        <div class="burger-button-container -mr-2 -my-2 lg:hidden">
+          <PopoverButton
+            class="burger-button border border-neutral-400 inline-flex items-center justify-center rounded-md p-2 text-black hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue"
+          >
             <span class="sr-only">Open menu</span>
             <MenuIcon class="h-6 w-6" aria-hidden="true" />
           </PopoverButton>
         </div>
-        <PopoverGroup as="nav" class="navigation-container">
+        <PopoverGroup as="nav" class="navigation-container hidden space-x-2 lg:flex xl:space-x-6">
           <LinksPopover :label="t('header.nav.blockExplorer')" :items="blockExplorerLinks" />
           <LinksPopover :label="t('header.nav.tools')" :items="toolsLinks" />
           <a
@@ -38,13 +45,7 @@
         </div>
       </div>
     </div>
-    <div
-      v-if="hasContent"
-      class="hero-banner-container"
-      :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
-    >
-      <sophon class="hero-image" />
-    </div>
+
     <transition
       enter-active-class="duration-200 ease-out"
       enter-from-class="scale-95 opacity-0"
@@ -211,32 +212,15 @@ const hasContent = computed(() => {
 
 <style lang="scss">
 .header-popover-container {
-  @apply relative bg-primary-900;
-  .header-wrap {
-    @apply container z-50;
-  }
-  .header-container {
-    @apply flex items-center justify-between border-b border-neutral-500 py-4 md:space-x-10 lg:justify-start;
-  }
-  .logo-container {
-    @apply flex justify-start;
-  }
-  .burger-button-container {
-    @apply -my-2 -mr-2 lg:hidden;
-    .burger-button {
-      @apply inline-flex items-center justify-center rounded-md border border-neutral-400 p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
-    }
-  }
   .navigation-container {
-    @apply hidden space-x-2 lg:flex xl:space-x-6;
-
     .dropdown-container {
-      @apply relative;
+      position: relative;
 
       .navigation-link {
         @apply flex items-center;
+
         &.active {
-          @apply bg-primary-800;
+          background-color: #fff;
 
           .dropdown-icon {
             @apply -rotate-180;
@@ -252,18 +236,19 @@ const hasContent = computed(() => {
 
         .dropdown-item {
           @apply block rounded-md p-2 text-sm text-black no-underline;
+
           &.router-link-exact-active {
-            @apply bg-primary-100;
+            background-color: #fff;
           }
         }
       }
     }
     .navigation-link {
-      @apply rounded-md py-2.5 text-base font-medium text-white no-underline hover:bg-primary-800 md:px-3.5;
+      @apply rounded-md py-2.5 text-base font-medium text-black no-underline hover:bg-white md:px-3.5;
     }
 
     .router-link-exact-active {
-      @apply bg-neutral-900;
+      @apply bg-black;
     }
   }
   .header-right-side {
@@ -280,12 +265,14 @@ const hasContent = computed(() => {
 
       a {
         @apply ml-4 first:ml-0;
+
+        svg {
+          fill: currentColor;
+        }
       }
     }
   }
   .hero-banner-container {
-    @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-primary-900;
-
     .hero-image {
       @apply h-5/6 w-auto;
       opacity: 0.15;
@@ -312,7 +299,7 @@ const hasContent = computed(() => {
         }
 
         .close-popover-button {
-          @apply inline-flex items-center justify-center rounded-md bg-white p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
+          @apply inline-flex items-center justify-center rounded-md bg-white p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue;
         }
       }
       .mobile-navigation-container {
@@ -327,7 +314,7 @@ const hasContent = computed(() => {
           .mobile-navigation-link {
             @apply flex items-center rounded-md p-2 no-underline hover:bg-neutral-50;
             &.router-link-exact-active {
-              @apply bg-primary-100;
+              @apply bg-blue;
             }
             &.internal-link {
               .mobile-navigation-label {
@@ -336,7 +323,7 @@ const hasContent = computed(() => {
             }
 
             .mobile-navigation-label {
-              @apply text-base font-medium leading-snug text-neutral-900;
+              @apply text-base font-medium leading-snug text-black;
             }
           }
         }
@@ -357,7 +344,7 @@ const hasContent = computed(() => {
             @apply h-5 w-auto;
 
             path {
-              @apply fill-primary-600;
+              @apply fill-blue;
             }
           }
         }

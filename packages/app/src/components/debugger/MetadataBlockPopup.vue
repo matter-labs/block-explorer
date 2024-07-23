@@ -127,7 +127,7 @@ function closeModal() {
     .metadata-popup-nav-container {
       @apply col-start-2 flex;
       .navigation-button {
-        @apply flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none  border-l border-y-neutral-200 border-y-transparent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50;
+        @apply flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none  border-l border-y-neutral-200 border-y-transparent focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50;
       }
     }
   }

@@ -118,7 +118,7 @@ watch(width, () => {
     }
   }
   .tokens-not-found {
-    @apply px-1.5 py-2 text-gray-700;
+    @apply px-1.5 py-2 text-gray;
   }
 }
 </style>

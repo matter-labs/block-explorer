@@ -59,7 +59,7 @@ const upload = (files?: File[] | null) => {
 }
 
 .upload-file-label {
-  @apply cursor-pointer font-medium text-primary-500 underline;
+  @apply cursor-pointer font-medium text-blue underline;
 }
 .upload-file-error {
   @apply mt-0.5 border-error-400 text-sm text-error-500;
