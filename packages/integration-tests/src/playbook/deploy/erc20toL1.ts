@@ -17,9 +17,9 @@ async function main() {
   const MyERC20Factory = new ethers.ContractFactory(MyERC20Artifact.abi, MyERC20Artifact.bytecode, deployer);
 
   const token = await MyERC20Factory.deploy(Wallets.richWalletAddress, localConfig.gasLimit);
-  console.log("Contract deployed to L1 address:", token.address);
+  console.log("Contract deployed to L1 address:", await token.getAddress());
 
-  await fs.writeFile(Buffer.L1, token.address);
+  await fs.writeFile(Buffer.L1, await token.getAddress());
 }
 
 main()

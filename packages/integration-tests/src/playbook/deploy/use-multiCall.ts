@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
-import { Provider } from "zksync-web3";
+import { Provider } from "zksync-ethers";
 
 import { localConfig } from "../../config";
 import { Buffer } from "../../entities";
