@@ -153,6 +153,7 @@ const tabs = computed(() => [
     }
     .tab-content {
       @apply mt-2 rounded-none bg-transparent;
+      background-color: red;
     }
   }
 }

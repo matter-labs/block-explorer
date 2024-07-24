@@ -1,6 +1,6 @@
 <template>
   <div class="tab-main">
-    <ul class="tab-head">
+    <ul class="tab-head flex -mb-[2px] md:flex-row">
       <template v-for="(tab, i) in tabs">
         <li v-if="tab.hash" :key="`tab-${i}`">
           <button
@@ -21,7 +21,7 @@
         </li>
       </template>
     </ul>
-    <div class="tab-content">
+    <div class="tab-content border-t-2 border-t-black/5">
       <div v-for="(tab, i) in tabs" :key="`tab-content-${i}`">
         <div v-show="currentTabHash === tab.hash">
           <slot :name="`tab-${i + 1}-content`"></slot>
@@ -73,7 +73,7 @@ watchEffect(() => {
 .tab-main {
   @apply mx-auto w-full rounded-lg bg-white;
   .tab-head {
-    @apply flex border-b md:flex-row;
+    // @apply flex border-b md:flex-row;
   }
   .tab-btn {
     @apply px-4 py-3.5 text-sm text-gray outline-0 sm:text-base;

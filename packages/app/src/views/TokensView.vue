@@ -4,8 +4,8 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <div class="tokens-header">
-      <h1>{{ t("tokensView.heading") }}</h1>
+    <div class="tokens-header flex gap-4 items-end justify-between">
+      <h1 class="font-semibold">{{ t("tokensView.heading") }}</h1>
       <div v-if="tokens[0]?.iconURL" class="coingecko-attribution">
         <span>{{ t("tokensView.offChainDataPoweredBy") }}{{ " " }}</span>
         <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
@@ -59,8 +59,6 @@ getTokens();
 }
 
 .tokens-header {
-  @apply flex items-end justify-between gap-4;
-
   .coingecko-attribution {
     @apply mr-1 text-gray;
 

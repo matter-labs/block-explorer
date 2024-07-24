@@ -16,7 +16,7 @@
         <BlockTable class="block-table" :loading="blockPending" :block="blockItem" :block-number="id" />
       </div>
       <div>
-        <h2 class="table-transaction-title">{{ t("blocks.transactionTable.title") }}</h2>
+        <h2 class="table-transaction-title font-semibold text-black">{{ t("blocks.transactionTable.title") }}</h2>
         <TransactionsTable
           class="transactions-table"
           :search-params="transactionsSearchParams"
@@ -96,33 +96,32 @@ watchEffect(() => {
   h1 {
     @apply mt-3 text-gray;
   }
-
-  // .search-form {
-  //   @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  // }
 }
+
 .tables-container {
   @apply mt-8 grid grid-cols-1 gap-4;
 
   h2 {
-    @apply mb-4 text-gray;
+    margin-bottom: 1rem;
   }
-  .table-transaction-title {
-    @apply text-gray;
-  }
+
   .block-table {
     @apply mb-8;
   }
+
   .transactions-table {
     @apply shadow-md;
+
     button {
-      @apply w-full cursor-pointer py-2 text-center text-xs text-gray underline hover:text-gray;
+      @apply w-full cursor-pointer py-2 text-center text-xs text-gray underline;
     }
   }
 }
+
 .transaction-table-error {
   @apply text-2xl text-error-700;
 }
+
 .block-error {
   @apply mt-24 flex justify-center;
 }

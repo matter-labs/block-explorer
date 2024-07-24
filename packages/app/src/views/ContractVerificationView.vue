@@ -4,7 +4,7 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
-    <h1>{{ t("contractVerification.title") }}</h1>
+    <h1 class="font-semibold mb-4">{{ t("contractVerification.title") }}</h1>
     <p class="subtitle my-4 w-full max-w-3xl text-sm">{{ t("contractVerification.subtitle") }}</p>
     <ContentCard
       v-if="contractVerificationStatus !== 'successful'"

@@ -4,7 +4,7 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <h1>{{ t("transactionsView.title") }}</h1>
+    <h1 class="font-semibold text-black">{{ t("transactionsView.title") }}</h1>
     <TransactionsTable class="transactions-container" use-query-pagination :data-testid="$testId.transactionsTable" />
   </div>
 </template>

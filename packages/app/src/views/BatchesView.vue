@@ -4,14 +4,14 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
-    <h1>{{ t("batches.title") }}</h1>
+    <h1 class="font-semibold mb-4">{{ t("batches.title") }}</h1>
     <div class="batches-container">
       <span v-if="failed" class="error-message">
         {{ t("failedRequest") }}
       </span>
       <BatchesTable v-else :loading="pending" :loading-rows="pageSize" :batches="data ?? []">
         <template v-if="total && total > pageSize" #footer>
-          <div class="pagination-container">
+          <div class="pagination-container flex justify-center p-3">
             <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
           </div>
         </template>
@@ -72,8 +72,5 @@ watch(
   .table-body-col {
     @apply min-w-[120px];
   }
-}
-.pagination-container {
-  @apply flex justify-center p-3;
 }
 </style>

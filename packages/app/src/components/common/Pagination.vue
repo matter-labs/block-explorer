@@ -1,15 +1,19 @@
 <template>
-  <nav class="pagination-container" :class="{ disabled }" aria-label="Pagination">
+  <nav
+    class="pagination-container flex font-medium space-x-1 transition-opacity"
+    :class="{ disabled }"
+    aria-label="Pagination"
+  >
     <PaginationButton
       :use-route="useQuery"
       :to="{ query: backButtonQuery, hash: currentHash }"
-      class="pagination-page-button arrow left"
+      class="pagination-page-button arrow left flex items-center no-underline px-1.5 py-1 rounded-md text-sm sm:px-2"
       :aria-disabled="isFirstPage"
       :class="{ disabled: isFirstPage }"
       @click="currentPage = Math.max(currentPage - 1, 1)"
     >
       <span class="sr-only">Previous</span>
-      <ChevronLeftIcon class="chevron-icon" aria-hidden="true" />
+      <ChevronLeftIcon class="chevron-icon h-4 w-4" aria-hidden="true" />
     </PaginationButton>
     <template v-for="(item, index) in pagesData" :key="index">
       <PaginationButton
@@ -18,24 +22,29 @@
         :to="{ query: item.number > 1 ? { page: item.number } : {}, hash: currentHash }"
         :aria-current="activePage === item.number ? 'page' : 'false'"
         :class="[{ active: activePage === item.number }, item.hiddenOnMobile ? 'hidden sm:flex' : 'flex']"
-        class="pagination-page-button page"
+        class="pagination-page-button page bg-white no-underline px-1.5 py-1 rounded-md text-sm sm:px-2"
         @click="currentPage = item.number"
       >
         {{ item.number }}
       </PaginationButton>
-      <span v-else class="pagination-page-button dots">...</span>
+      <span
+        class="pagination-page-button dots px-1.5 py-1 rounded-md text-gray-2 text-sm hover:bg-white sm:px-2"
+        v-else
+      >
+        ...
+      </span>
     </template>
 
     <PaginationButton
       :use-route="useQuery"
       :to="{ query: nextButtonQuery, hash: currentHash }"
-      class="pagination-page-button arrow right"
+      class="pagination-page-button arrow right flex items-center no-underline px-1.5 py-1 rounded-md text-sm sm:px-2"
       :aria-disabled="isLastPage"
       :class="{ disabled: isLastPage }"
       @click="currentPage = Math.min(currentPage + 1, pageCount)"
     >
       <span class="sr-only">Next</span>
-      <ChevronRightIcon class="chevron-icon" aria-hidden="true" />
+      <ChevronRightIcon class="chevron-icon h-4 w-4" aria-hidden="true" />
     </PaginationButton>
   </nav>
 </template>
@@ -129,38 +138,27 @@ const nextButtonQuery = computed(() => ({ page: Math.min(currentPage.value + 1, 
 
 <style lang="scss">
 .pagination-container {
-  @apply flex space-x-1 transition-opacity;
-
   &.disabled {
-    @apply pointer-events-none opacity-50;
+    color: #888;
+    pointer-events: none;
   }
 
   .pagination-page-button {
-    @apply rounded-md bg-white px-1.5 py-1 font-mono text-sm font-medium no-underline sm:px-2;
+    color: var(--color-gray);
 
     &:not(.disabled):not(.active):not(.dots):hover {
       background-color: var(--color-blue-lightest);
     }
 
     &.disabled {
-      @apply cursor-not-allowed text-neutral-400;
+      color: #888;
+      cursor: not-allowed;
     }
 
     &.active {
       background-color: var(--color-blue-lightest);
+      color: var(--color-black);
       z-index: 10;
-    }
-
-    &.dots {
-      @apply font-sans text-neutral-400 hover:bg-white;
-    }
-
-    &.arrow {
-      @apply flex items-center;
-
-      .chevron-icon {
-        @apply h-4 w-4;
-      }
     }
   }
 }

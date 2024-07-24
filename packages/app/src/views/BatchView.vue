@@ -110,11 +110,13 @@ watchEffect(() => {
   @apply mt-8 grid grid-cols-1 gap-4;
 
   h2 {
-    @apply mb-4 text-gray;
+    // @apply mb-4 text-gray;
+    font-weight: 600;
+    margin-bottom: 1rem;
   }
-  .table-transaction-title {
-    @apply text-gray;
-  }
+  // .table-transaction-title {
+  //   @apply text-gray;
+  // }
   .batch-table {
     @apply mb-8;
   }
