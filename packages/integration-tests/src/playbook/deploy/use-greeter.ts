@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
-import { Provider, Wallet } from "zksync-web3";
+import { Provider, Wallet } from "zksync-ethers";
 
 import { localConfig } from "../../config";
 import { Wallets } from "../../entities";
@@ -30,10 +30,11 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const newGreeting = "New Greetings!";
   const transaction = await executeGreetings.setGreeting(newGreeting);
   const transactionReceipt = await transaction.wait(1);
+  const transactionHash = transactionReceipt.hash;
 
-  console.log(`Transaction hash: ${transactionReceipt.transactionHash}`);
+  console.log(`Transaction hash: ${transactionHash}`);
 
-  await fs.writeFile(Buffer.executeGreeterTx, transactionReceipt.transactionHash);
+  await fs.writeFile(Buffer.executeGreeterTx, transactionHash);
 
-  return transactionReceipt.transactionHash;
+  return transactionHash;
 }

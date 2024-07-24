@@ -1,7 +1,7 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
-import * as ethers from "ethers";
+import { parseEther } from "ethers";
 import { promises as fs } from "fs";
-import { Wallet } from "zksync-web3";
+import { Wallet } from "zksync-ethers";
 
 import { Buffer, Wallets } from "../../entities";
 
@@ -21,22 +21,24 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Deploying the ERC20 token
   const erc20Artifact = await deployer.loadArtifact("MyERC20");
   const erc20 = await deployer.deploy(erc20Artifact, ["MyToken", "MyToken", 18]);
-  console.log(`ERC20 address: ${erc20.address}`);
-  await fs.writeFile(Buffer.customToken, erc20.address);
+  const erc20Address = await erc20.getAddress();
+  console.log(`ERC20 address: ${erc20Address}`);
+  await fs.writeFile(Buffer.customToken, erc20Address);
 
   const paymasterArtifact = await deployer.loadArtifact("MyPaymaster");
-  const paymaster = await deployer.deploy(paymasterArtifact, [erc20.address]);
-  console.log(`Paymaster address: ${paymaster.address}`);
-  await fs.writeFile(Buffer.paymaster, paymaster.address);
+  const paymaster = await deployer.deploy(paymasterArtifact, [erc20Address]);
+  const paymasterAddress = await paymaster.getAddress();
+  console.log(`Paymaster address: ${paymasterAddress}`);
+  await fs.writeFile(Buffer.paymaster, paymasterAddress);
 
-  const deployTransaction = await paymaster.deployTransaction;
+  const deployTransaction = await paymaster.deploymentTransaction();
   console.log(`Paymaster deploy transaction: ${deployTransaction.hash}`);
   await fs.writeFile(Buffer.paymasterDeployTx, deployTransaction.hash);
 
   await (
     await deployer.zkWallet.sendTransaction({
-      to: paymaster.address,
-      value: ethers.utils.parseEther("0.03"),
+      to: paymasterAddress,
+      value: parseEther("0.03"),
     })
   ).wait();
 

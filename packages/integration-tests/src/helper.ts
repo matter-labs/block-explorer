@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { promises as fs } from "fs";
 import * as path from "path";
 import * as request from "supertest";
-import { Provider } from "zksync-web3";
+import { Provider } from "zksync-ethers";
 
 import { environment, localConfig } from "./config";
 import { Logger } from "./entities";
@@ -44,17 +44,17 @@ export class Helper {
 
   async getBalanceETH(walletAddress: string, layer: string) {
     let network: string;
-    let provider: BaseProvider;
+    let provider: Provider;
     if (layer == "L1") {
       network = localConfig.L1Network;
-      provider = ethers.getDefaultProvider(network);
+      provider = new Provider(network);
     } else if (layer == "L2") {
       network = localConfig.L2Network;
       provider = new Provider(network);
     } else {
       console.log(`Wrong layer: ${layer}`);
     }
-    return ethers.utils.formatUnits(await provider.getBalance(walletAddress), "wei");
+    return ethers.formatUnits(await provider.getBalance(walletAddress), "wei");
   }
 
   async delay(ms: number) {
