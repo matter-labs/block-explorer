@@ -12,8 +12,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   const deployer = new Deployer(hre, wallet);
   const artifact = await deployer.loadArtifact("L2");
-  const contract = await deployer.deploy(artifact, [], localConfig.gasLimit);
-  const contractAddress = contract.address;
+  const contract = await deployer.deploy(artifact, []);
+  const contractAddress = await contract.getAddress();
   console.log(`${artifact.contractName} was deployed to ${contractAddress}`);
   await fs.writeFile(Buffer.L2, contractAddress);
 }

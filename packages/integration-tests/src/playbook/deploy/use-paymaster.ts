@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
-import { Provider, utils, Wallet } from "zksync-web3";
+import { Provider, utils, Wallet } from "zksync-ethers";
 
 import { localConfig } from "../../config";
 import { Buffer } from "../../entities";
@@ -25,7 +25,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   }
 
   const ethBalance = await emptyWallet.getBalance();
-  if (!ethBalance.eq(0)) {
+  if (ethBalance > 0) {
     throw new Error("The wallet is not empty");
   }
 
@@ -38,18 +38,18 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const paymasterParams = utils.getPaymasterParams(PAYMASTER_ADDRESS, {
     type: "ApprovalBased",
     token: TOKEN_ADDRESS,
-    minimalAllowance: ethers.BigNumber.from(1),
+    minimalAllowance: 1,
     innerInput: new Uint8Array(),
   });
 
-  const gasLimit = await erc20.estimateGas.mint(emptyWallet.address, 100, {
+  const gasLimit = await erc20.mint(emptyWallet.address, 100, {
     customData: {
       gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
       paymasterParams: paymasterParams,
     },
   });
 
-  gasPrice.mul(gasLimit.toString());
+  // gasPrice.mul(gasLimit.toString());
 
   const mintTx = await erc20.mint(emptyWallet.address, 90, {
     customData: {
@@ -64,8 +64,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   console.log(`Balance of the user after mint: ${await emptyWallet.getBalance(TOKEN_ADDRESS)}`);
 
-  await fs.writeFile(Buffer.paymasterTx, receipt.transactionHash);
-  console.log(`Transaction hash: ${receipt.transactionHash}`);
+  await fs.writeFile(Buffer.paymasterTx, receipt.hash);
+  console.log(`Transaction hash: ${receipt.hash}`);
 
-  return receipt.transactionHash;
+  return receipt.hash;
 }
