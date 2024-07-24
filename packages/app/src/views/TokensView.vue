@@ -1,17 +1,17 @@
 <template>
   <div>
-    <div class="head-token">
+    <div class="head-token flex flex-col-reverse justify-between mb-8 lg:flex-row lg:mb-10">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form" />
+      <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
     <div class="tokens-header flex gap-4 items-end justify-between">
       <h1 class="font-semibold">{{ t("tokensView.heading") }}</h1>
-      <div v-if="tokens[0]?.iconURL" class="coingecko-attribution">
+      <div v-if="tokens[0]?.iconURL" class="coingecko-attribution mr-1 text-gray">
         <span>{{ t("tokensView.offChainDataPoweredBy") }}{{ " " }}</span>
-        <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
+        <a class="text-blue" href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
       </div>
     </div>
-    <div class="tokens-container">
+    <div class="tokens-container mt-8">
       <span v-if="isTokensFailed" class="error-message">
         {{ t("failedRequest") }}
       </span>
@@ -45,26 +45,3 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
 
 getTokens();
 </script>
-
-<style scoped lang="scss">
-.head-token {
-  @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
-
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
-}
-.tokens-container {
-  @apply mt-8;
-}
-
-.tokens-header {
-  .coingecko-attribution {
-    @apply mr-1 text-gray;
-
-    a {
-      color: var(--color-blue);
-    }
-  }
-}
-</style>
