@@ -18,10 +18,11 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   console.log(`Arguments for the contract constructor: ${JSON.stringify(contractConstructorArguments)}`);
 
   const myNFT = await deployer.deploy(artifact, contractConstructorArguments);
+  const address = `${await myNFT.getAddress()}`;
 
-  console.log(`Contract "${artifact.contractName}" was deployed to ${myNFT.address}`);
+  console.log(`Contract "${artifact.contractName}" was deployed to ${address}`);
 
-  const mintNFT = await myNFT.mintNFT(myNFT.address, Wallets.richWalletAddress);
+  const mintNFT = await myNFT.mintNFT(address, Wallets.richWalletAddress);
   if (mintNFT) {
     console.log(`Contract mint for us!`);
   } else {
@@ -30,5 +31,5 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   displayVerificationInfo({ hre, contract: myNFT, contractConstructorArguments, artifact });
 
-  await fs.writeFile(Buffer.NFTtoL2, myNFT.address);
+  await fs.writeFile(Buffer.NFTtoL2, address);
 }

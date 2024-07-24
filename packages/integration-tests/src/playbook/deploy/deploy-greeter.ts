@@ -1,7 +1,7 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import { promises as fs } from "fs";
 
-import { localConfig } from "../../config";
+// import { localConfig } from "../../config";
 import { Buffer } from "../../entities";
 import getWallet from "../utils/getWallet";
 
@@ -12,8 +12,8 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   const deployer = new Deployer(hre, wallet);
   const artifact = await deployer.loadArtifact("Greeter");
-  const contract = await deployer.deploy(artifact, [], localConfig.gasLimit);
-  const contractAddress = contract.address;
+  const contract = await deployer.deploy(artifact, [""]);
+  const contractAddress = await contract.getAddress();
   console.log(`${artifact.contractName} was deployed to ${contractAddress}`);
   await fs.writeFile(Buffer.greeterL2, contractAddress);
 }
