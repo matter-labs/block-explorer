@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
-import * as zksync from "zksync-web3";
+import * as zksync from "zksync-ethers";
 
 import { localConfig } from "../../../config";
 import { Buffer, Logger, Wallets } from "../../../entities";
@@ -18,7 +18,7 @@ export const transferERC20 = async function (sum: string, tokenAddress: string, 
   const transfer = await syncWallet.transfer({
     to: syncWallet2.address,
     token: tokenAddress,
-    amount: ethers.utils.parseEther(sum),
+    amount: ethers.parseEther(sum),
     overrides: localConfig.gasLimit,
   });
 

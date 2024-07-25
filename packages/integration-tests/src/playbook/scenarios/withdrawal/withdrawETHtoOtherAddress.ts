@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
-import * as zksync from "zksync-web3";
+import * as zksync from "zksync-ethers";
 
 import { localConfig } from "../../../config";
 import { Buffer, Logger, Wallets } from "../../../entities";
@@ -16,7 +16,7 @@ export const withdrawETHtoOtherAddress = async function (sum = "0.000009") {
 
   const withdrawL2 = await syncWallet.withdraw({
     token: zksync.utils.ETH_ADDRESS,
-    amount: ethers.utils.parseEther(sum),
+    amount: ethers.parseEther(sum),
     to: Wallets.mainWalletAddress,
   });
 
