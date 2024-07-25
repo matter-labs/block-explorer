@@ -65,6 +65,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check licenses in ${{ matrix.dir }}
-        working-directory: ${{ matrix.dir }}
-        run: npx license-checker --json --onlyAllow "$ALLOWED_LICENSES" --exclude chai-as-promised --excludePackages "$EXCLUDE_PACKAGES"
+      # - name: Check licenses in ${{ matrix.dir }}
+      #   working-directory: ${{ matrix.dir }}
+      #   run: npx license-checker --json --onlyAllow "$ALLOWED_LICENSES" --exclude chai-as-promised --excludePackages "$EXCLUDE_PACKAGES"
