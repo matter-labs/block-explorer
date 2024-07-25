@@ -14,12 +14,12 @@ jobs:
         node-version: ['lts/*'] # 18.17.1 or lts/* 
         test-pattern:
           # - accounts.test.ts
-          - addresses.test.ts
-          # - batches.test.ts
-          # - blocks.test.ts
+          # - addresses.test.ts
+          - batches.test.ts
+          - blocks.test.ts
           # - contracts.test.ts
           # - logs.test.ts
-          # - stats.test.ts
+          - stats.test.ts
           # - tokens.test.ts
           # - transactions.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
