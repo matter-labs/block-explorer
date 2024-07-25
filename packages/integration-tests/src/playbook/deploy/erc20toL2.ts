@@ -1,7 +1,6 @@
 import { Deployer } from "@matterlabs/hardhat-zksync-deploy";
 import { promises as fs } from "fs";
 
-import { localConfig } from "../../config";
 import { Buffer } from "../../entities";
 import getWallet from "../utils/getWallet";
 

@@ -8,8 +8,6 @@ import { Provider } from "zksync-ethers";
 import { environment, localConfig } from "./config";
 import { Logger } from "./entities";
 
-import type { BaseProvider } from "@ethersproject/providers/src.ts/base-provider";
-
 export class Helper {
   async txHashLogger(txType: string, txValue: string, tokenName?: string) {
     const logMessage = `TxHash for ${txType} ${Logger.textSeparator} ${txValue}`;
