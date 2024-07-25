@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { promises as fs } from "fs";
-import { Provider, Wallet } from "zksync-web3";
+import { Provider, Wallet } from "zksync-ethers";
 
 import { localConfig } from "../../config";
 import { Buffer, Token, Wallets } from "../../entities";
@@ -26,9 +26,9 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   const customTokenI = await helper.getStringFromFile(firstToken);
   const customTokenII = await helper.getStringFromFile(secondToken);
   // amount of funds
-  const ethAmount = ethers.utils.parseEther("0.0001");
-  const customTokenIAmount = ethers.utils.parseUnits("0.01", 18);
-  const customTokenIIAmount = ethers.utils.parseUnits("0.01", 18);
+  const ethAmount = ethers.parseEther("0.0001");
+  const customTokenIAmount = ethers.parseUnits("0.01", 18);
+  const customTokenIIAmount = ethers.parseUnits("0.01", 18);
 
   console.log(`Running deploy script for the contract`);
 
@@ -39,11 +39,11 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
   const attachedContract = await hre.ethers.getContractAt(contractName, contractAddress, signer);
 
   // top up the contract / transfer
-  const ethTransfer = await makeTransfer(etherAddress, ethers.utils.parseEther("0.101"));
-  const customToken1Transfer = await makeTransfer(customTokenI, ethers.utils.parseUnits("1", 18));
-  const customToken2Transfer = await makeTransfer(customTokenII, ethers.utils.parseUnits("1", 18));
+  const ethTransfer = await makeTransfer(etherAddress, ethers.parseEther("0.101"));
+  const customToken1Transfer = await makeTransfer(customTokenI, ethers.parseUnits("1", 18));
+  const customToken2Transfer = await makeTransfer(customTokenII, ethers.parseUnits("1", 18));
 
-  async function makeTransfer(token: string, amount: ethers.BigNumber) {
+  async function makeTransfer(token: string, amount: ethers.BigNumberish) {
     const transfer = await wallet.transfer({
       to: contractAddress,
       token: token,
@@ -53,9 +53,9 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
 
     // await commitment
     const transferReceipt = await transfer.wait(1);
-    console.log(`Tx transfer hash for ${token}: ${transferReceipt.transactionHash}`);
+    console.log(`Tx transfer hash for ${token}: ${transferReceipt.hash}`);
 
-    return transferReceipt.transactionHash;
+    return transferReceipt.hash;
   }
 
   //call the deployed contract.
@@ -72,24 +72,19 @@ export default async function callMultiTransferETH(hre: HardhatRuntimeEnvironmen
 
   // Show the contract balance
   console.log(
-    `Getting ETH balance from contract API: "${ethers.utils.formatUnits(
-      await provider.getBalance(contractAddress),
-      18
-    )}"`
+    `Getting ETH balance from contract API: "${ethers.formatUnits(await provider.getBalance(contractAddress), 18)}"`
   );
 
   // Show the balance of wallets
+  console.log(`balance of wallet 1 is: "${ethers.formatUnits(await provider.getBalance(richWalletAddress), 18)}" ETH`);
   console.log(
-    `balance of wallet 1 is: "${ethers.utils.formatUnits(await provider.getBalance(richWalletAddress), 18)}" ETH`
-  );
-  console.log(
-    `balance of wallet 2 is: "${ethers.utils.formatUnits(
+    `balance of wallet 2 is: "${ethers.formatUnits(
       await provider.getBalance(mainWalletAddress, "latest", customTokenI),
       18
     )}" Custom token I`
   );
   console.log(
-    `balance of wallet 3 is: "${ethers.utils.formatUnits(
+    `balance of wallet 3 is: "${ethers.formatUnits(
       await provider.getBalance(secondWalletAddress, "latest", customTokenII),
       18
     )}" Custom token II`
