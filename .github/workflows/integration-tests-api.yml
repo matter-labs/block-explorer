@@ -51,10 +51,6 @@ jobs:
       - name: List running containers
         run: docker ps
 
-      - name: Show localhost accounts
-        run: |
-          cd packages/integration-tests/src/playbook
-          npx hardhat accounts --network localhost
       - name: API tests run (parallel)
         run: |
           cd packages/integration-tests
