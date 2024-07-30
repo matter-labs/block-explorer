@@ -203,8 +203,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
+  { url: "https://discord.gg/kvg2FhuV", component: DiscordIcon },
+  { url: "https://x.com/openchainhq", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
