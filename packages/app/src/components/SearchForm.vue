@@ -69,7 +69,7 @@ const submit = async () => {
     }
 
     .submit-icon {
-      @apply w-[2.875rem] rounded-r-md bg-primary-500 p-3 text-white;
+      @apply w-[2.875rem] rounded-r-md bg-blue-500 p-3 text-white;
     }
   }
 }

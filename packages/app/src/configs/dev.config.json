@@ -13,6 +13,20 @@
       "rpcUrl": "http://localhost:3050"
     },
     {
+      "apiUrl": "https://api-devnet.openchainfoundation.com/",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://dapp-devnet.openchainfoundation.com/",
+      "hostnames": [],
+      "icon": "/images/icons/OpenChainIcon.jpeg",
+      "l1ExplorerUrl": "https://explorer-devnet.openchainfoundation.com/",
+      "l2ChainId": 300,
+      "l2NetworkName": "openchain sepolia devnet",
+      "maintenance": false,
+      "name": "sepolia",
+      "published": true,
+      "rpcUrl": "https://rpc-l2-devnet.openchainfoundation.com/"
+    },
+    {
       "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
       "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
@@ -54,20 +68,6 @@
       "rpcUrl": "https://mainnet.era.zksync.io",
       "tokensMinLiquidity": 0,
       "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E"
-    },
-    {
-      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
-      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
-      "hostnames": [],
-      "icon": "/images/icons/OpenChainIcon.jpeg",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "l2ChainId": 300,
-      "l2NetworkName": "openchain sepolia devnet",
-      "maintenance": false,
-      "name": "sepolia",
-      "published": true,
-      "rpcUrl": "https://sepolia.era.zksync.dev"
     }
   ]
 }
