@@ -4,23 +4,10 @@ require("dotenv").config({ path: __dirname + "/.env" });
 import "@matterlabs/hardhat-zksync-deploy";
 import "@matterlabs/hardhat-zksync-solc";
 import "@nomicfoundation/hardhat-ethers";
-
-// import { task } from "hardhat/config";
-
+import "@nomicfoundation/hardhat-toolbox";
 import { localConfig } from "../config";
 
 import type { HardhatUserConfig } from "hardhat/config";
-
-import "@nomicfoundation/hardhat-toolbox";
-// // Define the custom task
-// task("accounts", "Prints the list of accounts and their balances", async (taskArgs, hre) => {
-//   const accounts = await hre.ethers.getSigners();
-
-//   for (const account of accounts) {
-//     const balance = await account.getBalance();
-//     console.log(`${account.address}: ${hre.ethers.formatEther(balance)} ETH`);
-//   }
-// });
 
 const config: HardhatUserConfig = {
   zksolc: {
