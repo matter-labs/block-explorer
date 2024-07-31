@@ -49,7 +49,7 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   //   },
   // });
 
-  // gasPrice.mul(gasLimit.toString()); <-- TODO: Unknown mul
+  // gasPrice.mul(gasLimit.toString()); //<-- TODO: Unknown mul
 
   const mintTx = await erc20.mint(emptyWallet.address, 90, {
     customData: {
