@@ -7,7 +7,7 @@ describe("Blocks", () => {
   let response;
 
   describe("/blocks", () => {
-    jest.setTimeout(localConfig.standardTimeout);
+    // jest.setTimeout(localConfig.standardTimeout);
     //@id1511
     it("Verify the response via /blocks", async () => {
       await helper.retryTestAction(async () => {
