@@ -2,7 +2,7 @@ import { localConfig } from "../../src/config";
 import { Helper } from "../../src/helper";
 
 describe("Stats", () => {
-  jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
+  // jest.setTimeout(localConfig.standardTimeout); //works unstable without timeout
 
   const helper = new Helper();
   let apiRoute: string;
