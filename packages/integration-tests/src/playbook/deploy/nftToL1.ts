@@ -3,16 +3,14 @@ import { ethers } from "hardhat";
 import * as hardhatConfig from "hardhat";
 
 import { Buffer, Wallets } from "../../entities";
+import { Helper } from "../../helper";
 import getWallet from "../utils/getWallet";
 
 import type { HardhatRuntimeEnvironment } from "hardhat/types";
 
-async function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
 async function main() {
   const hre: HardhatRuntimeEnvironment = hardhatConfig;
+  const helper = new Helper();
   const wallet = await getWallet(hre);
   const deployer = wallet.connect(hre.ethers.provider);
   const MyNFTArtifact = await hre.artifacts.readArtifact("MyNFT");
@@ -22,7 +20,7 @@ async function main() {
   const address = await myNFT.getAddress();
   console.log("Contract deployed to L1 address:", address);
 
-  await sleep(3000); // Important to update nonce.
+  await helper.delay(3000); // Important to update nonce.
   const mintNFT = await myNFT.mintNFT(address, Wallets.richWalletAddress);
   if (mintNFT) {
     console.log(`Contract mint for us!`);
