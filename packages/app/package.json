@@ -1,7 +1,7 @@
 {
   "name": "app",
   "version": "0.0.0",
-  "title": "zkSync Era Block Explorer App",
+  "title": "OpenChain Block Explorer App",
   "description": "zkSync Era Block Explorer App",
   "author": "Matter Labs",
   "private": true,

@@ -1,729 +1,729 @@
 {
-    "general": {
-        "l2NetworkName": "zkSync Era",
-        "l1NetworkName": "Ethereum"
+  "general": {
+    "l2NetworkName": "zkSync Era",
+    "l1NetworkName": "Ethereum"
+  },
+  "copyButton": {
+    "tooltip": "Copied!"
+  },
+  "connectMetamaskButton": {
+    "label": "Connect MetaMask",
+    "connecting": "Connecting...",
+    "metaMaskNotFound": "MetaMask not found",
+    "logout": "Logout"
+  },
+  "networkStats": {
+    "title": "Network Stats",
+    "subtitleTestnet": "Stats are occasionally reset on testnet.",
+    "subtitleMainnet": "zkSync Era Mainnet is open to everyone.",
+    "committed": "Committed Blocks",
+    "verified": "Verified Blocks",
+    "transactions": "Transactions",
+    "totalLocked": "Total Value Locked"
+  },
+  "breadcrumbs": {
+    "home": "Dashboard"
+  },
+  "blocks": {
+    "table": {
+      "block": "Block",
+      "status": "Status",
+      "statusTooltip": "The finality status of the block",
+      "batch": "Batch",
+      "unknown": "Unknown",
+      "batchTooltip": "The batch index where the block transactions are submitted to L1",
+      "age": "Age",
+      "transactionsShort": "txns",
+      "timestamp": "Timestamp",
+      "timestampTooltip": "The date and time at which a block is mined",
+      "blockNumber": "Block Number",
+      "blockNumberTooltip": "Block height, indicates the length of the blockchain, increases after the addition of the new block",
+      "blockSize": "Block Size",
+      "blockSizeTooltip": "Number of transactions inside the block",
+      "blockHash": "Block hash",
+      "blockHashTooltip": "The hash of the current block",
+      "noBlockHashYet": "No block hash yet",
+      "commitTxHash": "Commit tx hash",
+      "commitTxHashTooltip": "Hash of the L1 transaction sent to the smart contract to commit the block",
+      "committedAt": "Committed",
+      "committedAtTooltip": "Time when the block was committed",
+      "notYetCommitted": "Not yet committed",
+      "proveTxHash": "Prove tx hash",
+      "proveTxHashTooltip": "Hash of the L1 transaction in which block was proven",
+      "provenAt": "Proven",
+      "provenAtTooltip": "Time when block was proven",
+      "notYetProven": "Not yet proven",
+      "executeTxHash": "Execute tx hash",
+      "executeTxHashTooltip": "Hash of the L1 transaction in which block was executed",
+      "executedAt": "Executed",
+      "executedAtTooltip": "Time when block was executed",
+      "notYetExecuted": "Not yet executed",
+      "notFound": "Not Found",
+      "notFoundHomePage": "We haven't had any blocks yet. Please, check again later."
     },
-    "copyButton": {
-        "tooltip": "Copied!"
+    "status": {
+      "verified": "Verified",
+      "sealed": "Sealed"
     },
-    "connectMetamaskButton": {
-        "label": "Connect MetaMask",
-        "connecting": "Connecting...",
-        "metaMaskNotFound": "MetaMask not found",
-        "logout": "Logout"
+    "blocks": "Blocks",
+    "blockNumber": "Block #",
+    "infoTableTitle": "Block Information",
+    "infoTableError": "En Error Occurred",
+    "transactionTableError": "Something went wrong",
+    "transactionTable": {
+      "title": "Block Transactions",
+      "showMore": "Show more transactions ->",
+      "noTransactions": "This Block doesn't have any transactions",
+      "blockNotFound": "This Block has not been created or sealed yet"
+    }
+  },
+  "transfers": {
+    "notFound": "Address doesn't have any transfers at this moment",
+    "table": {
+      "transactionHash": "Txn hash",
+      "age": "Age",
+      "type": "Type",
+      "from": "From",
+      "direction": "Direction",
+      "to": "To",
+      "amount": "Amount",
+      "value": "Value"
+    }
+  },
+  "transactions": {
+    "tabs": {
+      "generalInfo": "General Info",
+      "logs": "Logs"
     },
-    "networkStats": {
-        "title": "Network Stats",
-        "subtitleTestnet": "Stats are occasionally reset on testnet.",
-        "subtitleMainnet": "zkSync Era Mainnet is open to everyone.",
-        "committed": "Committed Blocks",
-        "verified": "Verified Blocks",
-        "transactions": "Transactions",
-        "totalLocked": "Total Value Locked"
+    "table": {
+      "status": "Status",
+      "statusTooltip": "The status of the transaction",
+      "reason": "Reason",
+      "reasonTooltip": "The failure reason of the transaction",
+      "txnHash": "Txn hash",
+      "transactionHash": "Transaction Hash",
+      "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
+      "nonce": "Nonce",
+      "nonceTooltip": "Number of transactions sent from a sender address",
+      "created": "Created",
+      "createdTooltip": "The date and time at which a transaction is added to the block",
+      "sendersNonce": "Sender`s Nonce",
+      "from": "From",
+      "fromTooltip": "The sending party of the transaction",
+      "to": "To",
+      "toTooltip": "The receiving party of the transaction",
+      "tokensTransferred": "Tokens Transferred",
+      "tokensTransferredTooltip": "List of tokens transferred within this transaction",
+      "for": "for",
+      "transferTo": "to",
+      "block": "Block",
+      "batch": "Batch",
+      "blockTooltip": "Number of the block in which the transaction is recorded",
+      "batchTooltip": "The batch index where this transaction is submitted to L1",
+      "value": "Value",
+      "valueTooltip": "Amount of Ether being transferred from one address to another within a transaction.",
+      "fee": "Fee",
+      "paidByPaymaster": "Paid by Paymaster",
+      "feeDetails": {
+        "moreDetails": "More Details",
+        "closeDetails": "Close Details",
+        "initial": "Initial:",
+        "refunded": "Refunded:",
+        "refunds": "Refunds:",
+        "whyRefunded": "Why am I being refunded?",
+        "whyPaymasterRefunded": "Why is Paymaster being refunded?",
+        "whatIsPaymaster": "What is Paymaster?",
+        "paymaster": "Paymaster"
+      },
+      "feeTooltip": "Fee which sender paid for this transaction, amount in chosen asset & price in USD at the current time",
+      "direction": "Direction",
+      "initiator": "Initiator",
+      "amount": "Amount",
+      "method": "Method",
+      "transferMethodName": "Transfer",
+      "timestamp": "Timestamp",
+      "age": "Age",
+      "tokenAddress": "Token address",
+      "tokenName": "Token name",
+      "tokenSymbol": "Token symbol",
+      "decimals": "Decimals",
+      "contractAddress": "Contract address",
+      "contractAddressTooltip": "The receiving party of the transaction (could be a contract address)",
+      "inputData": "Input data",
+      "inputDataTooltip": "Additional data included for this transaction. Commonly used as part of contract interaction or as a message sent to the recipient.",
+      "contractHash": "Contract hash",
+      "notYetSentOnTheChain": "Not yet sent on the chain",
+      "notFound": "Not Found",
+      "notFoundHomePage": "We haven't had any transactions yet. Please, check again later.",
+      "footer": {
+        "showMore": "Show more transactions ->",
+        "unableToLoadMore": "Unable to load more",
+        "tryAgain": "Try again ->"
+      },
+      "unknown": "Unknown",
+      "gasLimitAndUsed": "Gas limit & used",
+      "gasLimitAndUsedTooltip": "Maximum amount of gas allocated for the transaction & the amount eventually used.",
+      "gasPerPubdata": "Gas per pubdata",
+      "gasPerPubdataTooltip": "Maximum amount of gas the user is willing to pay for a single byte of published data (pubdata)."
     },
-    "breadcrumbs": {
-        "home": "Dashboard"
+    "logs": {
+      "name": "Name",
+      "address": "Address",
+      "topics": "Topics",
+      "data": "Data",
+      "matchesTopic": "Matches Topic",
+      "options": {
+        "hex": "Hex",
+        "number": "Number",
+        "text": "Text",
+        "address": "Address"
+      },
+      "matchesTopicAlert": "Address matches transaction recipient"
     },
-    "blocks": {
-        "table": {
-            "block": "Block",
-            "status": "Status",
-            "statusTooltip": "The finality status of the block",
-            "batch": "Batch",
-            "unknown": "Unknown",
-            "batchTooltip": "The batch index where the block transactions are submitted to L1",
-            "age": "Age",
-            "transactionsShort": "txns",
-            "timestamp": "Timestamp",
-            "timestampTooltip": "The date and time at which a block is mined",
-            "blockNumber": "Block Number",
-            "blockNumberTooltip": "Block height, indicates the length of the blockchain, increases after the addition of the new block",
-            "blockSize": "Block Size",
-            "blockSizeTooltip": "Number of transactions inside the block",
-            "blockHash": "Block hash",
-            "blockHashTooltip": "The hash of the current block",
-            "noBlockHashYet": "No block hash yet",
-            "commitTxHash": "Commit tx hash",
-            "commitTxHashTooltip": "Hash of the L1 transaction sent to the smart contract to commit the block",
-            "committedAt": "Committed",
-            "committedAtTooltip": "Time when the block was committed",
-            "notYetCommitted": "Not yet committed",
-            "proveTxHash": "Prove tx hash",
-            "proveTxHashTooltip": "Hash of the L1 transaction in which block was proven",
-            "provenAt": "Proven",
-            "provenAtTooltip": "Time when block was proven",
-            "notYetProven": "Not yet proven",
-            "executeTxHash": "Execute tx hash",
-            "executeTxHashTooltip": "Hash of the L1 transaction in which block was executed",
-            "executedAt": "Executed",
-            "executedAtTooltip": "Time when block was executed",
-            "notYetExecuted": "Not yet executed",
-            "notFound": "Not Found",
-            "notFoundHomePage": "We haven't had any blocks yet. Please, check again later."
-        },
-        "status": {
-            "verified": "Verified",
-            "sealed": "Sealed"
-        },
-        "blocks": "Blocks",
-        "blockNumber": "Block #",
-        "infoTableTitle": "Block Information",
-        "infoTableError": "En Error Occurred",
-        "transactionTableError": "Something went wrong",
-        "transactionTable": {
-            "title": "Block Transactions",
-            "showMore": "Show more transactions ->",
-            "noTransactions": "This Block doesn't have any transactions",
-            "blockNotFound": "This Block has not been created or sealed yet"
-        }
+    "status": {
+      "included": "Processed on",
+      "committed": "Sent on",
+      "proved": "Validated on",
+      "verified": "Executed on",
+      "failed": "Failed on"
     },
-    "transfers": {
-        "notFound": "Address doesn't have any transfers at this moment",
-        "table": {
-            "transactionHash": "Txn hash",
-            "age": "Age",
-            "type": "Type",
-            "from": "From",
-            "direction": "Direction",
-            "to": "To",
-            "amount": "Amount",
-            "value": "Value"
-        }
+    "statusComponent": {
+      "processed": "Processed",
+      "indexing": "Being indexed by explorer",
+      "sending": "Sending",
+      "sent": "Sent",
+      "validating": "Validating",
+      "validated": "Validated",
+      "executing": "Executing",
+      "executed": "Executed",
+      "failed": "Failed",
+      "ethereumNetwork": "Ethereum network"
     },
-    "transactions": {
-        "tabs": {
-            "generalInfo": "General Info",
-            "logs": "Logs"
-        },
-        "table": {
-            "status": "Status",
-            "statusTooltip": "The status of the transaction",
-            "reason": "Reason",
-            "reasonTooltip": "The failure reason of the transaction",
-            "txnHash": "Txn hash",
-            "transactionHash": "Transaction Hash",
-            "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
-            "nonce": "Nonce",
-            "nonceTooltip": "Number of transactions sent from a sender address",
-            "created": "Created",
-            "createdTooltip": "The date and time at which a transaction is added to the block",
-            "sendersNonce": "Sender`s Nonce",
-            "from": "From",
-            "fromTooltip": "The sending party of the transaction",
-            "to": "To",
-            "toTooltip": "The receiving party of the transaction",
-            "tokensTransferred": "Tokens Transferred",
-            "tokensTransferredTooltip": "List of tokens transferred within this transaction",
-            "for": "for",
-            "transferTo": "to",
-            "block": "Block",
-            "batch": "Batch",
-            "blockTooltip": "Number of the block in which the transaction is recorded",
-            "batchTooltip": "The batch index where this transaction is submitted to L1",
-            "value": "Value",
-            "valueTooltip": "Amount of Ether being transferred from one address to another within a transaction.",
-            "fee": "Fee",
-            "paidByPaymaster": "Paid by Paymaster",
-            "feeDetails": {
-                "moreDetails": "More Details",
-                "closeDetails": "Close Details",
-                "initial": "Initial:",
-                "refunded": "Refunded:",
-                "refunds": "Refunds:",
-                "whyRefunded": "Why am I being refunded?",
-                "whyPaymasterRefunded": "Why is Paymaster being refunded?",
-                "whatIsPaymaster": "What is Paymaster?",
-                "paymaster": "Paymaster"
-            },
-            "feeTooltip": "Fee which sender paid for this transaction, amount in chosen asset & price in USD at the current time",
-            "direction": "Direction",
-            "initiator": "Initiator",
-            "amount": "Amount",
-            "method": "Method",
-            "transferMethodName": "Transfer",
-            "timestamp": "Timestamp",
-            "age": "Age",
-            "tokenAddress": "Token address",
-            "tokenName": "Token name",
-            "tokenSymbol": "Token symbol",
-            "decimals": "Decimals",
-            "contractAddress": "Contract address",
-            "contractAddressTooltip": "The receiving party of the transaction (could be a contract address)",
-            "inputData": "Input data",
-            "inputDataTooltip": "Additional data included for this transaction. Commonly used as part of contract interaction or as a message sent to the recipient.",
-            "contractHash": "Contract hash",
-            "notYetSentOnTheChain": "Not yet sent on the chain",
-            "notFound": "Not Found",
-            "notFoundHomePage": "We haven't had any transactions yet. Please, check again later.",
-            "footer": {
-                "showMore": "Show more transactions ->",
-                "unableToLoadMore": "Unable to load more",
-                "tryAgain": "Try again ->"
-            },
-            "unknown": "Unknown",
-            "gasLimitAndUsed": "Gas limit & used",
-            "gasLimitAndUsedTooltip": "Maximum amount of gas allocated for the transaction & the amount eventually used.",
-            "gasPerPubdata": "Gas per pubdata",
-            "gasPerPubdataTooltip": "Maximum amount of gas the user is willing to pay for a single byte of published data (pubdata)."
-        },
-        "logs": {
-            "name": "Name",
-            "address": "Address",
-            "topics": "Topics",
-            "data": "Data",
-            "matchesTopic": "Matches Topic",
-            "options": {
-                "hex": "Hex",
-                "number": "Number",
-                "text": "Text",
-                "address": "Address"
-            },
-            "matchesTopicAlert": "Address matches transaction recipient"
-        },
-        "status": {
-            "included": "Processed on",
-            "committed": "Sent on",
-            "proved": "Validated on",
-            "verified": "Executed on",
-            "failed": "Failed on"
-        },
-        "statusComponent": {
-            "processed": "Processed",
-            "indexing": "Being indexed by explorer",
-            "sending": "Sending",
-            "sent": "Sent",
-            "validating": "Validating",
-            "validated": "Validated",
-            "executing": "Executing",
-            "executed": "Executed",
-            "failed": "Failed",
-            "ethereumNetwork": "Ethereum network"
-        },
-        "transaction": "Transaction",
-        "transactionNumber": "Transaction #",
-        "loadingInfoFailed": "Loading transaction info failed",
-        "transactionNotFound": "Transaction wasn't found",
-        "transactionInfo": "Transaction info",
-        "tryRequestAgain": "Try again"
+    "transaction": "Transaction",
+    "transactionNumber": "Transaction #",
+    "loadingInfoFailed": "Loading transaction info failed",
+    "transactionNotFound": "Transaction wasn't found",
+    "transactionInfo": "Transaction info",
+    "tryRequestAgain": "Try again"
+  },
+  "transactionData": {
+    "showOriginalInput": "Show original input",
+    "showDecodedInput": "Decode input data",
+    "decodingInProgress": "Decoding transaction data...",
+    "parametersTable": {
+      "name": "Name",
+      "type": "Type",
+      "data": "Data"
     },
-    "transactionData": {
-        "showOriginalInput": "Show original input",
-        "showDecodedInput": "Decode input data",
-        "decodingInProgress": "Decoding transaction data...",
-        "parametersTable": {
-            "name": "Name",
-            "type": "Type",
-            "data": "Data"
-        },
-        "viewOptions": {
-            "decoded": "View decoded",
-            "original": "View as binary"
-        },
-        "errors": {
-            "unableToDecode": "Unable to decode input data ({error})",
-            "contract_not_verified": "Contract not verified",
-            "contract_request_failed": "Contract request failed",
-            "unknown_error": "Unknown error"
-        }
+    "viewOptions": {
+      "decoded": "View decoded",
+      "original": "View as binary"
     },
-    "batches": {
-        "batch": "Batch",
-        "batchNumber": "Batch #",
-        "title": "Batches",
-        "breadcrumbsTitle": "Batches",
-        "index": "Batch Index",
-        "indexTooltip": "The L1 Batch number indicates the length of L1 Batches produced by grouping L2 blocks to be proven on Ethereum",
-        "size": "Batch Size",
-        "sizeTooltip": "Number of transactions inside of the L1 Batch",
-        "timestamp": "Timestamp",
-        "timestampTooltip": "The date and time at which L1 Batch is produced",
-        "rootHash": "Batch Root",
-        "rootHashTooltip": "The L1 Batch Root is a cryptographic hash (or Merkle root) that summarizes a batch of L2 transactions or data and is submitted to the L1 blockchain as a single transaction",
-        "noRootHashYet": "No root hash yet",
-        "commitTxHash": "Commit tx hash",
-        "commitTxHashTooltip": "Hash of L1 transaction on which this L1 Batch was committed",
-        "committedAt": "Committed",
-        "committedAtTooltip": "The date and time at which L1 Batch is committed to Ethereum",
-        "notYetCommitted": "Not yet committed",
-        "proveTxHash": "Prove tx hash",
-        "proveTxHashTooltip": "Hash of L1 transaction on which this L1 Batch was proven",
-        "provenAt": "Proven",
-        "provenAtTooltip": "The date and time at which L1 Batch is proven to Ethereum",
-        "notYetProven": "Not yet proven",
-        "executeTxHash": "Execute tx hash",
-        "executeTxHashTooltip": "Hash of L1 transaction on which this L1 Batch was executed",
-        "executedAt": "Executed",
-        "executedAtTooltip": "The date and time at which L1 Batch is executed on Ethereum",
-        "notYetExecuted": "Not yet executed",
-        "notYetSealed": "This batch is not sealed yet",
-        "transactionTable": {
-            "title": "Batch Transactions",
-            "error": "Something went wrong",
-            "noTransactions": "This Batch doesn't have any transactions",
-            "batchNotFound": "This Batch has not been created or sealed yet"
-        },
-        "table": {
-            "status": "Status",
-            "txnBatch": "Batch",
-            "size": "Size",
-            "age": "Age",
-            "notFound": "Not Found",
-            "notFoundHomePage": "We haven't had any batches yet. Please, check again later.",
-            "transactionsShort": "txns"
-        },
-        "tooltipInfo": "Latest batches submitted to Ethereum Network",
-        "status": {
-            "verified": "Executed on",
-            "sealed": "Processed on",
-            "failed": "Failed"
-        }
+    "errors": {
+      "unableToDecode": "Unable to decode input data ({error})",
+      "contract_not_verified": "Contract not verified",
+      "contract_request_failed": "Contract request failed",
+      "unknown_error": "Unknown error"
+    }
+  },
+  "batches": {
+    "batch": "Batch",
+    "batchNumber": "Batch #",
+    "title": "Batches",
+    "breadcrumbsTitle": "Batches",
+    "index": "Batch Index",
+    "indexTooltip": "The L1 Batch number indicates the length of L1 Batches produced by grouping L2 blocks to be proven on Ethereum",
+    "size": "Batch Size",
+    "sizeTooltip": "Number of transactions inside of the L1 Batch",
+    "timestamp": "Timestamp",
+    "timestampTooltip": "The date and time at which L1 Batch is produced",
+    "rootHash": "Batch Root",
+    "rootHashTooltip": "The L1 Batch Root is a cryptographic hash (or Merkle root) that summarizes a batch of L2 transactions or data and is submitted to the L1 blockchain as a single transaction",
+    "noRootHashYet": "No root hash yet",
+    "commitTxHash": "Commit tx hash",
+    "commitTxHashTooltip": "Hash of L1 transaction on which this L1 Batch was committed",
+    "committedAt": "Committed",
+    "committedAtTooltip": "The date and time at which L1 Batch is committed to Ethereum",
+    "notYetCommitted": "Not yet committed",
+    "proveTxHash": "Prove tx hash",
+    "proveTxHashTooltip": "Hash of L1 transaction on which this L1 Batch was proven",
+    "provenAt": "Proven",
+    "provenAtTooltip": "The date and time at which L1 Batch is proven to Ethereum",
+    "notYetProven": "Not yet proven",
+    "executeTxHash": "Execute tx hash",
+    "executeTxHashTooltip": "Hash of L1 transaction on which this L1 Batch was executed",
+    "executedAt": "Executed",
+    "executedAtTooltip": "The date and time at which L1 Batch is executed on Ethereum",
+    "notYetExecuted": "Not yet executed",
+    "notYetSealed": "This batch is not sealed yet",
+    "transactionTable": {
+      "title": "Batch Transactions",
+      "error": "Something went wrong",
+      "noTransactions": "This Batch doesn't have any transactions",
+      "batchNotFound": "This Batch has not been created or sealed yet"
     },
-    "header": {
-        "nav": {
-            "blockExplorer": "Block Explorer",
-            "documentation": "Documentation",
-            "tools": "Tools",
-            "apiDocs": "API Documentation",
-            "contractVerification": "Smart Contract Verification",
-            "debugger": "zkEVM Debugger",
-            "bridge": "Bridge"
-        }
+    "table": {
+      "status": "Status",
+      "txnBatch": "Batch",
+      "size": "Size",
+      "age": "Age",
+      "notFound": "Not Found",
+      "notFoundHomePage": "We haven't had any batches yet. Please, check again later.",
+      "transactionsShort": "txns"
     },
-    "locale": {
-        "en": "EN",
-        "uk": "UA"
-    },
-    "footer": {
-        "nav": {
-            "docs": "Docs",
-            "terms": "Terms",
-            "contact": "Contact"
-        }
-    },
-    "searchForm": {
-        "placeholder": "Search by address, batch number, contract, or tx hash",
-        "errorMessage": "Please, enter a correct query"
-    },
-    "estimatedCost": {
-        "title": "Estimated cost of transfers & interactions",
-        "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
-    },
-    "blockExplorer": {
-        "title": "zkSync Era Block Explorer",
-        "subtitle": "zkSync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into zkSync Era and explore the network.",
-        "latestBlocks": "Latest Blocks",
-        "latestTransactions": "Latest Transactions",
-        "batches": "Latest Batches"
-    },
-    "failedRequest": "Failed to show .... Please, try to refresh the page.",
-    "addressView": {
-        "title": "Address"
-    },
-    "contract": {
-        "title": "Contract",
-        "contractNumber": "Contract ",
-        "infoTableTitle": "Contract Info",
-        "infoTableError": "An Error Occurred",
-        "balanceTableTitle": "Balances",
-        "notFound": "Not Found",
-        "transactionTable": {
-            "error": "Something went wrong",
-            "notFound": {
-                "title": "This smart contract doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
-            }
-        },
-        "balances": {
-            "error": {
-                "title": "Balances:",
-                "subtitle": "Something went wrong.\nPlease return to this page in a minute."
-            },
-            "notFound": {
-                "title": "This smart contract doesn’t have any balances",
-                "subtitle": "We can’t find any balances related to this smart-contract."
-            }
-        },
-        "table": {
-            "address": "Address",
-            "creator": "Creator",
-            "transactions": "Transactions",
-            "fees": "Fees Paid"
-        },
-        "bytecode": {
-            "areYouAnOwner": "Are you owner of this smart-contract?",
-            "verifyAndPublishToday": "Verify and Publish your contract source code today!\nThis contract was created by the contract code at ",
-            "verifyButton": "Verify Smart Contract",
-            "readWriteMissingMessage": "This contract does not have Read/Write functions for interaction",
-            "writeMissingMessage": "This contract does not have Write functions for interaction",
-            "readMissingMessage": "This contract does not have Read functions for interaction",
-            "deployedBytecode": "Deployed bytecode"
-        },
-        "sourceCode": {
-            "label": "Contract Source Code",
-            "singleFileContract": "Single file contract",
-            "fileLabel": "File {index} of {total}: {fileName}"
-        },
-        "events": {
-            "txnHash": "txn hash",
-            "method": "method",
-            "logs": "logs",
-            "notFound": "Smart Contract doesn't have any events at this moment",
-            "value": "value",
-            "showMore": "Show More",
-            "hide": "Hide"
-        },
-        "abiInteraction": {
-            "transactionHash": "Transaction Hash: {transactionHash}",
-            "connectWalletToInteract": "Connect Wallet to write",
-            "metaMaskNotFound": "MetaMask not found. Please install MetaMask to continue.",
-            "contractImplementationFound": "Implementation contract found at",
-            "contractImplementationAt": "The implementation contract at",
-            "contractNotVerified": "Is not verified",
-            "verifyImplementationMessage": "Please verify the implementation contract in order to Read/Write the contract as Proxy.",
-            "proxyCautionMessage": "Please note that the proxy identification process is based on analysis of popular proxy standards and might not be always accurate. Proceed with caution when interacting with any smart contract.",
-            "method": {
-                "read": {
-                    "name": "Read",
-                    "action": "Query"
-                },
-                "write": {
-                    "name": "Write",
-                    "action": "Write"
-                },
-                "readAsProxy": {
-                    "name": "Read as Proxy",
-                    "action": "Query"
-                },
-                "writeAsProxy": {
-                    "name": "Write as Proxy",
-                    "action": "Write"
-                }
-            },
-            "validation": {
-                "required": "Value is required",
-                "invalid": "Value is invalid"
-            }
-        }
-    },
-    "contractVerification": {
-        "title": "Smart Contract Verification",
-        "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Era Explorer will match the compiled code with that on the blockchain.",
-        "resources": {
-            "title": "You can also verify your smart-contract using {hardhat}",
-            "links": {
-                "hardhat": "HardHat Plugin"
-            }
-        },
-        "form": {
-            "compilationInfo": "Compilation Info",
-            "contractAddress": {
-                "title": "Contract Address",
-                "underline": "The 0x address supplied on contract creation.",
-                "placeholder": "0x0000...",
-                "validation": {
-                    "required": "Contract address is required",
-                    "not_valid": "Please, provide a valid contract address"
-                }
-            },
-            "contractName": {
-                "label": "Contract Name",
-                "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
-                "vyperUnderline": "Must match the filename. For example, in contract MyContract.vy MyContract is the contract name.",
-                "placeholder": "Name",
-                "validation": {
-                    "required": "Contract name is required"
-                }
-            },
-            "contractPath": {
-                "label": "Contract Path",
-                "underline": "Relative path to your contract at the moment of compilation",
-                "solcPlaceholder": "contracts/ContractFile.sol",
-                "vyperPlaceholder": "contracts/ContractFile.vy",
-                "validation": {
-                    "required": "Contract path is required"
-                }
-            },
-            "optimizationUsed": {
-                "label": "Optimization",
-                "options": {
-                    "yes": "Yes",
-                    "no": "No"
-                },
-                "underline": "If you enabled optimization during compilation, select yes."
-            },
-            "solcVersion": {
-                "label": "Solc Version",
-                "placeholder": "Choose version",
-                "validation": {
-                    "required": "Solc version is required"
-                },
-                "error": "Unable to get list of supported Solc versions",
-                "zkVM": "zkVM"
-            },
-            "zksolcVersion": {
-                "label": "Zksolc Version",
-                "placeholder": "Choose version",
-                "validation": {
-                    "required": "Zksolc version is required"
-                },
-                "error": "Unable to get list of supported Zksolc versions",
-                "details": "Details"
-            },
-            "vyperVersion": {
-                "label": "Vyper Version",
-                "placeholder": "Choose version",
-                "validation": {
-                    "required": "Vyper version is required"
-                },
-                "error": "Unable to get list of supported Vyper versions"
-            },
-            "zkvyperVersion": {
-                "label": "Zkvyper Version",
-                "placeholder": "Choose version",
-                "validation": {
-                    "required": "Zkvyper version is required"
-                },
-                "error": "Unable to get list of supported Zkvyper versions",
-                "details": "Details"
-            },
-            "compilerType": {
-                "label": "Compiler type",
-                "underline": "Contract verification method",
-                "soliditySingleFile": "Solidity (Single file)",
-                "solidityMultiPart": "Solidity (Multi-part contract)",
-                "vyperSingleFile": "Vyper (Single file)",
-                "vyperMultiPart": "Vyper (Multi-part contract)"
-            },
-            "sourceCode": {
-                "solcLabel": "Enter the Solidity Contract Code",
-                "vyperLabel": "Enter the Vyper Contract Code",
-                "validation": {
-                    "required": "Contract sourceCode is required"
-                }
-            },
-            "constructorArguments": {
-                "label": "Constructor Arguments",
-                "placeholder": "0x"
-            },
-            "buttonVerify": "Verify Smart Contract",
-            "buttonVerifying": "Verifying...",
-            "buttonClear": "Clear",
-            "unknownError": "Unsuccessful contract verification! We can’t verify your contract based on your information, please check it",
-            "flattenerInfo": {
-                "title": "If your contract uses \"imports\", you will need to concatenate the code into one file ( otherwise known as \"flattening\" ). For that purpose you can use {flattener} or {flattery}",
-                "solidityFlattener": "solidity-flattener",
-                "solidityFlattery": "SolidityFlattery"
-            }
-        },
-        "compilationError": {
-            "title": "Failed compilation",
-            "showMoreButton": "Show more",
-            "showLessButton": "Show less"
-        },
-        "verified": {
-            "title": "Contract verified!",
-            "underline": "Anyone on {link} could check it’s code and interact with it",
-            "blockExplorer": "block explorer",
-            "back": "Back to Contract"
-        },
-        "compilationInfo": {
-            "contractName": "Contract Name",
-            "compilerVersion": "Compiler Version",
-            "zksolcVersion": "Zksolc Version",
-            "zkvyperVersion": "Zkvyper Version",
-            "optimization": "Optimization"
-        },
-        "multiFileVerification": {
-            "solcTitle": "Please select the Solidity (*.sol) files for upload",
-            "vyperTitle": "Please select the Vyper (*.vy) files for upload",
-            "chooseFiles": "Choose Files",
-            "yourFiles": "Your Files",
-            "bytes": "Bytes",
-            "files": {
-                "label": "Choose Files",
-                "validation": {
-                    "required": "Please upload at least one file"
-                }
-            },
-            "mainFile": {
-                "label": "Main File",
-                "placeholder": "Choose Main File",
-                "validation": {
-                    "required": "Please select file where your contract is declared"
-                }
-            }
-        }
-    },
-    "blockView": {
-        "blockNumber": "Block #",
-        "infoTableTitle": "Block Information",
-        "infoTableError": "En Error Occurred",
-        "transactionTableError": "Something went wrong",
-        "transactionTable": {
-            "title": "Block Transactions",
-            "footer": "Show more transactions ->"
-        },
-        "blockInfo": {
-            "number": "Block Number",
-            "blockSize": "Block Size",
-            "rootHash": "New root hash",
-            "commitTxHash": "Commit tx hash",
-            "committedAt": "Committed",
-            "status": "Status",
-            "proveTxHash": "Verify tx hash"
-        }
-    },
-    "blocksView": {
-        "title": "Blocks"
-    },
-    "transactionsView": {
-        "title": "Transactions"
-    },
-    "tokensView": {
-        "title": "Tokens",
-        "heading": "Tokens",
-        "offChainDataPoweredBy": "Off-chain data powered by",
-        "table": {
-            "tokenName": "Token Name",
-            "price": "Price",
-            "tokenAddress": "Token Address"
-        }
-    },
-    "pageError": {
-        "title": "Something went wrong",
-        "subtitle": "Unknown request, please try again, or go to the homepage.",
-        "button": "Homepage"
-    },
-    "timeMessages": {
-        "justNow": "just now",
-        "past": "ago",
-        "future": "in",
-        "lastMonth": "last month",
-        "nextMonth": "next month",
-        "month": "month",
-        "monthPlural": "months",
-        "yesterday": "yesterday",
-        "tomorrow": "tomorrow",
-        "day": "day",
-        "dayPlural": "days",
-        "lastYear": "last year",
-        "nextYear": "next year",
-        "year": "year",
-        "yearPlural": "years",
-        "lastWeek": "last week",
-        "nextWeek": "next week",
-        "week": "week",
-        "weekPlural": "weeks",
-        "hourPlural": "hours",
-        "hour": "hour",
-        "minute": "min",
-        "minutePlural": "min",
-        "second": "sec",
-        "secondPlural": "sec"
-    },
-    "accountView": {
-        "title": "Account",
-        "infoTableError": "An Error Occurred",
-        "accountNumber": "Account ",
-        "accountInfo": {
-            "address": "Address",
-            "verifiedNonce": "Verified nonce",
-            "sealedNonce": "Committed nonce"
-        },
-        "infoTableTitle": "Account Info",
-        "transactionTableError": "Something went wrong",
-        "transactionTable": {
-            "title": "Latest Transactions",
-            "notFound": {
-                "title": "This account doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
-            },
-            "error": "Something went wrong"
-        },
-        "balanceTableTitle": "Balances",
-        "balances": {
-            "error": {
-                "title": "Balances:",
-                "subtitle": "Something went wrong.\nPlease return to this page in a minute."
-            },
-            "notFound": {
-                "title": "This account doesn’t have any balances",
-                "subtitle": "We can’t find any balances related to this account."
-            }
-        }
+    "tooltipInfo": "Latest batches submitted to Ethereum Network",
+    "status": {
+      "verified": "Executed on",
+      "sealed": "Processed on",
+      "failed": "Failed"
+    }
+  },
+  "header": {
+    "nav": {
+      "blockExplorer": "Block Explorer",
+      "documentation": "Documentation",
+      "tools": "Tools",
+      "apiDocs": "API Documentation",
+      "contractVerification": "Smart Contract Verification",
+      "debugger": "zkEVM Debugger",
+      "bridge": "Bridge"
+    }
+  },
+  "locale": {
+    "en": "EN",
+    "uk": "UA"
+  },
+  "footer": {
+    "nav": {
+      "docs": "Docs",
+      "terms": "Terms",
+      "contact": "Contact"
+    }
+  },
+  "searchForm": {
+    "placeholder": "Search by address, batch number, contract, or tx hash",
+    "errorMessage": "Please, enter a correct query"
+  },
+  "estimatedCost": {
+    "title": "Estimated cost of transfers & interactions",
+    "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
+  },
+  "blockExplorer": {
+    "title": "Openchain zkEVM block explorer",
+    "subtitle": "Sovereign data focused zkEVM Infrastructure to help Humanity build a perfect intelligence ecosystem together with AI Agents on $EARTH",
+    "latestBlocks": "Latest Blocks",
+    "latestTransactions": "Latest Transactions",
+    "batches": "Latest Batches"
+  },
+  "failedRequest": "Failed to show .... Please, try to refresh the page.",
+  "addressView": {
+    "title": "Address"
+  },
+  "contract": {
+    "title": "Contract",
+    "contractNumber": "Contract ",
+    "infoTableTitle": "Contract Info",
+    "infoTableError": "An Error Occurred",
+    "balanceTableTitle": "Balances",
+    "notFound": "Not Found",
+    "transactionTable": {
+      "error": "Something went wrong",
+      "notFound": {
+        "title": "This smart contract doesn’t have any transactions",
+        "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
+      }
     },
     "balances": {
-        "table": {
-            "asset": "Asset",
-            "balance": "Balance",
-            "address": "Token Address",
-            "notFound": "Not Found",
-            "error": "En error occurred",
-            "unknownSymbol": "unknown",
-            "showAll": "Show all Balances"
+      "error": {
+        "title": "Balances:",
+        "subtitle": "Something went wrong.\nPlease return to this page in a minute."
+      },
+      "notFound": {
+        "title": "This smart contract doesn’t have any balances",
+        "subtitle": "We can’t find any balances related to this smart-contract."
+      }
+    },
+    "table": {
+      "address": "Address",
+      "creator": "Creator",
+      "transactions": "Transactions",
+      "fees": "Fees Paid"
+    },
+    "bytecode": {
+      "areYouAnOwner": "Are you owner of this smart-contract?",
+      "verifyAndPublishToday": "Verify and Publish your contract source code today!\nThis contract was created by the contract code at ",
+      "verifyButton": "Verify Smart Contract",
+      "readWriteMissingMessage": "This contract does not have Read/Write functions for interaction",
+      "writeMissingMessage": "This contract does not have Write functions for interaction",
+      "readMissingMessage": "This contract does not have Read functions for interaction",
+      "deployedBytecode": "Deployed bytecode"
+    },
+    "sourceCode": {
+      "label": "Contract Source Code",
+      "singleFileContract": "Single file contract",
+      "fileLabel": "File {index} of {total}: {fileName}"
+    },
+    "events": {
+      "txnHash": "txn hash",
+      "method": "method",
+      "logs": "logs",
+      "notFound": "Smart Contract doesn't have any events at this moment",
+      "value": "value",
+      "showMore": "Show More",
+      "hide": "Hide"
+    },
+    "abiInteraction": {
+      "transactionHash": "Transaction Hash: {transactionHash}",
+      "connectWalletToInteract": "Connect Wallet to write",
+      "metaMaskNotFound": "MetaMask not found. Please install MetaMask to continue.",
+      "contractImplementationFound": "Implementation contract found at",
+      "contractImplementationAt": "The implementation contract at",
+      "contractNotVerified": "Is not verified",
+      "verifyImplementationMessage": "Please verify the implementation contract in order to Read/Write the contract as Proxy.",
+      "proxyCautionMessage": "Please note that the proxy identification process is based on analysis of popular proxy standards and might not be always accurate. Proceed with caution when interacting with any smart contract.",
+      "method": {
+        "read": {
+          "name": "Read",
+          "action": "Query"
+        },
+        "write": {
+          "name": "Write",
+          "action": "Write"
+        },
+        "readAsProxy": {
+          "name": "Read as Proxy",
+          "action": "Query"
+        },
+        "writeAsProxy": {
+          "name": "Write as Proxy",
+          "action": "Write"
         }
-    },
-    "document": {
-        "title": "zkSync Era Block Explorer",
-        "home": "Transactions, Blocks, Contracts and much more"
-    },
-    "notFound": {
-        "title": "Oops, we can’t find anything",
-        "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
-        "contactSupportTitle": "If you think this is a problem with us, please",
-        "contactSupport": "contact support"
-    },
-    "maintenance": {
-        "title": "zkSync {network} is on maintainance",
-        "description": "zkSync {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
-        "twitterLink": "zkSync Developers",
-        "uptimeLink": "UpTime",
-        "twitterButton": "zkSync Developers"
-    },
-    "tabs": {
-        "transactions": "Transactions",
-        "contract": "Contract",
-        "events": "Events",
-        "transfers": "Transfers"
-    },
-    "contractInfoTabs": {
-        "contract": "Contract",
-        "read": "Read",
-        "write": "Write",
-        "readAsProxy": "Read as Proxy",
-        "writeAsProxy": "Write as Proxy"
-    },
-    "debuggerTool": {
-        "title": "zkEVM Debugger",
-        "whatFor": "With this tool you can replay execution of your smart-contracts, and read each instruction",
-        "uploadJSON": "Upload JSON file",
-        "orDropHere": "or drop here",
-        "unableToParseTrace": "Sorry, we couldn't parse this trace file",
-        "transaction": "Transaction: from trace file",
-        "executionStepNavigation": "Arrow Left/Right",
-        "searchPlaceholder": "Search",
-        "start": "Start",
-        "child": "Child",
-        "parent": "Parent",
-        "hex": "Hex",
-        "dec": "Dec",
-        "metadataBlock": {
-            "contract": "Current Contract",
-            "tag": "Tag",
-            "registers": "Registers",
-            "memory": "Memory",
-            "memoryChanges": "Memory Changes",
-            "memoryPageIndex": {
-                "stack": "stack",
-                "heap": "heap",
-                "code": "code",
-                "returnData": "returndata",
-                "callData": "calldata"
-            }
-        }
-    },
-    "systemAlert": {
-        "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
-        "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
+      },
+      "validation": {
+        "required": "Value is required",
+        "invalid": "Value is invalid"
+      }
     }
+  },
+  "contractVerification": {
+    "title": "Smart Contract Verification",
+    "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Era Explorer will match the compiled code with that on the blockchain.",
+    "resources": {
+      "title": "You can also verify your smart-contract using {hardhat}",
+      "links": {
+        "hardhat": "HardHat Plugin"
+      }
+    },
+    "form": {
+      "compilationInfo": "Compilation Info",
+      "contractAddress": {
+        "title": "Contract Address",
+        "underline": "The 0x address supplied on contract creation.",
+        "placeholder": "0x0000...",
+        "validation": {
+          "required": "Contract address is required",
+          "not_valid": "Please, provide a valid contract address"
+        }
+      },
+      "contractName": {
+        "label": "Contract Name",
+        "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
+        "vyperUnderline": "Must match the filename. For example, in contract MyContract.vy MyContract is the contract name.",
+        "placeholder": "Name",
+        "validation": {
+          "required": "Contract name is required"
+        }
+      },
+      "contractPath": {
+        "label": "Contract Path",
+        "underline": "Relative path to your contract at the moment of compilation",
+        "solcPlaceholder": "contracts/ContractFile.sol",
+        "vyperPlaceholder": "contracts/ContractFile.vy",
+        "validation": {
+          "required": "Contract path is required"
+        }
+      },
+      "optimizationUsed": {
+        "label": "Optimization",
+        "options": {
+          "yes": "Yes",
+          "no": "No"
+        },
+        "underline": "If you enabled optimization during compilation, select yes."
+      },
+      "solcVersion": {
+        "label": "Solc Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Solc version is required"
+        },
+        "error": "Unable to get list of supported Solc versions",
+        "zkVM": "zkVM"
+      },
+      "zksolcVersion": {
+        "label": "Zksolc Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Zksolc version is required"
+        },
+        "error": "Unable to get list of supported Zksolc versions",
+        "details": "Details"
+      },
+      "vyperVersion": {
+        "label": "Vyper Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Vyper version is required"
+        },
+        "error": "Unable to get list of supported Vyper versions"
+      },
+      "zkvyperVersion": {
+        "label": "Zkvyper Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Zkvyper version is required"
+        },
+        "error": "Unable to get list of supported Zkvyper versions",
+        "details": "Details"
+      },
+      "compilerType": {
+        "label": "Compiler type",
+        "underline": "Contract verification method",
+        "soliditySingleFile": "Solidity (Single file)",
+        "solidityMultiPart": "Solidity (Multi-part contract)",
+        "vyperSingleFile": "Vyper (Single file)",
+        "vyperMultiPart": "Vyper (Multi-part contract)"
+      },
+      "sourceCode": {
+        "solcLabel": "Enter the Solidity Contract Code",
+        "vyperLabel": "Enter the Vyper Contract Code",
+        "validation": {
+          "required": "Contract sourceCode is required"
+        }
+      },
+      "constructorArguments": {
+        "label": "Constructor Arguments",
+        "placeholder": "0x"
+      },
+      "buttonVerify": "Verify Smart Contract",
+      "buttonVerifying": "Verifying...",
+      "buttonClear": "Clear",
+      "unknownError": "Unsuccessful contract verification! We can’t verify your contract based on your information, please check it",
+      "flattenerInfo": {
+        "title": "If your contract uses \"imports\", you will need to concatenate the code into one file ( otherwise known as \"flattening\" ). For that purpose you can use {flattener} or {flattery}",
+        "solidityFlattener": "solidity-flattener",
+        "solidityFlattery": "SolidityFlattery"
+      }
+    },
+    "compilationError": {
+      "title": "Failed compilation",
+      "showMoreButton": "Show more",
+      "showLessButton": "Show less"
+    },
+    "verified": {
+      "title": "Contract verified!",
+      "underline": "Anyone on {link} could check it’s code and interact with it",
+      "blockExplorer": "block explorer",
+      "back": "Back to Contract"
+    },
+    "compilationInfo": {
+      "contractName": "Contract Name",
+      "compilerVersion": "Compiler Version",
+      "zksolcVersion": "Zksolc Version",
+      "zkvyperVersion": "Zkvyper Version",
+      "optimization": "Optimization"
+    },
+    "multiFileVerification": {
+      "solcTitle": "Please select the Solidity (*.sol) files for upload",
+      "vyperTitle": "Please select the Vyper (*.vy) files for upload",
+      "chooseFiles": "Choose Files",
+      "yourFiles": "Your Files",
+      "bytes": "Bytes",
+      "files": {
+        "label": "Choose Files",
+        "validation": {
+          "required": "Please upload at least one file"
+        }
+      },
+      "mainFile": {
+        "label": "Main File",
+        "placeholder": "Choose Main File",
+        "validation": {
+          "required": "Please select file where your contract is declared"
+        }
+      }
+    }
+  },
+  "blockView": {
+    "blockNumber": "Block #",
+    "infoTableTitle": "Block Information",
+    "infoTableError": "En Error Occurred",
+    "transactionTableError": "Something went wrong",
+    "transactionTable": {
+      "title": "Block Transactions",
+      "footer": "Show more transactions ->"
+    },
+    "blockInfo": {
+      "number": "Block Number",
+      "blockSize": "Block Size",
+      "rootHash": "New root hash",
+      "commitTxHash": "Commit tx hash",
+      "committedAt": "Committed",
+      "status": "Status",
+      "proveTxHash": "Verify tx hash"
+    }
+  },
+  "blocksView": {
+    "title": "Blocks"
+  },
+  "transactionsView": {
+    "title": "Transactions"
+  },
+  "tokensView": {
+    "title": "Tokens",
+    "heading": "Tokens",
+    "offChainDataPoweredBy": "Off-chain data powered by",
+    "table": {
+      "tokenName": "Token Name",
+      "price": "Price",
+      "tokenAddress": "Token Address"
+    }
+  },
+  "pageError": {
+    "title": "Something went wrong",
+    "subtitle": "Unknown request, please try again, or go to the homepage.",
+    "button": "Homepage"
+  },
+  "timeMessages": {
+    "justNow": "just now",
+    "past": "ago",
+    "future": "in",
+    "lastMonth": "last month",
+    "nextMonth": "next month",
+    "month": "month",
+    "monthPlural": "months",
+    "yesterday": "yesterday",
+    "tomorrow": "tomorrow",
+    "day": "day",
+    "dayPlural": "days",
+    "lastYear": "last year",
+    "nextYear": "next year",
+    "year": "year",
+    "yearPlural": "years",
+    "lastWeek": "last week",
+    "nextWeek": "next week",
+    "week": "week",
+    "weekPlural": "weeks",
+    "hourPlural": "hours",
+    "hour": "hour",
+    "minute": "min",
+    "minutePlural": "min",
+    "second": "sec",
+    "secondPlural": "sec"
+  },
+  "accountView": {
+    "title": "Account",
+    "infoTableError": "An Error Occurred",
+    "accountNumber": "Account ",
+    "accountInfo": {
+      "address": "Address",
+      "verifiedNonce": "Verified nonce",
+      "sealedNonce": "Committed nonce"
+    },
+    "infoTableTitle": "Account Info",
+    "transactionTableError": "Something went wrong",
+    "transactionTable": {
+      "title": "Latest Transactions",
+      "notFound": {
+        "title": "This account doesn’t have any transactions",
+        "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
+      },
+      "error": "Something went wrong"
+    },
+    "balanceTableTitle": "Balances",
+    "balances": {
+      "error": {
+        "title": "Balances:",
+        "subtitle": "Something went wrong.\nPlease return to this page in a minute."
+      },
+      "notFound": {
+        "title": "This account doesn’t have any balances",
+        "subtitle": "We can’t find any balances related to this account."
+      }
+    }
+  },
+  "balances": {
+    "table": {
+      "asset": "Asset",
+      "balance": "Balance",
+      "address": "Token Address",
+      "notFound": "Not Found",
+      "error": "En error occurred",
+      "unknownSymbol": "unknown",
+      "showAll": "Show all Balances"
+    }
+  },
+  "document": {
+    "title": "zkSync Era Block Explorer",
+    "home": "Transactions, Blocks, Contracts and much more"
+  },
+  "notFound": {
+    "title": "Oops, we can’t find anything",
+    "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
+    "contactSupportTitle": "If you think this is a problem with us, please",
+    "contactSupport": "contact support"
+  },
+  "maintenance": {
+    "title": "zkSync {network} is on maintainance",
+    "description": "zkSync {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
+    "twitterLink": "zkSync Developers",
+    "uptimeLink": "UpTime",
+    "twitterButton": "zkSync Developers"
+  },
+  "tabs": {
+    "transactions": "Transactions",
+    "contract": "Contract",
+    "events": "Events",
+    "transfers": "Transfers"
+  },
+  "contractInfoTabs": {
+    "contract": "Contract",
+    "read": "Read",
+    "write": "Write",
+    "readAsProxy": "Read as Proxy",
+    "writeAsProxy": "Write as Proxy"
+  },
+  "debuggerTool": {
+    "title": "zkEVM Debugger",
+    "whatFor": "With this tool you can replay execution of your smart-contracts, and read each instruction",
+    "uploadJSON": "Upload JSON file",
+    "orDropHere": "or drop here",
+    "unableToParseTrace": "Sorry, we couldn't parse this trace file",
+    "transaction": "Transaction: from trace file",
+    "executionStepNavigation": "Arrow Left/Right",
+    "searchPlaceholder": "Search",
+    "start": "Start",
+    "child": "Child",
+    "parent": "Parent",
+    "hex": "Hex",
+    "dec": "Dec",
+    "metadataBlock": {
+      "contract": "Current Contract",
+      "tag": "Tag",
+      "registers": "Registers",
+      "memory": "Memory",
+      "memoryChanges": "Memory Changes",
+      "memoryPageIndex": {
+        "stack": "stack",
+        "heap": "heap",
+        "code": "code",
+        "returnData": "returndata",
+        "callData": "calldata"
+      }
+    }
+  },
+  "systemAlert": {
+    "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
+    "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
+  }
 }

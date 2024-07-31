@@ -1,454 +1,454 @@
 {
-    "general": {
-        "l2NetworkName": "zkSync Era",
-        "l1NetworkName": "Ethereum"
+  "general": {
+    "l2NetworkName": "zkSync Era",
+    "l1NetworkName": "Ethereum"
+  },
+  "copyButton": {
+    "tooltip": "Скопійовано!"
+  },
+  "networkStats": {
+    "title": "Статистика мережі",
+    "subtitle": "Статистика час від часу скидається в тестовій мережі.",
+    "committed": "Затверджені блоки",
+    "verified": "Перевірені блоки",
+    "transactions": "Транзакції",
+    "totalLocked": "Загальна вартість заблокована"
+  },
+  "breadcrumbs": {
+    "home": "Головна сторінка"
+  },
+  "blocks": {
+    "table": {
+      "block": "Блок",
+      "status": "Статус",
+      "acceptedAt": "Затверджено ",
+      "transactionsShort": "Транзакцій",
+      "timestamp": "Створено",
+      "blockNumber": "Номер",
+      "blockSize": "Розмір",
+      "blockHash": "Хеш блоку",
+      "noBlockHashYet": "Ще немає хешу блоку",
+      "committedAt": "Затверджений",
+      "commitTxHash": "Завірений хеш",
+      "notYetCommitted": "Ще не затверджено",
+      "proveTxHash": "Погоджений Хеш",
+      "provenAt": "Перевірений",
+      "notYetProven": "Ще не підтверджений",
+      "executeTxHash": "Виконання хешу",
+      "executedAt": "Виконаний",
+      "notYetExecuted": "Ще не виконано"
     },
-    "copyButton": {
-        "tooltip": "Скопійовано!"
+    "status": {
+      "verified": "Перевірено",
+      "sealed": "Завершено"
     },
-    "networkStats": {
-        "title": "Статистика мережі",
-        "subtitle": "Статистика час від часу скидається в тестовій мережі.",
-        "committed": "Затверджені блоки",
-        "verified": "Перевірені блоки",
-        "transactions": "Транзакції",
-        "totalLocked": "Загальна вартість заблокована"
+    "blocks": "Блоки",
+    "blockNumber": "Блок №",
+    "infoTableTitle": "Інформація Блоку",
+    "infoTableError": "Виникла помилка",
+    "transactionTableError": "Щось пішло не так",
+    "transactionTable": {
+      "title": "Транзакції Блоку",
+      "showMore": "Показати більше транзакцій ->"
+    }
+  },
+  "transfers": {
+    "notFound": "Для даної адреси трансфери відсутні на цей момент",
+    "table": {
+      "transactionHash": "Хеш Транзакції",
+      "age": "Створено",
+      "type": "Тип",
+      "from": "Від",
+      "direction": "Напрямок",
+      "to": "До",
+      "amount": "Кількість",
+      "value": "Сума"
+    }
+  },
+  "transactions": {
+    "tabs": {
+      "generalInfo": "Загальна Інформація",
+      "logs": "Логи"
     },
-    "breadcrumbs": {
-        "home": "Головна сторінка"
+    "table": {
+      "status": "Статус",
+      "statusTooltip": "Статус транзакції",
+      "reason": "Причина",
+      "reasonTooltip": "Причина невиконання транзакції",
+      "transactionHash": "Хеш Транзакції",
+      "nonce": "Нонс",
+      "created": "Створено",
+      "from": "Від",
+      "to": "До",
+      "block": "Блок",
+      "fee": "Комісія",
+      "amount": "Кількість",
+      "value": "Сума",
+      "timestamp": "Створено",
+      "tokenAddress": "Адреса токена",
+      "tokenName": "Назва токена",
+      "tokenSymbol": "Символ токена",
+      "decimals": "Числа",
+      "tokensTransferred": "Трансфери токенів",
+      "for": "для",
+      "transferTo": "до",
+      "contractAddress": "Адреса контракту",
+      "inputData": "Дані",
+      "contractHash": "Хеш Контракту",
+      "notFound": "Не знайдено",
+      "footer": {
+        "showMore": "Показати більше транзакцій ->",
+        "unableToLoadMore": "Неможливо завантажити більше",
+        "tryAgain": "Спробуйте знову ->"
+      },
+      "gasLimitAndUsed": "Газ ліміт & використано",
+      "gasLimitAndUsedTooltip": "Максимальна кількість виділеного газу для транзакції та кількість фактично використаного газу.",
+      "gasPerPubdata": "Газ за pubdata",
+      "gasPerPubdataTooltip": "Максимальна кількість газу, яку користувач готовий сплатити за один байт опублікованих даних (pubdata)."
     },
-    "blocks": {
-        "table": {
-            "block": "Блок",
-            "status": "Статус",
-            "acceptedAt": "Затверджено ",
-            "transactionsShort": "Транзакцій",
-            "timestamp": "Створено",
-            "blockNumber": "Номер",
-            "blockSize": "Розмір",
-            "blockHash": "Хеш блоку",
-            "noBlockHashYet": "Ще немає хешу блоку",
-            "committedAt": "Затверджений",
-            "commitTxHash": "Завірений хеш",
-            "notYetCommitted": "Ще не затверджено",
-            "proveTxHash": "Погоджений Хеш",
-            "provenAt": "Перевірений",
-            "notYetProven": "Ще не підтверджений",
-            "executeTxHash": "Виконання хешу",
-            "executedAt": "Виконаний",
-            "notYetExecuted": "Ще не виконано"
-        },
-        "status": {
-            "verified": "Перевірено",
-            "sealed": "Завершено"
-        },
-        "blocks": "Блоки",
-        "blockNumber": "Блок №",
-        "infoTableTitle": "Інформація Блоку",
-        "infoTableError": "Виникла помилка",
-        "transactionTableError": "Щось пішло не так",
-        "transactionTable": {
-            "title": "Транзакції Блоку",
-            "showMore": "Показати більше транзакцій ->"
-        }
+    "logs": {
+      "address": "Адреса",
+      "topics": "Топіки",
+      "data": "Дані",
+      "matchesTopic": "Відповідає темі",
+      "options": {
+        "hex": "Хекс",
+        "number": "Номер",
+        "text": "Текст",
+        "address": "Адреса"
+      },
+      "matchesTopicAlert": "Адреса відповідає одержувачу транзакції"
     },
-    "transfers": {
-        "notFound": "Для даної адреси трансфери відсутні на цей момент",
-        "table": {
-            "transactionHash": "Хеш Транзакції",
-            "age": "Створено",
-            "type": "Тип",
-            "from": "Від",
-            "direction": "Напрямок",
-            "to": "До",
-            "amount": "Кількість",
-            "value": "Сума"
-        }
+    "status": {
+      "included": "Оброблено на",
+      "committed": "Надіслано на",
+      "proved": "Перевірено на",
+      "verified": "Виконано на",
+      "failed": "Невдало на"
     },
-    "transactions": {
-        "tabs": {
-            "generalInfo": "Загальна Інформація",
-            "logs": "Логи"
-        },
-        "table": {
-            "status": "Статус",
-            "statusTooltip": "Статус транзакції",
-            "reason": "Причина",
-            "reasonTooltip": "Причина невиконання транзакції",
-            "transactionHash": "Хеш Транзакції",
-            "nonce": "Нонс",
-            "created": "Створено",
-            "from": "Від",
-            "to": "До",
-            "block": "Блок",
-            "fee": "Комісія",
-            "amount": "Кількість",
-            "value": "Сума",
-            "timestamp": "Створено",
-            "tokenAddress": "Адреса токена",
-            "tokenName": "Назва токена",
-            "tokenSymbol": "Символ токена",
-            "decimals": "Числа",
-            "tokensTransferred": "Трансфери токенів",
-            "for": "для",
-            "transferTo": "до",
-            "contractAddress": "Адреса контракту",
-            "inputData": "Дані",
-            "contractHash": "Хеш Контракту",
-            "notFound": "Не знайдено",
-            "footer": {
-                "showMore": "Показати більше транзакцій ->",
-                "unableToLoadMore": "Неможливо завантажити більше",
-                "tryAgain": "Спробуйте знову ->"
-            },
-            "gasLimitAndUsed": "Газ ліміт & використано",
-            "gasLimitAndUsedTooltip": "Максимальна кількість виділеного газу для транзакції та кількість фактично використаного газу.",
-            "gasPerPubdata": "Газ за pubdata",
-            "gasPerPubdataTooltip": "Максимальна кількість газу, яку користувач готовий сплатити за один байт опублікованих даних (pubdata)."
-        },
-        "logs": {
-            "address": "Адреса",
-            "topics": "Топіки",
-            "data": "Дані",
-            "matchesTopic": "Відповідає темі",
-            "options": {
-                "hex": "Хекс",
-                "number": "Номер",
-                "text": "Текст",
-                "address": "Адреса"
-            },
-            "matchesTopicAlert": "Адреса відповідає одержувачу транзакції"
-        },
-        "status": {
-            "included": "Оброблено на",
-            "committed": "Надіслано на",
-            "proved": "Перевірено на",
-            "verified": "Виконано на",
-            "failed": "Невдало на"
-        },
-        "statusComponent": {
-            "processed": "Оброблено",
-            "indexing": "Індексується експлорером",
-            "sending": "Надсилається",
-            "sent": "Надіслано",
-            "validating": "Перевіряється",
-            "validated": "Перевірено",
-            "executing": "Виконується",
-            "executed": "Виконано",
-            "failed": "Невдало",
-            "ethereumNetwork": "мережа Ethereum"
-        },
-        "transaction": "Транзакція",
-        "transactionNumber": "Транзакція №",
-        "loadingInfoFailed": "Не вдалося завантажити інформацію про транзакцію",
-        "transactionNotFound": "Транзакцію не знайдено",
-        "transactionInfo": "Інформація про транзакцію",
-        "tryRequestAgain": "Спробуйте знову"
+    "statusComponent": {
+      "processed": "Оброблено",
+      "indexing": "Індексується експлорером",
+      "sending": "Надсилається",
+      "sent": "Надіслано",
+      "validating": "Перевіряється",
+      "validated": "Перевірено",
+      "executing": "Виконується",
+      "executed": "Виконано",
+      "failed": "Невдало",
+      "ethereumNetwork": "мережа Ethereum"
     },
-    "header": {
-        "nav": {
-            "tools": "Інструменти",
-            "apiDocs": "АРІ Документація",
-            "contractVerification": "Верифікація Смарт контракту",
-            "debugger": "zkEVM Налагоджувач",
-            "blockExplorer": "Провідник",
-            "documentation": "Документація"
-        }
-    },
-    "locale": {
-        "en": "EN",
-        "uk": "UA"
-    },
-    "footer": {
-        "nav": {
-            "docs": "Документація",
-            "terms": "Умови користування",
-            "contact": "Звʼязатися з нами"
-        }
-    },
-    "searchForm": {
-        "errorMessage": "Будь ласка, введіть правильний запит",
-        "placeholder": "Пошук за адресою, номером блоку або хешем"
-    },
-    "estimatedCost": {
-        "title": "Приблизна вартість переказів та інших послуг",
-        "subtitle": "zkRollups значно дешевше, ніж L1 або Optimistic Rollups"
-    },
-    "blockExplorer": {
-        "title": "zkSync Era Провідник",
-        "subtitle": "Переглядайте в режимі реального часу інформацію про блоки, транзакції, контракти та іншу активність у мережі.",
-        "latestBlocks": "Останні Блоки",
-        "latestTransactions": "Останні транзакції"
-    },
-    "failedRequest": "Не вдалося показати .... Будь ласка, спробуйте оновити сторінку.",
-    "contract": {
-        "title": "Контракт",
-        "contractNumber": "Контракт ",
-        "infoTableTitle": "Інформація Контракту",
-        "infoTableError": "Виникла помилка",
-        "balanceTableTitle": "Мої кошти",
-        "notFound": "Не знайдено",
-        "transactionTable": {
-            "error": "Щось пішло не так",
-            "notFound": {
-                "title": "Цей смарт-контракт не має жодних транзакцій",
-                "subtitle": "Ми не можемо знайти жодних транзакцій, пов’язаних із цим смарт-контрактом. Це ваш шанс бути першим"
-            }
-        },
-        "balances": {
-            "notFound": {
-                "title": "Цей смарт-контракт не має жодних коштів",
-                "subtitle": "Ми не можемо знайти жодних коштів, пов’язаних із цим смарт-контрактом."
-            }
-        },
-        "table": {
-            "address": "Адреса",
-            "creator": "Автор",
-            "transactions": "Транзакції",
-            "fees": "Комісія сплачена"
-        },
-        "bytecode": {
-            "areYouAnOwner": "Ви власник цього смарт-контракту?",
-            "verifyAndPublishToday": "Перевірте та опублікуйте вихідний код свого контракту сьогодні!\nЦей контракт було створено кодом контракту за адресою",
-            "verifyButton": "Завірити Смарт Контракт",
-            "deployedBytecode": "Розгорнутий байт-код",
-            "sourceCode": "Вихідний код"
-        }
-    },
-    "contractVerification": {
-        "title": "Верифікація Смарт контракту",
-        "subtitle": "Перевірка вихідного коду забезпечує прозорість для користувачів, які взаємодіють зі смарт-контрактами. Завантаживши вихідний код, Era Explorer зіставить скомпільований код із кодом у блокчейні.",
-        "form": {
-            "title": "Деталі Контракту",
-            "compilationInfo": "Деталі компіляції",
-            "contractAddress": {
-                "label": "Адреса Контракту",
-                "underline": "Адреса 0x, яка надається під час створення контракту.",
-                "placeholder": "0x0000...",
-                "validation": {
-                    "required": "Необхідно вказати адресу договору",
-                    "not_valid": "Укажіть дійсну адресу договору"
-                }
-            },
-            "contractName": {
-                "label": "Імʼя Контракту",
-                "solcUnderline": "Має збігатися з назвою, вказаною в коді. Наприклад, у контракті MyContract { '{..}' } MyContract є назвою контракту.",
-                "vyperUnderline": "Має збігатися з ім'ям файлу. Наприклад, у контракті MyContract.vy MyContract є назвою контракту.",
-                "placeholder": "Імʼя",
-                "validation": {
-                    "required": "Імʼя контракту є обовʼязковим"
-                }
-            },
-            "contractPath": {
-                "label": "Шлях до контракту",
-                "underline": "Відносний шлях до вашого контракту на момент компіляції",
-                "solcPlaceholder": "contracts/ContractFile.sol",
-                "vyperPlaceholder": "contracts/ContractFile.vy",
-                "validation": {
-                    "required": "Шлях до контракту є обов'язковим"
-                }
-            },
-            "optimizationUsed": {
-                "label": "Оптимізація",
-                "options": {
-                    "yes": "Так",
-                    "no": "Ні"
-                },
-                "underline": "Якщо ви ввімкнули оптимізацію під час компіляції, виберіть так."
-            },
-            "solcVersion": {
-                "label": "Solc версія",
-                "placeholder": "Вибрати версію",
-                "validation": {
-                    "required": "Solc версія є обовʼязковою"
-                },
-                "error": "Не вдалося отримати список Solc версій"
-            },
-            "zksolcVersion": {
-                "label": "Zksolc версія",
-                "placeholder": "Вибрати версію",
-                "validation": {
-                    "required": "Zksolc версія є обовʼязковою"
-                },
-                "error": "Не вдалося отримати список Zksolc версій"
-            },
-            "vyperVersion": {
-                "label": "Vyper версія",
-                "placeholder": "Вибрати версію",
-                "validation": {
-                    "required": "Vyper версія є обовʼязковою"
-                },
-                "error": "Не вдалося отримати список Vyper версій"
-            },
-            "zkvyperVersion": {
-                "label": "Zkvyper версія",
-                "placeholder": "Вибрати версію",
-                "validation": {
-                    "required": "Zkvyper версія є обовʼязковою"
-                },
-                "error": "Не вдалося отримати список Zkvyper версій"
-            },
-            "sourceCode": {
-                "solcLabel": "Введіть код контракту Solidity",
-                "vyperLabel": "Введіть код контракту Vyper",
-                "validation": {
-                    "required": "Потрібний вихідний код контракту"
-                }
-            },
-            "constructorArguments": {
-                "label": "Аргументи конструктора",
-                "placeholder": "0х"
-            },
-            "buttonVerify": "Завірити Смарт Контракт",
-            "buttonVerifying": "Перевірка...",
-            "buttonClear": "Очистити",
-            "unknownError": "Невдала перевірка контракту! Ми не можемо перевірити контракт на основі вашої інформації, будь ласка перевірте її знову"
-        },
-        "verified": {
-            "title": "Контракт перевірено!",
-            "underline": "Будь хто за допомогою {link} може перевірити свій код і взаємодіяти з ним",
-            "blockExplorer": "провідник",
-            "back": "Вернутися до Контракту"
-        }
-    },
-    "blockView": {
-        "blockNumber": "Блок №",
-        "infoTableTitle": "Інформація Блоку",
-        "infoTableError": "Виникла помилка",
-        "transactionTableError": "Щось пішло не так",
-        "transactionTable": {
-            "title": "Транзакції Блоку",
-            "footer": "Показати більше транзакцій ->"
-        },
-        "blockInfo": {
-            "number": "Номер",
-            "blockSize": "Розмір",
-            "rootHash": "Новий кореневий хеш",
-            "commitTxHash": "Завірений хеш",
-            "committedAt": "Затверджений",
-            "status": "Статус",
-            "proveTxHash": "Перевірений хеш"
-        }
-    },
-    "blocksView": {
-        "title": "Блоки"
-    },
-    "transactionsView": {
-        "title": "Транзакції"
-    },
-    "tokensView": {
-        "title": "Top токени",
-        "heading": "Top токени",
-        "offChainDataPoweredBy": "Off-chain дані взяті з",
-        "table": {
-            "tokenName": "Назва Токена",
-            "price": "Ціна",
-            "tokenAddress": "Адреса Токена"
-        }
-    },
-    "timeMessages": {
-        "justNow": "щойно",
-        "past": "тому",
-        "future": "в",
-        "lastMonth": "минулого місяця",
-        "nextMonth": "наступного місяця",
-        "month": "міс.",
-        "monthPlural": "міс.",
-        "yesterday": "вчора",
-        "tomorrow": "завтра",
-        "day": "день",
-        "dayPlural": "дн.",
-        "lastYear": "минулого року",
-        "nextYear": "наступного року",
-        "year": "рік",
-        "yearPlural": "років",
-        "lastWeek": "Минулого тижня",
-        "nextWeek": "наступного тижня",
-        "week": "тиждень",
-        "weekPlural": "тиж.",
-        "hourPlural": "год.",
-        "hour": "год.",
-        "minute": "хв.",
-        "minutePlural": "хв.",
-        "second": "сек.",
-        "secondPlural": "сек."
-    },
-    "addressView": {
-        "title": "Адреса"
-    },
-    "accountView": {
-        "title": "Профіль",
-        "infoTableError": "Виникла помилка",
-        "accountNumber": "Профіль ",
-        "accountInfo": {
-            "address": "Адреса",
-            "verifiedNonce": "Перевірений нонс",
-            "sealedNonce": "Затверджений нонс"
-        },
-        "infoTableTitle": "Інформація про користувача",
-        "transactionTable": {
-            "title": "Останні транзакції",
-            "notFound": {
-                "title": "Цей профіль не має жодних транзакцій",
-                "subtitle": "Ми не можемо знайти жодних транзакцій, пов’язаних із цим акаунтом. Це ваш шанс бути першим"
-            }
-        },
-        "balanceTableTitle": "Мої кошти",
-        "balances": {
-            "notFound": {
-                "title": "Цей профіль не має жодних коштів",
-                "subtitle": "Ми не можемо знайти жодних коштів, пов’язаних із цим акаунтом."
-            }
-        }
+    "transaction": "Транзакція",
+    "transactionNumber": "Транзакція №",
+    "loadingInfoFailed": "Не вдалося завантажити інформацію про транзакцію",
+    "transactionNotFound": "Транзакцію не знайдено",
+    "transactionInfo": "Інформація про транзакцію",
+    "tryRequestAgain": "Спробуйте знову"
+  },
+  "header": {
+    "nav": {
+      "tools": "Інструменти",
+      "apiDocs": "АРІ Документація",
+      "contractVerification": "Верифікація Смарт контракту",
+      "debugger": "zkEVM Налагоджувач",
+      "blockExplorer": "Провідник",
+      "documentation": "Документація"
+    }
+  },
+  "locale": {
+    "en": "EN",
+    "uk": "UA"
+  },
+  "footer": {
+    "nav": {
+      "docs": "Документація",
+      "terms": "Умови користування",
+      "contact": "Звʼязатися з нами"
+    }
+  },
+  "searchForm": {
+    "errorMessage": "Будь ласка, введіть правильний запит",
+    "placeholder": "Пошук за адресою, номером блоку або хешем"
+  },
+  "estimatedCost": {
+    "title": "Приблизна вартість переказів та інших послуг",
+    "subtitle": "zkRollups значно дешевше, ніж L1 або Optimistic Rollups"
+  },
+  "blockExplorer": {
+    "title": "Провідник блоків Openchain zkEVM",
+    "subtitle": "Інфраструктура zkEVM, орієнтована на суверенні дані, щоб допомогти людству побудувати ідеальну екосистему інтелекту разом із агентами ШІ на $EARTH",
+    "latestBlocks": "Останні Блоки",
+    "latestTransactions": "Останні транзакції"
+  },
+  "failedRequest": "Не вдалося показати .... Будь ласка, спробуйте оновити сторінку.",
+  "contract": {
+    "title": "Контракт",
+    "contractNumber": "Контракт ",
+    "infoTableTitle": "Інформація Контракту",
+    "infoTableError": "Виникла помилка",
+    "balanceTableTitle": "Мої кошти",
+    "notFound": "Не знайдено",
+    "transactionTable": {
+      "error": "Щось пішло не так",
+      "notFound": {
+        "title": "Цей смарт-контракт не має жодних транзакцій",
+        "subtitle": "Ми не можемо знайти жодних транзакцій, пов’язаних із цим смарт-контрактом. Це ваш шанс бути першим"
+      }
     },
     "balances": {
-        "table": {
-            "asset": "Назва",
-            "balance": "Мої кошти",
-            "address": "Адреса Токена",
-            "notFound": "Не знайдено"
-        }
+      "notFound": {
+        "title": "Цей смарт-контракт не має жодних коштів",
+        "subtitle": "Ми не можемо знайти жодних коштів, пов’язаних із цим смарт-контрактом."
+      }
     },
-    "document": {
-        "title": "zkSync Era Провідник",
-        "home": "Транзакції, Блоки, Контракти та інше"
+    "table": {
+      "address": "Адреса",
+      "creator": "Автор",
+      "transactions": "Транзакції",
+      "fees": "Комісія сплачена"
     },
-    "notFound": {
-        "title": "Ой, ми нічого не знайшли",
-        "description": "На жаль, ми не можемо нічого знайти за результатами вашого пошуку, спробуйте ще раз за допомогою поля пошуку нижче",
-        "contactSupportTitle": "Якщо ви думаєте, що проблема з нашої сторони, будь ласка",
-        "contactSupport": "Служба підтримки"
-    },
-    "tabs": {
-        "transactions": "Транзакції",
-        "contract": "Контракт"
-    },
-    "debuggerTool": {
-        "title": "zkEVM Налагоджувач",
-        "whatFor": "За допомогою цього інструменту ви можете відтворити виконання своїх смарт-контрактів і прочитати інструкцію кожного з них",
-        "uploadJSON": "Завантажте JSON файл",
-        "orDropHere": "або перенесіть сюди",
-        "unableToParseTrace": "На жаль, не вдалося проаналізувати цей файл трасування",
-        "transaction": "Транзакція: з файлу трасування",
-        "executionStepNavigation": "Стрілка Вліво/Вправо",
-        "searchPlaceholder": "Пошук",
-        "metadataBlock": {
-            "contract": "Контракт",
-            "tag": "Таг",
-            "registers": "Реєстри",
-            "memory": "Памʼять",
-            "memoryChanges": "Memory Changes",
-            "memoryPageIndex": {
-                "stack": "стек",
-                "heap": "хіп",
-                "code": "код",
-                "returnData": "дані повернення",
-                "callData": "дані виклику"
-            }
-        }
-    },
-    "systemAlert": {
-        "indexerDelayed": "Індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі.",
-        "indexerDelayedDueToHeavyLoad": "Мережа наразі перебуває під великим навантаженням, індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі."
+    "bytecode": {
+      "areYouAnOwner": "Ви власник цього смарт-контракту?",
+      "verifyAndPublishToday": "Перевірте та опублікуйте вихідний код свого контракту сьогодні!\nЦей контракт було створено кодом контракту за адресою",
+      "verifyButton": "Завірити Смарт Контракт",
+      "deployedBytecode": "Розгорнутий байт-код",
+      "sourceCode": "Вихідний код"
     }
+  },
+  "contractVerification": {
+    "title": "Верифікація Смарт контракту",
+    "subtitle": "Перевірка вихідного коду забезпечує прозорість для користувачів, які взаємодіють зі смарт-контрактами. Завантаживши вихідний код, Era Explorer зіставить скомпільований код із кодом у блокчейні.",
+    "form": {
+      "title": "Деталі Контракту",
+      "compilationInfo": "Деталі компіляції",
+      "contractAddress": {
+        "label": "Адреса Контракту",
+        "underline": "Адреса 0x, яка надається під час створення контракту.",
+        "placeholder": "0x0000...",
+        "validation": {
+          "required": "Необхідно вказати адресу договору",
+          "not_valid": "Укажіть дійсну адресу договору"
+        }
+      },
+      "contractName": {
+        "label": "Імʼя Контракту",
+        "solcUnderline": "Має збігатися з назвою, вказаною в коді. Наприклад, у контракті MyContract { '{..}' } MyContract є назвою контракту.",
+        "vyperUnderline": "Має збігатися з ім'ям файлу. Наприклад, у контракті MyContract.vy MyContract є назвою контракту.",
+        "placeholder": "Імʼя",
+        "validation": {
+          "required": "Імʼя контракту є обовʼязковим"
+        }
+      },
+      "contractPath": {
+        "label": "Шлях до контракту",
+        "underline": "Відносний шлях до вашого контракту на момент компіляції",
+        "solcPlaceholder": "contracts/ContractFile.sol",
+        "vyperPlaceholder": "contracts/ContractFile.vy",
+        "validation": {
+          "required": "Шлях до контракту є обов'язковим"
+        }
+      },
+      "optimizationUsed": {
+        "label": "Оптимізація",
+        "options": {
+          "yes": "Так",
+          "no": "Ні"
+        },
+        "underline": "Якщо ви ввімкнули оптимізацію під час компіляції, виберіть так."
+      },
+      "solcVersion": {
+        "label": "Solc версія",
+        "placeholder": "Вибрати версію",
+        "validation": {
+          "required": "Solc версія є обовʼязковою"
+        },
+        "error": "Не вдалося отримати список Solc версій"
+      },
+      "zksolcVersion": {
+        "label": "Zksolc версія",
+        "placeholder": "Вибрати версію",
+        "validation": {
+          "required": "Zksolc версія є обовʼязковою"
+        },
+        "error": "Не вдалося отримати список Zksolc версій"
+      },
+      "vyperVersion": {
+        "label": "Vyper версія",
+        "placeholder": "Вибрати версію",
+        "validation": {
+          "required": "Vyper версія є обовʼязковою"
+        },
+        "error": "Не вдалося отримати список Vyper версій"
+      },
+      "zkvyperVersion": {
+        "label": "Zkvyper версія",
+        "placeholder": "Вибрати версію",
+        "validation": {
+          "required": "Zkvyper версія є обовʼязковою"
+        },
+        "error": "Не вдалося отримати список Zkvyper версій"
+      },
+      "sourceCode": {
+        "solcLabel": "Введіть код контракту Solidity",
+        "vyperLabel": "Введіть код контракту Vyper",
+        "validation": {
+          "required": "Потрібний вихідний код контракту"
+        }
+      },
+      "constructorArguments": {
+        "label": "Аргументи конструктора",
+        "placeholder": "0х"
+      },
+      "buttonVerify": "Завірити Смарт Контракт",
+      "buttonVerifying": "Перевірка...",
+      "buttonClear": "Очистити",
+      "unknownError": "Невдала перевірка контракту! Ми не можемо перевірити контракт на основі вашої інформації, будь ласка перевірте її знову"
+    },
+    "verified": {
+      "title": "Контракт перевірено!",
+      "underline": "Будь хто за допомогою {link} може перевірити свій код і взаємодіяти з ним",
+      "blockExplorer": "провідник",
+      "back": "Вернутися до Контракту"
+    }
+  },
+  "blockView": {
+    "blockNumber": "Блок №",
+    "infoTableTitle": "Інформація Блоку",
+    "infoTableError": "Виникла помилка",
+    "transactionTableError": "Щось пішло не так",
+    "transactionTable": {
+      "title": "Транзакції Блоку",
+      "footer": "Показати більше транзакцій ->"
+    },
+    "blockInfo": {
+      "number": "Номер",
+      "blockSize": "Розмір",
+      "rootHash": "Новий кореневий хеш",
+      "commitTxHash": "Завірений хеш",
+      "committedAt": "Затверджений",
+      "status": "Статус",
+      "proveTxHash": "Перевірений хеш"
+    }
+  },
+  "blocksView": {
+    "title": "Блоки"
+  },
+  "transactionsView": {
+    "title": "Транзакції"
+  },
+  "tokensView": {
+    "title": "Top токени",
+    "heading": "Top токени",
+    "offChainDataPoweredBy": "Off-chain дані взяті з",
+    "table": {
+      "tokenName": "Назва Токена",
+      "price": "Ціна",
+      "tokenAddress": "Адреса Токена"
+    }
+  },
+  "timeMessages": {
+    "justNow": "щойно",
+    "past": "тому",
+    "future": "в",
+    "lastMonth": "минулого місяця",
+    "nextMonth": "наступного місяця",
+    "month": "міс.",
+    "monthPlural": "міс.",
+    "yesterday": "вчора",
+    "tomorrow": "завтра",
+    "day": "день",
+    "dayPlural": "дн.",
+    "lastYear": "минулого року",
+    "nextYear": "наступного року",
+    "year": "рік",
+    "yearPlural": "років",
+    "lastWeek": "Минулого тижня",
+    "nextWeek": "наступного тижня",
+    "week": "тиждень",
+    "weekPlural": "тиж.",
+    "hourPlural": "год.",
+    "hour": "год.",
+    "minute": "хв.",
+    "minutePlural": "хв.",
+    "second": "сек.",
+    "secondPlural": "сек."
+  },
+  "addressView": {
+    "title": "Адреса"
+  },
+  "accountView": {
+    "title": "Профіль",
+    "infoTableError": "Виникла помилка",
+    "accountNumber": "Профіль ",
+    "accountInfo": {
+      "address": "Адреса",
+      "verifiedNonce": "Перевірений нонс",
+      "sealedNonce": "Затверджений нонс"
+    },
+    "infoTableTitle": "Інформація про користувача",
+    "transactionTable": {
+      "title": "Останні транзакції",
+      "notFound": {
+        "title": "Цей профіль не має жодних транзакцій",
+        "subtitle": "Ми не можемо знайти жодних транзакцій, пов’язаних із цим акаунтом. Це ваш шанс бути першим"
+      }
+    },
+    "balanceTableTitle": "Мої кошти",
+    "balances": {
+      "notFound": {
+        "title": "Цей профіль не має жодних коштів",
+        "subtitle": "Ми не можемо знайти жодних коштів, пов’язаних із цим акаунтом."
+      }
+    }
+  },
+  "balances": {
+    "table": {
+      "asset": "Назва",
+      "balance": "Мої кошти",
+      "address": "Адреса Токена",
+      "notFound": "Не знайдено"
+    }
+  },
+  "document": {
+    "title": "zkSync Era Провідник",
+    "home": "Транзакції, Блоки, Контракти та інше"
+  },
+  "notFound": {
+    "title": "Ой, ми нічого не знайшли",
+    "description": "На жаль, ми не можемо нічого знайти за результатами вашого пошуку, спробуйте ще раз за допомогою поля пошуку нижче",
+    "contactSupportTitle": "Якщо ви думаєте, що проблема з нашої сторони, будь ласка",
+    "contactSupport": "Служба підтримки"
+  },
+  "tabs": {
+    "transactions": "Транзакції",
+    "contract": "Контракт"
+  },
+  "debuggerTool": {
+    "title": "zkEVM Налагоджувач",
+    "whatFor": "За допомогою цього інструменту ви можете відтворити виконання своїх смарт-контрактів і прочитати інструкцію кожного з них",
+    "uploadJSON": "Завантажте JSON файл",
+    "orDropHere": "або перенесіть сюди",
+    "unableToParseTrace": "На жаль, не вдалося проаналізувати цей файл трасування",
+    "transaction": "Транзакція: з файлу трасування",
+    "executionStepNavigation": "Стрілка Вліво/Вправо",
+    "searchPlaceholder": "Пошук",
+    "metadataBlock": {
+      "contract": "Контракт",
+      "tag": "Таг",
+      "registers": "Реєстри",
+      "memory": "Памʼять",
+      "memoryChanges": "Memory Changes",
+      "memoryPageIndex": {
+        "stack": "стек",
+        "heap": "хіп",
+        "code": "код",
+        "returnData": "дані повернення",
+        "callData": "дані виклику"
+      }
+    }
+  },
+  "systemAlert": {
+    "indexerDelayed": "Індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі.",
+    "indexerDelayedDueToHeavyLoad": "Мережа наразі перебуває під великим навантаженням, індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі."
+  }
 }
