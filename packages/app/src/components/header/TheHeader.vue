@@ -226,7 +226,7 @@ const hasContent = computed(() => {
 
 <style lang="scss">
 .header-popover-container {
-  @apply relative bg-primary-900;
+  @apply relative bg-black;
   .header-wrap {
     @apply container z-50;
   }
@@ -299,10 +299,10 @@ const hasContent = computed(() => {
     }
   }
   .hero-banner-container {
-    @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-primary-900;
+    @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-black;
 
     .hero-image {
-      @apply h-5/6 w-auto;
+      @apply h-full w-full object-cover justify-center;
     }
   }
   .home-banner {
