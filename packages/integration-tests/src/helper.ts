@@ -19,6 +19,10 @@ export class Helper {
     }
   }
 
+  async printLog(text: string) {
+    console.log(text);
+  }
+
   async executeScript(script: string) {
     const output = execSync(script, { encoding: "utf-8" });
 
