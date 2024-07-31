@@ -8,6 +8,7 @@ export type NetworkConfig = {
   l2NetworkName: string;
   l2ChainId: 270 | 300 | 324;
   l1ExplorerUrl?: string;
+  l2ExplorerUrl?: string;
   maintenance: boolean;
   published: boolean;
   hostnames: string[];
