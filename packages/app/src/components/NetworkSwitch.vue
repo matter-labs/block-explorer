@@ -85,11 +85,11 @@ const getNetworkUrl = (network: NetworkConfig) => {
       cursor: pointer;
     }
     &.selected {
-      @apply bg-primary-100;
+      @apply bg-blue-300;
     }
     &:not(.selected).active,
     &:not(.selected):hover {
-      @apply bg-neutral-100;
+      @apply bg-blue-100;
     }
 
     .network-list-item {
@@ -101,7 +101,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
   }
 
   .toggle-button {
-    @apply relative flex w-full min-w-[125px] items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base text-neutral-700 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:border-primary-800 lg:bg-primary-800 lg:text-white;
+    @apply relative flex w-full min-w-[125px] items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base text-neutral-700 hover:cursor-pointer focus:border-white active:bg-white active:text-gray-600 lg:border-gray-700 hover:shadow lg:bg-black lg:text-white;
   }
   .network-item {
     @apply mr-4 flex items-center gap-1;

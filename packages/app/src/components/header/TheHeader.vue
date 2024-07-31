@@ -16,7 +16,7 @@
         </div>
         <PopoverGroup as="nav" class="navigation-container">
           <LinksPopover :label="t('header.nav.blockExplorer')" :items="blockExplorerLinks" />
-          <LinksPopover :label="t('header.nav.tools')" :items="toolsLinks" />
+          <!-- <LinksPopover :label="t('header.nav.tools')" :items="toolsLinks" /> -->
           <a
             v-for="item in navigation"
             :key="item.label"
@@ -159,7 +159,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
+    url: "https://github.com/Openchain-Labs",
   },
 ]);
 
