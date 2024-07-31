@@ -8,7 +8,7 @@ import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Token } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { baseTokenData } from "../src/config";
+import { baseToken } from "../src/config";
 
 describe("Stats API (e2e)", () => {
   let ETH_TOKEN;
@@ -21,7 +21,7 @@ describe("Stats API (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    ETH_TOKEN = baseTokenData;
+    ETH_TOKEN = baseToken;
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();

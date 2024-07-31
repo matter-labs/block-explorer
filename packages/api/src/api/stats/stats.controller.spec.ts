@@ -1,18 +1,25 @@
 import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
+import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
 import { Token } from "../../token/token.entity";
 import { StatsController } from "./stats.controller";
-import { baseTokenData } from "../../config";
+import { BASE_TOKEN_L2_ADDRESS } from "../../common/constants";
 
 describe("StatsController", () => {
   let controller: StatsController;
   let tokenServiceMock: TokenService;
+  let configServiceMock: ConfigService;
 
   beforeEach(async () => {
     tokenServiceMock = mock<TokenService>({
       findOne: jest.fn().mockResolvedValue(null),
+    });
+    configServiceMock = mock<ConfigService>({
+      get: jest.fn().mockResolvedValue({
+        l2Address: BASE_TOKEN_L2_ADDRESS,
+      }),
     });
 
     const module = await Test.createTestingModule({
@@ -21,6 +28,10 @@ describe("StatsController", () => {
         {
           provide: TokenService,
           useValue: tokenServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
       ],
     }).compile();
@@ -32,7 +43,7 @@ describe("StatsController", () => {
   describe("ethPrice", () => {
     it("returns ok response and ETH price when ETH token is found", async () => {
       jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce({
-        usdPrice: baseTokenData.usdPrice,
+        usdPrice: 1000,
         offChainDataUpdatedAt: new Date("2023-03-03"),
       } as Token);
 
@@ -41,7 +52,7 @@ describe("StatsController", () => {
         status: "1",
         message: "OK",
         result: {
-          ethusd: baseTokenData.usdPrice.toString(),
+          ethusd: "1000",
           ethusd_timestamp: Math.floor(new Date("2023-03-03").getTime() / 1000).toString(),
         },
       });

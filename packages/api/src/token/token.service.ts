@@ -6,8 +6,8 @@ import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Token } from "./token.entity";
 import { BASE_TOKEN_L2_ADDRESS } from "../common/constants";
-import config from "../config";
-const { baseTokenData } = config();
+import { baseToken } from "../config";
+
 export interface FilterTokensOptions {
   minLiquidity?: number;
 }
@@ -27,7 +27,7 @@ export class TokenService {
       select: fields,
     });
     if (!token && address.toLowerCase() === BASE_TOKEN_L2_ADDRESS.toLowerCase()) {
-      return baseTokenData as Token;
+      return baseToken as Token;
     }
     return token;
   }

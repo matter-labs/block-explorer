@@ -7,7 +7,8 @@ import { Token } from "./token.entity";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import config from "../config";
-const { baseTokenData } = config();
+
+const { baseToken } = config();
 
 jest.mock("../common/utils");
 
@@ -75,7 +76,7 @@ describe("TokenService", () => {
 
       it("returns ETH token for ETH address", async () => {
         const result = await service.findOne("0x000000000000000000000000000000000000800a");
-        expect(result).toEqual(baseTokenData);
+        expect(result).toEqual(baseToken);
       });
 
       it("returns null for non ETH address", async () => {

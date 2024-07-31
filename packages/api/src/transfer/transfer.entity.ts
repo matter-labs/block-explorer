@@ -5,7 +5,7 @@ import { normalizeAddressTransformer } from "../common/transformers/normalizeAdd
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
-import { baseTokenData } from "../config/index";
+import { baseToken, ethToken } from "../config";
 
 export enum TransferType {
   Deposit = "deposit",
@@ -88,8 +88,14 @@ export class Transfer extends BaseEntity {
 
   @AfterLoad()
   populateBaseToken() {
-    if (!this.token && this.tokenAddress.toLowerCase() === baseTokenData.l2Address.toLowerCase()) {
-      this.token = baseTokenData as Token;
+    // tokenAddress might be empty when not all entity fields are requested from the DB
+    if (this.tokenAddress && !this.token) {
+      const tokenAddress = this.tokenAddress.toLowerCase();
+      if (tokenAddress === baseToken.l2Address.toLowerCase()) {
+        this.token = baseToken as Token;
+      } else if (tokenAddress === ethToken.l2Address.toLowerCase()) {
+        this.token = ethToken as Token;
+      }
     }
   }
 }

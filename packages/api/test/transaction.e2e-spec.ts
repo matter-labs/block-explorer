@@ -14,7 +14,7 @@ import { AddressTransaction } from "../src/transaction/entities/addressTransacti
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
-import { baseTokenData } from "../src/config";
+import { baseToken } from "../src/config";
 
 describe("TransactionController (e2e)", () => {
   let ETH_TOKEN;
@@ -32,7 +32,7 @@ describe("TransactionController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    ETH_TOKEN = baseTokenData;
+    ETH_TOKEN = baseToken;
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);

@@ -17,10 +17,10 @@ import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
-import { baseTokenData } from "../src/config";
+import { baseToken } from "../src/config";
 
 describe("AddressController (e2e)", () => {
-  const ETH_TOKEN = baseTokenData;
+  const ETH_TOKEN = baseToken;
   let app: INestApplication;
   let addressRepository: Repository<Address>;
   let blockRepository: Repository<BlockDetails>;

@@ -1,17 +1,19 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
-type BaseToken = {
+
+export type BaseToken = {
+  name: string;
   symbol: string;
   decimals: number;
   l1Address: string;
   l2Address: string;
-  liquidity: number;
-  iconURL: string;
-  name: string;
-  usdPrice: number;
+  liquidity?: number;
+  iconURL?: string;
+  usdPrice?: number;
 };
-const defaultEthBaseToken: BaseToken = {
+
+const defaultBaseToken: BaseToken = {
   l2Address: BASE_TOKEN_L2_ADDRESS,
   l1Address: BASE_TOKEN_L1_ADDRESS,
   symbol: "ETH",
@@ -19,10 +21,9 @@ const defaultEthBaseToken: BaseToken = {
   decimals: 18,
   // Fallback data in case ETH token is not in the DB
   iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
-  liquidity: 220000000000,
-  usdPrice: 1800,
 };
-const baseTokenFromEnv = (): BaseToken => {
+
+const getBaseToken = (): BaseToken => {
   const {
     BASE_TOKEN_SYMBOL,
     BASE_TOKEN_DECIMALS,
@@ -32,24 +33,52 @@ const baseTokenFromEnv = (): BaseToken => {
     BASE_TOKEN_LIQUIDITY,
     BASE_TOKEN_USDPRICE,
   } = process.env;
-  const decimals = parseFloat(BASE_TOKEN_DECIMALS);
-  const liquidity = parseFloat(BASE_TOKEN_LIQUIDITY);
-  const usdPrice = parseFloat(BASE_TOKEN_USDPRICE);
+
   if (BASE_TOKEN_L1_ADDRESS && BASE_TOKEN_SYMBOL) {
     return {
+      name: BASE_TOKEN_NAME,
       symbol: BASE_TOKEN_SYMBOL,
-      decimals,
+      decimals: parseInt(BASE_TOKEN_DECIMALS, 10),
       l1Address: BASE_TOKEN_L1_ADDRESS,
       l2Address: BASE_TOKEN_L2_ADDRESS,
-      liquidity,
+      liquidity: parseFloat(BASE_TOKEN_LIQUIDITY) || undefined,
       iconURL: BASE_TOKEN_ICON_URL,
-      usdPrice,
-      name: BASE_TOKEN_NAME,
+      usdPrice: parseFloat(BASE_TOKEN_USDPRICE) || undefined,
     };
-  } else {
-    return defaultEthBaseToken;
   }
+
+  return defaultBaseToken;
 };
+
+const getEthToken = (): BaseToken => {
+  const {
+    ETH_TOKEN_SYMBOL,
+    ETH_TOKEN_DECIMALS,
+    ETH_TOKEN_L2_ADDRESS,
+    ETH_TOKEN_ICON_URL,
+    ETH_TOKEN_NAME,
+    ETH_TOKEN_LIQUIDITY,
+    ETH_TOKEN_USDPRICE,
+  } = process.env;
+
+  if (ETH_TOKEN_L2_ADDRESS) {
+    return {
+      name: ETH_TOKEN_NAME || defaultBaseToken.name,
+      symbol: ETH_TOKEN_SYMBOL || defaultBaseToken.symbol,
+      decimals: parseFloat(ETH_TOKEN_DECIMALS) || defaultBaseToken.decimals,
+      l1Address: "0x0000000000000000000000000000000000000000",
+      l2Address: ETH_TOKEN_L2_ADDRESS,
+      liquidity: parseFloat(ETH_TOKEN_LIQUIDITY) || undefined,
+      iconURL: ETH_TOKEN_ICON_URL || defaultBaseToken.iconURL,
+      usdPrice: parseFloat(ETH_TOKEN_USDPRICE) || undefined,
+    };
+  }
+
+  return defaultBaseToken;
+};
+
+export const baseToken: BaseToken = getBaseToken();
+export const ethToken: BaseToken = getEthToken();
 
 export default () => {
   const {
@@ -64,8 +93,6 @@ export default () => {
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
   } = process.env;
-
-  const baseTokenData: BaseToken = baseTokenFromEnv();
 
   const MAX_NUMBER_OF_REPLICA = 100;
 
@@ -127,9 +154,8 @@ export default () => {
     typeORM: getTypeOrmModuleOptions(),
     contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
     featureFlags,
-    baseTokenData,
+    baseToken: getBaseToken(),
+    ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
   };
 };
-
-export const baseTokenData = baseTokenFromEnv();

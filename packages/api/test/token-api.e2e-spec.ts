@@ -8,7 +8,7 @@ import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Token } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { baseTokenData } from "../src/config";
+import { baseToken } from "../src/config";
 
 describe("Token API (e2e)", () => {
   let app: INestApplication;
@@ -56,16 +56,16 @@ describe("Token API (e2e)", () => {
     });
 
     await tokenRepository.insert({
-      l2Address: baseTokenData.l2Address,
-      l1Address: baseTokenData.l1Address,
-      symbol: baseTokenData.symbol,
-      name: baseTokenData.name,
-      decimals: baseTokenData.decimals,
+      l2Address: baseToken.l2Address,
+      l1Address: baseToken.l1Address,
+      symbol: baseToken.symbol,
+      name: baseToken.name,
+      decimals: baseToken.decimals,
       blockNumber: 0,
       logIndex: 0,
-      usdPrice: baseTokenData.usdPrice,
-      liquidity: baseTokenData.liquidity,
-      iconURL: baseTokenData.iconURL,
+      usdPrice: baseToken.usdPrice,
+      liquidity: baseToken.liquidity,
+      iconURL: baseToken.iconURL,
     });
 
     await tokenRepository.insert({
@@ -129,21 +129,21 @@ describe("Token API (e2e)", () => {
 
     it("returns HTTP 200 and ETH token info for ETH token", () => {
       return request(app.getHttpServer())
-        .get(`/api?module=token&action=tokeninfo&contractaddress=${baseTokenData.l2Address}`)
+        .get(`/api?module=token&action=tokeninfo&contractaddress=${baseToken.l2Address}`)
         .expect(200)
         .expect((res) =>
           expect(res.body).toStrictEqual({
             message: "OK",
             result: [
               {
-                contractAddress: baseTokenData.l2Address,
-                iconURL: baseTokenData.iconURL,
-                l1Address: baseTokenData.l1Address,
-                liquidity: baseTokenData.liquidity.toString(),
-                symbol: baseTokenData.symbol,
-                tokenDecimal: baseTokenData.decimals.toString(),
-                tokenName: baseTokenData.name,
-                tokenPriceUSD: baseTokenData.usdPrice.toString(),
+                contractAddress: baseToken.l2Address,
+                iconURL: baseToken.iconURL,
+                l1Address: baseToken.l1Address,
+                liquidity: baseToken.liquidity.toString(),
+                symbol: baseToken.symbol,
+                tokenDecimal: baseToken.decimals.toString(),
+                tokenName: baseToken.name,
+                tokenPriceUSD: baseToken.usdPrice.toString(),
               },
             ],
             status: "1",

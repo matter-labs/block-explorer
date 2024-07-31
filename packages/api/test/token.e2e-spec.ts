@@ -10,7 +10,7 @@ import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
-import { baseTokenData } from "../src/config";
+import { baseToken } from "../src/config";
 
 describe("TokenController (e2e)", () => {
   let ETH_TOKEN;
@@ -25,7 +25,7 @@ describe("TokenController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-    ETH_TOKEN = baseTokenData;
+    ETH_TOKEN = baseToken;
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);

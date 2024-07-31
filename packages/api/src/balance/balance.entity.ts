@@ -3,7 +3,8 @@ import { BaseEntity } from "../common/entities/base.entity";
 import { Token } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
-import { baseTokenData } from "../config/index";
+import { baseToken, ethToken } from "../config";
+
 @Entity({ name: "balances" })
 export class Balance extends BaseEntity {
   @PrimaryColumn({ type: "bytea", transformer: normalizeAddressTransformer })
@@ -25,11 +26,14 @@ export class Balance extends BaseEntity {
 
   @AfterLoad()
   populateBaseToken() {
-    if (
-      !this.token &&
-      (this.tokenAddress === undefined || this.tokenAddress.toLowerCase() === baseTokenData.l2Address.toLowerCase())
-    ) {
-      this.token = baseTokenData as Token;
+    // tokenAddress might be empty when not all entity fields are requested from the DB
+    if (this.tokenAddress && !this.token) {
+      const tokenAddress = this.tokenAddress.toLowerCase();
+      if (tokenAddress === baseToken.l2Address.toLowerCase()) {
+        this.token = baseToken as Token;
+      } else if (tokenAddress === ethToken.l2Address.toLowerCase()) {
+        this.token = ethToken as Token;
+      }
     }
   }
 }

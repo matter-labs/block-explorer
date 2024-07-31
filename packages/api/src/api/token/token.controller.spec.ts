@@ -4,8 +4,7 @@ import { Logger } from "@nestjs/common";
 import { TokenService } from "../../token/token.service";
 import { Token } from "../../token/token.entity";
 import { TokenController } from "./token.controller";
-import config from "../../config/index";
-const { baseTokenData } = config();
+
 describe("TokenController", () => {
   let controller: TokenController;
   let tokenServiceMock: TokenService;
@@ -33,7 +32,16 @@ describe("TokenController", () => {
 
   describe("tokenInfo", () => {
     it("returns ok response and token info when token is found", async () => {
-      const baseToken = baseTokenData as Token;
+      const baseToken = {
+        l2Address: "l2Address",
+        l1Address: "l1Address",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        liquidity: 10,
+        iconURL: "iconURL",
+        usdPrice: 20,
+      } as Token;
       jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce(baseToken);
       const response = await controller.tokenInfo(contractAddress);
       expect(response).toEqual({
