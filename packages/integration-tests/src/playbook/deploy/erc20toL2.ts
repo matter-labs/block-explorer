@@ -15,4 +15,5 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   const contractAddress = await contract.getAddress();
   console.log(`${artifact.contractName} was deployed to ${contractAddress}`);
   await fs.writeFile(Buffer.L2, contractAddress);
+  console.log(`deployERC20toL2 - done`);
 }

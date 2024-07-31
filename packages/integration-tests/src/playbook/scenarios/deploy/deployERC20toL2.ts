@@ -8,9 +8,9 @@ export const deployERC20toL2 = async function () {
 
   await helper.executeScript(`cd ${playbookRoot} && npm run compile`);
   await helper.executeScript(`cd ${playbookRoot} && npm run deployToL2`);
-
+  await helper.printLog(`Return to the initial script: deployERC20toL2`);
   const deployedToken = await helper.getStringFromFile(bufferFile);
-  console.log("The custom ERC20 token has been deployed to L2: ", Logger.textSeparator, deployedToken);
+  await helper.printLog("The custom ERC20 token has been deployed to L2: " + Logger.textSeparator + deployedToken);
 
   return deployedToken;
 };
