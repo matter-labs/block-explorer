@@ -11,7 +11,7 @@ import type { HardhatUserConfig } from "hardhat/config";
 
 const config: HardhatUserConfig = {
   zksolc: {
-    version: "1.5.2",
+    version: "latest",
     compilerSource: "binary",
     settings: {},
   },
@@ -25,7 +25,7 @@ const config: HardhatUserConfig = {
     },
   },
   solidity: {
-    version: "0.8.24",
+    version: "0.8.17",
     settings: {
       optimizer: {
         enabled: true,
