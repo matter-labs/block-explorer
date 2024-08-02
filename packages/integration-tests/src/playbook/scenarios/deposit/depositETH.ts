@@ -19,7 +19,7 @@ export const depositEth = async function (sum = "0.000009") {
 
   const txHash = deposit.hash;
 
-  await deposit.wait(1);
+  await deposit.waitL1Commit();
   await helper.txHashLogger(Logger.deposit, txHash, "ETH");
 
   return txHash;
