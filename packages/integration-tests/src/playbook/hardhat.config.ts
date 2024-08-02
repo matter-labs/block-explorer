@@ -11,7 +11,7 @@ import type { HardhatUserConfig } from "hardhat/config";
 
 const config: HardhatUserConfig = {
   zksolc: {
-    version: "1.4.1",
+    version: "1.5.2",
     compilerSource: "binary",
     settings: {},
   },

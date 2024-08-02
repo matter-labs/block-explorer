@@ -24,8 +24,7 @@ export class Helper {
   }
 
   async executeScript(script: string) {
-    const output = execSync(script, { encoding: "utf-8" });
-
+    const output = execSync(script, { encoding: "utf-8", timeout: 10000 });
     try {
       console.log(`> Run NPM Script "${script}":\n`, output);
       return output;
