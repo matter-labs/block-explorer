@@ -5,7 +5,6 @@ import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { TokenInfoResponseDto } from "../dtos/token/tokenInfo.dto";
 import { TokenService } from "../../token/token.service";
-
 const entityName = "token";
 
 @ApiExcludeController()
