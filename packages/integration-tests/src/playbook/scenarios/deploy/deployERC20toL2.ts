@@ -10,8 +10,10 @@ export const deployERC20toL2 = async function () {
   await helper.printLog(bufferFile);
 
   await helper.executeScript(`cd ${playbookRoot} && npm run compile`);
+  await helper.delay(1500);
   await helper.executeScript(`cd ${playbookRoot} && npm run deployToL2`);
-  await helper.executeScript(`cat ${bufferFile}`);
+  await helper.delay(1500);
+  // await helper.executeScript(`cat ${bufferFile}`);
   await helper.printLog(`Return to the initial script: deployERC20toL2`);
   const deployedToken = await helper.getStringFromFile(bufferFile);
   await helper.printLog(`Before the latest PRINT in global`);
