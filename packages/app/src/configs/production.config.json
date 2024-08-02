@@ -14,7 +14,8 @@
       "maintenance": false,
       "name": "sepolia",
       "published": true,
-      "rpcUrl": "https://sepolia.era.zksync.dev"
+      "rpcUrl": "https://sepolia.era.zksync.dev",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
       "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
@@ -32,7 +33,8 @@
       "published": true,
       "rpcUrl": "https://mainnet.era.zksync.io",
       "tokensMinLiquidity": 0,
-      "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E"
+      "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     }
   ]
 }
