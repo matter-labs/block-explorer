@@ -7,7 +7,7 @@
         </span>
         <span class="unknown-token-symbol" v-else>{{ t("balances.table.unknownSymbol") }}</span>
       </span>
-      <div class="token-icon-container" :class="iconSize">
+      <div class="token-icon-container" :class="[iconSize, { isSoph: isSoph }]">
         <div class="token-img-loader"></div>
         <img
           class="token-img"
@@ -36,6 +36,8 @@ import { useImage } from "@vueuse/core";
 import AddressLink from "@/components/AddressLink.vue";
 
 import type { Hash } from "@/types";
+
+import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
 
 export type IconSize = "sm" | "md" | "lg" | "xl";
 
@@ -68,9 +70,12 @@ const props = defineProps({
   },
 });
 
+const isSoph = computed(() => props.address === ETH_TOKEN_L2_ADDRESS);
+
 const imgSource = computed(() => {
-  return props.iconUrl || "/images/currencies/customToken.svg";
+  return isSoph.value ? "/images/currencies/sophonToken.svg" : props.iconUrl || "/images/currencies/customToken.svg";
 });
+
 const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
 </script>
 
@@ -89,6 +94,10 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
       @apply relative overflow-hidden rounded-full;
       &.sm {
         @apply h-4 w-4;
+
+        &.isSoph {
+          @apply h-6 w-6;
+        }
       }
       &.md {
         @apply h-5 w-5;
@@ -98,6 +107,10 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
       }
       &.xl {
         @apply h-8 w-8;
+
+        &.isSoph {
+          @apply h-10 w-10;
+        }
       }
 
       .token-img-loader,
