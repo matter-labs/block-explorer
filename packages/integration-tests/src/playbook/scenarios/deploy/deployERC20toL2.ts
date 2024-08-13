@@ -8,9 +8,10 @@ export const deployERC20toL2 = async function () {
   const playbookRoot = path.join("src", "playbook");
   const bufferFile = path.join(playbookRoot, Buffer.L2);
   await helper.printLog(bufferFile);
-
+  await helper.printLog(`Before contract compilation: deployERC20toL2`);
   await helper.executeScript(`cd ${playbookRoot} && npm run compile`);
   // await helper.delay(1500);
+  await helper.printLog(`Before contract deployment: deployERC20toL2`);
   await helper.executeScript(`cd ${playbookRoot} && npm run deployToL2`);
   // await helper.delay(1500);
   // await helper.executeScript(`cat ${bufferFile}`);
