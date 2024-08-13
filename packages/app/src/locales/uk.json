@@ -1,6 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "zkSync Era",
+        "l2NetworkName": "ZKsync Era",
         "l1NetworkName": "Ethereum"
     },
     "copyButton": {
@@ -175,7 +175,7 @@
         "subtitle": "zkRollups значно дешевше, ніж L1 або Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "zkSync Era Провідник",
+        "title": "ZKsync Era Провідник",
         "subtitle": "Переглядайте в режимі реального часу інформацію про блоки, транзакції, контракти та іншу активність у мережі.",
         "latestBlocks": "Останні Блоки",
         "latestTransactions": "Останні транзакції"
@@ -410,7 +410,7 @@
         }
     },
     "document": {
-        "title": "zkSync Era Провідник",
+        "title": "ZKsync Era Провідник",
         "home": "Транзакції, Блоки, Контракти та інше"
     },
     "notFound": {
