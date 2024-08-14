@@ -1,6 +1,6 @@
 import { exec } from "child_process";
 import { ethers } from "ethers";
-// import { promises as fs } from "fs";
+import { promises as fs } from "fs";
 import * as path from "path";
 import * as request from "supertest";
 import { Provider } from "zksync-ethers";
@@ -41,19 +41,15 @@ export class Helper {
   }
 
   async getStringFromFile(fileName: string) {
-    const absoluteRoute = new URL(`file://${path.join(__dirname, "..", fileName)}`);
-    await this.printLog("Ok, we are in getStringFromFile, absoluteRoute is " + absoluteRoute.href);
+    const absoluteRoute = path.join(__dirname, "..", fileName);
+    await this.printLog("Ok, we are in getStringFromFile, absoluteRoute is " + absoluteRoute);
     try {
       await this.printLog("Ok, we are in Return");
-      const response = await fetch(absoluteRoute.href);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch the file: ${response.statusText}`);
-      }
-      const data = await response.text();
+      const data = await fs.readFile(absoluteRoute, { encoding: "utf-8" });
       await this.printLog("File contains: " + data);
       return data;
-    } catch (error) {
-      console.log(`There is no the expected file: ${fileName}`);
+    } catch {
+      console.log(`There is no the expected file:  ${fileName}`);
     }
   }
 
