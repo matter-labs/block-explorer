@@ -53,6 +53,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.vscode
 
 # IDE - VSCode
 .vscode/*
