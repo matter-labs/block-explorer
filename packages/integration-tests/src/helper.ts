@@ -34,14 +34,18 @@ export class Helper {
   }
 
   async getStringFromFile(fileName: string) {
-    const absoluteRoute = path.join(__dirname, "..", fileName);
-    await this.printLog("Ok, we are in getStringFromFile, absoluteRoute is " + absoluteRoute);
+    const absoluteRoute = new URL(`file://${path.join(__dirname, "..", fileName)}`);
+    await this.printLog("Ok, we are in getStringFromFile, absoluteRoute is " + absoluteRoute.href);
     try {
       await this.printLog("Ok, we are in Return");
-      const data = await fs.readFile(absoluteRoute, { encoding: "utf-8" });
+      const response = await fetch(absoluteRoute.href);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch the file: ${response.statusText}`);
+      }
+      const data = await response.text();
       await this.printLog("File contains: " + data);
       return data;
-    } catch {
+    } catch (error) {
       console.log(`There is no the expected file: ${fileName}`);
     }
   }
