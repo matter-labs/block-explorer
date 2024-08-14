@@ -1,8 +1,8 @@
 import { localConfig } from "../../src/config";
 
-describe("A stub", () => {
+describe("Stub: 200 == 200", () => {
   jest.setTimeout(localConfig.standardTimeout);
-  //@id1513
+
   it("Self test", async () => {
     expect(200).toBe(200);
   });
