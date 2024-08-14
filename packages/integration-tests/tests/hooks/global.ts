@@ -8,6 +8,7 @@ export default async () => {
   // const helper = new Helper();
   // const bufferRoute = "src/playbook/";
 
+  // await playbook.compileContracts();
   await playbook.deployERC20toL2();
   // await playbook.deployERC20toL1();
   // await playbook.depositETH("0.0000001");
