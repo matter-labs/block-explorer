@@ -1,6 +1,6 @@
-import { execSync } from "child_process";
+import { exec } from "child_process";
 import { ethers } from "ethers";
-import { promises as fs } from "fs";
+// import { promises as fs } from "fs";
 import * as path from "path";
 import * as request from "supertest";
 import { Provider } from "zksync-ethers";
@@ -23,14 +23,21 @@ export class Helper {
     console.log(text);
   }
 
-  async executeScript(script: string) {
-    const output = execSync(script, { encoding: "utf-8" });
-    try {
-      console.log(`> Run NPM Script "${script}":\n`, output);
-      return output;
-    } catch (e) {
-      console.log(e);
-    }
+  async executeScript(script: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      exec(script, { encoding: "utf-8" }, (error, stdout, stderr) => {
+        if (error) {
+          console.log(`Error running script "${script}":`, error);
+          reject(error);
+          return;
+        }
+        if (stderr) {
+          console.log(`Script "${script}" output to stderr:`, stderr);
+        }
+        console.log(`> Run NPM Script "${script}":\n`, stdout);
+        resolve(stdout);
+      });
+    });
   }
 
   async getStringFromFile(fileName: string) {

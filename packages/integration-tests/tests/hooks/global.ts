@@ -15,4 +15,5 @@ export default async () => {
   // const bufferFile = bufferRoute + Buffer.L1;
   // const token = await helper.getStringFromFile(bufferFile);
   // await playbook.depositERC20("100", token, 18);
+  console.log("Final step in global == == ==");
 };
