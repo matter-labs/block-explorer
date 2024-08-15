@@ -15,7 +15,7 @@ $ npm install
 ```
 cp .env.example .env
 ```
-- In order to tell the service where to get the blockchain data from set the value of the `BLOCKCHAIN_RPC_URL` env var to your blockchain RPC API URL. For ZKsync Era testnet it can be set to `https://sepolia.era.zksync.dev`. For ZKsync Era mainnet - `https://mainnet.era.zksync.ioo`.
+- In order to tell the service where to get the blockchain data from set the value of the `BLOCKCHAIN_RPC_URL` env var to your blockchain RPC API URL. For ZKsync Era testnet it can be set to `https://sepolia.era.zksync.dev`. For ZKsync Era mainnet - `https://mainnet.era.zksync.io`.
 - To retrieve aggregated blockchain data for a certain block, the Worker service calls the [Data Fetcher](/packages/data-fetcher) service via HTTP. To specify Data Fetcher URL use `DATA_FETCHER_URL` env variable. By default, it is set to `http://localhost:3040` which is a default value for the local environment.
 - Set up env variables for Postgres database connection. By default it points to `localhost:5432` and database name is `block-explorer`.
 You need to have a running Postgres server, set the following env variables to point the service to your database:
