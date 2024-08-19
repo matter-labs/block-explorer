@@ -42,12 +42,8 @@ export class Helper {
 
   async getStringFromFile(fileName: string) {
     const absoluteRoute = path.join(__dirname, "..", fileName);
-    await this.printLog("Ok, we are in getStringFromFile, absoluteRoute is " + absoluteRoute);
     try {
-      await this.printLog("Ok, we are in Return");
-      const data = await fs.readFile(absoluteRoute, { encoding: "utf-8" });
-      await this.printLog("File contains: " + data);
-      return data;
+      return await fs.readFile(absoluteRoute, { encoding: "utf-8" });
     } catch {
       console.log(`There is no the expected file:  ${fileName}`);
     }
