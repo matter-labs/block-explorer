@@ -22,7 +22,8 @@ jobs:
           - logs.test.ts
           - stats.test.ts
           - tokens.test.ts
-#          - transactions.test.ts
+          - transactions_set1.test.ts
+          - transactions_set2.test.ts
     name: 'API test set: ${{ matrix.test-pattern}} / Node: ${{ matrix.node-version}}'
     steps:
       - name: Checkout with Submodule
