@@ -14,7 +14,7 @@ jobs:
         node-version: ['lts/*'] # 18.17.1 or lts/* 
         test-pattern:
           - stub.test.ts
-          # - accounts.test.ts
+          - accounts.test.ts
           # - addresses.test.ts
           - batches.test.ts
           - blocks.test.ts
