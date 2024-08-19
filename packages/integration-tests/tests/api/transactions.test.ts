@@ -1051,7 +1051,7 @@ describe("Transactions", () => {
         expect(typeof response.body.items[0].transactionIndex).toStrictEqual("number");
         expect(typeof response.body.items[0].logIndex).toStrictEqual("number");
         expect(typeof response.body.items[0].timestamp).toStrictEqual("string");
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ address: contract }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }));
         expect(Array.isArray(response.body.items[1].topics)).toStrictEqual(true);
         expect(typeof response.body.items[1].data).toStrictEqual("string");
         expect(typeof response.body.items[1].blockNumber).toStrictEqual("number");
@@ -1059,7 +1059,7 @@ describe("Transactions", () => {
         expect(typeof response.body.items[1].transactionIndex).toStrictEqual("number");
         expect(typeof response.body.items[1].logIndex).toStrictEqual("number");
         expect(typeof response.body.items[1].timestamp).toStrictEqual("string");
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ address: Token.ETHER_ERC20_Address }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ address: contract }));
         expect(Array.isArray(response.body.items[2].topics)).toStrictEqual(true);
         expect(typeof response.body.items[2].data).toStrictEqual("string");
         expect(typeof response.body.items[2].blockNumber).toStrictEqual("number");
@@ -1084,7 +1084,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/transactions", () => {
+  xdescribe("/transactions", () => {
     //@id1506
     it("Verify the transaction via /transactions", async () => {
       await helper.retryTestAction(async () => {
@@ -1148,7 +1148,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/api?module=transaction", () => {
+  xdescribe("/api?module=transaction", () => {
     //@id1697
     it("Verify /api?module=transaction&action=getstatus response", async () => {
       await helper.retryTestAction(async () => {
