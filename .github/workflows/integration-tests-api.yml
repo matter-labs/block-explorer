@@ -15,7 +15,7 @@ jobs:
         test-pattern:
           - stub.test.ts
           - accounts.test.ts
-          # - addresses.test.ts
+          - addresses.test.ts
           - batches.test.ts
           - blocks.test.ts
           # - contracts.test.ts
