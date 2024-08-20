@@ -33,23 +33,12 @@ export default async function (hre: HardhatRuntimeEnvironment) {
 
   const erc20 = getToken(hre, emptyWallet);
 
-  // const gasPrice = await provider.getGasPrice();
-
   const paymasterParams = utils.getPaymasterParams(PAYMASTER_ADDRESS, {
     type: "ApprovalBased",
     token: TOKEN_ADDRESS,
     minimalAllowance: 1,
     innerInput: new Uint8Array(),
   });
-
-  // const gasLimit = await erc20.mint(emptyWallet.address, 100, {
-  //   customData: {
-  //     gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
-  //     paymasterParams: paymasterParams,
-  //   },
-  // });
-
-  // gasPrice.mul(gasLimit.toString()); //<-- TODO: Unknown mul
 
   const mintTx = await erc20.mint(emptyWallet.address, 90, {
     customData: {
