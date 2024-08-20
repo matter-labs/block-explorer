@@ -21,6 +21,7 @@ env:
     Unlicense;
     UNLICENSED;
     BlueOak-1.0.0;
+    WTFPL;
   # gitconfiglocal@1.0.0 - BSD-3-Clause
   # glob-to-regexp@0.3.0 - BSD-2-Clause
   # map-stream@0.1.0 - MIT
@@ -57,7 +58,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install license checker
         run: npm install -g license-checker
