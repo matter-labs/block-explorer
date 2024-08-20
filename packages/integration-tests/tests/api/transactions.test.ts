@@ -1102,7 +1102,7 @@ describe("Transactions", () => {
         expect(response.body.items[0].data.length).toBeGreaterThan(0);
         expect(typeof response.body.items[0].value).toStrictEqual("string");
         expect(response.body.items[0].value.length).toBeGreaterThanOrEqual(1);
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isL1Originated: true }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ isL1Originated: false }));
         expect(typeof response.body.items[0].fee).toStrictEqual("string");
         expect(response.body.items[0].fee.length).toBe(14);
         expect(typeof response.body.items[0].nonce).toStrictEqual("number");
