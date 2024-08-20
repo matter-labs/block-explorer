@@ -40,9 +40,9 @@
             "blockNumberTooltip": "Block height, indicates the length of the blockchain, increases after the addition of the new block",
             "blockSize": "Block Size",
             "blockSizeTooltip": "Number of transactions inside the block",
-            "rootHash": "Root hash",
-            "rootHashTooltip": "State root hash obtained after this block execution",
-            "noRootHashYet": "No root hash yet",
+            "blockHash": "Block hash",
+            "blockHashTooltip": "The hash of the current block",
+            "noBlockHashYet": "No block hash yet",
             "commitTxHash": "Commit tx hash",
             "commitTxHashTooltip": "Hash of the L1 transaction sent to the smart contract to commit the block",
             "committedAt": "Committed",
@@ -437,8 +437,8 @@
             "contractPath": {
                 "label": "Contract Path",
                 "underline": "Relative path to your contract at the moment of compilation",
-                "solcPlaceholder": "/contracts/ContractFile.sol",
-                "vyperPlaceholder": "/contracts/ContractFile.vy",
+                "solcPlaceholder": "contracts/ContractFile.sol",
+                "vyperPlaceholder": "contracts/ContractFile.vy",
                 "validation": {
                     "required": "Contract path is required"
                 }

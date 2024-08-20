@@ -26,8 +26,8 @@
             "timestamp": "Створено",
             "blockNumber": "Номер",
             "blockSize": "Розмір",
-            "rootHash": "Кореневий хеш",
-            "noRootHashYet": "Ще немає кореневого хешу",
+            "blockHash": "Хеш блоку",
+            "noBlockHashYet": "Ще немає хешу блоку",
             "committedAt": "Затверджений",
             "commitTxHash": "Завірений хеш",
             "notYetCommitted": "Ще не затверджено",
@@ -239,6 +239,15 @@
                     "required": "Імʼя контракту є обовʼязковим"
                 }
             },
+            "contractPath": {
+                "label": "Шлях до контракту",
+                "underline": "Відносний шлях до вашого контракту на момент компіляції",
+                "solcPlaceholder": "contracts/ContractFile.sol",
+                "vyperPlaceholder": "contracts/ContractFile.vy",
+                "validation": {
+                    "required": "Шлях до контракту є обов'язковим"
+                }
+            },
             "optimizationUsed": {
                 "label": "Оптимізація",
                 "options": {
@@ -364,7 +373,7 @@
         "second": "сек.",
         "secondPlural": "сек."
     },
-    "addressView" : {
+    "addressView": {
         "title": "Адреса"
     },
     "accountView": {
@@ -421,7 +430,7 @@
         "orDropHere": "або перенесіть сюди",
         "unableToParseTrace": "На жаль, не вдалося проаналізувати цей файл трасування",
         "transaction": "Транзакція: з файлу трасування",
-        "executionStepNavigation":"Стрілка Вліво/Вправо",
+        "executionStepNavigation": "Стрілка Вліво/Вправо",
         "searchPlaceholder": "Пошук",
         "metadataBlock": {
             "contract": "Контракт",

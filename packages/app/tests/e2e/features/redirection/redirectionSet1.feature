@@ -13,7 +13,7 @@ Feature: Redirection
 
     Examples:
       | Extra button name | url                                     |
-      | Docs              | https://docs.zksync.io/build/tooling/block-explorer/getting-started.html         |
+      | Docs              | https://docs.zksync.io/build/tooling/zksync-block-explorers         |
       | Terms             | https://zksync.io/terms                 |
       | Contact           | https://zksync.io/contact      |
 
@@ -27,12 +27,12 @@ Feature: Redirection
       | Icon    | url                                |
       # discord renamed to "join"
       | join    | https://join.zksync.dev/           |
-      | twitter | https://twitter.com/zksync         |
+      | twitter | https://x.com/zksync               |
 
   @id251
   Scenario: Verify redirection for Documentation link
     Given I click by text "Documentation"
-    Then New page have "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html" address
+    Then New page have "https://docs.zksync.io/build/tooling/zksync-block-explorers" address
 
   @id252
   Scenario Outline: Verify redirection for "<Sub-Section>" in BE menu

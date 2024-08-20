@@ -57,12 +57,13 @@ import { BigNumber } from "ethers";
 import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
+import useContext from "@/composables/useContext";
 import useToken from "@/composables/useToken";
 
 import type { Token } from "@/composables/useToken";
 import type { FeeData } from "@/composables/useTransaction";
 
-import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
+const { currentNetwork } = useContext();
 
 const props = defineProps({
   showDetails: {
@@ -81,7 +82,7 @@ const collapsed = ref(false);
 const buttonTitle = computed(() =>
   collapsed.value ? t("transactions.table.feeDetails.closeDetails") : t("transactions.table.feeDetails.moreDetails")
 );
-getTokenInfo(ETH_TOKEN_L2_ADDRESS);
+getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const initialFee = computed(() => {
   if (props.feeData) {
