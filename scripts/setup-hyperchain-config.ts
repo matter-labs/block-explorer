@@ -18,6 +18,7 @@ const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
     name: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
     published: true,
     rpcUrl: zkSyncEnvs.API_WEB3_JSON_RPC_HTTP_URL || "",
+    baseTokenAddress: "0x000000000000000000000000000000000000800A",
   }]
 });
 
