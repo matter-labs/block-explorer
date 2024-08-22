@@ -114,5 +114,64 @@ describe("Blocks", () => {
         expect(typeof response.body.result.uncles).toStrictEqual("object");
       });
     });
+
+    it("Verify /getblocknobytime - No closest block present", async () => {
+      await helper.retryTestAction(async () => {
+        const blocks = await helper.performGETrequest("/blocks");
+        const blockTimestamp = blocks.body.items[0].timestamp;
+        const timestampMilliseconds: number = new Date(blockTimestamp).getTime();
+        const timestampSeconds: number = Math.floor(timestampMilliseconds / 1000) + 10000;
+
+        apiRoute = `/api?module=block&action=getblocknobytime&closest=after&timestamp=${timestampSeconds}`;
+        response = await helper.performGETrequest(apiRoute);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "1" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! No closest block found" }));
+      });
+    });
+
+    it("Verify /getblocknobytime - Incorrect timestamp format", async () => {
+      await helper.retryTestAction(async () => {
+        apiRoute = `/api?module=block&action=getblocknobytime&closest=before&timestamp=9999999999999`;
+        response = await helper.performGETrequest(apiRoute);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ result: "Error! Invalid parameter" }));
+      });
+    });
+
+    //id1948
+    it("Verify /getblockreward - No record found", async () => {
+      await helper.retryTestAction(async () => {
+        apiRoute = `/api?module=block&action=getblockreward&blockno=999999999999999`;
+        response = await helper.performGETrequest(apiRoute);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "No record found" }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ blockNumber: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ timeStamp: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ blockMiner: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ blockReward: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ uncles: null }));
+        expect(response.body.result).toStrictEqual(expect.objectContaining({ uncleInclusionReward: null }));
+      });
+    });
+
+    it("Verify /getblockreward - Validation error for block number", async () => {
+      await helper.retryTestAction(async () => {
+        apiRoute = `/api?module=block&action=getblockreward&blockno=123123123123123123123`;
+        response = await helper.performGETrequest(apiRoute);
+
+        expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+        expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+        expect(response.body).toStrictEqual(
+          expect.objectContaining({
+            result: "Validation failed: specified int is out of defined boundaries: [0;9007199254740991].",
+          })
+        );
+      });
+    });
   });
 });

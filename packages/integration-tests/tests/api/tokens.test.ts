@@ -156,6 +156,34 @@ describe("Tokens", () => {
             `tokens/${decapitalizedTokenAddress}/transfers?page=1&limit=10`
           );
         });
+
+        //@id1956:I
+        it("Verify the /tokeninfo endpoint - Invalid contract address format", async () => {
+          await helper.retryTestAction(async () => {
+            apiRoute = `/api?module=token&action=tokeninfo&contractaddress=0x0faF6df7054946141266420b4ww3783387A78d82A9`;
+            response = await helper.performGETrequest(apiRoute);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+            expect(response.body).toStrictEqual(expect.objectContaining({ message: "NOTOK" }));
+            expect(response.body).toStrictEqual(
+              expect.objectContaining({ result: "Error! Invalid contract address format" })
+            );
+          });
+        });
+
+        //@id1956:II
+        it("Verify the /tokeninfo endpoint - No data found", async () => {
+          await helper.retryTestAction(async () => {
+            apiRoute = `/api?module=token&action=tokeninfo&contractaddress=${Wallets.richWalletAddress}`;
+            response = await helper.performGETrequest(apiRoute);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toStrictEqual(expect.objectContaining({ status: "0" }));
+            expect(response.body).toStrictEqual(expect.objectContaining({ message: "No data found" }));
+            expect(response.body).toStrictEqual(expect.objectContaining({ result: [] }));
+          });
+        });
       });
     });
   });
