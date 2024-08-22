@@ -245,7 +245,7 @@ describe("API module: Account", () => {
     });
 
     //@id1807
-    it.only("Verify /api?module=account&action=getminedblocks", async () => {
+    it("Verify /api?module=account&action=getminedblocks", async () => {
       await helper.retryTestAction(async () => {
         apiRoute = `/api?module=account&action=getminedblocks&page=1&offset=10&address=0x0000000000000000000000000000000000000000`;
         response = await helper.performGETrequest(apiRoute);
