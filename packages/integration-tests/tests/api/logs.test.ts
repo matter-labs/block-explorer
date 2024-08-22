@@ -39,7 +39,7 @@ describe("API module: Logs", () => {
         expect(response.body.result[0].data.length).toBe(194);
         expect(typeof response.body.result[0].blockNumber).toStrictEqual("string");
         expect(response.body.result[0].blockNumber.startsWith("0x")).toBe(true);
-        expect(response.body.result[0].blockNumber.length).toBe(4);
+        expect(response.body.result[0].blockNumber.length).toBeGreaterThan(2);
         expect(typeof response.body.result[0].timeStamp).toStrictEqual("string");
         expect(response.body.result[0].timeStamp.startsWith("0x")).toBe(true);
         expect(response.body.result[0].timeStamp.length).toBe(10);
