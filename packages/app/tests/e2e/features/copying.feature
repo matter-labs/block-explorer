@@ -105,7 +105,7 @@ Feature: Copying
     Given I go to page "/address/0x000000000000000000000000000000000000800A"
     When I select "Contract" tab on "Contract" page
     And I click on the copy button for deployed bytecode
-    Then Clipboard includes "<Text>" value
+    Then Clipboard contains "<Text>" value
 
     Examples:
       | Text |

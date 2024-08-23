@@ -25,6 +25,7 @@ describe("config", () => {
         useWebSocketsForTransactions: false,
       },
       maxBlocksBatchSize: 20,
+      gracefulShutdownTimeoutMs: 0,
     });
   });
 });

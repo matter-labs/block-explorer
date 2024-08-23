@@ -62,7 +62,7 @@ jobs:
     name: '${{ matrix.tags }}'
     container:
       image: mcr.microsoft.com/playwright:v1.27.0-focal
-      options: --user root
+      options: --user 1001
     steps:
       - uses: actions/checkout@v3
         with:

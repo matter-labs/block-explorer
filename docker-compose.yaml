@@ -117,7 +117,8 @@ services:
       test: curl --fail http://localhost:3071/health || exit 1
       interval: 10s
       timeout: 5s
-      retries: 300
+      retries: 60
+      start_period: 30s
     restart: unless-stopped
 
 volumes:

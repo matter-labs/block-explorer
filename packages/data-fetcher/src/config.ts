@@ -13,6 +13,7 @@ export default () => {
     WS_MAX_CONNECTIONS,
     USE_WEBSOCKETS_FOR_TRANSACTIONS,
     MAX_BLOCKS_BATCH_SIZE,
+    GRACEFUL_SHUTDOWN_TIMEOUT_MS,
   } = process.env;
 
   return {
@@ -31,5 +32,6 @@ export default () => {
       useWebSocketsForTransactions: USE_WEBSOCKETS_FOR_TRANSACTIONS === "true",
     },
     maxBlocksBatchSize: parseInt(MAX_BLOCKS_BATCH_SIZE, 10) || 20,
+    gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
   };
 };

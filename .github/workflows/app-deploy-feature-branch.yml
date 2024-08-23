@@ -28,6 +28,10 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
+      - name: Install Firebase CLI and auth
+        run: |
+          npm install -g firebase-tools
+
       - name: Install dependencies
         working-directory: ./
         run: |

@@ -5,11 +5,13 @@ const { NODE_ENV, LOG_LEVEL } = process.env;
 
 let defaultLogLevel = "debug";
 const loggerFormatters: Logform.Format[] = [
-  format.timestamp({
-    format: "DD/MM/YYYY HH:mm:ss.SSS",
-  }),
+  NODE_ENV === "production"
+    ? format.timestamp()
+    : format.timestamp({
+        format: "DD/MM/YYYY HH:mm:ss.SSS",
+      }),
   format.ms(),
-  utilities.format.nestLike("Worker", {}),
+  utilities.format.nestLike("DataFetcher", {}),
 ];
 
 if (NODE_ENV === "production") {
