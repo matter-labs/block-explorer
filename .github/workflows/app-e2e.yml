@@ -54,7 +54,7 @@ jobs:
                 "@redirectionSet1",
                 "@redirectionSet2",
                 "@redirectionSet3",
-                "@copying"
+                "@copying",
                 "@search",
                 "@testnetSmokeSuite"
               ]
