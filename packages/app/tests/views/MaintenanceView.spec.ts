@@ -46,9 +46,9 @@ describe("MaintenanceView:", () => {
       },
     });
 
-    expect(wrapper.findAll(`.description a`)[0].attributes("href")).toBe("https://twitter.com/zkSyncDevs");
+    expect(wrapper.findAll(`.description a`)[0].attributes("href")).toBe("https://twitter.com/ZKsyncDevs");
     expect(wrapper.findAll(`.description a`)[1].attributes("href")).toBe("https://uptime.com/statuspage/era");
-    expect(wrapper.find(`.twitter-button`).attributes("href")).toBe("https://twitter.com/zkSyncDevs");
+    expect(wrapper.find(`.twitter-button`).attributes("href")).toBe("https://twitter.com/ZKsyncDevs");
     expect(wrapper.find(`.uptime-link`).attributes("href")).toBe("https://uptime.com/statuspage/era");
   });
 });

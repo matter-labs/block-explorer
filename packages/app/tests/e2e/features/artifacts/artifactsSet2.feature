@@ -146,7 +146,7 @@ Feature: Main Page
     Examples:
       | Block                                    |
       | Network Stats                            |
-      | zkSync Era Mainnet is open to everyone.  |
+      | ZKsync Era Mainnet is open to everyone.  |
       | Committed Blocks                         |
       | Verified Blocks                          |
       | Transactions                             |

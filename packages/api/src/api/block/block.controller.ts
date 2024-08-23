@@ -117,7 +117,7 @@ export class BlockController {
         blockMiner: block.miner,
         // There is no such term as block reward for now.
         blockReward: "0",
-        // There are no uncles in zkSync.
+        // There are no uncles in ZKsync.
         uncles: [],
         uncleInclusionReward: "0",
       },

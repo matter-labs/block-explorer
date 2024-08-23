@@ -48,7 +48,7 @@ Feature: Main Page
 
     Examples:
       | Value                      | Dropdown |
-      | zkSync Era Mainnet         | network  |
+      | ZKsync Era Mainnet         | network  |
       | EN                         | language |
       | UA                         | language |
 
@@ -59,7 +59,7 @@ Feature: Main Page
 
   Examples:
       | Value                       | Dropdown |
-      | zkSync Era Sepolia Testnet  | network  |
+      | ZKsync Era Sepolia Testnet  | network  |
       | Goerli (Stage2)             | network  |
 
   @id254:II @productionEnv
@@ -69,7 +69,7 @@ Feature: Main Page
 
   Examples:
       | Value                      | Dropdown |
-      | zkSync Era Sepolia Testnet | network  |
+      | ZKsync Era Sepolia Testnet | network  |
 
   Scenario: Network stats is displayed
     Then Element with "text" "Network Stats" should be "visible"
