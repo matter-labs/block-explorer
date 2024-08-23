@@ -5,7 +5,8 @@ import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { isBaseToken } from "../../../utils/token";
+import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 
 export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
@@ -17,7 +18,7 @@ export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_BRIDGE, log);
 
     const tokenAddress =
-      parsedLog.args.l2Token === utils.ETH_ADDRESS ? utils.L2_ETH_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
+      parsedLog.args.l2Token === utils.ETH_ADDRESS ? BASE_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
 
     return {
       from: parsedLog.args.l2Sender.toLowerCase(),
@@ -27,7 +28,7 @@ export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
       amount: parsedLog.args.amount,
       tokenAddress,
       type: TransferType.Withdrawal,
-      tokenType: tokenAddress === utils.L2_ETH_TOKEN_ADDRESS ? TokenType.ETH : TokenType.ERC20,
+      tokenType: isBaseToken(tokenAddress) ? TokenType.BaseToken : TokenType.ERC20,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,
