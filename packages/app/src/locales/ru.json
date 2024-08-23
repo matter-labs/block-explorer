@@ -1,0 +1,730 @@
+{
+    "general": {
+        "l2NetworkName": "zkSync Era",
+        "l1NetworkName": "Ethereum"
+    },
+    "copyButton": {
+        "tooltip": "Скопировано!"
+    },
+    "connectMetamaskButton": {
+        "label": "Подключить Метамаск",
+        "connecting": "Подключение...",
+        "metaMaskNotFound": "Метамаск не найден",
+        "logout": "Выйти"
+    },
+    "networkStats": {
+        "title": "Статистика сети",
+        "subtitleTestnet": "Статистика иногда сбрасывается в тестовой сети.",
+        "subtitleMainnet": "Основная сеть zkSync Era открыта для всех.",
+        "committed": "Созданные блоки",
+        "verified": "Подтвержденные блоки",
+        "transactions": "Транзакции",
+        "totalLocked": "Всего активов"
+    },
+    "breadcrumbs": {
+        "home": "Главная страница"
+    },
+    "blocks": {
+        "table": {
+            "block": "Блок",
+            "status": "Статус",
+            "statusTooltip": "Финальный статус блока",
+            "batch": "Пакет",
+            "unknown": "Неизвестный",
+            "batchTooltip": "Номер пакета, в котором транзакции блока передаются в L1.",
+            "age": "Когда",
+            "transactionsShort": "транзакций",
+            "timestamp": "Создан",
+            "timestampTooltip": "Дата и время создания блока",
+            "blockNumber": "Номер блока",
+            "blockNumberTooltip": "Высота блока указывает \"длину\" блокчейна, увеличивается после добавления нового блока.",
+            "blockSize": "Размер блока",
+            "blockSizeTooltip": "Количество транзакций внутри блока",
+            "rootHash": "Корневой хеш",
+            "rootHashTooltip": "Хеш состояния корня, полученный после выполнения этого блока",
+            "noRootHashYet": "Еще нет корневого хеша",
+            "commitTxHash": "Кэш коммита транзакции",
+            "commitTxHashTooltip": "Хэш транзакции L1, отправленный в смарт-контракт для фиксации блока",
+            "committedAt": "Преданный идее",
+            "committedAtTooltip": "Время фиксации блока",
+            "notYetCommitted": "Еще не совершено",
+            "proveTxHash": "Подтверждение хэша передачи",
+            "proveTxHashTooltip": "Хэш транзакции L1, в которой был подтвержден блок",
+            "provenAt": "Проверенный",
+            "provenAtTooltip": "Время, когда блок был доказан",
+            "notYetProven": "Еще не доказано",
+            "executeTxHash": "Выполнить хеш передачи",
+            "executeTxHashTooltip": "Хэш транзакции L1, в которой был выполнен блок",
+            "executedAt": "Выполнено",
+            "executedAtTooltip": "Время выполнения блока",
+            "notYetExecuted": "Еще не выполнено",
+            "notFound": "Не найдено",
+            "notFoundHomePage": "Блоков еще нет"
+        },
+        "status": {
+            "verified": "Проверено",
+            "sealed": "Завершено"
+        },
+        "blocks": "Блоки",
+        "blockNumber": "Block #",
+        "infoTableTitle": "Информация о блоке",
+        "infoTableError": "Произошла ошибка",
+        "transactionTableError": "Что-то пошло не так",
+        "transactionTable": {
+            "title": "Транзакции блока",
+            "showMore": "Показать больше транзакций ->",
+            "noTransactions": "В этом блоке нет транзакций",
+            "blockNotFound": "Этот блок еще не создан или не завершен"
+        }
+    },
+    "transfers": {
+        "notFound": "Еще нет переводов на этом адресе",
+        "table": {
+            "transactionHash": "Хэш транзакции",
+            "age": "Создано",
+            "type": "Тип",
+            "from": "От",
+            "direction": "Направление",
+            "to": "Кому",
+            "amount": "Количество",
+            "value": "Сумма"
+        }
+    },
+    "transactions": {
+        "tabs": {
+            "generalInfo": "Общая информация",
+            "logs": "Логи"
+        },
+        "table": {
+            "status": "Статус",
+            "statusTooltip": "Финальный статус транзакции",
+            "reason": "Причина",
+            "reasonTooltip": "Причина неудачи транзакции",
+            "txnHash": "Хэш транзакции",
+            "transactionHash": "Хэш транзакции",
+            "transactionHashTooltip": "Хэш транзакции — это уникальный 66-значный идентификатор, который генерируется при каждом выполнении транзакции.",
+            "nonce": "Номер",
+            "nonceTooltip": "Количество транзакций, отправленных с адреса отправителя",
+            "created": "Создано",
+            "createdTooltip": "Дата и время добавления транзакции в блок.",
+            "sendersNonce": "Nonce отправителя",
+            "from": "От",
+            "fromTooltip": "Отправитель транзакции",
+            "to": "Кому",
+            "toTooltip": "Получатель транзакции",
+            "tokensTransferred": "Переводы токенов",
+            "tokensTransferredTooltip": "Список токенов, переданных в рамках этой транзакции",
+            "for": "отправлено",
+            "transferTo": "к",
+            "block": "Блок",
+            "batch": "Пакет",
+            "blockTooltip": "Номер блока, в котором записана транзакция",
+            "batchTooltip": "Номер пакета, в котором эта транзакция передается в L1.",
+            "value": "Сумма",
+            "valueTooltip": "Количество эфира, передаваемого с одного адреса на другой в рамках транзакции.",
+            "fee": "Комиссия",
+            "paidByPaymaster": "Оплачено Пеймастером",
+            "feeDetails": {
+                "moreDetails": "Подробнее",
+                "closeDetails": "Закрыть детали",
+                "initial": "Исходная:",
+                "refunded": "Возвращено:",
+                "refunds": "Возвраты:",
+                "whyRefunded": "Почему мне возвращают комиссию?",
+                "whyPaymasterRefunded": "Почему Пеймастер возвращает комиссию?",
+                "whatIsPaymaster": "Что такое Пеймастер?",
+                "paymaster": "пеймастер"
+            },
+            "feeTooltip": "Комиссия, которую отправитель заплатил за эту транзакцию сумме актива и USD на текущее время",
+            "direction": "Направление",
+            "initiator": "Инициатор",
+            "amount": "Количество",
+            "method": "Метод",
+            "transferMethodName": "Перевод",
+            "timestamp": "Время",
+            "age": "КОгда",
+            "tokenAddress": "Адрес токена",
+            "tokenName": "Имя токена",
+            "tokenSymbol": "Символ токена",
+            "decimals": "знаков после запятой",
+            "contractAddress": "Адрес контракта",
+            "contractAddressTooltip": "Получающая сторона транзакции (может быть адрес контракта)",
+            "inputData": "Входные данные",
+            "inputDataTooltip": "Дополнительные данные, включенные в эту транзакцию. ",
+            "contractHash": "Хэш контракта",
+            "notYetSentOnTheChain": "Еще не отправлен в блокчейн",
+            "notFound": "Не найдено",
+            "notFoundHomePage": "Еще не было транзакций. ",
+            "footer": {
+                "showMore": "Показать больше транзакций ->",
+                "unableToLoadMore": "Невозможно загрузить больше",
+                "tryAgain": "Попробовать еще раз ->"
+            },
+            "unknown": "Неизвестно",
+            "gasLimitAndUsed": "Лимит газа",
+            "gasLimitAndUsedTooltip": "Максимальное количество газа, выделенное для транзакции",
+            "gasPerPubdata": "Газ за данные",
+            "gasPerPubdataTooltip": "Максимальное количество газа, которое пользователь готов заплатить за один байт опубликованных данных (pubdata)."
+        },
+        "logs": {
+            "name": "Имя",
+            "address": "Адрес",
+            "topics": "Аргументы",
+            "data": "Данные",
+            "matchesTopic": "Тема совпадений",
+            "options": {
+                "hex": "HEX",
+                "number": "Число",
+                "text": "Текст",
+                "address": "Адрес"
+            },
+            "matchesTopicAlert": "Адрес соответствует получателю транзакции"
+        },
+        "status": {
+            "included": "Обработано в",
+            "committed": "Отправлено в",
+            "proved": "Проверено в",
+            "verified": "Подтверждено в",
+            "failed": "Не удалось"
+        },
+        "statusComponent": {
+            "processed": "Обработано",
+            "indexing": "Индексируется проводником",
+            "sending": "Отправка",
+            "sent": "Отправлено",
+            "validating": "Проверка",
+            "validated": "Проверено",
+            "executing": "Выполнение",
+            "executed": "Выполнено",
+            "failed": "Неуспешный",
+            "ethereumNetwork": "Сеть Ethereum"
+        },
+        "transaction": "Транзакция",
+        "transactionNumber": "Транзакция #",
+        "loadingInfoFailed": "Не удалось загрузить информацию о транзакции.",
+        "transactionNotFound": "Транзакция не найдена",
+        "transactionInfo": "Информация о транзакции",
+        "tryRequestAgain": "Попробуйте еще раз"
+    },
+    "transactionData": {
+        "showOriginalInput": "Показать исходный ввод",
+        "showDecodedInput": "Декодировать входные данные",
+        "decodingInProgress": "Расшифровка данных транзакции...",
+        "parametersTable": {
+            "name": "Имя",
+            "type": "Тип",
+            "data": "Данные"
+        },
+        "viewOptions": {
+            "decoded": "Показать в декодированном виде",
+            "original": "Показать в двоичном виде"
+        },
+        "errors": {
+            "unableToDecode": "Невозможно декодировать входные данные ({error})",
+            "contract_not_verified": "Контракт не проверен",
+            "contract_request_failed": "Запрос контракта не выполнен",
+            "unknown_error": "Неизвестная ошибка"
+        }
+    },
+    "batches": {
+        "batch": "Пакет",
+        "batchNumber": "Пакет #",
+        "title": "Пакеты",
+        "breadcrumbsTitle": "Пакеты",
+        "index": "Номер пакета",
+        "indexTooltip": "Номер пакета L1 указывает длину пакетов L1, созданных путем группировки блоков L2, подлежащих проверке на Ethereum.",
+        "size": "Размер пакета",
+        "sizeTooltip": "Количество транзакций внутри пакета L1",
+        "timestamp": "Создано",
+        "timestampTooltip": "Дата и время создания пакета L1.",
+        "rootHash": "L1 хэш",
+        "rootHashTooltip": "Корень пакета L1 — это криптографический хэш (или корень Меркла), который суммирует пакет транзакций или данных L2 и передается в блокчейн L1 как одна транзакция.",
+        "noRootHashYet": "Еще нет L1 хеша",
+        "commitTxHash": "Хэш передачи",
+        "commitTxHashTooltip": "Хэш транзакции L1, в которой этот пакет был передан в L1.",
+        "committedAt": "Зафиксирован в",
+        "committedAtTooltip": "Дата и время передачи пакета L1 в Ethereum.",
+        "notYetCommitted": "Еще не передан",
+        "proveTxHash": "Хэш подтверждения",
+        "proveTxHashTooltip": "Хэш транзакции L1, в которой был доказан этот пакет L1.",
+        "provenAt": "Проверен в",
+        "provenAtTooltip": "Дата и время, когда пакет L1 был доказан в Ethereum.",
+        "notYetProven": "Еще не доказан",
+        "executeTxHash": "Хэш транзакции выполнения",
+        "executeTxHashTooltip": "Хэш транзакции L1, для которой был выполнен этот пакет L1.",
+        "executedAt": "Выполнено",
+        "executedAtTooltip": "Дата и время выполнения пакета L1 на Ethereum.",
+        "notYetExecuted": "Еще не выполнено",
+        "notYetSealed": "Этот пакет еще не запакован",
+        "transactionTable": {
+            "title": "Пакетные транзакции",
+            "error": "Что-то пошло не так",
+            "noTransactions": "В этом пакете нет транзакций",
+            "batchNotFound": "Этот пакет еще не создан и не запакован."
+        },
+        "table": {
+            "status": "Статус",
+            "txnBatch": "Пакет",
+            "size": "Размер",
+            "age": "Когда",
+            "notFound": "Не найдено",
+            "notFoundHomePage": "Еще не было ни одного пакета. ",
+            "transactionsShort": "транзакций"
+        },
+        "tooltipInfo": "Последние пакеты, отправленные в сеть Ethereum",
+        "status": {
+            "verified": "Выполнено",
+            "sealed": "Запаковано",
+            "failed": "Неуспешный"
+        }
+    },
+    "header": {
+        "nav": {
+            "blockExplorer": "Проводник",
+            "documentation": "Документация",
+            "tools": "Инструменты",
+            "apiDocs": "API-документация",
+            "contractVerification": "Проверка смарт-контракта",
+            "debugger": "Отладчик zkEVM",
+            "bridge": "Мост"
+        }
+    },
+    "locale": {
+        "en": "EN",
+        "uk": "UA",
+        "ru": "RU"
+    },
+    "footer": {
+        "nav": {
+            "docs": "Документы",
+            "terms": "Условия",
+            "contact": "Контакты"
+        }
+    },
+    "searchForm": {
+        "placeholder": "Поиск по адресу, номеру пакета, контракту или хэшу транзакции",
+        "errorMessage": "Пожалуйста, введите правильный запрос"
+    },
+    "estimatedCost": {
+        "title": "Ориентировочная стоимость перевода",
+        "subtitle": "zkRollups значительно дешевле, чем L1 или Optimistic Rollups."
+    },
+    "blockExplorer": {
+        "title": "zkSync Era Обозреватель Блоков",
+        "subtitle": "zkSync Era Block Explorer дает информацию для глубокого изучения транзакций, блоков, контрактов и многого другого.",
+        "latestBlocks": "Последние блоки",
+        "latestTransactions": "Последние транзакции",
+        "batches": "Последние пакеты"
+    },
+    "failedRequest": "Не удалось показать.... Попробуйте обновить страницу.",
+    "addressView": {
+        "title": "Адрес"
+    },
+    "contract": {
+        "title": "Контракт",
+        "contractNumber": "Contract ",
+        "infoTableTitle": "Информация о контракте",
+        "infoTableError": "Произошла ошибка",
+        "balanceTableTitle": "Балансы",
+        "notFound": "Не найдено",
+        "transactionTable": {
+            "error": "Что-то пошло не так",
+            "notFound": {
+                "title": "В этом смарт-контракте нет транзакций",
+                "subtitle": "Мы не можем найти ни одной транзакции, связанной с этим смарт-контрактом. Вы можете сделать первую"
+            }
+        },
+        "balances": {
+            "error": {
+                "title": "Балансы:",
+                "subtitle": "Что-то пошло не так. Пожалуйста, вернитесь на страницу через минуту.\n"
+            },
+            "notFound": {
+                "title": "Этот смарт-контракт не имеет баланса",
+                "subtitle": "Мы не можем найти балансы, связанные с этим смарт-контрактом."
+            }
+        },
+        "table": {
+            "address": "Адрес",
+            "creator": "Создатель",
+            "transactions": "Транзакции",
+            "fees": "Комиссии"
+        },
+        "bytecode": {
+            "areYouAnOwner": "Вы являетесь владельцем этого смарт-контракта?",
+            "verifyAndPublishToday": "Проверьте и опубликуйте исходный код вашего контракта сегодня!\nЭтот контракт создан в ",
+            "verifyButton": "Проверить смарт-контракт",
+            "readWriteMissingMessage": "Этот контракт не имеет функций чтения/записи для взаимодействия",
+            "writeMissingMessage": "В этом контракте нет функций записи для взаимодействия",
+            "readMissingMessage": "В этом контракте нет функций чтения для взаимодействия.",
+            "deployedBytecode": "Байт-код"
+        },
+        "sourceCode": {
+            "label": "Исходный код контракта",
+            "singleFileContract": "Единый файл контракта",
+            "fileLabel": "Файл {index} из {total}: {fileName}"
+        },
+        "events": {
+            "txnHash": "Хэш транзакции",
+            "method": "метод",
+            "logs": "логи",
+            "notFound": "Смарт Контракте не имеет событий",
+            "value": "сумма",
+            "showMore": "Показать больше",
+            "hide": "Скрыть"
+        },
+        "abiInteraction": {
+            "transactionHash": "Хэш транзакции: {transactionHash}",
+            "connectWalletToInteract": "Подключите кошелек, чтобы записать",
+            "metaMaskNotFound": "Метамаск не найден. Установите Метамаск, чтобы продолжить.",
+            "contractImplementationFound": "Реализация контракта найдена по адресу",
+            "contractImplementationAt": "Реализация контракта по адресу",
+            "contractNotVerified": "Не проверен",
+            "verifyImplementationMessage": "Пожалуйста, проверьте контракт, чтобы читать/записывать контракт в качестве прокси.",
+            "proxyCautionMessage": "Обратите внимание, что процесс идентификации прокси основан на анализе популярных стандартов и не всегда может быть точным. ",
+            "method": {
+                "read": {
+                    "name": "Читать",
+                    "action": "Прочитать"
+                },
+                "write": {
+                    "name": "Записать",
+                    "action": "Записать"
+                },
+                "readAsProxy": {
+                    "name": "Читать как прокси",
+                    "action": "Прочитать"
+                },
+                "writeAsProxy": {
+                    "name": "Записать как прокси",
+                    "action": "Записать"
+                }
+            },
+            "validation": {
+                "required": "Требуется значение",
+                "invalid": "Недопустимое значение"
+            }
+        }
+    },
+    "contractVerification": {
+        "title": "Верификация смарт-контракта",
+        "subtitle": "Верификация исходного кода обеспечивает прозрачность для пользователей, взаимодействующих со смарт-контрактами. ",
+        "resources": {
+            "title": "Вы также можете проверить свой смарт-контракт с помощью {hardhat}.",
+            "links": {
+                "hardhat": "Плагин HardHat"
+            }
+        },
+        "form": {
+            "compilationInfo": "Информация о компиляторе",
+            "contractAddress": {
+                "title": "Адрес контракта",
+                "underline": "Адрес 0x, указанный при создании контракта.",
+                "placeholder": "0x0000...",
+                "validation": {
+                    "required": "Укажите адрес контракта",
+                    "not_valid": "Пожалуйста, укажите валидный адрес контракта"
+                }
+            },
+            "contractName": {
+                "label": "Название контракта",
+                "solcUnderline": "Должно соответствовать имени, указанному в коде. ",
+                "vyperUnderline": "Должно соответствовать имени файла. ",
+                "placeholder": "Имя",
+                "validation": {
+                    "required": "Укажите название контракта."
+                }
+            },
+            "contractPath": {
+                "label": "Путь контракта",
+                "underline": "Относительный путь к вашему контракту на момент компиляции",
+                "solcPlaceholder": "/contracts/ContractFile.sol",
+                "vyperPlaceholder": "/contracts/ContractFile.vy",
+                "validation": {
+                    "required": "Укажите путь к контракту."
+                }
+            },
+            "optimizationUsed": {
+                "label": "Оптимизация",
+                "options": {
+                    "yes": "Да",
+                    "no": "Нет"
+                },
+                "underline": "Если вы включили оптимизацию во время компиляции, выберите «Да»."
+            },
+            "solcVersion": {
+                "label": "Версия Solc",
+                "placeholder": "Выберите версию",
+                "validation": {
+                    "required": "Требуется версия Solc"
+                },
+                "error": "Невозможно получить список поддерживаемых версий Solc.",
+                "zkVM": "zkVM"
+            },
+            "zksolcVersion": {
+                "label": "Версия Zksolc",
+                "placeholder": "Выберите версию",
+                "validation": {
+                    "required": "Требуется версия Zksolc"
+                },
+                "error": "Невозможно получить список поддерживаемых версий Zksolc.",
+                "details": "Подробности"
+            },
+            "vyperVersion": {
+                "label": "Вайпер-версия",
+                "placeholder": "Выберите версию",
+                "validation": {
+                    "required": "Требуется версия Vyper"
+                },
+                "error": "Невозможно получить список поддерживаемых версий Vyper."
+            },
+            "zkvyperVersion": {
+                "label": "Зквыпер Версия",
+                "placeholder": "Выберите версию",
+                "validation": {
+                    "required": "Требуется версия Zkvyper"
+                },
+                "error": "Невозможно получить список поддерживаемых версий Zkvyper.",
+                "details": "Подробности"
+            },
+            "compilerType": {
+                "label": "Тип компилятора",
+                "underline": "Метод проверки контракта",
+                "soliditySingleFile": "Solidity (один файл)",
+                "solidityMultiPart": "Solidity (несколько файлов)",
+                "vyperSingleFile": "Вайпер (один файл)",
+                "vyperMultiPart": "Вайпер (несколько файлов)"
+            },
+            "sourceCode": {
+                "solcLabel": "Введите код контракта Solidity",
+                "vyperLabel": "Введите код контракта Vyper",
+                "validation": {
+                    "required": "Требуется исходный код контракта."
+                }
+            },
+            "constructorArguments": {
+                "label": "Аргументы конструктора",
+                "placeholder": "0x"
+            },
+            "buttonVerify": "Верифицировать смарт-контракт",
+            "buttonVerifying": "Проверка...",
+            "buttonClear": "Очистить",
+            "unknownError": "Неудачная проверка контракта! Пожалуйста, проверьте введенные данные.",
+            "flattenerInfo": {
+                "title": "Если в вашем контракте используется \"import\", вам нужно будет объединить код в один файл (flattening).",
+                "solidityFlattener": "solidity-flattener",
+                "solidityFlattery": "SolidityFlattery"
+            }
+        },
+        "compilationError": {
+            "title": "Неудачная компиляция",
+            "showMoreButton": "Показать больше",
+            "showLessButton": "Показать меньше"
+        },
+        "verified": {
+            "title": "Контракт проверен!",
+            "underline": "Любой по {link} может проверить код и взаимодействовать с ним.",
+            "blockExplorer": "блок-проводник",
+            "back": "Вернуться к контракту"
+        },
+        "compilationInfo": {
+            "contractName": "Название контракта",
+            "compilerVersion": "Версия компилятора",
+            "zksolcVersion": "Версия Zksolc",
+            "zkvyperVersion": "Версия Zkvyper",
+            "optimization": "Оптимизация"
+        },
+        "multiFileVerification": {
+            "solcTitle": "Пожалуйста, выберите файлы Solidity (*.sol) для загрузки.",
+            "vyperTitle": "Пожалуйста, выберите файлы Vyper (*.vy) для загрузки.",
+            "chooseFiles": "Выберите файлы",
+            "yourFiles": "Ваши файлы",
+            "bytes": "Байты",
+            "files": {
+                "label": "Выберите файлы",
+                "validation": {
+                    "required": "Пожалуйста, загрузите хотя бы один файл"
+                }
+            },
+            "mainFile": {
+                "label": "Основной файл",
+                "placeholder": "Выберите основной файл",
+                "validation": {
+                    "required": "Пожалуйста, выберите файл, в котором объявлен ваш контракт"
+                }
+            }
+        }
+    },
+    "blockView": {
+        "blockNumber": "Блок #",
+        "infoTableTitle": "Информация о блоке",
+        "infoTableError": "Произошла ошибка",
+        "transactionTableError": "Что-то пошло не так",
+        "transactionTable": {
+            "title": "Транзакции блока",
+            "footer": "Показать больше транзакций ->"
+        },
+        "blockInfo": {
+            "number": "Номер блока",
+            "blockSize": "Размер блока",
+            "rootHash": "Новый корневой хэш",
+            "commitTxHash": "Хэш передачи",
+            "committedAt": "Передан",
+            "status": "Статус",
+            "proveTxHash": "Хэш подтверждения"
+        }
+    },
+    "blocksView": {
+        "title": "Блоки"
+    },
+    "transactionsView": {
+        "title": "Транзакции"
+    },
+    "tokensView": {
+        "title": "Токены",
+        "heading": "Токены",
+        "offChainDataPoweredBy": "Данные вне сети, основанные на",
+        "table": {
+            "tokenName": "Имя токена",
+            "price": "Цена",
+            "tokenAddress": "Адрес токена"
+        }
+    },
+    "pageError": {
+        "title": "Что-то пошло не так",
+        "subtitle": "Неизвестный запрос. Повторите попытку или перейдите на домашнюю страницу.",
+        "button": "Домашняя страница"
+    },
+    "timeMessages": {
+        "justNow": "прямо сейчас",
+        "past": "назад",
+        "future": "в",
+        "lastMonth": "прошлый месяц",
+        "nextMonth": "в следующем месяце",
+        "month": "месяц",
+        "monthPlural": "месяцы",
+        "yesterday": "вчера",
+        "tomorrow": "завтра",
+        "day": "день",
+        "dayPlural": "дни",
+        "lastYear": "в прошлом году",
+        "nextYear": "Следующий год",
+        "year": "год",
+        "yearPlural": "годы",
+        "lastWeek": "на прошлой неделе",
+        "nextWeek": "на следующей неделе",
+        "week": "неделя",
+        "weekPlural": "недели",
+        "hourPlural": "часы",
+        "hour": "час",
+        "minute": "мин",
+        "minutePlural": "мин",
+        "second": "сек",
+        "secondPlural": "сек"
+    },
+    "accountView": {
+        "title": "Аккаунт",
+        "infoTableError": "Произошла ошибка",
+        "accountNumber": "Аккаунт ",
+        "accountInfo": {
+            "address": "Адрес",
+            "verifiedNonce": "Подтвержденный nonce",
+            "sealedNonce": "Текущий nonce"
+        },
+        "infoTableTitle": "Информация об аккаунте",
+        "transactionTableError": "Что-то пошло не так",
+        "transactionTable": {
+            "title": "Последние транзакции",
+            "notFound": {
+                "title": "На этом аккаунте нет транзакций",
+                "subtitle": "Мы не можем найти ни одной транзакции, связанной с этим аккаунтом. "
+            },
+            "error": "Что-то пошло не так"
+        },
+        "balanceTableTitle": "Балансы",
+        "balances": {
+            "error": {
+                "title": "Балансы:",
+                "subtitle": "Что-то пошло не так.\n"
+            },
+            "notFound": {
+                "title": "На этом счете нет средств",
+                "subtitle": "Мы не можем найти балансы, связанные с этим счетом."
+            }
+        }
+    },
+    "balances": {
+        "table": {
+            "asset": "Актив",
+            "balance": "Баланс",
+            "address": "Адрес токена",
+            "notFound": "Не найдено",
+            "error": "Произошла ошибка",
+            "unknownSymbol": "неизвестный",
+            "showAll": "Показать все балансы"
+        }
+    },
+    "document": {
+        "title": "zkSync Era Обозреватель Блоков",
+        "home": "Транзакции, блоки, контракты и многое другое"
+    },
+    "notFound": {
+        "title": "Ой, мы ничего не можем найти",
+        "description": "К сожалению, мы не можем ничего найти по вашему запросу, пожалуйста, попробуйте еще раз через строку поиска ниже",
+        "contactSupportTitle": "Если вы считаете, что это проблема с нами, пожалуйста,",
+        "contactSupport": "свяжитесь с поддержкой"
+    },
+    "maintenance": {
+        "title": "zkSync {network} находится на техническом обслуживании.",
+        "description": "zkSync {network} недоступна в связи с техническим обслуживанием. Обновления можно найти в нашем {twitter} или на {uptime}.",
+        "twitterLink": "Разработчики zkSync",
+        "uptimeLink": "Аптайм",
+        "twitterButton": "Разработчики zkSync"
+    },
+    "tabs": {
+        "transactions": "Транзакции",
+        "contract": "Контракт",
+        "events": "События",
+        "transfers": "Переводы"
+    },
+    "contractInfoTabs": {
+        "contract": "Контракт",
+        "read": "Прочитать",
+        "write": "Записать",
+        "readAsProxy": "Читать как прокси",
+        "writeAsProxy": "Записать как прокси"
+    },
+    "debuggerTool": {
+        "title": "Отладчик zkEVM",
+        "whatFor": "С помощью этого инструмента вы можете воспроизвести исполнение ваших смарт-контрактов и прочитать каждую инструкцию.",
+        "uploadJSON": "Загрузите файл JSON",
+        "orDropHere": "или закиньте сюда",
+        "unableToParseTrace": "К сожалению, нам не удалось проанализировать этот файл трассировки.",
+        "transaction": "Транзакция: из файла трассировки",
+        "executionStepNavigation": "Стрелка влево/вправо",
+        "searchPlaceholder": "Поиск",
+        "start": "Начать",
+        "child": "Ребенок",
+        "parent": "Родитель",
+        "hex": "HEX",
+        "dec": "десятичный",
+        "metadataBlock": {
+            "contract": "Текущий Контракт",
+            "tag": "Тэг",
+            "registers": "Реестры",
+            "memory": "Состояние",
+            "memoryChanges": "Изменения состояние",
+            "memoryPageIndex": {
+                "stack": "куча",
+                "heap": "куча",
+                "code": "код",
+                "returnData": "возврат данных",
+                "callData": "данные вызова"
+            }
+        }
+    },
+    "systemAlert": {
+        "indexerDelayed": "Индексирование транзакции задерживается на {indexerDelayInHours} часа. Вы можете использовать другие <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">проводники</a> тем временем.",
+        "indexerDelayedDueToHeavyLoad": "В настоящий момент сеть испытывает большую нагрузку, а индексирование транзакций в проводнике отстает на {indexerDelayInHours} часа. . Вы можете использовать другие <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">проводники</a> тем временем."
+    }
+}
