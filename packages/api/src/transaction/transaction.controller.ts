@@ -101,13 +101,14 @@ export class TransactionController {
       throw new NotFoundException();
     }
 
-    return await this.transferService.findAll(
+    const transfers = await this.transferService.findAll(
       { transactionHash },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/transfers`,
       }
     );
+    return transfers;
   }
 
   @Get(":transactionHash/logs")

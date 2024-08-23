@@ -1,14 +1,14 @@
-import { utils, types } from "zksync-web3";
+import { types } from "zksync-web3";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 
 export const ethWithdrawalToL1Handler: ExtractTransferHandler = {
-  matches: (log: types.Log): boolean => log.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS,
+  matches: (log: types.Log): boolean => log.address.toLowerCase() === BASE_TOKEN_ADDRESS,
   extract: (
     log: types.Log,
     blockDetails: types.BlockDetails,
@@ -21,9 +21,9 @@ export const ethWithdrawalToL1Handler: ExtractTransferHandler = {
       transactionHash: log.transactionHash,
       blockNumber: log.blockNumber,
       amount: parsedLog.args._amount,
-      tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+      tokenAddress: BASE_TOKEN_ADDRESS,
       type: TransferType.Withdrawal,
-      tokenType: TokenType.ETH,
+      tokenType: TokenType.BaseToken,
       isFeeOrRefund: false,
       logIndex: log.logIndex,
       transactionIndex: log.transactionIndex,

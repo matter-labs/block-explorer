@@ -10,13 +10,14 @@ import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
-import { ETH_TOKEN } from "../src/token/token.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { baseToken } from "../src/config";
 
 describe("TransactionController (e2e)", () => {
+  let ETH_TOKEN;
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
   let blockRepository: Repository<BlockDetails>;
@@ -31,7 +32,7 @@ describe("TransactionController (e2e)", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
+    ETH_TOKEN = baseToken;
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);
@@ -207,7 +208,7 @@ describe("TransactionController (e2e)", () => {
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress:
           i % 2 ? "0xd754ff5e8a6f257e162f72578a4bb0493c068101" : "0x000000000000000000000000000000000000800a",
-        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.BaseToken,
         amount: "2000",
         type,
         logIndex: i,
@@ -1173,7 +1174,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1219,7 +1220,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1265,7 +1266,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1311,7 +1312,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {
@@ -1357,7 +1358,7 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
           ])
@@ -1425,7 +1426,7 @@ describe("TransactionController (e2e)", () => {
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "deposit",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 isInternal: false,
               },
             ],
