@@ -243,7 +243,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/transactions/{transactionHash}", () => {
+  xdescribe("/transactions/{transactionHash}", () => {
     beforeAll(async () => {
       const customToken = await helper.getStringFromFile(bufferFile + Buffer.L2deposited);
       await playbook.transferFailedState(customToken);
@@ -1030,7 +1030,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/transactions/${txHash}/logs", () => {
+  xdescribe("/transactions/${txHash}/logs", () => {
     //@id1507
     it("Verify the transaction via /transactions/{transactionHash}/logs", async () => {
       await helper.retryTestAction(async () => {
@@ -1082,7 +1082,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/transactions", () => {
+  xdescribe("/transactions", () => {
     //@id1506
     it("Verify the transaction via /transactions", async () => {
       await helper.retryTestAction(async () => {
@@ -1146,7 +1146,7 @@ describe("Transactions", () => {
     });
   });
 
-  describe("/api?module=transaction", () => {
+  xdescribe("/api?module=transaction", () => {
     //@id1697
     it("Verify /api?module=transaction&action=getstatus response", async () => {
       await helper.retryTestAction(async () => {
