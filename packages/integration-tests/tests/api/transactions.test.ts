@@ -140,14 +140,12 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "BASETOKEN" }));
 
         expect(typeof response.body.items[1].amount).toStrictEqual("string");
         expect(typeof response.body.items[1].blockNumber).toStrictEqual("number");
@@ -168,14 +166,12 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
-        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(response.body.items[1]).toStrictEqual(expect.objectContaining({ tokenType: "BASETOKEN" }));
         expect(typeof response.body.items[2].amount).toStrictEqual("string");
         expect(typeof response.body.items[2].blockNumber).toStrictEqual("number");
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
@@ -467,10 +463,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -489,10 +483,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -511,10 +503,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -574,10 +564,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -638,10 +626,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -695,10 +681,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -717,10 +701,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -755,14 +737,12 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
-        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(response.body.items[0]).toStrictEqual(expect.objectContaining({ tokenType: "BASETOKEN" }));
         expect(typeof response.body.items[2].amount).toStrictEqual("string");
         expect(typeof response.body.items[2].blockNumber).toStrictEqual("number");
         expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ fields: null }));
@@ -782,14 +762,12 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
-        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenType: "ETH" }));
+        expect(response.body.items[2]).toStrictEqual(expect.objectContaining({ tokenType: "BASETOKEN" }));
         expect(response.body.meta).toStrictEqual(expect.objectContaining({ totalItems: 3 }));
         expect(response.body.meta).toStrictEqual(expect.objectContaining({ itemCount: 3 }));
         expect(response.body.meta).toStrictEqual(expect.objectContaining({ itemsPerPage: 10 }));
@@ -830,10 +808,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -852,10 +828,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -886,10 +860,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -908,10 +880,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -942,10 +912,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -964,10 +932,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -997,10 +963,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
@@ -1019,10 +983,8 @@ describe("Transactions", () => {
               iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
               l1Address: Token.ETHER_Address,
               l2Address: Token.ETHER_ERC20_Address,
-              liquidity: 220000000000,
               symbol: "ETH",
               name: "Ether",
-              usdPrice: 1800,
             },
           })
         );
