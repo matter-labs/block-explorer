@@ -7,6 +7,8 @@ import * as transferEventWithNoIndexesAbi from "./abis/transferEventWithNoIndexe
 import * as l2StandardERC20Abi from "./abis/l2StandardERC20.json";
 
 export const ZERO_HASH_64 = "0x0000000000000000000000000000000000000000000000000000000000000000";
+export const BASE_TOKEN_ADDRESS = "0x000000000000000000000000000000000000800a";
+export const ETH_L1_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 export const CONTRACT_INTERFACES = {
   ERC20: {

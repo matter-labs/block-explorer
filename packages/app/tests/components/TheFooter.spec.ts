@@ -24,9 +24,7 @@ describe("TheFooter:", () => {
       },
     });
     const links = wrapper.findAll("a");
-    expect(links[0].attributes("href")).toBe(
-      "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html"
-    );
+    expect(links[0].attributes("href")).toBe("https://docs.zksync.io/build/tooling/zksync-block-explorers");
     expect(links[1].attributes("href")).toBe("https://zksync.io/terms");
     expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
   });

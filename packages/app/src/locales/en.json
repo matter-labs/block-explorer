@@ -437,8 +437,8 @@
             "contractPath": {
                 "label": "Contract Path",
                 "underline": "Relative path to your contract at the moment of compilation",
-                "solcPlaceholder": "/contracts/ContractFile.sol",
-                "vyperPlaceholder": "/contracts/ContractFile.vy",
+                "solcPlaceholder": "contracts/ContractFile.sol",
+                "vyperPlaceholder": "contracts/ContractFile.vy",
                 "validation": {
                     "required": "Contract path is required"
                 }
