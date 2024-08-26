@@ -4,7 +4,7 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
-    <h1>{{ t("blocksView.title") }}</h1>
+    <h1 class="font-semibold">{{ t("blocksView.title") }}</h1>
     <div class="blocks-container">
       <span v-if="failed" class="error-message">
         {{ t("failedRequest") }}

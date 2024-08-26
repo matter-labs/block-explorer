@@ -1,6 +1,6 @@
 <template>
   <h1
-    class="title-container flex flex-wrap break-all text-3xl font-medium sm:text-4xl"
+    class="title-container flex flex-wrap break-all text-3xl font-semibold sm:text-4xl"
     :data-testid="$testId.pageTitle"
   >
     {{ title }}&nbsp;

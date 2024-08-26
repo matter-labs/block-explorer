@@ -1,11 +1,11 @@
 <template>
-  <div class="tab-main">
-    <ul class="tab-head">
+  <div class="tab-main bg-white mx-auto rounded-lg w-full">
+    <ul class="tab-head flex -mb-[2px] md:flex-row">
       <template v-for="(tab, i) in tabs">
         <li v-if="tab.hash" :key="`tab-${i}`">
           <button
             v-if="$slots[`tab-${i + 1}-header`]"
-            class="tab-btn"
+            class="tab-btn font-medium outline-0 px-4 py-3.5 text-gray"
             :class="{ active: currentTabHash === tab.hash && tabs.length > 1 }"
             @click="setTab(tab)"
           >
@@ -13,7 +13,7 @@
           </button>
           <button
             v-else
-            class="tab-btn"
+            class="tab-btn font-medium outline-0 px-4 py-3.5 text-gray"
             :class="{ active: currentTabHash === tab.hash && tabs.length > 1 }"
             v-html="tab.title"
             @click="setTab(tab)"
@@ -21,7 +21,7 @@
         </li>
       </template>
     </ul>
-    <div class="tab-content">
+    <div class="tab-content border-t-2 border-t-black/5 rounded-b-lg">
       <div v-for="(tab, i) in tabs" :key="`tab-content-${i}`">
         <div v-show="currentTabHash === tab.hash">
           <slot :name="`tab-${i + 1}-content`"></slot>
@@ -69,20 +69,12 @@ watchEffect(() => {
   }
 });
 </script>
+
 <style lang="scss" scoped>
-.tab-main {
-  @apply mx-auto w-full rounded-lg bg-white;
-  .tab-head {
-    @apply flex border-b md:flex-row;
-  }
-  .tab-btn {
-    @apply px-4 py-3.5 text-sm text-gray outline-0 sm:text-base;
-  }
-  .tab-content {
-    @apply rounded-b-lg;
-  }
-  .active {
-    @apply border-b-2 border-blue font-bold text-blue;
+.tab-btn {
+  &.active {
+    border-bottom: 2px solid;
+    color: var(--color-blue);
   }
 }
 </style>

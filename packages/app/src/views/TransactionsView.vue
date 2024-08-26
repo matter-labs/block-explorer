@@ -1,11 +1,15 @@
 <template>
   <div>
-    <div class="head-block">
+    <div class="head-block flex flex-col-reverse justify-between mb-8 lg:flex-row lg:mb-10">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form" />
+      <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
     </div>
-    <h1>{{ t("transactionsView.title") }}</h1>
-    <TransactionsTable class="transactions-container" use-query-pagination :data-testid="$testId.transactionsTable" />
+    <h1 class="font-semibold text-black">{{ t("transactionsView.title") }}</h1>
+    <TransactionsTable
+      class="transactions-container mt-8"
+      use-query-pagination
+      :data-testid="$testId.transactionsTable"
+    />
   </div>
 </template>
 <script setup lang="ts">
@@ -28,16 +32,3 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
   },
 ]);
 </script>
-
-<style lang="scss" scoped>
-.head-block {
-  @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
-
-  .search-form {
-    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  }
-}
-.transactions-container {
-  @apply mt-8;
-}
-</style>
