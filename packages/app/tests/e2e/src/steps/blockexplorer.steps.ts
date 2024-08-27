@@ -310,7 +310,7 @@ Then("Tab title on {string} contains {string}", async function (this: ICustomWor
   await this.page?.waitForNavigation();
   result = await this.page?.title();
 
-  await expect(result).toBe(tabTitle + " | zkSync 2.0 Block Explorer");
+  await expect(result).toBe(tabTitle + " | ZKsync 2.0 Block Explorer");
 });
 
 Then("Pagination form should be visible", async function (this: ICustomWorld) {

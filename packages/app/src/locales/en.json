@@ -1,6 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "zkSync Era",
+        "l2NetworkName": "ZKsync Era",
         "l1NetworkName": "Ethereum"
     },
     "copyButton": {
@@ -15,7 +15,7 @@
     "networkStats": {
         "title": "Network Stats",
         "subtitleTestnet": "Stats are occasionally reset on testnet.",
-        "subtitleMainnet": "zkSync Era Mainnet is open to everyone.",
+        "subtitleMainnet": "ZKsync Era Mainnet is open to everyone.",
         "committed": "Committed Blocks",
         "verified": "Verified Blocks",
         "transactions": "Transactions",
@@ -309,8 +309,8 @@
         "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "zkSync Era Block Explorer",
-        "subtitle": "zkSync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into zkSync Era and explore the network.",
+        "title": "ZKsync Era Block Explorer",
+        "subtitle": "ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions",
         "batches": "Latest Batches"
@@ -664,7 +664,7 @@
         }
     },
     "document": {
-        "title": "zkSync Era Block Explorer",
+        "title": "ZKsync Era Block Explorer",
         "home": "Transactions, Blocks, Contracts and much more"
     },
     "notFound": {
@@ -674,11 +674,11 @@
         "contactSupport": "contact support"
     },
     "maintenance": {
-        "title": "zkSync {network} is on maintainance",
-        "description": "zkSync {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
-        "twitterLink": "zkSync Developers",
+        "title": "ZKsync {network} is on maintainance",
+        "description": "ZKsync {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
+        "twitterLink": "ZKsync Developers",
         "uptimeLink": "UpTime",
-        "twitterButton": "zkSync Developers"
+        "twitterButton": "ZKsync Developers"
     },
     "tabs": {
         "transactions": "Transactions",

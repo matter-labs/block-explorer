@@ -4,7 +4,7 @@
       <div class="header-container">
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
-            <span class="sr-only">zkSync</span>
+            <span class="sr-only">ZKsync</span>
             <zk-sync-era />
           </router-link>
         </div>
