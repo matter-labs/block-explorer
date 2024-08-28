@@ -75,3 +75,7 @@ export enum BlockExplorer {
   baseUrl = "http://localhost:3010",
   localNetwork = "/?network=local",
 }
+
+export enum Values {
+  incorrectAddressFormat = "0xE4ce1da467a7Ca37727eb7e19857e5167DE25966123",
+}
