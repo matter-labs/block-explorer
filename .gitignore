@@ -18,6 +18,13 @@ cypress/videos/
 cypress/screenshots/
 tests/e2e/reports/
 **/tests/e2e/artifacts/
+**/playbook/deployments-zk/
+**/playbook/typechain-types/
+**/playbook/artifacts-zk/
+**/playbook/artifacts/
+**/playbook/buffer/
+**/playbook/cache-zk/
+**/playbook/cache/
 
 # Logs
 logs
@@ -46,6 +53,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+*.vscode
 
 # IDE - VSCode
 .vscode/*
