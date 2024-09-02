@@ -1,0 +1,34 @@
+{
+  "name": "playbook",
+  "version": "0.0.0",
+  "description": "The test solution for transaction processing`",
+  "repository": "https://github.com/matter-labs/block-explorer",
+  "private": true,
+  "author": "Matter Labs",
+  "license": "MIT",
+  "scripts": {
+    "compile": "hardhat compile",
+    "clean": "hardhat clean",
+    "deploy:greeter": "hardhat deploy-zksync --script deploy-greeter.ts",
+    "deploy:use:greeter": "hardhat deploy-zksync --script use-greeter.ts",
+    "deployNFTtoL1": "npx hardhat run --network localhost deploy/nftToL1.ts",
+    "deployNFTtoL2": "hardhat deploy-zksync --script nftToL2.ts",
+    "deployToL2": "hardhat deploy-zksync --script erc20toL2.ts",
+    "deployToL1": "npx hardhat run --network localhost deploy/erc20toL1.ts",
+    "deploy:paymaster": "hardhat deploy-zksync --script deploy-paymaster.ts",
+    "deploy:use:paymaster": "hardhat deploy-zksync --script use-paymaster.ts",
+    "merge:multitransfer": "npx hardhat flatten ./contracts/InitialMultiTransfer.sol > ./contracts/MultiTransfer.sol ; sed -i.bak -e 's/\\/\\/ SPDX-License-Identifier: MIT//g' ./contracts/MultiTransfer.sol ; rm ./contracts/MultiTransfer.sol.bak\n",
+    "deploy:multitransfer": "hardhat deploy-zksync --script multiTransferETH.ts",
+    "deploy:use:multitransfer": "npx hardhat deploy-zksync --script use-multitransferETH.ts",
+    "deploy:multicall:root": "hardhat deploy-zksync --script multicallRoot.ts",
+    "deploy:multicall:middle": "hardhat deploy-zksync --script multicallMiddle.ts",
+    "deploy:multicall:caller": "hardhat deploy-zksync --script multicallCaller.ts",
+    "deploy:use:multicall": "hardhat deploy-zksync --script use-multiCall.ts"
+  },
+  "dependencies": {
+    "ts-jest-resolver": "^2.0.0"
+  },
+  "devDependencies": {
+    "hardhat": "^2.22.6"
+  }
+}

@@ -47,16 +47,16 @@ jobs:
       fail-fast: false
       matrix:
         tags: [
-                "@artifactsSet1",
-                "@artifactsSet2",
-                "@artifactsSet3",
-                "@artifactsSet4",
-                "@redirectionSet1",
-                "@redirectionSet2",
-                "@redirectionSet3",
-                "@copying",
-                "@search",
-                "@testnetSmokeSuite"
+                 "@artifactsSet1",
+                 "@artifactsSet2",
+                 "@artifactsSet3",
+                 "@artifactsSet4",
+                 "@redirectionSet1",
+                 "@redirectionSet2",
+                 "@redirectionSet3",
+                 "@copying",
+                 "@search",
+                 "@testnetSmokeSuite"
               ]
 
     name: '${{ matrix.tags }}'
@@ -79,8 +79,6 @@ jobs:
         uses: actions/cache@v3
         env:
           cache-name: cache-node-modules
-          # Workaround for bug https://github.com/typicode/husky/issues/991
-          HUSKY: 0
         with:
           path: node_modules
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
