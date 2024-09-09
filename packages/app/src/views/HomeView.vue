@@ -21,7 +21,6 @@
       <div>
         <div class="batches-label-container flex items-center gap-x-1">
           <p class="mb-3 text-2xl font-semibold">{{ t("blockExplorer.batches") }}</p>
-          <!-- <InfoTooltip class="batches-tooltip mb-3">{{ t("batches.tooltipInfo") }}</InfoTooltip> -->
         </div>
         <TableBatches
           v-if="(isBatchesPending || batches) && !isBatchesFailed"

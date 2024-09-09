@@ -1,8 +1,8 @@
 <template>
   <div class="copy-button-container">
-    <button ref="copyButton" type="button" class="copy-button" @click.prevent="copyToClipboard">
+    <button class="copy-button" ref="copyButton" type="button" @click.prevent="copyToClipboard">
       <slot>
-        <DocumentDuplicateIcon class="copy-button-icon" aria-hidden="true" />
+        <DocumentDuplicateIcon class="copy-button-icon inline-block h-[1em] w-[1em]" aria-hidden="true" />
       </slot>
     </button>
   </div>
@@ -80,11 +80,11 @@ function legacyCopy() {
   @apply relative h-6 w-6;
 
   .copy-button {
-    @apply absolute -left-1 -top-1 rounded-md p-1 text-neutral-500 transition-colors hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue;
+    @apply absolute -left-1 -top-1 rounded-md p-1 transition-colors;
 
-    .copy-button-icon {
+    /* .copy-button-icon {
       @apply inline-block h-5 w-5 rounded-full;
-    }
+    } */
   }
 }
 </style>

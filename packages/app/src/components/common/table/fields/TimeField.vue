@@ -75,11 +75,15 @@ const timeAgo = useTimeAgo(isoString.value, { messages: messages.value });
 
 <style lang="scss">
 .info-field-time {
-  @apply flex items-center;
+  align-items: center;
+  color: var(--color-gray);
+  display: flex;
+  letter-spacing: -0.02em;
 
   .time-ago::first-letter {
     @apply capitalize;
   }
+
   .full-date {
     @apply ml-3 text-gray;
   }

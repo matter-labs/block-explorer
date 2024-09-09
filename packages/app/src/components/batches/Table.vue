@@ -144,7 +144,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
     }
   }
   .badge-container.type-label {
-    @apply pr-2 normal-case	normal-case;
+    @apply pr-2 normal-case;
   }
 }
 </style>

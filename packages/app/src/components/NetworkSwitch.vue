@@ -8,7 +8,7 @@
         <span class="network-item-label block truncate font-semibold">
           {{ currentNetwork.l2NetworkName }}
         </span>
-        <ChevronDownIcon class="dropdown-icon h-[1em] w-[1em]" aria-hidden="true" />
+        <img class="mx-2 top-px w-[0.8em]" src="/images/icons/chevron.svg" aria-hidden="true" />
       </span>
     </ListboxButton>
     <div class="network-list-wrapper absolute right-0 top-full h-auto w-full lg:w-[260px]">

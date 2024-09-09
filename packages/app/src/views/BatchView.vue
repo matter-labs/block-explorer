@@ -16,7 +16,9 @@
       <BatchTable class="batch-table" :loading="batchPending" :batch="batchItem" :batch-number="id" />
 
       <div ref="transactionsContainer">
-        <h2 class="table-transaction-title">{{ t("batches.transactionTable.title") }}</h2>
+        <h2 class="table-transaction-title !text-black text-3xl sm:text-4xl">
+          {{ t("batches.transactionTable.title") }}
+        </h2>
         <TransactionsTable class="transactions-table" :search-params="transactionsSearchParams">
           <template #not-found>
             <TransactionEmptyState :batch-exists="!!batchItem" />

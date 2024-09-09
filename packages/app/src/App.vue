@@ -34,7 +34,8 @@ setup();
 
 <style lang="scss">
 #app {
-  background: url("/public/background.webp") no-repeat center center fixed;
+  background: url("/the-correct-background.webp") no-repeat center center fixed;
+  background-size: cover;
 }
 .container-app {
   @apply container pt-6;

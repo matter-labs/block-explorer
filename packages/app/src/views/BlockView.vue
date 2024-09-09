@@ -16,7 +16,9 @@
         <BlockTable class="block-table" :loading="blockPending" :block="blockItem" :block-number="id" />
       </div>
       <div>
-        <h2 class="table-transaction-title font-semibold text-black">{{ t("blocks.transactionTable.title") }}</h2>
+        <h2 class="table-transaction-title font-semibold text-black text-3xl sm:text-4xl">
+          {{ t("blocks.transactionTable.title") }}
+        </h2>
         <TransactionsTable
           class="transactions-table"
           :search-params="transactionsSearchParams"

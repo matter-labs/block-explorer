@@ -82,8 +82,8 @@ const inputs = computed(() => {
     inputsArray.unshift({
       key: "value",
       type: "ether",
-      label: "payableAmount (ether)",
-      placeholder: "payableAmount (ether)",
+      label: "payableAmount (SOPH)",
+      placeholder: "payableAmount (SOPH)",
     });
   }
   return inputsArray;

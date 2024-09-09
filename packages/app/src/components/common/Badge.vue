@@ -144,7 +144,7 @@ defineProps({
   }
 
   &.type-label {
-    @apply rounded font-bold capitalize;
+    @apply rounded font-medium capitalize;
 
     &.size-sm {
       @apply px-2 py-1 pr-2.5 text-xs;

@@ -4,13 +4,7 @@
       <div class="header-container flex items-center justify-between py-4 md:space-x-10 lg:justify-start">
         <div class="logo-container flex justify-start">
           <router-link class="flex items-center gap-2 text-black no-underline" :to="{ name: 'home' }">
-            <span class="text-[46px]">
-              <sophon />
-            </span>
-            <span class="text-2xl font-medium">Sophon</span>
-            <span class="top-[2px] rounded-full bg-blue px-2 text-2xs/4 font-semibold uppercase text-white"
-              >Testnet</span
-            >
+            <img src="/images/logo-sophon-testnet.svg" />
           </router-link>
         </div>
         <div class="burger-button-container -my-2 -mr-2 lg:hidden">

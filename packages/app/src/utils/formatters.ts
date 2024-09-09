@@ -22,7 +22,7 @@ export function formatPrice(num: number) {
 }
 
 export function formatWithSpaces(num: number) {
-  return new Intl.NumberFormat("fr-FR").format(num);
+  return new Intl.NumberFormat("us-US").format(num);
 }
 
 export function stringFromAsciiArray(asciiArray: number[]) {

@@ -10,10 +10,15 @@
     >
       <template #submit>
         <button
-          class="submit-icon flex aspect-square h-12 items-center justify-center rounded-full bg-blue text-center text-2xl text-white"
+          class="submit-icon flex aspect-square h-12 items-center justify-center rounded-full bg-blue text-center text-lg text-white"
           type="submit"
         >
-          <SearchIcon aria-hidden="true" />
+          <svg class="inline-block h-[1em] w-[1em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path
+              fill="currentColor"
+              d="M9.6 2.4a7.2 7.2 0 1 0 0 14.4 7.2 7.2 0 0 0 0-14.4Zm-6.79.41A9.6 9.6 0 0 1 17.18 15.5l6.47 6.46a1.2 1.2 0 0 1-1.7 1.7l-6.46-6.47A9.6 9.6 0 0 1 2.8 2.81Z"
+            />
+          </svg>
         </button>
       </template>
     </search-field>
@@ -24,7 +29,6 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { SearchIcon } from "@heroicons/vue/outline";
 import { useVuelidate } from "@vuelidate/core";
 import { or } from "@vuelidate/validators";
 

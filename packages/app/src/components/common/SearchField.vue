@@ -3,7 +3,7 @@
     <label class="input-label block text-sm font-medium" v-if="label && label.length" for="search">{{ label }}</label>
     <div class="search-input-container relative flex items-center">
       <input
-        class="search-input block w-full truncate rounded-full border-none py-6 pl-8 pr-20 leading-none text-black placeholder-gray-2 shadow-soft ring-inset focus:border-blue focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50"
+        class="search-input block border border-black/5 font-medium leading-none pl-8 placeholder-gray-2 pr-20 py-6 ring-inset ring-offset-[-1px] rounded-full shadow-soft text-black transition-colors truncate w-full focus:border-blue focus:ring-blue disabled:cursor-not-allowed disabled:opacity-50"
         id="search"
         type="text"
         name="search"

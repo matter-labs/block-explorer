@@ -1,10 +1,10 @@
 <template>
   <h1
-    class="title-container flex flex-wrap break-all text-3xl font-semibold sm:text-4xl"
+    class="title-container flex flex-wrap break-all text-3xl font-semibold tracking-tight sm:text-4xl"
     :data-testid="$testId.pageTitle"
   >
     {{ title }}&nbsp;
-    <div v-if="value" class="title-block flex items-center gap-4 font-semibold">
+    <div v-if="value" class="title-block flex items-center gap-3 font-semibold">
       <slot>{{ shortValue(value) }}</slot>
       <CopyButton :value="value" class="title-copy-button" />
     </div>

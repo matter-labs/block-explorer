@@ -36,6 +36,3 @@ defineProps({
   },
 });
 </script>
-
-<!-- <style lang="scss">
-</style> -->

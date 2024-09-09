@@ -5,7 +5,6 @@
         <span class="selected-language-label">{{ selected.label }}</span>
       </span>
       <span class="toggle-button-icon-wrapper">
-        <!-- <ChevronDownIcon class="toggle-button-icon" aria-hidden="true" /> -->
         <ChevronDownIcon class="toggle-button-icon dropdown-icon h-[1em] w-[1em]" aria-hidden="true" />
       </span>
     </ListboxButton>

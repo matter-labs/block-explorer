@@ -3,7 +3,7 @@
     <MenuButton>
       <div class="navigation-link" :class="{ active: open }">
         {{ label }}
-        <ChevronDownIcon class="dropdown-icon" aria-hidden="true" />
+        <img class="ml-2 top-px w-[0.8em]" src="/images/icons/chevron.svg" />
       </div>
     </MenuButton>
     <transition
@@ -30,7 +30,6 @@
 
 <script lang="ts" setup>
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import { ChevronDownIcon } from "@heroicons/vue/outline";
 
 import type { PropType } from "vue";
 

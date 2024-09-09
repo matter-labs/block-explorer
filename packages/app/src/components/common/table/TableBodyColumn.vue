@@ -8,5 +8,8 @@
 
 <script setup lang="ts"></script>
 
-<!-- <style lang="scss">
-</style> -->
+<style lang="scss">
+.table-body-col {
+  letter-spacing: -0.02em;
+}
+</style>
