@@ -2,7 +2,7 @@
 
 ## Overview
 
-`zkSync Era Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [zkSync Era](https://zksync.io) blockchain.
+`Sophon Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [zkSync Era](https://zksync.io) blockchain.
 
 ## Recommended IDE Setup
 
