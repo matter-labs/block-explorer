@@ -1,4 +1,4 @@
-# The Sophon Block Explorer App
+# Sophon Block Explorer App
 
 ## Overview
 
