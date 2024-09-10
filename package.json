@@ -11,7 +11,7 @@
     "packages/*"
   ],
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky install || true",
     "lint": "lerna run lint",
     "test": "lerna run test",
     "test:ci": "lerna run test:ci",
