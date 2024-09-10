@@ -1,0 +1,18 @@
+{
+  "networks": [
+    {
+      "apiUrl": "https://block-explorer-api.testnet.sophon.xyz",
+      "verificationApiUrl": "https://api-explorer-verify.testnet.sophon.xyz",
+      "bridgeUrl": "https://portal.testnet.sophon.xyz/bridge",
+      "hostnames": ["https://explorer.testnet.sophon.xyz"],
+      "icon": "/images/icons/sophon.svg",
+      "l2ChainId": 531050104,
+      "l2NetworkName": "Sophon Testnet",
+      "maintenance": false,
+      "name": "Sepolia",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "published": true,
+      "rpcUrl": "https://rpc.testnet.sophon.xyz"
+    }
+  ]
+}
