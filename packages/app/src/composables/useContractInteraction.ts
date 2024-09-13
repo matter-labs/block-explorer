@@ -55,7 +55,6 @@ export default (context = useContext()) => {
         });
       const methodOptions = {
         value: ethers.utils.parseEther((params.value as string) ?? "0")
-        //gasLimit: "10000000",
       };
       const res = await method(
         ...[
