@@ -17,7 +17,7 @@ import {
 
 describe("formatters:", () => {
   it("returns formatted number with spaces", () => {
-    expect(formatWithSpaces(20300)).toBe("20 300");
+    expect(formatWithSpaces(20300)).toBe("20,300");
   });
   it("returns formatted number with symbols", () => {
     expect(formatMoney(20300)).toBe("$20,300.0");

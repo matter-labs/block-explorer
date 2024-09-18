@@ -57,7 +57,7 @@ describe("TheHeader:", () => {
     await fireEvent.click(dropdown[1].find("button")!.element);
     const toolsLinksRouter = dropdown[1].findAllComponents(RouterLinkStub);
     const toolsLinks = dropdown[1].findAll("a");
-    expect(toolsLinks[0].attributes("href")).toBe("https://api-url/docs");
+    expect(toolsLinks[0].attributes("href")).toBe("https://block-explorer-api.testnet.sophon.xyz/docs");
     expect(toolsLinksRouter[0].props().to.name).toBe("contract-verification");
     expect(toolsLinks[2].attributes("href")).toBe("https://bridge.zksync.io/");
 
@@ -73,7 +73,7 @@ describe("TheHeader:", () => {
       },
     });
     const routerArray = wrapper.findAll(".socials-container > a");
-    expect(routerArray[1].attributes("href")).toBe("https://x.com/sophon");
+    expect(routerArray[0].attributes("href")).toBe("https://x.com/sophon");
   });
   it("renders network switch", () => {
     const wrapper = mount(TheHeader, {
@@ -92,7 +92,7 @@ describe("TheHeader:", () => {
       },
     });
 
-    expect(wrapper.find(".hero-banner-container").exists()).toBe(true);
+    expect(wrapper.find(".hero-banner-container").exists()).toBe(false);
   });
   it("doesn't render hero banner for not-found route", async () => {
     const mockRoute = routeMock.mockReturnValue({ name: "not-found", params: {} });

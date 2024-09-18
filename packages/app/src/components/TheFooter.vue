@@ -25,14 +25,12 @@
 import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 
-import useContext from "@/composables/useContext";
 const { t } = useI18n();
-const { currentNetwork } = useContext();
 
 const navigation = reactive([
   {
     label: computed(() => t("footer.nav.docs")),
-    url: `${currentNetwork.value.apiUrl}/docs`,
+    url: `https://block-explorer-api.testnet.sophon.xyz/docs`,
   },
   {
     label: computed(() => t("footer.nav.terms")),

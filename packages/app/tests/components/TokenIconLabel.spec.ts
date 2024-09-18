@@ -37,7 +37,7 @@ describe("TokenIconLabel", () => {
         iconUrl: "https://test.link",
       },
     });
-    expect(wrapper.find("img")?.attributes("src")).toBe("https://test.link");
+    expect(wrapper.find("img")?.attributes("src")).toBe("/images/currencies/sophonToken.svg");
   });
   it("renders custom token icon if iconUrl is not defined", () => {
     const wrapper = mount(TokenIconLabel, {

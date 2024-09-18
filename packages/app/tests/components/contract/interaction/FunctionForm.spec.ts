@@ -89,7 +89,7 @@ describe("FunctionForm:", () => {
 
     const fields = wrapper.findAll(".disclosure-panel-input-container");
     expect(fields[0].findComponent(Input).exists()).toBeTruthy();
-    expect(fields[0].find("label").text()).toBe("payableAmount (ether)");
+    expect(fields[0].find("label").text()).toBe("payableAmount (SOPH)");
   });
   it("doesn't show error if last field is empty and the array unassigned", async () => {
     const wrapper = mount(FunctionForm, {
