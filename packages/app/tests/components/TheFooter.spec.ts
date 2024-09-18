@@ -24,10 +24,8 @@ describe("TheFooter:", () => {
       },
     });
     const links = wrapper.findAll("a");
-    expect(links[0].attributes("href")).toBe(
-      "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html"
-    );
-    expect(links[1].attributes("href")).toBe("https://zksync.io/terms");
+    expect(links[0].attributes("href")).toBe("https://block-explorer-api.testnet.sophon.xyz/docs");
+    expect(links[1].attributes("href")).toBe("https://farm.sophon.xyz/terms.html");
     expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
   });
 });

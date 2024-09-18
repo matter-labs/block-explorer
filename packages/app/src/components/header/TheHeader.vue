@@ -128,7 +128,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
+    url: `${currentNetwork.value.apiUrl}/docs`,
   },
 ]);
 

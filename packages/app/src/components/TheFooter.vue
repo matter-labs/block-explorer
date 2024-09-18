@@ -25,14 +25,16 @@
 import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 
-import useRuntimeConfig from "@/composables/useRuntimeConfig";
+import useContext from "@/composables/useContext";
+// import useRuntimeConfig from "@/composables/useRuntimeConfig";
 const { t } = useI18n();
-const config = useRuntimeConfig();
+// const config = useRuntimeConfig();
+const { currentNetwork } = useContext();
 
 const navigation = reactive([
   {
     label: computed(() => t("footer.nav.docs")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
+    url: `${currentNetwork.value.apiUrl}/docs`,
   },
   {
     label: computed(() => t("footer.nav.terms")),
