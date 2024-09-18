@@ -53,7 +53,7 @@ import { computed } from "vue";
 import { useRoute } from "vue-router";
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { ChevronDownIcon, MinusCircleIcon } from "@heroicons/vue/outline";
+import { MinusCircleIcon } from "@heroicons/vue/outline";
 
 import useContext from "@/composables/useContext";
 

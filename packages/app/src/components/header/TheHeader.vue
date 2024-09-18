@@ -106,7 +106,6 @@
 <script lang="ts" setup>
 import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
 
 import { Popover, PopoverButton, PopoverGroup, PopoverPanel } from "@headlessui/vue";
 import { MenuIcon, XIcon } from "@heroicons/vue/outline";
@@ -120,9 +119,7 @@ import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 
 import useContext from "@/composables/useContext";
 
-import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
-const { t, locale } = useI18n({ useScope: "global" });
-const route = useRoute();
+const { t } = useI18n({ useScope: "global" });
 const { currentNetwork } = useContext();
 
 const navigation = reactive([
