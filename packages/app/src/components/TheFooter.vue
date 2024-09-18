@@ -26,9 +26,7 @@ import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 
 import useContext from "@/composables/useContext";
-// import useRuntimeConfig from "@/composables/useRuntimeConfig";
 const { t } = useI18n();
-// const config = useRuntimeConfig();
 const { currentNetwork } = useContext();
 
 const navigation = reactive([
