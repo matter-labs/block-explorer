@@ -13,8 +13,8 @@ Feature: Redirection
 
     Examples:
       | Extra button name | url                                     |
-      | Docs              | https://docs.zksync.io/build/tooling/block-explorer/getting-started.html         |
-      | Terms             | https://zksync.io/terms                 |
+      | Docs              | https://block-explorer-api.testnet.sophon.xyz/docs         |
+      | Terms             | https://farm.sophon.xyz/terms.html                 |
       | Contact           | https://zksync.io/contact      |
 
   #Header
@@ -32,7 +32,7 @@ Feature: Redirection
   @id251
   Scenario: Verify redirection for Documentation link
     Given I click by text "Documentation"
-    Then New page have "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html" address
+    Then New page have "https://block-explorer-api.testnet.sophon.xyz/docs" address
 
   @id252
   Scenario Outline: Verify redirection for "<Sub-Section>" in BE menu

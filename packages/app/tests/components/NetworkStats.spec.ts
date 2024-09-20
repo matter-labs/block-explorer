@@ -50,7 +50,7 @@ describe("NetworkStats:", () => {
     const wrapperArray = container.querySelectorAll(".stats-container");
     expect(wrapperArray[0].textContent).toContain("123");
     expect(wrapperArray[1].textContent).toContain("542");
-    expect(wrapperArray[2].textContent).toContain("1 404");
+    expect(wrapperArray[2].textContent).toContain("1,404");
     expect(wrapperArray[3].textContent).toContain("$849,320.0");
   });
   it("renders component without total value locked property", () => {
@@ -66,7 +66,7 @@ describe("NetworkStats:", () => {
     const wrapperArray = container.querySelectorAll(".stats-container");
     expect(wrapperArray[0].textContent).toContain("123");
     expect(wrapperArray[1].textContent).toContain("542");
-    expect(wrapperArray[2].textContent).toContain("1 404");
+    expect(wrapperArray[2].textContent).toContain("1,404");
     expect(wrapperArray[3]).toBe(undefined);
   });
   it("renders loading state", () => {
@@ -161,7 +161,7 @@ describe("NetworkStats:", () => {
       global,
     });
 
-    expect(wrapper.find(".subtitle").text()).toBe("zkSync Era Mainnet is open to everyone.");
+    expect(wrapper.find(".subtitle").text()).toBe("Sophon Mainnet is open to everyone.");
     mockNetwork.mockRestore();
   });
 });

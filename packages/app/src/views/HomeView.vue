@@ -62,7 +62,6 @@ import { useI18n } from "vue-i18n";
 import NetworkStats from "@/components/NetworkStats.vue";
 import SearchForm from "@/components/SearchForm.vue";
 import TableBatches from "@/components/batches/Table.vue";
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 

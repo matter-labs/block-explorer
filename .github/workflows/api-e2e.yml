@@ -29,7 +29,7 @@ jobs:
 
       - name: Start docker containers
         run: |
-          docker-compose -f "docker-compose.e2e.yaml" up -d --build
+          docker compose -f "docker-compose.e2e.yaml" up -d --build
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -49,11 +49,11 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
         with:
-          files: "packages/api/e2e-junit.xml"
+          files: 'packages/api/e2e-junit.xml'
           check_run_annotations: all tests, skipped tests
-          report_individual_runs: "true"
+          report_individual_runs: 'true'
           check_name: API E2E Test Results
 
       - name: Stop containers
         if: always()
-        run: docker-compose -f "docker-compose.e2e.yaml" down
+        run: docker compose -f "docker-compose.e2e.yaml" down

@@ -122,7 +122,7 @@ describe("useContractInteraction:", () => {
       );
       expect(mock.mock.lastCall).toEqual([
         ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
-        { gasLimit: "10000000", value: ethers.utils.parseEther("0.1") },
+        { value: ethers.utils.parseEther("0.1") },
       ]);
       mock.mockRestore();
     });
@@ -142,7 +142,7 @@ describe("useContractInteraction:", () => {
           value: "0.1",
         }
       );
-      expect(mock.mock.lastCall).toEqual([{ gasLimit: "10000000", value: ethers.utils.parseEther("0.1") }]);
+      expect(mock.mock.lastCall).toEqual([{ value: ethers.utils.parseEther("0.1") }]);
       mock.mockRestore();
     });
     it("change input to boolean type", async () => {
@@ -162,7 +162,7 @@ describe("useContractInteraction:", () => {
           bool: "false",
         }
       );
-      expect(mock.mock.lastCall).toEqual([false, { gasLimit: "10000000", value: ethers.utils.parseEther("0.1") }]);
+      expect(mock.mock.lastCall).toEqual([false, { value: ethers.utils.parseEther("0.1") }]);
       mock.mockRestore();
     });
     it("sets isRequestPending to true when request is pending", async () => {
