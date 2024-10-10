@@ -9,6 +9,8 @@ import useContext from "@/composables/useContext";
 import type { AbiFragment } from "./useAddress";
 import type { WalletError } from "@matterlabs/composables";
 
+export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
+
 export default (context = useContext()) => {
   const walletContext = {
     isReady: context.isReady,
@@ -44,7 +46,7 @@ export default (context = useContext()) => {
       const contract = new ethers.Contract(address, [abiFragment], signer!);
       const method = contract[abiFragment.name];
       const methodArguments = Object.entries(params)
-        .filter(([key]) => key !== "value")
+        .filter(([key]) => key !== PAYABLE_AMOUNT_PARAM_NAME)
         .map(([, inputValue]) => {
           if (inputValue === "true") {
             inputValue = true;
@@ -54,8 +56,7 @@ export default (context = useContext()) => {
           return inputValue;
         });
       const methodOptions = {
-        value: ethers.utils.parseEther((params.value as string) ?? "0"),
-        gasLimit: "10000000",
+        value: ethers.utils.parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };
       const res = await method(
         ...[
