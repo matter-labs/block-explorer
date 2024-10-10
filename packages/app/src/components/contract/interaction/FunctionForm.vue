@@ -36,6 +36,8 @@ import { ethers } from "ethers";
 import Input from "@/components/common/Input.vue";
 import FunctionArrayParameter from "@/components/contract/interaction/FunctionArrayParameter.vue";
 
+import { PAYABLE_AMOUNT_PARAM_NAME } from "@/composables/useContractInteraction";
+
 import type { AbiFragment } from "@/composables/useAddress";
 
 import { getRawFunctionType, getRequiredArrayLength, isArrayFunctionType } from "@/utils/helpers";
@@ -80,7 +82,7 @@ const inputs = computed(() => {
   );
   if (props.abiFragment.stateMutability === "payable") {
     inputsArray.unshift({
-      key: "value",
+      key: PAYABLE_AMOUNT_PARAM_NAME,
       type: "ether",
       label: "payableAmount (ether)",
       placeholder: "payableAmount (ether)",
