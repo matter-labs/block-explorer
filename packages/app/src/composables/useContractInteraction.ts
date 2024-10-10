@@ -43,19 +43,16 @@ export default (context = useContext()) => {
       const signer = await getL2Signer();
       const contract = new ethers.Contract(address, [abiFragment], signer!);
       const method = contract[abiFragment.name];
-      const methodArguments = Object.entries(params)
-        .filter(([key]) => key !== "value")
-        .map(([, inputValue]) => {
-          if (inputValue === "true") {
-            inputValue = true;
-          } else if (inputValue === "false") {
-            inputValue = false;
-          }
-          return inputValue;
-        });
+      const methodArguments = Object.entries(params).map(([, inputValue]) => {
+        if (inputValue === "true") {
+          inputValue = true;
+        } else if (inputValue === "false") {
+          inputValue = false;
+        }
+        return inputValue;
+      });
       const methodOptions = {
         value: ethers.utils.parseEther((params.value as string) ?? "0"),
-        gasLimit: "10000000",
       };
       const res = await method(
         ...[
