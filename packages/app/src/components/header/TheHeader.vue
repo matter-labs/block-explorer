@@ -4,8 +4,8 @@
       <div class="header-container">
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
-            <span class="sr-only">ZKsync</span>
-            <zk-sync-era />
+            <span class="sr-only">Treasure</span>
+            <treasure-logo />
           </router-link>
         </div>
         <div class="burger-button-container">
@@ -52,9 +52,7 @@
       v-if="hasContent"
       class="hero-banner-container"
       :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
-    >
-      <hero-arrows class="hero-image" />
-    </div>
+    ></div>
     <transition
       enter-active-class="duration-200 ease-out"
       enter-from-class="scale-95 opacity-0"
@@ -142,10 +140,9 @@ import LinksPopover from "./LinksPopover.vue";
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
 import DiscordIcon from "@/components/icons/DiscordIcon.vue";
-import HeroArrows from "@/components/icons/HeroArrows.vue";
+import TreasureLogo from "@/components/icons/TreasureLogo.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 import ZkSync from "@/components/icons/ZkSync.vue";
-import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
 
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
@@ -203,8 +200,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
+  { url: "https://discord.com/invite/treasuredao", component: DiscordIcon },
+  { url: "https://twitter.com/Treasure_DAO", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
