@@ -123,14 +123,14 @@ jobs:
           name: allure-results
           path: packages/app/allure-results
 
-      - name: Upload test results to Allure reporter
-        if: always()
-        env:
-          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
-        run: |
-          ./allurectl upload allure-results
-          echo "*Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
-          echo "*Public report link will be available when the 'Allure Report' job will be succesfully executed."
+      # - name: Upload test results to Allure reporter
+      #   if: always()
+      #   env:
+      #     ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
+      #   run: |
+      #     ./allurectl upload allure-results
+      #     echo "*Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
+      #     echo "*Public report link will be available when the 'Allure Report' job will be succesfully executed."
 
       - if: failure()
         name: Save artifacts
