@@ -1,7 +1,7 @@
 {
   "networks": [
     {
-      "apiUrl": "http://localhost:3020",
+      "apiUrl": "http://localhost:13042",
       "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [
         "localhost"
@@ -12,58 +12,23 @@
       "maintenance": false,
       "name": "local",
       "published": true,
-      "rpcUrl": "http://localhost:3050",
+      "rpcUrl": "http://localhost:8011",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     },
     {
-      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
-      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
-      "hostnames": [],
-      "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "l2ChainId": 300,
-      "l2NetworkName": "ZKsync Era Sepolia Testnet",
-      "maintenance": false,
-      "name": "sepolia",
-      "published": true,
-      "rpcUrl": "https://sepolia.era.zksync.dev",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
-    },
-    {
-      "apiUrl": "https://block-explorer-api.stage.zksync.dev",
-      "verificationApiUrl": "https://z2-dev-api-explorer.zksync.dev",
+      "apiUrl": "http://localhost:14042",
+      "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [
-        "https://goerli-beta.staging-scan-v2.zksync.dev"
+        "localhost"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://goerli.etherscan.io",
       "l2ChainId": 270,
-      "l2NetworkName": "Goerli (Stage2)",
+      "l2NetworkName": "Local2",
       "maintenance": false,
-      "name": "goerli-beta",
+      "name": "local2",
       "published": true,
-      "rpcUrl": "https://z2-dev-api.zksync.dev",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
-    },
-    {
-      "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
-      "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
-      "hostnames": [
-        "https://staging-scan-v2.zksync.dev"
-      ],
-      "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://etherscan.io",
-      "l2ChainId": 324,
-      "l2NetworkName": "ZKsync Era Mainnet",
-      "maintenance": false,
-      "name": "mainnet",
-      "published": true,
-      "rpcUrl": "https://mainnet.era.zksync.io",
-      "tokensMinLiquidity": 0,
-      "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+      "rpcUrl": "http://localhost:8012",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     }
   ]
 }

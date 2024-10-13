@@ -28,6 +28,8 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import AddressLink from "../AddressLink.vue";
+
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
@@ -61,6 +63,7 @@ const tableInfoItems = computed(() => {
     { label: t("accountView.accountInfo.address"), value: { value: props.account.address }, component: CopyContent },
     { label: t("accountView.accountInfo.sealedNonce"), value: props.account.sealedNonce },
     { label: t("accountView.accountInfo.verifiedNonce"), value: props.account.verifiedNonce },
+    { label: "Interop", value: "This is controlled by account XXX on chain YYY" },
   ];
   return tableItems;
 });
@@ -71,11 +74,13 @@ const tableInfoItems = computed(() => {
   .table-body-col {
     @apply py-4;
   }
+
   tr:not(.loading-row) {
     td:nth-child(2) {
       @apply w-full;
     }
   }
+
   .loading-row {
     .table-body-col {
       @apply first:w-40;

@@ -2,7 +2,7 @@
   <div
     v-if="text"
     class="label-container"
-    :class="{ incoming: text === 'in', outcoming: text === 'out', self: text === 'self' }"
+    :class="{ incoming: text === 'in', outcoming: text === 'out', self: text === 'self', xl2: text === 'x-l2' }"
   >
     {{ text }}
   </div>
@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import type { PropType } from "vue";
-export type Direction = "in" | "out" | "self";
+export type Direction = "in" | "out" | "self" | "x-l2";
 
 defineProps({
   text: {
@@ -23,12 +23,19 @@ defineProps({
 .label-container {
   @apply h-5 w-8 rounded text-center text-xs uppercase leading-5;
 }
+
 .incoming {
   @apply bg-[#C7F5D3] text-[#4CA154];
 }
+
 .outcoming {
   @apply bg-[#fcf5e5] text-[#E59900];
 }
+
+.xl2 {
+  @apply bg-[#fce5ec] text-[#E59900];
+}
+
 .self {
   @apply bg-[#068fca1f] text-[#068FCA];
 }

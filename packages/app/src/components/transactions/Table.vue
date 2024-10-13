@@ -39,8 +39,8 @@
       >
         <Badge :color="item.statusColor" :data-testid="$testId.statusBadge">
           <template #default>
-            {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status
-            }}<component :is="item.statusIcon" />
+            {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status }}
+            <component :is="item.statusIcon" />
           </template>
         </Badge>
       </TableBodyColumn>
@@ -313,7 +313,8 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
 const isHighRowsSize = computed(() => props.columns.includes("fee"));
 
 function getDirection(item: TransactionListItem): Direction {
-  return item.from === item.to ? "self" : item.to !== props.searchParams?.address ? "out" : "in";
+  return "x-l2";
+  //return item.from === item.to ? "self" : item.to !== props.searchParams?.address ? "out" : "in";
 }
 </script>
 
@@ -324,6 +325,7 @@ function getDirection(item: TransactionListItem): Direction {
       @apply md:my-2;
     }
   }
+
   th,
   td {
     &:nth-child(1) {
@@ -333,6 +335,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[7rem];
       }
     }
+
     &:nth-child(2) {
       @apply min-w-[6.5rem];
 
@@ -340,6 +343,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[6.5rem];
       }
     }
+
     &:nth-child(3) {
       @apply min-w-[5rem];
 
@@ -347,6 +351,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[4rem];
       }
     }
+
     &:nth-child(4) {
       @apply min-w-[4.5rem];
 
@@ -354,6 +359,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[4.5rem];
       }
     }
+
     &:nth-child(5) {
       @apply min-w-[6.5rem];
 
@@ -361,6 +367,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[6.5rem];
       }
     }
+
     &:nth-child(6) {
       @apply min-w-[4rem];
 
@@ -368,6 +375,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[4rem];
       }
     }
+
     &:nth-child(7) {
       @apply min-w-[4rem];
 
@@ -375,6 +383,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[4rem];
       }
     }
+
     &:nth-child(8) {
       @apply min-w-[6rem];
 
@@ -382,6 +391,7 @@ function getDirection(item: TransactionListItem): Direction {
         @apply w-[6rem];
       }
     }
+
     &:nth-child(9) {
       @apply min-w-[7.4rem];
 
@@ -390,67 +400,87 @@ function getDirection(item: TransactionListItem): Direction {
       }
     }
   }
+
   .dash-icon {
     @apply h-4 w-4;
   }
+
   .table-body-col {
     @apply min-h-[36px] py-2 md:py-3.5;
   }
+
   .loader-row {
     .content-loader {
       @apply float-right h-6 w-full md:float-none;
     }
   }
+
   .tablet-column {
     @apply hidden md:table-cell lg:hidden;
+
     .tablet-column-fee {
       @apply flex text-xs text-neutral-400;
     }
   }
+
   .only-desktop {
     @apply hidden md:table-cell;
   }
+
   .table-initiator-container {
     @apply gap-x-1 text-neutral-400;
+
     a {
       @apply font-medium;
     }
   }
+
   .tablet-column-hidden {
     @apply md:hidden lg:table-cell;
   }
+
   .amount-price-placeholder {
     @apply text-xs md:hidden;
   }
+
   .transactions-data-link {
     @apply flex items-center gap-x-1;
+
     a,
     .transactions-data-link-value {
       @apply block cursor-pointer text-sm font-medium;
     }
+
     span.transactions-data-link-value {
       @apply cursor-default;
     }
   }
+
   .transactions-data-method {
     @apply w-[200px] truncate sm:w-auto;
   }
+
   .transactions-data-transaction-amount,
   .transactions-data-age {
     @apply flex items-center text-sm;
   }
+
   .transaction-data-block {
     @apply font-semibold;
   }
+
   .transactions-in-out {
     @apply md:m-auto;
   }
+
   .transactions-data-transaction-amount {
     @apply font-bold;
   }
+
   .transactions-not-found {
     @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
   }
+
   .badge-content {
     @apply flex items-center;
 
@@ -458,8 +488,9 @@ function getDirection(item: TransactionListItem): Direction {
       @apply ml-1;
     }
   }
+
   .badge-container.type-label {
-    @apply pr-2 normal-case	normal-case;
+    @apply pr-2 normal-case normal-case;
   }
 
   .pagination {
@@ -468,18 +499,23 @@ function getDirection(item: TransactionListItem): Direction {
 
   .table-body {
     @apply rounded-t-lg;
+
     th.table-head-col {
       @apply min-w-0 sm:min-w-[7rem];
     }
   }
+
   td {
     @apply relative flex flex-col items-end justify-end text-right md:table-cell md:text-left;
+
     &:before {
       @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
     }
   }
+
   .copy-button-container {
     @apply flex w-fit;
+
     .copy-button {
       @apply static p-0 focus:ring-0;
     }
