@@ -186,26 +186,6 @@
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">{{ transaction.gasPerPubdata }}</TableBodyColumn>
       </tr>
-      <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
-        <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">Source Address</span>
-          <InfoTooltip class="transaction-info-field-tooltip">{{
-            t("transactions.table.gasPerPubdataTooltip")
-          }}</InfoTooltip>
-        </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value"
-          >{{ transaction.interopSourceAddress }} @ {{ transaction.interopSourceChain }}</TableBodyColumn
-        >
-      </tr>
-      <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
-        <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">Source Tx</span>
-          <InfoTooltip class="transaction-info-field-tooltip">{{
-            t("transactions.table.gasPerPubdataTooltip")
-          }}</InfoTooltip>
-        </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value">{{ transaction.interopSourceTx }}</TableBodyColumn>
-      </tr>
 
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
@@ -226,6 +206,37 @@
         <table-body-column class="transaction-table-value">
           <TimeField :value="transaction?.receivedAt" />
         </table-body-column>
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.interopSourceAddress">
+        <TableBodyColumn class="transaction-table-label" colspan="2">
+          <span class="transaction-info-field-label">INTEROP</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">INTEROP</TableBodyColumn>
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.interopSourceAddress">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">INTEROP Source Address</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value"
+          >{{ transaction.interopSourceAddress }} @ {{ transaction.interopSourceChain }}</TableBodyColumn
+        >
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.interopSourceTx">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">Source Tx</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value"
+          >{{ transaction.interopSourceTx }} on chain {{ transaction.interopSourceChain }}</TableBodyColumn
+        >
       </tr>
     </template>
     <template #loading>
@@ -356,7 +367,7 @@ const gasUsedPercent = computed(() => {
   }
 
   .transaction-reason-value {
-    @apply text-error-600 whitespace-normal;
+    @apply whitespace-normal text-error-600;
   }
 }
 </style>
