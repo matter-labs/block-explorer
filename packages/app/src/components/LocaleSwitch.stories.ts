@@ -35,5 +35,9 @@ Default.args = {
       value: "uk",
       label: "Ukrainian",
     },
+    {
+      value: "tr",
+      label: "Turkish",
+    },
   ],
 };
