@@ -12,6 +12,9 @@ export interface TransactionDto extends types.TransactionResponse {
   receivedAt: Date;
   error?: string;
   revertReason?: string;
+  interopSourceAddress?: string;
+  interopSourceChain?: string;
+  interopSourceTx?: string;
 }
 
 @Injectable()

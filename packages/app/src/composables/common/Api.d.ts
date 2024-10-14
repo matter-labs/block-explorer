@@ -94,6 +94,9 @@ declare namespace Api {
       status: "included" | "committed" | "proved" | "verified" | "failed";
       error: string | null;
       revertReason: string | null;
+      interopSourceAddress: string | null;
+      interopSourceChain: string | null;
+      interopSourceTx: string | null;
     };
 
     type Transfer = {

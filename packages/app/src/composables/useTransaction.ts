@@ -79,6 +79,9 @@ export type TransactionItem = {
   revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
+  interopSourceAddress?: string | null;
+  interopSourceChain?: string | null;
+  interopSourceTx?: string | null;
 };
 
 export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to") {
@@ -158,6 +161,9 @@ export default (context = useContext()) => {
         gasPerPubdata: gasPerPubdata ? BigNumber.from(gasPerPubdata).toString() : null,
         maxFeePerGas: transactionData.maxFeePerGas?.toString() ?? null,
         maxPriorityFeePerGas: transactionData.maxPriorityFeePerGas?.toString() ?? null,
+        interopSourceAddress: transactionDetails.interopSourceAddress?.toString() ?? null,
+        interopSourceChain: transactionDetails.interopSourceChain?.toString() ?? null,
+        interopSourceTx: transactionDetails.interopSourceTx?.toString() ?? null,
       };
     } catch (err) {
       return null;
@@ -263,6 +269,9 @@ export function mapTransaction(
     gasPerPubdata: transaction.gasPerPubdata,
     maxFeePerGas: transaction.maxFeePerGas,
     maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+    interopSourceAddress: transaction.interopSourceAddress,
+    interopSourceChain: transaction.interopSourceChain,
+    interopSourceTx: transaction.interopSourceTx,
   };
 }
 

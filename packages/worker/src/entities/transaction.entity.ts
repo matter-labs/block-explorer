@@ -95,4 +95,13 @@ export class Transaction extends CountableEntity {
 
   @Column({ nullable: true, transformer: stringTransformer })
   public readonly revertReason?: string;
+
+  @Column({ nullable: true, type: "bytea", transformer: hexTransformer })
+  public readonly interopSourceAddress?: string;
+
+  @Column({ nullable: true, type: "bytea", transformer: hexTransformer })
+  public readonly interopSourceChain?: string;
+
+  @Column({ nullable: true, type: "bytea", transformer: hexTransformer })
+  public readonly interopSourceTx?: string;
 }

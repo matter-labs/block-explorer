@@ -77,6 +77,9 @@ export interface TransactionInfo
   receivedAt: string;
   error?: string;
   revertReason?: string;
+  interopSourceAddress?: string;
+  interopSourceChain?: string;
+  interopSourceTx?: string;
 }
 
 export type TransactionReceipt = Modify<

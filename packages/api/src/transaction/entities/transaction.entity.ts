@@ -107,6 +107,15 @@ export class Transaction extends BaseEntity {
   @Column({ nullable: true })
   public readonly revertReason?: string;
 
+  @Column({ nullable: true, type: "bytea", transformer: hexTransformer })
+  public readonly interopSourceAddress?: string;
+
+  @Column({ nullable: true, type: "bytea", transformer: hexTransformer })
+  public readonly interopSourceChain?: string;
+
+  @Column({ nullable: true, type: "bytea", transformer: hexTransformer })
+  public readonly interopSourceTx?: string;
+
   public get status(): TransactionStatus {
     if (this.receiptStatus === 0) {
       return TransactionStatus.Failed;

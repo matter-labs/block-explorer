@@ -186,6 +186,27 @@
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">{{ transaction.gasPerPubdata }}</TableBodyColumn>
       </tr>
+      <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">Source Address</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value"
+          >{{ transaction.interopSourceAddress }} @ {{ transaction.interopSourceChain }}</TableBodyColumn
+        >
+      </tr>
+      <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">Source Tx</span>
+          <InfoTooltip class="transaction-info-field-tooltip">{{
+            t("transactions.table.gasPerPubdataTooltip")
+          }}</InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">{{ transaction.interopSourceTx }}</TableBodyColumn>
+      </tr>
+
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label">{{ t("transactions.table.nonce") }}</span>
@@ -277,6 +298,7 @@ const gasUsedPercent = computed(() => {
   .table-body-col {
     @apply py-4;
   }
+
   .loading-row {
     .table-body-col {
       @apply first:w-[9rem];
@@ -290,39 +312,49 @@ const gasUsedPercent = computed(() => {
       }
     }
   }
+
   .transaction-info-field-label {
     @apply text-gray-400;
   }
+
   .transaction-info-field-value {
     @apply text-gray-800;
   }
+
   .transaction-table-label {
     @apply m-0 inline-flex w-[7rem] items-center whitespace-normal sm:w-[11.5rem];
 
     .transaction-info-field-tooltip {
       @apply ml-1;
     }
+
     .input-data-label,
     .transaction-status-label {
       @apply inline-block;
     }
   }
+
   .transaction-table-value {
     @apply m-0 w-full;
   }
+
   .transaction-token-transferred {
     @apply align-top;
   }
+
   .copy-button-container {
     @apply inline;
   }
+
   .value-with-copy-button {
     display: flex;
     justify-content: space-between;
   }
+
   .transaction-status-value {
     @apply py-2;
   }
+
   .transaction-reason-value {
     @apply text-error-600 whitespace-normal;
   }
