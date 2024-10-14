@@ -313,8 +313,13 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
 const isHighRowsSize = computed(() => props.columns.includes("fee"));
 
 function getDirection(item: TransactionListItem): Direction {
-  return "x-l2";
-  //return item.from === item.to ? "self" : item.to !== props.searchParams?.address ? "out" : "in";
+  return item.interopSourceAddress !== null
+    ? "x-l2"
+    : item.from === item.to
+    ? "self"
+    : item.to !== props.searchParams?.address
+    ? "out"
+    : "in";
 }
 </script>
 

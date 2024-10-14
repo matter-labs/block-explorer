@@ -23,6 +23,13 @@
           :loading="isRequestPending || isDecodeEventLogsPending"
         />
       </template>
+      <template #tab-3-content>
+        <Interops
+          :logs="transactionEventLogs"
+          :initiator-address="transaction?.from"
+          :loading="isRequestPending || isDecodeEventLogsPending"
+        />
+      </template>
     </Tabs>
   </div>
 </template>
@@ -37,9 +44,10 @@ import Breadcrumbs, { type BreadcrumbItem } from "@/components/common/Breadcrumb
 import Tabs from "@/components/common/Tabs.vue";
 import Title from "@/components/common/Title.vue";
 import GeneralInfo from "@/components/transactions/infoTable/GeneralInfo.vue";
+import Interops from "@/components/transactions/infoTable/Interops.vue";
 import Logs from "@/components/transactions/infoTable/Logs.vue";
 
-import useEventLog from "@/composables/useEventLog";
+import useEventLog, { TransactionLogEntry } from "@/composables/useEventLog";
 import useNotFound from "@/composables/useNotFound";
 import useTransaction, { type TransactionItem } from "@/composables/useTransaction";
 import useTransactionData from "@/composables/useTransactionData";
@@ -100,6 +108,18 @@ const tabs = computed(() => [
     title: t("transactions.tabs.logs") + (transaction.value ? ` (${transaction.value?.logs.length})` : ""),
     hash: "#eventlog",
   },
+  {
+    title:
+      t("transactions.tabs.interops") +
+      (transaction.value
+        ? ` (${
+            transaction.value?.logs.filter(
+              (log) => log.topics[0] == "0xaeb45e9fa7465a0054db321a0901056bc5e2ac40d10855aaaef37227d896635c"
+            ).length
+          })`
+        : ""),
+    hash: "#interops",
+  },
 ]);
 
 useNotFoundView(isRequestPending, isRequestFailed, transaction);
@@ -122,19 +142,24 @@ watchEffect(() => {
 <style lang="scss" scoped>
 .head-block {
   @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
+
   .search-form {
     @apply mb-6 w-full max-w-[26rem] lg:mb-0;
   }
+
   h1 {
     @apply mt-3;
   }
 }
+
 .transactions-info-tabs {
   @apply shadow-md;
 }
+
 .transaction-error {
   @apply mt-24 flex justify-center;
 }
+
 .transaction-title {
   @apply mb-8;
 }

@@ -93,7 +93,8 @@
     "transactions": {
         "tabs": {
             "generalInfo": "General Info",
-            "logs": "Logs"
+            "logs": "Logs",
+            "interops": "Interops"
         },
         "table": {
             "status": "Status",
@@ -171,6 +172,25 @@
             "address": "Address",
             "topics": "Topics",
             "data": "Data",
+            "matchesTopic": "Matches Topic",
+            "options": {
+                "hex": "Hex",
+                "number": "Number",
+                "text": "Text",
+                "address": "Address"
+            },
+            "matchesTopicAlert": "Address matches transaction recipient"
+        },
+        "interop": {
+            "name": "Name",
+            "destinationAddress": "Destination Address",
+            "destinationChain": "Destination Chain",
+            "sourceAddress": "Source Address",
+            "topics": "Topics",
+            "data": "Data",
+            "calldata": "Calldata",
+            "mintValue": "Mint value",
+            "l2Value": "L2 transfer value",
             "matchesTopic": "Matches Topic",
             "options": {
                 "hex": "Hex",
