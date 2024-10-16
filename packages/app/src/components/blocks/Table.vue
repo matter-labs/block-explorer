@@ -9,7 +9,7 @@
       <tr class="loader-row" v-for="item in loadingRows" :key="item">
         <TableBodyColumn :data-heading="t('blocks.table.block')">
           <div class="blocks-number-container">
-            <div class="h-8 w-8 animate-pulse rounded-full bg-neutral-200"></div>
+            <div class="h-8 w-8 animate-pulse rounded-full bg-night-900"></div>
             <div class="blocks-number-right">
               <ContentLoader class="block-data-number w-14" />
               <ContentLoader class="block-data-txns-amount w-10" />
@@ -114,19 +114,19 @@ defineProps({
       @apply ml-3;
 
       .block-data-number {
-        @apply font-bold text-gray-700;
+        @apply font-bold text-night-100;
 
         a {
           @apply font-medium;
         }
       }
       .block-data-txns-amount {
-        @apply float-right text-xs text-gray-400 md:float-none;
+        @apply float-right text-xs text-night-500 md:float-none;
       }
     }
   }
   .block-data-status {
-    @apply text-xs font-bold capitalize text-gray-700;
+    @apply text-xs font-bold capitalize text-night-100;
   }
   .table-body {
     @apply rounded-t-lg;
@@ -135,12 +135,12 @@ defineProps({
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
 
       &:before {
-        @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
+        @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-night-100 content-[attr(data-heading)] md:content-none;
       }
     }
   }
   td.blocks-not-found {
-    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
+    @apply my-0 table-cell items-start justify-start bg-night-1000 p-4 text-left text-night-100;
   }
   .copy-button-container {
     @apply flex w-fit;

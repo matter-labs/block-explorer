@@ -71,18 +71,18 @@ watchEffect(() => {
 </script>
 <style lang="scss" scoped>
 .tab-main {
-  @apply mx-auto w-full rounded-lg bg-white;
+  @apply mx-auto w-full rounded-lg bg-night-1000;
   .tab-head {
-    @apply flex border-b md:flex-row;
+    @apply flex border-b md:flex-row border-night-1300;
   }
   .tab-btn {
-    @apply px-4 py-3.5 text-sm text-gray-400 outline-0 sm:text-base;
+    @apply px-4 py-3.5 text-sm text-night-500 outline-0 sm:text-base;
   }
   .tab-content {
     @apply rounded-b-lg;
   }
   .active {
-    @apply border-b-2 border-primary-600 font-bold text-primary-600;
+    @apply border-b-2 border-night-100 font-bold text-night-100;
   }
 }
 </style>

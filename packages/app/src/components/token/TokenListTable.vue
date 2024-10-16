@@ -104,7 +104,7 @@ watch(width, () => {
 .table-body-col {
   @apply relative flex flex-col items-end justify-end text-right md:table-cell md:w-1/3 md:text-left;
   &:before {
-    @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
+    @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-night-500 content-[attr(data-heading)] md:content-none;
   }
   .token-address-container {
     @apply flex gap-x-2;
@@ -118,7 +118,7 @@ watch(width, () => {
     }
   }
   .tokens-not-found {
-    @apply px-1.5 py-2 text-gray-700;
+    @apply px-1.5 py-2 text-night-500;
   }
 }
 </style>

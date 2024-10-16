@@ -80,7 +80,7 @@ function legacyCopy() {
   @apply relative h-6 w-6;
 
   .copy-button {
-    @apply absolute -left-1 -top-1 rounded-md p-1 text-neutral-500 transition-colors hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
+    @apply absolute -left-1 -top-1 rounded-md p-1 text-night-500 transition-colors hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
 
     .copy-button-icon {
       @apply inline-block h-5 w-5 rounded-full;

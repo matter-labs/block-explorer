@@ -412,7 +412,7 @@ const badges = computed(() => {
 
 .badge-additional-content {
   .badge-status-link-icon {
-    @apply text-neutral-600;
+    @apply text-night-500;
   }
 
   .badge-status-link {
@@ -457,7 +457,7 @@ const badges = computed(() => {
 */
 
 .badge-status-popup {
-  @apply mx-auto rounded-lg bg-white p-4;
+  @apply mx-auto rounded-lg bg-night-1000 p-4;
 }
 
 .badge-status-popup-header {
@@ -465,7 +465,7 @@ const badges = computed(() => {
 }
 
 .badge-status-popup-close {
-  @apply rounded-md bg-neutral-200 p-1.5 focus:outline-none;
+  @apply rounded-md bg-night-900 p-1.5 focus:outline-none;
 
   svg {
     @apply h-6 w-6;
@@ -476,14 +476,14 @@ const badges = computed(() => {
   }
 }
 .badge-status-popup-title {
-  @apply text-xl font-normal text-neutral-600;
+  @apply text-xl font-normal text-night-500;
 }
 
 .badge-status-popup-button {
-  @apply mb-2 rounded-md bg-neutral-200 text-sm text-neutral-600;
+  @apply mb-2 rounded-md bg-night-900 text-sm text-night-500;
 
   &::after {
-    @apply absolute left-5 top-full h-2 w-[2px] bg-neutral-200 content-[''];
+    @apply absolute left-5 top-full h-2 w-[2px] bg-night-900 content-[''];
   }
   &.status-active {
     @apply text-success-600;
@@ -493,11 +493,11 @@ const badges = computed(() => {
     }
   }
   &.status-current {
-    @apply p-2 text-neutral-600;
+    @apply p-2 text-night-500;
   }
 
   &.status-next {
-    @apply p-2 pl-9 text-neutral-500;
+    @apply p-2 pl-9 text-night-500;
   }
 
   &:last-child {
@@ -521,7 +521,7 @@ const badges = computed(() => {
   }
 
   .badge-status-link-icon {
-    @apply mr-0 text-neutral-600;
+    @apply mr-0 text-night-500;
   }
 
   svg,

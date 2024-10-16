@@ -21,6 +21,27 @@
   }
 }
 
+
+@font-face {
+  font-family: 'Whyte';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src:
+    url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff2')
+      format('woff2'),
+    url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff')
+      format('woff');
+}
+
+@font-face {
+  font-family: 'Millik';
+  font-style: bold;
+  font-display: swap;
+  src: url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/Millik.woff2')
+    format('woff2');
+}
+
 @layer base {
   *,
   *::before,
@@ -28,21 +49,20 @@
     box-sizing: border-box;
     margin: 0;
     position: relative;
-    font-weight: normal;
   }
 
   h1 {
-    @apply text-4xl font-bold text-neutral-50;
+    @apply text-4xl font-bold text-night-100;
   }
   h2 {
-    @apply text-3xl font-bold text-neutral-50;
+    @apply text-3xl font-bold text-night-100;
   }
   h3 {
-    @apply text-2xl font-bold text-neutral-50;
+    @apply text-2xl font-bold text-night-100;
   }
 
   body {
-    @apply min-h-screen bg-neutral-50 font-sans text-base text-neutral-700;
+    @apply min-h-screen font-sans text-base text-night-100 bg-night-1200;
   }
 
   #app {
@@ -50,6 +70,7 @@
   }
 
   a {
-    @apply text-primary-600 underline hover:text-[#7379E5];
+    @apply underline focus-visible:underline rounded underline-offset-4;
+
   }
 }

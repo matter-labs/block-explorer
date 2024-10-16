@@ -20,7 +20,7 @@ const Template = (args: Args) => ({
   template: `
     <Table :items="items">
       <template #table-head>
-        <th v-for="(colItem, colIndex) in headers" :key="colIndex" class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider text-gray-700">{{ colItem }}</th>
+        <th v-for="(colItem, colIndex) in headers" :key="colIndex" class="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider text-night-500">{{ colItem }}</th>
       </template>
       <template #table-row="{ item }">
         <TableBodyColumn v-for="(colItem, colIndex) in headers" :key="colIndex">{{ item }}</TableBodyColumn>

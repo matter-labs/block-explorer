@@ -423,7 +423,7 @@ watchEffect(() => {
   .hex-decimals-dropdown {
     @apply flex sm:mr-4;
     .toggle-button {
-      @apply h-auto border-none bg-neutral-200 py-0.5 pl-1.5 pr-0 sm:min-w-[3.5rem];
+      @apply h-auto border-none bg-night-900 py-0.5 pl-1.5 pr-0 sm:min-w-[3.5rem];
       .toggle-button-icon-wrapper {
         @apply static inline-flex pr-0 align-bottom;
       }
@@ -442,10 +442,10 @@ watchEffect(() => {
 .head-block {
   @apply flex items-center justify-end;
   .upload-file {
-    @apply relative inline-flex items-center justify-center gap-1 rounded-lg border border-dashed border-neutral-500 bg-transparent px-2 py-4 text-sm text-white sm:px-4  sm:text-base;
+    @apply relative inline-flex items-center justify-center gap-1 rounded-lg border border-dashed border-night-800 bg-transparent px-2 py-4 text-sm text-white sm:px-4  sm:text-base;
 
     &.active {
-      @apply border-solid bg-neutral-50/20;
+      @apply border-solid bg-night-800/20;
     }
   }
 
@@ -460,18 +460,18 @@ watchEffect(() => {
 .parent-child-section {
   @apply hidden overflow-auto px-2 4xl:block;
   .parent-child-item {
-    @apply my-2 overflow-hidden rounded-md border bg-white;
+    @apply my-2 overflow-hidden rounded-md border bg-night-1000;
     .parent-child-item-header {
       @apply flex justify-between border-b px-2 py-1;
       .parent-child-type {
-        @apply font-mono text-neutral-400;
+        @apply font-mono text-night-500;
       }
     }
   }
 }
 
 .parent-child-address {
-  @apply block max-w-sm text-left font-mono text-sm text-neutral-600;
+  @apply block max-w-sm text-left font-mono text-sm text-night-500;
 }
 
 .debugger-metadata-block-container {
@@ -489,21 +489,21 @@ watchEffect(() => {
 .parent-child-header {
   @apply flex justify-between;
   .parent-child-type {
-    @apply font-mono text-sm text-neutral-400;
+    @apply font-mono text-sm text-night-500;
   }
 }
 
 .debugger {
-  @apply my-2 grid grid-cols-1 grid-rows-[max-content_max-content_max-content] rounded-lg border-r bg-neutral-100 shadow-md md:grid-cols-2;
+  @apply my-2 grid grid-cols-1 grid-rows-[max-content_max-content_max-content] rounded-lg border-r bg-night-800 shadow-md md:grid-cols-2;
   .debugger-header {
-    @apply col-span-3 flex h-[52px] items-center justify-between whitespace-nowrap rounded-t-lg border border-r-0 border-solid border-neutral-200 bg-neutral-100 px-4;
+    @apply col-span-3 flex h-[52px] items-center justify-between whitespace-nowrap rounded-t-lg border border-r-0 border-solid border-night-800 bg-night-800 px-4;
     h2 {
-      @apply font-sans text-base font-medium text-neutral-800;
+      @apply font-sans text-base font-medium text-night-500;
     }
     .full-screen-container {
       @apply flex items-center;
       span {
-        @apply mr-4 hidden text-neutral-400 lg:block;
+        @apply mr-4 hidden text-night-500 lg:block;
       }
       button {
         @apply hidden sm:block;
@@ -529,9 +529,9 @@ watchEffect(() => {
     @apply px-2;
   }
   .file-list-item-data {
-    @apply sticky top-9 z-50 flex h-9 w-full cursor-pointer items-center gap-3 overflow-hidden border-b border-b-neutral-200 bg-white p-[6px] px-4 font-mono text-sm font-normal text-neutral-700 focus:bg-primary-100 focus:outline-0;
+    @apply sticky top-9 z-50 flex h-9 w-full cursor-pointer items-center gap-3 overflow-hidden border-b border-b-neutral-200 bg-night-1000 p-[6px] px-4 font-mono text-sm font-normal text-night-500 focus:bg-primary-100 focus:outline-0;
     > label {
-      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-neutral-200 bg-neutral-100 px-1 font-sans text-sm font-normal text-neutral-700;
+      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-night-800 bg-night-800 px-1 font-sans text-sm font-normal text-night-500;
     }
 
     .file-list-item-data-hash-label {
@@ -539,7 +539,7 @@ watchEffect(() => {
     }
 
     .toggle-button {
-      @apply ml-auto h-5 w-5 min-w-[20px] text-neutral-700;
+      @apply ml-auto h-5 w-5 min-w-[20px] text-night-500;
     }
 
     &.disabled {

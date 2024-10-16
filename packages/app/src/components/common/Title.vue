@@ -29,7 +29,7 @@ defineProps({
     @apply flex gap-4 self-center font-bold;
     .title-copy-button {
       .copy-button {
-        @apply top-0.5 flex text-inherit hover:text-neutral-400 sm:top-0.5;
+        @apply top-0.5 flex text-inherit hover:text-night-100 sm:top-0.5;
         .copy-button-icon {
           @apply h-6 w-6 sm:h-7 sm:w-7;
         }

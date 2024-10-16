@@ -2,7 +2,7 @@
     "networks": [
       {
         "apiUrl": "https://block-explorer.topaz.treasurescan.io",
-        "bridgeUrl": "https://portal.treasure.lol/chain/bridge",
+        "bridgeUrl": "https://app.treasure.lol/chain/bridge",
         "verificationApiUrl": "https://rpc-explorer-verify.topaz.treasure.lol",
         "hostnames": [
           "https://topaz.treasurescan.io"

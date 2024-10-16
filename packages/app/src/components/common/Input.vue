@@ -63,15 +63,15 @@ const inputted = computed({
   @apply relative w-full;
 
   .input {
-    @apply block w-full rounded-md border border-neutral-300 bg-neutral-50 p-3 text-sm shadow-sm transition-colors focus:outline-none;
+    @apply block w-full rounded-md border border-night-800 bg-night-800 p-3 text-sm shadow-sm transition-colors focus:outline-none;
     &:disabled {
-      @apply cursor-not-allowed bg-neutral-200 text-neutral-500;
+      @apply cursor-not-allowed bg-night-900 text-night-500;
     }
     &::placeholder {
-      @apply text-neutral-400;
+      @apply text-night-500;
     }
     &:not(.error) {
-      @apply border-neutral-300 focus:border-primary-600 focus:ring-primary-600;
+      @apply border-night-800 focus:border-primary-600 focus:ring-primary-600;
     }
     &.error {
       @apply border-error-400 pr-8 text-error-500 focus:border-error-500 focus:ring-error-500;

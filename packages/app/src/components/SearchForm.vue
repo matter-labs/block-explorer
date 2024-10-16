@@ -59,7 +59,7 @@ const submit = async () => {
   .submit-icon-container {
     &:hover:not(:active) {
       .submit-icon {
-        @apply bg-primary-300;
+        @apply bg-ruby-900;
       }
     }
     &:active {
@@ -69,7 +69,7 @@ const submit = async () => {
     }
 
     .submit-icon {
-      @apply w-[2.875rem] rounded-r-md bg-primary-500 p-3 text-white;
+      @apply w-[2.875rem] rounded-md bg-ruby-1000 p-3 text-night-100;
     }
   }
 }

@@ -36,7 +36,7 @@ const inputted = computed({
   @apply flex items-center mb-1 cursor-pointer float-right leading-snug;
 
   input {
-    @apply rounded me-1 text-primary-600 cursor-pointer border-neutral-200 checked:border-primary-600 hover:border-primary-600 ring-transparent;
+    @apply rounded me-1 text-primary-600 cursor-pointer border-night-800 checked:border-primary-600 hover:border-primary-600 ring-transparent;
   }
 }
 </style>

@@ -223,12 +223,12 @@ const hasContent = computed(() => {
 
 <style lang="scss">
 .header-popover-container {
-  @apply relative bg-primary-900;
+  @apply relative border-b border-night-1000;
   .header-wrap {
     @apply container z-50;
   }
   .header-container {
-    @apply flex items-center justify-between border-b border-neutral-500 py-4 md:space-x-10 lg:justify-start;
+    @apply flex items-center justify-between border-b border-night-800 py-4 md:space-x-10 lg:justify-start;
   }
   .logo-container {
     @apply flex justify-start;
@@ -236,7 +236,7 @@ const hasContent = computed(() => {
   .burger-button-container {
     @apply -my-2 -mr-2 lg:hidden;
     .burger-button {
-      @apply inline-flex items-center justify-center rounded-md border border-neutral-400 p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
+      @apply inline-flex items-center justify-center rounded-md border border-night-800 p-2 text-night-500 hover:bg-night-800 hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-night-100;
     }
   }
   .navigation-container {
@@ -248,7 +248,7 @@ const hasContent = computed(() => {
       .navigation-link {
         @apply flex items-center;
         &.active {
-          @apply bg-primary-800;
+          @apply bg-night-1100;
 
           .dropdown-icon {
             @apply -rotate-180;
@@ -260,18 +260,18 @@ const hasContent = computed(() => {
         }
       }
       .dropdown-items {
-        @apply absolute left-0 mt-1 grid w-80 origin-top-left grid-flow-row gap-4 rounded-md bg-white p-4 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none;
+        @apply absolute left-0 mt-1 grid w-80 origin-top-left grid-flow-row gap-4 rounded-md bg-night-1000 p-4 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none;
 
         .dropdown-item {
-          @apply block rounded-md p-2 text-sm text-black no-underline;
+          @apply block rounded-md p-2 text-sm text-night-100 no-underline;
           &.router-link-exact-active {
-            @apply bg-primary-100;
+            @apply bg-night-900;
           }
         }
       }
     }
     .navigation-link {
-      @apply rounded-md py-2.5 text-base font-medium text-white no-underline hover:bg-primary-800 md:px-3.5;
+      @apply rounded-md py-2.5 text-base font-medium text-night-100 no-underline hover:bg-primary-800 md:px-3.5;
     }
 
     .router-link-exact-active {
@@ -296,7 +296,7 @@ const hasContent = computed(() => {
     }
   }
   .hero-banner-container {
-    @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden bg-primary-900;
+    @apply absolute left-0 top-full flex h-64 w-full items-end justify-end overflow-hidden;
 
     .hero-image {
       @apply h-5/6 w-auto;
@@ -310,7 +310,7 @@ const hasContent = computed(() => {
   @apply absolute inset-x-0 top-0 z-50 origin-top-right transform p-2 transition lg:hidden;
 
   .mobile-header-wrap {
-    @apply divide-y-2 divide-neutral-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5;
+    @apply divide-y-2 divide-neutral-50 rounded-lg  shadow-lg ring-1 ring-black ring-opacity-5;
 
     .mobile-header-container {
       @apply px-5 pb-6 pt-5;
@@ -323,20 +323,20 @@ const hasContent = computed(() => {
         }
 
         .close-popover-button {
-          @apply inline-flex items-center justify-center rounded-md bg-white p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
+          @apply inline-flex items-center justify-center rounded-md bg-night-1000 p-2 text-night-500 hover:bg-night-800 hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
         }
       }
       .mobile-navigation-container {
         @apply grid gap-y-4;
 
         .mobile-navigation-divider {
-          @apply border-b border-neutral-300;
+          @apply border-b border-night-800;
         }
         .mobile-navigation {
           @apply grid gap-y-4;
 
           .mobile-navigation-link {
-            @apply flex items-center rounded-md p-2 no-underline hover:bg-neutral-50;
+            @apply flex items-center rounded-md p-2 no-underline hover:bg-night-800;
             &.router-link-exact-active {
               @apply bg-primary-100;
             }
@@ -347,19 +347,19 @@ const hasContent = computed(() => {
             }
 
             .mobile-navigation-label {
-              @apply text-base font-medium leading-snug text-neutral-900;
+              @apply text-base font-medium leading-snug text-night-500;
             }
           }
         }
       }
       .mobile-network-switch-container {
-        @apply mt-4 border-t border-neutral-300 pt-5;
+        @apply mt-4 border-t border-night-800 pt-5;
       }
       .language-switch {
         @apply mt-3;
       }
       .mobile-socials-container {
-        @apply mt-5 flex items-center justify-center border-t border-neutral-300 pt-6;
+        @apply mt-5 flex items-center justify-center border-t border-night-800 pt-6;
 
         a {
           @apply ml-4 first:ml-0;

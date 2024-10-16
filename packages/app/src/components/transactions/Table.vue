@@ -89,7 +89,7 @@
       </TableBodyColumn>
       <TableBodyColumn v-if="columns.includes('from') && columns.includes('to')" class="tablet-column">
         <div class="flex gap-x-2">
-          <div class="text-neutral-400">
+          <div class="text-night-100">
             <div>{{ t("transactions.table.from") }}</div>
             <div>{{ t("transactions.table.to") }}</div>
           </div>
@@ -404,14 +404,14 @@ function getDirection(item: TransactionListItem): Direction {
   .tablet-column {
     @apply hidden md:table-cell lg:hidden;
     .tablet-column-fee {
-      @apply flex text-xs text-neutral-400;
+      @apply flex text-xs text-night-100;
     }
   }
   .only-desktop {
     @apply hidden md:table-cell;
   }
   .table-initiator-container {
-    @apply gap-x-1 text-neutral-400;
+    @apply gap-x-1 text-night-100;
     a {
       @apply font-medium;
     }
@@ -449,7 +449,7 @@ function getDirection(item: TransactionListItem): Direction {
     @apply font-bold;
   }
   .transactions-not-found {
-    @apply my-0 table-cell items-start justify-start bg-white p-4 text-left text-gray-700;
+    @apply my-0 table-cell items-start justify-start bg-night-1000 p-4 text-left text-night-100;
   }
   .badge-content {
     @apply flex items-center;
@@ -475,7 +475,7 @@ function getDirection(item: TransactionListItem): Direction {
   td {
     @apply relative flex flex-col items-end justify-end text-right md:table-cell md:text-left;
     &:before {
-      @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
+      @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-night-100 content-[attr(data-heading)] md:content-none;
     }
   }
   .copy-button-container {

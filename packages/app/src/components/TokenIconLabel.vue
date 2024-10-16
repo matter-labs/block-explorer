@@ -105,7 +105,7 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
         @apply absolute inset-0 h-full w-full rounded-full;
       }
       .token-img-loader {
-        @apply animate-pulse bg-neutral-200;
+        @apply animate-pulse bg-night-900;
       }
       .token-img {
         @apply opacity-0 transition-opacity duration-150;
@@ -117,10 +117,10 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
   }
   .token-info {
     .token-symbol {
-      @apply text-neutral-600;
+      @apply text-night-500;
     }
     .token-name {
-      @apply text-xs text-neutral-400;
+      @apply text-xs text-night-500;
     }
   }
 }

@@ -618,7 +618,7 @@ async function submitForm() {
   }
 
   .form-subheading {
-    @apply text-xl text-neutral-700;
+    @apply text-xl text-night-500;
   }
   .compilation-error-container {
     @apply font-mono;
@@ -639,7 +639,7 @@ async function submitForm() {
     }
   }
   .flattener-info {
-    @apply mt-1 text-sm text-neutral-400;
+    @apply mt-1 text-sm text-night-500;
 
     a {
       @apply rounded-md px-0.5 focus:outline-none focus:ring-2 focus:ring-primary-600;

@@ -47,7 +47,7 @@ defineProps({
     @apply text-sm;
   }
   .nonce-info-icon {
-    @apply h-4 w-4 cursor-pointer text-neutral-400;
+    @apply h-4 w-4 cursor-pointer text-night-500;
   }
 }
 </style>

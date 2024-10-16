@@ -257,10 +257,10 @@ const tabs = computed(() => {
     .tab-head {
       @apply gap-x-4 border-none;
       .active {
-        @apply border-neutral-200 bg-neutral-200;
+        @apply border-night-800 bg-night-900;
       }
       .tab-btn {
-        @apply rounded-md border p-3 font-normal text-neutral-700;
+        @apply rounded-md border p-3 font-normal text-night-500;
       }
     }
   }
@@ -278,7 +278,7 @@ const tabs = computed(() => {
         @apply flex flex-col justify-between sm:flex-row;
       }
       .function-type-title {
-        @apply text-xl leading-8 text-neutral-700;
+        @apply text-xl leading-8 text-night-500;
       }
     }
   }
