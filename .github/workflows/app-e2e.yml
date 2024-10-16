@@ -123,14 +123,14 @@ jobs:
           name: allure-results
           path: packages/app/allure-results
 
-      - name: Upload test results to Allure reporter
-        if: always()
-        env:
-          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
-        run: |
-          ./allurectl upload allure-results
-          echo "*Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
-          echo "*Public report link will be available when the 'Allure Report' job will be succesfully executed."
+      # - name: Upload test results to Allure reporter
+      #   if: always()
+      #   env:
+      #     ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
+      #   run: |
+      #     ./allurectl upload allure-results
+      #     echo "*Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
+      #     echo "*Public report link will be available when the 'Allure Report' job will be succesfully executed."
 
       - if: failure()
         name: Save artifacts
@@ -139,54 +139,54 @@ jobs:
           name: portal_e2e_${{ github.run_number }}_artifacts
           path: packages/app/tests/e2e/artifacts/*
 
-  publish:
-    name: Allure Report
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    needs: e2e
-    if: always()
-    steps:
-      - uses: actions/checkout@v3
+  # publish:
+  #   name: Allure Report
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   needs: e2e
+  #   if: always()
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
-        with:
-          name: allure-results
-          path: packages/app/allure-results
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: allure-results
+  #         path: packages/app/allure-results
 
-      - name: Get Allure history
-        uses: actions/checkout@v3
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
+  #     - name: Get Allure history
+  #       uses: actions/checkout@v3
+  #       if: always()
+  #       continue-on-error: true
+  #       with:
+  #         ref: gh-pages
+  #         path: gh-pages
 
-      - name: Allure Report action from marketplace
-        uses: simple-elf/allure-report-action@v1.7
-        if: always()
-        id: allure-report
-        with:
-          allure_results: packages/app/allure-results
-          gh_pages: gh-pages
-          allure_report: allure-report
-          allure_history: allure-history
-          keep_reports: 10
+  #     - name: Allure Report action from marketplace
+  #       uses: simple-elf/allure-report-action@v1.7
+  #       if: always()
+  #       id: allure-report
+  #       with:
+  #         allure_results: packages/app/allure-results
+  #         gh_pages: gh-pages
+  #         allure_report: allure-report
+  #         allure_history: allure-history
+  #         keep_reports: 10
 
-      - name: Deploy report to Github Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: allure-history
+  #     - name: Deploy report to Github Pages
+  #       if: always()
+  #       uses: peaceiris/actions-gh-pages@v2
+  #       env:
+  #         PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         PUBLISH_BRANCH: gh-pages
+  #         PUBLISH_DIR: allure-history
 
-      - name: Prepare a link
-        run: |
-          echo "BASE64_SEARCH_REQUEST=$(echo '${{ env.ALLURE_SEARCH_REQUEST }}' | base64)" >> $GITHUB_ENV
+  #     - name: Prepare a link
+  #       run: |
+  #         echo "BASE64_SEARCH_REQUEST=$(echo '${{ env.ALLURE_SEARCH_REQUEST }}' | base64)" >> $GITHUB_ENV
 
-      - name: Publish Allure link to GIT Summary
-        run: |
-          LINK1="${{ vars.ALLURE_ENDPOINT }}project/${{ vars.ALLURE_PROJECT_ID }}/launches?search=${{ env.BASE64_SEARCH_REQUEST }}"
-          LINK2="https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
-          echo "Allure [Private]($LINK1) and [Public]($LINK2) links:rocket: in git run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+  #     - name: Publish Allure link to GIT Summary
+  #       run: |
+  #         LINK1="${{ vars.ALLURE_ENDPOINT }}project/${{ vars.ALLURE_PROJECT_ID }}/launches?search=${{ env.BASE64_SEARCH_REQUEST }}"
+  #         LINK2="https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
+  #         echo "Allure [Private]($LINK1) and [Public]($LINK2) links:rocket: in git run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
