@@ -7,8 +7,12 @@ module.exports = {
     container: false,
     extend: {
       fontFamily: {
-        sans: ["Roboto", ...defaultTheme.fontFamily.sans],
-        mono: ["Roboto Mono", ...defaultTheme.fontFamily.mono],
+        display: ["Whyte", "sans-serif"],
+        body: ["Whyte", "sans-serif"],
+        sans: ["Whyte", "sans-serif"],
+        mono: ["Whyte", "sans-serif"],
+        millik: ["Millik", "sans-serif"],
+        millik: ["Millik", "sans-serif"],
       },
       colors: {
         primary: {

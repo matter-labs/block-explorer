@@ -21,6 +21,27 @@
   }
 }
 
+
+@font-face {
+  font-family: 'Whyte';
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src:
+    url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff2')
+      format('woff2'),
+    url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff')
+      format('woff');
+}
+
+@font-face {
+  font-family: 'Millik';
+  font-style: bold;
+  font-display: swap;
+  src: url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/Millik.woff2')
+    format('woff2');
+}
+
 @layer base {
   *,
   *::before,
