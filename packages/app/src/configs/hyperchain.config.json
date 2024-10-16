@@ -3,7 +3,7 @@
       {
         "apiUrl": "https://block-explorer.topaz.treasurescan.io",
         "bridgeUrl": "https://app.treasure.lol/chain/bridge",
-        "verificationApiUrl": "https://rpc-explorer-verify.topaz.treasure.lol",
+        "verificationApiUrl": "https://rpc-explorer-verify.topaz.treasure.lol/contract_verification",
         "hostnames": [
           "https://topaz.treasurescan.io"
         ],
