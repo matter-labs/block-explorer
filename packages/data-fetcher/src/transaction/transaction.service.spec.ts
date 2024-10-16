@@ -1,7 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { BlockchainService, TraceTransactionResult } from "../blockchain";
 import { TransactionService } from "./transaction.service";
 import { LogService } from "../log";
@@ -65,7 +65,7 @@ describe("TransactionService", () => {
     });
     const transaction = mock<types.TransactionResponse>({ hash: "0" });
     const transactionReceipt = mock<types.TransactionReceipt>({
-      transactionIndex: 0,
+      index: 0,
       logs: [mock<types.Log>(), mock<types.Log>()],
       status: 1,
     });
@@ -159,7 +159,7 @@ describe("TransactionService", () => {
     describe("when transaction has failed status", () => {
       beforeEach(() => {
         (blockchainServiceMock.getTransactionReceipt as jest.Mock).mockResolvedValueOnce({
-          transactionIndex: 0,
+          index: 0,
           logs: [],
           status: 0,
         });

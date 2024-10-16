@@ -1,5 +1,4 @@
-import { BigNumber } from "ethers";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../transfer.service";
@@ -23,7 +22,7 @@ describe("defaultFinalizeDepositHandler", () => {
         "0x000000000000000000000000dc187378edD8Ed1585fb47549Cc5fe633295d571",
       ],
       data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-      logIndex: 13,
+      index: 13,
       blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
     });
     blockDetails = mock<types.BlockDetails>({
@@ -61,11 +60,14 @@ describe("defaultFinalizeDepositHandler", () => {
 
     it("extracts transfer with populated amount", () => {
       const result = defaultFinalizeDepositHandler.extract(log, blockDetails);
-      expect(result.amount).toStrictEqual(BigNumber.from("0x016345785d8a0000"));
+      expect(result.amount).toStrictEqual(BigInt("0x016345785d8a0000"));
     });
 
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as a tokenAddress if l2Token is 0x0000000000000000000000000000000000000000", () => {
-      log.topics[3] = ZERO_HASH_64;
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) => (index === 3 ? ZERO_HASH_64 : val)),
+      });
       const result = defaultFinalizeDepositHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe(BASE_TOKEN_ADDRESS);
       expect(result.tokenType).toBe(TokenType.BaseToken);
@@ -89,7 +91,7 @@ describe("defaultFinalizeDepositHandler", () => {
 
     it("extracts transfer with logIndex populated from log", () => {
       const result = defaultFinalizeDepositHandler.extract(log, blockDetails);
-      expect(result.logIndex).toBe(log.logIndex);
+      expect(result.logIndex).toBe(log.index);
     });
 
     it("extracts transfer with transactionIndex populated from log", () => {

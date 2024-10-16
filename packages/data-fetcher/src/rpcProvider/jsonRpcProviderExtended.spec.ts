@@ -7,14 +7,14 @@ class JsonRpcProviderBaseMock {
 }
 jest.mock("../logger");
 jest.useFakeTimers();
-jest.mock("zksync-web3", () => ({
+jest.mock("zksync-ethers", () => ({
   Provider: JsonRpcProviderBaseMock,
 }));
 import { JsonRpcProviderExtended } from "./jsonRpcProviderExtended";
 
 describe("JsonRpcProviderExtended", () => {
   let jsonRpcProvider: JsonRpcProviderExtended;
-  const timer = mock<NodeJS.Timer>();
+  const timer = mock<NodeJS.Timeout>();
   let lastCallback: () => void;
 
   beforeEach(async () => {
