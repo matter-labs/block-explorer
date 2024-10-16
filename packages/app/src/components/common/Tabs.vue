@@ -71,12 +71,12 @@ watchEffect(() => {
 </script>
 <style lang="scss" scoped>
 .tab-main {
-  @apply mx-auto w-full rounded-lg bg-white;
+  @apply mx-auto w-full rounded-lg bg-night-1000;
   .tab-head {
     @apply flex border-b md:flex-row;
   }
   .tab-btn {
-    @apply px-4 py-3.5 text-sm text-gray-400 outline-0 sm:text-base;
+    @apply px-4 py-3.5 text-sm text-night-500 outline-0 sm:text-base;
   }
   .tab-content {
     @apply rounded-b-lg;

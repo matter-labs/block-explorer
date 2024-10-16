@@ -34,7 +34,7 @@ defineProps({
 
   &.is-outlined {
     &.neutral {
-      @apply border-neutral-700 border-l-transparent;
+      @apply border-night-1300 border-l-transparent;
     }
     &.primary {
       @apply border-primary-600 border-l-transparent;

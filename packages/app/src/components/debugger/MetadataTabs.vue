@@ -114,7 +114,7 @@ const tabs = computed(() => [
     .memory-badge-index-container {
       @apply max-w-[42px];
       .memory-badge-index {
-        @apply col-[1] inline-block w-full min-w-[20px] text-ellipsis rounded bg-neutral-200 px-1 py-0 text-center text-sm leading-5;
+        @apply col-[1] inline-block w-full min-w-[20px] text-ellipsis rounded bg-night-900 px-1 py-0 text-center text-sm leading-5;
       }
       .index-width {
         @apply table-cell max-w-fit;
@@ -145,9 +145,9 @@ const tabs = computed(() => [
         @apply flex-none;
       }
       .tab-btn {
-        @apply flex items-center px-2 py-1 text-sm font-normal text-neutral-600;
+        @apply flex items-center px-2 py-1 text-sm font-normal text-night-500;
         .page-index {
-          @apply ml-1 min-w-[20px] rounded bg-neutral-200 px-1 font-normal font-normal;
+          @apply ml-1 min-w-[20px] rounded bg-night-900 px-1 font-normal font-normal;
         }
       }
     }

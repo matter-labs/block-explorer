@@ -64,7 +64,7 @@ const buttonText = computed(() => {
 
 <style lang="scss">
 .metamask-button {
-  @apply relative flex w-max min-w-[200px] rounded-lg bg-neutral-200 p-1 pl-2 pr-5 text-neutral-900;
+  @apply relative flex w-max min-w-[200px] rounded-lg bg-night-900 p-1 pl-2 pr-5 text-night-500;
   &:not(.disabled) {
     @apply hover:bg-neutral-300;
   }
@@ -83,9 +83,9 @@ const buttonText = computed(() => {
       @apply mr-1 h-6 w-6 rounded-md hover:bg-neutral-300;
     }
     .dropdown-options {
-      @apply top-[10px] w-full self-start rounded-lg bg-white shadow-md;
+      @apply top-[10px] w-full self-start rounded-lg bg-night-1000 shadow-md;
       .logout-button {
-        @apply w-full rounded-lg px-2 py-1 text-left hover:bg-neutral-200;
+        @apply w-full rounded-lg px-2 py-1 text-left hover:bg-night-900;
       }
     }
   }

@@ -39,7 +39,7 @@ const expanded = ref(false);
 <style lang="scss">
 .code-block-container {
   .code-block-header {
-    @apply sticky top-0 z-10 mb-1 flex items-center justify-between bg-white text-neutral-700;
+    @apply sticky top-0 z-10 mb-1 flex items-center justify-between bg-night-1000 text-night-500;
 
     .code-block-label {
       @apply text-left text-sm;
@@ -51,7 +51,7 @@ const expanded = ref(false);
         @apply pl-1.5 pt-0.5;
       }
       .expand-button {
-        @apply rounded-md p-1.5 text-neutral-500 transition-colors hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
+        @apply rounded-md p-1.5 text-night-500 transition-colors hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
 
         .expand-icon {
           @apply h-4 w-4;

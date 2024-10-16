@@ -27,16 +27,16 @@ defineProps({
 .file-preview-container {
   @apply flex w-full items-center gap-x-2 py-1;
   .name {
-    @apply max-w-[calc(100%_-_3rem)] break-all leading-tight text-neutral-600;
+    @apply max-w-[calc(100%_-_3rem)] break-all leading-tight text-night-500;
   }
   .index {
-    @apply text-neutral-400;
+    @apply text-night-500;
   }
   .index {
     @apply self-baseline;
   }
   .trash-icon {
-    @apply w-3.5 cursor-pointer transition-colors hover:text-neutral-500;
+    @apply w-3.5 cursor-pointer transition-colors hover:text-night-100;
   }
 }
 </style>

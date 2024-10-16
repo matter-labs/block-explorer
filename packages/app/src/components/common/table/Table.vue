@@ -26,7 +26,7 @@
         </tbody>
       </table>
     </div>
-    <div v-if="$slots.footer" class="table-footer" :class="[items?.length! % 2 ? 'bg-neutral-50' : 'bg-white']">
+    <div v-if="$slots.footer" class="table-footer" :class="[items?.length! % 2 ? 'bg-night-800' : 'bg-night-1000']">
       <slot name="footer"></slot>
     </div>
   </div>
@@ -87,15 +87,15 @@ defineProps({
     @apply w-full border-collapse border-none;
 
     thead {
-      @apply md:border-b;
+      @apply md:border-b md:border-night-1300;
 
       tr th {
-        @apply bg-gray-100;
+        @apply bg-night-1200;
       }
     }
     tbody {
       tr {
-        @apply transition last:border-b-0 odd:bg-white even:bg-gray-50 md:border-b;
+        @apply transition last:border-b-0 odd:bg-night-1100 even:bg-night-1000 md:border-b md:border-night-1300;
       }
     }
   }

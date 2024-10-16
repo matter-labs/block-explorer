@@ -62,7 +62,7 @@ const decimalAmount = computed(() =>
     }
   }
   .token-price {
-    @apply ml-2 text-gray-400;
+    @apply ml-2 text-night-500;
 
     .content-loader {
       @apply h-4 w-12;

@@ -101,13 +101,13 @@ const { t } = useI18n();
 .metadata-block {
   @apply h-max grid-cols-6 overflow-hidden rounded-md font-mono text-sm font-normal;
   .meta-title {
-    @apply col-span-6 bg-white py-1 pl-2 leading-5 text-neutral-400 lg:col-span-6;
+    @apply col-span-6 bg-night-1000 py-1 pl-2 leading-5 text-night-500 lg:col-span-6;
   }
   .tag-title {
     @apply col-span-1;
   }
   .meta-info {
-    @apply col-span-6 h-max gap-y-2 bg-white py-1 pl-2 pr-2;
+    @apply col-span-6 h-max gap-y-2 bg-night-1000 py-1 pl-2 pr-2;
     .badge-flag {
       @apply mr-2 inline-block py-0 leading-5;
     }
@@ -132,7 +132,7 @@ const { t } = useI18n();
   .badge-wrap {
     @apply mr-2 grid grid-flow-col grid-cols-[max-content_auto] gap-x-1 gap-y-[2px];
     .memory-badge-index {
-      @apply col-[1] h-[20px] min-w-[20px] text-ellipsis rounded bg-neutral-200 px-[2px] text-center leading-5;
+      @apply col-[1] h-[20px] min-w-[20px] text-ellipsis rounded bg-night-900 px-[2px] text-center leading-5;
     }
     .memory-badge-hash {
       @apply col-[2] w-full min-w-[20px] px-[2px] py-0 leading-5;
@@ -156,7 +156,7 @@ const { t } = useI18n();
       @apply mt-5;
     }
     .memory-badge-type {
-      @apply absolute top-0 ml-0 text-neutral-600;
+      @apply absolute top-0 ml-0 text-night-500;
     }
     .memory-badge-index {
       @apply mt-5;

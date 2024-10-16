@@ -76,11 +76,11 @@ const getNetworkUrl = (network: NetworkConfig) => {
     @apply absolute right-0 top-full h-auto w-full lg:w-[260px];
   }
   .network-list {
-    @apply absolute right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
+    @apply absolute right-0 top-1 z-10 mb-1 max-h-56 w-full overflow-auto rounded-md bg-night-1000 py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm;
   }
 
   .network-list-item-container {
-    @apply flex items-center gap-2 px-3 py-2 text-neutral-900 lg:py-1;
+    @apply flex items-center gap-2 px-3 py-2 text-night-500 lg:py-1;
     &:not(.selected) {
       cursor: pointer;
     }
@@ -89,11 +89,11 @@ const getNetworkUrl = (network: NetworkConfig) => {
     }
     &:not(.selected).active,
     &:not(.selected):hover {
-      @apply bg-neutral-100;
+      @apply bg-night-800;
     }
 
     .network-list-item {
-      @apply w-full font-sans text-base font-normal text-neutral-700 no-underline;
+      @apply w-full font-sans text-base font-normal text-night-500 no-underline;
       &:not(.selected) {
         cursor: pointer;
       }
@@ -101,7 +101,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
   }
 
   .toggle-button {
-    @apply relative flex w-full min-w-[125px] items-center rounded-md border border-neutral-300 bg-white px-2 py-2 font-sans text-base text-neutral-700 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:border-primary-800 lg:bg-primary-800 lg:text-white;
+    @apply relative flex w-full min-w-[125px] items-center rounded-md border border-night-1300 bg-night-1000 px-2 py-2 font-sans text-base text-night-500 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:border-primary-800 lg:bg-primary-800 lg:text-white;
   }
   .network-item {
     @apply mr-4 flex items-center gap-1;
@@ -117,7 +117,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
     @apply pointer-events-none absolute inset-y-0 right-0 flex items-center pr-1;
 
     .toggle-button-icon {
-      @apply h-5 w-5 text-neutral-700 lg:text-white;
+      @apply h-5 w-5 text-night-500 lg:text-white;
     }
   }
 }

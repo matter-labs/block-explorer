@@ -135,18 +135,18 @@ const nextButtonQuery = computed(() => ({ page: Math.min(currentPage.value + 1, 
   }
 
   .pagination-page-button {
-    @apply rounded-md bg-white px-1.5 py-1 font-mono text-sm font-medium text-neutral-700 no-underline sm:px-2;
+    @apply rounded-md bg-night-1000 px-1.5 py-1 font-mono text-sm font-medium text-night-500 no-underline sm:px-2;
     &:not(.disabled):not(.active):not(.dots) {
-      @apply hover:bg-neutral-50;
+      @apply hover:bg-night-800;
     }
     &.disabled {
-      @apply cursor-not-allowed text-neutral-400;
+      @apply cursor-not-allowed text-night-500;
     }
     &.active {
-      @apply z-10 bg-neutral-100;
+      @apply z-10 bg-night-800;
     }
     &.dots {
-      @apply font-sans text-neutral-400 hover:bg-white;
+      @apply font-sans text-night-500 hover:bg-night-1000;
     }
     &.arrow {
       @apply flex items-center;

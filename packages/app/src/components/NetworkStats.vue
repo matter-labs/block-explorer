@@ -84,17 +84,17 @@ const subtitle = computed(() =>
 
 <style scoped lang="scss">
 .card {
-  @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-white px-8 py-5 shadow lg:flex-row lg:items-center;
+  @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-night-1000 px-8 py-5 shadow lg:flex-row lg:items-center;
   .title {
-    @apply text-xl font-bold text-neutral-700;
+    @apply text-xl font-bold text-night-100;
   }
   .subtitle {
-    @apply font-sans text-base text-neutral-400;
+    @apply font-sans text-base text-night-500;
   }
   .stats-container {
-    @apply flex flex-col border-neutral-200 py-3 pr-8 text-xl text-neutral-500 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max;
+    @apply flex flex-col border-night-1200 py-3 pr-8 text-base text-night-500 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max;
     dd {
-      @apply text-[1.65rem] font-bold text-primary-800 xl:text-3xl;
+      @apply text-[1.65rem] font-bold text-night-100 xl:text-3xl;
     }
     a {
       @apply text-inherit no-underline;

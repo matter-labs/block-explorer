@@ -179,21 +179,21 @@ watch(
 
 <style lang="scss" scoped>
 .navigation {
-  @apply sticky top-0 z-40 flex h-auto w-full flex-wrap items-center justify-between overflow-hidden bg-neutral-50 ring-1 ring-neutral-200 sm:h-9 sm:flex-nowrap;
+  @apply sticky top-0 z-40 flex h-auto w-full flex-wrap items-center justify-between overflow-hidden bg-night-800 ring-1 ring-neutral-200 sm:h-9 sm:flex-nowrap;
 }
 .navigation-search-input-container {
   @apply h-full w-full flex-shrink flex-grow border-b sm:border-b-0;
   &:after {
-    @apply absolute right-2 top-2 hidden text-sm text-neutral-400 content-[attr(data-hotkey)] lg:block;
+    @apply absolute right-2 top-2 hidden text-sm text-night-500 content-[attr(data-hotkey)] lg:block;
   }
   .navigation-search-input {
-    @apply h-full w-full rounded-none border-0 border-solid border-transparent bg-neutral-50 focus:border-primary-400 focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply h-full w-full rounded-none border-0 border-solid border-transparent bg-night-800 focus:border-primary-400 focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50;
     @apply placeholder:font-mono placeholder:text-sm;
   }
 }
 
 .navigation-active-step {
-  @apply z-20 flex h-9 w-[calc(100%-97px)] flex-row items-center justify-center border-x border-b-0 border-t-0 border-solid border-neutral-200 bg-neutral-50 px-0 font-sans text-xs font-normal transition duration-500 ease-out sm:h-full sm:w-auto sm:px-2 md:px-3 lg:flex-col;
+  @apply z-20 flex h-9 w-[calc(100%-97px)] flex-row items-center justify-center border-x border-b-0 border-t-0 border-solid border-night-1300 bg-night-800 px-0 font-sans text-xs font-normal transition duration-500 ease-out sm:h-full sm:w-auto sm:px-2 md:px-3 lg:flex-col;
   .show-metadata-button {
     @apply block md:hidden;
     .show-metadata-icon {
@@ -201,7 +201,7 @@ watch(
     }
   }
   .navigation-active-step-hotkeys {
-    @apply hidden whitespace-nowrap text-[10px] text-neutral-400 lg:block;
+    @apply hidden whitespace-nowrap text-[10px] text-night-500 lg:block;
   }
 }
 .navigation-active-step-direction {
@@ -211,7 +211,7 @@ watch(
 .navigation-active-step-label-container {
   @apply flex gap-x-1;
   .active-index {
-    @apply h-4 border-0 border-b border-neutral-400 bg-transparent p-0 text-center text-xs hover:border-neutral-600 focus:border-neutral-600 focus:ring-0 disabled:border-neutral-400;
+    @apply h-4 border-0 border-b border-night-1300 bg-transparent p-0 text-center text-xs hover:border-night-1300 focus:border-night-1300 focus:ring-0 disabled:border-night-1300;
   }
   .total {
     @apply whitespace-nowrap;
@@ -220,14 +220,14 @@ watch(
 .navigation-button-container {
   @apply inline-flex border-l last:border-x-0;
   .navigation-button {
-    @apply flex h-9 w-6 flex-shrink-0 items-center justify-center rounded-none border-y-0 border-y-neutral-200 border-y-transparent bg-neutral-50 last:border-r-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-9;
+    @apply flex h-9 w-6 flex-shrink-0 items-center justify-center rounded-none border-y-0 border-y-neutral-200 border-y-transparent bg-night-800 last:border-r-0 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-400 disabled:cursor-not-allowed disabled:opacity-50 sm:w-9;
   }
 }
 .arrow-right {
   @apply rotate-180;
 }
 .start {
-  @apply absolute bottom-0 right-[25px] h-9 w-[68px] text-sm hover:bg-neutral-200 focus:bg-neutral-50 sm:right-[39px] sm:w-[76px];
+  @apply absolute bottom-0 right-[25px] h-9 w-[68px] text-sm hover:bg-night-900 focus:bg-night-800 sm:right-[39px] sm:w-[76px];
   &.not-started {
     @apply z-10;
 

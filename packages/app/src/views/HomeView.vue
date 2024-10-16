@@ -87,7 +87,7 @@ getBatches(1, new Date());
     @apply text-4xl font-bold text-white;
   }
   .subtitle {
-    @apply mt-2 text-base text-white sm:text-2xl;
+    @apply mt-2 text-base text-night-300 sm:text-lg;
   }
 
   .section {
@@ -110,7 +110,7 @@ getBatches(1, new Date());
       @apply flex w-full flex-col;
     }
     p {
-      @apply mb-3 text-2xl font-bold text-neutral-700;
+      @apply mb-3 text-2xl font-bold text-night-100;
     }
     .error-message {
       @apply h-full;
@@ -131,7 +131,7 @@ getBatches(1, new Date());
     @apply mb-5 flex min-h-[calc(100vh-484px)] w-full items-center justify-center lg:mb-0 lg:min-h-0;
   }
   .not-found {
-    @apply whitespace-normal py-8 text-center text-neutral-400;
+    @apply whitespace-normal py-8 text-center text-night-500;
   }
 }
 </style>

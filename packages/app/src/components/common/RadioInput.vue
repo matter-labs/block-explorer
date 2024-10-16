@@ -68,14 +68,14 @@ const inputted = computed({
   }
 
   .radio-handle {
-    @apply relative flex h-5 w-5 items-center justify-center rounded-full border border-neutral-200 transition-colors;
+    @apply relative flex h-5 w-5 items-center justify-center rounded-full border border-night-1300 transition-colors;
 
     .radio-handle-dot {
       @apply h-3 w-3 rounded-full bg-primary-600 opacity-0 transition-opacity;
     }
   }
   .radio-input-text {
-    @apply ml-3 block text-sm font-medium text-neutral-700;
+    @apply ml-3 block text-sm font-medium text-night-500;
   }
 }
 </style>

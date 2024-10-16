@@ -125,7 +125,7 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
     @apply overflow-auto;
   }
   .show-as-dropdown .toggle-button {
-    @apply h-10 border-gray-200 bg-neutral-100 py-2;
+    @apply h-10 border-gray-200 bg-night-800 py-2;
   }
   .decoding-loading {
     @apply flex h-10 items-center;
@@ -139,13 +139,13 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
   }
   .encoded-data-container,
   .method-interface {
-    @apply flex h-max flex-col justify-center rounded-md border bg-neutral-100 px-4 py-[0.56rem] font-mono text-neutral-700;
+    @apply flex h-max flex-col justify-center rounded-md border bg-night-800 px-4 py-[0.56rem] font-mono text-night-500;
   }
   .method-interface {
     @apply whitespace-pre-line text-black;
   }
   .encoded-data-container {
-    @apply min-h-[40px] overflow-auto whitespace-nowrap text-xs text-neutral-700;
+    @apply min-h-[40px] overflow-auto whitespace-nowrap text-xs text-night-500;
   }
   .transaction-data-inputs {
     @apply overflow-auto;
@@ -175,7 +175,7 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
         .table-body-col {
           @apply relative m-0 flex flex-col items-end whitespace-normal py-1.5 text-right font-mono text-black first:font-normal md:table-cell md:text-left;
           &:before {
-            @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
+            @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-night-500 content-[attr(data-heading)] md:content-none;
           }
 
           .argument-value {

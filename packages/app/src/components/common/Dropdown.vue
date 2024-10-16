@@ -91,7 +91,7 @@ const selected = computed({
 
 <style scoped lang="scss">
 .toggle-button {
-  @apply grid h-[2.875rem] w-full grid-flow-col rounded-md border border-neutral-300 bg-neutral-50 p-3 text-left text-sm shadow-sm focus:outline-none;
+  @apply grid h-[2.875rem] w-full grid-flow-col rounded-md border border-night-1300 bg-night-800 p-3 text-left text-sm shadow-sm focus:outline-none;
   &.error {
     @apply border-error-400 text-error-500;
   }
@@ -114,7 +114,7 @@ const selected = computed({
     }
   }
   .loading {
-    @apply text-neutral-700;
+    @apply text-night-500;
   }
 }
 .toggle-button-focused {
@@ -124,15 +124,15 @@ const selected = computed({
   @apply mt-0.5 text-sm text-error-500;
 }
 .options-list-container {
-  @apply absolute z-10 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border-neutral-300 bg-white text-sm shadow-md focus:outline-none;
+  @apply absolute z-10 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border-night-1300 bg-night-1000 text-sm shadow-md focus:outline-none;
   .options-list-item {
-    @apply px-3 py-3 hover:bg-neutral-100;
+    @apply px-3 py-3 hover:bg-night-800;
 
     &.active {
-      @apply bg-neutral-100 px-3;
+      @apply bg-night-800 px-3;
     }
     .check-icon-container {
-      @apply absolute inset-y-0 right-3 flex items-center pl-3 text-neutral-800;
+      @apply absolute inset-y-0 right-3 flex items-center pl-3 text-night-500;
       .check-icon {
         @apply h-5 w-5;
       }

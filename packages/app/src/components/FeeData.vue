@@ -99,13 +99,13 @@ const token = computed<Token | null>(() => {
   @apply flex items-center gap-x-2;
 }
 .payed-by-paymaster-label {
-  @apply text-gray-400;
+  @apply text-night-500;
 }
 .toggle-button {
   @apply text-primary-600 underline hover:text-[#7379E5];
 }
 .details-container {
-  @apply mt-2 flex flex-col gap-y-1 rounded bg-neutral-100 p-2.5;
+  @apply mt-2 flex flex-col gap-y-1 rounded bg-night-800 p-2.5;
   .details-data-container {
     @apply flex gap-x-1;
   }

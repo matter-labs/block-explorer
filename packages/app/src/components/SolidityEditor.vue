@@ -81,12 +81,12 @@ function focusEditor() {
 
 <style lang="scss">
 .solidity-editor-container {
-  @apply block h-40 w-full overflow-hidden rounded-md border bg-neutral-50 shadow-sm ring-1 ring-transparent transition-colors;
+  @apply block h-40 w-full overflow-hidden rounded-md border bg-night-800 shadow-sm ring-1 ring-transparent transition-colors;
   &.disabled {
-    @apply bg-neutral-200;
+    @apply bg-night-900;
   }
   &.read-only {
-    @apply bg-neutral-100;
+    @apply bg-night-800;
   }
   &.expanded {
     @apply h-max;
@@ -98,7 +98,7 @@ function focusEditor() {
     }
   }
   &:not(.error) {
-    @apply border-neutral-300;
+    @apply border-night-1300;
     &.focused:not(.disabled):not(.read-only) {
       @apply border-primary-600 ring-primary-600;
     }

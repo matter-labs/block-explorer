@@ -16,10 +16,10 @@
     >
       <MenuItems class="dropdown-items">
         <MenuItem v-for="item in items" :key="item.to?.name ?? item.url" class="dropdown-item" v-slot="{ active }">
-          <router-link v-if="item.to" :to="item.to" :class="{ 'bg-neutral-100': active }">
+          <router-link v-if="item.to" :to="item.to" :class="{ 'bg-night-800': active }">
             {{ item.label }}
           </router-link>
-          <a v-else-if="item.url" :href="item.url" target="_blank" :class="{ 'bg-neutral-100': active }">{{
+          <a v-else-if="item.url" :href="item.url" target="_blank" :class="{ 'bg-night-800': active }">{{
             item.label
           }}</a>
         </MenuItem>

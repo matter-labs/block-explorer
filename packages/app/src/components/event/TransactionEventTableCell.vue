@@ -76,11 +76,11 @@ defineProps({
   @apply flex items-center;
 }
 .data-container {
-  @apply w-full rounded bg-neutral-200 p-4 pr-0 text-gray-400 sm:pr-4;
+  @apply w-full rounded bg-night-900 p-4 pr-0 text-night-500 sm:pr-4;
   span {
     @apply flex;
     .expandable-text {
-      @apply w-[40vw] whitespace-pre-wrap break-words bg-inherit p-0 pl-2 text-neutral-600;
+      @apply w-[40vw] whitespace-pre-wrap break-words bg-inherit p-0 pl-2 text-night-500;
     }
     .smaller-width {
       @apply w-[32vw] sm:w-[40vw];

@@ -24,7 +24,7 @@ import { SearchIcon } from "@heroicons/vue/solid";
 .state-container {
   @apply flex whitespace-normal;
   .state-image {
-    @apply flex h-16 min-w-[4rem] rounded-lg bg-neutral-50 sm:h-20 sm:w-20;
+    @apply flex h-16 min-w-[4rem] rounded-lg bg-night-800 sm:h-20 sm:w-20;
     .search-icon {
       @apply m-auto h-10 w-10;
     }
@@ -35,7 +35,7 @@ import { SearchIcon } from "@heroicons/vue/solid";
       @apply mb-1 text-sm font-bold text-primary-700 sm:text-lg;
     }
     .description {
-      @apply text-xs text-neutral-400 sm:text-base;
+      @apply text-xs text-night-500 sm:text-base;
     }
   }
 }

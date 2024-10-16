@@ -27,15 +27,15 @@ const { t } = useI18n();
 .not-found {
   @apply flex min-h-[calc(100vh-260px)] flex-col items-center justify-center text-center;
   .search-icon {
-    @apply my-12 w-24 rounded-lg bg-white p-4 text-neutral-800;
+    @apply my-12 w-24 rounded-lg bg-night-1000 p-4 text-night-500;
   }
 
   .header {
-    @apply mb-4 text-3xl text-neutral-800 sm:text-4xl;
+    @apply mb-4 text-3xl text-night-500 sm:text-4xl;
   }
 
   .description {
-    @apply mb-6 max-w-xl text-xl leading-6 text-neutral-500 sm:text-2xl;
+    @apply mb-6 max-w-xl text-xl leading-6 text-night-500 sm:text-2xl;
   }
 
   .search-form {
@@ -43,7 +43,7 @@ const { t } = useI18n();
   }
 
   .contact-support {
-    @apply text-base text-neutral-500;
+    @apply text-base text-night-500;
   }
 }
 </style>

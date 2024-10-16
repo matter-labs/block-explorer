@@ -106,7 +106,7 @@ watchEffect(() => {
     @apply mb-4 text-gray-200;
   }
   .table-transaction-title {
-    @apply text-gray-700;
+    @apply text-night-100;
   }
   .block-table {
     @apply mb-8;
@@ -114,7 +114,7 @@ watchEffect(() => {
   .transactions-table {
     @apply shadow-md;
     button {
-      @apply w-full cursor-pointer py-2 text-center text-xs text-gray-500 underline hover:text-gray-400;
+      @apply w-full cursor-pointer py-2 text-center text-xs text-night-500 underline hover:text-night-100;
     }
   }
 }

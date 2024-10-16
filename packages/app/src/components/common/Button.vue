@@ -61,7 +61,7 @@ export default defineComponent({
   }
 
   &.contained {
-    @apply text-neutral-50;
+    @apply text-night-100;
     @apply border border-transparent;
 
     &.primary {
@@ -73,8 +73,8 @@ export default defineComponent({
     }
   }
   &.outlined {
-    @apply border border-neutral-300;
-    @apply bg-white hover:bg-white disabled:hover:bg-white;
+    @apply border border-night-1300;
+    @apply bg-night-1000 hover:bg-night-1000 disabled:hover:bg-night-1000;
 
     &.primary {
       @apply text-primary-700;
@@ -85,7 +85,7 @@ export default defineComponent({
     }
 
     &.neutral {
-      @apply text-neutral-500;
+      @apply text-night-500;
     }
   }
 }

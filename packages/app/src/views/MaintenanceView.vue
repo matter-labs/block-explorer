@@ -40,19 +40,19 @@ const { currentNetwork } = useContext();
 .maintenance-container {
   @apply flex min-h-[calc(100vh-260px)] items-center justify-center;
   .maintenance {
-    @apply grid h-max w-max max-w-[29rem] grid-flow-row justify-items-center gap-4 rounded-lg bg-white p-4 text-center shadow-md;
+    @apply grid h-max w-max max-w-[29rem] grid-flow-row justify-items-center gap-4 rounded-lg bg-night-1000 p-4 text-center shadow-md;
 
     .title {
-      @apply mt-1 text-2xl text-neutral-700;
+      @apply mt-1 text-2xl text-night-500;
     }
     .description {
-      @apply text-neutral-600;
+      @apply text-night-500;
     }
     .twitter-button {
       @apply w-max no-underline;
     }
     .uptime-link {
-      @apply text-neutral-600;
+      @apply text-night-500;
     }
   }
 }

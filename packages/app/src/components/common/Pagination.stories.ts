@@ -19,7 +19,7 @@ const Template = (args: Args) => ({
     return { args };
   },
   template: `
-    <div class="bg-white p-5 flex justify-center">
+    <div class="bg-night-1000 p-5 flex justify-center">
       <Pagination v-bind="args" />
     </div>
   `,

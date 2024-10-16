@@ -168,10 +168,10 @@ function scrollPageToTop() {
         }
       }
       .log-interface {
-        @apply text-neutral-500;
+        @apply text-night-500;
 
         .log-interface-name {
-          @apply text-neutral-600;
+          @apply text-night-500;
         }
         .log-parameter-type {
           @apply text-success-600;

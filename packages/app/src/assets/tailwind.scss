@@ -49,21 +49,20 @@
     box-sizing: border-box;
     margin: 0;
     position: relative;
-    font-weight: normal;
   }
 
   h1 {
-    @apply text-4xl font-bold text-neutral-50;
+    @apply text-4xl font-bold text-night-100;
   }
   h2 {
-    @apply text-3xl font-bold text-neutral-50;
+    @apply text-3xl font-bold text-night-100;
   }
   h3 {
-    @apply text-2xl font-bold text-neutral-50;
+    @apply text-2xl font-bold text-night-100;
   }
 
   body {
-    @apply min-h-screen bg-neutral-50 font-sans text-base text-neutral-700;
+    @apply min-h-screen font-sans text-base text-night-100 bg-night-1200;
   }
 
   #app {
@@ -71,6 +70,7 @@
   }
 
   a {
-    @apply text-primary-600 underline hover:text-[#7379E5];
+    @apply hover:underline focus-visible:underline rounded underline-offset-4;
+
   }
 }

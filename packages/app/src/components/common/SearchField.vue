@@ -68,12 +68,12 @@ const model = computed({
 
 <style scoped lang="scss">
 .input-label {
-  @apply block text-sm font-medium text-neutral-700;
+  @apply block text-sm font-medium text-night-500;
 }
 .search-icon-container {
   @apply pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3;
   .search-icon {
-    @apply z-10 h-5 w-5 text-neutral-400;
+    @apply z-10 h-5 w-5 text-night-500;
   }
 }
 .error-message {
@@ -82,7 +82,7 @@ const model = computed({
 .search-input-container {
   @apply relative flex items-center;
   .search-input {
-    @apply block w-full truncate rounded-md border border-neutral-50 py-3 pl-4 pr-16 leading-5 text-neutral-700 placeholder-neutral-400 shadow ring-inset placeholder:text-sm focus:border-primary-500 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm;
+    @apply block w-full truncate rounded-md border border-night-100 py-3 pl-4 pr-16 leading-5 text-night-500 placeholder-neutral-400 shadow ring-inset placeholder:text-sm focus:border-primary-500 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm;
   }
   .has-error {
     @apply border-error-300 text-error-900 placeholder-error-300 ring-error-300 focus:border-error-500 focus:ring-error-500;

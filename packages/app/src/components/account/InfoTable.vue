@@ -91,12 +91,12 @@ const tableInfoItems = computed(() => {
   }
 
   .block-info-field-label {
-    @apply text-gray-400;
+    @apply text-night-500;
   }
 
   .table-footer {
     .block-info-field-value {
-      @apply text-gray-800;
+      @apply text-night-500;
     }
   }
 }
