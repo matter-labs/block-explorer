@@ -114,10 +114,10 @@ module.exports = {
           base: "#40465225",
           sapphire: "#337FAA10",
         },
-        screens: {
-          xs: "480px",
-          "4xl": "1920px",
-        },
+      },
+      screens: {
+        xs: "480px",
+        "4xl": "1920px",
       },
     },
   },
