@@ -73,7 +73,7 @@ export default defineComponent({
     }
   }
   &.outlined {
-    @apply border border-night-1300;
+    @apply border border-night-800;
     @apply bg-night-1000 hover:bg-night-1000 disabled:hover:bg-night-1000;
 
     &.primary {

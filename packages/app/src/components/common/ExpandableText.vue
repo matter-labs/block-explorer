@@ -39,7 +39,7 @@ useResizeObserver(el as MaybeElementRef, (entries) => {
 
 <style lang="scss" scoped>
 .expandable-text {
-  @apply relative w-full rounded-md border border-night-1300 bg-night-800 px-4 py-2;
+  @apply relative w-full rounded-md border border-night-800 bg-night-800 px-4 py-2;
 
   &.expanded {
     .expandable-text-content {

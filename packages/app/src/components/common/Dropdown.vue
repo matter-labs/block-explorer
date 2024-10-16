@@ -91,7 +91,7 @@ const selected = computed({
 
 <style scoped lang="scss">
 .toggle-button {
-  @apply grid h-[2.875rem] w-full grid-flow-col rounded-md border border-night-1300 bg-night-800 p-3 text-left text-sm shadow-sm focus:outline-none;
+  @apply grid h-[2.875rem] w-full grid-flow-col rounded-md border border-night-800 bg-night-800 p-3 text-left text-sm shadow-sm focus:outline-none;
   &.error {
     @apply border-error-400 text-error-500;
   }
@@ -124,7 +124,7 @@ const selected = computed({
   @apply mt-0.5 text-sm text-error-500;
 }
 .options-list-container {
-  @apply absolute z-10 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border-night-1300 bg-night-1000 text-sm shadow-md focus:outline-none;
+  @apply absolute z-10 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border-night-800 bg-night-1000 text-sm shadow-md focus:outline-none;
   .options-list-item {
     @apply px-3 py-3 hover:bg-night-800;
 

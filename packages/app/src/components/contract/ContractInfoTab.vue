@@ -257,7 +257,7 @@ const tabs = computed(() => {
     .tab-head {
       @apply gap-x-4 border-none;
       .active {
-        @apply border-night-1300 bg-night-900;
+        @apply border-night-800 bg-night-900;
       }
       .tab-btn {
         @apply rounded-md border p-3 font-normal text-night-500;

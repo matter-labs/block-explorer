@@ -193,7 +193,7 @@ watch(
 }
 
 .navigation-active-step {
-  @apply z-20 flex h-9 w-[calc(100%-97px)] flex-row items-center justify-center border-x border-b-0 border-t-0 border-solid border-night-1300 bg-night-800 px-0 font-sans text-xs font-normal transition duration-500 ease-out sm:h-full sm:w-auto sm:px-2 md:px-3 lg:flex-col;
+  @apply z-20 flex h-9 w-[calc(100%-97px)] flex-row items-center justify-center border-x border-b-0 border-t-0 border-solid border-night-800 bg-night-800 px-0 font-sans text-xs font-normal transition duration-500 ease-out sm:h-full sm:w-auto sm:px-2 md:px-3 lg:flex-col;
   .show-metadata-button {
     @apply block md:hidden;
     .show-metadata-icon {
@@ -211,7 +211,7 @@ watch(
 .navigation-active-step-label-container {
   @apply flex gap-x-1;
   .active-index {
-    @apply h-4 border-0 border-b border-night-1300 bg-transparent p-0 text-center text-xs hover:border-night-1300 focus:border-night-1300 focus:ring-0 disabled:border-night-1300;
+    @apply h-4 border-0 border-b border-night-800 bg-transparent p-0 text-center text-xs hover:border-night-800 focus:border-night-800 focus:ring-0 disabled:border-night-800;
   }
   .total {
     @apply whitespace-nowrap;

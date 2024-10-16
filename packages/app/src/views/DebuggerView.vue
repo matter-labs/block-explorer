@@ -442,7 +442,7 @@ watchEffect(() => {
 .head-block {
   @apply flex items-center justify-end;
   .upload-file {
-    @apply relative inline-flex items-center justify-center gap-1 rounded-lg border border-dashed border-night-1300 bg-transparent px-2 py-4 text-sm text-white sm:px-4  sm:text-base;
+    @apply relative inline-flex items-center justify-center gap-1 rounded-lg border border-dashed border-night-800 bg-transparent px-2 py-4 text-sm text-white sm:px-4  sm:text-base;
 
     &.active {
       @apply border-solid bg-night-800/20;
@@ -496,7 +496,7 @@ watchEffect(() => {
 .debugger {
   @apply my-2 grid grid-cols-1 grid-rows-[max-content_max-content_max-content] rounded-lg border-r bg-night-800 shadow-md md:grid-cols-2;
   .debugger-header {
-    @apply col-span-3 flex h-[52px] items-center justify-between whitespace-nowrap rounded-t-lg border border-r-0 border-solid border-night-1300 bg-night-800 px-4;
+    @apply col-span-3 flex h-[52px] items-center justify-between whitespace-nowrap rounded-t-lg border border-r-0 border-solid border-night-800 bg-night-800 px-4;
     h2 {
       @apply font-sans text-base font-medium text-night-500;
     }
@@ -531,7 +531,7 @@ watchEffect(() => {
   .file-list-item-data {
     @apply sticky top-9 z-50 flex h-9 w-full cursor-pointer items-center gap-3 overflow-hidden border-b border-b-neutral-200 bg-night-1000 p-[6px] px-4 font-mono text-sm font-normal text-night-500 focus:bg-primary-100 focus:outline-0;
     > label {
-      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-night-1300 bg-night-800 px-1 font-sans text-sm font-normal text-night-500;
+      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-night-800 bg-night-800 px-1 font-sans text-sm font-normal text-night-500;
     }
 
     .file-list-item-data-hash-label {

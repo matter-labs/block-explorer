@@ -98,7 +98,7 @@ function focusEditor() {
     }
   }
   &:not(.error) {
-    @apply border-night-1300;
+    @apply border-night-800;
     &.focused:not(.disabled):not(.read-only) {
       @apply border-primary-600 ring-primary-600;
     }

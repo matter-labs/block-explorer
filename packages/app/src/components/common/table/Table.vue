@@ -87,7 +87,7 @@ defineProps({
     @apply w-full border-collapse border-none;
 
     thead {
-      @apply md:border-b md:border-night-1300;
+      @apply md:border-b md:border-night-800;
 
       tr th {
         @apply bg-night-1200;
@@ -95,7 +95,7 @@ defineProps({
     }
     tbody {
       tr {
-        @apply transition last:border-b-0 odd:bg-night-1100 even:bg-night-1000 md:border-b md:border-night-1300;
+        @apply transition last:border-b-0 odd:bg-night-1100 even:bg-night-1000 md:border-b md:border-night-800;
       }
     }
   }

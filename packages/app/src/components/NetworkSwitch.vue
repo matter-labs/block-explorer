@@ -101,7 +101,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
   }
 
   .toggle-button {
-    @apply relative flex w-full min-w-[125px] items-center rounded-md border border-night-1300 bg-night-1000 px-2 py-2 font-sans text-base text-night-500 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:border-primary-800 lg:bg-primary-800 lg:text-white;
+    @apply relative flex w-full min-w-[125px] items-center rounded-md border border-night-800 bg-night-1000 px-2 py-2 font-sans text-base text-night-500 hover:cursor-pointer focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:border-primary-800 lg:bg-primary-800 lg:text-white;
   }
   .network-item {
     @apply mr-4 flex items-center gap-1;

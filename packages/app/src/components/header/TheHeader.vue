@@ -228,7 +228,7 @@ const hasContent = computed(() => {
     @apply container z-50;
   }
   .header-container {
-    @apply flex items-center justify-between border-b border-night-1300 py-4 md:space-x-10 lg:justify-start;
+    @apply flex items-center justify-between border-b border-night-800 py-4 md:space-x-10 lg:justify-start;
   }
   .logo-container {
     @apply flex justify-start;
@@ -236,7 +236,7 @@ const hasContent = computed(() => {
   .burger-button-container {
     @apply -my-2 -mr-2 lg:hidden;
     .burger-button {
-      @apply inline-flex items-center justify-center rounded-md border border-night-1300 p-2 text-night-500 hover:bg-night-800 hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-night-100;
+      @apply inline-flex items-center justify-center rounded-md border border-night-800 p-2 text-night-500 hover:bg-night-800 hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-night-100;
     }
   }
   .navigation-container {
@@ -330,7 +330,7 @@ const hasContent = computed(() => {
         @apply grid gap-y-4;
 
         .mobile-navigation-divider {
-          @apply border-b border-night-1300;
+          @apply border-b border-night-800;
         }
         .mobile-navigation {
           @apply grid gap-y-4;
@@ -353,13 +353,13 @@ const hasContent = computed(() => {
         }
       }
       .mobile-network-switch-container {
-        @apply mt-4 border-t border-night-1300 pt-5;
+        @apply mt-4 border-t border-night-800 pt-5;
       }
       .language-switch {
         @apply mt-3;
       }
       .mobile-socials-container {
-        @apply mt-5 flex items-center justify-center border-t border-night-1300 pt-6;
+        @apply mt-5 flex items-center justify-center border-t border-night-800 pt-6;
 
         a {
           @apply ml-4 first:ml-0;

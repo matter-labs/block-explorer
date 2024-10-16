@@ -81,7 +81,7 @@ defineProps({
 }
 
 .badge-additional-content {
-  @apply absolute left-0 right-0 z-10 hidden border border-night-1300 bg-night-1000;
+  @apply absolute left-0 right-0 z-10 hidden border border-night-800 bg-night-1000;
 }
 
 .badge-pre-content {
@@ -132,7 +132,7 @@ defineProps({
   }
 
   &.color-dark-success {
-    @apply bg-success-600 text-white;
+    @apply bg-success-500 text-white;
   }
 
   &.text-color-neutral {
