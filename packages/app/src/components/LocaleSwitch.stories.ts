@@ -31,9 +31,5 @@ Default.args = {
       value: "en",
       label: "English",
     },
-    {
-      value: "uk",
-      label: "Ukrainian",
-    },
   ],
 };

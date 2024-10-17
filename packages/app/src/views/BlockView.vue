@@ -93,7 +93,7 @@ watchEffect(() => {
 .head-block {
   @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
   h1 {
-    @apply mt-3 text-gray-200;
+    @apply mt-3 text-night-100;
   }
   .search-form {
     @apply mb-6 w-full max-w-[26rem] lg:mb-0;
@@ -103,7 +103,7 @@ watchEffect(() => {
   @apply mt-8 grid grid-cols-1 gap-4;
 
   h2 {
-    @apply mb-4 text-gray-200;
+    @apply mb-4 text-night-100;
   }
   .table-transaction-title {
     @apply text-night-100;

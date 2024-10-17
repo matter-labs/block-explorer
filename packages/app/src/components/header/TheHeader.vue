@@ -30,16 +30,7 @@
         </PopoverGroup>
         <div class="header-right-side">
           <NetworkSwitch />
-          <LocaleSwitch
-            :value="(locale as string)"
-            @update:value="changeLanguage"
-            :options="
-              ['en', 'uk'].map((value) => ({
-                value,
-                label: t(`locale.${value}`),
-              }))
-            "
-          />
+
           <div class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
@@ -103,16 +94,6 @@
             </div>
             <div class="mobile-network-switch-container">
               <NetworkSwitch />
-              <LocaleSwitch
-                :value="(locale as string)"
-                @update:value="changeLanguage"
-                :options="
-                  ['en', 'uk'].map((value) => ({
-                    value,
-                    label: t(`locale.${value}`),
-                  }))
-                "
-              />
             </div>
             <div class="mobile-socials-container">
               <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
