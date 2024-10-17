@@ -1,4 +1,5 @@
 .env
+!packages/api/.env
 junit.xml
 e2e-junit.xml
 
