@@ -21,8 +21,6 @@ describe("config", () => {
         rpcCallRetriesMaxTotalTimeout: 120000,
         rpcCallConnectionTimeout: 60000,
         rpcCallConnectionQuickTimeout: 10000,
-        wsMaxConnections: 5,
-        useWebSocketsForTransactions: false,
       },
       maxBlocksBatchSize: 20,
       gracefulShutdownTimeoutMs: 0,

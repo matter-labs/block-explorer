@@ -2,7 +2,7 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import { MoreThan } from "typeorm";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { UnitOfWork } from "../unitOfWork";
 import { BlockchainService } from "../blockchain";
 import { CounterService } from "../counter";

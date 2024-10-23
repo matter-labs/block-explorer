@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 import { IsNull, Not } from "typeorm";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { BatchState } from "../entities/batch.entity";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { BatchRepository, BlockRepository } from "../repositories";

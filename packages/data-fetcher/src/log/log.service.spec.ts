@@ -1,7 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { LogService } from "./log.service";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
@@ -65,7 +65,7 @@ describe("LogService", () => {
       { from: "from1", to: "to1", logIndex: 0 } as Transfer,
       { from: "from2", to: "to2", logIndex: 1 } as Transfer,
     ];
-    const logs: types.Log[] = [{ logIndex: 0 } as types.Log, { logIndex: 1 } as types.Log];
+    const logs: types.Log[] = [{ index: 0 } as types.Log, { index: 1 } as types.Log];
     const tokens: Token[] = [
       {
         l1Address: "l1Address1",
@@ -93,7 +93,7 @@ describe("LogService", () => {
     describe("when transaction details and receipt are defined", () => {
       beforeEach(() => {
         transactionReceipt = mock<types.TransactionReceipt>({
-          transactionIndex: 0,
+          index: 0,
           logs: logs,
         });
       });

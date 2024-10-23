@@ -1,9 +1,9 @@
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { ExtractContractAddressHandler } from "../interface/extractContractAddressHandler.interface";
-import { utils as ethersUtils } from "ethers";
+import { AbiCoder } from "ethers";
 import { ContractAddress } from "../interface/contractAddress.interface";
 
-const abiCoder: ethersUtils.AbiCoder = new ethersUtils.AbiCoder();
+const abiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export const defaultContractDeployedHandler: ExtractContractAddressHandler = {
   matches: (): boolean => true,
@@ -13,9 +13,9 @@ export const defaultContractDeployedHandler: ExtractContractAddressHandler = {
     return {
       address,
       blockNumber: txReceipt.blockNumber,
-      transactionHash: txReceipt.transactionHash,
+      transactionHash: txReceipt.hash,
       creatorAddress: txReceipt.from,
-      logIndex: log.logIndex,
+      logIndex: log.index,
     };
   },
 };

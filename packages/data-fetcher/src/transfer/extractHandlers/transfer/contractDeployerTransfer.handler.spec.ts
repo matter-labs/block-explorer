@@ -1,5 +1,4 @@
-import { BigNumber } from "ethers";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
@@ -25,7 +24,7 @@ describe("contractDeployerTransferHandler", () => {
         "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
       ],
       data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-      logIndex: 13,
+      index: 13,
       blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
     });
 
@@ -41,19 +40,30 @@ describe("contractDeployerTransferHandler", () => {
     });
 
     it("returns true if txReceipt.to is a contract deployer address and transfer log does not have indexed values", () => {
-      log.topics = ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"];
+      log = mock<types.Log>({
+        ...log,
+        topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
+      });
       const result = contractDeployerTransferHandler.matches(log, txReceipt);
       expect(result).toBe(true);
     });
 
     it("returns false if txReceipt.to is not a contract deployer address", () => {
-      txReceipt.to = "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C";
+      txReceipt = mock<types.TransactionReceipt>({
+        ...txReceipt,
+        to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+      });
       const result = contractDeployerTransferHandler.matches(log, txReceipt);
       expect(result).toBe(false);
     });
 
     it("returns false if log from is not a zero address", () => {
-      log.topics[1] = "0x000000000000000000000000c7e0220d02d549c4846A6EC31D89C3B670Ebe35C";
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) =>
+          index === 1 ? "0x000000000000000000000000c7e0220d02d549c4846A6EC31D89C3B670Ebe35C" : val
+        ),
+      });
       const result = contractDeployerTransferHandler.matches(log, txReceipt);
       expect(result).toBe(false);
     });
@@ -67,9 +77,11 @@ describe("contractDeployerTransferHandler", () => {
   describe("extract", () => {
     describe("when there are no indexed values in the transfer", () => {
       beforeEach(() => {
-        log.topics = ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"];
-        log.data =
-          "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000934f351e49800ff7d72b63d11d12ea0027e5730200000000000000000000000000000000000000000000152d02c7e14af6800000";
+        log = mock<types.Log>({
+          ...log,
+          topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
+          data: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000934f351e49800ff7d72b63d11d12ea0027e5730200000000000000000000000000000000000000000000152d02c7e14af6800000",
+        });
       });
 
       it("extracts transfer with from field populated with lower cased to", () => {
@@ -105,7 +117,7 @@ describe("contractDeployerTransferHandler", () => {
 
     it("extracts transfer with populated amount", () => {
       const result = contractDeployerTransferHandler.extract(log, blockDetails);
-      expect(result.amount).toStrictEqual(BigNumber.from("0x016345785d8a0000"));
+      expect(result.amount).toStrictEqual(BigInt("0x016345785d8a0000"));
     });
 
     it("extracts transfer with tokenAddress field populated with lower cased log address", () => {
@@ -130,7 +142,7 @@ describe("contractDeployerTransferHandler", () => {
 
     it("extracts transfer with logIndex populated from log", () => {
       const result = contractDeployerTransferHandler.extract(log, blockDetails);
-      expect(result.logIndex).toBe(log.logIndex);
+      expect(result.logIndex).toBe(log.index);
     });
 
     it("extracts transfer with transactionIndex populated from log", () => {

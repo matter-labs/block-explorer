@@ -24,7 +24,7 @@
         "0x0000000000000000000000000000000000000000000000000000000000000015"
       ],
       "data": "0x",
-      "logIndex": 5,
+      "index": 5,
       "blockHash": "0x117fdf2ca53893a321bb64f015d6e1cc3a877c6f6ad6cd02ea3c71c1b9533c7f",
       "l1BatchNumber": 50073
     },
@@ -40,7 +40,7 @@
         "0x00000000000000000000000000000000000000000000000000000000015ef3c4"
       ],
       "data": "0x",
-      "logIndex": 6,
+      "index": 6,
       "blockHash": "0x117fdf2ca53893a321bb64f015d6e1cc3a877c6f6ad6cd02ea3c71c1b9533c7f",
       "l1BatchNumber": 50073
     },
@@ -56,7 +56,7 @@
         "0x00000000000000000000000000000000000000000000000000000000016ef3c4"
       ],
       "data": "0x",
-      "logIndex": 7,
+      "index": 7,
       "blockHash": "0x117fdf2ca53893a321bb64f015d6e1cc3a877c6f6ad6cd02ea3c71c1b9533c7f",
       "l1BatchNumber": 50073
     }

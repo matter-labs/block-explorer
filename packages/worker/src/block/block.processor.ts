@@ -170,6 +170,8 @@ export class BlockProcessor {
           blockData.blockLogs.map((log) => ({
             ...log,
             timestamp: unixTimeToDateString(blockDetails.timestamp),
+            logIndex: log.index,
+            topics: [...log.topics],
           }))
         );
       }

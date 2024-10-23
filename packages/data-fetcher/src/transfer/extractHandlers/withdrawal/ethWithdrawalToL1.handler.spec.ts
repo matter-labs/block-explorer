@@ -1,5 +1,4 @@
-import { BigNumber } from "ethers";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
@@ -21,7 +20,7 @@ describe("ethWithdrawalToL1Handler", () => {
         "0x000000000000000000000000d206eaf6819007535e893410cfa01885ce40e99a",
       ],
       data: "0x0000000000000000000000000000000000000000000000000429d069189e0000",
-      logIndex: 43,
+      index: 43,
       blockHash: "0x15543afe64eaa6f26beca9cac8dd5c3465e532bd55f3402365a67eac8f62fa6b",
     });
     blockDetails = mock<types.BlockDetails>({
@@ -36,7 +35,10 @@ describe("ethWithdrawalToL1Handler", () => {
     });
 
     it("returns false is log address is not ETH token address", () => {
-      log.address = "0x000000000000000000000000000000000000800B";
+      log = mock<types.Log>({
+        ...log,
+        address: "0x000000000000000000000000000000000000800B",
+      });
       const result = ethWithdrawalToL1Handler.matches(log);
       expect(result).toBe(false);
     });
@@ -65,7 +67,7 @@ describe("ethWithdrawalToL1Handler", () => {
 
     it("extracts transfer with populated amount", () => {
       const result = ethWithdrawalToL1Handler.extract(log, blockDetails);
-      expect(result.amount).toStrictEqual(BigNumber.from("0x429d069189e0000"));
+      expect(result.amount).toStrictEqual(BigInt("0x429d069189e0000"));
     });
 
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as tokenAddress", () => {
@@ -90,7 +92,7 @@ describe("ethWithdrawalToL1Handler", () => {
 
     it("extracts transfer with logIndex populated from log", () => {
       const result = ethWithdrawalToL1Handler.extract(log, blockDetails);
-      expect(result.logIndex).toBe(log.logIndex);
+      expect(result.logIndex).toBe(log.index);
     });
 
     it("extracts transfer with transactionIndex populated from log", () => {

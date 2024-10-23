@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { LogService, LogsData } from "../log/log.service";
@@ -60,7 +60,7 @@ export class TransactionService {
       ...transactionDetails,
       l1BatchNumber: blockDetails.l1BatchNumber,
       receiptStatus: transactionReceipt.status,
-    } as TransactionInfo;
+    } as unknown as TransactionInfo;
 
     if (transactionReceipt.status === 0) {
       const debugTraceTransactionResult = await this.blockchainService.debugTraceTransaction(transactionHash, true);

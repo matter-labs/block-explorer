@@ -115,6 +115,6 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
   }
 
   public onModuleDestroy() {
-    clearInterval(this.collectBlocksToProcessMetricTimer);
+    clearInterval(this.collectBlocksToProcessMetricTimer as unknown as number);
   }
 }

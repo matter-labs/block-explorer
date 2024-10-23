@@ -1,4 +1,4 @@
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { defaultContractDeployedHandler } from "./default.handler";
 
@@ -17,7 +17,7 @@ describe("defaultContractDeployedHandler", () => {
         "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
       ],
       data: "0x",
-      logIndex: 8,
+      index: 8,
       blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
       l1BatchNumber: 604161,
     });
@@ -36,7 +36,7 @@ describe("defaultContractDeployedHandler", () => {
     beforeEach(() => {
       transactionReceipt = mock<types.TransactionReceipt>({
         blockNumber: 10,
-        transactionHash: "transactionHash",
+        hash: "transactionHash",
         from: "from",
       });
     });
@@ -53,7 +53,7 @@ describe("defaultContractDeployedHandler", () => {
 
     it("extracts transaction hash for the created contract", () => {
       const result = defaultContractDeployedHandler.extract(log, transactionReceipt);
-      expect(result.transactionHash).toBe(transactionReceipt.transactionHash);
+      expect(result.transactionHash).toBe(transactionReceipt.hash);
     });
 
     it("extracts creator address for the created contract", () => {
@@ -63,7 +63,7 @@ describe("defaultContractDeployedHandler", () => {
 
     it("extracts logIndex for the created contract", () => {
       const result = defaultContractDeployedHandler.extract(log, transactionReceipt);
-      expect(result.logIndex).toBe(log.logIndex);
+      expect(result.logIndex).toBe(log.index);
     });
   });
 });

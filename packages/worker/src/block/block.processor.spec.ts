@@ -2,7 +2,7 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { ConfigService } from "@nestjs/config";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { MoreThanOrEqual, LessThanOrEqual, Between } from "typeorm";
 import { UnitOfWork } from "../unitOfWork";
@@ -485,7 +485,7 @@ describe("BlockProcessor", () => {
                   blockLogs: [],
                   blockTransfers: [],
                   changedBalances: [],
-                } as BlockData,
+                } as unknown as BlockData,
               ];
               jest.spyOn(blockWatcherMock, "getNextBlocksToProcess").mockResolvedValue(blocksToProcess);
             });
@@ -531,7 +531,10 @@ describe("BlockProcessor", () => {
 
             describe("when block data contains block logs", () => {
               beforeEach(() => {
-                blocksToProcess[0].blockLogs = [{ logIndex: 0 } as types.Log, { logIndex: 1 } as types.Log];
+                blocksToProcess[0].blockLogs = [
+                  { index: 0, topics: [] } as unknown as types.Log,
+                  { index: 1, topics: [] } as unknown as types.Log,
+                ];
               });
 
               it("saves block logs to the DB", async () => {
@@ -541,6 +544,7 @@ describe("BlockProcessor", () => {
                   blocksToProcess[0].blockLogs.map((log) => ({
                     ...log,
                     timestamp: unixTimeToDateString(blocksToProcess[0].blockDetails.timestamp),
+                    logIndex: log.index,
                   }))
                 );
               });

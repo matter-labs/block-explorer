@@ -1,6 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { BigNumber } from "ethers";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { LogType } from "../log/logType";
 import { ExtractContractAddressHandler } from "./interface/extractContractAddressHandler.interface";
@@ -14,14 +13,14 @@ const extractContractAddressesHandlers: Record<string, ExtractContractAddressHan
 @Injectable()
 export class AddressService {
   private readonly logger: Logger;
-  public changedBalances: Map<string, Map<string, BigNumber>>;
+  public changedBalances: Map<string, Map<string, bigint>>;
 
   constructor(private readonly blockchainService: BlockchainService) {
     this.logger = new Logger(AddressService.name);
   }
 
   public async getContractAddresses(
-    logs: types.Log[],
+    logs: ReadonlyArray<types.Log>,
     transactionReceipt: types.TransactionReceipt
   ): Promise<ContractAddress[]> {
     const contractAddresses: ContractAddress[] = [];

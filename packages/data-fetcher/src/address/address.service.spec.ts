@@ -1,7 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { AddressService } from "./address.service";
 import { BlockchainService } from "../blockchain/blockchain.service";
 
@@ -36,14 +36,14 @@ describe("AddressService", () => {
           "0x0100014340e955cbf39159da998b3374bee8f3c0b3c75a7a9e3df6b85052379d",
           "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
         ],
-        logIndex: 1,
+        index: 1,
       }),
       mock<types.Log>({
         topics: [
           "0xe6b2ac4004ee4493db8844da5db69722d2128345671818c3c41928655a83fb2c",
           "0x0000000000000000000000000db321efaa9e380d0b37b55b530cdaa62728b9a3",
         ],
-        logIndex: 2,
+        index: 2,
       }),
       mock<types.Log>({
         topics: [
@@ -52,13 +52,13 @@ describe("AddressService", () => {
           "0x01000271e819e920185598bc6fb453dedd8425e0a1eb485958a12affccdea67a",
           "0x000000000000000000000000d144ca8aa2e7dfecd56a3cccba1cd873c8e5db58",
         ],
-        logIndex: 3,
+        index: 3,
       }),
     ];
 
     const transactionReceipt = mock<types.TransactionReceipt>({
       blockNumber: 10,
-      transactionHash: "transactionHash",
+      hash: "transactionHash",
       from: "from",
     });
 
@@ -81,17 +81,17 @@ describe("AddressService", () => {
           address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
           bytecode: "bytecode1",
           blockNumber: transactionReceipt.blockNumber,
-          transactionHash: transactionReceipt.transactionHash,
+          transactionHash: transactionReceipt.hash,
           creatorAddress: transactionReceipt.from,
-          logIndex: logs[0].logIndex,
+          logIndex: logs[0].index,
         },
         {
           address: "0xD144ca8Aa2E7DFECD56a3CCcBa1cd873c8e5db58",
           bytecode: "bytecode2",
           blockNumber: transactionReceipt.blockNumber,
-          transactionHash: transactionReceipt.transactionHash,
+          transactionHash: transactionReceipt.hash,
           creatorAddress: transactionReceipt.from,
-          logIndex: logs[2].logIndex,
+          logIndex: logs[2].index,
         },
       ]);
     });

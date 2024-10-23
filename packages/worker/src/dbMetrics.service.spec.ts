@@ -17,7 +17,7 @@ describe("DbMetricsService", () => {
   beforeEach(() => {
     jest.spyOn(global, "setInterval").mockImplementation((callback: () => void) => {
       callback();
-      return timer;
+      return timer as unknown as NodeJS.Timeout;
     });
     jest.spyOn(global, "clearInterval");
 

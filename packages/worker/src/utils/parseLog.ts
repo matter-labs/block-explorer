@@ -1,23 +1,17 @@
-import { utils } from "ethers";
-import { types } from "zksync-web3";
+import { LogDescription, Interface, Log } from "ethers";
 import logger from "../logger";
 
 const ADDRESS_LENGTH = 40;
 
-export default function parseLog(
-  contractInterface: { interface: utils.Interface },
-  log: types.Log
-): utils.LogDescription {
+export default function parseLog(contractInterface: { interface: Interface }, log: Log): LogDescription {
   const logDescription = contractInterface.interface.parseLog(log);
-
   // All the logic below is to handle specific solc versions issue causing args of type address to be out of range sometimes
-  if (logDescription.eventFragment?.type !== "event" || !logDescription.eventFragment.inputs?.length) {
+  if (logDescription.fragment?.type !== "event" || !logDescription.fragment.inputs?.length) {
     return logDescription;
   }
 
   let hasAddressOutOfRangeErrors = false;
   const topics = [...log.topics];
-
   Object.keys(logDescription.args).forEach((arg) => {
     try {
       // accessing property to throw deferred error if any
@@ -26,21 +20,19 @@ export default function parseLog(
       logger.error("Failed to parse log argument", {
         error,
         blockNumber: log.blockNumber,
-        logIndex: log.logIndex,
+        logIndex: log.index,
         transactionHash: log.transactionHash,
         arg,
       });
-      if (!error.error) {
+      if (!error.error?.error) {
         return;
       }
-      if (error.error.reason !== "value out of range" || error.error.type !== "address") {
+      const { code, fault, type } = error.error.error;
+      if (code !== "NUMERIC_FAULT" || fault !== "overflow" || type !== "address") {
         return;
       }
-      const inputIndex = logDescription.eventFragment.inputs.findIndex((input) => input.name === error.error.name);
-      if (inputIndex === -1) {
-        return;
-      }
-      const input = logDescription.eventFragment.inputs[inputIndex];
+      const inputIndex = Number(arg);
+      const input = logDescription.fragment.inputs[inputIndex];
       if (!input.indexed) {
         return;
       }

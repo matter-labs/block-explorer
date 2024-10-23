@@ -2,9 +2,9 @@ import { NestFactory } from "@nestjs/core";
 import { ConfigService } from "@nestjs/config";
 import logger from "./logger";
 import { AppModule } from "./app.module";
-import overrideBigNumberToJson from "./utils/overrideBigNumberToJson";
+import overrideBigIntToJson from "./utils/overrideBigIntToJson";
 
-overrideBigNumberToJson();
+overrideBigIntToJson();
 
 async function bootstrap() {
   process.on("uncaughtException", function (error) {
