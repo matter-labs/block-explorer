@@ -13,7 +13,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "dev": "nest start",
     "dev:watch": "nest start --watch",
-    "dev:debug": "nest start --debug 0.0.0.0:9230 --watch",
+    "dev:debug": "nest start --debug 0.0.0.0:9229 --watch",
     "start": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
