@@ -50,7 +50,7 @@ export class Transaction extends CountableEntity {
   public readonly value: string;
 
   @Column({ type: "int" })
-  public readonly chainId: number;
+  public readonly chainId: bigint;
 
   @ManyToOne(() => Block, { onDelete: "CASCADE" })
   @JoinColumn({ name: "blockNumber" })

@@ -60,7 +60,7 @@ export class TransactionReceipt extends CountableEntity {
   @Column({ type: "varchar", length: 128 })
   public readonly cumulativeGasUsed: string;
 
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: true })
   public readonly byzantium: boolean;
 
   @Column({ type: "int" })

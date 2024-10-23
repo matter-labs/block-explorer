@@ -1,4 +1,4 @@
-import { types, utils } from "zksync-web3";
+import { types, utils } from "zksync-ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { In } from "typeorm";
@@ -104,7 +104,7 @@ export class TokenService {
         l2Address: contractAddress.address,
         logIndex: contractAddress.logIndex,
         // add L1 address for ETH token
-        ...(contractAddress.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS && {
+        ...(contractAddress.address.toLowerCase() === utils.L2_BASE_TOKEN_ADDRESS && {
           l1Address: utils.ETH_ADDRESS,
         }),
       });

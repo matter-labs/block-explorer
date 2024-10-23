@@ -82,10 +82,16 @@ describe("TransactionProcessor", () => {
       transaction: {
         hash: "transactionHash",
         receivedAt: "2023-12-29T06:52:51.438Z",
+        type: 3,
       },
       transactionReceipt: {
-        transactionHash: "transactionHash",
-        logs: [{ logIndex: 0 }, { logIndex: 1 }],
+        hash: "transactionHash",
+        logs: [
+          { index: 0, topics: [] },
+          { index: 1, topics: [] },
+        ],
+        index: 1,
+        gasPrice: "100",
       },
       transfers: [{ logIndex: 2 }, { logIndex: 3 }],
       contractAddresses: [
@@ -107,7 +113,7 @@ describe("TransactionProcessor", () => {
         },
       ],
       tokens: [{ l2Address: "l2Address1" }, { l2Address: "l2Address2" }],
-    } as TransactionData;
+    } as unknown as TransactionData;
 
     it("starts the transaction duration metric", async () => {
       await transactionProcessor.add(blockNumber, transactionData);
@@ -123,7 +129,13 @@ describe("TransactionProcessor", () => {
     it("saves transaction receipt to the DB", async () => {
       await transactionProcessor.add(blockNumber, transactionData);
       expect(transactionReceiptRepositoryMock.add).toHaveBeenCalledTimes(1);
-      expect(transactionReceiptRepositoryMock.add).toHaveBeenCalledWith(transactionData.transactionReceipt);
+      expect(transactionReceiptRepositoryMock.add).toHaveBeenCalledWith({
+        ...transactionData.transactionReceipt,
+        transactionIndex: transactionData.transactionReceipt.index,
+        transactionHash: transactionData.transactionReceipt.hash,
+        effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
+        type: transactionData.transaction.type,
+      });
     });
 
     it("saves transaction logs to the DB", async () => {
@@ -133,6 +145,8 @@ describe("TransactionProcessor", () => {
         transactionData.transactionReceipt.logs.map((log) => ({
           ...log,
           timestamp: transactionData.transaction.receivedAt,
+          topics: [],
+          logIndex: log.index,
         }))
       );
     });
