@@ -18,7 +18,7 @@
       "apiUrl": "https://api-explorer.sophon.xyz",
       "verificationApiUrl": "https://verification-explorer.sophon.xyz",
       "bridgeUrl": "https://portal.sophon.xyz/bridge",
-      "hostnames": ["https://exploree.sophon.xyz"],
+      "hostnames": ["https://explorer.sophon.xyz"],
       "icon": "/images/icons/sophon.svg",
       "l2ChainId": 50104,
       "l2NetworkName": "Sophon",
