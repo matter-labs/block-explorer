@@ -13,6 +13,20 @@
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "published": true,
       "rpcUrl": "https://rpc.testnet.sophon.xyz"
+    },
+    {
+      "apiUrl": "https://api-explorer.sophon.xyz",
+      "verificationApiUrl": "https://verification-explorer.sophon.xyz",
+      "bridgeUrl": "https://portal.sophon.xyz/bridge",
+      "hostnames": ["https://explorer.sophon.xyz"],
+      "icon": "/images/icons/sophon.svg",
+      "l2ChainId": 50104,
+      "l2NetworkName": "Sophon",
+      "maintenance": false,
+      "name": "Ethereum",
+      "l1ExplorerUrl": "https://etherscan.io",
+      "published": true,
+      "rpcUrl": "https://rpc.sophon.xyz"
     }
   ]
 }
