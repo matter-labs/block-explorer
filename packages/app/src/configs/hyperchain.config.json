@@ -1,6 +1,20 @@
 {
   "networks": [
     {
+      "apiUrl": "https://api-explorer.sophon.xyz",
+      "verificationApiUrl": "https://verification-explorer.sophon.xyz",
+      "bridgeUrl": "https://portal.sophon.xyz/bridge",
+      "hostnames": ["https://exploree.sophon.xyz"],
+      "icon": "/images/icons/sophon.svg",
+      "l2ChainId": 50104,
+      "l2NetworkName": "Sophon",
+      "maintenance": false,
+      "name": "Ethereum",
+      "l1ExplorerUrl": "https://etherscan.io",
+      "published": true,
+      "rpcUrl": "https://rpc.sophon.xyz"
+    },
+    {
       "apiUrl": "https://block-explorer-api.testnet.sophon.xyz",
       "verificationApiUrl": "https://api-explorer-verify.testnet.sophon.xyz",
       "bridgeUrl": "https://portal.testnet.sophon.xyz/bridge",
