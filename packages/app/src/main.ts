@@ -42,10 +42,10 @@ const context = useContext();
 const { initialize: initializeWallet } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
-    explorerUrl: context.currentNetwork.value.rpcUrl,
+    ...context.currentNetwork.value,
+    explorerUrl: context.currentNetwork.value.hostnames[0],
     chainName: context.currentNetwork.value.l2NetworkName,
     l1ChainId: null as unknown as number,
-    ...context.currentNetwork.value,
   })),
 });
 initializeWallet();
