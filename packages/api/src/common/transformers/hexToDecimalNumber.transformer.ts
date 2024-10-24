@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { ValueTransformer } from "typeorm";
 
 export const hexToDecimalNumberTransformer: ValueTransformer = {
@@ -6,12 +5,12 @@ export const hexToDecimalNumberTransformer: ValueTransformer = {
     if (!decimalNumberStr) {
       return null;
     }
-    return BigNumber.from(decimalNumberStr).toHexString();
+    return `0x${BigInt(decimalNumberStr).toString(16)}`;
   },
   from(hexNumberStr: string | null): string | null {
     if (!hexNumberStr) {
       return null;
     }
-    return BigNumber.from(hexNumberStr).toString();
+    return BigInt(hexNumberStr).toString();
   },
 };

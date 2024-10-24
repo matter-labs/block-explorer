@@ -2,7 +2,6 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import * as request from "supertest";
 import { Repository } from "typeorm";
-import { BigNumber } from "ethers";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
@@ -130,11 +129,11 @@ describe("TransactionController (e2e)", () => {
         receivedAt: `2022-11-21T18:16:0${i}.000Z`,
         l1BatchNumber: i < 3 ? 1 : i,
         receiptStatus: i < 9 ? 1 : 0,
-        gasPrice: BigNumber.from(1000 + i).toString(),
-        gasLimit: BigNumber.from(2000 + i).toString(),
-        maxFeePerGas: BigNumber.from(3000 + i).toString(),
-        maxPriorityFeePerGas: BigNumber.from(4000 + i).toString(),
-        gasPerPubdata: BigNumber.from(5000 + i).toHexString(),
+        gasPrice: BigInt(1000 + i).toString(),
+        gasLimit: BigInt(2000 + i).toString(),
+        maxFeePerGas: BigInt(3000 + i).toString(),
+        maxPriorityFeePerGas: BigInt(4000 + i).toString(),
+        gasPerPubdata: `0x${BigInt(5000 + i).toString(16)}`,
       };
       await transactionRepository.insert(transactionSpec);
 

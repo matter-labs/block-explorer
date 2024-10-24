@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { Transfer } from "../../transfer/transfer.entity";
 
 export const mapTransferListItem = (transfer: Transfer, lastBlockNumber: number) => ({
@@ -22,7 +21,7 @@ export const mapTransferListItem = (transfer: Transfer, lastBlockNumber: number)
   cumulativeGasUsed: transfer.transaction?.transactionReceipt.cumulativeGasUsed,
   gasUsed: transfer.transaction?.transactionReceipt.gasUsed,
   confirmations: (lastBlockNumber - transfer.blockNumber).toString(),
-  fee: transfer.transaction?.fee ? BigNumber.from(transfer.transaction.fee).toString() : undefined,
+  fee: transfer.transaction?.fee ? BigInt(transfer.transaction.fee).toString() : undefined,
   l1BatchNumber: transfer.transaction?.l1BatchNumber.toString(),
   transactionType: transfer.transaction?.type.toString(),
 });
