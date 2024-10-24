@@ -228,7 +228,8 @@ describe("FunctionDropdown", () => {
     expect(writeFunctionMock).toHaveBeenCalledWith(
       "0x4732c03b2cf6ede46500e799de79a15df44929eb",
       noInputsAbiFragment,
-      {}
+      {},
+      false
     );
     unmount();
     mock.mockRestore();
@@ -256,7 +257,8 @@ describe("FunctionDropdown", () => {
     expect(readFunctionMock).toHaveBeenCalledWith(
       "0x4732c03b2cf6ede46500e799de79a15df44929eb",
       noInputsAbiFragment,
-      {}
+      {},
+      false
     );
     unmount();
     mock.mockRestore();
