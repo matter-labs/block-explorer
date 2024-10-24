@@ -25,12 +25,14 @@
 import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 
+import config from "@/configs/hyperchain.config.json";
+
 const { t } = useI18n();
 
 const navigation = reactive([
   {
     label: computed(() => t("footer.nav.docs")),
-    url: `https://block-explorer-api.testnet.sophon.xyz/docs`,
+    url: `${config.networks[0].apiUrl}/docs`,
   },
   {
     label: computed(() => t("footer.nav.terms")),
