@@ -59,8 +59,8 @@ export default (context = useContext()) => {
         //gasLimit: "10000000",
       };
 
-      let customData = {};
-
+      let res;
+      // Repeating the "res" code instead of making customData empty to avoid having to rewrite tests
       if (usePaymaster) {
         const paymasterparams = zkSyncSdk.utils.getPaymasterParams(
           "0x98546B226dbbA8230cf620635a1e4ab01F6A99B2", // Global paymaster address
@@ -69,24 +69,33 @@ export default (context = useContext()) => {
             innerInput: new Uint8Array(),
           }
         );
-        customData = {
-          paymasterParams: paymasterparams,
-          gasPerPubdata: zkSyncSdk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
-        };
+        res = await method(
+          ...[
+            ...(methodArguments.length ? methodArguments : []),
+            abiFragment.stateMutability === "payable" ? methodOptions : undefined,
+          ].filter((e) => e !== undefined),
+          {
+            customData: {
+              paymasterParams: paymasterparams,
+              gasPerPubdata: zkSyncSdk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
+            },
+          }
+        ).catch(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (e: any) => processException(e, "Please, try again later")
+        );
+      } else {
+        res = await method(
+          ...[
+            ...(methodArguments.length ? methodArguments : []),
+            abiFragment.stateMutability === "payable" ? methodOptions : undefined,
+          ].filter((e) => e !== undefined)
+        ).catch(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (e: any) => processException(e, "Please, try again later")
+        );
       }
 
-      const res = await method(
-        ...[
-          ...(methodArguments.length ? methodArguments : []),
-          abiFragment.stateMutability === "payable" ? methodOptions : undefined,
-        ].filter((e) => e !== undefined),
-        {
-          customData,
-        }
-      ).catch(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e: any) => processException(e, "Please, try again later")
-      );
       response.value = { transactionHash: res.hash };
     } catch (e) {
       isRequestFailed.value = true;
