@@ -10,6 +10,7 @@ import { mount, RouterLinkStub } from "@vue/test-utils";
 
 import TheHeader from "@/components/header/TheHeader.vue";
 
+import config from "@/configs/hyperchain.config.json";
 import enUS from "@/locales/en.json";
 
 const routeMock = vi.fn(() => ({ name: "home", params: {} }));
@@ -57,12 +58,12 @@ describe("TheHeader:", () => {
     await fireEvent.click(dropdown[1].find("button")!.element);
     const toolsLinksRouter = dropdown[1].findAllComponents(RouterLinkStub);
     const toolsLinks = dropdown[1].findAll("a");
-    expect(toolsLinks[0].attributes("href")).toBe("https://block-explorer-api.testnet.sophon.xyz/docs");
+    expect(toolsLinks[0].attributes("href")).toBe(`${config.networks[0].apiUrl}/docs`);
     expect(toolsLinksRouter[0].props().to.name).toBe("contract-verification");
     expect(toolsLinks[2].attributes("href")).toBe("https://bridge.zksync.io/");
 
     expect(wrapper.findAll(".navigation-container > .navigation-link")[0].attributes("href")).toBe(
-      "https://block-explorer-api.testnet.sophon.xyz/docs"
+      `${config.networks[0].apiUrl}/docs`
     );
   });
   it("renders social links", () => {
