@@ -33,7 +33,8 @@ export default (context = useContext()) => {
   const writeFunction = async (
     address: string,
     abiFragment: AbiFragment,
-    params: Record<string, string | string[] | boolean | boolean[]>
+    params: Record<string, string | string[] | boolean | boolean[]>,
+    usePaymaster?: boolean
   ) => {
     try {
       isRequestPending.value = true;
@@ -57,11 +58,31 @@ export default (context = useContext()) => {
         value: ethers.utils.parseEther((params.value as string) ?? "0"),
         //gasLimit: "10000000",
       };
+
+      let customData = {};
+
+      if (usePaymaster) {
+        const paymasterparams = zkSyncSdk.utils.getPaymasterParams(
+          "0x98546B226dbbA8230cf620635a1e4ab01F6A99B2", // Global paymaster address
+          {
+            type: "General",
+            innerInput: new Uint8Array(),
+          }
+        );
+        customData = {
+          paymasterParams: paymasterparams,
+          gasPerPubdata: zkSyncSdk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
+        };
+      }
+
       const res = await method(
         ...[
           ...(methodArguments.length ? methodArguments : []),
           abiFragment.stateMutability === "payable" ? methodOptions : undefined,
-        ].filter((e) => e !== undefined)
+        ].filter((e) => e !== undefined),
+        {
+          customData,
+        }
       ).catch(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (e: any) => processException(e, "Please, try again later")
