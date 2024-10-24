@@ -95,7 +95,7 @@ const opened = ref(false);
 
 let usePaymaster = false;
 let urlParams = new URLSearchParams(window.location.search);
-usePaymaster = !!urlParams.get("usePaymaster");
+usePaymaster = urlParams.get("usePaymaster") !== null;
 
 const { t } = useI18n();
 

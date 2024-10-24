@@ -4,7 +4,7 @@
       <div class="header-container flex items-center justify-between py-4 md:space-x-10 lg:justify-start">
         <div class="logo-container flex justify-start">
           <router-link class="flex items-center gap-2 text-black no-underline" :to="{ name: 'home' }">
-            <img src="/images/logo-sophon-testnet.svg" />
+            <img :src="logoImage" />
           </router-link>
         </div>
         <div class="burger-button-container -my-2 -mr-2 lg:hidden">
@@ -121,6 +121,9 @@ import useContext from "@/composables/useContext";
 
 const { t } = useI18n({ useScope: "global" });
 const { currentNetwork } = useContext();
+
+const logoImage =
+  currentNetwork.value.l2ChainId === 50104 ? "/images/logo-sophon.svg" : "/images/logo-sophon-testnet.svg";
 
 const navigation = reactive([
   {
