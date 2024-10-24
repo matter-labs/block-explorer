@@ -15,7 +15,7 @@ export default (context = useContext()) => {
     currentNetwork: computed(() => {
       return {
         ...context.currentNetwork.value,
-        explorerUrl: context.currentNetwork.value.rpcUrl,
+        explorerUrl: context.currentNetwork.value.hostnames[0],
         chainName: context.currentNetwork.value.l2NetworkName,
         l1ChainId: null as unknown as number,
       };
