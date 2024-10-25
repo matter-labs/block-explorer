@@ -3,7 +3,6 @@ import { createI18n } from "vue-i18n";
 
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";
-import { useWallet } from "@matterlabs/composables";
 
 import App from "./App.vue";
 import useContext from "./composables/useContext";
@@ -16,6 +15,7 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 import enUS from "./locales/en.json";
 
 import { useSentry } from "@/utils/logger";
+import useWallet from "@/utils/useWallet";
 
 import "@/assets/tailwind.scss";
 
