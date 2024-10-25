@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
 import { utils, types } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { Listener } from "@ethersproject/abstract-provider";
+import { Listener } from "ethers";
 import { ProviderEvent } from "ethers";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
