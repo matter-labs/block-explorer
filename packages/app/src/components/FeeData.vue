@@ -52,8 +52,6 @@
 import { computed, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { BigNumber } from "ethers";
-
 import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
@@ -86,7 +84,7 @@ getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const initialFee = computed(() => {
   if (props.feeData) {
-    return BigNumber.from(props.feeData.amountPaid).add(props.feeData.amountRefunded).toHexString();
+    return `0x${(BigInt(props.feeData.amountPaid) + BigInt(props.feeData.amountRefunded)).toString(16)}`;
   }
   return null;
 });

@@ -1,13 +1,12 @@
 import { computed, ref } from "vue";
 
-import { processException, useWallet } from "@matterlabs/composables";
 import { ethers } from "ethers";
-import * as zkSyncSdk from "zksync-web3";
+import * as zkSyncSdk from "zksync-ethers";
 
 import useContext from "@/composables/useContext";
+import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
 
 import type { AbiFragment } from "./useAddress";
-import type { WalletError } from "@matterlabs/composables";
 
 export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 
@@ -23,7 +22,7 @@ export default (context = useContext()) => {
       };
     }),
     networks: context.networks,
-    getL2Provider: () => null as unknown as zkSyncSdk.Provider,
+    getL2Provider: () => context.getL2Provider(),
   };
 
   const { connect: connectWallet, getL2Signer, address: walletAddress, isMetamaskInstalled } = useWallet(walletContext);
@@ -55,13 +54,16 @@ export default (context = useContext()) => {
           }
           return inputValue;
         });
-      const methodOptions = {
-        value: ethers.utils.parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
+      const valueMethodOption = {
+        value: ethers.parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };
       const res = await method(
         ...[
           ...(methodArguments.length ? methodArguments : []),
-          abiFragment.stateMutability === "payable" ? methodOptions : undefined,
+          {
+            ...{ from: await signer.getAddress(), type: 0 },
+            ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
+          },
         ].filter((e) => e !== undefined)
       ).catch(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

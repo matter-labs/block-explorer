@@ -25,7 +25,8 @@
     "*.{vue,js,ts}": "npm run lint"
   },
   "dependencies": {
-    "@matterlabs/composables": "1.1.7",
+    "@metamask/detect-provider": "^2.0.0",
+    "@metamask/providers": "^10.2.1",
     "@vueuse/components": "8.9.2",
     "@vueuse/core": "8.9.2",
     "date-fns": "2.28.0",
@@ -37,7 +38,7 @@
     "vue-prism-editor": "2.0.0-alpha.2",
     "vue-router": "4.0.14",
     "vue-tippy": "6.0.0",
-    "zksync-web3": "0.13.1"
+    "zksync-ethers": "6.14.0"
   },
   "devDependencies": {
     "@babel/core": "7.17.8",
@@ -82,7 +83,7 @@
     "c8": "7.11.2",
     "eslint-plugin-storybook": "^0.5.7",
     "eslint-plugin-vue": "^8.2.0",
-    "ethers": "5.7.0",
+    "ethers": "6.13.4",
     "jsdom": "19.0.0",
     "playwright": "1.27.0",
     "postcss": "^8.4.12",

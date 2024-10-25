@@ -159,7 +159,7 @@ describe("ConvertHashDropdown", () => {
     });
     expect(container.querySelector(".data-value")?.textContent).toBe("¡#·_É×FX×\fj*¶ê'Ö»/°,©ê6ÌÄpÏ>");
   });
-  it("converts hash to number when the hash is not a valid argument for BigNumber", async () => {
+  it("converts hash to number when the hash is not a valid argument for BigInt", async () => {
     const { container, getByText } = render(HashViewer, {
       props: {
         hash: "0x",
@@ -182,7 +182,7 @@ describe("ConvertHashDropdown", () => {
     await fireEvent.click(getByText("Number"));
     expect(container.querySelector(".data-value")?.textContent).toBe("0");
   });
-  it("converts hash to address when the hash is not a valid argument for BigNumber", async () => {
+  it("converts hash to address when the hash is not a valid argument for BigInt", async () => {
     const { container, getByText, unmount } = render(HashViewer, {
       props: {
         hash: "0x",
@@ -203,7 +203,7 @@ describe("ConvertHashDropdown", () => {
     expect(container.querySelector(".data-value")?.textContent).toBe("0x");
     await fireEvent.click(container.querySelector(".toggle-button")!);
     await fireEvent.click(getByText("Address"));
-    expect(container.querySelector(".data-value")?.textContent).toBe("0x00");
+    expect(container.querySelector(".data-value")?.textContent).toBe("0x0");
     unmount();
   });
 });

@@ -1,11 +1,13 @@
 import { format } from "date-fns";
-import { utils } from "ethers";
-import { BOOTLOADER_FORMAL_ADDRESS } from "zksync-web3/build/src/utils";
+import { Interface } from "ethers";
+import { utils } from "zksync-ethers";
 
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
 import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composables/useEventLog";
 import type { TokenTransfer } from "@/composables/useTransaction";
+
+const { BOOTLOADER_FORMAL_ADDRESS } = utils;
 
 export function utcStringFromUnixTimestamp(timestamp: number) {
   const isoDate = new Date(+`${timestamp}000`).toISOString();
@@ -93,15 +95,15 @@ export const mapOrder = (array: any[], order: string[], key: string) => {
 };
 
 export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): TransactionEvent | undefined {
-  const contractInterface = new utils.Interface(abi);
+  const contractInterface = new Interface(abi);
   try {
     const decodedLog = contractInterface.parseLog({
       topics: log.topics,
       data: log.data,
-    });
+    })!;
     return {
       name: decodedLog.name,
-      inputs: decodedLog.eventFragment.inputs.map((input) => ({
+      inputs: decodedLog?.fragment.inputs.map((input) => ({
         name: input.name,
         type: input.type as InputType,
         value: decodedLog.args[input.name]?.toString(),

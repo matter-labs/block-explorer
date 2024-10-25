@@ -31,7 +31,7 @@ import { useI18n } from "vue-i18n";
 
 import { useVuelidate } from "@vuelidate/core";
 import { createI18nMessage, helpers, required } from "@vuelidate/validators";
-import { ethers } from "ethers";
+import { parseEther } from "ethers";
 
 import Input from "@/components/common/Input.vue";
 import FunctionArrayParameter from "@/components/contract/interaction/FunctionArrayParameter.vue";
@@ -144,7 +144,7 @@ const v$ = useVuelidate(
               (value: string) => {
                 if (input.type === "ether") {
                   try {
-                    ethers.utils.parseEther(value as string); // will throw an error in case if the value is invalid
+                    parseEther(value as string); // will throw an error in case if the value is invalid
                     return true;
                   } catch {
                     return false;

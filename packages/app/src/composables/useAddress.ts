@@ -1,21 +1,21 @@
 import { ref } from "vue";
 
-import { BigNumber } from "@ethersproject/bignumber";
-import { keccak256 } from "@ethersproject/keccak256";
-import { constants, ethers, utils } from "ethers";
+import { keccak256 } from "ethers";
+import { ethers, isAddress, toUtf8Bytes } from "ethers";
 import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
 
-const EIP1967_PROXY_IMPLEMENTATION_SLOT = BigNumber.from(keccak256(utils.toUtf8Bytes("eip1967.proxy.implementation")))
-  .sub(1)
-  .toHexString();
-const EIP1967_PROXY_BEACON_SLOT = BigNumber.from(keccak256(utils.toUtf8Bytes("eip1967.proxy.beacon")))
-  .sub(1)
-  .toHexString();
-const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(utils.toUtf8Bytes("PROXIABLE"));
+const oneBigInt = BigInt(1);
+const EIP1967_PROXY_IMPLEMENTATION_SLOT = `0x${(
+  BigInt(keccak256(toUtf8Bytes("eip1967.proxy.implementation"))) - oneBigInt
+).toString(16)}`;
+const EIP1967_PROXY_BEACON_SLOT = `0x${(BigInt(keccak256(toUtf8Bytes("eip1967.proxy.beacon"))) - oneBigInt).toString(
+  16
+)}`;
+const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(toUtf8Bytes("PROXIABLE"));
 
 type ContractFunctionInput = {
   internalType: string;
@@ -110,7 +110,7 @@ export default (context = useContext()) => {
     try {
       const addressBytes = await getAddressFn();
       const address = `0x${addressBytes.slice(-40)}`;
-      if (!utils.isAddress(address) || address === constants.AddressZero) {
+      if (!isAddress(address) || address === ethers.ZeroAddress) {
         return null;
       }
       return address;
@@ -124,9 +124,9 @@ export default (context = useContext()) => {
     const proxyContract = new ethers.Contract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
     const [implementation, eip1967Implementation, eip1967Beacon, eip1822Implementation] = await Promise.all([
       getAddressSafe(() => proxyContract.implementation()),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1967_PROXY_BEACON_SLOT)),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1822_PROXY_IMPLEMENTATION_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_BEACON_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1822_PROXY_IMPLEMENTATION_SLOT)),
     ]);
     if (implementation) {
       return implementation;

@@ -44,7 +44,7 @@ describe("formatters:", () => {
     );
   });
   it("returns formatted Hex data", () => {
-    expect(formatHexDecimals("32770", "Hex")).toBe("0x032770");
+    expect(formatHexDecimals("32770", "Hex")).toBe("0x32770");
   });
   it("returns formatted token price", () => {
     expect(formatPricePretty("1", 1, "12.5315131")).toBe("$1.25");

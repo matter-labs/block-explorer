@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
 
 import { useStorage } from "@vueuse/core";
-import * as zkSyncSdk from "zksync-web3";
+import * as zkSyncSdk from "zksync-ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";

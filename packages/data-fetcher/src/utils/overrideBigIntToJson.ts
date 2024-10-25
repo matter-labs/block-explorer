@@ -5,9 +5,9 @@ declare global {
 }
 
 export default function overrideBigIntToJson() {
-  // override to customize JSON.stringify serialization for BigNumbers
+  // override to customize JSON.stringify serialization for BigInt
   BigInt.prototype.toJSON = function toJSON() {
-    // return BigNumber string representation
+    // return BigInt string representation
     return this.toString();
   };
 }
