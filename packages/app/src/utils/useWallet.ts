@@ -6,6 +6,17 @@ import { ethers } from "ethers";
 import * as zkSyncSdk from "zksync-web3";
 
 import defaultLogger from "./logger";
+
+import type { ComputedRef } from "vue";
+
+export type NetworkConfiguration = {
+  l1ChainId: number;
+  l2ChainId: number;
+  rpcUrl: string;
+  explorerUrl: string;
+  chainName: string;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function processException(e: any, message: string) {
   if (e instanceof WalletError) {
@@ -28,7 +39,13 @@ const state = reactive({
 });
 export const isAuthenticated = useStorage("useWallet_isAuthenticated", false);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default (context: any, logger = defaultLogger) => {
+export default (
+  context: {
+    currentNetwork: ComputedRef<NetworkConfiguration>;
+    getL2Provider: () => zkSyncSdk.Provider;
+  },
+  logger = defaultLogger
+) => {
   const getEthereumProvider = () =>
     detectEthereumProvider({
       mustBeMetaMask: true,

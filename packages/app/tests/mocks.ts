@@ -78,7 +78,7 @@ export const useWalletMock = (params: any = {}) => {
     ...composablesFactory.useWallet({
       currentNetwork: computed(() => ({
         chainName: TESTNET_NETWORK.name,
-        explorerUrl: TESTNET_NETWORK.l1ExplorerUrl!,
+        explorerUrl: TESTNET_NETWORK.hostnames[0],
         l1ChainId: 5,
         l2ChainId: TESTNET_NETWORK.l2ChainId,
         rpcUrl: TESTNET_NETWORK.rpcUrl,
