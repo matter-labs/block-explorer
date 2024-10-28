@@ -1,6 +1,6 @@
 import { computed, ref } from "vue";
 
-import { processException, useWallet } from "@matterlabs/composables";
+import { processException } from "@matterlabs/composables";
 import { ethers } from "ethers";
 import * as zkSyncSdk from "zksync-web3";
 
@@ -9,13 +9,15 @@ import useContext from "@/composables/useContext";
 import type { AbiFragment } from "./useAddress";
 import type { WalletError } from "@matterlabs/composables";
 
+import useWallet from "@/utils/useWallet";
+
 export default (context = useContext()) => {
   const walletContext = {
     isReady: context.isReady,
     currentNetwork: computed(() => {
       return {
         ...context.currentNetwork.value,
-        explorerUrl: context.currentNetwork.value.rpcUrl,
+        explorerUrl: context.currentNetwork.value.hostnames[0],
         chainName: context.currentNetwork.value.l2NetworkName,
         l1ChainId: null as unknown as number,
       };
