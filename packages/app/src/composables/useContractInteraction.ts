@@ -1,12 +1,13 @@
 import { computed, ref } from "vue";
 
-import { ethers } from "ethers";
-import * as zkSyncSdk from "zksync-ethers";
+import { Contract, parseEther } from "ethers";
+import { Provider } from "zksync-ethers";
 
 import useContext from "@/composables/useContext";
 import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
 
 import type { AbiFragment } from "./useAddress";
+import type { Signer } from "zksync-ethers";
 
 export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 
@@ -42,7 +43,7 @@ export default (context = useContext()) => {
       response.value = undefined;
       errorMessage.value = null;
       const signer = await getL2Signer();
-      const contract = new ethers.Contract(address, [abiFragment], signer!);
+      const contract = new Contract(address, [abiFragment], signer!);
       const method = contract[abiFragment.name];
       const methodArguments = Object.entries(params)
         .filter(([key]) => key !== PAYABLE_AMOUNT_PARAM_NAME)
@@ -55,7 +56,7 @@ export default (context = useContext()) => {
           return inputValue;
         });
       const valueMethodOption = {
-        value: ethers.parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
+        value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };
       const res = await method(
         ...[
@@ -89,12 +90,12 @@ export default (context = useContext()) => {
       isRequestFailed.value = false;
       response.value = undefined;
       errorMessage.value = null;
-      let signer: zkSyncSdk.Provider | zkSyncSdk.Signer = new zkSyncSdk.Provider(context.currentNetwork.value.rpcUrl);
+      let signer: Provider | Signer = new Provider(context.currentNetwork.value.rpcUrl);
       if (walletAddress.value !== null) {
         // If connected to a wallet, use the signer so 'msg.sender' is correctly populated downstream
         signer = await getL2Signer();
       }
-      const contract = new ethers.Contract(address, [abiFragment], signer!);
+      const contract = new Contract(address, [abiFragment], signer!);
       const res = (
         await contract[abiFragment.name](...Object.entries(params).map(([, inputValue]) => inputValue)).catch(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

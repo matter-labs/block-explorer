@@ -31,14 +31,9 @@ vi.mock("ethers", async () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     ...actualEthers,
-    ethers: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...actualEthers.ethers,
-      Contract: vi.fn().mockReturnValue({
-        implementation: () => mockContractImplementation(),
-      }),
-    },
+    Contract: vi.fn().mockReturnValue({
+      implementation: () => mockContractImplementation(),
+    }),
   };
 });
 

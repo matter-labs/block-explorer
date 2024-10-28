@@ -14,6 +14,7 @@ import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { baseToken } from "../src/config";
+import { numberToHex } from "../src/common/utils";
 
 describe("TransactionController (e2e)", () => {
   let ETH_TOKEN;
@@ -133,7 +134,7 @@ describe("TransactionController (e2e)", () => {
         gasLimit: BigInt(2000 + i).toString(),
         maxFeePerGas: BigInt(3000 + i).toString(),
         maxPriorityFeePerGas: BigInt(4000 + i).toString(),
-        gasPerPubdata: `0x${BigInt(5000 + i).toString(16)}`,
+        gasPerPubdata: numberToHex(BigInt(5000 + i)),
       };
       await transactionRepository.insert(transactionSpec);
 

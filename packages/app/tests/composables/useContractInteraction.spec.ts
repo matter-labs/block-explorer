@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ethers } from "ethers";
+import * as ethers from "ethers";
 
 import { useWalletMock } from "../mocks";
 
@@ -11,15 +11,13 @@ import type { AbiFragment } from "@/composables/useAddress";
 vi.mock("ethers", async () => {
   const actualEthers = await vi.importActual("ethers");
   return {
-    ethers: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...actualEthers.ethers,
-      Contract: class {
-        async transfer() {
-          return "Test response";
-        }
-      },
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    ...actualEthers,
+    Contract: class {
+      async transfer() {
+        return "Test response";
+      }
     },
   };
 });

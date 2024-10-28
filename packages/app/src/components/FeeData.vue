@@ -61,6 +61,8 @@ import useToken from "@/composables/useToken";
 import type { Token } from "@/composables/useToken";
 import type { FeeData } from "@/composables/useTransaction";
 
+import { numberToHexString } from "@/utils/formatters";
+
 const { currentNetwork } = useContext();
 
 const props = defineProps({
@@ -84,7 +86,7 @@ getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const initialFee = computed(() => {
   if (props.feeData) {
-    return `0x${(BigInt(props.feeData.amountPaid) + BigInt(props.feeData.amountRefunded)).toString(16)}`;
+    return numberToHexString(BigInt(props.feeData.amountPaid) + BigInt(props.feeData.amountRefunded));
   }
   return null;
 });

@@ -1,20 +1,18 @@
 import { ref } from "vue";
 
-import { keccak256 } from "ethers";
-import { ethers, isAddress, toUtf8Bytes } from "ethers";
+import { Contract as EthersContract, isAddress, keccak256, toUtf8Bytes, ZeroAddress } from "ethers";
 import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
+import { numberToHexString } from "@/utils/formatters";
 
 const oneBigInt = BigInt(1);
-const EIP1967_PROXY_IMPLEMENTATION_SLOT = `0x${(
+const EIP1967_PROXY_IMPLEMENTATION_SLOT = numberToHexString(
   BigInt(keccak256(toUtf8Bytes("eip1967.proxy.implementation"))) - oneBigInt
-).toString(16)}`;
-const EIP1967_PROXY_BEACON_SLOT = `0x${(BigInt(keccak256(toUtf8Bytes("eip1967.proxy.beacon"))) - oneBigInt).toString(
-  16
-)}`;
+);
+const EIP1967_PROXY_BEACON_SLOT = numberToHexString(BigInt(keccak256(toUtf8Bytes("eip1967.proxy.beacon"))) - oneBigInt);
 const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(toUtf8Bytes("PROXIABLE"));
 
 type ContractFunctionInput = {
@@ -110,7 +108,7 @@ export default (context = useContext()) => {
     try {
       const addressBytes = await getAddressFn();
       const address = `0x${addressBytes.slice(-40)}`;
-      if (!isAddress(address) || address === ethers.ZeroAddress) {
+      if (!isAddress(address) || address === ZeroAddress) {
         return null;
       }
       return address;
@@ -121,7 +119,7 @@ export default (context = useContext()) => {
 
   const getProxyImplementation = async (address: string): Promise<string | null> => {
     const provider = context.getL2Provider();
-    const proxyContract = new ethers.Contract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
+    const proxyContract = new EthersContract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
     const [implementation, eip1967Implementation, eip1967Beacon, eip1822Implementation] = await Promise.all([
       getAddressSafe(() => proxyContract.implementation()),
       getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
@@ -138,7 +136,7 @@ export default (context = useContext()) => {
       return eip1822Implementation;
     }
     if (eip1967Beacon) {
-      const beaconContract = new ethers.Contract(eip1967Beacon, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
+      const beaconContract = new EthersContract(eip1967Beacon, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
       return getAddressSafe(() => beaconContract.implementation());
     }
     return null;

@@ -1,9 +1,9 @@
-import { AbiCoder, ethers } from "ethers";
+import { AbiCoder, isAddress as ethersIsAddress } from "ethers";
 
 const defaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export function isAddress(address: string): boolean {
-  return ethers.isAddress(address?.toLowerCase());
+  return ethersIsAddress(address?.toLowerCase());
 }
 
 export const isTransactionHash = (s: string) => {

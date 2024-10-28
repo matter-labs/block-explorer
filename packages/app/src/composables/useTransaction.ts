@@ -8,6 +8,8 @@ import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
 import type { types } from "zksync-ethers";
 
+import { numberToHexString } from "@/utils/formatters";
+
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
   address: Hash;
@@ -129,7 +131,7 @@ export default (context = useContext()) => {
           amountPaid: transactionDetails.fee.toString(),
           isPaidByPaymaster: false,
           refunds: [],
-          amountRefunded: `0x${BigInt(0).toString(16)}`,
+          amountRefunded: numberToHexString(0),
         },
         indexInBlock: transactionReceipt.index,
         isL1Originated: transactionDetails.isL1Originated,
@@ -289,7 +291,7 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
 
 function sumAmounts(balanceChanges: TokenTransfer[]) {
   const total = balanceChanges.reduce((acc, cur) => acc + BigInt(cur.amount || 0), BigInt(0));
-  return `0x${total.toString(16)}` as Hash;
+  return numberToHexString(total) as Hash;
 }
 
 export function filterRefunds(transfers: Api.Response.Transfer[]) {

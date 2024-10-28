@@ -1,5 +1,4 @@
-import { type BigNumberish, ethers } from "ethers";
-import { isHexString } from "ethers";
+import { type BigNumberish, formatUnits, getAddress, isHexString } from "ethers";
 
 import type { Token } from "@/composables/useToken";
 import type { HexDecimals } from "@/composables/useTrace";
@@ -38,15 +37,15 @@ export function shortValue(value: string, count = 13): string {
 }
 
 export function formatValue(value: BigNumberish, decimals: number): string {
-  return ethers.formatUnits(BigInt(value), decimals);
+  return formatUnits(BigInt(value), decimals);
 }
 
 export function formatBigNumberish(value: BigNumberish, decimals: number) {
-  return ethers.formatUnits(value, decimals).replace(/.0$/g, "");
+  return formatUnits(value, decimals).replace(/.0$/g, "");
 }
 
 export function checksumAddress(address: Address | string): Address {
-  return ethers.getAddress(address) as Address;
+  return getAddress(address) as Address;
 }
 
 export function convert(value: BigNumberish | null, token: Token | null, tokenPrice: string): string {
@@ -68,6 +67,7 @@ export function formatHexDecimals(value: string, showValueAs: HexDecimals) {
   }
   return `0x${BigInt(prefix + validValue).toString(16)}`;
 }
+export const numberToHexString = (num: number | bigint) => `0x${num.toString(16)}`;
 
 export function formatPricePretty(amount: BigNumberish, decimals: number, usdPrice: string) {
   const price = +usdPrice * +formatBigNumberish(amount, decimals);

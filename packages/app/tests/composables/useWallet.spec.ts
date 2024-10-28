@@ -2,12 +2,14 @@ import { computed } from "vue";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import * as zkSyncSdk from "zksync-ethers";
+import { Provider } from "zksync-ethers";
 
 import useWallet, { isAuthenticated, WalletError } from "@/composables/useWallet";
 
 import type { NetworkConfiguration } from "@/composables/useWallet";
 import type { ComputedRef } from "vue";
+
+import { numberToHexString } from "@/utils/formatters";
 
 let mockDetect: null | (() => unknown) = null;
 
@@ -49,11 +51,11 @@ vi.mock("@metamask/detect-provider", () => ({
 
 const defaultContext: {
   currentNetwork: ComputedRef<NetworkConfiguration>;
-  getL2Provider: () => zkSyncSdk.Provider;
+  getL2Provider: () => Provider;
 } = {
   currentNetwork: computed(() => currentNetwork),
   getL2Provider() {
-    return new zkSyncSdk.Provider(currentNetwork.rpcUrl);
+    return new Provider(currentNetwork.rpcUrl);
   },
 };
 
@@ -270,8 +272,8 @@ describe("useWallet:", () => {
   });
 
   describe("getL1Signer", () => {
-    const l1ChainId = "0x" + defaultContext.currentNetwork.value.l1ChainId.toString(16);
-    const l2ChainId = "0x" + defaultContext.currentNetwork.value.l2ChainId.toString(16);
+    const l1ChainId = numberToHexString(defaultContext.currentNetwork.value.l1ChainId);
+    const l2ChainId = numberToHexString(defaultContext.currentNetwork.value.l2ChainId);
 
     it("returns L1 signer", async () => {
       const result = useWallet(defaultContext);
@@ -336,8 +338,8 @@ describe("useWallet:", () => {
   });
 
   describe("getL2Signer", () => {
-    const l1ChainId = "0x" + defaultContext.currentNetwork.value.l1ChainId.toString(16);
-    const l2ChainId = "0x" + defaultContext.currentNetwork.value.l2ChainId.toString(16);
+    const l1ChainId = numberToHexString(defaultContext.currentNetwork.value.l1ChainId);
+    const l2ChainId = numberToHexString(defaultContext.currentNetwork.value.l2ChainId);
 
     it("returns L2 signer", async () => {
       const result = useWallet(defaultContext);

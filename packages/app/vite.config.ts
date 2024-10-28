@@ -29,16 +29,9 @@ export default defineConfig({
           if (id.includes("@firebase")) {
             return "f";
           }
-          if (id.includes("ethers")) {
-            return "e";
-          }
           if (id.includes("@matterlabs")) {
             return "m";
           }
-          if (id.includes("zksync-ethers")) {
-            return "z";
-          }
-
           if (id.includes("/src/composables")) {
             return "cm";
           }

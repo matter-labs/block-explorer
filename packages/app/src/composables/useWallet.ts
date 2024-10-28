@@ -2,12 +2,15 @@ import { type ComputedRef, reactive, toRefs, type ToRefs, unref } from "vue";
 
 import detectEthereumProvider from "@metamask/detect-provider";
 import { type RemovableRef, useStorage } from "@vueuse/core";
-import { ethers } from "ethers";
-import * as zkSyncSdk from "zksync-ethers";
+import { BrowserProvider } from "ethers";
+import { L1Signer, BrowserProvider as L2BrowserProvider, Signer } from "zksync-ethers";
 
 import defaultLogger from "./../utils/logger";
 
 import type { BaseProvider } from "@metamask/providers";
+import type { Provider } from "zksync-ethers";
+
+import { numberToHexString } from "@/utils/formatters";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type JsonRpcError = any;
@@ -26,8 +29,8 @@ type UseWallet = ToRefs<WalletState> & {
   connect: () => Promise<void>;
   disconnect: () => void;
 
-  getL1Signer: () => Promise<zkSyncSdk.L1Signer>;
-  getL2Signer: () => Promise<zkSyncSdk.Signer>;
+  getL1Signer: () => Promise<L1Signer>;
+  getL2Signer: () => Promise<Signer>;
 };
 
 export type NetworkConfiguration = {
@@ -66,7 +69,7 @@ export const isAuthenticated: RemovableRef<boolean> = useStorage<boolean>("useWa
 export default (
   context: {
     currentNetwork: ComputedRef<NetworkConfiguration>;
-    getL2Provider: () => zkSyncSdk.Provider;
+    getL2Provider: () => Provider;
   },
   logger = defaultLogger
 ): UseWallet => {
@@ -133,7 +136,7 @@ export default (
 
   const switchNetwork = async (targetChainId: number, ethereumProvider: BaseProvider): Promise<boolean> => {
     const currentNetwork = unref(context.currentNetwork);
-    const chainId = "0x" + targetChainId.toString(16);
+    const chainId = numberToHexString(targetChainId);
 
     if (ethereumProvider.chainId === chainId) {
       return true;
@@ -164,7 +167,7 @@ export default (
             method: "wallet_addEthereumChain",
             params: [
               {
-                chainId: `0x${currentNetwork.l2ChainId.toString(16)}`,
+                chainId: numberToHexString(currentNetwork.l2ChainId),
                 chainName: `${currentNetwork.chainName}`,
                 nativeCurrency: {
                   name: "Ether",
@@ -205,8 +208,8 @@ export default (
       throw WalletError.NetworkChangeRejected();
     }
 
-    const provider = new ethers.BrowserProvider(ethereum);
-    return zkSyncSdk.L1Signer.from(await provider.getSigner(), context.getL2Provider()!);
+    const provider = new BrowserProvider(ethereum);
+    return L1Signer.from(await provider.getSigner(), context.getL2Provider()!);
   };
 
   const getL2Signer = async () => {
@@ -216,12 +219,8 @@ export default (
       throw WalletError.NetworkChangeRejected();
     }
 
-    const provider = new zkSyncSdk.BrowserProvider(ethereum);
-    return zkSyncSdk.Signer.from(
-      await provider.getSigner(),
-      context.currentNetwork.value.l2ChainId,
-      context.getL2Provider()!
-    );
+    const provider = new L2BrowserProvider(ethereum);
+    return Signer.from(await provider.getSigner(), context.currentNetwork.value.l2ChainId, context.getL2Provider()!);
   };
 
   return {
