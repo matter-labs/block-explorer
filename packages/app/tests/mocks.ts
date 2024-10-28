@@ -14,12 +14,12 @@ import * as useTokenLibraryMockFactory from "@/composables/useTokenLibrary";
 import * as useTransaction from "@/composables/useTransaction";
 import * as useTransactions from "@/composables/useTransactions";
 import * as useTransfers from "@/composables/useTransfers";
+import * as useWalletModule from "@/composables/useWallet";
 
 import type { NetworkConfig } from "@/configs";
 import type { Provider } from "zksync-web3";
 
 import { checksumAddress } from "@/utils/formatters";
-import * as useWalletModule from "@/utils/useWallet";
 
 export const ETH_TOKEN_MOCK = {
   address: checksumAddress("0x000000000000000000000000000000000000800A"),
@@ -96,7 +96,7 @@ export const useWalletMock = (params: any = {}) => {
     ...params,
   };
 
-  return vi.spyOn(useWalletModule, "default").mockReturnValue(mockWallet);
+  return vi.spyOn(useWalletModule, "useWallet").mockReturnValue(mockWallet);
 };
 
 export const useContractInteractionMock = (params: any = {}) => {
