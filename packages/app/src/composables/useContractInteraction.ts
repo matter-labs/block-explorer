@@ -10,8 +10,6 @@ import { useWallet } from "@/composables/useWallet";
 import type { AbiFragment } from "./useAddress";
 import type { WalletError } from "@matterlabs/composables";
 
-import useWallet from "@/utils/useWallet";
-
 export default (context = useContext()) => {
   const walletContext = {
     isReady: context.isReady,
