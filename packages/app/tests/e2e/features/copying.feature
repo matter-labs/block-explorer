@@ -13,9 +13,9 @@ Feature: Copying
 
     Examples:
       | Page                                                                   |
-      | /tx/0xe84dcdaa4e40c9899763c8f55255376fd77f3a588be0fe0afa69f153a0ae3f10 |
-      | /address/0xed7175341f123f7718aBaCF1702d6980CFc08784                    |
-      | /tx/0xe239f4cc4ddbaad475d0ef3e23114a89387864bcde5da5b5ca4d2c140bfc4bc4 |
+      | /tx/0xe7286a5fca5b1f5eb19ab5e63752de713059a042efc4cd3725213051951a77b0 |
+      | /address/0x000000000000000000000000000000000000800A                    |
+      | /tx/0xf47aaa3fde4cec0015cad3a38a46e047e667f81753ecf8642a0e60a5901eb00f |
       | /block/1                                                               |
       | /address/0x574343B3d1544477f2C4dF38c2Ef720Ab33e782b                    |
 
