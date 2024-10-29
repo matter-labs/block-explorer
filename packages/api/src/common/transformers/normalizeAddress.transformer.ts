@@ -1,4 +1,4 @@
-import { utils } from "ethers";
+import { getAddress } from "ethers";
 import { ValueTransformer } from "typeorm";
 import { hexTransformer } from "./hex.transformer";
 
@@ -10,6 +10,6 @@ export const normalizeAddressTransformer: ValueTransformer = {
     if (!hex) {
       return null;
     }
-    return utils.getAddress(hexTransformer.from(hex));
+    return getAddress(hexTransformer.from(hex));
   },
 };

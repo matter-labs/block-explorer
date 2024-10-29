@@ -37,7 +37,7 @@
     "axios": "^1.4.0",
     "class-transformer": "^0.5.1",
     "class-validator": "0.14.0",
-    "ethers": "^5.7.2",
+    "ethers": "6.13.4",
     "helmet": "^6.0.0",
     "jest-mock-extended": "^3.0.1",
     "nest-winston": "^1.7.0",

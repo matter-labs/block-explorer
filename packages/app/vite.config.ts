@@ -9,6 +9,7 @@ export default defineConfig({
     port: 3010,
   },
   build: {
+    target: "esnext",
     sourcemap: "hidden",
     rollupOptions: {
       output: {
@@ -28,16 +29,9 @@ export default defineConfig({
           if (id.includes("@firebase")) {
             return "f";
           }
-          if (id.includes("@ethersproject")) {
-            return "e";
-          }
           if (id.includes("@matterlabs")) {
             return "m";
           }
-          if (id.includes("zksync-web3")) {
-            return "z";
-          }
-
           if (id.includes("/src/composables")) {
             return "cm";
           }
@@ -46,6 +40,11 @@ export default defineConfig({
           }
         },
       },
+    },
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: "esnext",
     },
   },
   plugins: [vue()],

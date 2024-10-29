@@ -26,10 +26,7 @@ export class Block extends BaseEntity {
   public readonly nonce: string;
 
   @Column({ type: "int" })
-  public readonly difficulty: number;
-
-  @Column({ type: "varchar", length: 128 })
-  public readonly _difficulty: string;
+  public readonly difficulty: bigint;
 
   @Column({ type: "varchar", length: 128 })
   public readonly gasLimit: string;

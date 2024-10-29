@@ -1,13 +1,12 @@
 import { Logger } from "@nestjs/common";
-import { Provider } from "@ethersproject/abstract-provider";
 import { setTimeout } from "timers/promises";
-import { Contract, ContractInterface, Signer, errors } from "ethers";
+import { Contract, Interface, ContractRunner, ErrorCode } from "ethers";
 import config from "../config";
 
 const { blockchain } = config();
 
 interface EthersError {
-  code: string;
+  code: ErrorCode;
   method: string;
   transaction: {
     data: string;
@@ -18,18 +17,18 @@ interface EthersError {
 
 const MAX_RETRY_INTERVAL = 60000;
 
-const PERMANENT_ERRORS: string[] = [
-  errors.INVALID_ARGUMENT,
-  errors.MISSING_ARGUMENT,
-  errors.UNEXPECTED_ARGUMENT,
-  errors.NOT_IMPLEMENTED,
+const PERMANENT_ERRORS: ErrorCode[] = [
+  "INVALID_ARGUMENT",
+  "MISSING_ARGUMENT",
+  "UNEXPECTED_ARGUMENT",
+  "NOT_IMPLEMENTED",
 ];
 
 const shouldRetry = (calledFunctionName: string, error: EthersError): boolean => {
   return (
     !PERMANENT_ERRORS.includes(error.code) &&
     !(
-      error.code === errors.CALL_EXCEPTION &&
+      error.code === "CALL_EXCEPTION" &&
       error.method?.startsWith(`${calledFunctionName}(`) &&
       !!error.transaction &&
       error.message?.startsWith("call revert exception")
@@ -113,12 +112,12 @@ const getProxyHandler = (addressOrName: string, logger: Logger, retryTimeout: nu
 export class RetryableContract extends Contract {
   constructor(
     addressOrName: string,
-    contractInterface: ContractInterface,
-    signerOrProvider: Signer | Provider,
+    contractInterface: Interface,
+    contractRunner: ContractRunner,
     retryTimeout = 1000
   ) {
     const logger = new Logger("Contract");
-    super(addressOrName, contractInterface, signerOrProvider);
+    super(addressOrName, contractInterface, contractRunner);
     return new Proxy({ contract: this }, getProxyHandler(addressOrName, logger, retryTimeout));
   }
 }

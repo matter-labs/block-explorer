@@ -1,13 +1,14 @@
 import { ref } from "vue";
 
-import { BigNumber } from "ethers";
 import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
 import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
-import type { types } from "zksync-web3";
+import type { types } from "zksync-ethers";
+
+import { numberToHexString } from "@/utils/formatters";
 
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
@@ -130,9 +131,9 @@ export default (context = useContext()) => {
           amountPaid: transactionDetails.fee.toString(),
           isPaidByPaymaster: false,
           refunds: [],
-          amountRefunded: BigNumber.from(0).toHexString(),
+          amountRefunded: numberToHexString(0),
         },
-        indexInBlock: transactionReceipt.transactionIndex,
+        indexInBlock: transactionReceipt.index,
         isL1Originated: transactionDetails.isL1Originated,
         nonce: transactionData.nonce,
         receivedAt: new Date(transactionDetails.receivedAt).toJSON(),
@@ -145,8 +146,8 @@ export default (context = useContext()) => {
           address: item.address,
           blockNumber: item.blockNumber,
           data: item.data,
-          logIndex: item.logIndex.toString(16),
-          topics: item.topics,
+          logIndex: item.index.toString(16),
+          topics: item.topics as string[],
           transactionHash: item.transactionHash,
           transactionIndex: item.transactionIndex.toString(16),
         })),
@@ -155,7 +156,7 @@ export default (context = useContext()) => {
         gasPrice: transactionData.gasPrice!.toString(),
         gasLimit: transactionData.gasLimit.toString(),
         gasUsed: transactionReceipt.gasUsed.toString(),
-        gasPerPubdata: gasPerPubdata ? BigNumber.from(gasPerPubdata).toString() : null,
+        gasPerPubdata: gasPerPubdata ? BigInt(gasPerPubdata).toString() : null,
         maxFeePerGas: transactionData.maxFeePerGas?.toString() ?? null,
         maxPriorityFeePerGas: transactionData.maxPriorityFeePerGas?.toString() ?? null,
       };
@@ -289,8 +290,8 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
 }
 
 function sumAmounts(balanceChanges: TokenTransfer[]) {
-  const total = balanceChanges.reduce((acc, cur) => acc.add(cur.amount || 0), BigNumber.from(0));
-  return total.toHexString() as Hash;
+  const total = balanceChanges.reduce((acc, cur) => acc + BigInt(cur.amount || 0), BigInt(0));
+  return numberToHexString(total) as Hash;
 }
 
 export function filterRefunds(transfers: Api.Response.Transfer[]) {

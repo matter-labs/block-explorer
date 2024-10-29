@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-import { utils } from "ethers";
+import { AbiCoder, Interface } from "ethers";
 
 import useAddress from "./useAddress";
 import useContext from "./useContext";
@@ -9,6 +9,8 @@ import useContractABI from "./useContractABI";
 import type { AbiFragment } from "./useAddress";
 import type { InputType } from "./useEventLog";
 import type { Address } from "@/types";
+
+const defaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export type TransactionData = {
   calldata: string;
@@ -30,20 +32,20 @@ export function decodeDataWithABI(
   transactionData: { calldata: TransactionData["calldata"]; value: TransactionData["value"] },
   abi: AbiFragment[]
 ): TransactionData["method"] | undefined {
-  const contractInterface = new utils.Interface(abi);
+  const contractInterface = new Interface(abi);
 
   try {
     const decodedData = contractInterface.parseTransaction({
       data: transactionData.calldata,
       value: transactionData.value,
-    });
+    })!;
     return {
       name: decodedData.name,
-      inputs: decodedData.functionFragment.inputs.map((input) => ({
+      inputs: decodedData.fragment.inputs.map((input) => ({
         name: input.name,
         type: input.type as InputType,
         value: decodedData.args[input.name]?.toString(),
-        encodedValue: utils.defaultAbiCoder.encode([input.type], [decodedData.args[input.name]]).split("0x")[1],
+        encodedValue: defaultAbiCoder.encode([input.type], [decodedData.args[input.name]]).split("0x")[1],
       })),
     };
   } catch {

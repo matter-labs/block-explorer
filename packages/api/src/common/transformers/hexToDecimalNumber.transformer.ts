@@ -1,17 +1,17 @@
-import { BigNumber } from "ethers";
 import { ValueTransformer } from "typeorm";
+import { numberToHex } from "../utils";
 
 export const hexToDecimalNumberTransformer: ValueTransformer = {
   to(decimalNumberStr: string | null): string | null {
     if (!decimalNumberStr) {
       return null;
     }
-    return BigNumber.from(decimalNumberStr).toHexString();
+    return numberToHex(BigInt(decimalNumberStr));
   },
   from(hexNumberStr: string | null): string | null {
     if (!hexNumberStr) {
       return null;
     }
-    return BigNumber.from(hexNumberStr).toString();
+    return BigInt(hexNumberStr).toString();
   },
 };

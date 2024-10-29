@@ -30,11 +30,11 @@ import { useI18n } from "vue-i18n";
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
 import { DotsVerticalIcon } from "@heroicons/vue/outline";
-import { useWallet } from "@matterlabs/composables";
 
 import HashLabel from "@/components/common/HashLabel.vue";
 
 import useContext from "@/composables/useContext";
+import { default as useWallet } from "@/composables/useWallet";
 
 const { t } = useI18n();
 

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { FindOptionsWhere, FindOptionsSelect, FindOptionsRelations } from "typeorm";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { Block as BlockDto } from "../dataFetcher/types";
 import { unixTimeToDate } from "../utils/date";
 import { Block } from "../entities";

@@ -1,4 +1,4 @@
-import { types, utils } from "zksync-web3";
+import { types, utils } from "zksync-ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { LogType } from "../log/logType";
 import isInternalTransaction from "../utils/isInternalTransaction";
@@ -40,7 +40,7 @@ export class TransferService {
   }
 
   public getTransfers(
-    logs: types.Log[],
+    logs: ReadonlyArray<types.Log>,
     blockDetails: types.BlockDetails,
     transactionDetails?: types.TransactionDetails,
     transactionReceipt?: types.TransactionReceipt
@@ -68,7 +68,7 @@ export class TransferService {
         this.logger.error("Failed to parse transfer", {
           stack: error.stack,
           blockNumber: blockDetails.number,
-          logIndex: log.logIndex,
+          logIndex: log.index,
           transactionHash: log.transactionHash,
         });
         throw error;

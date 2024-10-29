@@ -38,14 +38,23 @@ export class TransactionProcessor {
       transactionHash: transactionData.transaction.hash,
     });
 
-    await this.transactionRepository.add(transactionData.transaction);
+    await this.transactionRepository.add({
+      ...transactionData.transaction,
+      transactionIndex: transactionData.transaction.index,
+    });
 
     this.logger.debug({
       message: "Saving transaction receipts data to the DB",
       blockNumber: blockNumber,
       transactionHash: transactionData.transaction.hash,
     });
-    await this.transactionReceiptRepository.add(transactionData.transactionReceipt);
+    await this.transactionReceiptRepository.add({
+      ...transactionData.transactionReceipt,
+      transactionIndex: transactionData.transactionReceipt.index,
+      transactionHash: transactionData.transactionReceipt.hash,
+      effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
+      type: transactionData.transaction.type,
+    });
 
     this.logger.debug({
       message: "Saving transaction logs data to the DB",
@@ -56,6 +65,8 @@ export class TransactionProcessor {
       transactionData.transactionReceipt.logs.map((log) => ({
         ...log,
         timestamp: transactionData.transaction.receivedAt,
+        logIndex: log.index,
+        topics: [...log.topics],
       }))
     );
 

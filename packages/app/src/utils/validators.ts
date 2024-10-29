@@ -1,7 +1,9 @@
-import { ethers } from "ethers";
+import { AbiCoder, isAddress as ethersIsAddress } from "ethers";
+
+const defaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export function isAddress(address: string): boolean {
-  return ethers.utils.isAddress(address?.toLowerCase());
+  return ethersIsAddress(address?.toLowerCase());
 }
 
 export const isTransactionHash = (s: string) => {
@@ -16,7 +18,7 @@ export const isBlockNumber = (s: number | string) => {
 export const validateAbiValue = (value: string, type: string) => {
   try {
     /* Will throw an error in case if it is impossible to encode the value to required type */
-    ethers.utils.defaultAbiCoder.encode([type], [value]);
+    defaultAbiCoder.encode([type], [value]);
   } catch {
     return false;
   }

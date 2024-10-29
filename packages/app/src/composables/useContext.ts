@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
 
 import { useStorage } from "@vueuse/core";
-import * as zkSyncSdk from "zksync-web3";
+import { Provider } from "zksync-ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";
@@ -18,11 +18,11 @@ export type Context = {
   isReady: Ref<boolean>;
   currentNetwork: ComputedRef<NetworkConfig>;
   networks: ComputedRef<NetworkConfig[]>;
-  getL2Provider: () => zkSyncSdk.Provider;
+  getL2Provider: () => Provider;
   identifyNetwork: () => void;
 };
 
-let l2Provider: zkSyncSdk.Provider | null;
+let l2Provider: Provider | null;
 export default (): Context => {
   const environmentConfig = useEnvironmentConfig();
 
@@ -65,7 +65,7 @@ export default (): Context => {
 
   function getL2Provider() {
     if (!l2Provider) {
-      l2Provider = new zkSyncSdk.Provider(currentNetwork.value.rpcUrl);
+      l2Provider = new Provider(currentNetwork.value.rpcUrl);
     }
     return l2Provider;
   }

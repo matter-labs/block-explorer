@@ -9,7 +9,7 @@ import {
   ApiExcludeController,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { utils } from "ethers";
+import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { formatHexAddress, buildDateFilter } from "../common/utils";
@@ -85,7 +85,7 @@ export class AddressController {
 
       return {
         type: AddressType.Account,
-        address: utils.getAddress(address),
+        address: ethersGetAddress(address),
         blockNumber: addressBalance.blockNumber,
         balances: addressBalance.balances,
         sealedNonce,
@@ -95,7 +95,7 @@ export class AddressController {
 
     return {
       type: AddressType.Account,
-      address: utils.getAddress(address),
+      address: ethersGetAddress(address),
       blockNumber: await this.blockService.getLastBlockNumber(),
       balances: {},
       sealedNonce: 0,

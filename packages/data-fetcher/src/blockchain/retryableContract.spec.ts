@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { mock } from "jest-mock-extended";
-import { utils } from "zksync-web3";
+import { utils } from "zksync-ethers";
 import { setTimeout } from "timers/promises";
 import { RetryableContract } from "./retryableContract";
 
@@ -31,7 +31,7 @@ jest.mock("timers/promises", () => ({
 
 describe("RetryableContract", () => {
   const tokenAddress = "tokenAddress";
-  const providerMock = mock<ethers.providers.BaseProvider>({});
+  const providerMock = mock<ethers.ContractRunner>({});
 
   afterEach(() => {
     jest.clearAllMocks();

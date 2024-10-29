@@ -1,5 +1,4 @@
-import { BigNumber } from "ethers";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
@@ -20,7 +19,7 @@ describe("defaultTransferHandler", () => {
         "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
       ],
       data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-      logIndex: 13,
+      index: 13,
       blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
     });
     blockDetails = mock<types.BlockDetails>({
@@ -31,11 +30,14 @@ describe("defaultTransferHandler", () => {
   describe("matches", () => {
     describe("if there are 2 indexed topic values", () => {
       beforeEach(() => {
-        log.topics = [
-          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-          "0x000000000000000000000000c7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-          "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
-        ];
+        log = mock<types.Log>({
+          ...log,
+          topics: [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x000000000000000000000000c7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+            "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
+          ],
+        });
       });
 
       it("returns true", () => {
@@ -46,7 +48,10 @@ describe("defaultTransferHandler", () => {
 
     describe("if there are less than 2 indexed topic values", () => {
       beforeEach(() => {
-        log.topics = ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"];
+        log = mock<types.Log>({
+          ...log,
+          topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
+        });
       });
 
       it("returns false", () => {
@@ -57,12 +62,15 @@ describe("defaultTransferHandler", () => {
 
     describe("if there are more than 2 indexed topic values", () => {
       beforeEach(() => {
-        log.topics = [
-          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-          "0x000000000000000000000000c7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-          "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
-          "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
-        ];
+        log = mock<types.Log>({
+          ...log,
+          topics: [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x000000000000000000000000c7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+            "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
+            "0x0000000000000000000000007AA5F26e03B12a78e3fF1C454547701443144C67",
+          ],
+        });
       });
 
       it("returns false", () => {
@@ -95,11 +103,14 @@ describe("defaultTransferHandler", () => {
 
     it("extracts transfer with populated amount", () => {
       const result = defaultTransferHandler.extract(log, blockDetails);
-      expect(result.amount).toStrictEqual(BigNumber.from("0x016345785d8a0000"));
+      expect(result.amount).toStrictEqual(BigInt("0x016345785d8a0000"));
     });
 
     it("extracts transfer with 0x000000000000000000000000000000000000800a as a tokenAddress if log address is 0x000000000000000000000000000000000000800a", () => {
-      log.address = BASE_TOKEN_ADDRESS;
+      log = mock<types.Log>({
+        ...log,
+        address: BASE_TOKEN_ADDRESS,
+      });
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.tokenAddress).toBe(BASE_TOKEN_ADDRESS);
       expect(result.tokenType).toBe(TokenType.BaseToken);
@@ -112,39 +123,69 @@ describe("defaultTransferHandler", () => {
     });
 
     it("extracts transfer of fee type if to address is a bootloader address", () => {
-      log.topics[2] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) =>
+          index === 2 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
+        ),
+      });
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.type).toBe(TransferType.Fee);
     });
 
     it("adds isFeeOrRefund as true if to address is a bootloader address", () => {
-      log.topics[2] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) =>
+          index === 2 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
+        ),
+      });
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.isFeeOrRefund).toBe(true);
     });
 
     it("extracts transfer of refund type if from address is a bootloader address and there are transaction details", () => {
       const transactionDetails = mock<types.TransactionDetails>();
-      log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) =>
+          index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
+        ),
+      });
       const result = defaultTransferHandler.extract(log, blockDetails, transactionDetails);
       expect(result.type).toBe(TransferType.Refund);
     });
 
     it("extracts transfer of transfer type if from address is a bootloader address and there are no transaction details", () => {
-      log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) =>
+          index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
+        ),
+      });
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.type).toBe(TransferType.Transfer);
     });
 
     it("adds isFeeOrRefund as true if from address is a bootloader address and there are transaction details", () => {
       const transactionDetails = mock<types.TransactionDetails>();
-      log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) =>
+          index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
+        ),
+      });
       const result = defaultTransferHandler.extract(log, blockDetails, transactionDetails);
       expect(result.isFeeOrRefund).toBe(true);
     });
 
     it("adds isFeeOrRefund as false if from address is a bootloader address and there are no transaction details", () => {
-      log.topics[1] = "0x0000000000000000000000000000000000000000000000000000000000008001";
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) =>
+          index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
+        ),
+      });
       const result = defaultTransferHandler.extract(log, blockDetails);
       expect(result.isFeeOrRefund).toBe(false);
     });
@@ -161,7 +202,7 @@ describe("defaultTransferHandler", () => {
 
     it("extracts transfer with logIndex populated from log", () => {
       const result = defaultTransferHandler.extract(log, blockDetails);
-      expect(result.logIndex).toBe(log.logIndex);
+      expect(result.logIndex).toBe(log.index);
     });
 
     it("extracts transfer with transactionIndex populated from log", () => {
