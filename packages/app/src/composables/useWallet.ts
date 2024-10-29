@@ -50,7 +50,6 @@ export const useWallet = (
     }
   };
   const initialize = async () => {
-    console.log("initialize");
     let provider;
     try {
       provider = await getEthereumProvider();
@@ -76,7 +75,6 @@ export const useWallet = (
       state.isReady = true;
     }
     provider.on("accountsChanged", handleAccountsChanged);
-    console.log("initialize done");
   };
   const connect = async () => {
     try {
