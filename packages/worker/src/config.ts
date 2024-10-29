@@ -10,6 +10,7 @@ export default () => {
     RPC_CALLS_CONNECTION_QUICK_TIMEOUT,
     RPC_BATCH_MAX_SIZE_BYTES,
     RPC_BATCH_MAX_COUNT,
+    RPC_BATCH_STALL_TIME_MS,
     WAIT_FOR_BLOCKS_INTERVAL,
     BLOCKS_PROCESSING_BATCH_SIZE,
     NUMBER_OF_BLOCKS_PER_DB_TRANSACTION,
@@ -40,8 +41,16 @@ export default () => {
       rpcCallQuickRetryTimeout: parseInt(RPC_CALLS_QUICK_RETRY_TIMEOUT, 10) || 500,
       rpcCallConnectionTimeout: parseInt(RPC_CALLS_CONNECTION_TIMEOUT, 10) || 20000,
       rpcCallConnectionQuickTimeout: parseInt(RPC_CALLS_CONNECTION_QUICK_TIMEOUT, 10) || 10000,
-      rpcBatchMaxSizeBytes: parseInt(RPC_BATCH_MAX_SIZE_BYTES, 10) || 1048576, // 1Mb is the default setting in ethers
-      rpcBatchMaxCount: parseInt(RPC_BATCH_MAX_COUNT, 10) || 10, // 10 by default unlike 100 that is default in ethers
+      // maximum number of requests to allow in a batch.
+      // If rpcBatchMaxCount = 1, then batching is disabled.
+      rpcBatchMaxCount: parseInt(RPC_BATCH_MAX_COUNT, 10) || 1,
+      // target maximum size (bytes) to allow per batch request (default: 1Mb)
+      // If rpcBatchMaxCount = 1, this is ignored.
+      rpcBatchMaxSizeBytes: parseInt(RPC_BATCH_MAX_SIZE_BYTES, 10) || 1048576,
+      // how long (ms) to aggregate requests into a single batch.
+      // 0 indicates batching will only encompass the current event loop.
+      // If rpcBatchMaxCount = 1, this is ignored.
+      rpcBatchStallTimeMs: parseInt(RPC_BATCH_STALL_TIME_MS, 10) || 10,
     },
     dataFetcher: {
       url: DATA_FETCHER_URL || "http://localhost:3040",

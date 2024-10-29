@@ -19,10 +19,18 @@ describe("JsonRpcProviderExtended", () => {
   const quickTimeout = 10_000;
   const batchMaxCount = 10;
   const batchMaxSizeBytes = 5_000;
+  const batchStallTimeMs = 7_000;
   const rpcUrl = "url";
 
   beforeEach(async () => {
-    jsonRpcProvider = new JsonRpcProviderExtended(rpcUrl, 120_000, quickTimeout, batchMaxCount, batchMaxSizeBytes);
+    jsonRpcProvider = new JsonRpcProviderExtended(
+      rpcUrl,
+      120_000,
+      quickTimeout,
+      batchMaxCount,
+      batchMaxSizeBytes,
+      batchStallTimeMs
+    );
 
     jest.spyOn(global, "setTimeout").mockImplementation((callback: () => void) => {
       lastCallback = callback;

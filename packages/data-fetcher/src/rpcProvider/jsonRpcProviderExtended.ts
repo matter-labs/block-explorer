@@ -15,13 +15,15 @@ export class JsonRpcProviderExtended extends Provider implements JsonRpcProvider
     connectionTimeout: number,
     connectionQuickTimeout: number,
     batchMaxCount: number,
-    batchMaxSizeBytes: number
+    batchMaxSizeBytes: number,
+    batchStallTimeMs: number
   ) {
     super(providerUrl, undefined, {
       timeout: connectionTimeout,
       batchMaxSize: batchMaxSizeBytes,
       batchMaxCount: batchMaxCount,
       staticNetwork: true,
+      batchStallTime: batchStallTimeMs,
     });
     this.connectionQuickTimeout = connectionQuickTimeout;
   }
