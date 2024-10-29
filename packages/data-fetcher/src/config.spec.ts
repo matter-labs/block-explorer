@@ -21,6 +21,8 @@ describe("config", () => {
         rpcCallRetriesMaxTotalTimeout: 120000,
         rpcCallConnectionTimeout: 60000,
         rpcCallConnectionQuickTimeout: 10000,
+        rpcBatchMaxSizeBytes: 1048576,
+        rpcBatchMaxCount: 10,
       },
       maxBlocksBatchSize: 20,
       gracefulShutdownTimeoutMs: 0,

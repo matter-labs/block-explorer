@@ -10,9 +10,18 @@ export class QuickTimeoutError extends Error {
 
 export class JsonRpcProviderExtended extends Provider implements JsonRpcProviderBase {
   private readonly connectionQuickTimeout;
-  constructor(providerUrl: string, connectionTimeout: number, connectionQuickTimeout: number) {
+  constructor(
+    providerUrl: string,
+    connectionTimeout: number,
+    connectionQuickTimeout: number,
+    batchMaxCount: number,
+    batchMaxSizeBytes: number
+  ) {
     super(providerUrl, undefined, {
       timeout: connectionTimeout,
+      batchMaxSize: batchMaxSizeBytes,
+      batchMaxCount: batchMaxCount,
+      staticNetwork: true,
     });
     this.connectionQuickTimeout = connectionQuickTimeout;
   }

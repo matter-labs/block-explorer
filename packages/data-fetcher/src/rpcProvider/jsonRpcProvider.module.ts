@@ -11,12 +11,20 @@ import { JsonRpcProviderBase, JsonRpcProviderExtended } from "./index";
         const providerUrl = configService.get<string>("blockchain.rpcUrl");
         const connectionTimeout = configService.get<number>("blockchain.rpcCallConnectionTimeout");
         const connectionQuickTimeout = configService.get<number>("blockchain.rpcCallConnectionQuickTimeout");
+        const batchMaxSizeBytes = configService.get<number>("blockchain.rpcBatchMaxSizeBytes");
+        const batchMaxCount = configService.get<number>("blockchain.rpcBatchMaxCount");
         const providerUrlProtocol = new URL(providerUrl).protocol;
 
         logger.debug(`Initializing RPC provider with the following URL: ${providerUrl}.`, "RpcProviderModule");
 
         if (providerUrlProtocol === "http:" || providerUrlProtocol === "https:") {
-          return new JsonRpcProviderExtended(providerUrl, connectionTimeout, connectionQuickTimeout);
+          return new JsonRpcProviderExtended(
+            providerUrl,
+            connectionTimeout,
+            connectionQuickTimeout,
+            batchMaxCount,
+            batchMaxSizeBytes
+          );
         }
 
         throw new Error(

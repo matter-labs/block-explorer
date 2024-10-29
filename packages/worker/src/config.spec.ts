@@ -20,6 +20,8 @@ describe("config", () => {
         rpcCallQuickRetryTimeout: 500,
         rpcCallConnectionTimeout: 20000,
         rpcCallConnectionQuickTimeout: 10000,
+        rpcBatchMaxSizeBytes: 1048576,
+        rpcBatchMaxCount: 10,
       },
       dataFetcher: {
         url: "http://localhost:3040",
