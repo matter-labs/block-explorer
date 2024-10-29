@@ -11,11 +11,11 @@ import testId from "./plugins/testId";
 import router from "./router";
 
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
+import { useWallet } from "@/composables/useWallet";
 
 import enUS from "./locales/en.json";
 
 import { useSentry } from "@/utils/logger";
-import useWallet from "@/utils/useWallet";
 
 import "@/assets/tailwind.scss";
 
@@ -42,10 +42,10 @@ const context = useContext();
 const { initialize: initializeWallet } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
-    ...context.currentNetwork.value,
     explorerUrl: context.currentNetwork.value.hostnames[0],
     chainName: context.currentNetwork.value.l2NetworkName,
     l1ChainId: null as unknown as number,
+    ...context.currentNetwork.value,
   })),
 });
 initializeWallet();

@@ -5,11 +5,10 @@ import { ethers } from "ethers";
 import * as zkSyncSdk from "zksync-web3";
 
 import useContext from "@/composables/useContext";
+import { useWallet } from "@/composables/useWallet";
 
 import type { AbiFragment } from "./useAddress";
 import type { WalletError } from "@matterlabs/composables";
-
-import useWallet from "@/utils/useWallet";
 
 export default (context = useContext()) => {
   const walletContext = {

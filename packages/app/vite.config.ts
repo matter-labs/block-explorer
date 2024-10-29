@@ -9,40 +9,30 @@ export default defineConfig({
     port: 3010,
   },
   build: {
-    sourcemap: "hidden",
+    sourcemap: true,
+    commonjsOptions: {
+      transformMixedEsModules: true,
+      include: [/node_modules/],
+    },
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes("vue/dist/vue")) {
-            return "v";
-          }
-          if (id.includes("vue-") || id.includes("@vue")) {
-            return "vi";
-          }
-          if (id.includes("@sentry")) {
-            return "s";
-          }
-          if (id.includes("@headlessui") || id.includes("@heroicons") || id.includes("@tailwind")) {
-            return "t";
-          }
-          if (id.includes("@firebase")) {
-            return "f";
-          }
-          if (id.includes("@ethersproject")) {
-            return "e";
-          }
-          if (id.includes("@matterlabs")) {
-            return "m";
-          }
-          if (id.includes("zksync-web3")) {
-            return "z";
-          }
-
-          if (id.includes("/src/composables")) {
-            return "cm";
-          }
-          if (id.includes("/src/components")) {
-            return "cn";
+        manualChunks(id) {
+          // Handle only third-party dependencies
+          if (id.includes("node_modules")) {
+            if (id.includes("ethers") || id.includes("@ethersproject")) {
+              return "vendor-ethers";
+            }
+            if (id.includes("bn.js") || id.includes("bignumber.js")) {
+              return "vendor-bn";
+            }
+            if (id.includes("vue/dist/vue")) return "vendor-vue";
+            if (id.includes("vue-") || id.includes("@vue")) return "vendor-vue-libs";
+            if (id.includes("@sentry")) return "vendor-sentry";
+            if (id.includes("@headlessui") || id.includes("@heroicons") || id.includes("@tailwind")) return "vendor-ui";
+            if (id.includes("@ethersproject")) return "vendor-eth";
+            if (id.includes("@matterlabs")) return "vendor-matterlabs";
+            if (id.includes("zksync-web3")) return "vendor-zksync";
+            return "vendor"; // all other packages
           }
         },
       },
@@ -64,5 +54,19 @@ export default defineConfig({
     __VUE_I18N_FULL_INSTALL__: true,
     __VUE_I18N_LEGACY_API__: false,
     __INTLIFY_PROD_DEVTOOLS__: false,
+  },
+  optimizeDeps: {
+    include: [
+      "vue",
+      "vue-router",
+      "vue-i18n",
+      "@vueuse/core",
+      "ethers",
+      "@ethersproject/bignumber",
+      "@ethersproject/providers",
+      "bn.js",
+      "bignumber.js",
+      "zksync-web3",
+    ],
   },
 });
