@@ -30,11 +30,11 @@ import { useI18n } from "vue-i18n";
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
 import { DotsVerticalIcon } from "@heroicons/vue/outline";
-import { useWallet } from "@matterlabs/composables";
 
 import HashLabel from "@/components/common/HashLabel.vue";
 
 import useContext from "@/composables/useContext";
+import { useWallet } from "@/composables/useWallet";
 
 const { t } = useI18n();
 
@@ -43,7 +43,7 @@ const context = useContext();
 const { address, isConnectPending, isReady, isMetamaskInstalled, connect, disconnect } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
-    explorerUrl: context.currentNetwork.value.rpcUrl,
+    explorerUrl: context.currentNetwork.value.hostnames[0],
     chainName: context.currentNetwork.value.l2NetworkName,
     l1ChainId: null as unknown as number,
     ...context.currentNetwork.value,

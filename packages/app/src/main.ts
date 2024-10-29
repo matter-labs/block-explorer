@@ -3,7 +3,6 @@ import { createI18n } from "vue-i18n";
 
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";
-import { useWallet } from "@matterlabs/composables";
 
 import App from "./App.vue";
 import useContext from "./composables/useContext";
@@ -12,6 +11,7 @@ import testId from "./plugins/testId";
 import router from "./router";
 
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
+import { useWallet } from "@/composables/useWallet";
 
 import enUS from "./locales/en.json";
 
@@ -42,7 +42,7 @@ const context = useContext();
 const { initialize: initializeWallet } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
-    explorerUrl: context.currentNetwork.value.rpcUrl,
+    explorerUrl: context.currentNetwork.value.hostnames[0],
     chainName: context.currentNetwork.value.l2NetworkName,
     l1ChainId: null as unknown as number,
     ...context.currentNetwork.value,

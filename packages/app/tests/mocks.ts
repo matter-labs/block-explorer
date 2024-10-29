@@ -4,8 +4,6 @@ import { computed, ref } from "vue";
 
 import { vi } from "vitest";
 
-import * as composablesFactory from "@matterlabs/composables";
-
 import * as useBatches from "@/composables/useBatches";
 import * as useBlocks from "@/composables/useBlocks";
 import * as useContext from "@/composables/useContext";
@@ -16,6 +14,7 @@ import * as useTokenLibraryMockFactory from "@/composables/useTokenLibrary";
 import * as useTransaction from "@/composables/useTransaction";
 import * as useTransactions from "@/composables/useTransactions";
 import * as useTransfers from "@/composables/useTransfers";
+import * as useWalletModule from "@/composables/useWallet";
 
 import type { NetworkConfig } from "@/configs";
 import type { Provider } from "zksync-web3";
@@ -74,21 +73,30 @@ export const useContractEventsMock = (params: any = {}) => {
   return mockContractEvent;
 };
 export const useWalletMock = (params: any = {}) => {
-  const mockWallet = vi.spyOn(composablesFactory, "useWallet").mockReturnValue({
-    ...composablesFactory.useWallet({
-      currentNetwork: computed(() => ({
-        chainName: TESTNET_NETWORK.name,
-        explorerUrl: TESTNET_NETWORK.l1ExplorerUrl!,
-        l1ChainId: 5,
-        l2ChainId: TESTNET_NETWORK.l2ChainId,
-        rpcUrl: TESTNET_NETWORK.rpcUrl,
-      })),
-      getL2Provider: () => undefined as unknown as Provider,
-    }),
+  const mockWallet = {
+    currentNetwork: computed(() => ({
+      chainName: TESTNET_NETWORK.name,
+      explorerUrl: TESTNET_NETWORK.hostnames[0],
+      l1ChainId: 5,
+      l2ChainId: TESTNET_NETWORK.l2ChainId,
+      rpcUrl: TESTNET_NETWORK.rpcUrl,
+    })),
+    getL2Provider: vi.fn(() => undefined as unknown as Provider),
     getL2Signer: vi.fn(async () => undefined),
+    address: ref(null),
+    isConnected: computed(() => false),
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    switchNetwork: vi.fn(),
+    initialize: vi.fn(),
+    isReady: ref(true),
+    isMetamaskInstalled: ref(true),
+    isConnectPending: ref(false),
+    isConnectFailed: ref(false),
     ...params,
-  });
-  return mockWallet;
+  };
+
+  return vi.spyOn(useWalletModule, "useWallet").mockReturnValue(mockWallet);
 };
 
 export const useContractInteractionMock = (params: any = {}) => {
