@@ -1,4 +1,5 @@
 import { Provider } from "zksync-ethers";
+import { FetchRequest } from "ethers";
 import { ProviderState, JsonRpcProviderBase } from "./jsonRpcProviderBase";
 import logger from "../logger";
 
@@ -18,13 +19,17 @@ export class JsonRpcProviderExtended extends Provider implements JsonRpcProvider
     batchMaxSizeBytes: number,
     batchStallTimeMs: number
   ) {
-    super(providerUrl, undefined, {
+    const fetchRequest = new FetchRequest(providerUrl);
+    fetchRequest.timeout = connectionTimeout;
+
+    super(fetchRequest, undefined, {
       timeout: connectionTimeout,
       batchMaxSize: batchMaxSizeBytes,
       batchMaxCount: batchMaxCount,
       staticNetwork: true,
       batchStallTime: batchStallTimeMs,
     });
+
     this.connectionQuickTimeout = connectionQuickTimeout;
   }
 
