@@ -21,7 +21,13 @@ const PERMANENT_ERRORS: ErrorCode[] = [
 
 const shouldRetry = (error: EthersError): boolean => {
   const isPermanentErrorCode = PERMANENT_ERRORS.find((errorCode) => isError(error, errorCode));
-  return !isPermanentErrorCode && !(error.code === 3 && error.shortMessage?.startsWith("execution reverted"));
+  return (
+    !isPermanentErrorCode &&
+    // example block mainnet 47752810
+    !(error.code === 3 && error.shortMessage?.startsWith("execution reverted")) &&
+    // example block mainnet 47819836
+    !(error.code === "BAD_DATA" && error.shortMessage?.startsWith("could not decode result data"))
+  );
 };
 
 const retryableFunctionCall = async (
