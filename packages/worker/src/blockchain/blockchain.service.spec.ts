@@ -1287,7 +1287,7 @@ describe("BlockchainService", () => {
       it("gets the balance for ETH", async () => {
         await blockchainService.getBalance(address, blockNumber, tokenAddress);
         expect(provider.getBalance).toHaveBeenCalledTimes(1);
-        expect(provider.getBalance).toHaveBeenCalledWith(address, blockNumber, undefined);
+        expect(provider.getBalance).toHaveBeenCalledWith(address, blockNumber);
       });
 
       it("stops the rpc call duration metric", async () => {
@@ -1413,20 +1413,54 @@ describe("BlockchainService", () => {
     describe("if token address is not ETH", () => {
       beforeEach(() => {
         tokenAddress = "0x22b44df5aa1ee4542b6318ff971f183135f5e4ce";
-        jest.spyOn(provider, "getBalance").mockResolvedValue(BigInt(10));
       });
 
-      it("gets the balance for ETH", async () => {
-        await blockchainService.getBalance(address, blockNumber, tokenAddress);
-        expect(provider.getBalance).toHaveBeenCalledTimes(1);
-        expect(provider.getBalance).toHaveBeenCalledWith(address, blockNumber, tokenAddress);
+      describe("if ERC20 Contract function throws an exception", () => {
+        const error = new Error("Ethers Contract error");
+
+        beforeEach(() => {
+          (RetryableContract as any as jest.Mock).mockReturnValueOnce(
+            mock<RetryableContract>({
+              balanceOf: jest.fn().mockImplementationOnce(() => {
+                throw error;
+              }) as any,
+            })
+          );
+        });
+
+        it("throws an error", async () => {
+          await expect(blockchainService.getBalance(address, blockNumber, tokenAddress)).rejects.toThrowError(error);
+        });
       });
 
-      it("returns the address balance for ETH", async () => {
-        jest.spyOn(provider, "getBalance").mockResolvedValueOnce(BigInt(25));
+      describe("when there is a token with the specified address", () => {
+        let balanceOfMock: jest.Mock;
 
-        const balance = await blockchainService.getBalance(address, blockNumber, tokenAddress);
-        expect(balance).toStrictEqual(BigInt(25));
+        beforeEach(() => {
+          balanceOfMock = jest.fn().mockResolvedValueOnce(BigInt(20));
+          (RetryableContract as any as jest.Mock).mockReturnValueOnce(
+            mock<RetryableContract>({
+              balanceOf: balanceOfMock as any,
+            })
+          );
+        });
+
+        it("uses the proper token contract", async () => {
+          await blockchainService.getBalance(address, blockNumber, tokenAddress);
+          expect(RetryableContract).toHaveBeenCalledTimes(1);
+          expect(RetryableContract).toBeCalledWith(tokenAddress, utils.IERC20, provider);
+        });
+
+        it("gets the balance for the specified address and block", async () => {
+          await blockchainService.getBalance(address, blockNumber, tokenAddress);
+          expect(balanceOfMock).toHaveBeenCalledTimes(1);
+          expect(balanceOfMock).toHaveBeenCalledWith(address, { blockTag: blockNumber });
+        });
+
+        it("returns the balance of the token", async () => {
+          const balance = await blockchainService.getBalance(address, blockNumber, tokenAddress);
+          expect(balance).toStrictEqual(BigInt(20));
+        });
       });
     });
   });
