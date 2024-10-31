@@ -159,9 +159,14 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<bigint> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getBalance(address, blockNumber, utils.isETH(tokenAddress) ? undefined : tokenAddress);
-    }, "getBalance");
+    if (utils.isETH(tokenAddress)) {
+      return await this.rpcCall(async () => {
+        return await this.provider.getBalance(address, blockNumber);
+      }, "getBalance");
+    }
+
+    const erc20Contract = new RetryableContract(tokenAddress, utils.IERC20, this.provider);
+    return await erc20Contract.balanceOf(address, { blockTag: blockNumber });
   }
 
   public async onModuleInit(): Promise<void> {
