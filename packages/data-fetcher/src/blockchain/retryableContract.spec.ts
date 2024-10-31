@@ -100,13 +100,8 @@ describe("RetryableContract", () => {
 
     describe("when throws a permanent call exception function error", () => {
       const callExceptionError = {
-        code: "CALL_EXCEPTION",
-        method: "contractFn(address)",
-        transaction: {
-          data: "0x00",
-          to: "to",
-        },
-        message: "call revert exception ....",
+        code: 3,
+        shortMessage: "execution reverted...",
       };
 
       beforeEach(() => {
@@ -209,7 +204,7 @@ describe("RetryableContract", () => {
     describe("when throws a few errors with no method or message before returning a result", () => {
       const functionResult = "functionResult";
       const error = new Error();
-      (error as any).code = "CALL_EXCEPTION";
+      (error as any).code = 3;
 
       beforeEach(() => {
         let countOfFailedRequests = 0;

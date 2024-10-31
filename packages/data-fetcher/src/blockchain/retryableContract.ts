@@ -1,18 +1,13 @@
 import { Logger } from "@nestjs/common";
 import { setTimeout } from "timers/promises";
-import { Contract, Interface, ContractRunner, ErrorCode } from "ethers";
+import { Contract, Interface, ContractRunner, ErrorCode, isError } from "ethers";
 import config from "../config";
 
 const { blockchain } = config();
 
 interface EthersError {
-  code: ErrorCode;
-  method: string;
-  transaction: {
-    data: string;
-    to: string;
-  };
-  message: string;
+  code: ErrorCode | number;
+  shortMessage: string;
 }
 
 const MAX_RETRY_INTERVAL = 60000;
@@ -24,16 +19,9 @@ const PERMANENT_ERRORS: ErrorCode[] = [
   "NOT_IMPLEMENTED",
 ];
 
-const shouldRetry = (calledFunctionName: string, error: EthersError): boolean => {
-  return (
-    !PERMANENT_ERRORS.includes(error.code) &&
-    !(
-      error.code === "CALL_EXCEPTION" &&
-      error.method?.startsWith(`${calledFunctionName}(`) &&
-      !!error.transaction &&
-      error.message?.startsWith("call revert exception")
-    )
-  );
+const shouldRetry = (error: EthersError): boolean => {
+  const isPermanentErrorCode = PERMANENT_ERRORS.find((errorCode) => isError(error, errorCode));
+  return !isPermanentErrorCode && !(error.code === 3 && error.shortMessage?.startsWith("execution reverted"));
 };
 
 const retryableFunctionCall = async (
@@ -48,7 +36,7 @@ const retryableFunctionCall = async (
   try {
     return await result;
   } catch (error) {
-    const isRetryable = shouldRetry(functionName, error);
+    const isRetryable = shouldRetry(error);
     if (!isRetryable) {
       logger.warn({
         message: `Requested contract function ${functionName} failed to execute, not retryable`,
