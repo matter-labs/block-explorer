@@ -24,7 +24,7 @@ describe('/address', () => {
   const account = privateKeyToAccount(privateKey);
   const address = account.address;
   const testInstance = () =>
-    buildApp(secret, 'development', 'http://localhost:9191', false);
+    buildApp(secret, 'development', 'http://localhost:9191', false, []);
 
   describe('GET /address/:address', () => {
     it('when user is not logged in returns Unauthorized', async () => {

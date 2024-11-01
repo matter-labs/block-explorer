@@ -40,6 +40,7 @@
               }))
             "
           />
+          <LoginButton />
           <div class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
@@ -138,6 +139,7 @@ import { MenuIcon, XIcon } from "@heroicons/vue/outline";
 
 import LinksMobilePopover from "./LinksMobilePopover.vue";
 import LinksPopover from "./LinksPopover.vue";
+import LoginButton from "../LoginButton.vue";
 
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
@@ -288,6 +290,9 @@ const hasContent = computed(() => {
       @apply mr-4;
     }
     .language-switch {
+      @apply mr-4;
+    }
+    .login-button {
       @apply mr-6;
     }
     .socials-container {
