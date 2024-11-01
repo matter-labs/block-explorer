@@ -1,7 +1,7 @@
 {
   "networks": [
     {
-      "apiUrl": "http://localhost:3020",
+      "apiUrl": "http://localhost:4040",
       "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [
         "localhost"

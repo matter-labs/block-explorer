@@ -12,6 +12,10 @@ export const env = createEnv({
     SERVER_PORT: z.coerce.number().default(3000),
     BLOCK_EXPLORER_API_URL: z.string().url(),
     SESSION_SECRET: z.string().min(32),
+    CORS_ORIGIN: z
+      .string()
+      .transform((value) => value.split(','))
+      .pipe(z.string().array()),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

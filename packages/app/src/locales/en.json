@@ -12,6 +12,11 @@
         "metaMaskNotFound": "MetaMask not found",
         "logout": "Logout"
     },
+    "loginButton": {
+        "label": "Login",
+        "connecting": "Connecting...",
+        "logout": "Logout"
+    },
     "networkStats": {
         "title": "Network Stats",
         "subtitleTestnet": "Stats are occasionally reset on testnet.",
