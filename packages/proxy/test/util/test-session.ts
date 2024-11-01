@@ -2,6 +2,7 @@ import type { FastifyApp } from '../../src/app.js';
 import { privateKeyToAccount } from 'viem/accounts';
 import type { Hex } from 'viem';
 import { SiweMessage } from 'siwe';
+import { z, ZodTypeAny } from 'zod';
 
 export interface Cookie {
   name: string;
@@ -19,7 +20,7 @@ export class TestSession {
   private app: FastifyApp;
   private cookie: Record<string, string>;
 
-  private constructor(app: FastifyApp) {
+  constructor(app: FastifyApp) {
     this.app = app;
     this.cookie = {};
   }
@@ -76,5 +77,21 @@ export class TestSession {
       return a;
     }, {});
     this.cookie = { ...this.cookie, ...newCookies };
+  }
+
+  async getJson<Z extends ZodTypeAny>(
+    url: string,
+    schema: Z,
+  ): Promise<{ status: number; body: z.infer<Z> }> {
+    const res = await this.app.inject({
+      method: 'GET',
+      url,
+      cookies: this.cookie,
+    });
+    this.updateCookies(res.cookies);
+    return {
+      status: res.statusCode,
+      body: schema.parse(JSON.parse(res.body)),
+    };
   }
 }

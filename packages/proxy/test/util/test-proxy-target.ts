@@ -70,7 +70,7 @@ export class TestProxy {
   }
 
   url(): string {
-    return `https://localhost:${this.port}`;
+    return `http://localhost:${this.port}`;
   }
 
   addAddressLog(srcAddr: Address, topics: Hex[], data: Hex) {
@@ -153,12 +153,16 @@ export class TestProxy {
       return this.wrapResponse(this.transfers, address);
     });
 
-    this.app.get('*', async () => {
-      return 'From proxy';
+    this.app.get('*', async (req) => {
+      return {
+        url: req.url,
+      };
     });
 
-    this.app.post('*', async () => {
-      return 'From proxy';
+    this.app.post('*', async (req) => {
+      return {
+        url: req.url,
+      };
     });
 
     await this.app.listen({ port: 9191 });
@@ -168,3 +172,7 @@ export class TestProxy {
     await this.app.close();
   }
 }
+
+export const testResponseSchema = z.object({
+  url: z.string(),
+});
