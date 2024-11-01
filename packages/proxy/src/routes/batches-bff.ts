@@ -1,7 +1,7 @@
 import type { FastifyApp } from '../app.js';
 import { buildUrl } from '../utils/url.js';
 import { z } from 'zod';
-import { pipeRequest } from '../services/block-explorer.js';
+import { pipeGetRequest } from '../services/block-explorer.js';
 
 const batchesIndexSchema = {
   schema: {
@@ -25,7 +25,7 @@ const batchesDetailSchema = {
 export function batchRoutes(app: FastifyApp) {
   app.get('/', batchesIndexSchema, async (req, reply) => {
     const targetUrl = buildUrl(`${app.conf.proxyTarget}/batches`, req.query);
-    return pipeRequest(targetUrl, reply);
+    return pipeGetRequest(targetUrl, reply);
   });
 
   app.get('/:batchNumber', batchesDetailSchema, async (req, reply) => {
@@ -33,6 +33,6 @@ export function batchRoutes(app: FastifyApp) {
       `${app.conf.proxyTarget}/batches/${req.params.batchNumber}`,
       {},
     );
-    return pipeRequest(targetUrl, reply);
+    return pipeGetRequest(targetUrl, reply);
   });
 }

@@ -1,6 +1,6 @@
 import type { FastifyApp } from '../app.js';
 import { buildUrl } from '../utils/url.js';
-import { pipeRequest } from '../services/block-explorer.js';
+import { pipeGetRequest } from '../services/block-explorer.js';
 import { z } from 'zod';
 import { hexSchema } from '../utils/schemas.js';
 
@@ -43,12 +43,12 @@ const transactionLogsSchema = transactionTransfersSchema;
 export function transationsRoutes(app: FastifyApp) {
   app.get('/', transactionIndexSchema, async (req, reply) => {
     const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-    return pipeRequest(targetUrl, reply);
+    return pipeGetRequest(targetUrl, reply);
   });
 
   app.get('/:transactionHash', transactionDetailsSchema, async (req, reply) => {
     const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-    return pipeRequest(targetUrl, reply);
+    return pipeGetRequest(targetUrl, reply);
   });
 
   app.get(
@@ -56,7 +56,7 @@ export function transationsRoutes(app: FastifyApp) {
     transactionTransfersSchema,
     async (req, reply) => {
       const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-      return pipeRequest(targetUrl, reply);
+      return pipeGetRequest(targetUrl, reply);
     },
   );
 
@@ -65,7 +65,7 @@ export function transationsRoutes(app: FastifyApp) {
     transactionLogsSchema,
     async (req, reply) => {
       const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-      return pipeRequest(targetUrl, reply);
+      return pipeGetRequest(targetUrl, reply);
     },
   );
 }

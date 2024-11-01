@@ -1,7 +1,7 @@
 import type { FastifyApp } from '../app.js';
 import { z, type ZodTypeAny } from 'zod';
 import { isAddressEqual } from 'viem';
-import { pipeRequest } from '../services/block-explorer.js';
+import { pipeGetRequest } from '../services/block-explorer.js';
 import { getUserOrThrow } from '../services/user.js';
 import { ForbiddenError } from '../utils/http-error.js';
 import { addressSchema, hexSchema } from '../utils/schemas.js';
@@ -137,7 +137,7 @@ export const addressRoutes = (app: FastifyApp) => {
     if (!isAddressEqual(req.params.address, user)) {
       throw new ForbiddenError('Forbidden');
     }
-    return pipeRequest(`${proxyTarget}/address/${user}`, reply);
+    return pipeGetRequest(`${proxyTarget}/address/${user}`, reply);
   });
 
   app.get(
