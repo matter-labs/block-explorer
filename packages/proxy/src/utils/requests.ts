@@ -1,3 +1,4 @@
+// implementation taken from Lucia library: https://github.com/lucia-auth/lucia/blob/v3/packages/lucia/src/request.ts#L1
 export function verifyRequestOrigin(
   origin: string,
   allowedDomains: string[],
