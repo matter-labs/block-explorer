@@ -11,7 +11,6 @@ export const env = createEnv({
     NODE_ENV: nodeEnvSchema.default('development'),
     SERVER_PORT: z.coerce.number().default(3000),
     BLOCK_EXPLORER_API_URL: z.string().url(),
-    DATABASE_URL: z.string(),
     SESSION_SECRET: z.string().min(32),
   },
   runtimeEnv: process.env,
