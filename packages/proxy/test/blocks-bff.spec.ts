@@ -18,10 +18,6 @@ describe('/blocks', () => {
   });
 
   const secret = Buffer.alloc(32).fill(0).toString('hex');
-  // const privateKey =
-  //   '0x4f31daab592fe9e35cd47c5fb2db635a25956a9b2023fb6d450e9919f433a262';
-  // const account = privateKeyToAccount(privateKey);
-  // const address = account.address;
 
   const testInstance = () =>
     buildApp(secret, 'development', 'http://localhost:9191', false);
