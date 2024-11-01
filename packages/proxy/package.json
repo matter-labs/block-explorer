@@ -1,0 +1,49 @@
+{
+  "name": "proxy",
+  "version": "0.0.0",
+  "title": "Double zero explorer proxy",
+  "description": "Double zero explorer proxy",
+  "author": "Moonsong labs",
+  "private": true,
+  "license": "MIT",
+  "repository": "https://github.com/Moonsong-Labs/double-zero",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsx esbuild.ts",
+    "build:watch": "tsx esbuild.ts --watch",
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\"",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "ci:prepare": "run-s check:fix typecheck",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/secure-session": "^8.1.0",
+    "@t3-oss/env-core": "^0.11.1",
+    "close-with-grace": "^2.1.0",
+    "fastify": "^5.0.0",
+    "fastify-type-provider-zod": "^4.0.2",
+    "lucia": "^3.2.1",
+    "pg": "^8.13.0",
+    "siwe": "^2.3.2",
+    "viem": "^2.21.32",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.6",
+    "@types/pg": "^8.11.10",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^8.12.1",
+    "commander": "^12.1.0",
+    "dotenv": "^16.4.5",
+    "esbuild": "^0.24.0",
+    "esbuild-node-externals": "^1.15.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "npm-run-all": "^4.1.5",
+    "tsx": "^4.19.1",
+    "vitest": "^2.1.4"
+  }
+}
