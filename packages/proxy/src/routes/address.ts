@@ -5,6 +5,7 @@ import { pipeRequest } from '../services/block-explorer.js';
 import { getUserOrThrow } from '../services/user.js';
 import { ForbiddenError } from '../utils/http-error.js';
 import { addressSchema, hexSchema } from '../utils/schemas.js';
+import { buildUrl } from '../utils/url.js';
 
 export const addressParamsSchema = {
   params: z.object({
@@ -15,16 +16,6 @@ export const addressParamsSchema = {
     limit: z.optional(z.coerce.number()),
   }),
 };
-
-type Stringy = { toString: () => string };
-function buildUrl(base: string, query: Record<string, Stringy>) {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(query)) {
-    params.set(key, value.toString());
-  }
-
-  return `${base}?${params.toString()}`;
-}
 
 export type Paginated<T> = {
   items: T[];
