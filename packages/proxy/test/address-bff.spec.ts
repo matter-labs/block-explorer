@@ -1,22 +1,21 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { privateKeyToAccount } from 'viem/accounts';
-import { TestProxy } from './util/test-proxy-target.js';
+import { TestProxy, testResponseSchema } from './util/test-proxy-target.js';
 import { TestSession } from './util/test-session.js';
 
 describe('/address', () => {
-  let backgroundApp: TestProxy | null = null;
+  const backgroundApp = new TestProxy();
   beforeAll(async () => {
-    backgroundApp = new TestProxy();
     await backgroundApp.start();
   });
 
   afterAll(async () => {
-    await backgroundApp?.stop();
+    await backgroundApp.stop();
   });
 
   beforeEach(() => {
-    backgroundApp?.reset();
+    backgroundApp.reset();
   });
 
   const secret = Buffer.alloc(32).fill(0).toString('hex');
@@ -42,17 +41,18 @@ describe('/address', () => {
     it('when user logged in bypass request to main api', async () => {
       const app = testInstance();
       const session = await TestSession.loggedIn(app, privateKey);
-      const res = await session.getStr(`/address/${address}`);
-      expect(res).toEqual('From proxy');
+      const url = `/address/${address}`;
+      const res = await session.getJson(url, testResponseSchema);
+      expect(res.body).toEqual({ url });
+      expect(res.status).toEqual(200);
     });
 
     it('when user logged in bypass request to main api twice', async () => {
       const app = testInstance();
       const session = await TestSession.loggedIn(app, privateKey);
-      const res = await session.getStr(`/address/${address}`);
-      const res2 = await session.getStr(`/address/${address}`);
-      expect(res).toEqual('From proxy');
-      expect(res2).toEqual('From proxy');
+      const res = await session.getJson(`/address/${address}`, testResponseSchema);
+      const res2 = await session.getJson(`/address/${address}`, testResponseSchema);
+      expect(res).toEqual(res2);
     });
   });
 
