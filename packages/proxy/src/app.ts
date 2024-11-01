@@ -10,7 +10,6 @@ import {
 import type { Address } from 'viem';
 import { allRoutes } from './routes/index.js';
 import { HttpError } from './utils/http-error.js';
-import { verifyRequestOrigin } from 'lucia';
 import type { Hex } from './utils/schemas.js';
 import type {
   RawReplyDefaultExpression,
@@ -24,6 +23,7 @@ import type {
   FastifyTypeProviderDefault,
 } from 'fastify/types/type-provider.js';
 import cors from '@fastify/cors';
+import { verifyRequestOrigin } from './utils/requests.js';
 
 const SESSION_EXPIRY = 24 * 60 * 60; // 1 day
 
