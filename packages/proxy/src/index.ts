@@ -6,6 +6,8 @@ const app = buildApp(
   env.SESSION_SECRET,
   env.NODE_ENV,
   env.BLOCK_EXPLORER_API_URL,
+  true,
+  env.CORS_ORIGIN,
 );
 
 closeWithGrace(async ({ signal, err }) => {

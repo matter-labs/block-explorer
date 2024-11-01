@@ -21,6 +21,7 @@ export function buildApp(
   nodeEnv: NodeEnv,
   proxyTarget: string,
   produceLogs = true,
+  corsOrigin: string[],
 ) {
   const app = Fastify({
     logger: produceLogs,
@@ -32,7 +33,8 @@ export function buildApp(
 
   // TODO: Fix it for production
   app.register(cors, {
-    origin: '*',
+    origin: corsOrigin,
+    credentials: true,
   });
 
   app.register(fastifySecureSession, {
