@@ -28,7 +28,7 @@ export function blocksRoutes(app: FastifyApp) {
     return pipeRequest(targetUrl, reply);
   });
 
-  app.get('/:blockNumber', blocksDetailSchema, async (req, reply) => {
+  app.get('/:blockNumber', blocksDetailSchema, async (_req, reply) => {
     const targetUrl = buildUrl(`${app.conf.proxyTarget}/blocks`, {});
     return pipeRequest(targetUrl, reply);
   });
