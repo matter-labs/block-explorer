@@ -6,7 +6,7 @@ services:
     ports:
       - '3010:3010'
     depends_on:
-      - api
+      - proxy
     restart: unless-stopped
 
   worker:
@@ -50,16 +50,31 @@ services:
       context: .
       dockerfile: ./packages/api/Dockerfile
     environment:
-      - PORT=3020
+      - PORT=3021
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
     ports:
-      - '3020:3020'
+      - '3021:3021'
       - '3005:3005'
     depends_on:
       - worker
     restart: unless-stopped
+
+  proxy:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./packages/proxy/Dockerfile
+    depends_on:
+      - api
+    ports:
+      - "3020:3020"
+    environment:
+      SERVER_PORT: 3020
+      BLOCK_EXPLORER_API_URL: http://api:3021
+      SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
+      CORS_ORIGIN: "localhost:3010"
 
   postgres:
     image: "postgres:14"
