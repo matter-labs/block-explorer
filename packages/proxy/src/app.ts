@@ -11,17 +11,6 @@ import type { Address } from 'viem';
 import { allRoutes } from './routes/index.js';
 import { HttpError } from './utils/http-error.js';
 import type { Hex } from './utils/schemas.js';
-import type {
-  RawReplyDefaultExpression,
-  RawRequestDefaultExpression,
-  RawServerBase,
-  RawServerDefault,
-} from 'fastify/types/utils.js';
-import type { FastifyBaseLogger } from 'fastify/types/logger.js';
-import type {
-  FastifyTypeProvider,
-  FastifyTypeProviderDefault,
-} from 'fastify/types/type-provider.js';
 import cors from '@fastify/cors';
 import { verifyRequestOrigin } from './utils/requests.js';
 
@@ -129,19 +118,8 @@ declare module 'fastify' {
     user?: Address;
   }
 
-  export interface FastifyInstance<
-    RawServer extends RawServerBase = RawServerDefault,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- All parameters with correct names have to be here to make this work
-    RawRequest extends
-      RawRequestDefaultExpression<RawServer> = RawRequestDefaultExpression<RawServer>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- All parameters with correct names have to be here to make this work
-    RawReply extends
-      RawReplyDefaultExpression<RawServer> = RawReplyDefaultExpression<RawServer>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- All parameters with correct names have to be here to make this work
-    Logger extends FastifyBaseLogger = FastifyBaseLogger,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- All parameters with correct names have to be here to make this work
-    TypeProvider extends FastifyTypeProvider = FastifyTypeProviderDefault,
-  > {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- This allow us to have conf available globally.
+  interface FastifyInstance {
     conf: { proxyTarget: string };
   }
 }
