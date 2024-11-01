@@ -23,6 +23,7 @@ import type {
   FastifyTypeProvider,
   FastifyTypeProviderDefault,
 } from 'fastify/types/type-provider.js';
+import cors from '@fastify/cors';
 
 const SESSION_EXPIRY = 24 * 60 * 60; // 1 day
 
@@ -38,6 +39,11 @@ export function buildApp(
 
   app.decorate('conf', {
     proxyTarget,
+  });
+
+  // TODO: Fix it for production
+  app.register(cors, {
+    origin: '*',
   });
 
   app.register(fastifySecureSession, {
