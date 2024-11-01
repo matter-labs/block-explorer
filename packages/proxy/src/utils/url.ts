@@ -5,6 +5,7 @@ export function buildUrl(base: string, query: Record<string, Stringy>) {
   for (const [key, value] of Object.entries(query)) {
     params.set(key, value.toString());
   }
+  const serializedParams = params.toString();
 
-  return `${base}?${params.toString()}`;
+  return `${base}${serializedParams.length === 0 ? '' : `?${serializedParams}`}`;
 }
