@@ -29,7 +29,7 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/terminus": "^9.1.2",
-    "@willsoto/nestjs-prometheus": "^4.7.0",
+    "@willsoto/nestjs-prometheus": "^5.5.1",
     "ethers": "6.13.4",
     "nest-winston": "^1.7.0",
     "prom-client": "^14.1.0",
