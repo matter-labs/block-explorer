@@ -7,6 +7,7 @@ This repository is a monorepo consisting of 4 packages:
 - [Worker](./packages/worker) - an indexer service for [ZKsync Era](https://zksync.io) blockchain data. The purpose of the service is to read blockchain data in real time, transform it and fill in it's database with the data in a way that makes it easy to be queried by the [API](./packages/api) service.
 - [Data Fetcher](./packages/data-fetcher) - a service that exposes and implements an HTTP endpoint to retrieve aggregated data for a certain block / range of blocks from the blockchain. This endpoint is called by the [Worker](./packages/worker) service.
 - [API](./packages/api) - a service providing Web API for retrieving structured [ZKsync Era](https://zksync.io) blockchain data collected by [Worker](./packages/worker). It connects to the Worker's database to be able to query the collected data.
+- [PROXY](./packages/proxy) - a proxy between the WebApp and the API used to filter data to users, and ensure that each user sees only the data that they are allowed to see.
 - [App](./packages/app) - a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more. It makes requests to the [API](./packages/api) to get the data and presents it in a way that's easy to read and understand.
 
 ## 🏛 Architecture
@@ -48,6 +49,8 @@ flowchart
 - ✅ Interact with smart contracts.
 - ✅ Standalone HTTP API.
 - ✅ Local node support.
+- ✅ Authentication and authorization using SIWE.
+- ✅ Data scoped per user.
 
 ## 📋 Prerequisites
 
@@ -67,7 +70,8 @@ Make sure you have set up all the necessary env variables. Follow setting up env
 ### Build env variables based on your [zksync-era](https://github.com/matter-labs/zksync-era) local repo setup
 Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo set up locally. You must have your environment variables files present in the [zksync-era](https://github.com/matter-labs/zksync-era) repo at `/etc/env/*.env` for the build envs script to work.
 
-The following script sets `.env` files for [Worker](./packages/worker), [Data Fetcher](./packages/data-fetcher) and [API](./packages/api) packages as well as environment configuration file for [App](./packages/app) package based on your local [zksync-era](https://github.com/matter-labs/zksync-era) repo setup.
+The following script sets `.env` files for [Worker](./packages/worker), [Data Fetcher](./packages/data-fetcher), [API](./packages/api) and [Proxy](./packages/proxy) packages as well as environment configuration file for [App](./packages/app) package based on your local [zksync-era](https://github.com/matter-labs/zksync-era) repo setup.
+
 ```bash
 npm run hyperchain:configure
 ```
@@ -81,7 +85,7 @@ To create a database run the following command:
 npm run db:create
 ```
 
-To run all the packages (`Worker`, `Data Fetcher`, `API` and front-end `App`) in `development` mode run the following command from the root directory.
+To run all the packages (`Worker`, `Data Fetcher`, `API`, `Proxy` and front-end `App`) in `development` mode run the following command from the root directory.
 ```bash
 npm run dev
 ```
