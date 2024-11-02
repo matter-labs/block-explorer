@@ -24,15 +24,12 @@ const batchesDetailSchema = {
 
 export function batchRoutes(app: FastifyApp) {
   app.get('/', batchesIndexSchema, async (req, reply) => {
-    const targetUrl = buildUrl(`${app.conf.proxyTarget}/batches`, req.query);
+    const targetUrl = `${app.conf.proxyTarget}${req.url}`;
     return pipeGetRequest(targetUrl, reply);
   });
 
   app.get('/:batchNumber', batchesDetailSchema, async (req, reply) => {
-    const targetUrl = buildUrl(
-      `${app.conf.proxyTarget}/batches/${req.params.batchNumber}`,
-      {},
-    );
+    const targetUrl = `${app.conf.proxyTarget}${req.url}`;
     return pipeGetRequest(targetUrl, reply);
   });
 }

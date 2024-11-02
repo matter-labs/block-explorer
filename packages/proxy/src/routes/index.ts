@@ -15,6 +15,6 @@ export const allRoutes = (app: FastifyApp) => {
   app.register(batchRoutes, { prefix: '/batches' });
   app.register(statsRoutes, { prefix: '/stats' });
   app.register(transationsRoutes, { prefix: '/transactions' });
-  app.register(tokenRoutes, { prefix: '/token' });
+  app.register(tokenRoutes, { prefix: '/tokens' });
   app.register(apiRoutes, { prefix: '/api' });
 };
