@@ -24,14 +24,15 @@ flowchart
     Data-Fetcher(Data Fetcher service)
     API(API service)
     App(App)
+    Proxy(Proxy)
     
     Worker-."Request aggregated data (HTTP)".->Data-Fetcher
     Data-Fetcher-."Request data (HTTP)".->Blockchain
     Worker-.Save processed data.->Database
 
+    App-."Request data (HTTP)".->Proxy
+    Proxy-."Request data (HTTP) and filter results".->API
     API-.Query data.->Database
-    App-."Request data (HTTP)".->API
-    App-."Request data (HTTP)".->Blockchain
   end
 
   Worker-."Request data (HTTP)".->Blockchain
