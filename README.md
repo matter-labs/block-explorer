@@ -43,10 +43,6 @@ flowchart
   Worker-."Request data (HTTP)".->Blockchain
 ```
 
-<!-- The diagram illustrates how are the block explorer components connected --> 
-
-The Worker service retrieves aggregated data from the Data Fetcher via HTTP and also directly from the blockchain using the zkSync Era JSON-RPC API. It processes the data and saves it into the database. The API service connects to the same database to handle API requests, performing only read operations. The front-end App makes HTTP calls to the Block Explorer API to get blockchain data and to the zkSync Era JSON-RPC API for reading contracts and performing transactions. 
-
 [Worker](./packages/worker) service retrieves aggregated data from the [Data Fetcher](./packages/data-fetcher) via HTTP and also directly from the blockchain using [ZKsync Era JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc), processes it and saves into the database. [API](./packages/api) service is connected to the same database where it gets the data from to handle API requests. It performs only read requests to the database. The front-end [App](./packages/app) makes HTTP calls to the Block Explorer [API](./packages/api) to get blockchain data <!-- and to the [ZKsync Era JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc) for reading contracts, performing transactions etc-->. The [Proxy](./packages/proxy) filters API responses based on user permissions, ensuring secure and controlled data access.
 
 ## 🚀 Features
