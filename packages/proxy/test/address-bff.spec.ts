@@ -3,6 +3,8 @@ import { buildApp } from '../src/app.js';
 import { privateKeyToAccount } from 'viem/accounts';
 import { TestProxy, testResponseSchema } from './util/test-proxy-target.js';
 import { TestSession } from './util/test-session.js';
+import { bytesToHex } from 'viem';
+import { z } from 'zod';
 
 describe('/address', () => {
   const backgroundApp = new TestProxy();
@@ -27,6 +29,67 @@ describe('/address', () => {
     buildApp(secret, 'development', 'http://localhost:9191', false, []);
 
   describe('GET /address/:address', () => {
+    const anotherAddress = bytesToHex(Buffer.alloc(20).fill(1));
+    it('when the address is for a contract and user is not logged in, returns data', async () => {
+      backgroundApp.setNextAddress('contract', anotherAddress);
+
+      const app = testInstance();
+      const session = new TestSession(app);
+
+      const { body, status } = await session.getJson(
+        `/address/${anotherAddress}`,
+        z.any(),
+      );
+
+      expect(status).toEqual(200);
+      expect(body.type).toEqual('contract');
+      expect(body.address).toEqual(anotherAddress);
+    });
+
+    it('when the address is for an account and user is not logged in, returns error', async () => {
+      backgroundApp.setNextAddress('account', anotherAddress);
+
+      const app = testInstance();
+      const session = new TestSession(app);
+
+      const { status } = await session.getJson(
+        `/address/${anotherAddress}`,
+        z.any(),
+      );
+
+      expect(status).toEqual(401);
+    });
+
+    it('when user logged in and requested address is user address returns address data', async () => {
+      backgroundApp.setNextAddress('account', address);
+
+      const app = testInstance();
+      const session = await TestSession.loggedIn(app, privateKey);
+
+      const { status, body } = await session.getJson(
+        `/address/${address}`,
+        z.any(),
+      );
+
+      expect(status).toEqual(200);
+      expect(body.type).toEqual('account');
+      expect(body.address).toEqual(address);
+    });
+
+    it('when user logged in and requested address is not user address returns errir', async () => {
+      backgroundApp.setNextAddress('account', anotherAddress);
+
+      const app = testInstance();
+      const session = await TestSession.loggedIn(app, privateKey);
+
+      const { status } = await session.getJson(
+        `/address/${anotherAddress}`,
+        z.any(),
+      );
+
+      expect(status).toEqual(403);
+    });
+
     it('when user is not logged in returns Unauthorized', async () => {
       const app = testInstance();
       const res = await app.inject({
@@ -36,29 +99,6 @@ describe('/address', () => {
 
       expect(res.statusCode).toEqual(401);
       expect(res.json()).toEqual({ error: 'User not authenticated' });
-    });
-
-    it('when user logged in bypass request to main api', async () => {
-      const app = testInstance();
-      const session = await TestSession.loggedIn(app, privateKey);
-      const url = `/address/${address}`;
-      const res = await session.getJson(url, testResponseSchema);
-      expect(res.body).toEqual({ url });
-      expect(res.status).toEqual(200);
-    });
-
-    it('when user logged in bypass request to main api twice', async () => {
-      const app = testInstance();
-      const session = await TestSession.loggedIn(app, privateKey);
-      const res = await session.getJson(
-        `/address/${address}`,
-        testResponseSchema,
-      );
-      const res2 = await session.getJson(
-        `/address/${address}`,
-        testResponseSchema,
-      );
-      expect(res).toEqual(res2);
     });
   });
 
