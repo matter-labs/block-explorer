@@ -1,4 +1,19 @@
-import { Paginated } from '../routes/address.js';
+export type Paginated<T> = {
+  items: T[];
+  meta: {
+    totalItems: number;
+    itemCount: number;
+    itemsPerPage: number;
+    totalPages: number;
+    currentPage: number;
+  };
+  links: {
+    first: string;
+    previous: string;
+    next: string;
+    last: string;
+  };
+};
 
 export function wrapIntoPaginationInfo<T>(
   collection: T[],
