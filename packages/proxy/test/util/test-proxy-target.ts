@@ -60,14 +60,14 @@ type Wrapped<T> = {
 export class TestProxy {
   private port: number;
   private app: FastifyApp;
-  private addressLogs: Log[];
+  private logs: Log[];
   private transfers: Transfer[];
   private transactions: Transaction[];
 
   constructor(port = 9191) {
     this.port = port;
     this.app = fastify().withTypeProvider<ZodTypeProvider>();
-    this.addressLogs = [];
+    this.logs = [];
     this.transfers = [];
     this.transactions = [];
   }
@@ -76,8 +76,8 @@ export class TestProxy {
     return `http://localhost:${this.port}`;
   }
 
-  addAddressLog(srcAddr: Address, topics: Hex[], data: Hex) {
-    this.addressLogs.push({
+  addLog(srcAddr: Address, topics: Hex[], data: Hex) {
+    this.logs.push({
       address: srcAddr,
       blockNumber: 100,
       logIndex: 1,
@@ -85,7 +85,7 @@ export class TestProxy {
       timestamp: new Date().toISOString(),
       topics: topics,
       transactionHash: bytesToHex(randomBytes(32)),
-      transactionIndex: this.addressLogs.length,
+      transactionIndex: this.logs.length,
     });
   }
 
@@ -114,7 +114,7 @@ export class TestProxy {
   }
 
   reset() {
-    this.addressLogs = [];
+    this.logs = [];
     this.transfers = [];
     this.transactions = [];
   }
@@ -123,9 +123,9 @@ export class TestProxy {
     return {
       items: collection,
       meta: {
-        totalItems: this.addressLogs.length,
-        itemCount: this.addressLogs.length,
-        itemsPerPage: this.addressLogs.length,
+        totalItems: this.logs.length,
+        itemCount: this.logs.length,
+        itemsPerPage: this.logs.length,
         totalPages: 1,
         currentPage: 1,
       },
@@ -145,7 +145,7 @@ export class TestProxy {
           address: hexSchema,
         })
         .parse(request.params);
-      return this.wrapResponse(this.addressLogs, `/address/${address}/logs`);
+      return this.wrapResponse(this.logs, `/address/${address}/logs`);
     });
 
     this.app.get('/address/:address/transfers', async (request, _reply) => {
@@ -167,6 +167,15 @@ export class TestProxy {
         this.transfers,
         `/transactions/${hash}/transfers`,
       );
+    });
+
+    this.app.get('/transactions/:hash/logs', async (request, _reply) => {
+      const { hash } = z
+        .object({
+          hash: hexSchema,
+        })
+        .parse(request.params);
+      return this.wrapResponse(this.logs, `/transactions/${hash}/logs`);
     });
 
     this.app.get('/transactions', async (_req, _reply) => {

@@ -153,11 +153,34 @@ describe('/transactions', () => {
         '/transactions/0x0001/transfers',
         z.any(),
       );
-      console.log(body);
+
       expect(status).toEqual(200);
       expect(body.items).toHaveLength(2);
       expect(body.items.map((i: any) => i.amount)).toEqual(
         expect.arrayContaining(['1', '2']),
+      );
+    });
+  });
+
+  describe('GET /transactions/:hash/logs', () => {
+    it('only returns transfers made from or to the user', async () => {
+      backgroundApp.addLog(anotherAddress, [address], '0x01');
+      backgroundApp.addLog(anotherAddress, [someOtherAddress], '0x02');
+      backgroundApp.addLog(address, [someOtherAddress, anotherAddress], '0x03');
+      backgroundApp.addLog(anotherAddress, [someOtherAddress, address], '0x04');
+
+      const app = testInstance();
+      const session = await TestSession.loggedIn(app, privateKey);
+
+      const { status, body } = await session.getJson(
+        '/transactions/0x0001/logs',
+        z.any(),
+      );
+
+      expect(status).toEqual(200);
+      expect(body.items).toHaveLength(3);
+      expect(body.items.map((i: any) => i.data)).toEqual(
+        expect.arrayContaining(['0x01', '0x03', '0x04']),
       );
     });
   });

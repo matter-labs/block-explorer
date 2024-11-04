@@ -51,3 +51,15 @@ export const transferSchema = z.object({
 });
 
 export const enumeratedTransferSchema = enumeratedSchema(transferSchema);
+
+export const logsSchema = z.object({
+  address: addressSchema,
+  blockNumber: z.number(),
+  logIndex: z.number(),
+  data: hexSchema,
+  timestamp: z.string(),
+  topics: z.array(hexSchema),
+  transactionHash: hexSchema,
+  transactionIndex: z.number(),
+});
+export const enumeratedLogSchema = enumeratedSchema(logsSchema);

@@ -6,12 +6,14 @@ import { getUserOrThrow } from '../services/user.js';
 import { ForbiddenError } from '../utils/http-error.js';
 import {
   addressSchema,
-  enumeratedSchema,
+  enumeratedLogSchema,
   enumeratedTransferSchema,
-  hexSchema,
+  logsSchema,
+  transferSchema,
 } from '../utils/schemas.js';
 import { buildUrl } from '../utils/url.js';
 import { wrapIntoPaginationInfo } from '../utils/pagination.js';
+import { requestAndFilterCollection } from '../utils/request-and-filter-collection.js';
 
 export const addressParamsSchema = {
   params: z.object({
@@ -55,19 +57,6 @@ const transfersSchema = {
   }),
 };
 
-const enumeratedLogSchema = enumeratedSchema(
-  z.object({
-    address: addressSchema,
-    blockNumber: z.number(),
-    logIndex: z.number(),
-    data: hexSchema,
-    timestamp: z.string(),
-    topics: z.array(hexSchema),
-    transactionHash: hexSchema,
-    transactionIndex: z.number(),
-  }),
-);
-
 export const addressRoutes = (app: FastifyApp) => {
   const proxyTarget = app.conf.proxyTarget;
   app.get('/:address', { schema: addressParamsSchema }, async (req, reply) => {
@@ -86,17 +75,15 @@ export const addressRoutes = (app: FastifyApp) => {
     async (req, _reply) => {
       const user = getUserOrThrow(req);
       const limit = req.query.limit || 10;
-      const url = `${proxyTarget}/address/${req.params.address}/logs`;
+      const baseUrl = `${proxyTarget}/address/${req.params.address}/logs`;
 
-      const data = await fetch(buildUrl(url, req.query))
-        .then((res) => res.json())
-        .then((json) => enumeratedLogSchema.parse(json));
-
-      const filtered = data.items.filter((log) =>
-        log.topics.some((topic) => topic === user),
+      return await requestAndFilterCollection(
+        baseUrl,
+        req.query,
+        logsSchema,
+        (log) => log.address === user || log.topics.includes(user),
+        limit,
       );
-
-      return wrapIntoPaginationInfo(filtered, url, limit);
     },
   );
 
@@ -108,17 +95,15 @@ export const addressRoutes = (app: FastifyApp) => {
     async (req, _reply) => {
       const user = getUserOrThrow(req);
       const limit = req.query.limit || 10;
-
       const baseUrl = `${proxyTarget}/address/${req.params.address}/transfers`;
-      const data = await fetch(buildUrl(baseUrl, req.query))
-        .then((res) => res.json())
-        .then((json) => enumeratedTransferSchema.parse(json));
 
-      const filtered = data.items.filter(
+      return await requestAndFilterCollection(
+        baseUrl,
+        req.query,
+        transferSchema,
         (transfer) => transfer.from === user || transfer.to === user,
+        limit,
       );
-
-      return wrapIntoPaginationInfo(filtered, baseUrl, limit);
     },
   );
 };

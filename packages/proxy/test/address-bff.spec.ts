@@ -66,7 +66,7 @@ describe('/address', () => {
     const contractAddress = '0xe846c6fcf817734ca4527b28ccb4aea2b6663c79';
 
     it('it returns logs indexed to current user address', async () => {
-      backgroundApp?.addAddressLog(contractAddress, [address], '0x01');
+      backgroundApp?.addLog(contractAddress, [address], '0x01');
 
       const app = testInstance();
       const session = await TestSession.loggedIn(app, privateKey);
@@ -77,7 +77,7 @@ describe('/address', () => {
     });
 
     it('it returns skips logs not indexed to the user', async () => {
-      backgroundApp?.addAddressLog(contractAddress, [contractAddress], '0x01');
+      backgroundApp?.addLog(contractAddress, [contractAddress], '0x01');
 
       const app = testInstance();
       const session = await TestSession.loggedIn(app, privateKey);
@@ -94,7 +94,7 @@ describe('/address', () => {
     });
 
     it('accepts logs indexed in other than the first position to the current user', async () => {
-      backgroundApp?.addAddressLog(contractAddress, ['0x01', address], '0x01');
+      backgroundApp?.addLog(contractAddress, ['0x01', address], '0x01');
 
       const app = testInstance();
       const session = await TestSession.loggedIn(app, privateKey);
@@ -104,11 +104,11 @@ describe('/address', () => {
     });
 
     it('it adjusts sizes to only the logs returned and preserves order', async () => {
-      backgroundApp?.addAddressLog(contractAddress, ['0x01', address], '0x01');
-      backgroundApp?.addAddressLog(contractAddress, [address], '0x02');
-      backgroundApp?.addAddressLog(contractAddress, [contractAddress], '0x03');
-      backgroundApp?.addAddressLog(contractAddress, [contractAddress], '0x04');
-      backgroundApp?.addAddressLog(
+      backgroundApp?.addLog(contractAddress, ['0x01', address], '0x01');
+      backgroundApp?.addLog(contractAddress, [address], '0x02');
+      backgroundApp?.addLog(contractAddress, [contractAddress], '0x03');
+      backgroundApp?.addLog(contractAddress, [contractAddress], '0x04');
+      backgroundApp?.addLog(
         contractAddress,
         ['0x01', '0x02', '0x03', address],
         '0x05',
