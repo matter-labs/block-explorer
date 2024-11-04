@@ -28,14 +28,15 @@ export function enumeratedSchema<T extends ZodTypeAny>(parser: T) {
 
 export const tokenSchema = z.object({
   l2Address: hexSchema,
-  l1Address: hexSchema,
+  l1Address: z.nullable(hexSchema),
   symbol: z.string(),
   name: z.string(),
   decimals: z.number(),
-  usdPrice: z.number(),
-  liquidity: z.number(),
-  iconURL: z.string(),
+  usdPrice: z.nullable(z.number()),
+  liquidity: z.nullable(z.number()),
+  iconURL: z.nullable(z.string()),
 });
+export type TokenData = z.infer<typeof tokenSchema>;
 
 export const transferSchema = z.object({
   from: hexSchema,

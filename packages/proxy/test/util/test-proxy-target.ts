@@ -4,7 +4,7 @@ import { type Address, bytesToHex, type Hex, zeroAddress } from 'viem';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
-import { hexSchema } from '../../src/utils/schemas.js';
+import { hexSchema, TokenData } from '../../src/utils/schemas.js';
 import { Transaction } from '../../src/routes/transactions-bff.js';
 
 type Log = {
@@ -57,12 +57,39 @@ type Wrapped<T> = {
   };
 };
 
+type AccountBalance = {
+  balance: string;
+  token: null | TokenData;
+};
+
+type AddressContent =
+  | {
+      type: 'account';
+      address: Address;
+      blockNumber: number;
+      balances: Record<Hex, AccountBalance>;
+      sealedNonce: number;
+      verifiedNonce: number;
+    }
+  | {
+      type: 'contract';
+      address: Address;
+      bytecode: Hex;
+      createdInBlockNumber: number;
+      creatorTxHash: Hex;
+      creatorAddress: Address;
+      blockNumber: number;
+      balances: Record<Hex, AccountBalance>;
+      totalTransactions: number;
+    };
+
 export class TestProxy {
   private port: number;
   private app: FastifyApp;
   private logs: Log[];
   private transfers: Transfer[];
   private transactions: Transaction[];
+  private nextAddress: AddressContent | null;
 
   constructor(port = 9191) {
     this.port = port;
@@ -70,6 +97,7 @@ export class TestProxy {
     this.logs = [];
     this.transfers = [];
     this.transactions = [];
+    this.nextAddress = null;
   }
 
   url(): string {
@@ -139,6 +167,10 @@ export class TestProxy {
   }
 
   async start(): Promise<void> {
+    this.app.get('/address/:address', async (_req, _reply) => {
+      return this.nextAddress;
+    });
+
     this.app.get('/address/:address/logs', async (request, _reply) => {
       const { address } = z
         .object({
@@ -231,6 +263,31 @@ export class TestProxy {
       proveTxHash: null,
       isL1BatchSealed: false,
     });
+  }
+
+  setNextAddress(type: 'account' | 'contract', address: Address) {
+    if (type === 'account') {
+      this.nextAddress = {
+        type: 'account',
+        address: address,
+        blockNumber: 10,
+        balances: {},
+        sealedNonce: 1,
+        verifiedNonce: 1,
+      };
+    } else {
+      this.nextAddress = {
+        type: 'contract',
+        address: address,
+        bytecode: '0x01',
+        createdInBlockNumber: 1,
+        creatorTxHash: '0x',
+        creatorAddress: zeroAddress,
+        blockNumber: 1,
+        balances: {},
+        totalTransactions: 1,
+      };
+    }
   }
 }
 
