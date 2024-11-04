@@ -1,3 +1,44 @@
 # Double zero block explorer proxy
 
-This is a simple repo
+Proxy meant to add authorization in data returned by explorer.
+
+## Prepare
+
+The proxy can be configured with a few environment variables:
+
+- `NODE_ENV`: environment for node js. It can be `production` or `development`.
+- `SERVER_PORT`: port where the proxy is going to run.
+- `BLOCK_EXPLORER_API_URL`: url for the real block explorer api.
+- `SESSION_SECRET`: 32 bytes expressed in hex.
+- `CORS_ORIGIN`: url where the app is going to run.
+
+For development this can ben easily configured by doing:
+
+``` bash
+cp env.example .env
+```
+
+## Dev
+
+To run the proxy in development mode:
+
+``` bash
+npm run dev
+```
+
+## Build
+
+``` bash
+npm run build
+```
+
+## Test
+``` bash
+npm run test
+```
+
+## Prod start
+
+``` bash
+npm start
+```
