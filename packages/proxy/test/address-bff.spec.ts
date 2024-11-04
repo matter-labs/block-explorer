@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { privateKeyToAccount } from 'viem/accounts';
-import { TestProxy, testResponseSchema } from './util/test-proxy-target.js';
+import { TestProxy } from './util/test-proxy-target.js';
 import { TestSession } from './util/test-session.js';
 import { bytesToHex } from 'viem';
 import { z } from 'zod';
