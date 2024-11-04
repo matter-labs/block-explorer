@@ -3,16 +3,13 @@ import { pipeGetRequest } from '../services/block-explorer.js';
 import { z } from 'zod';
 import {
   addressSchema,
-  enumeratedLogSchema,
   enumeratedSchema,
-  enumeratedTransferSchema,
   hexSchema,
   logsSchema,
   transferSchema,
 } from '../utils/schemas.js';
 import { wrapIntoPaginationInfo } from '../utils/pagination.js';
 import { getUserOrThrow } from '../services/user.js';
-import { buildUrl } from '../utils/url.js';
 import { requestAndFilterCollection } from '../utils/request-and-filter-collection.js';
 
 export const transactionSchema = z.object({

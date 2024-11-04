@@ -4,15 +4,7 @@ import { isAddressEqual } from 'viem';
 import { pipeGetRequest } from '../services/block-explorer.js';
 import { getUserOrThrow } from '../services/user.js';
 import { ForbiddenError } from '../utils/http-error.js';
-import {
-  addressSchema,
-  enumeratedLogSchema,
-  enumeratedTransferSchema,
-  logsSchema,
-  transferSchema,
-} from '../utils/schemas.js';
-import { buildUrl } from '../utils/url.js';
-import { wrapIntoPaginationInfo } from '../utils/pagination.js';
+import { addressSchema, logsSchema, transferSchema } from '../utils/schemas.js';
 import { requestAndFilterCollection } from '../utils/request-and-filter-collection.js';
 
 export const addressParamsSchema = {
