@@ -84,8 +84,6 @@ export const addressRoutes = (app: FastifyApp) => {
       } else {
         throw new ForbiddenError('Forbidden');
       }
-    } else {
-      throw new HttpError(`Unknown account type: ${data}`, 424);
     }
   });
 
