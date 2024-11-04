@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { privateKeyToAccount } from 'viem/accounts';
-import { TestProxy } from './util/test-proxy-target.js';
+import { TestProxy, testResponseSchema } from './util/test-proxy-target.js';
 import { TestSession } from './util/test-session.js';
 import { z } from 'zod';
 import { bytesToHex, zeroAddress } from 'viem';
@@ -106,6 +106,38 @@ describe('/transactions', () => {
 
       expect(status).toEqual(200);
       expect(body.items).toHaveLength(0);
+    });
+  });
+
+  describe('GET /transactions/:hash', () => {
+    it('bypass the request when no user logged in', async () => {
+      backgroundApp.addTransaction(zeroAddress, address, '0x01');
+
+      const app = testInstance();
+      const session = new TestSession(app);
+
+      const { status, body } = await session.getJson(
+        '/transactions/0x0001',
+        testResponseSchema,
+      );
+
+      expect(status).toEqual(200);
+      expect(body.url).toEqual('/transactions/0x0001');
+    });
+
+    it('bypass the request when user logged in', async () => {
+      backgroundApp.addTransaction(zeroAddress, address, '0x01');
+
+      const app = testInstance();
+      const session = await TestSession.loggedIn(app, privateKey);
+
+      const { status, body } = await session.getJson(
+        '/transactions/0x0001',
+        testResponseSchema,
+      );
+
+      expect(status).toEqual(200);
+      expect(body.url).toEqual('/transactions/0x0001');
     });
   });
 });
