@@ -50,8 +50,14 @@ describe('/address', () => {
     it('when user logged in bypass request to main api twice', async () => {
       const app = testInstance();
       const session = await TestSession.loggedIn(app, privateKey);
-      const res = await session.getJson(`/address/${address}`, testResponseSchema);
-      const res2 = await session.getJson(`/address/${address}`, testResponseSchema);
+      const res = await session.getJson(
+        `/address/${address}`,
+        testResponseSchema,
+      );
+      const res2 = await session.getJson(
+        `/address/${address}`,
+        testResponseSchema,
+      );
       expect(res).toEqual(res2);
     });
   });

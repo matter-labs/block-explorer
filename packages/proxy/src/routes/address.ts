@@ -1,11 +1,16 @@
 import type { FastifyApp } from '../app.js';
-import { z, type ZodTypeAny } from 'zod';
+import { z } from 'zod';
 import { isAddressEqual } from 'viem';
 import { pipeGetRequest } from '../services/block-explorer.js';
 import { getUserOrThrow } from '../services/user.js';
 import { ForbiddenError } from '../utils/http-error.js';
-import { addressSchema, hexSchema } from '../utils/schemas.js';
+import {
+  addressSchema,
+  enumeratedSchema,
+  hexSchema,
+} from '../utils/schemas.js';
 import { buildUrl } from '../utils/url.js';
+import { wrapIntoPaginationInfo } from '../utils/pagination.js';
 
 export const addressParamsSchema = {
   params: z.object({
@@ -33,29 +38,6 @@ export type Paginated<T> = {
     last: string;
   };
 };
-
-function wrapIntoPaginationInfo<T>(
-  collection: T[],
-  linksBaseUri: string,
-  limit: number,
-): Paginated<T> {
-  return {
-    items: collection,
-    meta: {
-      totalItems: collection.length,
-      itemCount: collection.length,
-      itemsPerPage: limit,
-      totalPages: collection.length === 0 ? 0 : 1,
-      currentPage: 1,
-    },
-    links: {
-      first: `${linksBaseUri}?limit=${limit}`,
-      previous: '',
-      next: '',
-      last: `${linksBaseUri}?page=1&limit=${limit}`,
-    },
-  };
-}
 
 const transfersSchema = {
   params: z.object({
@@ -97,25 +79,6 @@ export const transferSchema = z.object({
 });
 
 const enumeratedTransferSchema = enumeratedSchema(transferSchema);
-
-function enumeratedSchema<T extends ZodTypeAny>(parser: T) {
-  return z.object({
-    items: z.array(parser),
-    meta: z.object({
-      totalItems: z.number(),
-      itemCount: z.number(),
-      itemsPerPage: z.number(),
-      totalPages: z.number(),
-      currentPage: z.number(),
-    }),
-    links: z.object({
-      first: z.string(),
-      previous: z.string(),
-      next: z.string(),
-      last: z.string(),
-    }),
-  });
-}
 
 const enumeratedLogSchema = enumeratedSchema(
   z.object({

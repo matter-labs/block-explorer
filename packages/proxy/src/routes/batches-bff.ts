@@ -1,5 +1,4 @@
 import type { FastifyApp } from '../app.js';
-import { buildUrl } from '../utils/url.js';
 import { z } from 'zod';
 import { pipeGetRequest } from '../services/block-explorer.js';
 

@@ -5,6 +5,7 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { hexSchema } from '../../src/utils/schemas.js';
+import { Transaction } from '../../src/routes/transactions-bff.js';
 
 type Log = {
   address: Address;
@@ -61,12 +62,14 @@ export class TestProxy {
   private app: FastifyApp;
   private addressLogs: Log[];
   private transfers: Transfer[];
+  private transactions: Transaction[];
 
   constructor(port = 9191) {
     this.port = port;
     this.app = fastify().withTypeProvider<ZodTypeProvider>();
     this.addressLogs = [];
     this.transfers = [];
+    this.transactions = [];
   }
 
   url(): string {
@@ -113,9 +116,10 @@ export class TestProxy {
   reset() {
     this.addressLogs = [];
     this.transfers = [];
+    this.transactions = [];
   }
 
-  private wrapResponse<T>(collection: T[], address: string): Wrapped<T> {
+  private wrapResponse<T>(collection: T[], baseUrl: string): Wrapped<T> {
     return {
       items: collection,
       meta: {
@@ -126,10 +130,10 @@ export class TestProxy {
         currentPage: 1,
       },
       links: {
-        first: `address/${address}/logs?limit=10`,
+        first: `${baseUrl}?limit=10`,
         previous: '',
-        next: `address/${address}/logs?page=2&limit=10`,
-        last: `address/${address}/logs?page=1000&limit=10`,
+        next: `${baseUrl}?page=2&limit=10`,
+        last: `${baseUrl}?page=1000&limit=10`,
       },
     };
   }
@@ -141,7 +145,7 @@ export class TestProxy {
           address: hexSchema,
         })
         .parse(request.params);
-      return this.wrapResponse(this.addressLogs, address);
+      return this.wrapResponse(this.addressLogs, `/address/${address}/logs`);
     });
 
     this.app.get('/address/:address/transfers', async (request, _reply) => {
@@ -150,7 +154,11 @@ export class TestProxy {
           address: hexSchema,
         })
         .parse(request.params);
-      return this.wrapResponse(this.transfers, address);
+      return this.wrapResponse(this.transfers, `/address/${address}/transfers`);
+    });
+
+    this.app.get('/transactions', async (_req, _reply) => {
+      return this.wrapResponse(this.transactions, `/transactions`);
     });
 
     this.app.get('*', async (req) => {
@@ -170,6 +178,38 @@ export class TestProxy {
 
   async stop(): Promise<void> {
     await this.app.close();
+  }
+
+  addTransaction(from: Address, to: Address, hash: Hex) {
+    this.transactions.push({
+      hash: hash,
+      to: to,
+      from: from,
+      data: '0x',
+      value: '368708219802970062',
+      isL1Originated: false,
+      fee: '0x3bd1846dec0',
+      nonce: 1676855,
+      gasLimit: '176029',
+      gasPrice: '45250000',
+      gasPerPubdata: '50000',
+      maxFeePerGas: '10000000000',
+      maxPriorityFeePerGas: '1200000000',
+      blockNumber: 48125137,
+      l1BatchNumber: 493709,
+      blockHash:
+        '0x6276ba11be92b74687ca4f0ff54f80188d41b7e552d1d0fa39fd20fd28147c39',
+      type: 2,
+      transactionIndex: 1,
+      receivedAt: '2024-11-04T10:54:17.916Z',
+      error: null,
+      revertReason: null,
+      status: 'included',
+      commitTxHash: null,
+      executeTxHash: null,
+      proveTxHash: null,
+      isL1BatchSealed: false,
+    });
   }
 }
 
