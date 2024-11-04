@@ -7,8 +7,8 @@ export const hexTransformer: ValueTransformer = {
       return null;
     }
 
-    if (value instanceof FindOperator<any>) {
-      return value;
+    if (value instanceof FindOperator) {
+      return value
     }
 
     return Buffer.from(value.startsWith("0x") ? value.substring(2) : value, "hex");
