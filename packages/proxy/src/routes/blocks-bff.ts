@@ -29,7 +29,10 @@ export function blocksRoutes(app: FastifyApp) {
   });
 
   app.get('/:blockNumber', blocksDetailSchema, async (req, reply) => {
-    const targetUrl = buildUrl(`${app.conf.proxyTarget}/blocks/${req.params.blockNumber}`, {});
+    const targetUrl = buildUrl(
+      `${app.conf.proxyTarget}/blocks/${req.params.blockNumber}`,
+      {},
+    );
     return pipeGetRequest(targetUrl, reply);
   });
 }

@@ -1,8 +1,49 @@
 import type { FastifyApp } from '../app.js';
-import { buildUrl } from '../utils/url.js';
 import { pipeGetRequest } from '../services/block-explorer.js';
 import { z } from 'zod';
-import { hexSchema } from '../utils/schemas.js';
+import {
+  addressSchema,
+  enumeratedSchema,
+  hexSchema,
+  logsSchema,
+  transferSchema,
+} from '../utils/schemas.js';
+import { wrapIntoPaginationInfo } from '../utils/pagination.js';
+import { getUserOrThrow } from '../services/user.js';
+import { requestAndFilterCollection } from '../utils/request-and-filter-collection.js';
+
+export const transactionSchema = z.object({
+  hash: hexSchema,
+  to: addressSchema,
+  from: addressSchema,
+  transactionIndex: z.number(),
+  data: hexSchema,
+  value: z.string(),
+  fee: hexSchema,
+  nonce: z.number(),
+  gasPrice: z.string(),
+  gasLimit: z.string(),
+  gasPerPubdata: z.string(),
+  maxFeePerGas: z.string(),
+  maxPriorityFeePerGas: z.string(),
+  blockNumber: z.number(),
+  blockHash: hexSchema,
+  receivedAt: z.string(),
+  commitTxHash: z.nullable(hexSchema),
+  proveTxHash: z.nullable(hexSchema),
+  executeTxHash: z.nullable(hexSchema),
+  isL1Originated: z.boolean(),
+  l1BatchNumber: z.number(),
+  isL1BatchSealed: z.boolean(),
+  type: z.number(),
+  status: z.string(),
+  error: z.nullable(z.string()),
+  revertReason: z.nullable(z.string()),
+});
+
+export type Transaction = z.infer<typeof transactionSchema>;
+
+const paginatedTransactionsSchema = enumeratedSchema(transactionSchema);
 
 const transactionIndexSchema = {
   schema: {
@@ -41,9 +82,18 @@ const transactionTransfersSchema = {
 const transactionLogsSchema = transactionTransfersSchema;
 
 export function transationsRoutes(app: FastifyApp) {
-  app.get('/', transactionIndexSchema, async (req, reply) => {
-    const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-    return pipeGetRequest(targetUrl, reply);
+  app.get('/', transactionIndexSchema, async (req, _reply) => {
+    const user = req.user;
+    const { items } = await fetch(`${app.conf.proxyTarget}${req.url}`)
+      .then((res) => res.json())
+      .then((json) => paginatedTransactionsSchema.parse(json));
+
+    const filtered = items.filter((tx) => tx.from === user || tx.to === user);
+    return wrapIntoPaginationInfo(
+      filtered,
+      `/transactions`,
+      req.query.limit || 10,
+    );
   });
 
   app.get('/:transactionHash', transactionDetailsSchema, async (req, reply) => {
@@ -54,18 +104,36 @@ export function transationsRoutes(app: FastifyApp) {
   app.get(
     '/:transactionHash/transfers',
     transactionTransfersSchema,
-    async (req, reply) => {
-      const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-      return pipeGetRequest(targetUrl, reply);
+    async (req, _reply) => {
+      const user = getUserOrThrow(req);
+      const limit = req.query.limit || 10;
+
+      const baseUrl = `${app.conf.proxyTarget}/transactions/${req.params.transactionHash}/transfers`;
+      return await requestAndFilterCollection(
+        baseUrl,
+        req.query,
+        transferSchema,
+        (transfer) => transfer.from === user || transfer.to === user,
+        limit,
+      );
     },
   );
 
   app.get(
     '/:transactionHash/logs',
     transactionLogsSchema,
-    async (req, reply) => {
-      const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-      return pipeGetRequest(targetUrl, reply);
+    async (req, _reply) => {
+      const user = getUserOrThrow(req);
+      const limit = req.query.limit || 10;
+
+      const baseUrl = `${app.conf.proxyTarget}/transactions/${req.params.transactionHash}/logs`;
+      return await requestAndFilterCollection(
+        baseUrl,
+        req.query,
+        logsSchema,
+        (log) => log.address === user || log.topics.includes(user),
+        limit,
+      );
     },
   );
 }
