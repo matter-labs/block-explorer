@@ -100,6 +100,7 @@
             "generalInfo": "General Info",
             "logs": "Logs"
         },
+        "loginRequired": "Login to see the latest transactions",
         "table": {
             "status": "Status",
             "statusTooltip": "The status of the transaction",
@@ -314,8 +315,8 @@
         "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "ZKsync Era Block Explorer",
-        "subtitle": "ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network.",
+        "title": "Double Zero Block Explorer",
+        "subtitle": "Double Zero Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Validium and explore the network.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions",
         "batches": "Latest Batches"

@@ -13,9 +13,11 @@ import { getWindowLocation } from "@/utils/helpers";
 
 const network = useStorage("selectedNetwork_v2", DEFAULT_NETWORK.name);
 const isReady = ref(false);
+const isLoggedIn = ref(false);
 
 export type Context = {
   isReady: Ref<boolean>;
+  isLoggedIn: Ref<boolean>;
   currentNetwork: ComputedRef<NetworkConfig>;
   networks: ComputedRef<NetworkConfig[]>;
   getL2Provider: () => Provider;
@@ -71,6 +73,7 @@ export default (): Context => {
   }
 
   return {
+    isLoggedIn,
     isReady,
     currentNetwork,
     networks,

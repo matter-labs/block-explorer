@@ -5,7 +5,7 @@ import { SiweMessage } from "siwe";
 import defaultLogger from "./../utils/logger";
 
 import type { BaseProvider } from "@metamask/providers";
-import { reactive, type ToRefs, toRefs, type ComputedRef } from "vue";
+import { reactive, type ToRefs, toRefs, type ComputedRef, type Ref } from "vue";
 import type { Provider } from "zksync-ethers";
 import { $fetch } from "ohmyfetch";
 import type { NetworkConfig } from "../configs";
@@ -17,6 +17,7 @@ type LoginState = {
 type UseLogin = ToRefs<LoginState> & {
   login: () => Promise<void>;
   logout: () => Promise<void>;
+  initializeLogin: () => Promise<void>;
 };
 
 const state = reactive<LoginState>({
@@ -25,6 +26,7 @@ const state = reactive<LoginState>({
 
 export default (
   context: {
+    isLoggedIn: Ref<boolean>;
     currentNetwork: ComputedRef<NetworkConfig>;
     getL2Provider: () => Provider;
   },
@@ -36,7 +38,21 @@ export default (
       silent: false,
     }) as Promise<BaseProvider | undefined>;
 
+  const initializeLogin = async () => {
+    try {
+      const response = await $fetch<{ address: string }>(`${context.currentNetwork.value.apiUrl}/auth/user`, {
+        credentials: "include",
+      });
+      if (response.address) {
+        context.isLoggedIn.value = true;
+      }
+    } catch {
+      context.isLoggedIn.value = false;
+    }
+  };
+
   const login = async () => {
+    context.isLoggedIn.value = false;
     state.isLoginPending = true;
 
     const ethereum = await getEthereumProvider();
@@ -66,15 +82,18 @@ export default (
       credentials: "include",
     });
     state.isLoginPending = false;
+    context.isLoggedIn.value = true;
   };
 
   const logout = async () => {
     await $fetch(`${context.currentNetwork.value.apiUrl}/auth/logout`, { credentials: "include" });
+    context.isLoggedIn.value = false;
   };
 
   return {
     ...toRefs(state),
     login,
     logout,
+    initializeLogin,
   };
 };
