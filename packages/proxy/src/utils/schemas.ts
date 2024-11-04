@@ -50,8 +50,6 @@ export const transferSchema = z.object({
   fields: z.any(),
 });
 
-export const enumeratedTransferSchema = enumeratedSchema(transferSchema);
-
 export const logsSchema = z.object({
   address: addressSchema,
   blockNumber: z.number(),
@@ -62,4 +60,3 @@ export const logsSchema = z.object({
   transactionHash: hexSchema,
   transactionIndex: z.number(),
 });
-export const enumeratedLogSchema = enumeratedSchema(logsSchema);
