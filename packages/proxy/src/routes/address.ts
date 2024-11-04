@@ -7,6 +7,7 @@ import { ForbiddenError } from '../utils/http-error.js';
 import {
   addressSchema,
   enumeratedSchema,
+  enumeratedTransferSchema,
   hexSchema,
 } from '../utils/schemas.js';
 import { buildUrl } from '../utils/url.js';
@@ -53,32 +54,6 @@ const transfersSchema = {
     toDate: z.optional(z.string()),
   }),
 };
-
-export const tokenSchema = z.object({
-  l2Address: hexSchema,
-  l1Address: hexSchema,
-  symbol: z.string(),
-  name: z.string(),
-  decimals: z.number(),
-  usdPrice: z.number(),
-  liquidity: z.number(),
-  iconURL: z.string(),
-});
-
-export const transferSchema = z.object({
-  from: hexSchema,
-  to: hexSchema,
-  blockNumber: z.number(),
-  transactionHash: hexSchema,
-  amount: z.string(),
-  token: tokenSchema,
-  tokenAddress: hexSchema,
-  type: z.enum(['deposit', 'transfer', 'withdrawal', 'fee', 'mint', 'refund']),
-  timestamp: z.string(),
-  fields: z.any(),
-});
-
-const enumeratedTransferSchema = enumeratedSchema(transferSchema);
 
 const enumeratedLogSchema = enumeratedSchema(
   z.object({

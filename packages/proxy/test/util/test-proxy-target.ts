@@ -157,6 +157,18 @@ export class TestProxy {
       return this.wrapResponse(this.transfers, `/address/${address}/transfers`);
     });
 
+    this.app.get('/transactions/:hash/transfers', async (request, _reply) => {
+      const { hash } = z
+        .object({
+          hash: hexSchema,
+        })
+        .parse(request.params);
+      return this.wrapResponse(
+        this.transfers,
+        `/transactions/${hash}/transfers`,
+      );
+    });
+
     this.app.get('/transactions', async (_req, _reply) => {
       return this.wrapResponse(this.transactions, `/transactions`);
     });

@@ -28,6 +28,9 @@ describe('/transactions', () => {
   const testInstance = () =>
     buildApp(secret, 'development', 'http://localhost:9191', false, []);
 
+  const anotherAddress = bytesToHex(Buffer.alloc(20).fill(1));
+  const someOtherAddress = bytesToHex(Buffer.alloc(20).fill(2));
+
   describe('GET /transactions', () => {
     it('when user is logged in returns transactions where user is source', async () => {
       backgroundApp.addTransaction(address, zeroAddress, '0x01');
@@ -46,8 +49,6 @@ describe('/transactions', () => {
     });
 
     it('filters out transactions where user is not source or address', async () => {
-      const anotherAddress = bytesToHex(Buffer.alloc(20).fill(1));
-      const someOtherAddress = bytesToHex(Buffer.alloc(20).fill(2));
       backgroundApp.addTransaction(anotherAddress, someOtherAddress, '0x01');
       backgroundApp.addTransaction(someOtherAddress, anotherAddress, '0x02');
 
@@ -77,8 +78,6 @@ describe('/transactions', () => {
     });
 
     it('when user is logged in filters only right transactions', async () => {
-      const anotherAddress = bytesToHex(Buffer.alloc(20).fill(1));
-      const someOtherAddress = bytesToHex(Buffer.alloc(20).fill(2));
       backgroundApp.addTransaction(anotherAddress, someOtherAddress, '0x01');
       backgroundApp.addTransaction(anotherAddress, address, '0x02');
       backgroundApp.addTransaction(someOtherAddress, anotherAddress, '0x03');
@@ -138,6 +137,28 @@ describe('/transactions', () => {
 
       expect(status).toEqual(200);
       expect(body.url).toEqual('/transactions/0x0001');
+    });
+  });
+
+  describe('GET /transactions/:hash/transfers', () => {
+    it('only returns transfers made from or to the user', async () => {
+      backgroundApp.addTransfer(anotherAddress, address, 1);
+      backgroundApp.addTransfer(address, someOtherAddress, 2);
+      backgroundApp.addTransfer(anotherAddress, someOtherAddress, 3);
+
+      const app = testInstance();
+      const session = await TestSession.loggedIn(app, privateKey);
+
+      const { status, body } = await session.getJson(
+        '/transactions/0x0001/transfers',
+        z.any(),
+      );
+      console.log(body);
+      expect(status).toEqual(200);
+      expect(body.items).toHaveLength(2);
+      expect(body.items.map((i: any) => i.amount)).toEqual(
+        expect.arrayContaining(['1', '2']),
+      );
     });
   });
 });

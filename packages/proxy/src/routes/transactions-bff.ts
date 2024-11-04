@@ -4,9 +4,12 @@ import { z } from 'zod';
 import {
   addressSchema,
   enumeratedSchema,
+  enumeratedTransferSchema,
   hexSchema,
 } from '../utils/schemas.js';
 import { wrapIntoPaginationInfo } from '../utils/pagination.js';
+import { getUserOrThrow } from '../services/user.js';
+import { buildUrl } from '../utils/url.js';
 
 export const transactionSchema = z.object({
   hash: hexSchema,
@@ -37,9 +40,9 @@ export const transactionSchema = z.object({
   revertReason: z.nullable(z.string()),
 });
 
-const paginatedTransactionsSchema = enumeratedSchema(transactionSchema);
-
 export type Transaction = z.infer<typeof transactionSchema>;
+
+const paginatedTransactionsSchema = enumeratedSchema(transactionSchema);
 
 const transactionIndexSchema = {
   schema: {
@@ -80,13 +83,13 @@ const transactionLogsSchema = transactionTransfersSchema;
 export function transationsRoutes(app: FastifyApp) {
   app.get('/', transactionIndexSchema, async (req, _reply) => {
     const user = req.user;
-    const data = await fetch(`${app.conf.proxyTarget}${req.url}`)
+    const { items } = await fetch(`${app.conf.proxyTarget}${req.url}`)
       .then((res) => res.json())
       .then((json) => paginatedTransactionsSchema.parse(json));
 
-    const items = data.items.filter((tx) => tx.from === user || tx.to === user);
+    const filtered = items.filter((tx) => tx.from === user || tx.to === user);
     return wrapIntoPaginationInfo(
-      items,
+      filtered,
       `/transactions`,
       req.query.limit || 10,
     );
@@ -100,9 +103,20 @@ export function transationsRoutes(app: FastifyApp) {
   app.get(
     '/:transactionHash/transfers',
     transactionTransfersSchema,
-    async (req, reply) => {
-      const targetUrl = `${app.conf.proxyTarget}${req.url}`;
-      return pipeGetRequest(targetUrl, reply);
+    async (req, _reply) => {
+      const user = getUserOrThrow(req);
+      const limit = req.query.limit || 10;
+
+      const baseUrl = `${app.conf.proxyTarget}/transactions/${req.params.transactionHash}/transfers`;
+      const res = await fetch(buildUrl(baseUrl, req.query))
+        .then((res) => res.json())
+        .then((json) => enumeratedTransferSchema.parse(json));
+
+      const filtered = res.items.filter(
+        (transfer) => transfer.from === user || transfer.to === user,
+      );
+
+      return wrapIntoPaginationInfo(filtered, baseUrl, limit);
     },
   );
 
