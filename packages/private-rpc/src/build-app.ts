@@ -4,13 +4,9 @@ import {
   validatorCompiler,
   ZodTypeProvider,
 } from 'fastify-type-provider-zod';
-import { handleRpc } from 'typed-rpc/server';
-import { RpcService } from './rpc-service';
 import { DB } from '@/db';
-import { usersRoutes } from '@/users-routes';
-import { getUserByToken } from '@/query/user';
-import { z } from 'zod';
-import { HttpError } from '@/errors';
+import { usersRoutes } from '@/routes/users-routes';
+import { rpcRoutes } from '@/routes/rpc-routes';
 
 export function buildApp(produceLogs = true, db: DB) {
   const app = Fastify({
@@ -25,18 +21,7 @@ export function buildApp(produceLogs = true, db: DB) {
   });
 
   app.register(usersRoutes, { prefix: '/users' });
-
-  app.post(
-    '/rpc/:token',
-    { schema: { params: z.object({ token: z.string() }) } },
-    async (req, reply) => {
-      const user = await getUserByToken(app.context.db, req.params.token).then(
-        (maybe) => maybe.expect(new HttpError('Unauthorized', 401)),
-      );
-      const res = await handleRpc(req.body, new RpcService(user.address));
-      reply.send(res);
-    },
-  );
+  app.register(rpcRoutes, { prefix: '/rpc' });
 
   return app;
 }

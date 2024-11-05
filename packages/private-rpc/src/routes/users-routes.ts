@@ -7,8 +7,8 @@ import { nanoid } from 'nanoid';
 const createUserSchema = {
   schema: {
     body: z.object({
-      address: hexSchema
-    })
+      address: hexSchema,
+    }),
   },
 };
 
@@ -19,8 +19,8 @@ export function usersRoutes(app: WebServer) {
 
     await app.context.db.insert(usersTable).values({
       address,
-      token
-    })
+      token,
+    });
 
     reply.send({ ok: true, token });
   });
