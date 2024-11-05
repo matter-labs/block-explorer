@@ -34,6 +34,8 @@ export class TransactionReceipt extends CountableEntity {
   @Column({ type: "int" })
   public readonly type: number;
 
+  // this field is only relevant on L1 pre byzantium fork (EIP658),
+  // but was present in ZKsync API before, so it cannot be just dropped.
   @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
   public readonly root?: string;
 
