@@ -18,6 +18,7 @@ import enUS from "./locales/en.json";
 import { useSentry } from "@/utils/logger";
 
 import "@/assets/tailwind.scss";
+import useLogin from "./composables/useLogin";
 
 export type MessageSchema = typeof enUS;
 
@@ -56,6 +57,9 @@ if (runtimeConfig.sentryDSN?.length) {
 
 (process.env.NODE_ENV === "test" ? Promise.resolve() : loadEnvironmentConfig(runtimeConfig))
   .catch(() => null)
-  .then(context.identifyNetwork);
+  .then(() => {
+    context.identifyNetwork();
+    useLogin(context).initializeLogin();
+  });
 
 app.mount("#app");

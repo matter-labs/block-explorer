@@ -15,19 +15,28 @@
         <ContractInfoTable class="contract-info-table" :loading="pending" :contract="contract!" />
       </div>
       <div>
-        <BalanceTable class="balance-table" :loading="pending" :balances="contract?.balances">
+        <BalanceTable class="balance-table" :loading="pending" :balances="unauthorized ? {} : contract?.balances">
           <template #not-found>
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
+                  <img v-if="!unauthorized" src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
+                  <img v-else src="/images/empty-state/unauthorized_balance.svg" alt="unauthorized_balance" />
                 </div>
               </template>
               <template #title>
-                {{ t("contract.balances.notFound.title") }}
+                <div :class="{ 'balances-unauthorized-title': unauthorized }">
+                  {{ unauthorized ? t("contract.balances.unauthorized.title") : t("contract.balances.notFound.title") }}
+                </div>
               </template>
               <template #description>
-                <div class="balances-empty-description">{{ t("contract.balances.notFound.subtitle") }}</div>
+                <div class="balances-empty-description" :class="{ 'balances-unauthorized-description': unauthorized }">
+                  {{
+                    unauthorized
+                      ? t("contract.balances.unauthorized.subtitle")
+                      : t("contract.balances.notFound.subtitle")
+                  }}
+                </div>
               </template>
             </EmptyState>
           </template>
@@ -113,6 +122,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  unauthorized: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const tabs = computed(() => [
@@ -180,6 +193,12 @@ const transactionsSearchParams = computed(() => ({
     }
     .balances-empty-description {
       @apply max-w-[16rem] whitespace-normal;
+    }
+    .balances-unauthorized-title {
+      @apply text-error-700 font-bold;
+    }
+    .balances-unauthorized-description {
+      @apply text-error-500 max-w-[24rem];
     }
   }
 }

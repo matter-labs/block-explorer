@@ -5,12 +5,8 @@ import {
   addressSchema,
   enumeratedSchema,
   hexSchema,
-  logsSchema,
-  transferSchema,
 } from '../utils/schemas.js';
 import { wrapIntoPaginationInfo } from '../utils/pagination.js';
-import { getUserOrThrow } from '../services/user.js';
-import { requestAndFilterCollection } from '../utils/request-and-filter-collection.js';
 
 export const transactionSchema = z.object({
   hash: hexSchema,
@@ -104,36 +100,18 @@ export function transationsRoutes(app: FastifyApp) {
   app.get(
     '/:transactionHash/transfers',
     transactionTransfersSchema,
-    async (req, _reply) => {
-      const user = getUserOrThrow(req);
-      const limit = req.query.limit || 10;
-
-      const baseUrl = `${app.conf.proxyTarget}/transactions/${req.params.transactionHash}/transfers`;
-      return await requestAndFilterCollection(
-        baseUrl,
-        req.query,
-        transferSchema,
-        (transfer) => transfer.from === user || transfer.to === user,
-        limit,
-      );
+    async (req, reply) => {
+      const targetUrl = `${app.conf.proxyTarget}${req.url}`;
+      return pipeGetRequest(targetUrl, reply);
     },
   );
 
   app.get(
     '/:transactionHash/logs',
     transactionLogsSchema,
-    async (req, _reply) => {
-      const user = getUserOrThrow(req);
-      const limit = req.query.limit || 10;
-
-      const baseUrl = `${app.conf.proxyTarget}/transactions/${req.params.transactionHash}/logs`;
-      return await requestAndFilterCollection(
-        baseUrl,
-        req.query,
-        logsSchema,
-        (log) => log.address === user || log.topics.includes(user),
-        limit,
-      );
+    async (req, reply) => {
+      const targetUrl = `${app.conf.proxyTarget}${req.url}`;
+      return pipeGetRequest(targetUrl, reply);
     },
   );
 }

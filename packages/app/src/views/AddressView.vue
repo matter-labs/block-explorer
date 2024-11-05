@@ -3,8 +3,14 @@
     <PageError />
   </div>
   <template v-else-if="props.address && isAddress(props.address)">
-    <AccountView v-if="pageType === 'account'" :account="(item as Account)" :pending="pending" :failed="failed" />
-    <ContractView v-else :contract="(item as Contract)" :pending="pending" :failed="failed" />
+    <AccountView
+      v-if="pageType === 'account'"
+      :account="item as Account"
+      :pending="pending"
+      :failed="failed"
+      :authorized="authorized"
+    />
+    <ContractView v-else :contract="item as Contract" :pending="pending" :failed="failed" :unauthorized="true" />
   </template>
 </template>
 
@@ -19,6 +25,7 @@ import useAddress, { type Account, type Contract } from "@/composables/useAddres
 import useNotFound from "@/composables/useNotFound";
 
 import { isAddress } from "@/utils/validators";
+import useContext from "@/composables/useContext";
 
 const { useNotFoundView, setNotFoundView } = useNotFound();
 
@@ -33,6 +40,10 @@ const props = defineProps({
 
 const pageType = computed(() => {
   return item.value?.type ? item.value?.type : "account";
+});
+
+const authorized = computed(() => {
+  return item.value?.type === "account" && item.value?.authorized;
 });
 
 useNotFoundView(pending, failed, item);
