@@ -1,9 +1,8 @@
 import type { FastifyApp } from '../app.js';
 import { z } from 'zod';
-import { type Address, type Hex, isAddressEqual } from 'viem';
-import { pipeGetRequest } from '../services/block-explorer.js';
+import { isAddressEqual } from 'viem';
 import { getUserOrThrow } from '../services/user.js';
-import { ForbiddenError, HttpError } from '../utils/http-error.js';
+import { ForbiddenError } from '../utils/http-error.js';
 import {
   addressSchema,
   hexSchema,
