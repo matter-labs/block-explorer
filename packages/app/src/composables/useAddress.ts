@@ -73,7 +73,8 @@ export type ContractVerificationInfo = {
 
 export type Balance = Api.Response.TokenAddress;
 export type Balances = Api.Response.Balances;
-export type Account = Api.Response.Account;
+export type Account = Api.Response.Account & { authorized: true };
+export type ThirdPartyAccount = Pick<Account, "address" | "type"> & { authorized: false };
 export type Contract = Api.Response.Contract & {
   verificationInfo: null | ContractVerificationInfo;
   proxyInfo: null | {
@@ -83,7 +84,7 @@ export type Contract = Api.Response.Contract & {
     };
   };
 };
-export type AddressItem = Account | Contract;
+export type AddressItem = Account | Contract | ThirdPartyAccount;
 
 export default (context = useContext()) => {
   const isRequestPending = ref(false);
@@ -166,10 +167,16 @@ export default (context = useContext()) => {
 
     try {
       const response: Api.Response.Account | Api.Response.Contract = await $fetch(
-        `${context.currentNetwork.value.apiUrl}/address/${address}`
+        `${context.currentNetwork.value.apiUrl}/address/${address}`,
+        {
+          credentials: "include",
+        }
       );
       if (response.type === "account") {
-        item.value = response;
+        item.value = {
+          ...response,
+          authorized: true,
+        };
       } else if (response.type === "contract") {
         const [verificationInfo, proxyInfo] = await Promise.all([
           getContractVerificationInfo(response.address),
@@ -182,7 +189,16 @@ export default (context = useContext()) => {
         };
       }
     } catch (error: unknown) {
-      item.value = null;
+      // 403 is returned when the address is of account type but the user is not the owner of the account
+      if (error instanceof FetchError && error.statusCode === 403) {
+        item.value = {
+          type: "account",
+          address,
+          authorized: false,
+        };
+        isRequestFailed.value = false;
+        return;
+      }
       isRequestFailed.value = true;
     } finally {
       isRequestPending.value = false;

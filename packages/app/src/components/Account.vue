@@ -16,14 +16,25 @@
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
+                  <img v-if="authorized" src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
+                  <img v-else src="/images/empty-state/unauthorized_balance.svg" alt="unauthorized_balance" />
                 </div>
               </template>
               <template #title>
-                {{ t("accountView.balances.notFound.title") }}
+                <div :class="{ 'balances-unauthorized-title': !authorized }">
+                  {{
+                    authorized ? t("accountView.balances.notFound.title") : t("accountView.balances.unauthorized.title")
+                  }}
+                </div>
               </template>
               <template #description>
-                <div class="balances-empty-description">{{ t("accountView.balances.notFound.subtitle") }}</div>
+                <div class="balances-empty-description" :class="{ 'balances-unauthorized-description': !authorized }">
+                  {{
+                    authorized
+                      ? t("accountView.balances.notFound.subtitle")
+                      : t("accountView.balances.unauthorized.subtitle")
+                  }}
+                </div>
               </template>
             </EmptyState>
           </template>
@@ -95,6 +106,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  authorized: {
+    type: Boolean,
+    default: true,
+  },
 });
 
 const { t } = useI18n();
@@ -154,6 +169,12 @@ const transactionsSearchParams = computed(() => ({
     }
     .balances-empty-description {
       @apply max-w-[16rem] whitespace-normal;
+    }
+    .balances-unauthorized-title {
+      @apply text-error-700 font-bold;
+    }
+    .balances-unauthorized-description {
+      @apply text-error-500 max-w-[24rem];
     }
   }
   .transactions-table {

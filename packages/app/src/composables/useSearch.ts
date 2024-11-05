@@ -50,7 +50,9 @@ export default (context = useContext()) => {
     if (searchRoute) {
       try {
         if (searchRoute.prefetch) {
-          await $fetch(`${context.currentNetwork.value.apiUrl}/${searchRoute.apiRoute}/${param}`);
+          await $fetch(`${context.currentNetwork.value.apiUrl}/${searchRoute.apiRoute}/${param}`, {
+            credentials: "include",
+          });
         }
         await router.push({ name: searchRoute.routeName, params: searchRoute.routeParam });
         return;

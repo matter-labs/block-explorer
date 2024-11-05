@@ -141,7 +141,7 @@ describe('/transactions', () => {
   });
 
   describe('GET /transactions/:hash/transfers', () => {
-    it('only returns transfers made from or to the user', async () => {
+    it('does not filter transactions', async () => {
       backgroundApp.addTransfer(anotherAddress, address, 1);
       backgroundApp.addTransfer(address, someOtherAddress, 2);
       backgroundApp.addTransfer(anotherAddress, someOtherAddress, 3);
@@ -155,15 +155,15 @@ describe('/transactions', () => {
       );
 
       expect(status).toEqual(200);
-      expect(body.items).toHaveLength(2);
+      expect(body.items).toHaveLength(3);
       expect(body.items.map((i: any) => i.amount)).toEqual(
-        expect.arrayContaining(['1', '2']),
+        expect.arrayContaining(['1', '2', '3']),
       );
     });
   });
 
   describe('GET /transactions/:hash/logs', () => {
-    it('only returns transfers made from or to the user', async () => {
+    it('does not filter results', async () => {
       backgroundApp.addLog(anotherAddress, [address], '0x01');
       backgroundApp.addLog(anotherAddress, [someOtherAddress], '0x02');
       backgroundApp.addLog(address, [someOtherAddress, anotherAddress], '0x03');
@@ -178,9 +178,9 @@ describe('/transactions', () => {
       );
 
       expect(status).toEqual(200);
-      expect(body.items).toHaveLength(3);
+      expect(body.items).toHaveLength(4);
       expect(body.items.map((i: any) => i.data)).toEqual(
-        expect.arrayContaining(['0x01', '0x03', '0x04']),
+        expect.arrayContaining(['0x01', '0x02', '0x03', '0x04']),
       );
     });
   });
