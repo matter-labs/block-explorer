@@ -1,6 +1,6 @@
 <template>
   <div class="relative">
-    <Table class="transactions-table" :class="{ 'high-rows': isHighRowsSize, 'hide-content': !isLoggedIn }" :items="transactions" :loading="isLoading">
+    <Table class="transactions-table" :class="{ 'high-rows': isHighRowsSize, 'hide-content': !user.loggedIn }" :items="transactions" :loading="isLoading">
       <template v-if="transactions?.length || isLoading" #table-head>
         <TableHeadColumn v-if="columns.includes('status')">{{ t("transactions.table.status") }}</TableHeadColumn>
         <TableHeadColumn v-if="columns.includes('transactionHash')">
@@ -191,7 +191,7 @@
       </template>
     </Table>
 
-    <div v-if="!isLoggedIn" class="absolute inset-0 flex items-center justify-center backdrop-blur rounded-lg">
+    <div v-if="!user.loggedIn" class="absolute inset-0 flex items-center justify-center backdrop-blur rounded-lg">
       <div class="rounded-lg bg-white px-6 py-4 text-lg font-medium text-neutral-900 shadow-lg">
         {{ t("transactions.loginRequired") }}
       </div>
@@ -231,7 +231,7 @@ import type { NetworkOrigin } from "@/types";
 
 import { utcStringFromISOString } from "@/utils/helpers";
 
-const { currentNetwork, isLoggedIn } = useContext();
+const { currentNetwork, user } = useContext();
 
 const { t, te } = useI18n();
 
@@ -273,9 +273,9 @@ const activePage = ref(props.useQueryPagination ? parseInt(route.query.page as s
 const toDate = new Date();
 
 watch(
-  [activePage, searchParams, isLoggedIn],
+  [activePage, searchParams, user],
   ([page]) => {
-    if (isLoggedIn.value) {
+    if (user.value.loggedIn) {
       load(page, toDate);
     }
   },
@@ -310,7 +310,7 @@ type TransactionListItemMapped = TransactionListItem & {
 };
 
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
-  if (!isLoggedIn.value) {
+  if (!user.value.loggedIn) {
     // Mock data for non-logged in users
     return Array(10).fill(null).map((_, index) => ({
       hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',

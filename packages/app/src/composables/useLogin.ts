@@ -9,6 +9,7 @@ import { reactive, type ToRefs, toRefs, type ComputedRef, type Ref } from "vue";
 import type { Provider } from "zksync-ethers";
 import { $fetch } from "ohmyfetch";
 import type { NetworkConfig } from "../configs";
+import type { UserContext } from "./useContext";
 
 type LoginState = {
   isLoginPending: boolean;
@@ -26,7 +27,7 @@ const state = reactive<LoginState>({
 
 export default (
   context: {
-    isLoggedIn: Ref<boolean>;
+    user: Ref<UserContext>;
     currentNetwork: ComputedRef<NetworkConfig>;
     getL2Provider: () => Provider;
   },
@@ -44,15 +45,15 @@ export default (
         credentials: "include",
       });
       if (response.address) {
-        context.isLoggedIn.value = true;
+        context.user.value = { address: response.address, loggedIn: true };
       }
     } catch {
-      context.isLoggedIn.value = false;
+      context.user.value = { loggedIn: false };
     }
   };
 
   const login = async () => {
-    context.isLoggedIn.value = false;
+    context.user.value = { loggedIn: false };
     state.isLoginPending = true;
 
     const ethereum = await getEthereumProvider();
@@ -82,12 +83,12 @@ export default (
       credentials: "include",
     });
     state.isLoginPending = false;
-    context.isLoggedIn.value = true;
+    context.user.value = { address, loggedIn: true };
   };
 
   const logout = async () => {
     await $fetch(`${context.currentNetwork.value.apiUrl}/auth/logout`, { credentials: "include" });
-    context.isLoggedIn.value = false;
+    context.user.value = { loggedIn: false };
   };
 
   return {
