@@ -1,6 +1,7 @@
 import closeWithGrace from 'close-with-grace';
 
 import { buildApp } from './build-app.js';
+import { env } from './env.js';
 
 const app = buildApp(
     true
@@ -15,4 +16,4 @@ closeWithGrace(async ({ signal, err }) => {
     await app.close();
 });
 
-await app.listen({ port: 4041 });
+await app.listen({ port: env.PORT });
