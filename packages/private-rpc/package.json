@@ -17,7 +17,9 @@
     "lint": "eslint \"**/*.ts\"",
     "lint:fix": "eslint \"**/*.ts\" --fix",
     "ci:prepare": "run-s check:fix typecheck",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",
@@ -27,6 +29,8 @@
     "drizzle-orm": "^0.36.0",
     "fastify": "^5.0.0",
     "fastify-type-provider-zod": "^4.0.2",
+    "nanoid": "^5.0.8",
+    "nochoices": "^1.1.4",
     "pg": "^8.13.1",
     "typed-rpc": "^6.1.1",
     "viem": "^2.21.32",

@@ -2,7 +2,9 @@ import { customType } from 'drizzle-orm/pg-core';
 import type { Hex } from 'viem';
 import { z } from 'zod';
 
-const hexSchema = z.string().regex(/^0x[0-9a-fA-F]*$/);
+export const hexSchema = z.string().regex(/^0x[0-9a-fA-F]*$/)
+    .transform(hex => hex as Hex);
+
 export const hexRow = customType<{
     data: Hex;
     driverData: Buffer;

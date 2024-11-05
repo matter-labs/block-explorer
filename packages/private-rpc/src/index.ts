@@ -1,10 +1,12 @@
 import closeWithGrace from 'close-with-grace';
 
-import { buildApp } from './build-app.js';
-import { env } from './env.js';
+import { buildApp } from './build-app';
+import { env } from './env';
+import { db } from '@/db';
 
 const app = buildApp(
-    true
+    true,
+    db
 );
 
 closeWithGrace(async ({ signal, err }) => {
