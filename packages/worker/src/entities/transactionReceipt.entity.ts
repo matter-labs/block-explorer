@@ -34,8 +34,8 @@ export class TransactionReceipt extends CountableEntity {
   @Column({ type: "int" })
   public readonly type: number;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
-  public readonly root: string;
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly root?: string;
 
   @Column({ type: "varchar", length: 128 })
   public readonly gasUsed: string;
