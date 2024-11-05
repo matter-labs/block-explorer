@@ -1,4 +1,4 @@
-import Fastify, { type FastifyReply } from 'fastify';
+import Fastify from 'fastify';
 import {
   serializerCompiler,
   validatorCompiler,
@@ -10,24 +10,7 @@ import { DB } from '@/db';
 import { usersRoutes } from '@/users-routes';
 import { getUserByToken } from '@/query/user';
 import { z } from 'zod';
-import { FastifyError } from '@fastify/error';
-
-class HttpError extends Error implements FastifyError{
-  statusCode: number;
-  constructor(msg: string, status: number) {
-    super(msg);
-    this.statusCode = status
-  }
-
-  public handle(reply: FastifyReply) {
-    return reply.code(this.statusCode).send({ error: this.message });
-  }
-
-  get code(): string {
-    return this.statusCode.toString()
-  }
-}
-
+import { HttpError } from '@/errors';
 
 export function buildApp(produceLogs = true, db: DB) {
   const app = Fastify({
@@ -47,8 +30,9 @@ export function buildApp(produceLogs = true, db: DB) {
     '/rpc/:token',
     { schema: { params: z.object({ token: z.string() }) } },
     async (req, reply) => {
-      const user = await getUserByToken(app.context.db, req.params.token)
-          .then(maybe => maybe.expect(new HttpError("Unauthorized", 401)));
+      const user = await getUserByToken(app.context.db, req.params.token).then(
+        (maybe) => maybe.expect(new HttpError('Unauthorized', 401)),
+      );
       const res = await handleRpc(req.body, new RpcService(user.address));
       reply.send(res);
     },
