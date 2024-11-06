@@ -4,7 +4,7 @@ import { buildApp } from './build-app';
 import { env } from './env';
 import { db } from '@/db';
 
-const app = buildApp(true, db);
+const app = buildApp(true, db, env.TARGET_RPC);
 
 closeWithGrace(async ({ signal, err }) => {
   if (err) {

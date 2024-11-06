@@ -13,7 +13,10 @@ export function rpcRoutes(app: WebServer) {
       (maybe) => maybe.expect(new HttpError('Unauthorized', 401)),
     );
 
-    const res = await handleRpc(req.body, new RpcService(user.address));
+    const res = await handleRpc(
+      req.body,
+      new RpcService(user.address, app.context.targetRpc),
+    );
     reply.send(res);
   });
 }

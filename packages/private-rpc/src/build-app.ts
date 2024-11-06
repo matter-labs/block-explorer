@@ -8,7 +8,7 @@ import { DB } from '@/db';
 import { usersRoutes } from '@/routes/users-routes';
 import { rpcRoutes } from '@/routes/rpc-routes';
 
-export function buildApp(produceLogs = true, db: DB) {
+export function buildApp(produceLogs = true, db: DB, targetRpc: string) {
   const app = Fastify({
     logger: produceLogs,
   }).withTypeProvider<ZodTypeProvider>();
@@ -18,6 +18,7 @@ export function buildApp(produceLogs = true, db: DB) {
 
   app.decorate('context', {
     db,
+    targetRpc
   });
 
   app.register(usersRoutes, { prefix: '/users' });
@@ -29,7 +30,7 @@ export function buildApp(produceLogs = true, db: DB) {
 declare module 'fastify' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- This allow us to have conf available globally.
   interface FastifyInstance {
-    context: { db: DB };
+    context: { db: DB, targetRpc: string };
   }
 }
 
