@@ -1,7 +1,8 @@
 import { ExternalRpcError } from '@/errors';
 import { z } from 'zod';
 import { Address } from 'viem';
-import { RulesType } from '@/permissions';
+import { Authorizer } from '@/permissions/group';
+import { delegateCall } from '@/rpc/delegate-call';
 
 export type JSONLike =
   | {
@@ -12,32 +13,6 @@ export type JSONLike =
   | null
   | boolean
   | JSONLike[];
-
-export async function delegateCall(
-  url: string,
-  method: string,
-  params: unknown[] = [],
-  id: number | string,
-): Promise<JSONLike> {
-  console.log(method, params, id);
-  const res = await fetch(url, {
-    method: 'POST',
-    body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
-  });
-
-  if (!res.ok) {
-    const errorBody = await res.json();
-    throw new ExternalRpcError(
-      errorBody?.error?.code,
-      errorBody?.error?.message,
-      errorBody?.error?.data,
-    );
-  }
-
-  const body = await res.json();
-  console.log(body);
-  return body?.result;
-}
 
 const rpcReqSchema = z.object({
   id: z.union([z.number(), z.string()]),
@@ -63,7 +38,7 @@ type RpcResponse =
     };
 
 export type RequestContext = {
-  rules: RulesType;
+  authorizer: Authorizer;
   targetRpcUrl: string;
   currentUser: Address;
 };

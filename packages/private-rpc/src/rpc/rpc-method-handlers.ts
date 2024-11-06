@@ -1,16 +1,21 @@
 import {
-  delegateCall,
   JSONLike,
   MethodHandler,
   RequestContext,
-} from '@/rpc/rpc-service-2';
+} from '@/rpc/rpc-service';
 import {
+  Hex,
   isAddressEqual,
   parseTransaction,
   recoverTransactionAddress,
 } from 'viem';
 import { z } from 'zod';
 import { hexSchema } from '@/db/hex-row';
+import { delegateCall } from '@/rpc/delegate-call';
+
+function extractSelector(calldata: Hex): Hex {
+  return calldata.substring(0, 10) as Hex;
+}
 
 const callReqSchema = z.object({
   from: hexSchema.optional(),
@@ -55,17 +60,14 @@ const eth_call: MethodHandler = {
       throw new Error('Wrong caller');
     }
 
-    if (call.data === undefined) {
-      return delegateCall(
-        context.targetRpcUrl,
-        method,
-        [call, blockVariant],
-        id,
-      );
-    }
-
+    const data = call.data || call.input;
     if (
-      !context.rules[call.to]?.canRead(context.currentUser, call.data ?? '0x')
+      data &&
+      !context.authorizer.checkContractRead(
+        call.to,
+        extractSelector(data),
+        context.currentUser,
+      )
     ) {
       throw new Error('Unhautorized');
     }
@@ -109,12 +111,19 @@ const zks_sendRawTransactionWithDetailedOutput = {
       throw new Error('Wrong caller');
     }
 
-    if (!tx.to || !tx.data) {
-      throw new Error('no target or no data');
+    if (!tx.to) {
+      throw new Error('no target');
     }
 
-    if (!context.rules[tx.to]?.canWrite(context.currentUser, tx.data)) {
-      throw new Error('Unhautorized');
+    if (
+      tx.data &&
+      !context.authorizer.checkContractRead(
+        tx.to,
+        extractSelector(tx.data),
+        context.currentUser,
+      )
+    ) {
+      throw new Error('Unauthorized');
     }
 
     return delegateCall(context.targetRpcUrl, method, [rawTx], id);

@@ -30,22 +30,81 @@ export class MethodRule {
   }
 }
 
-export class ContractRule {
-  address: Address;
-  methods: Record<Hex, MethodRule>;
+export interface AccessRule {
+  canDo(user: Address): boolean;
+}
 
-  constructor(address: Address, methods: Record<Hex, MethodRule>) {
-    this.address = address;
-    this.methods = methods;
+export class PublicRule implements AccessRule {
+  canDo(_address: Address): boolean {
+    return true;
+  }
+}
+
+export class AccessDeniedRule implements AccessRule {
+  canDo(_address: Address): boolean {
+    return false;
+  }
+}
+
+export class GroupRule implements AccessRule {
+  members: Set<Address>;
+
+  constructor(members: Address[]) {
+    this.members = new Set(members);
   }
 
-  canRead(caller: Address, calldata: Hex): boolean {
-    const selector = calldata.substring(0, 10) as Hex;
-    return !!this.methods[selector]?.canRead(caller);
+  canDo(address: Address): boolean {
+    return this.members.has(address);
+  }
+}
+
+export class Permission {
+  key: string;
+  rule: AccessRule;
+
+  constructor(key: string, rule: AccessRule) {
+    this.key = key;
+    this.rule = rule;
   }
 
-  canWrite(caller: Address, calldata: Hex): boolean {
-    const selector = calldata.substring(0, 10) as Hex;
-    return !!this.methods[selector]?.canWrite(caller);
+  static contractRead(
+    addr: Address,
+    method: Hex,
+    rule: AccessRule,
+  ): Permission {
+    return new this(`read_contract:${addr}:${method}`, rule);
+  }
+
+  static contractWrite(
+    addr: Address,
+    method: Hex,
+    rule: AccessRule,
+  ): Permission {
+    return new this(`write_contract:${addr}:${method}`, rule);
+  }
+}
+
+export class Authorizer {
+  permissions: Map<string, AccessRule>;
+
+  constructor(permissions: Permission[]) {
+    this.permissions = new Map();
+    for (const permission of permissions) {
+      this.permissions.set(permission.key, permission.rule);
+    }
+  }
+
+  checkContractRead(address: Address, method: Hex, user: Address) {
+    const rule =
+      this.permissions.get(`read_contract:${address}:${method}`) ||
+      new AccessDeniedRule();
+    return rule.canDo(user);
+  }
+
+  checkContractWrite(address: Address, method: Hex, user: Address) {
+    const rule =
+      this.permissions.get(`write_contract:${address}:${method}`) ||
+      new AccessDeniedRule();
+    return rule.canDo(user);
   }
 }

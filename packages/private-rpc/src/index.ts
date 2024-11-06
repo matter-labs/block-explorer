@@ -3,9 +3,9 @@ import closeWithGrace from 'close-with-grace';
 import { buildApp } from './build-app';
 import { env } from './env';
 import { db } from '@/db';
-import { allRules } from '@/permissions';
+import { authorizer } from '@/permissions';
 
-const app = buildApp(true, db, env.TARGET_RPC, allRules);
+const app = buildApp(true, db, env.TARGET_RPC, authorizer);
 
 closeWithGrace(async ({ signal, err }) => {
   if (err) {

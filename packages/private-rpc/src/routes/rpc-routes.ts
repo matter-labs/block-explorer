@@ -2,7 +2,7 @@ import { WebServer } from '@/build-app';
 import { z } from 'zod';
 import { getUserByToken } from '@/query/user';
 import { HttpError } from '@/errors';
-import { RpcCallHandler } from '@/rpc/rpc-service-2';
+import { RpcCallHandler } from '@/rpc/rpc-service';
 import { allHandlers } from '@/rpc/rpc-method-handlers';
 
 const rpcSchema = { schema: { params: z.object({ token: z.string() }) } };
@@ -16,7 +16,7 @@ export function rpcRoutes(app: WebServer) {
     const handler = new RpcCallHandler(allHandlers, {
       currentUser: user.address,
       targetRpcUrl: app.context.targetRpc,
-      rules: app.context.allRules,
+      authorizer: app.context.authorizer,
     });
 
     reply.send(await handler.handle(req.body));

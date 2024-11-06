@@ -7,13 +7,13 @@ import {
 import { DB } from '@/db';
 import { usersRoutes } from '@/routes/users-routes';
 import { rpcRoutes } from '@/routes/rpc-routes';
-import { RulesType } from '@/permissions';
+import { Authorizer } from '@/permissions/group';
 
 export function buildApp(
   produceLogs = true,
   db: DB,
   targetRpc: string,
-  allRules: RulesType,
+  authorizer: Authorizer,
 ) {
   const app = Fastify({
     logger: produceLogs,
@@ -25,7 +25,7 @@ export function buildApp(
   app.decorate('context', {
     db,
     targetRpc,
-    allRules,
+    authorizer,
   });
 
   app.register(usersRoutes, { prefix: '/users' });
@@ -37,7 +37,7 @@ export function buildApp(
 declare module 'fastify' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- This allow us to have conf available globally.
   interface FastifyInstance {
-    context: { db: DB; targetRpc: string; allRules: RulesType };
+    context: { db: DB; targetRpc: string; authorizer: Authorizer };
   }
 }
 
