@@ -27,7 +27,6 @@ const callReqSchema = z.object({
   access_list: z.any().optional(),
   customData: z.any().optional(),
 });
-// type CallRequest = z.infer<typeof callReqSchema>;
 
 const blockVarianteSchema = z.union([
   hexSchema,
@@ -71,13 +70,12 @@ const eth_call: MethodHandler = {
       throw new Error('Unhautorized');
     }
 
-    const jsonLikePromise = await delegateCall(
+    return await delegateCall(
       context.targetRpcUrl,
       method,
       [call, blockVariant],
       id,
     );
-    return jsonLikePromise;
   },
 };
 
