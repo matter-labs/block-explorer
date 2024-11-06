@@ -1,4 +1,5 @@
-import { Authorizer, Permission, GroupRule } from '@/permissions/group';
+import { Permission, GroupRule } from '@/permissions/access-rules';
+import { Authorizer } from '@/permissions/authorizeer';
 
 const CONTRACT_1 = '0x0000000000000000000000000000000000008008';
 const CONTRACT_1_METHOD_1 = '0x62f84b24';

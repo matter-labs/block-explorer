@@ -117,7 +117,7 @@ const zks_sendRawTransactionWithDetailedOutput = {
 
     if (
       tx.data &&
-      !context.authorizer.checkContractRead(
+      !context.authorizer.checkContractWrite(
         tx.to,
         extractSelector(tx.data),
         context.currentUser,

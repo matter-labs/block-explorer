@@ -1,6 +1,6 @@
 import { Address, Hex } from 'viem';
 
-export class Group {
+export class AccessRules {
   members: Set<Address>;
 
   constructor(members: Address[]) {
@@ -13,10 +13,10 @@ export class Group {
 }
 
 export class MethodRule {
-  read: Group[];
-  write: Group[];
+  read: AccessRules[];
+  write: AccessRules[];
 
-  constructor(read: Group[], write: Group[]) {
+  constructor(read: AccessRules[], write: AccessRules[]) {
     this.read = read;
     this.write = write;
   }
@@ -81,30 +81,5 @@ export class Permission {
     rule: AccessRule,
   ): Permission {
     return new this(`write_contract:${addr}:${method}`, rule);
-  }
-}
-
-export class Authorizer {
-  permissions: Map<string, AccessRule>;
-
-  constructor(permissions: Permission[]) {
-    this.permissions = new Map();
-    for (const permission of permissions) {
-      this.permissions.set(permission.key, permission.rule);
-    }
-  }
-
-  checkContractRead(address: Address, method: Hex, user: Address) {
-    const rule =
-      this.permissions.get(`read_contract:${address}:${method}`) ||
-      new AccessDeniedRule();
-    return rule.canDo(user);
-  }
-
-  checkContractWrite(address: Address, method: Hex, user: Address) {
-    const rule =
-      this.permissions.get(`write_contract:${address}:${method}`) ||
-      new AccessDeniedRule();
-    return rule.canDo(user);
   }
 }

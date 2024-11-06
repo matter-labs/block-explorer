@@ -1,8 +1,8 @@
 import { ExternalRpcError } from '@/errors';
 import { z } from 'zod';
 import { Address } from 'viem';
-import { Authorizer } from '@/permissions/group';
 import { delegateCall } from '@/rpc/delegate-call';
+import { Authorizer } from '@/permissions/authorizeer';
 
 export type JSONLike =
   | {
