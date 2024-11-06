@@ -1,5 +1,12 @@
-import { Address, Hex, isAddressEqual } from 'viem';
+import {
+  Address,
+  Hex,
+  isAddressEqual,
+  parseTransaction,
+  recoverTransactionAddress,
+} from 'viem';
 import { JsonValue } from 'typed-rpc/server';
+import { RulesType } from '@/permissions';
 
 class RpcError extends Error {
   private code: number;
@@ -67,10 +74,12 @@ type CallRequest = {
 export class RpcService {
   private currentUser: Address;
   private targetRpc: string;
+  private rules: RulesType;
 
-  constructor(currentUser: Address, targetRpc: string) {
+  constructor(currentUser: Address, targetRpc: string, rules: RulesType) {
     this.currentUser = currentUser;
     this.targetRpc = targetRpc;
+    this.rules = rules;
   }
 
   who_am_i() {
@@ -89,6 +98,56 @@ export class RpcService {
       throw new Error('Wrong caller');
     }
 
+    if (!this.rules[call.to]?.canRead(this.currentUser, call.data)) {
+      throw new Error('Unhautorized');
+    }
+
     return doRpcRequest(this.targetRpc, 'eth_call', [call, blockVariant]);
+  }
+
+  async zks_sendRawTransactionWithDetailedOutput(rawTx: Hex) {
+    const tx = parseTransaction(rawTx);
+    const address = await recoverTransactionAddress({
+      serializedTransaction: rawTx as any,
+    });
+
+    if (!isAddressEqual(address, this.currentUser)) {
+      throw new Error('Wrong caller');
+    }
+
+    if (!tx.to || !tx.data) {
+      throw new Error('no target or no data');
+    }
+
+    if (!this.rules[tx.to]?.canWrite(this.currentUser, tx.data)) {
+      throw new Error('Unhautorized');
+    }
+
+    return doRpcRequest(
+      this.targetRpc,
+      'zks_sendRawTransactionWithDetailedOutput',
+      [rawTx],
+    );
+  }
+
+  async eth_sendRawTransaction(rawTx: Hex) {
+    const tx = parseTransaction(rawTx);
+    const address = await recoverTransactionAddress({
+      serializedTransaction: rawTx as any,
+    });
+
+    if (!isAddressEqual(address, this.currentUser)) {
+      throw new Error('Wrong caller');
+    }
+
+    if (!tx.to || !tx.data) {
+      throw new Error('no target or no data');
+    }
+
+    if (!this.rules[tx.to]?.canWrite(this.currentUser, tx.data)) {
+      throw new Error('Unhautorized');
+    }
+
+    return doRpcRequest(this.targetRpc, 'eth_sendRawTransaction', [rawTx]);
   }
 }

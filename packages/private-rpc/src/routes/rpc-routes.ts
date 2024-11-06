@@ -15,7 +15,7 @@ export function rpcRoutes(app: WebServer) {
 
     const res = await handleRpc(
       req.body,
-      new RpcService(user.address, app.context.targetRpc),
+      new RpcService(user.address, app.context.targetRpc, app.context.groups),
     );
     reply.send(res);
   });
