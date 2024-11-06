@@ -88,7 +88,7 @@
     "jsdom": "19.0.0",
     "playwright": "1.27.0",
     "postcss": "^8.4.12",
-    "prettier-plugin-tailwindcss": "^0.2.2",
+    "prettier-plugin-tailwindcss": "^0.6.8",
     "sass": "^1.49.9",
     "start-server-and-test": "^1.14.0",
     "storybook-vue3-router": "^2.2.1",

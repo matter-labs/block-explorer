@@ -7,30 +7,7 @@ import {
 } from 'viem';
 import { JsonValue } from 'typed-rpc/server';
 import { RulesType } from '@/permissions';
-
-class RpcError extends Error {
-  private code: number;
-  private data: unknown;
-
-  constructor(code: number, message: string, data: unknown) {
-    super('rpc error');
-    this.code = code;
-    this.message = message;
-    this.data = data;
-  }
-
-  getErrorCode(): number {
-    return this.code;
-  }
-
-  getErrorMessage(): string {
-    return this.message;
-  }
-
-  getErrorData(): unknown {
-    return this.data;
-  }
-}
+import { ExternalRpcError } from '@/errors';
 
 async function doRpcRequest(
   url: string,
@@ -44,7 +21,7 @@ async function doRpcRequest(
 
   if (!res.ok) {
     const errorBody = await res.json();
-    throw new RpcError(
+    throw new ExternalRpcError(
       errorBody?.error?.code,
       errorBody?.error?.message,
       errorBody?.error?.data,
