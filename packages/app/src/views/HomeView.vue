@@ -41,6 +41,7 @@
           :columns="['status', 'transactionHash', 'age']"
           :pagination="false"
           :data-testid="$testId.latestTransactionsTable"
+          :search-params="{ address: user.loggedIn ? user.address : undefined }"
         >
           <template #not-found>
             <TableBodyColumn>
@@ -65,6 +66,7 @@ import TransactionsTable from "@/components/transactions/Table.vue";
 
 import useBatches from "@/composables/useBatches";
 import useNetworkStats from "@/composables/useNetworkStats";
+import useContext from "@/composables/useContext";
 
 const { t } = useI18n();
 const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
@@ -77,6 +79,8 @@ const displayedBatches = computed(() => {
 fetchNetworkStats();
 
 getBatches(1, new Date());
+
+const { user } = useContext();
 </script>
 
 <style lang="scss" scoped>

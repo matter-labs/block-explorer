@@ -16,6 +16,7 @@ export const env = createEnv({
       .string()
       .transform((value) => value.split(','))
       .pipe(z.string().array()),
+    RPC_URL: z.string().url(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

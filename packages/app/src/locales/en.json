@@ -78,7 +78,7 @@
         "transactionTable": {
             "title": "Block Transactions",
             "showMore": "Show more transactions ->",
-            "noTransactions": "This Block doesn't have any transactions",
+            "noTransactions": "This Block doesn't have any transactions related to the connected account",
             "blockNotFound": "This Block has not been created or sealed yet"
         }
     },
@@ -159,8 +159,9 @@
             "inputDataTooltip": "Additional data included for this transaction. Commonly used as part of contract interaction or as a message sent to the recipient.",
             "contractHash": "Contract hash",
             "notYetSentOnTheChain": "Not yet sent on the chain",
-            "notFound": "Not Found",
-            "notFoundHomePage": "We haven't had any transactions yet. Please, check again later.",
+            "notFound": "You don't have any transactions yet",
+            "notFoundHomePage": "You don't have any transactions yet. Please send a transaction to see it here.",
+            "notFoundSubtitle": "We can’t find any transaction related to the connected account.",
             "footer": {
                 "showMore": "Show more transactions ->",
                 "unableToLoadMore": "Unable to load more",
@@ -265,7 +266,7 @@
         "transactionTable": {
             "title": "Batch Transactions",
             "error": "Something went wrong",
-            "noTransactions": "This Batch doesn't have any transactions",
+            "noTransactions": "This Batch doesn't have any transactions related to the connected account",
             "batchNotFound": "This Batch has not been created or sealed yet"
         },
         "table": {
@@ -336,7 +337,7 @@
             "error": "Something went wrong",
             "notFound": {
                 "title": "This smart contract doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
+                "subtitle": "We can’t find any transaction related to this smart-contract."
             }
         },
         "balances": {
@@ -646,7 +647,7 @@
             "title": "Latest Transactions",
             "notFound": {
                 "title": "This account doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
+                "subtitle": "We can’t find any transaction related to this account"
             },
             "error": "Something went wrong"
         },
@@ -664,7 +665,8 @@
                 "title": "Account Access Restricted",
                 "subtitle": "You don't have permission to view the balance of this account. Please verify the address and try again."
             }
-        }
+        },
+        "visibilityWarning": "You can only view transactions and transfers between this account and your connected wallet."
     },
     "balances": {
         "table": {

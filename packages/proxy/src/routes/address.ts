@@ -11,6 +11,7 @@ import {
   transferSchema,
 } from '../utils/schemas.js';
 import { requestAndFilterCollection } from '../utils/request-and-filter-collection.js';
+import { getContractOwner } from '../services/rpc.js';
 
 export const addressParamsSchema = {
   params: z.object({
@@ -67,17 +68,26 @@ const addressResponseSchema = z.union([
 export const addressRoutes = (app: FastifyApp) => {
   const proxyTarget = app.conf.proxyTarget;
   app.get('/:address', { schema: addressParamsSchema }, async (req, _reply) => {
+    const user = getUserOrThrow(req);
     const data = await fetch(`${proxyTarget}/address/${req.params.address}`)
       .then((res) => res.json())
       .then((json) => addressResponseSchema.parse(json));
 
     if (data.type === 'contract') {
+      // At the moment, we verify if balances can be shown whether
+      // the logged in user is the `Owner` of the contract or not.
+      // This is a very naive approach and we should find a better way to do this.
+      const owner = await getContractOwner(data.address);
+      if (owner && isAddressEqual(owner, user)) {
+        return { ...data, authorized: true };
+      }
+
       return {
         ...data,
+        authorized: false,
         balances: {},
       };
     } else if (data.type === 'account') {
-      const user = getUserOrThrow(req);
       if (isAddressEqual(data.address, user)) {
         return data;
       } else {

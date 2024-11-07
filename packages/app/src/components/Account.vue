@@ -57,6 +57,13 @@
       </div>
     </div>
 
+    <div class="warning-card" v-if="!authorized && !pending">
+      <div class="warning-icon">
+        <IconError class="icon" color="#a16207" />
+      </div>
+      <p>{{ t("accountView.visibilityWarning") }}</p>
+    </div>
+
     <Tabs v-if="account?.address && !pending" class="account-tabs" :tabs="tabs">
       <template #tab-1-content>
         <TransactionsTable class="transactions-table" :search-params="transactionsSearchParams">
@@ -91,6 +98,7 @@ import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Account } from "@/composables/useAddress";
 
 import { shortValue } from "@/utils/formatters";
+import IconError from "./icons/IconError.vue";
 
 const props = defineProps({
   account: {
@@ -195,6 +203,22 @@ const transactionsSearchParams = computed(() => ({
     table thead tr th {
       @apply first:rounded-none last:rounded-none;
     }
+  }
+}
+
+.warning-card {
+  @apply flex items-center gap-3 rounded-lg bg-warning-50 p-4 text-warning-700;
+
+  .warning-icon {
+    @apply flex-shrink-0;
+
+    .icon {
+      @apply h-5 w-5;
+    }
+  }
+
+  p {
+    @apply text-sm;
   }
 }
 </style>

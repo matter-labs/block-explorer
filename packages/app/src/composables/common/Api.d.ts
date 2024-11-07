@@ -136,6 +136,7 @@ declare namespace Api {
       creatorTxHash: string;
       createdInBlockNumber: number;
       totalTransactions: number;
+      authorized: boolean;
     };
   }
 }

@@ -10,7 +10,7 @@
       :failed="failed"
       :authorized="authorized"
     />
-    <ContractView v-else :contract="item as Contract" :pending="pending" :failed="failed" :unauthorized="true" />
+    <ContractView v-else :contract="item as Contract" :pending="pending" :failed="failed" :authorized="item?.authorized" />
   </template>
 </template>
 
@@ -25,7 +25,6 @@ import useAddress, { type Account, type Contract } from "@/composables/useAddres
 import useNotFound from "@/composables/useNotFound";
 
 import { isAddress } from "@/utils/validators";
-import useContext from "@/composables/useContext";
 
 const { useNotFoundView, setNotFoundView } = useNotFound();
 
