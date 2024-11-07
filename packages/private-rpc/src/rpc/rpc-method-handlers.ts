@@ -1,8 +1,4 @@
-import {
-  JSONLike,
-  MethodHandler,
-  RequestContext,
-} from '@/rpc/rpc-service';
+import { JSONLike, MethodHandler, RequestContext } from '@/rpc/rpc-service';
 import {
   Hex,
   isAddressEqual,
