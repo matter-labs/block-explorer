@@ -87,6 +87,9 @@ export class ApiController {
     description: "The contract address that has a verified source code",
     example: constants.verifiedContractAddress,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiOkResponse({
     description: "Contract ABI",
@@ -104,6 +107,9 @@ export class ApiController {
     description: "The contract address that has a verified source code",
     example: constants.verifiedContractAddress,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiOkResponse({
     description: "Contract source code",
@@ -123,6 +129,12 @@ export class ApiController {
     description: "List of contract addresses, up to 5 at a time",
     example: [constants.verifiedContractAddress, constants.verifiedContractAddress2],
     required: true,
+    schema: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
   })
   @ApiExtraModels(ContractCreationInfoDto)
   @ApiOkResponse({
@@ -153,6 +165,9 @@ export class ApiController {
     description: "Verification ID",
     example: "44071",
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiOkResponse({
     description: "Source code verification status",
@@ -170,6 +185,9 @@ export class ApiController {
     description: "The transaction hash to check the execution status",
     example: constants.txHash,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiExtraModels(TransactionStatusDto)
   @ApiOkResponse({
@@ -188,6 +206,9 @@ export class ApiController {
     description: "The transaction hash to check the execution status",
     example: constants.txHash,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiOkResponse({
     description: "Status code of a transaction execution",
@@ -205,6 +226,9 @@ export class ApiController {
     description: "The address to filter transactions by",
     example: constants.address,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "startblock",
@@ -277,6 +301,9 @@ export class ApiController {
     description: "The address to filter internal transactions by",
     example: constants.addressWithInternalTx,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "startblock",
@@ -316,6 +343,9 @@ export class ApiController {
     description: "The transaction hash to filter internal transaction by",
     example: constants.addressTxWithInternalTransfers,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "startblock",
@@ -372,6 +402,12 @@ export class ApiController {
     description: "List of addresses to get Ether balance for",
     example: [constants.address, constants.addressWithInternalTx],
     required: true,
+    schema: {
+      type: "array",
+      items: {
+        type: "string",
+      },
+    },
   })
   @ApiOkResponse({
     description: "Accounts Ether balances",
@@ -389,12 +425,18 @@ export class ApiController {
     description: "The address to get Token balance for",
     example: constants.address,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get balance for",
     example: constants.erc20TokenAddress,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiOkResponse({
     description: "Account Token balance",
@@ -412,23 +454,30 @@ export class ApiController {
     description: "The address to get transfers for",
     example: constants.address,
     required: false,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
     example: constants.erc20TokenAddress,
     required: false,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "startblock",
-    type: "integer",
     description: "The block number to start searching for transfers",
     example: 0,
     required: false,
+    schema: {
+      type: "integer"
+    },
   })
   @ApiQuery({
     name: "endblock",
-    type: "integer",
     description: "The block number to stop searching for transfers",
     example: 99999999,
     required: false,
@@ -455,16 +504,21 @@ export class ApiController {
     description: "The address to get transfers for",
     example: constants.erc721TokenHolderAddress,
     required: false,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "contractaddress",
     description: "The Token contract address to get transfers for",
     example: constants.erc721TokenAddress,
     required: false,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "startblock",
-    type: "integer",
     description: "The block number to start searching for transfers",
     example: 0,
     required: false,
@@ -489,7 +543,7 @@ export class ApiController {
   ): Promise<AccountNFTTransfersResponseDto> {
     return null;
   }
-
+  
   @ApiTags("Account API")
   @Get("api?module=account&action=getminedblocks")
   @ApiOperation({ summary: "Get list of Blocks Validated by Address" })
@@ -498,6 +552,9 @@ export class ApiController {
     description: "The address to get validated blocks by",
     example: "0x0000000000000000000000000000000000000000",
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiExtraModels(AccountMinedBlock)
   @ApiOkResponse({
@@ -523,10 +580,13 @@ export class ApiController {
   })
   @ApiQuery({
     name: "closest",
-    type: "string",
     description: "The closest available block to the provided timestamp, either before or after",
     example: "before",
     required: false,
+    schema: {
+      type: "string",
+      enum: ["before", "after"],
+    },
   })
   @ApiOkResponse({
     description: "Returns the block number that was mined at a certain timestamp",
@@ -580,6 +640,9 @@ export class ApiController {
     description: "The address to filter logs by",
     example: constants.contractAddressWithLogs,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "fromBlock",
@@ -587,6 +650,9 @@ export class ApiController {
     description: "The integer block number to start searching for logs",
     example: 0,
     required: false,
+    schema: {
+      type: "string",
+    },
   })
   @ApiQuery({
     name: "toBlock",
@@ -618,6 +684,9 @@ export class ApiController {
     description: "The contract address of the ERC-20/ERC-721 token to retrieve token info",
     example: constants.tokenAddress,
     required: true,
+    schema: {
+      type: "string",
+    },
   })
   @ApiExtraModels(TokenInfoDto)
   @ApiOkResponse({
