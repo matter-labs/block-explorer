@@ -15,26 +15,24 @@
         <ContractInfoTable class="contract-info-table" :loading="pending" :contract="contract!" />
       </div>
       <div>
-        <BalanceTable class="balance-table" :loading="pending" :balances="unauthorized ? {} : contract?.balances">
+        <BalanceTable class="balance-table" :loading="pending" :balances="authorized ? contract?.balances : {}">
           <template #not-found>
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img v-if="!unauthorized" src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
+                  <img v-if="authorized" src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
                   <img v-else src="/images/empty-state/unauthorized_balance.svg" alt="unauthorized_balance" />
                 </div>
               </template>
               <template #title>
-                <div :class="{ 'balances-unauthorized-title': unauthorized }">
-                  {{ unauthorized ? t("contract.balances.unauthorized.title") : t("contract.balances.notFound.title") }}
+                <div :class="{ 'balances-unauthorized-title': !authorized }">
+                  {{ authorized ? t("contract.balances.notFound.title") : t("contract.balances.unauthorized.title") }}
                 </div>
               </template>
               <template #description>
-                <div class="balances-empty-description" :class="{ 'balances-unauthorized-description': unauthorized }">
+                <div class="balances-empty-description" :class="{ 'balances-unauthorized-description': !authorized }">
                   {{
-                    unauthorized
-                      ? t("contract.balances.unauthorized.subtitle")
-                      : t("contract.balances.notFound.subtitle")
+                    authorized ? t("contract.balances.notFound.subtitle") : t("contract.balances.unauthorized.subtitle")
                   }}
                 </div>
               </template>
@@ -122,7 +120,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  unauthorized: {
+  authorized: {
     type: Boolean,
     default: false,
   },

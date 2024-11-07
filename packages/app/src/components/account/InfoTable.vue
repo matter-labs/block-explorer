@@ -33,13 +33,13 @@ import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 
-import type { Account } from "@/composables/useAddress";
+import type { Account, ThirdPartyAccount } from "@/composables/useAddress";
 import type { Component, PropType } from "vue";
 
 const { t } = useI18n();
 const props = defineProps({
   account: {
-    type: Object as PropType<Account | null>,
+    type: Object as PropType<Account | ThirdPartyAccount | null>,
     default: null,
   },
   loading: {
@@ -57,10 +57,25 @@ const tableInfoItems = computed(() => {
     value: string | number | null | Record<string, unknown>;
     component?: Component;
   };
+
   const tableItems: InfoTableItem[] = [
     { label: t("accountView.accountInfo.address"), value: { value: props.account.address }, component: CopyContent },
-    { label: t("accountView.accountInfo.sealedNonce"), value: props.account.sealedNonce },
-    { label: t("accountView.accountInfo.verifiedNonce"), value: props.account.verifiedNonce },
+    {
+      label: t("accountView.accountInfo.sealedNonce"),
+      value: { value: props.account.authorized ? props.account.sealedNonce : "Restricted", account: props.account },
+      component: {
+        props: ["value", "account"],
+        template: `<div :class="{ 'unauthorized-value': !account.authorized }">{{ value }}</div>`,
+      },
+    },
+    {
+      label: t("accountView.accountInfo.verifiedNonce"),
+      value: { value: props.account.authorized ? props.account.verifiedNonce : "Restricted", account: props.account },
+      component: {
+        props: ["value", "account"],
+        template: `<div :class="{ 'unauthorized-value': !account.authorized }">{{ value }}</div>`,
+      },
+    },
   ];
   return tableItems;
 });
@@ -98,6 +113,10 @@ const tableInfoItems = computed(() => {
     .block-info-field-value {
       @apply text-gray-800;
     }
+  }
+
+  .unauthorized-value {
+    @apply text-red-400 italic;
   }
 }
 </style>
