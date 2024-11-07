@@ -1,0 +1,23 @@
+groups:
+  - name: "users"
+    members:
+      - "0xb4e748293eb03143b2268abd81e5c8e822086911"
+      - "0x72D8dd6EE7ce73D545B229127E72c8AA013F4a9e"
+  - name: "admins"
+    members:
+      - "0xC8a6f2deD7FC49a5d53AC84A2AF5B1e5147Eb466"
+
+contracts:
+  - address: "0x0000000000000000000000000000000000008008"
+    methods:
+      - selector: "0x62f84b24"
+        read: "public"
+        write: "public"
+  - address: "0xAe45cBE2d1E90358CbD216bC16f2C9267a4EA80a"
+    methods:
+      - signature: "function _checkOwner() internal view virtual" # if it's not a hex its interpreted as function signature
+        read:
+          - "users"
+          - "admins"
+        write:
+          - "admins"

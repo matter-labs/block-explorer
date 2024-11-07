@@ -33,6 +33,7 @@
     "nochoices": "^1.1.4",
     "pg": "^8.13.1",
     "viem": "^2.21.32",
+    "yaml": "^2.6.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
