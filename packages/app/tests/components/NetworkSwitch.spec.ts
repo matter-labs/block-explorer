@@ -35,7 +35,7 @@ describe("NetworkSwitch:", () => {
 
   it("renders listbox button with selected option", async () => {
     const { container } = render(NetworkSwitch);
-    expect(container.querySelector(".network-item-label")?.textContent).toBe("Testnet");
+    expect(container.querySelector(".network-item-label")?.textContent).toBe("Testnet Beta");
   });
 
   it("renders list of networks when button is clicked", async () => {
@@ -47,11 +47,11 @@ describe("NetworkSwitch:", () => {
     const options = container.querySelectorAll(".network-list-item-container > *");
     expect(options[0].getAttribute("href")).toBe("?network=testnet");
     expect(options[0].textContent).toBe("Testnet");
-    expect(options[0].tagName).toBe("LABEL");
+    expect(options[0].tagName).toBe("A");
     expect(options[0].querySelector("img")?.getAttribute("alt")).toBe("Testnet logo");
     expect(options[1].getAttribute("href")).toBe("https://testnet-beta.staging-scan-v2.zksync.dev/");
     expect(options[1].textContent).toBe("Testnet Beta");
-    expect(options[1].tagName).toBe("A");
+    expect(options[1].tagName).toBe("LABEL");
     expect(options[1].querySelector("img")?.getAttribute("alt")).toBe("Testnet Beta logo");
   });
 
@@ -66,10 +66,10 @@ describe("NetworkSwitch:", () => {
     const options = container.querySelectorAll(".network-list-item-container > *");
     expect(options[0].getAttribute("href")).toBe("?network=testnet");
     expect(options[0].textContent).toBe("Testnet");
-    expect(options[0].tagName).toBe("LABEL");
+    expect(options[0].tagName).toBe("A");
     expect(options[1].getAttribute("href")).toBe("?network=testnet-beta");
     expect(options[1].textContent).toBe("Testnet Beta");
-    expect(options[1].tagName).toBe("A");
+    expect(options[1].tagName).toBe("LABEL");
   });
 
   it("uses relative url schema for networks when on preview deployment (.web.app)", async () => {
@@ -82,9 +82,9 @@ describe("NetworkSwitch:", () => {
     const options = container.querySelectorAll(".network-list-item-container > *");
     expect(options[0].getAttribute("href")).toBe("?network=testnet");
     expect(options[0].textContent).toBe("Testnet");
-    expect(options[0].tagName).toBe("LABEL");
+    expect(options[0].tagName).toBe("A");
     expect(options[1].getAttribute("href")).toBe("?network=testnet-beta");
     expect(options[1].textContent).toBe("Testnet Beta");
-    expect(options[1].tagName).toBe("A");
+    expect(options[1].tagName).toBe("LABEL");
   });
 });

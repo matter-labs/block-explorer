@@ -12,7 +12,8 @@
       "name": "Ethereum",
       "l1ExplorerUrl": "https://etherscan.io",
       "published": true,
-      "rpcUrl": "https://rpc.sophon.xyz"
+      "rpcUrl": "https://rpc.sophon.xyz",
+      "excludeTokenAddresses": []
     },
     {
       "apiUrl": "https://block-explorer-api.testnet.sophon.xyz",
@@ -26,7 +27,8 @@
       "name": "Sepolia",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "published": true,
-      "rpcUrl": "https://rpc.testnet.sophon.xyz"
+      "rpcUrl": "https://rpc.testnet.sophon.xyz",
+      "excludeTokenAddresses": []
     }
   ]
 }
