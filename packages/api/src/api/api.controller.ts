@@ -469,15 +469,14 @@ export class ApiController {
   })
   @ApiQuery({
     name: "startblock",
+    type: "integer",
     description: "The block number to start searching for transfers",
     example: 0,
     required: false,
-    schema: {
-      type: "integer"
-    },
   })
   @ApiQuery({
     name: "endblock",
+    type: "integer",
     description: "The block number to stop searching for transfers",
     example: 99999999,
     required: false,
@@ -519,6 +518,7 @@ export class ApiController {
   })
   @ApiQuery({
     name: "startblock",
+    type: "integer",
     description: "The block number to start searching for transfers",
     example: 0,
     required: false,
@@ -580,13 +580,10 @@ export class ApiController {
   })
   @ApiQuery({
     name: "closest",
+    type: "string",
     description: "The closest available block to the provided timestamp, either before or after",
     example: "before",
     required: false,
-    schema: {
-      type: "string",
-      enum: ["before", "after"],
-    },
   })
   @ApiOkResponse({
     description: "Returns the block number that was mined at a certain timestamp",
