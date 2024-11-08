@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { hexSchema } from '@/db/hex-row';
 import { Group } from '@/permissions/group';
-import { Authorizer } from '@/permissions/authorizeer';
+import { Authorizer } from '@/permissions/authorizer';
 import { Address, Hex, toFunctionSelector } from 'viem';
 import {
   AccessRule,
