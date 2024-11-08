@@ -23,6 +23,6 @@ export const hexRow = customType<{
   },
   fromDriver(val) {
     const hex = `0x${val.toString('hex')}`;
-    return hexSchema.parse(hex) as Hex;
+    return hexSchema.parse(hex);
   },
 });
