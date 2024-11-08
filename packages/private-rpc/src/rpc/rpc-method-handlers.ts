@@ -13,21 +13,14 @@ function extractSelector(calldata: Hex): Hex {
   return calldata.substring(0, 10) as Hex;
 }
 
-const callReqSchema = z.object({
-  from: hexSchema.optional(),
-  to: hexSchema,
-  gas: hexSchema.optional(),
-  gas_price: hexSchema.optional(),
-  max_fee_per_gas: hexSchema.optional(),
-  max_priority_fee_per_gas: z.number().optional(),
-  value: hexSchema.optional(),
-  data: hexSchema.optional(),
-  input: hexSchema.optional(),
-  nonce: hexSchema.optional(),
-  transaction_type: z.number().optional(),
-  access_list: z.any().optional(),
-  customData: z.any().optional(),
-});
+const callReqSchema = z
+  .object({
+    from: hexSchema.optional(),
+    to: hexSchema,
+    data: hexSchema.optional(),
+    input: hexSchema.optional(),
+  })
+  .passthrough();
 
 const blockVarianteSchema = z.union([
   hexSchema,
