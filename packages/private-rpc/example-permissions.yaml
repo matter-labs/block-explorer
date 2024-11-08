@@ -11,8 +11,8 @@ contracts:
   - address: "0x0000000000000000000000000000000000008008"
     methods:
       - selector: "0x62f84b24"
-        read: "public"
-        write: "public"
+        read: "*"
+        write: "*"
   - address: "0xAe45cBE2d1E90358CbD216bC16f2C9267a4EA80a"
     methods:
       - signature: "function _checkOwner() internal view virtual" # if it's not a hex its interpreted as function signature

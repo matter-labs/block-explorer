@@ -10,12 +10,13 @@ import {
   PublicRule,
 } from '@/permissions/access-rules';
 
+const PUBLIC_LITERAL = '*';
 const methodSchema = z
   .object({
     selector: z.optional(hexSchema),
     signature: z.optional(z.string()),
-    read: z.union([z.literal('public'), z.array(z.string())]),
-    write: z.union([z.literal('public'), z.array(z.string())]),
+    read: z.union([z.literal(PUBLIC_LITERAL), z.array(z.string())]),
+    write: z.union([z.literal(PUBLIC_LITERAL), z.array(z.string())]),
   })
   .refine((obj) => obj.signature !== undefined || obj.selector !== undefined);
 type RawMethod = z.infer<typeof methodSchema>;
@@ -67,7 +68,7 @@ export class YamlParser {
   }
 
   private extractRule(method: RawMethod, key: 'read' | 'write'): AccessRule {
-    if (method[key] === 'public') {
+    if (method[key] === PUBLIC_LITERAL) {
       return new PublicRule();
     } else {
       const members = method[key]
