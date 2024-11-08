@@ -1,4 +1,4 @@
-import { ExternalRpcError } from '@/errors';
+import { ExternalRpcError, PasstroughError } from '@/errors';
 import { JSONLike } from '@/rpc/rpc-service';
 
 export async function delegateCall(
@@ -24,11 +24,7 @@ export async function delegateCall(
   const body = await res.json();
 
   if (body.error) {
-    throw new ExternalRpcError(
-      body.error.code,
-      body.error.message,
-      body.error.data,
-    );
+    throw new PasstroughError(body.error);
   }
 
   if (body.result === undefined) {

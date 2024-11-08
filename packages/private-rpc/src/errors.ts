@@ -11,6 +11,14 @@ export class HttpError extends Error implements FastifyError {
   }
 }
 
+export class PasstroughError extends Error {
+  error: unknown;
+  constructor(error: unknown) {
+    super('error received from rpc');
+    this.error = error;
+  }
+}
+
 export class ExternalRpcError extends Error {
   private code: number;
   private data: unknown;

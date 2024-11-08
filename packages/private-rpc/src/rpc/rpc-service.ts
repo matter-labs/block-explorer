@@ -1,8 +1,8 @@
-import { ExternalRpcError } from '@/errors';
+import { ExternalRpcError, PasstroughError } from '@/errors';
 import { z } from 'zod';
 import { Address } from 'viem';
 import { delegateCall } from '@/rpc/delegate-call';
-import { Authorizer } from '@/permissions/authorizeer';
+import { Authorizer } from '@/permissions/authorizer';
 
 export type JSONLike =
   | {
@@ -118,6 +118,13 @@ export class RpcCallHandler {
         result: await this.tryCall(method, params, id),
       };
     } catch (e) {
+      if (e instanceof PasstroughError) {
+        return {
+          jsonrpc: '2.0',
+          id: parsed.data.id,
+          error: e.error as any,
+        };
+      }
       if (e instanceof ExternalRpcError) {
         return {
           jsonrpc: '2.0',
