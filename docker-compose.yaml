@@ -94,6 +94,24 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=block-explorer
 
+  db-private-rpc:
+    image: "postgres:14"
+    logging:
+      driver: none
+    volumes:
+      - db-private-rpc:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=private-rpc
+
   reth:
     restart: always
     image: "ghcr.io/paradigmxyz/reth:v0.2.0-beta.2"
@@ -141,3 +159,4 @@ volumes:
   postgres:
   zksync-config:
   zksync-data:
+  db-private-rpc:
