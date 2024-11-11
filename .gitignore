@@ -3,7 +3,6 @@ junit.xml
 e2e-junit.xml
 
 # compiled output
-yarn.lock
 node_modules
 .DS_Store
 dist

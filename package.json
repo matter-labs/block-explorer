@@ -45,7 +45,7 @@
     "pg-connection-string": "2.6.2"
   },
   "engines": {
-    "npm": ">=9.0.0",
+    "yarn": ">=1.20.0",
     "node": ">=18.0.0"
   }
 }
