@@ -34,7 +34,7 @@ const { address, isConnectPending, isReady, isMetamaskInstalled, connect, discon
     ...context.currentNetwork.value,
   })),
 });
-const { login, logout, isLoginPending } = useLogin({
+const { isLoginPending } = useLogin({
   ...context,
   currentNetwork: computed(() => ({
     explorerUrl: context.currentNetwork.value.rpcUrl,

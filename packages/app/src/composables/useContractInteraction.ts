@@ -6,8 +6,8 @@ import { Provider } from "zksync-ethers";
 import useContext from "@/composables/useContext";
 import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
 
-import type { AbiFragment } from "./useAddress";
 import type { Signer } from "zksync-ethers";
+import type { AbiFragment } from "./useAddress";
 
 export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 

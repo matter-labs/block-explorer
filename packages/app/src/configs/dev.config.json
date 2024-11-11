@@ -7,12 +7,12 @@
         "localhost"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
-      "l2ChainId": 270,
+      "l2ChainId": 300,
       "l2NetworkName": "Local",
       "maintenance": false,
       "name": "local",
       "published": true,
-      "rpcUrl": "http://localhost:3050",
+      "rpcBaseUrl": "http://localhost:4041/rpc",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     },
     {
@@ -27,7 +27,7 @@
       "maintenance": false,
       "name": "sepolia",
       "published": true,
-      "rpcUrl": "https://sepolia.era.zksync.dev",
+      "rpcBaseUrl": "https://sepolia.era.zksync.dev",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
@@ -43,7 +43,7 @@
       "maintenance": false,
       "name": "goerli-beta",
       "published": true,
-      "rpcUrl": "https://z2-dev-api.zksync.dev",
+      "rpcBaseUrl": "https://z2-dev-api.zksync.dev",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
@@ -60,7 +60,7 @@
       "maintenance": false,
       "name": "mainnet",
       "published": true,
-      "rpcUrl": "https://mainnet.era.zksync.io",
+      "rpcBaseUrl": "https://mainnet.era.zksync.io",
       "tokensMinLiquidity": 0,
       "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"

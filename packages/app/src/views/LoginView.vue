@@ -102,7 +102,7 @@ const {
     ...context.currentNetwork.value,
   })),
 });
-const { getRpcToken } = useRpcToken(context);
+const { updateRpcToken } = useRpcToken(context);
 
 const steps = ref([
   {
@@ -152,7 +152,7 @@ watchEffect(() => {
 });
 
 async function connectToPrivateNetwork() {
-  await getRpcToken();
+  return updateRpcToken();
 }
 
 async function addNetworkToMetamask() {

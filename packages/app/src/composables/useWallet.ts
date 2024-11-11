@@ -11,6 +11,7 @@ import type { BaseProvider } from "@metamask/providers";
 import type { Provider } from "zksync-ethers";
 
 import { numberToHexString } from "@/utils/formatters";
+import { rpcUrl } from "./useRpcToken";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type JsonRpcError = any;
@@ -39,7 +40,6 @@ type UseWallet = ToRefs<WalletState> & {
 export type NetworkConfiguration = {
   l1ChainId: number;
   l2ChainId: number;
-  rpcUrl: string;
   explorerUrl: string;
   chainName: string;
 };
@@ -177,7 +177,7 @@ export default (
                   symbol: "ETH",
                   decimals: 18,
                 },
-                rpcUrls: [currentNetwork.rpcUrl],
+                rpcUrls: [rpcUrl.value],
                 blockExplorerUrls: [currentNetwork.explorerUrl],
                 iconUrls: ["https://zksync.io/favicon.ico"],
               },

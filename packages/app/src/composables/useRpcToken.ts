@@ -1,23 +1,25 @@
 import { useStorage } from "@vueuse/core";
 import { $fetch } from "ohmyfetch";
-import { type Context } from "./useContext";
 import { computed } from "vue";
-
-const rpcBaseUrl = "https://sepolia.era.zksync.dev";
+import useContext, { type Context } from "./useContext";
 
 export const rpcToken = useStorage<string | null>("useRpcToken_rpcToken", null);
 
 export const rpcUrl = computed(() => {
-  if (rpcToken.value === null) {
+  const { currentNetwork } = useContext();
+  const network = currentNetwork.value;
+  const token = rpcToken.value;
+
+  if (token === null) {
     return null;
   }
-  return `${rpcBaseUrl}/${rpcToken.value}`;
+  return `${network.rpcUrl}/${token}`;
 });
 
 export default (context: Context) => {
-  const getRpcToken = async () => {
+  const updateRpcToken = async () => {
     if (rpcToken.value !== null) {
-      return { token: rpcToken.value, rpcUrl: `${rpcBaseUrl}/${rpcToken.value}` };
+      return;
     }
 
     const response = await $fetch<{ ok: true; token: string }>(`${context.currentNetwork.value.apiUrl}/auth/token`, {
@@ -27,6 +29,6 @@ export default (context: Context) => {
   };
 
   return {
-    getRpcToken,
+    updateRpcToken,
   };
 };
