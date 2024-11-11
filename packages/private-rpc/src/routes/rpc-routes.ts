@@ -4,20 +4,10 @@ import { getUserByToken } from '@/query/user';
 import { HttpError } from '@/errors';
 import { RpcCallHandler } from '@/rpc/rpc-service';
 import { allHandlers } from '@/rpc/rpc-method-handlers';
-import { env } from '@/env';
 
 const rpcSchema = { schema: { params: z.object({ token: z.string() }) } };
 
 export function rpcRoutes(app: WebServer) {
-  app.post('/', async (req, reply) => {
-    const response = await fetch(env.TARGET_RPC, {
-      method: 'POST',
-      body: JSON.stringify(req.body),
-      headers: { 'Content-Type': 'application/json' },
-    });
-    return reply.send(response.body);
-  });
-
   app.post('/:token', rpcSchema, async (req, reply) => {
     const user = await getUserByToken(app.context.db, req.params.token).then(
       (maybe) => maybe.expect(new HttpError('Unauthorized', 401)),
