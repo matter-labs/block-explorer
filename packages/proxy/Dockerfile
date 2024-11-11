@@ -12,13 +12,13 @@ COPY yarn.lock .
 # Install all dependencies and build
 RUN yarn install --production=false
 COPY packages/proxy/ ./packages/proxy/
+WORKDIR /app/packages/proxy/
 RUN yarn build
 
 FROM node:22-slim
 
 WORKDIR /app
 
-# Copy all files. Package is copied entire from build phase
 COPY .npmrc .npmrc
 COPY lerna.json .
 COPY package.json .

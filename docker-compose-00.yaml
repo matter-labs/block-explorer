@@ -17,11 +17,13 @@ services:
       dockerfile: ./packages/proxy/Dockerfile
     ports:
       - "3020:3020"
+    env_file: "proxy.env"
     environment:
       SERVER_PORT: 3020
-      BLOCK_EXPLORER_API_URL: "https://block-explorer-api.mainnet.zksync.io"
+      BLOCK_EXPLORER_API_URL: ${BLOCK_EXPLORER_API_URL}
       SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
       CORS_ORIGIN: "localhost:3010"
+      RPC_URL: ${TARGET_RPC}
 
   private-rpc-migrate:
     platform: linux/x86_64
@@ -32,10 +34,11 @@ services:
     depends_on:
       db-private-rpc:
         condition: service_healthy
+    env_file: "proxy.env"
     environment:
-      PORT: '3022'
-      DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
-      TARGET_RPC: 'http://zksync:3050'
+      PORT: "3022"
+      DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
+      TARGET_RPC: ${TARGET_RPC}
 
 
   private-rpc:
@@ -50,10 +53,11 @@ services:
         condition: service_completed_successfully
     ports:
       - '3022:3022'
+    env_file: "proxy.env"
     environment:
-      PORT: '3022'
-      DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
-      TARGET_RPC: 'https://mainnet.era.zksync.io'
+      PORT: "3022"
+      DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
+      TARGET_RPC: ${TARGET_RPC}
 
   db-private-rpc:
     image: "postgres:14"
