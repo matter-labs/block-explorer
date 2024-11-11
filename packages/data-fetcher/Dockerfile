@@ -1,43 +1,39 @@
-FROM node:18.17.1-alpine AS base-stage
-ENV NODE_ENV=production
+FROM node:22-slim AS build
+WORKDIR /app
 
-WORKDIR /usr/src/app
+# Copy config files to install dependencies
+COPY .npmrc .npmrc
+COPY lerna.json .
+COPY package.json .
+COPY packages/data-fetcher/package.json ./packages/data-fetcher/package.json
+COPY yarn.lock .
 
-RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
+# Install all dependencies and build
+RUN yarn install --production=false
+COPY packages/data-fetcher/ ./packages/data-fetcher/
+RUN yarn build
 
-COPY --chown=node:node .npmrc .npmrc
-COPY --chown=node:node lerna.json ./
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node ./packages/data-fetcher/package*.json ./packages/data-fetcher/
-RUN npm ci --ignore-scripts --only=production && npm cache clean --force
-COPY --chown=node:node ./packages/data-fetcher/. ./packages/data-fetcher
-RUN rm -f .npmrc
+FROM node:22-slim
+WORKDIR /app
 
-FROM base-stage AS development-stage
-ENV NODE_ENV=development
-COPY --chown=node:node .npmrc .npmrc
-RUN npm ci
-RUN rm -f .npmrc
+# Copy all files. Package is copied entire from build phase
+COPY .npmrc .npmrc
+COPY lerna.json .
+COPY package.json .
+COPY --from=build /app/packages/data-fetcher ./packages/data-fetcher
+COPY yarn.lock .
 
-FROM development-stage AS build-stage
-RUN npm run build
-
-FROM base-stage AS production-stage
-
-# HEALTHCHECK --interval=30s --timeout=3s --retries=5 \
-#   CMD curl -f http://localhost:${PORT}/health || exit 1
-
-COPY --chown=node:node --from=build-stage /usr/src/app/packages/data-fetcher/dist ./packages/data-fetcher/dist
+# Install only prod dependencies
+RUN yarn install --production=true
 
 ARG NODE_ENV=production
-ENV NODE_ENV $NODE_ENV
-
+ENV NODE_ENV=$NODE_ENV
 ARG PORT=3040
-ENV PORT $PORT
+ENV PORT=$PORT
 
 EXPOSE $PORT 9229 9230
 
 USER node
-WORKDIR /usr/src/app/packages/data-fetcher
+WORKDIR /app/packages/data-fetcher
 
 CMD [ "node", "dist/main.js" ]
