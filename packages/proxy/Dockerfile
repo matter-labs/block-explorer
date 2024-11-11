@@ -1,40 +1,35 @@
-FROM node:22-slim AS base-stage
-ENV NODE_ENV=production
+FROM node:22-slim AS build
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-#RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
+# Copy config files to install dependencies
+COPY .npmrc .npmrc
+COPY lerna.json .
+COPY package.json .
+COPY packages/proxy/package.json ./packages/proxy/package.json
+COPY yarn.lock .
 
-COPY --chown=node:node .npmrc .npmrc
-COPY --chown=node:node lerna.json ./
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node ./packages/proxy/package*.json ./packages/proxy/
-RUN npm ci --ignore-scripts --only=production && npm cache clean --force
-COPY --chown=node:node ./packages/proxy/. ./packages/proxy
-RUN rm -f .npmrc
+# Install all dependencies and build
+RUN yarn install --production=false
+COPY packages/proxy/ ./packages/proxy/
+RUN yarn build
 
-FROM base-stage AS development-stage
-ENV NODE_ENV=development
-COPY --chown=node:node .npmrc .npmrc
-RUN npm ci
-RUN rm -f .npmrc
+FROM node:22-slim
 
-FROM development-stage AS build-stage
-RUN npm run build
+WORKDIR /app
 
-FROM base-stage AS production-stage
+# Copy all files. Package is copied entire from build phase
+COPY .npmrc .npmrc
+COPY lerna.json .
+COPY package.json .
+COPY --from=build /app/packages/proxy ./packages/proxy
+COPY yarn.lock .
 
-COPY --chown=node:node --from=build-stage /usr/src/app/packages/proxy/dist ./packages/proxy/dist
+# Install only prod dependencies
+RUN yarn install --production=true
 
-ARG NODE_ENV=production
-ENV NODE_ENV $NODE_ENV
+ENV SERVER_PORT="3020"
 
-ARG PORT=3000
-ENV PORT $PORT
-
-EXPOSE $PORT
-
-USER node
-WORKDIR /usr/src/app/packages/proxy
+WORKDIR /app/packages/proxy
 
 CMD [ "node", "dist/index.js" ]
