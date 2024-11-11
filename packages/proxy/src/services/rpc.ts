@@ -13,7 +13,7 @@ export async function getContractOwner(
   address: Address,
 ): Promise<Address | null> {
   try {
-    return await client.readContract({
+    return client.readContract({
       address,
       abi: parseAbi(['function owner() view returns (address)']),
       functionName: 'owner',

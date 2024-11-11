@@ -118,6 +118,14 @@ export default [
     },
   },
   {
+    path: "/login",
+    name: "login",
+    component: () => import("@/views/LoginView.vue"),
+    meta: {
+      title: "login.title",
+    },
+  },
+  {
     path: "/:pathMatch(.*)*",
     name: "not-found",
     component: () => import("@/views/NotFound.vue"),

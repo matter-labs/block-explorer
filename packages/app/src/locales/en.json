@@ -741,5 +741,11 @@
     "systemAlert": {
         "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
         "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
+    },
+    "login": {
+        "title": "Login",
+        "subtitle": "Connect your wallet to access the Double Zero Block Explorer",
+        "addNetworkToMetamask": "Add Network to Metamask",
+        "logout": "Log Out"
     }
 }

@@ -6,6 +6,7 @@ import {
   saveAuthSession,
 } from '../services/auth-session.js';
 import { getUserOrThrow } from '../services/user.js';
+import { env } from '../env.js';
 
 export default function authRoutes(app: FastifyApp) {
   app.get('/nonce', async (req, reply) => {
@@ -30,21 +31,33 @@ export default function authRoutes(app: FastifyApp) {
       }
 
       saveAuthSession(req, { siwe });
-      reply.send({ ok: true });
+      return reply.send({ ok: true });
     } catch (err) {
       app.log.warn(err, 'Failed to verify signed message.');
-      reply.status(400).send({ message: 'Failed to verify signed message.' });
+      return reply
+        .status(400)
+        .send({ message: 'Failed to verify signed message.' });
     }
   });
 
   app.get('/logout', async (req, reply) => {
     deleteAuthSession(req);
-    reply.status(204).send();
+    return reply.status(204).send();
+  });
+
+  app.get('/token', async (req, reply) => {
+    const user = getUserOrThrow(req);
+    const response = await fetch(`${env.USER_TOKEN_URL}`, {
+      method: 'POST',
+      body: JSON.stringify({ address: user }),
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return reply.send(response.body);
   });
 
   // FIXME: This is a temporary route to get the user address.
   app.get('/user', async (req, reply) => {
     const user = getUserOrThrow(req);
-    reply.send({ address: user });
+    return reply.send({ address: user });
   });
 }
