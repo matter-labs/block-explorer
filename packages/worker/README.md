@@ -6,7 +6,7 @@
 ## Installation
 
 ```bash
-$ npm install
+$ yarn install
 ```
 
 ## Setting up env variables
@@ -28,45 +28,45 @@ You need to have a running Postgres server, set the following env variables to p
 
 The service doesn't create database automatically, you can create database by running the following command:
 ```bash
-$ npm run db:create
+$ yarn db:create
 ```
 
 ## Running the app
 
 ```bash
 # development
-$ npm run dev
+$ yarn dev
 
 # watch mode
-$ npm run dev:watch
+$ yarn dev:watch
 
 # debug mode
-$ npm run dev:debug
+$ yarn dev:debug
 
 # production mode
-$ npm run start
+$ yarn start
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ yarn test
 
 # unit tests debug mode
-$ npm run test:debug
+$ yarn test:debug
 
 # e2e tests
-$ npm run test:e2e
+$ yarn test:e2e
 
 # test coverage
-$ npm run test:cov
+$ yarn test:cov
 ```
 
 ## Development
 
 ### Linter
-Run `npm run lint` to make sure the code base follows configured linter rules.
+Run `yarn lint` to make sure the code base follows configured linter rules.
 
 ### DB changes
 Changes to the DB are stored as migrations scripts in `src/migrations` folder and are automatically executed on the application start.
@@ -76,7 +76,7 @@ We use _code first_ approach for managing DB schema so desired schema changes sh
 Example:
 
 ```
-npm run migration:generate -name=AddStatusColumnToTxTable
+yarn migration:generate -name=AddStatusColumnToTxTable
 ```
 
 a new migration with the specified name and all schema changes will be generated in `src/migration` folder. Always check generated migrations to confirm that they have everything you intended.
@@ -86,7 +86,7 @@ Sometimes you need to write a manual migration script not generated based on any
 Example:
 
 ```
-npm run migration:create -name=UpdateTxsFee
+yarn migration:create -name=UpdateTxsFee
 ```
 
 this command will simply create an empty migration where the custom migration logic can be added.

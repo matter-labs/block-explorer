@@ -61,12 +61,12 @@ flowchart
 
 ## 📋 Prerequisites
 
-- Ensure you have `node >= 18.0.0` and `npm >= 9.0.0` installed.
+- Ensure you have `node >= 18.0.0` and `yarn >= 1.20` installed.
 
 ## 🛠 Installation
 
 ```bash
-npm install
+yarn install
 ```
 
 ## ⚙️ Setting up env variables
@@ -80,7 +80,7 @@ Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo 
 The following script sets `.env` files for [Worker](./packages/worker), [Data Fetcher](./packages/data-fetcher), [API](./packages/api) and [Proxy](./packages/proxy) packages as well as environment configuration file for [App](./packages/app) package based on your local [zksync-era](https://github.com/matter-labs/zksync-era) repo setup.
 
 ```bash
-npm run hyperchain:configure
+yarn run hyperchain:configure
 ```
 You can review and edit generated files if you need to change any settings.
 
@@ -89,18 +89,18 @@ You can review and edit generated files if you need to change any settings.
 Before running the solution, make sure you have a database server up and running, you have created a database and set up all the required environment variables.
 To create a database run the following command:
 ```bash
-npm run db:create
+yarn run db:create
 ```
 
 To run all the packages (`Worker`, `Data Fetcher`, `API`, `Proxy` and front-end `App`) in `development` mode run the following command from the root directory.
 ```bash
-npm run dev
+yarn dev
 ```
 
 For `production` mode run:
 ```bash
-npm run build
-npm run start
+yarn build
+yarn start
 ```
 
 Each component can also be started individually. Follow individual packages `README` for details.
@@ -122,15 +122,15 @@ To verify front-end `App` is running open http://localhost:3010 in your browser.
 ## 🕵️‍♂️ Testing
 Run unit tests for all packages:
 ```bash
-npm run test
+yarn test
 ```
 Run e2e tests for all packages:
 ```bash
-npm run test:e2e
+yarn test:e2e
 ```
 Run tests for a specific package:
 ```bash
-npm run test -w {package}
+yarn test -w {package}
 ```
 For more details on testing please check individual packages `README`.
 
