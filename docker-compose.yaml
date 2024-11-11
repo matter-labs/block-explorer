@@ -76,6 +76,40 @@ services:
       SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
       CORS_ORIGIN: "localhost:3010"
 
+  private-rpc-migrate:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    command: sh -c "yarn db:push"
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+    environment:
+      PORT: '3022'
+      DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
+      TARGET_RPC: 'http://zksync:3050'
+
+
+  private-rpc:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+      private-rpc-migrate:
+        condition: service_completed_successfully
+      zksync:
+        condition: service_healthy
+    ports:
+      - '3022:3022'
+    environment:
+      PORT: '3022'
+      DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
+      TARGET_RPC: 'http://zksync:3050'
+
   postgres:
     image: "postgres:14"
     logging:
