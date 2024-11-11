@@ -28,7 +28,7 @@ services:
     depends_on:
       zksync:
         condition: service_healthy
-    restart: unless-stopped
+    restart: on-failure
 
   data-fetcher:
     build:
