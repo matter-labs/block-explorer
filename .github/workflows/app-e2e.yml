@@ -2,10 +2,10 @@ name: BE App E2E tests
 
 on:
   workflow_call:
-    secrets:
-      ALLURE_TOKEN:
-        description: 'A token passed from the caller workflow'
-        required: true
+    # secrets:
+    #   ALLURE_TOKEN:
+    #     description: 'A token passed from the caller workflow'
+    #     required: true
     inputs:
       environmentTags:
         type: string

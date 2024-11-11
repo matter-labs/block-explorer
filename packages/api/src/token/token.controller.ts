@@ -57,6 +57,7 @@ export class TokenController {
   @Get(":address")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.tokenAddress,
     description: "Valid hex address",
@@ -75,6 +76,7 @@ export class TokenController {
   @Get(":address/transfers")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.tokenAddress,
     description: "Valid hex address",
