@@ -22,7 +22,7 @@
   },
   "prettier": "@matterlabs/prettier-config",
   "lint-staged": {
-    "*.{vue,js,ts}": "npm run lint"
+    "*.{vue,js,ts}": "yarn run lint"
   },
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",
