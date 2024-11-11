@@ -80,6 +80,7 @@ jobs:
           firebase --project staging-scan-v2 hosting:channel:deploy ${{ env.CHANNEL_NAME }}
 
       - name: Publish preview url
+        if: github.event.pull_request.head.repo.full_name == github.repository
         uses: thollander/actions-comment-pull-request@v2
         with:
           comment_tag: preview_url
