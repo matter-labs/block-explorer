@@ -8,6 +8,7 @@ const app = buildApp(
   env.BLOCK_EXPLORER_API_URL,
   true,
   env.CORS_ORIGIN,
+  env.RPC_URL,
 );
 
 closeWithGrace(async ({ signal, err }) => {

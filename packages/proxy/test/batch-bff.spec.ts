@@ -19,9 +19,14 @@ describe('/blocks', () => {
 
   const secret = Buffer.alloc(32).fill(0).toString('hex');
   const testSession = () => {
-    const app = buildApp(secret, 'development', backgroundApp.url(), false, [
-      '*',
-    ]);
+    const app = buildApp(
+      secret,
+      'development',
+      backgroundApp.url(),
+      false,
+      ['*'],
+      '',
+    );
     return new TestSession(app);
   };
 

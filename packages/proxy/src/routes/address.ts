@@ -77,7 +77,7 @@ export const addressRoutes = (app: FastifyApp) => {
       // At the moment, we verify if balances can be shown whether
       // the logged in user is the `Owner` of the contract or not.
       // This is a very naive approach and we should find a better way to do this.
-      const owner = await getContractOwner(data.address);
+      const owner = await getContractOwner(app.conf.rpcUrl, data.address);
       if (owner && isAddressEqual(owner, user)) {
         return { ...data, authorized: true };
       }
