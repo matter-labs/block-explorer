@@ -1,43 +1,40 @@
-FROM node:18.17.1-alpine AS base-stage
-ENV NODE_ENV=production
+FROM node:22-slim AS build
+WORKDIR /app
 
-WORKDIR /usr/src/app
+# Copy config files to install dependencies
+COPY .npmrc .npmrc
+COPY lerna.json .
+COPY package.json .
+COPY packages/api/package.json ./packages/api/package.json
+COPY yarn.lock .
 
-RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
+# Install all dependencies and build
+RUN yarn install --production=false
+COPY packages/api/ ./packages/api/
+RUN yarn build
 
-COPY --chown=node:node .npmrc .npmrc
-COPY --chown=node:node lerna.json ./
-COPY --chown=node:node package*.json ./
-COPY --chown=node:node ./packages/api/package*.json ./packages/api/
-RUN npm ci --ignore-scripts --only=production && npm cache clean --force
-COPY --chown=node:node ./packages/api/. ./packages/api
-RUN rm -f .npmrc
+FROM node:22-slim
+WORKDIR /app
 
-FROM base-stage AS development-stage
-ENV NODE_ENV=development
-COPY --chown=node:node .npmrc .npmrc
-RUN npm ci
-RUN rm -f .npmrc
+# Copy all files. Package is copied entire from build phase
+COPY .npmrc .npmrc
+COPY lerna.json .
+COPY package.json .
+COPY --from=build /app/packages/api ./packages/api
+COPY yarn.lock .
 
-FROM development-stage AS build-stage
-RUN npm run build
-
-FROM base-stage AS production-stage
-
-COPY --chown=node:node --from=build-stage /usr/src/app/packages/api/dist ./packages/api/dist
+# Install only prod dependencies
+RUN yarn install --production=true
 
 ARG NODE_ENV=production
-ENV NODE_ENV $NODE_ENV
-
+ENV NODE_ENV=$NODE_ENV
 ARG PORT=3000
-ENV PORT $PORT
-
+ENV PORT=$PORT
 ARG METRICS_PORT=3005
-ENV METRICS_PORT $METRICS_PORT
+ENV METRICS_PORT=$METRICS_PORT
 
 EXPOSE $PORT $METRICS_PORT 9229 9230
 
-USER node
-WORKDIR /usr/src/app/packages/api
+WORKDIR /app/packages/api
 
 CMD [ "node", "dist/main.js" ]
