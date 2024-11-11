@@ -23,22 +23,22 @@ cp env.example .env
 To run the proxy in development mode:
 
 ``` bash
-npm run dev
+yarn dev
 ```
 
 ## Build
 
 ``` bash
-npm run build
+yarn build
 ```
 
 ## Test
 ``` bash
-npm run test
+yarn test
 ```
 
 ## Prod start
 
 ``` bash
-npm start
+yarb start
 ```

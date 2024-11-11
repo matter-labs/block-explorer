@@ -20,7 +20,7 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
 ## Installation
 
 ```bash
-$ npm install
+$ yarn install
 ```
 
 ### Environment configs
@@ -74,31 +74,31 @@ export default config;
 ### Compile and Hot-Reload for Development
 
 ```sh
-npm run dev
+yarn dev
 ```
 
 ### Type-Check, Compile and Minify for Production
 
 ```sh
-npm run build
+yarn build
 ```
 
 ### Run Unit Tests with [Vitest](https://vitest.dev/)
 
 ```sh
-npm run test
+yarn test
 ```
 
 ### Run End-to-End Tests with [Playwright](https://www.playwright.io/)
 
 ```sh
-npm run test:e2e
+yarn test:e2e
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-npm run lint
+yarn lint
 ```
 
 ## Production links
