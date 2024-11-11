@@ -22,6 +22,7 @@ export function buildApp(
   proxyTarget: string,
   produceLogs = true,
   corsOrigin: string[],
+  rpcUrl: string,
 ) {
   const app = Fastify({
     logger: produceLogs,
@@ -29,6 +30,7 @@ export function buildApp(
 
   app.decorate('conf', {
     proxyTarget,
+    rpcUrl,
   });
 
   // TODO: Fix it for production
@@ -122,6 +124,9 @@ declare module 'fastify' {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- This allow us to have conf available globally.
   interface FastifyInstance {
-    conf: { proxyTarget: string };
+    conf: {
+      proxyTarget: string;
+      rpcUrl: string;
+    };
   }
 }
