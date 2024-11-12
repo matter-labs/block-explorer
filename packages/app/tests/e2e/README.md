@@ -7,7 +7,7 @@ Based on Playwright.io/TypeScript/BDD
 Before the execution of the end-2-end tests there needs to install dependencies:
 
 ```bash
-npm install
+yarn install
 ```
 
 ## How to run E2E tests
@@ -15,12 +15,12 @@ npm install
 --
 all tests:
 ```bash
-npx cucumber-js
+yarn cucumber-js
 ```
 or
 
 ```bash
-npm run test:e2e
+yarn test:e2e
 ```
 
 --

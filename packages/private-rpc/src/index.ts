@@ -16,4 +16,4 @@ closeWithGrace(async ({ signal, err }) => {
   await app.close();
 });
 
-await app.listen({ port: env.PORT });
+await app.listen({ host: '0.0.0.0', port: env.PORT });

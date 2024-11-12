@@ -26,7 +26,7 @@ describe('/transactions', () => {
   const account = privateKeyToAccount(privateKey);
   const address = account.address;
   const testInstance = () =>
-    buildApp(secret, 'development', 'http://localhost:9191', false, []);
+    buildApp(secret, 'development', 'http://localhost:9191', false, [], '');
 
   const anotherAddress = bytesToHex(Buffer.alloc(20).fill(1));
   const someOtherAddress = bytesToHex(Buffer.alloc(20).fill(2));

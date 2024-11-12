@@ -8,6 +8,7 @@ const app = buildApp(
   env.BLOCK_EXPLORER_API_URL,
   true,
   env.CORS_ORIGIN,
+  env.RPC_URL,
 );
 
 closeWithGrace(async ({ signal, err }) => {
@@ -19,4 +20,4 @@ closeWithGrace(async ({ signal, err }) => {
   await app.close();
 });
 
-await app.listen({ port: env.SERVER_PORT });
+await app.listen({ host: '0.0.0.0', port: env.SERVER_PORT });

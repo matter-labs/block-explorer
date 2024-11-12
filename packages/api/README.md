@@ -9,7 +9,7 @@ There are 2 sets of endpoints the service provides. All the endpoints under `/ap
 ## Installation
 
 ```bash
-$ npm install
+$ yarn install
 ```
 
 ## Setting up env variables
@@ -85,32 +85,32 @@ For networks with a custom base token, there are a number of environment variabl
 
 ```bash
 # development
-$ npm run dev
+$ yarn dev
 
 # watch mode
-$ npm run dev:watch
+$ yarn dev:watch
 
 # debug mode
-$ npm run dev:debug
+$ yarn dev:debug
 
 # production mode
-$ npm run start
+$ yarn start
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ yarn test
 
 # unit tests debug mode
-$ npm run test:debug
+$ yarn test:debug
 
 # e2e tests
-$ npm run test:e2e
+$ yarn test:e2e
 
 # test coverage
-$ npm run test:cov
+$ yarn test:cov
 ```
 
 ## Docs
@@ -119,7 +119,7 @@ Locally Swagger docs are available at http://localhost:3020/docs. JSON version -
 ## Development
 
 ### Linter
-Run `npm run lint` to make sure the code base follows configured linter rules.
+Run `yarn lint` to make sure the code base follows configured linter rules.
 
 ### Performance tests
 There are number of [artillery](https://www.artillery.io/docs) configs in `/performance` folder. 

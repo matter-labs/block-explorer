@@ -6,7 +6,7 @@
 ## Installation
 
 ```bash
-$ npm install
+$ yarn install
 ```
 
 ## Setting up env variables
@@ -21,32 +21,32 @@ cp .env.example .env
 
 ```bash
 # development
-$ npm run dev
+$ yarn dev
 
 # watch mode
-$ npm run dev:watch
+$ yarn dev:watch
 
 # debug mode
-$ npm run dev:debug
+$ yarn dev:debug
 
 # production mode
-$ npm run start
+$ yarn start
 ```
 
 ## Test
 
 ```bash
 # unit tests
-$ npm run test
+$ yarn test
 
 # unit tests debug mode
-$ npm run test:debug
+$ yarn test:debug
 
 # test coverage
-$ npm run test:cov
+$ yarn test:cov
 ```
 
 ## Development
 
 ### Linter
-Run `npm run lint` to make sure the code base follows configured linter rules.
+Run `yarn lint` to make sure the code base follows configured linter rules.

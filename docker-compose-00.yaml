@@ -1,0 +1,74 @@
+name: 'double-zero-proxy'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./packages/app/Dockerfile
+    ports:
+      - '3010:3010'
+    depends_on:
+      - proxy
+    restart: unless-stopped
+
+  proxy:
+    build:
+      context: .
+      dockerfile: ./packages/proxy/Dockerfile
+    ports:
+      - "4040:4040"
+    environment:
+      SERVER_PORT: 4040
+      BLOCK_EXPLORER_API_URL: ${BLOCK_EXPLORER_API_URL}
+      SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
+      CORS_ORIGIN: ${CORS_ORIGIN}
+      RPC_URL: ${TARGET_RPC}
+      USER_TOKEN_URL: http://private-rpc:4041/users
+
+  private-rpc-migrate:
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    command: sh -c "yarn db:migrate"
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
+
+  private-rpc:
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+      private-rpc-migrate:
+        condition: service_completed_successfully
+    ports:
+      - '4041:4041'
+    environment:
+      PORT: "4041"
+      DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
+      TARGET_RPC: ${TARGET_RPC}
+
+  db-private-rpc:
+    image: "postgres:14"
+    logging:
+      driver: none
+    volumes:
+      - db-private-rpc:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=private-rpc
+
+
+volumes:
+  db-private-rpc:

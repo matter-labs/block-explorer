@@ -28,7 +28,7 @@ services:
     depends_on:
       zksync:
         condition: service_healthy
-    restart: unless-stopped
+    restart: on-failure
 
   data-fetcher:
     build:
@@ -62,19 +62,48 @@ services:
     restart: unless-stopped
 
   proxy:
-    platform: linux/x86_64
     build:
       context: .
       dockerfile: ./packages/proxy/Dockerfile
     depends_on:
       - api
     ports:
-      - "3020:3020"
+      - "4040:4040"
     environment:
-      SERVER_PORT: 3020
+      SERVER_PORT: 4040
       BLOCK_EXPLORER_API_URL: http://api:3021
       SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
       CORS_ORIGIN: "localhost:3010"
+
+  private-rpc-migrate:
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    command: sh -c "yarn db:migrate"
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
+
+
+  private-rpc:
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+      private-rpc-migrate:
+        condition: service_completed_successfully
+      zksync:
+        condition: service_healthy
+    ports:
+      - '3022:3022'
+    environment:
+      PORT: '3022'
+      DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
+      TARGET_RPC: 'http://zksync:3050'
 
   postgres:
     image: "postgres:14"

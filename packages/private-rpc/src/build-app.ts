@@ -7,8 +7,8 @@ import {
 import { DB } from '@/db';
 import { usersRoutes } from '@/routes/users-routes';
 import { rpcRoutes } from '@/routes/rpc-routes';
-
 import { Authorizer } from '@/permissions/authorizer';
+import cors from '@fastify/cors';
 
 export function buildApp(
   produceLogs = true,
@@ -22,6 +22,11 @@ export function buildApp(
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
+
+  app.register(cors, {
+    origin: '*',
+    methods: ['POST'],
+  });
 
   app.decorate('context', {
     db,
