@@ -22,7 +22,8 @@ WORKDIR /app
 COPY .npmrc .npmrc
 COPY lerna.json .
 COPY package.json .
-COPY --from=build /app/packages/private-rpc ./packages/private-rpc
+COPY packages/private-rpc ./packages/private-rpc
+COPY --from=build /app/packages/private-rpc/dist ./packages/private-rpc/dist
 COPY yarn.lock .
 
 # Install only prod dependencies

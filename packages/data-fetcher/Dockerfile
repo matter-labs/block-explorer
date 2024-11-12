@@ -20,7 +20,8 @@ WORKDIR /app
 COPY .npmrc .npmrc
 COPY lerna.json .
 COPY package.json .
-COPY --from=build /app/packages/data-fetcher ./packages/data-fetcher
+COPY packages/data-fetcher ./packages/data-fetcher
+COPY --from=build /app/packages/data-fetcher/dist ./packages/data-fetcher/dist
 COPY yarn.lock .
 
 # Install only prod dependencies

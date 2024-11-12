@@ -22,7 +22,8 @@ WORKDIR /app
 COPY .npmrc .npmrc
 COPY lerna.json .
 COPY package.json .
-COPY --from=build /app/packages/proxy ./packages/proxy
+COPY packages/proxy ./packages/proxy
+COPY --from=build /app/packages/proxy/dist ./packages/proxy/dist
 COPY yarn.lock .
 
 # Install only prod dependencies
