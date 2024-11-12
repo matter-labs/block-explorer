@@ -13,7 +13,6 @@ export const rpcUrl = computed(() => {
   if (token === null) {
     return null;
   }
-  console.log(network.rpcUrl)
   return `${network.rpcUrl}/${token}`;
 });
 
