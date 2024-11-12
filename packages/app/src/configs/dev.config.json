@@ -2,17 +2,18 @@
   "networks": [
     {
       "apiUrl": "http://localhost:4040",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
       "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [
         "localhost"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
-      "l2ChainId": 270,
+      "l2ChainId": 300,
       "l2NetworkName": "Local",
       "maintenance": false,
       "name": "local",
       "published": true,
-      "rpcUrl": "http://localhost:3050",
+      "rpcUrl": "http://localhost:4041/rpc",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     },
     {

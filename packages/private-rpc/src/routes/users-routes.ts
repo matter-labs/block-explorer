@@ -1,13 +1,13 @@
 import { WebServer } from '@/build-app';
 import { z } from 'zod';
-import { hexSchema } from '@/db/hex-row';
+import { addressSchema } from '@/schemas/address';
 import { usersTable } from '@/db/schema';
 import { nanoid } from 'nanoid';
 
 const createUserSchema = {
   schema: {
     body: z.object({
-      address: hexSchema,
+      address: addressSchema,
     }),
   },
 };

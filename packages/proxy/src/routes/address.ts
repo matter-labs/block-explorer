@@ -1,7 +1,7 @@
 import type { FastifyApp } from '../app.js';
 import { z } from 'zod';
 import { isAddressEqual } from 'viem';
-import { getUserOrThrow } from '../services/user.js';
+import { getUser, getUserOrThrow } from '../services/user.js';
 import { ForbiddenError } from '../utils/http-error.js';
 import {
   addressSchema,
@@ -68,7 +68,7 @@ const addressResponseSchema = z.union([
 export const addressRoutes = (app: FastifyApp) => {
   const proxyTarget = app.conf.proxyTarget;
   app.get('/:address', { schema: addressParamsSchema }, async (req, _reply) => {
-    const user = getUserOrThrow(req);
+    const user = getUser(req);
     const data = await fetch(`${proxyTarget}/address/${req.params.address}`)
       .then((res) => res.json())
       .then((json) => addressResponseSchema.parse(json));
@@ -78,7 +78,7 @@ export const addressRoutes = (app: FastifyApp) => {
       // the logged in user is the `Owner` of the contract or not.
       // This is a very naive approach and we should find a better way to do this.
       const owner = await getContractOwner(data.address);
-      if (owner && isAddressEqual(owner, user)) {
+      if (user && owner && isAddressEqual(owner, user)) {
         return { ...data, authorized: true };
       }
 
@@ -88,7 +88,7 @@ export const addressRoutes = (app: FastifyApp) => {
         balances: {},
       };
     } else if (data.type === 'account') {
-      if (isAddressEqual(data.address, user)) {
+      if (user && isAddressEqual(data.address, user)) {
         return data;
       } else {
         throw new ForbiddenError('Forbidden');

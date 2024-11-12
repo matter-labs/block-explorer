@@ -6,8 +6,9 @@ import {
   recoverTransactionAddress,
 } from 'viem';
 import { z } from 'zod';
-import { hexSchema } from '@/db/hex-row';
+import { hexSchema } from '@/schemas/hex';
 import { delegateCall } from '@/rpc/delegate-call';
+import { addressSchema } from '@/schemas/address';
 
 function extractSelector(calldata: Hex): Hex {
   return calldata.substring(0, 10) as Hex;
@@ -15,8 +16,8 @@ function extractSelector(calldata: Hex): Hex {
 
 const callReqSchema = z
   .object({
-    from: hexSchema.optional(),
-    to: hexSchema,
+    from: addressSchema.optional(),
+    to: addressSchema,
     data: hexSchema.optional(),
     input: hexSchema.optional(),
   })

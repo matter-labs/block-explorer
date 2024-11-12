@@ -5,9 +5,9 @@ import { SiweMessage } from "siwe";
 import defaultLogger from "./../utils/logger";
 
 import type { BaseProvider } from "@metamask/providers";
-import { reactive, type ToRefs, toRefs, type ComputedRef, type Ref } from "vue";
-import type { Provider } from "zksync-ethers";
 import { $fetch } from "ohmyfetch";
+import { reactive, toRefs, type ComputedRef, type Ref, type ToRefs } from "vue";
+import type { Provider } from "zksync-ethers";
 import type { NetworkConfig } from "../configs";
 import type { UserContext } from "./useContext";
 

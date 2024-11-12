@@ -8,3 +8,7 @@ export function getUserOrThrow(req: FastifyRequest) {
   }
   return user;
 }
+
+export function getUser(req: FastifyRequest) {
+  return req.user;
+}

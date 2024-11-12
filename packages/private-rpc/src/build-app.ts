@@ -8,7 +8,7 @@ import { DB } from '@/db';
 import { usersRoutes } from '@/routes/users-routes';
 import { rpcRoutes } from '@/routes/rpc-routes';
 
-import { Authorizer } from '@/permissions/authorizeer';
+import { Authorizer } from '@/permissions/authorizer';
 
 export function buildApp(
   produceLogs = true,

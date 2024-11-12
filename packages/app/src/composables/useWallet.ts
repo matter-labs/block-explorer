@@ -11,6 +11,7 @@ import type { BaseProvider } from "@metamask/providers";
 import type { Provider } from "zksync-ethers";
 
 import { numberToHexString } from "@/utils/formatters";
+import { rpcUrl } from "./useRpcToken";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type JsonRpcError = any;
@@ -20,6 +21,7 @@ type WalletState = {
   isConnectPending: boolean;
   isConnectFailed: boolean;
   isMetamaskInstalled: boolean;
+  isAddNetworkPending: boolean;
   address: string | null;
 };
 
@@ -31,12 +33,13 @@ type UseWallet = ToRefs<WalletState> & {
 
   getL1Signer: () => Promise<L1Signer>;
   getL2Signer: () => Promise<Signer>;
+
+  addNetwork: (rpcUrl: string) => Promise<void>;
 };
 
 export type NetworkConfiguration = {
   l1ChainId: number;
   l2ChainId: number;
-  rpcUrl: string;
   explorerUrl: string;
   chainName: string;
 };
@@ -60,7 +63,7 @@ const state = reactive<WalletState>({
   isMetamaskInstalled: false,
   isConnectPending: false,
   isConnectFailed: false,
-
+  isAddNetworkPending: false,
   address: null,
 });
 
@@ -174,7 +177,7 @@ export default (
                   symbol: "ETH",
                   decimals: 18,
                 },
-                rpcUrls: [currentNetwork.rpcUrl],
+                rpcUrls: [rpcUrl.value],
                 blockExplorerUrls: [currentNetwork.explorerUrl],
                 iconUrls: ["https://zksync.io/favicon.ico"],
               },
@@ -223,6 +226,38 @@ export default (
     return Signer.from(await provider.getSigner(), context.currentNetwork.value.l2ChainId, context.getL2Provider()!);
   };
 
+  const addNetwork = async (rpcUrl: string) => {
+    const ethereum = await getEthereumProvider();
+    if (!ethereum) {
+      throw WalletError.UnknownError("MetaMask not installed");
+    }
+
+    try {
+      state.isAddNetworkPending = true;
+      await ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: numberToHexString(context.currentNetwork.value.l2ChainId),
+            chainName: context.currentNetwork.value.chainName,
+            nativeCurrency: {
+              name: "Ether",
+              symbol: "ETH",
+              decimals: 18,
+            },
+            rpcUrls: [rpcUrl],
+            blockExplorerUrls: [context.currentNetwork.value.explorerUrl],
+            iconUrls: ["https://zksync.io/favicon.ico"],
+          },
+        ],
+      });
+    } catch (error) {
+      processException(error, "Failed to add network to MetaMask");
+    } finally {
+      state.isAddNetworkPending = false;
+    }
+  };
+
   return {
     ...toRefs(state),
     initialize,
@@ -232,11 +267,16 @@ export default (
 
     getL1Signer,
     getL2Signer,
+
+    addNetwork,
   };
 };
 
 export class WalletError extends Error {
-  constructor(message: string, public readonly messageCode: string) {
+  constructor(
+    message: string,
+    public readonly messageCode: string
+  ) {
     super(message);
 
     Object.setPrototypeOf(this, WalletError.prototype);
