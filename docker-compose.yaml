@@ -62,7 +62,6 @@ services:
     restart: unless-stopped
 
   proxy:
-    platform: linux/x86_64
     build:
       context: .
       dockerfile: ./packages/proxy/Dockerfile
@@ -77,7 +76,6 @@ services:
       CORS_ORIGIN: "localhost:3010"
 
   private-rpc-migrate:
-    platform: linux/x86_64
     build:
       context: .
       dockerfile: ./packages/private-rpc/Dockerfile
@@ -90,7 +88,6 @@ services:
 
 
   private-rpc:
-    platform: linux/x86_64
     build:
       context: .
       dockerfile: ./packages/private-rpc/Dockerfile
