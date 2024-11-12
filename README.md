@@ -112,6 +112,18 @@ docker compose up
 ```
 It will run local Ethereum node, ZkSync Era, Postgres DB and all Block Explorer services.
 
+Another option is to run only the double zero services hitting external endpoints
+These can be done by upgrading the content `proxy.env` with the desired rpc and explorer
+urls. Then running:
+
+``` shell
+docker compose -f docker-compose-00.yaml --env-file=proxy.env up
+```
+
+This is going to spin only the services needed to make a functional
+double zero setup against the specified environment.
+
+
 ## ⛓️ Connection to your Hyperchain
 To get block-explorer connected to your ZK Stack Hyperchain you need to set up all the the necessary environment and configuration files with your Hyperchain settings. You can use a script to build them. See [Setting up env variables](#%EF%B8%8F-setting-up-env-variables).
 

@@ -86,9 +86,7 @@ services:
       db-private-rpc:
         condition: service_healthy
     environment:
-      PORT: '3022'
       DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
-      TARGET_RPC: 'http://zksync:3050'
 
 
   private-rpc:
