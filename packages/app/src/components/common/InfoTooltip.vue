@@ -11,9 +11,9 @@
 </template>
 
 <script lang="ts" setup>
-import { QuestionMarkCircleIcon } from "@heroicons/vue/outline";
+import { QuestionMarkCircleIcon } from '@heroicons/vue/outline';
 
-import Tooltip from "@/components/common/Tooltip.vue";
+import Tooltip from '@/components/common/Tooltip.vue';
 </script>
 
 <style lang="scss">

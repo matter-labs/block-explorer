@@ -1,6 +1,6 @@
-import { computed, type ComputedRef, ref, type Ref } from "vue";
+import { computed, type ComputedRef, ref, type Ref } from 'vue';
 
-import { $fetch } from "ohmyfetch";
+import { $fetch } from 'ohmyfetch';
 
 export type UseFetchCollection<T> = {
   pending: ComputedRef<boolean>;
@@ -17,7 +17,7 @@ export type UseFetchCollection<T> = {
 
 export function useFetchCollection<T, TApiResponse = T>(
   resource: URL | ((...params: unknown[]) => URL),
-  itemMapper?: (apiResponse: TApiResponse) => T
+  itemMapper?: (apiResponse: TApiResponse) => T,
 ): UseFetchCollection<T> {
   const data = ref<T[] | null>(null) as Ref<T[] | null>;
 
@@ -36,20 +36,25 @@ export function useFetchCollection<T, TApiResponse = T>(
     failed.value = false;
 
     try {
-      const url = typeof resource === "function" ? resource() : resource;
-      url.searchParams.set("pageSize", pageSize.value.toString());
-      url.searchParams.set("page", nextPage.toString());
+      const url = typeof resource === 'function' ? resource() : resource;
+      url.searchParams.set('pageSize', pageSize.value.toString());
+      url.searchParams.set('page', nextPage.toString());
 
       if (toDate && +new Date(toDate) > 0) {
-        url.searchParams.set("toDate", toDate.toISOString());
+        url.searchParams.set('toDate', toDate.toISOString());
       }
 
-      const response = await $fetch<Api.Response.Collection<TApiResponse>>(url.toString(), {
-        credentials: "include",
-      });
-      data.value = itemMapper ? response.items?.map((item) => itemMapper(item)) : (response.items as unknown as T[]);
+      const response = await $fetch<Api.Response.Collection<TApiResponse>>(
+        url.toString(),
+        {
+          credentials: 'include',
+        },
+      );
+      data.value = itemMapper
+        ? response.items?.map((item) => itemMapper(item))
+        : (response.items as unknown as T[]);
       total.value = response.meta.totalItems;
-    } catch (error) {
+    } catch (_error) {
       failed.value = true;
       data.value = null;
     } finally {

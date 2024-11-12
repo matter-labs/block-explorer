@@ -1,16 +1,16 @@
-import { createI18n } from "vue-i18n";
+import { createI18n } from 'vue-i18n';
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { mount } from "@vue/test-utils";
+import { mount } from '@vue/test-utils';
 
-import PaymasterLabel from "@/components/transactions/PaymasterLabel.vue";
+import PaymasterLabel from '@/components/transactions/PaymasterLabel.vue';
 
-import enUS from "@/locales/en.json";
+import enUS from '@/locales/en.json';
 
-describe("TransactionNetworkSquareBlock:", () => {
+describe('TransactionNetworkSquareBlock:', () => {
   const i18n = createI18n({
-    locale: "en",
+    locale: 'en',
     allowComposition: true,
     messages: {
       en: enUS,
@@ -20,10 +20,10 @@ describe("TransactionNetworkSquareBlock:", () => {
     plugins: [i18n],
   };
 
-  it("renders component", () => {
+  it('renders component', () => {
     const wrapper = mount(PaymasterLabel, {
       global,
     });
-    expect(wrapper.find(".paymaster-label").text()).toBe("Paymaster");
+    expect(wrapper.find('.paymaster-label').text()).toBe('Paymaster');
   });
 });

@@ -1,18 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { render } from "@testing-library/vue";
+import { render } from '@testing-library/vue';
 
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
 
-describe("TableBodyColumn", () => {
-  it("renders properly", () => {
+describe('TableBodyColumn', () => {
+  it('renders properly', () => {
     const { container } = render(TableBodyColumn, {
       slots: {
         default: {
-          template: "Default slot",
+          template: 'Default slot',
         },
       },
     });
-    expect(container.textContent).toBe("Default slot");
+    expect(container.textContent).toBe('Default slot');
   });
 });

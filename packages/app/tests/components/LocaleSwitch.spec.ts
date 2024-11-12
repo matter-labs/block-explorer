@@ -1,55 +1,57 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { fireEvent, render } from "@testing-library/vue";
+import { fireEvent, render } from '@testing-library/vue';
 
-import LocaleSwitch from "@/components/LocaleSwitch.vue";
+import LocaleSwitch from '@/components/LocaleSwitch.vue';
 
-describe("LocaleSwitch:", () => {
-  it("renders listbox button with selected option", async () => {
+describe('LocaleSwitch:', () => {
+  it('renders listbox button with selected option', async () => {
     const { getByText } = render(LocaleSwitch, {
       props: {
-        value: "uk",
+        value: 'uk',
         options: [
-          { value: "en", label: "English", imageUrl: "en.svg" },
-          { value: "uk", label: "Ukrainian", imageUrl: "uk.svg" },
+          { value: 'en', label: 'English', imageUrl: 'en.svg' },
+          { value: 'uk', label: 'Ukrainian', imageUrl: 'uk.svg' },
         ],
       },
     });
 
-    expect(getByText("Ukrainian"));
+    expect(getByText('Ukrainian'));
   });
 
-  it("renders list of locales when button is clicked", async () => {
+  it('renders list of locales when button is clicked', async () => {
     const { container, getByText } = render(LocaleSwitch, {
       props: {
-        value: "en",
+        value: 'en',
         options: [
-          { value: "en", label: "English", imageUrl: "" },
-          { value: "uk", label: "Ukrainian", imageUrl: "" },
+          { value: 'en', label: 'English', imageUrl: '' },
+          { value: 'uk', label: 'Ukrainian', imageUrl: '' },
         ],
       },
     });
 
-    await fireEvent.click(container.querySelector(".toggle-button")!);
+    await fireEvent.click(container.querySelector('.toggle-button')!);
 
-    expect(getByText("Ukrainian", { selector: ".language-list-item-label" }));
-    expect(getByText("English", { selector: ".language-list-item-label" }));
+    expect(getByText('Ukrainian', { selector: '.language-list-item-label' }));
+    expect(getByText('English', { selector: '.language-list-item-label' }));
   });
 
-  it("emits update:value when click on locale", async () => {
+  it('emits update:value when click on locale', async () => {
     const { container, emitted } = render(LocaleSwitch, {
       props: {
-        value: "en",
+        value: 'en',
         options: [
-          { value: "en", label: "English", imageUrl: "" },
-          { value: "uk", label: "Ukrainian", imageUrl: "" },
+          { value: 'en', label: 'English', imageUrl: '' },
+          { value: 'uk', label: 'Ukrainian', imageUrl: '' },
         ],
       },
     });
 
-    await fireEvent.click(container.querySelector(".toggle-button")!);
-    await fireEvent.click(container.querySelector(".language-list-item:last-child")!);
+    await fireEvent.click(container.querySelector('.toggle-button')!);
+    await fireEvent.click(
+      container.querySelector('.language-list-item:last-child')!,
+    );
 
-    expect(emitted()).toHaveProperty("update:value", [["uk"]]);
+    expect(emitted()).toHaveProperty('update:value', [['uk']]);
   });
 });

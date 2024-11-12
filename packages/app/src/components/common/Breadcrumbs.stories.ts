@@ -1,11 +1,11 @@
-import vueRouter from "storybook-vue3-router";
+import vueRouter from 'storybook-vue3-router';
 
-import Breadcrumbs from "./Breadcrumbs.vue";
+import Breadcrumbs from './Breadcrumbs.vue';
 
-import type { BreadcrumbItem } from "./Breadcrumbs.vue";
+import type { BreadcrumbItem } from './Breadcrumbs.vue';
 
 export default {
-  title: "Common/Breadcrumbs",
+  title: 'Common/Breadcrumbs',
   component: Breadcrumbs,
 };
 
@@ -23,19 +23,22 @@ const Template = (args: Args) => ({
   `,
 });
 
-export const Default = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const Default = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 Default.args = {
   items: [
     {
-      text: "Dashboard",
-      to: { name: "home" },
+      text: 'Dashboard',
+      to: { name: 'home' },
     },
     {
-      text: "Block #123",
-      to: { name: "home" },
+      text: 'Block #123',
+      to: { name: 'home' },
     },
     {
-      text: "Transaction 0x6f873...68",
+      text: 'Transaction 0x6f873...68',
     },
   ],
 };

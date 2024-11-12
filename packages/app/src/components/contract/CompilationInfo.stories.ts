@@ -1,9 +1,9 @@
-import CompilationInfo from "./CompilationInfo.vue";
+import CompilationInfo from './CompilationInfo.vue';
 
-import type { Contract } from "@/composables/useAddress";
+import type { Contract } from '@/composables/useAddress';
 
 export default {
-  title: "Contract/CompilationInfo",
+  title: 'Contract/CompilationInfo',
   component: CompilationInfo,
 };
 
@@ -22,9 +22,9 @@ const Template = (args: Args) => ({
 const contract: Contract = {
   verificationInfo: {
     request: {
-      compilerSolcVersion: "0.8.17",
-      compilerZksolcVersion: "v1.3.5",
-      contractName: "SwapRouter",
+      compilerSolcVersion: '0.8.17',
+      compilerZksolcVersion: 'v1.3.5',
+      contractName: 'SwapRouter',
       optimizationUsed: true,
     },
   },

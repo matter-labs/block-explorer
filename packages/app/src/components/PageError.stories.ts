@@ -1,7 +1,7 @@
-import PageError from "./PageError.vue";
+import PageError from './PageError.vue';
 
 export default {
-  title: "components/PageError",
+  title: 'components/PageError',
   component: PageError,
 };
 

@@ -1,13 +1,15 @@
 <template>
   <div class="card">
     <div>
-      <div class="title">{{ t("networkStats.title") }}</div>
+      <div class="title">{{ t('networkStats.title') }}</div>
       <div class="subtitle">{{ subtitle }}</div>
     </div>
     <dl class="description-list">
       <div class="stats-container">
         <dt>
-          <router-link :to="{ name: 'blocks' }">{{ t("networkStats.committed") }}</router-link>
+          <router-link :to="{ name: 'blocks' }">{{
+            t('networkStats.committed')
+          }}</router-link>
         </dt>
         <dd>
           <ContentLoader v-if="loading" class="h-full w-24" />
@@ -16,7 +18,9 @@
       </div>
       <div class="stats-container">
         <dt>
-          <router-link :to="{ name: 'blocks' }">{{ t("networkStats.verified") }}</router-link>
+          <router-link :to="{ name: 'blocks' }">{{
+            t('networkStats.verified')
+          }}</router-link>
         </dt>
         <dd>
           <ContentLoader v-if="loading" class="h-full w-24" />
@@ -25,7 +29,9 @@
       </div>
       <div class="stats-container">
         <dt>
-          <router-link :to="{ name: 'transactions' }">{{ t("networkStats.transactions") }}</router-link>
+          <router-link :to="{ name: 'transactions' }">{{
+            t('networkStats.transactions')
+          }}</router-link>
         </dt>
         <dd>
           <ContentLoader v-if="loading" class="h-full w-36" />
@@ -34,7 +40,7 @@
       </div>
       <div v-if="totalLocked" class="stats-container">
         <dt>
-          {{ t("networkStats.totalLocked") }}
+          {{ t('networkStats.totalLocked') }}
         </dt>
         <dd>
           <ContentLoader v-if="loading" class="h-full w-20" />
@@ -46,14 +52,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
 
-import useContext from "@/composables/useContext";
+import useContext from '@/composables/useContext';
 
-import { formatMoney, formatWithSpaces } from "@/utils/formatters";
+import { formatMoney, formatWithSpaces } from '@/utils/formatters';
 
 const { t } = useI18n();
 const { currentNetwork } = useContext();
@@ -78,7 +84,9 @@ defineProps({
 });
 
 const subtitle = computed(() =>
-  currentNetwork.value.name === "mainnet" ? t("networkStats.subtitleMainnet") : t("networkStats.subtitleTestnet")
+  currentNetwork.value.name === 'mainnet'
+    ? t('networkStats.subtitleMainnet')
+    : t('networkStats.subtitleTestnet'),
 );
 </script>
 

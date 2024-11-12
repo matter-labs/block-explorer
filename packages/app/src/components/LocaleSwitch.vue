@@ -29,12 +29,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed } from 'vue';
 
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { ChevronDownIcon } from "@heroicons/vue/solid";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/vue';
+import { ChevronDownIcon } from '@heroicons/vue/solid';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 type Locale = {
   value: string;
@@ -51,12 +56,12 @@ const props = defineProps({
     required: true,
   },
 });
-const emit = defineEmits(["update:value"]);
+const emit = defineEmits(['update:value']);
 
 const selected = computed<Locale>({
   get: () => props.options.find((item) => item.value === props.value)!,
   set: (value) => {
-    emit("update:value", value.value);
+    emit('update:value', value.value);
   },
 });
 </script>

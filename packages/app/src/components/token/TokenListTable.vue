@@ -1,9 +1,18 @@
 <template>
-  <Table :data-testid="$testId.tokensTable" :loading="loading" :items="tokens" ref="table">
+  <Table
+    :data-testid="$testId.tokensTable"
+    :loading="loading"
+    :items="tokens"
+    ref="table"
+  >
     <template #table-head>
-      <table-head-column>{{ t("tokensView.table.tokenName") }}</table-head-column>
-      <table-head-column>{{ t("tokensView.table.price") }}</table-head-column>
-      <table-head-column>{{ t("tokensView.table.tokenAddress") }}</table-head-column>
+      <table-head-column>{{
+        t('tokensView.table.tokenName')
+      }}</table-head-column>
+      <table-head-column>{{ t('tokensView.table.price') }}</table-head-column>
+      <table-head-column>{{
+        t('tokensView.table.tokenAddress')
+      }}</table-head-column>
     </template>
     <template #table-row="{ item }: { item: any }">
       <TableBodyColumn :data-heading="t('tokensView.table.tokenName')">
@@ -26,7 +35,7 @@
             :address="item.l2Address"
             class="token-address block max-w-sm"
           >
-            {{ shortenFitText(item.l2Address, "left", 210, subtraction) }}
+            {{ shortenFitText(item.l2Address, 'left', 210, subtraction) }}
           </AddressLink>
           <CopyButton :value="item.l2Address" />
         </div>
@@ -62,23 +71,23 @@
   </Table>
 </template>
 <script lang="ts" setup>
-import { type PropType, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+import { type PropType, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { useElementSize } from "@vueuse/core";
+import { useElementSize } from '@vueuse/core';
 
-import AddressLink from "@/components/AddressLink.vue";
-import TokenIconLabel from "@/components/TokenIconLabel.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import { shortenFitText } from "@/components/common/HashLabel.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
-import TokenPrice from "@/components/common/table/fields/TokenPrice.vue";
-import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import TokenIconLabel from '@/components/TokenIconLabel.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import { shortenFitText } from '@/components/common/HashLabel.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TableHeadColumn from '@/components/common/table/TableHeadColumn.vue';
+import TokenPrice from '@/components/common/table/fields/TokenPrice.vue';
+import TransactionNetworkSquareBlock from '@/components/transactions/TransactionNetworkSquareBlock.vue';
 
-import type { Token } from "@/composables/useToken";
+import type { Token } from '@/composables/useToken';
 
 defineProps({
   tokens: {

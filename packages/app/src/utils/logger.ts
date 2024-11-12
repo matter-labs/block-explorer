@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 
-import { BrowserTracing } from "@sentry/tracing";
-import * as Sentry from "@sentry/vue";
+import { BrowserTracing } from '@sentry/tracing';
+import * as Sentry from '@sentry/vue';
 
-import type { Vue } from "@sentry/vue/types/types";
-import type { Router } from "vue-router";
+import type { Vue } from '@sentry/vue/types/types';
+import type { Router } from 'vue-router';
 
 let sentryReady = false;
 
@@ -14,9 +14,9 @@ export function useSentry(
   applicationId: string,
   appEnvironment: string,
   version: string,
-  router: Router
+  router: Router,
 ) {
-  if (applicationId?.length && process.env.NODE_ENV === "production") {
+  if (applicationId?.length && process.env.NODE_ENV === 'production') {
     Sentry.init({
       app,
       dsn: applicationId,
@@ -47,7 +47,7 @@ export default {
       Sentry.captureException(e);
     }
 
-    if (process.env.NODE_ENV !== "test") {
+    if (process.env.NODE_ENV !== 'test') {
       console.error(e, ...data);
     }
   },
@@ -57,7 +57,7 @@ export default {
       Sentry.captureMessage(message);
     }
 
-    if (process.env.NODE_ENV !== "test") {
+    if (process.env.NODE_ENV !== 'test') {
       console.warn(message, ...data);
     }
   },

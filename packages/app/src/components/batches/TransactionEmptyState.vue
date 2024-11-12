@@ -2,7 +2,11 @@
   <div class="transactions-empty-state">
     <EmptyState class="empty-state">
       <template #title>
-        {{ batchExists ? t("batches.transactionTable.noTransactions") : t("batches.transactionTable.batchNotFound") }}
+        {{
+          batchExists
+            ? t('batches.transactionTable.noTransactions')
+            : t('batches.transactionTable.batchNotFound')
+        }}
       </template>
       <template #description><span></span></template>
     </EmptyState>
@@ -10,9 +14,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import EmptyState from "@/components/common/EmptyState.vue";
+import EmptyState from '@/components/common/EmptyState.vue';
 
 const { t } = useI18n();
 

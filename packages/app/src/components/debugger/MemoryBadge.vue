@@ -1,5 +1,8 @@
 <template>
-  <div class="badge-container" :class="[`color-${setBadgeColor(memoryDirection, defaultColor)}`]">
+  <div
+    class="badge-container"
+    :class="[`color-${setBadgeColor(memoryDirection, defaultColor)}`]"
+  >
     <div class="badge-content">
       {{ text }}
     </div>
@@ -10,20 +13,24 @@
 defineProps({
   text: {
     type: String,
-    default: "",
+    default: '',
   },
   memoryDirection: {
     type: String,
-    default: "",
+    default: '',
   },
   defaultColor: {
     type: String,
-    default: "neutral",
+    default: 'neutral',
   },
 });
 
 function setBadgeColor(item: string, defaultColor: string) {
-  return (item === "Write" && "warning") || (item === "Read" && "primary") || defaultColor;
+  return (
+    (item === 'Write' && 'warning') ||
+    (item === 'Read' && 'primary') ||
+    defaultColor
+  );
 }
 </script>
 

@@ -1,7 +1,7 @@
-import SolidityEditor from "./SolidityEditor.vue";
+import SolidityEditor from './SolidityEditor.vue';
 
 export default {
-  title: "components/SolidityEditor",
+  title: 'components/SolidityEditor',
   component: SolidityEditor,
 };
 
@@ -45,18 +45,18 @@ contract Counter {
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  modelValue: "",
+  modelValue: '',
 };
 
 export const Disabled = Template.bind({}) as unknown as { args: Args };
 Disabled.args = {
-  modelValue: "",
+  modelValue: '',
   disabled: true,
 };
 
 export const ReadOnly = Template.bind({}) as unknown as { args: Args };
 ReadOnly.args = {
-  modelValue: "",
+  modelValue: '',
   readOnly: true,
 };
 
@@ -65,7 +65,9 @@ WithValue.args = {
   modelValue: code,
 };
 
-export const DisabledOnlyWithValue = Template.bind({}) as unknown as { args: Args };
+export const DisabledOnlyWithValue = Template.bind({}) as unknown as {
+  args: Args;
+};
 DisabledOnlyWithValue.args = {
   modelValue: code,
   disabled: true,
@@ -79,7 +81,7 @@ ReadOnlyWithValue.args = {
 
 export const Error = Template.bind({}) as unknown as { args: Args };
 Error.args = {
-  modelValue: "",
+  modelValue: '',
   error: "It's an error",
 };
 

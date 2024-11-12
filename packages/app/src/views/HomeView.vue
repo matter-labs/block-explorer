@@ -1,7 +1,7 @@
 <template>
   <div class="home">
-    <h1 class="title">{{ t("blockExplorer.title") }}</h1>
-    <div class="subtitle">{{ t("blockExplorer.subtitle") }}</div>
+    <h1 class="title">{{ t('blockExplorer.title') }}</h1>
+    <div class="subtitle">{{ t('blockExplorer.subtitle') }}</div>
     <SearchForm class="search-form" />
     <div class="section">
       <NetworkStats
@@ -16,8 +16,10 @@
     <div class="latest-blocks-transactions">
       <div>
         <div class="batches-label-container">
-          <p>{{ t("blockExplorer.batches") }}</p>
-          <InfoTooltip class="batches-tooltip">{{ t("batches.tooltipInfo") }}</InfoTooltip>
+          <p>{{ t('blockExplorer.batches') }}</p>
+          <InfoTooltip class="batches-tooltip">{{
+            t('batches.tooltipInfo')
+          }}</InfoTooltip>
         </div>
         <TableBatches
           v-if="(isBatchesPending || batches) && !isBatchesFailed"
@@ -27,15 +29,15 @@
           :columns="['status', 'size', 'txnBatch', 'age']"
         >
           <template #not-found>
-            <p class="not-found">{{ t("batches.table.notFoundHomePage") }}</p>
+            <p class="not-found">{{ t('batches.table.notFoundHomePage') }}</p>
           </template>
         </TableBatches>
         <span v-else-if="isBatchesFailed" class="error-message">
-          {{ t("failedRequest") }}
+          {{ t('failedRequest') }}
         </span>
       </div>
       <div>
-        <p>{{ t("blockExplorer.latestTransactions") }}</p>
+        <p>{{ t('blockExplorer.latestTransactions') }}</p>
         <TransactionsTable
           class="transactions-table"
           :columns="['status', 'transactionHash', 'age']"
@@ -45,7 +47,9 @@
         >
           <template #not-found>
             <TableBodyColumn>
-              <p class="not-found">{{ t("transactions.table.notFoundHomePage") }}</p>
+              <p class="not-found">
+                {{ t('transactions.table.notFoundHomePage') }}
+              </p>
             </TableBodyColumn>
           </template>
         </TransactionsTable>
@@ -54,23 +58,32 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import NetworkStats from "@/components/NetworkStats.vue";
-import SearchForm from "@/components/SearchForm.vue";
-import TableBatches from "@/components/batches/Table.vue";
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TransactionsTable from "@/components/transactions/Table.vue";
+import NetworkStats from '@/components/NetworkStats.vue';
+import SearchForm from '@/components/SearchForm.vue';
+import TableBatches from '@/components/batches/Table.vue';
+import InfoTooltip from '@/components/common/InfoTooltip.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TransactionsTable from '@/components/transactions/Table.vue';
 
-import useBatches from "@/composables/useBatches";
-import useNetworkStats from "@/composables/useNetworkStats";
-import useContext from "@/composables/useContext";
+import useBatches from '@/composables/useBatches';
+import useContext from '@/composables/useContext';
+import useNetworkStats from '@/composables/useNetworkStats';
 
 const { t } = useI18n();
-const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
-const { load: getBatches, pending: isBatchesPending, failed: isBatchesFailed, data: batches } = useBatches();
+const {
+  fetch: fetchNetworkStats,
+  pending: networkStatsPending,
+  item: networkStats,
+} = useNetworkStats();
+const {
+  load: getBatches,
+  pending: isBatchesPending,
+  failed: isBatchesFailed,
+  data: batches,
+} = useBatches();
 
 const displayedBatches = computed(() => {
   return batches.value ? batches.value : [];

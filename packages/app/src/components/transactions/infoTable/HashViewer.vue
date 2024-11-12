@@ -8,7 +8,10 @@
     </ListboxButton>
     <ListboxOptions
       class="option-list"
-      :class="{ 'opens-up': popoverPlacement === 'top', 'opens-right': popoverPlacement === 'right' }"
+      :class="{
+        'opens-up': popoverPlacement === 'top',
+        'opens-right': popoverPlacement === 'right',
+      }"
     >
       <ListboxOption
         as="template"
@@ -28,43 +31,48 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { CheckIcon, ChevronDownIcon } from "@heroicons/vue/outline";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/vue';
+import { CheckIcon, ChevronDownIcon } from '@heroicons/vue/outline';
 
-import { formatHexDecimals } from "@/utils/formatters";
+import { formatHexDecimals } from '@/utils/formatters';
 
-export type DecodingType = "hex" | "number" | "text" | "address";
+export type DecodingType = 'hex' | 'number' | 'text' | 'address';
 
 const props = defineProps({
   hash: {
     type: String,
-    default: "",
+    default: '',
   },
   defaultType: {
     type: String as PropType<DecodingType>,
-    default: "hex",
+    default: 'hex',
   },
   popoverPlacement: {
-    type: String as PropType<"top" | "bottom" | "right">,
-    default: "bottom",
+    type: String as PropType<'top' | 'bottom' | 'right'>,
+    default: 'bottom',
   },
 });
 
 const { t } = useI18n();
 
-const options: DecodingType[] = ["hex", "number", "text", "address"];
+const options: DecodingType[] = ['hex', 'number', 'text', 'address'];
 
 const selected = ref(props.defaultType);
 
 const convertedValue = computed(() => {
-  if (selected.value === "number") {
-    return formatHexDecimals(props.hash, "Dec");
-  } else if (selected.value === "address") {
-    return formatHexDecimals(props.hash, "Hex");
-  } else if (selected.value === "text") {
+  if (selected.value === 'number') {
+    return formatHexDecimals(props.hash, 'Dec');
+  } else if (selected.value === 'address') {
+    return formatHexDecimals(props.hash, 'Hex');
+  } else if (selected.value === 'text') {
     return hexStringToUTF8(props.hash);
   } else {
     return props.hash;
@@ -72,10 +80,10 @@ const convertedValue = computed(() => {
 });
 
 function hexStringToUTF8(hexString: string): string {
-  const hex = hexString.replace(/^0x/, "");
+  const hex = hexString.replace(/^0x/, '');
   const bytes = hex.match(/.{2}/g) || [];
   const chars = bytes.map((byte) => String.fromCharCode(parseInt(byte, 16)));
-  return chars.join("");
+  return chars.join('');
 }
 </script>
 

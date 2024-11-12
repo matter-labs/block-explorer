@@ -1,11 +1,20 @@
 <template>
   <PopoverButton v-for="item in items" :key="item.to?.name ?? item.url">
-    <router-link v-if="item.to" :to="item.to" class="mobile-navigation-link internal-link">
+    <router-link
+      v-if="item.to"
+      :to="item.to"
+      class="mobile-navigation-link internal-link"
+    >
       <span class="mobile-navigation-label">
         {{ item.label }}
       </span>
     </router-link>
-    <a v-else :href="item.url" target="_blank" class="mobile-navigation-link internal-link">
+    <a
+      v-else
+      :href="item.url"
+      target="_blank"
+      class="mobile-navigation-link internal-link"
+    >
       <span class="mobile-navigation-label">
         {{ item.label }}
       </span>
@@ -14,9 +23,9 @@
 </template>
 
 <script lang="ts" setup>
-import { PopoverButton } from "@headlessui/vue";
+import { PopoverButton } from '@headlessui/vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 type InternalNavigation = {
   label: string;

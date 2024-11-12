@@ -1,10 +1,10 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import useNotFound from "@/composables/useNotFound";
+import useNotFound from '@/composables/useNotFound';
 
-const notFoundRoute = { name: "not-found", meta: { title: "404 Not Found" } };
+const notFoundRoute = { name: 'not-found', meta: { title: '404 Not Found' } };
 const router = {
   resolve: vi.fn(() => notFoundRoute),
   replace: vi.fn(),
@@ -13,25 +13,25 @@ const router = {
   },
 };
 
-vi.mock("vue-router", () => ({
+vi.mock('vue-router', () => ({
   useRouter: () => router,
 }));
 
-describe("UseNotFound:", () => {
+describe('UseNotFound:', () => {
   const composable = useNotFound();
 
-  it("creates useNotFound composable", () => {
+  it('creates useNotFound composable', () => {
     expect(composable.useNotFoundView).toBeDefined();
     expect(composable.setNotFoundView).toBeDefined();
   });
 
-  it("sets not found view", async () => {
+  it('sets not found view', async () => {
     composable.setNotFoundView();
     expect(router.replace).toHaveBeenCalledWith(notFoundRoute);
     router.replace.mockReset();
   });
 
-  it("sets not found view when passed refs are all falsy", async () => {
+  it('sets not found view when passed refs are all falsy', async () => {
     const isPending = ref(true);
     const isFailed = ref(false);
     const item = ref(null);

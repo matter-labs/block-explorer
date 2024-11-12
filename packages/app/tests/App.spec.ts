@@ -1,18 +1,18 @@
-import { computed } from "vue";
-import { createI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { createI18n } from 'vue-i18n';
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import { mount } from "@vue/test-utils";
+import { mount } from '@vue/test-utils';
 
 const useTitleMock = vi.fn();
-vi.mock("@vueuse/core", () => {
+vi.mock('@vueuse/core', () => {
   return {
     useTitle: useTitleMock,
   };
 });
 const maintenanceMock = vi.fn(() => false);
-vi.mock("@/composables/useContext", () => {
+vi.mock('@/composables/useContext', () => {
   return {
     default: () => ({
       isReady: computed(() => true),
@@ -20,30 +20,30 @@ vi.mock("@/composables/useContext", () => {
     }),
   };
 });
-vi.mock("@/composables/useLocalization", () => {
+vi.mock('@/composables/useLocalization', () => {
   return {
     default: () => ({
       setup: vi.fn(),
     }),
   };
 });
-vi.mock("@/composables/useRouteTitle", () => {
+vi.mock('@/composables/useRouteTitle', () => {
   return {
     default: () => ({
-      title: computed(() => "Page title"),
+      title: computed(() => 'Page title'),
     }),
   };
 });
 
-import enUS from "@/locales/en.json";
+import enUS from '@/locales/en.json';
 
-import App from "@/App.vue";
-import $testId from "@/plugins/testId";
-import MaintenanceView from "@/views/MaintenanceView.vue";
+import App from '@/App.vue';
+import $testId from '@/plugins/testId';
+import MaintenanceView from '@/views/MaintenanceView.vue';
 
-describe("App:", () => {
+describe('App:', () => {
   const i18n = createI18n({
-    locale: "en",
+    locale: 'en',
     allowComposition: true,
     messages: {
       en: enUS,
@@ -51,14 +51,14 @@ describe("App:", () => {
   });
 
   const global = {
-    stubs: ["the-header", "the-footer", "router-view", "MaintenanceView"],
+    stubs: ['the-header', 'the-footer', 'router-view', 'MaintenanceView'],
     plugins: [i18n, $testId],
     mocks: {
-      $route: { name: "test-route" },
+      $route: { name: 'test-route' },
     },
   };
 
-  it("uses title", async () => {
+  it('uses title', async () => {
     const mock = useTitleMock.mockClear();
     mount(App, {
       global,
@@ -66,7 +66,7 @@ describe("App:", () => {
     expect(mock).toHaveBeenCalledOnce();
     mock.mockRestore();
   });
-  it("shows maintenance when network maintenance is true", () => {
+  it('shows maintenance when network maintenance is true', () => {
     const mockMaintenance = maintenanceMock.mockReturnValue(true);
     const wrapper = mount(App, {
       global,
@@ -75,10 +75,10 @@ describe("App:", () => {
     expect(wrapper.findComponent(MaintenanceView).exists()).toBe(true);
     mockMaintenance.mockRestore();
   });
-  it("shows router-view when network maintenance is false", () => {
+  it('shows router-view when network maintenance is false', () => {
     const wrapper = mount(App, {
       global,
     });
-    expect(wrapper.findComponent("router-view-stub").exists()).toBe(true);
+    expect(wrapper.findComponent('router-view-stub').exists()).toBe(true);
   });
 });

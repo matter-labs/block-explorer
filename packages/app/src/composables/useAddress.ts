@@ -1,19 +1,27 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { Contract as EthersContract, isAddress, keccak256, toUtf8Bytes, ZeroAddress } from "ethers";
-import { $fetch, FetchError } from "ohmyfetch";
+import {
+  Contract as EthersContract,
+  isAddress,
+  keccak256,
+  toUtf8Bytes,
+  ZeroAddress,
+} from 'ethers';
+import { $fetch, FetchError } from 'ohmyfetch';
 
-import useContext from "./useContext";
+import useContext from './useContext';
 
-import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
-import { numberToHexString } from "@/utils/formatters";
+import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from '@/utils/constants';
+import { numberToHexString } from '@/utils/formatters';
 
 const oneBigInt = BigInt(1);
 const EIP1967_PROXY_IMPLEMENTATION_SLOT = numberToHexString(
-  BigInt(keccak256(toUtf8Bytes("eip1967.proxy.implementation"))) - oneBigInt
+  BigInt(keccak256(toUtf8Bytes('eip1967.proxy.implementation'))) - oneBigInt,
 );
-const EIP1967_PROXY_BEACON_SLOT = numberToHexString(BigInt(keccak256(toUtf8Bytes("eip1967.proxy.beacon"))) - oneBigInt);
-const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(toUtf8Bytes("PROXIABLE"));
+const EIP1967_PROXY_BEACON_SLOT = numberToHexString(
+  BigInt(keccak256(toUtf8Bytes('eip1967.proxy.beacon'))) - oneBigInt,
+);
+const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(toUtf8Bytes('PROXIABLE'));
 
 type ContractFunctionInput = {
   internalType: string;
@@ -74,7 +82,9 @@ export type ContractVerificationInfo = {
 export type Balance = Api.Response.TokenAddress;
 export type Balances = Api.Response.Balances;
 export type Account = Api.Response.Account & { authorized: true };
-export type ThirdPartyAccount = Pick<Account, "address" | "type"> & { authorized: false };
+export type ThirdPartyAccount = Pick<Account, 'address' | 'type'> & {
+  authorized: false;
+};
 export type Contract = Api.Response.Contract & {
   verificationInfo: null | ContractVerificationInfo;
   proxyInfo: null | {
@@ -91,12 +101,16 @@ export default (context = useContext()) => {
   const isRequestFailed = ref(false);
   const item = ref(<null | AddressItem>null);
 
-  const getContractVerificationInfo = async (address: string): Promise<ContractVerificationInfo | null> => {
+  const getContractVerificationInfo = async (
+    address: string,
+  ): Promise<ContractVerificationInfo | null> => {
     if (!context.currentNetwork.value.verificationApiUrl) {
       return null;
     }
     try {
-      return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
+      return await $fetch(
+        `${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`,
+      );
     } catch (e) {
       if (!(e instanceof FetchError) || e.response?.status !== 404) {
         throw e;
@@ -113,19 +127,36 @@ export default (context = useContext()) => {
         return null;
       }
       return address;
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   };
 
-  const getProxyImplementation = async (address: string): Promise<string | null> => {
+  const getProxyImplementation = async (
+    address: string,
+  ): Promise<string | null> => {
     const provider = context.getL2Provider();
-    const proxyContract = new EthersContract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
-    const [implementation, eip1967Implementation, eip1967Beacon, eip1822Implementation] = await Promise.all([
+    const proxyContract = new EthersContract(
+      address,
+      PROXY_CONTRACT_IMPLEMENTATION_ABI,
+      provider,
+    );
+    const [
+      implementation,
+      eip1967Implementation,
+      eip1967Beacon,
+      eip1822Implementation,
+    ] = await Promise.all([
       getAddressSafe(() => proxyContract.implementation()),
-      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
-      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_BEACON_SLOT)),
-      getAddressSafe(() => provider.getStorage(address, EIP1822_PROXY_IMPLEMENTATION_SLOT)),
+      getAddressSafe(() =>
+        provider.getStorage(address, EIP1967_PROXY_IMPLEMENTATION_SLOT),
+      ),
+      getAddressSafe(() =>
+        provider.getStorage(address, EIP1967_PROXY_BEACON_SLOT),
+      ),
+      getAddressSafe(() =>
+        provider.getStorage(address, EIP1822_PROXY_IMPLEMENTATION_SLOT),
+      ),
     ]);
     if (implementation) {
       return implementation;
@@ -137,7 +168,11 @@ export default (context = useContext()) => {
       return eip1822Implementation;
     }
     if (eip1967Beacon) {
-      const beaconContract = new EthersContract(eip1967Beacon, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
+      const beaconContract = new EthersContract(
+        eip1967Beacon,
+        PROXY_CONTRACT_IMPLEMENTATION_ABI,
+        provider,
+      );
       return getAddressSafe(() => beaconContract.implementation());
     }
     return null;
@@ -149,14 +184,16 @@ export default (context = useContext()) => {
       if (!implementationAddress) {
         return null;
       }
-      const implementationVerificationInfo = await getContractVerificationInfo(implementationAddress);
+      const implementationVerificationInfo = await getContractVerificationInfo(
+        implementationAddress,
+      );
       return {
         implementation: {
           address: implementationAddress,
           verificationInfo: implementationVerificationInfo,
         },
       };
-    } catch (e) {
+    } catch (_e) {
       return null;
     }
   };
@@ -166,18 +203,19 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const response: Api.Response.Account | Api.Response.Contract = await $fetch(
-        `${context.currentNetwork.value.apiUrl}/address/${address}`,
-        {
-          credentials: "include",
-        }
-      );
-      if (response.type === "account") {
+      const response: Api.Response.Account | Api.Response.Contract =
+        await $fetch(
+          `${context.currentNetwork.value.apiUrl}/address/${address}`,
+          {
+            credentials: 'include',
+          },
+        );
+      if (response.type === 'account') {
         item.value = {
           ...response,
           authorized: true,
         };
-      } else if (response.type === "contract") {
+      } else if (response.type === 'contract') {
         const [verificationInfo, proxyInfo] = await Promise.all([
           getContractVerificationInfo(response.address),
           getContractProxyInfo(response.address),
@@ -192,7 +230,7 @@ export default (context = useContext()) => {
       // 403 is returned when the address is of account type but the user is not the owner of the account
       if (error instanceof FetchError && error.statusCode === 403) {
         item.value = {
-          type: "account",
+          type: 'account',
           address,
           authorized: false,
         };

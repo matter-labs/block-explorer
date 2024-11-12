@@ -1,15 +1,22 @@
 <template>
-  <Table class="blocks-table" :class="{ loading }" :items="blocks" :loading="loading">
+  <Table
+    class="blocks-table"
+    :class="{ loading }"
+    :items="blocks"
+    :loading="loading"
+  >
     <template v-if="blocks?.length || loading" #table-head>
-      <TableHeadColumn>{{ t("blocks.table.block") }}</TableHeadColumn>
-      <TableHeadColumn>{{ t("blocks.table.status") }}</TableHeadColumn>
-      <TableHeadColumn>{{ t("blocks.table.age") }}</TableHeadColumn>
+      <TableHeadColumn>{{ t('blocks.table.block') }}</TableHeadColumn>
+      <TableHeadColumn>{{ t('blocks.table.status') }}</TableHeadColumn>
+      <TableHeadColumn>{{ t('blocks.table.age') }}</TableHeadColumn>
     </template>
     <template #loading>
       <tr class="loader-row" v-for="item in loadingRows" :key="item">
         <TableBodyColumn :data-heading="t('blocks.table.block')">
           <div class="blocks-number-container">
-            <div class="h-8 w-8 animate-pulse rounded-full bg-neutral-200"></div>
+            <div
+              class="h-8 w-8 animate-pulse rounded-full bg-neutral-200"
+            ></div>
             <div class="blocks-number-right">
               <ContentLoader class="block-data-number w-14" />
               <ContentLoader class="block-data-txns-amount w-10" />
@@ -34,18 +41,24 @@
           </div>
           <div class="blocks-number-right">
             <div class="block-data-number">
-              <router-link :data-testid="$testId.blocksNumber" :to="{ name: 'block', params: { id: item.number } }">
+              <router-link
+                :data-testid="$testId.blocksNumber"
+                :to="{ name: 'block', params: { id: item.number } }"
+              >
                 #{{ item.number }}
               </router-link>
             </div>
             <div class="block-data-txns-amount">
-              {{ item.l1TxCount + item.l2TxCount }} {{ t("blocks.table.transactionsShort") }}
+              {{ item.l1TxCount + item.l2TxCount }}
+              {{ t('blocks.table.transactionsShort') }}
             </div>
           </div>
         </div>
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('blocks.table.status')">
-        <span class="block-data-status">{{ t(`blocks.status.${item.status}`) }}</span>
+        <span class="block-data-status">{{
+          t(`blocks.status.${item.status}`)
+        }}</span>
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('blocks.table.age')">
         <CopyButton :value="item.timestamp">
@@ -55,7 +68,7 @@
     </template>
     <template #empty>
       <TableBodyColumn class="blocks-not-found" :colspan="3">
-        <slot name="not-found">{{ t("blocks.table.notFound") }}</slot>
+        <slot name="not-found">{{ t('blocks.table.notFound') }}</slot>
       </TableBodyColumn>
     </template>
     <template v-if="$slots.footer" #footer>
@@ -65,19 +78,19 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import { CubeIcon } from "@heroicons/vue/outline";
+import { CubeIcon } from '@heroicons/vue/outline';
 
-import CopyButton from "@/components/common/CopyButton.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
-import TimeField from "@/components/common/table/fields/TimeField.vue";
+import CopyButton from '@/components/common/CopyButton.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TableHeadColumn from '@/components/common/table/TableHeadColumn.vue';
+import TimeField from '@/components/common/table/fields/TimeField.vue';
 
-import type { BlockListItem } from "@/composables/useBlock";
-import type { PropType } from "vue";
+import type { BlockListItem } from '@/composables/useBlock';
+import type { PropType } from 'vue';
 
 const { t } = useI18n();
 

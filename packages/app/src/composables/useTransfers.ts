@@ -1,8 +1,8 @@
-import useFetchCollection from "@/composables/common/useFetchCollection";
-import useContext from "@/composables/useContext";
+import useFetchCollection from '@/composables/common/useFetchCollection';
+import useContext from '@/composables/useContext';
 
-import type { NetworkOrigin } from "@/types";
-import type { ComputedRef } from "vue";
+import type { NetworkOrigin } from '@/types';
+import type { ComputedRef } from 'vue';
 
 export type Transfer = Api.Response.Transfer & {
   fromNetwork: NetworkOrigin;
@@ -14,7 +14,7 @@ export default (address: ComputedRef<string>, context = useContext()) => {
     () =>
       new URL(
         `/address/${address.value}/transfers?toDate=${new Date().toISOString()}`,
-        context.currentNetwork.value.apiUrl
+        context.currentNetwork.value.apiUrl,
       ),
     (transfer: Api.Response.Transfer): Transfer => ({
       ...transfer,
@@ -28,8 +28,8 @@ export default (address: ComputedRef<string>, context = useContext()) => {
         liquidity: null,
         iconURL: null,
       },
-      fromNetwork: transfer.type === "deposit" ? "L1" : "L2",
-      toNetwork: transfer.type === "withdrawal" ? "L1" : "L2",
-    })
+      fromNetwork: transfer.type === 'deposit' ? 'L1' : 'L2',
+      toNetwork: transfer.type === 'withdrawal' ? 'L1' : 'L2',
+    }),
   );
 };

@@ -2,13 +2,24 @@
   <div class="transaction-error" v-if="isRequestFailed && !isRequestPending">
     <PageError />
   </div>
-  <div v-else-if="props.hash && isTransactionHash(props.hash)" class="transaction-info-page">
+  <div
+    v-else-if="props.hash && isTransactionHash(props.hash)"
+    class="transaction-info-page"
+  >
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <Title :title="t('transactions.transaction')" :value="hash" class="transaction-title" />
-    <Tabs class="transactions-info-tabs" v-if="transaction || isRequestPending" :tabs="tabs">
+    <Title
+      :title="t('transactions.transaction')"
+      :value="hash"
+      class="transaction-title"
+    />
+    <Tabs
+      class="transactions-info-tabs"
+      v-if="transaction || isRequestPending"
+      :tabs="tabs"
+    >
       <template #tab-1-content>
         <GeneralInfo
           :transaction="transactionWithData"
@@ -28,24 +39,28 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, watchEffect } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import PageError from "@/components/PageError.vue";
-import SearchForm from "@/components/SearchForm.vue";
-import Breadcrumbs, { type BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
-import Tabs from "@/components/common/Tabs.vue";
-import Title from "@/components/common/Title.vue";
-import GeneralInfo from "@/components/transactions/infoTable/GeneralInfo.vue";
-import Logs from "@/components/transactions/infoTable/Logs.vue";
+import PageError from '@/components/PageError.vue';
+import SearchForm from '@/components/SearchForm.vue';
+import Breadcrumbs, {
+  type BreadcrumbItem,
+} from '@/components/common/Breadcrumbs.vue';
+import Tabs from '@/components/common/Tabs.vue';
+import Title from '@/components/common/Title.vue';
+import GeneralInfo from '@/components/transactions/infoTable/GeneralInfo.vue';
+import Logs from '@/components/transactions/infoTable/Logs.vue';
 
-import useEventLog from "@/composables/useEventLog";
-import useNotFound from "@/composables/useNotFound";
-import useTransaction, { type TransactionItem } from "@/composables/useTransaction";
-import useTransactionData from "@/composables/useTransactionData";
+import useEventLog from '@/composables/useEventLog';
+import useNotFound from '@/composables/useNotFound';
+import useTransaction, {
+  type TransactionItem,
+} from '@/composables/useTransaction';
+import useTransactionData from '@/composables/useTransactionData';
 
-import { shortValue } from "@/utils/formatters";
-import { isTransactionHash } from "@/utils/validators";
+import { shortValue } from '@/utils/formatters';
+import { isTransactionHash } from '@/utils/validators';
 
 const props = defineProps({
   hash: {
@@ -56,8 +71,13 @@ const props = defineProps({
 
 const { t } = useI18n();
 const { useNotFoundView, setNotFoundView } = useNotFound();
-const { transaction, isRequestPending, isRequestFailed, getByHash } = useTransaction();
-const { collection: transactionEventLogs, isDecodePending: isDecodeEventLogsPending, decodeEventLog } = useEventLog();
+const { transaction, isRequestPending, isRequestFailed, getByHash } =
+  useTransaction();
+const {
+  collection: transactionEventLogs,
+  isDecodePending: isDecodeEventLogsPending,
+  decodeEventLog,
+} = useEventLog();
 const {
   data: transactionData,
   isDecodePending: isDecodeTransactionDataPending,
@@ -77,28 +97,32 @@ const transactionWithData = computed<TransactionItem | null>(() => {
 
 const blockNumber = computed(() => transaction.value?.blockNumber);
 const breadcrumbItems = computed((): BreadcrumbItem[] => [
-  { to: { name: "home" }, text: t("breadcrumbs.home") },
+  { to: { name: 'home' }, text: t('breadcrumbs.home') },
   blockNumber.value
     ? {
-        to: { name: "block", params: { id: blockNumber.value } },
-        text: `${t("blocks.blockNumber")}${blockNumber.value}`,
+        to: { name: 'block', params: { id: blockNumber.value } },
+        text: `${t('blocks.blockNumber')}${blockNumber.value}`,
       }
-    : { text: t("blocks.blocks") },
+    : { text: t('blocks.blocks') },
   {
-    text: `${t("transactions.transaction")} ${
-      transaction.value?.hash ? shortValue(transaction.value.hash) : shortValue(props.hash)
+    text: `${t('transactions.transaction')} ${
+      transaction.value?.hash
+        ? shortValue(transaction.value.hash)
+        : shortValue(props.hash)
     }`,
   },
 ]);
 
 const tabs = computed(() => [
   {
-    title: t("transactions.tabs.generalInfo"),
-    hash: "#overview",
+    title: t('transactions.tabs.generalInfo'),
+    hash: '#overview',
   },
   {
-    title: t("transactions.tabs.logs") + (transaction.value ? ` (${transaction.value?.logs.length})` : ""),
-    hash: "#eventlog",
+    title:
+      t('transactions.tabs.logs') +
+      (transaction.value ? ` (${transaction.value?.logs.length})` : ''),
+    hash: '#eventlog',
   },
 ]);
 

@@ -1,5 +1,10 @@
 <template>
-  <ul data-testid="instruction-list" class="instruction-list" ref="listElement" :style="{ height: height + 'px' }">
+  <ul
+    data-testid="instruction-list"
+    class="instruction-list"
+    ref="listElement"
+    :style="{ height: height + 'px' }"
+  >
     <li
       v-for="item of virtualModel"
       :key="item.line"
@@ -7,12 +12,17 @@
       :class="{
         'has-error': item.error,
         expandable: item.expandable,
-        highlighted: activeStep?.address === address && activeStep?.line === item.line,
+        highlighted:
+          activeStep?.address === address && activeStep?.line === item.line,
         executed: isExecuted(item.line),
       }"
       :style="{ top: ITEM_HEIGHT * item.index + 'px' }"
       @click="handleClick(item)"
-      :data-testid="item.expandable ? 'instruction-list-item-expandable' : 'instruction-list-item'"
+      :data-testid="
+        item.expandable
+          ? 'instruction-list-item-expandable'
+          : 'instruction-list-item'
+      "
     >
       <label class="instruction-list-line">{{ item.line + 1 }}</label>
       <span
@@ -22,11 +32,27 @@
           backgroundColor: `rgba(200, 0, 0, ${item.traceCountPercentage}`,
         }"
       >
-        <span class="instruction-list-item-text" v-html="highlight(item.label, searchText)"></span>
-        <span v-if="item.error" class="instruction-list-item-error" :title="item.error">{{ item.error }}</span>
+        <span
+          class="instruction-list-item-text"
+          v-html="highlight(item.label, searchText)"
+        ></span>
+        <span
+          v-if="item.error"
+          class="instruction-list-item-error"
+          :title="item.error"
+          >{{ item.error }}</span
+        >
       </span>
-      <ChevronUpIcon class="toggle-button" aria-hidden="true" v-if="item.expandable && expanded.includes(item.line)" />
-      <ChevronDownIcon class="toggle-button" aria-hidden="true" v-else-if="item.expandable" />
+      <ChevronUpIcon
+        class="toggle-button"
+        aria-hidden="true"
+        v-if="item.expandable && expanded.includes(item.line)"
+      />
+      <ChevronDownIcon
+        class="toggle-button"
+        aria-hidden="true"
+        v-else-if="item.expandable"
+      />
     </li>
   </ul>
 </template>
@@ -37,15 +63,15 @@ export const ITEM_OFFSET = 2;
 </script>
 
 <script lang="ts" setup>
-import { computed, onMounted, onUnmounted, ref, watchEffect } from "vue";
+import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue';
 
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/outline";
-import { useResizeObserver, useThrottleFn } from "@vueuse/core";
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/outline';
+import { useResizeObserver, useThrottleFn } from '@vueuse/core';
 
-import type { ActiveStep } from "@/composables/useTrace";
-import type { PropType } from "vue";
+import type { ActiveStep } from '@/composables/useTrace';
+import type { PropType } from 'vue';
 
-import { highlight } from "@/utils/highlight";
+import { highlight } from '@/utils/highlight';
 
 const props = defineProps({
   address: {
@@ -73,7 +99,7 @@ const props = defineProps({
   },
   searchText: {
     type: String,
-    default: "",
+    default: '',
   },
   traceCountPercentage: {
     type: Object as PropType<{ [key: string]: number }>,
@@ -106,7 +132,10 @@ const model = ref<VirtualInstructionNode[]>([]);
 const virtualModel = ref<VirtualInstructionNode[]>([]);
 
 const emit = defineEmits<{
-  (eventName: "nav:navigateToLine", value: { line: number; address: string }): void;
+  (
+    eventName: 'nav:navigateToLine',
+    value: { line: number; address: string },
+  ): void;
 }>();
 
 const throttledRebuild = useThrottleFn(() => {
@@ -129,14 +158,14 @@ watchEffect(() => {
         label,
         error,
         parent,
-        expandable: !!nextLabel?.includes(".func_begin"),
+        expandable: !!nextLabel?.includes('.func_begin'),
       });
     }
 
-    if (nextLabel && nextLabel.includes(".func_begin")) {
+    if (nextLabel && nextLabel.includes('.func_begin')) {
       parent = j;
     }
-    if (label.includes(".func_end")) {
+    if (label.includes('.func_end')) {
       parent = null;
     }
   }
@@ -145,9 +174,14 @@ watchEffect(() => {
 watchEffect(() => {
   model.value = data
     .filter((item) => {
-      const val = item.parent === null || typeof item.parent === "undefined" || expanded.value?.includes(item.parent);
+      const val =
+        item.parent === null ||
+        typeof item.parent === 'undefined' ||
+        expanded.value?.includes(item.parent);
       if (props.searchText.length) {
-        return item.label.toLocaleLowerCase().includes(props.searchText.toLowerCase());
+        return item.label
+          .toLocaleLowerCase()
+          .includes(props.searchText.toLowerCase());
       }
       return val;
     })
@@ -158,7 +192,7 @@ watchEffect(() => {
       traceCountPercentage:
         props.traceCountPercentage[
           `${props.address}_${Object.keys(props.pcLineMapping).find(
-            (key) => props.pcLineMapping[parseInt(key)] === index
+            (key) => props.pcLineMapping[parseInt(key)] === index,
           )}`
         ],
     }));
@@ -179,7 +213,7 @@ function rebuild() {
     if (skip > -1 && take > -1) {
       virtualModel.value = model.value.slice(
         Math.max(0, take - ITEM_OFFSET),
-        Math.min(take + skip + ITEM_OFFSET, model.value.length)
+        Math.min(take + skip + ITEM_OFFSET, model.value.length),
       );
     }
   }
@@ -218,7 +252,7 @@ watchEffect(() => {
 
 onMounted(() => {
   if (props.container) {
-    props.container.addEventListener("scroll", throttledRebuild);
+    props.container.addEventListener('scroll', throttledRebuild);
     useResizeObserver(props.container, throttledRebuild);
   }
   rebuild();
@@ -237,7 +271,7 @@ const handleClick = (item: InstructionNode & { line: number }) => {
   }
 
   if (props.activeLines.indexOf(item.line) !== -1) {
-    emit("nav:navigateToLine", { line: item.line, address: props.address });
+    emit('nav:navigateToLine', { line: item.line, address: props.address });
   }
 };
 
@@ -247,7 +281,7 @@ const isExecuted = (line: number) => {
 
 onUnmounted(() => {
   if (props.container) {
-    props.container.removeEventListener("scroll", throttledRebuild);
+    props.container.removeEventListener('scroll', throttledRebuild);
   }
 });
 </script>

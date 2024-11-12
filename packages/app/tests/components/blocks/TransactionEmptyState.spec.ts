@@ -1,22 +1,22 @@
-import { createI18n } from "vue-i18n";
+import { createI18n } from 'vue-i18n';
 
-import { describe, it } from "vitest";
+import { describe, it } from 'vitest';
 
-import { render } from "@testing-library/vue";
+import { render } from '@testing-library/vue';
 
-import TransactionEmptyState from "@/components/blocks/TransactionEmptyState.vue";
+import TransactionEmptyState from '@/components/blocks/TransactionEmptyState.vue';
 
-import enUS from "@/locales/en.json";
+import enUS from '@/locales/en.json';
 
-describe("TransactionEmptyState", () => {
+describe('TransactionEmptyState', () => {
   const i18n = createI18n({
-    locale: "en",
+    locale: 'en',
     allowComposition: true,
     messages: {
       en: enUS,
     },
   });
-  it("renders component properly for existing block", async () => {
+  it('renders component properly for existing block', async () => {
     const { getByText } = render(TransactionEmptyState, {
       global: {
         plugins: [i18n],
@@ -27,7 +27,7 @@ describe("TransactionEmptyState", () => {
     });
     getByText("This Block doesn't have any transactions");
   });
-  it("renders component properly for nonexisting block", async () => {
+  it('renders component properly for nonexisting block', async () => {
     const { getByText } = render(TransactionEmptyState, {
       global: {
         plugins: [i18n],
@@ -36,6 +36,6 @@ describe("TransactionEmptyState", () => {
         blockExists: false,
       },
     });
-    getByText("This Block has not been created or sealed yet");
+    getByText('This Block has not been created or sealed yet');
   });
 });

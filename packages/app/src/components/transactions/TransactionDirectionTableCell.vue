@@ -2,15 +2,19 @@
   <div
     v-if="text"
     class="label-container"
-    :class="{ incoming: text === 'in', outcoming: text === 'out', self: text === 'self' }"
+    :class="{
+      incoming: text === 'in',
+      outcoming: text === 'out',
+      self: text === 'self',
+    }"
   >
     {{ text }}
   </div>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from "vue";
-export type Direction = "in" | "out" | "self";
+import type { PropType } from 'vue';
+export type Direction = 'in' | 'out' | 'self';
 
 defineProps({
   text: {

@@ -8,7 +8,7 @@
 </template>
 
 <script lang="ts" setup>
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
+import InfoTooltip from '@/components/common/InfoTooltip.vue';
 </script>
 
 <style lang="scss">

@@ -2,9 +2,9 @@
   <div class="contract-bytecode-container">
     <div class="verified-contract-container" v-if="!contract.verificationInfo">
       <div>
-        <div class="title">{{ t("contract.bytecode.areYouAnOwner") }}</div>
+        <div class="title">{{ t('contract.bytecode.areYouAnOwner') }}</div>
         <div class="description">
-          {{ t("contract.bytecode.verifyAndPublishToday") }}
+          {{ t('contract.bytecode.verifyAndPublishToday') }}
           <span>{{ contract.address }}</span>
         </div>
       </div>
@@ -13,9 +13,12 @@
           class="contract-verification-link"
           :data-testid="$testId.contractVerificationButton"
           tag="RouterLink"
-          :to="{ name: 'contract-verification', query: { address: contract.address } }"
+          :to="{
+            name: 'contract-verification',
+            query: { address: contract.address },
+          }"
         >
-          {{ t("contract.bytecode.verifyButton") }}
+          {{ t('contract.bytecode.verifyButton') }}
         </Button>
       </div>
     </div>
@@ -24,11 +27,18 @@
     </div>
     <div class="source-blocks-container">
       <div v-if="sourceCode" class="source-code-container">
-        <div class="info-field-label">{{ t("contract.sourceCode.label") }}</div>
-        <CodeBlock v-for="(item, index) in sourceCode" :key="index" :code="item.code" :label="item.label" />
+        <div class="info-field-label">{{ t('contract.sourceCode.label') }}</div>
+        <CodeBlock
+          v-for="(item, index) in sourceCode"
+          :key="index"
+          :code="item.code"
+          :label="item.label"
+        />
       </div>
       <div class="bytecode-field-container">
-        <div class="info-field-label">{{ t("contract.bytecode.deployedBytecode") }}</div>
+        <div class="info-field-label">
+          {{ t('contract.bytecode.deployedBytecode') }}
+        </div>
         <div class="bytecode">
           <ByteData :value="contract.bytecode" />
         </div>
@@ -38,16 +48,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import Button from "@/components/common/Button.vue";
-import ByteData from "@/components/common/table/fields/ByteData.vue";
-import CodeBlock from "@/components/contract/CodeBlock.vue";
-import CompilationInfo from "@/components/contract/CompilationInfo.vue";
+import Button from '@/components/common/Button.vue';
+import ByteData from '@/components/common/table/fields/ByteData.vue';
+import CodeBlock from '@/components/contract/CodeBlock.vue';
+import CompilationInfo from '@/components/contract/CompilationInfo.vue';
 
-import type { Contract } from "@/composables/useAddress";
-import type { PropType } from "vue";
+import type { Contract } from '@/composables/useAddress';
+import type { PropType } from 'vue';
 
 const props = defineProps({
   contract: {
@@ -59,43 +69,57 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-const sourceCode = computed<undefined | { code: string; label: string }[]>(() => {
-  if (!props.contract?.verificationInfo) {
-    return undefined;
-  }
-  const request = props.contract.verificationInfo.request;
-  if (request.compilerZkvyperVersion) {
-    const sourceCode = request.sourceCode as Record<string, string>;
-    const contractNames = Object.keys(sourceCode);
-    if (contractNames.length === 1) {
-      return [{ code: sourceCode[contractNames[0]], label: t("contract.sourceCode.singleFileContract") }];
+const sourceCode = computed<undefined | { code: string; label: string }[]>(
+  () => {
+    if (!props.contract?.verificationInfo) {
+      return undefined;
     }
-    return Object.entries(sourceCode).map(([key, value], index, arr) => {
-      return {
-        code: value,
-        label: t("contract.sourceCode.fileLabel", {
-          index: index + 1,
-          total: arr.length,
-          fileName: key.split("/").pop(),
-        }),
-      };
-    });
-  }
-  if (typeof request.sourceCode === "string") {
-    return [{ code: request.sourceCode, label: t("contract.sourceCode.singleFileContract") }];
-  } else {
-    return Object.entries(request.sourceCode.sources).map(([key, value], index, arr) => {
-      return {
-        code: value.content,
-        label: t("contract.sourceCode.fileLabel", {
-          index: index + 1,
-          total: arr.length,
-          fileName: key.split("/").pop(),
-        }),
-      };
-    });
-  }
-});
+    const request = props.contract.verificationInfo.request;
+    if (request.compilerZkvyperVersion) {
+      const sourceCode = request.sourceCode as Record<string, string>;
+      const contractNames = Object.keys(sourceCode);
+      if (contractNames.length === 1) {
+        return [
+          {
+            code: sourceCode[contractNames[0]],
+            label: t('contract.sourceCode.singleFileContract'),
+          },
+        ];
+      }
+      return Object.entries(sourceCode).map(([key, value], index, arr) => {
+        return {
+          code: value,
+          label: t('contract.sourceCode.fileLabel', {
+            index: index + 1,
+            total: arr.length,
+            fileName: key.split('/').pop(),
+          }),
+        };
+      });
+    }
+    if (typeof request.sourceCode === 'string') {
+      return [
+        {
+          code: request.sourceCode,
+          label: t('contract.sourceCode.singleFileContract'),
+        },
+      ];
+    } else {
+      return Object.entries(request.sourceCode.sources).map(
+        ([key, value], index, arr) => {
+          return {
+            code: value.content,
+            label: t('contract.sourceCode.fileLabel', {
+              index: index + 1,
+              total: arr.length,
+              fileName: key.split('/').pop(),
+            }),
+          };
+        },
+      );
+    }
+  },
+);
 </script>
 
 <style scoped lang="scss">

@@ -3,9 +3,11 @@
     <template #default>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.transactionHash") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.transactionHash')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.transactionHashTooltip") }}
+            {{ t('transactions.table.transactionHashTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
@@ -15,13 +17,15 @@
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label transaction-status-label">
-            {{ t("transactions.table.status") }}
+            {{ t('transactions.table.status') }}
           </span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.statusTooltip") }}
+            {{ t('transactions.table.statusTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value transaction-status-value">
+        <TableBodyColumn
+          class="transaction-table-value transaction-status-value"
+        >
           <TransactionStatus
             :status="transaction!.status"
             :commit-tx-hash="transaction!.ethCommitTxHash"
@@ -30,29 +34,40 @@
           />
         </TableBodyColumn>
       </tr>
-      <tr v-if="transaction?.error || transaction?.revertReason" class="transaction-table-row">
+      <tr
+        v-if="transaction?.error || transaction?.revertReason"
+        class="transaction-table-row"
+      >
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label transaction-reason-label">
-            {{ t("transactions.table.reason") }}
+            {{ t('transactions.table.reason') }}
           </span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.reasonTooltip") }}
+            {{ t('transactions.table.reasonTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value transaction-reason-value">
-          {{ transaction.error || transaction.revertReason || "" }}
+        <TableBodyColumn
+          class="transaction-table-value transaction-reason-value"
+        >
+          {{ transaction.error || transaction.revertReason || '' }}
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.block") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.block')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.blockTooltip") }}
+            {{ t('transactions.table.blockTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <span v-if="transaction?.blockNumber || transaction?.blockNumber === 0">
-            <span v-if="transaction.status === 'indexing'">#{{ transaction.blockNumber }}</span>
+          <span
+            v-if="transaction?.blockNumber || transaction?.blockNumber === 0"
+          >
+            <span v-if="transaction.status === 'indexing'"
+              >#{{ transaction.blockNumber }}</span
+            >
             <router-link
               v-else
               :data-testid="$testId.blocksNumber"
@@ -64,14 +79,16 @@
               #{{ transaction.blockNumber }}
             </router-link>
           </span>
-          <span v-else>{{ t("transactions.table.notYetSentOnTheChain") }}</span>
+          <span v-else>{{ t('transactions.table.notYetSentOnTheChain') }}</span>
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.batch") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.batch')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.batchTooltip") }}
+            {{ t('transactions.table.batchTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
@@ -84,31 +101,38 @@
             </router-link>
             <Tooltip v-else>
               <span>#{{ transaction.l1BatchNumber }}</span>
-              <template #content>{{ t("batches.notYetSealed") }}</template>
+              <template #content>{{ t('batches.notYetSealed') }}</template>
             </Tooltip>
           </span>
-          <span v-else>{{ t("transactions.table.unknown") }}</span>
+          <span v-else>{{ t('transactions.table.unknown') }}</span>
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.from") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.from')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.fromTooltip") }}
+            {{ t('transactions.table.fromTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
           <div class="value-with-copy-button">
-            <AddressLink :address="transaction?.from" :data-testid="$testId.fromAddress" />
+            <AddressLink
+              :address="transaction?.from"
+              :data-testid="$testId.fromAddress"
+            />
             <CopyButton :value="transaction?.from" />
           </div>
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.to") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.to')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.toTooltip") }}
+            {{ t('transactions.table.toTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
@@ -119,35 +143,49 @@
         </TableBodyColumn>
       </tr>
       <tr v-if="tokenTransfers.length">
-        <TableBodyColumn class="transaction-table-label transaction-token-transferred">
-          <span class="transaction-info-field-label">{{ t("transactions.table.tokensTransferred") }}</span>
+        <TableBodyColumn
+          class="transaction-table-label transaction-token-transferred"
+        >
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.tokensTransferred')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.tokensTransferredTooltip") }}
+            {{ t('transactions.table.tokensTransferredTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <div v-for="transfer in tokenTransfers" :key="transfer.to + transfer.from">
+          <div
+            v-for="transfer in tokenTransfers"
+            :key="transfer.to + transfer.from"
+          >
             <TransferTableCell :transfer="transfer" />
           </div>
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label input-data-label">{{ t("transactions.table.inputData") }}</span>
+          <span class="transaction-info-field-label input-data-label">{{
+            t('transactions.table.inputData')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.inputDataTooltip") }}
+            {{ t('transactions.table.inputDataTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <TransactionData :data="transaction?.data" :error="decodingDataError" />
+          <TransactionData
+            :data="transaction?.data"
+            :error="decodingDataError"
+          />
         </TableBodyColumn>
       </tr>
 
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.value") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.value')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.valueTooltip") }}
+            {{ t('transactions.table.valueTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
@@ -157,49 +195,68 @@
 
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.fee") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.fee')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.feeTooltip") }}
+            {{ t('transactions.table.feeTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <FeeData :fee-data="transaction?.feeData" :show-details="transaction?.status !== 'indexing'" />
+          <FeeData
+            :fee-data="transaction?.feeData"
+            :show-details="transaction?.status !== 'indexing'"
+          />
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.gasLimitAndUsed") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.gasLimitAndUsed')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">{{
-            t("transactions.table.gasLimitAndUsedTooltip")
+            t('transactions.table.gasLimitAndUsedTooltip')
           }}</InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value"
-          >{{ transaction?.gasLimit }} | {{ transaction?.gasUsed }} ({{ gasUsedPercent }}%)</TableBodyColumn
+          >{{ transaction?.gasLimit }} | {{ transaction?.gasUsed }} ({{
+            gasUsedPercent
+          }}%)</TableBodyColumn
         >
       </tr>
       <tr class="transaction-table-row" v-if="transaction?.gasPerPubdata">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.gasPerPubdata") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.gasPerPubdata')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">{{
-            t("transactions.table.gasPerPubdataTooltip")
+            t('transactions.table.gasPerPubdataTooltip')
           }}</InfoTooltip>
         </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value">{{ transaction.gasPerPubdata }}</TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">{{
+          transaction.gasPerPubdata
+        }}</TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.nonce") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.nonce')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.nonceTooltip") }}
+            {{ t('transactions.table.nonceTooltip') }}
           </InfoTooltip>
         </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value">{{ transaction?.nonce }}</TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">{{
+          transaction?.nonce
+        }}</TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
         <table-body-column class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.created") }}</span>
+          <span class="transaction-info-field-label">{{
+            t('transactions.table.created')
+          }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.createdTooltip") }}
+            {{ t('transactions.table.createdTooltip') }}
           </InfoTooltip>
         </table-body-column>
         <table-body-column class="transaction-table-value">
@@ -221,25 +278,25 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type PropType } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import AddressLink from "@/components/AddressLink.vue";
-import FeeData from "@/components/FeeData.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
-import Tooltip from "@/components/common/Tooltip.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import CopyContent from "@/components/common/table/fields/CopyContent.vue";
-import TimeField from "@/components/common/table/fields/TimeField.vue";
-import EthAmountPrice from "@/components/transactions/EthAmountPrice.vue";
-import TransactionStatus from "@/components/transactions/Status.vue";
-import TransactionData from "@/components/transactions/infoTable/TransactionData.vue";
-import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import FeeData from '@/components/FeeData.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import InfoTooltip from '@/components/common/InfoTooltip.vue';
+import Tooltip from '@/components/common/Tooltip.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import CopyContent from '@/components/common/table/fields/CopyContent.vue';
+import TimeField from '@/components/common/table/fields/TimeField.vue';
+import EthAmountPrice from '@/components/transactions/EthAmountPrice.vue';
+import TransactionStatus from '@/components/transactions/Status.vue';
+import TransactionData from '@/components/transactions/infoTable/TransactionData.vue';
+import TransferTableCell from '@/components/transactions/infoTable/TransferTableCell.vue';
 
-import type { TransactionItem } from "@/composables/useTransaction";
+import type { TransactionItem } from '@/composables/useTransaction';
 
 const { t } = useI18n();
 
@@ -259,7 +316,9 @@ const props = defineProps({
 
 const tokenTransfers = computed(() => {
   // exclude transfers with no amount, such as NFT until we fully support them
-  return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
+  return (
+    props.transaction?.transfers.filter((transfer) => transfer.amount) || []
+  );
 });
 
 const gasUsedPercent = computed(() => {

@@ -1,7 +1,7 @@
-import LocaleSwitch from "./LocaleSwitch.vue";
+import LocaleSwitch from './LocaleSwitch.vue';
 
 export default {
-  title: "components/LocaleSwitch",
+  title: 'components/LocaleSwitch',
   component: LocaleSwitch,
 };
 
@@ -25,15 +25,15 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  value: "en",
+  value: 'en',
   options: [
     {
-      value: "en",
-      label: "English",
+      value: 'en',
+      label: 'English',
     },
     {
-      value: "uk",
-      label: "Ukrainian",
+      value: 'uk',
+      label: 'Ukrainian',
     },
   ],
 };

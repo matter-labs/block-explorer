@@ -1,7 +1,7 @@
-import FilePreview from "./FilePreview.vue";
+import FilePreview from './FilePreview.vue';
 
 export default {
-  title: "Contract/Verification/FilePreview",
+  title: 'Contract/Verification/FilePreview',
   component: FilePreview,
 };
 
@@ -22,7 +22,7 @@ const Template = (args: Args) => ({
 export const Default = Template.bind({}) as unknown as { args: Args };
 
 Default.args = {
-  name: "ERC20.sol",
+  name: 'ERC20.sol',
   size: 12845,
   index: 0,
 };

@@ -1,136 +1,141 @@
-import useSearch from "@/composables/useSearch";
+import useSearch from '@/composables/useSearch';
 
-import type { RouteLocation, RouteRecordRaw } from "vue-router";
+import type { RouteLocation, RouteRecordRaw } from 'vue-router';
 
-import HomeView from "@/views/HomeView.vue";
+import HomeView from '@/views/HomeView.vue';
 const { getSearchRoute } = useSearch();
 
 export default [
   {
-    path: "/",
-    name: "home",
+    path: '/',
+    name: 'home',
     component: HomeView,
     meta: {
-      title: "document.home",
+      title: 'document.home',
     },
   },
   {
-    path: "/blocks/",
-    name: "blocks",
-    component: () => import("@/views/BlocksView.vue"),
+    path: '/blocks/',
+    name: 'blocks',
+    component: () => import('@/views/BlocksView.vue'),
     meta: {
-      title: "blocksView.title",
+      title: 'blocksView.title',
     },
   },
   {
-    path: "/block/:id",
-    name: "block",
-    component: () => import("@/views/BlockView.vue"),
+    path: '/block/:id',
+    name: 'block',
+    component: () => import('@/views/BlockView.vue'),
     props: true,
     meta: {
-      title: "blocks.table.block",
+      title: 'blocks.table.block',
     },
   },
   {
-    path: "/transactions/",
-    name: "transactions",
-    component: () => import("@/views/TransactionsView.vue"),
+    path: '/transactions/',
+    name: 'transactions',
+    component: () => import('@/views/TransactionsView.vue'),
     props: true,
     meta: {
-      title: "transactionsView.title",
+      title: 'transactionsView.title',
     },
   },
   {
-    path: "/tx/:hash",
-    name: "transaction",
-    component: () => import("@/views/TransactionView.vue"),
+    path: '/tx/:hash',
+    name: 'transaction',
+    component: () => import('@/views/TransactionView.vue'),
     props: true,
     meta: {
-      title: "transactions.transaction",
+      title: 'transactions.transaction',
     },
   },
   {
-    path: "/address/:address",
-    name: "address",
-    component: () => import("@/views/AddressView.vue"),
+    path: '/address/:address',
+    name: 'address',
+    component: () => import('@/views/AddressView.vue'),
     props: true,
     meta: {
-      title: "addressView.title",
+      title: 'addressView.title',
     },
   },
   {
-    path: "/contracts/verify",
-    name: "contract-verification",
-    component: () => import("@/views/ContractVerificationView.vue"),
+    path: '/contracts/verify',
+    name: 'contract-verification',
+    component: () => import('@/views/ContractVerificationView.vue'),
     meta: {
-      title: "contractVerification.title",
+      title: 'contractVerification.title',
     },
   },
   {
-    path: "/tokenlist",
-    redirect: "tokens",
+    path: '/tokenlist',
+    redirect: 'tokens',
   },
   {
-    path: "/tokens",
-    name: "tokens",
-    component: () => import("@/views/TokensView.vue"),
+    path: '/tokens',
+    name: 'tokens',
+    component: () => import('@/views/TokensView.vue'),
     meta: {
-      title: "tokensView.title",
+      title: 'tokensView.title',
     },
   },
   {
-    path: "/tools/debugger",
-    name: "debugger",
-    component: () => import("@/views/DebuggerView.vue"),
+    path: '/tools/debugger',
+    name: 'debugger',
+    component: () => import('@/views/DebuggerView.vue'),
     meta: {
-      title: "debuggerTool.title",
+      title: 'debuggerTool.title',
     },
   },
   {
-    path: "/batches/",
-    name: "batches",
-    component: () => import("@/views/BatchesView.vue"),
+    path: '/batches/',
+    name: 'batches',
+    component: () => import('@/views/BatchesView.vue'),
     meta: {
-      title: "batches.title",
+      title: 'batches.title',
     },
   },
   {
-    path: "/batch/:id",
-    name: "batch",
-    component: () => import("@/views/BatchView.vue"),
+    path: '/batch/:id',
+    name: 'batch',
+    component: () => import('@/views/BatchView.vue'),
     props: true,
     meta: {
-      title: "batches.batch",
+      title: 'batches.batch',
     },
   },
   {
-    path: "/search",
-    name: "search",
+    path: '/search',
+    name: 'search',
     redirect: (to: RouteLocation) => {
-      const searchQueryParam = to.query?.q instanceof Array ? to.query.q.at(-1) : to.query?.q;
+      const searchQueryParam =
+        to.query?.q instanceof Array ? to.query.q.at(-1) : to.query?.q;
       if (searchQueryParam) {
         const searchRoute = getSearchRoute(searchQueryParam);
         if (searchRoute) {
-          return { name: searchRoute.routeName, params: searchRoute.routeParam, query: null };
+          return {
+            name: searchRoute.routeName,
+            params: searchRoute.routeParam,
+            query: null,
+          };
         }
       }
-      return { name: "not-found", query: null };
+      return { name: 'not-found', query: null };
     },
   },
   {
-    path: "/login",
-    name: "login",
-    component: () => import("@/views/LoginView.vue"),
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/LoginView.vue'),
     meta: {
-      title: "login.title",
+      title: 'login.title',
     },
   },
   {
-    path: "/:pathMatch(.*)*",
-    name: "not-found",
-    component: () => import("@/views/NotFound.vue"),
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/views/NotFound.vue'),
     meta: {
-      title: "document.home",
+      title: 'document.home',
     },
   },
 ] as RouteRecordRaw[];

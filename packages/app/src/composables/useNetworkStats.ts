@@ -1,5 +1,5 @@
-import useFetch from "./common/useFetch";
-import useContext from "./useContext";
+import useFetch from './common/useFetch';
+import useContext from './useContext';
 
 export interface NetworkStats {
   lastSealedBatch: number;
@@ -10,5 +10,7 @@ export interface NetworkStats {
 }
 
 export default (context = useContext()) => {
-  return useFetch<NetworkStats>(() => new URL(`${context.currentNetwork.value.apiUrl}/stats`));
+  return useFetch<NetworkStats>(
+    () => new URL(`${context.currentNetwork.value.apiUrl}/stats`),
+  );
 };

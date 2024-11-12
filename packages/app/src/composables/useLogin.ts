@@ -1,15 +1,16 @@
-import detectEthereumProvider from "@metamask/detect-provider";
-import { BrowserProvider } from "ethers";
-import { SiweMessage } from "siwe";
+import { type ComputedRef, reactive, type Ref, type ToRefs, toRefs } from 'vue';
 
-import defaultLogger from "./../utils/logger";
+import detectEthereumProvider from '@metamask/detect-provider';
+import { BrowserProvider } from 'ethers';
+import { $fetch } from 'ohmyfetch';
+import { SiweMessage } from 'siwe';
 
-import type { BaseProvider } from "@metamask/providers";
-import { $fetch } from "ohmyfetch";
-import { reactive, toRefs, type ComputedRef, type Ref, type ToRefs } from "vue";
-import type { Provider } from "zksync-ethers";
-import type { NetworkConfig } from "../configs";
-import type { UserContext } from "./useContext";
+import defaultLogger from './../utils/logger';
+
+import type { NetworkConfig } from '../configs';
+import type { UserContext } from './useContext';
+import type { BaseProvider } from '@metamask/providers';
+import type { Provider } from 'zksync-ethers';
 
 type LoginState = {
   isLoginPending: boolean;
@@ -31,7 +32,7 @@ export default (
     currentNetwork: ComputedRef<NetworkConfig>;
     getL2Provider: () => Provider;
   },
-  logger = defaultLogger
+  _logger = defaultLogger,
 ): UseLogin => {
   const getEthereumProvider = () =>
     detectEthereumProvider({
@@ -41,9 +42,12 @@ export default (
 
   const initializeLogin = async () => {
     try {
-      const response = await $fetch<{ address: string }>(`${context.currentNetwork.value.apiUrl}/auth/user`, {
-        credentials: "include",
-      });
+      const response = await $fetch<{ address: string }>(
+        `${context.currentNetwork.value.apiUrl}/auth/user`,
+        {
+          credentials: 'include',
+        },
+      );
       if (response.address) {
         context.user.value = { address: response.address, loggedIn: true };
       }
@@ -61,16 +65,19 @@ export default (
     const signer = await provider.getSigner();
 
     // Get nonce from proxy
-    const nonce = await $fetch<string>(`${context.currentNetwork.value.apiUrl}/auth/nonce`, { credentials: "include" });
+    const nonce = await $fetch<string>(
+      `${context.currentNetwork.value.apiUrl}/auth/nonce`,
+      { credentials: 'include' },
+    );
 
     // Create SIWE message
     const address = await signer.getAddress();
     const message = new SiweMessage({
-      domain: "localhost",
+      domain: 'localhost',
       address,
-      statement: "Sign in with Ethereum",
-      uri: "http://localhost:3010",
-      version: "1",
+      statement: 'Sign in with Ethereum',
+      uri: 'http://localhost:3010',
+      version: '1',
       chainId: context.currentNetwork.value.l2ChainId,
       nonce,
     }).prepareMessage();
@@ -78,16 +85,18 @@ export default (
 
     // Send signature to proxy
     await $fetch(`${context.currentNetwork.value.apiUrl}/auth/verify`, {
-      method: "POST",
+      method: 'POST',
       body: { signature, message },
-      credentials: "include",
+      credentials: 'include',
     });
     state.isLoginPending = false;
     context.user.value = { address, loggedIn: true };
   };
 
   const logout = async () => {
-    await $fetch(`${context.currentNetwork.value.apiUrl}/auth/logout`, { credentials: "include" });
+    await $fetch(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
+      credentials: 'include',
+    });
     context.user.value = { loggedIn: false };
   };
 

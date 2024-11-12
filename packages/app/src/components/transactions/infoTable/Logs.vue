@@ -4,15 +4,19 @@
       <template v-for="(log, logIndex) in displayedLogs" :key="log.logIndex">
         <tr>
           <TableBodyColumn>
-            {{ t("transactions.logs.address") }}
+            {{ t('transactions.logs.address') }}
           </TableBodyColumn>
           <TableBodyColumn>
             <div class="address-value-container">
-              <AddressLink :address="log.address" class="address-label" :data-testid="$testId.contractsAddress" />
+              <AddressLink
+                :address="log.address"
+                class="address-label"
+                :data-testid="$testId.contractsAddress"
+              />
               <CopyButton :value="log.address" />
               <Badge v-if="log.address === initiatorAddress">
                 <div class="matches-topic">
-                  {{ t("transactions.logs.matchesTopic") }}
+                  {{ t('transactions.logs.matchesTopic') }}
                 </div>
               </Badge>
             </div>
@@ -20,27 +24,34 @@
         </tr>
         <tr v-if="log.event">
           <TableBodyColumn>
-            {{ t("transactions.logs.name") }}
+            {{ t('transactions.logs.name') }}
           </TableBodyColumn>
           <TableBodyColumn>
             <span class="log-interface">
               <span class="log-interface-name">{{ log.event.name }}</span>
-              (<span v-for="(input, inputIndex) in log.event.inputs" :key="inputIndex">
+              (<span
+                v-for="(input, inputIndex) in log.event.inputs"
+                :key="inputIndex"
+              >
                 <span
                   >{{
-                    inputIndex === log.event.inputs.length - 1 ? "data" : `index_topic_${inputIndex + 1}`
+                    inputIndex === log.event.inputs.length - 1
+                      ? 'data'
+                      : `index_topic_${inputIndex + 1}`
                   }}&nbsp;</span
                 >
                 <span class="log-parameter-type">{{ input.type }}&nbsp;</span>
                 <span class="log-parameter-name">{{ input.name }}</span>
-                <span v-if="inputIndex < log.event.inputs.length - 1">,&nbsp;</span></span
+                <span v-if="inputIndex < log.event.inputs.length - 1"
+                  >,&nbsp;</span
+                ></span
               >)
             </span>
           </TableBodyColumn>
         </tr>
         <tr>
           <TableBodyColumn>
-            {{ t("transactions.logs.topics") }}
+            {{ t('transactions.logs.topics') }}
           </TableBodyColumn>
           <TableBodyColumn class="event-topics">
             <EventTopics
@@ -53,13 +64,18 @@
         </tr>
         <tr class="last-row">
           <TableBodyColumn>
-            {{ t("transactions.logs.data") }}
+            {{ t('transactions.logs.data') }}
           </TableBodyColumn>
           <TableBodyColumn>
             <div class="topic-container">
               <HashViewer
                 :hash="log.data"
-                :default-type="getTypeFromEvent(log.event!, log.event ? log.event.inputs.length : 0)"
+                :default-type="
+                  getTypeFromEvent(
+                    log.event!,
+                    log.event ? log.event.inputs.length : 0,
+                  )
+                "
                 :popover-placement="setPopoverPlacement(logIndex)"
                 v-slot="{ data }"
               >
@@ -94,24 +110,24 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { computed, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
-import AddressLink from "@/components/AddressLink.vue";
-import Badge from "@/components/common/Badge.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import Pagination from "@/components/common/Pagination.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import ByteData from "@/components/common/table/fields/ByteData.vue";
-import EventTopics from "@/components/event/EventTopics.vue";
-import HashViewer from "@/components/transactions/infoTable/HashViewer.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import Badge from '@/components/common/Badge.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import Pagination from '@/components/common/Pagination.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import ByteData from '@/components/common/table/fields/ByteData.vue';
+import EventTopics from '@/components/event/EventTopics.vue';
+import HashViewer from '@/components/transactions/infoTable/HashViewer.vue';
 
-import type { TransactionLogEntry } from "@/composables/useEventLog";
+import type { TransactionLogEntry } from '@/composables/useEventLog';
 
-import { getTypeFromEvent } from "@/utils/helpers";
+import { getTypeFromEvent } from '@/utils/helpers';
 
 const props = defineProps({
   logs: {
@@ -120,7 +136,7 @@ const props = defineProps({
   },
   initiatorAddress: {
     type: String,
-    default: "",
+    default: '',
   },
   loading: {
     type: Boolean,
@@ -131,7 +147,9 @@ const props = defineProps({
 const { t } = useI18n();
 
 const route = useRoute();
-const activePage = computed(() => (route.query.page ? parseInt(route.query.page as string) : 1));
+const activePage = computed(() =>
+  route.query.page ? parseInt(route.query.page as string) : 1,
+);
 const pageSize = 25;
 const displayedLogs = computed(() => {
   const start = (activePage.value - 1) * pageSize;
@@ -140,7 +158,11 @@ const displayedLogs = computed(() => {
 });
 
 function setPopoverPlacement(logIndex: number) {
-  return props.logs.length === 1 ? "right" : logIndex === props.logs.length - 1 ? "top" : "bottom";
+  return props.logs.length === 1
+    ? 'right'
+    : logIndex === props.logs.length - 1
+      ? 'top'
+      : 'bottom';
 }
 
 function scrollPageToTop() {

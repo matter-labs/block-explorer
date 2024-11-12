@@ -1,5 +1,9 @@
 <template>
-  <Tippy v-bind="$attrs" theme="light" :on-show="() => (disabled ? false : undefined)">
+  <Tippy
+    v-bind="$attrs"
+    theme="light"
+    :on-show="() => (disabled ? false : undefined)"
+  >
     <template #default>
       <slot />
     </template>
@@ -10,11 +14,11 @@
 </template>
 
 <script lang="ts" setup>
-import { Tippy } from "vue-tippy";
+import { Tippy } from 'vue-tippy';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
-export type TooltipPosition = "top" | "left" | "right";
+export type TooltipPosition = 'top' | 'left' | 'right';
 
 defineProps({
   disabled: {
@@ -23,7 +27,7 @@ defineProps({
   },
   position: {
     type: String as PropType<TooltipPosition>,
-    default: "top",
+    default: 'top',
   },
 });
 </script>
@@ -31,12 +35,12 @@ defineProps({
 <style lang="scss">
 .tippy-box {
   @apply rounded-lg text-sm;
-  &[data-theme~="light"] {
+  &[data-theme~='light'] {
     @apply bg-neutral-400 text-white;
-    &[data-placement^="top"] > .tippy-arrow:before {
+    &[data-placement^='top'] > .tippy-arrow:before {
       @apply border-t-neutral-400;
     }
-    &[data-placement^="bottom"] > .tippy-arrow:before {
+    &[data-placement^='bottom'] > .tippy-arrow:before {
       @apply border-b-neutral-400;
     }
   }

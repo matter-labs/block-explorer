@@ -6,16 +6,22 @@
     :class="{ empty: !collection?.length }"
   >
     <template v-if="total > 0 && collection?.length" #table-head>
-      <TableHeadColumn v-for="item in tableHead" :key="item">{{ item }}</TableHeadColumn>
+      <TableHeadColumn v-for="item in tableHead" :key="item">{{
+        item
+      }}</TableHeadColumn>
     </template>
 
-    <template #table-row="{ item, index }: { item: any, index: number }">
+    <template #table-row="{ item, index }: { item: any; index: number }">
       <TableBodyColumn class="first-col" :data-heading="tableHead[0]">
-        <router-link :to="{ name: 'transaction', params: { hash: item.transactionHash } }">
+        <router-link
+          :to="{ name: 'transaction', params: { hash: item.transactionHash } }"
+        >
           <HashLabel :text="item.transactionHash" placement="left" />
         </router-link>
         <span>
-          #<router-link :to="{ name: 'block', params: { id: item.blockNumber } }">
+          #<router-link
+            :to="{ name: 'block', params: { id: item.blockNumber } }"
+          >
             {{ item.blockNumber }}
           </router-link>
         </span>
@@ -26,11 +32,16 @@
           <MinusIcon class="dash-icon" />
         </div>
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('contract.events.logs')" class="only-mobile mb-6"></TableBodyColumn>
+      <TableBodyColumn
+        :data-heading="t('contract.events.logs')"
+        class="only-mobile mb-6"
+      ></TableBodyColumn>
       <TableBodyColumn class="last-col">
         <TransactionEventTableCell
           :item="item"
-          :popover-placement="index === collection.length - 1 ? 'top' : 'bottom'"
+          :popover-placement="
+            index === collection.length - 1 ? 'top' : 'bottom'
+          "
         />
       </TableBodyColumn>
     </template>
@@ -54,10 +65,16 @@
           <ContentLoader />
           <ContentLoader />
         </TableBodyColumn>
-        <TableBodyColumn :data-heading="tableHead[1]" class="loading-second-col">
+        <TableBodyColumn
+          :data-heading="tableHead[1]"
+          class="loading-second-col"
+        >
           <ContentLoader />
         </TableBodyColumn>
-        <TableBodyColumn class="only-mobile" :data-heading="t('contract.events.logs')"></TableBodyColumn>
+        <TableBodyColumn
+          class="only-mobile"
+          :data-heading="t('contract.events.logs')"
+        ></TableBodyColumn>
         <TableBodyColumn class="loading-last-col">
           <ContentLoader v-for="col in 5" :key="col" />
         </TableBodyColumn>
@@ -66,23 +83,23 @@
   </Table>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { MinusIcon } from "@heroicons/vue/outline";
+import { MinusIcon } from '@heroicons/vue/outline';
 
-import HashLabel from "@/components/common/HashLabel.vue";
-import Pagination from "@/components/common/Pagination.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
-import ContractEventsEmptyState from "@/components/event/ContractEventsEmptyState.vue";
-import TransactionEventTableCell from "@/components/event/TransactionEventTableCell.vue";
+import HashLabel from '@/components/common/HashLabel.vue';
+import Pagination from '@/components/common/Pagination.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TableHeadColumn from '@/components/common/table/TableHeadColumn.vue';
+import ContractEventsEmptyState from '@/components/event/ContractEventsEmptyState.vue';
+import TransactionEventTableCell from '@/components/event/TransactionEventTableCell.vue';
 
-import useContractEvents from "@/composables/useContractEvents";
+import useContractEvents from '@/composables/useContractEvents';
 
-import type { Contract } from "@/composables/useAddress";
+import type { Contract } from '@/composables/useAddress';
 
 const { t } = useI18n();
 
@@ -94,13 +111,14 @@ const props = defineProps({
   },
 });
 
-const { collection, getCollection, total, isRequestPending } = useContractEvents();
+const { collection, getCollection, total, isRequestPending } =
+  useContractEvents();
 
 const pageSize = ref<number>(25);
 const tableHead = computed(() => [
-  t("contract.events.txnHash"),
-  t("contract.events.method"),
-  t("contract.events.logs"),
+  t('contract.events.txnHash'),
+  t('contract.events.method'),
+  t('contract.events.logs'),
 ]);
 
 const activePage = ref(1);
@@ -115,10 +133,10 @@ watch(
         pageSize: pageSize.value,
         toDate: toDate,
       },
-      props.contract.verificationInfo?.artifacts.abi
+      props.contract.verificationInfo?.artifacts.abi,
     );
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 <style lang="scss">

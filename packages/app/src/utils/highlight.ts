@@ -1,10 +1,10 @@
 export const highlight = (text: string, query: string): string => {
   const map = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
   };
 
   const escaped = text.replace(/[&<>"']/g, (m: string) => {
@@ -20,7 +20,7 @@ export const highlight = (text: string, query: string): string => {
       escaped.substring(0, index) +
       '<mark class="mark">' +
       escaped.substring(index, index + query.length) +
-      "</mark>" +
+      '</mark>' +
       escaped.substring(index + query.length, escaped.length)
     );
   } else {

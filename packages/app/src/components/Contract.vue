@@ -12,27 +12,52 @@
   <div class="tables-container">
     <div class="contract-tables-container">
       <div>
-        <ContractInfoTable class="contract-info-table" :loading="pending" :contract="contract!" />
+        <ContractInfoTable
+          class="contract-info-table"
+          :loading="pending"
+          :contract="contract!"
+        />
       </div>
       <div>
-        <BalanceTable class="balance-table" :loading="pending" :balances="authorized ? contract?.balances : {}">
+        <BalanceTable
+          class="balance-table"
+          :loading="pending"
+          :balances="authorized ? contract?.balances : {}"
+        >
           <template #not-found>
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img v-if="authorized" src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
-                  <img v-else src="/images/empty-state/unauthorized_balance.svg" alt="unauthorized_balance" />
+                  <img
+                    v-if="authorized"
+                    src="/images/empty-state/empty_balance.svg"
+                    alt="empty_balance"
+                  />
+                  <img
+                    v-else
+                    src="/images/empty-state/unauthorized_balance.svg"
+                    alt="unauthorized_balance"
+                  />
                 </div>
               </template>
               <template #title>
                 <div :class="{ 'balances-unauthorized-title': !authorized }">
-                  {{ authorized ? t("contract.balances.notFound.title") : t("contract.balances.unauthorized.title") }}
+                  {{
+                    authorized
+                      ? t('contract.balances.notFound.title')
+                      : t('contract.balances.unauthorized.title')
+                  }}
                 </div>
               </template>
               <template #description>
-                <div class="balances-empty-description" :class="{ 'balances-unauthorized-description': !authorized }">
+                <div
+                  class="balances-empty-description"
+                  :class="{ 'balances-unauthorized-description': !authorized }"
+                >
                   {{
-                    authorized ? t("contract.balances.notFound.subtitle") : t("contract.balances.unauthorized.subtitle")
+                    authorized
+                      ? t('contract.balances.notFound.subtitle')
+                      : t('contract.balances.unauthorized.subtitle')
                   }}
                 </div>
               </template>
@@ -42,14 +67,19 @@
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img src="/images/empty-state/error_balance.svg" alt="empty_balance" />
+                  <img
+                    src="/images/empty-state/error_balance.svg"
+                    alt="empty_balance"
+                  />
                 </div>
               </template>
               <template #title>
-                {{ t("contract.balances.error.title") }}
+                {{ t('contract.balances.error.title') }}
               </template>
               <template #description>
-                <div class="balances-empty-description">{{ t("contract.balances.error.subtitle") }}</div>
+                <div class="balances-empty-description">
+                  {{ t('contract.balances.error.subtitle') }}
+                </div>
               </template>
             </EmptyState>
           </template>
@@ -57,7 +87,11 @@
       </div>
     </div>
 
-    <Tabs v-if="contract?.address && !pending" class="contract-tabs" :tabs="tabs">
+    <Tabs
+      v-if="contract?.address && !pending"
+      class="contract-tabs"
+      :tabs="tabs"
+    >
       <template #tab-1-content>
         <TransactionsTable
           class="transactions-table"
@@ -82,27 +116,27 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import SearchForm from "@/components/SearchForm.vue";
-import BalanceTable from "@/components/balances/Table.vue";
-import Breadcrumbs from "@/components/common/Breadcrumbs.vue";
-import EmptyState from "@/components/common/EmptyState.vue";
-import Spinner from "@/components/common/Spinner.vue";
-import Tabs from "@/components/common/Tabs.vue";
-import Title from "@/components/common/Title.vue";
-import ContractInfoTab from "@/components/contract/ContractInfoTab.vue";
-import ContractInfoTable from "@/components/contract/InfoTable.vue";
-import TransactionEmptyState from "@/components/contract/TransactionEmptyState.vue";
-import ContractEvents from "@/components/event/ContractEvents.vue";
-import TransactionsTable from "@/components/transactions/Table.vue";
-import TransfersTable from "@/components/transfers/Table.vue";
+import SearchForm from '@/components/SearchForm.vue';
+import BalanceTable from '@/components/balances/Table.vue';
+import Breadcrumbs from '@/components/common/Breadcrumbs.vue';
+import EmptyState from '@/components/common/EmptyState.vue';
+import Spinner from '@/components/common/Spinner.vue';
+import Tabs from '@/components/common/Tabs.vue';
+import Title from '@/components/common/Title.vue';
+import ContractInfoTab from '@/components/contract/ContractInfoTab.vue';
+import ContractInfoTable from '@/components/contract/InfoTable.vue';
+import TransactionEmptyState from '@/components/contract/TransactionEmptyState.vue';
+import ContractEvents from '@/components/event/ContractEvents.vue';
+import TransactionsTable from '@/components/transactions/Table.vue';
+import TransfersTable from '@/components/transfers/Table.vue';
 
-import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
-import type { Contract } from "@/composables/useAddress";
+import type { BreadcrumbItem } from '@/components/common/Breadcrumbs.vue';
+import type { Contract } from '@/composables/useAddress';
 
-import { shortValue } from "@/utils/formatters";
+import { shortValue } from '@/utils/formatters';
 
 const { t } = useI18n();
 
@@ -127,25 +161,32 @@ const props = defineProps({
 });
 
 const tabs = computed(() => [
-  { title: t("tabs.transactions"), hash: "#transactions" },
-  { title: t("tabs.transfers"), hash: "#transfers" },
-  { title: t("tabs.contract"), hash: "#contract" },
-  { title: t("tabs.events"), hash: "#events" },
+  { title: t('tabs.transactions'), hash: '#transactions' },
+  { title: t('tabs.transfers'), hash: '#transfers' },
+  { title: t('tabs.contract'), hash: '#contract' },
+  { title: t('tabs.events'), hash: '#events' },
 ]);
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   if (props.contract?.address) {
     return [
-      { to: { name: "home" }, text: t("breadcrumbs.home") },
+      { to: { name: 'home' }, text: t('breadcrumbs.home') },
       {
-        text: `${t("contract.contractNumber")}${shortValue(props.contract?.address)}`,
+        text: `${t('contract.contractNumber')}${shortValue(props.contract?.address)}`,
       },
     ];
   }
   return [];
 });
 
-const contractName = computed(() => props.contract?.verificationInfo?.request.contractName.replace(/.*\.sol:/, ""));
-const contractABI = computed(() => props.contract?.verificationInfo?.artifacts.abi);
+const contractName = computed(() =>
+  props.contract?.verificationInfo?.request.contractName.replace(
+    /.*\.sol:/,
+    '',
+  ),
+);
+const contractABI = computed(
+  () => props.contract?.verificationInfo?.artifacts.abi,
+);
 
 const transactionsSearchParams = computed(() => ({
   address: props.contract?.address,

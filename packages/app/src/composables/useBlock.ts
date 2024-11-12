@@ -1,12 +1,12 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from 'ohmyfetch';
 
-import useContext from "@/composables/useContext";
+import useContext from '@/composables/useContext';
 
-import type { Hash } from "@/types";
+import type { Hash } from '@/types';
 
-export type BlockStatus = "sealed" | "verified";
+export type BlockStatus = 'sealed' | 'verified';
 export type Block = {
   number: number;
   status: BlockStatus;
@@ -48,7 +48,9 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      blockItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
+      blockItem.value = await $fetch(
+        `${context.currentNetwork.value.apiUrl}/blocks/${id}`,
+      );
     } catch (error: unknown) {
       blockItem.value = null;
       if (!(error instanceof FetchError) || error.response?.status !== 404) {

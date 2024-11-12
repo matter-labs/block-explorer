@@ -1,7 +1,7 @@
-import SuccessScreen from "./SuccessScreen.vue";
+import SuccessScreen from './SuccessScreen.vue';
 
 export default {
-  title: "Contract/Verification/SuccessScreen",
+  title: 'Contract/Verification/SuccessScreen',
   component: SuccessScreen,
 };
 
@@ -20,5 +20,5 @@ const Template = (args: Args) => ({
 export const Default = Template.bind({}) as unknown as { args: Args };
 
 Default.args = {
-  contractAddress: "0x0150673c86121237ac004dbd3371c03f481e4dc3",
+  contractAddress: '0x0150673c86121237ac004dbd3371c03f481e4dc3',
 };

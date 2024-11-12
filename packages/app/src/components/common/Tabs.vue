@@ -32,8 +32,8 @@
 </template>
 
 <script lang="ts" setup>
-import { type PropType, ref, watchEffect } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { type PropType, ref, watchEffect } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 export type Tab = {
   title: string;
@@ -54,7 +54,9 @@ const props = defineProps({
 const route = useRoute();
 const router = useRouter();
 
-const currentTabHash = ref(route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash);
+const currentTabHash = ref(
+  route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash,
+);
 
 const setTab = (tab: Tab) => {
   currentTabHash.value = tab.hash;

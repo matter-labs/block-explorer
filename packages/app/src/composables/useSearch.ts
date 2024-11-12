@@ -1,11 +1,15 @@
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from 'ohmyfetch';
 
-import useContext from "./useContext";
+import useContext from './useContext';
 
-import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
+import {
+  isAddress,
+  isBlockNumber,
+  isTransactionHash,
+} from '@/utils/validators';
 
 export default (context = useContext()) => {
   const router = useRouter();
@@ -17,23 +21,23 @@ export default (context = useContext()) => {
       const searchRoutes = [
         {
           routeParam: { address: param },
-          apiRoute: "address",
+          apiRoute: 'address',
           isValid: () => isAddress(param),
-          routeName: "address",
+          routeName: 'address',
           prefetch: true,
         },
         {
           routeParam: { id: param },
-          apiRoute: "batches",
+          apiRoute: 'batches',
           isValid: () => isBlockNumber(param),
-          routeName: "batch",
+          routeName: 'batch',
           prefetch: true,
         },
         {
           routeParam: { hash: param },
-          apiRoute: "transactions",
+          apiRoute: 'transactions',
           isValid: () => isTransactionHash(param),
-          routeName: "transaction",
+          routeName: 'transaction',
           prefetch: false,
         },
       ];
@@ -50,21 +54,30 @@ export default (context = useContext()) => {
     if (searchRoute) {
       try {
         if (searchRoute.prefetch) {
-          await $fetch(`${context.currentNetwork.value.apiUrl}/${searchRoute.apiRoute}/${param}`, {
-            credentials: "include",
-          });
+          await $fetch(
+            `${context.currentNetwork.value.apiUrl}/${searchRoute.apiRoute}/${param}`,
+            {
+              credentials: 'include',
+            },
+          );
         }
-        await router.push({ name: searchRoute.routeName, params: searchRoute.routeParam });
+        await router.push({
+          name: searchRoute.routeName,
+          params: searchRoute.routeParam,
+        });
         return;
       } catch (error) {
-        if (!(error instanceof FetchError) || (error instanceof FetchError && error.response?.status !== 404)) {
+        if (
+          !(error instanceof FetchError) ||
+          (error instanceof FetchError && error.response?.status !== 404)
+        ) {
           isRequestFailed.value = true;
         }
       } finally {
         isRequestPending.value = false;
       }
     }
-    await router.push({ name: "not-found" });
+    await router.push({ name: 'not-found' });
   };
 
   return {

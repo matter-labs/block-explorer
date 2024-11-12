@@ -1,4 +1,4 @@
-import { AbiCoder, isAddress as ethersIsAddress } from "ethers";
+import { AbiCoder, isAddress as ethersIsAddress } from 'ethers';
 
 const defaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
@@ -12,7 +12,9 @@ export const isTransactionHash = (s: string) => {
 
 export const isBlockNumber = (s: number | string) => {
   const n = Number(s);
-  return /^[0-9*+-]+$/.test(s?.toString()) && n >= 0 && n <= Number.MAX_SAFE_INTEGER;
+  return (
+    /^[0-9*+-]+$/.test(s?.toString()) && n >= 0 && n <= Number.MAX_SAFE_INTEGER
+  );
 };
 
 export const validateAbiValue = (value: string, type: string) => {

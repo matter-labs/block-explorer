@@ -1,7 +1,15 @@
 <template>
-  <router-link to="/login" class="login-button" :class="{ disabled: buttonDisabled }">
+  <router-link
+    to="/login"
+    class="login-button"
+    :class="{ disabled: buttonDisabled }"
+  >
     <img src="/images/metamask.svg" class="metamask-image" />
-    <button v-if="!address || isLoginPending" :disabled="buttonDisabled" class="connect-button">
+    <button
+      v-if="!address || isLoginPending"
+      :disabled="buttonDisabled"
+      class="connect-button"
+    >
       {{ buttonText }}
     </button>
     <template v-else>
@@ -11,21 +19,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import HashLabel from "@/components/common/HashLabel.vue";
+import HashLabel from '@/components/common/HashLabel.vue';
 
-import useContext from "@/composables/useContext";
-import useLogin from "@/composables/useLogin";
-import { default as useWallet } from "@/composables/useWallet";
-import { useRouter } from "vue-router";
+import useContext from '@/composables/useContext';
+import useLogin from '@/composables/useLogin';
+import { default as useWallet } from '@/composables/useWallet';
 
 const { t } = useI18n();
 
 const context = useContext();
 
-const { address, isConnectPending, isReady, isMetamaskInstalled, connect, disconnect } = useWallet({
+const { address, isConnectPending, isReady, isMetamaskInstalled } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
     explorerUrl: context.currentNetwork.value.rpcUrl,
@@ -43,17 +50,19 @@ const { isLoginPending } = useLogin({
     ...context.currentNetwork.value,
   })),
 });
-const router = useRouter();
+// const router = useRouter();
 
-const buttonDisabled = computed(() => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value);
+const buttonDisabled = computed(
+  () => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value,
+);
 const buttonText = computed(() => {
   if (isConnectPending.value || isLoginPending.value) {
-    return t("loginButton.connecting");
+    return t('loginButton.connecting');
   }
   if (!isMetamaskInstalled.value) {
-    return t("loginButton.metaMaskNotFound");
+    return t('loginButton.metaMaskNotFound');
   }
-  return t("loginButton.label");
+  return t('loginButton.label');
 });
 </script>
 
@@ -63,12 +72,15 @@ const buttonText = computed(() => {
   &.disabled {
     @apply opacity-50;
   }
+
   .metamask-image {
     @apply mr-2 h-[24px] w-[24px];
   }
+
   .connect-button {
     @apply w-full text-left;
   }
+
   .address-text {
     @apply flex flex-none;
   }

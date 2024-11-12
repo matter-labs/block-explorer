@@ -33,7 +33,7 @@ declare namespace Api {
       timestamp: string;
       rootHash?: string | null;
       executedAt: string | null;
-      status: "sealed" | "verified";
+      status: 'sealed' | 'verified';
       l1TxCount: number;
       l2TxCount: number;
       size: number;
@@ -44,7 +44,7 @@ declare namespace Api {
       timestamp: string;
       rootHash?: string | null;
       executedAt: string | null;
-      status: "sealed" | "verified";
+      status: 'sealed' | 'verified';
       l1TxCount: number;
       l2TxCount: number;
       size: number;
@@ -91,7 +91,7 @@ declare namespace Api {
       isL1Originated: boolean;
       l1BatchNumber: number | null;
       isL1BatchSealed: boolean;
-      status: "included" | "committed" | "proved" | "verified" | "failed";
+      status: 'included' | 'committed' | 'proved' | 'verified' | 'failed';
       error: string | null;
       revertReason: string | null;
     };
@@ -104,7 +104,7 @@ declare namespace Api {
       amount: string | null;
       token: Token | null;
       tokenAddress: string;
-      type: "deposit" | "transfer" | "withdrawal" | "fee" | "mint" | "refund";
+      type: 'deposit' | 'transfer' | 'withdrawal' | 'fee' | 'mint' | 'refund';
       timestamp: string;
     };
 
@@ -118,7 +118,7 @@ declare namespace Api {
     };
 
     type Account = {
-      type: "account";
+      type: 'account';
       address: string;
       blockNumber: number;
       balances: Balances;
@@ -127,7 +127,7 @@ declare namespace Api {
     };
 
     type Contract = {
-      type: "contract";
+      type: 'contract';
       address: string;
       blockNumber: number;
       balances: Balances;

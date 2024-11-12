@@ -11,21 +11,21 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, watchEffect } from "vue";
+import { computed, watchEffect } from 'vue';
 
-import Spinner from "@/components/common/Spinner.vue";
+import Spinner from '@/components/common/Spinner.vue';
 
-import useToken from "@/composables/useToken";
+import useToken from '@/composables/useToken';
 
-import type { Hash } from "@/types";
-import type { PropType } from "vue";
+import type { Hash } from '@/types';
+import type { PropType } from 'vue';
 
-import { formatPricePretty } from "@/utils/formatters";
+import { formatPricePretty } from '@/utils/formatters';
 
 const props = defineProps({
   address: {
     type: String as PropType<Hash>,
-    default: "",
+    default: '',
   },
 });
 
@@ -40,12 +40,12 @@ watchEffect(() => {
 const priceAmount = computed(() => {
   if (tokenInfo.value && tokenInfo.value.usdPrice) {
     return formatPricePretty(
-      "1".padEnd(tokenInfo.value.decimals + 1, "0"),
+      '1'.padEnd(tokenInfo.value.decimals + 1, '0'),
       tokenInfo.value.decimals,
-      tokenInfo.value.usdPrice.toString()
+      tokenInfo.value.usdPrice.toString(),
     );
   }
-  return "";
+  return '';
 });
 </script>
 

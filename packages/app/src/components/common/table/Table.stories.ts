@@ -1,8 +1,8 @@
-import Table from "./Table.vue";
-import ContentLoader from "../loaders/ContentLoader.vue";
+import Table from './Table.vue';
+import ContentLoader from '../loaders/ContentLoader.vue';
 
 export default {
-  title: "Common/Table",
+  title: 'Common/Table',
   component: Table,
 };
 
@@ -43,39 +43,43 @@ const Template = (args: Args) => ({
 
 export const WithHeader = Template.bind({}) as unknown as { args: Args };
 WithHeader.args = {
-  headers: ["Header 1"],
-  items: ["Row 1", "Row 2", "Row 3"],
+  headers: ['Header 1'],
+  items: ['Row 1', 'Row 2', 'Row 3'],
   loading: false,
   footer: undefined,
 };
 
-export const WithHeaderAndFooter = Template.bind({}) as unknown as { args: Args };
+export const WithHeaderAndFooter = Template.bind({}) as unknown as {
+  args: Args;
+};
 WithHeaderAndFooter.args = {
-  headers: ["Header 1"],
-  items: ["Row 1", "Row 2", "Row 3"],
+  headers: ['Header 1'],
+  items: ['Row 1', 'Row 2', 'Row 3'],
   loading: false,
-  footer: "I am footer",
+  footer: 'I am footer',
 };
 
 export const NoHeaderNoFooter = Template.bind({}) as unknown as { args: Args };
 NoHeaderNoFooter.args = {
   headers: [],
-  items: ["Row 1", "Row 2", "Row 3"],
+  items: ['Row 1', 'Row 2', 'Row 3'],
   loading: false,
   footer: undefined,
 };
 
-export const NoHeaderWithFooter = Template.bind({}) as unknown as { args: Args };
+export const NoHeaderWithFooter = Template.bind({}) as unknown as {
+  args: Args;
+};
 NoHeaderWithFooter.args = {
   headers: [],
-  items: ["Row 1", "Row 2", "Row 3"],
+  items: ['Row 1', 'Row 2', 'Row 3'],
   loading: false,
-  footer: "I am footer",
+  footer: 'I am footer',
 };
 
 export const Loading = Template.bind({}) as unknown as { args: Args };
 Loading.args = {
-  headers: ["Header 1", "Header 2", "Header 3"],
+  headers: ['Header 1', 'Header 2', 'Header 3'],
   items: [],
   loading: true,
   footer: undefined,

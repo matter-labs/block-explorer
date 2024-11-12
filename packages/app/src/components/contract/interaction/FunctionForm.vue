@@ -1,6 +1,10 @@
 <template>
   <form class="function-form" @submit.prevent="submit">
-    <div v-for="(input, index) in inputs" class="disclosure-panel-input-container" :key="input.key + index">
+    <div
+      v-for="(input, index) in inputs"
+      class="disclosure-panel-input-container"
+      :key="input.key + index"
+    >
       <FunctionArrayParameter
         v-if="input.isArray"
         v-model="form[input.key]"
@@ -10,7 +14,9 @@
         :errors="errors[input.key]"
       />
       <div v-else class="function-parameter">
-        <label :for="input.key" class="function-input-label">{{ input.label }}</label>
+        <label :for="input.key" class="function-input-label">{{
+          input.label
+        }}</label>
         <Input
           v-model="form[input.key]"
           type="text"
@@ -26,27 +32,31 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { useVuelidate } from "@vuelidate/core";
-import { createI18nMessage, helpers, required } from "@vuelidate/validators";
-import { parseEther } from "ethers";
+import { useVuelidate } from '@vuelidate/core';
+import { createI18nMessage, helpers, required } from '@vuelidate/validators';
+import { parseEther } from 'ethers';
 
-import Input from "@/components/common/Input.vue";
-import FunctionArrayParameter from "@/components/contract/interaction/FunctionArrayParameter.vue";
+import Input from '@/components/common/Input.vue';
+import FunctionArrayParameter from '@/components/contract/interaction/FunctionArrayParameter.vue';
 
-import { PAYABLE_AMOUNT_PARAM_NAME } from "@/composables/useContractInteraction";
+import { PAYABLE_AMOUNT_PARAM_NAME } from '@/composables/useContractInteraction';
 
-import type { AbiFragment } from "@/composables/useAddress";
+import type { AbiFragment } from '@/composables/useAddress';
 
-import { getRawFunctionType, getRequiredArrayLength, isArrayFunctionType } from "@/utils/helpers";
-import { validateAbiValue } from "@/utils/validators";
+import {
+  getRawFunctionType,
+  getRequiredArrayLength,
+  isArrayFunctionType,
+} from '@/utils/helpers';
+import { validateAbiValue } from '@/utils/validators';
 
 const props = defineProps({
   type: {
-    type: String as PropType<"read" | "write">,
-    default: "read",
+    type: String as PropType<'read' | 'write'>,
+    default: 'read',
   },
   abiFragment: {
     type: Object as PropType<AbiFragment>,
@@ -58,7 +68,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(['submit']);
 
 const { t } = useI18n();
 const withI18nMessage = createI18nMessage({ t });
@@ -78,14 +88,14 @@ const inputs = computed(() => {
           type: e.type,
           label: `${e.name} (${e.type})`,
           placeholder: `${e.name} (${e.type})`,
-        }
+        },
   );
-  if (props.abiFragment.stateMutability === "payable") {
+  if (props.abiFragment.stateMutability === 'payable') {
     inputsArray.unshift({
       key: PAYABLE_AMOUNT_PARAM_NAME,
-      type: "ether",
-      label: "payableAmount (ether)",
-      placeholder: "payableAmount (ether)",
+      type: 'ether',
+      label: 'payableAmount (ether)',
+      placeholder: 'payableAmount (ether)',
     });
   }
   return inputsArray;
@@ -102,12 +112,17 @@ const v$ = useVuelidate(
               $each: helpers.forEach({
                 value: {
                   required: withI18nMessage(
-                    (value: string, field: { value: string }, formValues: Record<string, { value: string }[]>) => {
+                    (
+                      value: string,
+                      field: { value: string },
+                      formValues: Record<string, { value: string }[]>,
+                    ) => {
                       if (value) {
                         return true;
                       } else if (
                         !getRequiredArrayLength(input.type) &&
-                        formValues[input.key].indexOf(field) === formValues[input.key].length - 1
+                        formValues[input.key].indexOf(field) ===
+                          formValues[input.key].length - 1
                       ) {
                         // check if last element is empty when array is not required
                         return true;
@@ -115,19 +130,24 @@ const v$ = useVuelidate(
                       return false;
                     },
                     {
-                      messagePath: () => "contract.abiInteraction.validation.required",
-                    }
+                      messagePath: () =>
+                        'contract.abiInteraction.validation.required',
+                    },
                   ),
                   valid: withI18nMessage(
                     (value: string) => {
                       if (!value) {
                         return true;
                       }
-                      return validateAbiValue(value, getRawFunctionType(input.type));
+                      return validateAbiValue(
+                        value,
+                        getRawFunctionType(input.type),
+                      );
                     },
                     {
-                      messagePath: () => "contract.abiInteraction.validation.invalid",
-                    }
+                      messagePath: () =>
+                        'contract.abiInteraction.validation.invalid',
+                    },
                   ),
                 },
               }),
@@ -138,11 +158,11 @@ const v$ = useVuelidate(
           input.key,
           {
             required: withI18nMessage(required, {
-              messagePath: () => "contract.abiInteraction.validation.required",
+              messagePath: () => 'contract.abiInteraction.validation.required',
             }),
             valid: withI18nMessage(
               (value: string) => {
-                if (input.type === "ether") {
+                if (input.type === 'ether') {
                   try {
                     parseEther(value as string); // will throw an error in case if the value is invalid
                     return true;
@@ -153,42 +173,46 @@ const v$ = useVuelidate(
                 return validateAbiValue(value, input.type);
               },
               {
-                messagePath: () => "contract.abiInteraction.validation.invalid",
-              }
+                messagePath: () => 'contract.abiInteraction.validation.invalid',
+              },
             ),
           },
         ];
-      })
-    )
+      }),
+    ),
   ),
   // vuelidate doesn't support validating primitives array, so we need to wrap them in object
   computed(() =>
     Object.fromEntries(
-      Object.entries(form.value).map(([key, val]) => [key, Array.isArray(val) ? val.map((v) => ({ value: v })) : val])
-    )
-  )
+      Object.entries(form.value).map(([key, val]) => [
+        key,
+        Array.isArray(val) ? val.map((v) => ({ value: v })) : val,
+      ]),
+    ),
+  ),
 );
 
 const errors = computed(() => {
   return Object.fromEntries(
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     inputs.value.map((input) => {
-      if (input.isArray) {
+      if ('isArray' in input && input.isArray) {
         if (v$.value[input.key].$dirty) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const errors = ((v$.value[input.key] as any).$each.$response.$errors ?? []).map((e: any) =>
-            e.value[0]?.$message.toString()
-          );
+          const errors = (
+            (v$.value[input.key] as any).$each.$response.$errors ?? []
+          ).map((e: any) => e.value[0]?.$message.toString());
           return [input.key, errors];
         }
         return [input.key, []];
       }
       return [input.key, v$.value[input.key].$errors?.[0]?.$message.toString()];
-    })
+    }),
+    /* eslint-enable @typescript-eslint/no-explicit-any */
   );
 });
 
 const convertBoolean = (value: string | boolean) =>
-  typeof value === "string" ? !["0", "false"].includes(value) : value;
+  typeof value === 'string' ? !['0', 'false'].includes(value) : value;
 
 const submit = async () => {
   const validationResult = await v$.value.$validate();
@@ -196,19 +220,25 @@ const submit = async () => {
     return;
   }
   // remove optional empty values from array
-  const data: { [key: string]: string | string[] | boolean | boolean[] } = Object.fromEntries(
-    Object.entries(form.value).map(([key, val]) => [key, Array.isArray(val) ? val.filter((v) => !!v) : val])
-  );
+  const data: { [key: string]: string | string[] | boolean | boolean[] } =
+    Object.fromEntries(
+      Object.entries(form.value).map(([key, val]) => [
+        key,
+        Array.isArray(val) ? val.filter((v) => !!v) : val,
+      ]),
+    );
   // convert booleans from string to bool
   inputs.value
-    .filter((input) => input.type === "bool")
+    .filter((input) => input.type === 'bool')
     .forEach((boolInput) => {
       const field = data[boolInput.key];
       if (field) {
-        data[boolInput.key] = Array.isArray(field) ? field.map(convertBoolean) : convertBoolean(field);
+        data[boolInput.key] = Array.isArray(field)
+          ? field.map(convertBoolean)
+          : convertBoolean(field);
       }
     });
-  emit("submit", data);
+  emit('submit', data);
 };
 </script>
 

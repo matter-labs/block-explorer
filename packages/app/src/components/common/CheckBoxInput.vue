@@ -1,6 +1,11 @@
 <template>
   <label class="checkbox-input-container" :class="{ checked: inputted }">
-    <input type="checkbox" :checked="inputted" v-model="inputted" v-bind="$attrs" />
+    <input
+      type="checkbox"
+      :checked="inputted"
+      v-model="inputted"
+      v-bind="$attrs"
+    />
     <slot />
   </label>
 </template>
@@ -12,7 +17,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue';
 const props = defineProps({
   modelValue: {
     type: Boolean,
@@ -20,13 +25,13 @@ const props = defineProps({
   },
 });
 const emit = defineEmits<{
-  (eventName: "update:modelValue", value: unknown): void;
+  (eventName: 'update:modelValue', value: unknown): void;
 }>();
 
 const inputted = computed({
   get: () => props.modelValue,
   set: (value: unknown) => {
-    emit("update:modelValue", value);
+    emit('update:modelValue', value);
   },
 });
 </script>

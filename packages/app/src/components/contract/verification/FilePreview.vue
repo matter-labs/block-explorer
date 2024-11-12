@@ -6,10 +6,10 @@
   </div>
 </template>
 <script lang="ts" setup>
-import TrashIcon from "@/components/icons/TrashIcon.vue";
+import TrashIcon from '@/components/icons/TrashIcon.vue';
 
 const emit = defineEmits<{
-  (e: "removeFile"): void;
+  (e: 'removeFile'): void;
 }>();
 
 defineProps({

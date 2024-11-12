@@ -1,6 +1,11 @@
 <template>
   <div class="input-container">
-    <input v-bind="$attrs" v-model="inputted" class="input" :class="{ error }" />
+    <input
+      v-bind="$attrs"
+      v-model="inputted"
+      class="input"
+      :class="{ error }"
+    />
     <transition
       enter-active-class="transition ease duration-200"
       enter-from-class="opacity-0"
@@ -11,7 +16,10 @@
     >
       <div v-if="error" class="input-error-tooltip">
         <Tooltip class="relative h-5 w-5">
-          <ExclamationCircleIcon class="h-full w-full text-error-500" aria-hidden="true" />
+          <ExclamationCircleIcon
+            class="h-full w-full text-error-500"
+            aria-hidden="true"
+          />
 
           <template #content>{{ error }}</template>
         </Tooltip>
@@ -27,13 +35,13 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue';
 
-import { ExclamationCircleIcon } from "@heroicons/vue/outline";
+import { ExclamationCircleIcon } from '@heroicons/vue/outline';
 
-import Tooltip from "@/components/common/Tooltip.vue";
+import Tooltip from '@/components/common/Tooltip.vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -47,13 +55,14 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (eventName: "update:modelValue", value: string | number | null): void;
+  (eventName: 'update:modelValue', value: string | number | null): void;
 }>();
 
 const inputted = computed({
-  get: () => (Array.isArray(props.modelValue) ? props.modelValue[0] : props.modelValue),
+  get: () =>
+    Array.isArray(props.modelValue) ? props.modelValue[0] : props.modelValue,
   set: (value: string | number | null) => {
-    emit("update:modelValue", value);
+    emit('update:modelValue', value);
   },
 });
 </script>

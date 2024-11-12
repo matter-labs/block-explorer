@@ -19,19 +19,19 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { useDropZone } from "@vueuse/core";
+import { useDropZone } from '@vueuse/core';
 
 defineProps({
   error: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
 const emit = defineEmits<{
-  (e: "update:value", value: File[]): void;
+  (e: 'update:value', value: File[]): void;
 }>();
 
 const onChange = (a: Event) => {
@@ -40,16 +40,19 @@ const onChange = (a: Event) => {
 };
 const dropZoneRef = ref(null);
 
-const { isOverDropZone: active } = useDropZone(dropZoneRef, (files: File[] | null) => {
-  upload(files);
-});
+const { isOverDropZone: active } = useDropZone(
+  dropZoneRef,
+  (files: File[] | null) => {
+    upload(files);
+  },
+);
 
 const upload = (files?: File[] | null) => {
   if (!files?.length) {
     return;
   }
 
-  emit("update:value", files);
+  emit('update:value', files);
 };
 </script>
 

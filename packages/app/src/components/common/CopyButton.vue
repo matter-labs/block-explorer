@@ -1,6 +1,11 @@
 <template>
   <div class="copy-button-container">
-    <button ref="copyButton" type="button" class="copy-button" @click.prevent="copyToClipboard">
+    <button
+      ref="copyButton"
+      type="button"
+      class="copy-button"
+      @click.prevent="copyToClipboard"
+    >
       <slot>
         <DocumentDuplicateIcon class="copy-button-icon" aria-hidden="true" />
       </slot>
@@ -9,20 +14,20 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import { watchEffect } from "vue";
-import { useI18n } from "vue-i18n";
-import { useTippy } from "vue-tippy";
+import { computed, ref } from 'vue';
+import { watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useTippy } from 'vue-tippy';
 
-import { DocumentDuplicateIcon } from "@heroicons/vue/outline/index.js";
-import { useClipboard, useThrottleFn } from "@vueuse/core";
+import { DocumentDuplicateIcon } from '@heroicons/vue/outline/index.js';
+import { useClipboard, useThrottleFn } from '@vueuse/core';
 
 const { t } = useI18n();
 
 const props = defineProps({
   value: {
     type: [String, Number],
-    default: "",
+    default: '',
     required: true,
   },
 });
@@ -33,9 +38,9 @@ const { copy, copied: isCopied } = useClipboard({
 
 const copyButton = ref<Element | undefined>(undefined);
 const { show, hide } = useTippy(copyButton!, {
-  content: t("copyButton.tooltip"),
-  trigger: "manual",
-  theme: "light",
+  content: t('copyButton.tooltip'),
+  trigger: 'manual',
+  theme: 'light',
 });
 
 const tooltipShownViaLegacyCopy = ref(false);
@@ -57,20 +62,20 @@ watchEffect(() => {
 async function copyToClipboard() {
   try {
     await copy();
-  } catch (error) {
+  } catch (_error) {
     legacyCopy();
     showLegacyCopyTooltip();
   }
 }
 
 function legacyCopy() {
-  const ta = document.createElement("textarea");
-  ta.value = props.value != null ? props.value?.toString() : "";
-  ta.style.position = "absolute";
-  ta.style.opacity = "0";
+  const ta = document.createElement('textarea');
+  ta.value = props.value != null ? props.value?.toString() : '';
+  ta.style.position = 'absolute';
+  ta.style.opacity = '0';
   document.body.appendChild(ta);
   ta.select();
-  document.execCommand("copy");
+  document.execCommand('copy');
   ta.remove();
 }
 </script>

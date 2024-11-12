@@ -1,5 +1,11 @@
 <template>
-  <div class="table-container" :class="[{ 'has-head': !!$slots['table-head'] }, { 'has-footer': !!$slots['footer'] }]">
+  <div
+    class="table-container"
+    :class="[
+      { 'has-head': !!$slots['table-head'] },
+      { 'has-footer': !!$slots['footer'] },
+    ]"
+  >
     <div class="table-body">
       <table cellspacing="0" cellpadding="0">
         <thead v-if="$slots['table-head']">
@@ -26,14 +32,18 @@
         </tbody>
       </table>
     </div>
-    <div v-if="$slots.footer" class="table-footer" :class="[items?.length! % 2 ? 'bg-neutral-50' : 'bg-white']">
+    <div
+      v-if="$slots.footer"
+      class="table-footer"
+      :class="[items?.length! % 2 ? 'bg-neutral-50' : 'bg-white']"
+    >
       <slot name="footer"></slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 defineProps({
   items: {

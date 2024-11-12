@@ -1,5 +1,9 @@
 <template>
-  <nav class="pagination-container" :class="{ disabled }" aria-label="Pagination">
+  <nav
+    class="pagination-container"
+    :class="{ disabled }"
+    aria-label="Pagination"
+  >
     <PaginationButton
       :use-route="useQuery"
       :to="{ query: backButtonQuery, hash: currentHash }"
@@ -15,9 +19,15 @@
       <PaginationButton
         v-if="item.type === 'page'"
         :use-route="useQuery"
-        :to="{ query: item.number > 1 ? { page: item.number } : {}, hash: currentHash }"
+        :to="{
+          query: item.number > 1 ? { page: item.number } : {},
+          hash: currentHash,
+        }"
         :aria-current="activePage === item.number ? 'page' : 'false'"
-        :class="[{ active: activePage === item.number }, item.hiddenOnMobile ? 'hidden sm:flex' : 'flex']"
+        :class="[
+          { active: activePage === item.number },
+          item.hiddenOnMobile ? 'hidden sm:flex' : 'flex',
+        ]"
         class="pagination-page-button page"
         @click="currentPage = item.number"
       >
@@ -41,13 +51,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type UnwrapNestedRefs } from "vue";
-import { useRoute } from "vue-router";
+import { computed, type UnwrapNestedRefs } from 'vue';
+import { useRoute } from 'vue-router';
 
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/outline";
-import { useOffsetPagination, type UseOffsetPaginationReturn } from "@vueuse/core";
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/outline';
+import {
+  useOffsetPagination,
+  type UseOffsetPaginationReturn,
+} from '@vueuse/core';
 
-import PaginationButton from "@/components/common/PaginationButton.vue";
+import PaginationButton from '@/components/common/PaginationButton.vue';
 
 const route = useRoute();
 
@@ -77,27 +90,37 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (eventName: "update:activePage", value: number): void;
-  (eventName: "onPageChange", value: UnwrapNestedRefs<UseOffsetPaginationReturn>): void;
+  (eventName: 'update:activePage', value: number): void;
+  (
+    eventName: 'onPageChange',
+    value: UnwrapNestedRefs<UseOffsetPaginationReturn>,
+  ): void;
 }>();
 
-const { currentPage, pageCount, isFirstPage, isLastPage } = useOffsetPagination({
-  total: computed(() => props.totalItems),
-  page: computed({
-    get: () => props.activePage,
-    set: (val) => emit("update:activePage", val),
-  }),
-  pageSize: computed({
-    get: () => props.pageSize,
-    set: () => undefined,
-  }),
-  onPageChange: (data) => emit("onPageChange", data),
-});
+const { currentPage, pageCount, isFirstPage, isLastPage } = useOffsetPagination(
+  {
+    total: computed(() => props.totalItems),
+    page: computed({
+      get: () => props.activePage,
+      set: (val) => emit('update:activePage', val),
+    }),
+    pageSize: computed({
+      get: () => props.pageSize,
+      set: () => undefined,
+    }),
+    onPageChange: (data) => emit('onPageChange', data),
+  },
+);
 
 const pagesData = computed(() => {
-  type PageItem = { type: "page"; number: number; hiddenOnMobile?: true } | { type: "dots" };
-  const pages: PageItem[] = Array.from({ length: pageCount.value }, (_, i) => ({ type: "page", number: i + 1 }));
-  const dots: PageItem = { type: "dots" };
+  type PageItem =
+    | { type: 'page'; number: number; hiddenOnMobile?: true }
+    | { type: 'dots' };
+  const pages: PageItem[] = Array.from({ length: pageCount.value }, (_, i) => ({
+    type: 'page',
+    number: i + 1,
+  }));
+  const dots: PageItem = { type: 'dots' };
   if (pages.length <= 5) {
     return pages;
   }
@@ -111,20 +134,32 @@ const pagesData = computed(() => {
   } else if (currentPage.value >= pageCount.value - 1) {
     first.push(pages[0]);
     middle.push(dots);
-    last.push(pages[pages.length - 3], pages[pages.length - 2], pages[pages.length - 1]);
+    last.push(
+      pages[pages.length - 3],
+      pages[pages.length - 2],
+      pages[pages.length - 1],
+    );
   } else {
     first.push(pages[0], dots);
-    middle.push({ ...pages[currentPage.value - 2], hiddenOnMobile: true } as PageItem, pages[currentPage.value - 1], {
-      ...pages[currentPage.value],
-      hiddenOnMobile: true,
-    } as PageItem);
+    middle.push(
+      { ...pages[currentPage.value - 2], hiddenOnMobile: true } as PageItem,
+      pages[currentPage.value - 1],
+      {
+        ...pages[currentPage.value],
+        hiddenOnMobile: true,
+      } as PageItem,
+    );
     last.push(dots, pages[pages.length - 1]);
   }
   return [...first, ...middle, ...last];
 });
 
-const backButtonQuery = computed(() => (currentPage.value > 2 ? { page: currentPage.value - 1 } : {}));
-const nextButtonQuery = computed(() => ({ page: Math.min(currentPage.value + 1, pageCount.value) }));
+const backButtonQuery = computed(() =>
+  currentPage.value > 2 ? { page: currentPage.value - 1 } : {},
+);
+const nextButtonQuery = computed(() => ({
+  page: Math.min(currentPage.value + 1, pageCount.value),
+}));
 </script>
 
 <style lang="scss">

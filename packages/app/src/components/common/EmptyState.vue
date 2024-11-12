@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts" setup>
-import { SearchIcon } from "@heroicons/vue/solid";
+import { SearchIcon } from '@heroicons/vue/solid';
 </script>
 
 <style scoped lang="scss">

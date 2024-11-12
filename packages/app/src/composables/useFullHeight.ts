@@ -1,15 +1,18 @@
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch } from 'vue';
 
-import { useMagicKeys } from "@vueuse/core";
+import { useMagicKeys } from '@vueuse/core';
 
 export default () => {
   const isFullScreen = ref(false);
-  const isMac = navigator.userAgent.indexOf("Mac OS X") != -1;
+  const isMac = navigator.userAgent.indexOf('Mac OS X') != -1;
 
   const { Escape } = useMagicKeys({
     passive: false,
     onEventFired(e) {
-      if (((e.metaKey && isMac) || (e.ctrlKey && !isMac)) && e.code === "KeyS") {
+      if (
+        ((e.metaKey && isMac) || (e.ctrlKey && !isMac)) &&
+        e.code === 'KeyS'
+      ) {
         e.preventDefault();
         isFullScreen.value = true;
       }
@@ -18,9 +21,9 @@ export default () => {
 
   const fullScreenHotkey = computed(() => {
     if (!isFullScreen.value) {
-      return isMac ? "Cmd + S" : "Ctrl + S";
+      return isMac ? 'Cmd + S' : 'Ctrl + S';
     }
-    return "Esc";
+    return 'Esc';
   });
 
   watch(Escape, (escape) => {

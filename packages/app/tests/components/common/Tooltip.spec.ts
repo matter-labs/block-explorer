@@ -1,18 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { render } from "@testing-library/vue";
+import { render } from '@testing-library/vue';
 
-import Tooltip from "@/components/common/Tooltip.vue";
+import Tooltip from '@/components/common/Tooltip.vue';
 
-describe("Tooltip:", () => {
-  it("renders default slot", () => {
+describe('Tooltip:', () => {
+  it('renders default slot', () => {
     const { container } = render(Tooltip, {
       slots: {
         default: {
-          template: "Tooltip content",
+          template: 'Tooltip content',
         },
       },
     });
-    expect(container.textContent).toBe("Tooltip content");
+    expect(container.textContent).toBe('Tooltip content');
   });
 });

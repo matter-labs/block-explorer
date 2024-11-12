@@ -14,7 +14,10 @@
       </span>
       <LoadingIcon v-else class="loading" />
       <span v-if="!pending" class="toggle-button-icon-wrapper">
-        <ChevronDownIcon class="toggle-button-icon" :class="{ 'toggle-button-opened': open }" />
+        <ChevronDownIcon
+          class="toggle-button-icon"
+          :class="{ 'toggle-button-opened': open }"
+        />
       </span>
     </ListboxButton>
     <ListboxOptions class="options-list-container">
@@ -40,20 +43,25 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
+import { computed, type PropType } from 'vue';
 
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { CheckIcon, ChevronDownIcon } from "@heroicons/vue/solid";
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/vue';
+import { CheckIcon, ChevronDownIcon } from '@heroicons/vue/solid';
 
-import LoadingIcon from "@/components/icons/LoadingIcon.vue";
+import LoadingIcon from '@/components/icons/LoadingIcon.vue';
 const props = defineProps({
   modelValue: {
     type: String,
-    default: "",
+    default: '',
   },
   id: {
     type: String,
-    default: "",
+    default: '',
   },
   pending: {
     type: Boolean,
@@ -61,7 +69,7 @@ const props = defineProps({
   },
   defaultOption: {
     type: String,
-    default: "",
+    default: '',
   },
   options: {
     type: Array as PropType<string[]>,
@@ -73,18 +81,18 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
 const emit = defineEmits<{
-  (eventName: "update:modelValue", value: string): void;
+  (eventName: 'update:modelValue', value: string): void;
 }>();
 
 const selected = computed({
   get: () => (props.modelValue ? props.modelValue : props.options[0]),
   set: (value: string) => {
-    emit("update:modelValue", value);
+    emit('update:modelValue', value);
   },
 });
 </script>

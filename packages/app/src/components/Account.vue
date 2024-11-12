@@ -3,36 +3,61 @@
     <Breadcrumbs :items="breadcrumbItems" />
     <SearchForm class="search-form" />
   </div>
-  <Title v-if="account?.address" :title="t('accountView.title')" :value="account?.address" />
+  <Title
+    v-if="account?.address"
+    :title="t('accountView.title')"
+    :value="account?.address"
+  />
   <Spinner v-else size="md" />
   <div class="tables-container">
     <div class="account-tables-container">
       <div>
-        <AccountTable class="account-table" :loading="pending" :account="account" />
+        <AccountTable
+          class="account-table"
+          :loading="pending"
+          :account="account"
+        />
       </div>
       <div>
-        <BalanceTable class="balance-table" :loading="pending" :balances="account?.balances">
+        <BalanceTable
+          class="balance-table"
+          :loading="pending"
+          :balances="account?.balances"
+        >
           <template #not-found>
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img v-if="authorized" src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
-                  <img v-else src="/images/empty-state/unauthorized_balance.svg" alt="unauthorized_balance" />
+                  <img
+                    v-if="authorized"
+                    src="/images/empty-state/empty_balance.svg"
+                    alt="empty_balance"
+                  />
+                  <img
+                    v-else
+                    src="/images/empty-state/unauthorized_balance.svg"
+                    alt="unauthorized_balance"
+                  />
                 </div>
               </template>
               <template #title>
                 <div :class="{ 'balances-unauthorized-title': !authorized }">
                   {{
-                    authorized ? t("accountView.balances.notFound.title") : t("accountView.balances.unauthorized.title")
+                    authorized
+                      ? t('accountView.balances.notFound.title')
+                      : t('accountView.balances.unauthorized.title')
                   }}
                 </div>
               </template>
               <template #description>
-                <div class="balances-empty-description" :class="{ 'balances-unauthorized-description': !authorized }">
+                <div
+                  class="balances-empty-description"
+                  :class="{ 'balances-unauthorized-description': !authorized }"
+                >
                   {{
                     authorized
-                      ? t("accountView.balances.notFound.subtitle")
-                      : t("accountView.balances.unauthorized.subtitle")
+                      ? t('accountView.balances.notFound.subtitle')
+                      : t('accountView.balances.unauthorized.subtitle')
                   }}
                 </div>
               </template>
@@ -42,14 +67,19 @@
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img src="/images/empty-state/error_balance.svg" alt="empty_balance" />
+                  <img
+                    src="/images/empty-state/error_balance.svg"
+                    alt="empty_balance"
+                  />
                 </div>
               </template>
               <template #title>
-                {{ t("accountView.balances.error.title") }}
+                {{ t('accountView.balances.error.title') }}
               </template>
               <template #description>
-                <div class="balances-empty-description">{{ t("accountView.balances.error.subtitle") }}</div>
+                <div class="balances-empty-description">
+                  {{ t('accountView.balances.error.subtitle') }}
+                </div>
               </template>
             </EmptyState>
           </template>
@@ -61,12 +91,15 @@
       <div class="warning-icon">
         <IconError class="icon" color="#a16207" />
       </div>
-      <p>{{ t("accountView.visibilityWarning") }}</p>
+      <p>{{ t('accountView.visibilityWarning') }}</p>
     </div>
 
     <Tabs v-if="account?.address && !pending" class="account-tabs" :tabs="tabs">
       <template #tab-1-content>
-        <TransactionsTable class="transactions-table" :search-params="transactionsSearchParams">
+        <TransactionsTable
+          class="transactions-table"
+          :search-params="transactionsSearchParams"
+        >
           <template #not-found>
             <TransactionEmptyState />
           </template>
@@ -79,26 +112,27 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import SearchForm from "@/components/SearchForm.vue";
-import AccountTable from "@/components/account/InfoTable.vue";
-import TransactionEmptyState from "@/components/account/TransactionEmptyState.vue";
-import BalanceTable from "@/components/balances/Table.vue";
-import Breadcrumbs from "@/components/common/Breadcrumbs.vue";
-import EmptyState from "@/components/common/EmptyState.vue";
-import Spinner from "@/components/common/Spinner.vue";
-import Tabs from "@/components/common/Tabs.vue";
-import Title from "@/components/common/Title.vue";
-import TransactionsTable from "@/components/transactions/Table.vue";
-import TransfersTable from "@/components/transfers/Table.vue";
+import IconError from './icons/IconError.vue';
 
-import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
-import type { Account } from "@/composables/useAddress";
+import SearchForm from '@/components/SearchForm.vue';
+import AccountTable from '@/components/account/InfoTable.vue';
+import TransactionEmptyState from '@/components/account/TransactionEmptyState.vue';
+import BalanceTable from '@/components/balances/Table.vue';
+import Breadcrumbs from '@/components/common/Breadcrumbs.vue';
+import EmptyState from '@/components/common/EmptyState.vue';
+import Spinner from '@/components/common/Spinner.vue';
+import Tabs from '@/components/common/Tabs.vue';
+import Title from '@/components/common/Title.vue';
+import TransactionsTable from '@/components/transactions/Table.vue';
+import TransfersTable from '@/components/transfers/Table.vue';
 
-import { shortValue } from "@/utils/formatters";
-import IconError from "./icons/IconError.vue";
+import type { BreadcrumbItem } from '@/components/common/Breadcrumbs.vue';
+import type { Account } from '@/composables/useAddress';
+
+import { shortValue } from '@/utils/formatters';
 
 const props = defineProps({
   account: {
@@ -123,15 +157,15 @@ const props = defineProps({
 const { t } = useI18n();
 
 const tabs = computed(() => [
-  { title: t("tabs.transactions"), hash: "#transactions" },
-  { title: t("tabs.transfers"), hash: "#transfers" },
+  { title: t('tabs.transactions'), hash: '#transactions' },
+  { title: t('tabs.transfers'), hash: '#transfers' },
 ]);
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   if (props.account?.address) {
     return [
-      { to: { name: "home" }, text: t("breadcrumbs.home") },
+      { to: { name: 'home' }, text: t('breadcrumbs.home') },
       {
-        text: `${t("accountView.accountNumber")}${shortValue(props.account?.address)}`,
+        text: `${t('accountView.accountNumber')}${shortValue(props.account?.address)}`,
       },
     ];
   }

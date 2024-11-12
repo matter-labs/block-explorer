@@ -24,8 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
 
 defineProps({
   size: {

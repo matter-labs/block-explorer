@@ -4,7 +4,7 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <h1>{{ t("transactionsView.title") }}</h1>
+    <h1>{{ t('transactionsView.title') }}</h1>
     <TransactionsTable
       class="transactions-container"
       use-query-pagination
@@ -14,10 +14,10 @@
       <template #not-found>
         <TransactionEmptyState>
           <template #title>
-            {{ t("transactions.table.notFound") }}
+            {{ t('transactions.table.notFound') }}
           </template>
           <template #description>
-            {{ t("transactions.table.notFound") }}
+            {{ t('transactions.table.notFound') }}
           </template>
         </TransactionEmptyState>
       </template>
@@ -25,24 +25,27 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import SearchForm from "@/components/SearchForm.vue";
-import Breadcrumbs, { type BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
-import TransactionsTable from "@/components/transactions/Table.vue";
-import useContext from "@/composables/useContext";
-import TransactionEmptyState from "@/components/transactions/TransactionEmptyState.vue";
+import SearchForm from '@/components/SearchForm.vue';
+import Breadcrumbs, {
+  type BreadcrumbItem,
+} from '@/components/common/Breadcrumbs.vue';
+import TransactionsTable from '@/components/transactions/Table.vue';
+import TransactionEmptyState from '@/components/transactions/TransactionEmptyState.vue';
+
+import useContext from '@/composables/useContext';
 
 const { t } = useI18n();
 
 const breadcrumbItems = computed((): BreadcrumbItem[] => [
   {
-    text: t("breadcrumbs.home"),
-    to: { name: "home" },
+    text: t('breadcrumbs.home'),
+    to: { name: 'home' },
   },
   {
-    text: `${t("transactionsView.title")}`,
+    text: `${t('transactionsView.title')}`,
   },
 ]);
 

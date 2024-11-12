@@ -1,8 +1,8 @@
-import elements from "../../tests/e2e/testId.json";
+import elements from '../../tests/e2e/testId.json';
 
-import type { App } from "vue";
+import type { App } from 'vue';
 
-declare module "vue" {
+declare module 'vue' {
   interface ComponentCustomProperties {
     $testId: typeof elements;
   }

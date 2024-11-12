@@ -1,7 +1,7 @@
-import CheckBoxInput from "./CheckBoxInput.vue";
+import CheckBoxInput from './CheckBoxInput.vue';
 
 export default {
-  title: "Common/CheckBoxInput",
+  title: 'Common/CheckBoxInput',
   component: CheckBoxInput,
 };
 

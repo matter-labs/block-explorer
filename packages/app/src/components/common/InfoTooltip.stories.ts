@@ -1,7 +1,7 @@
-import InfoTooltip from "./InfoTooltip.vue";
+import InfoTooltip from './InfoTooltip.vue';
 
 export default {
-  title: "Common/InfoTooltip",
+  title: 'Common/InfoTooltip',
   component: InfoTooltip,
 };
 
@@ -21,5 +21,5 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  defaultSlot: "Tooltip text",
+  defaultSlot: 'Tooltip text',
 };

@@ -1,22 +1,33 @@
 <template>
-  <h1 class="debugger-empty-state-title">{{ t("debuggerTool.title") }}</h1>
-  <p class="debugger-empty-state-description">{{ t("debuggerTool.whatFor") }}</p>
+  <h1 class="debugger-empty-state-title">{{ t('debuggerTool.title') }}</h1>
+  <p class="debugger-empty-state-description">
+    {{ t('debuggerTool.whatFor') }}
+  </p>
   <section class="debugger-empty-upload-file-wrapper">
-    <Alert class="error-alert" v-if="hasError">{{ t("debuggerTool.unableToParseTrace") }}</Alert>
-    <UploadFile v-slot="obj" class="upload-file" @update:value="upload" accept=".json">
+    <Alert class="error-alert" v-if="hasError">{{
+      t('debuggerTool.unableToParseTrace')
+    }}</Alert>
+    <UploadFile
+      v-slot="obj"
+      class="upload-file"
+      @update:value="upload"
+      accept=".json"
+    >
       <UploadIcon class="upload-file-icon" />
-      <label :for="obj.for" class="upload-file-label">{{ t("debuggerTool.uploadJSON") }}</label>
-      {{ t("debuggerTool.orDropHere") }}
+      <label :for="obj.for" class="upload-file-label">{{
+        t('debuggerTool.uploadJSON')
+      }}</label>
+      {{ t('debuggerTool.orDropHere') }}
     </UploadFile>
   </section>
 </template>
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import { UploadIcon } from "@heroicons/vue/outline";
+import { UploadIcon } from '@heroicons/vue/outline';
 
-import Alert from "@/components/common/Alert.vue";
-import UploadFile from "@/components/common/UploadFile.vue";
+import Alert from '@/components/common/Alert.vue';
+import UploadFile from '@/components/common/UploadFile.vue';
 
 const { t } = useI18n();
 
@@ -28,11 +39,11 @@ defineProps({
 });
 
 const emit = defineEmits<{
-  (e: "update:value", value: File[]): void;
+  (e: 'update:value', value: File[]): void;
 }>();
 
 const upload = (files: File[]) => {
-  emit("update:value", files);
+  emit('update:value', files);
 };
 </script>
 <style lang="scss" scoped>

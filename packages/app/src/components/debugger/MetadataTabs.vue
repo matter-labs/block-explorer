@@ -1,21 +1,40 @@
 <template>
   <div class="page-index-container">
     <Tabs class="metadata-tabs" :tabs="tabs" :has-route="false">
-      <template v-for="(data, i) in memoryData" :key="i" v-slot:[`tab-${i+1}-content`]>
+      <template
+        v-for="(data, i) in memoryData"
+        :key="i"
+        v-slot:[`tab-${i+1}-content`]
+      >
         <div class="memory-badge-wrap">
           <template
-            v-for="[address, value] in memoryAtFrame(file.steps, activeIndex,  data.type.toLowerCase() as MemoryType, data.index)"
+            v-for="[address, value] in memoryAtFrame(
+              file.steps,
+              activeIndex,
+              data.type.toLowerCase() as MemoryType,
+              data.index,
+            )"
             :key="address"
           >
             <div class="memory-badge-index-container">
-              <div class="memory-badge-index" :class="{ 'index-width': address.toString().length > 4 }">
+              <div
+                class="memory-badge-index"
+                :class="{ 'index-width': address.toString().length > 4 }"
+              >
                 {{ address }}
               </div>
             </div>
             <MemoryBadge
               :class="{ 'top-step': address.toString().length > 4 }"
               class="memory-badge-hash"
-              :memory-direction="getMemoryDirection(metadata.memory_interactions, data.type.toLowerCase() as MemoryType, data.index, address)"
+              :memory-direction="
+                getMemoryDirection(
+                  metadata.memory_interactions,
+                  data.type.toLowerCase() as MemoryType,
+                  data.index,
+                  address,
+                )
+              "
               :text="formatHexDecimals(value, dataFormat)"
               default-color="transparent"
             />
@@ -27,18 +46,22 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import Tabs from "@/components/common/Tabs.vue";
-import MemoryBadge from "@/components/debugger/MemoryBadge.vue";
+import Tabs from '@/components/common/Tabs.vue';
+import MemoryBadge from '@/components/debugger/MemoryBadge.vue';
 
-import { getMemoryDirection, type HexDecimals, memoryAtFrame } from "@/composables/useTrace";
+import {
+  getMemoryDirection,
+  type HexDecimals,
+  memoryAtFrame,
+} from '@/composables/useTrace';
 
-import type { MemoryType } from "@/components/debugger/MetadataBlock.vue";
-import type { TraceFile, TraceStep } from "@/composables/useTrace";
+import type { MemoryType } from '@/components/debugger/MetadataBlock.vue';
+import type { TraceFile, TraceStep } from '@/composables/useTrace';
 
-import { formatHexDecimals } from "@/utils/formatters";
+import { formatHexDecimals } from '@/utils/formatters';
 
 const props = defineProps({
   activeIndex: {
@@ -47,7 +70,7 @@ const props = defineProps({
   },
   typeTab: {
     type: String,
-    default: "",
+    default: '',
   },
   metadata: {
     type: Object as PropType<TraceStep>,
@@ -59,11 +82,11 @@ const props = defineProps({
   },
   address: {
     type: String,
-    default: "",
+    default: '',
   },
   dataFormat: {
     type: String as PropType<HexDecimals>,
-    default: "Hex",
+    default: 'Hex',
   },
 });
 
@@ -71,23 +94,23 @@ const { t } = useI18n();
 
 const memoryData = computed(() => [
   {
-    type: "stack",
+    type: 'stack',
     index: props.metadata.stack_page_index,
   },
   {
-    type: "heap",
+    type: 'heap',
     index: props.metadata.heap_page_index,
   },
   {
-    type: "code",
+    type: 'code',
     index: props.metadata.code_page_index,
   },
   {
-    type: "callData",
+    type: 'callData',
     index: props.metadata.calldata_page_index,
   },
   {
-    type: "returnData",
+    type: 'returnData',
     index: props.metadata.returndata_page_index,
   },
 ]);
@@ -98,7 +121,7 @@ const tabs = computed(() => [
     .map((data) => {
       return {
         title: `${t(`debuggerTool.metadataBlock.memoryPageIndex.${data.type}`)} ${
-          data.index ? `<span class="page-index">${data.index}</span>` : ""
+          data.index ? `<span class="page-index">${data.index}</span>` : ''
         }`,
         hash: `#${data.type.toLowerCase()}`,
       };

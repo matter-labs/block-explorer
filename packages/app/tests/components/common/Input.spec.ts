@@ -1,88 +1,90 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { fireEvent, render } from "@testing-library/vue";
+import { fireEvent, render } from '@testing-library/vue';
 
-import Input from "@/components/common/Input.vue";
+import Input from '@/components/common/Input.vue';
 
-describe("Input:", () => {
-  it("renders initial empty value", async () => {
+describe('Input:', () => {
+  it('renders initial empty value', async () => {
     const { container } = render(Input, {
       props: {
-        modelValue: "",
+        modelValue: '',
       },
     });
 
-    expect(container.querySelector("input")!.value).toEqual("");
+    expect(container.querySelector('input')!.value).toEqual('');
   });
 
-  it("renders initial value", async () => {
+  it('renders initial value', async () => {
     const { getByDisplayValue } = render(Input, {
       props: {
-        modelValue: "Input value",
+        modelValue: 'Input value',
       },
     });
 
-    expect(getByDisplayValue("Input value")).toBeTruthy();
+    expect(getByDisplayValue('Input value')).toBeTruthy();
   });
 
-  it("emits update:value when value updated", async () => {
+  it('emits update:value when value updated', async () => {
     const { container, emitted } = render(Input, {
       props: {
-        modelValue: "",
+        modelValue: '',
       },
     });
-    const input = container.querySelector("input")!;
+    const input = container.querySelector('input')!;
 
-    await fireEvent.update(input, "Input value");
-    expect(emitted()).toHaveProperty("update:modelValue", [["Input value"]]);
+    await fireEvent.update(input, 'Input value');
+    expect(emitted()).toHaveProperty('update:modelValue', [['Input value']]);
   });
 
-  it("input values is updated on value property update", async () => {
+  it('input values is updated on value property update', async () => {
     const { container, rerender } = render(Input, {
       props: {
-        modelValue: "",
+        modelValue: '',
       },
     });
 
-    expect(container.querySelector("input")!.value).toEqual("");
+    expect(container.querySelector('input')!.value).toEqual('');
 
     await rerender({
-      modelValue: "Input value",
+      modelValue: 'Input value',
     });
-    expect(container.querySelector("input")!.value).toEqual("Input value");
+    expect(container.querySelector('input')!.value).toEqual('Input value');
   });
 
-  it("disables input when disabled is true", async () => {
+  it('disables input when disabled is true', async () => {
     const { container } = render(Input, {
       props: {
-        modelValue: "",
+        modelValue: '',
       },
       attrs: {
         disabled: true,
       },
     });
 
-    expect(container.querySelector("input")!.hasAttribute("disabled")).toEqual(true);
+    expect(container.querySelector('input')!.hasAttribute('disabled')).toEqual(
+      true,
+    );
   });
 
-  it("error tooltip is hidden when no error was passed", async () => {
+  it('error tooltip is hidden when no error was passed', async () => {
     const { container } = render(Input, {
       props: {
-        modelValue: "",
+        modelValue: '',
       },
     });
-    expect(container.querySelector(".input-error-tooltip")).toBeFalsy();
+    expect(container.querySelector('.input-error-tooltip')).toBeFalsy();
   });
 
-  it("shows error tooltip and adds class when error prop is not empty", async () => {
+  it('shows error tooltip and adds class when error prop is not empty', async () => {
     const { container } = render(Input, {
       props: {
-        modelValue: "",
-        error: "Error test",
+        modelValue: '',
+        error: 'Error test',
       },
     });
 
-    expect(container.querySelector(".input-error-tooltip")).toBeTruthy();
-    expect(container.querySelector(".input.error")).toBeTruthy();
+    expect(container.querySelector('.input-error-tooltip')).toBeTruthy();
+    expect(container.querySelector('.input.error')).toBeTruthy();
   });
 });

@@ -1,7 +1,7 @@
 <template>
   <div class="card">
-    <div class="title">{{ t("estimatedCost.title") }}</div>
-    <div class="subtitle">{{ t("estimatedCost.subtitle") }}</div>
+    <div class="title">{{ t('estimatedCost.title') }}</div>
+    <div class="subtitle">{{ t('estimatedCost.subtitle') }}</div>
     <div class="costs">
       <div v-for="(cost, index) in costs" :key="`cost-${index}`" class="cost">
         <div>
@@ -9,7 +9,9 @@
           <Popover v-if="cost.description" class="popover-container">
             <PopoverButton>
               <span>?</span>
-              <PopoverPanel class="popover-panel">{{ cost.description }}</PopoverPanel>
+              <PopoverPanel class="popover-panel">{{
+                cost.description
+              }}</PopoverPanel>
             </PopoverButton>
           </Popover>
         </div>
@@ -28,13 +30,13 @@ export interface Cost {
 </script>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/vue";
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
-import { formatMoney } from "@/utils/formatters";
+import { formatMoney } from '@/utils/formatters';
 const { t } = useI18n();
 
 defineProps({

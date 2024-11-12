@@ -15,13 +15,26 @@
       leave-to-class="transform opacity-0 scale-95"
     >
       <MenuItems class="dropdown-items">
-        <MenuItem v-for="item in items" :key="item.to?.name ?? item.url" class="dropdown-item" v-slot="{ active }">
-          <router-link v-if="item.to" :to="item.to" :class="{ 'bg-neutral-100': active }">
+        <MenuItem
+          v-for="item in items"
+          :key="item.to?.name ?? item.url"
+          class="dropdown-item"
+          v-slot="{ active }"
+        >
+          <router-link
+            v-if="item.to"
+            :to="item.to"
+            :class="{ 'bg-neutral-100': active }"
+          >
             {{ item.label }}
           </router-link>
-          <a v-else-if="item.url" :href="item.url" target="_blank" :class="{ 'bg-neutral-100': active }">{{
-            item.label
-          }}</a>
+          <a
+            v-else-if="item.url"
+            :href="item.url"
+            target="_blank"
+            :class="{ 'bg-neutral-100': active }"
+            >{{ item.label }}</a
+          >
         </MenuItem>
       </MenuItems>
     </transition>
@@ -29,10 +42,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/vue";
-import { ChevronDownIcon } from "@heroicons/vue/outline";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue';
+import { ChevronDownIcon } from '@heroicons/vue/outline';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 type InternalNavigation = {
   label: string;
@@ -47,7 +60,7 @@ defineProps({
   },
   label: {
     type: String,
-    default: "",
+    default: '',
     required: true,
   },
 });

@@ -1,22 +1,30 @@
 <template>
   <div class="expandable-text" :class="{ expanded }">
-    <div class="expandable-text-content" :style="{ 'max-height': expanded ? 'inherit' : `${maxHeight}px` }">
+    <div
+      class="expandable-text-content"
+      :style="{ 'max-height': expanded ? 'inherit' : `${maxHeight}px` }"
+    >
       <div ref="el">
         <slot />
       </div>
     </div>
-    <button v-if="showButton" class="expand-button" type="button" @click="expanded = !expanded">
+    <button
+      v-if="showButton"
+      class="expand-button"
+      type="button"
+      @click="expanded = !expanded"
+    >
       <slot name="button" :expanded="expanded" />
     </button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { useResizeObserver } from "@vueuse/core";
+import { useResizeObserver } from '@vueuse/core';
 
-import type { MaybeElementRef } from "@vueuse/core";
+import type { MaybeElementRef } from '@vueuse/core';
 
 const props = defineProps({
   maxHeight: {

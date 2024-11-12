@@ -1,17 +1,20 @@
 <template>
-  <div class="spinner-icon" :class="[size, color, { 'is-outlined': outline }]"></div>
+  <div
+    class="spinner-icon"
+    :class="[size, color, { 'is-outlined': outline }]"
+  ></div>
 </template>
 <script lang="ts" setup>
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 defineProps({
   size: {
-    type: String as PropType<"xs" | "sm" | "md" | "lg">,
-    default: "sm",
+    type: String as PropType<'xs' | 'sm' | 'md' | 'lg'>,
+    default: 'sm',
   },
   color: {
-    type: String as PropType<"neutral" | "primary" | "dark-neutral">,
-    default: "neutral",
+    type: String as PropType<'neutral' | 'primary' | 'dark-neutral'>,
+    default: 'neutral',
   },
   outline: {
     type: Boolean,

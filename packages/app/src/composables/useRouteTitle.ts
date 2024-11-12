@@ -1,15 +1,15 @@
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
-import { shortValue } from "@/utils/formatters";
+import { shortValue } from '@/utils/formatters';
 
 export default () => {
   const route = useRoute();
   const { t } = useI18n();
 
   const title = computed(() => {
-    let param = "";
+    let param = '';
     if (!route.meta.title) {
       return;
     }
@@ -21,7 +21,7 @@ export default () => {
       param = shortValue(`${route.params.address}`);
     }
 
-    return `${t(route.meta.title as string)} ${param ? `${param} ` : ""}| ${t("document.title")}`;
+    return `${t(route.meta.title as string)} ${param ? `${param} ` : ''}| ${t('document.title')}`;
   });
 
   return {

@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { Dialog, TransitionChild, TransitionRoot } from "@headlessui/vue";
+import { Dialog, TransitionChild, TransitionRoot } from '@headlessui/vue';
 defineProps({
   opened: {
     type: Boolean,

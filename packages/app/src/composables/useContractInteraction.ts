@@ -1,15 +1,19 @@
-import { computed, ref } from "vue";
+import { computed, ref } from 'vue';
 
-import { Contract, parseEther } from "ethers";
-import { Provider } from "zksync-ethers";
+import { Contract, parseEther } from 'ethers';
+import { Provider } from 'zksync-ethers';
 
-import useContext from "@/composables/useContext";
-import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
+import useContext from '@/composables/useContext';
+import {
+  processException,
+  default as useWallet,
+  type WalletError,
+} from '@/composables/useWallet';
 
-import type { Signer } from "zksync-ethers";
-import type { AbiFragment } from "./useAddress";
+import type { AbiFragment } from './useAddress';
+import type { Signer } from 'zksync-ethers';
 
-export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
+export const PAYABLE_AMOUNT_PARAM_NAME = 'payable_function_payable_amount';
 
 export default (context = useContext()) => {
   const walletContext = {
@@ -26,16 +30,23 @@ export default (context = useContext()) => {
     getL2Provider: () => context.getL2Provider(),
   };
 
-  const { connect: connectWallet, getL2Signer, address: walletAddress, isMetamaskInstalled } = useWallet(walletContext);
+  const {
+    connect: connectWallet,
+    getL2Signer,
+    address: walletAddress,
+    isMetamaskInstalled,
+  } = useWallet(walletContext);
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
-  const response = ref<{ message?: string; transactionHash?: string } | undefined>(undefined);
+  const response = ref<
+    { message?: string; transactionHash?: string } | undefined
+  >(undefined);
   const errorMessage = ref<WalletError | null>(null);
 
   const writeFunction = async (
     address: string,
     abiFragment: AbiFragment,
-    params: Record<string, string | string[] | boolean | boolean[]>
+    params: Record<string, string | string[] | boolean | boolean[]>,
   ) => {
     try {
       isRequestPending.value = true;
@@ -48,27 +59,29 @@ export default (context = useContext()) => {
       const methodArguments = Object.entries(params)
         .filter(([key]) => key !== PAYABLE_AMOUNT_PARAM_NAME)
         .map(([, inputValue]) => {
-          if (inputValue === "true") {
+          if (inputValue === 'true') {
             inputValue = true;
-          } else if (inputValue === "false") {
+          } else if (inputValue === 'false') {
             inputValue = false;
           }
           return inputValue;
         });
       const valueMethodOption = {
-        value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
+        value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? '0'),
       };
       const res = await method(
         ...[
           ...(methodArguments.length ? methodArguments : []),
           {
             ...{ from: await signer.getAddress(), type: 0 },
-            ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
+            ...(abiFragment.stateMutability === 'payable'
+              ? valueMethodOption
+              : undefined),
           },
-        ].filter((e) => e !== undefined)
+        ].filter((e) => e !== undefined),
       ).catch(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e: any) => processException(e, "Please, try again later")
+        (e: any) => processException(e, 'Please, try again later'),
       );
       response.value = { transactionHash: res.hash };
     } catch (e) {
@@ -83,23 +96,27 @@ export default (context = useContext()) => {
   const readFunction = async (
     address: string,
     abiFragment: AbiFragment,
-    params: Record<string, string | string[] | boolean | boolean[]>
+    params: Record<string, string | string[] | boolean | boolean[]>,
   ) => {
     try {
       isRequestPending.value = true;
       isRequestFailed.value = false;
       response.value = undefined;
       errorMessage.value = null;
-      let signer: Provider | Signer = new Provider(context.currentNetwork.value.rpcUrl);
+      let signer: Provider | Signer = new Provider(
+        context.currentNetwork.value.rpcUrl,
+      );
       if (walletAddress.value !== null) {
         // If connected to a wallet, use the signer so 'msg.sender' is correctly populated downstream
         signer = await getL2Signer();
       }
       const contract = new Contract(address, [abiFragment], signer!);
       const res = (
-        await contract[abiFragment.name](...Object.entries(params).map(([, inputValue]) => inputValue)).catch(
+        await contract[abiFragment.name](
+          ...Object.entries(params).map(([, inputValue]) => inputValue),
+        ).catch(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (e: any) => processException(e, "Please, try again later")
+          (e: any) => processException(e, 'Please, try again later'),
         )
       )?.toString();
       response.value = { message: res };

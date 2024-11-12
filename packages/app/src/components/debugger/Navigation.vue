@@ -1,6 +1,9 @@
 <template>
   <nav class="navigation">
-    <div class="navigation-search-input-container" :data-hotkey="inputText ? '' : searchHotkey">
+    <div
+      class="navigation-search-input-container"
+      :data-hotkey="inputText ? '' : searchHotkey"
+    >
       <input
         type="text"
         ref="navInput"
@@ -23,7 +26,10 @@
         <LeftArrow />
       </button>
     </div>
-    <div class="navigation-active-step" :class="{ 'navigation-active-step-direction': index === null }">
+    <div
+      class="navigation-active-step"
+      :class="{ 'navigation-active-step-direction': index === null }"
+    >
       <div class="navigation-active-step-label-container">
         <form @submit.prevent="goTo">
           <input
@@ -36,14 +42,24 @@
           />
         </form>
         <span class="total">/ {{ total }}</span>
-        <button :data-testid="$testId.showInstructionMetadataButton" class="show-metadata-button" @click="showMetadata">
+        <button
+          :data-testid="$testId.showInstructionMetadataButton"
+          class="show-metadata-button"
+          @click="showMetadata"
+        >
           <InformationCircleIcon class="show-metadata-icon" />
         </button>
       </div>
-      <div class="navigation-active-step-hotkeys">{{ t("debuggerTool.executionStepNavigation") }}</div>
+      <div class="navigation-active-step-hotkeys">
+        {{ t('debuggerTool.executionStepNavigation') }}
+      </div>
     </div>
-    <button @click="first" class="start" :class="{ 'not-started': index === null }">
-      <span>{{ t("debuggerTool.start") }}</span>
+    <button
+      @click="first"
+      class="start"
+      :class="{ 'not-started': index === null }"
+    >
+      <span>{{ t('debuggerTool.start') }}</span>
       <LeftArrow class="arrow-right start-arrow" />
     </button>
     <div class="navigation-button-container">
@@ -56,7 +72,11 @@
       >
         <LeftArrow class="arrow-right" />
       </button>
-      <button @click="last" class="navigation-button" :disabled="index! + 1 >= total || index === null">
+      <button
+        @click="last"
+        class="navigation-button"
+        :disabled="index! + 1 >= total || index === null"
+      >
         <FirstArrow class="arrow-right" />
       </button>
     </div>
@@ -64,21 +84,21 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { InformationCircleIcon } from "@heroicons/vue/outline";
-import { useMagicKeys } from "@vueuse/core";
+import { InformationCircleIcon } from '@heroicons/vue/outline';
+import { useMagicKeys } from '@vueuse/core';
 
-import FirstArrow from "@/components/icons/FirstArrow.vue";
-import LeftArrow from "@/components/icons/LeftArrow.vue";
+import FirstArrow from '@/components/icons/FirstArrow.vue';
+import LeftArrow from '@/components/icons/LeftArrow.vue';
 
 const { t } = useI18n();
 
 const emit = defineEmits<{
-  (eventName: "nav:metadata"): void;
-  (eventName: "nav:goTo", value: number): void;
-  (eventName: "update:searchText", value: string | number | null): void;
+  (eventName: 'nav:metadata'): void;
+  (eventName: 'nav:goTo', value: number): void;
+  (eventName: 'update:searchText', value: string | number | null): void;
 }>();
 
 const props = defineProps({
@@ -92,32 +112,34 @@ const props = defineProps({
   },
   searchText: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
-const activeIndex = ref<string>("0");
+const activeIndex = ref<string>('0');
 
 function showMetadata() {
-  emit("nav:metadata");
+  emit('nav:metadata');
 }
 const previous = () => {
-  emit("nav:goTo", props.index! - 1);
+  emit('nav:goTo', props.index! - 1);
 };
 const next = () => {
-  emit("nav:goTo", props.index! + 1);
+  emit('nav:goTo', props.index! + 1);
 };
 const first = () => {
-  emit("nav:goTo", 0);
+  emit('nav:goTo', 0);
 };
 const last = () => {
-  emit("nav:goTo", props.total - 1);
+  emit('nav:goTo', props.total - 1);
 };
 
 const goTo = async () => {
-  +activeIndex.value > 0 && +activeIndex.value <= props.total && Number.isInteger(+activeIndex.value)
-    ? emit("nav:goTo", +activeIndex.value - 1)
-    : emit("nav:goTo", 0);
+  +activeIndex.value > 0 &&
+  +activeIndex.value <= props.total &&
+  Number.isInteger(+activeIndex.value)
+    ? emit('nav:goTo', +activeIndex.value - 1)
+    : emit('nav:goTo', 0);
   activeIndex.value = String(props.index! + 1);
 };
 
@@ -135,7 +157,10 @@ const navInput = ref<HTMLInputElement | null>(null);
 const { right, left } = useMagicKeys({
   passive: false,
   onEventFired(e) {
-    if (((e.metaKey && isMac.value) || (e.ctrlKey && !isMac.value)) && e.code === "KeyK") {
+    if (
+      ((e.metaKey && isMac.value) || (e.ctrlKey && !isMac.value)) &&
+      e.code === 'KeyK'
+    ) {
       e.preventDefault();
       navInput.value?.focus();
     }
@@ -145,16 +170,16 @@ const { right, left } = useMagicKeys({
 const inputText = computed({
   get: () => props.searchText,
   set: (value: string | number | null) => {
-    emit("update:searchText", value);
+    emit('update:searchText', value);
   },
 });
 
 const searchHotkey = computed(() => {
-  return isMac.value ? "Cmd + K" : "Ctrl + K";
+  return isMac.value ? 'Cmd + K' : 'Ctrl + K';
 });
 
 const isMac = computed(() => {
-  return navigator.userAgent.indexOf("Mac OS X") != -1;
+  return navigator.userAgent.indexOf('Mac OS X') != -1;
 });
 
 watch([left, right], ([leftValue, rightValue]) => {
@@ -173,7 +198,7 @@ watch(
   () => props.index,
   (newValue) => {
     activeIndex.value = ((newValue ?? 0) + 1).toString();
-  }
+  },
 );
 </script>
 

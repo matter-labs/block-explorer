@@ -1,28 +1,43 @@
 <template>
-  <router-link :to="{ name: 'transaction', params: { hash: item.transactionHash } }" class="transaction-hash">
+  <router-link
+    :to="{ name: 'transaction', params: { hash: item.transactionHash } }"
+    class="transaction-hash"
+  >
     <HashLabel :text="item.transactionHash" />
     <span class="only-desktop">{{ item.transactionHash }}</span>
   </router-link>
-  <EventTopics :topics="item.topics" :event="item.event" :popover-placement="popoverPlacement" />
+  <EventTopics
+    :topics="item.topics"
+    :event="item.event"
+    :popover-placement="popoverPlacement"
+  />
   <div class="data-row">
     <HashViewer
       :hash="item.data"
-      :default-type="getTypeFromEvent(item.event!, item.event ? item.event.inputs.length : 0)"
+      :default-type="
+        getTypeFromEvent(item.event!, item.event ? item.event.inputs.length : 0)
+      "
       :popover-placement="popoverPlacement"
       v-slot="{ data, selected }"
     >
       <div class="data-container">
         <span>
-          {{ t("contract.events.value") }}:
+          {{ t('contract.events.value') }}:
           <ExpandableText
             :max-height="360"
-            :class="{ 'smaller-width': selected === 'number' || selected === 'address' }"
+            :class="{
+              'smaller-width': selected === 'number' || selected === 'address',
+            }"
           >
             <template #default>
               {{ data }}
             </template>
             <template #button="{ expanded }">
-              {{ expanded ? t("contract.events.hide") : t("contract.events.showMore") }}
+              {{
+                expanded
+                  ? t('contract.events.hide')
+                  : t('contract.events.showMore')
+              }}
             </template>
           </ExpandableText>
         </span>
@@ -31,17 +46,17 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import ExpandableText from "@/components/common/ExpandableText.vue";
-import HashLabel from "@/components/common/HashLabel.vue";
-import EventTopics from "@/components/event/EventTopics.vue";
-import HashViewer from "@/components/transactions/infoTable/HashViewer.vue";
+import ExpandableText from '@/components/common/ExpandableText.vue';
+import HashLabel from '@/components/common/HashLabel.vue';
+import EventTopics from '@/components/event/EventTopics.vue';
+import HashViewer from '@/components/transactions/infoTable/HashViewer.vue';
 
-import type { TransactionLogEntry } from "@/composables/useEventLog";
-import type { PropType } from "vue";
+import type { TransactionLogEntry } from '@/composables/useEventLog';
+import type { PropType } from 'vue';
 
-import { getTypeFromEvent } from "@/utils/helpers";
+import { getTypeFromEvent } from '@/utils/helpers';
 
 const { t } = useI18n();
 
@@ -51,8 +66,8 @@ defineProps({
     required: true,
   },
   popoverPlacement: {
-    type: String as PropType<"top" | "bottom">,
-    default: "bottom",
+    type: String as PropType<'top' | 'bottom'>,
+    default: 'bottom',
   },
 });
 </script>

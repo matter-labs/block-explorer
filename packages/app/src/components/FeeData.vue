@@ -3,25 +3,39 @@
     <div class="fee-info-container">
       <TokenAmountPrice :token="token" :amount="feeData?.amountPaid" />
       <span class="payed-by-paymaster-label" v-if="feeData?.isPaidByPaymaster">
-        {{ t("transactions.table.paidByPaymaster") }}
+        {{ t('transactions.table.paidByPaymaster') }}
       </span>
-      <button v-if="showDetails" class="toggle-button" @click="collapsed = !collapsed" type="button">
+      <button
+        v-if="showDetails"
+        class="toggle-button"
+        @click="collapsed = !collapsed"
+        type="button"
+      >
         {{ buttonTitle }}
       </button>
     </div>
     <div class="details-container" v-if="collapsed">
       <div class="details-data-container">
-        <div class="details-title">{{ t("transactions.table.feeDetails.initial") }}</div>
+        <div class="details-title">
+          {{ t('transactions.table.feeDetails.initial') }}
+        </div>
         <TokenAmountPrice :token="token" :amount="initialFee!" />
       </div>
       <div class="details-data-container">
-        <div class="details-title">{{ t("transactions.table.feeDetails.refunded") }}</div>
+        <div class="details-title">
+          {{ t('transactions.table.feeDetails.refunded') }}
+        </div>
         <TokenAmountPrice :token="token" :amount="feeData?.amountRefunded" />
       </div>
       <div class="fee-transfers-container">
-        <div class="details-title">{{ t("transactions.table.feeDetails.refunds") }}</div>
+        <div class="details-title">
+          {{ t('transactions.table.feeDetails.refunds') }}
+        </div>
         <div v-for="(transfer, index) in feeData?.refunds" :key="index">
-          <TransferTableCell :transfer="transfer" :paymaster-address="feeData?.paymasterAddress" />
+          <TransferTableCell
+            :transfer="transfer"
+            :paymaster-address="feeData?.paymasterAddress"
+          />
         </div>
       </div>
       <div>
@@ -32,8 +46,8 @@
           >{{
             t(
               feeData?.isPaidByPaymaster
-                ? "transactions.table.feeDetails.whyPaymasterRefunded"
-                : "transactions.table.feeDetails.whyRefunded"
+                ? 'transactions.table.feeDetails.whyPaymasterRefunded'
+                : 'transactions.table.feeDetails.whyRefunded',
             )
           }}</a
         >
@@ -42,26 +56,26 @@
           class="paymaster-link"
           href="https://docs.zksync.io/build/developer-reference/account-abstraction.html#paymasters"
           target="_blank"
-          >{{ t("transactions.table.feeDetails.whatIsPaymaster") }}</a
+          >{{ t('transactions.table.feeDetails.whatIsPaymaster') }}</a
         >
       </div>
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
-import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
+import TokenAmountPrice from '@/components/TokenAmountPrice.vue';
+import TransferTableCell from '@/components/transactions/infoTable/TransferTableCell.vue';
 
-import useContext from "@/composables/useContext";
-import useToken from "@/composables/useToken";
+import useContext from '@/composables/useContext';
+import useToken from '@/composables/useToken';
 
-import type { Token } from "@/composables/useToken";
-import type { FeeData } from "@/composables/useTransaction";
+import type { Token } from '@/composables/useToken';
+import type { FeeData } from '@/composables/useTransaction';
 
-import { numberToHexString } from "@/utils/formatters";
+import { numberToHexString } from '@/utils/formatters';
 
 const { currentNetwork } = useContext();
 
@@ -80,13 +94,17 @@ const { t } = useI18n();
 const { getTokenInfo, tokenInfo } = useToken();
 const collapsed = ref(false);
 const buttonTitle = computed(() =>
-  collapsed.value ? t("transactions.table.feeDetails.closeDetails") : t("transactions.table.feeDetails.moreDetails")
+  collapsed.value
+    ? t('transactions.table.feeDetails.closeDetails')
+    : t('transactions.table.feeDetails.moreDetails'),
 );
 getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const initialFee = computed(() => {
   if (props.feeData) {
-    return numberToHexString(BigInt(props.feeData.amountPaid) + BigInt(props.feeData.amountRefunded));
+    return numberToHexString(
+      BigInt(props.feeData.amountPaid) + BigInt(props.feeData.amountRefunded),
+    );
   }
   return null;
 });

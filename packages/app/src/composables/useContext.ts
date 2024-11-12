@@ -1,19 +1,21 @@
-import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
+import { computed, type ComputedRef, type Ref, ref, watch } from 'vue';
 
-import { useStorage } from "@vueuse/core";
-import { Provider } from "zksync-ethers";
+import { useStorage } from '@vueuse/core';
+import { Provider } from 'zksync-ethers';
 
-import useEnvironmentConfig from "./useEnvironmentConfig";
-import { DEFAULT_NETWORK } from "./useRuntimeConfig";
+import useEnvironmentConfig from './useEnvironmentConfig';
+import { DEFAULT_NETWORK } from './useRuntimeConfig';
 
-import type { NetworkConfig } from "@/configs";
+import type { NetworkConfig } from '@/configs';
 
-import { checksumAddress } from "@/utils/formatters";
-import { getWindowLocation } from "@/utils/helpers";
+import { checksumAddress } from '@/utils/formatters';
+import { getWindowLocation } from '@/utils/helpers';
 
-export type UserContext = { address: string; loggedIn: true } | { loggedIn: false };
+export type UserContext =
+  | { address: string; loggedIn: true }
+  | { loggedIn: false };
 
-const network = useStorage("selectedNetwork_v2", DEFAULT_NETWORK.name);
+const network = useStorage('selectedNetwork_v2', DEFAULT_NETWORK.name);
 const isReady = ref(false);
 const user = ref<UserContext>({ loggedIn: false });
 
@@ -32,21 +34,33 @@ export default (): Context => {
 
   const networks = computed<NetworkConfig[]>(() => {
     const configuredNetworks =
-      Array.isArray(environmentConfig.networks.value) && environmentConfig.networks.value.length
+      Array.isArray(environmentConfig.networks.value) &&
+      environmentConfig.networks.value.length
         ? environmentConfig.networks.value
         : [DEFAULT_NETWORK];
-    configuredNetworks.forEach((network) => (network.baseTokenAddress = checksumAddress(network.baseTokenAddress)));
+    configuredNetworks.forEach(
+      (network) =>
+        (network.baseTokenAddress = checksumAddress(network.baseTokenAddress)),
+    );
     return configuredNetworks;
   });
   const currentNetwork = computed(() => {
     return (
-      networks.value.find((networkEntry) => networkEntry.name === network.value) ?? networks.value[0] ?? DEFAULT_NETWORK
+      networks.value.find(
+        (networkEntry) => networkEntry.name === network.value,
+      ) ??
+      networks.value[0] ??
+      DEFAULT_NETWORK
     );
   });
 
   function identifyNetwork() {
-    const networkFromQueryParam = new URLSearchParams(getWindowLocation().search).get("network");
-    const networkOnDomain = networks.value.find((e) => e.hostnames.includes(getWindowLocation().origin));
+    const networkFromQueryParam = new URLSearchParams(
+      getWindowLocation().search,
+    ).get('network');
+    const networkOnDomain = networks.value.find((e) =>
+      e.hostnames.includes(getWindowLocation().origin),
+    );
     const defaultNetwork = networks.value[0] ?? DEFAULT_NETWORK;
     if (networkFromQueryParam) {
       network.value = networkFromQueryParam;

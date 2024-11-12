@@ -1,7 +1,7 @@
-import Alert from "./Alert.vue";
+import Alert from './Alert.vue';
 
 export default {
-  title: "Common/Alert",
+  title: 'Common/Alert',
   component: Alert,
 };
 
@@ -21,12 +21,12 @@ const Template = (args: Args) => ({
 
 export const WarningAlert = Template.bind({}) as unknown as { args: Args };
 WarningAlert.args = {
-  type: "warning",
-  slotText: "Warning alert",
+  type: 'warning',
+  slotText: 'Warning alert',
 };
 
 export const ErrorAlert = Template.bind({}) as unknown as { args: Args };
 ErrorAlert.args = {
-  type: "error",
-  slotText: "Error alert",
+  type: 'error',
+  slotText: 'Error alert',
 };

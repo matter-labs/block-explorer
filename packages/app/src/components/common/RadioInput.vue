@@ -1,6 +1,16 @@
 <template>
-  <label class="radio-input-container" :class="{ checked: value === inputted, disabled }">
-    <input class="sr-only" type="radio" :disabled="disabled" :value="value" v-bind="$attrs" v-model="inputted" />
+  <label
+    class="radio-input-container"
+    :class="{ checked: value === inputted, disabled }"
+  >
+    <input
+      class="sr-only"
+      type="radio"
+      :disabled="disabled"
+      :value="value"
+      v-bind="$attrs"
+      v-model="inputted"
+    />
     <div class="radio-handle">
       <div class="radio-handle-dot"></div>
     </div>
@@ -17,7 +27,7 @@ export default {
 </script>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed } from 'vue';
 
 const props = defineProps({
   modelValue: {
@@ -35,13 +45,13 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (eventName: "update:modelValue", value: unknown): void;
+  (eventName: 'update:modelValue', value: unknown): void;
 }>();
 
 const inputted = computed({
   get: () => props.modelValue,
   set: (value: unknown) => {
-    emit("update:modelValue", value);
+    emit('update:modelValue', value);
   },
 });
 </script>
@@ -50,7 +60,7 @@ const inputted = computed({
 .radio-input-container {
   @apply flex cursor-pointer items-center transition-opacity;
 
-  input[type="radio"]:focus ~ .radio-handle {
+  input[type='radio']:focus ~ .radio-handle {
     @apply ring-2 ring-primary-600;
   }
   &:not(.checked):not(.disabled):hover {

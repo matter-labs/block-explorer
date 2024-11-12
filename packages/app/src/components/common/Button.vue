@@ -1,39 +1,45 @@
 <template>
-  <component class="button" :is="tag" :type="type" :class="[variant, color, size]" v-bind="$attrs">
+  <component
+    class="button"
+    :is="tag"
+    :type="type"
+    :class="[variant, color, size]"
+    v-bind="$attrs"
+  >
     <LoadingIcon v-if="loading === true" />
     <slot />
   </component>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent } from 'vue';
 
-import LoadingIcon from "@/components/icons/LoadingIcon.vue";
+import LoadingIcon from '@/components/icons/LoadingIcon.vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 export default defineComponent({
   inheritAttrs: false,
   props: {
     tag: {
       type: String,
-      default: "button",
+      default: 'button',
     },
     color: {
-      type: String as PropType<"primary" | "secondary">,
-      default: "primary",
+      type: String as PropType<'primary' | 'secondary'>,
+      default: 'primary',
     },
     size: {
-      type: String as PropType<"md" | "lg" | "sm">,
-      default: "md",
+      type: String as PropType<'md' | 'lg' | 'sm'>,
+      default: 'md',
     },
     variant: {
-      type: String as PropType<"contained" | "outlined">,
-      default: "contained",
+      type: String as PropType<'contained' | 'outlined'>,
+      default: 'contained',
     },
     type: {
       type: String,
-      default: "button",
+      default: 'button',
     },
     loading: {
       type: Boolean,

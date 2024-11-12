@@ -6,21 +6,21 @@
       <InformationCircleIcon class="nonce-info-icon" />
 
       <template #content>
-        <span class="text-xs">{{ t("transactions.table.sendersNonce") }}</span>
+        <span class="text-xs">{{ t('transactions.table.sendersNonce') }}</span>
       </template>
     </Tooltip>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import { InformationCircleIcon } from "@heroicons/vue/outline";
+import { InformationCircleIcon } from '@heroicons/vue/outline';
 
-import Tooltip from "@/components/common/Tooltip.vue";
+import Tooltip from '@/components/common/Tooltip.vue';
 
-import type { Direction } from "@/components/transactions/TransactionDirectionTableCell.vue";
-import type { PropType } from "vue";
+import type { Direction } from '@/components/transactions/TransactionDirectionTableCell.vue';
+import type { PropType } from 'vue';
 
 const { t } = useI18n();
 
@@ -35,7 +35,7 @@ defineProps({
   },
   direction: {
     type: String as PropType<Direction>,
-    default: "out",
+    default: 'out',
   },
 });
 </script>

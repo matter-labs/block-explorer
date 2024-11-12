@@ -1,7 +1,9 @@
-import EstimatedCostOfTransfers, { type Cost } from "./EstimatedCostOfTransfers.vue";
+import EstimatedCostOfTransfers, {
+  type Cost,
+} from './EstimatedCostOfTransfers.vue';
 
 export default {
-  title: "components/EstimatedCostOfTransfers",
+  title: 'components/EstimatedCostOfTransfers',
   component: EstimatedCostOfTransfers,
 };
 
@@ -11,20 +13,20 @@ type Args = {
 
 const costs: Cost[] = [
   {
-    label: "Activation Fee",
+    label: 'Activation Fee',
     value: 44.5,
-    description: "Description",
+    description: 'Description',
   },
   {
-    label: "Transfer",
+    label: 'Transfer',
     value: 0.76,
   },
   {
-    label: "MintNFT",
+    label: 'MintNFT',
     value: 25,
   },
   {
-    label: "Withdraw",
+    label: 'Withdraw',
     value: 63,
   },
 ];
