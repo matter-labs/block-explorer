@@ -13,7 +13,7 @@ has to be provided in the `DATABASE_URL` environment variable.
 Migration can be executed doing.
 
 ``` shell
-yarn db:push
+yarn db:migrate
 ```
 
 If the schema changes migrations can be created running

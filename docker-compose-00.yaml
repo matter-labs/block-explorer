@@ -28,7 +28,7 @@ services:
     build:
       context: .
       dockerfile: ./packages/private-rpc/Dockerfile
-    command: sh -c "yarn db:push"
+    command: sh -c "yarn db:migrate"
     depends_on:
       db-private-rpc:
         condition: service_healthy
