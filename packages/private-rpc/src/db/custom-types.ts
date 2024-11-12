@@ -1,11 +1,7 @@
+import { addressSchema } from '@/schemas/address';
+import { hexSchema } from '@/schemas/hex';
 import { customType } from 'drizzle-orm/pg-core';
-import type { Hex } from 'viem';
-import { z } from 'zod';
-
-export const hexSchema = z
-  .string()
-  .regex(/^0x[0-9a-fA-F]*$/)
-  .transform((hex) => hex as Hex);
+import { Address, Hex } from 'viem';
 
 export const hexRow = customType<{
   data: Hex;
@@ -24,5 +20,23 @@ export const hexRow = customType<{
   fromDriver(val) {
     const hex = `0x${val.toString('hex')}`;
     return hexSchema.parse(hex);
+  },
+});
+
+export const addressRow = customType<{
+  data: Address;
+  driverData: Buffer;
+}>({
+  dataType() {
+    return 'bytea';
+  },
+  toDriver(val) {
+    const parsed = addressSchema.parse(val);
+    const hex = parsed.slice(2);
+    return Buffer.from(hex, 'hex');
+  },
+  fromDriver(val) {
+    const address = `0x${val.toString('hex')}`;
+    return addressSchema.parse(address);
   },
 });

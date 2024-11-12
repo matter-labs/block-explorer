@@ -1,7 +1,8 @@
 import { z } from 'zod';
-import { hexSchema } from '@/db/hex-row';
+import { hexSchema } from '@/schemas/hex';
 import { Group } from '@/permissions/group';
 import { Authorizer } from '@/permissions/authorizer';
+import { addressSchema } from '@/schemas/address';
 import { Address, Hex, toFunctionSelector } from 'viem';
 import {
   AccessRule,
@@ -13,8 +14,8 @@ import {
 const PUBLIC_LITERAL = '*';
 const methodSchema = z
   .object({
-    selector: z.optional(hexSchema),
-    signature: z.optional(z.string()),
+    selector: hexSchema.optional(),
+    signature: z.string().optional(),
     read: z.union([z.literal(PUBLIC_LITERAL), z.array(z.string())]),
     write: z.union([z.literal(PUBLIC_LITERAL), z.array(z.string())]),
   })
@@ -25,13 +26,13 @@ const yamlSchema = z.object({
   groups: z.array(
     z.object({
       name: z.string(),
-      members: z.array(hexSchema),
+      members: z.array(addressSchema),
     }),
   ),
 
   contracts: z.array(
     z.object({
-      address: hexSchema,
+      address: addressSchema,
       methods: z.array(methodSchema),
     }),
   ),
