@@ -1,3 +1,4 @@
+name: 'double-zero-local'
 services:
   app:
     build:

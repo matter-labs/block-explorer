@@ -1,4 +1,4 @@
-name: 'double-zero-validium'
+name: 'double-zero-proxy'
 services:
   app:
     build:
