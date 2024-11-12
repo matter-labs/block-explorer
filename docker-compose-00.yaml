@@ -16,14 +16,14 @@ services:
       context: .
       dockerfile: ./packages/proxy/Dockerfile
     ports:
-      - "3020:3020"
+      - "4040:4040"
     environment:
-      SERVER_PORT: 3020
+      SERVER_PORT: 4040
       BLOCK_EXPLORER_API_URL: ${BLOCK_EXPLORER_API_URL}
       SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
-      CORS_ORIGIN: "localhost:3010"
+      CORS_ORIGIN: "http://localhost:3010"
       RPC_URL: ${TARGET_RPC}
-      USER_TOKEN_URL: http://private-rpc:3022/users
+      USER_TOKEN_URL: http://private-rpc:4041/users
 
   private-rpc-migrate:
     platform: linux/x86_64
@@ -48,9 +48,9 @@ services:
       private-rpc-migrate:
         condition: service_completed_successfully
     ports:
-      - '3022:3022'
+      - '4041:4041'
     environment:
-      PORT: "3022"
+      PORT: "4041"
       DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
       TARGET_RPC: ${TARGET_RPC}
 

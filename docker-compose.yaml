@@ -69,9 +69,9 @@ services:
     depends_on:
       - api
     ports:
-      - "3020:3020"
+      - "4040:4040"
     environment:
-      SERVER_PORT: 3020
+      SERVER_PORT: 4040
       BLOCK_EXPLORER_API_URL: http://api:3021
       SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
       CORS_ORIGIN: "localhost:3010"

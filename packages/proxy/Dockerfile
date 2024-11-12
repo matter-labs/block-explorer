@@ -28,8 +28,8 @@ COPY yarn.lock .
 # Install only prod dependencies
 RUN yarn install --production=true
 
-ENV SERVER_PORT="3020"
-
+ENV SERVER_PORT="4040"
+EXPOSE $SERVER_PORT
 WORKDIR /app/packages/proxy
 
 CMD [ "node", "dist/index.js" ]

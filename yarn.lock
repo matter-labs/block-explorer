@@ -2354,7 +2354,7 @@
 
 "@fastify/cors@^10.0.1":
   version "10.0.1"
-  resolved "https://registry.npmjs.org/@fastify/cors/-/cors-10.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/@fastify/cors/-/cors-10.0.1.tgz#c208fa5f672db31a8383400349e9852762903d64"
   integrity sha512-O8JIf6448uQbOgzSkCqhClw6gFTAqrdfeA6R3fc/3gwTJGUp7gl8/3tbNB+6INuu4RmgVOq99BmvdGbtu5pgOA==
   dependencies:
     fastify-plugin "^5.0.0"
@@ -4096,7 +4096,7 @@
 
 "@rushstack/eslint-patch@^1.1.0":
   version "1.10.4"
-  resolved "https://registry.npmjs.org/@rushstack/eslint-patch/-/eslint-patch-1.10.4.tgz"
+  resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.10.4.tgz#427d5549943a9c6fce808e39ea64dbe60d4047f1"
   integrity sha512-WJgX9nzTqknM393q1QJDJmoW28kUfEnybeTfVNcNAPnIx210RXm2DiXiHzfNPJNIUUb1tJnz/l4QGtJ30PgWmA==
 
 "@scure/base@~1.1.7", "@scure/base@~1.1.8":
@@ -11188,7 +11188,7 @@ eth-rpc-errors@^4.0.2:
   dependencies:
     fast-safe-stringify "^2.0.6"
 
-ethers@6.13.4:
+ethers@6.13.4, ethers@^6.13.4:
   version "6.13.4"
   resolved "https://registry.npmjs.org/ethers/-/ethers-6.13.4.tgz"
   integrity sha512-21YtnZVg4/zKkCQPjrDj38B1r4nQvTZLopUGMLQ1ePU2zV/joCfDC3t3iKQjWRzjjjbzR+mdAIoikeBRNkdllA==
