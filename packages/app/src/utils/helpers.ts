@@ -71,7 +71,7 @@ export function getTypeFromEvent(event: TransactionEvent, index: number) {
 }
 
 export function isArrayFunctionType(type: string) {
-  return !!type.match(/(.*)\[(.*)\]/);
+  return !!type.match(/(.*)\[(.*)]/);
 }
 export function getRawFunctionType(type: string) {
   const arrayMatch = type.match(/(.*)\[(.*)\]/);
