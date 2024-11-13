@@ -10,6 +10,7 @@ import type { NetworkConfig } from "@/configs";
 
 import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
+import { rpcUrl } from "./useRpcToken";
 
 export type UserContext = { address: string; loggedIn: true } | { loggedIn: false };
 
@@ -69,7 +70,7 @@ export default (): Context => {
 
   function getL2Provider() {
     if (!l2Provider) {
-      l2Provider = new Provider(currentNetwork.value.rpcUrl);
+      l2Provider = new Provider(rpcUrl.value ?? "");
     }
     return l2Provider;
   }

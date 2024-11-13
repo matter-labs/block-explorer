@@ -1,35 +1,20 @@
-import { ExternalRpcError, PasstroughError } from '@/errors';
-import { JSONLike } from '@/rpc/rpc-service';
+import { JsonRpcRequest, request } from './json-rpc';
 
-export async function delegateCall(
-  url: string,
-  method: string,
-  params: unknown[] = [],
-  id: number | string,
-): Promise<JSONLike> {
-  const res = await fetch(url, {
+export async function delegateCall({
+  url,
+  id,
+  method,
+  params,
+}: {
+  url: string;
+  id: JsonRpcRequest['id'];
+  method: JsonRpcRequest['method'];
+  params: JsonRpcRequest['params'];
+}) {
+  const response = await fetch(url, {
     method: 'POST',
-    body: JSON.stringify({ jsonrpc: '2.0', id, method, params }),
+    body: JSON.stringify(request({ id, method, params })),
+    headers: { 'Content-Type': 'application/json' },
   });
-
-  if (!res.ok) {
-    const errorBody = await res.json();
-    throw new ExternalRpcError(
-      errorBody?.error?.code,
-      errorBody?.error?.message,
-      errorBody?.error?.data,
-    );
-  }
-
-  const body = await res.json();
-
-  if (body.error) {
-    throw new PasstroughError(body.error);
-  }
-
-  if (body.result === undefined) {
-    throw new ExternalRpcError(-32000, 'Error', undefined);
-  }
-
-  return body?.result;
+  return response.body;
 }

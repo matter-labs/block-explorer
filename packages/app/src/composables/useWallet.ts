@@ -54,6 +54,8 @@ export function processException(e: any, message: string): never {
     throw WalletError.JsonRpcError(e?.data?.data?.message?.length ? e.data.data.message : e.message);
   } else if (e?.code === "SERVER_ERROR") {
     throw WalletError.InternalServerError();
+  } else if (e?.code === "CALL_EXCEPTION" && e?.info?.error?.data?.code === -32090) {
+    throw WalletError.UnauthorizedError();
   }
   throw WalletError.UnknownError(e?.message?.length ? e.message : message);
 }
@@ -300,6 +302,10 @@ export class WalletError extends Error {
 
   static TransactionError(message: string, code: string) {
     return new WalletError(message, code);
+  }
+
+  static UnauthorizedError(message = "Unauthorized") {
+    return new WalletError(message, "unauthorized");
   }
 
   static UnknownError(message = "Unknown error occurred") {

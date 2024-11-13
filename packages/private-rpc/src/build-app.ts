@@ -5,9 +5,9 @@ import {
   ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { DB } from '@/db';
-import { usersRoutes } from '@/routes/users-routes';
-import { rpcRoutes } from '@/routes/rpc-routes';
 import { Authorizer } from '@/permissions/authorizer';
+import { rpcRoutes } from '@/routes/rpc-routes';
+import { usersRoutes } from '@/routes/users-routes';
 import cors from '@fastify/cors';
 
 export function buildApp(
@@ -15,10 +15,16 @@ export function buildApp(
   db: DB,
   targetRpc: string,
   authorizer: Authorizer,
+  corsOrigin: string[],
 ) {
   const app = Fastify({
     logger: produceLogs,
   }).withTypeProvider<ZodTypeProvider>();
+
+  app.register(cors, {
+    origin: corsOrigin,
+    credentials: true,
+  });
 
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);

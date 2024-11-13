@@ -1,18 +1,9 @@
-import { ExternalRpcError, PasstroughError } from '@/errors';
 import { z } from 'zod';
 import { Address } from 'viem';
-import { delegateCall } from '@/rpc/delegate-call';
 import { Authorizer } from '@/permissions/authorizer';
-
-export type JSONLike =
-  | {
-      [key: string]: JSONLike;
-    }
-  | string
-  | number
-  | null
-  | boolean
-  | JSONLike[];
+import { FastifyReplyType } from 'fastify/types/type-provider';
+import { delegateCall } from './delegate-call';
+import { errorResponse, invalidRequest } from './json-rpc';
 
 const rpcReqSchema = z.object({
   id: z.union([z.number(), z.string()]),
@@ -20,22 +11,6 @@ const rpcReqSchema = z.object({
   method: z.string(),
   params: z.array(z.any()),
 });
-
-type RpcResponse =
-  | {
-      jsonrpc: '2.0';
-      id: number | string;
-      result: JSONLike;
-    }
-  | {
-      jsonrpc: '2.0';
-      id: number | string | null;
-      error: {
-        code: number;
-        message: string;
-        data?: unknown;
-      };
-    };
 
 export type RequestContext = {
   authorizer: Authorizer;
@@ -51,7 +26,7 @@ export interface MethodHandler {
     method: string,
     params: unknown[],
     id: number | string,
-  ): Promise<JSONLike>;
+  ): Promise<FastifyReplyType>;
 }
 
 function hasProperty<T, P extends string>(
@@ -65,7 +40,7 @@ function getErrorCode(err: unknown) {
   if (hasProperty(err, 'code') && typeof err.code === 'number') {
     return err.code;
   }
-  return -32000;
+  return -32603;
 }
 
 function getErrorMessage(err: unknown) {
@@ -100,52 +75,24 @@ export class RpcCallHandler {
     );
   }
 
-  async handle(rawBody: unknown): Promise<RpcResponse> {
+  async handle(rawBody: unknown): Promise<FastifyReplyType> {
     const parsed = rpcReqSchema.safeParse(rawBody);
     if (parsed.error) {
-      return {
-        jsonrpc: '2.0',
-        id: null,
-        error: { code: -32600, message: 'Invalid Request' },
-      };
+      return invalidRequest(null);
     }
 
     try {
       const { method, params, id } = parsed.data;
-      return {
-        jsonrpc: '2.0',
-        id: parsed.data.id,
-        result: await this.tryCall(method, params, id),
-      };
+      return await this.tryCall(method, params, id);
     } catch (e) {
-      if (e instanceof PasstroughError) {
-        return {
-          jsonrpc: '2.0',
-          id: parsed.data.id,
-          error: e.error as any,
-        };
-      }
-      if (e instanceof ExternalRpcError) {
-        return {
-          jsonrpc: '2.0',
-          id: parsed.data.id,
-          error: {
-            code: e.getErrorCode(),
-            message: e.getErrorMessage(),
-            data: e.getErrorData(),
-          },
-        };
-      } else {
-        return {
-          jsonrpc: '2.0',
-          id: parsed.data.id,
-          error: {
-            code: getErrorCode(e),
-            message: getErrorMessage(e),
-            data: getErrorData(e),
-          },
-        };
-      }
+      return errorResponse({
+        id: parsed.data.id,
+        error: {
+          code: getErrorCode(e),
+          message: getErrorMessage(e),
+          data: getErrorData(e),
+        },
+      });
     }
   }
 
@@ -153,16 +100,16 @@ export class RpcCallHandler {
     method: string,
     params: unknown[],
     id: number | string,
-  ): Promise<JSONLike> {
+  ) {
     const handler = this.handlers[method] || this.defaultHandler();
     return handler.handle(this.context, method, params, id);
   }
 
   private defaultHandler(): MethodHandler {
     return {
-      name: '',
+      name: 'default-handler',
       handle: (context, method, params, id) =>
-        delegateCall(context.targetRpcUrl, method, params, id),
+        delegateCall({ url: context.targetRpcUrl, id, method, params }),
     };
   }
 }

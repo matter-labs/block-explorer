@@ -21,3 +21,10 @@ contracts:
           - "admins"
         write:
           - "admins"
+  - address: "0x4D91F0eC1670315052ef2bFc0189B4cA82f8F221"
+    methods:
+      - signature: "function getNumber() public view returns (uint256)"
+        read:
+          - "users"
+        write:
+          - "users"
