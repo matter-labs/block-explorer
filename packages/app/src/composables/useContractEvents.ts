@@ -1,15 +1,15 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from 'ohmyfetch';
 
-import useContext from "@/composables/useContext";
+import useContext from '@/composables/useContext';
 
-import type { AbiFragment } from "@/composables/useAddress";
-import type { TransactionLogEntry } from "@/composables/useEventLog";
-import type { Address } from "@/types";
+import type { AbiFragment } from '@/composables/useAddress';
+import type { TransactionLogEntry } from '@/composables/useEventLog';
+import type { Address } from '@/types';
 
-import { checksumAddress } from "@/utils/formatters";
-import { decodeLogWithABI } from "@/utils/helpers";
+import { checksumAddress } from '@/utils/formatters';
+import { decodeLogWithABI } from '@/utils/helpers';
 
 export type EventsQueryParams = {
   contractAddress: Address;
@@ -35,23 +35,32 @@ export default (context = useContext()) => {
   const collection = ref<TransactionLogEntry[]>([]);
   const total = ref<number>(0);
 
-  const getCollection = async (params: EventsQueryParams, abi?: AbiFragment[]) => {
+  const getCollection = async (
+    params: EventsQueryParams,
+    abi?: AbiFragment[],
+  ) => {
     isRequestPending.value = true;
     isRequestFailed.value = false;
 
     try {
-      const url = new URL(`/address/${params.contractAddress}/logs`, context.currentNetwork.value.apiUrl);
+      const url = new URL(
+        `/address/${params.contractAddress}/logs`,
+        context.currentNetwork.value.apiUrl,
+      );
       if (params.toDate && +new Date(params.toDate) > 0) {
-        url.searchParams.set("toDate", params.toDate.toISOString());
+        url.searchParams.set('toDate', params.toDate.toISOString());
       }
       if (params.page > 0) {
-        url.searchParams.set("page", params.page.toString());
+        url.searchParams.set('page', params.page.toString());
       }
       if (params.pageSize > 0) {
-        url.searchParams.set("limit", params.pageSize.toString());
+        url.searchParams.set('limit', params.pageSize.toString());
       }
 
-      const response = await $fetch<Api.Response.Collection<Log>>(url.toString(), { credentials: "include" });
+      const response = await $fetch<Api.Response.Collection<Log>>(
+        url.toString(),
+        { credentials: 'include' },
+      );
 
       collection.value = response.items.map((e) => {
         const item: TransactionLogEntry = {
