@@ -56,7 +56,7 @@ is by providing the local ip of the host machine. In linux you can do this
 by running
 
 ``` shell
-ifconfig wlan0 | grep "inet "
+ifconfig wlan0 | grep "inet " | grep -Fv 127.0.0.1 | awk '{print $2}'
 ```
 
 Or in mac:
