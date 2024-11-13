@@ -1,5 +1,7 @@
-import { Authorizer } from '@/permissions/authorizer';
 import { readFileSync } from 'node:fs';
 
-const buf = readFileSync('./example-permissions.yaml');
+import { env } from '@/env';
+import { Authorizer } from '@/permissions/authorizer';
+
+const buf = readFileSync(env.PERMISSIONS_YAML_PATH);
 export const authorizer = Authorizer.fromBuffer(buf);

@@ -87,11 +87,12 @@ services:
     environment:
       DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
 
-
   private-rpc:
     build:
       context: .
       dockerfile: ./packages/private-rpc/Dockerfile
+    volumes:
+      - ./local-permissions.yaml:/app/permissions.yaml
     depends_on:
       db-private-rpc:
         condition: service_healthy
@@ -105,6 +106,8 @@ services:
       PORT: '3022'
       DATABASE_URL: 'postgres://postgres:postgres@db-private-rpc:5432/private-rpc'
       TARGET_RPC: 'http://zksync:3050'
+      PERMISSIONS_YAML_PATH: "/app/permissions.yaml"
+      CORS_ORIGIN: 'http://localhost:3010'
 
   postgres:
     image: "postgres:14"
