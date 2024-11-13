@@ -1,0 +1,138 @@
+name: 'double-zero-app'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./packages/app/Dockerfile
+    ports:
+      - '3010:3010'
+    depends_on:
+      - proxy
+    restart: unless-stopped
+
+  data-fetcher:
+    build:
+      context: .
+      dockerfile: ./packages/data-fetcher/Dockerfile
+    environment:
+      PORT: "3040"
+      LOG_LEVEL: "verbose"
+      BLOCKCHAIN_RPC_URL: ${TARGET_RPC}
+    ports:
+      - '3040:3040'
+    restart: on-failure
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./packages/worker/Dockerfile
+    environment:
+      PORT: "3001"
+      LOG_LEVEL: "verbose"
+      DATABASE_HOST: "explorer-db"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: "postgres"
+      DATABASE_NAME: "block-explorer"
+      BLOCKCHAIN_RPC_URL: ${TARGET_RPC}
+      DATA_FETCHER_URL: "http://data-fetcher:3040"
+      BATCHES_PROCESSING_POLLING_INTERVAL: "1000"
+    depends_on:
+      data-fetcher:
+        condition: service_started
+      explorer-db:
+        condition: service_healthy
+    restart: on-failure
+
+  api:
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
+    environment:
+      PORT: "3021"
+      METRICS_PORT: "3005"
+      LOG_LEVEL: "verbose"
+      DATABASE_URL: "postgres://postgres:postgres@explorer-db:5432/block-explorer"
+    depends_on:
+      - worker
+    restart: unless-stopped
+
+  proxy:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./packages/proxy/Dockerfile
+    ports:
+      - "4040:4040"
+    environment:
+      SERVER_PORT: 4040
+      BLOCK_EXPLORER_API_URL: http://api:3021
+      SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
+      CORS_ORIGIN: "http://localhost:3010"
+      RPC_URL: ${TARGET_RPC}
+      USER_TOKEN_URL: http://private-rpc:4041/users
+
+  private-rpc-migrate:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    command: sh -c "yarn db:push"
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
+
+  private-rpc:
+    platform: linux/x86_64
+    build:
+      context: .
+      dockerfile: ./packages/private-rpc/Dockerfile
+    depends_on:
+      db-private-rpc:
+        condition: service_healthy
+      private-rpc-migrate:
+        condition: service_completed_successfully
+    ports:
+      - '4041:4041'
+    environment:
+      PORT: "4041"
+      DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
+      TARGET_RPC: ${TARGET_RPC}
+
+  db-private-rpc:
+    image: "postgres:14"
+    logging:
+      driver: none
+    volumes:
+      - db-private-rpc:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=private-rpc
+
+  explorer-db:
+    image: "postgres:14"
+    logging:
+      driver: none
+    volumes:
+      - explorer-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "block-explorer"
+
+
+volumes:
+  db-private-rpc:
+  explorer-db:
