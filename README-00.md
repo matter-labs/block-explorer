@@ -15,7 +15,7 @@ This is a configuration that spawns a local
 eth node and a local zksync node and indexes everything from those local chains.
 
 ``` shell
-docker compose -f compose-local.yaml up
+docker compose -f docker-compose.yaml up
 ```
 
 Navigating to [http://localhost:3010](http://localhost:3010) will show the explorer.
@@ -50,8 +50,27 @@ configuration needed is a rpc for the chain.
 TARGET_RPC="http://my-private-rpc:4444"
 ```
 
+In case that you are running a local validium chain, the easiest way to
+connect the docker containers with the chain running in the host machine
+is by providing the local ip of the host machine. In linux you can do this
+by running
+
+``` shell
+ifconfig wlan0 | grep "inet "
+```
+
+Or in mac:
+
+``` shell
+ipconfig getifaddr en0
+```
+
+Then, the ip can be combined with the port of the local rpc. The final
+address is something like `http://{my-ip}:{port}`.
+
 Once the configuration it's in place the services can be started like this:
 
 ``` shell
 docker compose -f compose-00.yaml up 
 ```
+
