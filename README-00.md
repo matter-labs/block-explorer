@@ -20,6 +20,8 @@ docker compose -f docker-compose.yaml up
 
 Navigating to [http://localhost:3010](http://localhost:3010) will show the explorer.
 
+Permissions can be configured editing [this](./local-permissions.yaml) file. 
+
  
 ### Proxy mode
 
@@ -40,6 +42,8 @@ Once the configuration is in place, the services can be started using:
 docker compose -f compose-proxy.yaml up
 ```
 
+Permissions can be configured editing [this](./proxy-permissions.yaml) file.
+
 ### Double Zero mode
 
 This configuration is meant to target a private validium chain. The only
@@ -49,6 +53,8 @@ configuration needed is a rpc for the chain.
 # validium.env
 TARGET_RPC="http://my-private-rpc:4444"
 ```
+
+Permissions can be configured editing [this](./validium-permissions.yaml) file.
 
 In case that you are running a local validium chain, the easiest way to
 connect the docker containers with the chain running in the host machine
