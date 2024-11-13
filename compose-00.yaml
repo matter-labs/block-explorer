@@ -88,6 +88,8 @@ services:
     build:
       context: .
       dockerfile: ./packages/private-rpc/Dockerfile
+    volumes:
+      - ./validium-permissions.yaml:/app/permissions.yaml
     depends_on:
       db-private-rpc:
         condition: service_healthy
@@ -99,6 +101,8 @@ services:
       PORT: "4041"
       DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
       TARGET_RPC: ${TARGET_RPC}
+      PERMISSIONS_YAML_PATH: "/app/permissions.yaml"
+      CORS_ORIGIN: ${CORS_ORIGIN}
 
   db-private-rpc:
     image: "postgres:14"
