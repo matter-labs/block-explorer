@@ -1,11 +1,11 @@
 import closeWithGrace from 'close-with-grace';
 
-import { buildApp } from './build-app';
-import { env } from './env';
 import { db } from '@/db';
 import { authorizer } from '@/permissions';
+import { buildApp } from './build-app';
+import { env } from './env';
 
-const app = buildApp(true, db, env.TARGET_RPC, authorizer);
+const app = buildApp(true, db, env.TARGET_RPC, authorizer, env.CORS_ORIGIN);
 
 closeWithGrace(async ({ signal, err }) => {
   if (err) {

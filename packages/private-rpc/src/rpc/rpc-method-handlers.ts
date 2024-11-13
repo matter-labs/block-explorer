@@ -1,4 +1,4 @@
-import { JSONLike, MethodHandler, RequestContext } from '@/rpc/rpc-service';
+import { MethodHandler } from '@/rpc/rpc-service';
 import {
   Hex,
   isAddressEqual,
@@ -7,8 +7,9 @@ import {
 } from 'viem';
 import { z } from 'zod';
 import { hexSchema } from '@/schemas/hex';
-import { delegateCall } from '@/rpc/delegate-call';
 import { addressSchema } from '@/schemas/address';
+import { invalidRequest, response, unauthorized } from './json-rpc';
+import { delegateCall } from './delegate-call';
 
 function extractSelector(calldata: Hex): Hex {
   return calldata.substring(0, 10) as Hex;
@@ -23,31 +24,16 @@ const callReqSchema = z
   })
   .passthrough();
 
-const blockVarianteSchema = z.union([
-  hexSchema,
-  z.literal('earliest'),
-  z.literal('latest'),
-  z.literal('safe'),
-  z.literal('finalized'),
-  z.literal('pending'),
-]);
-
 const eth_call: MethodHandler = {
   name: 'eth_call',
-  async handle(
-    context: RequestContext,
-    method: string,
-    params: unknown[],
-    id: number | string,
-  ): Promise<JSONLike> {
+  async handle(context, method, params, id) {
     const call = callReqSchema.parse(params[0]);
-    const blockVariant = blockVarianteSchema.optional().parse(params[1]);
 
     if (
       call.from === undefined ||
       !isAddressEqual(call.from, context.currentUser)
     ) {
-      throw new Error('Wrong caller');
+      return unauthorized(id);
     }
 
     const data = call.data || call.input;
@@ -59,38 +45,23 @@ const eth_call: MethodHandler = {
         context.currentUser,
       )
     ) {
-      throw new Error('Unhautorized');
+      return unauthorized(id);
     }
 
-    return await delegateCall(
-      context.targetRpcUrl,
-      method,
-      [call, blockVariant],
-      id,
-    );
+    return delegateCall({ url: context.targetRpcUrl, id, method, params });
   },
 };
 
-const whoAmI = {
+const whoAmI: MethodHandler = {
   name: 'who_am_i',
-  async handle(
-    context: RequestContext,
-    _method: string,
-    _params: unknown[],
-    _id: number | string,
-  ) {
-    return context.currentUser;
+  async handle(context, _method, _params, id) {
+    return response({ id, result: context.currentUser });
   },
 };
 
-const zks_sendRawTransactionWithDetailedOutput = {
+const zks_sendRawTransactionWithDetailedOutput: MethodHandler = {
   name: 'zks_sendRawTransactionWithDetailedOutput',
-  async handle(
-    context: RequestContext,
-    method: string,
-    params: unknown[],
-    id: number | string,
-  ) {
+  async handle(context, method, params, id) {
     const rawTx = hexSchema.parse(params[0]);
     const tx = parseTransaction(rawTx);
     const address = await recoverTransactionAddress({
@@ -98,11 +69,11 @@ const zks_sendRawTransactionWithDetailedOutput = {
     });
 
     if (!isAddressEqual(address, context.currentUser)) {
-      throw new Error('Wrong caller');
+      return unauthorized(id, 'Cannot impersonate other users');
     }
 
     if (!tx.to) {
-      throw new Error('no target');
+      return invalidRequest(id);
     }
 
     if (
@@ -113,14 +84,19 @@ const zks_sendRawTransactionWithDetailedOutput = {
         context.currentUser,
       )
     ) {
-      throw new Error('Unauthorized');
+      return unauthorized(id);
     }
 
-    return delegateCall(context.targetRpcUrl, method, [rawTx], id);
+    return delegateCall({
+      url: context.targetRpcUrl,
+      id,
+      method,
+      params: [rawTx],
+    });
   },
 };
 
-const eth_sendRawTransaction = {
+const eth_sendRawTransaction: MethodHandler = {
   ...zks_sendRawTransactionWithDetailedOutput,
   name: 'eth_sendRawTransaction',
 };

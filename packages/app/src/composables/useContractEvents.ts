@@ -51,7 +51,7 @@ export default (context = useContext()) => {
         url.searchParams.set("limit", params.pageSize.toString());
       }
 
-      const response = await $fetch<Api.Response.Collection<Log>>(url.toString());
+      const response = await $fetch<Api.Response.Collection<Log>>(url.toString(), { credentials: "include" });
 
       collection.value = response.items.map((e) => {
         const item: TransactionLogEntry = {
