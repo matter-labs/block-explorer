@@ -23,8 +23,8 @@ Navigating to [http://localhost:3010](http://localhost:3010) will show the explo
  
 ### Proxy mode
 
-This configuration does not rust the worker to index  explorer data. 
-Instead it hits a explorer api URL provided via configuration.
+This configuration leverages existing block explorer infrastructure instead of running all indexing components locally.
+It connects to an established explorer API URL provided via configuration.
 
 It can be configured changing the file `proxy.env`. For example, this
 is the configuration to proxy to mainnet:
