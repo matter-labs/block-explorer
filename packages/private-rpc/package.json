@@ -19,7 +19,7 @@
     "ci:prepare": "run-s check:fix typecheck",
     "test": "vitest run",
     "db:push": "drizzle-kit push",
-    "db:migrage": "drizzle-kit migrate",
+    "db:migrate": "drizzle-kit migrate",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
