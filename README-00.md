@@ -68,7 +68,7 @@ ipconfig getifaddr en0
 Then, the ip can be combined with the port of the local rpc. The final
 address is something like `http://{my-ip}:{port}`.
 
-Once the configuration it's in place the services can be started like this:
+Once the configuration is in place the services can be started like this:
 
 ``` shell
 docker compose -f compose-00.yaml up 
