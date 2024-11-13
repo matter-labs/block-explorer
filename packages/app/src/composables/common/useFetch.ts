@@ -1,6 +1,6 @@
-import { computed, type ComputedRef, ref, type Ref } from "vue";
+import { computed, type ComputedRef, ref, type Ref } from 'vue';
 
-import { $fetch } from "ohmyfetch";
+import { $fetch } from 'ohmyfetch';
 
 export type UseFetch<T> = {
   pending: ComputedRef<boolean>;
@@ -11,7 +11,9 @@ export type UseFetch<T> = {
   fetch: (...params: string[]) => Promise<void>;
 };
 
-export function useFetch<T>(getRequestUrl: (...params: string[]) => URL): UseFetch<T> {
+export function useFetch<T>(
+  getRequestUrl: (...params: string[]) => URL,
+): UseFetch<T> {
   const item = ref<T | null>(null) as Ref<T | null>;
 
   const pending = ref(false);
@@ -25,7 +27,7 @@ export function useFetch<T>(getRequestUrl: (...params: string[]) => URL): UseFet
       const response = await $fetch<T>(getRequestUrl(...params).toString());
 
       item.value = response;
-    } catch (error) {
+    } catch (_error) {
       failed.value = true;
       item.value = null;
     } finally {

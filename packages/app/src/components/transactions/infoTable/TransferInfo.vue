@@ -4,7 +4,7 @@
     <PaymasterLabel v-if="isPaymaster" />
     <TransactionNetworkSquareBlock :network="network" />
     <AddressLink v-if="network !== 'L1'" :address="address" class="address">
-      <span>{{ shortenFitText(address, "left") }}</span>
+      <span>{{ shortenFitText(address, 'left') }}</span>
     </AddressLink>
     <template v-else>
       <a
@@ -13,25 +13,25 @@
         target="_blank"
         :href="`${currentNetwork.l1ExplorerUrl}/address/${address}`"
       >
-        <span>{{ shortenFitText(address, "left") }}</span>
+        <span>{{ shortenFitText(address, 'left') }}</span>
       </a>
-      <span class="address" v-else>{{ shortenFitText(address, "left") }}</span>
+      <span class="address" v-else>{{ shortenFitText(address, 'left') }}</span>
     </template>
     <CopyButton :value="address" class="copy-btn" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import AddressLink from "@/components/AddressLink.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import { shortenFitText } from "@/components/common/HashLabel.vue";
-import PaymasterLabel from "@/components/transactions/PaymasterLabel.vue";
-import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import { shortenFitText } from '@/components/common/HashLabel.vue';
+import PaymasterLabel from '@/components/transactions/PaymasterLabel.vue';
+import TransactionNetworkSquareBlock from '@/components/transactions/TransactionNetworkSquareBlock.vue';
 
-import useContext from "@/composables/useContext";
+import useContext from '@/composables/useContext';
 
-import type { Hash, NetworkOrigin } from "@/types";
-import type { PropType } from "vue";
+import type { Hash, NetworkOrigin } from '@/types';
+import type { PropType } from 'vue';
 defineProps({
   label: {
     type: String,
@@ -44,7 +44,7 @@ defineProps({
   network: {
     type: String as PropType<NetworkOrigin>,
     required: true,
-    default: "L1",
+    default: 'L1',
   },
   isPaymaster: {
     type: Boolean,

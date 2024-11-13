@@ -1,7 +1,7 @@
-import SearchField from "./SearchField.vue";
+import SearchField from './SearchField.vue';
 
 export default {
-  title: "Common/SearchField",
+  title: 'Common/SearchField',
   component: SearchField,
 };
 
@@ -24,20 +24,22 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  label: "",
-  value: "",
-  placeholder: "Search by batch number, tx hash, state root hash, account address",
+  label: '',
+  value: '',
+  placeholder:
+    'Search by batch number, tx hash, state root hash, account address',
   disabled: false,
   pending: false,
-  error: "",
+  error: '',
 };
 
 export const WithLabel = Template.bind({}) as unknown as { args: Args };
 WithLabel.args = {
-  label: "Label",
-  value: "",
-  placeholder: "Search by batch number, tx hash, state root hash, account address",
+  label: 'Label',
+  value: '',
+  placeholder:
+    'Search by batch number, tx hash, state root hash, account address',
   disabled: false,
   pending: false,
-  error: "",
+  error: '',
 };

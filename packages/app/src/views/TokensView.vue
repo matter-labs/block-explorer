@@ -5,15 +5,17 @@
       <SearchForm class="search-form" />
     </div>
     <div class="tokens-header">
-      <h1>{{ t("tokensView.heading") }}</h1>
+      <h1>{{ t('tokensView.heading') }}</h1>
       <div v-if="tokens[0]?.iconURL" class="coingecko-attribution">
-        <span>{{ t("tokensView.offChainDataPoweredBy") }}{{ " " }}</span>
-        <a href="https://www.coingecko.com/en/api" target="_blank">CoinGecko API</a>
+        <span>{{ t('tokensView.offChainDataPoweredBy') }}{{ ' ' }}</span>
+        <a href="https://www.coingecko.com/en/api" target="_blank"
+          >CoinGecko API</a
+        >
       </div>
     </div>
     <div class="tokens-container">
       <span v-if="isTokensFailed" class="error-message">
-        {{ t("failedRequest") }}
+        {{ t('failedRequest') }}
       </span>
       <TokenTable :tokens="tokens" :loading="isTokensPending"></TokenTable>
     </div>
@@ -21,25 +23,32 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import SearchForm from "@/components/SearchForm.vue";
-import Breadcrumbs, { type BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
-import TokenTable from "@/components/token/TokenListTable.vue";
+import SearchForm from '@/components/SearchForm.vue';
+import Breadcrumbs, {
+  type BreadcrumbItem,
+} from '@/components/common/Breadcrumbs.vue';
+import TokenTable from '@/components/token/TokenListTable.vue';
 
-import useTokenLibrary from "@/composables/useTokenLibrary";
+import useTokenLibrary from '@/composables/useTokenLibrary';
 
-const { tokens, isRequestPending: isTokensPending, isRequestFailed: isTokensFailed, getTokens } = useTokenLibrary();
+const {
+  tokens,
+  isRequestPending: isTokensPending,
+  isRequestFailed: isTokensFailed,
+  getTokens,
+} = useTokenLibrary();
 
 const { t } = useI18n();
 const breadcrumbItems = computed((): BreadcrumbItem[] => [
   {
-    text: t("breadcrumbs.home"),
-    to: { name: "home" },
+    text: t('breadcrumbs.home'),
+    to: { name: 'home' },
   },
   {
-    text: `${t("tokensView.title")}`,
+    text: `${t('tokensView.title')}`,
   },
 ]);
 

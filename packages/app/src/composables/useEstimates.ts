@@ -1,4 +1,4 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
 export interface Cost {
   label: string;
@@ -18,24 +18,24 @@ export default () => {
 
       costs.value = await [
         {
-          label: "Activation Fee",
+          label: 'Activation Fee',
           value: 44.5,
-          description: "Description",
+          description: 'Description',
         },
         {
-          label: "Transfer",
+          label: 'Transfer',
           value: 0.76,
         },
         {
-          label: "MintNFT",
+          label: 'MintNFT',
           value: 25,
         },
         {
-          label: "Withdraw",
+          label: 'Withdraw',
           value: 63,
         },
       ];
-    } catch (error) {
+    } catch (_error) {
       isRequestFailed.value = true;
       costs.value = null;
     } finally {

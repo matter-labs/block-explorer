@@ -2,7 +2,13 @@
   <footer>
     <div class="footer-container">
       <div class="links-container">
-        <a v-for="item in navigation" :key="item.label" :href="item.url" target="_blank" rel="noopener">
+        <a
+          v-for="item in navigation"
+          :key="item.label"
+          :href="item.url"
+          target="_blank"
+          rel="noopener"
+        >
           {{ item.label }}
         </a>
       </div>
@@ -14,25 +20,25 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import useRuntimeConfig from "@/composables/useRuntimeConfig";
+import useRuntimeConfig from '@/composables/useRuntimeConfig';
 const { t } = useI18n();
 const config = useRuntimeConfig();
 
 const navigation = reactive([
   {
-    label: computed(() => t("footer.nav.docs")),
-    url: "https://docs.zksync.io/build/tooling/zksync-block-explorers",
+    label: computed(() => t('footer.nav.docs')),
+    url: 'https://docs.zksync.io/build/tooling/zksync-block-explorers',
   },
   {
-    label: computed(() => t("footer.nav.terms")),
-    url: "https://zksync.io/terms",
+    label: computed(() => t('footer.nav.terms')),
+    url: 'https://zksync.io/terms',
   },
   {
-    label: computed(() => t("footer.nav.contact")),
-    url: "https://zksync.io/contact",
+    label: computed(() => t('footer.nav.contact')),
+    url: 'https://zksync.io/contact',
   },
 ]);
 </script>

@@ -1,6 +1,10 @@
 <template>
   <div class="alert-container" :class="type">
-    <QuestionMarkCircleIcon v-if="type === 'notification'" class="info-tooltip-icon" aria-hidden="true" />
+    <QuestionMarkCircleIcon
+      v-if="type === 'notification'"
+      class="info-tooltip-icon"
+      aria-hidden="true"
+    />
     <IconError v-else class="icon" :color="iconColor" />
     <div class="alert-body">
       <slot />
@@ -9,23 +13,23 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed } from 'vue';
 
-import { QuestionMarkCircleIcon } from "@heroicons/vue/outline";
+import { QuestionMarkCircleIcon } from '@heroicons/vue/outline';
 
-import IconError from "@/components/icons/IconError.vue";
+import IconError from '@/components/icons/IconError.vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 const props = defineProps({
   type: {
-    type: String as PropType<"warning" | "error" | "notification">,
-    default: "warning",
+    type: String as PropType<'warning' | 'error' | 'notification'>,
+    default: 'warning',
   },
 });
 
 const iconColor = computed(() => {
-  return props.type === "warning" ? "#E69900" : "#f87171";
+  return props.type === 'warning' ? '#E69900' : '#f87171';
 });
 </script>
 

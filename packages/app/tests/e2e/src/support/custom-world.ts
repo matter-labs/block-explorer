@@ -1,9 +1,13 @@
-import { setWorldConstructor, World } from "@cucumber/cucumber";
+import { setWorldConstructor, World } from '@cucumber/cucumber';
 
-import type { IWorldOptions } from "@cucumber/cucumber";
-import type * as messages from "@cucumber/messages";
-import type { BrowserContext, Page, PlaywrightTestOptions } from "@playwright/test";
-import type { AxiosInstance } from "axios";
+import type { IWorldOptions } from '@cucumber/cucumber';
+import type * as messages from '@cucumber/messages';
+import type {
+  BrowserContext,
+  Page,
+  PlaywrightTestOptions,
+} from '@playwright/test';
+import type { AxiosInstance } from 'axios';
 
 export interface ICustomWorld extends World {
   debug: boolean;

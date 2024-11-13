@@ -1,9 +1,9 @@
 import TransactionDirectionTableCell, {
   type Direction,
-} from "@/components/transactions/TransactionDirectionTableCell.vue";
+} from '@/components/transactions/TransactionDirectionTableCell.vue';
 
 export default {
-  title: "Transactions/TransactionDirectionTableCell",
+  title: 'Transactions/TransactionDirectionTableCell',
   component: TransactionDirectionTableCell,
 };
 
@@ -23,15 +23,15 @@ const Template = (args: Args) => ({
 
 export const InLabel = Template.bind({}) as unknown as { args: Args };
 InLabel.args = {
-  text: "in",
+  text: 'in',
 };
 
 export const OutLabel = Template.bind({}) as unknown as { args: Args };
 OutLabel.args = {
-  text: "out",
+  text: 'out',
 };
 
 export const SelfLabel = Template.bind({}) as unknown as { args: Args };
 SelfLabel.args = {
-  text: "self",
+  text: 'self',
 };

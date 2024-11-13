@@ -1,7 +1,7 @@
-import MultiFileVerification from "./MultiFileVerification.vue";
+import MultiFileVerification from './MultiFileVerification.vue';
 
 export default {
-  title: "Contract/Verification/MultiFileVerification",
+  title: 'Contract/Verification/MultiFileVerification',
   component: MultiFileVerification,
 };
 

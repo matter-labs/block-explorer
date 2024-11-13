@@ -1,9 +1,11 @@
-import { useStorage } from "@vueuse/core";
-import { $fetch } from "ohmyfetch";
-import { computed } from "vue";
-import useContext, { type Context } from "./useContext";
+import { computed } from 'vue';
 
-export const rpcToken = useStorage<string | null>("useRpcToken_rpcToken", null);
+import { useStorage } from '@vueuse/core';
+import { $fetch } from 'ohmyfetch';
+
+import useContext, { type Context } from './useContext';
+
+export const rpcToken = useStorage<string | null>('useRpcToken_rpcToken', null);
 
 export const rpcUrl = computed(() => {
   const { currentNetwork } = useContext();
@@ -22,9 +24,12 @@ export default (context: Context) => {
       return;
     }
 
-    const response = await $fetch<{ ok: true; token: string }>(`${context.currentNetwork.value.apiUrl}/auth/token`, {
-      credentials: "include",
-    });
+    const response = await $fetch<{ ok: true; token: string }>(
+      `${context.currentNetwork.value.apiUrl}/auth/token`,
+      {
+        credentials: 'include',
+      },
+    );
     rpcToken.value = response.token;
   };
 

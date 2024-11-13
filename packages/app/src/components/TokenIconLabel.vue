@@ -1,11 +1,17 @@
 <template>
   <div class="token-icon-label">
-    <AddressLink :address="address" class="token-link" :data-testid="$testId?.tokensIcon">
+    <AddressLink
+      :address="address"
+      class="token-link"
+      :data-testid="$testId?.tokensIcon"
+    >
       <span v-if="showLinkSymbol" class="token-symbol">
         <span v-if="symbol">
           {{ symbol }}
         </span>
-        <span class="unknown-token-symbol" v-else>{{ t("balances.table.unknownSymbol") }}</span>
+        <span class="unknown-token-symbol" v-else>{{
+          t('balances.table.unknownSymbol')
+        }}</span>
       </span>
       <div class="token-icon-container" :class="iconSize">
         <div class="token-img-loader"></div>
@@ -28,16 +34,16 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { useImage } from "@vueuse/core";
+import { useImage } from '@vueuse/core';
 
-import AddressLink from "@/components/AddressLink.vue";
+import AddressLink from '@/components/AddressLink.vue';
 
-import type { Hash } from "@/types";
+import type { Hash } from '@/types';
 
-export type IconSize = "sm" | "md" | "lg" | "xl";
+export type IconSize = 'sm' | 'md' | 'lg' | 'xl';
 
 const { t } = useI18n();
 
@@ -52,11 +58,11 @@ const props = defineProps({
   },
   iconSize: {
     type: String as PropType<IconSize>,
-    default: "sm",
+    default: 'sm',
   },
   iconUrl: {
     type: [String, null] as PropType<string | null>,
-    default: "",
+    default: '',
   },
   showLinkSymbol: {
     type: Boolean,
@@ -64,12 +70,12 @@ const props = defineProps({
   },
   name: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
 const imgSource = computed(() => {
-  return props.iconUrl || "/images/currencies/customToken.svg";
+  return props.iconUrl || '/images/currencies/customToken.svg';
 });
 const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
 </script>

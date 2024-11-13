@@ -1,14 +1,14 @@
-import { createI18n } from "vue-i18n";
+import { createI18n } from 'vue-i18n';
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import { mount } from "@vue/test-utils";
+import { mount } from '@vue/test-utils';
 
-import enUS from "@/locales/en.json";
+import enUS from '@/locales/en.json';
 
-import $testId from "@/plugins/testId";
-import routes from "@/router/routes";
-import BlockView from "@/views/BlockView.vue";
+import $testId from '@/plugins/testId';
+import routes from '@/router/routes';
+import BlockView from '@/views/BlockView.vue';
 
 const router = {
   resolve: vi.fn(),
@@ -18,7 +18,7 @@ const router = {
   },
 };
 
-vi.mock("@/composables/useSearch", () => {
+vi.mock('@/composables/useSearch', () => {
   return {
     default: () => ({
       getSearchRoute: () => null,
@@ -26,12 +26,12 @@ vi.mock("@/composables/useSearch", () => {
   };
 });
 
-vi.mock("vue-router", () => ({
+vi.mock('vue-router', () => ({
   useRouter: () => router,
   useRoute: () => vi.fn(),
 }));
 
-vi.mock("ohmyfetch", () => {
+vi.mock('ohmyfetch', () => {
   return {
     $fetch: vi.fn(),
     FetchError: function error() {
@@ -40,29 +40,33 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
-describe("BlockView:", () => {
+describe('BlockView:', () => {
   const i18n = createI18n({
-    locale: "en",
+    locale: 'en',
     allowComposition: true,
     messages: {
       en: enUS,
     },
   });
 
-  it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "block")?.meta?.title as string)).toBe("Block");
+  it('has correct title', async () => {
+    expect(
+      i18n.global.t(
+        routes.find((e) => e.name === 'block')?.meta?.title as string,
+      ),
+    ).toBe('Block');
   });
 
-  it("shows correct trimmed title", () => {
+  it('shows correct trimmed title', () => {
     const wrapper = mount(BlockView, {
       props: {
-        id: "0042",
+        id: '0042',
       },
       global: {
-        stubs: ["router-link"],
+        stubs: ['router-link'],
         plugins: [i18n, $testId],
       },
     });
-    expect(wrapper.find(".breadcrumb-item span").text()).toBe("Block #42");
+    expect(wrapper.find('.breadcrumb-item span').text()).toBe('Block #42');
   });
 });

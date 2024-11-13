@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BasePage } from "./base.page";
-import { MainPage } from "./main.page";
-import { Helper } from "../helpers/helper";
+import { BasePage } from './base.page';
+import { MainPage } from './main.page';
+import { Helper } from '../helpers/helper';
 
-import type { ICustomWorld } from "../support/custom-world";
+import type { ICustomWorld } from '../support/custom-world';
 
 let element: any;
 let result: any;
@@ -61,12 +61,14 @@ export class TransactionPage extends BasePage {
   }
 
   async selectTab(tabName: string) {
-    if (tabName === "General Info") {
+    if (tabName === 'General Info') {
       await this.click(this.generalInfoTab, false);
-    } else if (tabName === "Logs") {
+    } else if (tabName === 'Logs') {
       await this.click(this.logsTab, false);
     } else {
-      console.error("Incorrect Tab name. The value should be only General Info or Logs");
+      console.error(
+        'Incorrect Tab name. The value should be only General Info or Logs',
+      );
     }
   }
 
@@ -74,27 +76,32 @@ export class TransactionPage extends BasePage {
     const mainPage = new MainPage(this.world);
     const copyBtn = mainPage.copyBtn;
 
-    if (rowName === "Data" || rowName === "Topics") {
-      element = (await this.getRowByText(rowName)) + "/.." + copyBtn;
+    if (rowName === 'Data' || rowName === 'Topics') {
+      element = (await this.getRowByText(rowName)) + '/..' + copyBtn;
     } else {
-      element = (await this.getRowByText(rowName)) + "/../.." + copyBtn;
+      element = (await this.getRowByText(rowName)) + '/../..' + copyBtn;
     }
     await this.world.page?.locator(element).first().click();
   }
 
   async clickOnDataTypeDropDownByRow(rowName: string) {
-    element = (await this.getRowByText(rowName)) + "/.." + this.dataType;
+    element = (await this.getRowByText(rowName)) + '/..' + this.dataType;
     await this.world.page?.locator(element).first().click();
   }
 
   async verifyStatusComponentColor(status: string, color: string) {
     helper = new Helper(this.world);
-    result = await helper.checkComponentColor(color, `//*[@${this.byTestId}'${status}']/*[@${this.byTestId}'badge']`); // //*[@class='status-badge' and contains(. ,'${status}')]
+    result = await helper.checkComponentColor(
+      color,
+      `//*[@${this.byTestId}'${status}']/*[@${this.byTestId}'badge']`,
+    ); // //*[@class='status-badge' and contains(. ,'${status}')]
     return result;
   }
 
   async getBadgeByStatus(text: string) {
-    result = await this.world.page?.locator(`(${this.badgeContent}//*[text()='${text}'])[1]`);
+    result = await this.world.page?.locator(
+      `(${this.badgeContent}//*[text()='${text}'])[1]`,
+    );
     return result;
   }
 }

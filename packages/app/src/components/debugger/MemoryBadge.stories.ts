@@ -1,7 +1,7 @@
-import MemoryBadge from "./MemoryBadge.vue";
+import MemoryBadge from './MemoryBadge.vue';
 
 export default {
-  title: "Debugger/MemoryBadge",
+  title: 'Debugger/MemoryBadge',
   component: MemoryBadge,
 };
 
@@ -21,13 +21,13 @@ const Template = (args: Args) => ({
 
 export const ReadMemory = Template.bind({}) as unknown as { args: Args };
 ReadMemory.args = {
-  text: "0x0",
-  memoryDirection: "Read",
-  defaultColor: "transparent",
+  text: '0x0',
+  memoryDirection: 'Read',
+  defaultColor: 'transparent',
 };
 export const WriteMemory = Template.bind({}) as unknown as { args: Args };
 WriteMemory.args = {
-  text: "0x0",
-  memoryDirection: "Write",
-  defaultColor: "transparent",
+  text: '0x0',
+  memoryDirection: 'Write',
+  defaultColor: 'transparent',
 };

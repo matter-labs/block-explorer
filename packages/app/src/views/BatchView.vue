@@ -13,11 +13,21 @@
     <Spinner v-else size="md" />
 
     <div class="tables-container">
-      <BatchTable class="batch-table" :loading="batchPending" :batch="batchItem" :batch-number="id" />
+      <BatchTable
+        class="batch-table"
+        :loading="batchPending"
+        :batch="batchItem"
+        :batch-number="id"
+      />
 
       <div ref="transactionsContainer">
-        <h2 class="table-transaction-title">{{ t("batches.transactionTable.title") }}</h2>
-        <TransactionsTable class="transactions-table" :search-params="transactionsSearchParams">
+        <h2 class="table-transaction-title">
+          {{ t('batches.transactionTable.title') }}
+        </h2>
+        <TransactionsTable
+          class="transactions-table"
+          :search-params="transactionsSearchParams"
+        >
           <template #not-found>
             <TransactionEmptyState :batch-exists="!!batchItem" />
           </template>
@@ -28,29 +38,34 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, watchEffect } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, ref, watch, watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import PageError from "@/components/PageError.vue";
-import SearchForm from "@/components/SearchForm.vue";
-import BatchTable from "@/components/batches/InfoTable.vue";
-import TransactionEmptyState from "@/components/batches/TransactionEmptyState.vue";
-import Breadcrumbs from "@/components/common/Breadcrumbs.vue";
-import Spinner from "@/components/common/Spinner.vue";
-import Title from "@/components/common/Title.vue";
-import TransactionsTable from "@/components/transactions/Table.vue";
+import PageError from '@/components/PageError.vue';
+import SearchForm from '@/components/SearchForm.vue';
+import BatchTable from '@/components/batches/InfoTable.vue';
+import TransactionEmptyState from '@/components/batches/TransactionEmptyState.vue';
+import Breadcrumbs from '@/components/common/Breadcrumbs.vue';
+import Spinner from '@/components/common/Spinner.vue';
+import Title from '@/components/common/Title.vue';
+import TransactionsTable from '@/components/transactions/Table.vue';
 
-import useBatch from "@/composables/useBatch";
-import useNotFound from "@/composables/useNotFound";
+import useBatch from '@/composables/useBatch';
+import useNotFound from '@/composables/useNotFound';
 
-import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
+import type { BreadcrumbItem } from '@/components/common/Breadcrumbs.vue';
 
-import { isBlockNumber } from "@/utils/validators";
+import { isBlockNumber } from '@/utils/validators';
 
 const { t } = useI18n();
 
 const { setNotFoundView } = useNotFound();
-const { getById, batchItem, isRequestPending: batchPending, isRequestFailed: batchFailed } = useBatch();
+const {
+  getById,
+  batchItem,
+  isRequestPending: batchPending,
+  isRequestFailed: batchFailed,
+} = useBatch();
 
 const props = defineProps({
   id: {
@@ -65,15 +80,15 @@ const props = defineProps({
 
 const breadcrumbItems = computed((): BreadcrumbItem[] => [
   {
-    text: t("breadcrumbs.home"),
-    to: { name: "home" },
+    text: t('breadcrumbs.home'),
+    to: { name: 'home' },
   },
   {
-    text: t("batches.title"),
-    to: { name: "batches" },
+    text: t('batches.title'),
+    to: { name: 'batches' },
   },
   {
-    text: `${t("batches.batchNumber")}${parseInt(props.id).toString()}`,
+    text: `${t('batches.batchNumber')}${parseInt(props.id).toString()}`,
   },
 ]);
 

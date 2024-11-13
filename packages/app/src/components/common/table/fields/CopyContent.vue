@@ -8,15 +8,15 @@
 </template>
 
 <script lang="ts" setup>
-import { ExternalLinkIcon } from "@heroicons/vue/solid";
+import { ExternalLinkIcon } from '@heroicons/vue/solid';
 
-import CopyButton from "@/components/common/CopyButton.vue";
-import HashLabel from "@/components/common/HashLabel.vue";
+import CopyButton from '@/components/common/CopyButton.vue';
+import HashLabel from '@/components/common/HashLabel.vue';
 
 defineProps({
   value: {
     type: String,
-    default: "",
+    default: '',
     required: true,
   },
   isExternalLink: {

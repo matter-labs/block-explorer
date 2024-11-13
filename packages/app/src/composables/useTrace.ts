@@ -1,7 +1,7 @@
-import { computed, ref, watch } from "vue";
+import { computed, ref, watch } from 'vue';
 
-import type { MemoryType } from "@/components/debugger/MetadataBlock.vue";
-import type { ComputedRef } from "vue";
+import type { MemoryType } from '@/components/debugger/MetadataBlock.vue';
+import type { ComputedRef } from 'vue';
 
 type TraceSource = {
   assembly_code: string;
@@ -48,7 +48,7 @@ export type TraceFile = {
   steps: TraceStep[];
 };
 
-export type HexDecimals = "Hex" | "Dec";
+export type HexDecimals = 'Hex' | 'Dec';
 
 export default () => {
   const traceFile = ref<TraceFile | null>(null);
@@ -63,10 +63,10 @@ export default () => {
       const reader = new FileReader();
       reader.readAsText(file);
       reader.addEventListener(
-        "load",
+        'load',
         () => {
           try {
-            if (typeof reader.result !== "string") {
+            if (typeof reader.result !== 'string') {
               reject();
               return;
             }
@@ -84,7 +84,7 @@ export default () => {
             reject(e);
           }
         },
-        false
+        false,
       );
     });
   };
@@ -111,17 +111,22 @@ export const getMemoryDirection = (
   memoryInteractions: MemoryInteraction[],
   memoryType: MemoryType,
   pageIndex: number,
-  address: number
+  address: number,
 ) => {
   const directions = memoryInteractions
-    .filter((mem) => mem.page === pageIndex && mem.memory_type === memoryType && mem.address === address)
+    .filter(
+      (mem) =>
+        mem.page === pageIndex &&
+        mem.memory_type === memoryType &&
+        mem.address === address,
+    )
     .map((mem) => mem.direction);
-  const hasWrite = directions.includes("Write");
-  const hasRead = directions.includes("Read");
+  const hasWrite = directions.includes('Write');
+  const hasRead = directions.includes('Read');
   if (hasWrite) {
-    return "Write";
+    return 'Write';
   } else if (hasRead) {
-    return "Read";
+    return 'Read';
   } else {
     return undefined;
   }
@@ -131,29 +136,39 @@ export const memoryAtFrame = (
   steps: TraceStep[],
   activeIndex: number,
   memoryType: MemoryType,
-  memoryPage: number
+  memoryPage: number,
 ): Array<[number, string]> => {
-  const state = steps.slice(0, activeIndex + 1).reduce<Map<number, string>>((memory, step) => {
-    step.memory_snapshots
-      .filter((snap) => snap.memory_type === memoryType && snap.page === memoryPage)
-      .forEach((snap) => {
-        snap.values.forEach((value, idx) => {
-          memory.set(idx, value);
+  const state = steps
+    .slice(0, activeIndex + 1)
+    .reduce<Map<number, string>>((memory, step) => {
+      step.memory_snapshots
+        .filter(
+          (snap) => snap.memory_type === memoryType && snap.page === memoryPage,
+        )
+        .forEach((snap) => {
+          snap.values.forEach((value, idx) => {
+            memory.set(idx, value);
+          });
         });
-      });
-    step.memory_interactions
-      .filter(
-        (mem_int) => mem_int.direction === "Write" && mem_int.memory_type === memoryType && mem_int.page === memoryPage
-      )
-      .forEach((mem_int) => {
-        memory.set(mem_int.address as number, mem_int.value);
-      });
-    return memory;
-  }, new Map());
+      step.memory_interactions
+        .filter(
+          (mem_int) =>
+            mem_int.direction === 'Write' &&
+            mem_int.memory_type === memoryType &&
+            mem_int.page === memoryPage,
+        )
+        .forEach((mem_int) => {
+          memory.set(mem_int.address as number, mem_int.value);
+        });
+      return memory;
+    }, new Map());
   return Array.from(state.entries()).sort((a, b) => a[0] - b[0]);
 };
 
-export function useTraceNavigation(trace: ComputedRef<TraceFile | null>, initialState?: { index: number }) {
+export function useTraceNavigation(
+  trace: ComputedRef<TraceFile | null>,
+  initialState?: { index: number },
+) {
   const index = ref<number | null>(initialState?.index ?? null);
   const activeLines = ref<ActiveLines>({});
 
@@ -162,7 +177,12 @@ export function useTraceNavigation(trace: ComputedRef<TraceFile | null>, initial
   };
 
   const activeStep = computed<ActiveStep | null>(() => {
-    if (!trace.value || !trace.value.steps || !trace.value.sources || index.value === null) {
+    if (
+      !trace.value ||
+      !trace.value.steps ||
+      !trace.value.sources ||
+      index.value === null
+    ) {
       return null;
     }
     const step = trace.value.steps[index.value!];
@@ -170,7 +190,8 @@ export function useTraceNavigation(trace: ComputedRef<TraceFile | null>, initial
     if (!step) {
       return null;
     }
-    const line = trace.value.sources[step.contract_address]!.pc_line_mapping[step.pc];
+    const line =
+      trace.value.sources[step.contract_address]!.pc_line_mapping[step.pc];
 
     return {
       address: step.contract_address,
@@ -183,9 +204,14 @@ export function useTraceNavigation(trace: ComputedRef<TraceFile | null>, initial
     if (!trace.value) {
       return null;
     }
-    const pcLineMapping = Object.values(trace.value.sources[data.address].pc_line_mapping);
+    const pcLineMapping = Object.values(
+      trace.value.sources[data.address].pc_line_mapping,
+    );
     const pcIndex = pcLineMapping.indexOf(data.line) + 1;
-    const step = trace.value.steps.find((value) => value.contract_address === data.address && value.pc === pcIndex);
+    const step = trace.value.steps.find(
+      (value) =>
+        value.contract_address === data.address && value.pc === pcIndex,
+    );
     const index = trace.value.steps.indexOf(step!);
     goTo(index);
   };
@@ -196,22 +222,32 @@ export function useTraceNavigation(trace: ComputedRef<TraceFile | null>, initial
     }
     for (const [key, value] of Object.entries(trace.value.sources)) {
       const pcLineMapping = Object.values(value.pc_line_mapping);
-      activeLines.value[key] = pcLineMapping.filter((_, index) => value.active_lines.includes(index + 1));
+      activeLines.value[key] = pcLineMapping.filter((_, index) =>
+        value.active_lines.includes(index + 1),
+      );
     }
   };
 
   const traceCountPercentage = computed<{ [key: string]: number }>(() => {
-    if (!trace.value || !trace.value.steps || !trace.value.sources || index.value === null) {
+    if (
+      !trace.value ||
+      !trace.value.steps ||
+      !trace.value.sources ||
+      index.value === null
+    ) {
       return {};
     }
 
     let maxCount = 0;
-    const countDictionary = trace.value.steps.reduce((acc: { [key: string]: number }, step) => {
-      const key = `${step.contract_address}_${step.pc}`;
-      acc[key] = (acc[key] || 0) + 1;
-      maxCount = Math.max(maxCount, acc[key]);
-      return acc;
-    }, {});
+    const countDictionary = trace.value.steps.reduce(
+      (acc: { [key: string]: number }, step) => {
+        const key = `${step.contract_address}_${step.pc}`;
+        acc[key] = (acc[key] || 0) + 1;
+        maxCount = Math.max(maxCount, acc[key]);
+        return acc;
+      },
+      {},
+    );
 
     const countPercentageDictionary: { [key: string]: number } = {};
 

@@ -1,19 +1,19 @@
-import { ref } from "vue";
-import { createI18n } from "vue-i18n";
+import { ref } from 'vue';
+import { createI18n } from 'vue-i18n';
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import { mount } from "@vue/test-utils";
+import { mount } from '@vue/test-utils';
 
-import { useTransactionMock } from "./../mocks";
+import { useTransactionMock } from './../mocks';
 
-import enUS from "@/locales/en.json";
+import enUS from '@/locales/en.json';
 
-import $testId from "@/plugins/testId";
-import routes from "@/router/routes";
-import TransactionView from "@/views/TransactionView.vue";
+import $testId from '@/plugins/testId';
+import routes from '@/router/routes';
+import TransactionView from '@/views/TransactionView.vue';
 
-const notFoundRoute = { name: "not-found", meta: { title: "404 Not Found" } };
+const notFoundRoute = { name: 'not-found', meta: { title: '404 Not Found' } };
 const router = {
   resolve: vi.fn(() => notFoundRoute),
   replace: vi.fn(),
@@ -22,7 +22,7 @@ const router = {
   },
 };
 
-vi.mock("@/composables/useSearch", () => {
+vi.mock('@/composables/useSearch', () => {
   return {
     default: () => ({
       getSearchRoute: () => null,
@@ -30,14 +30,14 @@ vi.mock("@/composables/useSearch", () => {
   };
 });
 
-vi.mock("vue-router", () => ({
+vi.mock('vue-router', () => ({
   useRouter: () => router,
   useRoute: () => ({
     query: {},
   }),
 }));
 
-vi.mock("ohmyfetch", () => {
+vi.mock('ohmyfetch', () => {
   return {
     $fetch: vi.fn(),
     FetchError: function error() {
@@ -46,20 +46,24 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
-describe("TransactionView:", () => {
+describe('TransactionView:', () => {
   const i18n = createI18n({
-    locale: "en",
+    locale: 'en',
     allowComposition: true,
     messages: {
       en: enUS,
     },
   });
 
-  it("has correct title", async () => {
-    expect(i18n.global.t(routes.find((e) => e.name === "transaction")?.meta?.title as string)).toBe("Transaction");
+  it('has correct title', async () => {
+    expect(
+      i18n.global.t(
+        routes.find((e) => e.name === 'transaction')?.meta?.title as string,
+      ),
+    ).toBe('Transaction');
   });
 
-  it("route is replaced with not found view on request 404 error", async () => {
+  it('route is replaced with not found view on request 404 error', async () => {
     const isRequestPending = ref(true);
 
     const mock = useTransactionMock({
@@ -68,10 +72,10 @@ describe("TransactionView:", () => {
 
     mount(TransactionView, {
       props: {
-        hash: "0x4d282bfaa673c686041a2e93ab0c1ca8ffc937a212b069669cd62c1725afc43d",
+        hash: '0x4d282bfaa673c686041a2e93ab0c1ca8ffc937a212b069669cd62c1725afc43d',
       },
       global: {
-        stubs: ["router-link"],
+        stubs: ['router-link'],
         plugins: [i18n, $testId],
       },
     });

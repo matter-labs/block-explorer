@@ -15,7 +15,7 @@
         @update:value="upload"
       >
         <label for="uploadFileInput" class="upload-files-label">
-          {{ t("contractVerification.multiFileVerification.files.label") }}
+          {{ t('contractVerification.multiFileVerification.files.label') }}
         </label>
       </UploadFile>
     </FormItem>
@@ -24,8 +24,17 @@
         class="files-list col-span-2 xs:col-span-1"
         :label="t('contractVerification.multiFileVerification.yourFiles')"
       >
-        <div class="xs:max-w-[45vw]" v-for="(file, index) of filesToUpload" :key="index">
-          <FilePreview :name="file.name" :index="index" :disabled="disabled" @removeFile="removeFile(index)" />
+        <div
+          class="xs:max-w-[45vw]"
+          v-for="(file, index) of filesToUpload"
+          :key="index"
+        >
+          <FilePreview
+            :name="file.name"
+            :index="index"
+            :disabled="disabled"
+            @removeFile="removeFile(index)"
+          />
         </div>
       </FormItem>
       <FormItem
@@ -47,17 +56,17 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import Dropdown from "@/components/common/Dropdown.vue";
-import UploadFile from "@/components/common/UploadFile.vue";
-import FilePreview from "@/components/contract/verification/FilePreview.vue";
-import FormItem from "@/components/form/FormItem.vue";
+import Dropdown from '@/components/common/Dropdown.vue';
+import UploadFile from '@/components/common/UploadFile.vue';
+import FilePreview from '@/components/contract/verification/FilePreview.vue';
+import FormItem from '@/components/form/FormItem.vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
-import { type Compiler, CompilerEnum } from "@/types";
+import { type Compiler, CompilerEnum } from '@/types';
 
 const props = defineProps({
   files: {
@@ -66,7 +75,7 @@ const props = defineProps({
   },
   mainFile: {
     type: String,
-    default: "",
+    default: '',
   },
   compiler: {
     type: String as PropType<Compiler>,
@@ -78,29 +87,36 @@ const props = defineProps({
   },
   errorFiles: {
     type: String,
-    default: "",
+    default: '',
   },
   errorMainFile: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
 const { t } = useI18n();
 
 const emit = defineEmits<{
-  (e: "update:files", value: File[]): void;
-  (e: "update:mainFile", value: string): void;
+  (e: 'update:files', value: File[]): void;
+  (e: 'update:mainFile', value: string): void;
 }>();
 
-const mainFilePlaceholder = computed(() => t("contractVerification.multiFileVerification.mainFile.placeholder"));
+const mainFilePlaceholder = computed(() =>
+  t('contractVerification.multiFileVerification.mainFile.placeholder'),
+);
 const filesToUpload = ref<File[]>(props.files);
-const selectedMainFileName = ref<string>(props.mainFile ? props.mainFile : mainFilePlaceholder.value);
+const selectedMainFileName = ref<string>(
+  props.mainFile ? props.mainFile : mainFilePlaceholder.value,
+);
 const options = computed(() => filesToUpload.value.map((file) => file.name));
 
 const upload = (files: File[]) => {
   filesToUpload.value = files.reduce((acc, current) => {
-    if (filesToUpload.value.find((file) => file.name === current.name) || !current.name.match(/\.(sol|vy)/)) {
+    if (
+      filesToUpload.value.find((file) => file.name === current.name) ||
+      !current.name.match(/\.(sol|vy)/)
+    ) {
       return acc;
     }
     return [...acc, current];
@@ -108,7 +124,10 @@ const upload = (files: File[]) => {
 };
 
 const removeFile = (index: number) => {
-  if (filesToUpload.value.length === 1 || selectedMainFileName.value === filesToUpload.value[index].name) {
+  if (
+    filesToUpload.value.length === 1 ||
+    selectedMainFileName.value === filesToUpload.value[index].name
+  ) {
     selectedMainFileName.value = mainFilePlaceholder.value;
   }
   filesToUpload.value.splice(index, 1);
@@ -120,9 +139,9 @@ watch([() => props.files, () => props.mainFile], ([files, mainFile]) => {
 });
 
 watch([filesToUpload, selectedMainFileName], ([files, mainFileName]) => {
-  let mainFile = mainFileName === mainFilePlaceholder.value ? "" : mainFileName;
-  emit("update:files", files);
-  emit("update:mainFile", mainFile);
+  let mainFile = mainFileName === mainFilePlaceholder.value ? '' : mainFileName;
+  emit('update:files', files);
+  emit('update:mainFile', mainFile);
 });
 </script>
 

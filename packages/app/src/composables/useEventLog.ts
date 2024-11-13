@@ -1,14 +1,21 @@
-import { computed, ref } from "vue";
+import { computed, ref } from 'vue';
 
-import useContext from "./useContext";
-import useContractABI from "./useContractABI";
+import useContext from './useContext';
+import useContractABI from './useContractABI';
 
-import type { Address, Hash } from "@/types";
-import type { BigNumberish } from "ethers";
+import type { Address, Hash } from '@/types';
+import type { BigNumberish } from 'ethers';
 
-import { decodeLogWithABI } from "@/utils/helpers";
+import { decodeLogWithABI } from '@/utils/helpers';
 
-export type InputType = "string" | "address" | "bool" | "bytes" | "bytes32" | "uint256" | "uint8";
+export type InputType =
+  | 'string'
+  | 'address'
+  | 'bool'
+  | 'bytes'
+  | 'bytes32'
+  | 'uint256'
+  | 'uint8';
 export type TransactionEvent = {
   name: string;
   inputs: {

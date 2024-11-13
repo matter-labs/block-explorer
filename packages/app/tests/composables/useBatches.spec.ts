@@ -1,23 +1,32 @@
-import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type SpyInstance,
+  vi,
+} from 'vitest';
 
-import { $fetch } from "ohmyfetch";
+import { $fetch } from 'ohmyfetch';
 
-import { useContextMock } from "./../mocks";
+import { useContextMock } from './../mocks';
 
-import useBatches from "@/composables/useBatches";
+import useBatches from '@/composables/useBatches';
 
-vi.mock("ohmyfetch", () => {
+vi.mock('ohmyfetch', () => {
   return {
     $fetch: vi.fn(() =>
       Promise.resolve({
         items: [
           {
             number: 2,
-            timestamp: "2023-02-07T12:24:08.000Z",
+            timestamp: '2023-02-07T12:24:08.000Z',
             l1TxCount: 1,
             l2TxCount: 107,
-            rootHash: "0x0bcd1b80525cd54303a1596b8241e4f6d8f3acb1c074e3537e6889d9ff10b7cb",
-            status: "verified",
+            rootHash:
+              '0x0bcd1b80525cd54303a1596b8241e4f6d8f3acb1c074e3537e6889d9ff10b7cb',
+            status: 'verified',
           },
         ],
         meta: {
@@ -27,14 +36,14 @@ vi.mock("ohmyfetch", () => {
           totalPages: 1,
           itemCount: 1,
         },
-      })
+      }),
     ),
   };
 });
 
 //
 
-describe("useBatches:", () => {
+describe('useBatches:', () => {
   let mockContext: SpyInstance;
 
   beforeEach(() => {
@@ -46,7 +55,7 @@ describe("useBatches:", () => {
   });
   /* eslint-disable  @typescript-eslint/no-explicit-any */
 
-  it("creates useBatches composable", () => {
+  it('creates useBatches composable', () => {
     const composable = useBatches();
     expect(composable.pending).toBeDefined();
     expect(composable.failed).toBeDefined();
@@ -54,7 +63,7 @@ describe("useBatches:", () => {
     expect(composable.data).toBeDefined();
   });
 
-  it("gets batches from API", async () => {
+  it('gets batches from API', async () => {
     const composable = useBatches();
     await composable.load(1);
     const batch = (composable.data.value || [])[0];
@@ -62,15 +71,16 @@ describe("useBatches:", () => {
     expect(composable.data.value?.length).toBe(1);
     expect(batch).toEqual({
       number: 2,
-      timestamp: "2023-02-07T12:24:08.000Z",
+      timestamp: '2023-02-07T12:24:08.000Z',
       l1TxCount: 1,
       l2TxCount: 107,
-      rootHash: "0x0bcd1b80525cd54303a1596b8241e4f6d8f3acb1c074e3537e6889d9ff10b7cb",
-      status: "verified",
+      rootHash:
+        '0x0bcd1b80525cd54303a1596b8241e4f6d8f3acb1c074e3537e6889d9ff10b7cb',
+      status: 'verified',
     });
   });
 
-  it("sets pending to true when request pending", async () => {
+  it('sets pending to true when request pending', async () => {
     const composable = useBatches();
     const promise = composable.load(1);
 
@@ -78,21 +88,21 @@ describe("useBatches:", () => {
     await promise;
   });
 
-  it("sets pending to false when request completed", async () => {
+  it('sets pending to false when request completed', async () => {
     const composable = useBatches();
     await composable.load(1);
 
     expect(composable.pending.value).toEqual(false);
   });
 
-  it("sets failed to false when request completed", async () => {
+  it('sets failed to false when request completed', async () => {
     const composable = useBatches();
     await composable.load(1);
 
     expect(composable.failed.value).toEqual(false);
   });
 
-  it("sets failed to true when request failed", async () => {
+  it('sets failed to true when request failed', async () => {
     const composable = useBatches();
     const mock = ($fetch as any).mockRejectedValue(new Error());
 
@@ -102,7 +112,7 @@ describe("useBatches:", () => {
     mock.mockRestore();
   });
 
-  it("sets batches to null when request failed", async () => {
+  it('sets batches to null when request failed', async () => {
     const composable = useBatches();
     const mock = ($fetch as any).mockRejectedValue(new Error());
 

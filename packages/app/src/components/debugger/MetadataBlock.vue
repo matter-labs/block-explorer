@@ -2,11 +2,19 @@
   <div class="metadata-block" v-if="metadata" tabindex="0">
     <div class="metadata-header-container">
       <div class="meta-info contract-address">
-        <HashLabel class="meta-hash-label" :subtraction="3" :text="metadata.contract_address" />
+        <HashLabel
+          class="meta-hash-label"
+          :subtraction="3"
+          :text="metadata.contract_address"
+        />
       </div>
-      <div class="meta-title contract-title">{{ t("debuggerTool.metadataBlock.contract") }}</div>
+      <div class="meta-title contract-title">
+        {{ t('debuggerTool.metadataBlock.contract') }}
+      </div>
     </div>
-    <div class="meta-title tag-title">{{ t("debuggerTool.metadataBlock.tag") }}</div>
+    <div class="meta-title tag-title">
+      {{ t('debuggerTool.metadataBlock.tag') }}
+    </div>
     <div class="meta-info tag-info">
       <Badge
         v-for="flag in ['lt', 'eq', 'gt']"
@@ -17,7 +25,9 @@
         {{ flag }}
       </Badge>
     </div>
-    <div class="meta-title">{{ t("debuggerTool.metadataBlock.registers") }}</div>
+    <div class="meta-title">
+      {{ t('debuggerTool.metadataBlock.registers') }}
+    </div>
     <div class="meta-info">
       <div class="badge-wrap">
         <template v-for="(reg, index) in metadata.registers" :key="reg + index">
@@ -35,10 +45,15 @@
       </div>
     </div>
     <template v-if="metadata.memory_interactions?.length">
-      <div class="meta-title">{{ t("debuggerTool.metadataBlock.memoryChanges") }}</div>
+      <div class="meta-title">
+        {{ t('debuggerTool.metadataBlock.memoryChanges') }}
+      </div>
       <div class="meta-info memory-changes-container">
         <div class="badge-wrap memory-changes-wrap">
-          <template v-for="(memory, index) in metadata.memory_interactions" :key="memory.value + index">
+          <template
+            v-for="(memory, index) in metadata.memory_interactions"
+            :key="memory.value + index"
+          >
             <div class="col-[1]">
               <div class="memory-badge-type">{{ memory.memory_type }}</div>
               <div class="memory-badge-index">
@@ -58,23 +73,28 @@
         </div>
       </div>
     </template>
-    <div class="meta-title">{{ t("debuggerTool.metadataBlock.memory") }}</div>
+    <div class="meta-title">{{ t('debuggerTool.metadataBlock.memory') }}</div>
     <div class="meta-info">
-      <MetadataTabs :metadata="metadata" :active-index="activeIndex" :file="file" :data-format="dataFormat" />
+      <MetadataTabs
+        :metadata="metadata"
+        :active-index="activeIndex"
+        :file="file"
+        :data-format="dataFormat"
+      />
     </div>
   </div>
 </template>
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import Badge from "@/components/common/Badge.vue";
-import HashLabel from "@/components/common/HashLabel.vue";
-import MemoryBadge from "@/components/debugger/MemoryBadge.vue";
-import MetadataTabs from "@/components/debugger/MetadataTabs.vue";
+import Badge from '@/components/common/Badge.vue';
+import HashLabel from '@/components/common/HashLabel.vue';
+import MemoryBadge from '@/components/debugger/MemoryBadge.vue';
+import MetadataTabs from '@/components/debugger/MetadataTabs.vue';
 
-import type { HexDecimals, TraceFile, TraceStep } from "@/composables/useTrace";
-import type { PropType } from "vue";
-export type MemoryType = "stack" | "heap" | "code" | "calldata" | "returndata";
+import type { HexDecimals, TraceFile, TraceStep } from '@/composables/useTrace';
+import type { PropType } from 'vue';
+export type MemoryType = 'stack' | 'heap' | 'code' | 'calldata' | 'returndata';
 
 defineProps({
   metadata: {
@@ -91,7 +111,7 @@ defineProps({
   },
   dataFormat: {
     type: String as PropType<HexDecimals>,
-    default: "Hex",
+    default: 'Hex',
   },
 });
 

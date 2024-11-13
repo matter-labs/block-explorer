@@ -1,12 +1,12 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from 'vitest';
 
-import useLocalization from "@/composables/useLocalization";
+import useLocalization from '@/composables/useLocalization';
 
-vi.mock("./../locales/en.json", () => {
+vi.mock('./../locales/en.json', () => {
   return {
-    welcome: "Welcome",
+    welcome: 'Welcome',
   };
 });
 
@@ -14,51 +14,54 @@ vi.mock(`vue-i18n`, () => ({
   useI18n: () => ({}),
 }));
 
-describe("useLocalization:", () => {
-  it("creates composable", () => {
+describe('useLocalization:', () => {
+  it('creates composable', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = useLocalization();
     expect(result.setup).toBeDefined();
     expect(result.changeLanguage).toBeDefined();
   });
 
-  describe("setup:", () => {
-    it("changes a location to the one stored in storage", async () => {
-      const locale = ref("en");
+  describe('setup:', () => {
+    it('changes a location to the one stored in storage', async () => {
+      const locale = ref('en');
 
       const result = useLocalization(
         {
-          availableLocales: ["en", "uk"],
+          availableLocales: ['en', 'uk'],
           locale,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
-        ref("en")
+        ref('en'),
       );
 
       await result.setup();
 
-      expect(locale.value).toEqual("en");
+      expect(locale.value).toEqual('en');
     });
   });
 
-  describe("changeLanguage:", () => {
-    it.skip("loads messages for a missing locale", async () => {
+  describe('changeLanguage:', () => {
+    it.skip('loads messages for a missing locale', async () => {
       const setLocaleMessage = vi.fn();
       const result = useLocalization({
         availableLocales: [],
         setLocaleMessage,
-        locale: ref("en"),
+        locale: ref('en'),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
-      await result.changeLanguage("en");
+      await result.changeLanguage('en');
 
       expect(vi.isMockFunction(setLocaleMessage)).toBe(true);
-      expect(setLocaleMessage.mock.calls[0]).toEqual(["en", { welcome: "Welcome" }]);
+      expect(setLocaleMessage.mock.calls[0]).toEqual([
+        'en',
+        { welcome: 'Welcome' },
+      ]);
     });
 
-    it("saves a locale to localStorage", async () => {
-      const storage = ref("en");
+    it('saves a locale to localStorage', async () => {
+      const storage = ref('en');
 
       const setLocaleMessage = vi.fn();
 
@@ -66,18 +69,18 @@ describe("useLocalization:", () => {
         {
           availableLocales: [],
           setLocaleMessage,
-          locale: ref("en"),
+          locale: ref('en'),
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
-        storage
+        storage,
       );
 
-      await result.changeLanguage("uk");
-      expect(storage.value).toEqual("uk");
+      await result.changeLanguage('uk');
+      expect(storage.value).toEqual('uk');
     });
 
-    it("sets a locale to a document html attribute", async () => {
-      const storage = ref("en");
+    it('sets a locale to a document html attribute', async () => {
+      const storage = ref('en');
 
       const setLocaleMessage = vi.fn();
 
@@ -85,21 +88,21 @@ describe("useLocalization:", () => {
         {
           availableLocales: [],
           setLocaleMessage,
-          locale: ref("en"),
+          locale: ref('en'),
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
-        storage
+        storage,
       );
 
-      await result.changeLanguage("uk");
+      await result.changeLanguage('uk');
 
-      expect(document.documentElement.getAttribute("lang")).toEqual("uk");
+      expect(document.documentElement.getAttribute('lang')).toEqual('uk');
     });
 
-    it("sets a locale to a i18n", async () => {
-      const storage = ref("en");
+    it('sets a locale to a i18n', async () => {
+      const storage = ref('en');
 
-      const locale = ref("en");
+      const locale = ref('en');
 
       const result = useLocalization(
         {
@@ -108,12 +111,12 @@ describe("useLocalization:", () => {
           locale,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
-        storage
+        storage,
       );
 
-      await result.changeLanguage("uk");
+      await result.changeLanguage('uk');
 
-      expect(locale.value).toEqual("uk");
+      expect(locale.value).toEqual('uk');
     });
   });
 });

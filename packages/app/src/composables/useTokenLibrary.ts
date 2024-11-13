@@ -1,34 +1,40 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { useMemoize } from "@vueuse/core";
-import { $fetch } from "ohmyfetch";
+import { useMemoize } from '@vueuse/core';
+import { $fetch } from 'ohmyfetch';
 
-import useContext, { type Context } from "@/composables/useContext";
+import useContext, { type Context } from '@/composables/useContext';
 
 const retrieveTokens = useMemoize(
   async (context: Context): Promise<Api.Response.Token[]> => {
     const tokens = [];
     const tokensParams = {
       ...(context.currentNetwork.value.tokensMinLiquidity != null && {
-        minLiquidity: context.currentNetwork.value.tokensMinLiquidity.toString(),
+        minLiquidity:
+          context.currentNetwork.value.tokensMinLiquidity.toString(),
       }),
-      limit: "100",
+      limit: '100',
     };
     let page = 1;
     let hasMore = true;
 
     while (hasMore) {
-      const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
-        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`
+      const tokensResponse = await $fetch<
+        Api.Response.Collection<Api.Response.Token>
+      >(
+        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`,
       );
       tokens.push(...tokensResponse.items);
       page++;
-      hasMore = !!tokensParams.minLiquidity && tokensResponse.meta.totalPages > tokensResponse.meta.currentPage;
+      hasMore =
+        !!tokensParams.minLiquidity &&
+        tokensResponse.meta.totalPages > tokensResponse.meta.currentPage;
     }
 
     if (context.currentNetwork.value.zkTokenAddress) {
       const fetchedZkTokenIndex = tokens.findIndex(
-        (token) => token.l2Address === context.currentNetwork.value.zkTokenAddress
+        (token) =>
+          token.l2Address === context.currentNetwork.value.zkTokenAddress,
       );
       if (fetchedZkTokenIndex !== -1) {
         const fetchedZkToken = tokens[fetchedZkTokenIndex];
@@ -37,11 +43,13 @@ const retrieveTokens = useMemoize(
       } else {
         try {
           const zkTokenResponse = await $fetch<Api.Response.Token>(
-            `${context.currentNetwork.value.apiUrl}/tokens/${context.currentNetwork.value.zkTokenAddress}`
+            `${context.currentNetwork.value.apiUrl}/tokens/${context.currentNetwork.value.zkTokenAddress}`,
           );
           tokens.unshift(zkTokenResponse);
-        } catch (err) {
-          console.error(`Couldn't fetch ZK token by address: ${context.currentNetwork.value.zkTokenAddress}`);
+        } catch (_err) {
+          console.error(
+            `Couldn't fetch ZK token by address: ${context.currentNetwork.value.zkTokenAddress}`,
+          );
         }
       }
     }
@@ -52,7 +60,7 @@ const retrieveTokens = useMemoize(
     getKey(context: Context) {
       return context.currentNetwork.value.name;
     },
-  }
+  },
 );
 
 export default (context = useContext()) => {

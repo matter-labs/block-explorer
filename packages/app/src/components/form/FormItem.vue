@@ -14,7 +14,7 @@
 defineProps({
   tag: {
     type: String,
-    default: "div",
+    default: 'div',
   },
   id: {
     type: String,
@@ -24,7 +24,7 @@ defineProps({
   },
   labelTag: {
     type: String,
-    default: "label",
+    default: 'label',
   },
 });
 </script>

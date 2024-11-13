@@ -1,20 +1,35 @@
 <template>
-  <div class="transaction-input-data" :class="{ 'no-error': !error && !emptyCalldata }">
-    <button v-if="!error && !emptyCalldata" class="toggle-decode-button" @click="showDecoded = !showDecoded">
+  <div
+    class="transaction-input-data"
+    :class="{ 'no-error': !error && !emptyCalldata }"
+  >
+    <button
+      v-if="!error && !emptyCalldata"
+      class="toggle-decode-button"
+      @click="showDecoded = !showDecoded"
+    >
       {{ displayedButtonText }}
     </button>
-    <ByteData v-if="!showDecoded" class="transaction-byte-data" :value="data?.calldata" />
+    <ByteData
+      v-if="!showDecoded"
+      class="transaction-byte-data"
+      :value="data?.calldata"
+    />
     <div v-else-if="loading" class="decoding-loading">
       <Spinner size="sm" outline />
-      <span class="decoding-loading-label">{{ t("transactionData.decodingInProgress") }}</span>
+      <span class="decoding-loading-label">{{
+        t('transactionData.decodingInProgress')
+      }}</span>
     </div>
     <div v-else-if="data?.method">
       <div class="method-interface">Function: {{ methodInterface }}</div>
     </div>
     <div v-if="error" class="decoding-data-error">
       {{
-        t("transactionData.errors.unableToDecode", {
-          error: te(`transactionData.errors.${error}`) ? t(`transactionData.errors.${error}`) : error,
+        t('transactionData.errors.unableToDecode', {
+          error: te(`transactionData.errors.${error}`)
+            ? t(`transactionData.errors.${error}`)
+            : error,
         })
       }}
     </div>
@@ -36,16 +51,34 @@
         >
           <template #table-head>
             <TableHeadColumn>#</TableHeadColumn>
-            <TableHeadColumn>{{ t("transactionData.parametersTable.name") }}</TableHeadColumn>
-            <TableHeadColumn>{{ t("transactionData.parametersTable.type") }}</TableHeadColumn>
-            <TableHeadColumn>{{ t("transactionData.parametersTable.data") }}</TableHeadColumn>
+            <TableHeadColumn>{{
+              t('transactionData.parametersTable.name')
+            }}</TableHeadColumn>
+            <TableHeadColumn>{{
+              t('transactionData.parametersTable.type')
+            }}</TableHeadColumn>
+            <TableHeadColumn>{{
+              t('transactionData.parametersTable.data')
+            }}</TableHeadColumn>
           </template>
-          <template #table-row="{ item, index }: { item: any, index: number }">
+          <template #table-row="{ item, index }: { item: any; index: number }">
             <TableBodyColumn data-heading="#">{{ index }}</TableBodyColumn>
-            <TableBodyColumn :data-heading="t('transactionData.parametersTable.name')">{{ item.name }}</TableBodyColumn>
-            <TableBodyColumn :data-heading="t('transactionData.parametersTable.type')">{{ item.type }}</TableBodyColumn>
-            <TableBodyColumn :data-heading="t('transactionData.parametersTable.data')">
-              <AddressLink v-if="item.type === 'address'" :address="item.value" class="argument-value">
+            <TableBodyColumn
+              :data-heading="t('transactionData.parametersTable.name')"
+              >{{ item.name }}</TableBodyColumn
+            >
+            <TableBodyColumn
+              :data-heading="t('transactionData.parametersTable.type')"
+              >{{ item.type }}</TableBodyColumn
+            >
+            <TableBodyColumn
+              :data-heading="t('transactionData.parametersTable.data')"
+            >
+              <AddressLink
+                v-if="item.type === 'address'"
+                :address="item.value"
+                class="argument-value"
+              >
                 {{ checksumAddress(item.value) }}
               </AddressLink>
               <span v-else class="argument-value">{{ item.value }}</span>
@@ -54,7 +87,9 @@
         </Table>
         <div v-else class="encoded-data-container">
           <div>MethodID: {{ data!.sighash }}</div>
-          <div v-for="(item, index) in data!.method!.inputs" :key="index">[{{ index }}]: {{ item.encodedValue }}</div>
+          <div v-for="(item, index) in data!.method!.inputs" :key="index">
+            [{{ index }}]: {{ item.encodedValue }}
+          </div>
         </div>
       </div>
     </template>
@@ -62,20 +97,20 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import AddressLink from "@/components/AddressLink.vue";
-import Dropdown from "@/components/common/Dropdown.vue";
-import Spinner from "@/components/common/Spinner.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
-import ByteData from "@/components/common/table/fields/ByteData.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import Dropdown from '@/components/common/Dropdown.vue';
+import Spinner from '@/components/common/Spinner.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TableHeadColumn from '@/components/common/table/TableHeadColumn.vue';
+import ByteData from '@/components/common/table/fields/ByteData.vue';
 
-import type { TransactionData } from "@/composables/useTransactionData";
+import type { TransactionData } from '@/composables/useTransactionData';
 
-import { checksumAddress } from "@/utils/formatters";
+import { checksumAddress } from '@/utils/formatters';
 
 const props = defineProps({
   data: {
@@ -93,21 +128,26 @@ const props = defineProps({
 const { t, te } = useI18n();
 
 const showDecoded = ref(props.data?.method ? true : false);
-const emptyCalldata = ref(props.data?.calldata === "0x");
+const emptyCalldata = ref(props.data?.calldata === '0x');
 
-const showDataAsOptions = ["decoded", "original"];
+const showDataAsOptions = ['decoded', 'original'];
 const showDataAs = ref(showDataAsOptions[0]);
-const showDataAsDropdownFormatter = (value: unknown) => t(`transactionData.viewOptions.${value}`);
+const showDataAsDropdownFormatter = (value: unknown) =>
+  t(`transactionData.viewOptions.${value}`);
 
 const displayedButtonText = computed(() =>
-  showDecoded.value ? t("transactionData.showOriginalInput") : t("transactionData.showDecodedInput")
+  showDecoded.value
+    ? t('transactionData.showOriginalInput')
+    : t('transactionData.showDecodedInput'),
 );
 const methodInterface = computed(() => {
   if (!props.data?.method) {
-    return "";
+    return '';
   }
 
-  const inputs = props.data.method.inputs.map((input) => `${input.type} ${input.name}`).join(", ");
+  const inputs = props.data.method.inputs
+    .map((input) => `${input.type} ${input.name}`)
+    .join(', ');
 
   return `${props.data.method.name}(${inputs})`;
 });

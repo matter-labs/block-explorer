@@ -5,14 +5,14 @@
 </template>
 
 <script lang="ts" setup>
-import type { NetworkOrigin } from "@/types";
-import type { PropType } from "vue";
+import type { NetworkOrigin } from '@/types';
+import type { PropType } from 'vue';
 
 defineProps({
   network: {
     type: String as PropType<NetworkOrigin>,
     required: true,
-    default: "L1",
+    default: 'L1',
   },
 });
 </script>

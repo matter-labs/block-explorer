@@ -4,7 +4,9 @@
       <template v-if="item.value !== undefined">
         <table-body-column v-if="item.label" class="block-label-column">
           <span class="block-info-field-label">{{ item.label }}</span>
-          <InfoTooltip class="block-info-field-tooltip">{{ item.tooltip }}</InfoTooltip>
+          <InfoTooltip class="block-info-field-tooltip">{{
+            item.tooltip
+          }}</InfoTooltip>
         </table-body-column>
         <table-body-column
           class="block-info-field-value-container"
@@ -12,18 +14,29 @@
         >
           <div class="block-info-field-value">
             <a v-if="item.url" :href="item.url" target="_blank">
-              <component :is="item.component" v-bind="item.value" is-external-link></component>
+              <component
+                :is="item.component"
+                v-bind="item.value"
+                is-external-link
+              ></component>
             </a>
             <span v-else-if="item.route">
               <Tooltip v-if="item.route.disabled">
                 <span>{{ item.value }}</span>
                 <template #content>{{ item.route.disabledTooltip }}</template>
               </Tooltip>
-              <router-link v-else :to="{ name: item.route.name, params: item.route.params }">
+              <router-link
+                v-else
+                :to="{ name: item.route.name, params: item.route.params }"
+              >
                 {{ item.value }}
               </router-link>
             </span>
-            <component v-else-if="item.component" :is="item.component" v-bind="item.value"></component>
+            <component
+              v-else-if="item.component"
+              :is="item.component"
+              v-bind="item.value"
+            ></component>
             <template v-else>{{ item.value }}</template>
           </div>
         </table-body-column>
@@ -43,13 +56,13 @@
 </template>
 
 <script lang="ts" setup>
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
-import Tooltip from "@/components/common/Tooltip.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
+import InfoTooltip from '@/components/common/InfoTooltip.vue';
+import Tooltip from '@/components/common/Tooltip.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 defineProps({
   items: {

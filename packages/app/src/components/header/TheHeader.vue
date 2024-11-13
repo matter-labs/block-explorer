@@ -15,7 +15,10 @@
           </PopoverButton>
         </div>
         <PopoverGroup as="nav" class="navigation-container">
-          <LinksPopover :label="t('header.nav.blockExplorer')" :items="blockExplorerLinks" />
+          <LinksPopover
+            :label="t('header.nav.blockExplorer')"
+            :items="blockExplorerLinks"
+          />
           <LinksPopover :label="t('header.nav.tools')" :items="toolsLinks" />
           <a
             v-for="item in navigation"
@@ -31,7 +34,7 @@
         <div class="header-right-side">
           <NetworkSwitch />
           <LocaleSwitch
-            :value="(locale as string)"
+            :value="locale as string"
             @update:value="changeLanguage"
             :options="
               ['en', 'uk'].map((value) => ({
@@ -42,7 +45,13 @@
           />
           <LoginButton />
           <div class="socials-container">
-            <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
+            <a
+              :href="social.url"
+              target="_blank"
+              rel="noopener"
+              v-for="(social, index) in socials"
+              :key="index"
+            >
               <component :is="social.component" />
             </a>
           </div>
@@ -107,7 +116,7 @@
             <div class="mobile-network-switch-container">
               <NetworkSwitch />
               <LocaleSwitch
-                :value="(locale as string)"
+                :value="locale as string"
                 @update:value="changeLanguage"
                 :options="
                   ['en', 'uk'].map((value) => ({
@@ -118,7 +127,13 @@
               />
             </div>
             <div class="mobile-socials-container">
-              <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
+              <a
+                :href="social.url"
+                target="_blank"
+                rel="noopener"
+                v-for="(social, index) in socials"
+                :key="index"
+              >
                 <component :is="social.component" />
               </a>
             </div>
@@ -130,74 +145,83 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { computed, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
-import { Popover, PopoverButton, PopoverGroup, PopoverPanel } from "@headlessui/vue";
-import { MenuIcon, XIcon } from "@heroicons/vue/outline";
+import {
+  Popover,
+  PopoverButton,
+  PopoverGroup,
+  PopoverPanel,
+} from '@headlessui/vue';
+import { MenuIcon, XIcon } from '@heroicons/vue/outline';
 
-import LinksMobilePopover from "./LinksMobilePopover.vue";
-import LinksPopover from "./LinksPopover.vue";
-import LoginButton from "../LoginButton.vue";
+import LinksMobilePopover from './LinksMobilePopover.vue';
+import LinksPopover from './LinksPopover.vue';
+import LoginButton from '../LoginButton.vue';
 
-import LocaleSwitch from "@/components/LocaleSwitch.vue";
-import NetworkSwitch from "@/components/NetworkSwitch.vue";
-import DiscordIcon from "@/components/icons/DiscordIcon.vue";
-import HeroArrows from "@/components/icons/HeroArrows.vue";
-import TwitterIcon from "@/components/icons/TwitterIcon.vue";
-import ZkSync from "@/components/icons/ZkSync.vue";
-import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
+import LocaleSwitch from '@/components/LocaleSwitch.vue';
+import NetworkSwitch from '@/components/NetworkSwitch.vue';
+import DiscordIcon from '@/components/icons/DiscordIcon.vue';
+import HeroArrows from '@/components/icons/HeroArrows.vue';
+import TwitterIcon from '@/components/icons/TwitterIcon.vue';
+import ZkSync from '@/components/icons/ZkSync.vue';
+import ZkSyncEra from '@/components/icons/ZkSyncEra.vue';
 
-import useContext from "@/composables/useContext";
-import useLocalization from "@/composables/useLocalization";
+import useContext from '@/composables/useContext';
+import useLocalization from '@/composables/useLocalization';
 
-import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
+import {
+  isAddress,
+  isBlockNumber,
+  isTransactionHash,
+} from '@/utils/validators';
 const { changeLanguage } = useLocalization();
-const { t, locale } = useI18n({ useScope: "global" });
+const { t, locale } = useI18n({ useScope: 'global' });
 const route = useRoute();
 const { currentNetwork } = useContext();
 
 const navigation = reactive([
   {
-    label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/zksync-block-explorers",
+    label: computed(() => t('header.nav.documentation')),
+    url: 'https://docs.zksync.io/build/tooling/zksync-block-explorers',
   },
 ]);
 
 const blockExplorerLinks = reactive([
   {
-    label: computed(() => t("blocksView.title")),
-    to: { name: "blocks" },
+    label: computed(() => t('blocksView.title')),
+    to: { name: 'blocks' },
   },
   {
-    label: computed(() => t("batches.title")),
-    to: { name: "batches" },
+    label: computed(() => t('batches.title')),
+    to: { name: 'batches' },
   },
   {
-    label: computed(() => t("transactionsView.title")),
-    to: { name: "transactions" },
+    label: computed(() => t('transactionsView.title')),
+    to: { name: 'transactions' },
   },
   {
-    label: computed(() => t("tokensView.title")),
-    to: { name: "tokens" },
+    label: computed(() => t('tokensView.title')),
+    to: { name: 'tokens' },
   },
 ]);
 
 const links = [
   {
-    label: computed(() => t("header.nav.apiDocs")),
+    label: computed(() => t('header.nav.apiDocs')),
     url: computed(() => `${currentNetwork.value.apiUrl}/docs`),
   },
   {
-    label: computed(() => t("header.nav.contractVerification")),
-    to: { name: "contract-verification" },
+    label: computed(() => t('header.nav.contractVerification')),
+    to: { name: 'contract-verification' },
   },
 ];
 
 if (currentNetwork.value.bridgeUrl) {
   links.push({
-    label: computed(() => t("header.nav.bridge")),
+    label: computed(() => t('header.nav.bridge')),
     url: computed(() => currentNetwork.value.bridgeUrl!),
   });
 }
@@ -205,12 +229,12 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
+  { url: 'https://join.zksync.dev/', component: DiscordIcon },
+  { url: 'https://twitter.com/zksync', component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
-  if (route.name !== "not-found" && !currentNetwork.value.maintenance) {
+  if (route.name !== 'not-found' && !currentNetwork.value.maintenance) {
     if (route.params.hash) {
       return isTransactionHash(route.params.hash as string);
     }

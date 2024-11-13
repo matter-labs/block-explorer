@@ -13,7 +13,7 @@
       :is-paymaster="transfer.to === paymasterAddress"
     />
     <div class="transfer-amount-container">
-      <span>{{ t("transactions.table.for") }}</span>
+      <span>{{ t('transactions.table.for') }}</span>
       <span class="transfer-amount-value">{{ transferAmount }}</span>
       <TokenIconLabel
         v-if="transfer.tokenInfo"
@@ -29,16 +29,16 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import TokenIconLabel from "@/components/TokenIconLabel.vue";
-import TransferInfo from "@/components/transactions/infoTable/TransferInfo.vue";
+import TokenIconLabel from '@/components/TokenIconLabel.vue';
+import TransferInfo from '@/components/transactions/infoTable/TransferInfo.vue';
 
-import type { TokenTransfer } from "@/composables/useTransaction";
-import type { Hash } from "@/types";
+import type { TokenTransfer } from '@/composables/useTransaction';
+import type { Hash } from '@/types';
 
-import { formatBigNumberish } from "@/utils/formatters";
+import { formatBigNumberish } from '@/utils/formatters';
 
 const { t } = useI18n();
 
@@ -53,7 +53,12 @@ const props = defineProps({
 });
 
 const transferAmount = computed(() =>
-  props.transfer.tokenInfo ? formatBigNumberish(props.transfer.amount || 0, props.transfer.tokenInfo?.decimals) : ""
+  props.transfer.tokenInfo
+    ? formatBigNumberish(
+        props.transfer.amount || 0,
+        props.transfer.tokenInfo?.decimals,
+      )
+    : '',
 );
 </script>
 

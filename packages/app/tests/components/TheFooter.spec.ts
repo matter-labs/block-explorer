@@ -1,31 +1,33 @@
-import { createI18n } from "vue-i18n";
+import { createI18n } from 'vue-i18n';
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import { mount } from "@vue/test-utils";
+import { mount } from '@vue/test-utils';
 
-import TheFooter from "@/components/TheFooter.vue";
+import TheFooter from '@/components/TheFooter.vue';
 
-import enUS from "@/locales/en.json";
+import enUS from '@/locales/en.json';
 
-describe("TheFooter:", () => {
+describe('TheFooter:', () => {
   const i18n = createI18n({
-    locale: "en",
+    locale: 'en',
     allowComposition: true,
     messages: {
       en: enUS,
     },
   });
 
-  it("renders navigation links", () => {
+  it('renders navigation links', () => {
     const wrapper = mount(TheFooter, {
       global: {
         plugins: [i18n],
       },
     });
-    const links = wrapper.findAll("a");
-    expect(links[0].attributes("href")).toBe("https://docs.zksync.io/build/tooling/zksync-block-explorers");
-    expect(links[1].attributes("href")).toBe("https://zksync.io/terms");
-    expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
+    const links = wrapper.findAll('a');
+    expect(links[0].attributes('href')).toBe(
+      'https://docs.zksync.io/build/tooling/zksync-block-explorers',
+    );
+    expect(links[1].attributes('href')).toBe('https://zksync.io/terms');
+    expect(links[2].attributes('href')).toBe('https://zksync.io/contact');
   });
 });

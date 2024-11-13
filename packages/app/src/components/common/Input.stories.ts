@@ -1,7 +1,7 @@
-import Input from "./Input.vue";
+import Input from './Input.vue';
 
 export default {
-  title: "Common/Input",
+  title: 'Common/Input',
   component: Input,
 };
 
@@ -27,28 +27,28 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  modelValue: "",
+  modelValue: '',
 };
 
 export const Disabled = Template.bind({}) as unknown as { args: Args };
 Disabled.args = {
-  modelValue: "",
+  modelValue: '',
   disabled: true,
 };
 
 export const WithValue = Template.bind({}) as unknown as { args: Args };
 WithValue.args = {
-  modelValue: "Input value",
+  modelValue: 'Input value',
 };
 
 export const DisabledWithValue = Template.bind({}) as unknown as { args: Args };
 DisabledWithValue.args = {
-  modelValue: "Input value",
+  modelValue: 'Input value',
   disabled: true,
 };
 
 export const WithError = Template.bind({}) as unknown as { args: Args };
 WithError.args = {
-  modelValue: "",
+  modelValue: '',
   error: "It's an error",
 };

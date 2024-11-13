@@ -4,7 +4,10 @@
       v-model:value="searchValue"
       :placeholder="t('searchForm.placeholder')"
       :error="
-        v$.searchValue.$error ? v$.searchValue.$errors[0] && v$.searchValue.$errors[0].$message.toString() : undefined
+        v$.searchValue.$error
+          ? v$.searchValue.$errors[0] &&
+            v$.searchValue.$errors[0].$message.toString()
+          : undefined
       "
       :pending="isRequestPending"
     >
@@ -18,20 +21,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { SearchIcon } from "@heroicons/vue/outline";
-import { useVuelidate } from "@vuelidate/core";
-import { or } from "@vuelidate/validators";
+import { SearchIcon } from '@heroicons/vue/outline';
+import { useVuelidate } from '@vuelidate/core';
+import { or } from '@vuelidate/validators';
 
-import SearchField from "@/components/common/SearchField.vue";
+import SearchField from '@/components/common/SearchField.vue';
 
-import useSearch from "@/composables/useSearch";
+import useSearch from '@/composables/useSearch';
 
-import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
+import {
+  isAddress,
+  isBlockNumber,
+  isTransactionHash,
+} from '@/utils/validators';
 
-const searchValue = ref("");
+const searchValue = ref('');
 const { search, isRequestPending } = useSearch();
 const { t } = useI18n();
 
@@ -42,7 +49,7 @@ const v$ = useVuelidate(
     },
   },
   { searchValue },
-  { $stopPropagation: true }
+  { $stopPropagation: true },
 );
 
 const submit = async () => {

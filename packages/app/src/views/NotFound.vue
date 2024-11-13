@@ -1,24 +1,26 @@
 <template>
   <div class="not-found">
     <SearchIcon class="search-icon"></SearchIcon>
-    <h1 class="header">{{ t("notFound.title") }}</h1>
+    <h1 class="header">{{ t('notFound.title') }}</h1>
     <p class="description">
-      {{ t("notFound.description") }}
+      {{ t('notFound.description') }}
     </p>
     <SearchForm class="search-form"></SearchForm>
     <div class="contact-support">
-      {{ t("notFound.contactSupportTitle") }}
-      <a href="https://zksync.io/contact" target="_blank">{{ t("notFound.contactSupport") }}</a>
+      {{ t('notFound.contactSupportTitle') }}
+      <a href="https://zksync.io/contact" target="_blank">{{
+        t('notFound.contactSupport')
+      }}</a>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import { SearchIcon } from "@heroicons/vue/outline";
+import { SearchIcon } from '@heroicons/vue/outline';
 
-import SearchForm from "@/components/SearchForm.vue";
+import SearchForm from '@/components/SearchForm.vue';
 
 const { t } = useI18n();
 </script>

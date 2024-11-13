@@ -1,5 +1,10 @@
 <template>
-  <div :class="[`transaction-status`, { 'single-badge-status': badges.length === 1 }]">
+  <div
+    :class="[
+      `transaction-status`,
+      { 'single-badge-status': badges.length === 1 },
+    ]"
+  >
     <template v-for="(item, index) in badges" :key="index">
       <Badge
         type="pill"
@@ -17,17 +22,27 @@
         ]"
       >
         <template #precontent v-if="item.finishedStatuses?.length">
-          <ol v-for="(finishedStatus, index) in item.finishedStatuses" :key="index">
+          <ol
+            v-for="(finishedStatus, index) in item.finishedStatuses"
+            :key="index"
+          >
             <li>
               <a
                 :href="
-                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                  currentNetwork.l1ExplorerUrl
+                    ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}`
+                    : undefined
                 "
                 class="badge-status-link"
                 target="_blank"
               >
-                <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <span class="badge-status-link-text"
+                  ><CheckIcon />{{ finishedStatus.text }}</span
+                >
+                <ExternalLinkIcon
+                  v-if="currentNetwork.l1ExplorerUrl"
+                  class="badge-status-link-icon"
+                />
               </a>
             </li>
           </ol>
@@ -38,17 +53,29 @@
         <template #default v-if="item.text">
           <a
             v-if="item.url"
-            :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
+            :href="
+              currentNetwork.l1ExplorerUrl
+                ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}`
+                : undefined
+            "
             class="badge-status-link"
             target="_blank"
           >
-            <span class="badge-status-link-text"><CheckIcon />{{ item.text }}</span>
-            <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+            <span class="badge-status-link-text"
+              ><CheckIcon />{{ item.text }}</span
+            >
+            <ExternalLinkIcon
+              v-if="currentNetwork.l1ExplorerUrl"
+              class="badge-status-link-icon"
+            />
           </a>
           <span v-else>{{ item.text }}</span>
         </template>
         <template #postcontent v-if="item.remainingStatuses?.length">
-          <ol v-for="(remainingStatus, index) in item.remainingStatuses" :key="index">
+          <ol
+            v-for="(remainingStatus, index) in item.remainingStatuses"
+            :key="index"
+          >
             <li>
               <div class="badge-status-text">
                 {{ remainingStatus.text }}
@@ -80,7 +107,9 @@
         </template>
         <template #default v-if="item.text">
           <span v-if="item.url" class="badge-status-link">
-            <span class="badge-status-link-text"><CheckIcon />{{ item.text }}</span>
+            <span class="badge-status-link-text"
+              ><CheckIcon />{{ item.text }}</span
+            >
           </span>
           <span v-else>{{ item.text }}</span>
         </template>
@@ -88,15 +117,24 @@
       <InfoTooltip v-if="item.infoTooltip" class="info-tooltip">
         {{ item.infoTooltip }}
       </InfoTooltip>
-      <Popup :opened="statusPopupOpened" class="status-popup" v-if="item.withDetailedPopup">
+      <Popup
+        :opened="statusPopupOpened"
+        class="status-popup"
+        v-if="item.withDetailedPopup"
+      >
         <OnClickOutside @trigger="closeStatusPopup">
           <div class="badge-status-popup">
             <div class="badge-status-popup-header">
               <h3 class="badge-status-popup-title">
-                {{ t("transactions.statusComponent.ethereumNetwork") }}
+                {{ t('transactions.statusComponent.ethereumNetwork') }}
               </h3>
 
-              <button @click="closeStatusPopup" class="badge-status-popup-close"><XIcon /></button>
+              <button
+                @click="closeStatusPopup"
+                class="badge-status-popup-close"
+              >
+                <XIcon />
+              </button>
             </div>
 
             <div
@@ -106,28 +144,49 @@
             >
               <a
                 :href="
-                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                  currentNetwork.l1ExplorerUrl
+                    ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}`
+                    : undefined
                 "
                 class="badge-status-link"
                 target="_blank"
               >
-                <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <span class="badge-status-link-text"
+                  ><CheckIcon />{{ finishedStatus.text }}</span
+                >
+                <ExternalLinkIcon
+                  v-if="currentNetwork.l1ExplorerUrl"
+                  class="badge-status-link-icon"
+                />
               </a>
             </div>
 
-            <div v-if="item.url" class="badge-status-popup-button status-active">
+            <div
+              v-if="item.url"
+              class="badge-status-popup-button status-active"
+            >
               <a
-                :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
+                :href="
+                  currentNetwork.l1ExplorerUrl
+                    ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}`
+                    : undefined
+                "
                 class="badge-status-link"
                 target="_blank"
               >
-                <span class="badge-status-link-text status-next"><CheckIcon />{{ item.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <span class="badge-status-link-text status-next"
+                  ><CheckIcon />{{ item.text }}</span
+                >
+                <ExternalLinkIcon
+                  v-if="currentNetwork.l1ExplorerUrl"
+                  class="badge-status-link-icon"
+                />
               </a>
             </div>
             <div v-else class="badge-status-popup-button status-current">
-              <span class="badge-status-link-text"><Spinner></Spinner>{{ item.text }}</span>
+              <span class="badge-status-link-text"
+                ><Spinner></Spinner>{{ item.text }}</span
+              >
             </div>
 
             <div
@@ -145,20 +204,25 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { CheckIcon, ExclamationCircleIcon, ExternalLinkIcon, XIcon } from "@heroicons/vue/outline";
-import { OnClickOutside } from "@vueuse/components";
+import {
+  CheckIcon,
+  ExclamationCircleIcon,
+  ExternalLinkIcon,
+  XIcon,
+} from '@heroicons/vue/outline';
+import { OnClickOutside } from '@vueuse/components';
 
-import Badge from "@/components/common/Badge.vue";
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
-import Popup from "@/components/common/Popup.vue";
-import Spinner from "@/components/common/Spinner.vue";
+import Badge from '@/components/common/Badge.vue';
+import InfoTooltip from '@/components/common/InfoTooltip.vue';
+import Popup from '@/components/common/Popup.vue';
+import Spinner from '@/components/common/Spinner.vue';
 
-import useContext from "@/composables/useContext";
+import useContext from '@/composables/useContext';
 
-import type { TransactionStatus } from "@/composables/useTransaction";
+import type { TransactionStatus } from '@/composables/useTransaction';
 
 const { currentNetwork } = useContext();
 
@@ -203,88 +267,94 @@ type FinishedStatus = RemainingStatus & {
 
 const finishedTxStatuses: FinishedStatus[] = [
   {
-    text: t("transactions.statusComponent.sent"),
+    text: t('transactions.statusComponent.sent'),
     url: props.commitTxHash,
   },
   {
-    text: t("transactions.statusComponent.validated"),
+    text: t('transactions.statusComponent.validated'),
     url: props.proveTxHash,
   },
   {
-    text: t("transactions.statusComponent.executed"),
+    text: t('transactions.statusComponent.executed'),
     url: props.executeTxHash,
   },
 ];
 
 const remainingTxStatuses: RemainingStatus[] = [
   {
-    text: t("transactions.statusComponent.validating"),
+    text: t('transactions.statusComponent.validating'),
   },
   {
-    text: t("transactions.statusComponent.executing"),
+    text: t('transactions.statusComponent.executing'),
   },
 ];
 
 const badges = computed(() => {
   const badgesArr: {
-    color: "neutral" | "dark-neutral" | "success" | "dark-success" | "danger" | "progress";
+    color:
+      | 'neutral'
+      | 'dark-neutral'
+      | 'success'
+      | 'dark-success'
+      | 'danger'
+      | 'progress';
     text?: string;
     tooltip?: string;
     infoTooltip?: string;
     icon?: unknown;
     testId: string;
-    textColor?: "neutral";
-    iconColor?: "dark-neutral";
+    textColor?: 'neutral';
+    iconColor?: 'dark-neutral';
     finishedStatuses?: FinishedStatus[];
     remainingStatuses?: RemainingStatus[];
     url?: string | null;
     withDetailedPopup?: boolean;
   }[] = [];
-  if (props.status === "failed") {
+  if (props.status === 'failed') {
     badgesArr.push({
-      testId: "failed",
-      color: "danger",
-      text: t("transactions.statusComponent.failed"),
+      testId: 'failed',
+      color: 'danger',
+      text: t('transactions.statusComponent.failed'),
       icon: ExclamationCircleIcon,
     });
     return badgesArr;
   }
 
   badgesArr.push({
-    testId: "l2-badge-title",
-    color: "success",
-    text: t("general.l2NetworkName"),
-    textColor: "neutral",
+    testId: 'l2-badge-title',
+    color: 'success',
+    text: t('general.l2NetworkName'),
+    textColor: 'neutral',
   });
   badgesArr.push({
-    testId: "l2-badge-value",
-    color: "dark-success",
-    text: t("transactions.statusComponent.processed"),
+    testId: 'l2-badge-value',
+    color: 'dark-success',
+    text: t('transactions.statusComponent.processed'),
     icon: CheckIcon,
   });
 
-  if (props.status === "indexing") {
+  if (props.status === 'indexing') {
     badgesArr.push({
-      testId: "indexing",
-      color: "neutral",
-      text: t("transactions.statusComponent.indexing"),
+      testId: 'indexing',
+      color: 'neutral',
+      text: t('transactions.statusComponent.indexing'),
       icon: Spinner,
     });
     return badgesArr;
   }
 
   badgesArr.push({
-    testId: "l1-badge-title",
-    color: props.status === "verified" ? "success" : "neutral",
-    text: t("general.l1NetworkName"),
-    textColor: "neutral",
+    testId: 'l1-badge-title',
+    color: props.status === 'verified' ? 'success' : 'neutral',
+    text: t('general.l1NetworkName'),
+    textColor: 'neutral',
   });
 
-  if (props.status === "verified") {
+  if (props.status === 'verified') {
     badgesArr.push({
-      testId: "verified",
-      color: "dark-success",
-      text: t("transactions.statusComponent.executed"),
+      testId: 'verified',
+      color: 'dark-success',
+      text: t('transactions.statusComponent.executed'),
       finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
       url: props.executeTxHash,
       withDetailedPopup: true,
@@ -294,24 +364,24 @@ const badges = computed(() => {
     const finishedStatuses: FinishedStatus[] = [];
     const remainingStatuses: RemainingStatus[] = [];
 
-    if (props.status === "committed") {
-      textKey = "validating";
+    if (props.status === 'committed') {
+      textKey = 'validating';
       finishedStatuses.push(finishedTxStatuses[0]);
       remainingStatuses.push(remainingTxStatuses[1]);
-    } else if (props.status === "proved") {
-      textKey = "executing";
+    } else if (props.status === 'proved') {
+      textKey = 'executing';
       finishedStatuses.push(finishedTxStatuses[0]);
       finishedStatuses.push(finishedTxStatuses[1]);
     } else {
-      textKey = "sending";
+      textKey = 'sending';
       remainingStatuses.push(remainingTxStatuses[0]);
       remainingStatuses.push(remainingTxStatuses[1]);
     }
 
     badgesArr.push({
-      testId: "l1-badge-value",
-      color: "dark-neutral",
-      iconColor: "dark-neutral",
+      testId: 'l1-badge-value',
+      color: 'dark-neutral',
+      iconColor: 'dark-neutral',
       text: t(`transactions.statusComponent.${textKey}`),
       icon: Spinner,
       finishedStatuses,

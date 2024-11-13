@@ -2,17 +2,26 @@
   <ul class="breadcrumbs">
     <template v-for="(item, index) in items" :key="index">
       <li class="breadcrumb-item">
-        <router-link v-if="item.to" class="breadcrumb-item-link" :to="item.to">{{ item.text }}</router-link>
+        <router-link
+          v-if="item.to"
+          class="breadcrumb-item-link"
+          :to="item.to"
+          >{{ item.text }}</router-link
+        >
         <span v-else class="breadcrumb-item-active">{{ item.text }}</span>
       </li>
-      <li class="breadcrumb-divider" aria-hidden="true" v-if="index < items.length - 1"></li>
+      <li
+        class="breadcrumb-divider"
+        aria-hidden="true"
+        v-if="index < items.length - 1"
+      ></li>
     </template>
   </ul>
 </template>
 
 <script setup lang="ts">
-import type { PropType } from "vue";
-import type { RouteLocationRaw } from "vue-router";
+import type { PropType } from 'vue';
+import type { RouteLocationRaw } from 'vue-router';
 
 export interface BreadcrumbItem {
   text: string;

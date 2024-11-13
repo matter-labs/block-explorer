@@ -7,7 +7,11 @@
             {{ activeStep.line + 1 }} {{ source[activeStep.line] }}
           </div>
           <div class="metadata-popup-nav-container">
-            <button @click="first" class="navigation-button" :disabled="index === 0">
+            <button
+              @click="first"
+              class="navigation-button"
+              :disabled="index === 0"
+            >
               <FirstArrow />
             </button>
             <button
@@ -26,7 +30,11 @@
             >
               <LeftArrow class="rotate-icon" />
             </button>
-            <button @click="last" class="navigation-button" :disabled="index + 1 >= total">
+            <button
+              @click="last"
+              class="navigation-button"
+              :disabled="index + 1 >= total"
+            >
               <FirstArrow class="rotate-icon" />
             </button>
           </div>
@@ -47,15 +55,19 @@
 </template>
 
 <script lang="ts" setup>
-import { OnClickOutside } from "@vueuse/components";
+import { OnClickOutside } from '@vueuse/components';
 
-import Popup from "@/components/common/Popup.vue";
-import MetadataBlock from "@/components/debugger/MetadataBlock.vue";
-import FirstArrow from "@/components/icons/FirstArrow.vue";
-import LeftArrow from "@/components/icons/LeftArrow.vue";
+import Popup from '@/components/common/Popup.vue';
+import MetadataBlock from '@/components/debugger/MetadataBlock.vue';
+import FirstArrow from '@/components/icons/FirstArrow.vue';
+import LeftArrow from '@/components/icons/LeftArrow.vue';
 
-import type { ActiveStep, HexDecimals, TraceFile } from "@/composables/useTrace";
-import type { PropType } from "vue";
+import type {
+  ActiveStep,
+  HexDecimals,
+  TraceFile,
+} from '@/composables/useTrace';
+import type { PropType } from 'vue';
 
 const props = defineProps({
   opened: {
@@ -89,30 +101,30 @@ const props = defineProps({
   },
   dataFormat: {
     type: String as PropType<HexDecimals>,
-    default: "Hex",
+    default: 'Hex',
   },
 });
 
 const emit = defineEmits<{
-  (eventName: "nav:goTo", value: number): void;
-  (eventName: "nav:metadata"): void;
+  (eventName: 'nav:goTo', value: number): void;
+  (eventName: 'nav:metadata'): void;
 }>();
 
 const previous = () => {
-  emit("nav:goTo", props.index - 1);
+  emit('nav:goTo', props.index - 1);
 };
 const next = () => {
-  emit("nav:goTo", props.index + 1);
+  emit('nav:goTo', props.index + 1);
 };
 const first = () => {
-  emit("nav:goTo", 0);
+  emit('nav:goTo', 0);
 };
 
 const last = () => {
-  emit("nav:goTo", props.total - 1);
+  emit('nav:goTo', props.total - 1);
 };
 function closeModal() {
-  emit("nav:metadata");
+  emit('nav:metadata');
 }
 </script>
 

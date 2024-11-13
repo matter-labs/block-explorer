@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BasePage } from "./base.page";
-import { MainPage } from "./main.page";
+import { BasePage } from './base.page';
+import { MainPage } from './main.page';
 
 import {
   byteCodeDropDown,
   contractVerificationButton,
   optimizationRadioButtons,
   transactionsTable,
-} from "../../testId.json";
+} from '../../testId.json';
 
-import type { ICustomWorld } from "../support/custom-world";
+import type { ICustomWorld } from '../support/custom-world';
 
 let element: any;
 let result: any;
@@ -47,12 +47,14 @@ export class ContractPage extends BasePage {
   }
 
   async selectTab(tabName: string) {
-    if (tabName === "Transactions") {
+    if (tabName === 'Transactions') {
       await this.click(this.transactionsTab, false);
-    } else if (tabName === "Contract") {
+    } else if (tabName === 'Contract') {
       await this.click(this.contractTab, false);
     } else {
-      console.error("Incorrect Tab name. The value should be only Contract or Transactions");
+      console.error(
+        'Incorrect Tab name. The value should be only Contract or Transactions',
+      );
     }
   }
 

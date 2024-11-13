@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BasePage } from "./base.page";
-import { BlockPage } from "./block.page";
-import { ContractPage } from "./contract.page";
-import { TokensPage } from "./tokens.page";
-import { TransactionPage } from "./transaction.page";
+import { BasePage } from './base.page';
+import { BlockPage } from './block.page';
+import { ContractPage } from './contract.page';
+import { TokensPage } from './tokens.page';
+import { TransactionPage } from './transaction.page';
 
 import {
   blocksNumber,
@@ -18,9 +18,9 @@ import {
   tokensTable,
   transactionsHash,
   transactionsTable,
-} from "../../testId.json";
+} from '../../testId.json';
 
-import type { ICustomWorld } from "../support/custom-world";
+import type { ICustomWorld } from '../support/custom-world';
 
 let blockPage: BlockPage;
 let tokensPage: TokensPage;
@@ -34,7 +34,7 @@ export class MainPage extends BasePage {
   }
 
   get title() {
-    return ".title";
+    return '.title';
   }
 
   get logo() {
@@ -42,7 +42,7 @@ export class MainPage extends BasePage {
   }
 
   get searchField() {
-    return "id=search";
+    return 'id=search';
   }
 
   get searchSubmitBtn() {
@@ -50,7 +50,7 @@ export class MainPage extends BasePage {
   }
 
   get searchFieldInvalidInput() {
-    return ".search-input.has-error";
+    return '.search-input.has-error';
   }
 
   get selectedNetwork() {
@@ -170,15 +170,15 @@ export class MainPage extends BasePage {
   }
 
   async countRowsInTable(table: string) {
-    if (table === "Latest Batches") {
+    if (table === 'Latest Batches') {
       element = this.latestBatchesTable;
-    } else if (table === "Latest Transactions") {
+    } else if (table === 'Latest Transactions') {
       element = this.latestTransactionTable;
-    } else if (table === "Blocks") {
+    } else if (table === 'Blocks') {
       element = this.blocksTable;
-    } else if (table === "Transactions") {
+    } else if (table === 'Transactions') {
       element = this.transactionsTable;
-    } else if (table === "Tokens") {
+    } else if (table === 'Tokens') {
       element = this.tokensTable;
     }
 
@@ -193,13 +193,13 @@ export class MainPage extends BasePage {
 
   async getColumnValueInTable(table: string, column: string) {
     let tableDataId: any;
-    if (table === "Latest Batches") {
+    if (table === 'Latest Batches') {
       tableDataId = this.latestBatchesTable;
-    } else if (table === "Latest Transactions") {
+    } else if (table === 'Latest Transactions') {
       tableDataId = this.latestTransactionTable;
-    } else if (table === "Blocks") {
+    } else if (table === 'Blocks') {
       tableDataId = this.blocksTable;
-    } else if (table === "Transactions") {
+    } else if (table === 'Transactions') {
       tableDataId = this.transactionsTable;
     }
 
@@ -220,12 +220,14 @@ export class MainPage extends BasePage {
     const transactionPage = new TransactionPage(this.world);
     const contractPage = new ContractPage(this.world);
 
-    if (pageName === "Contract") {
+    if (pageName === 'Contract') {
       await contractPage.selectTab(tabName);
-    } else if (pageName === "Transaction") {
+    } else if (pageName === 'Transaction') {
       await transactionPage.selectTab(tabName);
     } else {
-      console.error("Incorrect Page name. The value should be only Contract or Transaction");
+      console.error(
+        'Incorrect Page name. The value should be only Contract or Transaction',
+      );
     }
   }
 
@@ -239,11 +241,11 @@ export class MainPage extends BasePage {
     transactionPage = new TransactionPage(this.world);
     tokensPage = new TokensPage(this.world);
 
-    if (pageName === "Transaction" || pageName === "Contract") {
+    if (pageName === 'Transaction' || pageName === 'Contract') {
       result = await transactionPage.clickCopyBtnByRow(rowName);
-    } else if (pageName === "Account" || pageName === "Block") {
+    } else if (pageName === 'Account' || pageName === 'Block') {
       result = await blockPage.clickCopyBtnByRow(rowName);
-    } else if (pageName === "Tokens") {
+    } else if (pageName === 'Tokens') {
       result = await tokensPage.clickCopyBtnByRow(rowName);
     }
     return result;
@@ -253,14 +255,14 @@ export class MainPage extends BasePage {
     const switcherDropdown = async (selector: string) => {
       return await this.click(selector);
     };
-    if (switcherType === "language") {
+    if (switcherType === 'language') {
       await switcherDropdown(this.selectedLanguage);
       result = await switcherDropdown(await this.setSwitcherLanguage(value));
-    } else if (switcherType === "network") {
+    } else if (switcherType === 'network') {
       await switcherDropdown(this.selectedNetwork);
       result = await switcherDropdown(await this.setSwitcherNetwork(value));
     } else {
-      console.error("Incorrect value for switcher type");
+      console.error('Incorrect value for switcher type');
     }
   }
 
@@ -268,12 +270,12 @@ export class MainPage extends BasePage {
     const actualValue = async (selector: string) => {
       return await this.world.page?.locator(selector);
     };
-    if (switcherType === "language") {
+    if (switcherType === 'language') {
       result = await actualValue(this.selectedLanguage);
-    } else if (switcherType === "network") {
+    } else if (switcherType === 'network') {
       result = await actualValue(this.selectedNetwork);
     } else {
-      console.error("Incorrect value for switcher type");
+      console.error('Incorrect value for switcher type');
     }
     return result;
   }
@@ -287,40 +289,40 @@ export class MainPage extends BasePage {
   }
 
   async getLinkForElement(elementType: string) {
-    if (elementType === "tx hash") {
+    if (elementType === 'tx hash') {
       element = this.txHash;
-    } else if (elementType === "batch number") {
+    } else if (elementType === 'batch number') {
       element = this.batchNumber;
-    } else if (elementType === "batch size") {
+    } else if (elementType === 'batch size') {
       element = this.batchSize;
-    } else if (elementType === "committed blocks") {
+    } else if (elementType === 'committed blocks') {
       element = this.committedBlocks;
-    } else if (elementType === "verified blocks") {
+    } else if (elementType === 'verified blocks') {
       element = this.verifiedBlocks;
-    } else if (elementType === "transactions") {
+    } else if (elementType === 'transactions') {
       element = this.transactions;
-    } else if (elementType === "initiator address") {
+    } else if (elementType === 'initiator address') {
       element = this.initiatorAddress;
-    } else if (elementType === "token icon") {
+    } else if (elementType === 'token icon') {
       element = this.tokenIcon;
-    } else if (elementType === "transaction hash") {
+    } else if (elementType === 'transaction hash') {
       element = this.transactionsHash;
-    } else if (elementType === "token address") {
+    } else if (elementType === 'token address') {
       element = this.tokenAddress;
-    } else if (elementType === "block number") {
+    } else if (elementType === 'block number') {
       element = this.blockNumber;
-    } else if (elementType === "from address") {
+    } else if (elementType === 'from address') {
       element = this.fromAddress;
-    } else if (elementType === "to address") {
+    } else if (elementType === 'to address') {
       element = this.toAddress;
-    } else if (elementType === "Value" || elementType === "Fee") {
+    } else if (elementType === 'Value' || elementType === 'Fee') {
       element = await this.getTokenFromColumn(elementType);
     } else if (
-      elementType === "To" ||
-      elementType === "Commit Tx hash" ||
-      elementType === "Execute Tx hash" ||
-      elementType === "Prove Tx hash" ||
-      elementType === "Tokens Transferred"
+      elementType === 'To' ||
+      elementType === 'Commit Tx hash' ||
+      elementType === 'Execute Tx hash' ||
+      elementType === 'Prove Tx hash' ||
+      elementType === 'Tokens Transferred'
     ) {
       element = await this.getRandomToken(elementType);
     }

@@ -6,7 +6,11 @@
       </TableBodyColumn>
       <TableBodyColumn>
         <div class="block-info-field-value">
-          <component v-if="item.component" :is="item.component" v-bind="item.value"></component>
+          <component
+            v-if="item.component"
+            :is="item.component"
+            v-bind="item.value"
+          ></component>
           <template v-else>{{ item.value }}</template>
         </div>
       </TableBodyColumn>
@@ -25,16 +29,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import CopyContent from "@/components/common/table/fields/CopyContent.vue";
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import CopyContent from '@/components/common/table/fields/CopyContent.vue';
 
-import type { Account, ThirdPartyAccount } from "@/composables/useAddress";
-import type { Component, PropType } from "vue";
+import type { Account, ThirdPartyAccount } from '@/composables/useAddress';
+import type { Component, PropType } from 'vue';
 
 const { t } = useI18n();
 const props = defineProps({
@@ -59,20 +63,34 @@ const tableInfoItems = computed(() => {
   };
 
   const tableItems: InfoTableItem[] = [
-    { label: t("accountView.accountInfo.address"), value: { value: props.account.address }, component: CopyContent },
     {
-      label: t("accountView.accountInfo.sealedNonce"),
-      value: { value: props.account.authorized ? props.account.sealedNonce : "Restricted", account: props.account },
+      label: t('accountView.accountInfo.address'),
+      value: { value: props.account.address },
+      component: CopyContent,
+    },
+    {
+      label: t('accountView.accountInfo.sealedNonce'),
+      value: {
+        value: props.account.authorized
+          ? props.account.sealedNonce
+          : 'Restricted',
+        account: props.account,
+      },
       component: {
-        props: ["value", "account"],
+        props: ['value', 'account'],
         template: `<div :class="{ 'unauthorized-value': !account.authorized }">{{ value }}</div>`,
       },
     },
     {
-      label: t("accountView.accountInfo.verifiedNonce"),
-      value: { value: props.account.authorized ? props.account.verifiedNonce : "Restricted", account: props.account },
+      label: t('accountView.accountInfo.verifiedNonce'),
+      value: {
+        value: props.account.authorized
+          ? props.account.verifiedNonce
+          : 'Restricted',
+        account: props.account,
+      },
       component: {
-        props: ["value", "account"],
+        props: ['value', 'account'],
         template: `<div :class="{ 'unauthorized-value': !account.authorized }">{{ value }}</div>`,
       },
     },

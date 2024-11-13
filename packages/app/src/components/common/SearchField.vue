@@ -1,6 +1,8 @@
 <template>
   <div>
-    <label v-if="label && label.length" for="search" class="input-label">{{ label }}</label>
+    <label v-if="label && label.length" for="search" class="input-label">{{
+      label
+    }}</label>
     <div class="search-input-container">
       <input
         id="search"
@@ -20,15 +22,17 @@
         <slot class="submit-icon" name="submit" />
       </div>
     </div>
-    <div class="error-message" v-if="error && error.length">{{ t("searchForm.errorMessage") }}</div>
+    <div class="error-message" v-if="error && error.length">
+      {{ t('searchForm.errorMessage') }}
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import Spinner from "@/components/common/Spinner.vue";
+import Spinner from '@/components/common/Spinner.vue';
 
 const props = defineProps({
   value: {
@@ -37,11 +41,11 @@ const props = defineProps({
   },
   label: {
     type: String,
-    default: "",
+    default: '',
   },
   placeholder: {
     type: String,
-    default: "",
+    default: '',
   },
   disabled: {
     type: Boolean,
@@ -53,15 +57,15 @@ const props = defineProps({
   },
   error: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 const { t } = useI18n();
-const emit = defineEmits(["update:value"]);
+const emit = defineEmits(['update:value']);
 const model = computed({
   get: () => props.value,
   set: (value: string) => {
-    emit("update:value", value.trim());
+    emit('update:value', value.trim());
   },
 });
 </script>

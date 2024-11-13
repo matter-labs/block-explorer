@@ -1,21 +1,29 @@
-import { ClipboardCheckIcon } from "@heroicons/vue/outline";
+import { ClipboardCheckIcon } from '@heroicons/vue/outline';
 
-import Badge from "./Badge.vue";
+import Badge from './Badge.vue';
 
 export default {
-  title: "Common/Badge",
+  title: 'Common/Badge',
   component: Badge,
 };
 
 type Args = {
-  type?: "label" | "pill";
-  size?: "sm" | "md";
+  type?: 'label' | 'pill';
+  size?: 'sm' | 'md';
   color?: string;
   defaultSlot?: string;
   icon?: unknown;
 }[];
 
-const colors = ["primary", "secondary", "warning", "error", "danger", "success", "neutral"];
+const colors = [
+  'primary',
+  'secondary',
+  'warning',
+  'error',
+  'danger',
+  'success',
+  'neutral',
+];
 
 const Template = (variants: Args) => ({
   components: { Badge },
@@ -36,16 +44,16 @@ const Template = (variants: Args) => ({
 
 export const Small = Template.bind({}) as unknown as { args: Args };
 Small.args = colors.map((e) => ({
-  type: "label",
-  size: "sm",
+  type: 'label',
+  size: 'sm',
   color: e,
   defaultSlot: e,
 }));
 
 export const SmallWithIcon = Template.bind({}) as unknown as { args: Args };
 SmallWithIcon.args = colors.map((e) => ({
-  type: "label",
-  size: "sm",
+  type: 'label',
+  size: 'sm',
   color: e,
   defaultSlot: e,
   icon: ClipboardCheckIcon,
@@ -53,16 +61,16 @@ SmallWithIcon.args = colors.map((e) => ({
 
 export const Medium = Template.bind({}) as unknown as { args: Args };
 Medium.args = colors.map((e) => ({
-  type: "label",
-  size: "md",
+  type: 'label',
+  size: 'md',
   color: e,
   defaultSlot: e,
 }));
 
 export const MediumWithIcon = Template.bind({}) as unknown as { args: Args };
 MediumWithIcon.args = colors.map((e) => ({
-  type: "label",
-  size: "md",
+  type: 'label',
+  size: 'md',
   color: e,
   defaultSlot: e,
   icon: ClipboardCheckIcon,
@@ -70,16 +78,16 @@ MediumWithIcon.args = colors.map((e) => ({
 
 export const Pill = Template.bind({}) as unknown as { args: Args };
 Pill.args = colors.map((e) => ({
-  type: "pill",
-  size: "md",
+  type: 'pill',
+  size: 'md',
   color: e,
   defaultSlot: e,
 }));
 
 export const PillWithIcon = Template.bind({}) as unknown as { args: Args };
 PillWithIcon.args = colors.map((e) => ({
-  type: "pill",
-  size: "md",
+  type: 'pill',
+  size: 'md',
   color: e,
   defaultSlot: e,
   icon: ClipboardCheckIcon,

@@ -1,14 +1,14 @@
-import { action, type HandlerFunction } from "@storybook/addon-actions";
-import vueRouter from "storybook-vue3-router";
+import { action, type HandlerFunction } from '@storybook/addon-actions';
+import vueRouter from 'storybook-vue3-router';
 
-import TransactionsTable from "./Table.vue";
+import TransactionsTable from './Table.vue';
 
-import ExecuteTx from "@/../mock/transactions/Execute.json";
+import ExecuteTx from '@/../mock/transactions/Execute.json';
 
-import type { TransactionItem } from "@/composables/useTransaction";
+import type { TransactionItem } from '@/composables/useTransaction';
 
 export default {
-  title: "Transactions/Table",
+  title: 'Transactions/Table',
   component: TransactionsTable,
 };
 
@@ -44,14 +44,27 @@ const Template = (args: Args) => ({
 });
 
 const transactions: TransactionItem[] = [ExecuteTx as TransactionItem];
-const columns: string[] = ["status", "transactionHash", "age", "from", "direction", "to", "nonce", "value", "fee"];
+const columns: string[] = [
+  'status',
+  'transactionHash',
+  'age',
+  'from',
+  'direction',
+  'to',
+  'nonce',
+  'value',
+  'fee',
+];
 const routes = vueRouter([
-  { path: "/", name: "home", component: {} },
-  { path: "/address", name: "address", component: {} },
-  { path: "/tx", name: "transaction", component: {} },
+  { path: '/', name: 'home', component: {} },
+  { path: '/address', name: 'address', component: {} },
+  { path: '/tx', name: 'transaction', component: {} },
 ]);
 
-export const Default = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const Default = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 Default.args = {
   transactions,
   loading: false,
@@ -59,11 +72,14 @@ Default.args = {
   total: transactions.length,
   isLoadMoreRequestFailed: false,
   isLoadMoreRequestPending: false,
-  loadMore: action("LOAD MORE"),
+  loadMore: action('LOAD MORE'),
 };
 Default.decorators = [routes];
 
-export const WithFooter = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const WithFooter = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 WithFooter.args = {
   transactions,
   loading: false,
@@ -71,7 +87,7 @@ WithFooter.args = {
   total: transactions.length + 1,
   isLoadMoreRequestFailed: false,
   isLoadMoreRequestPending: false,
-  loadMore: action("LOAD MORE"),
+  loadMore: action('LOAD MORE'),
 };
 WithFooter.decorators = [routes];
 
@@ -83,17 +99,28 @@ Loading.args = {
   total: transactions.length,
   isLoadMoreRequestFailed: false,
   isLoadMoreRequestPending: false,
-  loadMore: action("LOAD MORE"),
+  loadMore: action('LOAD MORE'),
 };
 
-export const SpecificColumns = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const SpecificColumns = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 SpecificColumns.args = {
   transactions,
   loading: false,
   total: transactions.length,
-  columns: ["status", "transactionHash", "age", "from", "direction", "to", "nonce"],
+  columns: [
+    'status',
+    'transactionHash',
+    'age',
+    'from',
+    'direction',
+    'to',
+    'nonce',
+  ],
   isLoadMoreRequestFailed: false,
   isLoadMoreRequestPending: false,
-  loadMore: action("LOAD MORE"),
+  loadMore: action('LOAD MORE'),
 };
 SpecificColumns.decorators = [routes];

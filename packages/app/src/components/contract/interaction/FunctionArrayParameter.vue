@@ -2,11 +2,20 @@
   <div class="function-array-parameter">
     <div class="function-input-label-container">
       <div class="function-input-label">{{ label }} ({{ type }})</div>
-      <button v-if="!requiredArrayLength" class="function-add-button" type="button" @click="addField">
+      <button
+        v-if="!requiredArrayLength"
+        class="function-add-button"
+        type="button"
+        @click="addField"
+      >
         <PlusIcon class="function-input-plus-icon" />
       </button>
     </div>
-    <div v-for="(_, index) in inputted" :key="index" class="function-input-field-container">
+    <div
+      v-for="(_, index) in inputted"
+      :key="index"
+      class="function-input-field-container"
+    >
       <Input
         v-model="inputted[index]"
         type="text"
@@ -27,13 +36,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
+import { computed, type PropType } from 'vue';
 
-import { PlusIcon, TrashIcon } from "@heroicons/vue/outline";
+import { PlusIcon, TrashIcon } from '@heroicons/vue/outline';
 
-import Input from "@/components/common/Input.vue";
+import Input from '@/components/common/Input.vue';
 
-import { getRawFunctionType, getRequiredArrayLength } from "@/utils/helpers";
+import { getRawFunctionType, getRequiredArrayLength } from '@/utils/helpers';
 
 const props = defineProps({
   label: {
@@ -59,7 +68,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits<{
-  (eventName: "update:modelValue", value: string[]): void;
+  (eventName: 'update:modelValue', value: string[]): void;
 }>();
 
 const inputted = computed({
@@ -67,10 +76,12 @@ const inputted = computed({
     if (!props.modelValue) {
       props.modelValue;
     }
-    return Array.isArray(props.modelValue) ? props.modelValue : [props.modelValue];
+    return Array.isArray(props.modelValue)
+      ? props.modelValue
+      : [props.modelValue];
   },
   set: (value: string[]) => {
-    emit("update:modelValue", value);
+    emit('update:modelValue', value);
   },
 });
 
@@ -78,14 +89,17 @@ const flatType = computed(() => getRawFunctionType(props.type));
 const requiredArrayLength = computed(() => getRequiredArrayLength(props.type));
 
 const addField = () => {
-  inputted.value = [...inputted.value, ""];
+  inputted.value = [...inputted.value, ''];
 };
 const removeField = (index: number) => {
   inputted.value.splice(index, 1);
 };
 
-if (requiredArrayLength.value && requiredArrayLength.value !== inputted.value.length) {
-  inputted.value = Array(requiredArrayLength.value).fill("");
+if (
+  requiredArrayLength.value &&
+  requiredArrayLength.value !== inputted.value.length
+) {
+  inputted.value = Array(requiredArrayLength.value).fill('');
 } else if (inputted.value.length === 0) {
   addField();
 }

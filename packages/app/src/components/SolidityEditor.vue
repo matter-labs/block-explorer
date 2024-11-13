@@ -17,15 +17,15 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
-import { PrismEditor } from "vue-prism-editor";
+import { computed, ref } from 'vue';
+import { PrismEditor } from 'vue-prism-editor';
 
-import "vue-prism-editor/dist/prismeditor.min.css";
+import 'vue-prism-editor/dist/prismeditor.min.css';
 
-import { highlight, languages } from "prismjs";
-import "prismjs/components/prism-clike.min";
-import "prismjs/components/prism-solidity.min";
-import "prismjs/themes/prism-solarizedlight.min.css";
+import { highlight, languages } from 'prismjs';
+import 'prismjs/components/prism-clike.min';
+import 'prismjs/components/prism-solidity.min';
+import 'prismjs/themes/prism-solarizedlight.min.css';
 
 const props = defineProps({
   modelValue: {
@@ -57,25 +57,27 @@ const props = defineProps({
 const focused = ref(false);
 const el = ref<null | HTMLElement>(null);
 const emit = defineEmits<{
-  (eventName: "update:modelValue", value: string): void;
+  (eventName: 'update:modelValue', value: string): void;
 }>();
 
 const inputted = computed({
   get: () => props.modelValue,
   set: (value: string) => {
-    emit("update:modelValue", value);
+    emit('update:modelValue', value);
   },
 });
 
 function highlighter(code: string) {
-  return highlight(code, languages.sol, "sol");
+  return highlight(code, languages.sol, 'sol');
 }
 
 function focusEditor() {
   if (focused.value || props.disabled || props.readOnly) {
     return;
   }
-  (el.value?.querySelector(".prism-editor__textarea") as HTMLTextAreaElement)?.focus();
+  (
+    el.value?.querySelector('.prism-editor__textarea') as HTMLTextAreaElement
+  )?.focus();
 }
 </script>
 

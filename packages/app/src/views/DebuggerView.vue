@@ -1,20 +1,36 @@
 SourceNode
 <template>
-  <EmptyState :has-error="hasError" v-if="hasError || !collection?.length" @update:value="upload" />
+  <EmptyState
+    :has-error="hasError"
+    v-if="hasError || !collection?.length"
+    @update:value="upload"
+  />
   <section v-else>
     <div class="head-block">
-      <UploadFile v-slot="obj" class="upload-file" @update:value="upload" :accept="'.json'">
-        <UploadIcon class="upload-file-icon" /><label :for="obj.for" class="upload-file-label">
-          {{ t("debuggerTool.uploadJSON") }}
+      <UploadFile
+        v-slot="obj"
+        class="upload-file"
+        @update:value="upload"
+        :accept="'.json'"
+      >
+        <UploadIcon class="upload-file-icon" /><label
+          :for="obj.for"
+          class="upload-file-label"
+        >
+          {{ t('debuggerTool.uploadJSON') }}
         </label>
-        {{ t("debuggerTool.orDropHere") }}
+        {{ t('debuggerTool.orDropHere') }}
       </UploadFile>
     </div>
     <section class="debugger" :class="{ 'debugger-full-screen': isFullScreen }">
       <div class="debugger-header">
-        <h2>{{ t("debuggerTool.transaction") }}</h2>
+        <h2>{{ t('debuggerTool.transaction') }}</h2>
         <div class="full-screen-container">
-          <Dropdown v-model="dataFormat" :options="dataFormatOptions" class="hex-decimals-dropdown" />
+          <Dropdown
+            v-model="dataFormat"
+            :options="dataFormatOptions"
+            class="hex-decimals-dropdown"
+          />
           <span>{{ fullScreenHotkey }}</span>
           <button @click="isFullScreen = !isFullScreen">
             <ExpandIcon />
@@ -35,7 +51,11 @@ SourceNode
           :total="total!"
         />
         <ul class="file-list">
-          <li v-for="item of collection" :key="item.address" class="file-list-item">
+          <li
+            v-for="item of collection"
+            :key="item.address"
+            class="file-list-item"
+          >
             <div
               tabindex="0"
               @keypress.enter="handleClick(item)"
@@ -44,11 +64,23 @@ SourceNode
               @click="handleClick(item)"
               data-testid="file-list-item-toggle"
             >
-              <HashLabel :text="item.address" placement="middle" class="file-list-item-data-hash-label" />
+              <HashLabel
+                :text="item.address"
+                placement="middle"
+                class="file-list-item-data-hash-label"
+              />
               <label v-if="item.fileName">{{ item.fileName }}</label>
               <template v-if="!searchText.length">
-                <ChevronUpIcon class="toggle-button" aria-hidden="true" v-if="item.expanded" />
-                <ChevronDownIcon class="toggle-button" aria-hidden="true" v-else />
+                <ChevronUpIcon
+                  class="toggle-button"
+                  aria-hidden="true"
+                  v-if="item.expanded"
+                />
+                <ChevronDownIcon
+                  class="toggle-button"
+                  aria-hidden="true"
+                  v-else
+                />
               </template>
             </div>
             <SourceViewer
@@ -79,8 +111,16 @@ SourceNode
             >
               <template v-if="parent || child" v-slot:[`parent-child`]>
                 <div class="parent-child-tabs-container">
-                  <Tabs class="parent-child-tabs" :tabs="tabs" :has-route="false">
-                    <template v-for="(data, i) in tabData" :key="i" v-slot:[`tab-${i+1}-header`]>
+                  <Tabs
+                    class="parent-child-tabs"
+                    :tabs="tabs"
+                    :has-route="false"
+                  >
+                    <template
+                      v-for="(data, i) in tabData"
+                      :key="i"
+                      v-slot:[`tab-${i+1}-header`]
+                    >
                       <template v-if="data">
                         <div class="parent-child-header">
                           <HashLabel
@@ -88,11 +128,17 @@ SourceNode
                             :subtraction="3"
                             :text="data.value?.contract_address"
                           />
-                          <span class="parent-child-type" v-if="data">{{ t(`debuggerTool.${data.type}`) }}</span>
+                          <span class="parent-child-type" v-if="data">{{
+                            t(`debuggerTool.${data.type}`)
+                          }}</span>
                         </div>
                       </template>
                     </template>
-                    <template v-for="(data, i) in tabData" :key="i" v-slot:[`tab-${i+1}-content`]>
+                    <template
+                      v-for="(data, i) in tabData"
+                      :key="i"
+                      v-slot:[`tab-${i+1}-content`]
+                    >
                       <MetadataTabs
                         v-if="data"
                         :metadata="data.value!"
@@ -127,15 +173,29 @@ SourceNode
           :class="{ 'tabs-full-screen-container': isFullScreen }"
         >
           <Tabs class="parent-child-tabs" :tabs="tabs" :has-route="false">
-            <template v-for="(data, i) in tabData" :key="i" v-slot:[`tab-${i+1}-header`]>
+            <template
+              v-for="(data, i) in tabData"
+              :key="i"
+              v-slot:[`tab-${i+1}-header`]
+            >
               <template v-if="data">
                 <div class="parent-child-header">
-                  <HashLabel class="parent-child-address" :subtraction="3" :text="data.value?.contract_address" />
-                  <span class="parent-child-type">{{ t(`debuggerTool.${data.type}`) }}</span>
+                  <HashLabel
+                    class="parent-child-address"
+                    :subtraction="3"
+                    :text="data.value?.contract_address"
+                  />
+                  <span class="parent-child-type">{{
+                    t(`debuggerTool.${data.type}`)
+                  }}</span>
                 </div>
               </template>
             </template>
-            <template v-for="(data, i) in tabData" :key="i" v-slot:[`tab-${i+1}-content`]>
+            <template
+              v-for="(data, i) in tabData"
+              :key="i"
+              v-slot:[`tab-${i+1}-content`]
+            >
               <MetadataTabs
                 v-if="data"
                 :metadata="data.value!"
@@ -148,11 +208,20 @@ SourceNode
           </Tabs>
         </div>
       </div>
-      <div v-if="isFullScreen && (parent || child)" class="parent-child-section debugger-full-screen-height">
+      <div
+        v-if="isFullScreen && (parent || child)"
+        class="parent-child-section debugger-full-screen-height"
+      >
         <div class="parent-child-item" v-if="parent">
           <div class="parent-child-item-header">
-            <HashLabel class="parent-child-address" :subtraction="3" :text="parent.value!.contract_address" />
-            <span class="parent-child-type">{{ t(`debuggerTool.${parent.type}`) }}</span>
+            <HashLabel
+              class="parent-child-address"
+              :subtraction="3"
+              :text="parent.value!.contract_address"
+            />
+            <span class="parent-child-type">{{
+              t(`debuggerTool.${parent.type}`)
+            }}</span>
           </div>
           <MetadataTabs
             :metadata="parent.value!"
@@ -164,8 +233,14 @@ SourceNode
         </div>
         <div class="parent-child-item" v-if="child">
           <div class="parent-child-item-header">
-            <HashLabel class="parent-child-address" :subtraction="3" :text="child.value!.contract_address" />
-            <span class="parent-child-type">{{ t(`debuggerTool.${child.type}`) }}</span>
+            <HashLabel
+              class="parent-child-address"
+              :subtraction="3"
+              :text="child.value!.contract_address"
+            />
+            <span class="parent-child-type">{{
+              t(`debuggerTool.${child.type}`)
+            }}</span>
           </div>
           <MetadataTabs
             class="metadata-full-screen"
@@ -182,28 +257,32 @@ SourceNode
 </template>
 
 <script lang="ts" setup>
-import { computed, type ComputedRef, ref, watchEffect } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type ComputedRef, ref, watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/vue/outline";
-import { UploadIcon } from "@heroicons/vue/outline";
+import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/vue/outline';
+import { UploadIcon } from '@heroicons/vue/outline';
 
-import Dropdown from "@/components/common/Dropdown.vue";
-import HashLabel from "@/components/common/HashLabel.vue";
-import Tabs, { type Tab } from "@/components/common/Tabs.vue";
-import UploadFile from "@/components/common/UploadFile.vue";
-import EmptyState from "@/components/debugger/EmptyState.vue";
-import MetadataBlock from "@/components/debugger/MetadataBlock.vue";
-import MetadataBlockPopup from "@/components/debugger/MetadataBlockPopup.vue";
-import MetadataTabs from "@/components/debugger/MetadataTabs.vue";
-import Navigation from "@/components/debugger/Navigation.vue";
-import SourceViewer from "@/components/debugger/SourceViewer.vue";
-import ExpandIcon from "@/components/icons/ExpandIcon.vue";
+import Dropdown from '@/components/common/Dropdown.vue';
+import HashLabel from '@/components/common/HashLabel.vue';
+import Tabs, { type Tab } from '@/components/common/Tabs.vue';
+import UploadFile from '@/components/common/UploadFile.vue';
+import EmptyState from '@/components/debugger/EmptyState.vue';
+import MetadataBlock from '@/components/debugger/MetadataBlock.vue';
+import MetadataBlockPopup from '@/components/debugger/MetadataBlockPopup.vue';
+import MetadataTabs from '@/components/debugger/MetadataTabs.vue';
+import Navigation from '@/components/debugger/Navigation.vue';
+import SourceViewer from '@/components/debugger/SourceViewer.vue';
+import ExpandIcon from '@/components/icons/ExpandIcon.vue';
 
-import useFullHeight from "@/composables/useFullHeight";
-import useTrace, { type HexDecimals, type TraceStep, useTraceNavigation } from "@/composables/useTrace";
+import useFullHeight from '@/composables/useFullHeight';
+import useTrace, {
+  type HexDecimals,
+  type TraceStep,
+  useTraceNavigation,
+} from '@/composables/useTrace';
 
-import { mapStep } from "@/utils/mappers";
+import { mapStep } from '@/utils/mappers';
 
 const traceColumnElement = ref<HTMLElement | null>(null);
 
@@ -244,11 +323,14 @@ function closeModal() {
   opened.value = false;
 }
 
-const searchText = ref("");
+const searchText = ref('');
 
 const tabData = ref<parentChildBlock[]>([]);
 
-const dataFormatOptions = computed(() => [t("debuggerTool.hex"), t("debuggerTool.dec")]);
+const dataFormatOptions = computed(() => [
+  t('debuggerTool.hex'),
+  t('debuggerTool.dec'),
+]);
 const dataFormat = ref<HexDecimals>(dataFormatOptions.value[0] as HexDecimals);
 
 watchEffect(() => {
@@ -263,10 +345,10 @@ watchEffect(() => {
 const tabs: ComputedRef<Tab[]> = computed(() => {
   let result = [];
   if (parent.value) {
-    result.push({ hash: "parent" });
+    result.push({ hash: 'parent' });
   }
   if (child.value) {
-    result.push({ hash: "child" });
+    result.push({ hash: 'child' });
   }
   return result as Tab[];
 });
@@ -292,14 +374,25 @@ watchEffect(() => {
   parent.value = null;
   tabData.value = [];
   if (file.value?.steps && activeStep.value) {
-    contractsVariations.value = file.value.steps.reduce((previousValue: ContractsVariations[], element, index) => {
-      if (previousValue.length && previousValue[previousValue.length - 1].address === element.contract_address) {
-        previousValue[previousValue.length - 1].lastItem = index;
-      } else {
-        previousValue.push({ address: element.contract_address, firstItem: index, lastItem: index });
-      }
-      return previousValue;
-    }, []);
+    contractsVariations.value = file.value.steps.reduce(
+      (previousValue: ContractsVariations[], element, index) => {
+        if (
+          previousValue.length &&
+          previousValue[previousValue.length - 1].address ===
+            element.contract_address
+        ) {
+          previousValue[previousValue.length - 1].lastItem = index;
+        } else {
+          previousValue.push({
+            address: element.contract_address,
+            firstItem: index,
+            lastItem: index,
+          });
+        }
+        return previousValue;
+      },
+      [],
+    );
 
     contractsVariations.value.forEach((item, index) => {
       if (
@@ -309,11 +402,12 @@ watchEffect(() => {
       ) {
         parent.value = {
           value: mapStep(
-            file.value?.steps[contractsVariations.value[index - 1]?.lastItem] ?? ({} as TraceStep),
-            dataFormat.value
+            file.value?.steps[contractsVariations.value[index - 1]?.lastItem] ??
+              ({} as TraceStep),
+            dataFormat.value,
           ),
           index: contractsVariations.value[index - 1]?.lastItem,
-          type: "parent",
+          type: 'parent',
         };
         tabData.value.push(parent.value);
       }
@@ -324,11 +418,13 @@ watchEffect(() => {
       ) {
         child.value = {
           value: mapStep(
-            file.value?.steps[contractsVariations.value[index + 1]?.firstItem] ?? ({} as TraceStep),
-            dataFormat.value
+            file.value?.steps[
+              contractsVariations.value[index + 1]?.firstItem
+            ] ?? ({} as TraceStep),
+            dataFormat.value,
           ),
           index: contractsVariations.value[index + 1]?.firstItem,
-          type: "child",
+          type: 'child',
         };
         tabData.value.push(child.value);
       }
@@ -339,33 +435,35 @@ watchEffect(() => {
 watchEffect(() => {
   if (file.value) {
     getActiveLines();
-    collection.value = Object.entries(file.value.sources).map(([address, item]) => {
-      const source: string[] = item.assembly_code?.split("\n") ?? [];
-      const errors: Array<undefined | string> = [];
-      file.value!.steps.forEach((step) => {
-        errors[item.pc_line_mapping[step.pc]] = step.error ?? undefined;
-      });
-      let fileName: string | null = null;
-      const line = source.find((item) => item.includes(".file"));
-      if (line && line.length) {
-        const match = line.match(new RegExp('"(.*?)"'));
-        if (match && match.length > 1) {
-          fileName = match[1];
+    collection.value = Object.entries(file.value.sources).map(
+      ([address, item]) => {
+        const source: string[] = item.assembly_code?.split('\n') ?? [];
+        const errors: Array<undefined | string> = [];
+        file.value!.steps.forEach((step) => {
+          errors[item.pc_line_mapping[step.pc]] = step.error ?? undefined;
+        });
+        let fileName: string | null = null;
+        const line = source.find((item) => item.includes('.file'));
+        if (line && line.length) {
+          const match = line.match(new RegExp('"(.*?)"'));
+          if (match && match.length > 1) {
+            fileName = match[1];
+          }
         }
-      }
-      return {
-        address,
-        fileName,
-        source,
-        errors,
-        expanded: false,
-        pcLineMapping: item.pc_line_mapping,
-      };
-    });
+        return {
+          address,
+          fileName,
+          source,
+          errors,
+          expanded: false,
+          pcLineMapping: item.pc_line_mapping,
+        };
+      },
+    );
   } else {
     collection.value = [];
   }
-  searchText.value = "";
+  searchText.value = '';
 });
 
 const handleClick = (item: SourceNode) => {

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import IconError from "@/components/icons/IconError.vue";
+import IconError from '@/components/icons/IconError.vue';
 </script>
 
 <style scoped lang="scss">

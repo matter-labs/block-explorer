@@ -1,11 +1,11 @@
 <template>
   <div class="paymaster-label">
-    {{ t("transactions.table.feeDetails.paymaster") }}
+    {{ t('transactions.table.feeDetails.paymaster') }}
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 </script>
 

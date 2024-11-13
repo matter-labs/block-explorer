@@ -7,7 +7,10 @@
       },
     ]"
   >
-    <div v-if="$slots.precontent" class="badge-pre-content badge-additional-content">
+    <div
+      v-if="$slots.precontent"
+      class="badge-pre-content badge-additional-content"
+    >
       <slot name="precontent"></slot>
     </div>
     <div
@@ -28,7 +31,10 @@
         <slot></slot>
       </span>
     </div>
-    <div v-if="$slots.postcontent" class="badge-post-content badge-additional-content">
+    <div
+      v-if="$slots.postcontent"
+      class="badge-post-content badge-additional-content"
+    >
       <slot name="postcontent"></slot>
     </div>
     <template #content>
@@ -38,39 +44,39 @@
 </template>
 
 <script setup lang="ts">
-import Tooltip from "@/components/common/Tooltip.vue";
+import Tooltip from '@/components/common/Tooltip.vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 defineProps({
   size: {
-    type: String as PropType<"sm" | "md">,
-    default: "sm",
+    type: String as PropType<'sm' | 'md'>,
+    default: 'sm',
   },
   type: {
-    type: String as PropType<"label" | "pill">,
-    default: "label",
+    type: String as PropType<'label' | 'pill'>,
+    default: 'label',
   },
   color: {
     type: String as PropType<
-      | "primary"
-      | "secondary"
-      | "neutral"
-      | "dark-neutral"
-      | "success"
-      | "dark-success"
-      | "warning"
-      | "error"
-      | "danger"
-      | "progress"
+      | 'primary'
+      | 'secondary'
+      | 'neutral'
+      | 'dark-neutral'
+      | 'success'
+      | 'dark-success'
+      | 'warning'
+      | 'error'
+      | 'danger'
+      | 'progress'
     >,
-    default: "neutral",
+    default: 'neutral',
   },
   tooltip: {
     type: String,
   },
   textColor: {
-    type: String as PropType<"neutral">,
+    type: String as PropType<'neutral'>,
   },
 });
 </script>

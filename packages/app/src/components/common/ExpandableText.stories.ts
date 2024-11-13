@@ -1,7 +1,7 @@
-import ExpandableText from "./ExpandableText.vue";
+import ExpandableText from './ExpandableText.vue';
 
 export default {
-  title: "Common/ExpandableText",
+  title: 'Common/ExpandableText',
   component: ExpandableText,
 };
 
@@ -49,7 +49,9 @@ Default.args = {
   text: "ParserError: Expected identifier but got 'constructor'\n --> Source.sol:9:5:\n  |\n9 |     constructor(string memory _greeting) {\n  |     ^^^^^^^^^^^\n\n",
 };
 
-export const SpecifiedHeight = SpecifiedHeightTemplate.bind({}) as unknown as { args: Args };
+export const SpecifiedHeight = SpecifiedHeightTemplate.bind({}) as unknown as {
+  args: Args;
+};
 SpecifiedHeight.args = {
   text: "ParserError: Expected identifier but got 'constructor'\n --> Source.sol:9:5:\n  |\n9 |     constructor(string memory _greeting) {\n  |     ^^^^^^^^^^^\n\n",
   maxHeight: 50,

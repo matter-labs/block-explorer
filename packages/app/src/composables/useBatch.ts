@@ -1,8 +1,8 @@
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from 'ohmyfetch';
 
-import useContext from "@/composables/useContext";
+import useContext from '@/composables/useContext';
 
 export type BatchDetails = Api.Response.BatchDetails;
 
@@ -16,7 +16,9 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      batchItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/batches/${id}`);
+      batchItem.value = await $fetch(
+        `${context.currentNetwork.value.apiUrl}/batches/${id}`,
+      );
     } catch (error: unknown) {
       batchItem.value = null;
       if (!(error instanceof FetchError) || error.response?.status !== 404) {

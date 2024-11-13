@@ -1,9 +1,9 @@
-import vueRouter from "storybook-vue3-router";
+import vueRouter from 'storybook-vue3-router';
 
-import Pagination from "./Pagination.vue";
+import Pagination from './Pagination.vue';
 
 export default {
-  title: "Common/Pagination",
+  title: 'Common/Pagination',
   component: Pagination,
 };
 
@@ -25,35 +25,50 @@ const Template = (args: Args) => ({
   `,
 });
 
-export const Default = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const Default = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 Default.args = {
   activePage: 1,
   totalItems: 50,
 };
 Default.decorators = [vueRouter()];
 
-export const Start = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const Start = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 Start.args = {
   activePage: 1,
   totalItems: 100,
 };
 Start.decorators = [vueRouter()];
 
-export const Full = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const Full = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 Full.args = {
   activePage: 5,
   totalItems: 100,
 };
 Full.decorators = [vueRouter()];
 
-export const End = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const End = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 End.args = {
   activePage: 10,
   totalItems: 100,
 };
 End.decorators = [vueRouter()];
 
-export const Disabled = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const Disabled = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 Disabled.args = {
   activePage: 5,
   totalItems: 100,

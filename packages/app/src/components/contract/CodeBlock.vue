@@ -15,12 +15,12 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
+import { ref } from 'vue';
 
-import SolidityEditor from "@/components/SolidityEditor.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import ChevronDownUp from "@/components/icons/ChevronDownUp.vue";
-import ChevronUpDown from "@/components/icons/ChevronUpDown.vue";
+import SolidityEditor from '@/components/SolidityEditor.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import ChevronDownUp from '@/components/icons/ChevronDownUp.vue';
+import ChevronUpDown from '@/components/icons/ChevronUpDown.vue';
 
 defineProps({
   label: {

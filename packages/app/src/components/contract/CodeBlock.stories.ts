@@ -1,7 +1,7 @@
-import CodeBlock from "./CodeBlock.vue";
+import CodeBlock from './CodeBlock.vue';
 
 export default {
-  title: "Contract/CodeBlock",
+  title: 'Contract/CodeBlock',
   component: CodeBlock,
 };
 
@@ -32,6 +32,6 @@ contract ERC20Token is ERC20{
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  label: "File 1 of 4 : Proxy.sol",
+  label: 'File 1 of 4 : Proxy.sol',
   code,
 };

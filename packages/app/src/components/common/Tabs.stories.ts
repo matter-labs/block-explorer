@@ -1,11 +1,11 @@
-import vueRouter from "storybook-vue3-router";
+import vueRouter from 'storybook-vue3-router';
 
-import Tabs from "./Tabs.vue";
+import Tabs from './Tabs.vue';
 
-import type { Tab } from "./Tabs.vue";
+import type { Tab } from './Tabs.vue';
 
 export default {
-  title: "Common/Tabs",
+  title: 'Common/Tabs',
   component: Tabs,
 };
 
@@ -26,17 +26,23 @@ const Template = (args: Args) => ({
   `,
 });
 
-export const SingleTab = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const SingleTab = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 SingleTab.args = {
-  tabs: [{ title: "Tab 1", hash: "#tab1" }],
+  tabs: [{ title: 'Tab 1', hash: '#tab1' }],
 };
 
-export const MultipleTabs = Template.bind({}) as unknown as { args: Args; decorators: unknown[] };
+export const MultipleTabs = Template.bind({}) as unknown as {
+  args: Args;
+  decorators: unknown[];
+};
 MultipleTabs.args = {
   tabs: [
-    { title: "Tab 1", hash: "#tab1" },
-    { title: "Tab 2", hash: "#tab2" },
-    { title: "Tab 3", hash: "#tab3" },
+    { title: 'Tab 1', hash: '#tab1' },
+    { title: 'Tab 2', hash: '#tab2' },
+    { title: 'Tab 3', hash: '#tab3' },
   ],
 };
 

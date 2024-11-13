@@ -1,5 +1,9 @@
 <template>
-  <slot :token="token" :decimal-amount="decimalAmount" :price-amount="priceAmount">
+  <slot
+    :token="token"
+    :decimal-amount="decimalAmount"
+    :price-amount="priceAmount"
+  >
     <div class="token-amount-price">
       <template v-if="token && decimalAmount">
         <div class="token-amount">{{ decimalAmount }}</div>
@@ -18,20 +22,20 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
+import { computed } from 'vue';
 
-import TokenIconLabel from "@/components/TokenIconLabel.vue";
+import TokenIconLabel from '@/components/TokenIconLabel.vue';
 
-import type { Token } from "@/composables/useToken";
-import type { BigNumberish } from "ethers";
-import type { PropType } from "vue";
+import type { Token } from '@/composables/useToken';
+import type { BigNumberish } from 'ethers';
+import type { PropType } from 'vue';
 
-import { formatBigNumberish, formatPricePretty } from "@/utils/formatters";
+import { formatBigNumberish, formatPricePretty } from '@/utils/formatters';
 
 const props = defineProps({
   amount: {
     type: String as PropType<BigNumberish | null>,
-    default: "0",
+    default: '0',
     required: true,
   },
   token: {
@@ -43,13 +47,19 @@ const props = defineProps({
 
 const priceAmount = computed(() => {
   if (props.amount && props.token && props.token.usdPrice) {
-    return formatPricePretty(props.amount, props.token.decimals, props.token.usdPrice.toString());
+    return formatPricePretty(
+      props.amount,
+      props.token.decimals,
+      props.token.usdPrice.toString(),
+    );
   }
-  return "";
+  return '';
 });
 
 const decimalAmount = computed(() =>
-  props.amount && props.token ? formatBigNumberish(props.amount, props.token.decimals) : ""
+  props.amount && props.token
+    ? formatBigNumberish(props.amount, props.token.decimals)
+    : '',
 );
 </script>
 

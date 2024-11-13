@@ -4,15 +4,25 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <h1>{{ t("batches.title") }}</h1>
+    <h1>{{ t('batches.title') }}</h1>
     <div class="batches-container">
       <span v-if="failed" class="error-message">
-        {{ t("failedRequest") }}
+        {{ t('failedRequest') }}
       </span>
-      <BatchesTable v-else :loading="pending" :loading-rows="pageSize" :batches="data ?? []">
+      <BatchesTable
+        v-else
+        :loading="pending"
+        :loading-rows="pageSize"
+        :batches="data ?? []"
+      >
         <template v-if="total && total > pageSize" #footer>
           <div class="pagination-container">
-            <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
+            <Pagination
+              :active-page="page!"
+              :total-items="total!"
+              :page-size="pageSize"
+              :disabled="pending"
+            />
           </div>
         </template>
       </BatchesTable>
@@ -20,32 +30,35 @@
   </div>
 </template>
 <script setup lang="ts">
-import { computed, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { computed, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
-import SearchForm from "@/components/SearchForm.vue";
-import BatchesTable from "@/components/batches/Table.vue";
-import Breadcrumbs, { type BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
-import Pagination from "@/components/common/Pagination.vue";
+import SearchForm from '@/components/SearchForm.vue';
+import BatchesTable from '@/components/batches/Table.vue';
+import Breadcrumbs, {
+  type BreadcrumbItem,
+} from '@/components/common/Breadcrumbs.vue';
+import Pagination from '@/components/common/Pagination.vue';
 
-import useBatches from "@/composables/useBatches";
-import useContext from "@/composables/useContext";
+import useBatches from '@/composables/useBatches';
+import useContext from '@/composables/useContext';
 
 const { t } = useI18n();
 
 const context = useContext();
 const route = useRoute();
 
-const { load, pending, failed, data, total, pageSize, page } = useBatches(context);
+const { load, pending, failed, data, total, pageSize, page } =
+  useBatches(context);
 
 const breadcrumbItems = computed((): BreadcrumbItem[] => [
   {
-    text: t("breadcrumbs.home"),
-    to: { name: "home" },
+    text: t('breadcrumbs.home'),
+    to: { name: 'home' },
   },
   {
-    text: `${t("batches.breadcrumbsTitle")}`,
+    text: `${t('batches.breadcrumbsTitle')}`,
   },
 ]);
 
@@ -55,7 +68,7 @@ watch(
     const currentPage = page ? parseInt(page as string) : 1;
     load(currentPage, currentPage === 1 ? new Date() : undefined);
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BasePage } from "./base.page";
+import { BasePage } from './base.page';
 
-import { pageTitle } from "../../testId.json";
+import { pageTitle } from '../../testId.json';
 
-import type { ICustomWorld } from "../support/custom-world";
+import type { ICustomWorld } from '../support/custom-world';
 
 let element: any;
 
@@ -26,7 +26,7 @@ export class BlockPage extends BasePage {
 
   async clickCopyBtnByRow(rowName: string) {
     const copyBtn = this.copyBtn;
-    element = (await this.getRowByText(rowName)) + "/..//.." + copyBtn;
+    element = (await this.getRowByText(rowName)) + '/..//..' + copyBtn;
 
     await this.world.page?.locator(element).first().click();
   }

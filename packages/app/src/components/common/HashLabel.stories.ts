@@ -1,9 +1,9 @@
-import HashLabel from "./HashLabel.vue";
+import HashLabel from './HashLabel.vue';
 
-import type { Placement } from "./HashLabel.vue";
+import type { Placement } from './HashLabel.vue';
 
 export default {
-  title: "Common/HashLabel",
+  title: 'Common/HashLabel',
   component: HashLabel,
 };
 
@@ -23,15 +23,15 @@ const Template = (args: Args) => ({
 
 export const Middle = Template.bind({}) as unknown as { args: Args };
 Middle.args = {
-  placement: "middle",
+  placement: 'middle',
 };
 
 export const Left = Template.bind({}) as unknown as { args: Args };
 Left.args = {
-  placement: "left",
+  placement: 'left',
 };
 
 export const Right = Template.bind({}) as unknown as { args: Args };
 Right.args = {
-  placement: "right",
+  placement: 'right',
 };

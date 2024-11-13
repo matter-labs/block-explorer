@@ -1,11 +1,14 @@
-import type { AbiFragment } from "@/composables/useAddress";
-import type { TransactionLogEntry } from "@/composables/useEventLog";
-import type { HexDecimals, TraceStep } from "@/composables/useTrace";
+import type { AbiFragment } from '@/composables/useAddress';
+import type { TransactionLogEntry } from '@/composables/useEventLog';
+import type { HexDecimals, TraceStep } from '@/composables/useTrace';
 
-import { checksumAddress, formatHexDecimals } from "@/utils/formatters";
-import { decodeLogWithABI } from "@/utils/helpers";
+import { checksumAddress, formatHexDecimals } from '@/utils/formatters';
+import { decodeLogWithABI } from '@/utils/helpers';
 
-export function mapContractEvents(contractEvents: TransactionLogEntry[], abi?: AbiFragment[]): TransactionLogEntry[] {
+export function mapContractEvents(
+  contractEvents: TransactionLogEntry[],
+  abi?: AbiFragment[],
+): TransactionLogEntry[] {
   return contractEvents.map((e) => ({
     ...e,
     blockNumber: BigInt(e.blockNumber),
@@ -27,9 +30,13 @@ export function mapStep(step: TraceStep, dataFormat: HexDecimals) {
     memory_snapshots: [
       ...step.memory_snapshots.map((e) => ({
         ...e,
-        values: [...e.values.map((value) => formatHexDecimals(value, dataFormat))],
+        values: [
+          ...e.values.map((value) => formatHexDecimals(value, dataFormat)),
+        ],
       })),
     ],
-    registers: [...step.registers.map((value) => formatHexDecimals(value, dataFormat))],
+    registers: [
+      ...step.registers.map((value) => formatHexDecimals(value, dataFormat)),
+    ],
   };
 }

@@ -1,8 +1,8 @@
-import Table from "./Table.vue";
-import TableBodyColumn from "./TableBodyColumn.vue";
+import Table from './Table.vue';
+import TableBodyColumn from './TableBodyColumn.vue';
 
 export default {
-  title: "Common/Table/TableBodyColumn",
+  title: 'Common/Table/TableBodyColumn',
   component: Table,
 };
 
@@ -31,6 +31,6 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  headers: ["Header 1"],
-  items: ["Row 1", "Row 2", "Row 3"],
+  headers: ['Header 1'],
+  items: ['Row 1', 'Row 2', 'Row 3'],
 };

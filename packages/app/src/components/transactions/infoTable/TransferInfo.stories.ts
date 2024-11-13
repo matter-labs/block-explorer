@@ -1,9 +1,9 @@
-import TransferInfo from "@/components/transactions/infoTable/TransferInfo.vue";
+import TransferInfo from '@/components/transactions/infoTable/TransferInfo.vue';
 
-import type { Hash, NetworkOrigin } from "@/types";
+import type { Hash, NetworkOrigin } from '@/types';
 
 export default {
-  title: "Transactions/TransferInfo",
+  title: 'Transactions/TransferInfo',
   component: TransferInfo,
 };
 
@@ -24,7 +24,7 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  label: "From",
-  address: "0x6c10d9c1744f149d4b17660e14faa247964749c7",
-  network: "L2",
+  label: 'From',
+  address: '0x6c10d9c1744f149d4b17660e14faa247964749c7',
+  network: 'L2',
 };

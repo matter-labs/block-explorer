@@ -4,7 +4,9 @@
       <template v-if="item.value !== undefined">
         <table-body-column v-if="item.label" class="batch-label-column">
           <span class="batch-info-field-label">{{ item.label }}</span>
-          <InfoTooltip class="batch-info-field-tooltip">{{ item.tooltip }}</InfoTooltip>
+          <InfoTooltip class="batch-info-field-tooltip">{{
+            item.tooltip
+          }}</InfoTooltip>
         </table-body-column>
         <table-body-column
           class="batch-info-field-value-container"
@@ -12,9 +14,17 @@
         >
           <div class="batch-info-field-value">
             <a v-if="item.url" :href="item.url" target="_blank">
-              <component :is="item.component" v-bind="item.value" is-external-link></component>
+              <component
+                :is="item.component"
+                v-bind="item.value"
+                is-external-link
+              ></component>
             </a>
-            <component v-else-if="item.component" :is="item.component" v-bind="item.value"></component>
+            <component
+              v-else-if="item.component"
+              :is="item.component"
+              v-bind="item.value"
+            ></component>
             <template v-else>{{ item.value }}</template>
           </div>
         </table-body-column>
@@ -34,12 +44,12 @@
 </template>
 
 <script lang="ts" setup>
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
+import InfoTooltip from '@/components/common/InfoTooltip.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
 
-import type { PropType } from "vue";
+import type { PropType } from 'vue';
 
 defineProps({
   items: {

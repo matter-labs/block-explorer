@@ -2,11 +2,11 @@
   <div class="transactions-empty-state">
     <EmptyState>
       <template #title>
-        {{ t("transactions.table.notFound") }}
+        {{ t('transactions.table.notFound') }}
       </template>
       <template #description>
         <div class="transactions-empty-description">
-          {{ t("transactions.table.notFoundSubtitle") }}
+          {{ t('transactions.table.notFoundSubtitle') }}
         </div>
       </template>
     </EmptyState>
@@ -14,9 +14,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import EmptyState from "@/components/common/EmptyState.vue";
+import EmptyState from '@/components/common/EmptyState.vue';
 
 const { t } = useI18n();
 </script>

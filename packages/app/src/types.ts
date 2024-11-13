@@ -2,13 +2,13 @@ export type Hash = `0x${string}` | string;
 
 export type Address = Hash;
 
-export type NetworkOrigin = "L1" | "L2";
+export type NetworkOrigin = 'L1' | 'L2';
 
 export enum ContractVerificationCodeFormatEnum {
-  soliditySingleFile = "solidity-single-file",
-  solidityMultiPart = "solidity-standard-json-input",
-  vyperSingleFile = "vyper-multi-file",
-  vyperMultiPart = "vyper-multi-file",
+  soliditySingleFile = 'solidity-single-file',
+  solidityMultiPart = 'solidity-standard-json-input',
+  vyperSingleFile = 'vyper-multi-file',
+  vyperMultiPart = 'vyper-multi-file',
 }
 
 export type ContractVerificationCodeFormat =
@@ -18,20 +18,24 @@ export type ContractVerificationCodeFormat =
   | ContractVerificationCodeFormatEnum.vyperMultiPart;
 
 export enum CompilerEnum {
-  solc = "solc",
-  zksolc = "zksolc",
-  vyper = "vyper",
-  zkvyper = "zkvyper",
+  solc = 'solc',
+  zksolc = 'zksolc',
+  vyper = 'vyper',
+  zkvyper = 'zkvyper',
 }
 
 export enum CompilationTypeOptionsEnum {
-  soliditySingleFile = "soliditySingleFile",
-  solidityMultiPart = "solidityMultiPart",
-  vyperSingleFile = "vyperSingleFile",
-  vyperMultiPart = "vyperMultiPart",
+  soliditySingleFile = 'soliditySingleFile',
+  solidityMultiPart = 'solidityMultiPart',
+  vyperSingleFile = 'vyperSingleFile',
+  vyperMultiPart = 'vyperMultiPart',
 }
 
-export type Compiler = CompilerEnum.solc | CompilerEnum.zksolc | CompilerEnum.vyper | CompilerEnum.zkvyper;
+export type Compiler =
+  | CompilerEnum.solc
+  | CompilerEnum.zksolc
+  | CompilerEnum.vyper
+  | CompilerEnum.zkvyper;
 
 export type ContractVerificationData = {
   codeFormat: ContractVerificationCodeFormat;
@@ -58,4 +62,8 @@ export type ContractVerificationData = {
   constructorArguments: string;
 };
 
-export type ContractVerificationStatus = "successful" | "failed" | "in_progress" | "queued";
+export type ContractVerificationStatus =
+  | 'successful'
+  | 'failed'
+  | 'in_progress'
+  | 'queued';

@@ -3,17 +3,19 @@
     <div class="error-page-icon-container">
       <IconError color="white" />
     </div>
-    <div class="error-page-title">{{ t("pageError.title") }}</div>
-    <div class="error-page-subtitle">{{ t("pageError.subtitle") }}</div>
-    <Button class="home-button" tag="RouterLink" :to="{ name: 'home' }">{{ t("pageError.button") }}</Button>
+    <div class="error-page-title">{{ t('pageError.title') }}</div>
+    <div class="error-page-subtitle">{{ t('pageError.subtitle') }}</div>
+    <Button class="home-button" tag="RouterLink" :to="{ name: 'home' }">{{
+      t('pageError.button')
+    }}</Button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import Button from "@/components/common/Button.vue";
-import IconError from "@/components/icons/IconError.vue";
+import Button from '@/components/common/Button.vue';
+import IconError from '@/components/icons/IconError.vue';
 
 const { t } = useI18n();
 </script>

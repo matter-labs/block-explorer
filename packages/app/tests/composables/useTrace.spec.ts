@@ -1,11 +1,14 @@
-import { computed, nextTick, ref } from "vue";
+import { computed, nextTick, ref } from 'vue';
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from 'vitest';
 
-import useTrace, { type TraceFile, useTraceNavigation } from "@/composables/useTrace";
+import useTrace, {
+  type TraceFile,
+  useTraceNavigation,
+} from '@/composables/useTrace';
 
-describe("useTrace:", () => {
-  it("creates useTrace composable", () => {
+describe('useTrace:', () => {
+  it('creates useTrace composable', () => {
     const result = useTrace();
 
     expect(result.upload).toBeDefined();
@@ -13,10 +16,10 @@ describe("useTrace:", () => {
     expect(result.hasError).toBeDefined();
   });
 
-  describe("upload:", () => {
-    it("sets hasError to true when failed to parse file", async () => {
-      const file = new File(["Hello World"], "foo.json", {
-        type: "application/json",
+  describe('upload:', () => {
+    it('sets hasError to true when failed to parse file', async () => {
+      const file = new File(['Hello World'], 'foo.json', {
+        type: 'application/json',
       });
 
       const { upload, hasError } = useTrace();
@@ -26,38 +29,42 @@ describe("useTrace:", () => {
       expect(hasError.value).toEqual(true);
     });
 
-    it("sets hasError to false when file parsed successfully", async () => {
+    it('sets hasError to false when file parsed successfully', async () => {
       const { upload, hasError } = useTrace();
 
       await upload([
         new File(
-          ['{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n"}}}'],
-          "foo.json",
+          [
+            '{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n"}}}',
+          ],
+          'foo.json',
           {
-            type: "application/json",
-          }
+            type: 'application/json',
+          },
         ),
       ]).catch(() => null);
 
       expect(hasError.value).toEqual(false);
     });
 
-    it("sets file when file parsed successfully", async () => {
+    it('sets file when file parsed successfully', async () => {
       const { upload, file } = useTrace();
 
       await upload([
         new File(
-          ['{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n"}}}'],
-          "foo.json",
+          [
+            '{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n"}}}',
+          ],
+          'foo.json',
           {
-            type: "application/json",
-          }
+            type: 'application/json',
+          },
         ),
       ]).catch(() => null);
 
       expect(file.value).toEqual({
         sources: {
-          "0x00": {
+          '0x00': {
             assembly_code: '\t.text\n\t.file\t"HelloWorld.sol"\nHello\nWorld\n',
           },
         },
@@ -66,8 +73,8 @@ describe("useTrace:", () => {
   });
 });
 
-describe("useTraceNavigation:", () => {
-  it("creates useTraceNavigation composable", () => {
+describe('useTraceNavigation:', () => {
+  it('creates useTraceNavigation composable', () => {
     const file = computed<TraceFile | null>(() => null);
     const result = useTraceNavigation(file);
 
@@ -80,13 +87,19 @@ describe("useTraceNavigation:", () => {
     expect(result.activeLines).toBeDefined();
   });
 
-  it("returns null index by default", () => {
+  it('returns null index by default', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: { 1: 5 } } },
+      sources: {
+        '0x': {
+          active_lines: [],
+          assembly_code: '',
+          pc_line_mapping: { 1: 5 },
+        },
+      },
       steps: [
         {
           pc: 1,
-          contract_address: "0x",
+          contract_address: '0x',
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any,
@@ -95,9 +108,11 @@ describe("useTraceNavigation:", () => {
     expect(result.index.value).toEqual(null);
   });
 
-  it("returns total number of steps", () => {
+  it('returns total number of steps', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: [] } },
+      sources: {
+        '0x': { active_lines: [], assembly_code: '', pc_line_mapping: [] },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [{} as any, {} as any],
     }));
@@ -105,9 +120,11 @@ describe("useTraceNavigation:", () => {
     expect(result.total.value).toEqual(2);
   });
 
-  it("navigates to next step", () => {
+  it('navigates to next step', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: [] } },
+      sources: {
+        '0x': { active_lines: [], assembly_code: '', pc_line_mapping: [] },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [{} as any, {} as any],
     }));
@@ -116,9 +133,11 @@ describe("useTraceNavigation:", () => {
     expect(result.index.value).toEqual(1);
   });
 
-  it("navigates to previous step", () => {
+  it('navigates to previous step', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: [] } },
+      sources: {
+        '0x': { active_lines: [], assembly_code: '', pc_line_mapping: [] },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [{} as any, {} as any],
     }));
@@ -127,9 +146,11 @@ describe("useTraceNavigation:", () => {
     expect(result.index.value).toEqual(0);
   });
 
-  it("does not go below 0", () => {
+  it('does not go below 0', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: [] } },
+      sources: {
+        '0x': { active_lines: [], assembly_code: '', pc_line_mapping: [] },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [{} as any, {} as any],
     }));
@@ -138,9 +159,11 @@ describe("useTraceNavigation:", () => {
     expect(result.index.value).toEqual(0);
   });
 
-  it("does not go above total length", () => {
+  it('does not go above total length', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: [] } },
+      sources: {
+        '0x': { active_lines: [], assembly_code: '', pc_line_mapping: [] },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [{} as any, {} as any],
     }));
@@ -149,20 +172,24 @@ describe("useTraceNavigation:", () => {
     expect(result.index.value).toEqual(1);
   });
 
-  it("resets navigation index when file changed", async () => {
+  it('resets navigation index when file changed', async () => {
     const file = ref<TraceFile | null>({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: [] } },
+      sources: {
+        '0x': { active_lines: [], assembly_code: '', pc_line_mapping: [] },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [{} as any, {} as any],
     });
 
     const result = useTraceNavigation(
       computed<TraceFile | null>(() => file.value),
-      { index: 2 }
+      { index: 2 },
     );
 
     file.value = {
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: [] } },
+      sources: {
+        '0x': { active_lines: [], assembly_code: '', pc_line_mapping: [] },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [{} as any, {} as any, {} as any],
     };
@@ -170,49 +197,61 @@ describe("useTraceNavigation:", () => {
     await nextTick();
     expect(result.index.value).toEqual(null);
   });
-  it("navigates to a specific line", () => {
+  it('navigates to a specific line', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [], assembly_code: "", pc_line_mapping: { 1: 1, 2: 2, 3: 3 } } },
+      sources: {
+        '0x': {
+          active_lines: [],
+          assembly_code: '',
+          pc_line_mapping: { 1: 1, 2: 2, 3: 3 },
+        },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [
         {
           pc: 1,
-          contract_address: "0x",
+          contract_address: '0x',
         },
         {
           pc: 2,
-          contract_address: "0x",
+          contract_address: '0x',
         },
         {
           pc: 3,
-          contract_address: "0x",
+          contract_address: '0x',
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any,
     }));
     const result = useTraceNavigation(file);
-    result.navigateToLine({ line: 3, address: "0x" });
+    result.navigateToLine({ line: 3, address: '0x' });
 
     expect(result.index.value).toEqual(2);
   });
-  it("returns active lines", () => {
+  it('returns active lines', () => {
     const file = computed<TraceFile | null>(() => ({
-      sources: { "0x": { active_lines: [2, 3, 5], assembly_code: "", pc_line_mapping: { 1: 1, 2: 2, 3: 3 } } },
+      sources: {
+        '0x': {
+          active_lines: [2, 3, 5],
+          assembly_code: '',
+          pc_line_mapping: { 1: 1, 2: 2, 3: 3 },
+        },
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       steps: [
         {
           pc: 1,
-          contract_address: "0x",
+          contract_address: '0x',
         },
         {
           pc: 2,
-          contract_address: "0x",
+          contract_address: '0x',
         },
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any,
     }));
     const result = useTraceNavigation(file, { index: 1 });
     result.getActiveLines();
-    expect(result.activeLines.value).toEqual({ "0x": [2, 3] });
+    expect(result.activeLines.value).toEqual({ '0x': [2, 3] });
   });
 });

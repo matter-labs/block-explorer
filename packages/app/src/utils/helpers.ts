@@ -1,11 +1,15 @@
-import { format } from "date-fns";
-import { Interface } from "ethers";
-import { utils } from "zksync-ethers";
+import { format } from 'date-fns';
+import { Interface } from 'ethers';
+import { utils } from 'zksync-ethers';
 
-import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
-import type { AbiFragment } from "@/composables/useAddress";
-import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composables/useEventLog";
-import type { TokenTransfer } from "@/composables/useTransaction";
+import type { DecodingType } from '@/components/transactions/infoTable/HashViewer.vue';
+import type { AbiFragment } from '@/composables/useAddress';
+import type {
+  InputType,
+  TransactionEvent,
+  TransactionLogEntry,
+} from '@/composables/useEventLog';
+import type { TokenTransfer } from '@/composables/useTransaction';
 
 const { BOOTLOADER_FORMAL_ADDRESS } = utils;
 
@@ -19,11 +23,11 @@ export function utcStringFromISOString(ISOString: string) {
 }
 
 export function localDateFromISOString(ISOString: string) {
-  return format(new Date(ISOString), "yyyy-MM-dd HH:mm");
+  return format(new Date(ISOString), 'yyyy-MM-dd HH:mm');
 }
 
 export function localDateFromUnixTimestamp(timestamp: number) {
-  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm");
+  return format(new Date(timestamp * 1000), 'yyyy-MM-dd HH:mm');
 }
 
 export function ISOStringFromUnixTimestamp(timestamp: number) {
@@ -31,7 +35,7 @@ export function ISOStringFromUnixTimestamp(timestamp: number) {
 }
 
 export function camelCaseFromSnakeCase(str: string) {
-  return str.replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+  return str.replace(/[^a-zA-Z0-9]+(.)/g, (_m, chr) => chr.toUpperCase());
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,15 +45,17 @@ export function arrayHalfDivider(arr: any[]) {
   return [newArray.splice(0, middleIndex), newArray];
 }
 
-export function contractInputTypeToHumanType(type: InputType): DecodingType | undefined {
+export function contractInputTypeToHumanType(
+  type: InputType,
+): DecodingType | undefined {
   switch (type) {
-    case "string":
-      return "text";
-    case "address":
-      return "address";
-    case "uint8":
-    case "uint256":
-      return "number";
+    case 'string':
+      return 'text';
+    case 'address':
+      return 'address';
+    case 'uint8':
+    case 'uint256':
+      return 'number';
 
     default:
       return undefined;
@@ -65,14 +71,14 @@ export function getTypeFromEvent(event: TransactionEvent, index: number) {
 }
 
 export function isArrayFunctionType(type: string) {
-  return !!type.match(/(.*)\[(.*)\]/);
+  return !!type.match(/(.*)\[(.*)]/);
 }
 export function getRawFunctionType(type: string) {
   const arrayMatch = type.match(/(.*)\[(.*)\]/);
   return arrayMatch ? arrayMatch[1] : type;
 }
 export function getRequiredArrayLength(type: string) {
-  const value = parseInt(type.match(/(.*)\[(.*)\]/)?.[2] ?? "");
+  const value = parseInt(type.match(/(.*)\[(.*)\]/)?.[2] ?? '');
   return isNaN(value) ? undefined : value;
 }
 
@@ -94,7 +100,10 @@ export const mapOrder = (array: any[], order: string[], key: string) => {
   });
 };
 
-export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): TransactionEvent | undefined {
+export function decodeLogWithABI(
+  log: TransactionLogEntry,
+  abi: AbiFragment[],
+): TransactionEvent | undefined {
   const contractInterface = new Interface(abi);
   try {
     const decodedLog = contractInterface.parseLog({
@@ -114,9 +123,14 @@ export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): 
   }
 }
 
-export function sortTokenTransfers(transfers: TokenTransfer[]): TokenTransfer[] {
+export function sortTokenTransfers(
+  transfers: TokenTransfer[],
+): TokenTransfer[] {
   return [...transfers].sort((_, t) => {
-    if (t.to === BOOTLOADER_FORMAL_ADDRESS || t.from === BOOTLOADER_FORMAL_ADDRESS) {
+    if (
+      t.to === BOOTLOADER_FORMAL_ADDRESS ||
+      t.from === BOOTLOADER_FORMAL_ADDRESS
+    ) {
       return -1;
     }
     return 0;

@@ -1,7 +1,7 @@
-import RadioInput from "./RadioInput.vue";
+import RadioInput from './RadioInput.vue';
 
 export default {
-  title: "Common/RadioInput",
+  title: 'Common/RadioInput',
   component: RadioInput,
 };
 
@@ -22,26 +22,26 @@ const Template = (args: Args) => ({
 
 export const Checked = Template.bind({}) as unknown as { args: Args };
 Checked.args = {
-  value: "checked",
-  modelValue: "checked",
+  value: 'checked',
+  modelValue: 'checked',
 };
 
 export const Unchecked = Template.bind({}) as unknown as { args: Args };
 Unchecked.args = {
-  value: "",
-  modelValue: "checked",
+  value: '',
+  modelValue: 'checked',
 };
 
 export const CheckedDisabled = Template.bind({}) as unknown as { args: Args };
 CheckedDisabled.args = {
-  value: "checked",
-  modelValue: "checked",
+  value: 'checked',
+  modelValue: 'checked',
   disabled: true,
 };
 
 export const UncheckedDisabled = Template.bind({}) as unknown as { args: Args };
 UncheckedDisabled.args = {
-  value: "",
-  modelValue: "checked",
+  value: '',
+  modelValue: 'checked',
   disabled: true,
 };

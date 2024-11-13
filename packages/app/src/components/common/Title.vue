@@ -8,9 +8,9 @@
   </h1>
 </template>
 <script lang="ts" setup>
-import CopyButton from "@/components/common/CopyButton.vue";
+import CopyButton from '@/components/common/CopyButton.vue';
 
-import { shortValue } from "@/utils/formatters";
+import { shortValue } from '@/utils/formatters';
 
 defineProps({
   title: {

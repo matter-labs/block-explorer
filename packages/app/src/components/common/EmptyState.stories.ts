@@ -1,7 +1,7 @@
-import EmptyState from "./EmptyState.vue";
+import EmptyState from './EmptyState.vue';
 
 export default {
-  title: "Common/EmptyState",
+  title: 'Common/EmptyState',
   component: EmptyState,
 };
 
@@ -33,14 +33,14 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  image: "",
-  title: "",
-  description: "",
+  image: '',
+  title: '',
+  description: '',
 };
 
 export const CustomSlots = Template.bind({}) as unknown as { args: Args };
 CustomSlots.args = {
-  image: "/images/empty-state/empty_balance.svg",
-  title: "Title",
-  description: "Description",
+  image: '/images/empty-state/empty_balance.svg',
+  title: 'Title',
+  description: 'Description',
 };

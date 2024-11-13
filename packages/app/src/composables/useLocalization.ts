@@ -1,8 +1,11 @@
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import { useStorage } from "@vueuse/core";
+import { useStorage } from '@vueuse/core';
 
-export default (i18n = useI18n({ useScope: "global" }), storage = useStorage("language", "en")) => {
+export default (
+  i18n = useI18n({ useScope: 'global' }),
+  storage = useStorage('language', 'en'),
+) => {
   const setup = () => {
     return changeLanguage(storage.value);
   };
@@ -14,7 +17,7 @@ export default (i18n = useI18n({ useScope: "global" }), storage = useStorage("la
     }
     storage.value = value;
     i18n.locale.value = value;
-    document.querySelector("html")!.setAttribute("lang", value);
+    document.querySelector('html')!.setAttribute('lang', value);
   };
 
   return { setup, changeLanguage };

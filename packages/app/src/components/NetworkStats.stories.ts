@@ -1,7 +1,7 @@
-import NetworkStats from "./NetworkStats.vue";
+import NetworkStats from './NetworkStats.vue';
 
 export default {
-  title: "components/NetworkStats",
+  title: 'components/NetworkStats',
   component: NetworkStats,
 };
 
@@ -30,7 +30,9 @@ Default.args = {
   loading: false,
 };
 
-export const WithoutTotalLocked = Template.bind({}) as unknown as { args: Args };
+export const WithoutTotalLocked = Template.bind({}) as unknown as {
+  args: Args;
+};
 WithoutTotalLocked.args = {
   committed: 1213944,
   verified: 1233,

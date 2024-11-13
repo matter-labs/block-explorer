@@ -1,7 +1,7 @@
-import Dropdown from "./Dropdown.vue";
+import Dropdown from './Dropdown.vue';
 
 export default {
-  title: "Common/Dropdown",
+  title: 'Common/Dropdown',
   component: Dropdown,
 };
 
@@ -30,20 +30,20 @@ const Template = (args: Args) => ({
 
 export const Default = Template.bind({}) as unknown as { args: Args };
 Default.args = {
-  modelValue: "",
-  id: "1",
+  modelValue: '',
+  id: '1',
   pending: false,
-  defaultOption: "v1.1.6",
-  options: ["v1.1.6", "v1.1.5", "v1.1.4"],
-  error: "",
+  defaultOption: 'v1.1.6',
+  options: ['v1.1.6', 'v1.1.5', 'v1.1.4'],
+  error: '',
 };
 
 export const Error = Template.bind({}) as unknown as { args: Args };
 Error.args = {
-  modelValue: "",
-  id: "1",
+  modelValue: '',
+  id: '1',
   pending: false,
-  defaultOption: "",
+  defaultOption: '',
   options: [],
-  error: "An error occurred",
+  error: 'An error occurred',
 };

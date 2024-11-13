@@ -1,17 +1,21 @@
-import { type ComputedRef, reactive, toRefs, type ToRefs, unref } from "vue";
+import { type ComputedRef, reactive, toRefs, type ToRefs, unref } from 'vue';
 
-import detectEthereumProvider from "@metamask/detect-provider";
-import { type RemovableRef, useStorage } from "@vueuse/core";
-import { BrowserProvider } from "ethers";
-import { L1Signer, BrowserProvider as L2BrowserProvider, Signer } from "zksync-ethers";
+import detectEthereumProvider from '@metamask/detect-provider';
+import { type RemovableRef, useStorage } from '@vueuse/core';
+import { BrowserProvider } from 'ethers';
+import {
+  L1Signer,
+  BrowserProvider as L2BrowserProvider,
+  Signer,
+} from 'zksync-ethers';
 
-import defaultLogger from "./../utils/logger";
+import defaultLogger from './../utils/logger';
+import { rpcUrl } from './useRpcToken';
 
-import type { BaseProvider } from "@metamask/providers";
-import type { Provider } from "zksync-ethers";
+import type { BaseProvider } from '@metamask/providers';
+import type { Provider } from 'zksync-ethers';
 
-import { numberToHexString } from "@/utils/formatters";
-import { rpcUrl } from "./useRpcToken";
+import { numberToHexString } from '@/utils/formatters';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type JsonRpcError = any;
@@ -48,13 +52,18 @@ export type NetworkConfiguration = {
 export function processException(e: any, message: string): never {
   if (e instanceof WalletError) {
     throw e;
-  } else if (e?.code === 4001 || e?.code === "ACTION_REJECTED") {
+  } else if (e?.code === 4001 || e?.code === 'ACTION_REJECTED') {
     throw WalletError.TransactionRejected();
   } else if (e?.code === -32603) {
-    throw WalletError.JsonRpcError(e?.data?.data?.message?.length ? e.data.data.message : e.message);
-  } else if (e?.code === "SERVER_ERROR") {
+    throw WalletError.JsonRpcError(
+      e?.data?.data?.message?.length ? e.data.data.message : e.message,
+    );
+  } else if (e?.code === 'SERVER_ERROR') {
     throw WalletError.InternalServerError();
-  } else if (e?.code === "CALL_EXCEPTION" && e?.info?.error?.data?.code === -32090) {
+  } else if (
+    e?.code === 'CALL_EXCEPTION' &&
+    e?.info?.error?.data?.code === -32090
+  ) {
     throw WalletError.UnauthorizedError(e?.info?.error?.data?.message);
   }
   throw WalletError.UnknownError(e?.message?.length ? e.message : message);
@@ -69,14 +78,17 @@ const state = reactive<WalletState>({
   address: null,
 });
 
-export const isAuthenticated: RemovableRef<boolean> = useStorage<boolean>("useWallet_isAuthenticated", false);
+export const isAuthenticated: RemovableRef<boolean> = useStorage<boolean>(
+  'useWallet_isAuthenticated',
+  false,
+);
 
 export default (
   context: {
     currentNetwork: ComputedRef<NetworkConfiguration>;
     getL2Provider: () => Provider;
   },
-  logger = defaultLogger
+  logger = defaultLogger,
 ): UseWallet => {
   const getEthereumProvider = () =>
     detectEthereumProvider({
@@ -110,7 +122,7 @@ export default (
 
     if (isAuthenticated.value) {
       await provider
-        .request({ method: "eth_accounts" })
+        .request({ method: 'eth_accounts' })
         .then(handleAccountsChanged)
         .catch((e) => logger.error(e))
         .then(() => {
@@ -120,7 +132,7 @@ export default (
       state.isReady = true;
     }
 
-    provider.on("accountsChanged", handleAccountsChanged);
+    provider.on('accountsChanged', handleAccountsChanged);
   };
 
   const connect = async () => {
@@ -129,7 +141,9 @@ export default (
       state.isConnectFailed = false;
 
       const ethereumProvider = await getEthereumProvider();
-      await ethereumProvider!.request({ method: "eth_requestAccounts" }).then(handleAccountsChanged);
+      await ethereumProvider!
+        .request({ method: 'eth_requestAccounts' })
+        .then(handleAccountsChanged);
     } catch (e) {
       logger.error(e);
 
@@ -139,7 +153,10 @@ export default (
     }
   };
 
-  const switchNetwork = async (targetChainId: number, ethereumProvider: BaseProvider): Promise<boolean> => {
+  const switchNetwork = async (
+    targetChainId: number,
+    ethereumProvider: BaseProvider,
+  ): Promise<boolean> => {
     const currentNetwork = unref(context.currentNetwork);
     const chainId = numberToHexString(targetChainId);
 
@@ -150,16 +167,18 @@ export default (
     try {
       try {
         await ethereumProvider.request({
-          method: "wallet_switchEthereumChain",
+          method: 'wallet_switchEthereumChain',
           params: [{ chainId: chainId }],
         });
       } catch (switchError) {
         if (!switchError) {
-          throw new Error("Unable to switch network");
+          throw new Error('Unable to switch network');
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((switchError as JsonRpcError).code !== 4902 && (switchError as any).data?.originalError?.code !== 4902) {
+        if (
+          (switchError as JsonRpcError).code !== 4902 &&
+          (switchError as any).data?.originalError?.code !== 4902 // eslint-disable-line @typescript-eslint/no-explicit-any
+        ) {
           throw switchError;
         }
 
@@ -169,19 +188,19 @@ export default (
 
         try {
           await ethereumProvider.request({
-            method: "wallet_addEthereumChain",
+            method: 'wallet_addEthereumChain',
             params: [
               {
                 chainId: numberToHexString(currentNetwork.l2ChainId),
                 chainName: `${currentNetwork.chainName}`,
                 nativeCurrency: {
-                  name: "Ether",
-                  symbol: "ETH",
+                  name: 'Ether',
+                  symbol: 'ETH',
                   decimals: 18,
                 },
                 rpcUrls: [rpcUrl.value],
                 blockExplorerUrls: [currentNetwork.explorerUrl],
-                iconUrls: ["https://zksync.io/favicon.ico"],
+                iconUrls: ['https://zksync.io/favicon.ico'],
               },
             ],
           });
@@ -209,7 +228,10 @@ export default (
   const getL1Signer = async () => {
     const ethereum = await getEthereumProvider();
 
-    if (!ethereum || !(await switchNetwork(context.currentNetwork.value.l1ChainId, ethereum))) {
+    if (
+      !ethereum ||
+      !(await switchNetwork(context.currentNetwork.value.l1ChainId, ethereum))
+    ) {
       throw WalletError.NetworkChangeRejected();
     }
 
@@ -220,41 +242,48 @@ export default (
   const getL2Signer = async () => {
     const ethereum = await getEthereumProvider();
 
-    if (!ethereum || !(await switchNetwork(context.currentNetwork.value.l2ChainId, ethereum))) {
+    if (
+      !ethereum ||
+      !(await switchNetwork(context.currentNetwork.value.l2ChainId, ethereum))
+    ) {
       throw WalletError.NetworkChangeRejected();
     }
 
     const provider = new L2BrowserProvider(ethereum);
-    return Signer.from(await provider.getSigner(), context.currentNetwork.value.l2ChainId, context.getL2Provider()!);
+    return Signer.from(
+      await provider.getSigner(),
+      context.currentNetwork.value.l2ChainId,
+      context.getL2Provider()!,
+    );
   };
 
   const addNetwork = async (rpcUrl: string) => {
     const ethereum = await getEthereumProvider();
     if (!ethereum) {
-      throw WalletError.UnknownError("MetaMask not installed");
+      throw WalletError.UnknownError('MetaMask not installed');
     }
 
     try {
       state.isAddNetworkPending = true;
       await ethereum.request({
-        method: "wallet_addEthereumChain",
+        method: 'wallet_addEthereumChain',
         params: [
           {
             chainId: numberToHexString(context.currentNetwork.value.l2ChainId),
             chainName: context.currentNetwork.value.chainName,
             nativeCurrency: {
-              name: "Ether",
-              symbol: "ETH",
+              name: 'Ether',
+              symbol: 'ETH',
               decimals: 18,
             },
             rpcUrls: [rpcUrl],
             blockExplorerUrls: [context.currentNetwork.value.explorerUrl],
-            iconUrls: ["https://zksync.io/favicon.ico"],
+            iconUrls: ['https://zksync.io/favicon.ico'],
           },
         ],
       });
     } catch (error) {
-      processException(error, "Failed to add network to MetaMask");
+      processException(error, 'Failed to add network to MetaMask');
     } finally {
       state.isAddNetworkPending = false;
     }
@@ -277,7 +306,7 @@ export default (
 export class WalletError extends Error {
   constructor(
     message: string,
-    public readonly messageCode: string
+    public readonly messageCode: string,
   ) {
     super(message);
 
@@ -285,30 +314,33 @@ export class WalletError extends Error {
   }
 
   static NetworkChangeRejected() {
-    return new WalletError("Network change rejected", "network_change_rejected");
+    return new WalletError(
+      'Network change rejected',
+      'network_change_rejected',
+    );
   }
 
   static TransactionRejected() {
-    return new WalletError("Transaction was rejected", "transaction_rejected");
+    return new WalletError('Transaction was rejected', 'transaction_rejected');
   }
 
-  static JsonRpcError(message = "JsonRpcError occurred") {
-    return new WalletError(message, "json_rpc_error");
+  static JsonRpcError(message = 'JsonRpcError occurred') {
+    return new WalletError(message, 'json_rpc_error');
   }
 
-  static InternalServerError(message = "Internal Server Error") {
-    return new WalletError(message, "internal_server_error");
+  static InternalServerError(message = 'Internal Server Error') {
+    return new WalletError(message, 'internal_server_error');
   }
 
   static TransactionError(message: string, code: string) {
     return new WalletError(message, code);
   }
 
-  static UnauthorizedError(message = "Unauthorized") {
-    return new WalletError(message, "unauthorized");
+  static UnauthorizedError(message = 'Unauthorized') {
+    return new WalletError(message, 'unauthorized');
   }
 
-  static UnknownError(message = "Unknown error occurred") {
-    return new WalletError(message, "unknown_error_occurred");
+  static UnknownError(message = 'Unknown error occurred') {
+    return new WalletError(message, 'unknown_error_occurred');
   }
 }

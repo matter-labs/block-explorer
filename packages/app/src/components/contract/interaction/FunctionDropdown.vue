@@ -1,6 +1,11 @@
 <template>
   <div>
-    <button type="button" @click="opened = !opened" class="function-disclosure-btn" :class="{ opened: opened }">
+    <button
+      type="button"
+      @click="opened = !opened"
+      class="function-disclosure-btn"
+      :class="{ opened: opened }"
+    >
       <span>
         <slot />
       </span>
@@ -8,13 +13,26 @@
     </button>
     <div class="function-disclosure-panel" :class="{ opened: opened }">
       <template v-if="abiFragment.outputs.length">
-        <div v-for="(output, index) in abiFragment.outputs" :key="output.name + index">
-          {{ output.name }} <span class="disclosure-panel-type-text">({{ output.type }})</span>
+        <div
+          v-for="(output, index) in abiFragment.outputs"
+          :key="output.name + index"
+        >
+          {{ output.name }}
+          <span class="disclosure-panel-type-text">({{ output.type }})</span>
         </div>
       </template>
-      <FunctionForm :type="type" :abi-fragment="abiFragment" :disabled="isRequestPending" @submit="submit">
-        <Alert v-if="type === 'write' && !isMetamaskInstalled" type="error" class="wallet-not-found-error">
-          {{ t("contract.abiInteraction.metaMaskNotFound") }}
+      <FunctionForm
+        :type="type"
+        :abi-fragment="abiFragment"
+        :disabled="isRequestPending"
+        @submit="submit"
+      >
+        <Alert
+          v-if="type === 'write' && !isMetamaskInstalled"
+          type="error"
+          class="wallet-not-found-error"
+        >
+          {{ t('contract.abiInteraction.metaMaskNotFound') }}
         </Alert>
         <Button
           v-if="type === 'write' && !isWalletConnected"
@@ -24,9 +42,15 @@
           size="sm"
           @click="connectWallet"
         >
-          {{ t("contract.abiInteraction.connectWalletToInteract") }}
+          {{ t('contract.abiInteraction.connectWalletToInteract') }}
         </Button>
-        <Button v-else :loading="isRequestPending" :disabled="isRequestPending" type="submit" size="sm">
+        <Button
+          v-else
+          :loading="isRequestPending"
+          :disabled="isRequestPending"
+          type="submit"
+          size="sm"
+        >
           {{ t(`contract.abiInteraction.method.${type}.action`) }}
         </Button>
       </FunctionForm>
@@ -34,9 +58,17 @@
         {{ response.message }}
       </div>
       <div v-else-if="response?.transactionHash" class="response-message">
-        <i18n-t scope="global" keypath="contract.abiInteraction.transactionHash">
+        <i18n-t
+          scope="global"
+          keypath="contract.abiInteraction.transactionHash"
+        >
           <template #transactionHash>
-            <router-link :to="{ name: 'transaction', params: { hash: response.transactionHash } }">
+            <router-link
+              :to="{
+                name: 'transaction',
+                params: { hash: response.transactionHash },
+              }"
+            >
               {{ response.transactionHash }}
             </router-link>
           </template>
@@ -50,24 +82,24 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import { ChevronDownIcon } from "@heroicons/vue/outline";
+import { ChevronDownIcon } from '@heroicons/vue/outline';
 
-import Alert from "@/components/common/Alert.vue";
-import Button from "@/components/common/Button.vue";
-import FunctionForm from "@/components/contract/interaction/FunctionForm.vue";
+import Alert from '@/components/common/Alert.vue';
+import Button from '@/components/common/Button.vue';
+import FunctionForm from '@/components/contract/interaction/FunctionForm.vue';
 
-import useContractInteraction from "@/composables/useContractInteraction";
+import useContractInteraction from '@/composables/useContractInteraction';
 
-import type { AbiFragment } from "@/composables/useAddress";
-import type { PropType } from "vue";
+import type { AbiFragment } from '@/composables/useAddress';
+import type { PropType } from 'vue';
 
 const props = defineProps({
   type: {
-    type: String as PropType<"read" | "write">,
-    default: "read",
+    type: String as PropType<'read' | 'write'>,
+    default: 'read',
   },
   abiFragment: {
     type: Object as PropType<AbiFragment>,
@@ -75,7 +107,7 @@ const props = defineProps({
   },
   contractAddress: {
     type: String,
-    default: "",
+    default: '',
   },
 });
 
@@ -94,8 +126,10 @@ const opened = ref(false);
 
 const { t } = useI18n();
 
-const submit = async (form: Record<string, string | string[] | boolean | boolean[]>) => {
-  const callFunction = props.type === "write" ? writeFunction : readFunction;
+const submit = async (
+  form: Record<string, string | string[] | boolean | boolean[]>,
+) => {
+  const callFunction = props.type === 'write' ? writeFunction : readFunction;
   await callFunction(props.contractAddress, props.abiFragment, form);
 };
 </script>

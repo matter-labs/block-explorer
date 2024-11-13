@@ -1,5 +1,9 @@
 <template>
-  <div v-for="(topic, topicIndex) in topics" :key="topic" class="topic-container">
+  <div
+    v-for="(topic, topicIndex) in topics"
+    :key="topic"
+    class="topic-container"
+  >
     <div class="topic-index-container">{{ topicIndex }}</div>
     <span v-if="topicIndex === 0" class="topic-value">
       <span>{{ topic }}</span>
@@ -14,39 +18,55 @@
     >
       <div class="data-value">
         <ArrowRightIcon class="arrow-right-icon" />
-        <AddressLink v-if="isAddress(data)" :address="(data as Address)">
-          <span class="only-desktop">{{ checksumAddress(data as Address) }}</span>
-          <span class="only-mobile">{{ shortenFitText(checksumAddress(data as Address), "left", 230, 10) }}</span>
+        <AddressLink v-if="isAddress(data)" :address="data as Address">
+          <span class="only-desktop">{{
+            checksumAddress(data as Address)
+          }}</span>
+          <span class="only-mobile">{{
+            shortenFitText(checksumAddress(data as Address), 'left', 230, 10)
+          }}</span>
         </AddressLink>
         <span v-else>
           <span class="only-desktop">{{ data }}</span>
           <span class="only-mobile data-value-mobile">
-            <span v-if="selected === 'text'" class="text-value">{{ data }}</span>
+            <span v-if="selected === 'text'" class="text-value">{{
+              data
+            }}</span>
             <span v-else>
-              {{ shortenFitText(data, "left", selected === "number" ? 230 : 280, 10) }}
+              {{
+                shortenFitText(
+                  data,
+                  'left',
+                  selected === 'number' ? 230 : 280,
+                  10,
+                )
+              }}
             </span>
           </span>
         </span>
-        <CopyButton v-if="showCopyButton" :value="isAddress(data) ? checksumAddress(data as Address) : data" />
+        <CopyButton
+          v-if="showCopyButton"
+          :value="isAddress(data) ? checksumAddress(data as Address) : data"
+        />
       </div>
     </HashViewer>
   </div>
 </template>
 <script lang="ts" setup>
-import { ArrowRightIcon } from "@heroicons/vue/outline";
+import { ArrowRightIcon } from '@heroicons/vue/outline';
 
-import AddressLink from "@/components/AddressLink.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import { shortenFitText } from "@/components/common/HashLabel.vue";
-import HashViewer from "@/components/transactions/infoTable/HashViewer.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import { shortenFitText } from '@/components/common/HashLabel.vue';
+import HashViewer from '@/components/transactions/infoTable/HashViewer.vue';
 
-import type { TransactionEvent } from "@/composables/useEventLog";
-import type { Address } from "@/types";
-import type { PropType } from "vue";
+import type { TransactionEvent } from '@/composables/useEventLog';
+import type { Address } from '@/types';
+import type { PropType } from 'vue';
 
-import { checksumAddress } from "@/utils/formatters";
-import { getTypeFromEvent } from "@/utils/helpers";
-import { isAddress } from "@/utils/validators";
+import { checksumAddress } from '@/utils/formatters';
+import { getTypeFromEvent } from '@/utils/helpers';
+import { isAddress } from '@/utils/validators';
 
 defineProps({
   topics: {
@@ -58,8 +78,8 @@ defineProps({
     required: false,
   },
   popoverPlacement: {
-    type: String as PropType<"top" | "bottom" | "right">,
-    default: "bottom",
+    type: String as PropType<'top' | 'bottom' | 'right'>,
+    default: 'bottom',
   },
   showCopyButton: {
     type: Boolean,

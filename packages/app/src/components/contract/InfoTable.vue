@@ -3,7 +3,7 @@
     <template v-if="!loading && contract" #default>
       <tr>
         <table-body-column class="contract-info-field-label">
-          {{ t("contract.table.address") }}
+          {{ t('contract.table.address') }}
         </table-body-column>
         <table-body-column class="contract-info-field-value">
           <CopyContent :value="contract.address" />
@@ -11,21 +11,26 @@
       </tr>
       <tr>
         <table-body-column class="contract-info-field-label">
-          {{ t("contract.table.creator") }}
+          {{ t('contract.table.creator') }}
         </table-body-column>
         <table-body-column class="contract-info-field-value">
           <AddressLink :address="contract.creatorAddress">
             {{ shortValue(contract.creatorAddress) }}
           </AddressLink>
           at
-          <router-link :to="{ name: 'transaction', params: { hash: contract.creatorTxHash } }">
+          <router-link
+            :to="{
+              name: 'transaction',
+              params: { hash: contract.creatorTxHash },
+            }"
+          >
             {{ shortValue(contract.creatorTxHash, 20) }}
           </router-link>
         </table-body-column>
       </tr>
       <tr>
         <table-body-column class="contract-info-field-label">
-          {{ t("contract.table.transactions") }}
+          {{ t('contract.table.transactions') }}
         </table-body-column>
         <table-body-column class="contract-info-field-value">
           {{ contract.totalTransactions }}
@@ -35,7 +40,7 @@
     <template v-if="!loading && !contract" #empty>
       <TableBodyColumn colspan="3">
         <div class="contract-not-found">
-          {{ t("transactions.table.notFound") }}
+          {{ t('transactions.table.notFound') }}
         </div>
       </TableBodyColumn>
     </template>
@@ -53,18 +58,18 @@
 </template>
 
 <script lang="ts" setup>
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
-import AddressLink from "@/components/AddressLink.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import CopyContent from "@/components/common/table/fields/CopyContent.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import CopyContent from '@/components/common/table/fields/CopyContent.vue';
 
-import type { Contract } from "@/composables/useAddress";
-import type { PropType } from "vue";
+import type { Contract } from '@/composables/useAddress';
+import type { PropType } from 'vue';
 
-import { shortValue } from "@/utils/formatters";
+import { shortValue } from '@/utils/formatters';
 
 defineProps({
   contract: {

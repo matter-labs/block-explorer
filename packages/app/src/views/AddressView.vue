@@ -10,25 +10,39 @@
       :failed="failed"
       :authorized="authorized"
     />
-    <ContractView v-else :contract="item as Contract" :pending="pending" :failed="failed" :authorized="item?.authorized" />
+    <ContractView
+      v-else
+      :contract="item as Contract"
+      :pending="pending"
+      :failed="failed"
+      :authorized="item?.authorized"
+    />
   </template>
 </template>
 
 <script lang="ts" setup>
-import { computed, watchEffect } from "vue";
+import { computed, watchEffect } from 'vue';
 
-import AccountView from "@/components/Account.vue";
-import ContractView from "@/components/Contract.vue";
-import PageError from "@/components/PageError.vue";
+import AccountView from '@/components/Account.vue';
+import ContractView from '@/components/Contract.vue';
+import PageError from '@/components/PageError.vue';
 
-import useAddress, { type Account, type Contract } from "@/composables/useAddress";
-import useNotFound from "@/composables/useNotFound";
+import useAddress, {
+  type Account,
+  type Contract,
+} from '@/composables/useAddress';
+import useNotFound from '@/composables/useNotFound';
 
-import { isAddress } from "@/utils/validators";
+import { isAddress } from '@/utils/validators';
 
 const { useNotFoundView, setNotFoundView } = useNotFound();
 
-const { item, isRequestPending: pending, isRequestFailed: failed, getByAddress } = useAddress();
+const {
+  item,
+  isRequestPending: pending,
+  isRequestFailed: failed,
+  getByAddress,
+} = useAddress();
 
 const props = defineProps({
   address: {
@@ -38,11 +52,11 @@ const props = defineProps({
 });
 
 const pageType = computed(() => {
-  return item.value?.type ? item.value?.type : "account";
+  return item.value?.type ? item.value?.type : 'account';
 });
 
 const authorized = computed(() => {
-  return item.value?.type === "account" && item.value?.authorized;
+  return item.value?.type === 'account' && item.value?.authorized;
 });
 
 useNotFoundView(pending, failed, item);

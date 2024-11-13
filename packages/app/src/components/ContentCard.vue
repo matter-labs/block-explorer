@@ -8,7 +8,7 @@
 defineProps({
   tag: {
     type: String,
-    default: "div",
+    default: 'div',
   },
 });
 </script>

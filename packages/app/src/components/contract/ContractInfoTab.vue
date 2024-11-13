@@ -1,18 +1,27 @@
 <template>
   <div class="contract-info-tabs-container">
-    <Tabs v-if="tabs.length" class="contract-info-tabs" :tabs="tabs" :has-route="false">
+    <Tabs
+      v-if="tabs.length"
+      class="contract-info-tabs"
+      :tabs="tabs"
+      :has-route="false"
+    >
       <template #tab-1-content>
         <ContractBytecode :contract="contract" />
       </template>
       <template #tab-2-content>
         <div class="functions-contract-container">
           <div v-if="!readFunctions.length">
-            <Alert class="w-fit" type="notification">{{ missingReadFunctionsMessage }}</Alert>
+            <Alert class="w-fit" type="notification">{{
+              missingReadFunctionsMessage
+            }}</Alert>
           </div>
           <div v-else class="functions-dropdown-container">
             <div class="function-dropdown-spacer">
               <div class="metamask-button-container">
-                <span class="function-type-title">{{ t("contract.abiInteraction.method.read.name") }}</span>
+                <span class="function-type-title">{{
+                  t('contract.abiInteraction.method.read.name')
+                }}</span>
                 <ConnectMetamaskButton />
               </div>
               <FunctionDropdown
@@ -31,12 +40,16 @@
       <template #tab-3-content>
         <div class="functions-contract-container">
           <div v-if="!writeFunctions?.length">
-            <Alert class="w-fit" type="notification">{{ missingWriteFunctionsMessage }}</Alert>
+            <Alert class="w-fit" type="notification">{{
+              missingWriteFunctionsMessage
+            }}</Alert>
           </div>
           <div v-else class="functions-dropdown-container">
             <div class="function-dropdown-spacer">
               <div class="metamask-button-container">
-                <span class="function-type-title"> {{ t("contract.abiInteraction.method.write.name") }}</span>
+                <span class="function-type-title">
+                  {{ t('contract.abiInteraction.method.write.name') }}</span
+                >
                 <ConnectMetamaskButton />
               </div>
               <FunctionDropdown
@@ -55,30 +68,60 @@
       <template #tab-4-content>
         <div class="functions-contract-container">
           <div class="proxy-implementation-link">
-            <Alert v-if="contract.proxyInfo?.implementation.verificationInfo" class="w-fit" type="notification">
-              <span>{{ t("contract.abiInteraction.contractImplementationFound") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
-                <HashLabel :text="contract.proxyInfo?.implementation.address" /> </a
-              >{{ "." }}
-              <span>{{ t("contract.abiInteraction.proxyCautionMessage") }}</span>
+            <Alert
+              v-if="contract.proxyInfo?.implementation.verificationInfo"
+              class="w-fit"
+              type="notification"
+            >
+              <span
+                >{{
+                  t('contract.abiInteraction.contractImplementationFound')
+                }}&nbsp;</span
+              >
+              <a
+                :href="`/address/${contract.proxyInfo?.implementation.address}#contract`"
+              >
+                <HashLabel
+                  :text="contract.proxyInfo?.implementation.address"
+                /> </a
+              >{{ '.' }}
+              <span>{{
+                t('contract.abiInteraction.proxyCautionMessage')
+              }}</span>
             </Alert>
             <Alert v-else class="w-fit" type="warning">
-              <span>{{ t("contract.abiInteraction.contractImplementationAt") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <span
+                >{{
+                  t('contract.abiInteraction.contractImplementationAt')
+                }}&nbsp;</span
+              >
+              <a
+                :href="`/address/${contract.proxyInfo?.implementation.address}#contract`"
+              >
                 <HashLabel :text="contract.proxyInfo?.implementation.address" />
               </a>
-              <span class="to-lowercase">&nbsp;{{ t("contract.abiInteraction.contractNotVerified") }}.</span>
+              <span class="to-lowercase"
+                >&nbsp;{{
+                  t('contract.abiInteraction.contractNotVerified')
+                }}.</span
+              >
               <br />
-              <span>{{ t("contract.abiInteraction.verifyImplementationMessage") }}</span>
+              <span>{{
+                t('contract.abiInteraction.verifyImplementationMessage')
+              }}</span>
             </Alert>
           </div>
           <div v-if="contract.proxyInfo?.implementation.verificationInfo">
             <div v-if="!readProxyFunctions.length">
-              <Alert class="w-fit" type="notification">{{ missingReadProxyFunctionsMessage }}</Alert>
+              <Alert class="w-fit" type="notification">{{
+                missingReadProxyFunctionsMessage
+              }}</Alert>
             </div>
             <div v-else class="functions-dropdown-container">
               <div class="function-dropdown-spacer">
-                <span class="function-type-title">{{ t("contract.abiInteraction.method.readAsProxy.name") }}</span>
+                <span class="function-type-title">{{
+                  t('contract.abiInteraction.method.readAsProxy.name')
+                }}</span>
                 <FunctionDropdown
                   v-for="(item, index) in readProxyFunctions"
                   :key="item.name"
@@ -96,31 +139,63 @@
       <template #tab-5-content>
         <div class="functions-contract-container">
           <div class="proxy-implementation-link">
-            <Alert v-if="contract.proxyInfo?.implementation.verificationInfo" class="w-fit" type="notification">
-              <span>{{ t("contract.abiInteraction.contractImplementationFound") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
-                <HashLabel :text="contract.proxyInfo?.implementation.address" /> </a
-              >{{ "." }}
-              <span>{{ t("contract.abiInteraction.proxyCautionMessage") }}</span>
+            <Alert
+              v-if="contract.proxyInfo?.implementation.verificationInfo"
+              class="w-fit"
+              type="notification"
+            >
+              <span
+                >{{
+                  t('contract.abiInteraction.contractImplementationFound')
+                }}&nbsp;</span
+              >
+              <a
+                :href="`/address/${contract.proxyInfo?.implementation.address}#contract`"
+              >
+                <HashLabel
+                  :text="contract.proxyInfo?.implementation.address"
+                /> </a
+              >{{ '.' }}
+              <span>{{
+                t('contract.abiInteraction.proxyCautionMessage')
+              }}</span>
             </Alert>
             <Alert v-else class="w-fit" type="warning">
-              <span>{{ t("contract.abiInteraction.contractImplementationAt") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <span
+                >{{
+                  t('contract.abiInteraction.contractImplementationAt')
+                }}&nbsp;</span
+              >
+              <a
+                :href="`/address/${contract.proxyInfo?.implementation.address}#contract`"
+              >
                 <HashLabel :text="contract.proxyInfo?.implementation.address" />
               </a>
-              <span class="to-lowercase">&nbsp;{{ t("contract.abiInteraction.contractNotVerified") }}.</span>
+              <span class="to-lowercase"
+                >&nbsp;{{
+                  t('contract.abiInteraction.contractNotVerified')
+                }}.</span
+              >
               <br />
-              <span>{{ t("contract.abiInteraction.verifyImplementationMessage") }}</span>
+              <span>{{
+                t('contract.abiInteraction.verifyImplementationMessage')
+              }}</span>
             </Alert>
           </div>
           <div v-if="contract.proxyInfo?.implementation.verificationInfo">
             <div v-if="!writeProxyFunctions?.length">
-              <Alert class="w-fit" type="notification">{{ missingWriteProxyFunctionsMessage }}</Alert>
+              <Alert class="w-fit" type="notification">{{
+                missingWriteProxyFunctionsMessage
+              }}</Alert>
             </div>
             <div v-else class="functions-dropdown-container">
               <div class="function-dropdown-spacer">
                 <div class="metamask-button-container">
-                  <span class="function-type-title"> {{ t("contract.abiInteraction.method.writeAsProxy.name") }}</span>
+                  <span class="function-type-title">
+                    {{
+                      t('contract.abiInteraction.method.writeAsProxy.name')
+                    }}</span
+                  >
                   <ConnectMetamaskButton />
                 </div>
                 <FunctionDropdown
@@ -143,18 +218,18 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import ConnectMetamaskButton from "@/components/ConnectMetamaskButton.vue";
-import Alert from "@/components/common/Alert.vue";
-import HashLabel from "@/components/common/HashLabel.vue";
-import Tabs from "@/components/common/Tabs.vue";
-import ContractBytecode from "@/components/contract/ContractBytecode.vue";
-import FunctionDropdown from "@/components/contract/interaction/FunctionDropdown.vue";
+import ConnectMetamaskButton from '@/components/ConnectMetamaskButton.vue';
+import Alert from '@/components/common/Alert.vue';
+import HashLabel from '@/components/common/HashLabel.vue';
+import Tabs from '@/components/common/Tabs.vue';
+import ContractBytecode from '@/components/contract/ContractBytecode.vue';
+import FunctionDropdown from '@/components/contract/interaction/FunctionDropdown.vue';
 
-import type { Contract } from "@/composables/useAddress";
-import type { PropType } from "vue";
+import type { Contract } from '@/composables/useAddress';
+import type { PropType } from 'vue';
 
 const props = defineProps({
   contract: {
@@ -168,29 +243,32 @@ const { t } = useI18n();
 
 const missingReadFunctionsMessage = computed(() => {
   if (!readFunctions.value?.length) {
-    return t("contract.bytecode.readMissingMessage");
+    return t('contract.bytecode.readMissingMessage');
   } else {
     return null;
   }
 });
 const missingWriteFunctionsMessage = computed(() => {
   if (!writeFunctions.value?.length) {
-    return t("contract.bytecode.writeMissingMessage");
+    return t('contract.bytecode.writeMissingMessage');
   } else {
     return null;
   }
 });
 
 const missingReadProxyFunctionsMessage = computed(() => {
-  if (props.contract?.proxyInfo?.implementation.verificationInfo && !readProxyFunctions.value?.length) {
-    return t("contract.bytecode.readMissingMessage");
+  if (
+    props.contract?.proxyInfo?.implementation.verificationInfo &&
+    !readProxyFunctions.value?.length
+  ) {
+    return t('contract.bytecode.readMissingMessage');
   } else {
     return null;
   }
 });
 const missingWriteProxyFunctionsMessage = computed(() => {
   if (!writeProxyFunctions.value?.length) {
-    return t("contract.bytecode.writeMissingMessage");
+    return t('contract.bytecode.writeMissingMessage');
   } else {
     return null;
   }
@@ -201,8 +279,9 @@ const writeFunctions = computed(() => {
     props.contract?.verificationInfo?.artifacts.abi.filter(
       (item) =>
         item.name &&
-        item.type !== "constructor" &&
-        (item.stateMutability === "nonpayable" || item.stateMutability === "payable")
+        item.type !== 'constructor' &&
+        (item.stateMutability === 'nonpayable' ||
+          item.stateMutability === 'payable'),
     ) || []
   );
 });
@@ -210,7 +289,9 @@ const writeFunctions = computed(() => {
 const readFunctions = computed(() => {
   return (
     props.contract?.verificationInfo?.artifacts.abi.filter(
-      (item) => (item.type !== "constructor" && item.stateMutability === "view") || item.stateMutability === "pure"
+      (item) =>
+        (item.type !== 'constructor' && item.stateMutability === 'view') ||
+        item.stateMutability === 'pure',
     ) || []
   );
 });
@@ -220,8 +301,9 @@ const writeProxyFunctions = computed(() => {
     props.contract?.proxyInfo?.implementation.verificationInfo?.artifacts.abi.filter(
       (item) =>
         item.name &&
-        item.type !== "constructor" &&
-        (item.stateMutability === "nonpayable" || item.stateMutability === "payable")
+        item.type !== 'constructor' &&
+        (item.stateMutability === 'nonpayable' ||
+          item.stateMutability === 'payable'),
     ) || []
   );
 });
@@ -229,7 +311,9 @@ const writeProxyFunctions = computed(() => {
 const readProxyFunctions = computed(() => {
   return (
     props.contract?.proxyInfo?.implementation.verificationInfo?.artifacts.abi.filter(
-      (item) => (item.type !== "constructor" && item.stateMutability === "view") || item.stateMutability === "pure"
+      (item) =>
+        (item.type !== 'constructor' && item.stateMutability === 'view') ||
+        item.stateMutability === 'pure',
     ) || []
   );
 });
@@ -239,11 +323,20 @@ const tabs = computed(() => {
   const isProxy = !!props.contract?.proxyInfo;
   if (isVerified || isProxy) {
     return [
-      { title: t("contractInfoTabs.contract"), hash: "#contract-info" },
-      { title: t("contractInfoTabs.read"), hash: isVerified ? "#read" : null },
-      { title: t("contractInfoTabs.write"), hash: isVerified ? "#write" : null },
-      { title: t("contractInfoTabs.readAsProxy"), hash: isProxy ? "#read-proxy" : null },
-      { title: t("contractInfoTabs.writeAsProxy"), hash: isProxy ? "#write-proxy" : null },
+      { title: t('contractInfoTabs.contract'), hash: '#contract-info' },
+      { title: t('contractInfoTabs.read'), hash: isVerified ? '#read' : null },
+      {
+        title: t('contractInfoTabs.write'),
+        hash: isVerified ? '#write' : null,
+      },
+      {
+        title: t('contractInfoTabs.readAsProxy'),
+        hash: isProxy ? '#read-proxy' : null,
+      },
+      {
+        title: t('contractInfoTabs.writeAsProxy'),
+        hash: isProxy ? '#write-proxy' : null,
+      },
     ];
   }
   return [];

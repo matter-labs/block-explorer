@@ -11,44 +11,54 @@
 <script lang="ts">
 export function shortenFitText(
   text: string,
-  placement = "middle",
+  placement = 'middle',
   rootWidth = 0,
   singleCharacterWidth = 6,
-  subtraction = 3
+  subtraction = 3,
 ): string {
   const indexEnd =
-    rootWidth && singleCharacterWidth ? Math.floor(rootWidth / singleCharacterWidth / 2) - subtraction : 13;
+    rootWidth && singleCharacterWidth
+      ? Math.floor(rootWidth / singleCharacterWidth / 2) - subtraction
+      : 13;
 
   if (rootWidth > singleCharacterWidth * text.length) {
     return text;
   }
-  if (placement === "middle") {
+  if (placement === 'middle') {
     return `${text.substring(0, indexEnd)}...${text.substring(text.length - indexEnd, text.length)}`;
   }
-  if (placement === "left") {
-    return text.substring(0, indexEnd) + "..." + text.substring(text.length - 4, text.length);
+  if (placement === 'left') {
+    return (
+      text.substring(0, indexEnd) +
+      '...' +
+      text.substring(text.length - 4, text.length)
+    );
   }
-  if (placement === "right") {
-    return text.substring(0, 5) + "..." + text.substring(text.length - indexEnd, text.length);
+  if (placement === 'right') {
+    return (
+      text.substring(0, 5) +
+      '...' +
+      text.substring(text.length - indexEnd, text.length)
+    );
   }
-  return "";
+  return '';
 }
 </script>
 
 <script lang="ts" setup>
-import { nextTick, ref, watch, watchEffect } from "vue";
+import { nextTick, ref, watch, watchEffect } from 'vue';
 
-import { useResizeObserver } from "@vueuse/core";
+import { useResizeObserver } from '@vueuse/core';
 
-import type { MaybeElementRef } from "@vueuse/core";
-import type { PropType } from "vue";
+import type { MaybeElementRef } from '@vueuse/core';
+import type { PropType } from 'vue';
 
-export type Placement = "middle" | "right" | "left";
+export type Placement = 'middle' | 'right' | 'left';
 
 const props = defineProps({
   text: {
     type: String,
-    default: "",
+    default: '',
     required: true,
   },
   subtraction: {
@@ -57,13 +67,13 @@ const props = defineProps({
   },
   placement: {
     type: String as PropType<Placement>,
-    default: "middle",
+    default: 'middle',
   },
 });
 const root = ref(null as Element | null);
 const actualString = ref(null as Element | null);
 
-const displayedString = ref("");
+const displayedString = ref('');
 
 const calculateSingleCharacterWidth = () => {
   if (!actualString.value) {
@@ -79,7 +89,7 @@ const renderText = (rootWidth: number) => {
     props.placement,
     rootWidth,
     singleCharacterWidth,
-    props.subtraction
+    props.subtraction,
   );
 };
 
@@ -91,7 +101,7 @@ watch(
         renderText(root.value.getBoundingClientRect().width);
       }
     });
-  }
+  },
 );
 
 useResizeObserver(root as MaybeElementRef, (entries) => {

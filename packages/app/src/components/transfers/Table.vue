@@ -1,33 +1,41 @@
 <template>
-  <Table :items="data" :loading="pending || !address" :class="{ empty: !data?.length }" class="transfers-table">
+  <Table
+    :items="data"
+    :loading="pending || !address"
+    :class="{ empty: !data?.length }"
+    class="transfers-table"
+  >
     <template #table-head v-if="total && total > 0">
       <TableHeadColumn>
-        {{ t("transfers.table.transactionHash") }}
+        {{ t('transfers.table.transactionHash') }}
       </TableHeadColumn>
       <TableHeadColumn>
-        {{ t("transfers.table.age") }}
+        {{ t('transfers.table.age') }}
       </TableHeadColumn>
       <TableHeadColumn>
-        {{ t("transfers.table.type") }}
+        {{ t('transfers.table.type') }}
       </TableHeadColumn>
       <TableHeadColumn class="tablet-column-hidden">
-        {{ t("transfers.table.from") }}
+        {{ t('transfers.table.from') }}
       </TableHeadColumn>
       <TableHeadColumn class="tablet-column">
-        {{ t("transfers.table.from") }}/{{ t("transfers.table.to") }}
+        {{ t('transfers.table.from') }}/{{ t('transfers.table.to') }}
       </TableHeadColumn>
       <TableHeadColumn />
       <TableHeadColumn class="tablet-column-hidden">
-        {{ t("transfers.table.to") }}
+        {{ t('transfers.table.to') }}
       </TableHeadColumn>
 
       <TableHeadColumn>
-        {{ t("transfers.table.amount") }}
+        {{ t('transfers.table.amount') }}
       </TableHeadColumn>
     </template>
 
     <template #table-row="{ item }: { item: Transfer }">
-      <TableBodyColumn :data-heading="t('transfers.table.transactionHash')" class="tx-hash">
+      <TableBodyColumn
+        :data-heading="t('transfers.table.transactionHash')"
+        class="tx-hash"
+      >
         <router-link
           :data-testid="$testId.transactionsHash"
           :to="{
@@ -36,51 +44,78 @@
           }"
           v-if="item.transactionHash"
         >
-          {{ shortenFitText(item.transactionHash, "left") }}
+          {{ shortenFitText(item.transactionHash, 'left') }}
         </router-link>
       </TableBodyColumn>
 
       <TableBodyColumn :data-heading="t('transfers.table.age')">
         <CopyButton :value="utcStringFromISOString(item.timestamp)">
-          <TimeField :data-testid="$testId.timestamp" :value="item.timestamp" :show-exact-date="false" />
+          <TimeField
+            :data-testid="$testId.timestamp"
+            :value="item.timestamp"
+            :show-exact-date="false"
+          />
         </CopyButton>
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('transfers.table.type')" class="transfer-type">
+      <TableBodyColumn
+        :data-heading="t('transfers.table.type')"
+        class="transfer-type"
+      >
         <span :data-testid="$testId.transferType">{{ item.type }}</span>
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('transfers.table.from')" class="tablet-column-hidden">
+      <TableBodyColumn
+        :data-heading="t('transfers.table.from')"
+        class="tablet-column-hidden"
+      >
         <span class="transfers-data-link">
-          <TransactionNetworkSquareBlock :network="item.fromNetwork" :data-testid="$testId.transferFromOriginTablet" />
+          <TransactionNetworkSquareBlock
+            :network="item.fromNetwork"
+            :data-testid="$testId.transferFromOriginTablet"
+          />
           <AddressLink
             :data-testid="$testId.fromAddress"
             :address="item.from"
             :network="item.fromNetwork"
             class="transfers-data-link-value"
           >
-            {{ shortenFitText(item.from, "left") }}
+            {{ shortenFitText(item.from, 'left') }}
           </AddressLink>
         </span>
       </TableBodyColumn>
       <TableBodyColumn class="tablet-column">
         <div class="flex gap-x-2">
           <div class="text-neutral-400">
-            <div>{{ t("transfers.table.from") }}</div>
-            <div>{{ t("transfers.table.to") }}</div>
+            <div>{{ t('transfers.table.from') }}</div>
+            <div>{{ t('transfers.table.to') }}</div>
           </div>
           <div>
             <div>
               <span class="transfers-data-link">
-                <TransactionNetworkSquareBlock :network="item.fromNetwork" :data-testid="$testId.transferFromOrigin" />
-                <AddressLink :address="item.from" :network="item.fromNetwork" class="transfers-data-link-value">
-                  {{ shortenFitText(item.from, "left") }}
+                <TransactionNetworkSquareBlock
+                  :network="item.fromNetwork"
+                  :data-testid="$testId.transferFromOrigin"
+                />
+                <AddressLink
+                  :address="item.from"
+                  :network="item.fromNetwork"
+                  class="transfers-data-link-value"
+                >
+                  {{ shortenFitText(item.from, 'left') }}
                 </AddressLink>
               </span>
             </div>
             <div>
               <span class="transfers-data-link">
-                <TransactionNetworkSquareBlock :network="item.toNetwork" :data-testid="$testId.transferToOrigin" />
-                <AddressLink :address="item.to" :network="item.toNetwork" class="transfers-data-link-value">
-                  {{ shortenFitText(item.to, "left") }}
+                <TransactionNetworkSquareBlock
+                  :network="item.toNetwork"
+                  :data-testid="$testId.transferToOrigin"
+                />
+                <AddressLink
+                  :address="item.to"
+                  :network="item.toNetwork"
+                  class="transfers-data-link-value"
+                >
+                  {{ shortenFitText(item.to, 'left') }}
                 </AddressLink>
               </span>
             </div>
@@ -96,22 +131,32 @@
         />
       </TableBodyColumn>
 
-      <TableBodyColumn :data-heading="t('transfers.table.to')" class="tablet-column-hidden">
+      <TableBodyColumn
+        :data-heading="t('transfers.table.to')"
+        class="tablet-column-hidden"
+      >
         <span class="transfers-data-link">
-          <TransactionNetworkSquareBlock :network="item.toNetwork" :data-testid="$testId.transferToOriginTablet" />
+          <TransactionNetworkSquareBlock
+            :network="item.toNetwork"
+            :data-testid="$testId.transferToOriginTablet"
+          />
           <AddressLink
             :data-testid="$testId.toAddress"
             :address="item.to"
             :network="item.toNetwork"
             class="transfers-data-link-value"
           >
-            {{ shortenFitText(item.to, "left") }}
+            {{ shortenFitText(item.to, 'left') }}
           </AddressLink>
         </span>
       </TableBodyColumn>
 
       <TableBodyColumn :data-heading="t('transfers.table.amount')">
-        <TokenAmountPriceTableCell :amount="item.amount" :token="item.token" :show-price="true" />
+        <TokenAmountPriceTableCell
+          :amount="item.amount"
+          :token="item.token"
+          :show-price="true"
+        />
       </TableBodyColumn>
     </template>
     <template #empty>
@@ -134,29 +179,29 @@
   </Table>
 </template>
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import EmptyState from "./EmptyState.vue";
-import LoadingState from "./LoadingState.vue";
+import EmptyState from './EmptyState.vue';
+import LoadingState from './LoadingState.vue';
 
-import AddressLink from "@/components/AddressLink.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import { shortenFitText } from "@/components/common/HashLabel.vue";
-import Pagination from "@/components/common/Pagination.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
-import TimeField from "@/components/common/table/fields/TimeField.vue";
-import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import { shortenFitText } from '@/components/common/HashLabel.vue';
+import Pagination from '@/components/common/Pagination.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TableHeadColumn from '@/components/common/table/TableHeadColumn.vue';
+import TimeField from '@/components/common/table/fields/TimeField.vue';
+import TokenAmountPriceTableCell from '@/components/transactions/TokenAmountPriceTableCell.vue';
 import TransactionDirectionTableCell, {
   type Direction,
-} from "@/components/transactions/TransactionDirectionTableCell.vue";
-import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+} from '@/components/transactions/TransactionDirectionTableCell.vue';
+import TransactionNetworkSquareBlock from '@/components/transactions/TransactionNetworkSquareBlock.vue';
 
-import useTransfers, { type Transfer } from "@/composables/useTransfers";
+import useTransfers, { type Transfer } from '@/composables/useTransfers';
 
-import { utcStringFromISOString } from "@/utils/helpers";
+import { utcStringFromISOString } from '@/utils/helpers';
 
 const { t } = useI18n();
 
@@ -171,11 +216,15 @@ const props = defineProps({
 const { data, load, total, pending, pageSize } = useTransfers(
   computed(() => {
     return props.address;
-  })
+  }),
 );
 
 function getTransferDirection(item: Transfer): Direction {
-  return item.from === item.to ? "self" : item.to !== props.address ? "out" : "in";
+  return item.from === item.to
+    ? 'self'
+    : item.to !== props.address
+      ? 'out'
+      : 'in';
 }
 
 const activePage = ref(1);
@@ -186,7 +235,7 @@ watch(
   ([page]) => {
     load(page, toDate);
   },
-  { immediate: true }
+  { immediate: true },
 );
 </script>
 

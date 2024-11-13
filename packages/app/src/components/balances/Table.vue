@@ -1,9 +1,13 @@
 <template>
-  <Table class="balances-table" :loading="loading || isTokenLibraryRequestPending" :items="displayedBalances">
+  <Table
+    class="balances-table"
+    :loading="loading || isTokenLibraryRequestPending"
+    :items="displayedBalances"
+  >
     <template v-if="validBalances.length" #table-head>
-      <table-head-column>{{ t("balances.table.asset") }}</table-head-column>
-      <table-head-column>{{ t("balances.table.balance") }}</table-head-column>
-      <table-head-column>{{ t("balances.table.address") }}</table-head-column>
+      <table-head-column>{{ t('balances.table.asset') }}</table-head-column>
+      <table-head-column>{{ t('balances.table.balance') }}</table-head-column>
+      <table-head-column>{{ t('balances.table.address') }}</table-head-column>
     </template>
     <template #table-row="{ item }: { item: any }">
       <TableBodyColumn>
@@ -25,7 +29,7 @@
     <template #empty>
       <TableBodyColumn colspan="5">
         <div class="balances-not-found">
-          <slot name="not-found">{{ t("balances.table.notFound") }}</slot>
+          <slot name="not-found">{{ t('balances.table.notFound') }}</slot>
         </div>
       </TableBodyColumn>
     </template>
@@ -36,30 +40,37 @@
         </TableBodyColumn>
       </tr>
     </template>
-    <template #footer v-if="validBalances.length > HIDDEN_BALANCES_AMOUNT && !displayAllBalances">
+    <template
+      #footer
+      v-if="
+        validBalances.length > HIDDEN_BALANCES_AMOUNT && !displayAllBalances
+      "
+    >
       <div class="load-all">
-        <button @click="showAllBalances">{{ t("balances.table.showAll") }} ({{ validBalances.length }})</button>
+        <button @click="showAllBalances">
+          {{ t('balances.table.showAll') }} ({{ validBalances.length }})
+        </button>
       </div>
     </template>
   </Table>
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, type PropType, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
-import TokenIconLabel from "@/components/TokenIconLabel.vue";
-import BalanceValue from "@/components/balances/BalanceValue.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
-import CopyContent from "@/components/common/table/fields/CopyContent.vue";
+import TokenIconLabel from '@/components/TokenIconLabel.vue';
+import BalanceValue from '@/components/balances/BalanceValue.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TableHeadColumn from '@/components/common/table/TableHeadColumn.vue';
+import CopyContent from '@/components/common/table/fields/CopyContent.vue';
 
-import useContext from "@/composables/useContext";
-import useTokenLibrary from "@/composables/useTokenLibrary";
+import useContext from '@/composables/useContext';
+import useTokenLibrary from '@/composables/useTokenLibrary';
 
-import type { Balances } from "@/composables/useAddress";
+import type { Balances } from '@/composables/useAddress';
 
 const { currentNetwork } = useContext();
 const { t } = useI18n();
@@ -89,7 +100,9 @@ function showAllBalances() {
 }
 
 const validBalances = computed(() =>
-  Object.values(props.balances).filter((e) => BigInt(e.balance) != BigInt(0) && e.token)
+  Object.values(props.balances).filter(
+    (e) => BigInt(e.balance) != BigInt(0) && e.token,
+  ),
 );
 const displayedBalances = computed(() => {
   return [...validBalances.value]
@@ -122,7 +135,12 @@ const displayedBalances = computed(() => {
 
       return a.token.symbol.localeCompare(b.token.symbol);
     })
-    .splice(0, displayAllBalances.value ? validBalances.value.length : HIDDEN_BALANCES_AMOUNT);
+    .splice(
+      0,
+      displayAllBalances.value
+        ? validBalances.value.length
+        : HIDDEN_BALANCES_AMOUNT,
+    );
 });
 </script>
 

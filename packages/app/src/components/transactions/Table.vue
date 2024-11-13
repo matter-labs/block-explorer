@@ -1,35 +1,60 @@
 <template>
   <div class="relative">
-    <Table class="transactions-table" :class="{ 'high-rows': isHighRowsSize, 'hide-content': !user.loggedIn }" :items="transactions" :loading="isLoading">
+    <Table
+      class="transactions-table"
+      :class="{ 'high-rows': isHighRowsSize, 'hide-content': !user.loggedIn }"
+      :items="transactions"
+      :loading="isLoading"
+    >
       <template v-if="transactions?.length || isLoading" #table-head>
-        <TableHeadColumn v-if="columns.includes('status')">{{ t("transactions.table.status") }}</TableHeadColumn>
+        <TableHeadColumn v-if="columns.includes('status')">{{
+          t('transactions.table.status')
+        }}</TableHeadColumn>
         <TableHeadColumn v-if="columns.includes('transactionHash')">
-          {{ t("transactions.table.transactionHash") }}
+          {{ t('transactions.table.transactionHash') }}
         </TableHeadColumn>
         <TableHeadColumn v-if="columns.includes('method')">
-          {{ t("transactions.table.method") }}
+          {{ t('transactions.table.method') }}
         </TableHeadColumn>
         <TableHeadColumn v-if="columns.includes('age')">
-          {{ t("transactions.table.age") }}
+          {{ t('transactions.table.age') }}
         </TableHeadColumn>
-        <TableHeadColumn v-if="columns.includes('from')" class="tablet-column-hidden">
-          {{ t("transactions.table.from") }}
+        <TableHeadColumn
+          v-if="columns.includes('from')"
+          class="tablet-column-hidden"
+        >
+          {{ t('transactions.table.from') }}
         </TableHeadColumn>
-        <TableHeadColumn v-if="columns.includes('from') && columns.includes('to')" class="tablet-column">
-          {{ t("transactions.table.from") }}/{{ t("transactions.table.to") }}
+        <TableHeadColumn
+          v-if="columns.includes('from') && columns.includes('to')"
+          class="tablet-column"
+        >
+          {{ t('transactions.table.from') }}/{{ t('transactions.table.to') }}
         </TableHeadColumn>
         <TableHeadColumn v-if="columns.includes('direction')" />
-        <TableHeadColumn v-if="columns.includes('to')" class="tablet-column-hidden">
-          {{ t("transactions.table.to") }}
+        <TableHeadColumn
+          v-if="columns.includes('to')"
+          class="tablet-column-hidden"
+        >
+          {{ t('transactions.table.to') }}
         </TableHeadColumn>
-        <TableHeadColumn v-if="columns.includes('value')" class="tablet-column-hidden">
-          {{ t("transactions.table.value") }}
+        <TableHeadColumn
+          v-if="columns.includes('value')"
+          class="tablet-column-hidden"
+        >
+          {{ t('transactions.table.value') }}
         </TableHeadColumn>
-        <TableHeadColumn v-if="columns.includes('fee')" class="tablet-column-hidden">
-          {{ t("transactions.table.fee") }}
+        <TableHeadColumn
+          v-if="columns.includes('fee')"
+          class="tablet-column-hidden"
+        >
+          {{ t('transactions.table.fee') }}
         </TableHeadColumn>
-        <TableHeadColumn v-if="columns.includes('value') && columns.includes('fee')" class="tablet-column">
-          {{ t("transactions.table.value") }}/{{ t("transactions.table.fee") }}
+        <TableHeadColumn
+          v-if="columns.includes('value') && columns.includes('fee')"
+          class="tablet-column"
+        >
+          {{ t('transactions.table.value') }}/{{ t('transactions.table.fee') }}
         </TableHeadColumn>
       </template>
       <template #table-row="{ item }: { item: TransactionListItemMapped }">
@@ -40,12 +65,18 @@
         >
           <Badge :color="item.statusColor" :data-testid="$testId.statusBadge">
             <template #default>
-              {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status
+              {{
+                te(`transactions.status.${item.status}`)
+                  ? t(`transactions.status.${item.status}`)
+                  : item.status
               }}<component :is="item.statusIcon" />
             </template>
           </Badge>
         </TableBodyColumn>
-        <TableBodyColumn v-if="columns.includes('transactionHash')" :data-heading="t('transactions.table.txnHash')">
+        <TableBodyColumn
+          v-if="columns.includes('transactionHash')"
+          :data-heading="t('transactions.table.txnHash')"
+        >
           <span class="transactions-data-link">
             <router-link
               :data-testid="$testId.transactionsHash"
@@ -54,13 +85,18 @@
                 params: { hash: item.hash },
               }"
             >
-              {{ shortenFitText(item.hash, "left", 150) }}
+              {{ shortenFitText(item.hash, 'left', 150) }}
             </router-link>
           </span>
         </TableBodyColumn>
-        <TableBodyColumn v-if="columns.includes('method')" :data-heading="t('transactions.table.method')">
+        <TableBodyColumn
+          v-if="columns.includes('method')"
+          :data-heading="t('transactions.table.method')"
+        >
           <div class="transactions-data-method">
-            <span :data-testid="$testId.transactionsMethodName">{{ item.methodName }}</span>
+            <span :data-testid="$testId.transactionsMethodName">{{
+              item.methodName
+            }}</span>
           </div>
         </TableBodyColumn>
         <TableBodyColumn
@@ -68,7 +104,11 @@
           :data-heading="t('transactions.table.age')"
         >
           <CopyButton :value="utcStringFromISOString(item.receivedAt)">
-            <TimeField :value="item.receivedAt" :show-exact-date="false" :data-testid="$testId.timestamp" />
+            <TimeField
+              :value="item.receivedAt"
+              :show-exact-date="false"
+              :data-testid="$testId.timestamp"
+            />
           </CopyButton>
         </TableBodyColumn>
         <TableBodyColumn
@@ -84,15 +124,18 @@
               class="transactions-data-link-value"
               :data-testid="$testId.fromAddress"
             >
-              {{ shortenFitText(item.from, "left", 125) }}
+              {{ shortenFitText(item.from, 'left', 125) }}
             </AddressLink>
           </span>
         </TableBodyColumn>
-        <TableBodyColumn v-if="columns.includes('from') && columns.includes('to')" class="tablet-column">
+        <TableBodyColumn
+          v-if="columns.includes('from') && columns.includes('to')"
+          class="tablet-column"
+        >
           <div class="flex gap-x-2">
             <div class="text-neutral-400">
-              <div>{{ t("transactions.table.from") }}</div>
-              <div>{{ t("transactions.table.to") }}</div>
+              <div>{{ t('transactions.table.from') }}</div>
+              <div>{{ t('transactions.table.to') }}</div>
             </div>
             <div>
               <span class="transactions-data-link">
@@ -103,19 +146,26 @@
                   class="transactions-data-link-value"
                   :data-testid="$testId.fromAddress"
                 >
-                  {{ shortenFitText(item.from, "left", 125) }}
+                  {{ shortenFitText(item.from, 'left', 125) }}
                 </AddressLink>
               </span>
               <span class="transactions-data-link">
                 <TransactionNetworkSquareBlock :network="item.toNetwork" />
-                <AddressLink :address="item.to" :network="item.toNetwork" class="transactions-data-link-value">
-                  {{ shortenFitText(item.to, "left", 125) }}
+                <AddressLink
+                  :address="item.to"
+                  :network="item.toNetwork"
+                  class="transactions-data-link-value"
+                >
+                  {{ shortenFitText(item.to, 'left', 125) }}
                 </AddressLink>
               </span>
             </div>
           </div>
         </TableBodyColumn>
-        <TableBodyColumn v-if="columns.includes('direction')" :data-heading="t('transactions.table.direction')">
+        <TableBodyColumn
+          v-if="columns.includes('direction')"
+          :data-heading="t('transactions.table.direction')"
+        >
           <TransactionDirectionTableCell
             class="transactions-in-out"
             :text="getDirection(item)"
@@ -135,7 +185,7 @@
               :network="item.toNetwork"
               class="transactions-data-link-value"
             >
-              {{ shortenFitText(item.to, "left", 125) }}
+              {{ shortenFitText(item.to, 'left', 125) }}
             </AddressLink>
           </span>
         </TableBodyColumn>
@@ -144,18 +194,30 @@
           :data-heading="t('transactions.table.value')"
           class="tablet-column-hidden"
         >
-          <TokenAmountPriceTableCell :token="ethToken" :amount="item.value" :show-price="true" />
+          <TokenAmountPriceTableCell
+            :token="ethToken"
+            :amount="item.value"
+            :show-price="true"
+          />
         </TableBodyColumn>
         <TableBodyColumn
           v-if="columns.includes('value') && columns.includes('fee')"
           :data-heading="t('transactions.table.value')"
           class="tablet-column"
         >
-          <TokenAmountPriceTableCell :token="ethToken" :amount="item.value" :show-price="false" />
+          <TokenAmountPriceTableCell
+            :token="ethToken"
+            :amount="item.value"
+            :show-price="false"
+          />
 
           <div class="tablet-column-fee">
-            {{ t("transactions.table.fee") }}:&nbsp;
-            <TokenAmountPriceTableCell :token="ethToken" :amount="item.fee" :show-price="false" />
+            {{ t('transactions.table.fee') }}:&nbsp;
+            <TokenAmountPriceTableCell
+              :token="ethToken"
+              :amount="item.fee"
+              :show-price="false"
+            />
           </div>
         </TableBodyColumn>
         <TableBodyColumn
@@ -163,15 +225,25 @@
           :data-heading="t('transactions.table.fee')"
           class="tablet-column-hidden"
         >
-          <TokenAmountPriceTableCell :token="ethToken" :amount="item.fee" :show-price="true" />
+          <TokenAmountPriceTableCell
+            :token="ethToken"
+            :amount="item.fee"
+            :show-price="true"
+          />
         </TableBodyColumn>
       </template>
       <template #empty>
-        <TableBodyColumn class="transactions-not-found" :colspan="columns.length">
-          <slot name="not-found">{{ t("transactions.table.notFound") }}</slot>
+        <TableBodyColumn
+          class="transactions-not-found"
+          :colspan="columns.length"
+        >
+          <slot name="not-found">{{ t('transactions.table.notFound') }}</slot>
         </TableBodyColumn>
       </template>
-      <template v-if="pagination && total && total > pageSize && transactions?.length" #footer>
+      <template
+        v-if="pagination && total && total > pageSize && transactions?.length"
+        #footer
+      >
         <div class="pagination">
           <Pagination
             v-model:active-page="activePage"
@@ -184,52 +256,64 @@
       </template>
       <template #loading>
         <tr class="loader-row" v-for="row in pageSize" :key="row">
-          <TableBodyColumn v-for="(col, index) in columns" :key="`col-${index}`" class="loader-col">
+          <TableBodyColumn
+            v-for="(col, index) in columns"
+            :key="`col-${index}`"
+            class="loader-col"
+          >
             <ContentLoader />
           </TableBodyColumn>
         </tr>
       </template>
     </Table>
 
-    <div v-if="!user.loggedIn" class="absolute inset-0 flex items-center justify-center backdrop-blur rounded-lg">
-      <div class="rounded-lg bg-white px-6 py-4 text-lg font-medium text-neutral-900 shadow-lg">
-        {{ t("transactions.loginRequired") }}
+    <div
+      v-if="!user.loggedIn"
+      class="absolute inset-0 flex items-center justify-center backdrop-blur rounded-lg"
+    >
+      <div
+        class="rounded-lg bg-white px-6 py-4 text-lg font-medium text-neutral-900 shadow-lg"
+      >
+        {{ t('transactions.loginRequired') }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, type PropType, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import { computed, type PropType, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useRoute } from 'vue-router';
 
-import AddressLink from "@/components/AddressLink.vue";
-import Badge from "@/components/common/Badge.vue";
-import CopyButton from "@/components/common/CopyButton.vue";
-import { shortenFitText } from "@/components/common/HashLabel.vue";
-import Pagination from "@/components/common/Pagination.vue";
-import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
-import Table from "@/components/common/table/Table.vue";
-import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
-import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
-import TimeField from "@/components/common/table/fields/TimeField.vue";
-import EthereumIcon from "@/components/icons/Ethereum.vue";
-import ZkSyncIcon from "@/components/icons/ZkSync.vue";
-import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
-import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
-import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+import AddressLink from '@/components/AddressLink.vue';
+import Badge from '@/components/common/Badge.vue';
+import CopyButton from '@/components/common/CopyButton.vue';
+import { shortenFitText } from '@/components/common/HashLabel.vue';
+import Pagination from '@/components/common/Pagination.vue';
+import ContentLoader from '@/components/common/loaders/ContentLoader.vue';
+import Table from '@/components/common/table/Table.vue';
+import TableBodyColumn from '@/components/common/table/TableBodyColumn.vue';
+import TableHeadColumn from '@/components/common/table/TableHeadColumn.vue';
+import TimeField from '@/components/common/table/fields/TimeField.vue';
+import EthereumIcon from '@/components/icons/Ethereum.vue';
+import ZkSyncIcon from '@/components/icons/ZkSync.vue';
+import TokenAmountPriceTableCell from '@/components/transactions/TokenAmountPriceTableCell.vue';
+import TransactionDirectionTableCell from '@/components/transactions/TransactionDirectionTableCell.vue';
+import TransactionNetworkSquareBlock from '@/components/transactions/TransactionNetworkSquareBlock.vue';
 
-import useContext from "@/composables/useContext";
-import useToken, { type Token } from "@/composables/useToken";
-import { decodeDataWithABI } from "@/composables/useTransactionData";
-import useTransactions, { type TransactionListItem, type TransactionSearchParams } from "@/composables/useTransactions";
+import useContext from '@/composables/useContext';
+import useToken, { type Token } from '@/composables/useToken';
+import { decodeDataWithABI } from '@/composables/useTransactionData';
+import useTransactions, {
+  type TransactionListItem,
+  type TransactionSearchParams,
+} from '@/composables/useTransactions';
 
-import type { Direction } from "@/components/transactions/TransactionDirectionTableCell.vue";
-import type { AbiFragment } from "@/composables/useAddress";
-import type { NetworkOrigin } from "@/types";
+import type { Direction } from '@/components/transactions/TransactionDirectionTableCell.vue';
+import type { AbiFragment } from '@/composables/useAddress';
+import type { NetworkOrigin } from '@/types';
 
-import { utcStringFromISOString } from "@/utils/helpers";
+import { utcStringFromISOString } from '@/utils/helpers';
 
 const { currentNetwork, user } = useContext();
 
@@ -238,7 +322,17 @@ const { t, te } = useI18n();
 const props = defineProps({
   columns: {
     type: Array as PropType<string[]>,
-    default: () => ["status", "transactionHash", "method", "age", "from", "direction", "to", "value", "fee"],
+    default: () => [
+      'status',
+      'transactionHash',
+      'method',
+      'age',
+      'from',
+      'direction',
+      'to',
+      'value',
+      'fee',
+    ],
   },
   contractAbi: {
     type: Array as PropType<AbiFragment[]>,
@@ -260,7 +354,11 @@ const route = useRoute();
 const searchParams = computed(() => props.searchParams ?? {});
 const { data, load, total, pending, pageSize } = useTransactions(searchParams);
 
-const { getTokenInfo, tokenInfo, isRequestPending: isLoadingEthTokenInfo } = useToken();
+const {
+  getTokenInfo,
+  tokenInfo,
+  isRequestPending: isLoadingEthTokenInfo,
+} = useToken();
 getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const ethToken = computed<Token | null>(() => {
@@ -269,7 +367,9 @@ const ethToken = computed<Token | null>(() => {
 
 const isLoading = computed(() => pending.value || isLoadingEthTokenInfo.value);
 
-const activePage = ref(props.useQueryPagination ? parseInt(route.query.page as string) || 1 : 1);
+const activePage = ref(
+  props.useQueryPagination ? parseInt(route.query.page as string) || 1 : 1,
+);
 const toDate = new Date();
 
 watch(
@@ -279,12 +379,12 @@ watch(
       load(page, toDate);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const getTransactionMethod = (transaction: TransactionListItem) => {
-  if (transaction.data === "0x") {
-    return t("transactions.table.transferMethodName");
+  if (transaction.data === '0x') {
+    return t('transactions.table.transferMethodName');
   }
   const sighash = transaction.data.slice(0, 10);
   if (props.contractAbi) {
@@ -294,7 +394,7 @@ const getTransactionMethod = (transaction: TransactionListItem) => {
           calldata: transaction.data,
           value: transaction.value,
         },
-        props.contractAbi
+        props.contractAbi,
       )?.name ?? sighash
     );
   }
@@ -306,61 +406,70 @@ type TransactionListItemMapped = TransactionListItem & {
   fromNetwork: NetworkOrigin;
   toNetwork: NetworkOrigin;
   statusIcon: unknown;
-  statusColor: "danger" | "dark-success";
+  statusColor: 'danger' | 'dark-success';
 };
 
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
   if (!user.value.loggedIn) {
     // Mock data for non-logged in users
-    return Array(10).fill(null).map((_, index) => ({
-      hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
-      status: 'included',
-      from: '0x1234567890123456789012345678901234567890',
-      to: '0x0987654321098765432109876543210987654321',
-      value: '1000000000000000000', // 1 ETH
-      fee: '21000000000000', // 0.000021 ETH
-      data: '0x',
-      isL1Originated: false,
-      receivedAt: new Date().toISOString(),
-      methodName: t("transactions.table.transferMethodName"),
-      fromNetwork: 'L2' as NetworkOrigin,
-      toNetwork: 'L2' as NetworkOrigin,
-      statusColor: 'dark-success',
-      statusIcon: ZkSyncIcon,
-      blockHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-      blockNumber: 1234567890,
-      transactionIndex: 1,
-      nonce: 1,
-      commitTxHash: null,
-      error: null,
-      executeTxHash: null,
-      gasPrice: "1000000000000000000",
-      gasLimit: "1000000",
-      gasUsed: "1000000",
-      gasPerPubdata: "1000000",
-      isL1BatchSealed: false,
-      maxFeePerGas: "1000000000000000000",
-      maxPriorityFeePerGas: "1000000000000000000",
-      proveTxHash: null,
-      l1BatchNumber: null,
-      revertReason: null,
-    }));
+    return Array(10)
+      .fill(null)
+      .map((_, _index) => ({
+        hash: '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        status: 'included',
+        from: '0x1234567890123456789012345678901234567890',
+        to: '0x0987654321098765432109876543210987654321',
+        value: '1000000000000000000', // 1 ETH
+        fee: '21000000000000', // 0.000021 ETH
+        data: '0x',
+        isL1Originated: false,
+        receivedAt: new Date().toISOString(),
+        methodName: t('transactions.table.transferMethodName'),
+        fromNetwork: 'L2' as NetworkOrigin,
+        toNetwork: 'L2' as NetworkOrigin,
+        statusColor: 'dark-success',
+        statusIcon: ZkSyncIcon,
+        blockHash:
+          '0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        blockNumber: 1234567890,
+        transactionIndex: 1,
+        nonce: 1,
+        commitTxHash: null,
+        error: null,
+        executeTxHash: null,
+        gasPrice: '1000000000000000000',
+        gasLimit: '1000000',
+        gasUsed: '1000000',
+        gasPerPubdata: '1000000',
+        isL1BatchSealed: false,
+        maxFeePerGas: '1000000000000000000',
+        maxPriorityFeePerGas: '1000000000000000000',
+        proveTxHash: null,
+        l1BatchNumber: null,
+        revertReason: null,
+      }));
   }
 
   return data.value?.map((transaction) => ({
     ...transaction,
     methodName: getTransactionMethod(transaction),
-    fromNetwork: transaction.isL1Originated ? "L1" : "L2",
-    toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
-    statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-    statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
+    fromNetwork: transaction.isL1Originated ? 'L1' : 'L2',
+    toNetwork: 'L2', // even withdrawals go through L2 addresses (800A or bridge addresses)
+    statusColor: transaction.status === 'failed' ? 'danger' : 'dark-success',
+    statusIcon: ['failed', 'included'].includes(transaction.status)
+      ? ZkSyncIcon
+      : EthereumIcon,
   }));
 });
 
-const isHighRowsSize = computed(() => props.columns.includes("fee"));
+const isHighRowsSize = computed(() => props.columns.includes('fee'));
 
 function getDirection(item: TransactionListItem): Direction {
-  return item.from === item.to ? "self" : item.to !== props.searchParams?.address ? "out" : "in";
+  return item.from === item.to
+    ? 'self'
+    : item.to !== props.searchParams?.address
+      ? 'out'
+      : 'in';
 }
 </script>
 

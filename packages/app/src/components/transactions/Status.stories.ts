@@ -1,9 +1,9 @@
-import Status from "./Status.vue";
+import Status from './Status.vue';
 
-import type { TransactionStatus } from "@/composables/useTransaction";
+import type { TransactionStatus } from '@/composables/useTransaction';
 
 export default {
-  title: "Transactions/Status",
+  title: 'Transactions/Status',
   component: Status,
 };
 
@@ -23,20 +23,20 @@ const Template = (args: Args) => ({
 
 export const Included = Template.bind({}) as unknown as { args: Args };
 Included.args = {
-  status: "included",
+  status: 'included',
 };
 
 export const Verified = Template.bind({}) as unknown as { args: Args };
 Verified.args = {
-  status: "verified",
+  status: 'verified',
 };
 
 export const Failed = Template.bind({}) as unknown as { args: Args };
 Failed.args = {
-  status: "failed",
+  status: 'failed',
 };
 
 export const Indexing = Template.bind({}) as unknown as { args: Args };
 Indexing.args = {
-  status: "indexing",
+  status: 'indexing',
 };

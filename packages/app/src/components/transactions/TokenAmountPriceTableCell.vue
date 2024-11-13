@@ -1,13 +1,24 @@
 <template>
-  <TokenAmountPrice :token="token" :amount="amount" v-slot="{ token: tokenInfo, decimalAmount, priceAmount }">
+  <TokenAmountPrice
+    :token="token"
+    :amount="amount"
+    v-slot="{ token: tokenInfo, decimalAmount, priceAmount }"
+  >
     <template v-if="tokenInfo && decimalAmount">
       <div class="token-amount-symbol">
-        <Tooltip class="token-amount-short" :disabled="decimalAmount.length < 10">
-          {{ shortenFitText(decimalAmount, "right", 100, 10) }}
+        <Tooltip
+          class="token-amount-short"
+          :disabled="decimalAmount.length < 10"
+        >
+          {{ shortenFitText(decimalAmount, 'right', 100, 10) }}
 
-          <template #content>{{ decimalAmount }} {{ tokenInfo.symbol }}</template>
+          <template #content
+            >{{ decimalAmount }} {{ tokenInfo.symbol }}</template
+          >
         </Tooltip>
-        <div class="token-amount" :data-testid="$testId.tokenAmount">{{ decimalAmount }}</div>
+        <div class="token-amount" :data-testid="$testId.tokenAmount">
+          {{ decimalAmount }}
+        </div>
         <TokenIconLabel
           class="token-icon"
           :address="tokenInfo.l2Address"
@@ -16,7 +27,11 @@
           show-link-symbol
         />
       </div>
-      <span v-if="showPrice" class="token-price" :data-testid="$testId.tokenAmountPrice">
+      <span
+        v-if="showPrice"
+        class="token-price"
+        :data-testid="$testId.tokenAmountPrice"
+      >
         {{ priceAmount }}
       </span>
     </template>
@@ -24,19 +39,19 @@
   </TokenAmountPrice>
 </template>
 <script lang="ts" setup>
-import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
-import TokenIconLabel from "@/components/TokenIconLabel.vue";
-import { shortenFitText } from "@/components/common/HashLabel.vue";
-import Tooltip from "@/components/common/Tooltip.vue";
+import TokenAmountPrice from '@/components/TokenAmountPrice.vue';
+import TokenIconLabel from '@/components/TokenIconLabel.vue';
+import { shortenFitText } from '@/components/common/HashLabel.vue';
+import Tooltip from '@/components/common/Tooltip.vue';
 
-import type { Token } from "@/composables/useToken";
-import type { BigNumberish } from "ethers";
-import type { PropType } from "vue";
+import type { Token } from '@/composables/useToken';
+import type { BigNumberish } from 'ethers';
+import type { PropType } from 'vue';
 
 defineProps({
   amount: {
     type: String as PropType<BigNumberish | null>,
-    default: "0",
+    default: '0',
     required: true,
   },
   showPrice: {
