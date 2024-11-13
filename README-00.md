@@ -74,3 +74,7 @@ Once the configuration it's in place the services can be started like this:
 docker compose -f compose-00.yaml up 
 ```
 
+
+## Spawning a local validium chain
+
+This can be done using zkstack: https://docs.zksync.io/zk-stack/running-a-zk-chain/quickstart
