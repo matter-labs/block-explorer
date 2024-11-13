@@ -49,6 +49,9 @@ export class TransactionProcessor {
       transactionHash: transactionData.transaction.hash,
     });
     await this.transactionReceiptRepository.add({
+      // TODO: rooot field is not present in validium chains. This is a really
+      // quick fix, but we should improve it.
+      root: "0x00",
       ...transactionData.transactionReceipt,
       transactionIndex: transactionData.transactionReceipt.index,
       transactionHash: transactionData.transactionReceipt.hash,
