@@ -23,7 +23,12 @@ flowchart
     Blockchain[ZKsync Era JSON-RPC API]
   end
 
-  subgraph explorer[Block explorer]
+  subgraph dapps[Dapps]
+      PrivateRpc[User scoped rpc]
+  end
+
+
+subgraph explorer[Block explorer]
     Database[("Block explorer DB<br/>(PostgreSQL)")]
     Worker(Worker service)
     Data-Fetcher(Data Fetcher service)
@@ -38,9 +43,10 @@ flowchart
     App-."Request data (HTTP)".->Proxy
     Proxy-."Request data (HTTP) and filter results".->API
     API-.Query data.->Database
-  end
-
-  Worker-."Request data (HTTP)".->Blockchain
+end
+  
+PrivateRpc -."Reads data. Returns data filtered per user.".->Blockchain
+Worker-."Request data (HTTP)".->Blockchain
 ```
 
 [Worker](./packages/worker) service retrieves aggregated data from the [Data Fetcher](./packages/data-fetcher) via HTTP and also directly from the blockchain using [ZKsync Era JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc), processes it and saves into the database. [API](./packages/api) service is connected to the same database where it gets the data from to handle API requests. It performs only read requests to the database. The front-end [App](./packages/app) makes HTTP calls to the Block Explorer [API](./packages/api) to get blockchain data <!-- and to the [ZKsync Era JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc) for reading contracts, performing transactions etc-->. The [Proxy](./packages/proxy) filters API responses based on user permissions, ensuring secure and controlled data access.
