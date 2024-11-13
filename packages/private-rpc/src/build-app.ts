@@ -29,11 +29,6 @@ export function buildApp(
   app.setValidatorCompiler(validatorCompiler);
   app.setSerializerCompiler(serializerCompiler);
 
-  app.register(cors, {
-    origin: '*',
-    methods: ['POST'],
-  });
-
   app.decorate('context', {
     db,
     targetRpc,

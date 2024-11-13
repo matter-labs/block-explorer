@@ -55,7 +55,7 @@ export function processException(e: any, message: string): never {
   } else if (e?.code === "SERVER_ERROR") {
     throw WalletError.InternalServerError();
   } else if (e?.code === "CALL_EXCEPTION" && e?.info?.error?.data?.code === -32090) {
-    throw WalletError.UnauthorizedError();
+    throw WalletError.UnauthorizedError(e?.info?.error?.data?.message);
   }
   throw WalletError.UnknownError(e?.message?.length ? e.message : message);
 }

@@ -34,13 +34,16 @@ type JSONLike =
   | boolean
   | JSONLike[];
 
-export function unauthorized(id: JsonRpcResponse['id']): JsonRpcResponse {
+export function unauthorized(
+  id: JsonRpcResponse['id'],
+  message = 'Unauthorized',
+): JsonRpcResponse {
   return {
     jsonrpc: '2.0',
     id,
     error: {
       code: -32090,
-      message: 'Unauthorized',
+      message,
     },
   };
 }

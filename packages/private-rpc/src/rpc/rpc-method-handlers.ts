@@ -8,7 +8,7 @@ import {
 import { z } from 'zod';
 import { hexSchema } from '@/schemas/hex';
 import { addressSchema } from '@/schemas/address';
-import { response, unauthorized } from './json-rpc';
+import { invalidRequest, response, unauthorized } from './json-rpc';
 import { delegateCall } from './delegate-call';
 
 function extractSelector(calldata: Hex): Hex {
@@ -69,11 +69,11 @@ const zks_sendRawTransactionWithDetailedOutput: MethodHandler = {
     });
 
     if (!isAddressEqual(address, context.currentUser)) {
-      return unauthorized(id);
+      return unauthorized(id, 'Cannot impersonate other users');
     }
 
     if (!tx.to) {
-      return unauthorized(id);
+      return invalidRequest(id);
     }
 
     if (
