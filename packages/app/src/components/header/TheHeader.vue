@@ -3,9 +3,13 @@
     <div class="header-wrap">
       <div class="header-container">
         <div class="logo-container">
-          <router-link :to="{ name: 'home' }">
+          <router-link
+            :to="{ name: 'home' }"
+            class="flex items-center gap-3 no-underline"
+          >
             <span class="sr-only">ZKsync</span>
             <zk-sync-era />
+            <span class="text-black text-xl font-normal">Double Zero</span>
           </router-link>
         </div>
         <div class="burger-button-container">
@@ -32,38 +36,9 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
-          <NetworkSwitch />
-          <LocaleSwitch
-            :value="locale as string"
-            @update:value="changeLanguage"
-            :options="
-              ['en', 'uk'].map((value) => ({
-                value,
-                label: t(`locale.${value}`),
-              }))
-            "
-          />
           <LoginButton />
-          <div class="socials-container">
-            <a
-              :href="social.url"
-              target="_blank"
-              rel="noopener"
-              v-for="(social, index) in socials"
-              :key="index"
-            >
-              <component :is="social.component" />
-            </a>
-          </div>
         </div>
       </div>
-    </div>
-    <div
-      v-if="hasContent"
-      class="hero-banner-container"
-      :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
-    >
-      <hero-arrows class="hero-image" />
     </div>
     <transition
       enter-active-class="duration-200 ease-out"
@@ -252,12 +227,12 @@ const hasContent = computed(() => {
 
 <style lang="scss">
 .header-popover-container {
-  @apply relative bg-primary-900;
+  @apply relative;
   .header-wrap {
-    @apply container z-50;
+    @apply container z-50 flex;
   }
   .header-container {
-    @apply flex items-center justify-between border-b border-neutral-500 py-4 md:space-x-10 lg:justify-start;
+    @apply flex flex-1 items-center justify-between py-4 md:space-x-10;
   }
   .logo-container {
     @apply flex justify-start;
@@ -277,7 +252,7 @@ const hasContent = computed(() => {
       .navigation-link {
         @apply flex items-center;
         &.active {
-          @apply bg-primary-800;
+          @apply bg-white;
 
           .dropdown-icon {
             @apply -rotate-180;
@@ -300,7 +275,7 @@ const hasContent = computed(() => {
       }
     }
     .navigation-link {
-      @apply rounded-md py-2.5 text-base font-medium text-white no-underline hover:bg-primary-800 md:px-3.5;
+      @apply rounded-md py-2.5 text-base text-gray-700 no-underline hover:bg-white md:px-3.5;
     }
 
     .router-link-exact-active {
@@ -308,14 +283,8 @@ const hasContent = computed(() => {
     }
   }
   .header-right-side {
-    @apply hidden items-center justify-end md:flex-1 lg:flex lg:w-0;
+    @apply hidden items-center justify-end lg:flex;
 
-    .network-switch {
-      @apply mr-4;
-    }
-    .language-switch {
-      @apply mr-4;
-    }
     .login-button {
       @apply mr-6;
     }

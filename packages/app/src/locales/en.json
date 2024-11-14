@@ -316,8 +316,8 @@
         "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "Double Zero Block Explorer",
-        "subtitle": "Double Zero Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Validium and explore the network.",
+        "title": "Double Zero Explorer.",
+        "subtitle": "Private, Secure and Fast.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions",
         "batches": "Latest Batches"

@@ -14,7 +14,7 @@
           :key="step.title"
           class="flex items-center space-x-4 p-4 rounded-lg transition-colors border border-gray-400"
           :class="{
-            'bg-gray-100 border-green-400': step.completed,
+            'bg-gray-50 border-green-400': step.completed,
             'bg-gray-200': step.isActive,
             'opacity-50': !step.isActive && !step.completed,
           }"
@@ -209,10 +209,10 @@ async function logout() {
   @apply mt-4;
 
   .title {
-    @apply text-4xl font-bold text-white;
+    @apply text-4xl font-bold text-gray-700;
   }
   .subtitle {
-    @apply mt-2 text-base text-white sm:text-2xl;
+    @apply mt-2 text-base text-gray-500 sm:text-2xl;
   }
 }
 .button-spinner {

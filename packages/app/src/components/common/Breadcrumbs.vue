@@ -44,14 +44,14 @@ defineProps({
   .breadcrumb-item {
     .breadcrumb-item-link,
     .breadcrumb-item-active {
-      @apply text-sm leading-tight text-gray-200;
+      @apply text-sm leading-tight text-gray-600;
     }
     .breadcrumb-item-link {
       @apply no-underline hover:underline;
     }
   }
   .breadcrumb-divider {
-    @apply mx-5 h-2 w-2 rotate-45 border-r border-t border-gray-300;
+    @apply mx-5 h-2 w-2 rotate-45 border-r border-t border-gray-600;
   }
 }
 </style>

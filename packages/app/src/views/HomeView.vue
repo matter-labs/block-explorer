@@ -1,8 +1,11 @@
 <template>
   <div class="home">
-    <h1 class="title">{{ t('blockExplorer.title') }}</h1>
-    <div class="subtitle">{{ t('blockExplorer.subtitle') }}</div>
+    <h1 class="title">
+      {{ t('blockExplorer.title')
+      }}<span class="subtitle">{{ t('blockExplorer.subtitle') }}</span>
+    </h1>
     <SearchForm class="search-form" />
+    <div class="w-full h-px bg-neutral-200 mt-10"></div>
     <div class="section">
       <NetworkStats
         v-if="networkStats || networkStatsPending"
@@ -101,21 +104,21 @@ const { user } = useContext();
   @apply mt-4;
 
   .title {
-    @apply text-4xl font-bold text-white;
+    @apply text-4xl font-medium text-gray-800 text-center;
   }
   .subtitle {
-    @apply mt-2 text-base text-white sm:text-2xl;
+    @apply text-gray-500 ml-2;
   }
 
   .section {
-    @apply block justify-between gap-x-4 pt-9 lg:pt-14;
+    @apply block justify-between gap-x-4 pt-8 lg:pt-12;
     .network-stats {
       @apply mb-5 lg:mb-0;
     }
   }
 
   .search-form {
-    @apply mt-6 max-w-xl sm:mt-14 lg:mt-9;
+    @apply mt-6 max-w-xl sm:mt-14 lg:mt-9 mx-auto;
   }
 
   .latest-blocks-transactions {
@@ -127,7 +130,7 @@ const { user } = useContext();
       @apply flex w-full flex-col;
     }
     p {
-      @apply mb-3 text-2xl font-bold text-neutral-700;
+      @apply mb-3 text-2xl font-medium text-neutral-700;
     }
     .error-message {
       @apply h-full;

@@ -32,17 +32,17 @@
   }
 
   h1 {
-    @apply text-4xl font-bold text-neutral-50;
+    @apply text-4xl font-semibold text-neutral-900;
   }
   h2 {
-    @apply text-3xl font-bold text-neutral-50;
+    @apply text-3xl font-semibold text-neutral-900;
   }
   h3 {
-    @apply text-2xl font-bold text-neutral-50;
+    @apply text-2xl font-semibold text-neutral-900;
   }
 
   body {
-    @apply min-h-screen bg-neutral-50 font-sans text-base text-neutral-700;
+    @apply min-h-screen bg-neutral-100 font-sans text-base text-neutral-700;
   }
 
   #app {
@@ -50,6 +50,6 @@
   }
 
   a {
-    @apply text-primary-600 underline hover:text-[#7379E5];
+    @apply text-primary-600 underline hover:text-primary-900;
   }
 }

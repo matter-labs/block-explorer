@@ -94,15 +94,15 @@ const subtitle = computed(() =>
 .card {
   @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-white px-8 py-5 shadow lg:flex-row lg:items-center;
   .title {
-    @apply text-xl font-bold text-neutral-700;
+    @apply text-xl font-semibold text-neutral-700;
   }
   .subtitle {
     @apply font-sans text-base text-neutral-400;
   }
   .stats-container {
-    @apply flex flex-col border-neutral-200 py-3 pr-8 text-xl text-neutral-500 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max;
+    @apply flex flex-col border-neutral-200 py-3 pr-8 text-lg text-neutral-500 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max;
     dd {
-      @apply text-[1.65rem] font-bold text-primary-800 xl:text-3xl;
+      @apply text-[1.65rem] font-bold text-primary-800 xl:text-2xl;
     }
     a {
       @apply text-inherit no-underline;
