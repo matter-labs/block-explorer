@@ -39,7 +39,7 @@ BLOCK_EXPLORER_API_URL="https://block-explorer-api.mainnet.zksync.io"
 Once the configuration is in place, the services can be started using:
 
 ``` shell
-docker compose -f compose-proxy.yaml up
+docker compose -f compose-proxy.yaml --env-file=proxy.env up
 ```
 
 Permissions can be configured editing [this](./proxy-permissions.yaml) file.
@@ -77,7 +77,7 @@ address is something like `http://{my-ip}:{port}`.
 Once the configuration is in place the services can be started like this:
 
 ``` shell
-docker compose -f compose-00.yaml up 
+docker compose -f compose-00.yaml --env-file=validium.env up
 ```
 
 
