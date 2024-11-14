@@ -77,7 +77,7 @@ address is something like `http://{my-ip}:{port}`.
 Once the configuration is in place the services can be started like this:
 
 ``` shell
-docker compose -f compose-00.yaml up 
+docker compose -f compose-00.yaml --env-file=validium.env up
 ```
 
 
