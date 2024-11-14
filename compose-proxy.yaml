@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: ./packages/app/Dockerfile
     ports:
-      - '3010:3010'
+      - '3010:80'
     depends_on:
       - proxy
     restart: unless-stopped
@@ -20,7 +20,7 @@ services:
       SERVER_PORT: 4040
       BLOCK_EXPLORER_API_URL: ${BLOCK_EXPLORER_API_URL}
       SESSION_SECRET: ${SESSION_SECRET}
-      CORS_ORIGIN: ${CORS_ORIGIN}
+      CORS_ORIGIN: ${CORS_ORIGIN_PROXY}
       RPC_URL: ${TARGET_RPC}
       USER_TOKEN_URL: http://private-rpc:4041/users
       CREATE_TOKEN_SECRET: ${CREATE_TOKEN_SECRET}
@@ -54,7 +54,7 @@ services:
       DATABASE_URL: "postgres://postgres:postgres@db-private-rpc:5432/private-rpc"
       TARGET_RPC: ${TARGET_RPC}
       PERMISSIONS_YAML_PATH: "/app/permissions.yaml"
-      CORS_ORIGIN: ${CORS_ORIGIN}
+      CORS_ORIGIN: ${CORS_ORIGIN_RPC}
       CREATE_TOKEN_SECRET: ${CREATE_TOKEN_SECRET}
 
   db-private-rpc:

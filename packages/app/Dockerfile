@@ -26,17 +26,13 @@ COPY packages/app ./packages/app
 COPY --from=build /app/packages/app/dist ./packages/app/dist
 COPY yarn.lock .
 
-# Install only prod dependencies
-RUN yarn install --production=true
+FROM nginx
 
-RUN yarn global add http-server
+COPY packages/app/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/packages/app/dist /usr/share/nginx/html
 
-ARG NODE_ENV=production
-ENV NODE_ENV=$NODE_ENV
+EXPOSE 80
 
-ARG PORT=3010
-ENV PORT=$PORT
+STOPSIGNAL SIGTERM
 
-WORKDIR /app/packages/app/dist
-
-CMD http-server -p $PORT -c-1 --app="http://127.0.0.1:$PORT/index.html?"
+CMD ["nginx", "-g", "daemon off;"]
