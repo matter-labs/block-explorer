@@ -269,11 +269,12 @@
 
     <div
       v-if="!user.loggedIn"
-      class="absolute inset-0 flex items-center justify-center backdrop-blur rounded-lg"
+      class="absolute inset-0 flex items-center justify-center backdrop-blur-sm bg-gray-300/50 rounded-lg"
     >
       <div
-        class="rounded-lg bg-white px-6 py-4 text-lg font-medium text-neutral-900 shadow-lg"
+        class="rounded-lg bg-neutral-50 border px-6 py-4 text-lg font-medium text-neutral-900 shadow-lg flex items-center gap-x-2"
       >
+        <LockClosedIcon class="w-5 h-5" />
         {{ t('transactions.loginRequired') }}
       </div>
     </div>
@@ -314,6 +315,7 @@ import type { AbiFragment } from '@/composables/useAddress';
 import type { NetworkOrigin } from '@/types';
 
 import { utcStringFromISOString } from '@/utils/helpers';
+import { LockClosedIcon } from '@heroicons/vue/outline';
 
 const { currentNetwork, user } = useContext();
 
@@ -615,7 +617,7 @@ function getDirection(item: TransactionListItem): Direction {
     }
   }
   .badge-container.type-label {
-    @apply pr-2 normal-case	normal-case;
+    @apply pr-2 normal-case;
   }
 
   .pagination {

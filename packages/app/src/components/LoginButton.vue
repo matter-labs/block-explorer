@@ -68,7 +68,7 @@ const buttonText = computed(() => {
 
 <style lang="scss">
 .login-button {
-  @apply flex min-w-[180px] items-center rounded-md border border-neutral-300 bg-white p-2 font-sans text-base text-neutral-700 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 lg:border-primary-800 lg:bg-primary-800 lg:text-white align-middle no-underline hover:text-white;
+  @apply flex min-w-[180px] items-center rounded-md border border-neutral-300 bg-white p-2 font-sans text-base text-neutral-700 focus:outline-none  lg:text-black align-middle no-underline shadow-sm;
   &.disabled {
     @apply opacity-50;
   }
