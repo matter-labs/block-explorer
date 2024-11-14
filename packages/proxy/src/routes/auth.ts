@@ -49,7 +49,10 @@ export default function authRoutes(app: FastifyApp) {
     const user = getUserOrThrow(req);
     const response = await fetch(`${env.USER_TOKEN_URL}`, {
       method: 'POST',
-      body: JSON.stringify({ address: user }),
+      body: JSON.stringify({
+        address: user,
+        secret: app.conf.createTokenSecret,
+      }),
       headers: { 'Content-Type': 'application/json' },
     });
     return reply.send(response.body);
