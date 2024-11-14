@@ -23,9 +23,10 @@ describe('/blocks', () => {
       secret,
       'development',
       backgroundApp.url(),
-      false,
+      '',
       ['*'],
       '',
+      false,
     );
     return new TestSession(app);
   };

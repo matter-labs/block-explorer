@@ -12,6 +12,7 @@ export const env = createEnv({
       .transform((value) => value.split(','))
       .pipe(z.string().array()),
     PERMISSIONS_YAML_PATH: z.string(),
+    CREATE_TOKEN_SECRET: z.string(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

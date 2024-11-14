@@ -23,6 +23,7 @@ services:
       CORS_ORIGIN: ${CORS_ORIGIN}
       RPC_URL: ${TARGET_RPC}
       USER_TOKEN_URL: http://private-rpc:4041/users
+      CREATE_TOKEN_SECRET: ${CREATE_TOKEN_SECRET}
 
   private-rpc-migrate:
     build:
@@ -54,6 +55,7 @@ services:
       TARGET_RPC: ${TARGET_RPC}
       PERMISSIONS_YAML_PATH: "/app/permissions.yaml"
       CORS_ORIGIN: ${CORS_ORIGIN}
+      CREATE_TOKEN_SECRET: ${CREATE_TOKEN_SECRET}
 
   db-private-rpc:
     image: "postgres:14"

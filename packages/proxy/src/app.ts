@@ -20,9 +20,10 @@ export function buildApp(
   sessionSecret: Hex,
   nodeEnv: NodeEnv,
   proxyTarget: string,
-  produceLogs = true,
+  createTokenSecret: string,
   corsOrigin: string[],
   rpcUrl: string,
+  produceLogs = true,
 ) {
   const app = Fastify({
     logger: produceLogs,
@@ -31,6 +32,7 @@ export function buildApp(
   app.decorate('conf', {
     proxyTarget,
     rpcUrl,
+    createTokenSecret,
   });
 
   // TODO: Fix it for production
@@ -127,6 +129,7 @@ declare module 'fastify' {
     conf: {
       proxyTarget: string;
       rpcUrl: string;
+      createTokenSecret: string;
     };
   }
 }

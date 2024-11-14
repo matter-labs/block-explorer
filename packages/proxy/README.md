@@ -15,7 +15,7 @@ The proxy can be configured with a few environment variables:
 For development this can ben easily configured by doing:
 
 ``` bash
-cp env.example .env
+cp example.env .env
 ```
 
 ## Dev

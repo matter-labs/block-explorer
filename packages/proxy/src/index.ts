@@ -6,9 +6,10 @@ const app = buildApp(
   env.SESSION_SECRET,
   env.NODE_ENV,
   env.BLOCK_EXPLORER_API_URL,
-  true,
+  env.CREATE_TOKEN_SECRET,
   env.CORS_ORIGIN,
   env.RPC_URL,
+  true,
 );
 
 closeWithGrace(async ({ signal, err }) => {

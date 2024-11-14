@@ -18,6 +18,7 @@ export const env = createEnv({
       .pipe(z.string().array()),
     RPC_URL: z.string().url(),
     USER_TOKEN_URL: z.string().url(),
+    CREATE_TOKEN_SECRET: z.string(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

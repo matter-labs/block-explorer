@@ -75,6 +75,7 @@ services:
       BLOCK_EXPLORER_API_URL: http://api:3021
       SESSION_SECRET: "0101010101010101010101010101010101010101010101010101010101010101"
       CORS_ORIGIN: "localhost:3010"
+      CREATE_TOKEN_SECRET: "sososecret"
 
   private-rpc-migrate:
     build:
@@ -108,6 +109,7 @@ services:
       TARGET_RPC: 'http://zksync:3050'
       PERMISSIONS_YAML_PATH: "/app/permissions.yaml"
       CORS_ORIGIN: 'http://localhost:3010'
+      CREATE_TOKEN_SECRET: "sososecret"
 
   postgres:
     image: "postgres:14"

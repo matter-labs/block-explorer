@@ -15,6 +15,7 @@ export function buildApp(
   db: DB,
   targetRpc: string,
   authorizer: Authorizer,
+  createTokenSecret: string,
   corsOrigin: string[],
 ) {
   const app = Fastify({
@@ -33,6 +34,7 @@ export function buildApp(
     db,
     targetRpc,
     authorizer,
+    createTokenSecret,
   });
 
   app.register(usersRoutes, { prefix: '/users' });
@@ -44,7 +46,12 @@ export function buildApp(
 declare module 'fastify' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- This allow us to have conf available globally.
   interface FastifyInstance {
-    context: { db: DB; targetRpc: string; authorizer: Authorizer };
+    context: {
+      db: DB;
+      targetRpc: string;
+      authorizer: Authorizer;
+      createTokenSecret: string;
+    };
   }
 }
 
