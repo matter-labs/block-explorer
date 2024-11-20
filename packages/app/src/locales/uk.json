@@ -188,7 +188,7 @@
         "infoTableError": "Виникла помилка",
         "balanceTableTitle": "Мої кошти",
         "notFound": "Не знайдено",
-        "verified": "перевірено",
+        "verified": "вихідний код",
         "transactionTable": {
             "error": "Щось пішло не так",
             "notFound": {

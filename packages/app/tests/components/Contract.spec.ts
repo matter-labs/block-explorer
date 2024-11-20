@@ -89,6 +89,6 @@ describe("Contract:", () => {
       },
     });
     expect(container.querySelector(".title-container")?.textContent?.trim()).toContain("DARA2");
-    expect(container.querySelector(".title-container")?.textContent?.trim()).toContain("Verified");
+    expect(container.querySelector(".title-container")?.textContent?.trim()).toContain("Source Code");
   });
 });

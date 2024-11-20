@@ -79,7 +79,7 @@
 import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { ShieldCheckIcon } from "@heroicons/vue/solid";
+import { CheckCircleIcon } from "@heroicons/vue/solid";
 
 import SearchForm from "@/components/SearchForm.vue";
 import BalanceTable from "@/components/balances/Table.vue";
@@ -124,7 +124,7 @@ const tabs = computed(() => [
   {
     title: t("tabs.contract"),
     hash: "#contract",
-    icon: props.contract?.verificationInfo ? ShieldCheckIcon : null,
+    icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
   },
   { title: t("tabs.events"), hash: "#events" },
 ]);

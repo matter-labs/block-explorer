@@ -326,7 +326,7 @@
         "infoTableError": "An Error Occurred",
         "balanceTableTitle": "Balances",
         "notFound": "Not Found",
-        "verified": "Verified",
+        "verified": "Source Code",
         "transactionTable": {
             "error": "Something went wrong",
             "notFound": {
