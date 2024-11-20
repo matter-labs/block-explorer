@@ -23,11 +23,11 @@ export class TransactionPage extends BasePage {
   }
 
   get generalInfoTab() {
-    return "//button[contains(text(),'General Info')]/..";
+    return "//button[contains(.,'General Info')]/..";
   }
 
   get logsTab() {
-    return "//button[contains(text(),'Logs')]/..";
+    return "//button[contains(.,'Logs')]/..";
   }
 
   get badgeContent() {
