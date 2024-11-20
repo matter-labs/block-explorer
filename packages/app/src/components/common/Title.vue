@@ -5,7 +5,7 @@
       <slot>{{ shortValue(value) }}</slot>
       <CopyButton :value="value" class="title-copy-button" />
     </div>
-    <Badge v-if="isVerified" color="dark-success" class="verified-badge">
+    <Badge v-if="isVerified" color="dark-success" class="verified-badge" :tooltip="t('contract.verifiedTooltip')">
       {{ t("contract.verified") }}
     </Badge>
   </h1>

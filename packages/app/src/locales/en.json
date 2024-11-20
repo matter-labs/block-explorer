@@ -327,6 +327,7 @@
         "balanceTableTitle": "Balances",
         "notFound": "Not Found",
         "verified": "Source Code",
+        "verifiedTooltip": "The contract's source code has been verified to match its on-chain Bytecode. Source code verification does not imply the contract is safe to interact with.",
         "transactionTable": {
             "error": "Something went wrong",
             "notFound": {
