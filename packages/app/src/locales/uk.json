@@ -217,7 +217,7 @@
             "sourceCode": "Вихідний код"
         },
         "abiInteraction": {
-            "contractAbi": "ABI Контракт"
+            "contractAbi": "ABI контракту"
         }
     },
     "contractVerification": {
