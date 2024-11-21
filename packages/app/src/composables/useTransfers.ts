@@ -13,8 +13,7 @@ export default (address: ComputedRef<string>, context = useContext()) => {
   return useFetchCollection<Transfer, Api.Response.Transfer>(
     () =>
       new URL(
-        `/address/${address.value}/transfers?toDate=${new Date().toISOString()}`,
-        context.currentNetwork.value.apiUrl
+        `${context.currentNetwork.value.apiUrl}/address/${address.value}/transfers?toDate=${new Date().toISOString()}`
       ),
     (transfer: Api.Response.Transfer): Transfer => ({
       ...transfer,
