@@ -5,9 +5,16 @@
       <slot>{{ shortValue(value) }}</slot>
       <CopyButton :value="value" class="title-copy-button" />
     </div>
+    <Badge v-if="isVerified" color="dark-success" class="verified-badge" :tooltip="t('contract.verifiedTooltip')">
+      {{ t("contract.verified") }}
+    </Badge>
   </h1>
 </template>
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
+
+import Badge from "./Badge.vue";
+
 import CopyButton from "@/components/common/CopyButton.vue";
 
 import { shortValue } from "@/utils/formatters";
@@ -20,11 +27,16 @@ defineProps({
   value: {
     type: String,
   },
+  isVerified: {
+    type: Boolean,
+  },
 });
+
+const { t } = useI18n();
 </script>
 <style lang="scss">
 .title-container {
-  @apply flex flex-wrap break-all text-3xl sm:text-4xl;
+  @apply flex flex-wrap break-all text-3xl sm:text-4xl items-end;
   .title-block {
     @apply flex gap-4 self-center font-bold;
     .title-copy-button {
@@ -35,6 +47,9 @@ defineProps({
         }
       }
     }
+  }
+  .verified-badge {
+    @apply mb-1 ml-1;
   }
 }
 </style>

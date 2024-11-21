@@ -15,9 +15,13 @@
             v-else
             class="tab-btn"
             :class="{ active: currentTabHash === tab.hash && tabs.length > 1 }"
-            v-html="tab.title"
             @click="setTab(tab)"
-          ></button>
+          >
+            <span v-html="tab.title"></span>
+            <span v-if="tab.icon" class="tab-icon">
+              <component :is="tab.icon" />
+            </span>
+          </button>
         </li>
       </template>
     </ul>
@@ -35,9 +39,12 @@
 import { type PropType, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+import type { FunctionalComponent } from "vue";
+
 export type Tab = {
   title: string;
   hash: string | null;
+  icon?: FunctionalComponent | null;
 };
 
 const props = defineProps({
@@ -76,13 +83,16 @@ watchEffect(() => {
     @apply flex border-b md:flex-row;
   }
   .tab-btn {
-    @apply px-4 py-3.5 text-sm text-gray-400 outline-0 sm:text-base;
+    @apply px-4 py-3.5 text-sm text-gray-400 outline-0 sm:text-base flex;
   }
   .tab-content {
     @apply rounded-b-lg;
   }
   .active {
     @apply border-b-2 border-primary-600 font-bold text-primary-600;
+  }
+  .tab-icon {
+    @apply ml-0.5 w-5 text-green-500;
   }
 }
 </style>

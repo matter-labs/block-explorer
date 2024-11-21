@@ -7,6 +7,7 @@
     v-if="contract?.address && !pending"
     :title="contractName ?? t('contract.title')"
     :value="contractName ? undefined : contract?.address"
+    :is-verified="contract?.verificationInfo != null"
   />
   <Spinner v-else size="md" />
   <div class="tables-container">
@@ -78,6 +79,8 @@
 import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { CheckCircleIcon } from "@heroicons/vue/solid";
+
 import SearchForm from "@/components/SearchForm.vue";
 import BalanceTable from "@/components/balances/Table.vue";
 import Breadcrumbs from "@/components/common/Breadcrumbs.vue";
@@ -118,7 +121,11 @@ const props = defineProps({
 const tabs = computed(() => [
   { title: t("tabs.transactions"), hash: "#transactions" },
   { title: t("tabs.transfers"), hash: "#transfers" },
-  { title: t("tabs.contract"), hash: "#contract" },
+  {
+    title: t("tabs.contract"),
+    hash: "#contract",
+    icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
+  },
   { title: t("tabs.events"), hash: "#events" },
 ]);
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {

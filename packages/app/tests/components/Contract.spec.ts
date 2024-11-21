@@ -88,6 +88,7 @@ describe("Contract:", () => {
         stubs: ["router-link"],
       },
     });
-    expect(container.querySelector(".title-container")?.textContent?.trim()).toBe("DARA2");
+    expect(container.querySelector(".title-container")?.textContent?.trim()).toContain("DARA2");
+    expect(container.querySelector(".title-container")?.textContent?.trim()).toContain("Source Code");
   });
 });
