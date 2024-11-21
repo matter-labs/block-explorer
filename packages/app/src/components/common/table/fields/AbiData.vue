@@ -4,7 +4,7 @@
       <DisclosureButton
         class="abi-data-disclosure-btn"
         :class="open ? 'rounded-tl-lg rounded-tr-lg' : 'rounded-lg'"
-        :data-testid="$testId.byteCodeDropDown"
+        :data-testid="$testId.abiDataDropDown"
       >
         {{ truncatedAbi }}
 
