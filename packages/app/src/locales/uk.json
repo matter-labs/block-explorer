@@ -215,6 +215,9 @@
             "verifyButton": "Завірити Смарт Контракт",
             "deployedBytecode": "Розгорнутий байт-код",
             "sourceCode": "Вихідний код"
+        },
+        "abiInteraction": {
+            "contractAbi": "ABI Контракт"
         }
     },
     "contractVerification": {

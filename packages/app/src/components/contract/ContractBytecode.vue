@@ -27,6 +27,12 @@
         <div class="info-field-label">{{ t("contract.sourceCode.label") }}</div>
         <CodeBlock v-for="(item, index) in sourceCode" :key="index" :code="item.code" :label="item.label" />
       </div>
+      <div v-if="sourceCode" class="abi-json-field-container">
+        <div class="info-field-label">{{ t("contract.abiInteraction.contractAbi") }}</div>
+        <div class="abi-json">
+          <AbiData :value="abiJson" />
+        </div>
+      </div>
       <div class="bytecode-field-container">
         <div class="info-field-label">{{ t("contract.bytecode.deployedBytecode") }}</div>
         <div class="bytecode">
@@ -42,6 +48,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import Button from "@/components/common/Button.vue";
+import AbiData from "@/components/common/table/fields/AbiData.vue";
 import ByteData from "@/components/common/table/fields/ByteData.vue";
 import CodeBlock from "@/components/contract/CodeBlock.vue";
 import CompilationInfo from "@/components/contract/CompilationInfo.vue";
@@ -96,6 +103,14 @@ const sourceCode = computed<undefined | { code: string; label: string }[]>(() =>
     });
   }
 });
+
+const abiJson = computed<undefined | string>(() => {
+  if (!props.contract?.verificationInfo?.artifacts?.abi) {
+    return undefined;
+  }
+
+  return JSON.stringify(props.contract.verificationInfo.artifacts.abi);
+});
 </script>
 
 <style scoped lang="scss">
@@ -132,6 +147,7 @@ const sourceCode = computed<undefined | { code: string; label: string }[]>(() =>
       @apply text-sm font-bold text-neutral-700;
     }
     .source-code-container,
+    .abi-json-field-container,
     .bytecode-field-container {
       @apply grid grid-cols-1 gap-2;
     }

@@ -375,6 +375,7 @@
             "hide": "Hide"
         },
         "abiInteraction": {
+            "contractAbi": "Contract ABI",
             "transactionHash": "Transaction Hash: {transactionHash}",
             "connectWalletToInteract": "Connect Wallet to write",
             "metaMaskNotFound": "MetaMask not found. Please install MetaMask to continue.",
