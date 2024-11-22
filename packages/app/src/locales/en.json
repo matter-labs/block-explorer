@@ -204,7 +204,8 @@
         "loadingInfoFailed": "Loading transaction info failed",
         "transactionNotFound": "Transaction wasn't found",
         "transactionInfo": "Transaction info",
-        "tryRequestAgain": "Try again"
+        "tryRequestAgain": "Try again",
+        "viewAll": "View All Transactions"
     },
     "transactionData": {
         "showOriginalInput": "Show original input",
@@ -272,6 +273,7 @@
             "transactionsShort": "txns"
         },
         "tooltipInfo": "Latest batches submitted to Ethereum Network",
+        "viewAll": "View All Batches",
         "status": {
             "verified": "Executed on",
             "sealed": "Processed on",
