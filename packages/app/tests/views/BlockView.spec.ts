@@ -29,6 +29,8 @@ vi.mock("@/composables/useSearch", () => {
 vi.mock("vue-router", () => ({
   useRouter: () => router,
   useRoute: () => vi.fn(),
+  createWebHistory: () => vi.fn(),
+  createRouter: () => vi.fn(),
 }));
 
 vi.mock("ohmyfetch", () => {
