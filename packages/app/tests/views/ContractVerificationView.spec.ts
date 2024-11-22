@@ -25,6 +25,8 @@ vi.mock("vue-router", () => ({
       address: "0x5c221e77624690fff6dd741493d735a17716c26b",
     },
   }),
+  createWebHistory: () => vi.fn(),
+  createRouter: () => vi.fn(),
 }));
 
 vi.mock("ohmyfetch", () => {

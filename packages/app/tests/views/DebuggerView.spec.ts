@@ -74,7 +74,10 @@ describe("DebuggerView:", () => {
   vi.mock("vue-router", () => ({
     useRouter: () => vi.fn(),
     useRoute: () => vi.fn(),
+    createWebHistory: () => vi.fn(),
+    createRouter: () => vi.fn(),
   }));
+
   it("has correct title", async () => {
     expect(i18n.global.t(routes.find((e) => e.name === "debugger")?.meta?.title as string)).toBe("zkEVM Debugger");
   });
