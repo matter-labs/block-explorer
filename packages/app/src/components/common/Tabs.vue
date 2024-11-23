@@ -56,23 +56,41 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  hasNestedRoute: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const route = useRoute();
 const router = useRouter();
 
-const currentTabHash = ref(route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash);
+const calculateCurrrentTabHash = () => {
+  let tabHash = route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash;
+  if (route?.hash && route?.hash.split("#").length > 2) {
+    // route.hash has multiple hashes (ex: #contracts#read)
+    if (props.hasNestedRoute) {
+      tabHash = `#${route?.hash.split("#").at(-1)}`;
+    } else {
+      tabHash = `#${route?.hash.split("#").at(1)}`;
+    }
+  }
+  return tabHash;
+};
+const currentTabHash = ref(calculateCurrrentTabHash());
 
 const setTab = (tab: Tab) => {
   currentTabHash.value = tab.hash;
   if (props.hasRoute) {
     router.push({ hash: `${tab.hash}` });
+  } else if (props.hasNestedRoute) {
+    router.push({ hash: `#${route?.hash.split("#")[1]}${tab.hash}` });
   }
 };
 
 watchEffect(() => {
   if (props.hasRoute) {
-    currentTabHash.value = route?.hash ? route?.hash : props.tabs[0].hash;
+    currentTabHash.value = calculateCurrrentTabHash();
   }
 });
 </script>
