@@ -1,6 +1,6 @@
 <template>
   <div class="contract-info-tabs-container">
-    <Tabs v-if="tabs.length" class="contract-info-tabs" :tabs="tabs" :has-route="false">
+    <Tabs v-if="tabs.length" class="contract-info-tabs" :tabs="tabs" :has-route="false" :has-nested-route="true">
       <template #tab-1-content>
         <ContractBytecode :contract="contract" />
       </template>
