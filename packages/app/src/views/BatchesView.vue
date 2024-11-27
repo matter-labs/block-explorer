@@ -11,16 +11,14 @@
       </span>
       <BatchesTable v-else :loading="pending" :loading-rows="pageSize" :batches="data ?? []">
         <template v-if="total && total > pageSize" #footer>
-          <div class="pagination-container">
-            <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
-          </div>
+          <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
         </template>
       </BatchesTable>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
@@ -50,10 +48,11 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
 ]);
 
 watch(
-  () => route.query.page,
-  (page) => {
+  [() => route.query.page, () => route.query.pageSize],
+  ([page, pageSize]) => {
     const currentPage = page ? parseInt(page as string) : 1;
-    load(currentPage, currentPage === 1 ? new Date() : undefined);
+    const currentPageSize = pageSize ? parseInt(pageSize as string) : 10;
+    load(currentPage, currentPage === 1 ? new Date() : undefined, currentPageSize);
   },
   { immediate: true }
 );
@@ -72,8 +71,5 @@ watch(
   .table-body-col {
     @apply min-w-[120px];
   }
-}
-.pagination-container {
-  @apply flex justify-center p-3;
 }
 </style>
