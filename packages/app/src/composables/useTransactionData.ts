@@ -59,7 +59,11 @@ export function decodeDataWithABI(
   }
 }
 
-export function decodeInputData(input: ParamType, args: Result): InputData[] {
+export function decodeInputData(input: ParamType | null, args: Result): InputData[] {
+  if (!input) {
+    return undefined;
+  }
+
   if (input.isArray()) {
     return decodeArrayInputData(input, args);
   }
@@ -104,7 +108,7 @@ function decodeArrayInputData(input: ParamType, args: Result): InputData[] {
 }
 
 function decodeTupleInputData(input: ParamType, args: Result): InputData[] {
-  const inputs = input.components.flatMap((component: ParamType, index: number) =>
+  const inputs = input.components!.flatMap((component: ParamType, index: number) =>
     decodeInputData(component, args[index])
   );
 
