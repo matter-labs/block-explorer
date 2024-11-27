@@ -59,9 +59,9 @@ export function decodeDataWithABI(
   }
 }
 
-export function decodeInputData(input: ParamType | null, args: Result): InputData[] {
+export function decodeInputData(input: ParamType, args: Result): InputData[] {
   if (!input) {
-    return undefined;
+    throw new Error("input_is_null");
   }
 
   if (input.isArray()) {
@@ -85,7 +85,7 @@ export function decodeInputData(input: ParamType | null, args: Result): InputDat
 }
 
 function decodeArrayInputData(input: ParamType, args: Result): InputData[] {
-  const inputs = args.flatMap((arg) => decodeInputData(input.arrayChildren, arg));
+  const inputs = args.flatMap((arg) => decodeInputData(input.arrayChildren!, arg));
 
   return [
     {
