@@ -1,57 +1,98 @@
 <template>
-  <nav class="pagination-container" :class="{ disabled }" aria-label="Pagination">
-    <PaginationButton
-      :use-route="useQuery"
-      :to="{ query: backButtonQuery, hash: currentHash }"
-      class="pagination-page-button arrow left"
-      :aria-disabled="isFirstPage"
-      :class="{ disabled: isFirstPage }"
-      @click="currentPage = Math.max(currentPage - 1, 1)"
-    >
-      <span class="sr-only">Previous</span>
-      <ChevronLeftIcon class="chevron-icon" aria-hidden="true" />
-    </PaginationButton>
-    <template v-for="(item, index) in pagesData" :key="index">
-      <PaginationButton
-        v-if="item.type === 'page'"
-        :use-route="useQuery"
-        :to="{ query: item.number > 1 ? { page: item.number } : {}, hash: currentHash }"
-        :aria-current="activePage === item.number ? 'page' : 'false'"
-        :class="[{ active: activePage === item.number }, item.hiddenOnMobile ? 'hidden sm:flex' : 'flex']"
-        class="pagination-page-button page"
-        @click="currentPage = item.number"
-      >
-        {{ item.number }}
-      </PaginationButton>
-      <span v-else class="pagination-page-button dots">...</span>
-    </template>
+  <div class="pagination-container">
+    <div class="page-size-container">
+      <Dropdown
+        class="page-size-dropdown"
+        v-model="computedPageSize"
+        :options="pageSizeOptions"
+        :show-above="true"
+        :pending="disabled"
+      />
+      <span class="page-size-text">{{ t("pagination.records") }}</span>
+    </div>
 
-    <PaginationButton
-      :use-route="useQuery"
-      :to="{ query: nextButtonQuery, hash: currentHash }"
-      class="pagination-page-button arrow right"
-      :aria-disabled="isLastPage"
-      :class="{ disabled: isLastPage }"
-      @click="currentPage = Math.min(currentPage + 1, pageCount)"
-    >
-      <span class="sr-only">Next</span>
-      <ChevronRightIcon class="chevron-icon" aria-hidden="true" />
-    </PaginationButton>
-  </nav>
+    <nav class="page-numbers-container" :class="{ disabled }" aria-label="Pagination">
+      <PaginationButton
+        :use-route="useQuery"
+        :to="{ query: backButtonQuery, hash: currentHash }"
+        class="pagination-page-button arrow left"
+        :aria-disabled="isFirstPage"
+        :class="{ disabled: isFirstPage }"
+        @click="currentPage = Math.max(currentPage - 1, 1)"
+      >
+        <span class="sr-only">Previous</span>
+        <ChevronLeftIcon class="chevron-icon" aria-hidden="true" />
+      </PaginationButton>
+      <template v-for="(item, index) in pagesData" :key="index">
+        <PaginationButton
+          v-if="item.type === 'page'"
+          :use-route="useQuery"
+          :to="{
+            query: item.number > 1 ? { page: item.number, pageSize: computedPageSize } : { pageSize: computedPageSize },
+            hash: currentHash,
+          }"
+          :aria-current="activePage === item.number ? 'page' : 'false'"
+          :class="[{ active: activePage === item.number }, item.hiddenOnMobile ? 'hidden sm:flex' : 'flex']"
+          class="pagination-page-button page"
+          @click="currentPage = item.number"
+        >
+          {{ item.number }}
+        </PaginationButton>
+        <span v-else class="pagination-page-button dots">...</span>
+      </template>
+
+      <PaginationButton
+        :use-route="useQuery"
+        :to="{ query: nextButtonQuery, hash: currentHash }"
+        class="pagination-page-button arrow right"
+        :aria-disabled="isLastPage"
+        :class="{ disabled: isLastPage }"
+        @click="currentPage = Math.min(currentPage + 1, pageCount)"
+      >
+        <span class="sr-only">Next</span>
+        <ChevronRightIcon class="chevron-icon" aria-hidden="true" />
+      </PaginationButton>
+    </nav>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed, type UnwrapNestedRefs } from "vue";
-import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
 
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/outline";
 import { useOffsetPagination, type UseOffsetPaginationReturn } from "@vueuse/core";
 
+import Dropdown from "@/components/common/Dropdown.vue";
 import PaginationButton from "@/components/common/PaginationButton.vue";
 
 const route = useRoute();
+const router = useRouter();
+const { t } = useI18n();
 
 const currentHash = computed(() => route?.hash);
+
+const pageSizeOptions = ["10", "20", "50", "100"];
+const computedPageSize = computed({
+  get() {
+    return currentPageSize.value.toString();
+  },
+  set(newValue) {
+    const parsedValue = parseInt(newValue, 10);
+    if (parsedValue !== currentPageSize.value) {
+      currentPageSize.value = parsedValue;
+
+      router.push({
+        query: {
+          page: currentPage.value,
+          pageSize: parsedValue,
+        },
+        hash: currentHash.value,
+      });
+    }
+  },
+});
 
 const props = defineProps({
   activePage: {
@@ -78,10 +119,12 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (eventName: "update:activePage", value: number): void;
+  (eventName: "update:pageSize", value: number): void;
   (eventName: "onPageChange", value: UnwrapNestedRefs<UseOffsetPaginationReturn>): void;
+  (eventName: "onPageSizeChange", value: UnwrapNestedRefs<UseOffsetPaginationReturn>): void;
 }>();
 
-const { currentPage, pageCount, isFirstPage, isLastPage } = useOffsetPagination({
+const { currentPage, currentPageSize, pageCount, isFirstPage, isLastPage } = useOffsetPagination({
   total: computed(() => props.totalItems),
   page: computed({
     get: () => props.activePage,
@@ -89,9 +132,10 @@ const { currentPage, pageCount, isFirstPage, isLastPage } = useOffsetPagination(
   }),
   pageSize: computed({
     get: () => props.pageSize,
-    set: () => undefined,
+    set: (val) => emit("update:pageSize", val),
   }),
   onPageChange: (data) => emit("onPageChange", data),
+  onPageSizeChange: (data) => emit("onPageSizeChange", data),
 });
 
 const pagesData = computed(() => {
@@ -123,36 +167,58 @@ const pagesData = computed(() => {
   return [...first, ...middle, ...last];
 });
 
-const backButtonQuery = computed(() => (currentPage.value > 2 ? { page: currentPage.value - 1 } : {}));
-const nextButtonQuery = computed(() => ({ page: Math.min(currentPage.value + 1, pageCount.value) }));
+const backButtonQuery = computed(() =>
+  currentPage.value > 2
+    ? { page: currentPage.value - 1, pageSize: computedPageSize.value }
+    : { pageSize: computedPageSize.value }
+);
+const nextButtonQuery = computed(() => ({
+  page: Math.min(currentPage.value + 1, pageCount.value),
+  pageSize: computedPageSize.value,
+}));
 </script>
 
 <style lang="scss">
 .pagination-container {
-  @apply flex space-x-1 transition-opacity;
-  &.disabled {
-    @apply pointer-events-none opacity-50;
-  }
-
-  .pagination-page-button {
-    @apply rounded-md bg-white px-1.5 py-1 font-mono text-sm font-medium text-neutral-700 no-underline sm:px-2;
-    &:not(.disabled):not(.active):not(.dots) {
-      @apply hover:bg-neutral-50;
-    }
+  @apply flex flex-col-reverse items-center justify-center relative sm:flex-row;
+  .page-numbers-container {
+    @apply flex space-x-1 transition-opacity justify-center p-3;
     &.disabled {
-      @apply cursor-not-allowed text-neutral-400;
+      @apply pointer-events-none opacity-50;
     }
-    &.active {
-      @apply z-10 bg-neutral-100;
-    }
-    &.dots {
-      @apply font-sans text-neutral-400 hover:bg-white;
-    }
-    &.arrow {
-      @apply flex items-center;
 
-      .chevron-icon {
-        @apply h-4 w-4;
+    .pagination-page-button {
+      @apply rounded-md bg-white px-1.5 py-1 font-mono text-sm font-medium text-neutral-700 no-underline sm:px-2;
+      &:not(.disabled):not(.active):not(.dots) {
+        @apply hover:bg-neutral-50;
+      }
+      &.disabled {
+        @apply cursor-not-allowed text-neutral-400;
+      }
+      &.active {
+        @apply z-10 bg-neutral-100;
+      }
+      &.dots {
+        @apply font-sans text-neutral-400 hover:bg-white;
+      }
+      &.arrow {
+        @apply flex items-center;
+
+        .chevron-icon {
+          @apply h-4 w-4;
+        }
+      }
+    }
+  }
+  .page-size-container {
+    @apply relative left-0 flex items-center justify-center pb-2 sm:absolute sm:pb-0 sm:left-6;
+    .page-size-text {
+      @apply text-gray-500 pl-2;
+    }
+    .page-size-dropdown {
+      @apply w-16;
+      .toggle-button {
+        @apply py-0 px-2 leading-8 h-8;
       }
     }
   }

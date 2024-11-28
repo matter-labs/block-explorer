@@ -111,7 +111,7 @@ describe("useFetchCollection:", () => {
       await fc.load(1, new Date("2023-05-01T10:00:00.000Z"));
 
       expect($fetch).toHaveBeenCalledWith(
-        "https://block-explorer-api.testnets.zksync.dev/?pageSize=10&page=1&toDate=2023-05-01T10%3A00%3A00.000Z"
+        "https://block-explorer-api.testnets.zksync.dev/?limit=10&page=1&toDate=2023-05-01T10%3A00%3A00.000Z"
       );
     });
   });

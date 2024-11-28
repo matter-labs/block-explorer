@@ -171,15 +171,13 @@
       </TableBodyColumn>
     </template>
     <template v-if="pagination && total && total > pageSize && transactions?.length" #footer>
-      <div class="pagination">
-        <Pagination
-          v-model:active-page="activePage"
-          :use-query="useQueryPagination"
-          :total-items="total!"
-          :page-size="pageSize"
-          :disabled="isLoading"
-        />
-      </div>
+      <Pagination
+        v-model:active-page="activePage"
+        :use-query="useQueryPagination"
+        :total-items="total!"
+        :page-size="pageSize"
+        :disabled="isLoading"
+      />
     </template>
     <template #loading>
       <tr class="loader-row" v-for="row in pageSize" :key="row">
@@ -265,9 +263,10 @@ const activePage = ref(props.useQueryPagination ? parseInt(route.query.page as s
 const toDate = new Date();
 
 watch(
-  [activePage, searchParams],
-  ([page]) => {
-    load(page, toDate);
+  [activePage, () => route.query.pageSize, searchParams],
+  ([page, pageSize]) => {
+    const currentPageSize = pageSize ? parseInt(pageSize as string) : 10;
+    load(page, toDate, currentPageSize);
   },
   { immediate: true }
 );
@@ -460,10 +459,6 @@ function getDirection(item: TransactionListItem): Direction {
   }
   .badge-container.type-label {
     @apply pr-2 normal-case	normal-case;
-  }
-
-  .pagination {
-    @apply flex justify-center p-3;
   }
 
   .table-body {
