@@ -90,7 +90,7 @@ describe("useTransactions:", () => {
     const composable = useTransactions(searchParams);
     await composable.load(1);
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "https://block-explorer-api.testnets.zksync.dev/transactions?blockNumber=0&l1BatchNumber=0&pageSize=10&page=1"
+      "https://block-explorer-api.testnets.zksync.dev/transactions?blockNumber=0&l1BatchNumber=0&limit=10&page=1"
     );
   });
 

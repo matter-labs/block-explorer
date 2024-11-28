@@ -265,7 +265,8 @@ const toDate = new Date();
 watch(
   [activePage, () => route.query.pageSize, searchParams],
   ([page, pageSize]) => {
-    load(page, toDate, parseInt(pageSize as string));
+    const currentPageSize = pageSize ? parseInt(pageSize as string) : 10;
+    load(page, toDate, currentPageSize);
   },
   { immediate: true }
 );

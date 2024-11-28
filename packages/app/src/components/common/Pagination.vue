@@ -1,7 +1,13 @@
 <template>
   <div class="pagination-container">
     <div class="page-size-container">
-      <Dropdown class="page-size-dropdown" v-model="computedPageSize" :options="pageSizeOptions" :show-above="true" />
+      <Dropdown
+        class="page-size-dropdown"
+        v-model="computedPageSize"
+        :options="pageSizeOptions"
+        :show-above="true"
+        :pending="disabled"
+      />
       <span class="page-size-text">{{ t("pagination.records") }}</span>
     </div>
 

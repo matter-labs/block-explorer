@@ -26,6 +26,7 @@ const getBatchesMockCollection = (length: number) =>
     status: "sealed",
     timestamp: "2022-04-13T13:09:31.000Z",
   }));
+const routeQueryMock = vi.fn(() => ({}));
 
 vi.mock("ohmyfetch", () => {
   return {
@@ -35,7 +36,9 @@ vi.mock("ohmyfetch", () => {
 
 vi.mock("vue-router", () => ({
   useRouter: () => vi.fn(),
-  useRoute: () => vi.fn(),
+  useRoute: () => ({
+    query: routeQueryMock(),
+  }),
   createWebHistory: () => vi.fn(),
   createRouter: () => vi.fn(),
 }));
