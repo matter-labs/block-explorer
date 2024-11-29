@@ -45,16 +45,16 @@ export default (context = useContext()) => {
       const signer = await getL2Signer();
       const contract = new Contract(address, [abiFragment], signer!);
       const method = contract[abiFragment.name];
-      const methodArguments = Object.entries(params)
-        .filter(([key]) => key !== PAYABLE_AMOUNT_PARAM_NAME)
-        .map(([, inputValue]) => {
-          if (inputValue === "true") {
-            inputValue = true;
-          } else if (inputValue === "false") {
-            inputValue = false;
-          }
-          return inputValue;
-        });
+      const abiFragmentNames = abiFragment.inputs.map((abiInput) => abiInput.name);
+      const methodArguments = abiFragmentNames.map((abiFragmentName) => {
+        if (params[abiFragmentName] === "true") {
+          return true;
+        }
+        if (params[abiFragmentName] === "false") {
+          return false;
+        }
+        return params[abiFragmentName];
+      });
       const valueMethodOption = {
         value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };

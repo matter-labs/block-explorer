@@ -10,6 +10,7 @@ export const normalizeAddressTransformer: ValueTransformer = {
     if (!hex) {
       return null;
     }
+
     return getAddress(hexTransformer.from(hex));
   },
 };

@@ -51,6 +51,7 @@ export interface ContractAddress {
   creatorAddress: string;
   logIndex: number;
   bytecode?: string;
+  isEvmLike?: boolean;
 }
 
 export interface LogsData {
@@ -77,6 +78,8 @@ export interface TransactionInfo
   receivedAt: string;
   error?: string;
   revertReason?: string;
+  isEvmLike?: boolean;
+  contractAddress?: string;
 }
 
 export type TransactionReceipt = Modify<

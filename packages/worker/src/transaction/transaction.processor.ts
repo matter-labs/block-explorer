@@ -41,6 +41,8 @@ export class TransactionProcessor {
     await this.transactionRepository.add({
       ...transactionData.transaction,
       transactionIndex: transactionData.transaction.index,
+      isEvmLike: transactionData.transaction.isEvmLike,
+      contractAddress: transactionData.transaction.contractAddress,
     });
 
     this.logger.debug({
@@ -54,6 +56,7 @@ export class TransactionProcessor {
       transactionHash: transactionData.transactionReceipt.hash,
       effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
       type: transactionData.transaction.type,
+      isEvmLike: transactionData.transaction.isEvmLike,
     });
 
     this.logger.debug({
@@ -91,6 +94,7 @@ export class TransactionProcessor {
           creatorTxHash: contractAddress.transactionHash,
           creatorAddress: contractAddress.creatorAddress,
           createdInLogIndex: contractAddress.logIndex,
+          isEvmLike: contractAddress.isEvmLike,
         });
       })
     );

@@ -17,7 +17,7 @@
         <ChevronDownIcon class="toggle-button-icon" :class="{ 'toggle-button-opened': open }" />
       </span>
     </ListboxButton>
-    <ListboxOptions class="options-list-container">
+    <ListboxOptions class="options-list-container" :class="showAbove ? 'mb-1 bottom-full' : 'top-full'">
       <ListboxOption
         as="template"
         v-for="option in options"
@@ -75,6 +75,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  showAbove: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits<{
@@ -124,7 +128,7 @@ const selected = computed({
   @apply mt-0.5 text-sm text-error-500;
 }
 .options-list-container {
-  @apply absolute z-10 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border-neutral-300 bg-white text-sm shadow-md focus:outline-none;
+  @apply absolute z-20 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border-neutral-300 bg-white text-sm shadow-md focus:outline-none;
   .options-list-item {
     @apply px-3 py-3 hover:bg-neutral-100;
 

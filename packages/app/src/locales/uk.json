@@ -77,7 +77,8 @@
             "reasonTooltip": "Причина невиконання транзакції",
             "transactionHash": "Хеш Транзакції",
             "nonce": "Нонс",
-            "created": "Створено",
+            "receivedAt": "Отримано",
+            "receivedAtTooltip": "Час коли транзакцію було отримано",
             "from": "Від",
             "to": "До",
             "block": "Блок",
@@ -456,5 +457,8 @@
     "systemAlert": {
         "indexerDelayed": "Індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі.",
         "indexerDelayedDueToHeavyLoad": "Мережа наразі перебуває під великим навантаженням, індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі."
+    },
+    "pagination" : {
+        "records": "записи"
     }
 }

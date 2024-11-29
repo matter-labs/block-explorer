@@ -17,6 +17,7 @@ const router = {
     value: {},
   },
 };
+const routeQueryMock = vi.fn(() => ({}));
 
 vi.mock("@/composables/useSearch", () => {
   return {
@@ -28,7 +29,9 @@ vi.mock("@/composables/useSearch", () => {
 
 vi.mock("vue-router", () => ({
   useRouter: () => router,
-  useRoute: () => vi.fn(),
+  useRoute: () => ({
+    query: routeQueryMock(),
+  }),
   createWebHistory: () => vi.fn(),
   createRouter: () => vi.fn(),
 }));

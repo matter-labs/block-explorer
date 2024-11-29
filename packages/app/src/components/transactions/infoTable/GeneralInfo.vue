@@ -112,8 +112,21 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <div class="value-with-copy-button">
-            <AddressLink :address="transaction?.to" />
+          <div v-if="!!transaction?.to" class="value-with-copy-button">
+            <div class="address-badge-container">
+              <div class="flex items-center justify-center gap-2">
+                <AddressLink :address="transaction?.to" />
+                <p v-if="!!transaction?.to && isEvmLike">Created</p>
+              </div>
+              <Badge
+                v-if="!!transaction?.to && isEvmLike"
+                color="primary"
+                class="verified-badge"
+                :tooltip="t('contract.evmTooltip')"
+              >
+                {{ t("contract.evm") }}
+              </Badge>
+            </div>
             <CopyButton :value="transaction?.to" />
           </div>
         </TableBodyColumn>
@@ -197,9 +210,9 @@
       </tr>
       <tr class="transaction-table-row">
         <table-body-column class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.created") }}</span>
+          <span class="transaction-info-field-label">{{ t("transactions.table.receivedAt") }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.createdTooltip") }}
+            {{ t("transactions.table.receivedAtTooltip") }}
           </InfoTooltip>
         </table-body-column>
         <table-body-column class="transaction-table-value">
@@ -224,8 +237,11 @@
 import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { computedAsync } from "@vueuse/core";
+
 import AddressLink from "@/components/AddressLink.vue";
 import FeeData from "@/components/FeeData.vue";
+import Badge from "@/components/common/Badge.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import Tooltip from "@/components/common/Tooltip.vue";
@@ -239,6 +255,9 @@ import TransactionStatus from "@/components/transactions/Status.vue";
 import TransactionData from "@/components/transactions/infoTable/TransactionData.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
+import useAddress from "@/composables/useAddress";
+
+import type { Contract } from "@/composables/useAddress";
 import type { TransactionItem } from "@/composables/useTransaction";
 
 const { t } = useI18n();
@@ -257,6 +276,8 @@ const props = defineProps({
   },
 });
 
+const { getByAddress, item } = useAddress();
+
 const tokenTransfers = computed(() => {
   // exclude transfers with no amount, such as NFT until we fully support them
   return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
@@ -269,6 +290,15 @@ const gasUsedPercent = computed(() => {
     return parseFloat(((gasUsed / gasLimit) * 100).toFixed(2));
   }
   return null;
+});
+
+const isEvmLike = computedAsync(async () => {
+  if (!props.transaction?.data || !props.transaction?.to) {
+    return false;
+  }
+  await getByAddress(props.transaction?.to);
+
+  return !!(item.value as Contract)?.isEvmLike;
 });
 </script>
 
@@ -320,11 +350,17 @@ const gasUsedPercent = computed(() => {
     display: flex;
     justify-content: space-between;
   }
+  .address-badge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
   .transaction-status-value {
     @apply py-2;
   }
   .transaction-reason-value {
-    @apply text-error-600 whitespace-normal;
+    @apply text-error-600 whitespace-normal break-all;
   }
 }
 </style>

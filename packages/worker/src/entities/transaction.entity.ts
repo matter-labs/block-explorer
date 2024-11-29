@@ -19,8 +19,8 @@ export class Transaction extends CountableEntity {
   @Column({ generated: true, type: "bigint" })
   public override readonly number: number;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
-  public readonly to: string;
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly to?: string;
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly from: string;
@@ -95,4 +95,10 @@ export class Transaction extends CountableEntity {
 
   @Column({ nullable: true, transformer: stringTransformer })
   public readonly revertReason?: string;
+
+  @Column({ type: "boolean", nullable: true })
+  public readonly isEvmLike?: boolean;
+
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly contractAddress?: string;
 }

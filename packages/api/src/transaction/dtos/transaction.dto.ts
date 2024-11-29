@@ -12,9 +12,10 @@ export class TransactionDto {
   @ApiProperty({
     type: String,
     description: "The address this transaction is to",
-    example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    example: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
   })
-  public readonly to: string;
+  public readonly to?: string;
 
   @ApiProperty({
     type: String,
@@ -204,4 +205,20 @@ export class TransactionDto {
     nullable: true,
   })
   public readonly revertReason?: string;
+
+  @ApiProperty({
+    type: Boolean,
+    description: "Is the transaction EVM-like",
+    example: true,
+    nullable: true,
+  })
+  public readonly isEvmLike?: boolean;
+
+  @ApiProperty({
+    type: String,
+    description: "Address of the first deployed EVM contract",
+    example: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
+  })
+  public readonly contractAddress?: string;
 }

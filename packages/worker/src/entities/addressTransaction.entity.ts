@@ -19,8 +19,8 @@ export class AddressTransaction extends BaseEntity {
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly transactionHash: string;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
-  public readonly address: string;
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly address?: string;
 
   @ManyToOne(() => Block, { onDelete: "CASCADE" })
   @JoinColumn({ name: "blockNumber" })
