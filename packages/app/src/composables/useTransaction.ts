@@ -80,6 +80,7 @@ export type TransactionItem = {
   revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
+  isEvmLike?: boolean | null;
 };
 
 export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to") {
