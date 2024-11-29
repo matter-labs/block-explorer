@@ -265,6 +265,7 @@ export function mapTransaction(
     gasPerPubdata: transaction.gasPerPubdata,
     maxFeePerGas: transaction.maxFeePerGas,
     maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+    isEvmLike: transaction.isEvmLike,
   };
 }
 

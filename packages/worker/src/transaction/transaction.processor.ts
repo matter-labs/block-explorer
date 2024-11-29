@@ -32,6 +32,8 @@ export class TransactionProcessor {
   public async add(blockNumber: number, transactionData: TransactionData): Promise<void> {
     const stopTransactionProcessingMeasuring = this.transactionProcessingDurationMetric.startTimer();
 
+    const isTransactionEvmLike = transactionData.transaction.to === null;
+
     this.logger.debug({
       message: "Saving transactions data to the DB",
       blockNumber: blockNumber,
@@ -41,6 +43,7 @@ export class TransactionProcessor {
     await this.transactionRepository.add({
       ...transactionData.transaction,
       transactionIndex: transactionData.transaction.index,
+      isEvmLike: isTransactionEvmLike,
     });
 
     this.logger.debug({
@@ -54,6 +57,7 @@ export class TransactionProcessor {
       transactionHash: transactionData.transactionReceipt.hash,
       effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
       type: transactionData.transaction.type,
+      isEvmLike: isTransactionEvmLike,
     });
 
     this.logger.debug({
@@ -91,6 +95,7 @@ export class TransactionProcessor {
           creatorTxHash: contractAddress.transactionHash,
           creatorAddress: contractAddress.creatorAddress,
           createdInLogIndex: contractAddress.logIndex,
+          isEvmLike: contractAddress.isEvmLike,
         });
       })
     );

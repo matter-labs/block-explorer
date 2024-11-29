@@ -75,6 +75,7 @@ export class AddressController {
         creatorTxHash: addressRecord.creatorTxHash,
         totalTransactions,
         creatorAddress: addressRecord.creatorAddress,
+        isEvmLike: addressRecord.isEvmLike,
       };
     }
 

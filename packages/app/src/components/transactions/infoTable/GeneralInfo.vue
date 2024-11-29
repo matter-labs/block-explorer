@@ -112,7 +112,7 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <div class="value-with-copy-button">
+          <div v-if="!!transaction?.to" class="value-with-copy-button">
             <AddressLink :address="transaction?.to" />
             <CopyButton :value="transaction?.to" />
           </div>
