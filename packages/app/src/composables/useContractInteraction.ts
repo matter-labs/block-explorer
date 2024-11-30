@@ -35,7 +35,7 @@ export default (context = useContext()) => {
     address: string,
     abiFragment: AbiFragment,
     params: Record<string, string | string[] | boolean | boolean[]>,
-    usePaymaster?: boolean
+    usePaymaster = true
   ) => {
     try {
       isRequestPending.value = true;
