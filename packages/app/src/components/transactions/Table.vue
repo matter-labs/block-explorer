@@ -324,16 +324,6 @@ const fetchMethodNames = async (sighashes: string[]): Promise<Record<string, str
   }
 };
 
-watch(
-  data,
-  async (newData) => {
-    if (!newData) return;
-
-    await loadMethodNames();
-  },
-  { immediate: true }
-);
-
 const methodNames = ref<Record<string, string>>({});
 
 const loadMethodNames = async () => {
@@ -347,6 +337,16 @@ const loadMethodNames = async () => {
   const fetchedMethodNames = await fetchMethodNames(uniqueSighashes);
   methodNames.value = { ...methodNames.value, ...fetchedMethodNames };
 };
+
+watch(
+  data,
+  async (newData) => {
+    if (!newData) return;
+
+    await loadMethodNames();
+  },
+  { immediate: true }
+);
 
 const getTransactionMethod = (transaction: TransactionListItem, methodNames: Record<string, string>) => {
   if (transaction.data === "0x") {
