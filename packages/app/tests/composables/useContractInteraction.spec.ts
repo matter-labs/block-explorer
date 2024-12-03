@@ -118,7 +118,8 @@ describe("useContractInteraction:", () => {
         {
           value: "0.1",
           address: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
-        }
+        },
+        false
       );
       expect(mock.mock.lastCall).toEqual([
         ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
@@ -140,7 +141,8 @@ describe("useContractInteraction:", () => {
         },
         {
           value: "0.1",
-        }
+        },
+        false
       );
       expect(mock.mock.lastCall).toEqual([{ value: ethers.utils.parseEther("0.1") }]);
       mock.mockRestore();
@@ -160,7 +162,8 @@ describe("useContractInteraction:", () => {
         {
           value: "0.1",
           bool: "false",
-        }
+        },
+        false
       );
       expect(mock.mock.lastCall).toEqual([false, { value: ethers.utils.parseEther("0.1") }]);
       mock.mockRestore();
