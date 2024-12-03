@@ -113,7 +113,17 @@
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
           <div v-if="!!transaction?.to" class="value-with-copy-button">
-            <AddressLink :address="transaction?.to" />
+            <div class="address-badge-container">
+              <AddressLink :address="transaction?.to" />
+              <Badge
+                v-if="!!transaction?.to && transaction.isEvmLike"
+                color="primary"
+                class="verified-badge"
+                :tooltip="t('contract.evmTooltip')"
+              >
+                {{ t("contract.evm") }}
+              </Badge>
+            </div>
             <CopyButton :value="transaction?.to" />
           </div>
         </TableBodyColumn>
@@ -226,6 +236,7 @@ import { useI18n } from "vue-i18n";
 
 import AddressLink from "@/components/AddressLink.vue";
 import FeeData from "@/components/FeeData.vue";
+import Badge from "@/components/common/Badge.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import Tooltip from "@/components/common/Tooltip.vue";
@@ -254,6 +265,11 @@ const props = defineProps({
   },
   decodingDataError: {
     type: String,
+  },
+  isEvmLike: {
+    type: [Boolean, null] as PropType<boolean | null>,
+    default: false,
+    required: false,
   },
 });
 
@@ -319,6 +335,12 @@ const gasUsedPercent = computed(() => {
   .value-with-copy-button {
     display: flex;
     justify-content: space-between;
+  }
+  .address-badge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
   }
   .transaction-status-value {
     @apply py-2;
