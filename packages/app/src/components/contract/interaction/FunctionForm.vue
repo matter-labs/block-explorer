@@ -31,10 +31,12 @@ import { useI18n } from "vue-i18n";
 
 import { useVuelidate } from "@vuelidate/core";
 import { createI18nMessage, helpers, required } from "@vuelidate/validators";
-import { ethers } from "ethers";
+import { parseEther } from "ethers";
 
 import Input from "@/components/common/Input.vue";
 import FunctionArrayParameter from "@/components/contract/interaction/FunctionArrayParameter.vue";
+
+import { PAYABLE_AMOUNT_PARAM_NAME } from "@/composables/useContractInteraction";
 
 import type { AbiFragment } from "@/composables/useAddress";
 
@@ -80,7 +82,7 @@ const inputs = computed(() => {
   );
   if (props.abiFragment.stateMutability === "payable") {
     inputsArray.unshift({
-      key: "value",
+      key: PAYABLE_AMOUNT_PARAM_NAME,
       type: "ether",
       label: "payableAmount (ether)",
       placeholder: "payableAmount (ether)",
@@ -142,7 +144,7 @@ const v$ = useVuelidate(
               (value: string) => {
                 if (input.type === "ether") {
                   try {
-                    ethers.utils.parseEther(value as string); // will throw an error in case if the value is invalid
+                    parseEther(value as string); // will throw an error in case if the value is invalid
                     return true;
                   } catch {
                     return false;

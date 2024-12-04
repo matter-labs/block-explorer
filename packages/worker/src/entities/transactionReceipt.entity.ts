@@ -34,8 +34,10 @@ export class TransactionReceipt extends CountableEntity {
   @Column({ type: "int" })
   public readonly type: number;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
-  public readonly root: string;
+  // this field is only relevant on L1 pre byzantium fork (EIP658),
+  // but was present in ZKsync API before, so it cannot be just dropped.
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly root?: string;
 
   @Column({ type: "varchar", length: 128 })
   public readonly gasUsed: string;
@@ -60,7 +62,7 @@ export class TransactionReceipt extends CountableEntity {
   @Column({ type: "varchar", length: 128 })
   public readonly cumulativeGasUsed: string;
 
-  @Column({ type: "boolean" })
+  @Column({ type: "boolean", default: true })
   public readonly byzantium: boolean;
 
   @Column({ type: "int" })

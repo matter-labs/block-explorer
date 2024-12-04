@@ -46,6 +46,8 @@ vi.mock("vue-router", () => ({
       page: vi.fn(),
     },
   }),
+  createWebHistory: () => vi.fn(),
+  createRouter: () => vi.fn(),
 }));
 
 vi.mock("ohmyfetch", () => {

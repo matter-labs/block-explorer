@@ -105,8 +105,8 @@
             "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
             "nonce": "Nonce",
             "nonceTooltip": "Number of transactions sent from a sender address",
-            "created": "Created",
-            "createdTooltip": "The date and time at which a transaction is added to the block",
+            "receivedAt": "Received",
+            "receivedAtTooltip": "The date and time when the transaction was received",
             "sendersNonce": "Sender`s Nonce",
             "from": "From",
             "fromTooltip": "The sending party of the transaction",
@@ -204,7 +204,8 @@
         "loadingInfoFailed": "Loading transaction info failed",
         "transactionNotFound": "Transaction wasn't found",
         "transactionInfo": "Transaction info",
-        "tryRequestAgain": "Try again"
+        "tryRequestAgain": "Try again",
+        "viewAll": "View All Transactions"
     },
     "transactionData": {
         "showOriginalInput": "Show original input",
@@ -272,6 +273,7 @@
             "transactionsShort": "txns"
         },
         "tooltipInfo": "Latest batches submitted to Ethereum Network",
+        "viewAll": "View All Batches",
         "status": {
             "verified": "Executed on",
             "sealed": "Processed on",
@@ -325,6 +327,8 @@
         "infoTableError": "An Error Occurred",
         "balanceTableTitle": "Balances",
         "notFound": "Not Found",
+        "verified": "Source Code",
+        "verifiedTooltip": "The contract's source code has been verified to match its on-chain Bytecode. Source code verification does not imply the contract is safe to interact with.",
         "transactionTable": {
             "error": "Something went wrong",
             "notFound": {
@@ -372,6 +376,7 @@
             "hide": "Hide"
         },
         "abiInteraction": {
+            "contractAbi": "Contract ABI",
             "transactionHash": "Transaction Hash: {transactionHash}",
             "connectWalletToInteract": "Connect Wallet to write",
             "metaMaskNotFound": "MetaMask not found. Please install MetaMask to continue.",
@@ -724,5 +729,8 @@
     "systemAlert": {
         "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
         "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
+    },
+    "pagination": {
+        "records": "Records"
     }
 }

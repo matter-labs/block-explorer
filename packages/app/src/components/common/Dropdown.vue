@@ -17,7 +17,7 @@
         <ChevronDownIcon class="toggle-button-icon" :class="{ 'toggle-button-opened': open }" />
       </span>
     </ListboxButton>
-    <ListboxOptions class="options-list-container">
+    <ListboxOptions class="options-list-container" :class="showAbove ? 'mb-1 bottom-full' : 'top-full'">
       <ListboxOption
         as="template"
         v-for="option in options"
@@ -74,6 +74,10 @@ const props = defineProps({
   error: {
     type: String,
     default: "",
+  },
+  showAbove: {
+    type: Boolean,
+    default: false,
   },
 });
 

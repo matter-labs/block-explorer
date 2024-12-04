@@ -3,11 +3,11 @@ import { createI18n } from "vue-i18n";
 
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";
-import { useWallet } from "@matterlabs/composables";
 
 import App from "./App.vue";
 import useContext from "./composables/useContext";
 import { loadEnvironmentConfig } from "./composables/useEnvironmentConfig";
+import { default as useWallet } from "./composables/useWallet";
 import testId from "./plugins/testId";
 import router from "./router";
 

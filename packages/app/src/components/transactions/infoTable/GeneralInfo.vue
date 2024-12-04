@@ -197,9 +197,9 @@
       </tr>
       <tr class="transaction-table-row">
         <table-body-column class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.created") }}</span>
+          <span class="transaction-info-field-label">{{ t("transactions.table.receivedAt") }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.createdTooltip") }}
+            {{ t("transactions.table.receivedAtTooltip") }}
           </InfoTooltip>
         </table-body-column>
         <table-body-column class="transaction-table-value">
@@ -324,7 +324,7 @@ const gasUsedPercent = computed(() => {
     @apply py-2;
   }
   .transaction-reason-value {
-    @apply text-error-600 whitespace-normal;
+    @apply text-error-600 whitespace-normal break-all;
   }
 }
 </style>

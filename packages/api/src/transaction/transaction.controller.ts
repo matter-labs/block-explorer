@@ -64,6 +64,7 @@ export class TransactionController {
   @Get(":transactionHash")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",
@@ -84,6 +85,7 @@ export class TransactionController {
   @Get(":transactionHash/transfers")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",
@@ -114,6 +116,7 @@ export class TransactionController {
   @Get(":transactionHash/logs")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { format } from "date-fns";
-import { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } from "zksync-web3/build/src/utils";
+import { utils } from "zksync-ethers";
 
 import ExecuteTx from "@/../mock/transactions/Execute.json";
 
@@ -26,6 +26,7 @@ import {
   utcStringFromUnixTimestamp,
 } from "@/utils/helpers";
 
+const { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } = utils;
 const event = {
   name: "Deposit",
   inputs: [

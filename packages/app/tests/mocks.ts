@@ -4,8 +4,6 @@ import { computed, ref } from "vue";
 
 import { vi } from "vitest";
 
-import * as composablesFactory from "@matterlabs/composables";
-
 import * as useBatches from "@/composables/useBatches";
 import * as useBlocks from "@/composables/useBlocks";
 import * as useContext from "@/composables/useContext";
@@ -16,9 +14,10 @@ import * as useTokenLibraryMockFactory from "@/composables/useTokenLibrary";
 import * as useTransaction from "@/composables/useTransaction";
 import * as useTransactions from "@/composables/useTransactions";
 import * as useTransfers from "@/composables/useTransfers";
+import * as useWallet from "@/composables/useWallet";
 
 import type { NetworkConfig } from "@/configs";
-import type { Provider } from "zksync-web3";
+import type { Provider } from "zksync-ethers";
 
 import { checksumAddress } from "@/utils/formatters";
 
@@ -76,8 +75,8 @@ export const useContractEventsMock = (params: any = {}) => {
   return mockContractEvent;
 };
 export const useWalletMock = (params: any = {}) => {
-  const mockWallet = vi.spyOn(composablesFactory, "useWallet").mockReturnValue({
-    ...composablesFactory.useWallet({
+  const mockWallet = vi.spyOn(useWallet, "default").mockReturnValue({
+    ...useWallet.default({
       currentNetwork: computed(() => ({
         chainName: TESTNET_NETWORK.name,
         explorerUrl: TESTNET_NETWORK.l1ExplorerUrl!,
@@ -87,7 +86,7 @@ export const useWalletMock = (params: any = {}) => {
       })),
       getL2Provider: () => undefined as unknown as Provider,
     }),
-    getL2Signer: vi.fn(async () => undefined),
+    getL2Signer: vi.fn(async () => ({ getAddress: async () => "0x000000000000000000000000000000000000800A" })),
     ...params,
   });
   return mockWallet;

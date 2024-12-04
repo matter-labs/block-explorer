@@ -1,25 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { ethers } from "ethers";
+import * as ethers from "ethers";
 
 import { useWalletMock } from "../mocks";
 
-import useContractInteraction from "@/composables/useContractInteraction";
+import useContractInteraction, { PAYABLE_AMOUNT_PARAM_NAME } from "@/composables/useContractInteraction";
 
 import type { AbiFragment } from "@/composables/useAddress";
 
 vi.mock("ethers", async () => {
   const actualEthers = await vi.importActual("ethers");
   return {
-    ethers: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...actualEthers.ethers,
-      Contract: class {
-        async transfer() {
-          return "Test response";
-        }
-      },
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    ...actualEthers,
+    Contract: class {
+      async transfer() {
+        return "Test response";
+      }
     },
   };
 });
@@ -116,13 +114,17 @@ describe("useContractInteraction:", () => {
           stateMutability: "payable",
         },
         {
-          value: "0.1",
+          [PAYABLE_AMOUNT_PARAM_NAME]: "0.1",
           address: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
         }
       );
       expect(mock.mock.lastCall).toEqual([
         ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
-        { gasLimit: "10000000", value: ethers.utils.parseEther("0.1") },
+        {
+          value: ethers.parseEther("0.1"),
+          from: "0x000000000000000000000000000000000000800A",
+          type: 0,
+        },
       ]);
       mock.mockRestore();
     });
@@ -139,10 +141,16 @@ describe("useContractInteraction:", () => {
           stateMutability: "payable",
         },
         {
-          value: "0.1",
+          [PAYABLE_AMOUNT_PARAM_NAME]: "0.1",
         }
       );
-      expect(mock.mock.lastCall).toEqual([{ gasLimit: "10000000", value: ethers.utils.parseEther("0.1") }]);
+      expect(mock.mock.lastCall).toEqual([
+        {
+          value: ethers.parseEther("0.1"),
+          from: "0x000000000000000000000000000000000000800A",
+          type: 0,
+        },
+      ]);
       mock.mockRestore();
     });
     it("change input to boolean type", async () => {
@@ -158,11 +166,18 @@ describe("useContractInteraction:", () => {
           stateMutability: "payable",
         },
         {
-          value: "0.1",
+          [PAYABLE_AMOUNT_PARAM_NAME]: "0.1",
           bool: "false",
         }
       );
-      expect(mock.mock.lastCall).toEqual([false, { gasLimit: "10000000", value: ethers.utils.parseEther("0.1") }]);
+      expect(mock.mock.lastCall).toEqual([
+        false,
+        {
+          value: ethers.parseEther("0.1"),
+          from: "0x000000000000000000000000000000000000800A",
+          type: 0,
+        },
+      ]);
       mock.mockRestore();
     });
     it("sets isRequestPending to true when request is pending", async () => {

@@ -1,6 +1,5 @@
-import * as ethers from "ethers";
 import { mock } from "jest-mock-extended";
-import { utils, types } from "zksync-web3";
+import { utils, types } from "zksync-ethers";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -15,7 +14,6 @@ describe("BlockchainService", () => {
   const l2Erc20Bridge = "l2Erc20Bridge";
   let blockchainService: BlockchainService;
   let provider: JsonRpcProviderBase;
-  let providerFormatterMock;
   let configServiceMock: ConfigService;
   let startRpcCallDurationMetricMock: jest.Mock;
   let stopRpcCallDurationMetricMock: jest.Mock;
@@ -23,13 +21,7 @@ describe("BlockchainService", () => {
   const quickRetryTimeout = 1;
 
   beforeEach(async () => {
-    providerFormatterMock = {
-      blockTag: jest.fn(),
-    };
-
-    provider = mock<JsonRpcProviderBase>({
-      formatter: providerFormatterMock,
-    });
+    provider = mock<JsonRpcProviderBase>();
 
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockImplementation((configName) => {
@@ -791,7 +783,7 @@ describe("BlockchainService", () => {
   describe("getTransactionReceipt", () => {
     const transactionHash = "transactionHash";
     const transactionReceipt: types.TransactionReceipt = mock<types.TransactionReceipt>({
-      transactionHash: "initiatorAddress",
+      hash: "initiatorAddress",
     });
     let timeoutSpy;
 
@@ -889,7 +881,7 @@ describe("BlockchainService", () => {
   describe("getLogs", () => {
     const fromBlock = 10;
     const toBlock = 20;
-    const logs: types.Log[] = [mock<types.Log>({ logIndex: 1 }), mock<types.Log>({ logIndex: 2 })];
+    const logs: types.Log[] = [mock<types.Log>({ index: 1 }), mock<types.Log>({ index: 2 })];
     let timeoutSpy;
 
     beforeEach(() => {
@@ -1085,6 +1077,8 @@ describe("BlockchainService", () => {
       erc20L2: "erc20L2",
       wethL1: "wethL1",
       wethL2: "wethL2",
+      sharedL1: "sharedL1",
+      sharedL2: "sharedL2",
     };
     let timeoutSpy;
 
@@ -1115,11 +1109,12 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
       beforeEach(() => {
         jest
           .spyOn(provider, "getDefaultBridgeAddresses")
-          .mockRejectedValueOnce(new Error("RPC call error"))
-          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bridgeAddress);
       });
 
@@ -1144,11 +1139,13 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws a timeout error", () => {
+      const error = new Error();
+      (error as any).code = "TIMEOUT";
       beforeEach(() => {
         jest
           .spyOn(provider, "getDefaultBridgeAddresses")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bridgeAddress);
       });
 
@@ -1161,11 +1158,13 @@ describe("BlockchainService", () => {
     });
 
     describe("if the call throws a connection refused error", () => {
+      const error = new Error();
+      (error as any).code = "ECONNREFUSED";
       beforeEach(() => {
         jest
           .spyOn(provider, "getDefaultBridgeAddresses")
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
-          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce(error)
+          .mockRejectedValueOnce(error)
           .mockResolvedValueOnce(bridgeAddress);
       });
 
@@ -1206,13 +1205,11 @@ describe("BlockchainService", () => {
       decimalMock = jest.fn().mockResolvedValue(decimals);
       nameMock = jest.fn().mockResolvedValue(name);
 
-      (RetryableContract as any as jest.Mock).mockReturnValue(
-        mock<RetryableContract>({
-          symbol: symbolMock,
-          decimals: decimalMock,
-          name: nameMock,
-        })
-      );
+      (RetryableContract as any as jest.Mock).mockReturnValue({
+        symbol: symbolMock,
+        decimals: decimalMock,
+        name: nameMock,
+      });
     });
 
     it("uses ERC20 token contract interface", async () => {
@@ -1251,13 +1248,11 @@ describe("BlockchainService", () => {
         decimalMock = jest.fn().mockResolvedValue(decimals);
         nameMock = jest.fn().mockResolvedValue(name);
 
-        (RetryableContract as any as jest.Mock).mockReturnValue(
-          mock<RetryableContract>({
-            symbol: symbolMock,
-            decimals: decimalMock,
-            name: nameMock,
-          })
-        );
+        (RetryableContract as any as jest.Mock).mockReturnValue({
+          symbol: symbolMock,
+          decimals: decimalMock,
+          name: nameMock,
+        });
       });
 
       it("throws an error", async () => {
@@ -1268,29 +1263,19 @@ describe("BlockchainService", () => {
 
   describe("getBalance", () => {
     const blockNumber = 5;
-    let blockTag: string;
     let tokenAddress: string;
     const address = "address";
 
     beforeEach(() => {
-      blockTag = "latest";
       tokenAddress = "tokenAddress";
-      jest.spyOn(providerFormatterMock, "blockTag").mockReturnValueOnce(blockTag);
     });
-
-    it("gets block tag for the specified blockNumber", async () => {
-      await blockchainService.getBalance(address, blockNumber, tokenAddress);
-      expect(providerFormatterMock.blockTag).toHaveBeenCalledTimes(1);
-      expect(providerFormatterMock.blockTag).toHaveBeenCalledWith(blockNumber);
-    });
-
     describe("if token address is ETH", () => {
       let timeoutSpy;
-      const balance = ethers.BigNumber.from(10);
+      const balance = BigInt(10);
 
       beforeEach(() => {
         tokenAddress = utils.ETH_ADDRESS;
-        jest.spyOn(provider, "getBalance").mockResolvedValue(ethers.BigNumber.from(10));
+        jest.spyOn(provider, "getBalance").mockResolvedValue(BigInt(10));
         timeoutSpy = jest.spyOn(timersPromises, "setTimeout");
       });
 
@@ -1302,7 +1287,7 @@ describe("BlockchainService", () => {
       it("gets the balance for ETH", async () => {
         await blockchainService.getBalance(address, blockNumber, tokenAddress);
         expect(provider.getBalance).toHaveBeenCalledTimes(1);
-        expect(provider.getBalance).toHaveBeenCalledWith(address, blockTag);
+        expect(provider.getBalance).toHaveBeenCalledWith(address, blockNumber);
       });
 
       it("stops the rpc call duration metric", async () => {
@@ -1312,18 +1297,19 @@ describe("BlockchainService", () => {
       });
 
       it("returns the address balance for ETH", async () => {
-        jest.spyOn(provider, "getBalance").mockResolvedValueOnce(ethers.BigNumber.from(15));
+        jest.spyOn(provider, "getBalance").mockResolvedValueOnce(BigInt(15));
 
         const balance = await blockchainService.getBalance(address, blockNumber, tokenAddress);
         expect(balance).toStrictEqual(balance);
       });
 
       describe("if the call throws an error", () => {
+        const error = new Error("RPC call error");
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce(new Error("RPC call error"))
-            .mockRejectedValueOnce(new Error("RPC call error"))
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1348,11 +1334,13 @@ describe("BlockchainService", () => {
       });
 
       describe("if the call throws a timeout error", () => {
+        const error = new Error();
+        (error as any).code = "TIMEOUT";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "TIMEOUT" })
-            .mockRejectedValueOnce({ code: "TIMEOUT" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1365,11 +1353,13 @@ describe("BlockchainService", () => {
       });
 
       describe("if the call throws a connection refused error", () => {
+        const error = new Error();
+        (error as any).code = "ECONNREFUSED";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "ECONNREFUSED" })
-            .mockRejectedValueOnce({ code: "ECONNREFUSED" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1382,11 +1372,13 @@ describe("BlockchainService", () => {
       });
 
       describe("if the call throws a connection reset error", () => {
+        const error = new Error();
+        (error as any).code = "ECONNRESET";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "ECONNRESET" })
-            .mockRejectedValueOnce({ code: "ECONNRESET" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1399,11 +1391,13 @@ describe("BlockchainService", () => {
       });
 
       describe("if the call throws a network error", () => {
+        const error = new Error();
+        (error as any).code = "NETWORK_ERROR";
         beforeEach(() => {
           jest
             .spyOn(provider, "getBalance")
-            .mockRejectedValueOnce({ code: "NETWORK_ERROR" })
-            .mockRejectedValueOnce({ code: "NETWORK_ERROR" })
+            .mockRejectedValueOnce(error)
+            .mockRejectedValueOnce(error)
             .mockResolvedValueOnce(balance);
         });
 
@@ -1429,7 +1423,7 @@ describe("BlockchainService", () => {
             mock<RetryableContract>({
               balanceOf: jest.fn().mockImplementationOnce(() => {
                 throw error;
-              }),
+              }) as any,
             })
           );
         });
@@ -1443,10 +1437,10 @@ describe("BlockchainService", () => {
         let balanceOfMock: jest.Mock;
 
         beforeEach(() => {
-          balanceOfMock = jest.fn().mockResolvedValueOnce(ethers.BigNumber.from(20));
+          balanceOfMock = jest.fn().mockResolvedValueOnce(BigInt(20));
           (RetryableContract as any as jest.Mock).mockReturnValueOnce(
             mock<RetryableContract>({
-              balanceOf: balanceOfMock,
+              balanceOf: balanceOfMock as any,
             })
           );
         });
@@ -1460,12 +1454,12 @@ describe("BlockchainService", () => {
         it("gets the balance for the specified address and block", async () => {
           await blockchainService.getBalance(address, blockNumber, tokenAddress);
           expect(balanceOfMock).toHaveBeenCalledTimes(1);
-          expect(balanceOfMock).toHaveBeenCalledWith(address, { blockTag });
+          expect(balanceOfMock).toHaveBeenCalledWith(address, { blockTag: blockNumber });
         });
 
         it("returns the balance of the token", async () => {
           const balance = await blockchainService.getBalance(address, blockNumber, tokenAddress);
-          expect(balance).toStrictEqual(ethers.BigNumber.from(20));
+          expect(balance).toStrictEqual(BigInt(20));
         });
       });
     });

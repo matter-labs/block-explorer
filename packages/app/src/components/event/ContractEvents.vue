@@ -159,7 +159,7 @@ watch(
     @apply block;
   }
   .pagination {
-    @apply flex justify-center p-3;
+    @apply p-3;
   }
   .only-mobile {
     @apply flex md:hidden;

@@ -13,6 +13,8 @@ vi.mock("vue-router", () => ({
   useRoute: () => ({
     query: routeQueryMock(),
   }),
+  createWebHistory: () => vi.fn(),
+  createRouter: () => vi.fn(),
 }));
 
 import enUS from "@/locales/en.json";

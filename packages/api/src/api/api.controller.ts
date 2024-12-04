@@ -84,6 +84,7 @@ export class ApiController {
   @ApiOperation({ summary: "Fetch the ABI for a given contract address" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The contract address that has a verified source code",
     example: constants.verifiedContractAddress,
     required: true,
@@ -101,6 +102,7 @@ export class ApiController {
   @ApiOperation({ summary: "Fetch the source code for a given contract address" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The contract address that has a verified source code",
     example: constants.verifiedContractAddress,
     required: true,
@@ -118,6 +120,7 @@ export class ApiController {
   @ApiOperation({ summary: "Fetch creation details for a list of contract addresses" })
   @ApiQuery({
     isArray: true,
+    type: [String],
     explode: false,
     name: "contractaddresses",
     description: "List of contract addresses, up to 5 at a time",
@@ -150,6 +153,7 @@ export class ApiController {
   @ApiOperation({ summary: "Check source code verification submission status" })
   @ApiQuery({
     name: "guid",
+    type: String,
     description: "Verification ID",
     example: "44071",
     required: true,
@@ -167,6 +171,7 @@ export class ApiController {
   @ApiOperation({ summary: "Fetch the status for a given transaction hash" })
   @ApiQuery({
     name: "txhash",
+    type: String,
     description: "The transaction hash to check the execution status",
     example: constants.txHash,
     required: true,
@@ -185,6 +190,7 @@ export class ApiController {
   @ApiOperation({ summary: "Fetch the receipt status for a given transaction hash" })
   @ApiQuery({
     name: "txhash",
+    type: String,
     description: "The transaction hash to check the execution status",
     example: constants.txHash,
     required: true,
@@ -202,6 +208,7 @@ export class ApiController {
   @ApiOperation({ summary: "Retrieve transactions for a given address" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to filter transactions by",
     example: constants.address,
     required: true,
@@ -274,6 +281,7 @@ export class ApiController {
   })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to filter internal transactions by",
     example: constants.addressWithInternalTx,
     required: true,
@@ -313,6 +321,7 @@ export class ApiController {
   })
   @ApiQuery({
     name: "txhash",
+    type: String,
     description: "The transaction hash to filter internal transaction by",
     example: constants.addressTxWithInternalTransfers,
     required: true,
@@ -350,6 +359,7 @@ export class ApiController {
   @ApiOperation({ summary: "Retrieve the balance for a given address" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to get Ether balance for",
     example: constants.address,
     required: true,
@@ -367,6 +377,7 @@ export class ApiController {
   @ApiOperation({ summary: "Retrieve the balances for a list of addresses" })
   @ApiQuery({
     isArray: true,
+    type: [String],
     explode: false,
     name: "address",
     description: "List of addresses to get Ether balance for",
@@ -386,12 +397,14 @@ export class ApiController {
   @ApiOperation({ summary: "Retrieve token balance for a specific address" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to get Token balance for",
     example: constants.address,
     required: true,
   })
   @ApiQuery({
     name: "contractaddress",
+    type: String,
     description: "The Token contract address to get balance for",
     example: constants.erc20TokenAddress,
     required: true,
@@ -409,12 +422,14 @@ export class ApiController {
   @ApiOperation({ summary: "Retrieve token transfers for a specific address or token contract" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to get transfers for",
     example: constants.address,
     required: false,
   })
   @ApiQuery({
     name: "contractaddress",
+    type: String,
     description: "The Token contract address to get transfers for",
     example: constants.erc20TokenAddress,
     required: false,
@@ -452,12 +467,14 @@ export class ApiController {
   @ApiOperation({ summary: "Retrieve NFT transfers for a specific address" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to get transfers for",
     example: constants.erc721TokenHolderAddress,
     required: false,
   })
   @ApiQuery({
     name: "contractaddress",
+    type: String,
     description: "The Token contract address to get transfers for",
     example: constants.erc721TokenAddress,
     required: false,
@@ -495,6 +512,7 @@ export class ApiController {
   @ApiOperation({ summary: "Get list of Blocks Validated by Address" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to get validated blocks by",
     example: "0x0000000000000000000000000000000000000000",
     required: true,
@@ -523,7 +541,7 @@ export class ApiController {
   })
   @ApiQuery({
     name: "closest",
-    type: "string",
+    type: String,
     description: "The closest available block to the provided timestamp, either before or after",
     example: "before",
     required: false,
@@ -577,6 +595,7 @@ export class ApiController {
   @ApiOperation({ summary: "Retrieve the event logs for an address, with optional filtering by block range" })
   @ApiQuery({
     name: "address",
+    type: String,
     description: "The address to filter logs by",
     example: constants.contractAddressWithLogs,
     required: true,
@@ -615,6 +634,7 @@ export class ApiController {
   })
   @ApiQuery({
     name: "contractaddress",
+    type: String,
     description: "The contract address of the ERC-20/ERC-721 token to retrieve token info",
     example: constants.tokenAddress,
     required: true,

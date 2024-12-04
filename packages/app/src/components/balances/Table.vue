@@ -48,8 +48,6 @@
 import { computed, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { BigNumber } from "ethers";
-
 import TokenIconLabel from "@/components/TokenIconLabel.vue";
 import BalanceValue from "@/components/balances/BalanceValue.vue";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
@@ -91,7 +89,7 @@ function showAllBalances() {
 }
 
 const validBalances = computed(() =>
-  Object.values(props.balances).filter((e) => !BigNumber.from(e.balance).isZero() && e.token)
+  Object.values(props.balances).filter((e) => BigInt(e.balance) != BigInt(0) && e.token)
 );
 const displayedBalances = computed(() => {
   return [...validBalances.value]

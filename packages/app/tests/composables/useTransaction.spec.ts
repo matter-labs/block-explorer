@@ -446,7 +446,7 @@ describe("useTransaction:", () => {
               },
             },
           ],
-          amountRefunded: "0x037f100b7fa8c6",
+          amountRefunded: "0x37f100b7fa8c6",
         },
         indexInBlock: 0,
         isL1Originated: false,
@@ -621,8 +621,8 @@ describe("useTransaction:", () => {
             gasPerPubdata: "0x320",
           }),
           getTransactionReceipt: vi.fn().mockResolvedValue({
-            transactionIndex: 0,
-            logs,
+            index: 0,
+            logs: logs.map((log) => ({ ...log, index: log.logIndex })),
             gasUsed: "3000",
           }),
         };
@@ -670,7 +670,7 @@ describe("useTransaction:", () => {
             amountPaid: "0x521f303519100",
             isPaidByPaymaster: false,
             refunds: [],
-            amountRefunded: "0x00",
+            amountRefunded: "0x0",
           },
           indexInBlock: 0,
           isL1Originated: false,

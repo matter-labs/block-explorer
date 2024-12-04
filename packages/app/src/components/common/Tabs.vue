@@ -15,9 +15,13 @@
             v-else
             class="tab-btn"
             :class="{ active: currentTabHash === tab.hash && tabs.length > 1 }"
-            v-html="tab.title"
             @click="setTab(tab)"
-          ></button>
+          >
+            <span v-html="tab.title"></span>
+            <span v-if="tab.icon" class="tab-icon">
+              <component :is="tab.icon" />
+            </span>
+          </button>
         </li>
       </template>
     </ul>
@@ -35,9 +39,12 @@
 import { type PropType, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+import type { FunctionalComponent } from "vue";
+
 export type Tab = {
   title: string;
   hash: string | null;
+  icon?: FunctionalComponent | null;
 };
 
 const props = defineProps({
@@ -49,23 +56,41 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  hasNestedRoute: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const route = useRoute();
 const router = useRouter();
 
-const currentTabHash = ref(route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash);
+const calculateCurrrentTabHash = () => {
+  let tabHash = route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash;
+  if (route?.hash && route?.hash.split("#").length > 2) {
+    // route.hash has multiple hashes (ex: #contracts#read)
+    if (props.hasNestedRoute) {
+      tabHash = `#${route?.hash.split("#").at(-1)}`;
+    } else {
+      tabHash = `#${route?.hash.split("#").at(1)}`;
+    }
+  }
+  return tabHash;
+};
+const currentTabHash = ref(calculateCurrrentTabHash());
 
 const setTab = (tab: Tab) => {
   currentTabHash.value = tab.hash;
   if (props.hasRoute) {
     router.push({ hash: `${tab.hash}` });
+  } else if (props.hasNestedRoute) {
+    router.push({ hash: `#${route?.hash.split("#")[1]}${tab.hash}` });
   }
 };
 
 watchEffect(() => {
   if (props.hasRoute) {
-    currentTabHash.value = route?.hash ? route?.hash : props.tabs[0].hash;
+    currentTabHash.value = calculateCurrrentTabHash();
   }
 });
 </script>
@@ -76,13 +101,16 @@ watchEffect(() => {
     @apply flex border-b md:flex-row border-night-1300;
   }
   .tab-btn {
-    @apply px-4 py-3.5 text-sm text-night-500 outline-0 sm:text-base;
+    @apply px-4 py-3.5 text-sm text-night-500 outline-0 sm:text-base flex;
   }
   .tab-content {
     @apply rounded-b-lg;
   }
   .active {
     @apply border-b-2 border-night-100 font-bold text-night-100;
+  }
+  .tab-icon {
+    @apply ml-0.5 w-5 text-green-500;
   }
 }
 </style>

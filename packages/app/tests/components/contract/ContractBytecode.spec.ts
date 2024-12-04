@@ -114,6 +114,19 @@ describe("ContractBytecode", () => {
     expect(codeBlocks[0].props().code).toBe(contract.verificationInfo?.request.sourceCode);
   });
 
+  it("renders contract abi json when solidity single-file contract is verified", () => {
+    const wrapper = mount(ContractBytecode, {
+      global: {
+        plugins: [i18n, $testId],
+        stubs: ["router-link"],
+      },
+      props: {
+        contract,
+      },
+    });
+    expect(wrapper.find(".abi-json").text()).toBe(JSON.stringify(contract.verificationInfo?.artifacts.abi));
+  });
+
   it("renders contract code when vyper single-file contract is verified", () => {
     const verifiedContractSources = {
       ERC20: contract.verificationInfo?.request.sourceCode,

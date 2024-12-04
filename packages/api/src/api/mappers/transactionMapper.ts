@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { getMethodId } from "../../common/utils";
 import { AddressTransaction } from "../../transaction/entities/addressTransaction.entity";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
@@ -23,7 +22,7 @@ export const mapTransactionListItem = (addressTransaction: AddressTransaction, l
   cumulativeGasUsed: addressTransaction.transaction.transactionReceipt.cumulativeGasUsed,
   gasUsed: addressTransaction.transaction.transactionReceipt.gasUsed,
   confirmations: (lastBlockNumber - addressTransaction.transaction.blockNumber).toString(),
-  fee: BigNumber.from(addressTransaction.transaction.fee).toString(),
+  fee: BigInt(addressTransaction.transaction.fee).toString(),
   commitTxHash: addressTransaction.transaction.commitTxHash,
   proveTxHash: addressTransaction.transaction.proveTxHash,
   executeTxHash: addressTransaction.transaction.executeTxHash,
