@@ -319,6 +319,11 @@ Then("Pagination form should be visible", async function (this: ICustomWorld) {
   result = await this.page?.locator(element);
 
   await expect(result).toBeVisible(config.increasedTimeout);
+
+  element = basePage.pageSizeDropdown;
+  result = await this.page?.locator(element);
+
+  await expect(result).toBeVisible(config.increasedTimeout);
 });
 
 Then("Column with {string} name is visible", async function (this: ICustomWorld, columnName: string) {

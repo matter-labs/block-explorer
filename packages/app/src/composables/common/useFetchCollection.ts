@@ -12,7 +12,7 @@ export type UseFetchCollection<T> = {
   page: ComputedRef<null | number>;
   pageSize: ComputedRef<number>;
 
-  load: (nextPage: number, toDate?: Date) => Promise<void>;
+  load: (nextPage: number, toDate?: Date, pageSize?: number) => Promise<void>;
 };
 
 export function useFetchCollection<T, TApiResponse = T>(
@@ -29,15 +29,18 @@ export function useFetchCollection<T, TApiResponse = T>(
   const page = ref<null | number>(null);
   const total = ref<null | number>(null);
 
-  async function load(nextPage: number, toDate?: Date) {
+  async function load(nextPage: number, toDate?: Date, updatedPageSize?: number) {
     page.value = nextPage;
+    if (updatedPageSize) {
+      pageSize.value = updatedPageSize;
+    }
 
     pending.value = true;
     failed.value = false;
 
     try {
       const url = typeof resource === "function" ? resource() : resource;
-      url.searchParams.set("pageSize", pageSize.value.toString());
+      url.searchParams.set("limit", pageSize.value.toString());
       url.searchParams.set("page", nextPage.toString());
 
       if (toDate && +new Date(toDate) > 0) {

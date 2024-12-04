@@ -16,7 +16,12 @@ import elements from "tests/e2e/testId.json";
 
 import $testId from "@/plugins/testId";
 
+const router = {
+  push: vi.fn(),
+};
+
 vi.mock("vue-router", () => ({
+  useRouter: () => router,
   useRoute: vi.fn(),
 }));
 vi.mock("@/composables/useTokenLibrary", () => {
