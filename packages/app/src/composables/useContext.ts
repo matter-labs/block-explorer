@@ -30,9 +30,21 @@ export default (): Context => {
       ? environmentConfig.networks.value
       : [DEFAULT_NETWORK];
   });
+
+  const getDefaultNetworkByHost = (hostname: string) => {
+    if (hostname.includes("explorer.testnet") || hostname.includes("localhost")) {
+      // safe check in case we only have one network
+      if (!networks.value[1]) return networks.value[0];
+      return networks.value[1];
+    }
+    return networks.value[0];
+  };
+
   const currentNetwork = computed(() => {
     return (
-      networks.value.find((networkEntry) => networkEntry.name === network.value) ?? networks.value[0] ?? DEFAULT_NETWORK
+      networks.value.find((networkEntry) => networkEntry.name === network.value) ??
+      getDefaultNetworkByHost(window.location.hostname) ??
+      DEFAULT_NETWORK
     );
   });
 

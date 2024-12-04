@@ -46,7 +46,11 @@ const retrieveTokens = useMemoize(
       }
     }
 
-    return tokens;
+    const filteredTokens = tokens.filter(
+      (token) => !context.currentNetwork.value.excludeTokenAddresses?.includes(token.l2Address)
+    );
+
+    return filteredTokens;
   },
   {
     getKey(context: Context) {

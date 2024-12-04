@@ -29,7 +29,7 @@
         <Button v-else :loading="isRequestPending" :disabled="isRequestPending" type="submit" size="sm">
           {{ t(`contract.abiInteraction.method.${type}.action`) }}
         </Button>
-        <div v-if="usePaymaster && props.type === 'write'">Using Sophon Global Paymaster</div>
+        <div v-if="props.type === 'write'">Using Sophon Global Paymaster</div>
       </FunctionForm>
       <div v-if="response?.message !== undefined" class="response-message">
         {{ response.message }}
@@ -93,15 +93,11 @@ const {
 
 const opened = ref(false);
 
-let usePaymaster = false;
-let urlParams = new URLSearchParams(window.location.search);
-usePaymaster = urlParams.get("usePaymaster") !== null;
-
 const { t } = useI18n();
 
 const submit = async (form: Record<string, string | string[] | boolean | boolean[]>) => {
   const callFunction = props.type === "write" ? writeFunction : readFunction;
-  await callFunction(props.contractAddress, props.abiFragment, form, usePaymaster);
+  await callFunction(props.contractAddress, props.abiFragment, form);
 };
 </script>
 
