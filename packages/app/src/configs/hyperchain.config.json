@@ -1,20 +1,20 @@
 {
-    "networks": [
-      {
-        "apiUrl": "https://block-explorer.topaz.treasurescan.io",
-        "bridgeUrl": "https://app.treasure.lol/chain/bridge",
-        "verificationApiUrl": "https://rpc-explorer-verify.topaz.treasure.lol",
-        "hostnames": [
-          "https://topaz.treasurescan.io"
-        ],
-        "icon": "https://ipfs.io/ipfs/QmT9TS1vsxxq4pToEXPouuYtDcpQZWZfh91NZdNXVQGPrY",
-        "l2ChainId": 978658,
-        "l2NetworkName": "Treasure Topaz",
-        "maintenance": false,
-        "name": "Treasure Topaz",
-        "published": true,
-        "rpcUrl": "https://rpc.topaz.treasure.lol",
-        "baseTokenAddress": "0x013Cb2854daAD8203C6686682f5d876e5D3de4a2"
-      }
-    ]
-  }
+  "networks": [
+    {
+      "apiUrl": "https://block-explorer.treasurescan.io",
+      "bridgeUrl": "https://app.treasure.lol/chain/bridge",
+      "verificationApiUrl": "https://rpc-explorer-verify.treasure.lol",
+      "hostnames": [
+        "https://treasurescan.io"
+      ],
+      "icon": "https://ipfs.io/ipfs/QmQn3dhxoMDY3R2w9PZtJaVXVh9YtJaozcLesu19B7e1KQ",
+      "l2ChainId": 61166,
+      "l2NetworkName": "Treasure",
+      "maintenance": false,
+      "name": "Treasure",
+      "published": true,
+      "rpcUrl": "https://rpc.treasure.lol",
+      "baseTokenAddress": "0xb0c7a3ba49c7a6eaba6cd4a96c55a1391070ac9a"
+    }
+  ]
+}

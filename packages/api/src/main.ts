@@ -28,8 +28,8 @@ async function bootstrap() {
 
   if (configService.get<boolean>("featureFlags.swagger.enabled")) {
     const swaggerConfig = new DocumentBuilder()
-      .setTitle("Block explorer API")
-      .setDescription("Treasure Topaz Block Explorer API")
+      .setTitle("Treasurescan")
+      .setDescription("Block Explorer API for Treasure mainnet")
       .setVersion("1.0")
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
