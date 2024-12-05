@@ -11,7 +11,6 @@ import {
 } from "../repositories";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME } from "../metrics";
 import { TransactionData } from "../dataFetcher/types";
-import { getAddress } from "ethers";
 
 @Injectable()
 export class TransactionProcessor {
@@ -30,44 +29,19 @@ export class TransactionProcessor {
     this.logger = new Logger(TransactionProcessor.name);
   }
 
-  public async test() {
-    const tx = await this.transactionRepository.findOneBy({
-      hash: "0x3071841b9fb9ca6f329a7fa3d79970a36126e70d12d2210c7f47102bf81374d6",
-    });
-    const pls = await this.addressRepository.findOneBy({ address: "0xafb5167116e6b833889018916594ac8040dbc05f" });
-    const addresses = await this.addressRepository.find({});
-    const jedan = addresses[13];
-    this.logger.debug({
-      pls: pls,
-    });
-  }
-
   public async add(blockNumber: number, transactionData: TransactionData): Promise<void> {
     const stopTransactionProcessingMeasuring = this.transactionProcessingDurationMetric.startTimer();
-    let isToEvmLike = false;
-    if (transactionData.transaction.data.length > 2) {
-      let a = null;
-      while (a === null) {
-        a = await this.addressRepository.findOneBy({ address: transactionData.transaction.to });
-      }
-      isToEvmLike = a?.isEvmLike ?? false;
-      this.logger.debug({
-        molimTe: a,
-      });
-    }
 
     this.logger.debug({
       message: "Saving transactions data to the DB",
       blockNumber: blockNumber,
       transactionHash: transactionData.transaction.hash,
-      transactionData: transactionData,
     });
 
     await this.transactionRepository.add({
       ...transactionData.transaction,
       transactionIndex: transactionData.transaction.index,
       isEvmLike: transactionData.transaction.isEvmLike,
-      isToEvmLike: isToEvmLike,
     });
 
     this.logger.debug({
