@@ -1,14 +1,21 @@
 import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
+import { ParamType } from "ethers";
 import { $fetch, FetchError } from "ohmyfetch";
 
-import useTransactionData, { decodeDataWithABI, type TransactionData } from "@/composables/useTransactionData";
+import useTransactionData, {
+  decodeDataWithABI,
+  decodeInputData,
+  InputComponentType,
+  type TransactionData,
+} from "@/composables/useTransactionData";
 
 import ERC20ProxyVerificationInfo from "@/../mock/contracts/ERC20ProxyVerificationInfo.json";
 import ERC20VerificationInfo from "@/../mock/contracts/ERC20VerificationInfo.json";
 
 import type { AbiFragment } from "@/composables/useAddress";
 import type { Address } from "@/types";
+import type { Result } from "ethers";
 
 vi.mock("ohmyfetch", () => {
   return {
@@ -53,12 +60,16 @@ const transactionDataDecodedMethod = {
   inputs: [
     {
       name: "recipient",
+      inputs: [],
+      inputComponentType: InputComponentType.BASE,
       type: "address",
       value: "0xa1cf087DB965Ab02Fb3CFaCe1f5c63935815f044",
       encodedValue: "000000000000000000000000a1cf087db965ab02fb3cface1f5c63935815f044",
     },
     {
       name: "amount",
+      inputs: [],
+      inputComponentType: InputComponentType.BASE,
       type: "uint256",
       value: "1",
       encodedValue: "0000000000000000000000000000000000000000000000000000000000000001",
@@ -175,12 +186,16 @@ describe("useTransactionData:", () => {
         inputs: [
           {
             encodedValue: "000000000000000000000000a1cf087db965ab02fb3cface1f5c63935815f044",
+            inputs: [],
+            inputComponentType: InputComponentType.BASE,
             name: "recipient",
             type: "address",
             value: "0xa1cf087DB965Ab02Fb3CFaCe1f5c63935815f044",
           },
           {
             encodedValue: "0000000000000000000000000000000000000000000000000000000000000001",
+            inputs: [],
+            inputComponentType: InputComponentType.BASE,
             name: "amount",
             type: "uint256",
             value: "1",
@@ -197,6 +212,179 @@ describe("useTransactionData:", () => {
         ERC20VerificationInfo.artifacts.abi as AbiFragment[]
       );
       expect(result).toBe(undefined);
+    });
+  });
+
+  describe("decodeInputData", () => {
+    it("should decode a simple input type", () => {
+      const input = ParamType.from({
+        name: "value",
+        type: "uint256",
+        baseType: "scalar",
+        isArray: () => true,
+        isTuple: () => false,
+      });
+      const args = 42;
+
+      const result = decodeInputData(input, args as unknown as Result);
+
+      expect(result).toEqual([
+        {
+          name: "value",
+          type: "uint256",
+          value: "42",
+          encodedValue: expect.any(String),
+          inputs: [],
+          inputComponentType: InputComponentType.BASE,
+        },
+      ]);
+    });
+
+    it("should decode an array input type", () => {
+      const input = ParamType.from({
+        name: "values",
+        baseType: "array",
+        type: "uint256[]",
+        arrayChildren: { name: "value", type: "uint256" },
+      });
+      const args = [42, 43];
+
+      const result = decodeInputData(input, args as unknown as Result);
+
+      expect(result).toEqual([
+        {
+          name: "values",
+          type: "uint256[]",
+          value: "[42,43]",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              value: "42",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002a",
+              inputs: [],
+              inputComponentType: InputComponentType.BASE,
+            },
+            {
+              name: "",
+              type: "uint256",
+              value: "43",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002b",
+              inputs: [],
+              inputComponentType: InputComponentType.BASE,
+            },
+          ],
+          encodedValue:
+            "[000000000000000000000000000000000000000000000000000000000000002a,000000000000000000000000000000000000000000000000000000000000002b]",
+          inputComponentType: InputComponentType.ARRAY,
+        },
+      ]);
+    });
+
+    it("should decode a tuple input type", () => {
+      const input = ParamType.from({
+        name: "tupleValue",
+        type: "tuple",
+        baseType: "tuple",
+        components: [
+          { name: "value1", type: "uint256", baseType: "scalar" },
+          { name: "value2", type: "string", baseType: "scalar" },
+        ],
+      });
+      const args = ["42", "test"];
+
+      const result = decodeInputData(input, args as unknown as Result);
+      expect(result).toEqual([
+        {
+          name: "tupleValue",
+          type: "tuple(uint256,string)",
+          value: "(42,test)",
+          inputs: [
+            {
+              name: "value1",
+              type: "uint256",
+              value: "42",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002a",
+              inputs: [],
+              inputComponentType: InputComponentType.BASE,
+            },
+            {
+              name: "value2",
+              type: "string",
+              value: "test",
+              encodedValue:
+                "000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465737400000000000000000000000000000000000000000000000000000000",
+              inputs: [],
+              inputComponentType: InputComponentType.BASE,
+            },
+          ],
+          encodedValue:
+            "(000000000000000000000000000000000000000000000000000000000000002a,000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465737400000000000000000000000000000000000000000000000000000000)",
+          inputComponentType: InputComponentType.TUPLE,
+        },
+      ]);
+    });
+
+    it("should decode a tuple with an array", () => {
+      const input = ParamType.from({
+        name: "tupleValue",
+        type: "tuple",
+        baseType: "tuple",
+        components: [
+          { name: "value1", type: "uint256", baseType: "scalar" },
+          { name: "value2", type: "uint256[]", baseType: "array", arrayChildren: { name: "value", type: "uint256" } },
+        ],
+      });
+      const args = [42, [43, 44]];
+
+      const result = decodeInputData(input, args as unknown as Result);
+
+      expect(result).toEqual([
+        {
+          name: "tupleValue",
+          type: "tuple(uint256,uint256[])",
+          value: "(42,[43,44])",
+          inputs: [
+            {
+              name: "value1",
+              type: "uint256",
+              value: "42",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002a",
+              inputs: [],
+              inputComponentType: InputComponentType.BASE,
+            },
+            {
+              name: "value2",
+              type: "uint256[]",
+              value: "[43,44]",
+              inputs: [
+                {
+                  name: "",
+                  type: "uint256",
+                  value: "43",
+                  encodedValue: "000000000000000000000000000000000000000000000000000000000000002b",
+                  inputs: [],
+                  inputComponentType: InputComponentType.BASE,
+                },
+                {
+                  name: "",
+                  type: "uint256",
+                  value: "44",
+                  encodedValue: "000000000000000000000000000000000000000000000000000000000000002c",
+                  inputs: [],
+                  inputComponentType: InputComponentType.BASE,
+                },
+              ],
+              encodedValue:
+                "[000000000000000000000000000000000000000000000000000000000000002b,000000000000000000000000000000000000000000000000000000000000002c]",
+              inputComponentType: InputComponentType.ARRAY,
+            },
+          ],
+          encodedValue:
+            "(000000000000000000000000000000000000000000000000000000000000002a,[000000000000000000000000000000000000000000000000000000000000002b,000000000000000000000000000000000000000000000000000000000000002c])",
+          inputComponentType: InputComponentType.TUPLE,
+        },
+      ]);
     });
   });
 });
