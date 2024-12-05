@@ -116,7 +116,7 @@
             <div class="address-badge-container">
               <AddressLink :address="transaction?.to" />
               <Badge
-                v-if="!!transaction?.to && transaction.isEvmLike"
+                v-if="!!transaction?.to && isEvmLike"
                 color="primary"
                 class="verified-badge"
                 :tooltip="t('contract.evmTooltip')"
@@ -234,6 +234,8 @@
 import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { computedAsync } from "@vueuse/core";
+
 import AddressLink from "@/components/AddressLink.vue";
 import FeeData from "@/components/FeeData.vue";
 import Badge from "@/components/common/Badge.vue";
@@ -250,6 +252,9 @@ import TransactionStatus from "@/components/transactions/Status.vue";
 import TransactionData from "@/components/transactions/infoTable/TransactionData.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
+import useAddress from "@/composables/useAddress";
+
+import type { Contract } from "@/composables/useAddress";
 import type { TransactionItem } from "@/composables/useTransaction";
 
 const { t } = useI18n();
@@ -266,12 +271,9 @@ const props = defineProps({
   decodingDataError: {
     type: String,
   },
-  isEvmLike: {
-    type: [Boolean, null] as PropType<boolean | null>,
-    default: false,
-    required: false,
-  },
 });
+
+const { getByAddress, item } = useAddress();
 
 const tokenTransfers = computed(() => {
   // exclude transfers with no amount, such as NFT until we fully support them
@@ -285,6 +287,15 @@ const gasUsedPercent = computed(() => {
     return parseFloat(((gasUsed / gasLimit) * 100).toFixed(2));
   }
   return null;
+});
+
+const isEvmLike = computedAsync(async () => {
+  if (!props.transaction?.data || !props.transaction?.to) {
+    return false;
+  }
+  await getByAddress(props.transaction?.to);
+
+  return !!(item.value as Contract)?.isEvmLike;
 });
 </script>
 

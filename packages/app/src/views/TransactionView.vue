@@ -14,7 +14,6 @@
           :transaction="transactionWithData"
           :decoding-data-error="decodingError"
           :loading="isRequestPending || isDecodeTransactionDataPending"
-          :is-evm-like="transaction?.isEvmLike"
         />
       </template>
       <template #tab-2-content>
