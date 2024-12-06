@@ -114,7 +114,10 @@
         <TableBodyColumn class="transaction-table-value">
           <div v-if="!!transaction?.to" class="value-with-copy-button">
             <div class="address-badge-container">
-              <AddressLink :address="transaction?.to" />
+              <div class="flex items-center justify-center gap-2">
+                <AddressLink :address="transaction?.to" />
+                <p v-if="!!transaction?.to && isEvmLike">Created</p>
+              </div>
               <Badge
                 v-if="!!transaction?.to && isEvmLike"
                 color="primary"
