@@ -1,6 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "Treasure Topaz",
+        "l2NetworkName": "Treasure",
         "l1NetworkName": "Ethereum"
     },
     "copyButton": {
@@ -15,7 +15,7 @@
     "networkStats": {
         "title": "Network Stats",
         "subtitleTestnet": "Stats are occasionally reset on testnet.",
-        "subtitleMainnet": "Treasure Topaz Mainnet is open to everyone.",
+        "subtitleMainnet": "Treasure is open to everyone.",
         "committed": "Committed Blocks",
         "verified": "Verified Blocks",
         "transactions": "Transactions",
@@ -310,8 +310,8 @@
         "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "Treasure Topaz Block Explorer",
-        "subtitle": "Treasure Topaz Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into Treasure Topaz and explore the network.",
+        "title": "Treasurescan",
+        "subtitle": "Treasurescan provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into transactions and explore the network.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions",
         "batches": "Latest Batches"
@@ -668,7 +668,7 @@
         }
     },
     "document": {
-        "title": "Treasure Topaz Block Explorer",
+        "title": "Treasurescan",
         "home": "Transactions, Blocks, Contracts and much more"
     },
     "notFound": {
