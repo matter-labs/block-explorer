@@ -80,6 +80,7 @@ export type TransactionItem = {
   revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
+  isEvmLike?: boolean | null;
 };
 
 export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to") {
@@ -264,6 +265,7 @@ export function mapTransaction(
     gasPerPubdata: transaction.gasPerPubdata,
     maxFeePerGas: transaction.maxFeePerGas,
     maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+    isEvmLike: transaction.isEvmLike,
   };
 }
 

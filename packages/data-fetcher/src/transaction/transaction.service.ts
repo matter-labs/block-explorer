@@ -13,6 +13,7 @@ export interface TransactionInfo extends types.TransactionResponse {
   receivedAt: Date;
   error?: string;
   revertReason?: string;
+  isEvmLike?: boolean;
 }
 
 export interface TransactionData extends LogsData {
@@ -79,11 +80,21 @@ export class TransactionService {
       transactionReceipt
     );
 
+    const isEvmLike = transactionInfo.to === null;
+    const toAddress =
+      isEvmLike && logsData.contractAddresses?.length > 0 ? logsData.contractAddresses[0].address : transactionInfo.to;
+
+    const updatedTransactionInfo = {
+      ...transactionInfo,
+      isEvmLike,
+      to: toAddress,
+    } as unknown as TransactionInfo;
+
     stopTransactionProcessingMeasuring();
 
     return {
       ...logsData,
-      transaction: transactionInfo,
+      transaction: updatedTransactionInfo,
       transactionReceipt,
     };
   }
