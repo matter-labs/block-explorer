@@ -24,8 +24,7 @@ describe("TheFooter:", () => {
       },
     });
     const links = wrapper.findAll("a");
-    expect(links[0].attributes("href")).toBe("https://docs.zksync.io/build/tooling/zksync-block-explorers");
-    expect(links[1].attributes("href")).toBe("https://zksync.io/terms");
-    expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
+    expect(links[0].attributes("href")).toBe("https://docs.treasure.lol");
+    expect(links[1].attributes("href")).toBe("https://treasure.lol/terms-of-service");
   });
 });
