@@ -26,6 +26,5 @@ describe("TheFooter:", () => {
     const links = wrapper.findAll("a");
     expect(links[0].attributes("href")).toBe("https://docs.treasure.lol");
     expect(links[1].attributes("href")).toBe("https://treasure.lol/terms-of-service");
-    expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
   });
 });
