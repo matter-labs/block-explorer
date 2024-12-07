@@ -57,7 +57,7 @@
           <div class="mobile-header-container">
             <div class="mobile-popover-navigation">
               <div class="popover-zksync-logo">
-                <zk-sync class="logo" />
+                <TreasureIcon class="logo" />
               </div>
               <div class="-mr-2">
                 <PopoverButton class="close-popover-button">
@@ -121,9 +121,9 @@ import LinksPopover from "./LinksPopover.vue";
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
 import DiscordIcon from "@/components/icons/DiscordIcon.vue";
+import TreasureIcon from "@/components/icons/TreasureIcon.vue";
 import TreasureLogo from "@/components/icons/TreasureLogo.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
-import ZkSync from "@/components/icons/ZkSync.vue";
 
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
@@ -137,7 +137,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/zksync-block-explorers",
+    url: "https://docs.treasure.lol",
   },
 ]);
 
@@ -181,8 +181,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://discord.com/invite/treasuredao", component: DiscordIcon },
-  { url: "https://twitter.com/Treasure_DAO", component: TwitterIcon },
+  { url: "https://discord.gg/treasuredao", component: DiscordIcon },
+  { url: "https://x.com/Treasure_DAO", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
@@ -294,7 +294,7 @@ const hasContent = computed(() => {
     @apply divide-y-2 divide-neutral-50 rounded-lg  shadow-lg ring-1 ring-black ring-opacity-5;
 
     .mobile-header-container {
-      @apply px-5 pb-6 pt-5;
+      @apply px-5 pb-6 pt-5 bg-night-900;
 
       .mobile-popover-navigation {
         @apply flex items-center justify-between;
