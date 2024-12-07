@@ -5,34 +5,49 @@
       <div class="subtitle">{{ subtitle }}</div>
     </div>
     <dl class="description-list">
-      <div class="stats-container">
+      <div
+        class="flex flex-col border-night-1200 py-3 pr-8 text-base text-silver-500 border-r-night-600 last:border-0 last:pb-0 sm:border-r drop-shadow-xl drop-shadow-night-1000 sm:py-0 lg:w-max"
+      >
         <dt>
-          <router-link :to="{ name: 'blocks' }">{{ t("networkStats.committed") }}</router-link>
+          <router-link :to="{ name: 'blocks' }" class="font-light text-inherit no-underline">{{
+            t("networkStats.committed")
+          }}</router-link>
         </dt>
-        <dd>
+        <dd class="text-[1.65rem] font-medium text-cream xl:text-3xl">
           <ContentLoader v-if="loading" class="h-full w-24" />
           <span v-else>{{ formatWithSpaces(committed ?? 0) }}</span>
         </dd>
       </div>
-      <div class="stats-container">
+      <div
+        class="flex flex-col border-night-1200 py-3 pr-8 text-base text-silver-500 border-r-night-600 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max"
+      >
         <dt>
-          <router-link :to="{ name: 'blocks' }">{{ t("networkStats.verified") }}</router-link>
+          <router-link :to="{ name: 'blocks' }" class="font-light text-inherit no-underline">{{
+            t("networkStats.verified")
+          }}</router-link>
         </dt>
-        <dd>
+        <dd class="text-[1.65rem] font-medium text-cream xl:text-3xl">
           <ContentLoader v-if="loading" class="h-full w-24" />
           <span v-else>{{ formatWithSpaces(verified ?? 0) }}</span>
         </dd>
       </div>
-      <div class="stats-container">
+      <div
+        class="flex flex-col border-night-1200 py-3 pr-8 text-base text-silver-500 border-r-night-600 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max"
+      >
         <dt>
-          <router-link :to="{ name: 'transactions' }">{{ t("networkStats.transactions") }}</router-link>
+          <router-link :to="{ name: 'transactions' }" class="font-light text-inherit no-underline">{{
+            t("networkStats.transactions")
+          }}</router-link>
         </dt>
-        <dd>
+        <dd class="text-[1.65rem] font-medium text-cream xl:text-3xl">
           <ContentLoader v-if="loading" class="h-full w-36" />
           <span v-else>{{ formatWithSpaces(transactions ?? 0) }}</span>
         </dd>
       </div>
-      <div v-if="totalLocked" class="stats-container">
+      <div
+        v-if="totalLocked"
+        class="flex flex-col border-night-1200 py-3 pr-8 text-base text-silver-500 border-r-night-600 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max"
+      >
         <dt>
           {{ t("networkStats.totalLocked") }}
         </dt>
@@ -78,27 +93,19 @@ defineProps({
 });
 
 const subtitle = computed(() =>
-  currentNetwork.value.name === "mainnet" ? t("networkStats.subtitleMainnet") : t("networkStats.subtitleTestnet")
+  currentNetwork.value.name === "Treasure" ? t("networkStats.subtitleMainnet") : t("networkStats.subtitleTestnet")
 );
 </script>
 
 <style scoped lang="scss">
 .card {
-  @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-night-1000 px-8 py-5 shadow lg:flex-row lg:items-center;
+  @apply flex w-full flex-col justify-between gap-x-12 rounded-lg bg-night-800 border border-night-600 px-8 py-5 shadow-lg shadow-night-1000 lg:flex-row lg:items-center;
+
   .title {
-    @apply text-xl font-bold text-night-100;
+    @apply text-xl font-semibold text-cream;
   }
   .subtitle {
-    @apply font-sans text-base text-night-500;
-  }
-  .stats-container {
-    @apply flex flex-col border-night-1200 py-3 pr-8 text-base text-night-500 last:border-0 last:pb-0 sm:border-r sm:py-0 lg:w-max;
-    dd {
-      @apply text-[1.65rem] font-bold text-night-100 xl:text-3xl;
-    }
-    a {
-      @apply text-inherit no-underline;
-    }
+    @apply font-sans text-base text-silver-500;
   }
   .description-list {
     @apply mt-4 gap-x-8 divide-y sm:flex sm:divide-y-0 lg:mt-0 lg:justify-end;
