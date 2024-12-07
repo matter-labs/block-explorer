@@ -204,7 +204,7 @@ const hasContent = computed(() => {
 
 <style lang="scss">
 .header-popover-container {
-  @apply relative border-b border-night-700;
+  @apply relative border-b border-night-400 bg-night-1000/50;
   .header-wrap {
     @apply container z-50;
   }

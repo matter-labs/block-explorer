@@ -82,7 +82,7 @@ const model = computed({
 .search-input-container {
   @apply relative flex items-center;
   .search-input {
-    @apply bg-night-700 block w-full truncate rounded-md border border-night-500 py-3 pl-4 pr-16 leading-5 text-cream placeholder-neutral-400 shadow ring-inset placeholder:text-sm focus:border-primary-500 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm;
+    @apply bg-night-700/50 block w-full truncate rounded-md border border-night-500 py-3 pl-4 pr-16 leading-5 text-cream placeholder-neutral-400 ring-inset placeholder:text-sm focus:border-primary-500 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm;
   }
   .has-error {
     @apply border-ruby-300 text-ruby-500 placeholder-ruby-200 ring-ruby-200 focus:border-ruby-300 focus:ring-error-300;
