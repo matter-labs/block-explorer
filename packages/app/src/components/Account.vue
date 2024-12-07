@@ -139,7 +139,7 @@ const transactionsSearchParams = computed(() => ({
     @apply mb-4;
   }
   .table-transaction-title {
-    @apply text-night-500;
+    @apply text-silver-500;
   }
   .account-table {
     @apply mb-8;

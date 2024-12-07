@@ -43,16 +43,16 @@ const { currentNetwork } = useContext();
     @apply grid h-max w-max max-w-[29rem] grid-flow-row justify-items-center gap-4 rounded-lg bg-night-1000 p-4 text-center shadow-md;
 
     .title {
-      @apply mt-1 text-2xl text-night-500;
+      @apply mt-1 text-2xl text-silver-500;
     }
     .description {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
     .twitter-button {
       @apply w-max no-underline;
     }
     .uptime-link {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
   }
 }

@@ -35,13 +35,13 @@ const navigation = reactive([
 
 <style scoped lang="scss">
 .footer-container {
-  @apply container py-12 text-night-500 md:flex md:items-center md:justify-between;
+  @apply container py-12 text-silver-500 md:flex md:items-center md:justify-between;
 
   .links-container {
     @apply flex justify-center space-x-6 md:order-1;
 
     a {
-      @apply text-night-500 no-underline;
+      @apply text-silver-500 no-underline;
     }
   }
   .version-text-container {

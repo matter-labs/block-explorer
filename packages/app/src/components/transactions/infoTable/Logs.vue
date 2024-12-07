@@ -4,7 +4,7 @@
       <template v-for="(log, logIndex) in displayedLogs" :key="log.logIndex">
         <tr>
           <TableBodyColumn>
-            {{ t("transactions.logs.address") }}
+            <span class="text-cream">{{ t("transactions.logs.address") }}</span>
           </TableBodyColumn>
           <TableBodyColumn>
             <div class="address-value-container">
@@ -20,7 +20,7 @@
         </tr>
         <tr v-if="log.event">
           <TableBodyColumn>
-            {{ t("transactions.logs.name") }}
+            <span class="text-cream">{{ t("transactions.logs.name") }}</span>
           </TableBodyColumn>
           <TableBodyColumn>
             <span class="log-interface">
@@ -40,7 +40,7 @@
         </tr>
         <tr>
           <TableBodyColumn>
-            {{ t("transactions.logs.topics") }}
+            <span class="text-cream">{{ t("transactions.logs.topics") }}</span>
           </TableBodyColumn>
           <TableBodyColumn class="event-topics">
             <EventTopics
@@ -53,7 +53,7 @@
         </tr>
         <tr class="last-row">
           <TableBodyColumn>
-            {{ t("transactions.logs.data") }}
+            <span class="text-cream">{{ t("transactions.logs.data") }}</span>
           </TableBodyColumn>
           <TableBodyColumn>
             <div class="topic-container">
@@ -150,28 +150,28 @@ function scrollPageToTop() {
 
 <style lang="scss">
 .transaction-logs-table {
-  @apply text-base;
+  @apply text-sm;
   tr {
     @apply border-0;
     &.last-row {
       @apply border-b;
     }
     .table-body-col {
-      @apply py-3 align-top text-base;
+      @apply py-3 align-top text-sm;
       .address-value-container {
         @apply flex gap-x-4;
         .matches-topic {
           @apply text-base;
         }
         .address-label {
-          @apply cursor-pointer text-base leading-6 text-primary-500 underline;
+          @apply cursor-pointer text-sm leading-6 text-cream underline;
         }
       }
       .log-interface {
-        @apply text-night-500;
+        @apply text-silver-500;
 
         .log-interface-name {
-          @apply text-night-500;
+          @apply text-silver-500;
         }
         .log-parameter-type {
           @apply text-success-600;
@@ -180,8 +180,12 @@ function scrollPageToTop() {
           @apply text-error-600;
         }
       }
+      .topic-index-container {
+        @apply text-silver-200;
+      }
+
       .topic-container {
-        @apply flex gap-4 text-base;
+        @apply flex gap-4 text-sm;
         &:not(:last-child) {
           @apply mb-3;
         }

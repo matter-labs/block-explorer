@@ -65,7 +65,7 @@ defineProps({
   @apply hidden md:block;
 }
 .token-price {
-  @apply ml-0 text-xs text-night-500;
+  @apply ml-0 text-xs text-silver-500;
 }
 .token-icon {
   @apply ml-1;

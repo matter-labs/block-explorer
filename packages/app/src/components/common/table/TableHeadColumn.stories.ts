@@ -23,7 +23,7 @@ const Template = (args: Args) => ({
         <TableHeadColumn v-for="(colItem, colIndex) in headers" :key="colIndex">{{ colItem }}</TableHeadColumn>
       </template>
       <template #table-row="{ item }">
-        <td v-for="(colItem, colIndex) in headers" :key="colIndex" class="whitespace-nowrap py-4 px-6 text-sm text-night-500">{{ item }}</td>
+        <td v-for="(colItem, colIndex) in headers" :key="colIndex" class="whitespace-nowrap py-4 px-6 text-sm text-silver-500">{{ item }}</td>
       </template>
     </Table>
   `,

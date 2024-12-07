@@ -11,7 +11,7 @@
           <CopyButton class="mr-1" tooltipPosition="left" :value="value" />
           <ChevronDownIcon
             :class="open ? 'rotate-180 transform' : ''"
-            class="h-5 w-5 text-night-500 transition-transform"
+            class="h-5 w-5 text-silver-500 transition-transform"
           />
         </div>
       </DisclosureButton>
@@ -41,7 +41,7 @@ defineProps({
 <style lang="scss">
 .info-field-byte-data {
   .byte-data-disclosure-btn {
-    @apply flex w-full items-center justify-between bg-night-1000 px-4 py-2 text-left text-sm font-medium text-night-500 hover:bg-night-1000 focus:outline-none;
+    @apply flex w-full items-center justify-between bg-night-1000 px-4 py-2 text-left text-sm font-medium text-silver-500 hover:bg-night-1000 focus:outline-none;
   }
   .byte-data-disclosure-icons {
     @apply flex items-center;
@@ -50,7 +50,7 @@ defineProps({
     @apply rounded-bl-lg rounded-br-lg border border-t-0 border-dashed border-gray-300 px-4 py-4;
 
     .byte-data-full-value {
-      @apply overflow-hidden whitespace-pre-line break-words break-all text-sm text-night-500;
+      @apply overflow-hidden whitespace-pre-line break-words break-all text-sm text-silver-500;
     }
   }
 }

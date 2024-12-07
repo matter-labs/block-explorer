@@ -118,7 +118,7 @@ const selected = computed({
     }
   }
   .loading {
-    @apply text-night-500;
+    @apply text-silver-500;
   }
 }
 .toggle-button-focused {
@@ -128,15 +128,15 @@ const selected = computed({
   @apply mt-0.5 text-sm text-error-500;
 }
 .options-list-container {
-  @apply absolute z-10 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border-night-800 bg-night-1000 text-sm shadow-md focus:outline-none;
+  @apply absolute z-10 mt-1 max-h-[180px] w-full cursor-pointer overflow-hidden overflow-y-auto rounded-md border border-night-700 bg-night-1000 text-sm shadow-md focus:outline-none;
   .options-list-item {
-    @apply px-3 py-3 hover:bg-night-800;
+    @apply px-3 py-3 hover:bg-night-700;
 
     &.active {
       @apply bg-night-800 px-3;
     }
     .check-icon-container {
-      @apply absolute inset-y-0 right-3 flex items-center pl-3 text-night-500;
+      @apply absolute inset-y-0 right-3 flex items-center pl-3 text-silver-500;
       .check-icon {
         @apply h-5 w-5;
       }

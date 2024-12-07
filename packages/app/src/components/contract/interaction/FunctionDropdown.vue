@@ -102,7 +102,7 @@ const submit = async (form: Record<string, string | string[] | boolean | boolean
 
 <style scoped lang="scss">
 .function-disclosure-btn {
-  @apply sticky top-0 z-[1] flex w-full items-center justify-between rounded-lg border bg-night-800 p-3 text-left text-base font-medium text-night-500;
+  @apply sticky top-0 z-[1] flex w-full items-center justify-between rounded-lg border bg-night-800 p-3 text-left text-base font-medium text-silver-500;
   &.opened {
     @apply rounded-bl-none rounded-br-none;
 
@@ -111,7 +111,7 @@ const submit = async (form: Record<string, string | string[] | boolean | boolean
     }
   }
   .function-arrow-icon {
-    @apply h-5 w-5 text-night-500;
+    @apply h-5 w-5 text-silver-500;
   }
 }
 
@@ -120,15 +120,15 @@ const submit = async (form: Record<string, string | string[] | boolean | boolean
 }
 
 .response-message {
-  @apply mt-2 break-words rounded-md bg-night-900 px-4 py-2 font-mono text-night-500;
+  @apply mt-2 break-words rounded-md bg-night-900 px-4 py-2 font-mono text-silver-500;
 }
 .function-disclosure-panel {
-  @apply hidden space-y-3 rounded-bl-lg rounded-br-lg border border-t-0 px-4 py-3 text-sm text-night-500;
+  @apply hidden space-y-3 rounded-bl-lg rounded-br-lg border border-t-0 px-4 py-3 text-sm text-silver-500;
   &.opened {
     @apply block;
   }
   .disclosure-panel-type-text {
-    @apply italic text-night-500;
+    @apply italic text-silver-500;
   }
 }
 </style>

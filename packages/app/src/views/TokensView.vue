@@ -62,7 +62,7 @@ getTokens();
   @apply flex justify-between items-end gap-4;
 
   .coingecko-attribution {
-    @apply mr-1 text-night-500;
+    @apply mr-1 text-silver-500;
 
     a {
       @apply text-blue-100;

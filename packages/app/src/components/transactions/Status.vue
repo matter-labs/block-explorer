@@ -412,7 +412,7 @@ const badges = computed(() => {
 
 .badge-additional-content {
   .badge-status-link-icon {
-    @apply text-night-500;
+    @apply text-silver-500;
   }
 
   .badge-status-link {

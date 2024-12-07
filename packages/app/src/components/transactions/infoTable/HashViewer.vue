@@ -91,7 +91,7 @@ function hexStringToUTF8(hexString: string): string {
       @apply bottom-[calc(100%-32px)] left-[calc(100%+0.25rem)] top-auto;
     }
     .option-list-item {
-      @apply px-3 py-2 text-night-500 lg:py-1;
+      @apply px-3 py-2 text-silver-500 lg:py-1;
       &.selected {
         @apply bg-night-900;
       }
@@ -106,13 +106,13 @@ function hexStringToUTF8(hexString: string): string {
   }
 
   .toggle-button {
-    @apply flex h-7 w-max items-center rounded bg-night-900 px-2 leading-6 text-night-500 hover:cursor-pointer focus:outline-none focus:ring-2;
+    @apply flex h-7 w-max items-center rounded bg-night-900 px-2 leading-6 text-silver-500 hover:cursor-pointer focus:outline-none focus:ring-2;
 
     .selected-option-label {
       @apply mr-5 block truncate text-sm leading-6;
     }
     .toggle-button-icon {
-      @apply ml-2 h-5 w-5 text-night-500;
+      @apply ml-2 h-5 w-5 text-silver-500;
     }
   }
 }

@@ -146,13 +146,13 @@ const displayedBalances = computed(() => {
     }
   }
   .balance-data-symbol {
-    @apply ml-2 inline-block min-w-[5rem] font-bold text-night-500;
+    @apply ml-2 inline-block min-w-[5rem] font-bold text-silver-500;
   }
   .balance-data-value {
-    @apply font-bold text-night-100;
+    @apply font-bold text-cream;
   }
   .balance-data-price {
-    @apply text-xs text-night-100;
+    @apply text-xs text-cream;
   }
   .token-icon a {
     @apply flex-row-reverse;
@@ -161,10 +161,10 @@ const displayedBalances = computed(() => {
     @apply inline-block h-5 w-5 rounded-full;
   }
   .balances-not-found {
-    @apply px-1.5 py-[1.9rem] text-night-500;
+    @apply px-1.5 py-[1.9rem] text-silver-500;
   }
   .balances-error {
-    @apply mt-0.5 px-1.5 py-2.5 text-night-500;
+    @apply mt-0.5 px-1.5 py-2.5 text-silver-500;
   }
 }
 </style>

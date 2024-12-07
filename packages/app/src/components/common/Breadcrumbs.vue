@@ -35,14 +35,17 @@ defineProps({
   .breadcrumb-item {
     .breadcrumb-item-link,
     .breadcrumb-item-active {
-      @apply text-sm leading-tight text-gray-200;
+      @apply text-sm leading-tight;
+    }
+    .breadcrumb-item-active {
+      @apply text-cream;
     }
     .breadcrumb-item-link {
-      @apply no-underline hover:underline;
+      @apply text-silver-500 no-underline hover:underline hover:text-cream;
     }
   }
   .breadcrumb-divider {
-    @apply mx-5 h-2 w-2 rotate-45 border-r border-t border-gray-300;
+    @apply mx-5 h-2 w-2 rotate-45 border-r border-t border-silver-600;
   }
 }
 </style>

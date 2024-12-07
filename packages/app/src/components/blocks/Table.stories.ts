@@ -109,7 +109,7 @@ export const WithFooter = Template.bind({}) as unknown as { args: Args; decorato
 WithFooter.args = {
   blocks,
   loading: false,
-  footer: `<div class="py-2 underline text-center text-xs text-night-500 cursor-pointer hover:text-night-100">Show more blocks -></div>`,
+  footer: `<div class="py-2 underline text-center text-xs text-silver-500 cursor-pointer hover:text-cream">Show more blocks -></div>`,
 };
 WithFooter.decorators = [routes];
 

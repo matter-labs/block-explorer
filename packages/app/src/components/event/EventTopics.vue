@@ -80,15 +80,15 @@ defineProps({
     }
   }
   .arrow-right-icon {
-    @apply h-4 w-4 min-w-[1rem] text-night-500;
+    @apply h-4 w-4 min-w-[1rem] text-silver-500;
   }
   .topic-index-container {
-    @apply h-6 rounded bg-night-1000 px-2 py-0.5 font-mono text-sm leading-5 text-night-500;
+    @apply h-6 rounded bg-night-1000 px-2 py-0.5 font-mono text-sm leading-5 text-silver-500;
   }
   .toggle-button {
-    @apply h-auto text-night-500;
+    @apply h-auto text-silver-500;
     .toggle-button-icon {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
   }
   .topic-value {

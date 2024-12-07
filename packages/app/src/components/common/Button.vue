@@ -51,17 +51,17 @@ export default defineComponent({
   @apply appearance-none disabled:cursor-not-allowed disabled:opacity-50;
 
   &.sm {
-    @apply px-3 py-1.5 text-sm font-semibold;
+    @apply px-3 py-1.5 text-sm font-medium;
   }
   &.md {
-    @apply px-4 py-2.5 text-sm font-semibold;
+    @apply px-4 py-2.5 text-sm font-medium;
   }
   &.lg {
     @apply px-4 py-3 text-xl font-bold;
   }
 
   &.contained {
-    @apply text-night-100;
+    @apply text-cream;
     @apply border border-transparent;
 
     &.primary {
@@ -74,7 +74,7 @@ export default defineComponent({
   }
   &.outlined {
     @apply border border-night-800;
-    @apply bg-night-1000 hover:bg-night-1000 disabled:hover:bg-night-1000;
+    @apply bg-night-700 hover:bg-night-500 disabled:hover:bg-night-800;
 
     &.primary {
       @apply text-primary-700;
@@ -85,7 +85,7 @@ export default defineComponent({
     }
 
     &.neutral {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
   }
 }

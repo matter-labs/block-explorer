@@ -50,10 +50,10 @@ defineProps({
 .card {
   @apply w-full rounded-lg bg-night-1000 py-5 pl-8 shadow;
   .title {
-    @apply text-xl font-bold text-night-500;
+    @apply text-xl font-bold text-silver-500;
   }
   .subtitle {
-    @apply font-sans text-base text-night-500;
+    @apply font-sans text-base text-silver-500;
   }
 
   .costs {
@@ -62,10 +62,10 @@ defineProps({
   .cost {
     @apply mt-4 flex basis-full justify-between pr-8 sm:basis-1/2;
     > div {
-      @apply text-base text-night-500;
+      @apply text-base text-silver-500;
 
       span {
-        @apply mx-2 inline-block w-5 cursor-pointer rounded-full bg-night-900 text-center text-sm font-bold text-night-500 sm:mx-3;
+        @apply mx-2 inline-block w-5 cursor-pointer rounded-full bg-night-900 text-center text-sm font-bold text-silver-500 sm:mx-3;
       }
     }
     > span {
@@ -78,7 +78,7 @@ defineProps({
   }
 
   .popover-panel {
-    @apply absolute -top-10 left-1/2  -translate-x-1/2 transform rounded-lg bg-night-1000 p-2 px-3 text-sm text-night-500 shadow-lg;
+    @apply absolute -top-10 left-1/2  -translate-x-1/2 transform rounded-lg bg-night-1000 p-2 px-3 text-sm text-silver-500 shadow-lg;
   }
 }
 </style>

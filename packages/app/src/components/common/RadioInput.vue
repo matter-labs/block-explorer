@@ -75,7 +75,7 @@ const inputted = computed({
     }
   }
   .radio-input-text {
-    @apply ml-3 block text-sm font-medium text-night-500;
+    @apply ml-3 block text-sm font-medium text-silver-500;
   }
 }
 </style>

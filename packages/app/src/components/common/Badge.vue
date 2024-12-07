@@ -89,7 +89,7 @@ defineProps({
 }
 
 .badge-post-content {
-  @apply top-full rounded-b-md border-t-0 text-night-500;
+  @apply top-full rounded-b-md border-t-0 text-silver-500;
 }
 
 .badge-container {
@@ -104,15 +104,15 @@ defineProps({
   }
 
   &.color-neutral {
-    @apply bg-night-900 text-night-500;
+    @apply bg-night-900 text-silver-500;
   }
 
   &.color-dark-neutral {
-    @apply bg-neutral-300 text-night-500;
+    @apply bg-neutral-300 text-silver-500;
   }
 
   &.color-success {
-    @apply bg-success-200 text-success-600;
+    @apply bg-success-200 text-emerald-800;
   }
 
   &.color-warning {
@@ -128,19 +128,19 @@ defineProps({
   }
 
   &.color-progress {
-    @apply bg-success-500 text-white;
+    @apply bg-emerald-800 border-emerald-700 text-white;
   }
 
   &.color-dark-success {
-    @apply bg-success-500 text-white;
+    @apply bg-emerald-800 border-emerald-700 text-white;
   }
 
   &.text-color-neutral {
-    @apply text-night-500;
+    @apply text-silver-500;
   }
 
   &.type-label {
-    @apply rounded-full font-bold capitalize;
+    @apply rounded-md font-normal capitalize;
 
     &.size-sm {
       @apply px-2 py-1 pr-2.5 text-xs;
@@ -227,7 +227,7 @@ defineProps({
     }
   }
   &.color-neutral {
-    @apply bg-neutral-300 text-night-500;
+    @apply bg-neutral-300 text-silver-500;
 
     .badge-dot {
       @apply bg-neutral-600;

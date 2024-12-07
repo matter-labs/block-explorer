@@ -131,7 +131,7 @@ watch([filesToUpload, selectedMainFileName], ([files, mainFileName]) => {
   @apply grid gap-4 md:grid-cols-4;
 
   .title {
-    @apply text-night-500;
+    @apply text-silver-500;
   }
   .upload-files-container {
     @apply mt-2 inline-block border-0 p-0;
@@ -150,7 +150,7 @@ watch([filesToUpload, selectedMainFileName], ([files, mainFileName]) => {
   }
   .empty {
     .toggle-button {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
   }
 

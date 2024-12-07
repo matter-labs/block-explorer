@@ -101,7 +101,7 @@ const { t } = useI18n();
 .metadata-block {
   @apply h-max grid-cols-6 overflow-hidden rounded-md font-mono text-sm font-normal;
   .meta-title {
-    @apply col-span-6 bg-night-1000 py-1 pl-2 leading-5 text-night-500 lg:col-span-6;
+    @apply col-span-6 bg-night-1000 py-1 pl-2 leading-5 text-silver-500 lg:col-span-6;
   }
   .tag-title {
     @apply col-span-1;
@@ -156,7 +156,7 @@ const { t } = useI18n();
       @apply mt-5;
     }
     .memory-badge-type {
-      @apply absolute top-0 ml-0 text-night-500;
+      @apply absolute top-0 ml-0 text-silver-500;
     }
     .memory-badge-index {
       @apply mt-5;

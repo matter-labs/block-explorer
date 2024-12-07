@@ -15,7 +15,7 @@
   "networkStats": {
     "title": "Network Stats",
     "subtitleTestnet": "Stats are occasionally reset on testnet.",
-    "subtitleMainnet": "Treasure is open to everyone.",
+    "subtitleMainnet": "Discover the magic of play.",
     "committed": "Committed Blocks",
     "verified": "Verified Blocks",
     "transactions": "Transactions",
@@ -302,8 +302,8 @@
     }
   },
   "searchForm": {
-    "placeholder": "Search by address, batch number, contract, or tx hash",
-    "errorMessage": "Please, enter a correct query"
+    "placeholder": "Search by Address / Txn Hash / Batch Number / Contract",
+    "errorMessage": "Please enter a correct query."
   },
   "estimatedCost": {
     "title": "Estimated cost of transfers & interactions",

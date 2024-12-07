@@ -95,14 +95,14 @@ defineProps({
     @apply flex items-center;
 
     .block-info-field-label {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
     .block-info-field-tooltip {
       @apply ml-1;
     }
   }
   .block-info-field-value {
-    @apply text-night-100;
+    @apply text-cream;
   }
 }
 </style>

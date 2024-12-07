@@ -35,7 +35,7 @@ import { SearchIcon } from "@heroicons/vue/solid";
       @apply mb-1 text-sm font-bold text-primary-700 sm:text-lg;
     }
     .description {
-      @apply text-xs text-night-500 sm:text-base;
+      @apply text-xs text-silver-500 sm:text-base;
     }
   }
 }
