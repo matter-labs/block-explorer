@@ -69,7 +69,7 @@ const props = defineProps({
 });
 
 const imgSource = computed(() => {
-  return props.iconUrl || "/images/currencies/magic.svg";
+  return props.iconUrl || "/images/currencies/customToken.svg";
 });
 const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
 </script>
