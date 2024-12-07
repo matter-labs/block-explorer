@@ -120,11 +120,11 @@ defineProps({
   }
 
   &.color-error {
-    @apply bg-error-200 text-error-600;
+    @apply bg-error-200 text-ruby-600;
   }
 
   &.color-danger {
-    @apply bg-error-500 text-white;
+    @apply bg-ruby-600 text-white;
   }
 
   &.color-progress {
