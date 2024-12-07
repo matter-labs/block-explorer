@@ -311,7 +311,7 @@
   },
   "blockExplorer": {
     "title": "Treasure Block Explorer",
-    "subtitle": "Treasurescan provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into transactions and explore the network.",
+    "subtitle": "Treasurescan provides all the information to dive into transactions, blocks, contracts, tokens, NFTs, and much more within the Treasure network.",
     "latestBlocks": "Latest Blocks",
     "latestTransactions": "Latest Transactions",
     "batches": "Latest Batches"
