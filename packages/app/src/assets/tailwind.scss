@@ -2,7 +2,8 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-.debugger-trace-height, .parent-child-section {
+.debugger-trace-height,
+.parent-child-section {
   -ms-overflow-style: none;
   scrollbar-width: thin;
 
@@ -21,25 +22,20 @@
   }
 }
 
-
 @font-face {
-  font-family: 'Whyte';
+  font-family: "Whyte";
   font-style: normal;
-  font-weight: 100 1000;
+  font-weight: 100, 400, 500, 600, 700;
   font-display: swap;
-  src:
-    url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff2')
-      format('woff2'),
-    url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff')
-      format('woff');
+  src: url("https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff2") format("woff2"),
+    url("https://d2ysxj5jxlkqx4.cloudfront.net/fonts/ABCWhyteVariable.woff") format("woff");
 }
 
 @font-face {
-  font-family: 'Millik';
+  font-family: "Millik";
   font-style: bold;
   font-display: swap;
-  src: url('https://d2ysxj5jxlkqx4.cloudfront.net/fonts/Millik.woff2')
-    format('woff2');
+  src: url("https://d2ysxj5jxlkqx4.cloudfront.net/fonts/Millik.woff2") format("woff2");
 }
 
 @layer base {
@@ -71,6 +67,5 @@
 
   a {
     @apply underline focus-visible:underline rounded underline-offset-4;
-
   }
 }
