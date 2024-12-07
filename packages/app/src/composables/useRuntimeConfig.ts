@@ -23,7 +23,7 @@ export default (): RuntimeConfig => {
   const runtimeConfig = window && window["##runtimeConfig"];
 
   return {
-    version: import.meta.env?.VITE_VERSION || "localhost",
+    version: import.meta.env?.VITE_VERSION || "Treasure",
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
     appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default",
     environmentConfig: runtimeConfig?.environmentConfig,

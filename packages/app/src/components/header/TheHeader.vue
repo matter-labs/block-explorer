@@ -209,7 +209,7 @@ const hasContent = computed(() => {
     @apply container z-50;
   }
   .header-container {
-    @apply flex items-center justify-between border-b border-night-800 py-4 md:space-x-10 lg:justify-start;
+    @apply flex items-center justify-between py-4 md:space-x-10 lg:justify-start;
   }
   .logo-container {
     @apply flex justify-start;
