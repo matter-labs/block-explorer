@@ -47,7 +47,7 @@ describe("TokenIconLabel", () => {
         address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
       },
     });
-    expect(wrapper.find("img")?.attributes("src")).toBe("/images/currencies/customToken.svg");
+    expect(wrapper.find("img")?.attributes("src")).toBe("/images/currencies/magic.svg");
   });
   it("renders token symbol when showLinkSymbol is true", () => {
     const wrapper = mount(TokenIconLabel, {
