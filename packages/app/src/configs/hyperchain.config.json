@@ -13,7 +13,7 @@
       "name": "Treasure",
       "published": true,
       "rpcUrl": "https://rpc.treasure.lol",
-      "baseTokenAddress": "0xb0c7a3ba49c7a6eaba6cd4a96c55a1391070ac9a"
+      "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     }
   ]
 }
