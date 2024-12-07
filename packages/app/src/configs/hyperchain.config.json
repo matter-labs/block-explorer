@@ -2,12 +2,11 @@
   "networks": [
     {
       "apiUrl": "https://block-explorer.treasurescan.io",
-      "bridgeUrl": "https://app.treasure.lol/chain/bridge",
       "verificationApiUrl": "https://rpc-explorer-verify.treasure.lol",
-      "hostnames": [
-        "https://treasurescan.io"
-      ],
-      "icon": "https://ipfs.io/ipfs/QmVddByHvCnTjmzX7VBUr5v8vx6eHpVX12DTptAUnc3S1W",
+      "bridgeUrl": "https://app.treasure.lol/chain/bridge",
+      "hostnames": ["https://treasurescan.io"],
+      "icon": "https://ipfs.filebase.io/ipfs/QmVddByHvCnTjmzX7VBUr5v8vx6eHpVX12DTptAUnc3S1W",
+      "l1ExplorerUrl": "https://etherscan.io",
       "l2ChainId": 61166,
       "l2NetworkName": "Treasure",
       "maintenance": false,
