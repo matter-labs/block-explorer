@@ -304,7 +304,7 @@ const hasContent = computed(() => {
         @apply flex items-center justify-between;
 
         .popover-zksync-logo svg {
-          @apply h-[42px] w-[42px] text-black;
+          @apply h-[42px] w-[42px] text-silver-400;
         }
 
         .close-popover-button {

@@ -142,7 +142,7 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
     @apply flex h-max flex-col justify-center rounded-md border bg-night-800 px-4 py-[0.56rem] font-mono text-silver-500;
   }
   .method-interface {
-    @apply whitespace-pre-line text-black;
+    @apply whitespace-pre-line text-silver-400;
   }
   .encoded-data-container {
     @apply min-h-[40px] overflow-auto whitespace-nowrap text-xs text-silver-500;
@@ -173,7 +173,7 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
           @apply py-2;
         }
         .table-body-col {
-          @apply relative m-0 flex flex-col items-end whitespace-normal py-1.5 text-right font-mono text-black first:font-normal md:table-cell md:text-left;
+          @apply relative m-0 flex flex-col items-end whitespace-normal py-1.5 text-right font-mono text-silver-400 first:font-normal md:table-cell md:text-left;
           &:before {
             @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-silver-500 content-[attr(data-heading)] md:content-none;
           }
