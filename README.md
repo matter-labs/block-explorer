@@ -188,14 +188,14 @@ As the Treasure Topaz Block Explorer is deployed using the `topaz` branch, it ne
 ```json
 {
   "general": {
-    "l2NetworkName": "Treasure Topaz",
-    ...
+    "l2NetworkName": "Treasure Topaz"
+    // ...
   },
   "blockExplorer": {
     "title": "Treasure Topaz Block Explorer",
-    "subtitle": "Treasurescan provides all the information to dive into transactions, blocks, contracts, tokens, NFTs, and much more within the Treasure Topaz network.",
-    ...
-  },
+    "subtitle": "Treasurescan provides all the information to dive into transactions, blocks, contracts, tokens, NFTs, and much more within the Treasure Topaz network."
+    // ...
+  }
 }
 ```
 
