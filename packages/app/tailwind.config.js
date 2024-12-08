@@ -1,6 +1,6 @@
 const colors = require("tailwindcss/colors");
-const defaultTheme = require("tailwindcss/defaultTheme");
 
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{html,js,ts,vue}"],
   presets: [require("@treasure-dev/tailwind-config")],
@@ -54,6 +54,10 @@ module.exports = {
         success: colors.green,
         error: colors.red,
         warning: colors.yellow,
+      },
+      screens: {
+        xs: "480px",
+        "4xl": "1920px",
       },
     },
   },
