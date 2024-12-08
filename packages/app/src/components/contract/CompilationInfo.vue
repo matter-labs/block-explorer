@@ -51,7 +51,7 @@ const contractName = computed(() => props.contract.verificationInfo?.request.con
   @apply flex flex-col gap-4 sm:flex-row;
 }
 .label {
-  @apply font-bold text-night-500;
+  @apply font-bold text-silver-500;
 }
 .text {
   @apply max-w-[16rem] break-all;

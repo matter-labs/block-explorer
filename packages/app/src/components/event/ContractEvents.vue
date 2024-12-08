@@ -141,13 +141,13 @@ watch(
     td {
       @apply relative flex flex-col items-end text-right last:text-left md:table-cell md:text-left;
       &:before {
-        @apply absolute left-4 top-2.5 whitespace-nowrap pr-5 text-left text-xs uppercase text-night-500 content-[attr(data-heading)] md:content-none;
+        @apply absolute left-4 top-2.5 whitespace-nowrap pr-5 text-left text-xs uppercase text-silver-500 content-[attr(data-heading)] md:content-none;
       }
     }
   }
 
   .first-col {
-    @apply overflow-hidden text-night-500;
+    @apply overflow-hidden text-silver-500;
     a {
       @apply mb-2 inline md:inline-block;
     }

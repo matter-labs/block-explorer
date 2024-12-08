@@ -60,7 +60,7 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 import EthereumIcon from "@/components/icons/Ethereum.vue";
-import ChainIcon from "@/components/icons/ZkSync.vue";
+import ChainIcon from "@/components/icons/TreasureBadgeIcon.vue";
 
 import type { BatchListItem } from "@/composables/useBatches";
 import type { PropType } from "vue";
@@ -116,10 +116,10 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
     @apply rounded-t-lg;
 
     td {
-      @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
+      @apply relative flex flex-col items-end justify-end whitespace-normal text-sm text-right md:table-cell md:text-left text-cream;
 
       &:before {
-        @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-night-500 content-[attr(data-heading)] md:content-none;
+        @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-cream content-[attr(data-heading)] md:content-none;
       }
     }
   }
@@ -127,7 +127,7 @@ function getBadgeIconByStatus(status: BatchListItem["status"]) {
     @apply ml-1 inline-block w-5 align-sub;
   }
   td.batches-not-found {
-    @apply my-0 table-cell items-start justify-start bg-night-900 p-4 text-left text-night-500;
+    @apply my-0 table-cell items-start justify-start bg-night-900 p-4 text-left text-cream;
   }
   .copy-button-container {
     @apply flex w-fit;

@@ -42,7 +42,7 @@ function setBadgeColor(item: string, defaultColor: string) {
     }
   }
   &.color-neutral {
-    @apply bg-night-900 text-night-500;
+    @apply bg-night-900 text-silver-500;
 
     .badge-dot {
       @apply bg-neutral-600;
@@ -56,10 +56,10 @@ function setBadgeColor(item: string, defaultColor: string) {
     }
   }
   &.color-transparent {
-    @apply pl-0 text-night-500;
+    @apply pl-0 text-silver-500;
 
     .badge-dot {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
   }
 }

@@ -464,14 +464,14 @@ watchEffect(() => {
     .parent-child-item-header {
       @apply flex justify-between border-b px-2 py-1;
       .parent-child-type {
-        @apply font-mono text-night-500;
+        @apply font-mono text-silver-500;
       }
     }
   }
 }
 
 .parent-child-address {
-  @apply block max-w-sm text-left font-mono text-sm text-night-500;
+  @apply block max-w-sm text-left font-mono text-sm text-silver-500;
 }
 
 .debugger-metadata-block-container {
@@ -489,7 +489,7 @@ watchEffect(() => {
 .parent-child-header {
   @apply flex justify-between;
   .parent-child-type {
-    @apply font-mono text-sm text-night-500;
+    @apply font-mono text-sm text-silver-500;
   }
 }
 
@@ -498,12 +498,12 @@ watchEffect(() => {
   .debugger-header {
     @apply col-span-3 flex h-[52px] items-center justify-between whitespace-nowrap rounded-t-lg border border-r-0 border-solid border-night-800 bg-night-800 px-4;
     h2 {
-      @apply font-sans text-base font-medium text-night-500;
+      @apply font-sans text-base font-medium text-silver-500;
     }
     .full-screen-container {
       @apply flex items-center;
       span {
-        @apply mr-4 hidden text-night-500 lg:block;
+        @apply mr-4 hidden text-silver-500 lg:block;
       }
       button {
         @apply hidden sm:block;
@@ -529,9 +529,9 @@ watchEffect(() => {
     @apply px-2;
   }
   .file-list-item-data {
-    @apply sticky top-9 z-50 flex h-9 w-full cursor-pointer items-center gap-3 overflow-hidden border-b border-b-neutral-200 bg-night-1000 p-[6px] px-4 font-mono text-sm font-normal text-night-500 focus:bg-primary-100 focus:outline-0;
+    @apply sticky top-9 z-50 flex h-9 w-full cursor-pointer items-center gap-3 overflow-hidden border-b border-b-neutral-200 bg-night-1000 p-[6px] px-4 font-mono text-sm font-normal text-silver-500 focus:bg-primary-100 focus:outline-0;
     > label {
-      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-night-800 bg-night-800 px-1 font-sans text-sm font-normal text-night-500;
+      @apply inline-flex h-5 cursor-pointer items-center justify-center rounded border border-solid border-night-800 bg-night-800 px-1 font-sans text-sm font-normal text-silver-500;
     }
 
     .file-list-item-data-hash-label {
@@ -539,7 +539,7 @@ watchEffect(() => {
     }
 
     .toggle-button {
-      @apply ml-auto h-5 w-5 min-w-[20px] text-night-500;
+      @apply ml-auto h-5 w-5 min-w-[20px] text-silver-500;
     }
 
     &.disabled {

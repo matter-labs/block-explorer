@@ -64,7 +64,7 @@ const buttonText = computed(() => {
 
 <style lang="scss">
 .metamask-button {
-  @apply relative flex w-max min-w-[200px] rounded-lg bg-night-900 p-1 pl-2 pr-5 text-night-500;
+  @apply relative flex w-max min-w-[200px] rounded-lg bg-night-900 p-1 pl-2 pr-5 text-silver-500;
   &:not(.disabled) {
     @apply hover:bg-neutral-300;
   }

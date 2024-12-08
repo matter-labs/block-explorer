@@ -68,24 +68,24 @@ const model = computed({
 
 <style scoped lang="scss">
 .input-label {
-  @apply block text-sm font-medium text-night-100;
+  @apply block text-sm font-medium text-cream;
 }
 .search-icon-container {
   @apply pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3;
   .search-icon {
-    @apply z-10 h-5 w-5 text-night-100;
+    @apply z-10 h-5 w-5 text-cream;
   }
 }
 .error-message {
-  @apply absolute -bottom-5 text-xs text-error-600 lg:-bottom-7 lg:text-base;
+  @apply absolute -bottom-5 text-xs text-ruby-600 lg:-bottom-7 lg:text-sm;
 }
 .search-input-container {
   @apply relative flex items-center;
   .search-input {
-    @apply bg-night-1100 block w-full truncate rounded-md border border-night-800 py-3 pl-4 pr-16 leading-5 text-night-100 placeholder-neutral-400 shadow ring-inset placeholder:text-sm focus:border-primary-500 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm;
+    @apply bg-night-700/50 block w-full truncate rounded-md border border-night-500 py-3 pl-4 pr-16 leading-5 text-cream placeholder-neutral-400 ring-inset placeholder:text-sm focus:border-primary-500 focus:ring-primary-500 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm;
   }
   .has-error {
-    @apply border-error-300 text-error-900 placeholder-error-300 ring-error-300 focus:border-error-500 focus:ring-error-500;
+    @apply border-ruby-300 text-ruby-500 placeholder-ruby-200 ring-ruby-200 focus:border-ruby-300 focus:ring-error-300;
   }
 }
 .submit-icon-container {

@@ -15,7 +15,7 @@
   "networkStats": {
     "title": "Network Stats",
     "subtitleTestnet": "Stats are occasionally reset on testnet.",
-    "subtitleMainnet": "Treasure is open to everyone.",
+    "subtitleMainnet": "Discover the magic of play.",
     "committed": "Committed Blocks",
     "verified": "Verified Blocks",
     "transactions": "Transactions",
@@ -302,8 +302,8 @@
     }
   },
   "searchForm": {
-    "placeholder": "Search by address, batch number, contract, or tx hash",
-    "errorMessage": "Please, enter a correct query"
+    "placeholder": "Search by Address / Txn Hash / Batch Number / Contract",
+    "errorMessage": "Please enter a correct query."
   },
   "estimatedCost": {
     "title": "Estimated cost of transfers & interactions",
@@ -669,7 +669,7 @@
   },
   "document": {
     "title": "Treasurescan",
-    "home": "Transactions, Blocks, Contracts and much more"
+    "home": "Treasure (MAGIC) Block Explorer"
   },
   "notFound": {
     "title": "Oops, we can’t find anything",
@@ -678,11 +678,11 @@
     "contactSupport": "contact support"
   },
   "maintenance": {
-    "title": "ZKsync {network} is on maintainance",
-    "description": "ZKsync {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
-    "twitterLink": "ZKsync Developers",
+    "title": "{network} is on maintainance",
+    "description": "{network} is unavailable due to maintainance, you can find updates on our {twitter} or on {uptime}.",
+    "twitterLink": "Twitter",
     "uptimeLink": "UpTime",
-    "twitterButton": "ZKsync Developers"
+    "twitterButton": "Visit Twitter"
   },
   "tabs": {
     "transactions": "Transactions",

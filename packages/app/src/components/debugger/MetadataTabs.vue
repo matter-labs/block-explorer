@@ -145,7 +145,7 @@ const tabs = computed(() => [
         @apply flex-none;
       }
       .tab-btn {
-        @apply flex items-center px-2 py-1 text-sm font-normal text-night-500;
+        @apply flex items-center px-2 py-1 text-sm font-normal text-silver-500;
         .page-index {
           @apply ml-1 min-w-[20px] rounded bg-night-900 px-1 font-normal font-normal;
         }

@@ -37,7 +37,7 @@ defineProps({
     @apply mb-1 block font-medium leading-snug;
   }
   .form-item-underline {
-    @apply mt-1 text-sm text-night-500;
+    @apply mt-1 text-sm text-silver-500;
   }
 }
 .label-inline-block {

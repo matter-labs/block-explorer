@@ -55,7 +55,7 @@ const upload = (files: File[]) => {
   }
 }
 .upload-file {
-  @apply relative flex items-center justify-center  gap-1 whitespace-pre-line rounded-lg border border-dashed border-night-800 bg-night-800 py-8 text-base text-sm text-night-500 sm:py-12 sm:text-base;
+  @apply relative flex items-center justify-center  gap-1 whitespace-pre-line rounded-lg border border-dashed border-night-800 bg-night-800 py-8 text-base text-sm text-silver-500 sm:py-12 sm:text-base;
 
   &.active {
     @apply border-solid bg-night-900;

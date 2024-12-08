@@ -30,7 +30,7 @@
               <p class="not-found">{{ t("batches.table.notFoundHomePage") }}</p>
             </template>
           </TableBatches>
-          <Button variant="outlined" color="primary" @click="router.push('batches')">
+          <Button variant="outlined" color="bg-night-900" @click="router.push('batches')">
             {{ t("batches.viewAll") }}
             <ArrowRightIcon class="batches-view-all-arrow" />
           </Button>
@@ -53,7 +53,7 @@
             </TableBodyColumn>
           </template>
         </TransactionsTable>
-        <Button variant="outlined" color="primary" @click="router.push('transactions')">
+        <Button variant="outlined" color="bg-night-900" @click="router.push('transactions')">
           {{ t("transactions.viewAll") }}
           <ArrowRightIcon class="transactions-view-all-arrow" />
         </Button>
@@ -98,10 +98,10 @@ getBatches(1, new Date());
   @apply mt-4;
 
   .title {
-    @apply text-4xl font-bold text-white;
+    @apply text-4xl font-bold text-cream;
   }
   .subtitle {
-    @apply mt-2 text-base text-night-300 sm:text-lg;
+    @apply mt-2 text-base text-silver-200 sm:text-lg;
   }
 
   .section {
@@ -124,7 +124,7 @@ getBatches(1, new Date());
       @apply flex w-full flex-col;
     }
     p {
-      @apply mb-3 text-2xl font-bold text-night-100;
+      @apply mb-3 text-xl font-bold text-cream;
     }
     .error-message {
       @apply h-full;
@@ -149,7 +149,15 @@ getBatches(1, new Date());
     @apply mb-5 flex min-h-[calc(100vh-484px)] w-full items-center justify-center lg:mb-0 lg:min-h-0;
   }
   .not-found {
-    @apply whitespace-normal py-8 text-center text-night-500;
+    @apply whitespace-normal py-8 text-center text-silver-500;
+  }
+
+  .button {
+    @apply rounded-t-none rounded-b-lg border border-night-700;
+  }
+
+  .table-container {
+    @apply rounded-b-none border-b-0;
   }
 }
 </style>

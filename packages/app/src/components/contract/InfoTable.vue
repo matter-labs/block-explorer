@@ -99,14 +99,14 @@ const { t } = useI18n();
     }
   }
   .contract-info-field-label {
-    @apply text-night-500;
+    @apply text-silver-500;
   }
   .contract-info-field-value {
-    @apply text-night-500;
+    @apply text-silver-500;
   }
 
   .contract-not-found {
-    @apply px-1.5 py-2 text-night-500;
+    @apply px-1.5 py-2 text-silver-500;
   }
 }
 </style>

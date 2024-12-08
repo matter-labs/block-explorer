@@ -114,19 +114,19 @@ defineProps({
       @apply ml-3;
 
       .block-data-number {
-        @apply font-bold text-night-100;
+        @apply font-medium text-cream;
 
         a {
           @apply font-medium;
         }
       }
       .block-data-txns-amount {
-        @apply float-right text-xs text-night-500 md:float-none;
+        @apply float-right font-normal text-xs text-silver-500 md:float-none;
       }
     }
   }
   .block-data-status {
-    @apply text-xs font-bold capitalize text-night-100;
+    @apply text-sm font-medium capitalize text-cream;
   }
   .table-body {
     @apply rounded-t-lg;
@@ -135,12 +135,12 @@ defineProps({
       @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
 
       &:before {
-        @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-night-100 content-[attr(data-heading)] md:content-none;
+        @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-cream content-[attr(data-heading)] md:content-none;
       }
     }
   }
   td.blocks-not-found {
-    @apply my-0 table-cell items-start justify-start bg-night-1000 p-4 text-left text-night-100;
+    @apply my-0 table-cell items-start justify-start bg-night-1000 p-4 text-left text-cream;
   }
   .copy-button-container {
     @apply flex w-fit;

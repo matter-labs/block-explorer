@@ -12,7 +12,7 @@
           <CopyButton class="mr-1" tooltipPosition="left" :value="value" />
           <ChevronDownIcon
             :class="open ? 'rotate-180 transform' : ''"
-            class="h-5 w-5 text-gray-500 transition-transform"
+            class="h-5 w-5 text-silver-500 transition-transform"
           />
         </div>
       </DisclosureButton>
@@ -47,16 +47,16 @@ const truncatedAbi = computed<string>(() => {
 <style lang="scss">
 .info-field-abi-data {
   .abi-data-disclosure-btn {
-    @apply flex w-full items-center justify-between bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none [word-break:break-word];
+    @apply flex w-full items-center justify-between bg-silver-200 px-4 py-2 text-left text-sm font-medium text-silver-900 hover:bg-silver-200 focus:outline-none [word-break:break-word];
   }
   .abi-data-disclosure-icons {
     @apply flex items-center;
   }
   .abi-data-disclosure-panel {
-    @apply rounded-bl-lg rounded-br-lg border border-t-0 border-dashed border-gray-300 px-4 py-4;
+    @apply rounded-bl-lg rounded-br-lg border border-t-0 border-dashed border-silver-300 px-4 py-4;
 
     .abi-data-full-value {
-      @apply overflow-hidden whitespace-pre-line break-words break-all text-sm text-gray-700;
+      @apply overflow-hidden whitespace-pre-line break-words break-all text-sm text-silver-700;
     }
   }
 }

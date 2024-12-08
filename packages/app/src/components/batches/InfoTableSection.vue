@@ -85,14 +85,14 @@ defineProps({
     @apply flex items-center;
 
     .batch-info-field-label {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
     .batch-info-field-tooltip {
       @apply ml-1;
     }
   }
   .batch-info-field-value {
-    @apply text-night-100;
+    @apply text-cream;
   }
 }
 </style>

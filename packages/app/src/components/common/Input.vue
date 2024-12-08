@@ -65,10 +65,10 @@ const inputted = computed({
   .input {
     @apply block w-full rounded-md border border-night-800 bg-night-800 p-3 text-sm shadow-sm transition-colors focus:outline-none;
     &:disabled {
-      @apply cursor-not-allowed bg-night-900 text-night-500;
+      @apply cursor-not-allowed bg-night-900 text-silver-500;
     }
     &::placeholder {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
     &:not(.error) {
       @apply border-night-800 focus:border-primary-600 focus:ring-primary-600;

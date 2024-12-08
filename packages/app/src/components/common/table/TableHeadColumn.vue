@@ -8,6 +8,6 @@
 
 <style>
 .table-head-col {
-  @apply whitespace-nowrap px-2 py-3 text-left text-xs font-medium uppercase tracking-wider text-night-500 first:pl-6 last:pr-6;
+  @apply whitespace-nowrap px-2 py-3 text-left text-xs font-light uppercase tracking-wider text-silver-500 first:pl-6 last:pr-6;
 }
 </style>

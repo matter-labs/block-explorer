@@ -19,7 +19,7 @@ import Tooltip from "@/components/common/Tooltip.vue";
 <style lang="scss">
 .info-tooltip {
   .info-tooltip-icon {
-    @apply h-4 w-4 text-night-500;
+    @apply h-4 w-4 text-silver-500;
   }
   .info-tooltip-text {
     @apply z-10;

@@ -1,5 +1,5 @@
 <template>
-  <Tippy v-bind="$attrs" theme="light" :on-show="() => (disabled ? false : undefined)">
+  <Tippy v-bind="$attrs" theme="dark" :on-show="() => (disabled ? false : undefined)">
     <template #default>
       <slot />
     </template>
@@ -30,14 +30,14 @@ defineProps({
 
 <style lang="scss">
 .tippy-box {
-  @apply rounded-lg text-sm;
-  &[data-theme~="light"] {
-    @apply bg-neutral-400 text-white;
+  @apply rounded-lg text-sm shadow-sm shadow-night-900;
+  &[data-theme~="dark"] {
+    @apply bg-night-500 text-silver-400;
     &[data-placement^="top"] > .tippy-arrow:before {
-      @apply border-t-neutral-400;
+      @apply border-t-night-500;
     }
     &[data-placement^="bottom"] > .tippy-arrow:before {
-      @apply border-b-neutral-400;
+      @apply border-b-night-500;
     }
   }
 }

@@ -21,7 +21,7 @@ defineProps({
 </script>
 <style lang="scss" scoped>
 .label-container {
-  @apply h-5 w-8 rounded text-center text-xs uppercase leading-5;
+  @apply h-5 w-12 rounded text-center text-xs uppercase leading-5;
 }
 .incoming {
   @apply bg-[#C7F5D3] text-[#4CA154];
@@ -30,6 +30,6 @@ defineProps({
   @apply bg-[#fcf5e5] text-[#E59900];
 }
 .self {
-  @apply bg-[#068fca1f] text-[#068FCA];
+  @apply bg-sapphire-900 text-sapphire-500;
 }
 </style>

@@ -8,18 +8,20 @@
           {{ currentNetwork.l2NetworkName }}
         </template>
         <template #twitter>
-          <a href="https://twitter.com/ZKsyncDevs" target="_blank">{{ t("maintenance.twitterLink") }}</a>
+          <a href="https://twitter.com/Treasure_DAO" target="_blank">{{ t("maintenance.twitterLink") }}</a>
         </template>
         <template #uptime>
           <a href="https://uptime.com/statuspage/era" target="_blank">{{ t("maintenance.uptimeLink") }}</a>
         </template>
       </i18n-t>
-      <Button class="twitter-button" tag="a" href="https://twitter.com/ZKsyncDevs" target="_blank">
-        {{ t("maintenance.twitterButton") }}
-      </Button>
-      <a class="uptime-link" href="https://uptime.com/statuspage/era" target="_blank">
-        {{ t("maintenance.uptimeLink") }}
-      </a>
+      <div class="flex gap-2">
+        <Button class="twitter-button" tag="a" href="https://twitter.com/Treasure_DAO" target="_blank">
+          {{ t("maintenance.twitterButton") }}
+        </Button>
+        <Button class="uptime-button" tag="a" href="https://uptime.com/statuspage/era" target="_blank">
+          {{ t("maintenance.uptimeLink") }}
+        </Button>
+      </div>
     </div>
   </div>
 </template>
@@ -43,16 +45,16 @@ const { currentNetwork } = useContext();
     @apply grid h-max w-max max-w-[29rem] grid-flow-row justify-items-center gap-4 rounded-lg bg-night-1000 p-4 text-center shadow-md;
 
     .title {
-      @apply mt-1 text-2xl text-night-500;
+      @apply mt-1 text-2xl text-cream;
     }
     .description {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
     .twitter-button {
-      @apply w-max no-underline;
+      @apply w-max no-underline bg-ruby-600 hover:bg-ruby-700;
     }
-    .uptime-link {
-      @apply text-night-500;
+    .uptime-button {
+      @apply w-max no-underline bg-transparent border-night-100 hover:bg-night-400;
     }
   }
 }

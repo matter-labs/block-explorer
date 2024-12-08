@@ -54,7 +54,7 @@ defineProps({
 
 <style lang="scss">
 .table-container {
-  @apply w-full rounded-lg shadow-md border border-night-800;
+  @apply w-full rounded-lg border border-night-700;
 
   .table-body {
     @apply w-full overflow-auto;
@@ -87,15 +87,15 @@ defineProps({
     @apply w-full border-collapse border-none;
 
     thead {
-      @apply md:border-b md:border-night-800;
+      @apply md:border-b md:border-night-700;
 
       tr th {
-        @apply bg-night-1200;
+        @apply bg-night-1000;
       }
     }
     tbody {
       tr {
-        @apply transition last:border-b-0 odd:bg-night-1100 even:bg-night-1000 md:border-b md:border-night-800;
+        @apply transition last:border-b-0 odd:bg-night-800 even:bg-night-900 md:border-b md:border-night-700;
       }
     }
   }

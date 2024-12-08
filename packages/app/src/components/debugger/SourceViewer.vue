@@ -258,10 +258,10 @@ onUnmounted(() => {
 }
 
 .instruction-list-item {
-  @apply absolute grid h-[v-bind('ITEM_HEIGHT+"px"')] w-full grid-cols-[50px_minmax(0,_1fr)_max-content] items-center gap-4 whitespace-pre px-4 font-mono text-sm font-normal leading-6 text-night-500;
+  @apply absolute grid h-[v-bind('ITEM_HEIGHT+"px"')] w-full grid-cols-[50px_minmax(0,_1fr)_max-content] items-center gap-4 whitespace-pre px-4 font-mono text-sm font-normal leading-6 text-silver-500;
 
   .toggle-button {
-    @apply ml-auto h-5 w-5 text-night-500;
+    @apply ml-auto h-5 w-5 text-silver-500;
   }
   > .instruction-list-item-text-container {
     @apply overflow-hidden text-ellipsis whitespace-pre;

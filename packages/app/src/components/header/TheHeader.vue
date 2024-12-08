@@ -39,11 +39,11 @@
         </div>
       </div>
     </div>
-    <div
+    <!-- <div
       v-if="hasContent"
       class="hero-banner-container"
       :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
-    ></div>
+    ></div> -->
     <transition
       enter-active-class="duration-200 ease-out"
       enter-from-class="scale-95 opacity-0"
@@ -57,7 +57,7 @@
           <div class="mobile-header-container">
             <div class="mobile-popover-navigation">
               <div class="popover-zksync-logo">
-                <zk-sync class="logo" />
+                <TreasureIcon class="logo" />
               </div>
               <div class="-mr-2">
                 <PopoverButton class="close-popover-button">
@@ -121,9 +121,9 @@ import LinksPopover from "./LinksPopover.vue";
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
 import DiscordIcon from "@/components/icons/DiscordIcon.vue";
+import TreasureIcon from "@/components/icons/TreasureIcon.vue";
 import TreasureLogo from "@/components/icons/TreasureLogo.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
-import ZkSync from "@/components/icons/ZkSync.vue";
 
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
@@ -137,7 +137,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/zksync-block-explorers",
+    url: "https://docs.treasure.lol",
   },
 ]);
 
@@ -181,8 +181,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://discord.com/invite/treasuredao", component: DiscordIcon },
-  { url: "https://twitter.com/Treasure_DAO", component: TwitterIcon },
+  { url: "https://discord.gg/treasuredao", component: DiscordIcon },
+  { url: "https://x.com/Treasure_DAO", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
@@ -204,7 +204,7 @@ const hasContent = computed(() => {
 
 <style lang="scss">
 .header-popover-container {
-  @apply relative border-b border-night-1000;
+  @apply relative border-b border-night-400 bg-night-1000/50 sm:blur-none blur-xl z-20;
   .header-wrap {
     @apply container z-50;
   }
@@ -217,7 +217,7 @@ const hasContent = computed(() => {
   .burger-button-container {
     @apply -my-2 -mr-2 lg:hidden;
     .burger-button {
-      @apply inline-flex items-center justify-center rounded-md border border-night-800 p-2 text-night-500 hover:bg-night-800 hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-night-100;
+      @apply inline-flex items-center justify-center rounded-md border border-night-800 p-2 text-silver-500 hover:bg-night-700 hover:text-cream focus:outline-none focus:ring-2 focus:ring-inset focus:ring-night-100;
     }
   }
   .navigation-container {
@@ -227,9 +227,9 @@ const hasContent = computed(() => {
       @apply relative;
 
       .navigation-link {
-        @apply flex items-center;
+        @apply flex items-center text-sm;
         &.active {
-          @apply bg-night-1100;
+          @apply bg-night-1000;
 
           .dropdown-icon {
             @apply -rotate-180;
@@ -241,18 +241,22 @@ const hasContent = computed(() => {
         }
       }
       .dropdown-items {
-        @apply absolute left-0 mt-1 grid w-80 origin-top-left grid-flow-row gap-4 rounded-md bg-night-1000 p-4 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none;
+        @apply absolute left-0 mt-1 grid w-80 origin-top-left grid-flow-row gap-4 rounded-md bg-night-900 border-night-700 p-4 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none;
 
         .dropdown-item {
-          @apply block rounded-md p-2 text-sm text-night-100 no-underline;
+          @apply block rounded-md p-2 text-sm text-cream no-underline hover:bg-night-800;
           &.router-link-exact-active {
-            @apply bg-night-900;
+            @apply bg-night-700;
           }
         }
       }
     }
     .navigation-link {
-      @apply rounded-md py-2.5 text-base font-medium text-night-100 no-underline hover:bg-primary-800 md:px-3.5;
+      @apply rounded-md py-2.5 text-sm font-medium text-cream no-underline hover:bg-night-700 md:px-3.5;
+
+      &.active {
+        @apply bg-night-700;
+      }
     }
 
     .router-link-exact-active {
@@ -294,7 +298,7 @@ const hasContent = computed(() => {
     @apply divide-y-2 divide-neutral-50 rounded-lg  shadow-lg ring-1 ring-black ring-opacity-5;
 
     .mobile-header-container {
-      @apply px-5 pb-6 pt-5;
+      @apply px-5 pb-6 pt-5 bg-night-900;
 
       .mobile-popover-navigation {
         @apply flex items-center justify-between;
@@ -304,7 +308,7 @@ const hasContent = computed(() => {
         }
 
         .close-popover-button {
-          @apply inline-flex items-center justify-center rounded-md bg-night-1000 p-2 text-night-500 hover:bg-night-800 hover:text-night-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
+          @apply inline-flex items-center justify-center rounded-md bg-night-1000 p-2 text-silver-500 hover:bg-night-700 hover:text-cream focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500;
         }
       }
       .mobile-navigation-container {
@@ -317,7 +321,7 @@ const hasContent = computed(() => {
           @apply grid gap-y-4;
 
           .mobile-navigation-link {
-            @apply flex items-center rounded-md p-2 no-underline hover:bg-night-800;
+            @apply flex items-center rounded-md p-2 no-underline hover:bg-night-700;
             &.router-link-exact-active {
               @apply bg-primary-100;
             }
@@ -328,7 +332,7 @@ const hasContent = computed(() => {
             }
 
             .mobile-navigation-label {
-              @apply text-base font-medium leading-snug text-night-500;
+              @apply text-base font-medium leading-snug text-silver-500;
             }
           }
         }

@@ -117,10 +117,10 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
   }
   .token-info {
     .token-symbol {
-      @apply text-night-500;
+      @apply text-silver-500;
     }
     .token-name {
-      @apply text-xs text-night-500;
+      @apply text-xs text-silver-500;
     }
   }
 }
