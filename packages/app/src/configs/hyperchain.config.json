@@ -9,7 +9,7 @@
       "l1ExplorerUrl": "https://etherscan.io",
       "l2ChainId": 61166,
       "l2NetworkName": "Treasure",
-      "maintenance": true,
+      "maintenance": false,
       "name": "Treasure",
       "published": true,
       "rpcUrl": "https://rpc.treasure.lol",
