@@ -23,9 +23,6 @@
     "db:drop": "lerna run db:drop",
     "hyperchain:configure": "ts-node scripts/setup-hyperchain-config"
   },
-  "dependencies": {
-    "@treasure-dev/tailwind-config": "^4.3.0"
-  },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
