@@ -204,7 +204,7 @@ const hasContent = computed(() => {
 
 <style lang="scss">
 .header-popover-container {
-  @apply relative border-b border-night-400 bg-night-1000/50 sm:blur-none blur-xl z-20;
+  @apply relative border-b border-night-400 bg-night-1000/50 z-20;
   .header-wrap {
     @apply container z-50;
   }
@@ -295,7 +295,7 @@ const hasContent = computed(() => {
   @apply absolute inset-x-0 top-0 z-50 origin-top-right transform p-2 transition lg:hidden;
 
   .mobile-header-wrap {
-    @apply divide-y-2 divide-neutral-50 rounded-lg  shadow-lg ring-1 ring-black ring-opacity-5;
+    @apply divide-y-2 divide-neutral-50 rounded-lg shadow-lg ring-1 ring-black ring-opacity-5;
 
     .mobile-header-container {
       @apply px-5 pb-6 pt-5 bg-night-900;
