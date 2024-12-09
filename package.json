@@ -1,12 +1,24 @@
 {
   "name": "block-explorer",
   "version": "1.0.0-development",
-  "title": "ZKsync Era Block Explorer",
-  "description": "ZKsync Era Block Explorer",
-  "author": "Matter Labs",
+  "title": "Treasure Block Explorer",
+  "description": "Treasurescan provides all the information to dive into transactions, blocks, contracts, tokens, NFTs, and much more within the Treasure network.",
+  "author": "Treasure",
+  "homepage": "https://treasure.lol",
   "license": "MIT",
-  "repository": "https://github.com/matter-labs/block-explorer",
+  "repository": "https://github.com/TreasureProject/block-explorer",
   "private": true,
+  "bugs": {
+    "url": "https://github.com/TreasureProject/block-explorer/issues"
+  },
+  "contributors": [
+    {
+      "author": "Matter Labs (https://github.com/matter-labs)"
+    },
+    {
+      "author": "Treasure (https://github.com/TreasureProject)"
+    }
+  ],
   "workspaces": [
     "packages/*"
   ],
