@@ -145,7 +145,7 @@ describe("TransactionService", () => {
         l1BatchNumber: blockDetails.l1BatchNumber,
         receiptStatus: transactionReceipt.status,
         to: undefined,
-        contractAddress: "",
+        contractAddress: "0x",
       });
     });
 
@@ -186,7 +186,7 @@ describe("TransactionService", () => {
             revertReason: traceTransactionResult.revertReason,
             isEvmLike: false,
             to: undefined,
-            contractAddress: "",
+            contractAddress: "0x",
           });
         });
       });
@@ -202,7 +202,7 @@ describe("TransactionService", () => {
             receiptStatus: 0,
             isEvmLike: false,
             to: undefined,
-            contractAddress: "",
+            contractAddress: "0x",
           });
         });
       });
