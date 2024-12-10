@@ -33,5 +33,11 @@ describe("normalizeAddressTransformer", () => {
       const result = normalizeAddressTransformer.from(buffer);
       expect(result).toStrictEqual("0xF754FF5E8A6F257e162F72578a4bB0493c068111");
     });
+
+    it("returns empty string for empty buffer", () => {
+      const buffer = Buffer.from("", "hex");
+      const result = normalizeAddressTransformer.from(buffer);
+      expect(result).toStrictEqual("");
+    });
   });
 });

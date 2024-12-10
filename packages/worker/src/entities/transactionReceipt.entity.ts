@@ -18,8 +18,8 @@ export class TransactionReceipt extends CountableEntity {
   @JoinColumn({ name: "transactionHash" })
   private readonly _transaction: never;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
-  public readonly to: string;
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly to?: string;
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly from: string;
@@ -67,4 +67,7 @@ export class TransactionReceipt extends CountableEntity {
 
   @Column({ type: "int" })
   public readonly status: number;
+
+  @Column({ type: "boolean", nullable: true })
+  public readonly isEvmLike?: boolean;
 }

@@ -84,6 +84,7 @@ describe("AddressService", () => {
           transactionHash: transactionReceipt.hash,
           creatorAddress: transactionReceipt.from,
           logIndex: logs[0].index,
+          isEvmLike: false,
         },
         {
           address: "0xD144ca8Aa2E7DFECD56a3CCcBa1cd873c8e5db58",
@@ -92,6 +93,7 @@ describe("AddressService", () => {
           transactionHash: transactionReceipt.hash,
           creatorAddress: transactionReceipt.from,
           logIndex: logs[2].index,
+          isEvmLike: false,
         },
       ]);
     });
