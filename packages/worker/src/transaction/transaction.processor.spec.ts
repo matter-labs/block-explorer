@@ -138,7 +138,6 @@ describe("TransactionProcessor", () => {
         effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
         type: transactionData.transaction.type,
         isEvmLike: transactionData.transaction.isEvmLike,
-        contractAddress: transactionData.transaction.contractAddress,
       });
     });
 
