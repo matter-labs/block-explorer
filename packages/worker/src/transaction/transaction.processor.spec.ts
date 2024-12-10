@@ -84,6 +84,7 @@ describe("TransactionProcessor", () => {
         receivedAt: "2023-12-29T06:52:51.438Z",
         type: 3,
         isEvmLike: false,
+        contractAddress: null,
       },
       transactionReceipt: {
         hash: "transactionHash",
@@ -137,6 +138,7 @@ describe("TransactionProcessor", () => {
         effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
         type: transactionData.transaction.type,
         isEvmLike: transactionData.transaction.isEvmLike,
+        contractAddress: transactionData.transaction.contractAddress,
       });
     });
 

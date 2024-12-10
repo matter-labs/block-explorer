@@ -223,7 +223,7 @@ export function mapTransaction(
     },
     value: transaction.value,
     from: transaction.from,
-    to: transaction.to,
+    to: transaction.isEvmLike && transaction.contractAddress ? transaction.contractAddress : transaction.to,
     ethCommitTxHash: transaction.commitTxHash ?? null,
     ethExecuteTxHash: transaction.executeTxHash ?? null,
     ethProveTxHash: transaction.proveTxHash ?? null,

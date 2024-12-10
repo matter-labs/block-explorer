@@ -212,4 +212,12 @@ export class TransactionDto {
     nullable: true,
   })
   public readonly isEvmLike?: boolean;
+
+  @ApiProperty({
+    type: String,
+    description: "Address of the first deployed EVM contract",
+    example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    nullable: true,
+  })
+  public readonly contractAddress?: string;
 }

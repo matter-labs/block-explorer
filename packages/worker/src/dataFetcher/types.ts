@@ -79,6 +79,7 @@ export interface TransactionInfo
   error?: string;
   revertReason?: string;
   isEvmLike?: boolean;
+  contractAddress?: string;
 }
 
 export type TransactionReceipt = Modify<

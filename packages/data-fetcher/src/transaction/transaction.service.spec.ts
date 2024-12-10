@@ -185,6 +185,7 @@ describe("TransactionService", () => {
             revertReason: traceTransactionResult.revertReason,
             isEvmLike: false,
             to: undefined,
+            contractAddress: null,
           });
         });
       });
@@ -200,6 +201,7 @@ describe("TransactionService", () => {
             receiptStatus: 0,
             isEvmLike: false,
             to: undefined,
+            contractAddress: null,
           });
         });
       });

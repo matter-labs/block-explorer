@@ -98,4 +98,7 @@ export class Transaction extends CountableEntity {
 
   @Column({ type: "boolean", nullable: true })
   public readonly isEvmLike?: boolean;
+
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly contractAddress?: string;
 }

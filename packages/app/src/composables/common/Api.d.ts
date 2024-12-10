@@ -95,6 +95,7 @@ declare namespace Api {
       error: string | null;
       revertReason: string | null;
       isEvmLike: boolean;
+      contractAddress: string | null;
     };
 
     type Transfer = {

@@ -42,6 +42,7 @@ export class TransactionProcessor {
       ...transactionData.transaction,
       transactionIndex: transactionData.transaction.index,
       isEvmLike: transactionData.transaction.isEvmLike,
+      contractAddress: transactionData.transaction.contractAddress,
     });
 
     this.logger.debug({

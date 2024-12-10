@@ -14,6 +14,7 @@ export interface TransactionInfo extends types.TransactionResponse {
   error?: string;
   revertReason?: string;
   isEvmLike?: boolean;
+  contractAddress?: string;
 }
 
 export interface TransactionData extends LogsData {
@@ -81,13 +82,15 @@ export class TransactionService {
     );
 
     const isEvmLike = transactionInfo.to === null;
-    const toAddress =
-      isEvmLike && logsData.contractAddresses?.length > 0 ? logsData.contractAddresses[0].address : transactionInfo.to;
+    const toAddress = isEvmLike ? "0x" : transactionInfo.to;
+    const contractAddress =
+      isEvmLike && logsData.contractAddresses?.length > 0 ? logsData.contractAddresses[0].address : "";
 
     const updatedTransactionInfo = {
       ...transactionInfo,
       isEvmLike,
       to: toAddress,
+      contractAddress,
     } as unknown as TransactionInfo;
 
     stopTransactionProcessingMeasuring();

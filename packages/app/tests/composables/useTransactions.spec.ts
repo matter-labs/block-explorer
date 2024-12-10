@@ -34,6 +34,7 @@ const transaction: TransactionListItem = {
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
   isEvmLike: true,
+  contractAddress: null,
   error: null,
   revertReason: null,
 };

@@ -110,6 +110,9 @@ export class Transaction extends BaseEntity {
   @Column({ type: "boolean", nullable: true })
   public readonly isEvmLike?: boolean;
 
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly contractAddress?: string;
+
   public get status(): TransactionStatus {
     if (this.receiptStatus === 0) {
       return TransactionStatus.Failed;
