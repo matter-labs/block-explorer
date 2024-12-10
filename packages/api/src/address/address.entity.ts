@@ -21,4 +21,7 @@ export class Address extends BaseEntity {
 
   @Column({ type: "bytea", nullable: true, transformer: normalizeAddressTransformer })
   public readonly creatorAddress?: string;
+
+  @Column({ type: "boolean", nullable: true })
+  public readonly isEvmLike?: boolean;
 }
