@@ -14,7 +14,7 @@ export class TransactionDto {
     description: "The address this transaction is to",
     example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
   })
-  public readonly to?: string;
+  public readonly to: string;
 
   @ApiProperty({
     type: String,

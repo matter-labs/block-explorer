@@ -31,8 +31,8 @@ export class Transaction extends BaseEntity {
   @Column({ generated: true, type: "bigint" })
   public number: number;
 
-  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
-  public readonly to?: string;
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
+  public readonly to: string;
 
   @Index()
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
@@ -110,7 +110,7 @@ export class Transaction extends BaseEntity {
   @Column({ type: "boolean", nullable: true })
   public readonly isEvmLike?: boolean;
 
-  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
   public readonly contractAddress?: string;
 
   public get status(): TransactionStatus {

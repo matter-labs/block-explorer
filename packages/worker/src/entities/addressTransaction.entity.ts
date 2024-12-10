@@ -35,7 +35,4 @@ export class AddressTransaction extends BaseEntity {
 
   @Column({ type: "int" })
   public readonly transactionIndex: number;
-
-  @Column({ type: "boolean", nullable: true })
-  public readonly isEvmLike?: boolean;
 }

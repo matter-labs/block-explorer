@@ -86,7 +86,7 @@ export class TransactionService {
     const toAddress = isEvmLike ? "0x" : transactionInfo.to;
     const contractAddress = isEvmLike
       ? getCreateAddress({ from: transactionInfo.from, nonce: transactionInfo.nonce })
-      : "";
+      : "0x";
 
     const updatedTransactionInfo = {
       ...transactionInfo,
