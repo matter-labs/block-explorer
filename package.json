@@ -59,5 +59,8 @@
   "engines": {
     "npm": ">=9.0.0",
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@gtm-support/vue-gtm": "^3.1.0"
   }
 }

@@ -1,6 +1,8 @@
 import { computed, createApp } from "vue";
 import { createI18n } from "vue-i18n";
 
+import { createGtm } from "@gtm-support/vue-gtm";
+
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";
 
@@ -32,12 +34,17 @@ const i18n = createI18n<[MessageSchema], "en">({
   },
 });
 
+const context = useContext();
+
 app.use(router);
 app.use(i18n);
 app.use(testId);
+app.use(
+  createGtm({
+    id: "GTM-P32NGSC3",
+  })
+);
 const runtimeConfig = useRuntimeConfig();
-
-const context = useContext();
 
 const { initialize: initializeWallet } = useWallet({
   ...context,
