@@ -48,6 +48,9 @@ module.exports = {
             maxWidth: "1240px",
           },
         },
+        ".text-nowrap": {
+          textWrap: "nowrap",
+        },
       });
     },
   ],
