@@ -11,6 +11,7 @@
   "initiatorsAddress": "initiators-address",
   "fromAddress": "from-address",
   "optimizationRadioButtons": "radio-buttons",
+  "enableEraVMExtensionsRadioButtons": "radio-buttons",
   "pageTitle": "page-title",
   "previousInstructionButton": "previous-instruction-navigation-button",
   "showInstructionMetadataButton": "show-instruction-metadata-button",

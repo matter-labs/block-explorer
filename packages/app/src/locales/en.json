@@ -456,6 +456,14 @@
                 },
                 "underline": "If you enabled optimization during compilation, select yes."
             },
+            "enableEraVMExtensionsUsed": {
+                "label": "Enable EraVM Extensions",
+                "options": {
+                    "yes": "Yes",
+                    "no": "No"
+                },
+                "underline": "If you enabled EraVM Extensions during compilation, select yes."
+            },
             "solcVersion": {
                 "label": "Solc Version",
                 "placeholder": "Choose version",
