@@ -115,7 +115,7 @@ describe("useContractInteraction:", () => {
         },
         {
           [PAYABLE_AMOUNT_PARAM_NAME]: "0.1",
-          address: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
+          spender: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
         }
       );
       expect(mock.mock.lastCall).toEqual([
@@ -162,7 +162,7 @@ describe("useContractInteraction:", () => {
         "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
         {
           ...abiFragment,
-          inputs: [],
+          inputs: [{ internalType: "bool", name: "bool", type: "bool" }],
           stateMutability: "payable",
         },
         {
