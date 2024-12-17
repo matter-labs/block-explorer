@@ -121,6 +121,8 @@ import useContext from "@/composables/useContext";
 
 import config from "@/configs/hyperchain.config.json";
 
+import type { NavLink } from "@/types";
+
 const { t } = useI18n({ useScope: "global" });
 const { currentNetwork } = useContext();
 
@@ -153,11 +155,7 @@ const blockExplorerLinks = reactive([
   },
 ]);
 
-const links = [
-  {
-    label: computed(() => t("header.nav.apiDocs")),
-    url: computed(() => `${config.networks[0].apiUrl}/docs`),
-  },
+const links: NavLink[] = [
   {
     label: computed(() => t("header.nav.contractVerification")),
     to: { name: "contract-verification" },
