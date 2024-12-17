@@ -1,3 +1,5 @@
+import type { ComputedRef } from "vue";
+
 export type Hash = `0x${string}` | string;
 
 export type Address = Hash;
@@ -59,3 +61,9 @@ export type ContractVerificationData = {
 };
 
 export type ContractVerificationStatus = "successful" | "failed" | "in_progress" | "queued";
+
+export type NavLink = {
+  label: ComputedRef<string>;
+  to?: { name: string };
+  url?: ComputedRef<string>;
+};
