@@ -12,7 +12,8 @@ export class TransactionDto {
   @ApiProperty({
     type: String,
     description: "The address this transaction is to",
-    example: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
     nullable: true,
   })
   public readonly to?: string;
@@ -207,17 +208,17 @@ export class TransactionDto {
   public readonly revertReason?: string;
 
   @ApiProperty({
-    type: Boolean,
-    description: "Is the transaction EVM-like",
-    example: true,
-    nullable: true,
+    type: String,
+    description: "Gas used by the transaction",
+    example: "50000000",
   })
-  public readonly isEvmLike?: boolean;
+  public readonly gasUsed: string;
 
   @ApiProperty({
     type: String,
-    description: "Address of the first deployed EVM contract",
-    example: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    description: "Address of the deployed contract",
+    example: "50000000",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
     nullable: true,
   })
   public readonly contractAddress?: string;

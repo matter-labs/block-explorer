@@ -107,12 +107,6 @@ export class Transaction extends BaseEntity {
   @Column({ nullable: true })
   public readonly revertReason?: string;
 
-  @Column({ type: "boolean", nullable: true })
-  public readonly isEvmLike?: boolean;
-
-  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
-  public readonly contractAddress?: string;
-
   public get status(): TransactionStatus {
     if (this.receiptStatus === 0) {
       return TransactionStatus.Failed;
@@ -147,9 +141,17 @@ export class Transaction extends BaseEntity {
     return !!this.batch;
   }
 
+  public get gasUsed(): string {
+    return this.transactionReceipt ? this.transactionReceipt.gasUsed : null;
+  }
+
+  public get contractAddress(): string {
+    return this.transactionReceipt ? this.transactionReceipt.contractAddress : null;
+  }
+
   toJSON(): any {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, receiptStatus, batch, ...restFields } = this;
+    const { number, receiptStatus, batch, transactionReceipt, ...restFields } = this;
     return {
       ...restFields,
       status: this.status,
@@ -157,6 +159,8 @@ export class Transaction extends BaseEntity {
       executeTxHash: this.executeTxHash,
       proveTxHash: this.proveTxHash,
       isL1BatchSealed: this.isL1BatchSealed,
+      gasUsed: this.gasUsed,
+      contractAddress: this.contractAddress,
     };
   }
 }

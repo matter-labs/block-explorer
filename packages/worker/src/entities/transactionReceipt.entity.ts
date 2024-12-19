@@ -67,7 +67,4 @@ export class TransactionReceipt extends CountableEntity {
 
   @Column({ type: "int" })
   public readonly status: number;
-
-  @Column({ type: "boolean", nullable: true })
-  public readonly isEvmLike?: boolean;
 }
