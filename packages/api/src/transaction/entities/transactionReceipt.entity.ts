@@ -11,6 +11,9 @@ export class TransactionReceipt extends BaseEntity {
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly from: string;
 
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly to?: string;
+
   @Index()
   @Column({ type: "bytea", nullable: true, transformer: normalizeAddressTransformer })
   public readonly contractAddress?: string;

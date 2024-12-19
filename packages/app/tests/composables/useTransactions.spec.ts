@@ -33,6 +33,7 @@ const transaction: TransactionListItem = {
   gasPerPubdata: "800",
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
+  contractAddress: null,
   error: null,
   revertReason: null,
 };

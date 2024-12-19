@@ -111,8 +111,17 @@
             </span>
             <span class="transactions-data-link">
               <TransactionNetworkSquareBlock :network="item.toNetwork" />
-              <AddressLink :address="item.to" :network="item.toNetwork" class="transactions-data-link-value">
-                {{ shortenFitText(item.to, "left", 125) }}
+              <AddressLink
+                v-if="!!item.displayedTxReceiver"
+                :address="item.displayedTxReceiver"
+                :network="item.toNetwork"
+                class="transactions-data-link-value"
+              >
+                {{
+                  item.isContractDeploymentTx
+                    ? t("contract.contractCreated")
+                    : shortenFitText(item.displayedTxReceiver, "left", 125)
+                }}
               </AddressLink>
             </span>
           </div>
@@ -133,12 +142,17 @@
         <span class="transactions-data-link">
           <TransactionNetworkSquareBlock :network="item.toNetwork" />
           <AddressLink
+            v-if="!!item.displayedTxReceiver"
             :data-testid="$testId.toAddress"
-            :address="item.to"
+            :address="item.displayedTxReceiver"
             :network="item.toNetwork"
             class="transactions-data-link-value"
           >
-            {{ shortenFitText(item.to, "left", 125) }}
+            {{
+              item.isContractDeploymentTx
+                ? t("contract.contractCreated")
+                : shortenFitText(item.displayedTxReceiver, "left", 125)
+            }}
           </AddressLink>
         </span>
       </TableBodyColumn>
@@ -225,7 +239,7 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 import type { NetworkOrigin } from "@/types";
 
-import { utcStringFromISOString } from "@/utils/helpers";
+import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
 
@@ -325,17 +339,24 @@ type TransactionListItemMapped = TransactionListItem & {
   toNetwork: NetworkOrigin;
   statusIcon: unknown;
   statusColor: "danger" | "dark-success";
+  isContractDeploymentTx: boolean;
+  displayedTxReceiver: string | null;
 };
 
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
-  return data.value?.map((transaction) => ({
-    ...transaction,
-    methodName: getTransactionMethod(transaction, methodNames.value),
-    fromNetwork: transaction.isL1Originated ? "L1" : "L2",
-    toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
-    statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-    statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
-  }));
+  return data.value?.map((transaction) => {
+    const isContractDeploymentTx = isContractDeployerAddress(transaction.to) && !!transaction.contractAddress;
+    return {
+      ...transaction,
+      methodName: getTransactionMethod(transaction, methodNames.value),
+      fromNetwork: transaction.isL1Originated ? "L1" : "L2",
+      toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
+      statusColor: transaction.status === "failed" ? "danger" : "dark-success",
+      statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
+      isContractDeploymentTx,
+      displayedTxReceiver: isContractDeploymentTx ? transaction.contractAddress : transaction.to,
+    };
+  });
 });
 
 const isHighRowsSize = computed(() => props.columns.includes("fee"));

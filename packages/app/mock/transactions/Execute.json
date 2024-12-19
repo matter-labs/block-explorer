@@ -171,5 +171,7 @@
   "gasUsed": "3000",
   "gasPerPubdata": "800",
   "maxFeePerGas": "7000",
-  "maxPriorityFeePerGas": "8000"
+  "maxPriorityFeePerGas": "8000",
+  "contractAddress": null,
+  "isEvmLike": false
 }

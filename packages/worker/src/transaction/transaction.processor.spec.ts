@@ -83,6 +83,7 @@ describe("TransactionProcessor", () => {
         hash: "transactionHash",
         receivedAt: "2023-12-29T06:52:51.438Z",
         type: 3,
+        contractAddress: null,
       },
       transactionReceipt: {
         hash: "transactionHash",

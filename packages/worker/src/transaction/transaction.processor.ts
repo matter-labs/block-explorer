@@ -91,6 +91,7 @@ export class TransactionProcessor {
           creatorTxHash: contractAddress.transactionHash,
           creatorAddress: contractAddress.creatorAddress,
           createdInLogIndex: contractAddress.logIndex,
+          isEvmLike: contractAddress.isEvmLike,
         });
       })
     );

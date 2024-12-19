@@ -14,7 +14,7 @@ const defaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export type TransactionData = {
   calldata: string;
-  contractAddress: Address;
+  contractAddress: Address | null;
   value: string;
   sighash: string;
   method?: {
@@ -65,7 +65,7 @@ export default (context = useContext()) => {
   const decodingError = ref("");
 
   const decodeTransactionData = async (transactionData: TransactionData) => {
-    if (transactionData.calldata === "0x") {
+    if (transactionData.calldata === "0x" || !transactionData.contractAddress) {
       data.value = transactionData;
       decodingError.value = "";
       return;

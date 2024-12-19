@@ -8,7 +8,6 @@ import { SortingOrder } from "../common/types";
 import { CounterService } from "../counter/counter.service";
 import { TransactionService, FilterTransactionsOptions } from "./transaction.service";
 import { Transaction } from "./entities/transaction.entity";
-import { TransactionDetails } from "./entities/transactionDetails.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 
@@ -18,7 +17,6 @@ describe("TransactionService", () => {
   let transaction;
   let service: TransactionService;
   let repositoryMock: typeorm.Repository<Transaction>;
-  let repositoryDetailMock: typeorm.Repository<TransactionDetails>;
   let addressTransactionRepositoryMock: typeorm.Repository<AddressTransaction>;
   let batchRepositoryMock: typeorm.Repository<Batch>;
   let counterServiceMock: CounterService;
@@ -27,7 +25,6 @@ describe("TransactionService", () => {
   beforeEach(async () => {
     counterServiceMock = mock<CounterService>();
     repositoryMock = mock<typeorm.Repository<Transaction>>();
-    repositoryDetailMock = mock<typeorm.Repository<TransactionDetails>>();
     addressTransactionRepositoryMock = mock<typeorm.Repository<AddressTransaction>>();
     batchRepositoryMock = mock<typeorm.Repository<Batch>>();
     transaction = {
@@ -40,10 +37,6 @@ describe("TransactionService", () => {
         {
           provide: getRepositoryToken(Transaction),
           useValue: repositoryMock,
-        },
-        {
-          provide: getRepositoryToken(TransactionDetails),
-          useValue: repositoryDetailMock,
         },
         {
           provide: getRepositoryToken(AddressTransaction),
@@ -73,13 +66,13 @@ describe("TransactionService", () => {
 
     beforeEach(() => {
       queryBuilderMock = mock<typeorm.SelectQueryBuilder<Transaction>>();
-      (repositoryDetailMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
+      (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
       (queryBuilderMock.getOne as jest.Mock).mockResolvedValue(null);
     });
 
     it("creates query builder with proper params", async () => {
       await service.findOne(hash);
-      expect(repositoryDetailMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
+      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
     });
 
     it("filters transactions by the specified hash", async () => {
@@ -99,7 +92,10 @@ describe("TransactionService", () => {
 
     it("selects only needed transactionReceipt fields", async () => {
       await service.findOne(hash);
-      expect(queryBuilderMock.addSelect).toHaveBeenCalledWith(["transactionReceipt.gasUsed"]);
+      expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
+        "transactionReceipt.gasUsed",
+        "transactionReceipt.contractAddress",
+      ]);
     });
 
     it("returns paginated result", async () => {
@@ -172,6 +168,19 @@ describe("TransactionService", () => {
         expect(queryBuilderMock.where).toHaveBeenCalledWith(filterTransactionsOptions);
       });
 
+      it("joins transactionReceipt record to get receipt specific fields", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
+      });
+
+      it("selects only needed transactionReceipt fields", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transactionReceipt.gasUsed",
+          "transactionReceipt.contractAddress",
+        ]);
+      });
+
       it("joins batch record to get batch specific fields", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.batch", "batch");
@@ -241,6 +250,22 @@ describe("TransactionService", () => {
           "addressTransaction.transaction",
           "transaction"
         );
+      });
+
+      it("joins transactionReceipt record to get receipt specific fields", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
+          "transaction.transactionReceipt",
+          "transactionReceipt"
+        );
+      });
+
+      it("selects only needed transactionReceipt fields", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transactionReceipt.gasUsed",
+          "transactionReceipt.contractAddress",
+        ]);
       });
 
       it("joins batch records", async () => {

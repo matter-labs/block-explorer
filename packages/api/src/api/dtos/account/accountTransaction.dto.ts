@@ -12,8 +12,10 @@ export class AccountTransactionDto {
     type: String,
     description: "The to address of this transaction",
     example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
   })
-  public readonly to: string;
+  public readonly to?: string;
 
   @ApiProperty({
     type: String,

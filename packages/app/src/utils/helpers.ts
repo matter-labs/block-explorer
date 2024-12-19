@@ -2,6 +2,8 @@ import { format } from "date-fns";
 import { Interface } from "ethers";
 import { utils } from "zksync-ethers";
 
+import { DEPLOYER_CONTRACT_ADDRESS } from "./constants";
+
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
 import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composables/useEventLog";
@@ -129,4 +131,8 @@ export function truncateNumber(value: string, decimal: number): string {
   }
   const regex = new RegExp(`\\d+(?:\\.\\d{0,${decimal}})?`);
   return value.match(regex)![0];
+}
+
+export function isContractDeployerAddress(address?: string | null): boolean {
+  return !address || address === DEPLOYER_CONTRACT_ADDRESS;
 }
