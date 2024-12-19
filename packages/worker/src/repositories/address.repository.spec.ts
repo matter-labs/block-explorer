@@ -69,7 +69,8 @@ describe("AddressRepository", () => {
           "createdInBlockNumber" = EXCLUDED."createdInBlockNumber",
           "creatorTxHash" = EXCLUDED."creatorTxHash",
           "creatorAddress" = EXCLUDED."creatorAddress",
-          "createdInLogIndex" = EXCLUDED."createdInLogIndex"
+          "createdInLogIndex" = EXCLUDED."createdInLogIndex",
+          "isEvmLike" = EXCLUDED."isEvmLike"
         WHERE 
           addresses."createdInBlockNumber" IS NULL OR
           EXCLUDED."createdInBlockNumber" > addresses."createdInBlockNumber" OR 

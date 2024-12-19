@@ -51,6 +51,7 @@ export interface ContractAddress {
   creatorAddress: string;
   logIndex: number;
   bytecode?: string;
+  isEvmLike: boolean;
 }
 
 export interface LogsData {

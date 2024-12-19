@@ -8,6 +8,7 @@
     :title="contractName ?? t('contract.title')"
     :value="contractName ? undefined : contract?.address"
     :is-verified="contract?.verificationInfo != null"
+    :is-evm-like="contract?.isEvmLike"
   />
   <Spinner v-else size="md" />
   <div class="tables-container">
