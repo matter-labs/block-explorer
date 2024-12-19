@@ -5,7 +5,6 @@ import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { LogService, LogsData } from "../log/log.service";
-import { getCreateAddress } from "ethers";
 
 export interface TransactionInfo extends types.TransactionResponse {
   fee: string;
@@ -14,8 +13,6 @@ export interface TransactionInfo extends types.TransactionResponse {
   receivedAt: Date;
   error?: string;
   revertReason?: string;
-  isEvmLike?: boolean;
-  contractAddress?: string;
 }
 
 export interface TransactionData extends LogsData {
@@ -82,22 +79,11 @@ export class TransactionService {
       transactionReceipt
     );
 
-    const isEvmLike = transactionInfo.to === null;
-    const contractAddress = isEvmLike
-      ? getCreateAddress({ from: transactionInfo.from, nonce: transactionInfo.nonce })
-      : null;
-
-    const updatedTransactionInfo = {
-      ...transactionInfo,
-      isEvmLike,
-      contractAddress,
-    } as unknown as TransactionInfo;
-
     stopTransactionProcessingMeasuring();
 
     return {
       ...logsData,
-      transaction: updatedTransactionInfo,
+      transaction: transactionInfo,
       transactionReceipt,
     };
   }

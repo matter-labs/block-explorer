@@ -112,14 +112,14 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <div v-if="!!transaction?.to" class="value-with-copy-button">
+          <div class="value-with-copy-button">
             <div class="address-badge-container">
               <div class="flex items-center justify-center gap-2">
-                <AddressLink :address="transaction?.to" />
-                <p v-if="!!transaction?.to && isEvmLike">Created</p>
+                <AddressLink v-if="!!displayedTxReceiver" :address="displayedTxReceiver" />
+                <p v-if="isContractDeploymentTx">{{ t("contract.created") }}</p>
               </div>
               <Badge
-                v-if="!!transaction?.to && isEvmLike"
+                v-if="transaction?.isEvmLike && displayedTxReceiver"
                 color="primary"
                 class="verified-badge"
                 :tooltip="t('contract.evmTooltip')"
@@ -127,7 +127,7 @@
                 {{ t("contract.evm") }}
               </Badge>
             </div>
-            <CopyButton :value="transaction?.to" />
+            <CopyButton v-if="displayedTxReceiver" :value="displayedTxReceiver" />
           </div>
         </TableBodyColumn>
       </tr>
@@ -237,8 +237,6 @@
 import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { computedAsync } from "@vueuse/core";
-
 import AddressLink from "@/components/AddressLink.vue";
 import FeeData from "@/components/FeeData.vue";
 import Badge from "@/components/common/Badge.vue";
@@ -255,10 +253,9 @@ import TransactionStatus from "@/components/transactions/Status.vue";
 import TransactionData from "@/components/transactions/infoTable/TransactionData.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
-import useAddress from "@/composables/useAddress";
-
-import type { Contract } from "@/composables/useAddress";
 import type { TransactionItem } from "@/composables/useTransaction";
+
+import { isContractDeployerAddress } from "@/utils/helpers";
 
 const { t } = useI18n();
 
@@ -276,7 +273,13 @@ const props = defineProps({
   },
 });
 
-const { getByAddress, item } = useAddress();
+const isContractDeploymentTx = computed(() => {
+  return isContractDeployerAddress(props.transaction?.to) && !!props.transaction?.contractAddress;
+});
+
+const displayedTxReceiver = computed(() => {
+  return isContractDeploymentTx.value ? props.transaction?.contractAddress : props.transaction?.to;
+});
 
 const tokenTransfers = computed(() => {
   // exclude transfers with no amount, such as NFT until we fully support them
@@ -290,15 +293,6 @@ const gasUsedPercent = computed(() => {
     return parseFloat(((gasUsed / gasLimit) * 100).toFixed(2));
   }
   return null;
-});
-
-const isEvmLike = computedAsync(async () => {
-  if (!props.transaction?.data || !props.transaction?.to) {
-    return false;
-  }
-  await getByAddress(props.transaction?.to);
-
-  return !!(item.value as Contract)?.isEvmLike;
 });
 </script>
 

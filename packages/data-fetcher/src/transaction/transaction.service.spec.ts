@@ -141,11 +141,9 @@ describe("TransactionService", () => {
       expect(txData.transaction).toEqual({
         ...transaction,
         ...transactionDetails,
-        isEvmLike: false,
         l1BatchNumber: blockDetails.l1BatchNumber,
         receiptStatus: transactionReceipt.status,
         to: undefined,
-        contractAddress: null,
       });
     });
 
@@ -184,9 +182,7 @@ describe("TransactionService", () => {
             receiptStatus: 0,
             error: traceTransactionResult.error,
             revertReason: traceTransactionResult.revertReason,
-            isEvmLike: false,
             to: undefined,
-            contractAddress: null,
           });
         });
       });
@@ -200,9 +196,7 @@ describe("TransactionService", () => {
             ...transactionDetails,
             l1BatchNumber: blockDetails.l1BatchNumber,
             receiptStatus: 0,
-            isEvmLike: false,
             to: undefined,
-            contractAddress: null,
           });
         });
       });
