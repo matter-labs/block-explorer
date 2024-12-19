@@ -22,8 +22,6 @@ import Badge from "./Badge.vue";
 
 import CopyButton from "@/components/common/CopyButton.vue";
 
-import type { PropType } from "vue";
-
 import { shortValue } from "@/utils/formatters";
 
 defineProps({
@@ -38,7 +36,7 @@ defineProps({
     type: Boolean,
   },
   isEvmLike: {
-    type: [Boolean, null] as PropType<boolean | null>,
+    type: Boolean,
     default: false,
     required: false,
   },

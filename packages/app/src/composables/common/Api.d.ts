@@ -137,6 +137,7 @@ declare namespace Api {
       creatorTxHash: string;
       createdInBlockNumber: number;
       totalTransactions: number;
+      isEvmLike: boolean;
     };
   }
 }

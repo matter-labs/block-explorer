@@ -36,6 +36,6 @@ export class Address extends BaseEntity {
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly creatorAddress?: string;
 
-  @Column({ type: "boolean", nullable: true })
-  public readonly isEvmLike?: boolean;
+  @Column({ type: "boolean", default: false })
+  public readonly isEvmLike: boolean;
 }
