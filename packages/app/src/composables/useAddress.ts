@@ -5,7 +5,7 @@ import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
-import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
+import { DIAMOND_CONTRACT_IMPLEMENTATION_ABI, PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
 import { numberToHexString } from "@/utils/formatters";
 
 const oneBigInt = BigInt(1);
@@ -83,6 +83,14 @@ export type Contract = Api.Response.Contract & {
       verificationInfo: null | ContractVerificationInfo;
     };
   };
+  diamondProxyInfo:
+    | null
+    | {
+        implementation: {
+          address: string;
+          verificationInfo: null | ContractVerificationInfo;
+        };
+      }[];
 };
 export type AddressItem = Account | Contract;
 
@@ -113,6 +121,67 @@ export default (context = useContext()) => {
         return null;
       }
       return address;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const getAddressesSafe = async (getAddressesFn: () => Promise<string[]>) => {
+    try {
+      const addresses = await getAddressesFn();
+      if (!addresses.every(isAddress) || addresses.some((address) => address === ZeroAddress)) {
+        return null;
+      }
+      return addresses;
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const getDiamondProxyImplementation = async (address: string): Promise<string[] | null> => {
+    const provider = context.getL2Provider();
+
+    const EIP2535_DIAMOND_IMPLEMENTATION_SLOT = numberToHexString(
+      BigInt(keccak256(toUtf8Bytes("diamond.standard.diamond.storage"))) + BigInt(2)
+    );
+
+    const eip2535Diamond = await provider.getStorage(address, EIP2535_DIAMOND_IMPLEMENTATION_SLOT);
+
+    if (eip2535Diamond) {
+      const diamondContract = new EthersContract(address, DIAMOND_CONTRACT_IMPLEMENTATION_ABI, provider);
+      const facetAddresses = await getAddressesSafe(() => diamondContract.facetAddresses());
+      return facetAddresses?.length ? facetAddresses : null;
+    }
+
+    return null;
+  };
+
+  const getDiamondProxyInfo = async (address: string) => {
+    try {
+      const implementationAddresses = await getDiamondProxyImplementation(address);
+
+      if (!implementationAddresses) {
+        return null;
+      }
+
+      // Prepare an array of promises for every address string in the array
+      const mapContractVerificationInfo = async (address: string) => {
+        const contractVerificationInfo = await getContractVerificationInfo(address);
+        return {
+          implementation: {
+            address,
+            verificationInfo: contractVerificationInfo,
+          },
+        };
+      };
+
+      const implementationPromiseArr = implementationAddresses.map((address) => {
+        return mapContractVerificationInfo(address);
+      });
+
+      const implementationVerificationInfoArr = await Promise.all(implementationPromiseArr);
+
+      return implementationVerificationInfoArr;
     } catch (e) {
       return null;
     }
@@ -172,14 +241,16 @@ export default (context = useContext()) => {
       if (response.type === "account") {
         item.value = response;
       } else if (response.type === "contract") {
-        const [verificationInfo, proxyInfo] = await Promise.all([
+        const [verificationInfo, proxyInfo, diamondProxyInfo] = await Promise.all([
           getContractVerificationInfo(response.address),
           getContractProxyInfo(response.address),
+          getDiamondProxyInfo(response.address),
         ]);
         item.value = {
           ...response,
           verificationInfo,
           proxyInfo,
+          diamondProxyInfo,
         };
       }
     } catch (error: unknown) {
