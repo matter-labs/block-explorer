@@ -14,3 +14,19 @@ export const PROXY_CONTRACT_IMPLEMENTATION_ABI = [
     type: "function",
   },
 ];
+
+export const DIAMOND_CONTRACT_IMPLEMENTATION_ABI = [
+  {
+    inputs: [],
+    name: "facetAddresses",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
