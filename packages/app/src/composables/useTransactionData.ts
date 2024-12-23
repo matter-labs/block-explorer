@@ -45,7 +45,6 @@ export function decodeDataWithABI(
   abi: AbiFragment[]
 ): TransactionData["method"] | undefined {
   const contractInterface = new Interface(abi);
-  
   try {
     const decodedData = contractInterface.parseTransaction({
       data: transactionData.calldata,
