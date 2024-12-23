@@ -78,6 +78,7 @@ const contract: Contract = {
   balances: {},
   totalTransactions: 0,
   proxyInfo: null,
+  diamondProxyInfo: null,
 } as Contract;
 
 export const Verified = Template.bind({}) as unknown as { args: Args };

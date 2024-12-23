@@ -126,6 +126,7 @@ describe("useAddresses", () => {
         type: "contract",
         verificationInfo: null,
         proxyInfo: null,
+        diamondProxyInfo: null,
       });
     });
 
@@ -149,6 +150,7 @@ describe("useAddresses", () => {
             },
           },
         },
+        diamondProxyInfo: null,
       });
     });
 
@@ -179,6 +181,7 @@ describe("useAddresses", () => {
               },
             },
           },
+          diamondProxyInfo: null,
         });
       });
 
@@ -208,6 +211,7 @@ describe("useAddresses", () => {
               },
             },
           },
+          diamondProxyInfo: null,
         });
       });
 
@@ -238,6 +242,7 @@ describe("useAddresses", () => {
               },
             },
           },
+          diamondProxyInfo: null,
         });
       });
 
@@ -260,6 +265,7 @@ describe("useAddresses", () => {
             artifacts: { abi: "abi" },
           },
           proxyInfo: null,
+          diamondProxyInfo: null,
         });
       });
     });
