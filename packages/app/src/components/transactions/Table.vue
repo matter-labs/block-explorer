@@ -8,8 +8,12 @@
       <TableHeadColumn v-if="columns.includes('method')">
         {{ t("transactions.table.method") }}
       </TableHeadColumn>
-      <TableHeadColumn v-if="columns.includes('age')">
-        {{ t("transactions.table.age") }}
+      <TableHeadColumn
+        v-if="columns.includes('age')"
+        @click="toggleAgeTimestamp()"
+        class="hover:cursor-pointer text-blue-700"
+      >
+        {{ isTimeAgeView ? t("transactions.table.age") : t("transactions.table.dateTimeUTC") }}
       </TableHeadColumn>
       <TableHeadColumn v-if="columns.includes('from')" class="tablet-column-hidden">
         {{ t("transactions.table.from") }}
@@ -71,7 +75,12 @@
         :data-heading="t('transactions.table.age')"
       >
         <CopyButton :value="utcStringFromISOString(item.receivedAt)">
-          <TimeField :value="item.receivedAt" :show-exact-date="false" :data-testid="$testId.timestamp" />
+          <TimeField
+            :value="item.receivedAt"
+            :show-exact-date="false"
+            :data-testid="$testId.timestamp"
+            :is-utc-date="!isTimeAgeView"
+          />
         </CopyButton>
       </TableBodyColumn>
       <TableBodyColumn
@@ -364,6 +373,12 @@ const isHighRowsSize = computed(() => props.columns.includes("fee"));
 function getDirection(item: TransactionListItem): Direction {
   return item.from === item.to ? "self" : item.to !== props.searchParams?.address ? "out" : "in";
 }
+
+const isTimeAgeView = ref(true);
+
+const toggleAgeTimestamp = () => {
+  isTimeAgeView.value = !isTimeAgeView.value;
+};
 </script>
 
 <style lang="scss">
