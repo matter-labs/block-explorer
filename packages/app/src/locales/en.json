@@ -390,6 +390,7 @@
             "contractNotVerified": "Is not verified",
             "verifyImplementationMessage": "Please verify the implementation contract in order to Read/Write the contract as Proxy.",
             "proxyCautionMessage": "Please note that the proxy identification process is based on analysis of popular proxy standards and might not be always accurate. Proceed with caution when interacting with any smart contract.",
+            "diamondProxySubtitleWrite": "Facet Contracts (Write)",
             "method": {
                 "read": {
                     "name": "Read",
@@ -700,7 +701,8 @@
         "read": "Read",
         "write": "Write",
         "readAsProxy": "Read as Proxy",
-        "writeAsProxy": "Write as Proxy"
+        "writeAsProxy": "Write as Proxy",
+        "diamondProxy": "Diamond Proxy"
     },
     "debuggerTool": {
         "title": "zkEVM Debugger",
