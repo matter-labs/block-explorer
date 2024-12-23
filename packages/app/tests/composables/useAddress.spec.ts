@@ -110,6 +110,7 @@ describe("useAddresses", () => {
             },
           },
         },
+        diamondProxyInfo: null,
       });
     });
 
