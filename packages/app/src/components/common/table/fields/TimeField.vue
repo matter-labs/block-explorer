@@ -1,7 +1,7 @@
 <template>
   <div class="info-field-time" :title="utcStringFromISOString(isoString)">
     <span class="time-ago">
-      {{ timeAgo }}
+      {{ isUtcDate ? localDateFromISOString(isoString) : timeAgo }}
     </span>
     <span v-if="showExactDate" class="full-date">{{ localDateFromISOString(isoString) }}</span>
   </div>
@@ -26,6 +26,11 @@ const props = defineProps({
   showExactDate: {
     type: Boolean,
     default: true,
+    required: false,
+  },
+  isUtcDate: {
+    type: Boolean,
+    default: false,
     required: false,
   },
 });
