@@ -278,7 +278,7 @@ describe("ContractController", () => {
         contractname: "contracts/HelloWorld.sol:HelloWorld",
         compilerversion: "0.8.17",
         optimizationUsed: "1",
-        zkCompilerVersion: "v1.3.14",
+        zksolcVersion: "v1.3.14",
         constructorArguements: "0x94869207468657265210000000000000000000000000000000000000000000000",
         runs: 700,
         libraryname1: "contracts/MiniMath.sol:MiniMath",
@@ -426,7 +426,7 @@ describe("ContractController", () => {
         contractname: "contracts/Greeter.vy:Greeter",
         compilerversion: "0.3.3",
         optimizationUsed: "1",
-        zkCompilerVersion: "v1.3.11",
+        zksolcVersion: "v1.3.11",
       } as unknown as VerifyContractRequestDto;
 
       pipeMock.mockReturnValue(
@@ -442,7 +442,7 @@ describe("ContractController", () => {
         codeFormat: "vyper-multi-file",
         compilerVyperVersion: "0.3.3",
         compilerZkvyperVersion: "v1.3.11",
-        constructorArguments: undefined,
+        constructorArguments: null,
         contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
         contractName: "contracts/Greeter.vy:Greeter",
         optimizationUsed: true,
