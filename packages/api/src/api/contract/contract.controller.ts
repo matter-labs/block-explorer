@@ -195,7 +195,7 @@ export class ContractController {
             ? request.constructorArguements.slice(0, 2) !== "0x"
               ? `0x${request.constructorArguements}`
               : request.constructorArguements
-            : null,
+            : "0x",
           ...(isSolidityContract && {
             compilerZksolcVersion: request.zksolcVersion,
             compilerSolcVersion: request.compilerversion,

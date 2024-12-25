@@ -442,7 +442,7 @@ describe("ContractController", () => {
         codeFormat: "vyper-multi-file",
         compilerVyperVersion: "0.3.3",
         compilerZkvyperVersion: "v1.3.11",
-        constructorArguments: null,
+        constructorArguments: "0x",
         contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
         contractName: "contracts/Greeter.vy:Greeter",
         optimizationUsed: true,
