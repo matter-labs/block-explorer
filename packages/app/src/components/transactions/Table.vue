@@ -58,9 +58,13 @@
         </span>
       </TableBodyColumn>
       <TableBodyColumn v-if="columns.includes('method')" :data-heading="t('transactions.table.method')">
-        <div class="transactions-data-method">
-          <span :data-testid="$testId.transactionsMethodName">{{ item.methodName }}</span>
-        </div>
+        <Tooltip>
+          <div class="transactions-data-method">
+            <span :data-testid="$testId.transactionsMethodName">{{ item.methodName }}</span>
+          </div>
+
+          <template #content>{{ item.methodName }}</template>
+        </Tooltip>
       </TableBodyColumn>
       <TableBodyColumn
         v-if="columns.includes('age') && columns.length < 10"
@@ -107,8 +111,17 @@
             </span>
             <span class="transactions-data-link">
               <TransactionNetworkSquareBlock :network="item.toNetwork" />
-              <AddressLink :address="item.to" :network="item.toNetwork" class="transactions-data-link-value">
-                {{ shortenFitText(item.to, "left", 125) }}
+              <AddressLink
+                v-if="!!item.displayedTxReceiver"
+                :address="item.displayedTxReceiver"
+                :network="item.toNetwork"
+                class="transactions-data-link-value"
+              >
+                {{
+                  item.isContractDeploymentTx
+                    ? t("contract.contractCreated")
+                    : shortenFitText(item.displayedTxReceiver, "left", 125)
+                }}
               </AddressLink>
             </span>
           </div>
@@ -129,12 +142,17 @@
         <span class="transactions-data-link">
           <TransactionNetworkSquareBlock :network="item.toNetwork" />
           <AddressLink
+            v-if="!!item.displayedTxReceiver"
             :data-testid="$testId.toAddress"
-            :address="item.to"
+            :address="item.displayedTxReceiver"
             :network="item.toNetwork"
             class="transactions-data-link-value"
           >
-            {{ shortenFitText(item.to, "left", 125) }}
+            {{
+              item.isContractDeploymentTx
+                ? t("contract.contractCreated")
+                : shortenFitText(item.displayedTxReceiver, "left", 125)
+            }}
           </AddressLink>
         </span>
       </TableBodyColumn>
@@ -199,6 +217,7 @@ import Badge from "@/components/common/Badge.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import { shortenFitText } from "@/components/common/HashLabel.vue";
 import Pagination from "@/components/common/Pagination.vue";
+import Tooltip from "@/components/common/Tooltip.vue";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
@@ -211,6 +230,7 @@ import TransactionDirectionTableCell from "@/components/transactions/Transaction
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
 
 import useContext from "@/composables/useContext";
+import { fetchMethodNames } from "@/composables/useOpenChain";
 import useToken, { type Token } from "@/composables/useToken";
 import { decodeDataWithABI } from "@/composables/useTransactionData";
 import useTransactions, { type TransactionListItem, type TransactionSearchParams } from "@/composables/useTransactions";
@@ -219,7 +239,7 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 import type { NetworkOrigin } from "@/types";
 
-import { utcStringFromISOString } from "@/utils/helpers";
+import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
 
@@ -271,23 +291,46 @@ watch(
   { immediate: true }
 );
 
-const getTransactionMethod = (transaction: TransactionListItem) => {
+const methodNames = ref<Record<string, string>>({});
+
+const loadMethodNames = async () => {
+  if (!data.value) return;
+
+  const uniqueSighashes = [
+    ...new Set(
+      data.value?.map((transaction) => transaction.data.slice(0, 10)).filter((sighash) => sighash !== "0x") ?? []
+    ),
+  ];
+  const fetchedMethodNames = await fetchMethodNames(uniqueSighashes);
+  methodNames.value = { ...methodNames.value, ...fetchedMethodNames };
+};
+
+watch(
+  data,
+  async (newData) => {
+    if (!newData) return;
+
+    await loadMethodNames();
+  },
+  { immediate: true }
+);
+
+const getTransactionMethod = (transaction: TransactionListItem, methodNames: Record<string, string>) => {
   if (transaction.data === "0x") {
     return t("transactions.table.transferMethodName");
   }
   const sighash = transaction.data.slice(0, 10);
   if (props.contractAbi) {
-    return (
-      decodeDataWithABI(
-        {
-          calldata: transaction.data,
-          value: transaction.value,
-        },
-        props.contractAbi
-      )?.name ?? sighash
+    const decodedMethod = decodeDataWithABI(
+      { calldata: transaction.data, value: transaction.value },
+      props.contractAbi
     );
+    if (decodedMethod?.name) {
+      return decodedMethod.name;
+    }
   }
-  return sighash;
+
+  return methodNames[sighash] ?? sighash;
 };
 
 type TransactionListItemMapped = TransactionListItem & {
@@ -296,17 +339,24 @@ type TransactionListItemMapped = TransactionListItem & {
   toNetwork: NetworkOrigin;
   statusIcon: unknown;
   statusColor: "danger" | "dark-success";
+  isContractDeploymentTx: boolean;
+  displayedTxReceiver: string | null;
 };
 
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
-  return data.value?.map((transaction) => ({
-    ...transaction,
-    methodName: getTransactionMethod(transaction),
-    fromNetwork: transaction.isL1Originated ? "L1" : "L2",
-    toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
-    statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-    statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
-  }));
+  return data.value?.map((transaction) => {
+    const isContractDeploymentTx = isContractDeployerAddress(transaction.to) && !!transaction.contractAddress;
+    return {
+      ...transaction,
+      methodName: getTransactionMethod(transaction, methodNames.value),
+      fromNetwork: transaction.isL1Originated ? "L1" : "L2",
+      toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
+      statusColor: transaction.status === "failed" ? "danger" : "dark-success",
+      statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
+      isContractDeploymentTx,
+      displayedTxReceiver: isContractDeploymentTx ? transaction.contractAddress : transaction.to,
+    };
+  });
 });
 
 const isHighRowsSize = computed(() => props.columns.includes("fee"));
@@ -432,7 +482,7 @@ function getDirection(item: TransactionListItem): Direction {
     }
   }
   .transactions-data-method {
-    @apply w-[200px] truncate sm:w-auto;
+    @apply w-36 truncate border-slate-200 rounded border py-0.5 px-2 text-center bg-slate-400/10 text-xs text-slate-600 sm:w-28;
   }
   .transactions-data-transaction-amount,
   .transactions-data-age {

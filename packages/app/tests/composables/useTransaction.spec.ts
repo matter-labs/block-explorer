@@ -96,6 +96,7 @@ vi.mock("ohmyfetch", async () => {
     maxPriorityFeePerGas: "8000",
     error: null,
     revertReason: null,
+    contractAddress: null,
   };
   return {
     ...mod,
@@ -388,6 +389,7 @@ describe("useTransaction:", () => {
         hash,
         blockHash: "0x1fc6a30903866bf91cede9f831e71f2c7ba0dd023ffc044fe469c51b215d950b",
         blockNumber: 1162235,
+        contractAddress: null,
         data: {
           contractAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
           calldata:
@@ -449,6 +451,7 @@ describe("useTransaction:", () => {
           amountRefunded: "0x37f100b7fa8c6",
         },
         indexInBlock: 0,
+        isEvmLike: false,
         isL1Originated: false,
         nonce: 24,
         receivedAt: "2023-02-28T08:42:08.198Z",
@@ -624,6 +627,7 @@ describe("useTransaction:", () => {
             index: 0,
             logs: logs.map((log) => ({ ...log, index: log.logIndex })),
             gasUsed: "3000",
+            contractAddress: null,
           }),
         };
         const { transaction, isRequestFailed, getByHash } = useTransaction({
@@ -652,6 +656,7 @@ describe("useTransaction:", () => {
           hash: "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf",
           blockHash: "0x1fc6a30903866bf91cede9f831e71f2c7ba0dd023ffc044fe469c51b215d950b",
           blockNumber: 1162235,
+          contractAddress: null,
           data: {
             contractAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
             calldata:
@@ -673,6 +678,7 @@ describe("useTransaction:", () => {
             amountRefunded: "0x0",
           },
           indexInBlock: 0,
+          isEvmLike: false,
           isL1Originated: false,
           nonce: 24,
           receivedAt: "2023-02-28T08:42:08.198Z",

@@ -24,7 +24,7 @@ const config = useRuntimeConfig();
 const navigation = reactive([
   {
     label: computed(() => t("footer.nav.docs")),
-    url: "https://docs.zksync.io/build/tooling/zksync-block-explorers",
+    url: "https://docs.zksync.io/zksync-era/tooling/block-explorers",
   },
   {
     label: computed(() => t("footer.nav.terms")),

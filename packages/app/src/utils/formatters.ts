@@ -44,8 +44,8 @@ export function formatBigNumberish(value: BigNumberish, decimals: number) {
   return formatUnits(value, decimals).replace(/.0$/g, "");
 }
 
-export function checksumAddress(address: Address | string): Address {
-  return getAddress(address) as Address;
+export function checksumAddress(address?: Address | string | null): Address {
+  return address ? (getAddress(address) as Address) : "";
 }
 
 export function convert(value: BigNumberish | null, token: Token | null, tokenPrice: string): string {
