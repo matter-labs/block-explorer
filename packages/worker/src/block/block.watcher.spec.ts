@@ -477,7 +477,7 @@ describe("BlockWatcher", () => {
         blockWatcher = await getBlockWatcher();
       });
 
-      it("should not set the metric", async () => {
+      it("does not set the metric", async () => {
         await blockWatcher.onModuleInit();
         expect(blockRepositoryMock.getMissingBlocksCount).toHaveBeenCalledTimes(0);
         expect(missingBlocksMetricMock).toBeCalledTimes(0);
@@ -493,7 +493,7 @@ describe("BlockWatcher", () => {
         blockWatcher = await getBlockWatcher();
       });
 
-      it("should set the metric to the proper value", async () => {
+      it("sets the metric to the proper value", async () => {
         await blockWatcher.onModuleInit();
         expect(blockRepositoryMock.getMissingBlocksCount).toHaveBeenCalledTimes(1);
         expect(missingBlocksMetricMock).toBeCalledTimes(1);
@@ -518,7 +518,7 @@ describe("BlockWatcher", () => {
         blockWatcher = await getBlockWatcher();
       });
 
-      it("should not clear interval for the metric", async () => {
+      it("does not clear the interval for the metric", async () => {
         await blockWatcher.onModuleInit();
         blockWatcher.onModuleDestroy();
         // first call is for blocks to process metric
@@ -535,7 +535,7 @@ describe("BlockWatcher", () => {
         blockWatcher = await getBlockWatcher();
       });
 
-      it("should clear interval for the metric", async () => {
+      it("clears the interval for the metric", async () => {
         await blockWatcher.onModuleInit();
         blockWatcher.onModuleDestroy();
         // first call is for blocks to process metric
