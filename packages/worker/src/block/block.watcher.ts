@@ -5,9 +5,11 @@ import { Gauge, Histogram } from "prom-client";
 import { DataFetcherService } from "../dataFetcher/dataFetcher.service";
 import { BlockData } from "../dataFetcher/types";
 import { BlockchainService } from "../blockchain/blockchain.service";
+import { BlockRepository } from "../repositories";
 import {
   BLOCKCHAIN_BLOCKS_METRIC_NAME,
   BLOCKS_TO_PROCESS_METRIC_NAME,
+  MISSING_BLOCKS_METRIC_NAME,
   GET_BLOCK_INFO_DURATION_METRIC_NAME,
   ProcessingActionMetricLabel,
 } from "../metrics";
@@ -20,6 +22,9 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
   private readonly batchSize: number;
   private readonly fromBlock: number;
   private readonly toBlock: number;
+  private readonly missingBlocksMetricEnabled: boolean;
+  private readonly missingBlocksMetricInterval: number;
+  private missingBlocksMetricTimer: NodeJS.Timer = null;
   private collectBlocksToProcessMetricInterval: number;
   private collectBlocksToProcessMetricTimer: NodeJS.Timer = null;
 
@@ -28,12 +33,15 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
   }
 
   public constructor(
+    private readonly blockRepository: BlockRepository,
     private readonly blockchainService: BlockchainService,
     private readonly dataFetchService: DataFetcherService,
     @InjectMetric(BLOCKCHAIN_BLOCKS_METRIC_NAME)
     private readonly blockchainBlocksMetric: Gauge,
     @InjectMetric(BLOCKS_TO_PROCESS_METRIC_NAME)
     private readonly blocksToProcessMetric: Gauge,
+    @InjectMetric(MISSING_BLOCKS_METRIC_NAME)
+    private readonly missingBlocksMetric: Gauge,
     @InjectMetric(GET_BLOCK_INFO_DURATION_METRIC_NAME)
     private readonly getBlockInfoDurationMetric: Histogram<ProcessingActionMetricLabel>,
     configService: ConfigService
@@ -45,6 +53,8 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
     this.collectBlocksToProcessMetricInterval = configService.get<number>(
       "metrics.collectBlocksToProcessMetricInterval"
     );
+    this.missingBlocksMetricEnabled = !configService.get<boolean>("metrics.missingBlocks.disabled");
+    this.missingBlocksMetricInterval = configService.get<number>("metrics.missingBlocks.interval");
   }
 
   public async getNextBlocksToProcess(lastDbBlockNumber: number = null): Promise<BlockData[]> {
@@ -77,6 +87,11 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
     } else {
       this.blocksToProcessMetric.set(0);
     }
+  }
+
+  private async updateMissingBlocksMetric(): Promise<void> {
+    const missingBlocksCount = await this.blockRepository.getMissingBlocksCount();
+    this.missingBlocksMetric.set(missingBlocksCount);
   }
 
   private getBlockInfoListFromBlockchain(startBlockNumber: number, endBlockNumber: number): Promise<BlockData[]> {
@@ -112,9 +127,18 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
     this.collectBlocksToProcessMetricTimer = setInterval(() => {
       this.setBlocksToProcessMetric();
     }, this.collectBlocksToProcessMetricInterval);
+
+    if (this.missingBlocksMetricEnabled) {
+      this.missingBlocksMetricTimer = setInterval(() => {
+        this.updateMissingBlocksMetric();
+      }, this.missingBlocksMetricInterval);
+    }
   }
 
   public onModuleDestroy() {
     clearInterval(this.collectBlocksToProcessMetricTimer as unknown as number);
+    if (this.missingBlocksMetricEnabled) {
+      clearInterval(this.missingBlocksMetricTimer as unknown as number);
+    }
   }
 }
