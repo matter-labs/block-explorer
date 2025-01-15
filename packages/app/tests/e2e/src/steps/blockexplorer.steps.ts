@@ -84,9 +84,18 @@ Then("New page have {string} address", async function (this: ICustomWorld, url: 
   await this.page?.waitForTimeout(config.increasedTimeout.timeout);
   const pages: any = this.context?.pages();
 
-  // remove query string that might be added by the browser while performing e2e tests
-  result = await pages[1].url().split("?")[0];
+  result = await pages[1].url();
   await expect(result).toBe(url);
+});
+
+Then("New page address matches the {string}", async function (this: ICustomWorld, regexp: string) {
+  mainPage = new MainPage(this);
+  helper = new Helper(this);
+  await this.page?.waitForTimeout(config.increasedTimeout.timeout);
+  const pages: any = this.context?.pages();
+
+  result = await pages[1].url();
+  await expect(RegExp(regexp).test(result)).toBe(true);
 });
 
 Given("I go to page {string}", async function (this: ICustomWorld, route: string) {
