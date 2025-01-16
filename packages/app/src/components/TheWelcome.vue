@@ -64,7 +64,7 @@ import ToolingIcon from "@/components/icons/IconTooling.vue";
     <a target="_blank" href="https://chat.vuejs.org">Vue Land</a>, our official Discord server, or
     <a target="_blank" href="https://stackoverflow.com/questions/tagged/vue.js">StackOverflow</a>. You should also
     subscribe to <a target="_blank" href="https://news.vuejs.org">our mailing list</a> and follow the official
-    <a target="_blank" href="https://twitter.com/vuejs">@vuejs</a>
+    <a target="_blank" href="https://x.com/vuejs">@vuejs</a>
     twitter account for latest news in the Vue world.
   </WelcomeItem>
 

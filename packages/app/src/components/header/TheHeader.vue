@@ -204,7 +204,7 @@ const toolsLinks = reactive(links);
 
 const socials = [
   { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
+  { url: "https://x.com/zksync", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {

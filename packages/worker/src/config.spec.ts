@@ -56,6 +56,10 @@ describe("config", () => {
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,
+        missingBlocks: {
+          disabled: false,
+          interval: 86_400_000,
+        },
       },
     };
   });
@@ -114,6 +118,10 @@ describe("config", () => {
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,
+        missingBlocks: {
+          disabled: false,
+          interval: 86_400_000,
+        },
       },
     });
   });
