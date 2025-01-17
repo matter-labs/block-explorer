@@ -321,6 +321,9 @@
     "addressView": {
         "title": "Address"
     },
+    "tokenView": {
+        "title": "Token"
+    },
     "contract": {
         "title": "Contract",
         "contractNumber": "Contract ",

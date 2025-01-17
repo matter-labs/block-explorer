@@ -24,6 +24,7 @@
           <AddressLink
             :data-testid="$testId.tokenAddress"
             :address="item.l2Address"
+            :is-token-address="item.l2Address.toLowerCase() === L2_BASE_TOKEN_ADDRESS ? false : true"
             class="token-address block max-w-sm"
           >
             {{ shortenFitText(item.l2Address, "left", 210, subtraction) }}
@@ -66,6 +67,7 @@ import { type PropType, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useElementSize } from "@vueuse/core";
+import { L2_BASE_TOKEN_ADDRESS } from "zksync-ethers/build/utils";
 
 import AddressLink from "@/components/AddressLink.vue";
 import TokenIconLabel from "@/components/TokenIconLabel.vue";

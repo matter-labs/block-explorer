@@ -2,7 +2,7 @@
   <a
     v-if="network === 'L1' && !!currentNetwork.l1ExplorerUrl"
     target="_blank"
-    :href="`${currentNetwork.l1ExplorerUrl}/address/${formattedAddress}`"
+    :href="`${currentNetwork.l1ExplorerUrl}/${props.isTokenAddress ? `token` : `address`}/${formattedAddress}`"
   >
     <slot>
       {{ formattedAddress }}
@@ -13,7 +13,7 @@
       {{ formattedAddress }}
     </slot>
   </span>
-  <router-link v-else :to="{ name: 'address', params: { address: formattedAddress } }">
+  <router-link v-else :to="{ name: props.isTokenAddress ? `token` : `address`, params: { address: formattedAddress } }">
     <slot>
       {{ formattedAddress }}
     </slot>
@@ -39,6 +39,11 @@ const props = defineProps({
   network: {
     type: String as PropType<NetworkOrigin>,
     default: "L2",
+  },
+  isTokenAddress: {
+    type: Boolean,
+    default: false,
+    required: false,
   },
 });
 

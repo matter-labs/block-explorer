@@ -386,6 +386,9 @@
     "addressView": {
         "title": "Адреса"
     },
+    "tokenView": {
+        "title": "Токен"
+    },
     "accountView": {
         "title": "Профіль",
         "infoTableError": "Виникла помилка",
