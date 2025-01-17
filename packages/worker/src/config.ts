@@ -31,6 +31,8 @@ export default () => {
     TO_BLOCK,
     COINGECKO_IS_PRO_PLAN,
     COINGECKO_API_KEY,
+    DISABLE_MISSING_BLOCKS_METRIC,
+    CHECK_MISSING_BLOCKS_METRIC_INTERVAL,
   } = process.env;
 
   return {
@@ -90,6 +92,10 @@ export default () => {
     metrics: {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
       collectBlocksToProcessMetricInterval: parseInt(COLLECT_BLOCKS_TO_PROCESS_METRIC_INTERVAL, 10) || 10000,
+      missingBlocks: {
+        disabled: DISABLE_MISSING_BLOCKS_METRIC === "true",
+        interval: parseInt(CHECK_MISSING_BLOCKS_METRIC_INTERVAL, 10) || 86_400_000, // 1 day
+      },
     },
   };
 };
