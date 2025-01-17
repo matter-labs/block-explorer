@@ -95,7 +95,7 @@ describe("JsonRpcHealthIndicator", () => {
       expect(httpService.post).toHaveBeenCalledWith("http://localhost:3050", rpcRequest, { timeout: 5000 });
     });
 
-    it("should use configured timeout from config service", async () => {
+    it("uses configured timeout from config service", async () => {
       (configService.get as jest.Mock).mockImplementation((key: string) => {
         if (key === "blockchain.rpcUrl") return "http://localhost:3050";
         if (key === "healthChecks.rpcHealthCheckTimeoutMs") return 10000;
