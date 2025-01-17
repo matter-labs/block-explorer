@@ -3,7 +3,7 @@ import { HealthIndicator, HealthIndicatorResult, HealthCheckError } from "@nestj
 import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
-import { catchError, firstValueFrom, of } from "rxjs";
+import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 
 @Injectable()
