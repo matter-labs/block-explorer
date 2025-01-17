@@ -24,6 +24,7 @@ export default () => {
     DISABLE_COUNTERS_PROCESSING,
     DISABLE_OLD_BALANCES_CLEANER,
     DISABLE_BLOCKS_REVERT,
+    ENABLE_SCRIPT_MIGRATIONS,
     ENABLE_TOKEN_OFFCHAIN_DATA_SAVER,
     UPDATE_TOKEN_OFFCHAIN_DATA_INTERVAL,
     SELECTED_TOKEN_OFFCHAIN_DATA_PROVIDER,
@@ -96,6 +97,9 @@ export default () => {
         disabled: DISABLE_MISSING_BLOCKS_METRIC === "true",
         interval: parseInt(CHECK_MISSING_BLOCKS_METRIC_INTERVAL, 10) || 86_400_000, // 1 day
       },
+    },
+    scriptMigrations: {
+      enabled: ENABLE_SCRIPT_MIGRATIONS === "true",
     },
   };
 };

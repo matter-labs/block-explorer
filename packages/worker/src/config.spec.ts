@@ -123,6 +123,9 @@ describe("config", () => {
           interval: 86_400_000,
         },
       },
+      scriptMigrations: {
+        enabled: false,
+      },
     });
   });
 

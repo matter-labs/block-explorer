@@ -11,3 +11,4 @@ export * from "./log.repository";
 export * from "./balance.repository";
 export * from "./counter.repository";
 export * from "./counterState.repository";
+export * from "./scriptMigration.repository";
