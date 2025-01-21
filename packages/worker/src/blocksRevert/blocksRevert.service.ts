@@ -81,7 +81,7 @@ export class BlocksRevertService {
     lastExecutedBlockNumber: number,
     detectedIncorrectBlockNumber: number
   ) => {
-    // binary search the last block with matching hash between latest executed block from DB and incorrect clock detected
+    // binary search the last block with matching hash between latest executed block from DB and incorrect block detected
     let start = lastExecutedBlockNumber;
     let end = detectedIncorrectBlockNumber;
 

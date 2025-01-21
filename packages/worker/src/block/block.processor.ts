@@ -78,12 +78,12 @@ export class BlockProcessor {
       return false;
     }
 
-    if (lastDbBlock && lastDbBlock.hash !== blocksToProcess[0].block?.parentHash) {
+    if (lastDbBlock && lastDbBlock.hash !== blocksToProcess[0]?.block?.parentHash) {
       this.triggerBlocksRevertEvent(lastDbBlockNumber);
       return false;
     }
 
-    const allBlocksExist = !blocksToProcess.find((blockInfo) => !blockInfo.block || !blockInfo.blockDetails);
+    const allBlocksExist = !blocksToProcess.find((blockInfo) => !blockInfo?.block || !blockInfo?.blockDetails);
     if (!allBlocksExist) {
       // We don't need to handle this potential revert as these blocks are not in DB yet,
       // try again later once these blocks are present in blockchain again.
