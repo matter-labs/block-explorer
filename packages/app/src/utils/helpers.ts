@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { Interface } from "ethers";
+import { AbiCoder, Interface } from "ethers";
 import { utils } from "zksync-ethers";
 
 import { DEPLOYER_CONTRACT_ADDRESS } from "./constants";
@@ -8,8 +8,12 @@ import type { DecodingType } from "@/components/transactions/infoTable/HashViewe
 import type { AbiFragment } from "@/composables/useAddress";
 import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composables/useEventLog";
 import type { TokenTransfer } from "@/composables/useTransaction";
+import type { InputData } from "@/composables/useTransactionData";
+import type { ParamType, Result } from "ethers";
 
 const { BOOTLOADER_FORMAL_ADDRESS } = utils;
+
+export const DefaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export function utcStringFromUnixTimestamp(timestamp: number) {
   const isoDate = new Date(+`${timestamp}000`).toISOString();
@@ -114,6 +118,56 @@ export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): 
   } catch {
     return undefined;
   }
+}
+
+export function decodeInputData(input: ParamType, args: Result): InputData[] {
+  if (input.isArray()) {
+    return decodeArrayInputData(input, args);
+  }
+
+  if (input.isTuple()) {
+    return decodeTupleInputData(input, args);
+  }
+
+  return [
+    {
+      name: input.name,
+      type: input.type as InputType,
+      value: args.toString(),
+      encodedValue: DefaultAbiCoder.encode([input.type], [args]).split("0x")[1],
+      inputs: [],
+    },
+  ];
+}
+
+function decodeArrayInputData(input: ParamType, args: Result): InputData[] {
+  const inputs = args.flatMap((arg) => decodeInputData(input.arrayChildren!, arg));
+
+  return [
+    {
+      name: input.name,
+      type: `${inputs[0]?.type ? `${inputs[0]?.type}[]` : input.type}`,
+      value: `[${inputs.map((input) => input.value).join(",")}]`,
+      inputs: inputs,
+      encodedValue: `[${inputs.map((input) => input.encodedValue).join(",")}]`,
+    },
+  ];
+}
+
+function decodeTupleInputData(input: ParamType, args: Result): InputData[] {
+  const inputs = input.components!.flatMap((component: ParamType, index: number) =>
+    decodeInputData(component, args[index])
+  );
+
+  return [
+    {
+      name: input.name,
+      type: `tuple(${inputs.map((input) => input.type).join(",")})`,
+      value: `(${inputs.map((input) => input.value).join(",")})`,
+      inputs,
+      encodedValue: `(${inputs.map((input) => input.encodedValue).join(",")})`,
+    },
+  ];
 }
 
 export function sortTokenTransfers(transfers: TokenTransfer[]): TokenTransfer[] {
