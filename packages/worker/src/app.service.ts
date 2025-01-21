@@ -10,6 +10,7 @@ import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
+import { SystemContractService } from "./contract/systemContract.service";
 
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
@@ -23,13 +24,15 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     private readonly balancesCleanerService: BalancesCleanerService,
     private readonly tokenOffChainDataSaverService: TokenOffChainDataSaverService,
     private readonly dataSource: DataSource,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly systemContractService: SystemContractService
   ) {
     this.logger = new Logger(AppService.name);
   }
 
   public onModuleInit() {
     runMigrations(this.dataSource, this.logger).then(() => {
+      this.systemContractService.addSystemContracts();
       this.startWorkers();
     });
   }
