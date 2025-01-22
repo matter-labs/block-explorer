@@ -39,9 +39,9 @@ Feature: Main Page
       | Value   | url                        |
       # discord renamed to "join"
       | join    | https://join.zksync.dev/   |
-      | twitter | https://twitter.com/zksync |
+      | x.com | https://x.com/zksync |
 
-  @id254:I
+  @id254:
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
     Given Set the "<Value>" value for "<Dropdown>" switcher
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher

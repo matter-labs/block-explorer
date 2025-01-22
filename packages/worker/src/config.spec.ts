@@ -56,6 +56,14 @@ describe("config", () => {
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,
+        missingBlocks: {
+          disabled: false,
+          interval: 86_400_000,
+        },
+      },
+      healthChecks: {
+        rpcHealthCheckTimeoutMs: 20_000,
+        dbHealthCheckTimeoutMs: 20_000,
       },
     };
   });
@@ -114,6 +122,14 @@ describe("config", () => {
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,
+        missingBlocks: {
+          disabled: false,
+          interval: 86_400_000,
+        },
+      },
+      healthChecks: {
+        rpcHealthCheckTimeoutMs: 20_000,
+        dbHealthCheckTimeoutMs: 20_000,
       },
     });
   });
