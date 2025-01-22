@@ -26,7 +26,7 @@ export class SystemContractService {
         const bytecode = await this.blockchainService.getCode(contract.address);
         // some contract might not exist on the environment yet
         if (bytecode !== "0x") {
-          await this.addressRepository.add({
+          await this.addressRepository.upsert({
             address: contract.address,
             bytecode,
           });
