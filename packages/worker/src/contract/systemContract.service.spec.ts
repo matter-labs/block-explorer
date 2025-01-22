@@ -45,15 +45,15 @@ describe("SystemContractService", () => {
         SystemContractService.getSystemContracts().map((contract) => mock<Address>({ address: contract.address }))
       );
       await systemContractService.addSystemContracts();
-      expect(addressRepositoryMock.add).toBeCalledTimes(0);
+      expect(addressRepositoryMock.upsert).toBeCalledTimes(0);
     });
 
     it("adds all system contracts if none of them exist in the DB", async () => {
       (addressRepositoryMock.find as jest.Mock).mockResolvedValue([]);
       await systemContractService.addSystemContracts();
-      expect(addressRepositoryMock.add).toBeCalledTimes(systemContracts.length);
+      expect(addressRepositoryMock.upsert).toBeCalledTimes(systemContracts.length);
       for (const systemContract of systemContracts) {
-        expect(addressRepositoryMock.add).toBeCalledWith({
+        expect(addressRepositoryMock.upsert).toBeCalledWith({
           address: systemContract.address,
           bytecode: `${systemContract.address}-code`,
         });
@@ -69,10 +69,10 @@ describe("SystemContractService", () => {
         existingContractAddresses.map((existingContractAddress) => mock<Address>({ address: existingContractAddress }))
       );
       await systemContractService.addSystemContracts();
-      expect(addressRepositoryMock.add).toBeCalledTimes(systemContracts.length - existingContractAddresses.length);
+      expect(addressRepositoryMock.upsert).toBeCalledTimes(systemContracts.length - existingContractAddresses.length);
       for (const systemContract of systemContracts) {
         if (!existingContractAddresses.includes(systemContract.address)) {
-          expect(addressRepositoryMock.add).toBeCalledWith({
+          expect(addressRepositoryMock.upsert).toBeCalledWith({
             address: systemContract.address,
             bytecode: `${systemContract.address}-code`,
           });
@@ -93,10 +93,10 @@ describe("SystemContractService", () => {
         return `${address}-code`;
       });
       await systemContractService.addSystemContracts();
-      expect(addressRepositoryMock.add).toBeCalledTimes(systemContracts.length - notDeployedSystemContracts.length);
+      expect(addressRepositoryMock.upsert).toBeCalledTimes(systemContracts.length - notDeployedSystemContracts.length);
       for (const systemContract of systemContracts) {
         if (!notDeployedSystemContracts.includes(systemContract.address)) {
-          expect(addressRepositoryMock.add).toBeCalledWith({
+          expect(addressRepositoryMock.upsert).toBeCalledWith({
             address: systemContract.address,
             bytecode: `${systemContract.address}-code`,
           });
