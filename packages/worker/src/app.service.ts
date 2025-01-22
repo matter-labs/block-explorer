@@ -15,6 +15,7 @@ import { SystemContractService } from "./contract/systemContract.service";
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger;
+  private isHandlingBlocksRevert = false;
 
   public constructor(
     private readonly counterService: CounterService,
@@ -43,6 +44,11 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   @OnEvent(BLOCKS_REVERT_DETECTED_EVENT)
   protected async handleBlocksRevert({ detectedIncorrectBlockNumber }: { detectedIncorrectBlockNumber: number }) {
+    if (this.isHandlingBlocksRevert) {
+      return;
+    }
+    this.isHandlingBlocksRevert = true;
+
     this.logger.log("Stopping workers before blocks revert");
     await this.stopWorkers();
 
@@ -50,7 +56,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     await this.blocksRevertService.handleRevert(detectedIncorrectBlockNumber);
 
     this.logger.log("Starting workers after blocks revert");
-    await this.startWorkers();
+    this.startWorkers();
+
+    this.isHandlingBlocksRevert = false;
   }
 
   private startWorkers() {
