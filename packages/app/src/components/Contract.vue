@@ -73,7 +73,7 @@
       <template #tab-4-content>
         <ContractEvents :contract="contract" />
       </template>
-      <template v-if="tokenInfo" #tab-5-content>
+      <template v-if="tokenInfo && !isLoadingTokenInfo" #tab-5-content>
         <TokenHoldersList :tokenInfo="tokenInfo">
           <template #not-found>
             <TokenHoldersListEmptyState />

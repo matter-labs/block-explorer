@@ -6,7 +6,7 @@ import { Token } from "./token.entity";
 import { Block } from "../block/block.entity";
 import { Transaction } from "../transaction/entities/transaction.entity";
 import { TransferModule } from "../transfer/transfer.module";
-import { BalanceModule } from "src/balance/balance.module";
+import { BalanceModule } from "../balance/balance.module";
 @Module({
   imports: [TypeOrmModule.forFeature([Token, Block, Transaction]), TransferModule, BalanceModule],
   controllers: [TokenController],
