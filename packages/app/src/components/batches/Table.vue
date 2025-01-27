@@ -34,7 +34,7 @@
       </TableBodyColumn>
       <TableBodyColumn v-if="columns.includes('age')" :data-heading="t('batches.table.age')">
         <CopyButton :value="utcStringFromISOString(item.timestamp)">
-          <TimeField :value="item.timestamp" />
+          <TimeField :value="item.timestamp" :format="TimeFormat.TIME_AGO" />
         </CopyButton>
       </TableBodyColumn>
     </template>
@@ -65,6 +65,7 @@ import ZkSyncIcon from "@/components/icons/ZkSync.vue";
 import type { BatchListItem } from "@/composables/useBatches";
 import type { PropType } from "vue";
 
+import { TimeFormat } from "@/types";
 import { utcStringFromISOString } from "@/utils/helpers";
 
 const { t, te } = useI18n();

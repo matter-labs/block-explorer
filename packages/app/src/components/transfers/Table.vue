@@ -42,7 +42,7 @@
 
       <TableBodyColumn :data-heading="t('transfers.table.age')">
         <CopyButton :value="utcStringFromISOString(item.timestamp)">
-          <TimeField :data-testid="$testId.timestamp" :value="item.timestamp" />
+          <TimeField :data-testid="$testId.timestamp" :value="item.timestamp" :format="TimeFormat.TIME_AGO" />
         </CopyButton>
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('transfers.table.type')" class="transfer-type">
@@ -156,6 +156,7 @@ import TransactionNetworkSquareBlock from "@/components/transactions/Transaction
 
 import useTransfers, { type Transfer } from "@/composables/useTransfers";
 
+import { TimeFormat } from "@/types";
 import { utcStringFromISOString } from "@/utils/helpers";
 
 const { t } = useI18n();

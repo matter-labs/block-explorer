@@ -216,7 +216,7 @@
           </InfoTooltip>
         </table-body-column>
         <table-body-column class="transaction-table-value">
-          <TimeField :value="transaction?.receivedAt" :format="TimeFormat.TIME_AGO_AND_FULL" />
+          <TimeField :value="transaction?.receivedAt" />
         </table-body-column>
       </tr>
     </template>
@@ -255,7 +255,6 @@ import TransferTableCell from "@/components/transactions/infoTable/TransferTable
 
 import type { TransactionItem } from "@/composables/useTransaction";
 
-import { TimeFormat } from "@/types";
 import { isContractDeployerAddress } from "@/utils/helpers";
 
 const { t } = useI18n();

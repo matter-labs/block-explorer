@@ -27,7 +27,8 @@ const props = defineProps({
   },
   format: {
     type: String as PropType<TimeFormat>,
-    default: TimeFormat.TIME_AGO,
+    default: TimeFormat.TIME_AGO_AND_FULL,
+    required: false,
   },
 });
 
