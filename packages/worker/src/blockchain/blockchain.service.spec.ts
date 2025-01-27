@@ -4,7 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as timersPromises from "timers/promises";
-import { BlockchainService, BridgeAddresses } from "./blockchain.service";
+import { BlockchainService, BridgeAddresses, TeeProof } from "./blockchain.service";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { RetryableContract } from "./retryableContract";
 
@@ -1635,6 +1635,113 @@ describe("BlockchainService", () => {
       it("sets L2 ERC20 bridge address to null", async () => {
         await blockchainService.onModuleInit();
         expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(undefined);
+      });
+    });
+  });
+
+  describe("getTeeProofs", () => {
+    const batchNumber = 10;
+    const teeProofs: TeeProof[] = [
+      {
+        attestation: "attestation",
+        l1BatchNumber: batchNumber,
+        proof: "proof",
+        provedAt: "2024-01-01",
+        pubkey: "pubkey",
+        signature: "signature",
+        status: "status",
+        teeType: "sgx",
+      },
+    ];
+    let timeoutSpy;
+
+    beforeEach(() => {
+      jest.spyOn(provider, "send").mockResolvedValue(teeProofs);
+      timeoutSpy = jest.spyOn(timersPromises, "setTimeout");
+    });
+
+    it("starts the rpc call duration metric", async () => {
+      await blockchainService.getTeeProofs(batchNumber);
+      expect(startRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("gets TEE proofs for the specified batch number", async () => {
+      await blockchainService.getTeeProofs(batchNumber);
+      expect(provider.send).toHaveBeenCalledTimes(1);
+      expect(provider.send).toHaveBeenCalledWith("unstable_getTeeProofs", [batchNumber, "sgx"]);
+    });
+
+    it("stops the rpc call duration metric", async () => {
+      await blockchainService.getTeeProofs(batchNumber);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "unstable_getTeeProofs" });
+    });
+
+    it("returns the TEE proofs", async () => {
+      const result = await blockchainService.getTeeProofs(batchNumber);
+      expect(result).toEqual(teeProofs);
+    });
+
+    describe("if the call throws an error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "send")
+          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockRejectedValueOnce(new Error("RPC call error"))
+          .mockResolvedValueOnce(teeProofs);
+      });
+
+      it("retries RPC call with a default timeout", async () => {
+        await blockchainService.getTeeProofs(batchNumber);
+        expect(provider.send).toHaveBeenCalledTimes(3);
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, defaultRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, defaultRetryTimeout);
+      });
+
+      it("stops the rpc call duration metric only for the successful retry", async () => {
+        await blockchainService.getTeeProofs(batchNumber);
+        expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+        expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "unstable_getTeeProofs" });
+      });
+
+      it("returns result of the successful RPC call", async () => {
+        const result = await blockchainService.getTeeProofs(batchNumber);
+        expect(result).toEqual(teeProofs);
+      });
+    });
+
+    describe("if the call throws a timeout error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "send")
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockRejectedValueOnce({ code: "TIMEOUT" })
+          .mockResolvedValueOnce(teeProofs);
+      });
+
+      it("retries RPC call with a quick timeout", async () => {
+        await blockchainService.getTeeProofs(batchNumber);
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
+      });
+    });
+
+    describe("if the call throws a connection refused error", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(provider, "send")
+          .mockRejectedValueOnce({ code: "ECONNREFUSED" })
+          .mockRejectedValueOnce({ code: "ECONNREFUSED" })
+          .mockResolvedValueOnce(teeProofs);
+      });
+
+      it("retries RPC call with a quick timeout", async () => {
+        await blockchainService.getTeeProofs(batchNumber);
+        expect(timeoutSpy).toHaveBeenCalledTimes(2);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(1, quickRetryTimeout);
+        expect(timeoutSpy).toHaveBeenNthCalledWith(2, quickRetryTimeout);
       });
     });
   });

@@ -17,6 +17,7 @@ describe("BatchService", () => {
   let blockChainServiceMock: BlockchainService;
   let batchService: BatchService;
   let batchWorkerMock: BatchWorker;
+  let configServiceMock: ConfigService;
 
   beforeEach(async () => {
     batchWorkerMock = mock<BatchWorker>({
@@ -25,7 +26,7 @@ describe("BatchService", () => {
     });
     (BatchWorker as jest.Mock).mockReturnValue(batchWorkerMock);
 
-    const configServiceMock = mock<ConfigService>({
+    configServiceMock = mock<ConfigService>({
       get: jest.fn().mockReturnValue(10),
     });
     blockChainServiceMock = mock<BlockchainService>();
@@ -60,45 +61,56 @@ describe("BatchService", () => {
   it("initializes a BatchWorker for each batch state", () => {
     batchService.start();
 
-    expect(BatchWorker).toHaveBeenCalledTimes(4);
+    expect(BatchWorker).toHaveBeenCalledTimes(5);
     expect(BatchWorker).toHaveBeenCalledWith(expect.any(BatchProcessor), 10);
     expect(BatchProcessor).toHaveBeenCalledWith(
       BatchState.Executed,
       blockChainServiceMock,
       batchRepositoryMock,
-      blockRepositoryMock
+      blockRepositoryMock,
+      configServiceMock
     );
     expect(BatchProcessor).toHaveBeenCalledWith(
       BatchState.Proven,
       blockChainServiceMock,
       batchRepositoryMock,
-      blockRepositoryMock
+      blockRepositoryMock,
+      configServiceMock
     );
     expect(BatchProcessor).toHaveBeenCalledWith(
       BatchState.Committed,
       blockChainServiceMock,
       batchRepositoryMock,
-      blockRepositoryMock
+      blockRepositoryMock,
+      configServiceMock
     );
     expect(BatchProcessor).toHaveBeenCalledWith(
       BatchState.New,
       blockChainServiceMock,
       batchRepositoryMock,
-      blockRepositoryMock
+      blockRepositoryMock,
+      configServiceMock
+    );
+    expect(BatchProcessor).toHaveBeenCalledWith(
+      BatchState.TeeProven,
+      blockChainServiceMock,
+      batchRepositoryMock,
+      blockRepositoryMock,
+      configServiceMock
     );
   });
 
   describe("start", () => {
     it("starts each batch worker", async () => {
       await batchService.start();
-      expect(batchWorkerMock.start).toHaveBeenCalledTimes(4);
+      expect(batchWorkerMock.start).toHaveBeenCalledTimes(5);
     });
   });
 
   describe("stop", () => {
     it("stops each batch worker", async () => {
       await batchService.stop();
-      expect(batchWorkerMock.stop).toHaveBeenCalledTimes(4);
+      expect(batchWorkerMock.stop).toHaveBeenCalledTimes(5);
     });
   });
 });

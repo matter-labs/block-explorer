@@ -40,6 +40,7 @@ export default () => {
     BASE_TOKEN_L1_ADDRESS,
     BASE_TOKEN_ICON_URL,
     BASE_TOKEN_NAME,
+    TEE_PROOF_START_BATCH_NUMBER,
   } = process.env;
 
   return {
@@ -76,6 +77,7 @@ export default () => {
     batches: {
       batchesProcessingPollingInterval: parseInt(BATCHES_PROCESSING_POLLING_INTERVAL, 10) || 60000,
       disableBatchesProcessing: DISABLE_BATCHES_PROCESSING === "true",
+      teeProofStartBatchNumber: parseInt(TEE_PROOF_START_BATCH_NUMBER, 10) || 490556,
     },
     balances: {
       deleteBalancesInterval: parseInt(DELETE_BALANCES_INTERVAL, 10) || 300000,

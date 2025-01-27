@@ -34,6 +34,7 @@ describe("config", () => {
       batches: {
         batchesProcessingPollingInterval: 60000,
         disableBatchesProcessing: false,
+        teeProofStartBatchNumber: 490556,
       },
       balances: {
         deleteBalancesInterval: 300000,
@@ -107,6 +108,7 @@ describe("config", () => {
       batches: {
         batchesProcessingPollingInterval: 60000,
         disableBatchesProcessing: false,
+        teeProofStartBatchNumber: 490556,
       },
       balances: {
         deleteBalancesInterval: 300000,
