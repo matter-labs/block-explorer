@@ -8,6 +8,8 @@ import TimeField from "@/components/common/table/fields/TimeField.vue";
 
 import enUS from "@/locales/en.json";
 
+import { TimeFormat } from "@/types";
+
 describe("TimeField", () => {
   const i18n = createI18n({
     locale: "en",
@@ -47,7 +49,7 @@ describe("TimeField", () => {
       global,
       props: {
         value: "2022-12-02T09:26:06.605Z",
-        showExactDate: false,
+        format: TimeFormat.TIME_AGO,
       },
     });
 
