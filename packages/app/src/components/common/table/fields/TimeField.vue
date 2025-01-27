@@ -1,18 +1,20 @@
 <template>
   <div class="info-field-time" :title="utcStringFromISOString(isoString)">
-    <span class="time-ago">
-      {{ isUtcDate ? localDateFromISOString(isoString) : timeAgo }}
-    </span>
-    <span v-if="showExactDate" class="full-date">{{ localDateFromISOString(isoString) }}</span>
+    <span class="time-ago" v-if="format === TimeFormat.FULL">{{ localDateFromISOString(isoString) }}</span>
+    <span class="time-ago" v-else>{{ timeAgo }}</span>
+    <span v-if="format === TimeFormat.TIME_AGO_AND_FULL" class="full-date">{{
+      localDateFromISOString(isoString)
+    }}</span>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useTimeAgo } from "@vueuse/core";
 
+import { TimeFormat } from "@/types";
 import { ISOStringFromUnixTimestamp, localDateFromISOString, utcStringFromISOString } from "@/utils/helpers";
 
 const { t } = useI18n();
@@ -23,15 +25,9 @@ const props = defineProps({
     default: "",
     required: true,
   },
-  showExactDate: {
-    type: Boolean,
-    default: true,
-    required: false,
-  },
-  isUtcDate: {
-    type: Boolean,
-    default: false,
-    required: false,
+  format: {
+    type: String as PropType<TimeFormat>,
+    default: TimeFormat.TIME_AGO,
   },
 });
 

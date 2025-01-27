@@ -42,7 +42,7 @@
 
       <TableBodyColumn :data-heading="t('transfers.table.age')">
         <CopyButton :value="utcStringFromISOString(item.timestamp)">
-          <TimeField :data-testid="$testId.timestamp" :value="item.timestamp" :show-exact-date="false" />
+          <TimeField :data-testid="$testId.timestamp" :value="item.timestamp" />
         </CopyButton>
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('transfers.table.type')" class="transfer-type">

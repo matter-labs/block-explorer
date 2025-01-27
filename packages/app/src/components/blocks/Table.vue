@@ -49,7 +49,7 @@
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('blocks.table.age')">
         <CopyButton :value="item.timestamp">
-          <TimeField :value="item.timestamp" :show-exact-date="false" />
+          <TimeField :value="item.timestamp" />
         </CopyButton>
       </TableBodyColumn>
     </template>
@@ -78,6 +78,8 @@ import TimeField from "@/components/common/table/fields/TimeField.vue";
 
 import type { BlockListItem } from "@/composables/useBlock";
 import type { PropType } from "vue";
+
+import { TimeFormat } from "@/types";
 
 const { t } = useI18n();
 

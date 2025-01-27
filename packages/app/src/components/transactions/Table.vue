@@ -77,9 +77,8 @@
         <CopyButton :value="utcStringFromISOString(item.receivedAt)">
           <TimeField
             :value="item.receivedAt"
-            :show-exact-date="false"
             :data-testid="$testId.timestamp"
-            :is-utc-date="!isTimeAgeView"
+            :format="isTimeAgeView ? TimeFormat.TIME_AGO : TimeFormat.FULL"
           />
         </CopyButton>
       </TableBodyColumn>
@@ -246,8 +245,8 @@ import useTransactions, { type TransactionListItem, type TransactionSearchParams
 
 import type { Direction } from "@/components/transactions/TransactionDirectionTableCell.vue";
 import type { AbiFragment } from "@/composables/useAddress";
-import type { NetworkOrigin } from "@/types";
 
+import { type NetworkOrigin, TimeFormat } from "@/types";
 import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
