@@ -207,7 +207,8 @@ Feature: Main Page
       | Selector type | Element               | Assertion |
       | id            | contractAddress       | visible   |
       | id            | contractName          | visible   |
-      | testId        | radio-buttons         | visible   |
+      | testId.optimizationRadioButtons        | radio-buttons         | visible   |
+      | testId.enableEraVMExtensionsRadioButtons        | radio-buttons         | visible   |
       | id            | compilerVersion       | visible   |
       | id            | zkCompilerVersion     | visible   |
       | id            | sourceCode            | visible   |
