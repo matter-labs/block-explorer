@@ -119,7 +119,7 @@ export class BlockWatcher implements OnModuleInit, OnModuleDestroy {
     this.logger.debug(`Last block number is set to: ${this.lastBlockchainBlockNumber}`);
 
     this.blockchainService.on("block", (blockNumber) => {
-      this.lastBlockchainBlockNumber = Math.max(this.lastBlockchainBlockNumber, blockNumber);
+      this.lastBlockchainBlockNumber = blockNumber || this.lastBlockchainBlockNumber;
       this.blockchainBlocksMetric.set(this.lastBlockchainBlockNumber);
       this.logger.debug(`Last block number is updated to: ${this.lastBlockchainBlockNumber}`);
     });

@@ -61,6 +61,10 @@ describe("config", () => {
           interval: 86_400_000,
         },
       },
+      healthChecks: {
+        rpcHealthCheckTimeoutMs: 20_000,
+        dbHealthCheckTimeoutMs: 20_000,
+      },
     };
   });
 
@@ -122,6 +126,10 @@ describe("config", () => {
           disabled: false,
           interval: 86_400_000,
         },
+      },
+      healthChecks: {
+        rpcHealthCheckTimeoutMs: 20_000,
+        dbHealthCheckTimeoutMs: 20_000,
       },
     });
   });
