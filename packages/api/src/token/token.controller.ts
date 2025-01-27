@@ -19,6 +19,8 @@ import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { BalanceService } from "../balance/balance.service";
+import { BalanceForHolderDto } from "../balance/balanceForHolder.dto";
 
 const entityName = "tokens";
 
@@ -26,7 +28,11 @@ const entityName = "tokens";
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class TokenController {
-  constructor(private readonly tokenService: TokenService, private readonly transferService: TransferService) {}
+  constructor(
+    private readonly tokenService: TokenService,
+    private readonly transferService: TransferService,
+    private readonly balanceService: BalanceService
+  ) {}
 
   @Get("")
   @ApiListPageOkResponse(TokenDto, { description: "Successfully returned token list" })
@@ -104,5 +110,32 @@ export class TokenController {
         route: `${entityName}/${address}/transfers`,
       }
     );
+  }
+
+  @Get(":tokenAddress/holders")
+  @ApiParam({
+    name: "tokenAddress",
+    type: String,
+    schema: { pattern: ADDRESS_REGEX_PATTERN },
+    example: constants.tokenAddress,
+    description: "Valid hex token address",
+  })
+  @ApiListPageOkResponse(BalanceForHolderDto, { description: "Successfully returned balance for holder list" })
+  @ApiBadRequestResponse({
+    description: "Token address is invalid or paging query params are not valid or out of range",
+  })
+  @ApiNotFoundResponse({ description: "Token with the specified address does not exist" })
+  public async getTokenHolders(
+    @Param("tokenAddress", new ParseAddressPipe()) tokenAddress: string,
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+  ): Promise<Pagination<BalanceForHolderDto>> {
+    if (!(await this.tokenService.exists(tokenAddress))) {
+      throw new NotFoundException();
+    }
+
+    return await this.balanceService.getBalancesForTokenAddress(tokenAddress, {
+      ...pagingOptions,
+      route: `${entityName}/${tokenAddress}/holders`,
+    });
   }
 }

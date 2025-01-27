@@ -73,11 +73,19 @@
       <template #tab-4-content>
         <ContractEvents :contract="contract" />
       </template>
+      <template v-if="tokenInfo" #tab-5-content>
+        <TokenHoldersList :tokenInfo="tokenInfo">
+          <template #not-found>
+            <TokenHoldersListEmptyState />
+          </template>
+        </TokenHoldersList>
+      </template>
     </Tabs>
   </div>
 </template>
 <script lang="ts" setup>
 import { computed, type PropType } from "vue";
+import { watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { CheckCircleIcon } from "@heroicons/vue/solid";
@@ -93,8 +101,12 @@ import ContractInfoTab from "@/components/contract/ContractInfoTab.vue";
 import ContractInfoTable from "@/components/contract/InfoTable.vue";
 import TransactionEmptyState from "@/components/contract/TransactionEmptyState.vue";
 import ContractEvents from "@/components/event/ContractEvents.vue";
+import TokenHoldersList from "@/components/token/TokenHoldersList.vue";
+import TokenHoldersListEmptyState from "@/components/token/TokenHoldersListEmptyState.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
+
+import useToken from "@/composables/useToken";
 
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
@@ -128,7 +140,9 @@ const tabs = computed(() => [
     icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
   },
   { title: t("tabs.events"), hash: "#events" },
+  ...(tokenInfo?.value?.l2Address ? [{ title: t("tabs.holders"), hash: "#holders" }] : []),
 ]);
+
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   if (props.contract?.address) {
     return [
@@ -140,6 +154,18 @@ const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   }
   return [];
 });
+
+const { getTokenInfo, tokenInfo, isRequestPending: isLoadingTokenInfo } = useToken();
+getTokenInfo(props.contract?.address);
+
+watch(
+  () => props.contract,
+  (newContract) => {
+    if (newContract) {
+      getTokenInfo(newContract.address);
+    }
+  }
+);
 
 const contractName = computed(() => props.contract?.verificationInfo?.request.contractName.replace(/.*\.sol:/, ""));
 const contractABI = computed(() => props.contract?.verificationInfo?.artifacts.abi);

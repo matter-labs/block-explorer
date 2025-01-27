@@ -8,6 +8,8 @@ import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
+import { BalanceForHolderDto } from "../balance/balanceForHolder.dto";
+import { BalanceService } from "../balance/balance.service";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
@@ -16,11 +18,13 @@ describe("TokenController", () => {
   let controller: TokenController;
   let serviceMock: TokenService;
   let transferServiceMock: TransferService;
+  let balanceServiceMock: BalanceService;
   let token;
 
   beforeEach(async () => {
     serviceMock = mock<TokenService>();
     transferServiceMock = mock<TransferService>();
+    balanceServiceMock = mock<BalanceService>();
 
     token = {
       l2Address: "tokenAddress",
@@ -36,6 +40,10 @@ describe("TokenController", () => {
         {
           provide: TransferService,
           useValue: transferServiceMock,
+        },
+        {
+          provide: BalanceService,
+          useValue: balanceServiceMock,
         },
       ],
     }).compile();
@@ -141,6 +149,29 @@ describe("TokenController", () => {
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
+      });
+    });
+  });
+  describe("getTokenHolders", () => {
+    const tokenHolders = mock<Pagination<BalanceForHolderDto>>();
+    describe("when token exists", () => {
+      beforeEach(() => {
+        (serviceMock.exists as jest.Mock).mockResolvedValueOnce(true);
+        (balanceServiceMock.getBalancesForTokenAddress as jest.Mock).mockResolvedValueOnce(tokenHolders);
+      });
+
+      it("queries transfers with the specified options", async () => {
+        await controller.getTokenHolders(tokenAddress, pagingOptionsWithLimit);
+        expect(balanceServiceMock.getBalancesForTokenAddress).toHaveBeenCalledTimes(1);
+        expect(balanceServiceMock.getBalancesForTokenAddress).toHaveBeenCalledWith(tokenAddress, {
+          ...pagingOptionsWithLimit,
+          route: `tokens/${tokenAddress}/holders`,
+        });
+      });
+
+      it("returns token transfers", async () => {
+        const result = await controller.getTokenHolders(tokenAddress, pagingOptionsWithLimit);
+        expect(result).toBe(tokenHolders);
       });
     });
   });
