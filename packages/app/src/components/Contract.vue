@@ -74,7 +74,7 @@
         <ContractEvents :contract="contract" />
       </template>
       <template v-if="tokenInfo && !isLoadingTokenInfo" #tab-5-content>
-        <TokenHoldersList :tokenInfo="tokenInfo">
+        <TokenHoldersList v-if="tokenInfo && !isLoadingTokenInfo" :tokenInfo="tokenInfo">
           <template #not-found>
             <TokenHoldersListEmptyState />
           </template>
