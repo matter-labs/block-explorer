@@ -65,7 +65,6 @@ import ZkSyncIcon from "@/components/icons/ZkSync.vue";
 import type { BatchListItem } from "@/composables/useBatches";
 import type { PropType } from "vue";
 
-import { TimeFormat } from "@/types";
 import { utcStringFromISOString } from "@/utils/helpers";
 
 const { t, te } = useI18n();

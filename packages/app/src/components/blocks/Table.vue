@@ -79,8 +79,6 @@ import TimeField from "@/components/common/table/fields/TimeField.vue";
 import type { BlockListItem } from "@/composables/useBlock";
 import type { PropType } from "vue";
 
-import { TimeFormat } from "@/types";
-
 const { t } = useI18n();
 
 defineProps({
