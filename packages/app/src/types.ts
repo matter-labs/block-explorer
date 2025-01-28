@@ -61,3 +61,9 @@ export type ContractVerificationData = {
 };
 
 export type ContractVerificationStatus = "successful" | "failed" | "in_progress" | "queued";
+
+export enum TimeFormat {
+  TIME_AGO = "time_ago",
+  FULL = "full",
+  TIME_AGO_AND_FULL = "time_ago_and_full",
+}

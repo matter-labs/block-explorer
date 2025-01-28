@@ -143,6 +143,7 @@
             "transferMethodName": "Transfer",
             "timestamp": "Timestamp",
             "age": "Age",
+            "dateTimeUTC": "Date Time (UTC)",
             "tokenAddress": "Token address",
             "tokenName": "Token name",
             "tokenSymbol": "Token symbol",
