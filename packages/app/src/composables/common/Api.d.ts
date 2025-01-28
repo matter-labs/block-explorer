@@ -139,5 +139,10 @@ declare namespace Api {
       totalTransactions: number;
       isEvmLike: boolean;
     };
+
+    type TokenHolder = {
+      address: string;
+      balance: string;
+    };
   }
 }

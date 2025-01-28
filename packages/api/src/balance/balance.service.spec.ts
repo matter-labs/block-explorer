@@ -5,6 +5,9 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { BalanceService } from "./balance.service";
 import { Balance } from "./balance.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import * as utils from "../common/utils";
+import { IPaginationMeta, Pagination } from "nestjs-typeorm-paginate";
+jest.mock("../common/utils");
 
 describe("BalanceService", () => {
   let service: BalanceService;
@@ -297,6 +300,131 @@ describe("BalanceService", () => {
       const result = await service.getBalancesByAddresses(addresses, tokenAddress);
       expect(mainQueryBuilderMock.getMany).toHaveBeenCalledTimes(1);
       expect(result).toEqual([]);
+    });
+  });
+
+  describe("getBalancesForTokenAddress", () => {
+    const subQuerySql = "subQuerySql";
+    const tokenAddress = "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69";
+    let subQueryBuilderMock;
+    let mainQueryBuilderMock;
+    const pagingOptions = {
+      limit: 10,
+      page: 2,
+    };
+    beforeEach(() => {
+      subQueryBuilderMock = mock<SelectQueryBuilder<Balance>>({
+        getQuery: jest.fn().mockReturnValue(subQuerySql),
+      });
+      mainQueryBuilderMock = mock<SelectQueryBuilder<Balance>>();
+      (utils.paginate as jest.Mock).mockResolvedValue({
+        items: [],
+      });
+      (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValueOnce(subQueryBuilderMock);
+      (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValueOnce(mainQueryBuilderMock);
+    });
+
+    it("creates sub query builder with proper params", async () => {
+      await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("latest_balances");
+    });
+
+    it("selects required fields in the sub query", async () => {
+      await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(subQueryBuilderMock.select).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.select).toHaveBeenCalledWith(`"tokenAddress"`);
+      expect(subQueryBuilderMock.addSelect).toHaveBeenCalledTimes(2);
+      expect(subQueryBuilderMock.addSelect).toHaveBeenCalledWith(`"address"`);
+      expect(subQueryBuilderMock.addSelect).toHaveBeenCalledWith(`MAX("blockNumber")`, "blockNumber");
+    });
+
+    it("filters balances in the sub query", async () => {
+      await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(subQueryBuilderMock.where).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.where).toHaveBeenCalledWith(`"tokenAddress" = :tokenAddress`);
+    });
+
+    it("groups by address and tokenAddress in the sub query", async () => {
+      await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(subQueryBuilderMock.groupBy).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.groupBy).toHaveBeenCalledWith(`"tokenAddress"`);
+      expect(subQueryBuilderMock.addGroupBy).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.addGroupBy).toHaveBeenCalledWith(`"address"`);
+    });
+
+    it("creates main query builder with proper params", async () => {
+      await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("balances");
+    });
+
+    it("joins main query with the sub query", async () => {
+      await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(mainQueryBuilderMock.innerJoin).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.innerJoin).toHaveBeenCalledWith(
+        `(${subQuerySql})`,
+        "latest_balances",
+        `balances."tokenAddress" = latest_balances."tokenAddress" AND
+      balances."address" = latest_balances."address" AND
+      balances."blockNumber" = latest_balances."blockNumber"`
+      );
+    });
+
+    it("sets query tokenAddress and addresses params", async () => {
+      await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("tokenAddress", hexTransformer.to(tokenAddress));
+    });
+
+    it("returns pagination results", async () => {
+      const balances = [
+        mock<Balance>({ balance: "2222", address: "0x111111" }),
+        mock<Balance>({ balance: "3333", address: "0x222222" }),
+      ];
+      const paginationResult = mock<Pagination<Balance, IPaginationMeta>>({
+        meta: {
+          totalItems: 2,
+          itemCount: 2,
+          itemsPerPage: 10,
+          totalPages: 1,
+          currentPage: 1,
+        },
+        links: {
+          first: "first",
+          previous: "previous",
+          next: "next",
+          last: "last",
+        },
+        items: [balances[0], balances[1]],
+      });
+      (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+      const result = await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(utils.paginate).toHaveBeenCalledTimes(1);
+      expect(utils.paginate).toHaveBeenCalledWith(mainQueryBuilderMock, pagingOptions);
+      expect(result).toStrictEqual({
+        ...paginationResult,
+        items: [
+          { balance: balances[0].balance, address: balances[0].address },
+          { balance: balances[1].balance, address: balances[1].address },
+        ],
+      });
+    });
+
+    it("returns empty pagination results", async () => {
+      const paginationResult = mock<Pagination<Balance, IPaginationMeta>>({
+        meta: {
+          totalItems: 0,
+          itemCount: 0,
+          itemsPerPage: 10,
+          totalPages: 0,
+          currentPage: 1,
+        },
+        items: [],
+      });
+      (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+      const result = await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(utils.paginate).toHaveBeenCalledTimes(1);
+      expect(utils.paginate).toHaveBeenCalledWith(mainQueryBuilderMock, pagingOptions);
+      expect(result).toStrictEqual({ ...paginationResult, items: [] });
     });
   });
 });

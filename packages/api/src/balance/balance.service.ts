@@ -4,6 +4,9 @@ import { Repository } from "typeorm";
 import { Balance } from "./balance.entity";
 import { Token } from "../token/token.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { BalanceForHolderDto } from "./balanceForHolder.dto";
+import { paginate } from "../common/utils";
+import { IPaginationOptions, Pagination } from "nestjs-typeorm-paginate";
 
 export interface TokenBalance {
   balance: string;
@@ -98,5 +101,42 @@ export class BalanceService {
     );
     const balancesRecords = await balancesQuery.getMany();
     return balancesRecords;
+  }
+
+  public async getBalancesForTokenAddress(
+    tokenAddress: string,
+    paginationOptions?: IPaginationOptions
+  ): Promise<Pagination<BalanceForHolderDto>> {
+    const latestBalancesQuery = this.balanceRepository.createQueryBuilder("latest_balances");
+    latestBalancesQuery.select(`"tokenAddress"`);
+    latestBalancesQuery.addSelect(`"address"`);
+    latestBalancesQuery.addSelect(`MAX("blockNumber")`, "blockNumber");
+    latestBalancesQuery.where(`"tokenAddress" = :tokenAddress`);
+    latestBalancesQuery.groupBy(`"tokenAddress"`);
+    latestBalancesQuery.addGroupBy(`"address"`);
+
+    const balancesQuery = this.balanceRepository.createQueryBuilder("balances");
+    balancesQuery.innerJoin(
+      `(${latestBalancesQuery.getQuery()})`,
+      "latest_balances",
+      `balances."tokenAddress" = latest_balances."tokenAddress" AND
+      balances."address" = latest_balances."address" AND
+      balances."blockNumber" = latest_balances."blockNumber"`
+    );
+    balancesQuery.setParameter("tokenAddress", hexTransformer.to(tokenAddress));
+    balancesQuery.leftJoinAndSelect("balances.token", "token");
+    balancesQuery.orderBy(`CAST(balances.balance AS NUMERIC)`, "DESC");
+
+    const balancesForToken = await paginate<Balance>(balancesQuery, paginationOptions);
+
+    return {
+      ...balancesForToken,
+      items: balancesForToken.items.map((item) => {
+        return {
+          balance: item.balance,
+          address: item.address,
+        };
+      }),
+    };
   }
 }

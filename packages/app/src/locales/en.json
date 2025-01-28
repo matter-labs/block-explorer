@@ -601,6 +601,15 @@
             "tokenAddress": "Token Address"
         }
     },
+    "tokenHolders": {
+        "notFound": "Token doesn't have any holders at this moment",
+        "table": {
+            "address": "Address",
+            "balance": "Quantity",
+            "percentage": "Percentage",
+            "value": "Value"
+        }
+    },
     "pageError": {
         "title": "Something went wrong",
         "subtitle": "Unknown request, please try again, or go to the homepage.",
@@ -696,7 +705,8 @@
         "transactions": "Transactions",
         "contract": "Contract",
         "events": "Events",
-        "transfers": "Transfers"
+        "transfers": "Transfers",
+        "holders": "Holders"
     },
     "contractInfoTabs": {
         "contract": "Contract",
