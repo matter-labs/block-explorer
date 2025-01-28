@@ -159,7 +159,7 @@ const { currentNetwork } = useContext();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/build/tooling/zksync-block-explorers",
+    url: "https://docs.zksync.io/zksync-era/tooling/block-explorers",
   },
 ]);
 
@@ -204,7 +204,7 @@ const toolsLinks = reactive(links);
 
 const socials = [
   { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://twitter.com/zksync", component: TwitterIcon },
+  { url: "https://x.com/zksync", component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {

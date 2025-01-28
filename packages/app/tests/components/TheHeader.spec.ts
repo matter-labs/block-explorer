@@ -62,7 +62,7 @@ describe("TheHeader:", () => {
     expect(toolsLinks[2].attributes("href")).toBe("https://bridge.zksync.io/");
 
     expect(wrapper.findAll(".navigation-container > .navigation-link")[0].attributes("href")).toBe(
-      "https://docs.zksync.io/build/tooling/zksync-block-explorers"
+      "https://docs.zksync.io/zksync-era/tooling/block-explorers"
     );
   });
   it("renders social links", () => {
@@ -74,7 +74,7 @@ describe("TheHeader:", () => {
     });
     const routerArray = wrapper.findAll(".socials-container > a");
     expect(routerArray[0].attributes("href")).toBe("https://join.zksync.dev/");
-    expect(routerArray[1].attributes("href")).toBe("https://twitter.com/zksync");
+    expect(routerArray[1].attributes("href")).toBe("https://x.com/zksync");
   });
   it("renders network switch", () => {
     const wrapper = mount(TheHeader, {

@@ -105,8 +105,8 @@
             "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
             "nonce": "Nonce",
             "nonceTooltip": "Number of transactions sent from a sender address",
-            "created": "Created",
-            "createdTooltip": "The date and time at which a transaction is added to the block",
+            "receivedAt": "Received",
+            "receivedAtTooltip": "The date and time when the transaction was received",
             "sendersNonce": "Sender`s Nonce",
             "from": "From",
             "fromTooltip": "The sending party of the transaction",
@@ -330,6 +330,10 @@
         "notFound": "Not Found",
         "verified": "Source Code",
         "verifiedTooltip": "The contract's source code has been verified to match its on-chain Bytecode. Source code verification does not imply the contract is safe to interact with.",
+        "evm": "EVM",
+        "created": "Created",
+        "contractCreated": "Contract created",
+        "evmTooltip": "This is an EVM contract.",
         "transactionTable": {
             "error": "Something went wrong",
             "notFound": {

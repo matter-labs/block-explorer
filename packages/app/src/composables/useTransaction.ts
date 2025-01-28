@@ -51,13 +51,14 @@ export type TransactionItem = {
   blockNumber: number;
   value: string;
   data: {
-    contractAddress: Hash;
+    // called contract address if any
+    contractAddress: Hash | null;
     calldata: string;
     sighash: string;
     value: string;
   };
   from: string;
-  to: string;
+  to: string | null;
   ethCommitTxHash: Hash | null;
   ethExecuteTxHash: Hash | null;
   ethProveTxHash: Hash | null;
@@ -80,6 +81,10 @@ export type TransactionItem = {
   revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
+  // If transaction is EVM-like (destination address is not present)
+  isEvmLike: boolean;
+  // Deployed contract address if any
+  contractAddress: string | null;
 };
 
 export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to") {
@@ -115,14 +120,14 @@ export default (context = useContext()) => {
         blockHash: transactionData.blockHash!,
         blockNumber: transactionData.blockNumber!,
         data: {
-          contractAddress: transactionData.to!,
+          contractAddress: transactionData.to,
           calldata: transactionData.data,
           sighash: transactionData.data.slice(0, 10),
           value: transactionData.value.toString(),
         },
         value: transactionData.value.toString(),
         from: transactionData.from,
-        to: transactionData.to!,
+        to: transactionData.to,
         ethCommitTxHash: transactionDetails.ethCommitTxHash ?? null,
         ethExecuteTxHash: transactionDetails.ethExecuteTxHash ?? null,
         ethProveTxHash: transactionDetails.ethProveTxHash ?? null,
@@ -159,6 +164,8 @@ export default (context = useContext()) => {
         gasPerPubdata: gasPerPubdata ? BigInt(gasPerPubdata).toString() : null,
         maxFeePerGas: transactionData.maxFeePerGas?.toString() ?? null,
         maxPriorityFeePerGas: transactionData.maxPriorityFeePerGas?.toString() ?? null,
+        isEvmLike: !transactionData.to,
+        contractAddress: transactionReceipt.contractAddress,
       };
     } catch (err) {
       return null;
@@ -264,6 +271,8 @@ export function mapTransaction(
     gasPerPubdata: transaction.gasPerPubdata,
     maxFeePerGas: transaction.maxFeePerGas,
     maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+    isEvmLike: !transaction.to,
+    contractAddress: transaction.contractAddress,
   };
 }
 

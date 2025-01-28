@@ -142,6 +142,7 @@ describe("AddressController", () => {
           blockNumber: addressBalances.blockNumber,
           balances: addressBalances.balances,
           totalTransactions: totalTxCount,
+          isEvmLike: addressRecord.isEvmLike,
         });
       });
 
@@ -163,6 +164,7 @@ describe("AddressController", () => {
             blockNumber: addressRecord.createdInBlockNumber,
             balances: defaultBalancesResponse.balances,
             totalTransactions: totalTxCount,
+            isEvmLike: addressRecord.isEvmLike,
           });
         });
       });

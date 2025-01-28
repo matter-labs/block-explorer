@@ -76,6 +76,7 @@ export type Balances = Api.Response.Balances;
 export type Account = Api.Response.Account;
 export type Contract = Api.Response.Contract & {
   verificationInfo: null | ContractVerificationInfo;
+  isEvmLike: boolean;
   proxyInfo: null | {
     implementation: {
       address: string;

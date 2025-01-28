@@ -113,8 +113,21 @@
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
           <div class="value-with-copy-button">
-            <AddressLink :address="transaction?.to" />
-            <CopyButton :value="transaction?.to" />
+            <div class="address-badge-container">
+              <div class="flex items-center justify-center gap-2">
+                <AddressLink v-if="!!displayedTxReceiver" :address="displayedTxReceiver" />
+                <p v-if="isContractDeploymentTx">{{ t("contract.created") }}</p>
+              </div>
+              <Badge
+                v-if="transaction?.isEvmLike && displayedTxReceiver"
+                color="primary"
+                class="verified-badge"
+                :tooltip="t('contract.evmTooltip')"
+              >
+                {{ t("contract.evm") }}
+              </Badge>
+            </div>
+            <CopyButton v-if="displayedTxReceiver" :value="displayedTxReceiver" />
           </div>
         </TableBodyColumn>
       </tr>
@@ -197,9 +210,9 @@
       </tr>
       <tr class="transaction-table-row">
         <table-body-column class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.created") }}</span>
+          <span class="transaction-info-field-label">{{ t("transactions.table.receivedAt") }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.createdTooltip") }}
+            {{ t("transactions.table.receivedAtTooltip") }}
           </InfoTooltip>
         </table-body-column>
         <table-body-column class="transaction-table-value">
@@ -226,6 +239,7 @@ import { useI18n } from "vue-i18n";
 
 import AddressLink from "@/components/AddressLink.vue";
 import FeeData from "@/components/FeeData.vue";
+import Badge from "@/components/common/Badge.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import Tooltip from "@/components/common/Tooltip.vue";
@@ -241,6 +255,8 @@ import TransferTableCell from "@/components/transactions/infoTable/TransferTable
 
 import type { TransactionItem } from "@/composables/useTransaction";
 
+import { isContractDeployerAddress } from "@/utils/helpers";
+
 const { t } = useI18n();
 
 const props = defineProps({
@@ -255,6 +271,14 @@ const props = defineProps({
   decodingDataError: {
     type: String,
   },
+});
+
+const isContractDeploymentTx = computed(() => {
+  return isContractDeployerAddress(props.transaction?.to) && !!props.transaction?.contractAddress;
+});
+
+const displayedTxReceiver = computed(() => {
+  return isContractDeploymentTx.value ? props.transaction?.contractAddress : props.transaction?.to;
 });
 
 const tokenTransfers = computed(() => {
@@ -320,11 +344,17 @@ const gasUsedPercent = computed(() => {
     display: flex;
     justify-content: space-between;
   }
+  .address-badge-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
   .transaction-status-value {
     @apply py-2;
   }
   .transaction-reason-value {
-    @apply text-error-600 whitespace-normal;
+    @apply text-error-600 whitespace-normal break-all;
   }
 }
 </style>
