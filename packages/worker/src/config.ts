@@ -33,6 +33,8 @@ export default () => {
     COINGECKO_API_KEY,
     DISABLE_MISSING_BLOCKS_METRIC,
     CHECK_MISSING_BLOCKS_METRIC_INTERVAL,
+    RPC_HEALTH_CHECK_TIMEOUT_MS,
+    DB_HEALTH_CHECK_TIMEOUT_MS,
   } = process.env;
 
   return {
@@ -96,6 +98,10 @@ export default () => {
         disabled: DISABLE_MISSING_BLOCKS_METRIC === "true",
         interval: parseInt(CHECK_MISSING_BLOCKS_METRIC_INTERVAL, 10) || 86_400_000, // 1 day
       },
+    },
+    healthChecks: {
+      rpcHealthCheckTimeoutMs: parseInt(RPC_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
+      dbHealthCheckTimeoutMs: parseInt(DB_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
     },
   };
 };
