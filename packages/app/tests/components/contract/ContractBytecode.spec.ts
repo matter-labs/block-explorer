@@ -73,6 +73,7 @@ const contract: Contract = {
   totalTransactions: 0,
   balances: {},
   proxyInfo: null,
+  diamondProxyInfo: null,
 };
 
 describe("ContractBytecode", () => {
