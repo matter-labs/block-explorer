@@ -33,6 +33,7 @@ describe("useContractVerification:", () => {
       contractAddress: "",
       contractName: "",
       optimizationUsed: false,
+      enableEraVMExtensionsUsed: false,
       sourceCode: "",
       zkCompilerVersion: "",
       compilerVersion: "",
