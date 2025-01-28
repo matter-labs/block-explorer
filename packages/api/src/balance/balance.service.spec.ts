@@ -6,6 +6,7 @@ import { BalanceService } from "./balance.service";
 import { Balance } from "./balance.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import * as utils from "../common/utils";
+import { IPaginationMeta, Pagination } from "nestjs-typeorm-paginate";
 jest.mock("../common/utils");
 
 describe("BalanceService", () => {
@@ -375,10 +376,55 @@ describe("BalanceService", () => {
     });
 
     it("returns pagination results", async () => {
+      const balances = [
+        mock<Balance>({ balance: "2222", address: "0x111111" }),
+        mock<Balance>({ balance: "3333", address: "0x222222" }),
+      ];
+      const paginationResult = mock<Pagination<Balance, IPaginationMeta>>({
+        meta: {
+          totalItems: 2,
+          itemCount: 2,
+          itemsPerPage: 10,
+          totalPages: 1,
+          currentPage: 1,
+        },
+        links: {
+          first: "first",
+          previous: "previous",
+          next: "next",
+          last: "last",
+        },
+        items: [balances[0], balances[1]],
+      });
+      (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
       const result = await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
-      expect(result).toEqual({
+      expect(utils.paginate).toHaveBeenCalledTimes(1);
+      expect(utils.paginate).toHaveBeenCalledWith(mainQueryBuilderMock, pagingOptions);
+      expect(result).toStrictEqual({
+        ...paginationResult,
+        items: [
+          { balance: balances[0].balance, address: balances[0].address },
+          { balance: balances[1].balance, address: balances[1].address },
+        ],
+      });
+    });
+
+    it("returns empty pagination results", async () => {
+      const paginationResult = mock<Pagination<Balance, IPaginationMeta>>({
+        meta: {
+          totalItems: 0,
+          itemCount: 0,
+          itemsPerPage: 10,
+          totalPages: 0,
+          currentPage: 1,
+        },
         items: [],
       });
+      (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+      const result = await service.getBalancesForTokenAddress(tokenAddress, pagingOptions);
+      expect(utils.paginate).toHaveBeenCalledTimes(1);
+      expect(utils.paginate).toHaveBeenCalledWith(mainQueryBuilderMock, pagingOptions);
+      expect(result).toStrictEqual({ ...paginationResult, items: [] });
     });
   });
 });

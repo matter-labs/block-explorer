@@ -174,5 +174,21 @@ describe("TokenController", () => {
         expect(result).toBe(tokenHolders);
       });
     });
+
+    describe("when token does not exist", () => {
+      beforeEach(() => {
+        (serviceMock.exists as jest.Mock).mockResolvedValueOnce(false);
+      });
+
+      it("throws NotFoundException", async () => {
+        expect.assertions(1);
+
+        try {
+          await controller.getTokenHolders(tokenAddress, pagingOptionsWithLimit);
+        } catch (error) {
+          expect(error).toBeInstanceOf(NotFoundException);
+        }
+      });
+    });
   });
 });
