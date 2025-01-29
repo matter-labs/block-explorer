@@ -8,10 +8,12 @@
     </template>
     <template #table-row="{ item }: { item: any }">
       <TableBodyColumn :data-heading="t('tokenHolders.table.address')">
-        <AddressLink :address="item.address" class="block max-w-sm" :data-testid="$testId.tokenHoldersAddress">
-          {{ shortenFitText(item.address, "left", 210, subtraction) }}
-        </AddressLink>
-        <CopyButton :value="item.address" />
+        <div class="holder-address-container">
+          <AddressLink :address="item.address" class="block max-w-sm" :data-testid="$testId.tokenHoldersAddress">
+            {{ shortenFitText(item.address, "left", 210, subtraction) }}
+          </AddressLink>
+          <CopyButton :value="item.address" />
+        </div>
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('tokenHolders.table.balance')">
         <div :data-testid="$testId.tokenHoldersBalance" class="balance-data-value">
@@ -80,6 +82,7 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 
 import useTokenHolders from "@/composables/useTokenHolders";
+import { type TokenOverview } from "@/composables/useTokenOverview";
 
 import type { Token } from "@/composables/useToken";
 import type { TokenHolder } from "@/composables/useTokenHolders";
@@ -90,6 +93,10 @@ import { formatPricePretty, formatValue } from "@/utils/formatters";
 const props = defineProps({
   tokenInfo: {
     type: Object as PropType<Token>,
+    required: true,
+  },
+  tokenOverview: {
+    type: Object as PropType<TokenOverview>,
     required: true,
   },
   pagination: {
@@ -123,9 +130,10 @@ const tokenHolders = computed<TokenHolder[] | undefined>(() => {
   return data.value?.map((holder) => {
     return {
       ...holder,
-      percentage: props.tokenInfo.liquidity
-        ? `${(parseFloat(holder.balance) / (props.tokenInfo.liquidity / 100)).toFixed(4)} %`
-        : "",
+      percentage:
+        props.tokenOverview.maxTotalSupply && holder.balance
+          ? `${(parseFloat(holder.balance) / (props.tokenOverview.maxTotalSupply / 100)).toFixed(4)} %`
+          : "",
     };
   });
 });
@@ -138,7 +146,7 @@ const tokenHolders = computed<TokenHolder[] | undefined>(() => {
     @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
   }
   .holder-address-container {
-    @apply flex gap-x-2;
+    @apply flex gap-x-1;
     .holder-address {
       @apply block cursor-pointer font-mono text-sm font-medium;
     }

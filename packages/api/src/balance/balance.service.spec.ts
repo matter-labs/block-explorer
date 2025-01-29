@@ -231,6 +231,10 @@ describe("BalanceService", () => {
       (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValueOnce(mainQueryBuilderMock);
     });
 
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
     it("creates sub query builder with proper params", async () => {
       await service.getBalancesByAddresses(addresses, tokenAddress);
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("latest_balances");
@@ -322,6 +326,10 @@ describe("BalanceService", () => {
       });
       (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValueOnce(subQueryBuilderMock);
       (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValueOnce(mainQueryBuilderMock);
+    });
+
+    afterEach(() => {
+      jest.resetAllMocks();
     });
 
     it("creates sub query builder with proper params", async () => {
@@ -425,6 +433,114 @@ describe("BalanceService", () => {
       expect(utils.paginate).toHaveBeenCalledTimes(1);
       expect(utils.paginate).toHaveBeenCalledWith(mainQueryBuilderMock, pagingOptions);
       expect(result).toStrictEqual({ ...paginationResult, items: [] });
+    });
+  });
+
+  describe("getSumAndCountBalances", () => {
+    const subQuerySql = "subQuerySql";
+    const tokenAddress = "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69";
+    let subQueryBuilderMock;
+    let mainQueryBuilderMock;
+
+    beforeEach(() => {
+      subQueryBuilderMock = mock<SelectQueryBuilder<Balance>>({
+        getQuery: jest.fn().mockReturnValue(subQuerySql),
+      });
+      mainQueryBuilderMock = mock<SelectQueryBuilder<Balance>>();
+      (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValueOnce(subQueryBuilderMock);
+      (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValueOnce(mainQueryBuilderMock);
+    });
+
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it("creates sub query builder with proper params", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("latest_balances");
+    });
+
+    it("selects required fields in the sub query", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(subQueryBuilderMock.select).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.select).toHaveBeenCalledWith(`"tokenAddress"`);
+      expect(subQueryBuilderMock.addSelect).toHaveBeenCalledTimes(2);
+      expect(subQueryBuilderMock.addSelect).toHaveBeenCalledWith(`"address"`);
+      expect(subQueryBuilderMock.addSelect).toHaveBeenCalledWith(`MAX("blockNumber")`, "blockNumber");
+    });
+
+    it("filters balances in the sub query", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(subQueryBuilderMock.where).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.where).toHaveBeenCalledWith(`"tokenAddress" = :tokenAddress`);
+    });
+
+    it("groups by address and tokenAddress in the sub query", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(subQueryBuilderMock.groupBy).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.groupBy).toHaveBeenCalledWith(`"tokenAddress"`);
+      expect(subQueryBuilderMock.addGroupBy).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.addGroupBy).toHaveBeenCalledWith(`"address"`);
+    });
+
+    it("creates main query builder with proper params", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("balances");
+    });
+
+    it("joins main query with the sub query", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(mainQueryBuilderMock.innerJoin).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.innerJoin).toHaveBeenCalledWith(
+        `(${subQuerySql})`,
+        "latest_balances",
+        `balances."tokenAddress" = latest_balances."tokenAddress" AND
+      balances."address" = latest_balances."address" AND
+      balances."blockNumber" = latest_balances."blockNumber"`
+      );
+    });
+
+    it("sets query tokenAddress param", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("tokenAddress", hexTransformer.to(tokenAddress));
+    });
+
+    it("select count and sum", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(mainQueryBuilderMock.addSelect).toHaveBeenCalledTimes(2);
+      expect(mainQueryBuilderMock.addSelect).toHaveBeenNthCalledWith(
+        1,
+        "SUM(CAST(balances.balance AS NUMERIC))",
+        "totalBalance"
+      );
+      expect(mainQueryBuilderMock.addSelect).toHaveBeenNthCalledWith(2, "COUNT(balances.address)", "totalCount");
+    });
+
+    it("sets query tokenAddress param", async () => {
+      await service.getSumAndCountBalances(tokenAddress);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("tokenAddress", hexTransformer.to(tokenAddress));
+    });
+
+    it("returns results", async () => {
+      mainQueryBuilderMock.getRawOne = jest.fn().mockResolvedValue({
+        totalBalance: 1000,
+        totalCount: 2,
+      });
+      const result = await service.getSumAndCountBalances(tokenAddress);
+      expect(result).toStrictEqual({
+        holders: 2,
+        maxTotalSupply: 1000,
+      });
+    });
+
+    it("returns empty results", async () => {
+      const result = await service.getSumAndCountBalances(tokenAddress);
+      expect(result).toStrictEqual({
+        holders: 0,
+        maxTotalSupply: 0,
+      });
     });
   });
 });

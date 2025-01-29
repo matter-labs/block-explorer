@@ -396,7 +396,22 @@
         "title": "Адреса"
     },
     "tokenView": {
-        "title": "Токен"
+        "title": "Токен",
+        "table": {
+            "market": {
+                "marketCap": "Капіталізація ринку",
+                "totalSupply": "Загальна кількість",
+                "circulatingSupply": "Обігова кількість",
+                "price": "Ціна",
+                "decimals": "Десяткові"
+            },
+            "overview": {
+                "holders": "Власники",
+                "maxTotalSupply": "Максимальна загальна кількість",
+                "totalTransfers": "Загальна кількість трансферів",
+                "tokenContract": "Контракт Токена"
+            }
+        }
     },
     "accountView": {
         "title": "Профіль",

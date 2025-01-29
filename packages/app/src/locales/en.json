@@ -322,7 +322,22 @@
         "title": "Address"
     },
     "tokenView": {
-        "title": "Token"
+        "title": "Token",
+        "table": {
+            "market": {
+                "marketCap": "Market Cap",
+                "totalSupply": "Total Supply",
+                "circulatingSupply": "Circulating Supply Market Cap",
+                "price": "Price",
+                "decimals": "Decimals"
+            },
+            "overview": {
+                "holders": "Holders",
+                "maxTotalSupply": "Max Total Supply",
+                "totalTransfers": "Total Transfers",
+                "tokenContract": "Token Contract"
+            }
+        }
     },
     "contract": {
         "title": "Contract",

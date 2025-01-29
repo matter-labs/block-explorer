@@ -29,41 +29,15 @@
   <div class="tables-container">
     <div class="contract-tables-container">
       <div>
-        <ContractInfoTable class="contract-info-table" :loading="pending" :contract="contract!" />
+        <OverviewTokenInfoTable
+          class="token-info-table"
+          :loading="isLoadingTokenOverview"
+          :tokenOverview="tokenOverview!"
+          :tokenInfo="tokenInfo!"
+        />
       </div>
       <div>
-        <BalanceTable class="balance-table" :loading="pending" :balances="contract?.balances">
-          <template #not-found>
-            <EmptyState>
-              <template #image>
-                <div class="balances-empty-icon">
-                  <img src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
-                </div>
-              </template>
-              <template #title>
-                {{ t("contract.balances.notFound.title") }}
-              </template>
-              <template #description>
-                <div class="balances-empty-description">{{ t("contract.balances.notFound.subtitle") }}</div>
-              </template>
-            </EmptyState>
-          </template>
-          <template #failed>
-            <EmptyState>
-              <template #image>
-                <div class="balances-empty-icon">
-                  <img src="/images/empty-state/error_balance.svg" alt="empty_balance" />
-                </div>
-              </template>
-              <template #title>
-                {{ t("contract.balances.error.title") }}
-              </template>
-              <template #description>
-                <div class="balances-empty-description">{{ t("contract.balances.error.subtitle") }}</div>
-              </template>
-            </EmptyState>
-          </template>
-        </BalanceTable>
+        <MarketTokenInfoTable class="token-info-table" :loading="pending" :tokenInfo="tokenInfo!" />
       </div>
     </div>
 
@@ -88,30 +62,43 @@
       <template #tab-4-content>
         <ContractEvents :contract="contract" />
       </template>
+      <template v-if="tokenInfo && !isLoadingTokenInfo" #tab-5-content>
+        <TokenHoldersList
+          v-if="tokenInfo && !isLoadingTokenInfo && tokenOverview && !isLoadingTokenInfo"
+          :tokenInfo="tokenInfo"
+          :tokenOverview="tokenOverview"
+        >
+          <template #not-found>
+            <TokenHoldersListEmptyState />
+          </template>
+        </TokenHoldersList>
+      </template>
     </Tabs>
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType, watchEffect } from "vue";
+import { computed, type PropType, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { CheckCircleIcon } from "@heroicons/vue/solid";
 
 import SearchForm from "@/components/SearchForm.vue";
-import BalanceTable from "@/components/balances/Table.vue";
 import Breadcrumbs from "@/components/common/Breadcrumbs.vue";
-import EmptyState from "@/components/common/EmptyState.vue";
 import Spinner from "@/components/common/Spinner.vue";
 import Tabs from "@/components/common/Tabs.vue";
 import Title from "@/components/common/Title.vue";
 import ContractInfoTab from "@/components/contract/ContractInfoTab.vue";
-import ContractInfoTable from "@/components/contract/InfoTable.vue";
 import TransactionEmptyState from "@/components/contract/TransactionEmptyState.vue";
 import ContractEvents from "@/components/event/ContractEvents.vue";
+import MarketTokenInfoTable from "@/components/token/MarketTokenInfoTable.vue";
+import OverviewTokenInfoTable from "@/components/token/OverviewTokenInfoTable.vue";
+import TokenHoldersList from "@/components/token/TokenHoldersList.vue";
+import TokenHoldersListEmptyState from "@/components/token/TokenHoldersListEmptyState.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
 
 import useToken from "@/composables/useToken";
+import useTokenOverview from "@/composables/useTokenOverview";
 
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
@@ -136,11 +123,13 @@ const props = defineProps({
   },
 });
 
-const { getTokenInfo, tokenInfo } = useToken();
+const { getTokenInfo, tokenInfo, isRequestPending: isLoadingTokenInfo } = useToken();
+const { getTokenOverview, tokenOverview, isRequestPending: isLoadingTokenOverview } = useTokenOverview();
 
 watchEffect(() => {
   if (props.contract) {
     getTokenInfo(props.contract.address);
+    getTokenOverview(props.contract.address);
   }
 });
 
@@ -153,6 +142,7 @@ const tabs = computed(() => [
     icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
   },
   { title: t("tabs.events"), hash: "#events" },
+  ...(tokenInfo?.value?.l2Address ? [{ title: t("tabs.holders"), hash: "#holders" }] : []),
 ]);
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   if (props.contract?.address) {
@@ -201,18 +191,6 @@ const transactionsSearchParams = computed(() => ({
     @apply shadow-none;
     .table-body {
       @apply rounded-none;
-    }
-  }
-  .balance-table {
-    @apply mb-4 overflow-hidden bg-white;
-    .balances-empty-icon {
-      @apply m-auto;
-      img {
-        @apply w-[2.875rem];
-      }
-    }
-    .balances-empty-description {
-      @apply max-w-[16rem] whitespace-normal;
     }
   }
 }

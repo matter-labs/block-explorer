@@ -144,5 +144,10 @@ declare namespace Api {
       address: string;
       balance: string;
     };
+
+    type TokenOverview = {
+      holders: number;
+      maxTotalSupply: number;
+    };
   }
 }

@@ -20,7 +20,8 @@ import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAd
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { BalanceService } from "../balance/balance.service";
-import { BalanceForHolderDto } from "../balance/balanceForHolder.dto";
+import { BalanceForHolderDto } from "../api/dtos/balances/balanceForHolder.dto";
+import { TokenOverviewDto } from "src/api/dtos/token/tokenOverview.dto";
 
 const entityName = "tokens";
 
@@ -137,5 +138,28 @@ export class TokenController {
       ...pagingOptions,
       route: `${entityName}/${tokenAddress}/holders`,
     });
+  }
+
+  @Get(":tokenAddress/overview")
+  @ApiParam({
+    name: "tokenAddress",
+    type: String,
+    schema: { pattern: ADDRESS_REGEX_PATTERN },
+    example: constants.tokenAddress,
+    description: "Valid hex token address",
+  })
+  @ApiListPageOkResponse(BalanceForHolderDto, { description: "Successfully returned balance for holder list" })
+  @ApiBadRequestResponse({
+    description: "Token address is invalid or paging query params are not valid or out of range",
+  })
+  @ApiNotFoundResponse({ description: "Token with the specified address does not exist" })
+  public async getTokenOverview(
+    @Param("tokenAddress", new ParseAddressPipe()) tokenAddress: string
+  ): Promise<TokenOverviewDto> {
+    if (!(await this.tokenService.exists(tokenAddress))) {
+      throw new NotFoundException();
+    }
+
+    return await this.balanceService.getSumAndCountBalances(tokenAddress);
   }
 }

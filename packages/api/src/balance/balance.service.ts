@@ -4,9 +4,10 @@ import { Repository } from "typeorm";
 import { Balance } from "./balance.entity";
 import { Token } from "../token/token.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { BalanceForHolderDto } from "./balanceForHolder.dto";
+import { BalanceForHolderDto } from "../api/dtos/balances/balanceForHolder.dto";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, Pagination } from "nestjs-typeorm-paginate";
+import { TokenOverviewDto } from "src/api/dtos/token/tokenOverview.dto";
 
 export interface TokenBalance {
   balance: string;
@@ -137,6 +138,36 @@ export class BalanceService {
           address: item.address,
         };
       }),
+    };
+  }
+
+  public async getSumAndCountBalances(tokenAddress: string): Promise<TokenOverviewDto> {
+    const latestBalancesQuery = this.balanceRepository.createQueryBuilder("latest_balances");
+    latestBalancesQuery.select(`"tokenAddress"`);
+    latestBalancesQuery.addSelect(`"address"`);
+    latestBalancesQuery.addSelect(`MAX("blockNumber")`, "blockNumber");
+    latestBalancesQuery.where(`"tokenAddress" = :tokenAddress`);
+    latestBalancesQuery.groupBy(`"tokenAddress"`);
+    latestBalancesQuery.addGroupBy(`"address"`);
+
+    const balancesQuery = this.balanceRepository.createQueryBuilder("balances");
+    balancesQuery.innerJoin(
+      `(${latestBalancesQuery.getQuery()})`,
+      "latest_balances",
+      `balances."tokenAddress" = latest_balances."tokenAddress" AND
+      balances."address" = latest_balances."address" AND
+      balances."blockNumber" = latest_balances."blockNumber"`
+    );
+    balancesQuery.setParameter("tokenAddress", hexTransformer.to(tokenAddress));
+    balancesQuery.leftJoinAndSelect("balances.token", "token");
+    balancesQuery.select("SUM(CAST(balances.balance AS NUMERIC))", "totalBalance");
+    balancesQuery.addSelect("COUNT(balances.address)", "totalCount");
+
+    const result = await balancesQuery.getRawOne();
+
+    return {
+      maxTotalSupply: parseFloat(result?.totalBalance) || 0,
+      holders: parseInt(result?.totalCount) || 0,
     };
   }
 }
