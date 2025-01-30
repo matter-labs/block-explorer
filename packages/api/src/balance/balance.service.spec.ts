@@ -508,13 +508,13 @@ describe("BalanceService", () => {
 
     it("select count and sum", async () => {
       await service.getSumAndCountBalances(tokenAddress);
-      expect(mainQueryBuilderMock.addSelect).toHaveBeenCalledTimes(2);
-      expect(mainQueryBuilderMock.addSelect).toHaveBeenNthCalledWith(
-        1,
+      expect(mainQueryBuilderMock.select).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.addSelect).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.select).toHaveBeenCalledWith(
         "SUM(CAST(balances.balance AS NUMERIC))",
         "totalBalance"
       );
-      expect(mainQueryBuilderMock.addSelect).toHaveBeenNthCalledWith(2, "COUNT(balances.address)", "totalCount");
+      expect(mainQueryBuilderMock.addSelect).toHaveBeenCalledWith("COUNT(balances.address)", "totalCount");
     });
 
     it("sets query tokenAddress param", async () => {
