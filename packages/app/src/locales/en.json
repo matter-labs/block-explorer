@@ -589,11 +589,12 @@
         "heading": "Tokens",
         "offChainDataPoweredBy": "Off-chain data powered by",
         "table": {
+            "type": "Token Type",
             "tokenName": "Token Name",
             "price": "Price",
             "tokenAddress": "Token Address",
             "bridged": {
-                "title": "Default bridge",
+                "title": "Bridged",
                 "tooltip": "This token is bridged from L1 to ZKsync Era"
             },
             "native": {

@@ -348,6 +348,7 @@
         "heading": "Top токени",
         "offChainDataPoweredBy": "Off-chain дані взяті з",
         "table": {
+            "type": "Tокен Тип",
             "tokenName": "Назва Токена",
             "price": "Ціна",
             "tokenAddress": "Адреса Токена",
