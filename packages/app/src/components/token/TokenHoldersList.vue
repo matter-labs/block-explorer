@@ -82,10 +82,10 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 
 import useTokenHolders from "@/composables/useTokenHolders";
-import { type TokenOverview } from "@/composables/useTokenOverview";
 
 import type { Token } from "@/composables/useToken";
 import type { TokenHolder } from "@/composables/useTokenHolders";
+import type { TokenOverview } from "@/composables/useTokenOverview";
 import type { PropType } from "vue";
 
 import { formatPricePretty, formatValue } from "@/utils/formatters";

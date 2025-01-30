@@ -58,13 +58,12 @@ import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 
-import { type Token } from "@/composables/useToken";
-
+import type { Token } from "@/composables/useToken";
 import type { TokenOverview } from "@/composables/useTokenOverview";
 
 import { formatValue } from "@/utils/formatters";
 
-const props = defineProps({
+defineProps({
   tokenOverview: {
     type: Object as PropType<TokenOverview>,
     default: () => ({}),

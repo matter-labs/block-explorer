@@ -77,7 +77,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType, watch, watchEffect } from "vue";
+import { computed, type PropType, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { CheckCircleIcon } from "@heroicons/vue/solid";

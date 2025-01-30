@@ -49,7 +49,6 @@
 </template>
 
 <script lang="ts" setup>
-import { type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
@@ -58,10 +57,11 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TokenPrice from "@/components/common/table/fields/TokenPrice.vue";
 
 import type { Token } from "@/composables/useToken";
+import type { PropType } from "vue";
 
 import { formatMoney } from "@/utils/formatters";
 
-const props = defineProps({
+defineProps({
   tokenInfo: {
     type: Object as PropType<Token>,
     default: () => ({}),
