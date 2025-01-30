@@ -81,7 +81,7 @@ describe("TokenIconLabel", () => {
     });
     const contractPageUrl = wrapper.findAllComponents(RouterLinkStub);
 
-    expect(contractPageUrl[0].props().to.name).toBe("address");
+    expect(contractPageUrl[0].props().to.name).toBe("token");
     expect(contractPageUrl[0].props().to.params.address).toBe("0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3");
   });
   it("renders default 'sm' size for icon", () => {

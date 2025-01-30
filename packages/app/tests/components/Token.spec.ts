@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { describe, expect, it, vi } from "vitest";
@@ -34,10 +35,38 @@ describe("Account:", () => {
       en: enUS,
     },
   });
+
+  vi.mock("@/composables/useToken", () => {
+    return {
+      default: () => ({
+        getTokenInfo: () => undefined,
+        tokenInfo: computed(() => ({
+          l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          name: "Ether",
+          symbol: "ETH",
+          decimals: 18,
+          usdPrice: 150,
+        })),
+      }),
+    };
+  });
+
+  vi.mock("@/composables/useTokenOverview", () => {
+    return {
+      default: () => ({
+        getTokenOverview: () => undefined,
+        tokenOverview: computed(() => ({
+          holders: 140221,
+          maxTotalSupply: 100000000000000000000000000,
+        })),
+      }),
+    };
+  });
+
   it("renders component", () => {
     const { container } = render(Token, {
       props: {
-        account: {
+        contract: {
           accountType: "eOA",
           address: "0xDB754A7833163caAB170814c5F9cAf32F09FDEd4",
           balances: {},
@@ -50,9 +79,8 @@ describe("Account:", () => {
         stubs: { RouterLink: RouterLinkStub, TransfersTable: { template: "<div />" } },
       },
     });
-    expect(container.querySelector(".breadcrumb-item-active")?.textContent).toBe("Account 0xDB75...DEd4");
-    expect(container.querySelector(".contract-info-table")).toBeDefined();
-    expect(container.querySelector(".balance-table")).toBeDefined();
+    expect(container.querySelector(".breadcrumb-item-active")?.textContent).toBe("Contract 0xDB75...DEd4");
+    expect(container.querySelector(".token-info-table")).toBeDefined();
     expect(container.querySelector(".transactions-table")).toBeDefined();
   });
 });

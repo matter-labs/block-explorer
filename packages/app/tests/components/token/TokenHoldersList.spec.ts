@@ -38,7 +38,6 @@ describe("TokenListTable:", () => {
   let renderResult: RenderResult | null;
   let mockContext: SpyInstance;
   let mockHolders: SpyInstance;
-
   beforeAll(() => {
     mockHolders = useTokenHoldersMock({
       data: computed(() => [
@@ -48,6 +47,7 @@ describe("TokenListTable:", () => {
         },
       ]),
     });
+
     mockContext = useContextMock();
 
     renderResult = render(TokenHolderList, {
@@ -65,6 +65,10 @@ describe("TokenListTable:", () => {
           name: "Ether",
           symbol: "ETH",
           usdPrice: 150,
+        },
+        tokenOverview: {
+          holders: 1,
+          maxTotalSupply: 10000000000000000000,
         },
         loading: false,
         useQueryPagination: false,
@@ -88,7 +92,7 @@ describe("TokenListTable:", () => {
   });
 
   it("renders type column", () => {
-    expect(renderResult!.getByTestId(elements.tokenHoldersPercentage).textContent).toEqual("0.0227 %");
+    expect(renderResult!.getByTestId(elements.tokenHoldersPercentage).textContent).toEqual("50.0000 %");
   });
 
   it("renders from column", () => {

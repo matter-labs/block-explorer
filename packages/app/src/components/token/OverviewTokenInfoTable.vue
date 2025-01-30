@@ -22,7 +22,7 @@
           {{ t("tokenView.table.overview.tokenContract") }}
         </table-body-column>
         <table-body-column class="contract-info-field-value">
-          <AddressLink :address="tokenInfo.l2Address" class="block max-w-sm" :data-testid="$testId.tokenHoldersAddress">
+          <AddressLink :address="tokenInfo.l2Address" class="block max-w-sm">
             {{ shortenFitText(tokenInfo.l2Address, "left", 210, subtraction) }}
           </AddressLink>
         </table-body-column>
@@ -36,7 +36,7 @@
       </TableBodyColumn>
     </template>
     <template #loading>
-      <tr class="loading-row" v-for="row in 4" :key="row">
+      <tr class="loading-row" v-for="row in 3" :key="row">
         <TableBodyColumn>
           <ContentLoader />
         </TableBodyColumn>
