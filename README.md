@@ -63,6 +63,9 @@ npm install
 ### Manually set up env variables
 Make sure you have set up all the necessary env variables. Follow setting up env variables instructions for [Worker](./packages/worker#setting-up-env-variables), [Data Fetcher](./packages/data-fetcher#setting-up-env-variables) and [API](./packages/api#setting-up-env-variables). For the [App](./packages/app) package you might want to edit environment config, see [Environment configs](./packages/app#environment-configs).
 
+### Configure custom base token
+For networks with a custom base token, make sure to configure the base token for both Worker and API services by following the corresponding instructions [here](./packages/worker/README.md#custom-base-token-configuration) and [here](./packages/api/README.md#custom-base-token-configuration).
+
 ### Build env variables based on your [zksync-era](https://github.com/matter-labs/zksync-era) local repo setup
 Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo set up locally. You must have your environment variables files present in the [zksync-era](https://github.com/matter-labs/zksync-era) repo at `/etc/env/*.env` for the build envs script to work.
 
