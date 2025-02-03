@@ -118,9 +118,9 @@ jobs:
 
       - name: Save artifacts to Git
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: allure-results
+          name: ${{ matrix.tags }}-allure-results
           path: packages/app/allure-results
 
       # - name: Upload test results to Allure reporter
@@ -134,9 +134,9 @@ jobs:
 
       - if: failure()
         name: Save artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: portal_e2e_${{ github.run_number }}_artifacts
+          name: portal_e2e_${{ github.run_number }}_${{ matrix.tags }}_artifacts
           path: packages/app/tests/e2e/artifacts/*
 
   # publish:
