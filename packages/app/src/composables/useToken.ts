@@ -11,8 +11,20 @@ import type { Hash } from "@/types";
 export type Token = Api.Response.Token;
 
 export const retrieveToken = useMemoize(
-  (tokenAddress: Hash, context: Context = useContext()): Promise<Api.Response.Token> => {
-    return $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`);
+  async (tokenAddress: Hash, context: Context = useContext()): Promise<Api.Response.Token> => {
+    const token = await $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`);
+
+    // Force name for specific token address
+    // TODO: Remove this once ML fixes the token info
+    if (tokenAddress.toLowerCase() === "0x000000000000000000000000000000000000800A".toLowerCase()) {
+      return {
+        ...token,
+        name: "SOPH",
+        symbol: "SOPH",
+      };
+    }
+
+    return token;
   },
   {
     getKey(tokenAddress: Hash, context: Context = useContext()) {

@@ -170,9 +170,26 @@ export default (context = useContext()) => {
       const response: Api.Response.Account | Api.Response.Contract = await $fetch(
         `${context.currentNetwork.value.apiUrl}/address/${address}`
       );
-      if (response.type === "account") {
-        item.value = response;
-      } else if (response.type === "contract") {
+
+      // Update token info if it exists in balances (for both account and contract)
+      // TODO: Remove this once ML fixes the token info
+      if (response.balances?.["0x000000000000000000000000000000000000800A"]) {
+        const token = response.balances["0x000000000000000000000000000000000000800A"].token;
+        if (token) {
+          response.balances["0x000000000000000000000000000000000000800A"].token = {
+            l2Address: token.l2Address,
+            l1Address: token.l1Address,
+            decimals: token.decimals,
+            name: "SOPH",
+            symbol: "SOPH",
+            usdPrice: token.usdPrice,
+            liquidity: token.liquidity,
+            iconURL: token.iconURL,
+          };
+        }
+      }
+
+      if (response.type === "contract") {
         const [verificationInfo, proxyInfo] = await Promise.all([
           getContractVerificationInfo(response.address),
           getContractProxyInfo(response.address),
@@ -182,6 +199,8 @@ export default (context = useContext()) => {
           verificationInfo,
           proxyInfo,
         };
+      } else {
+        item.value = response;
       }
     } catch (error: unknown) {
       item.value = null;
