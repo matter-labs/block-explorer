@@ -50,19 +50,6 @@ const retrieveTokens = useMemoize(
       (token) => !context.currentNetwork.value.excludeTokenAddresses?.includes(token.l2Address)
     );
 
-    // Force name for specific token address
-    // TODO: Remove this once ML fixes the token info
-    const sophonTokenIndex = filteredTokens.findIndex(
-      (token) => token.l2Address.toLowerCase() === "0x000000000000000000000000000000000000800A".toLowerCase()
-    );
-    if (sophonTokenIndex !== -1) {
-      filteredTokens[sophonTokenIndex] = {
-        ...filteredTokens[sophonTokenIndex],
-        name: "SOPH",
-        symbol: "SOPH",
-      };
-    }
-
     return filteredTokens;
   },
   {
