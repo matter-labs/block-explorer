@@ -356,6 +356,15 @@
             "tokenAddress": "Адреса Токена"
         }
     },
+    "tokenHolders": {
+        "notFound": "Для даного токена токен-власники відсутні на цей момент",
+        "table": {
+            "address": "Адреса",
+            "balance": "Баланс",
+            "percentage": "Відсоток",
+            "value": "Вартість"
+        }
+    },
     "timeMessages": {
         "justNow": "щойно",
         "past": "тому",
@@ -385,6 +394,24 @@
     },
     "addressView": {
         "title": "Адреса"
+    },
+    "tokenView": {
+        "title": "Токен",
+        "table": {
+            "market": {
+                "marketCap": "Капіталізація ринку",
+                "totalSupply": "Загальна кількість",
+                "circulatingSupply": "Обігова кількість",
+                "price": "Ціна",
+                "decimals": "Десяткові"
+            },
+            "overview": {
+                "holders": "Власники",
+                "maxTotalSupply": "Максимальна загальна кількість",
+                "totalTransfers": "Загальна кількість трансферів",
+                "tokenContract": "Контракт Токена"
+            }
+        }
     },
     "accountView": {
         "title": "Профіль",
@@ -431,7 +458,10 @@
     },
     "tabs": {
         "transactions": "Транзакції",
-        "contract": "Контракт"
+        "contract": "Контракт",
+        "events": "Події",
+        "transfers": "Трансфери",
+        "holders": "Власники"
     },
     "debuggerTool": {
         "title": "zkEVM Налагоджувач",

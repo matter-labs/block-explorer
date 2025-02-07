@@ -141,5 +141,5 @@ Feature: Redirection
 
     Examples:
       | Artifact type     | url         |
-      | token icon        | /address/   |
-      | token address     | /address/   |
+      | token icon        | /token/   |
+      | token address     | /token/   |
