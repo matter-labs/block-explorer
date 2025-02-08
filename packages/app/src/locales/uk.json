@@ -351,9 +351,18 @@
         "heading": "Top токени",
         "offChainDataPoweredBy": "Off-chain дані взяті з",
         "table": {
+            "type": "Tокен Тип",
             "tokenName": "Назва Токена",
             "price": "Ціна",
-            "tokenAddress": "Адреса Токена"
+            "tokenAddress": "Адреса Токена",
+            "bridged": {
+                "title": "Бридж",
+                "tooltip": "Цей токен перенесений з L1 до ZKsync Era"
+            },
+            "native": {
+                "title": "L2-нативний",
+                "tooltip": "Цей токен є нативним для ZKsync Era"
+            }
         }
     },
     "timeMessages": {
