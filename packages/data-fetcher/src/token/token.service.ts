@@ -18,6 +18,7 @@ export interface Token {
   blockNumber: number;
   transactionHash: string;
   logIndex: number;
+  type: TokenType;
 }
 
 export enum TokenType {
@@ -38,16 +39,21 @@ export class TokenService {
     this.logger = new Logger(TokenService.name);
   }
 
-  private async getERC20TokenData(contractAddress: string): Promise<{
-    symbol: string;
-    decimals: number;
+  private async getTokenData(contractAddress: string): Promise<{
     name: string;
+    symbol: string;
+    type: TokenType;
+    decimals: number;
   }> {
     try {
-      return await this.blockchainService.getERC20TokenData(contractAddress);
+      const tokenData = await this.blockchainService.getTokenData(contractAddress);
+      return {
+        ...tokenData,
+        type: tokenData.type as TokenType,
+      };
     } catch {
       this.logger.log({
-        message: "Cannot parse ERC20 contract. Might be a token of a different type.",
+        message: "Cannot parse contract. Might be a token of a different type.",
         contractAddress,
       });
       return null;
@@ -61,15 +67,16 @@ export class TokenService {
     return str.replace(/\0/g, "");
   }
 
-  public async getERC20Token(
+  public async getToken(
     contractAddress: ContractAddress,
     transactionReceipt?: types.TransactionReceipt
   ): Promise<Token | null> {
-    let erc20Token: {
+    let tokenData: {
       symbol: string;
       decimals: number;
       name: string;
       l1Address?: string;
+      type: TokenType;
     };
 
     const bridgeLog =
@@ -83,27 +90,28 @@ export class TokenService {
 
     if (bridgeLog) {
       const parsedLog = parseLog(CONTRACT_INTERFACES.L2_STANDARD_ERC20, bridgeLog);
-      erc20Token = {
+      tokenData = {
         name: parsedLog.args.name,
         symbol: parsedLog.args.symbol,
         decimals: parsedLog.args.decimals,
         l1Address: parsedLog.args.l1Token,
+        type: TokenType.ERC20,
       };
     } else {
       const stopGetTokenInfoDurationMetric = this.getTokenInfoDurationMetric.startTimer();
-      erc20Token = await this.getERC20TokenData(contractAddress.address);
-      if (erc20Token) {
+      tokenData = await this.getTokenData(contractAddress.address);
+      if (tokenData) {
         stopGetTokenInfoDurationMetric();
       }
     }
 
-    if (erc20Token) {
-      erc20Token.symbol = this.removeSpecialChars(erc20Token.symbol);
-      erc20Token.name = this.removeSpecialChars(erc20Token.name);
+    if (tokenData) {
+      tokenData.symbol = this.removeSpecialChars(tokenData.symbol);
+      tokenData.name = this.removeSpecialChars(tokenData.name);
 
-      if (erc20Token.symbol) {
+      if (tokenData.symbol) {
         return {
-          ...erc20Token,
+          ...tokenData,
           blockNumber: contractAddress.blockNumber,
           transactionHash: contractAddress.transactionHash,
           l2Address: contractAddress.address,
@@ -111,6 +119,7 @@ export class TokenService {
           // add L1 address for ETH token
           ...(contractAddress.address.toLowerCase() === BASE_TOKEN_ADDRESS && {
             l1Address: ETH_L1_ADDRESS,
+            type: TokenType.BaseToken,
           }),
         };
       }

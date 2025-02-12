@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { TokenType } from "./token.entity";
 
 export class TokenDto {
   @ApiProperty({ type: String, description: "L2 token address", example: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8" })
@@ -58,4 +59,13 @@ export class TokenDto {
     required: false,
   })
   public readonly iconURL?: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Token type",
+    example: "ERC20",
+    enum: ["BASETOKEN", "ERC20", "ERC721"],
+    default: "ERC20",
+  })
+  public readonly type?: TokenType;
 }

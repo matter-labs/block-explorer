@@ -12,6 +12,7 @@
           :address="item.token.l2Address"
           :symbol="item.token.symbol"
           :icon-url="item.token.iconURL"
+          :tag="item.token.type === 'ERC721' ? 'ERC721' : undefined"
           show-link-symbol
         />
       </TableBodyColumn>
@@ -100,6 +101,12 @@ const displayedBalances = computed(() => {
         return -1;
       } else if (b.token.l2Address === currentNetwork.value.baseTokenAddress) {
         return 1;
+      }
+
+      if (a.token.type === "ERC721" && b.token.type !== "ERC721") {
+        return 1;
+      } else if (a.token.type !== "ERC721" && b.token.type === "ERC721") {
+        return -1;
       }
 
       if (a.token.liquidity || b.token.liquidity) {

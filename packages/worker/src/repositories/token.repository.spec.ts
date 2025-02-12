@@ -76,7 +76,8 @@ describe("TokenRepository", () => {
           "blockNumber" = EXCLUDED."blockNumber",
           "l1Address" = EXCLUDED."l1Address",
           "transactionHash" = EXCLUDED."transactionHash",
-          "logIndex" = EXCLUDED."logIndex"
+          "logIndex" = EXCLUDED."logIndex",
+          "type" = EXCLUDED."type"
         WHERE 
           tokens."blockNumber" IS NULL OR
           EXCLUDED."blockNumber" > tokens."blockNumber" OR 

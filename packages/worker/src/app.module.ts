@@ -44,6 +44,7 @@ import {
   Transfer,
   AddressTransfer,
   Balance,
+  NftItem,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -53,6 +54,8 @@ import { DbMetricsService } from "./dbMetrics.service";
 import { UnitOfWorkModule } from "./unitOfWork";
 import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
 import { SystemContractService } from "./contract/systemContract.service";
+import { NftItemRepository } from "./repositories/nftItem.repository";
+import { NftItemService } from "./nfts/nftItem.service";
 
 @Module({
   imports: [
@@ -81,6 +84,7 @@ import { SystemContractService } from "./contract/systemContract.service";
       AddressTransfer,
       Transfer,
       Balance,
+      NftItem,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -132,6 +136,8 @@ import { SystemContractService } from "./contract/systemContract.service";
     RetryDelayProvider,
     DbMetricsService,
     SystemContractService,
+    NftItemRepository,
+    NftItemService,
   ],
 })
 export class AppModule {}
