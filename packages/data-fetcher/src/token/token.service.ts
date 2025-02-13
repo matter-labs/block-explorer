@@ -45,19 +45,16 @@ export class TokenService {
     type: TokenType;
     decimals: number;
   }> {
-    try {
-      const tokenData = await this.blockchainService.getTokenData(contractAddress);
-      return {
-        ...tokenData,
-        type: tokenData.type as TokenType,
-      };
-    } catch {
-      this.logger.log({
-        message: "Cannot parse contract. Might be a token of a different type.",
-        contractAddress,
-      });
+    const tokenData = await this.blockchainService.getTokenData(contractAddress);
+
+    if (!tokenData) {
       return null;
     }
+
+    return {
+      ...tokenData,
+      type: tokenData.type as TokenType,
+    };
   }
 
   private removeSpecialChars(str: string | null): string {

@@ -31,6 +31,7 @@ export const ETH_TOKEN_MOCK = {
   liquidity: 220000000000,
   usdPrice: 1800,
   iconURL: null,
+  type: null,
 };
 
 export const TESTNET_NETWORK: NetworkConfig = {

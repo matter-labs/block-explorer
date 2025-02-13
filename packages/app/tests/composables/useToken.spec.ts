@@ -14,6 +14,7 @@ const token: Api.Response.Token = {
   usdPrice: 1800,
   liquidity: 220000000000,
   iconURL: "https://icon.url",
+  type: null,
 };
 
 vi.mock("@/composables/useTokenLibrary", () => {
@@ -51,6 +52,7 @@ describe("useToken:", () => {
       l1Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
       l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeb",
       liquidity: 220000000000,
+      type: null,
     });
   });
 });

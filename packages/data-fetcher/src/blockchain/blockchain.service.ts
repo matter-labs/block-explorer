@@ -168,7 +168,7 @@ export class BlockchainService implements OnModuleInit {
       }
     } catch (error) {
       this.logger.log({
-        message: "Cannot parse contract. Might be a token of a different type.",
+        message: "Cannot parse contract ERC721. Might be a token of a different type.",
         contractAddress,
       });
     }
@@ -184,7 +184,7 @@ export class BlockchainService implements OnModuleInit {
       }
     } catch (error) {
       this.logger.log({
-        message: "Cannot parse contract. Might be a token of a different type.",
+        message: "Cannot parse contract ERC20. Might be a token of a different type.",
         contractAddress,
       });
       return null;
