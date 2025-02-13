@@ -18,6 +18,7 @@ import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 import { BlockProcessor } from "./block.processor";
 import { unixTimeToDateString } from "../utils/date";
 import { Transfer, Balance } from "../dataFetcher/types";
+import { NftItemService } from "../nfts/nftItem.service";
 
 describe("BlockProcessor", () => {
   let blockProcessor: BlockProcessor;
@@ -35,6 +36,7 @@ describe("BlockProcessor", () => {
   let transferRepositoryMock: TransferRepository;
   let eventEmitterMock: EventEmitter2;
   let configServiceMock: ConfigService;
+  let nftServiceMock: NftItemService;
 
   let startBlocksBatchDurationMetricMock: jest.Mock;
   let stopBlocksBatchDurationMetricMock: jest.Mock;
@@ -102,6 +104,10 @@ describe("BlockProcessor", () => {
             startTimer: startBlockDurationMetricMock,
           },
         },
+        {
+          provide: NftItemService,
+          useValue: nftServiceMock,
+        },
       ],
     }).compile();
 
@@ -140,6 +146,7 @@ describe("BlockProcessor", () => {
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockReturnValue(null),
     });
+    nftServiceMock = mock<NftItemService>();
 
     stopBlocksBatchDurationMetricMock = jest.fn();
     startBlocksBatchDurationMetricMock = jest.fn().mockReturnValue(stopBlocksBatchDurationMetricMock);
@@ -485,6 +492,7 @@ describe("BlockProcessor", () => {
                   blockLogs: [],
                   blockTransfers: [],
                   changedBalances: [],
+                  nftItems: [],
                 } as unknown as BlockData,
               ];
               jest.spyOn(blockWatcherMock, "getNextBlocksToProcess").mockResolvedValue(blocksToProcess);
@@ -559,6 +567,28 @@ describe("BlockProcessor", () => {
                 await blockProcessor.processNextBlocksRange();
                 expect(transferRepositoryMock.addMany).toHaveBeenCalledTimes(1);
                 expect(transferRepositoryMock.addMany).toHaveBeenCalledWith(blocksToProcess[0].blockTransfers);
+              });
+            });
+
+            describe("when block data contains nft items", () => {
+              beforeEach(() => {
+                blocksToProcess[0].nftItems = [
+                  {
+                    tokenId: "1",
+                    tokenAddress: "0x123",
+                    owner: "0x123",
+                  },
+                  {
+                    tokenId: "2",
+                    tokenAddress: "0x123",
+                    owner: "0x123",
+                  },
+                ];
+              });
+
+              it("saves block nfts to the DB", async () => {
+                await blockProcessor.processNextBlocksRange();
+                expect(nftServiceMock.saveNftItems).toHaveBeenCalledTimes(1);
               });
             });
 

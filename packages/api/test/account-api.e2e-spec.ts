@@ -121,6 +121,7 @@ describe("Account API (e2e)", () => {
       decimals: 18,
       blockNumber: 1,
       logIndex: 1,
+      type: TokenType.ERC20,
     });
 
     const tokens = [

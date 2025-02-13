@@ -12,6 +12,7 @@ import parseLog from "../utils/parseLog";
 import { stringTransformer } from "../transformers/string.transformer";
 import { CONTRACT_INTERFACES } from "../constants";
 import { ConfigService } from "@nestjs/config";
+import { TokenType } from "../entities";
 
 export interface Token {
   l2Address: string;
@@ -22,6 +23,7 @@ export interface Token {
   blockNumber: number;
   transactionHash: string;
   logIndex: number;
+  type: TokenType;
 }
 
 @Injectable()

@@ -26,6 +26,18 @@ declare namespace Api {
       usdPrice: number | null;
       liquidity: number | null;
       iconURL: string | null;
+      type: "BASETOKEN" | "ERC20" | "ERC721" | null;
+    };
+
+    type NftItem = {
+      tokenId: string;
+      tokenAddress: string;
+      owner: string;
+      symbol?: string;
+      name?: string;
+      description?: string;
+      imageUrl?: string;
+      metadataUrl?: string;
     };
 
     type BatchListItem = {
@@ -107,6 +119,7 @@ declare namespace Api {
       tokenAddress: string;
       type: "deposit" | "transfer" | "withdrawal" | "fee" | "mint" | "refund";
       timestamp: string;
+      nftItem?: NftItem | null;
     };
 
     type TokenAddress = {

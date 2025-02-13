@@ -86,7 +86,7 @@
             "from": "From",
             "direction": "Direction",
             "to": "To",
-            "amount": "Amount",
+            "amountOrItem": "Amount/Item",
             "value": "Value"
         }
     },

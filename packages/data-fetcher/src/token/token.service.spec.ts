@@ -47,13 +47,14 @@ describe("TokenService", () => {
   describe("getERC20Token", () => {
     let deployedContractAddress: ContractAddress;
     let transactionReceipt: types.TransactionReceipt;
-    let tokenData;
+    let tokenDataERC20;
 
     beforeEach(() => {
-      tokenData = {
+      tokenDataERC20 = {
         symbol: "symbol",
         decimals: 18,
         name: "name",
+        type: "ERC20",
       };
 
       transactionReceipt = mock<types.TransactionReceipt>({
@@ -68,7 +69,7 @@ describe("TokenService", () => {
         logIndex: 20,
       });
 
-      jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValue(tokenData);
+      jest.spyOn(blockchainServiceMock, "getTokenData").mockResolvedValue(tokenDataERC20);
     });
 
     describe("when there is neither bridge initialization nor bridge initialize log for the current token address", () => {
@@ -80,20 +81,20 @@ describe("TokenService", () => {
       });
 
       it("starts the get token info duration metric", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(startGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
       });
 
       it("gets token data by the contract address", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledTimes(1);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledWith(deployedContractAddress.address);
       });
 
       it("returns the token without l1Address", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toStrictEqual({
-          ...tokenData,
+          ...tokenDataERC20,
           blockNumber: deployedContractAddress.blockNumber,
           transactionHash: deployedContractAddress.transactionHash,
           l2Address: deployedContractAddress.address,
@@ -108,6 +109,7 @@ describe("TokenService", () => {
             decimals: 18,
             name: "Ethers",
             l1Address: ETH_L1_ADDRESS,
+            type: "ERC20",
           };
           const deployedETHContractAddress = mock<ContractAddress>({
             address: BASE_TOKEN_ADDRESS,
@@ -115,10 +117,11 @@ describe("TokenService", () => {
             transactionHash: "transactionHash",
             logIndex: 0,
           });
-          (blockchainServiceMock.getERC20TokenData as jest.Mock).mockResolvedValueOnce(ethTokenData);
-          const token = await tokenService.getERC20Token(deployedETHContractAddress, transactionReceipt);
+          (blockchainServiceMock.getTokenData as jest.Mock).mockResolvedValueOnce(ethTokenData);
+          const token = await tokenService.getToken(deployedETHContractAddress, transactionReceipt);
           expect(token).toStrictEqual({
             ...ethTokenData,
+            type: "BASETOKEN",
             blockNumber: deployedETHContractAddress.blockNumber,
             transactionHash: deployedETHContractAddress.transactionHash,
             l2Address: BASE_TOKEN_ADDRESS,
@@ -129,24 +132,24 @@ describe("TokenService", () => {
       });
 
       it("tracks the get token info duration metric", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(stopGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
       });
 
-      describe("if ERC20 Contract function throws an exception", () => {
+      describe("if Contract function throws an exception", () => {
         beforeEach(() => {
-          jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockImplementation(() => {
+          jest.spyOn(blockchainServiceMock, "getTokenData").mockImplementation(() => {
             throw new Error("Ethers Contract error");
           });
         });
 
         it("returns null", async () => {
-          const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+          const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
           expect(token).toBeNull();
         });
 
         it("does not track the get token info duration metric", async () => {
-          await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+          await tokenService.getToken(deployedContractAddress, transactionReceipt);
           expect(stopGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(0);
         });
       });
@@ -161,20 +164,20 @@ describe("TokenService", () => {
       });
 
       it("starts the get token info duration metric", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(startGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
       });
 
       it("gets token data by the contract address", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledTimes(1);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledWith(deployedContractAddress.address);
       });
 
       it("returns the token without l1Address", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toStrictEqual({
-          ...tokenData,
+          ...tokenDataERC20,
           blockNumber: deployedContractAddress.blockNumber,
           transactionHash: deployedContractAddress.transactionHash,
           l2Address: deployedContractAddress.address,
@@ -183,24 +186,24 @@ describe("TokenService", () => {
       });
 
       it("tracks the get token info duration metric", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(stopGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
       });
 
-      describe("if ERC20 Contract function throws an exception", () => {
+      describe("if Contract function throws an exception", () => {
         beforeEach(() => {
-          jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockImplementation(() => {
+          jest.spyOn(blockchainServiceMock, "getTokenData").mockImplementation(() => {
             throw new Error("Ethers Contract error");
           });
         });
 
         it("returns null", async () => {
-          const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+          const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
           expect(token).toBeNull();
         });
 
         it("does not track the get token info duration metric", async () => {
-          await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+          await tokenService.getToken(deployedContractAddress, transactionReceipt);
           expect(stopGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(0);
         });
       });
@@ -236,16 +239,17 @@ describe("TokenService", () => {
           name: "ADL1",
           symbol: "ADL1",
           decimals: BigInt(18),
+          type: "ERC20",
         };
       });
 
       it("extract token info from log and does not call web3 API to get token data", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(0);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledTimes(0);
       });
 
       it("returns the token with l1Address", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toStrictEqual({
           ...bridgedToken,
           blockNumber: deployedContractAddress.blockNumber,
@@ -284,20 +288,20 @@ describe("TokenService", () => {
       });
 
       it("starts the get token info duration metric", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(startGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
       });
 
       it("gets token data by the contract address", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledTimes(1);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledWith(deployedContractAddress.address);
       });
 
       it("returns the token without l1Address", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toStrictEqual({
-          ...tokenData,
+          ...tokenDataERC20,
           blockNumber: deployedContractAddress.blockNumber,
           transactionHash: deployedContractAddress.transactionHash,
           l2Address: deployedContractAddress.address,
@@ -343,16 +347,17 @@ describe("TokenService", () => {
           name: "L111 deployed to L1",
           symbol: "L111",
           decimals: BigInt(18),
+          type: "ERC20",
         };
       });
 
       it("extract token info from log and does not call web3 API to get token data", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(0);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledTimes(0);
       });
 
       it("returns the token with l1Address", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toStrictEqual({
           ...bridgedToken,
           blockNumber: deployedContractAddress.blockNumber,
@@ -398,20 +403,20 @@ describe("TokenService", () => {
       });
 
       it("starts the get token info duration metric", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(startGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
       });
 
       it("gets token data by the contract address", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledTimes(1);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledWith(deployedContractAddress.address);
       });
 
       it("returns the token without l1Address", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toStrictEqual({
-          ...tokenData,
+          ...tokenDataERC20,
           blockNumber: deployedContractAddress.blockNumber,
           transactionHash: deployedContractAddress.transactionHash,
           l2Address: deployedContractAddress.address,
@@ -455,20 +460,20 @@ describe("TokenService", () => {
       });
 
       it("starts the get token info duration metric", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(startGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
       });
 
       it("gets token data by the contract address", async () => {
-        await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
+        await tokenService.getToken(deployedContractAddress, transactionReceipt);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledTimes(1);
+        expect(blockchainServiceMock.getTokenData).toHaveBeenCalledWith(deployedContractAddress.address);
       });
 
       it("returns the token without l1Address", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toStrictEqual({
-          ...tokenData,
+          ...tokenDataERC20,
           blockNumber: deployedContractAddress.blockNumber,
           transactionHash: deployedContractAddress.transactionHash,
           l2Address: deployedContractAddress.address,
@@ -479,15 +484,15 @@ describe("TokenService", () => {
 
     describe("if the token symbol or name has special symbols", () => {
       beforeEach(() => {
-        jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
-          ...tokenData,
+        jest.spyOn(blockchainServiceMock, "getTokenData").mockResolvedValueOnce({
+          ...tokenDataERC20,
           symbol: "\0\0\0\0\0\0test symbol",
           name: "\0\0\0\0\0\0test name",
         });
       });
 
       it("returns token with special chars replaced", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toEqual({
           blockNumber: 10,
           decimals: 18,
@@ -496,49 +501,99 @@ describe("TokenService", () => {
           name: "test name",
           symbol: "test symbol",
           transactionHash: "transactionHash",
+          type: "ERC20",
         });
       });
     });
 
     describe("if the token symbol is empty", () => {
       beforeEach(() => {
-        jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
-          ...tokenData,
+        jest.spyOn(blockchainServiceMock, "getTokenData").mockResolvedValueOnce({
+          ...tokenDataERC20,
           symbol: "",
         });
       });
 
       it("returns null", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toBeNull();
       });
     });
 
     describe("if the token symbol has special symbols only", () => {
       beforeEach(() => {
-        jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValueOnce({
-          ...tokenData,
+        jest.spyOn(blockchainServiceMock, "getTokenData").mockResolvedValueOnce({
+          ...tokenDataERC20,
           symbol: "\0\0\0\0\0\0",
         });
       });
 
       it("returns null", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
         expect(token).toBeNull();
       });
     });
 
     describe("when transactionReceipt param is not provided", () => {
       it("returns the token without l1Address when token is valid", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress);
+        const token = await tokenService.getToken(deployedContractAddress);
         expect(token).toStrictEqual({
-          ...tokenData,
+          ...tokenDataERC20,
           blockNumber: deployedContractAddress.blockNumber,
           transactionHash: deployedContractAddress.transactionHash,
           l2Address: deployedContractAddress.address,
           logIndex: deployedContractAddress.logIndex,
         });
       });
+    });
+  });
+
+  describe("getERC721Token", () => {
+    let deployedContractAddress: ContractAddress;
+    let transactionReceipt: types.TransactionReceipt;
+    const tokenDataERC721 = {
+      symbol: "symbol",
+      name: "name",
+      type: "ERC721",
+    };
+
+    beforeEach(() => {
+      deployedContractAddress = mock<ContractAddress>({
+        address: "0xdc187378edd8ed1585fb47549cc5fe633295d571",
+        blockNumber: 10,
+        transactionHash: "transactionHash",
+        logIndex: 20,
+      });
+
+      blockchainServiceMock.getTokenData = jest.fn().mockResolvedValue(tokenDataERC721);
+    });
+
+    it("return the nft token", async () => {
+      const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
+      expect(token).toStrictEqual({
+        ...tokenDataERC721,
+        blockNumber: deployedContractAddress.blockNumber,
+        transactionHash: deployedContractAddress.transactionHash,
+        l2Address: deployedContractAddress.address,
+        logIndex: deployedContractAddress.logIndex,
+      });
+    });
+
+    it("tracks the get token info duration metric", async () => {
+      await tokenService.getToken(deployedContractAddress, transactionReceipt);
+      expect(stopGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("returns null", async () => {
+      blockchainServiceMock.getTokenData = jest.fn().mockResolvedValue(null);
+      const token = await tokenService.getToken(deployedContractAddress, transactionReceipt);
+      expect(token).toBeNull();
+    });
+
+    it("does not track the get token info duration metric", async () => {
+      blockchainServiceMock.getTokenData = jest.fn().mockResolvedValue(null);
+      await tokenService.getToken(deployedContractAddress, transactionReceipt);
+      expect(stopGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(0);
     });
   });
 });

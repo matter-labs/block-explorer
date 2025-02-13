@@ -62,6 +62,9 @@ export class Token extends BaseEntity {
   @Column({ nullable: true })
   public readonly iconURL?: string;
 
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ERC20 })
+  public readonly type?: TokenType;
+
   @Index()
   @Column({ type: "timestamp", nullable: true })
   public readonly offChainDataUpdatedAt?: Date;

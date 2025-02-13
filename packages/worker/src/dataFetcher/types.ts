@@ -42,6 +42,7 @@ export interface Token {
   blockNumber: number;
   transactionHash: string;
   logIndex: number;
+  type: TokenType;
 }
 
 export interface ContractAddress {
@@ -103,6 +104,17 @@ export type Block = Modify<
   }
 >;
 
+export interface NftItem {
+  tokenId: string;
+  tokenAddress: string;
+  owner: string;
+  symbol?: string;
+  name?: string;
+  description?: string;
+  imageUrl?: string;
+  metadataUrl?: string;
+}
+
 export interface BlockData {
   block: Block;
   blockDetails: types.BlockDetails;
@@ -110,4 +122,5 @@ export interface BlockData {
   blockLogs: types.Log[];
   blockTransfers: Transfer[];
   changedBalances: Balance[];
+  nftItems: NftItem[];
 }

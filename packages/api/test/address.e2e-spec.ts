@@ -160,6 +160,7 @@ describe("AddressController (e2e)", () => {
       decimals: ETH_TOKEN.decimals,
       blockNumber: 0,
       logIndex: 0,
+      type: TokenType.BaseToken,
     });
 
     // tokens for balances
@@ -407,6 +408,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "BASETOKEN",
                   },
                 },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
@@ -420,6 +422,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -433,6 +436,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -446,6 +450,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -476,6 +481,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "BASETOKEN",
                   },
                 },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
@@ -489,6 +495,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -502,6 +509,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -515,6 +523,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -545,6 +554,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "BASETOKEN",
                   },
                 },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
@@ -558,6 +568,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -571,6 +582,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -584,6 +596,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -614,6 +627,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "BASETOKEN",
                   },
                 },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
@@ -627,6 +641,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -640,6 +655,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -653,6 +669,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -685,6 +702,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "BASETOKEN",
                   },
                 },
                 "0x9488FC54FcCc6f319D4863Ddc2c2899Ed35d8956": {
@@ -698,6 +716,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488Fc54FCcC6f319d4863dDc2C2899ED35D8954": {
@@ -711,6 +730,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54fCcC6F319D4863dDC2c2899ED35D8955": {
@@ -724,6 +744,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -756,6 +777,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -769,6 +791,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -782,6 +805,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -816,6 +840,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -829,6 +854,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -842,6 +868,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -876,6 +903,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -889,6 +917,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -902,6 +931,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -936,6 +966,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fC54fccC6F319d4863DDc2C2899ed35d8959": {
@@ -949,6 +980,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
                 "0x9488fc54FCCC6f319D4863dDc2c2899Ed35D8958": {
@@ -962,6 +994,7 @@ describe("AddressController (e2e)", () => {
                     iconURL: null,
                     liquidity: null,
                     usdPrice: null,
+                    type: "ERC20",
                   },
                 },
               },
@@ -1206,6 +1239,7 @@ describe("AddressController (e2e)", () => {
               from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: null,
@@ -1215,6 +1249,7 @@ describe("AddressController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
@@ -1229,6 +1264,7 @@ describe("AddressController (e2e)", () => {
               from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              nftItem: null,
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1238,6 +1274,7 @@ describe("AddressController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "BASETOKEN",
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
@@ -1252,6 +1289,7 @@ describe("AddressController (e2e)", () => {
               from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: null,
@@ -1261,6 +1299,7 @@ describe("AddressController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",

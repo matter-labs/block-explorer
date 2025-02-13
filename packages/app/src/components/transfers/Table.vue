@@ -22,7 +22,7 @@
       </TableHeadColumn>
 
       <TableHeadColumn>
-        {{ t("transfers.table.amount") }}
+        {{ t("transfers.table.amountOrItem") }}
       </TableHeadColumn>
     </template>
 
@@ -110,8 +110,19 @@
         </span>
       </TableBodyColumn>
 
-      <TableBodyColumn :data-heading="t('transfers.table.amount')">
-        <TokenAmountPriceTableCell :amount="item.amount" :token="item.token" :show-price="true" />
+      <TableBodyColumn :data-heading="t('transfers.table.amountOrItem')">
+        <div v-if="item.nftItem">
+          <NftItemTableCell
+            :url="item.nftItem?.imageUrl"
+            :name="item.nftItem?.name"
+            :tokenAddress="item.tokenAddress"
+            :symbol="item.token?.symbol"
+            :token-id="item.nftItem?.tokenId"
+          />
+        </div>
+        <div v-else>
+          <TokenAmountPriceTableCell :amount="item.amount" :token="item.token" />
+        </div>
       </TableBodyColumn>
     </template>
     <template #empty>
@@ -148,6 +159,7 @@ import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
+import NftItemTableCell from "@/components/nft/NftItemTableCell.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
 import TransactionDirectionTableCell, {
   type Direction,

@@ -2,13 +2,14 @@ import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
 import { utils, types } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { Listener } from "ethers";
+import { Interface, Listener } from "ethers";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
 import { ProviderEvent } from "ethers";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
+import * as erc721Abi from "../abis/erc721.json";
 
 export interface BridgeAddresses {
   l2Erc20DefaultBridge?: string;
@@ -152,6 +153,44 @@ export class BlockchainService implements OnModuleInit {
     this.provider.on(eventName, listener);
   }
 
+  public async getTokenData(
+    contractAddress: string
+  ): Promise<{ symbol: string; name: string; type: string; decimals: number }> {
+    try {
+      const erc721Contract = await this.getERC721TokenData(contractAddress);
+
+      if (erc721Contract) {
+        return {
+          ...erc721Contract,
+          decimals: 0,
+          type: "ERC721",
+        };
+      }
+    } catch (error) {
+      this.logger.log({
+        message: "Cannot parse contract ERC721. Might be a token of a different type.",
+        contractAddress,
+      });
+    }
+
+    try {
+      const erc20Contract = await this.getERC20TokenData(contractAddress);
+
+      if (erc20Contract) {
+        return {
+          ...erc20Contract,
+          type: "ERC20",
+        };
+      }
+    } catch (error) {
+      this.logger.log({
+        message: "Cannot parse contract ERC20. Might be a token of a different type.",
+        contractAddress,
+      });
+      return null;
+    }
+  }
+
   public async getERC20TokenData(contractAddress: string): Promise<{ symbol: string; decimals: number; name: string }> {
     const erc20Contract = new RetryableContract(contractAddress, utils.IERC20, this.provider);
     const [symbol, decimals, name] = await Promise.all([
@@ -162,6 +201,22 @@ export class BlockchainService implements OnModuleInit {
     return {
       symbol,
       decimals,
+      name,
+    };
+  }
+
+  public async getERC721TokenData(contractAddress: string): Promise<{ symbol: string; name: string }> {
+    const erc721Contract = new RetryableContract(contractAddress, new Interface(erc721Abi), this.provider);
+    const supportsInterface = await erc721Contract.supportsInterface("0x80ac58cd");
+
+    if (!supportsInterface) {
+      return null;
+    }
+
+    const [symbol, name] = await Promise.all([erc721Contract.symbol(), erc721Contract.name()]);
+
+    return {
+      symbol,
       name,
     };
   }
