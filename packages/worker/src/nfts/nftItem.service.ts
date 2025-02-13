@@ -25,7 +25,6 @@ export class NftItemService {
 
   public async saveNftItems(nftItems: NftItem[]): Promise<void> {
     nftItems.forEach(async (nftItem) => {
-      console.log(nftItem);
       await this.saveNftItem(nftItem);
     });
   }

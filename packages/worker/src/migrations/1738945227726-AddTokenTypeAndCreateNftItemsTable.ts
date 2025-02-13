@@ -7,14 +7,12 @@ export class AddTokenTypeAndCreateNftItemsTable1738945227726 implements Migratio
     );
     await queryRunner.query(`CREATE INDEX "IDX_b0997b2b8a9778f095bc0bb63b" ON "nftitems" ("owner") `);
     await queryRunner.query(`CREATE INDEX "IDX_c4b9cf529a59fc04928afdbdc8" ON "nftitems" ("tokenId", "tokenAddress") `);
-    await queryRunner.query(`ALTER TABLE "tokens" DROP COLUMN "type"`);
     await queryRunner.query(`CREATE TYPE "public"."tokens_type_enum" AS ENUM('BASETOKEN', 'ERC20', 'ERC721')`);
     await queryRunner.query(`ALTER TABLE "tokens" ADD "type" "public"."tokens_type_enum"`);
   }
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`ALTER TABLE "tokens" DROP COLUMN "type"`);
     await queryRunner.query(`DROP TYPE "public"."tokens_type_enum"`);
-    await queryRunner.query(`ALTER TABLE "tokens" ADD "type" character varying`);
     await queryRunner.query(`DROP INDEX "public"."IDX_c4b9cf529a59fc04928afdbdc8"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_b0997b2b8a9778f095bc0bb63b"`);
     await queryRunner.query(`DROP TABLE "nftitems"`);
