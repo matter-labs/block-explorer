@@ -7,6 +7,7 @@ import { TokenService } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
 import { Token } from "../token/token.service";
+import { NftService } from "../nft/nft.service";
 
 export interface LogsData {
   transfers: Transfer[];
@@ -22,7 +23,8 @@ export class LogService {
     private readonly addressService: AddressService,
     private readonly balanceService: BalanceService,
     private readonly transferService: TransferService,
-    private readonly tokenService: TokenService
+    private readonly tokenService: TokenService,
+    private readonly nftService: NftService
   ) {
     this.logger = new Logger(LogService.name);
   }
@@ -40,6 +42,7 @@ export class LogService {
     };
 
     this.balanceService.trackChangedBalances(transfers);
+    this.nftService.trackNftItems(transfers);
 
     if (transactionReceipt) {
       const transactionHash = transactionReceipt.hash;
@@ -48,15 +51,13 @@ export class LogService {
       const contractAddresses = await this.addressService.getContractAddresses(logs, transactionReceipt);
 
       this.logger.debug({
-        message: "Extracting ERC20 tokens",
+        message: "Extracting ERC20 or ERC721 tokens",
         blockNumber: blockDetails.number,
         transactionHash,
       });
       const tokens = (
         await Promise.all(
-          contractAddresses.map((contractAddress) =>
-            this.tokenService.getERC20Token(contractAddress, transactionReceipt)
-          )
+          contractAddresses.map((contractAddress) => this.tokenService.getToken(contractAddress, transactionReceipt))
         )
       ).filter((token) => !!token);
 

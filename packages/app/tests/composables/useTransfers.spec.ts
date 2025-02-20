@@ -93,6 +93,7 @@ describe("useTransfers:", () => {
           l2Address: "tokenAddress",
           name: null,
           symbol: null,
+          type: null,
           iconURL: null,
           usdPrice: null,
           liquidity: null,

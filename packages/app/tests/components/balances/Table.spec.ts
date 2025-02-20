@@ -25,6 +25,7 @@ const tokenLINK: Api.Response.Token = {
   usdPrice: 100,
   liquidity: 100000000,
   iconURL: null,
+  type: null,
 };
 const tokenWBTC: Api.Response.Token = {
   l1Address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
@@ -35,6 +36,7 @@ const tokenWBTC: Api.Response.Token = {
   usdPrice: 35000,
   liquidity: 10000000000,
   iconURL: null,
+  type: null,
 };
 
 vi.mock("@/composables/useTokenLibrary", () => {

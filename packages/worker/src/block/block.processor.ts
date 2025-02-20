@@ -23,6 +23,7 @@ import {
 } from "../metrics";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 import { unixTimeToDateString } from "../utils/date";
+import { NftItemService } from "../nfts/nftItem.service";
 
 @Injectable()
 export class BlockProcessor {
@@ -43,6 +44,7 @@ export class BlockProcessor {
     private readonly logRepository: LogRepository,
     private readonly transferRepository: TransferRepository,
     private readonly eventEmitter: EventEmitter2,
+    private readonly nftService: NftItemService,
     @InjectMetric(BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME)
     private readonly blocksBatchProcessingDurationMetric: Histogram<BlocksBatchProcessingMetricLabels>,
     @InjectMetric(BLOCK_PROCESSING_DURATION_METRIC_NAME)
@@ -194,6 +196,11 @@ export class BlockProcessor {
           this.balanceService.saveChangedBalances(blockData.changedBalances),
           this.tokenService.saveERC20Tokens(erc20TokensForChangedBalances),
         ]);
+      }
+
+      if (blockData.nftItems.length) {
+        this.logger.debug({ message: "Updating nft items", blockNumber });
+        await this.nftService.saveNftItems(blockData.nftItems);
       }
     } catch (error) {
       blockProcessingStatus = "error";

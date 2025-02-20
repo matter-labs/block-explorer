@@ -1,4 +1,4 @@
-import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad } from "typeorm";
+import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad, OneToOne } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { Token, TokenType } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
@@ -6,6 +6,7 @@ import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.tra
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
 import { baseToken, ethToken } from "../config";
+import { NftItem } from "../nft/nftItem.entity";
 
 export enum TransferType {
   Deposit = "deposit",
@@ -79,6 +80,9 @@ export class Transfer extends BaseEntity {
 
   @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
+
+  @OneToOne(() => NftItem)
+  public nftItem?: NftItem;
 
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -8,6 +8,7 @@ import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
+import { NftItem } from "../nft/nftItem.entity";
 
 export interface FilterTransfersOptions {
   tokenAddress?: string;
@@ -56,6 +57,12 @@ export class TransferService {
       const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
       queryBuilder.select("addressTransfer.number");
       queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
+      queryBuilder.leftJoinAndMapOne(
+        "transfer.nftItem",
+        NftItem,
+        "nftItem",
+        "nftItem.tokenAddress = transfer.tokenAddress AND nftItem.tokenId = (transfer.fields->>'tokenId')::text"
+      );
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
       queryBuilder.where(filterOptions);
       queryBuilder.orderBy("addressTransfer.timestamp", "DESC");
@@ -69,6 +76,12 @@ export class TransferService {
       const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
       queryBuilder.where(filterOptions);
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
+      queryBuilder.leftJoinAndMapOne(
+        "transfer.nftItem",
+        NftItem,
+        "nftItem",
+        "nftItem.tokenAddress = transfer.tokenAddress AND nftItem.tokenId = (transfer.fields->>'tokenId')::text"
+      );
       queryBuilder.orderBy("transfer.timestamp", "DESC");
       queryBuilder.addOrderBy("transfer.logIndex", "ASC");
       return await paginate<Transfer>(queryBuilder, paginationOptions);

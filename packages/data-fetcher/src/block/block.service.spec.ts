@@ -8,6 +8,7 @@ import { BlockchainService } from "../blockchain";
 import { BalanceService } from "../balance";
 import { BlockService } from "./";
 import { TokenType } from "../token/token.service";
+import { NftService } from "../nft/nft.service";
 
 describe("BlockService", () => {
   let blockService: BlockService;
@@ -15,6 +16,7 @@ describe("BlockService", () => {
   let transactionServiceMock: TransactionService;
   let logServiceMock: LogService;
   let balanceServiceMock: BalanceService;
+  let nftServiceMock: NftService;
 
   let startGetBlockInfoDurationMetricMock: jest.Mock;
   let stopGetBlockInfoDurationMetricMock: jest.Mock;
@@ -44,6 +46,10 @@ describe("BlockService", () => {
         {
           provide: BalanceService,
           useValue: balanceServiceMock,
+        },
+        {
+          provide: NftService,
+          useValue: nftServiceMock,
         },
         {
           provide: "PROM_METRIC_BLOCK_PROCESSING_DURATION_SECONDS",
@@ -123,6 +129,11 @@ describe("BlockService", () => {
     balanceServiceMock = mock<BalanceService>({
       getChangedBalances: jest.fn().mockResolvedValueOnce(blockChangedBalances),
       clearTrackedState: jest.fn(),
+    });
+    nftServiceMock = mock<NftService>({
+      getNftItems: jest.fn().mockResolvedValue([]),
+      clearTrackedState: jest.fn(),
+      trackNftItems: jest.fn(),
     });
 
     stopGetBlockInfoDurationMetricMock = jest.fn();
@@ -309,6 +320,24 @@ describe("BlockService", () => {
     it("returns empty block transfers array", async () => {
       const blockData = await blockService.getData(blockNumber);
       expect(blockData.blockTransfers).toEqual([]);
+    });
+
+    it("returns empty nft items array", async () => {
+      const blockData = await blockService.getData(blockNumber);
+      expect(blockData.nftItems).toEqual([]);
+    });
+
+    it("clears tracked nft items state", async () => {
+      await blockService.getData(blockNumber);
+      expect(nftServiceMock.clearTrackedState).toHaveBeenCalledTimes(1);
+      expect(nftServiceMock.clearTrackedState).toHaveBeenCalledWith(blockNumber);
+    });
+
+    it("returns nft items", async () => {
+      const nftItems = [{ owner: "owner", tokenAddress: "tokenAddress", tokenId: "tokenId" }];
+      (nftServiceMock.getNftItems as jest.Mock).mockResolvedValue(nftItems);
+      const blockData = await blockService.getData(blockNumber);
+      expect(blockData.nftItems).toEqual(nftItems);
     });
   });
 });
