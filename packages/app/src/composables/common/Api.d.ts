@@ -33,7 +33,6 @@ declare namespace Api {
       tokenId: string;
       tokenAddress: string;
       owner: string;
-      symbol?: string;
       name?: string;
       description?: string;
       imageUrl?: string;

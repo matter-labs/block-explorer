@@ -132,7 +132,6 @@ describe("TokenController (e2e)", () => {
       tokenAddress: "0xd4069ec5f89ce5ea2926441148f0054ff62da1f1",
       owner: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
       name: "NFT",
-      symbol: "TEST nft 1",
       imageUrl: "https://testnft.com/1",
       metadataUrl: "https://testnft.com/1/metadata",
     });
@@ -694,7 +693,6 @@ describe("TokenController (e2e)", () => {
                 tokenId: "1",
                 tokenAddress: "0xd4069ec5f89ce5ea2926441148f0054ff62da1f1",
                 owner: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
-                symbol: "TEST nft 1",
                 number: "1",
                 description: null,
               },

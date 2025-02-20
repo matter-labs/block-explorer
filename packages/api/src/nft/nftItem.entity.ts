@@ -1,8 +1,7 @@
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { BaseEntity, Check, Column, Entity, Index, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, Index, PrimaryColumn } from "typeorm";
 
 @Entity({ name: "nftitems" })
-@Check(`"symbol" <> ''`)
 @Index(["tokenId", "tokenAddress"])
 export class NftItem extends BaseEntity {
   @PrimaryColumn()
@@ -17,9 +16,6 @@ export class NftItem extends BaseEntity {
   @Index()
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly owner: string;
-
-  @Column({ nullable: true })
-  public readonly symbol?: string;
 
   @Column({ nullable: true })
   public readonly name?: string;
