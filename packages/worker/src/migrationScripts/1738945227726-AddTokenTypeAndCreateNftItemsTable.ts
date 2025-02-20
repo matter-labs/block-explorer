@@ -10,9 +10,7 @@ import { Provider } from "zksync-ethers";
 
 config();
 
-const QUERY_MAX_RETRIES = 5;
-const QUERY_RETRY_MIN_INTERVAL_MS = 1000;
-
+// eslint-disable-next-line prefer-const
 let { fromTransferNumber, toTransferNumber, updateBatchSize, blockChainUrl } = yargs(hideBin(process.argv))
   .options({
     fromTransferNumber: {
