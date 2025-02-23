@@ -1,39 +1,32 @@
 import { Logger } from "@nestjs/common";
-import { Provider } from "@ethersproject/abstract-provider";
 import { setTimeout } from "timers/promises";
-import { Contract, ContractInterface, Signer, errors } from "ethers";
+import { Contract, Interface, ContractRunner, ErrorCode, isError } from "ethers";
 import config from "../config";
 
 const { blockchain } = config();
 
 interface EthersError {
-  code: string;
-  method: string;
-  transaction: {
-    data: string;
-    to: string;
-  };
-  message: string;
+  code: ErrorCode | number;
+  shortMessage: string;
 }
 
 const MAX_RETRY_INTERVAL = 60000;
 
-const PERMANENT_ERRORS: string[] = [
-  errors.INVALID_ARGUMENT,
-  errors.MISSING_ARGUMENT,
-  errors.UNEXPECTED_ARGUMENT,
-  errors.NOT_IMPLEMENTED,
+const PERMANENT_ERRORS: ErrorCode[] = [
+  "INVALID_ARGUMENT",
+  "MISSING_ARGUMENT",
+  "UNEXPECTED_ARGUMENT",
+  "NOT_IMPLEMENTED",
 ];
 
-const shouldRetry = (calledFunctionName: string, error: EthersError): boolean => {
+const shouldRetry = (error: EthersError): boolean => {
+  const isPermanentErrorCode = PERMANENT_ERRORS.find((errorCode) => isError(error, errorCode));
   return (
-    !PERMANENT_ERRORS.includes(error.code) &&
-    !(
-      error.code === errors.CALL_EXCEPTION &&
-      error.method?.startsWith(`${calledFunctionName}(`) &&
-      !!error.transaction &&
-      error.message?.startsWith("call revert exception")
-    )
+    !isPermanentErrorCode &&
+    // example block mainnet 47752810
+    !(error.code === 3 && error.shortMessage?.startsWith("execution reverted")) &&
+    // example block mainnet 47819836
+    !(error.code === "BAD_DATA" && error.shortMessage?.startsWith("could not decode result data"))
   );
 };
 
@@ -49,7 +42,7 @@ const retryableFunctionCall = async (
   try {
     return await result;
   } catch (error) {
-    const isRetryable = shouldRetry(functionName, error);
+    const isRetryable = shouldRetry(error);
     if (!isRetryable) {
       logger.warn({
         message: `Requested contract function ${functionName} failed to execute, not retryable`,
@@ -113,12 +106,12 @@ const getProxyHandler = (addressOrName: string, logger: Logger, retryTimeout: nu
 export class RetryableContract extends Contract {
   constructor(
     addressOrName: string,
-    contractInterface: ContractInterface,
-    signerOrProvider: Signer | Provider,
+    contractInterface: Interface,
+    contractRunner: ContractRunner,
     retryTimeout = 1000
   ) {
     const logger = new Logger("Contract");
-    super(addressOrName, contractInterface, signerOrProvider);
+    super(addressOrName, contractInterface, contractRunner);
     return new Proxy({ contract: this }, getProxyHandler(addressOrName, logger, retryTimeout));
   }
 }

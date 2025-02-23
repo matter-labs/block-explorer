@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { BigNumber } from "ethers";
-
 import type { TransactionLogEntry } from "@/composables/useEventLog";
 import type { TraceStep } from "@/composables/useTrace";
 import type { Address } from "@/types";
@@ -36,7 +34,7 @@ describe("mappers:", () => {
     expect(result).toEqual([
       {
         ...contractEvents[0],
-        blockNumber: BigNumber.from(contractEvents[0].blockNumber),
+        blockNumber: BigInt(contractEvents[0].blockNumber),
         address: checksumAddress(contractEvents[0].address),
       },
     ]);

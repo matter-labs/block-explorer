@@ -1,4 +1,4 @@
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { TokenType } from "../entities/token.entity";
 import { TransferType } from "../entities/transfer.entity";
 
@@ -51,6 +51,7 @@ export interface ContractAddress {
   creatorAddress: string;
   logIndex: number;
   bytecode?: string;
+  isEvmLike: boolean;
 }
 
 export interface LogsData {
@@ -84,7 +85,7 @@ export type TransactionReceipt = Modify<
   {
     gasUsed: string;
     cumulativeGasUsed: string;
-    effectiveGasPrice: string;
+    gasPrice: string;
   }
 >;
 
@@ -99,7 +100,6 @@ export type Block = Modify<
     gasLimit: string;
     gasUsed: string;
     baseFeePerGas: string;
-    _difficulty: string;
   }
 >;
 

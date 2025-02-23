@@ -9,7 +9,7 @@ import {
   ApiExcludeController,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { utils } from "ethers";
+import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { formatHexAddress, buildDateFilter } from "../common/utils";
@@ -44,6 +44,7 @@ export class AddressController {
   @Get(":address")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.address,
     description: "Valid hex address",
@@ -74,6 +75,7 @@ export class AddressController {
         creatorTxHash: addressRecord.creatorTxHash,
         totalTransactions,
         creatorAddress: addressRecord.creatorAddress,
+        isEvmLike: addressRecord.isEvmLike,
       };
     }
 
@@ -85,7 +87,7 @@ export class AddressController {
 
       return {
         type: AddressType.Account,
-        address: utils.getAddress(address),
+        address: ethersGetAddress(address),
         blockNumber: addressBalance.blockNumber,
         balances: addressBalance.balances,
         sealedNonce,
@@ -95,7 +97,7 @@ export class AddressController {
 
     return {
       type: AddressType.Account,
-      address: utils.getAddress(address),
+      address: ethersGetAddress(address),
       blockNumber: await this.blockService.getLastBlockNumber(),
       balances: {},
       sealedNonce: 0,
@@ -106,6 +108,7 @@ export class AddressController {
   @Get(":address/logs")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.contractAddressWithLogs,
     description: "Valid hex address",
@@ -130,6 +133,7 @@ export class AddressController {
   @Get(":address/transfers")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.address,
     description: "Valid hex address",

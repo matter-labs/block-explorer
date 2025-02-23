@@ -1,6 +1,5 @@
 import { ref } from "vue";
 
-import { BigNumber } from "ethers";
 import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "@/composables/useContext";
@@ -59,7 +58,7 @@ export default (context = useContext()) => {
           address: checksumAddress(e.address),
           topics: e.topics,
           data: e.data as Address,
-          blockNumber: BigNumber.from(e.blockNumber),
+          blockNumber: BigInt(e.blockNumber),
           transactionHash: e.transactionHash as Address,
           transactionIndex: e.transactionIndex.toString(16) as Address,
           logIndex: e.logIndex.toString(16) as Address,

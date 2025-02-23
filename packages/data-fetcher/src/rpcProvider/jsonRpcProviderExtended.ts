@@ -1,4 +1,5 @@
-import { Provider } from "zksync-web3";
+import { Provider } from "zksync-ethers";
+import { FetchRequest } from "ethers";
 import { ProviderState, JsonRpcProviderBase } from "./jsonRpcProviderBase";
 import logger from "../logger";
 
@@ -10,16 +11,30 @@ export class QuickTimeoutError extends Error {
 
 export class JsonRpcProviderExtended extends Provider implements JsonRpcProviderBase {
   private readonly connectionQuickTimeout;
-  constructor(providerUrl: string, connectionTimeout: number, connectionQuickTimeout: number) {
-    super({
-      url: providerUrl,
+  constructor(
+    providerUrl: string,
+    connectionTimeout: number,
+    connectionQuickTimeout: number,
+    batchMaxCount: number,
+    batchMaxSizeBytes: number,
+    batchStallTimeMs: number
+  ) {
+    const fetchRequest = new FetchRequest(providerUrl);
+    fetchRequest.timeout = connectionTimeout;
+
+    super(fetchRequest, undefined, {
       timeout: connectionTimeout,
+      batchMaxSize: batchMaxSizeBytes,
+      batchMaxCount: batchMaxCount,
+      staticNetwork: true,
+      batchStallTime: batchStallTimeMs,
     });
+
     this.connectionQuickTimeout = connectionQuickTimeout;
   }
 
   private startQuickTimeout(timeout) {
-    let timer: NodeJS.Timer = null;
+    let timer: NodeJS.Timeout = null;
     const promise = new Promise((resolve, reject) => {
       timer = setTimeout(() => {
         timer ? reject(new QuickTimeoutError()) : resolve(undefined);

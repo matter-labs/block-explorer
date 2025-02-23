@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { Transaction } from "../entities";
 import { UnitOfWork } from "../unitOfWork";
 import { BaseRepository } from "./base.repository";

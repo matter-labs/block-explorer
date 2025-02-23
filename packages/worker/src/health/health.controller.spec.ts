@@ -4,12 +4,14 @@ import { HealthCheckService, TypeOrmHealthIndicator, HealthCheckResult } from "@
 import { mock } from "jest-mock-extended";
 import { JsonRpcHealthIndicator } from "./jsonRpcProvider.health";
 import { HealthController } from "./health.controller";
+import { ConfigService } from "@nestjs/config";
 
 describe("HealthController", () => {
   let healthCheckServiceMock: HealthCheckService;
   let dbHealthCheckerMock: TypeOrmHealthIndicator;
   let jsonRpcHealthIndicatorMock: JsonRpcHealthIndicator;
   let healthController: HealthController;
+  let configServiceMock: ConfigService;
 
   beforeEach(async () => {
     healthCheckServiceMock = mock<HealthCheckService>({
@@ -20,6 +22,12 @@ describe("HealthController", () => {
       }),
     });
 
+    configServiceMock = mock<ConfigService>({
+      get: jest.fn().mockImplementation((key: string) => {
+        if (key === "healthChecks.dbHealthCheckTimeoutMs") return 5000;
+        return null;
+      }),
+    });
     dbHealthCheckerMock = mock<TypeOrmHealthIndicator>();
     jsonRpcHealthIndicatorMock = mock<JsonRpcHealthIndicator>();
 
@@ -38,6 +46,10 @@ describe("HealthController", () => {
           provide: JsonRpcHealthIndicator,
           useValue: jsonRpcHealthIndicatorMock,
         },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
       ],
     }).compile();
 
@@ -50,7 +62,7 @@ describe("HealthController", () => {
     it("checks health of the DB", async () => {
       await healthController.check();
       expect(dbHealthCheckerMock.pingCheck).toHaveBeenCalledTimes(1);
-      expect(dbHealthCheckerMock.pingCheck).toHaveBeenCalledWith("database");
+      expect(dbHealthCheckerMock.pingCheck).toHaveBeenCalledWith("database", { timeout: 5000 });
     });
 
     it("checks health of the JSON RPC provider", async () => {

@@ -1,4 +1,3 @@
-import { BigNumber } from "ethers";
 import { Transfer } from "../../transfer/transfer.entity";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
 
@@ -14,7 +13,7 @@ export const mapInternalTransactionListItem = (transfer: Transfer) => ({
   type: "call",
   contractAddress: transfer.transaction?.transactionReceipt.contractAddress,
   gasUsed: transfer.transaction?.transactionReceipt.gasUsed,
-  fee: transfer.transaction?.fee ? BigNumber.from(transfer.transaction.fee).toString() : undefined,
+  fee: transfer.transaction?.fee ? BigInt(transfer.transaction.fee).toString() : undefined,
   l1BatchNumber: transfer.transaction?.l1BatchNumber.toString(),
   traceId: "0",
   transactionType: transfer.transaction?.type.toString(),

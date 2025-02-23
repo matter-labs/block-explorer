@@ -2,18 +2,16 @@
   <div>
     <div class="head-block">
       <Breadcrumbs :items="breadcrumbItems" />
-      <SearchForm class="search-form w-[576px] max-w-full max-lg:mb-8" />
+      <SearchForm class="search-form" />
     </div>
-    <h1 class="font-semibold mb-4">{{ t("batches.title") }}</h1>
+    <h1>{{ t("batches.title") }}</h1>
     <div class="batches-container">
       <span v-if="failed" class="error-message">
         {{ t("failedRequest") }}
       </span>
       <BatchesTable v-else :loading="pending" :loading-rows="pageSize" :batches="data ?? []">
         <template v-if="total && total > pageSize" #footer>
-          <div class="pagination-container flex justify-center p-3">
-            <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
-          </div>
+          <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
         </template>
       </BatchesTable>
     </div>
@@ -50,10 +48,11 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
 ]);
 
 watch(
-  () => route.query.page,
-  (page) => {
+  [() => route.query.page, () => route.query.pageSize],
+  ([page, pageSize]) => {
     const currentPage = page ? parseInt(page as string) : 1;
-    load(currentPage, currentPage === 1 ? new Date() : undefined);
+    const currentPageSize = pageSize ? parseInt(pageSize as string) : 10;
+    load(currentPage, currentPage === 1 ? new Date() : undefined, currentPageSize);
   },
   { immediate: true }
 );
@@ -63,14 +62,17 @@ watch(
 .head-block {
   @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
 
-  // .search-form {
-  //   @apply mb-6 w-full max-w-[26rem] lg:mb-0;
-  // }
+  .search-form {
+    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
+  }
 }
 .batches-container {
   @apply mt-8;
   .table-body-col {
     @apply min-w-[120px];
   }
+}
+.pagination-container {
+  @apply flex justify-center p-3;
 }
 </style>

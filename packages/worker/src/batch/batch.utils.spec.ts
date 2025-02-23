@@ -1,4 +1,4 @@
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { BatchState } from "../entities/batch.entity";
 import { getBatchState } from "./batch.utils";
 

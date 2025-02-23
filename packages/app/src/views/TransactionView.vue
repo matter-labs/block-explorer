@@ -7,8 +7,13 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form mb-6 w-full max-w-[34rem] lg:mb-0" />
     </div>
-    <Title class="transaction-title mb-8" :title="t('transactions.transaction')" :value="hash" />
-    <Tabs class="transactions-info-tabs shadow-md" v-if="transaction || isRequestPending" :tabs="tabs">
+    <Title
+      :title="t('transactions.transaction')"
+      :value="hash"
+      class="transaction-title"
+      :is-evm-like="transaction?.isEvmLike"
+    />
+    <Tabs class="transactions-info-tabs" v-if="transaction || isRequestPending" :tabs="tabs">
       <template #tab-1-content>
         <GeneralInfo
           :transaction="transactionWithData"
@@ -120,7 +125,22 @@ watchEffect(() => {
 </script>
 
 <style lang="scss" scoped>
-.head-block h1 {
-  margin-top: 0.75rem;
+.head-block {
+  @apply mb-8 flex flex-col-reverse justify-between lg:mb-10 lg:flex-row;
+  .search-form {
+    @apply mb-6 w-full max-w-[26rem] lg:mb-0;
+  }
+  h1 {
+    @apply mt-3;
+  }
+}
+.transactions-info-tabs {
+  @apply shadow-md;
+}
+.transaction-error {
+  @apply mt-24 flex justify-center;
+}
+.transaction-title {
+  @apply mb-8;
 }
 </style>

@@ -38,7 +38,7 @@
             "key": "0x7a91bf03b42c7c3f5bcd7f82bb2855313faaac42d0148937a955a867b4cf2202",
             "value": "0x0000000000000000000000000000000000000000000000000000000000000001",
             "transactionHash": "0x7a91bf03b42c7c3f5bcd7f82bb2855313faaac42d0148937a955a867b4cf2202",
-            "logIndex": 1
+            "index": 1
         }
     ],
     "byzantium": true

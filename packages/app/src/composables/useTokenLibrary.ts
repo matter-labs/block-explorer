@@ -63,7 +63,6 @@ export default (context = useContext()) => {
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
   const tokens = ref<Api.Response.Token[]>([]);
-
   const getToken = (tokenAddress: string) => {
     return tokens.value.find((token) => token.l2Address === tokenAddress);
   };

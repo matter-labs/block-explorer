@@ -17,7 +17,7 @@ import SystemAlert from "@/components/common/SystemAlert.vue";
 import useBlocks from "@/composables/useBlocks";
 import useContext from "@/composables/useContext";
 
-import type { types } from "zksync-web3";
+import type { types } from "zksync-ethers";
 
 const { t } = useI18n();
 const context = useContext();

@@ -1,6 +1,6 @@
 import * as ethers from "ethers";
 import { mock } from "jest-mock-extended";
-import { utils } from "zksync-web3";
+import { utils } from "zksync-ethers";
 import { setTimeout } from "timers/promises";
 import { RetryableContract } from "./retryableContract";
 
@@ -31,7 +31,7 @@ jest.mock("timers/promises", () => ({
 
 describe("RetryableContract", () => {
   const tokenAddress = "tokenAddress";
-  const providerMock = mock<ethers.providers.BaseProvider>({});
+  const providerMock = mock<ethers.ContractRunner>({});
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -98,15 +98,37 @@ describe("RetryableContract", () => {
       expect(result).toBe(functionResult);
     });
 
-    describe("when throws a permanent call exception function error", () => {
+    describe("when throws a permanent execution reverted error", () => {
       const callExceptionError = {
-        code: "CALL_EXCEPTION",
-        method: "contractFn(address)",
-        transaction: {
-          data: "0x00",
-          to: "to",
-        },
-        message: "call revert exception ....",
+        code: 3,
+        shortMessage: "execution reverted...",
+      };
+
+      beforeEach(() => {
+        (ethers.Contract as any as jest.Mock).mockReturnValue({
+          contractFn: async () => {
+            throw callExceptionError;
+          },
+        });
+
+        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      });
+
+      it("throws an error", async () => {
+        expect.assertions(1);
+
+        try {
+          await contract.contractFn();
+        } catch (e) {
+          expect(e).toBe(callExceptionError);
+        }
+      });
+    });
+
+    describe("when throws a permanent could not decode result data error", () => {
+      const callExceptionError = {
+        code: "BAD_DATA",
+        shortMessage: "could not decode result data...",
       };
 
       beforeEach(() => {
@@ -209,7 +231,7 @@ describe("RetryableContract", () => {
     describe("when throws a few errors with no method or message before returning a result", () => {
       const functionResult = "functionResult";
       const error = new Error();
-      (error as any).code = "CALL_EXCEPTION";
+      (error as any).code = 3;
 
       beforeEach(() => {
         let countOfFailedRequests = 0;

@@ -1,0 +1,103 @@
+name: Deploy App To Feature Branch
+on: pull_request
+
+jobs:
+  build:
+    name: Build and Test App
+    runs-on: matterlabs-firebase-deployer
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    defaults:
+      run:
+        working-directory: ./packages/app
+    outputs:
+      dappUrl: ${{ steps.check_channel.outputs.channel_url }}
+    env:
+      CHANNEL_NAME: pr-${{ github.event.number }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Firebase CLI and auth
+        run: |
+          npm install -g firebase-tools
+
+      - name: Install dependencies
+        working-directory: ./
+        run: |
+          npm pkg delete scripts.prepare
+          npm ci
+
+      - name: Lint
+        run: |
+          npm run lint -- --no-fix --max-warnings 0
+
+      - name: Test
+        run: npm run test:ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: |
+          VITE_VERSION=${{ github.head_ref }} \
+            npm run build
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Update config
+        run: |
+          echo "window[\"##runtimeConfig\"] = { appEnvironment: \"staging\" };" > dist/config.js
+
+      - name: Check if Firebase Hosting channel exists
+        working-directory: ./packages/app
+        id: check_channel
+        run: |
+          
+          CHANNEL_URL=$(firebase --project staging-scan-v2 hosting:channel:list --json | jq --arg channel_name "${CHANNEL_NAME}" -r '.result.channels[]|select(.name|contains($channel_name)) | .url')
+          echo $CHANNEL_URL
+          if [ -z "$CHANNEL_URL" ]; then
+            echo "New channel"
+            firebase --project staging-scan-v2 hosting:channel:create $CHANNEL_NAME
+            CHANNEL_URL=$(firebase --project staging-scan-v2 hosting:channel:list --json | jq --arg channel_name "${CHANNEL_NAME}" -r '.result.channels[]|select(.name|contains($channel_name)) | .url')
+          fi          
+          echo "channel_url=${CHANNEL_URL}" >> $GITHUB_OUTPUT
+
+      - name: Deploy
+        working-directory: ./packages/app
+        run: |
+          firebase --project staging-scan-v2 hosting:channel:deploy ${{ env.CHANNEL_NAME }}
+
+      - name: Publish preview url
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          comment_tag: preview_url
+          message: |
+            Visit the preview URL for this PR: 
+            ${{ steps.check_channel.outputs.channel_url }}
+
+  mainnet:
+    needs: build
+    name: Feature on Mainnet + Sepolia
+    uses: ./.github/workflows/app-e2e.yml
+    secrets: inherit
+    permissions:
+      contents: write
+    with:
+      targetUrl: ${{ needs.build.outputs.dappUrl }}
+      testnet_network_value_for_e2e: "/?network=sepolia"
+      default_network_value_for_e2e: "/?network=mainnet"
+      publish_to_allure: true
+      environmentTags: "and not @productionEnv"

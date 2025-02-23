@@ -1,5 +1,4 @@
-import { BigNumber } from "ethers";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../transfer.service";
@@ -22,7 +21,7 @@ describe("erc721TransferHandler", () => {
         "0x0000000000000000000000000000000000000000000000000000000000000001",
       ],
       data: "0x",
-      logIndex: 1,
+      index: 1,
       blockHash: "0xfe02bd556b7abf14d1c92e823ed5b3b8d5067f94115531301f6ac5ebb7488a7e",
     });
     blockDetails = mock<types.BlockDetails>({
@@ -37,12 +36,14 @@ describe("erc721TransferHandler", () => {
     });
 
     it("returns false if transfer event is a ERC20 transfer event", () => {
-      log.topics = [
-        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-        "0x000000000000000000000000d206eaf6819007535e893410cfa01885ce40e99a",
-        "0x000000000000000000000000d754ff5e8a6f257e162f72578a4bb0493c0681d8",
-      ];
-
+      log = mock<types.Log>({
+        ...log,
+        topics: [
+          "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+          "0x000000000000000000000000d206eaf6819007535e893410cfa01885ce40e99a",
+          "0x000000000000000000000000d754ff5e8a6f257e162f72578a4bb0493c0681d8",
+        ],
+      });
       const result = erc721TransferHandler.matches(log);
       expect(result).toBe(false);
     });
@@ -55,7 +56,10 @@ describe("erc721TransferHandler", () => {
     });
 
     it("extracts transfer with from equals to `to` address if from log address is a zero address", () => {
-      log.topics[1] = ZERO_HASH_64;
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) => (index === 1 ? ZERO_HASH_64 : val)),
+      });
       const result = erc721TransferHandler.extract(log, blockDetails);
       expect(result.from).toBe("0x7aa5f26e03b12a78e3ff1c454547701443144c67");
     });
@@ -83,7 +87,7 @@ describe("erc721TransferHandler", () => {
     it("extracts transfer with populated tokenId", () => {
       const result = erc721TransferHandler.extract(log, blockDetails);
       expect(result.fields).toBeDefined();
-      expect(result.fields.tokenId).toStrictEqual(BigNumber.from(1));
+      expect(result.fields.tokenId).toStrictEqual(BigInt(1));
     });
 
     it("extracts transfer with tokenAddress field populated with lower cased log address", () => {
@@ -107,14 +111,17 @@ describe("erc721TransferHandler", () => {
     });
 
     it("extracts transfer of mint type if from address is a zero address", () => {
-      log.topics[1] = ZERO_HASH_64;
+      log = mock<types.Log>({
+        ...log,
+        topics: log.topics.map((val, index) => (index === 1 ? ZERO_HASH_64 : val)),
+      });
       const result = erc721TransferHandler.extract(log, blockDetails);
       expect(result.type).toBe(TransferType.Mint);
     });
 
     it("extracts transfer with logIndex populated from log", () => {
       const result = erc721TransferHandler.extract(log, blockDetails);
-      expect(result.logIndex).toBe(log.logIndex);
+      expect(result.logIndex).toBe(log.index);
     });
 
     it("extracts transfer with transactionIndex populated from log", () => {

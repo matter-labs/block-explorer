@@ -49,6 +49,6 @@ export class DbMetricsService implements OnModuleInit, OnModuleDestroy {
   }
 
   public onModuleDestroy() {
-    clearInterval(this.collectDbConnectionPoolMetricsTimer);
+    clearInterval(this.collectDbConnectionPoolMetricsTimer as unknown as number);
   }
 }

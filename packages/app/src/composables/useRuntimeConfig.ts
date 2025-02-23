@@ -1,5 +1,6 @@
 import type { NetworkConfig, RuntimeConfig } from "@/configs";
 
+import { checksumAddress } from "@/utils/formatters";
 export const DEFAULT_NETWORK: NetworkConfig = {
   apiUrl: "https://block-explorer-api.sepolia.zksync.dev",
   verificationApiUrl: "https://explorer.sepolia.era.zksync.dev",
@@ -8,11 +9,12 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   icon: "/images/icons/sophon.svg",
   l1ExplorerUrl: "https://sepolia.etherscan.io",
   l2ChainId: 300,
-  l2NetworkName: "zkSync Era Sepolia Testnet",
+  l2NetworkName: "ZKsync Era Sepolia Testnet",
   maintenance: false,
   name: "sepolia",
   published: true,
   rpcUrl: "https://sepolia.era.zksync.dev",
+  baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
 };
 
 export default (): RuntimeConfig => {

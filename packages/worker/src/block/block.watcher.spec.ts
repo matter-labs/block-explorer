@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { DataFetcherService } from "../dataFetcher/dataFetcher.service";
 import { BlockWatcher } from "./block.watcher";
 import { BlockchainService } from "../blockchain";
+import { BlockRepository } from "../repositories";
 
 jest.useFakeTimers();
 
@@ -18,14 +19,20 @@ describe("BlockWatcher", () => {
   let dataFetcherServiceMock: DataFetcherService;
   let blockchainBlocksMetricMock: jest.Mock;
   let blocksToProcessMetricMock: jest.Mock;
+  let missingBlocksMetricMock: jest.Mock;
   let getBlockInfoDurationMetricStartMock: jest.Mock;
   let getBlockInfoDurationMetricStopMock: jest.Mock;
   let configServiceMock: ConfigService;
+  let blockRepositoryMock: BlockRepository;
 
   const getBlockWatcher = async () => {
     const app = await Test.createTestingModule({
       providers: [
         BlockWatcher,
+        {
+          provide: BlockRepository,
+          useValue: blockRepositoryMock,
+        },
         {
           provide: BlockchainService,
           useValue: blockchainServiceMock,
@@ -44,6 +51,12 @@ describe("BlockWatcher", () => {
           provide: "PROM_METRIC_BLOCKS_TO_PROCESS",
           useValue: {
             set: blocksToProcessMetricMock,
+          },
+        },
+        {
+          provide: "PROM_METRIC_MISSING_BLOCKS",
+          useValue: {
+            set: missingBlocksMetricMock,
           },
         },
         {
@@ -67,8 +80,12 @@ describe("BlockWatcher", () => {
   beforeEach(async () => {
     blockchainBlocksMetricMock = jest.fn();
     blocksToProcessMetricMock = jest.fn();
+    missingBlocksMetricMock = jest.fn();
     getBlockInfoDurationMetricStopMock = jest.fn();
     getBlockInfoDurationMetricStartMock = jest.fn().mockReturnValue(getBlockInfoDurationMetricStopMock);
+    blockRepositoryMock = mock<BlockRepository>({
+      getMissingBlocksCount: jest.fn().mockResolvedValue(50),
+    });
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockImplementation((key: string) => {
         if (key === "blocks.blocksProcessingBatchSize") {
@@ -77,6 +94,10 @@ describe("BlockWatcher", () => {
           return 0;
         } else if (key === "metrics.collectBlocksToProcessMetricInterval") {
           return 10000;
+        } else if (key === "metrics.missingBlocks.disabled") {
+          return true;
+        } else if (key === "metrics.missingBlocks.interval") {
+          return 20000;
         }
         return null;
       }),
@@ -94,7 +115,7 @@ describe("BlockWatcher", () => {
 
     jest.spyOn(global, "setInterval").mockImplementation((callback: () => void) => {
       callback();
-      return timer;
+      return timer as unknown as NodeJS.Timeout;
     });
     jest.spyOn(global, "clearInterval");
 
@@ -446,6 +467,39 @@ describe("BlockWatcher", () => {
         expect(blocksToProcessMetricMock).toBeCalledWith(0);
       });
     });
+
+    describe("when missing blocks metric is disabled", () => {
+      beforeEach(async () => {
+        (configServiceMock.get as jest.Mock).mockImplementation((key: string) => {
+          if (key === "metrics.missingBlocks.disabled") return true;
+          if (key === "metrics.missingBlocks.interval") return 1000;
+        });
+        blockWatcher = await getBlockWatcher();
+      });
+
+      it("does not set the metric", async () => {
+        await blockWatcher.onModuleInit();
+        expect(blockRepositoryMock.getMissingBlocksCount).toHaveBeenCalledTimes(0);
+        expect(missingBlocksMetricMock).toBeCalledTimes(0);
+      });
+    });
+
+    describe("when missing blocks metric is enabled", () => {
+      beforeEach(async () => {
+        (configServiceMock.get as jest.Mock).mockImplementation((key: string) => {
+          if (key === "metrics.missingBlocks.disabled") return false;
+          if (key === "metrics.missingBlocks.interval") return 1000;
+        });
+        blockWatcher = await getBlockWatcher();
+      });
+
+      it("sets the metric to the proper value", async () => {
+        await blockWatcher.onModuleInit();
+        expect(blockRepositoryMock.getMissingBlocksCount).toHaveBeenCalledTimes(1);
+        expect(missingBlocksMetricMock).toBeCalledTimes(1);
+        expect(missingBlocksMetricMock).toBeCalledWith(50);
+      });
+    });
   });
 
   describe("onModuleDestroy", () => {
@@ -453,6 +507,40 @@ describe("BlockWatcher", () => {
       await blockWatcher.onModuleInit();
       blockWatcher.onModuleDestroy();
       expect(global.clearInterval).toBeCalledWith(timer);
+    });
+
+    describe("when missing blocks metric is disabled", () => {
+      beforeEach(async () => {
+        (configServiceMock.get as jest.Mock).mockImplementation((key: string) => {
+          if (key === "metrics.missingBlocks.disabled") return true;
+          if (key === "metrics.missingBlocks.interval") return 1000;
+        });
+        blockWatcher = await getBlockWatcher();
+      });
+
+      it("does not clear the interval for the metric", async () => {
+        await blockWatcher.onModuleInit();
+        blockWatcher.onModuleDestroy();
+        // first call is for blocks to process metric
+        expect(global.clearInterval).toBeCalledTimes(1);
+      });
+    });
+
+    describe("when missing blocks metric is enabled", () => {
+      beforeEach(async () => {
+        (configServiceMock.get as jest.Mock).mockImplementation((key: string) => {
+          if (key === "metrics.missingBlocks.disabled") return false;
+          if (key === "metrics.missingBlocks.interval") return 1000;
+        });
+        blockWatcher = await getBlockWatcher();
+      });
+
+      it("clears the interval for the metric", async () => {
+        await blockWatcher.onModuleInit();
+        blockWatcher.onModuleDestroy();
+        // first call is for blocks to process metric
+        expect(global.clearInterval).toBeCalledTimes(2);
+      });
     });
   });
 });

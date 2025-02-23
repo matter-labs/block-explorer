@@ -31,6 +31,16 @@
         </PopoverGroup>
         <div class="header-right-side">
           <NetworkSwitch />
+          <LocaleSwitch
+            :value="(locale as string)"
+            @update:value="changeLanguage"
+            :options="
+              ['en', 'uk'].map((value) => ({
+                value,
+                label: t(`locale.${value}`),
+              }))
+            "
+          />
           <div class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
@@ -39,7 +49,13 @@
         </div>
       </div>
     </div>
-
+    <div
+      v-if="hasContent"
+      class="hero-banner-container"
+      :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
+    >
+      <hero-arrows class="hero-image" />
+    </div>
     <transition
       enter-active-class="duration-200 ease-out"
       enter-from-class="scale-95 opacity-0"
@@ -90,6 +106,16 @@
             </div>
             <div class="mobile-network-switch-container">
               <NetworkSwitch />
+              <LocaleSwitch
+                :value="(locale as string)"
+                @update:value="changeLanguage"
+                :options="
+                  ['en', 'uk'].map((value) => ({
+                    value,
+                    label: t(`locale.${value}`),
+                  }))
+                "
+              />
             </div>
             <div class="mobile-socials-container">
               <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
@@ -106,6 +132,7 @@
 <script lang="ts" setup>
 import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 
 import { Popover, PopoverButton, PopoverGroup, PopoverPanel } from "@headlessui/vue";
 import { MenuIcon, XIcon } from "@heroicons/vue/outline";
@@ -113,17 +140,22 @@ import { MenuIcon, XIcon } from "@heroicons/vue/outline";
 import LinksMobilePopover from "./LinksMobilePopover.vue";
 import LinksPopover from "./LinksPopover.vue";
 
+import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
 import Sophon from "@/components/icons/Sophon.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 
 import useContext from "@/composables/useContext";
+import useLocalization from "@/composables/useLocalization";
 
 import config from "@/configs/hyperchain.config.json";
 
-import type { NavLink } from "@/types";
+import { type NavLink } from "@/types";
+import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
 
-const { t } = useI18n({ useScope: "global" });
+const { changeLanguage } = useLocalization();
+const { t, locale } = useI18n({ useScope: "global" });
+const route = useRoute();
 const { currentNetwork } = useContext();
 
 const logoImage =
@@ -172,17 +204,50 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [{ url: "https://x.com/sophon", component: TwitterIcon }];
+
+const hasContent = computed(() => {
+  if (route.name !== "not-found" && !currentNetwork.value.maintenance) {
+    if (route.params.hash) {
+      return isTransactionHash(route.params.hash as string);
+    }
+    if (route.params.address) {
+      return isAddress(route.params.address as string);
+    }
+    if (route.params.id) {
+      return isBlockNumber(route.params.id as string);
+    }
+    return true;
+  }
+  return false;
+});
 </script>
 
 <style lang="scss">
 .header-popover-container {
+  @apply relative bg-gray;
+  .header-wrap {
+    @apply container z-50;
+  }
+  .header-container {
+    @apply flex items-center justify-between border-b border-neutral-500 py-4 md:space-x-10 lg:justify-start;
+  }
+  .logo-container {
+    @apply flex justify-start;
+  }
+  .burger-button-container {
+    @apply -my-2 -mr-2 lg:hidden;
+    .burger-button {
+      @apply inline-flex items-center justify-center rounded-md border border-neutral-400 p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue;
+    }
+  }
   .navigation-container {
+    @apply hidden space-x-2 lg:flex xl:space-x-6;
+
     .dropdown-container {
-      position: relative;
+      @apply relative;
 
       .navigation-link {
         @apply flex items-center;
-
         &.active {
           background-color: #fff;
 
@@ -200,7 +265,6 @@ const socials = [{ url: "https://x.com/sophon", component: TwitterIcon }];
 
         .dropdown-item {
           @apply block rounded-md p-2 text-sm text-black no-underline;
-
           &.router-link-exact-active {
             background-color: #fff;
           }

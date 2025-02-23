@@ -1,9 +1,9 @@
-import { BigNumber } from "ethers";
-import { types, utils } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { ethMintFromL1Handler } from "./ethMintFromL1.handler";
+import { BASE_TOKEN_ADDRESS } from "../../../constants";
 
 describe("ethMintFromL1Handler", () => {
   let log: types.Log;
@@ -19,7 +19,7 @@ describe("ethMintFromL1Handler", () => {
         "0x000000000000000000000000d206eaf6819007535e893410cfa01885ce40e99a",
       ],
       data: "0x00000000000000000000000000000000000000000000000006f05b59d3b20000",
-      logIndex: 3,
+      index: 3,
       blockHash: "0xaffcd3be150860bd92d03ff84eabda953de0001bf4f7ce81d8fa7349ee023859",
     });
     blockDetails = mock<types.BlockDetails>({
@@ -34,7 +34,10 @@ describe("ethMintFromL1Handler", () => {
     });
 
     it("returns false is log address is not ETH token address", () => {
-      log.address = "0x000000000000000000000000000000000000800B";
+      log = mock<types.Log>({
+        ...log,
+        address: "0x000000000000000000000000000000000000800B",
+      });
       const result = ethMintFromL1Handler.matches(log);
       expect(result).toBe(false);
     });
@@ -63,17 +66,17 @@ describe("ethMintFromL1Handler", () => {
 
     it("extracts transfer with tokenType as ETH", () => {
       const result = ethMintFromL1Handler.extract(log, blockDetails);
-      expect(result.tokenType).toBe(TokenType.ETH);
+      expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 
     it("extracts transfer with populated amount", () => {
       const result = ethMintFromL1Handler.extract(log, blockDetails);
-      expect(result.amount).toStrictEqual(BigNumber.from("0x6f05b59d3b20000"));
+      expect(result.amount).toStrictEqual(BigInt("0x6f05b59d3b20000"));
     });
 
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as tokenAddress", () => {
       const result = ethMintFromL1Handler.extract(log, blockDetails);
-      expect(result.tokenAddress).toBe(utils.L2_ETH_TOKEN_ADDRESS);
+      expect(result.tokenAddress).toBe(BASE_TOKEN_ADDRESS);
     });
 
     it("extracts transfer of deposit type", () => {
@@ -88,7 +91,7 @@ describe("ethMintFromL1Handler", () => {
 
     it("extracts transfer with logIndex populated from log", () => {
       const result = ethMintFromL1Handler.extract(log, blockDetails);
-      expect(result.logIndex).toBe(log.logIndex);
+      expect(result.logIndex).toBe(log.index);
     });
 
     it("extracts transfer with transactionIndex populated from log", () => {
