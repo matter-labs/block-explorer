@@ -150,7 +150,8 @@ import useLocalization from "@/composables/useLocalization";
 
 import config from "@/configs/hyperchain.config.json";
 
-import { type NavLink } from "@/types";
+import type { NavLink } from "@/types";
+
 import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
 
 const { changeLanguage } = useLocalization();
