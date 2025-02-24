@@ -17,7 +17,7 @@ export default (context = useContext()) => {
     currentNetwork: computed(() => {
       return {
         ...context.currentNetwork.value,
-        explorerUrl: context.currentNetwork.value.hostnames[0],
+        explorerUrl: context.currentNetwork.value.rpcUrl,
         chainName: context.currentNetwork.value.l2NetworkName,
         l1ChainId: null as unknown as number,
       };
@@ -35,8 +35,7 @@ export default (context = useContext()) => {
   const writeFunction = async (
     address: string,
     abiFragment: AbiFragment,
-    params: Record<string, string | string[] | boolean | boolean[]>,
-    usePaymaster = true
+    params: Record<string, string | string[] | boolean | boolean[]>
   ) => {
     try {
       isRequestPending.value = true;
@@ -59,46 +58,18 @@ export default (context = useContext()) => {
       const valueMethodOption = {
         value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };
-
-      let res;
-      // Repeating the "res" code instead of making customData empty to avoid having to rewrite tests
-      if (usePaymaster) {
-        const paymasterparams = zkSyncSdk.utils.getPaymasterParams(
-          "0x98546B226dbbA8230cf620635a1e4ab01F6A99B2", // Global paymaster address
+      const res = await method(
+        ...[
+          ...(methodArguments.length ? methodArguments : []),
           {
-            type: "General",
-            innerInput: new Uint8Array(),
-          }
-        );
-        res = await method(
-          ...[
-            ...(methodArguments.length ? methodArguments : []),
-            abiFragment.stateMutability === "payable" ? methodOptions : undefined,
-          ].filter((e) => e !== undefined),
-          {
-            customData: {
-              paymasterParams: paymasterparams,
-              gasPerPubdata: zkSyncSdk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
-            },
-          }
-        ).catch(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (e: any) => processException(e, "Please, try again later")
-        );
-      } else {
-        res = await method(
-          ...[
-            ...(methodArguments.length ? methodArguments : []),
-            {
-              ...{ from: await signer.getAddress(), type: 0 },
-              ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
-            },
-          ].filter((e) => e !== undefined)
-        ).catch(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (e: any) => processException(e, "Please, try again later")
-        );
-      }
+            ...{ from: await signer.getAddress(), type: 0 },
+            ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
+          },
+        ].filter((e) => e !== undefined)
+      ).catch(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (e: any) => processException(e, "Please, try again later")
+      );
       response.value = { transactionHash: res.hash };
     } catch (e) {
       isRequestFailed.value = true;
