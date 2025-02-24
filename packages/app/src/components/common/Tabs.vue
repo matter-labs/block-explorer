@@ -13,7 +13,7 @@
           </button>
           <button
             v-else
-            class="tab-btn font-medium outline-0 px-4 py-3.5 text-gray flex"
+            class="tab-btn font-medium outline-0 px-4 py-3.5 text-gray flex items-center gap-[2px]"
             :class="{ active: currentTabHash === tab.hash && tabs.length > 1 }"
             @click="setTab(tab)"
           >
