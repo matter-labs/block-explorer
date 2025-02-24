@@ -25,9 +25,9 @@
 import { computed, reactive } from "vue";
 import { useI18n } from "vue-i18n";
 
-import useRuntimeConfig from "@/composables/useRuntimeConfig";
+import config from "@/configs/hyperchain.config.json";
+
 const { t } = useI18n();
-const config = useRuntimeConfig();
 
 const navigation = reactive([
   {
