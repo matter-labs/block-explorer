@@ -32,8 +32,10 @@
           <CopyButton :value="item.l2Address" />
         </div>
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('tokensView.table.tokenAddressL1')">
-        <div v-if="item.l1Address && item.l1Address !== BASE_TOKEN_L1_ADDRESS" class="token-address-container max-w-sm">
+      <TableBodyColumn
+        :data-heading="shouldDisplayL1Address(item.l1Address) ? t('tokensView.table.tokenAddressL1') : ''"
+      >
+        <div v-if="shouldDisplayL1Address(item.l1Address)" class="token-address-container max-w-sm">
           <TransactionNetworkSquareBlock network="L1" />
           <AddressLink
             :data-testid="$testId.tokenAddress"
@@ -73,7 +75,7 @@
           <ContentLoader class="w-16" />
         </TableBodyColumn>
         <TableBodyColumn>
-          <ContentLoader />
+          <ContentLoader class="w-16" />
         </TableBodyColumn>
       </tr>
     </template>
@@ -118,6 +120,10 @@ const { width } = useElementSize(table);
 watch(width, () => {
   width.value <= 500 ? (subtraction.value = 10) : (subtraction.value = 5);
 });
+
+const shouldDisplayL1Address = (l1Address?: string) => {
+  return l1Address && l1Address !== BASE_TOKEN_L1_ADDRESS;
+};
 </script>
 
 <style scoped lang="scss">
