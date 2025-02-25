@@ -3,7 +3,8 @@
     <template #table-head>
       <table-head-column>{{ t("tokensView.table.tokenName") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.price") }}</table-head-column>
-      <table-head-column>{{ t("tokensView.table.tokenAddress") }}</table-head-column>
+      <table-head-column>{{ t("tokensView.table.tokenAddressL2") }}</table-head-column>
+      <table-head-column>{{ t("tokensView.table.tokenAddressL1") }}</table-head-column>
     </template>
     <template #table-row="{ item }: { item: any }">
       <TableBodyColumn :data-heading="t('tokensView.table.tokenName')">
@@ -18,7 +19,7 @@
       <TableBodyColumn :data-heading="t('tokensView.table.price')">
         <TokenPrice :address="item.l2Address" />
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('tokensView.table.tokenAddress')">
+      <TableBodyColumn :data-heading="t('tokensView.table.tokenAddressL2')">
         <div class="token-address-container max-w-sm">
           <TransactionNetworkSquareBlock network="L2" />
           <AddressLink
@@ -29,6 +30,20 @@
             {{ shortenFitText(item.l2Address, "left", 210, subtraction) }}
           </AddressLink>
           <CopyButton :value="item.l2Address" />
+        </div>
+      </TableBodyColumn>
+      <TableBodyColumn :data-heading="t('tokensView.table.tokenAddressL1')">
+        <div v-if="item.l1Address && item.l1Address !== BASE_TOKEN_L1_ADDRESS" class="token-address-container max-w-sm">
+          <TransactionNetworkSquareBlock network="L1" />
+          <AddressLink
+            :data-testid="$testId.tokenAddress"
+            :address="item.l1Address"
+            network="L1"
+            class="token-address block max-w-sm"
+          >
+            {{ shortenFitText(item.l1Address, "left", 100, subtraction) }}
+          </AddressLink>
+          <CopyButton :value="item.l1Address" />
         </div>
       </TableBodyColumn>
     </template>
@@ -50,6 +65,9 @@
               </div>
             </div>
           </div>
+        </TableBodyColumn>
+        <TableBodyColumn>
+          <ContentLoader class="w-16" />
         </TableBodyColumn>
         <TableBodyColumn>
           <ContentLoader class="w-16" />
@@ -79,6 +97,8 @@ import TokenPrice from "@/components/common/table/fields/TokenPrice.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
 
 import type { Token } from "@/composables/useToken";
+
+import { BASE_TOKEN_L1_ADDRESS } from "@/utils/constants";
 
 defineProps({
   tokens: {

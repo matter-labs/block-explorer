@@ -52,7 +52,7 @@ describe("TokenListTable:", () => {
             decimals: 18,
             iconURL: "https://icon.com",
             l1Address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
-            l2Address: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+            l2Address: "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E",
             name: "Ether",
             symbol: "ETH",
           } as Token,
@@ -66,16 +66,17 @@ describe("TokenListTable:", () => {
         plugins: [i18n, $testId],
       },
     });
-    await getTokenInfo("0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE");
+    await getTokenInfo("0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E");
     await nextTick();
     const trArr = wrapper.findAll("tbody tr");
     expect(trArr.length).toBe(1);
     const tr0Arr = trArr[0].findAll(".table-body-col");
-    expect(tr0Arr.length).toBe(3);
+    expect(tr0Arr.length).toBe(4);
     expect(tr0Arr[0].find(".token-symbol").text()).toBe("ETH");
     expect(tr0Arr[0].find(".token-name").text()).toBe("Ether");
     expect(tr0Arr[0].find(".token-icon-label img").attributes("src")).toBe("https://icon.com");
     expect(tr0Arr[1].text()).toBe("$150.00");
-    expect(tr0Arr[2].text()).toBe("L20xEeeeeEeeeEeE...EEeE");
+    expect(tr0Arr[2].text()).toBe("L20x5A7d6b2F92C7...af3E");
+    expect(tr0Arr[3].text()).toBe("L10xEee...EEeE");
   });
 });
