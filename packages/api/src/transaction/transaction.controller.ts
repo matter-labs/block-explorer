@@ -14,7 +14,6 @@ import { buildDateFilter } from "../common/utils";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { TransactionDto } from "./dtos/transaction.dto";
-import { TransactionDetailsDto } from "./dtos/transactionDetails.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
@@ -64,6 +63,7 @@ export class TransactionController {
   @Get(":transactionHash")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",
@@ -73,7 +73,7 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
-  ): Promise<TransactionDetailsDto> {
+  ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();
@@ -84,6 +84,7 @@ export class TransactionController {
   @Get(":transactionHash/transfers")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",
@@ -101,18 +102,20 @@ export class TransactionController {
       throw new NotFoundException();
     }
 
-    return await this.transferService.findAll(
+    const transfers = await this.transferService.findAll(
       { transactionHash },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/transfers`,
       }
     );
+    return transfers;
   }
 
   @Get(":transactionHash/logs")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",

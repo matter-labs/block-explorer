@@ -38,7 +38,7 @@ export class MainPage extends BasePage {
   }
 
   get logo() {
-    return "//*[text()='zkSync']/..";
+    return "//*[text()='ZKsync']/..";
   }
 
   get searchField() {

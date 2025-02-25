@@ -1,4 +1,4 @@
-import { types, utils } from "zksync-web3";
+import { types, utils } from "zksync-ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { LogType } from "../log/logType";
 import isInternalTransaction from "../utils/isInternalTransaction";
@@ -13,7 +13,7 @@ import {
   ethMintFromL1Handler,
   ethWithdrawalToL1Handler,
 } from "./extractHandlers";
-
+import { BASE_TOKEN_ADDRESS } from "../constants";
 export enum TransferType {
   Deposit = "deposit",
   Transfer = "transfer",
@@ -40,7 +40,7 @@ export class TransferService {
   }
 
   public getTransfers(
-    logs: types.Log[],
+    logs: ReadonlyArray<types.Log>,
     blockDetails: types.BlockDetails,
     transactionDetails?: types.TransactionDetails,
     transactionReceipt?: types.TransactionReceipt
@@ -68,7 +68,7 @@ export class TransferService {
         this.logger.error("Failed to parse transfer", {
           stack: error.stack,
           blockNumber: blockDetails.number,
-          logIndex: log.logIndex,
+          logIndex: log.index,
           transactionHash: log.transactionHash,
         });
         throw error;
@@ -89,7 +89,7 @@ export class TransferService {
       return;
     }
     const ethDeposits = transfers.filter(
-      (t) => t.type === TransferType.Deposit && t.tokenAddress === utils.L2_ETH_TOKEN_ADDRESS
+      (t) => t.type === TransferType.Deposit && t.tokenAddress === BASE_TOKEN_ADDRESS
     );
     const feeDeposit = ethDeposits.find((t) => t.to === utils.BOOTLOADER_FORMAL_ADDRESS);
     if (!feeDeposit) {

@@ -1,14 +1,15 @@
 import { computed, ref } from "vue";
 
-import { processException } from "@matterlabs/composables";
-import { ethers } from "ethers";
-import * as zkSyncSdk from "zksync-web3";
+import { Contract, parseEther } from "ethers";
+import { Provider } from "zksync-ethers";
 
 import useContext from "@/composables/useContext";
-import { useWallet } from "@/composables/useWallet";
+import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
 
 import type { AbiFragment } from "./useAddress";
-import type { WalletError } from "@matterlabs/composables";
+import type { Signer } from "zksync-ethers";
+
+export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 
 export default (context = useContext()) => {
   const walletContext = {
@@ -16,13 +17,13 @@ export default (context = useContext()) => {
     currentNetwork: computed(() => {
       return {
         ...context.currentNetwork.value,
-        explorerUrl: context.currentNetwork.value.hostnames[0],
+        explorerUrl: context.currentNetwork.value.rpcUrl,
         chainName: context.currentNetwork.value.l2NetworkName,
         l1ChainId: null as unknown as number,
       };
     }),
     networks: context.networks,
-    getL2Provider: () => null as unknown as zkSyncSdk.Provider,
+    getL2Provider: () => context.getL2Provider(),
   };
 
   const { connect: connectWallet, getL2Signer, address: walletAddress, isMetamaskInstalled } = useWallet(walletContext);
@@ -34,8 +35,7 @@ export default (context = useContext()) => {
   const writeFunction = async (
     address: string,
     abiFragment: AbiFragment,
-    params: Record<string, string | string[] | boolean | boolean[]>,
-    usePaymaster = true
+    params: Record<string, string | string[] | boolean | boolean[]>
   ) => {
     try {
       isRequestPending.value = true;
@@ -43,60 +43,33 @@ export default (context = useContext()) => {
       response.value = undefined;
       errorMessage.value = null;
       const signer = await getL2Signer();
-      const contract = new ethers.Contract(address, [abiFragment], signer!);
+      const contract = new Contract(address, [abiFragment], signer!);
       const method = contract[abiFragment.name];
-      const methodArguments = Object.entries(params)
-        .filter(([key]) => key !== "value")
-        .map(([, inputValue]) => {
-          if (inputValue === "true") {
-            inputValue = true;
-          } else if (inputValue === "false") {
-            inputValue = false;
-          }
-          return inputValue;
-        });
-      const methodOptions = {
-        value: ethers.utils.parseEther((params.value as string) ?? "0"),
-        //gasLimit: "10000000",
+      const abiFragmentNames = abiFragment.inputs.map((abiInput) => abiInput.name);
+      const methodArguments = abiFragmentNames.map((abiFragmentName) => {
+        if (params[abiFragmentName] === "true") {
+          return true;
+        }
+        if (params[abiFragmentName] === "false") {
+          return false;
+        }
+        return params[abiFragmentName];
+      });
+      const valueMethodOption = {
+        value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };
-
-      let res;
-      // Repeating the "res" code instead of making customData empty to avoid having to rewrite tests
-      if (usePaymaster) {
-        const paymasterparams = zkSyncSdk.utils.getPaymasterParams(
-          "0x98546B226dbbA8230cf620635a1e4ab01F6A99B2", // Global paymaster address
+      const res = await method(
+        ...[
+          ...(methodArguments.length ? methodArguments : []),
           {
-            type: "General",
-            innerInput: new Uint8Array(),
-          }
-        );
-        res = await method(
-          ...[
-            ...(methodArguments.length ? methodArguments : []),
-            abiFragment.stateMutability === "payable" ? methodOptions : undefined,
-          ].filter((e) => e !== undefined),
-          {
-            customData: {
-              paymasterParams: paymasterparams,
-              gasPerPubdata: zkSyncSdk.utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
-            },
-          }
-        ).catch(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (e: any) => processException(e, "Please, try again later")
-        );
-      } else {
-        res = await method(
-          ...[
-            ...(methodArguments.length ? methodArguments : []),
-            abiFragment.stateMutability === "payable" ? methodOptions : undefined,
-          ].filter((e) => e !== undefined)
-        ).catch(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (e: any) => processException(e, "Please, try again later")
-        );
-      }
-
+            ...{ from: await signer.getAddress(), type: 0 },
+            ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
+          },
+        ].filter((e) => e !== undefined)
+      ).catch(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (e: any) => processException(e, "Please, try again later")
+      );
       response.value = { transactionHash: res.hash };
     } catch (e) {
       isRequestFailed.value = true;
@@ -117,12 +90,12 @@ export default (context = useContext()) => {
       isRequestFailed.value = false;
       response.value = undefined;
       errorMessage.value = null;
-      let signer: zkSyncSdk.Provider | zkSyncSdk.Signer = new zkSyncSdk.Provider(context.currentNetwork.value.rpcUrl);
+      let signer: Provider | Signer = new Provider(context.currentNetwork.value.rpcUrl);
       if (walletAddress.value !== null) {
         // If connected to a wallet, use the signer so 'msg.sender' is correctly populated downstream
         signer = await getL2Signer();
       }
-      const contract = new ethers.Contract(address, [abiFragment], signer!);
+      const contract = new Contract(address, [abiFragment], signer!);
       const res = (
         await contract[abiFragment.name](...Object.entries(params).map(([, inputValue]) => inputValue)).catch(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -52,17 +52,18 @@
 import { computed, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { BigNumber } from "ethers";
-
 import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
+import useContext from "@/composables/useContext";
 import useToken from "@/composables/useToken";
 
 import type { Token } from "@/composables/useToken";
 import type { FeeData } from "@/composables/useTransaction";
 
-import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
+import { numberToHexString } from "@/utils/formatters";
+
+const { currentNetwork } = useContext();
 
 const props = defineProps({
   showDetails: {
@@ -81,11 +82,11 @@ const collapsed = ref(false);
 const buttonTitle = computed(() =>
   collapsed.value ? t("transactions.table.feeDetails.closeDetails") : t("transactions.table.feeDetails.moreDetails")
 );
-getTokenInfo(ETH_TOKEN_L2_ADDRESS);
+getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const initialFee = computed(() => {
   if (props.feeData) {
-    return BigNumber.from(props.feeData.amountPaid).add(props.feeData.amountRefunded).toHexString();
+    return numberToHexString(BigInt(props.feeData.amountPaid) + BigInt(props.feeData.amountRefunded));
   }
   return null;
 });

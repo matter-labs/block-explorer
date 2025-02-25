@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { EntityManager, SelectQueryBuilder } from "typeorm";
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { Block as BlockDto } from "../dataFetcher/types";
 import { BlockRepository } from "./block.repository";
 import { UnitOfWork } from "../unitOfWork";
@@ -134,6 +134,37 @@ describe("BlockRepository", () => {
       expect(queryBuilderMock.orderBy).toBeCalledWith("block.number", "DESC");
       expect(queryBuilderMock.limit).toBeCalledWith(1);
       expect(queryBuilderMock.getOne).toBeCalledTimes(1);
+    });
+  });
+
+  describe("getMissingBlocksCount", () => {
+    let queryBuilderMock: SelectQueryBuilder<Block>;
+
+    beforeEach(() => {
+      queryBuilderMock = mock<SelectQueryBuilder<Block>>({
+        select: jest.fn().mockReturnThis(),
+        getRawOne: jest.fn().mockResolvedValue({
+          count: 50,
+        }),
+      });
+
+      (entityManagerMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
+    });
+
+    it("returns count of missing blocks", async () => {
+      const result = await repository.getMissingBlocksCount();
+      expect(result).toBe(50);
+    });
+
+    it("returns 0 when count is not defined", async () => {
+      (queryBuilderMock.getRawOne as jest.Mock).mockResolvedValueOnce({ count: null });
+      const result = await repository.getMissingBlocksCount();
+      expect(result).toBe(0);
+    });
+
+    it("runs proper query to calculate missing blocks", async () => {
+      await repository.getMissingBlocksCount();
+      expect(queryBuilderMock.select).toBeCalledWith("MAX(number) - COUNT(number) + 1 AS count");
     });
   });
 

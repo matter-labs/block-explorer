@@ -1,4 +1,4 @@
-import { types, utils } from "zksync-web3";
+import { types, utils } from "zksync-ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { In } from "typeorm";
@@ -11,6 +11,7 @@ import { ContractAddress } from "../dataFetcher/types";
 import parseLog from "../utils/parseLog";
 import { stringTransformer } from "../transformers/string.transformer";
 import { CONTRACT_INTERFACES } from "../constants";
+import { ConfigService } from "@nestjs/config";
 
 export interface Token {
   l2Address: string;
@@ -31,6 +32,7 @@ export class TokenService {
     private readonly blockchainService: BlockchainService,
     private readonly addressRepository: AddressRepository,
     private readonly tokenRepository: TokenRepository,
+    private readonly configService: ConfigService,
     @InjectMetric(GET_TOKEN_INFO_DURATION_METRIC_NAME)
     private readonly getTokenInfoDurationMetric: Histogram
   ) {
@@ -97,17 +99,27 @@ export class TokenService {
         tokenAddress: contractAddress.address,
       });
 
-      await this.tokenRepository.upsert({
-        ...erc20Token,
-        blockNumber: contractAddress.blockNumber,
-        transactionHash: contractAddress.transactionHash,
-        l2Address: contractAddress.address,
-        logIndex: contractAddress.logIndex,
-        // add L1 address for ETH token
-        ...(contractAddress.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS && {
-          l1Address: utils.ETH_ADDRESS,
-        }),
-      });
+      if (contractAddress.address.toLowerCase() === utils.L2_BASE_TOKEN_ADDRESS.toLowerCase()) {
+        await this.tokenRepository.upsert({
+          blockNumber: contractAddress.blockNumber,
+          transactionHash: contractAddress.transactionHash,
+          logIndex: contractAddress.logIndex,
+          l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+          l1Address: this.configService.get<string>("tokens.baseToken.l1Address"),
+          symbol: this.configService.get<string>("tokens.baseToken.symbol"),
+          name: this.configService.get<string>("tokens.baseToken.name"),
+          decimals: this.configService.get<number>("tokens.baseToken.decimals"),
+          iconURL: this.configService.get<string>("tokens.baseToken.iconUrl"),
+        });
+      } else {
+        await this.tokenRepository.upsert({
+          ...erc20Token,
+          blockNumber: contractAddress.blockNumber,
+          transactionHash: contractAddress.transactionHash,
+          l2Address: contractAddress.address,
+          logIndex: contractAddress.logIndex,
+        });
+      }
     }
   }
 

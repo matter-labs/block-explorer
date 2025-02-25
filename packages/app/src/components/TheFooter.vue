@@ -15,7 +15,7 @@
       </div>
       <div class="version-text-container mt-8 text-center font-medium text-gray md:order-2 md:mt-0">
         <!-- <p>{{ config.version }}</p> -->
-        <p>0.1.0</p>
+        <p>0.2.0</p>
       </div>
     </div>
   </footer>

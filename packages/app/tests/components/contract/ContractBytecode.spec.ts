@@ -21,6 +21,7 @@ const contract: Contract = {
   creatorAddress: "0xa76640095ce5f618eeb71d6692e17b4a1a92dbb6",
   creatorTxHash: "0xcdab4a39d32a15bafb0b992da1dff8a4b782be450be63c8a64c955758370574f",
   createdInBlockNumber: 142622,
+  isEvmLike: false,
   verificationInfo: {
     artifacts: {
       abi: [
@@ -112,6 +113,19 @@ describe("ContractBytecode", () => {
     expect(codeBlocks.length).toBe(1);
     expect(codeBlocks[0].props().label).toBe("Single file contract");
     expect(codeBlocks[0].props().code).toBe(contract.verificationInfo?.request.sourceCode);
+  });
+
+  it("renders contract abi json when solidity single-file contract is verified", () => {
+    const wrapper = mount(ContractBytecode, {
+      global: {
+        plugins: [i18n, $testId],
+        stubs: ["router-link"],
+      },
+      props: {
+        contract,
+      },
+    });
+    expect(wrapper.find(".abi-json").text()).toBe(JSON.stringify(contract.verificationInfo?.artifacts.abi));
   });
 
   it("renders contract code when vyper single-file contract is verified", () => {

@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { AxiosError } from "axios";
 import { setTimeout } from "timers/promises";
 import { catchError, firstValueFrom } from "rxjs";
-import { utils } from "zksync-web3";
+import { utils } from "zksync-ethers";
 import { TokenOffChainDataProvider, ITokenOffChainData } from "../../tokenOffChainDataProvider.abstract";
 
 const API_NUMBER_OF_TOKENS_PER_REQUEST = 250;

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { BalanceService, Balance } from "../balance/balance.service";
 import { TransactionService, TransactionData } from "../transaction";

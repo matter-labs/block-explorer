@@ -1,12 +1,12 @@
-<h1 align="center">zkSync Era Block Explorer</h1>
+<h1 align="center">ZKsync Era Block Explorer</h1>
 
-<p align="center">Online blockchain browser for viewing and analyzing <a href="https://zksync.io">zkSync Era</a> blockchain.</p>
+<p align="center">Online blockchain browser for viewing and analyzing <a href="https://zksync.io">ZKsync Era</a> blockchain.</p>
 
 ## 📌 Overview
 This repository is a monorepo consisting of 4 packages:
-- [Worker](./packages/worker) - an indexer service for [zkSync Era](https://zksync.io) blockchain data. The purpose of the service is to read blockchain data in real time, transform it and fill in it's database with the data in a way that makes it easy to be queried by the [API](./packages/api) service.
+- [Worker](./packages/worker) - an indexer service for [ZKsync Era](https://zksync.io) blockchain data. The purpose of the service is to read blockchain data in real time, transform it and fill in it's database with the data in a way that makes it easy to be queried by the [API](./packages/api) service.
 - [Data Fetcher](./packages/data-fetcher) - a service that exposes and implements an HTTP endpoint to retrieve aggregated data for a certain block / range of blocks from the blockchain. This endpoint is called by the [Worker](./packages/worker) service.
-- [API](./packages/api) - a service providing Web API for retrieving structured [zkSync Era](https://zksync.io) blockchain data collected by [Worker](./packages/worker). It connects to the Worker's database to be able to query the collected data.
+- [API](./packages/api) - a service providing Web API for retrieving structured [ZKsync Era](https://zksync.io) blockchain data collected by [Worker](./packages/worker). It connects to the Worker's database to be able to query the collected data.
 - [App](./packages/app) - a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more. It makes requests to the [API](./packages/api) to get the data and presents it in a way that's easy to read and understand.
 
 ## 🏛 Architecture
@@ -15,7 +15,7 @@ The following diagram illustrates how are the block explorer components connecte
 ```mermaid
 flowchart
   subgraph blockchain[Blockchain]
-    Blockchain[zkSync Era JSON-RPC API]
+    Blockchain[ZKsync Era JSON-RPC API]
   end
 
   subgraph explorer[Block explorer]
@@ -37,7 +37,7 @@ flowchart
   Worker-."Request data (HTTP)".->Blockchain
 ```
 
-[Worker](./packages/worker) service retrieves aggregated data from the [Data Fetcher](./packages/data-fetcher) via HTTP and also directly from the blockchain using [zkSync Era JSON-RPC API](https://era.zksync.io/docs/api/api.html), processes it and saves into the database. [API](./packages/api) service is connected to the same database where it gets the data from to handle API requests. It performs only read requests to the database. The front-end [App](./packages/app) makes HTTP calls to the Block Explorer [API](./packages/api) to get blockchain data and to the [zkSync Era JSON-RPC API](https://era.zksync.io/docs/api/api.html) for reading contracts, performing transactions etc.
+[Worker](./packages/worker) service retrieves aggregated data from the [Data Fetcher](./packages/data-fetcher) via HTTP and also directly from the blockchain using [ZKsync Era JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc), processes it and saves into the database. [API](./packages/api) service is connected to the same database where it gets the data from to handle API requests. It performs only read requests to the database. The front-end [App](./packages/app) makes HTTP calls to the Block Explorer [API](./packages/api) to get blockchain data and to the [ZKsync Era JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc) for reading contracts, performing transactions etc.
 
 ## 🚀 Features
 
@@ -62,6 +62,9 @@ npm install
 
 ### Manually set up env variables
 Make sure you have set up all the necessary env variables. Follow setting up env variables instructions for [Worker](./packages/worker#setting-up-env-variables), [Data Fetcher](./packages/data-fetcher#setting-up-env-variables) and [API](./packages/api#setting-up-env-variables). For the [App](./packages/app) package you might want to edit environment config, see [Environment configs](./packages/app#environment-configs).
+
+### Configure custom base token
+For networks with a custom base token, make sure to configure the base token for both Worker and API services by following the corresponding instructions [here](./packages/worker/README.md#custom-base-token-configuration) and [here](./packages/api/README.md#custom-base-token-configuration).
 
 ### Build env variables based on your [zksync-era](https://github.com/matter-labs/zksync-era) local repo setup
 Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo set up locally. You must have your environment variables files present in the [zksync-era](https://github.com/matter-labs/zksync-era) repo at `/etc/env/*.env` for the build envs script to work.
@@ -126,7 +129,7 @@ For more details on testing please check individual packages `README`.
 We follow the Conventional Commits [specification](https://www.conventionalcommits.org/en/v1.0.0/#specification).
 
 ## 📘 License
-zkSync Era Block Explorer is distributed under the terms of either
+ZKsync Era Block Explorer is distributed under the terms of either
 
 - Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
 - MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)

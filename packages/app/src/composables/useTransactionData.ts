@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-import { utils } from "ethers";
+import { Interface } from "ethers";
 
 import useAddress from "./useAddress";
 import useContext from "./useContext";
@@ -10,41 +10,41 @@ import type { AbiFragment } from "./useAddress";
 import type { InputType } from "./useEventLog";
 import type { Address } from "@/types";
 
+import { decodeInputData } from "@/utils/helpers";
+
+export type MethodData = {
+  name: string;
+  inputs: InputData[];
+};
+
+export type InputData = {
+  name: string;
+  type: InputType | string;
+  value: string;
+  inputs: InputData[];
+  encodedValue: string;
+};
 export type TransactionData = {
   calldata: string;
-  contractAddress: Address;
+  contractAddress: Address | null;
   value: string;
   sighash: string;
-  method?: {
-    name: string;
-    inputs: {
-      name: string;
-      type: InputType;
-      value: string;
-      encodedValue: string;
-    }[];
-  };
+  method?: MethodData;
 };
 
 export function decodeDataWithABI(
   transactionData: { calldata: TransactionData["calldata"]; value: TransactionData["value"] },
   abi: AbiFragment[]
 ): TransactionData["method"] | undefined {
-  const contractInterface = new utils.Interface(abi);
-
+  const contractInterface = new Interface(abi);
   try {
     const decodedData = contractInterface.parseTransaction({
       data: transactionData.calldata,
       value: transactionData.value,
-    });
+    })!;
     return {
       name: decodedData.name,
-      inputs: decodedData.functionFragment.inputs.map((input) => ({
-        name: input.name,
-        type: input.type as InputType,
-        value: decodedData.args[input.name]?.toString(),
-        encodedValue: utils.defaultAbiCoder.encode([input.type], [decodedData.args[input.name]]).split("0x")[1],
-      })),
+      inputs: decodedData.fragment.inputs.flatMap((input) => decodeInputData(input, decodedData.args[input.name])),
     };
   } catch {
     return undefined;
@@ -63,7 +63,7 @@ export default (context = useContext()) => {
   const decodingError = ref("");
 
   const decodeTransactionData = async (transactionData: TransactionData) => {
-    if (transactionData.calldata === "0x") {
+    if (transactionData.calldata === "0x" || !transactionData.contractAddress) {
       data.value = transactionData;
       decodingError.value = "";
       return;

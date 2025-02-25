@@ -17,10 +17,13 @@ const router = {
     value: {},
   },
 };
+const routeQueryMock = vi.fn(() => ({}));
 
 vi.mock("vue-router", () => ({
   useRouter: () => router,
-  useRoute: () => vi.fn(),
+  useRoute: () => ({
+    query: routeQueryMock(),
+  }),
 }));
 
 describe("Account:", () => {

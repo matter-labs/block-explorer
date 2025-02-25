@@ -13,7 +13,7 @@ Feature: Redirection
     Given I am on main page
 
   @id238
-  Scenario: Check zkSync logo redirection from Account page to Main page
+  Scenario: Check ZKsync logo redirection from Account page to Main page
     Given I go to page "/address/0x0000000000000000000000000000000000000000"
     When I click on main logo
     Given I am on main page

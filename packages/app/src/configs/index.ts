@@ -13,6 +13,7 @@ export type NetworkConfig = {
   hostnames: string[];
   tokensMinLiquidity?: number;
   zkTokenAddress?: string;
+  baseTokenAddress: string;
   excludeTokenAddresses?: string[];
 };
 

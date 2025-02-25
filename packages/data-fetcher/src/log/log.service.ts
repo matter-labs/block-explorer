@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { AddressService } from "../address/address.service";
 import { BalanceService } from "../balance/balance.service";
 import { TransferService } from "../transfer/transfer.service";
@@ -28,7 +28,7 @@ export class LogService {
   }
 
   public async getData(
-    logs: types.Log[],
+    logs: ReadonlyArray<types.Log>,
     blockDetails: types.BlockDetails,
     transactionDetails?: types.TransactionDetails,
     transactionReceipt?: types.TransactionReceipt
@@ -42,7 +42,7 @@ export class LogService {
     this.balanceService.trackChangedBalances(transfers);
 
     if (transactionReceipt) {
-      const transactionHash = transactionReceipt.transactionHash;
+      const transactionHash = transactionReceipt.hash;
 
       this.logger.debug({ message: "Extracting contracts", blockNumber: blockDetails.number, transactionHash });
       const contractAddresses = await this.addressService.getContractAddresses(logs, transactionReceipt);

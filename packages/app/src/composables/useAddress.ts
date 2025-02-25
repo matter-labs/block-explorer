@@ -1,21 +1,19 @@
 import { ref } from "vue";
 
-import { BigNumber } from "@ethersproject/bignumber";
-import { keccak256 } from "@ethersproject/keccak256";
-import { constants, ethers, utils } from "ethers";
+import { Contract as EthersContract, isAddress, keccak256, toUtf8Bytes, ZeroAddress } from "ethers";
 import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
+import { numberToHexString } from "@/utils/formatters";
 
-const EIP1967_PROXY_IMPLEMENTATION_SLOT = BigNumber.from(keccak256(utils.toUtf8Bytes("eip1967.proxy.implementation")))
-  .sub(1)
-  .toHexString();
-const EIP1967_PROXY_BEACON_SLOT = BigNumber.from(keccak256(utils.toUtf8Bytes("eip1967.proxy.beacon")))
-  .sub(1)
-  .toHexString();
-const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(utils.toUtf8Bytes("PROXIABLE"));
+const oneBigInt = BigInt(1);
+const EIP1967_PROXY_IMPLEMENTATION_SLOT = numberToHexString(
+  BigInt(keccak256(toUtf8Bytes("eip1967.proxy.implementation"))) - oneBigInt
+);
+const EIP1967_PROXY_BEACON_SLOT = numberToHexString(BigInt(keccak256(toUtf8Bytes("eip1967.proxy.beacon"))) - oneBigInt);
+const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(toUtf8Bytes("PROXIABLE"));
 
 type ContractFunctionInput = {
   internalType: string;
@@ -64,6 +62,8 @@ type ContractVerificationRequest = {
   optimizationUsed: boolean;
 };
 
+export const VERIFICATION_PROBLEM_INCORRECT_METADATA = "incorrectMetadata";
+
 export type ContractVerificationInfo = {
   artifacts: {
     abi: AbiFragment[];
@@ -71,6 +71,7 @@ export type ContractVerificationInfo = {
   };
   request: ContractVerificationRequest;
   verifiedAt: string;
+  verificationProblems?: string[];
 };
 
 export type Balance = Api.Response.TokenAddress;
@@ -78,6 +79,7 @@ export type Balances = Api.Response.Balances;
 export type Account = Api.Response.Account;
 export type Contract = Api.Response.Contract & {
   verificationInfo: null | ContractVerificationInfo;
+  isEvmLike: boolean;
   proxyInfo: null | {
     implementation: {
       address: string;
@@ -110,7 +112,7 @@ export default (context = useContext()) => {
     try {
       const addressBytes = await getAddressFn();
       const address = `0x${addressBytes.slice(-40)}`;
-      if (!utils.isAddress(address) || address === constants.AddressZero) {
+      if (!isAddress(address) || address === ZeroAddress) {
         return null;
       }
       return address;
@@ -121,12 +123,12 @@ export default (context = useContext()) => {
 
   const getProxyImplementation = async (address: string): Promise<string | null> => {
     const provider = context.getL2Provider();
-    const proxyContract = new ethers.Contract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
+    const proxyContract = new EthersContract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
     const [implementation, eip1967Implementation, eip1967Beacon, eip1822Implementation] = await Promise.all([
       getAddressSafe(() => proxyContract.implementation()),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1967_PROXY_BEACON_SLOT)),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1822_PROXY_IMPLEMENTATION_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_BEACON_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1822_PROXY_IMPLEMENTATION_SLOT)),
     ]);
     if (implementation) {
       return implementation;
@@ -138,7 +140,7 @@ export default (context = useContext()) => {
       return eip1822Implementation;
     }
     if (eip1967Beacon) {
-      const beaconContract = new ethers.Contract(eip1967Beacon, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
+      const beaconContract = new EthersContract(eip1967Beacon, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
       return getAddressSafe(() => beaconContract.implementation());
     }
     return null;

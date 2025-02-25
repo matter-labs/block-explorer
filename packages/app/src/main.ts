@@ -7,11 +7,11 @@ import "tippy.js/themes/light.css";
 import App from "./App.vue";
 import useContext from "./composables/useContext";
 import { loadEnvironmentConfig } from "./composables/useEnvironmentConfig";
+import { default as useWallet } from "./composables/useWallet";
 import testId from "./plugins/testId";
 import router from "./router";
 
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
-import { useWallet } from "@/composables/useWallet";
 
 import enUS from "./locales/en.json";
 

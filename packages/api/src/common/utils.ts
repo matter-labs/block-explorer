@@ -110,7 +110,7 @@ export const getMethodId = (data: string) => (data.length > 10 ? data.substring(
 
 export const dateToTimestamp = (date: Date) => Math.floor(date.getTime() / 1000);
 
-export const numberToHex = (num: number) => (num != null ? `0x${num.toString(16)}` : "0x");
+export const numberToHex = (num: number | bigint) => (num != null ? `0x${num.toString(16)}` : "0x");
 
 export const parseIntToHex = (numStr: string) => {
   if (numStr != null) {

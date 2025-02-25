@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { BigNumber } from "ethers";
 import { $fetch, FetchError } from "ohmyfetch";
 
 import { useContextMock } from "./../mocks";
@@ -93,7 +92,7 @@ describe("useContractEvents:", () => {
     expect(collection.value).toEqual([
       {
         address: "0x2E4805d59193E173C9C8125B4Fc8F7f9c7a3a3eD",
-        blockNumber: BigNumber.from(1),
+        blockNumber: BigInt(1),
         data: "0x00000000000000000000000000000000000000000000001043561a8829300000",
         event: undefined,
         logIndex: "3",

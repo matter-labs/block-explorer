@@ -39,16 +39,16 @@ Feature: Main Page
       | Value   | url                        |
       # discord renamed to "join"
       | join    | https://join.zksync.dev/   |
-      | twitter | https://twitter.com/zksync |
+      | x.com | https://x.com/zksync |
 
-  @id254:I
+  @id254:
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
     Given Set the "<Value>" value for "<Dropdown>" switcher
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher
 
     Examples:
       | Value                      | Dropdown |
-      | zkSync Era Mainnet         | network  |
+      | ZKsync Era Mainnet         | network  |
       | EN                         | language |
       | UA                         | language |
 
@@ -59,7 +59,7 @@ Feature: Main Page
 
   Examples:
       | Value                       | Dropdown |
-      | zkSync Era Sepolia Testnet  | network  |
+      | ZKsync Era Sepolia Testnet  | network  |
       | Goerli (Stage2)             | network  |
 
   @id254:II @productionEnv
@@ -69,7 +69,7 @@ Feature: Main Page
 
   Examples:
       | Value                      | Dropdown |
-      | zkSync Era Sepolia Testnet | network  |
+      | ZKsync Era Sepolia Testnet | network  |
 
   Scenario: Network stats is displayed
     Then Element with "text" "Network Stats" should be "visible"
@@ -141,7 +141,7 @@ Feature: Main Page
       | Input data         | 0xa9059cbb00000000000000000000000                                  |
       | Block              | 45751                                                              |
       | Batch              | #661                                                               |
-      | Created            | 2023-02-10                                                         |
+      | Received            | 2023-02-10                                                         |
       | Tokens Transferred | 0x8f0F33583a5                                                      |
       | Tokens Transferred | From                                                               |
       | Tokens Transferred | 0x8f0F33583a5...d8f6                                               |
@@ -173,7 +173,7 @@ Feature: Main Page
       | Input data         | Function: transfer                                                 |
       | Block              | 3491940                                                            |
       | Batch              | #28739                                                             |
-      | Created            | 2023-05-14                                                         |
+      | Received            | 2023-05-14                                                         |
 
 
   @id211 @testnet

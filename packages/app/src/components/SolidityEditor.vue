@@ -116,6 +116,14 @@ function focusEditor() {
     .prism-editor__line-numbers {
       @apply h-max;
     }
+
+    .prism-editor__container {
+      @apply overflow-x-scroll;
+    }
+
+    .prism-editor__editor {
+      @apply text-nowrap;
+    }
   }
 }
 </style>

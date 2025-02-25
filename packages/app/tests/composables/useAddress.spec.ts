@@ -31,25 +31,20 @@ vi.mock("ethers", async () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     ...actualEthers,
-    ethers: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...actualEthers.ethers,
-      Contract: vi.fn().mockReturnValue({
-        implementation: () => mockContractImplementation(),
-      }),
-    },
+    Contract: vi.fn().mockReturnValue({
+      implementation: () => mockContractImplementation(),
+    }),
   };
 });
 
-const mockGetStorageAt = vi.fn().mockResolvedValue("0x000000000000000000000000000000000000000000000000000000000000");
+const mockGetStorage = vi.fn().mockResolvedValue("0x000000000000000000000000000000000000000000000000000000000000");
 
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
       currentNetwork: computed(() => ({ verificationApiUrl: "http://verification.url", apiUrl: "http://api2.url" })),
       getL2Provider: vi.fn().mockReturnValue({
-        getStorageAt: (slot: string) => mockGetStorageAt(slot),
+        getStorage: (slot: string) => mockGetStorage(slot),
       }),
     }),
   };
@@ -160,7 +155,7 @@ describe("useAddresses", () => {
     describe("when proxy implementation function does not exist", () => {
       it("takes proxy implementation contract from eip1967 implementation storage slot when it exists", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x00000000000000000000c31f9d4cbf557b6cf0ad2af66d44c358f7fa7a12")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000");
@@ -189,7 +184,7 @@ describe("useAddresses", () => {
 
       it("takes proxy implementation contract from eip1822 implementation storage slot when it exists", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x00000000000000000000c31f9d4cbf557b6cf0ad2af66d44c358f7fa7a13");
@@ -219,7 +214,7 @@ describe("useAddresses", () => {
       it("takes proxy implementation contract from beacon contract by eip1967 beacon storage slot when it exists", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
         mockContractImplementation.mockResolvedValueOnce("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a14");
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x00000000000000000000c31f9d4cbf557b6cf0ad2af66d44c358f7fa7a13")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000");
@@ -248,7 +243,7 @@ describe("useAddresses", () => {
 
       it("returns proxyInfo as null when contract is not a proxy", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000");

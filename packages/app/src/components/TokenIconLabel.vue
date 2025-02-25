@@ -37,7 +37,7 @@ import AddressLink from "@/components/AddressLink.vue";
 
 import type { Hash } from "@/types";
 
-import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
+import { BASE_TOKEN_L2_ADDRESS } from "@/utils/constants";
 
 export type IconSize = "sm" | "md" | "lg" | "xl";
 
@@ -70,7 +70,7 @@ const props = defineProps({
   },
 });
 
-const isSoph = computed(() => props.address === ETH_TOKEN_L2_ADDRESS);
+const isSoph = computed(() => props.address === BASE_TOKEN_L2_ADDRESS);
 
 const imgSource = computed(() => {
   return isSoph.value ? "/images/currencies/sophonToken.svg" : props.iconUrl || "/images/currencies/customToken.svg";
