@@ -461,7 +461,7 @@
                 },
                 "underline": "If you enabled optimization during compilation, select yes."
             },
-            "enableEraVMExtensionsUsed": {
+            "enableEraVMExtensions": {
                 "label": "Enable EraVM Extensions",
                 "options": {
                     "yes": "Yes",

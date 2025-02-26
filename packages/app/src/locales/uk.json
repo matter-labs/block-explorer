@@ -266,7 +266,7 @@
                 },
                 "underline": "Якщо ви ввімкнули оптимізацію під час компіляції, виберіть так."
             },
-            "enableEraVMExtensionsUsed": {
+            "enableEraVMExtensions": {
                 "label": "Ввімкнути EraVM Extensions",
                 "options": {
                     "yes": "Так",
