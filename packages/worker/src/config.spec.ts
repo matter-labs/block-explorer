@@ -52,10 +52,25 @@ describe("config", () => {
         coingecko: {
           isProPlan: false,
         },
+        baseToken: {
+          symbol: "ETH",
+          decimals: 18,
+          l1Address: "0x0000000000000000000000000000000000000000",
+          iconUrl: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+          name: "Ether",
+        },
       },
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,
+        missingBlocks: {
+          disabled: false,
+          interval: 86_400_000,
+        },
+      },
+      healthChecks: {
+        rpcHealthCheckTimeoutMs: 20_000,
+        dbHealthCheckTimeoutMs: 20_000,
       },
     };
   });
@@ -110,10 +125,25 @@ describe("config", () => {
         coingecko: {
           isProPlan: false,
         },
+        baseToken: {
+          symbol: "ETH",
+          decimals: 18,
+          l1Address: "0x0000000000000000000000000000000000000000",
+          iconUrl: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+          name: "Ether",
+        },
       },
       metrics: {
         collectDbConnectionPoolMetricsInterval: 10000,
         collectBlocksToProcessMetricInterval: 10000,
+        missingBlocks: {
+          disabled: false,
+          interval: 86_400_000,
+        },
+      },
+      healthChecks: {
+        rpcHealthCheckTimeoutMs: 20_000,
+        dbHealthCheckTimeoutMs: 20_000,
       },
     });
   });

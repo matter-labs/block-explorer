@@ -10,10 +10,12 @@ import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
+import { SystemContractService } from "./contract/systemContract.service";
 
 @Injectable()
 export class AppService implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger;
+  private isHandlingBlocksRevert = false;
 
   public constructor(
     private readonly counterService: CounterService,
@@ -23,13 +25,15 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     private readonly balancesCleanerService: BalancesCleanerService,
     private readonly tokenOffChainDataSaverService: TokenOffChainDataSaverService,
     private readonly dataSource: DataSource,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly systemContractService: SystemContractService
   ) {
     this.logger = new Logger(AppService.name);
   }
 
   public onModuleInit() {
     runMigrations(this.dataSource, this.logger).then(() => {
+      this.systemContractService.addSystemContracts();
       this.startWorkers();
     });
   }
@@ -40,6 +44,11 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   @OnEvent(BLOCKS_REVERT_DETECTED_EVENT)
   protected async handleBlocksRevert({ detectedIncorrectBlockNumber }: { detectedIncorrectBlockNumber: number }) {
+    if (this.isHandlingBlocksRevert) {
+      return;
+    }
+    this.isHandlingBlocksRevert = true;
+
     this.logger.log("Stopping workers before blocks revert");
     await this.stopWorkers();
 
@@ -47,7 +56,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     await this.blocksRevertService.handleRevert(detectedIncorrectBlockNumber);
 
     this.logger.log("Starting workers after blocks revert");
-    await this.startWorkers();
+    this.startWorkers();
+
+    this.isHandlingBlocksRevert = false;
   }
 
   private startWorkers() {
