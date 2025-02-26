@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, Max, Min, IsEnum, IsString, IsNotEmpty, Matches } from "class-validator";
+import { IsInt, IsOptional, Max, Min, IsEnum, IsString, IsNotEmpty, Matches, ValidateIf } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { ContractVerificationCodeFormatEnum } from "../../types";
@@ -96,9 +96,21 @@ export class VerifyContractRequestDto {
     example: "v1.3.14",
     required: true,
   })
+  @ValidateIf((o) => !o.zkCompilerVersion || o.zksolcVersion)
   @IsString()
   @IsNotEmpty({ message: "Missing zksolcVersion" })
   public zksolcVersion: string;
+
+  @ApiProperty({
+    name: "zkCompilerVersion",
+    description: "Zk compiler version",
+    example: "v1.3.14",
+    required: true,
+  })
+  @ValidateIf((o) => !o.zksolcVersion || o.zkCompilerVersion)
+  @IsString()
+  @IsNotEmpty({ message: "Missing zkCompilerVersion" })
+  public zkCompilerVersion: string;
 
   @ApiProperty({
     name: "runs",
@@ -128,8 +140,9 @@ export class VerifyContractRequestDto {
   @ApiProperty({
     name: "constructorArguements",
     description: "Contract constructor arguments",
-    example:
-      "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869207468657265210000000000000000000000000000000000000000000000 or 000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869207468657265210000000000000000000000000000000000000000000000",
+    examples: [
+      "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869207468657265210000000000000000000000000000000000000000000000, 000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869207468657265210000000000000000000000000000000000000000000000",
+    ],
     required: false,
   })
   @IsOptional()

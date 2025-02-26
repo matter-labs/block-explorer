@@ -135,6 +135,8 @@ export class ContractController {
       ContractVerificationCodeFormatEnum.solidityJsonInput,
     ].includes(request.codeformat);
 
+    request.zksolcVersion = request.zksolcVersion || request.zkCompilerVersion;
+
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const semver = require("semver");
     if (semver.gte(request.zksolcVersion, "1.3.23")) {
