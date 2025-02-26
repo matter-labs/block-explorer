@@ -1,4 +1,24 @@
 <template>
+  <div class="verification-alert-container" v-if="autoVerified">
+    <Alert type="notification">
+      {{ t("contractVerification.compilationInfo.autoVerified") }}
+      <AddressLink :address="verificationRequest!.contractAddress">{{
+        shortValue(verificationRequest!.contractAddress)
+      }}</AddressLink>
+    </Alert>
+  </div>
+  <div class="verification-alert-container" v-if="partialVerification">
+    <Alert type="warning">
+      {{ t("contractVerification.compilationInfo.partialVerification") }}
+      <a :href="PARTIAL_VERIFICATION_DETAILS_URL">{{
+        t("contractVerification.compilationInfo.partialVerificationDetails")
+      }}</a>
+    </Alert>
+  </div>
+
+  <div v-if="partialVerification || autoVerified">
+    <VerificationButton :address="contract.address" />
+  </div>
   <div class="label-container">
     <div>
       <p class="label">{{ t("contractVerification.compilationInfo.contractName") }}</p>
@@ -30,8 +50,15 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import AddressLink from "../AddressLink.vue";
+
+import Alert from "@/components/common/Alert.vue";
+import VerificationButton from "@/components/contract/VerificationButton.vue";
+
 import type { Contract } from "@/composables/useAddress";
 import type { PropType } from "vue";
+
+import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();
 
@@ -45,6 +72,18 @@ const props = defineProps({
 const verificationRequest = computed(() => props.contract.verificationInfo?.request);
 const optimization = computed(() => (props.contract.verificationInfo?.request.optimizationUsed ? "Yes" : "No"));
 const contractName = computed(() => props.contract.verificationInfo?.request.contractName.replace(/.*\.(sol|vy):/, ""));
+// If address of the contract doesn't match address in the request, the contract was verified "automatically".
+const autoVerified = computed(
+  () => props.contract.address.toLowerCase() !== props.contract.verificationInfo?.request.contractAddress.toLowerCase()
+);
+// If there are any problems with the verification, the contract is only partially verified.
+const partialVerification = computed(() => {
+  const problems = props.contract.verificationInfo?.verificationProblems;
+  return problems ? problems.length > 0 : false;
+});
+
+const PARTIAL_VERIFICATION_DETAILS_URL =
+  "https://ethereum.org/en/developers/docs/smart-contracts/verifying/#full-verification";
 </script>
 <style lang="scss" scoped>
 .label-container {
@@ -55,5 +94,8 @@ const contractName = computed(() => props.contract.verificationInfo?.request.con
 }
 .text {
   @apply max-w-[16rem] break-all;
+}
+.verification-alert-container {
+  @apply w-full mb-2;
 }
 </style>

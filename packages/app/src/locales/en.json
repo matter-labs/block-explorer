@@ -549,7 +549,10 @@
             "compilerVersion": "Compiler Version",
             "zksolcVersion": "Zksolc Version",
             "zkvyperVersion": "Zkvyper Version",
-            "optimization": "Optimization"
+            "optimization": "Optimization",
+            "autoVerified": "The contract wasn't manually verified, but its bytecode matches the bytecode of the following contract:",
+            "partialVerification": "Contract is partially verified: the contract metadata hash and/or constructor arguments do not match. Partial verification provides less guarantees about the authenticity of the code.",
+            "partialVerificationDetails": "See more details"
         },
         "multiFileVerification": {
             "solcTitle": "Please select the Solidity (*.sol) files for upload",
