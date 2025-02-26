@@ -154,7 +154,29 @@
         </div>
         <template #underline>{{ t("contractVerification.form.optimizationUsed.underline") }}</template>
       </FormItem>
-
+      <FormItem tag="fieldset" :label="t('contractVerification.form.enableEraVMExtensions.label')" label-tag="legend">
+        <div class="grid w-max grid-cols-2 items-center gap-4" :data-testid="$testId.enableEraVMExtensionsRadioButtons">
+          <RadioInput
+            id="enableEraVMExtensions-yes"
+            name="enableEraVMExtensions"
+            :disabled="isRequestPending"
+            :value="true"
+            v-model="form.enableEraVMExtensions"
+          >
+            {{ t("contractVerification.form.enableEraVMExtensions.options.yes") }}
+          </RadioInput>
+          <RadioInput
+            id="enableEraVMExtensions-no"
+            name="enableEraVMExtensions"
+            :disabled="isRequestPending"
+            :value="false"
+            v-model="form.enableEraVMExtensions"
+          >
+            {{ t("contractVerification.form.enableEraVMExtensions.options.no") }}
+          </RadioInput>
+        </div>
+        <template #underline>{{ t("contractVerification.form.enableEraVMExtensions.underline") }}</template>
+      </FormItem>
       <h3 class="form-subheading">Contract info</h3>
       <FormItem id="contractName" :label="t('contractVerification.form.contractName.label')">
         <Input
@@ -403,6 +425,7 @@ const defaultValues = computed<
     contractName: "",
     contractPath: "",
     optimizationUsed: true,
+    enableEraVMExtensions: false,
     zkCompilerVersion: selectedZkCompiler.value.versions[0] || "",
     compilerVersion: selectedCompiler.value.versions[0] || "",
     sourceCode: "",
@@ -545,6 +568,7 @@ async function submitForm() {
     codeFormat: ContractVerificationCodeFormatEnum[selectedCompilationType.value],
     contractAddress: form.value.contractAddress,
     optimizationUsed: form.value.optimizationUsed,
+    enableEraVMExtensions: form.value.enableEraVMExtensions,
     zkCompilerVersion: form.value.zkCompilerVersion,
     compilerVersion: form.value.compilerVersion,
     constructorArguments: form.value.constructorArguments,
@@ -576,6 +600,7 @@ async function submitForm() {
           optimizer: {
             enabled: form.value.optimizationUsed,
           },
+          enableEraVMExtensions: form.value.enableEraVMExtensions,
         },
       },
       ...commonData,
