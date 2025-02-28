@@ -19,6 +19,7 @@ vi.mock("ethers", async () => {
         return "Test response";
       }
     },
+    parseEther: (value: string) => value,
   };
 });
 
@@ -116,11 +117,12 @@ describe("useContractInteraction:", () => {
         {
           [PAYABLE_AMOUNT_PARAM_NAME]: "0.1",
           spender: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
-        }
+        },
+        false
       );
       expect(mock.mock.lastCall).toEqual([
         ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
-        { value: ethers.parseEther("0.1"), from: "0x000000000000000000000000000000000000800A", type: 0 },
+        { value: "0.1", from: "0x000000000000000000000000000000000000800A", type: 0 },
       ]);
       mock.mockRestore();
     });
@@ -138,14 +140,11 @@ describe("useContractInteraction:", () => {
         },
         {
           [PAYABLE_AMOUNT_PARAM_NAME]: "0.1",
-        }
+        },
+        false
       );
       expect(mock.mock.lastCall).toEqual([
-        {
-          value: ethers.parseEther("0.1"),
-          from: "0x000000000000000000000000000000000000800A",
-          type: 0,
-        },
+        { value: "0.1", from: "0x000000000000000000000000000000000000800A", type: 0 },
       ]);
       mock.mockRestore();
     });
@@ -164,15 +163,12 @@ describe("useContractInteraction:", () => {
         {
           [PAYABLE_AMOUNT_PARAM_NAME]: "0.1",
           bool: "false",
-        }
+        },
+        false
       );
       expect(mock.mock.lastCall).toEqual([
         false,
-        {
-          value: ethers.parseEther("0.1"),
-          from: "0x000000000000000000000000000000000000800A",
-          type: 0,
-        },
+        { value: "0.1", from: "0x000000000000000000000000000000000000800A", type: 0 },
       ]);
       mock.mockRestore();
     });
