@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 
 import { Contract, parseEther } from "ethers";
-import { Provider } from "zksync-ethers";
+import { Provider, utils } from "zksync-ethers";
 
 import useContext from "@/composables/useContext";
 import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
@@ -35,7 +35,8 @@ export default (context = useContext()) => {
   const writeFunction = async (
     address: string,
     abiFragment: AbiFragment,
-    params: Record<string, string | string[] | boolean | boolean[]>
+    params: Record<string, string | string[] | boolean | boolean[]>,
+    usePaymaster = true
   ) => {
     try {
       isRequestPending.value = true;
@@ -58,18 +59,44 @@ export default (context = useContext()) => {
       const valueMethodOption = {
         value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };
-      const res = await method(
-        ...[
-          ...(methodArguments.length ? methodArguments : []),
-          {
-            ...{ from: await signer.getAddress(), type: 0 },
-            ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
-          },
-        ].filter((e) => e !== undefined)
-      ).catch(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (e: any) => processException(e, "Please, try again later")
-      );
+
+      let res;
+      if (usePaymaster) {
+        const paymasterParams = utils.getPaymasterParams("0x98546B226dbbA8230cf620635a1e4ab01F6A99B2", {
+          type: "General",
+          innerInput: new Uint8Array(),
+        });
+
+        res = await method(
+          ...[
+            ...(methodArguments.length ? methodArguments : []),
+            {
+              ...{ from: await signer.getAddress(), type: 0 },
+              ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
+              customData: {
+                paymasterParams,
+                gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
+              },
+            },
+          ].filter((e) => e !== undefined)
+        ).catch(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (e: any) => processException(e, "Please, try again later")
+        );
+      } else {
+        res = await method(
+          ...[
+            ...(methodArguments.length ? methodArguments : []),
+            {
+              ...{ from: await signer.getAddress(), type: 0 },
+              ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
+            },
+          ].filter((e) => e !== undefined)
+        ).catch(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (e: any) => processException(e, "Please, try again later")
+        );
+      }
       response.value = { transactionHash: res.hash };
     } catch (e) {
       isRequestFailed.value = true;
