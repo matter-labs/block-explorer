@@ -18,8 +18,16 @@ import type { TransactionListItem } from "@/composables/useTransactions";
 
 import $testId from "@/plugins/testId";
 
+const router = {
+  push: vi.fn(),
+};
+
+const routeQueryMock = vi.fn(() => ({}));
 vi.mock("vue-router", () => ({
-  useRoute: vi.fn(() => ({ query: {} })),
+  useRoute: () => ({
+    query: routeQueryMock(),
+  }),
+  useRouter: () => router,
 }));
 vi.mock("@/composables/useTokenLibrary", () => {
   return {
@@ -63,6 +71,7 @@ const transaction: TransactionListItem = {
   gasPerPubdata: "800",
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
+  contractAddress: null,
   error: null,
   revertReason: null,
 };
@@ -278,12 +287,12 @@ describe("Transfers:", () => {
       });
 
       it("renders pagination", async () => {
-        expect(renderResult!.container.querySelector(".pagination")).not.toBeNull();
+        expect(renderResult!.container.querySelector(".pagination-container")).not.toBeNull();
       });
 
       it("does not render pagination if pagination prop is false", async () => {
         await renderResult?.rerender({ pagination: false });
-        expect(renderResult!.container.querySelector(".pagination")).toBeNull();
+        expect(renderResult!.container.querySelector(".pagination-container")).toBeNull();
       });
     });
 

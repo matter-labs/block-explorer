@@ -1,17 +1,20 @@
 import { describe, expect, it } from "vitest";
 
 import { format } from "date-fns";
-import { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } from "zksync-web3/build/src/utils";
+import { ParamType } from "ethers";
+import { utils } from "zksync-ethers";
 
 import ExecuteTx from "@/../mock/transactions/Execute.json";
 
 import type { InputType } from "@/composables/useEventLog";
 import type { TokenTransfer } from "@/composables/useTransaction";
+import type { Result } from "ethers";
 
 import {
   arrayHalfDivider,
   camelCaseFromSnakeCase,
   contractInputTypeToHumanType,
+  decodeInputData,
   getRawFunctionType,
   getRequiredArrayLength,
   getTypeFromEvent,
@@ -26,6 +29,7 @@ import {
   utcStringFromUnixTimestamp,
 } from "@/utils/helpers";
 
+const { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } = utils;
 const event = {
   name: "Deposit",
   inputs: [
@@ -175,6 +179,166 @@ describe("helpers:", () => {
     });
     it("returns the value if the decimals of the number are less than the given decimal attribute", () => {
       expect(truncateNumber("0.02", 5)).toEqual("0.02");
+    });
+  });
+  describe("decodeInputData:", () => {
+    it("decodes a simple input type", () => {
+      const input = ParamType.from({
+        name: "value",
+        type: "uint256",
+        baseType: "scalar",
+        isArray: () => true,
+        isTuple: () => false,
+      });
+      const args = 42;
+
+      const result = decodeInputData(input, args as unknown as Result);
+
+      expect(result).toEqual([
+        {
+          name: "value",
+          type: "uint256",
+          value: "42",
+          encodedValue: expect.any(String),
+          inputs: [],
+        },
+      ]);
+    });
+
+    it("decodes an array input type", () => {
+      const input = ParamType.from({
+        name: "values",
+        baseType: "array",
+        type: "uint256[]",
+        arrayChildren: { name: "value", type: "uint256" },
+      });
+      const args = [42, 43];
+
+      const result = decodeInputData(input, args as unknown as Result);
+
+      expect(result).toEqual([
+        {
+          name: "values",
+          type: "uint256[]",
+          value: "[42,43]",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              value: "42",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002a",
+              inputs: [],
+            },
+            {
+              name: "",
+              type: "uint256",
+              value: "43",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002b",
+              inputs: [],
+            },
+          ],
+          encodedValue:
+            "[000000000000000000000000000000000000000000000000000000000000002a,000000000000000000000000000000000000000000000000000000000000002b]",
+        },
+      ]);
+    });
+
+    it("decodes a tuple input type", () => {
+      const input = ParamType.from({
+        name: "tupleValue",
+        type: "tuple",
+        baseType: "tuple",
+        components: [
+          { name: "value1", type: "uint256", baseType: "scalar" },
+          { name: "value2", type: "string", baseType: "scalar" },
+        ],
+      });
+      const args = ["42", "test"];
+
+      const result = decodeInputData(input, args as unknown as Result);
+      expect(result).toEqual([
+        {
+          name: "tupleValue",
+          type: "tuple(uint256,string)",
+          value: "(42,test)",
+          inputs: [
+            {
+              name: "value1",
+              type: "uint256",
+              value: "42",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002a",
+              inputs: [],
+            },
+            {
+              name: "value2",
+              type: "string",
+              value: "test",
+              encodedValue:
+                "000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465737400000000000000000000000000000000000000000000000000000000",
+              inputs: [],
+            },
+          ],
+          encodedValue:
+            "(000000000000000000000000000000000000000000000000000000000000002a,000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000047465737400000000000000000000000000000000000000000000000000000000)",
+        },
+      ]);
+    });
+
+    it("decodes a tuple with an array", () => {
+      const input = ParamType.from({
+        name: "tupleValue",
+        type: "tuple",
+        baseType: "tuple",
+        components: [
+          { name: "value1", type: "uint256", baseType: "scalar" },
+          { name: "value2", type: "uint256[]", baseType: "array", arrayChildren: { name: "value", type: "uint256" } },
+        ],
+      });
+      const args = [42, [43, 44]];
+
+      const result = decodeInputData(input, args as unknown as Result);
+
+      expect(result).toEqual([
+        {
+          name: "tupleValue",
+          type: "tuple(uint256,uint256[])",
+          value: "(42,[43,44])",
+          inputs: [
+            {
+              name: "value1",
+              type: "uint256",
+              value: "42",
+              encodedValue: "000000000000000000000000000000000000000000000000000000000000002a",
+              inputs: [],
+            },
+            {
+              name: "value2",
+              type: "uint256[]",
+              value: "[43,44]",
+              inputs: [
+                {
+                  name: "",
+                  type: "uint256",
+                  value: "43",
+                  encodedValue: "000000000000000000000000000000000000000000000000000000000000002b",
+                  inputs: [],
+                },
+                {
+                  name: "",
+                  type: "uint256",
+                  value: "44",
+                  encodedValue: "000000000000000000000000000000000000000000000000000000000000002c",
+                  inputs: [],
+                },
+              ],
+              encodedValue:
+                "[000000000000000000000000000000000000000000000000000000000000002b,000000000000000000000000000000000000000000000000000000000000002c]",
+            },
+          ],
+          encodedValue:
+            "(000000000000000000000000000000000000000000000000000000000000002a,[000000000000000000000000000000000000000000000000000000000000002b,000000000000000000000000000000000000000000000000000000000000002c])",
+        },
+      ]);
     });
   });
 });

@@ -2,6 +2,9 @@ import { computed, ref } from "vue";
 
 import type { EnvironmentConfig, NetworkConfig, RuntimeConfig } from "@/configs";
 
+import { BASE_TOKEN_L2_ADDRESS } from "@/utils/constants";
+import { checksumAddress } from "@/utils/formatters";
+
 const config = ref<EnvironmentConfig | null>(null);
 
 const HYPERCHAIN_CONFIG_NAME = "hyperchain";
@@ -24,6 +27,11 @@ export async function loadEnvironmentConfig(runtimeConfig: RuntimeConfig): Promi
   } else {
     envConfig = (await import(`../configs/${runtimeConfig.appEnvironment}.config.json`)).default;
   }
+
+  envConfig.networks?.forEach((networkConfig) => {
+    networkConfig.baseTokenAddress = checksumAddress(networkConfig.baseTokenAddress || BASE_TOKEN_L2_ADDRESS);
+  });
+
   config.value = envConfig;
 }
 

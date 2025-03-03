@@ -1,6 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "zkSync Era",
+        "l2NetworkName": "ZKsync Era",
         "l1NetworkName": "Ethereum"
     },
     "copyButton": {
@@ -77,7 +77,8 @@
             "reasonTooltip": "Причина невиконання транзакції",
             "transactionHash": "Хеш Транзакції",
             "nonce": "Нонс",
-            "created": "Створено",
+            "receivedAt": "Отримано",
+            "receivedAtTooltip": "Час коли транзакцію було отримано",
             "from": "Від",
             "to": "До",
             "block": "Блок",
@@ -143,7 +144,8 @@
         "loadingInfoFailed": "Не вдалося завантажити інформацію про транзакцію",
         "transactionNotFound": "Транзакцію не знайдено",
         "transactionInfo": "Інформація про транзакцію",
-        "tryRequestAgain": "Спробуйте знову"
+        "tryRequestAgain": "Спробуйте знову",
+        "viewAll": "Переглянути всі транзакції"
     },
     "header": {
         "nav": {
@@ -175,7 +177,7 @@
         "subtitle": "zkRollups значно дешевше, ніж L1 або Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "zkSync Era Провідник",
+        "title": "ZKsync Era Провідник",
         "subtitle": "Переглядайте в режимі реального часу інформацію про блоки, транзакції, контракти та іншу активність у мережі.",
         "latestBlocks": "Останні Блоки",
         "latestTransactions": "Останні транзакції"
@@ -188,6 +190,11 @@
         "infoTableError": "Виникла помилка",
         "balanceTableTitle": "Мої кошти",
         "notFound": "Не знайдено",
+        "verified": "вихідний код",
+        "verifiedTooltip": "Вихідний код контракту було перевірено на відповідність його байт-коду в мережі. Перевірений вихідний код не означає, що контракт безпечний для взаємодії.",
+        "evm": "EVM",
+        "created": "Створено",
+        "contractCreated": "Контракт створено",
         "transactionTable": {
             "error": "Щось пішло не так",
             "notFound": {
@@ -213,6 +220,9 @@
             "verifyButton": "Завірити Смарт Контракт",
             "deployedBytecode": "Розгорнутий байт-код",
             "sourceCode": "Вихідний код"
+        },
+        "abiInteraction": {
+            "contractAbi": "ABI контракту"
         }
     },
     "contractVerification": {
@@ -237,6 +247,15 @@
                 "placeholder": "Імʼя",
                 "validation": {
                     "required": "Імʼя контракту є обовʼязковим"
+                }
+            },
+            "contractPath": {
+                "label": "Шлях до контракту",
+                "underline": "Відносний шлях до вашого контракту на момент компіляції",
+                "solcPlaceholder": "contracts/ContractFile.sol",
+                "vyperPlaceholder": "contracts/ContractFile.vy",
+                "validation": {
+                    "required": "Шлях до контракту є обов'язковим"
                 }
             },
             "optimizationUsed": {
@@ -364,7 +383,7 @@
         "second": "сек.",
         "secondPlural": "сек."
     },
-    "addressView" : {
+    "addressView": {
         "title": "Адреса"
     },
     "accountView": {
@@ -401,7 +420,7 @@
         }
     },
     "document": {
-        "title": "zkSync Era Провідник",
+        "title": "ZKsync Era Провідник",
         "home": "Транзакції, Блоки, Контракти та інше"
     },
     "notFound": {
@@ -421,7 +440,7 @@
         "orDropHere": "або перенесіть сюди",
         "unableToParseTrace": "На жаль, не вдалося проаналізувати цей файл трасування",
         "transaction": "Транзакція: з файлу трасування",
-        "executionStepNavigation":"Стрілка Вліво/Вправо",
+        "executionStepNavigation": "Стрілка Вліво/Вправо",
         "searchPlaceholder": "Пошук",
         "metadataBlock": {
             "contract": "Контракт",
@@ -441,5 +460,8 @@
     "systemAlert": {
         "indexerDelayed": "Індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі.",
         "indexerDelayedDueToHeavyLoad": "Мережа наразі перебуває під великим навантаженням, індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі."
+    },
+    "pagination" : {
+        "records": "записи"
     }
 }

@@ -176,6 +176,8 @@ const transaction: TransactionItem = {
   gasPerPubdata: "800",
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
+  isEvmLike: false,
+  contractAddress: null,
 };
 
 vi.mock("@/composables/useToken", () => {
@@ -303,7 +305,7 @@ describe("Transaction info table", () => {
     expect(gasLimitAndUsedTooltip).toBe(i18n.global.t("transactions.table.gasLimitAndUsedTooltip"));
     expect(gasPerPubdataTooltip).toBe(i18n.global.t("transactions.table.gasPerPubdataTooltip"));
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
-    expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.createdTooltip"));
+    expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.receivedAtTooltip"));
   });
   it("renders indexing transaction status", async () => {
     const wrapper = mount(Table, {

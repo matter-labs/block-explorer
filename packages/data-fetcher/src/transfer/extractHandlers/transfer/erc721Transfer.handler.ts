@@ -1,4 +1,4 @@
-import { utils, types } from "zksync-web3";
+import { utils, types } from "zksync-ethers";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
@@ -37,7 +37,7 @@ export const erc721TransferHandler: ExtractTransferHandler = {
       type,
       tokenType: TokenType.ERC721,
       isFeeOrRefund: false,
-      logIndex: log.logIndex,
+      logIndex: log.index,
       transactionIndex: log.transactionIndex,
       timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
     };

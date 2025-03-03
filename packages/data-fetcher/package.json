@@ -1,8 +1,8 @@
 {
   "name": "data-fetcher",
   "version": "0.0.0",
-  "title": "zkSync Era Block Explorer Data Fetcher",
-  "description": "zkSync Era Block Explorer Data Fetcher",
+  "title": "ZKsync Era Block Explorer Data Fetcher",
+  "description": "ZKsync Era Block Explorer Data Fetcher",
   "author": "Matter Labs",
   "private": true,
   "license": "MIT",
@@ -24,20 +24,22 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/axios": "^3.1.3",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/terminus": "^9.1.2",
     "@willsoto/nestjs-prometheus": "^4.7.0",
-    "ethers": "^5.7.1",
+    "axios": "^1.7.9",
+    "ethers": "6.13.4",
     "nest-winston": "^1.7.0",
     "prom-client": "^14.1.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "winston": "^3.8.2",
-    "zksync-web3": "0.15.4"
+    "zksync-ethers": "6.14.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

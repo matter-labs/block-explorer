@@ -1,8 +1,8 @@
-# zkSync Era Block Explorer API
+# ZKsync Era Block Explorer API
 ## Overview
 
-`zkSync Era Block Explorer API` is a block explorer API for zkSync Era blockchain.
-The service provides API for retrieving structured zkSync Era blockchain data. It must be connected to the [Block explorer Worker](/packages/worker) database.
+`ZKsync Era Block Explorer API` is a block explorer API for ZKsync Era blockchain.
+The service provides API for retrieving structured ZKsync Era blockchain data. It must be connected to the [Block explorer Worker](/packages/worker) database.
 
 There are 2 sets of endpoints the service provides. All the endpoints under `/api/*` are designed for external direct usage. These endpoints are similar to [Etherscan API](https://docs.etherscan.io) endpoints. The development of these endpoints is in progress, so more of them will be added soon. The other set of endpoints (other than `/api/*`) is designed to be used by the front-end [App](/packages/app) only and is not meant to be used externally. Once all the new `/api/*` endpoints are developed all the other endpoints (other than `/api/*`) will be deprecated and removed.
 
@@ -24,7 +24,62 @@ You need to have a running Worker database, for instructions on how to run the w
   - `DATABASE_REPLICA_URL_<<replica_index>>`
   - `DATABASE_CONNECTION_IDLE_TIMEOUT_MS`
   - `DATABASE_CONNECTION_POOL_SIZE`
-- Set `CONTRACT_VERIFICATION_API_URL` to your verification API URL. For zkSync Era testnet use `https://zksync2-testnet-explorer.zksync.dev`. For zkSync Era mainnet - `https://zksync2-mainnet-explorer.zksync.io`.
+- Set `CONTRACT_VERIFICATION_API_URL` to your verification API URL. For ZKsync Era testnet use `https://zksync2-testnet-explorer.zksync.dev`. For ZKsync Era mainnet - `https://zksync2-mainnet-explorer.zksync.io`.
+
+## Custom base token configuration
+For networks with a custom base token, there are a number of environment variables used to configure custom base and ETH tokens:
+- `BASE_TOKEN_L1_ADDRESS` - required, example: `0xB44A106F271944fEc1c27cd60b8D6C8792df86d8`. Base token L1 address can be fetched using the RPC call:
+  ```
+  curl http://localhost:3050 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"zks_getBaseTokenL1Address","params":[],"id":1,"jsonrpc":"2.0"}'
+  ```
+  or SDK:
+  ```
+  import { Provider } from "zksync-ethers";
+
+  async function main() {
+      const l2provider = new Provider("http://localhost:3050");
+      const baseTokenAddress = await l2provider.getBaseTokenContractAddress();
+      console.log('baseTokenAddress', baseTokenAddress);
+  }
+  main()
+      .then()
+      .catch((error) => {
+          console.error(error);
+          process.exitCode = 1;
+      });
+  ```
+- `BASE_TOKEN_SYMBOL` - required, example: `ZK`
+- `BASE_TOKEN_NAME` - required, example: `ZK`
+- `BASE_TOKEN_DECIMALS` - required, example: `18`
+- `BASE_TOKEN_LIQUIDITY` -  optional, example: `20000`
+- `BASE_TOKEN_ICON_URL` - optional, example: `https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266`
+- `BASE_TOKEN_USDPRICE` - optional, example: `3300.30`.
+
+- `ETH_TOKEN_L2_ADDRESS` - required, example: `0x642C0689b87dEa060B9f0E2e715DaB8564840861`. Eth L2  address can be calculated using SDK:
+  ```
+  import { utils, Provider } from "zksync-ethers";
+
+  async function main() {
+      const l2provider = new Provider("http://localhost:3050");
+      const ethL2Address = await l2provider.l2TokenAddress(utils.ETH_ADDRESS);
+      console.log('ethL2Address', ethL2Address);
+  }
+  main()
+      .then()
+      .catch((error) => {
+          console.error(error);
+          process.exitCode = 1;
+      });
+  ```
+- `ETH_TOKEN_NAME` - optional, default is `Ether`
+- `ETH_TOKEN_SYMBOL` - optional, default is `ETH`
+- `ETH_TOKEN_DECIMALS` - optional, default is `18`
+- `ETH_TOKEN_LIQUIDITY` - optional, example: `20000`
+- `ETH_TOKEN_ICON_URL` - optional, default (ETH icon) is: `https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266`
+- `ETH_TOKEN_USDPRICE` - optional, example: `3300.30`.
 
 ## Running the app
 

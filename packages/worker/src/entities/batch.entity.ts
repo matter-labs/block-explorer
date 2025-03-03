@@ -1,6 +1,4 @@
-import { BigNumber } from "ethers";
 import { Entity, Column, PrimaryColumn, Index } from "typeorm";
-import { bigNumberTransformer } from "../transformers/bigNumber.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { BaseEntity } from "./base.entity";
@@ -26,11 +24,11 @@ export class Batch extends BaseEntity {
   @Column({ type: "timestamp" })
   public readonly timestamp: Date;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly l1GasPrice: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly l1GasPrice: number;
 
-  @Column({ type: "varchar", length: 128, transformer: bigNumberTransformer })
-  public readonly l2FairGasPrice: BigNumber;
+  @Column({ type: "varchar", length: 128 })
+  public readonly l2FairGasPrice: number;
 
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly commitTxHash?: string;

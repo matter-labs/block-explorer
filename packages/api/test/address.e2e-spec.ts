@@ -12,13 +12,15 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { Log } from "../src/log/log.entity";
-import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
+import { baseToken } from "../src/config";
 
 describe("AddressController (e2e)", () => {
+  const ETH_TOKEN = baseToken;
   let app: INestApplication;
   let addressRepository: Repository<Address>;
   let blockRepository: Repository<BlockDetails>;
@@ -325,7 +327,7 @@ describe("AddressController (e2e)", () => {
         transactionIndex: i,
         timestamp: new Date("2022-11-21T18:16:51.000Z"),
         type,
-        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.BaseToken,
         tokenAddress:
           i % 2 ? "0x97d0a23f34e535e44df8ba84c53a0945cf0eeb67" : "0x000000000000000000000000000000000000800a",
         logIndex: i,
@@ -788,6 +790,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -847,6 +850,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -906,6 +910,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -965,6 +970,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -985,6 +991,7 @@ describe("AddressController (e2e)", () => {
                 createdInBlockNumber: 10,
                 creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
                 creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+                isEvmLike: false,
                 totalTransactions: 0,
                 type: "contract",
               })
@@ -1235,7 +1242,7 @@ describe("AddressController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               type: "transfer",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
             {

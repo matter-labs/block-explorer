@@ -384,6 +384,18 @@ describe("utils", () => {
     it("returns 0x if the specified number is undefined", () => {
       expect(numberToHex(undefined)).toBe("0x");
     });
+
+    it("returns hex str for the specified bigint", () => {
+      expect(numberToHex(BigInt("1000000000000000000000000"))).toBe("0xd3c21bcecceda1000000");
+    });
+
+    it("returns 0x if the specified bigint is null", () => {
+      expect(numberToHex(null)).toBe("0x");
+    });
+
+    it("returns 0x if the specified bigint is undefined", () => {
+      expect(numberToHex(undefined)).toBe("0x");
+    });
   });
 
   describe("parseIntToHex", () => {

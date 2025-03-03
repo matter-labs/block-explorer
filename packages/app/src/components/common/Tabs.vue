@@ -13,11 +13,15 @@
           </button>
           <button
             v-else
-            class="tab-btn font-medium outline-0 px-4 py-3.5 text-gray"
+            class="tab-btn font-medium outline-0 px-4 py-3.5 text-gray flex items-center gap-[2px]"
             :class="{ active: currentTabHash === tab.hash && tabs.length > 1 }"
-            v-html="tab.title"
             @click="setTab(tab)"
-          ></button>
+          >
+            <span v-html="tab.title"></span>
+            <span v-if="tab.icon" class="tab-icon">
+              <component :is="tab.icon" />
+            </span>
+          </button>
         </li>
       </template>
     </ul>
@@ -35,9 +39,12 @@
 import { type PropType, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+import type { FunctionalComponent } from "vue";
+
 export type Tab = {
   title: string;
   hash: string | null;
+  icon?: FunctionalComponent | null;
 };
 
 const props = defineProps({
@@ -49,32 +56,52 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  hasNestedRoute: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const route = useRoute();
 const router = useRouter();
 
-const currentTabHash = ref(route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash);
+const calculateCurrrentTabHash = () => {
+  let tabHash = route?.hash && props.hasRoute ? route?.hash : props.tabs[0].hash;
+  if (route?.hash && route?.hash.split("#").length > 2) {
+    // route.hash has multiple hashes (ex: #contracts#read)
+    if (props.hasNestedRoute) {
+      tabHash = `#${route?.hash.split("#").at(-1)}`;
+    } else {
+      tabHash = `#${route?.hash.split("#").at(1)}`;
+    }
+  }
+  return tabHash;
+};
+const currentTabHash = ref(calculateCurrrentTabHash());
 
 const setTab = (tab: Tab) => {
   currentTabHash.value = tab.hash;
   if (props.hasRoute) {
     router.push({ hash: `${tab.hash}` });
+  } else if (props.hasNestedRoute) {
+    router.push({ hash: `#${route?.hash.split("#")[1]}${tab.hash}` });
   }
 };
 
 watchEffect(() => {
   if (props.hasRoute) {
-    currentTabHash.value = route?.hash ? route?.hash : props.tabs[0].hash;
+    currentTabHash.value = calculateCurrrentTabHash();
   }
 });
 </script>
-
 <style lang="scss" scoped>
 .tab-btn {
   &.active {
     border-bottom: 2px solid;
     color: var(--color-blue);
+  }
+  .tab-icon {
+    @apply ml-0.5 w-5 text-green-500;
   }
 }
 </style>

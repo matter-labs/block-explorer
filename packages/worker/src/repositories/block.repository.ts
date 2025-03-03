@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { FindOptionsWhere, FindOptionsSelect, FindOptionsRelations } from "typeorm";
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { Block as BlockDto } from "../dataFetcher/types";
 import { unixTimeToDate } from "../utils/date";
 import { Block } from "../entities";
@@ -39,6 +39,15 @@ export class BlockRepository {
       .limit(1)
       .getOne();
     return lastExecutedBlock?.number || 0;
+  }
+
+  public async getMissingBlocksCount(): Promise<number> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    const { count } = await transactionManager
+      .createQueryBuilder(Block, "block")
+      .select("MAX(number) - COUNT(number) + 1 AS count") // +1 for the block #0
+      .getRawOne<{ count: number }>();
+    return Number(count);
   }
 
   public async add(blockDto: BlockDto, blockDetailsDto: types.BlockDetails): Promise<void> {

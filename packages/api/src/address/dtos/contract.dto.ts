@@ -42,4 +42,11 @@ export class ContractDto extends BaseAddressDto {
     example: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
   })
   public readonly creatorAddress: string;
+
+  @ApiProperty({
+    type: Boolean,
+    description: "Is the contract EVM-like",
+    example: true,
+  })
+  public readonly isEvmLike: boolean;
 }

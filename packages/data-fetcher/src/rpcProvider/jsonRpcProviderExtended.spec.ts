@@ -7,18 +7,30 @@ class JsonRpcProviderBaseMock {
 }
 jest.mock("../logger");
 jest.useFakeTimers();
-jest.mock("zksync-web3", () => ({
+jest.mock("zksync-ethers", () => ({
   Provider: JsonRpcProviderBaseMock,
 }));
 import { JsonRpcProviderExtended } from "./jsonRpcProviderExtended";
 
 describe("JsonRpcProviderExtended", () => {
   let jsonRpcProvider: JsonRpcProviderExtended;
-  const timer = mock<NodeJS.Timer>();
+  const timer = mock<NodeJS.Timeout>();
   let lastCallback: () => void;
+  const quickTimeout = 10_000;
+  const batchMaxCount = 10;
+  const batchMaxSizeBytes = 5_000;
+  const batchStallTimeMs = 7_000;
+  const rpcUrl = "url";
 
   beforeEach(async () => {
-    jsonRpcProvider = new JsonRpcProviderExtended("url", 120_000, 10_000);
+    jsonRpcProvider = new JsonRpcProviderExtended(
+      rpcUrl,
+      120_000,
+      quickTimeout,
+      batchMaxCount,
+      batchMaxSizeBytes,
+      batchStallTimeMs
+    );
 
     jest.spyOn(global, "setTimeout").mockImplementation((callback: () => void) => {
       lastCallback = callback;
@@ -46,7 +58,7 @@ describe("JsonRpcProviderExtended", () => {
     it("starts quick timeout", async () => {
       await jsonRpcProvider.send("method", [1, 2]);
       expect(global.setTimeout).toBeCalledTimes(1);
-      expect(global.setTimeout).toBeCalledWith(expect.any(Function), 10_000);
+      expect(global.setTimeout).toBeCalledWith(expect.any(Function), quickTimeout);
     });
 
     it("clears quick timeout", async () => {
@@ -85,7 +97,7 @@ describe("JsonRpcProviderExtended", () => {
       it("waits for internal timeout and returns the result of the second call", async () => {
         const result = await jsonRpcProvider.send("method", [1, 2]);
         expect(global.setTimeout).toBeCalledTimes(1);
-        expect(global.setTimeout).toBeCalledWith(expect.any(Function), 10_000);
+        expect(global.setTimeout).toBeCalledWith(expect.any(Function), quickTimeout);
         expect(result).toStrictEqual({
           method: "method2",
           params: [2, 3],

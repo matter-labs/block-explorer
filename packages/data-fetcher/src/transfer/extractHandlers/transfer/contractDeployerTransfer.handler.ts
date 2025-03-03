@@ -1,4 +1,4 @@
-import { utils, types } from "zksync-web3";
+import { utils, types } from "zksync-ethers";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ZERO_HASH_64 } from "../../../constants";
@@ -31,7 +31,7 @@ export const contractDeployerTransferHandler: ExtractTransferHandler = {
       type: TransferType.Mint,
       tokenType: TokenType.ERC20,
       isFeeOrRefund: false,
-      logIndex: log.logIndex,
+      logIndex: log.index,
       transactionIndex: log.transactionIndex,
       timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
     };

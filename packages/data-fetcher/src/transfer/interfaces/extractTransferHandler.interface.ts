@@ -1,4 +1,4 @@
-import { types } from "zksync-web3";
+import { types } from "zksync-ethers";
 import { Transfer } from "./transfer.interface";
 
 export interface ExtractTransferHandler {

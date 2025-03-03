@@ -11,6 +11,7 @@ import {
   formatPrice,
   formatPricePretty,
   formatWithSpaces,
+  numberToHexString,
   shortValue,
   stringFromAsciiArray,
 } from "@/utils/formatters";
@@ -44,7 +45,7 @@ describe("formatters:", () => {
     );
   });
   it("returns formatted Hex data", () => {
-    expect(formatHexDecimals("32770", "Hex")).toBe("0x032770");
+    expect(formatHexDecimals("32770", "Hex")).toBe("0x32770");
   });
   it("returns formatted token price", () => {
     expect(formatPricePretty("1", 1, "12.5315131")).toBe("$1.25");
@@ -78,6 +79,16 @@ describe("formatters:", () => {
     });
     it("handles float price", () => {
       expect(convert("0x56bc75e2d63100000", token, "0.001")).toBe("0.1");
+    });
+  });
+
+  describe("numberToHexString", () => {
+    it("returns hex str for the specified number", () => {
+      expect(numberToHexString(1000)).toBe("0x3e8");
+    });
+
+    it("returns hex str for the specified bigint", () => {
+      expect(numberToHexString(BigInt("1000000000000000000000000"))).toBe("0xd3c21bcecceda1000000");
     });
   });
 });

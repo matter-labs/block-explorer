@@ -1,13 +1,14 @@
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
 
 import { useStorage } from "@vueuse/core";
-import * as zkSyncSdk from "zksync-web3";
+import { Provider } from "zksync-ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";
 
 import type { NetworkConfig } from "@/configs";
 
+import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
 
 const network = useStorage("selectedNetwork_v2", DEFAULT_NETWORK.name);
@@ -17,18 +18,21 @@ export type Context = {
   isReady: Ref<boolean>;
   currentNetwork: ComputedRef<NetworkConfig>;
   networks: ComputedRef<NetworkConfig[]>;
-  getL2Provider: () => zkSyncSdk.Provider;
+  getL2Provider: () => Provider;
   identifyNetwork: () => void;
 };
 
-let l2Provider: zkSyncSdk.Provider | null;
+let l2Provider: Provider | null;
 export default (): Context => {
   const environmentConfig = useEnvironmentConfig();
 
   const networks = computed<NetworkConfig[]>(() => {
-    return Array.isArray(environmentConfig.networks.value) && environmentConfig.networks.value.length
-      ? environmentConfig.networks.value
-      : [DEFAULT_NETWORK];
+    const configuredNetworks =
+      Array.isArray(environmentConfig.networks.value) && environmentConfig.networks.value.length
+        ? environmentConfig.networks.value
+        : [DEFAULT_NETWORK];
+    configuredNetworks.forEach((network) => (network.baseTokenAddress = checksumAddress(network.baseTokenAddress)));
+    return configuredNetworks;
   });
 
   const getDefaultNetworkByHost = (hostname: string) => {
@@ -73,7 +77,7 @@ export default (): Context => {
 
   function getL2Provider() {
     if (!l2Provider) {
-      l2Provider = new zkSyncSdk.Provider(currentNetwork.value.rpcUrl);
+      l2Provider = new Provider(currentNetwork.value.rpcUrl);
     }
     return l2Provider;
   }

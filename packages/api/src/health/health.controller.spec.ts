@@ -1,5 +1,6 @@
 import { ServiceUnavailableException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
+import { Logger } from "@nestjs/common";
 import { HealthCheckService, TypeOrmHealthIndicator, HealthCheckResult } from "@nestjs/terminus";
 import { mock } from "jest-mock-extended";
 import { ConfigService } from "@nestjs/config";
@@ -47,7 +48,7 @@ describe("HealthController", () => {
         },
       ],
     }).compile();
-
+    app.useLogger(mock<Logger>());
     healthController = app.get<HealthController>(HealthController);
   });
 

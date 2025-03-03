@@ -1,8 +1,7 @@
 import { Test, TestingModuleBuilder } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
-import { BigNumber } from "ethers";
-import { utils } from "zksync-web3";
+import { utils } from "zksync-ethers";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
@@ -39,11 +38,11 @@ describe("BalanceService", () => {
     beforeEach(() => {
       balanceService.changedBalances.set(
         blockNumber,
-        new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>()
+        new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>()
       );
       balanceService.changedBalances.set(
         blockNumber2,
-        new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>()
+        new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>()
       );
     });
 
@@ -61,14 +60,14 @@ describe("BalanceService", () => {
         from: "0x36615cf349d7f6344891b1e7ca7c72883f5dc049",
         to: "0x0000000000000000000000000000000000008001",
         blockNumber: 10,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       }),
       mock<Transfer>({
         tokenAddress: "0x000000000000000000000000000000000000800a",
         from: "0xd206eaf6819007535e893410cfa01885ce40e99a",
         to: "0x0000000000000000000000000000000000008001",
         blockNumber: 10,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       }),
       mock<Transfer>({
         tokenAddress: "0x2392e98fb47cf05773144db3ce8002fac4f39c84",
@@ -103,14 +102,14 @@ describe("BalanceService", () => {
           from: "0x000000000000000000000000000000000000800a",
           to: "0x0000000000000000000000000000000000008001",
           blockNumber: 10,
-          tokenType: TokenType.ETH,
+          tokenType: TokenType.BaseToken,
         }),
         mock<Transfer>({
           tokenAddress: "0x000000000000000000000000000000000000800a",
           from: "0xd206eaf6819007535e893410cfa01885ce40e99a",
           to: "0x0000000000000000000000000000000000000000",
           blockNumber: 10,
-          tokenType: TokenType.ETH,
+          tokenType: TokenType.BaseToken,
         }),
         mock<Transfer>({
           tokenAddress: "0x2392e98fb47cf05773144db3ce8002fac4f39c84",
@@ -189,7 +188,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
 
       expect(
@@ -198,7 +197,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
 
       expect(
@@ -207,7 +206,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
 
       expect(
@@ -239,7 +238,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
       expect(
         blockChangedBalances
@@ -252,7 +251,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
       expect(
         blockChangedBalances
@@ -278,24 +277,24 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
     });
 
     it("merge changed balances with existing changed balances for the block", () => {
-      const existingBlockBalances = new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>();
+      const existingBlockBalances = new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
       existingBlockBalances.set(
         "0x0000000000000000000000000000000000008007",
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          ["0x000000000000000000000000000000000000800a", { balance: undefined, tokenType: TokenType.ETH }],
+        new Map<string, { balance: bigint; tokenType: TokenType }>([
+          ["0x000000000000000000000000000000000000800a", { balance: undefined, tokenType: TokenType.BaseToken }],
           ["0x0000000000000000000000000000000000008123", { balance: undefined, tokenType: TokenType.ERC20 }],
         ])
       );
 
       existingBlockBalances.set(
         "0x36615cf349d7f6344891b1e7ca7c72883f5dc049",
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          ["0x000000000000000000000000000000000000800a", { balance: undefined, tokenType: TokenType.ETH }],
+        new Map<string, { balance: bigint; tokenType: TokenType }>([
+          ["0x000000000000000000000000000000000000800a", { balance: undefined, tokenType: TokenType.BaseToken }],
         ])
       );
 
@@ -317,7 +316,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
       expect(
         blockChangedBalances
@@ -346,7 +345,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
       expect(
         blockChangedBalances
@@ -359,7 +358,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
       expect(
         blockChangedBalances
@@ -385,7 +384,7 @@ describe("BalanceService", () => {
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
         balance: undefined,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
       });
     });
   });
@@ -400,34 +399,34 @@ describe("BalanceService", () => {
     ];
 
     beforeEach(() => {
-      const blockBalances = new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>();
+      const blockBalances = new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
       blockBalances.set(
         utils.ETH_ADDRESS,
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
-          [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.ETH }],
+        new Map<string, { balance: bigint; tokenType: TokenType }>([
+          [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.BaseToken }],
         ])
       );
       blockBalances.set(
         addresses[0],
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
+        new Map<string, { balance: bigint; tokenType: TokenType }>([
           [tokenAddresses[0][0], { balance: undefined, tokenType: TokenType.ERC20 }],
-          [tokenAddresses[0][1], { balance: undefined, tokenType: TokenType.ETH }],
+          [tokenAddresses[0][1], { balance: undefined, tokenType: TokenType.BaseToken }],
         ])
       );
       blockBalances.set(
         addresses[1],
-        new Map<string, { balance: BigNumber; tokenType: TokenType }>([
+        new Map<string, { balance: bigint; tokenType: TokenType }>([
           [tokenAddresses[1][0], { balance: undefined, tokenType: TokenType.ERC20 }],
-          [tokenAddresses[1][1], { balance: undefined, tokenType: TokenType.ETH }],
+          [tokenAddresses[1][1], { balance: undefined, tokenType: TokenType.BaseToken }],
         ])
       );
       balanceService.changedBalances.set(blockNumber, blockBalances);
 
-      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(1));
-      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(2));
-      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(3));
-      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(4));
-      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(5));
+      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(1));
+      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(2));
+      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(3));
+      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(4));
+      jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(5));
     });
 
     it("processes block number with no tracked balances", async () => {
@@ -452,36 +451,36 @@ describe("BalanceService", () => {
           address: "0x0000000000000000000000000000000000000000",
           blockNumber: 5,
           tokenAddress: "0x0000000000000000000000000000000000000000",
-          balance: BigNumber.from(1),
-          tokenType: TokenType.ETH,
+          balance: BigInt(1),
+          tokenType: TokenType.BaseToken,
         },
         {
           address: addresses[0],
           blockNumber: 5,
           tokenAddress: tokenAddresses[0][0],
-          balance: BigNumber.from(2),
+          balance: BigInt(2),
           tokenType: TokenType.ERC20,
         },
         {
           address: addresses[0],
           blockNumber: 5,
           tokenAddress: tokenAddresses[0][1],
-          balance: BigNumber.from(3),
-          tokenType: TokenType.ETH,
+          balance: BigInt(3),
+          tokenType: TokenType.BaseToken,
         },
         {
           address: addresses[1],
           blockNumber: 5,
           tokenAddress: tokenAddresses[1][0],
-          balance: BigNumber.from(4),
+          balance: BigInt(4),
           tokenType: TokenType.ERC20,
         },
         {
           address: addresses[1],
           blockNumber: 5,
           tokenAddress: tokenAddresses[1][1],
-          balance: BigNumber.from(5),
-          tokenType: TokenType.ETH,
+          balance: BigInt(5),
+          tokenType: TokenType.BaseToken,
         },
       ]);
     });
@@ -489,11 +488,11 @@ describe("BalanceService", () => {
     describe("when some getBalance throw errors", () => {
       beforeEach(() => {
         jest.spyOn(blockchainServiceMock, "getBalance").mockReset();
-        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(1));
-        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(2));
+        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(1));
+        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(2));
         jest.spyOn(blockchainServiceMock, "getBalance").mockRejectedValueOnce("balanceOf function is not defined");
-        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(4));
-        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigNumber.from(5));
+        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(4));
+        jest.spyOn(blockchainServiceMock, "getBalance").mockResolvedValueOnce(BigInt(5));
       });
 
       it("returns only successfully fetched balances", async () => {
@@ -503,29 +502,29 @@ describe("BalanceService", () => {
             address: "0x0000000000000000000000000000000000000000",
             blockNumber: 5,
             tokenAddress: "0x0000000000000000000000000000000000000000",
-            balance: BigNumber.from(1),
-            tokenType: TokenType.ETH,
+            balance: BigInt(1),
+            tokenType: TokenType.BaseToken,
           },
           {
             address: addresses[0],
             blockNumber: 5,
             tokenAddress: tokenAddresses[0][0],
-            balance: BigNumber.from(2),
+            balance: BigInt(2),
             tokenType: TokenType.ERC20,
           },
           {
             address: addresses[1],
             blockNumber: 5,
             tokenAddress: tokenAddresses[1][0],
-            balance: BigNumber.from(4),
+            balance: BigInt(4),
             tokenType: TokenType.ERC20,
           },
           {
             address: addresses[1],
             blockNumber: 5,
             tokenAddress: tokenAddresses[1][1],
-            balance: BigNumber.from(5),
-            tokenType: TokenType.ETH,
+            balance: BigInt(5),
+            tokenType: TokenType.BaseToken,
           },
         ]);
       });

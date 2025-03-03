@@ -8,6 +8,9 @@ export default () => {
     RPC_CALLS_QUICK_RETRY_TIMEOUT,
     RPC_CALLS_CONNECTION_TIMEOUT,
     RPC_CALLS_CONNECTION_QUICK_TIMEOUT,
+    RPC_BATCH_MAX_SIZE_BYTES,
+    RPC_BATCH_MAX_COUNT,
+    RPC_BATCH_STALL_TIME_MS,
     WAIT_FOR_BLOCKS_INTERVAL,
     BLOCKS_PROCESSING_BATCH_SIZE,
     NUMBER_OF_BLOCKS_PER_DB_TRANSACTION,
@@ -28,6 +31,15 @@ export default () => {
     TO_BLOCK,
     COINGECKO_IS_PRO_PLAN,
     COINGECKO_API_KEY,
+    DISABLE_MISSING_BLOCKS_METRIC,
+    CHECK_MISSING_BLOCKS_METRIC_INTERVAL,
+    RPC_HEALTH_CHECK_TIMEOUT_MS,
+    DB_HEALTH_CHECK_TIMEOUT_MS,
+    BASE_TOKEN_SYMBOL,
+    BASE_TOKEN_DECIMALS,
+    BASE_TOKEN_L1_ADDRESS,
+    BASE_TOKEN_ICON_URL,
+    BASE_TOKEN_NAME,
   } = process.env;
 
   return {
@@ -38,6 +50,16 @@ export default () => {
       rpcCallQuickRetryTimeout: parseInt(RPC_CALLS_QUICK_RETRY_TIMEOUT, 10) || 500,
       rpcCallConnectionTimeout: parseInt(RPC_CALLS_CONNECTION_TIMEOUT, 10) || 20000,
       rpcCallConnectionQuickTimeout: parseInt(RPC_CALLS_CONNECTION_QUICK_TIMEOUT, 10) || 10000,
+      // maximum number of requests to allow in a batch.
+      // If rpcBatchMaxCount = 1, then batching is disabled.
+      rpcBatchMaxCount: parseInt(RPC_BATCH_MAX_COUNT, 10) || 10,
+      // target maximum size (bytes) to allow per batch request (default: 1Mb)
+      // If rpcBatchMaxCount = 1, this is ignored.
+      rpcBatchMaxSizeBytes: parseInt(RPC_BATCH_MAX_SIZE_BYTES, 10) || 1048576,
+      // how long (ms) to aggregate requests into a single batch.
+      // 0 indicates batching will only encompass the current event loop.
+      // If rpcBatchMaxCount = 1, this is ignored.
+      rpcBatchStallTimeMs: parseInt(RPC_BATCH_STALL_TIME_MS, 10) || 0,
     },
     dataFetcher: {
       url: DATA_FETCHER_URL || "http://localhost:3040",
@@ -73,10 +95,25 @@ export default () => {
         isProPlan: COINGECKO_IS_PRO_PLAN === "true",
         apiKey: COINGECKO_API_KEY,
       },
+      baseToken: {
+        symbol: BASE_TOKEN_SYMBOL || "ETH",
+        decimals: parseInt(BASE_TOKEN_DECIMALS, 10) || 18,
+        l1Address: BASE_TOKEN_L1_ADDRESS || "0x0000000000000000000000000000000000000000",
+        iconUrl: BASE_TOKEN_ICON_URL || "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+        name: BASE_TOKEN_NAME || "Ether",
+      },
     },
     metrics: {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
       collectBlocksToProcessMetricInterval: parseInt(COLLECT_BLOCKS_TO_PROCESS_METRIC_INTERVAL, 10) || 10000,
+      missingBlocks: {
+        disabled: DISABLE_MISSING_BLOCKS_METRIC === "true",
+        interval: parseInt(CHECK_MISSING_BLOCKS_METRIC_INTERVAL, 10) || 86_400_000, // 1 day
+      },
+    },
+    healthChecks: {
+      rpcHealthCheckTimeoutMs: parseInt(RPC_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
+      dbHealthCheckTimeoutMs: parseInt(DB_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
     },
   };
 };
