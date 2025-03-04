@@ -354,7 +354,7 @@
             "tokenName": "Назва Токена",
             "price": "Ціна",
             "tokenAddressL2": "L2 Адреса Токена",
-            "tokenAddressL1": "L1 Адреса Токена L1"
+            "tokenAddressL1": "L1 Адреса Токена"
         }
     },
     "timeMessages": {
