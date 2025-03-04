@@ -69,11 +69,10 @@ Feature: Main Page
     Then Column with "<Column name>" name is visible
 
     Examples:
-      | Column name       |
-      | Token Name        |
-      | Price             |
-      | L2 Token Address  |
-      | L1 Token Address  |
+      | Column name   |
+      | Token Name    |
+      | Price         |
+      | Token Address |
 
   @id249 @mainnet
   Scenario Outline: Verify table contains "<Column name>" column name on Tokens page
@@ -82,11 +81,10 @@ Feature: Main Page
     Then Column with "<Column name>" name is visible
 
     Examples:
-      | Column name       |
-      | Token Name        |
-      | Price             |
-      | L2 Token Address  |
-      | L1 Token Address  |
+      | Column name   |
+      | Token Name    |
+      | Price         |
+      | Token Address |
 
   @id381 @testnet @testnetSmokeSuite
   Scenario Outline: Verify label "out" for Account info on Account page
