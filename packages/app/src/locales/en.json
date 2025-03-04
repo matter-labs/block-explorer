@@ -599,7 +599,8 @@
         "table": {
             "tokenName": "Token Name",
             "price": "Price",
-            "tokenAddress": "Token Address"
+            "tokenAddressL2": "L2 Token address",
+            "tokenAddressL1": "L1 Token address"
         }
     },
     "pageError": {

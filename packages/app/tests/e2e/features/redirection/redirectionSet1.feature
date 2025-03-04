@@ -14,8 +14,8 @@ Feature: Redirection
     Examples:
       | Extra button name | url                                     |
       | Docs              | https://docs.zksync.io/zksync-era/tooling/block-explorers         |
-      | Terms             | https://zksync.io/terms                 |
-      | Contact           | https://zksync.io/contact      |
+      | Terms             | https://www.zksync.io/terms                 |
+      | Contact           | https://www.zksync.io/contact      |
 
   #Header
   @id231

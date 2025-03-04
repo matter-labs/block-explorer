@@ -3,7 +3,8 @@
     <template #table-head>
       <table-head-column>{{ t("tokensView.table.tokenName") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.price") }}</table-head-column>
-      <table-head-column>{{ t("tokensView.table.tokenAddress") }}</table-head-column>
+      <table-head-column>{{ t("tokensView.table.tokenAddressL2") }}</table-head-column>
+      <table-head-column>{{ t("tokensView.table.tokenAddressL1") }}</table-head-column>
     </template>
     <template #table-row="{ item }: { item: any }">
       <TableBodyColumn :data-heading="t('tokensView.table.tokenName')">
@@ -18,7 +19,7 @@
       <TableBodyColumn :data-heading="t('tokensView.table.price')">
         <TokenPrice :address="item.l2Address" />
       </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('tokensView.table.tokenAddress')">
+      <TableBodyColumn :data-heading="t('tokensView.table.tokenAddressL2')">
         <div class="token-address-container max-w-sm">
           <TransactionNetworkSquareBlock network="L2" />
           <AddressLink
@@ -29,6 +30,22 @@
             {{ shortenFitText(item.l2Address, "left", 210, subtraction) }}
           </AddressLink>
           <CopyButton :value="item.l2Address" />
+        </div>
+      </TableBodyColumn>
+      <TableBodyColumn
+        :data-heading="shouldDisplayL1Address(item.l1Address) ? t('tokensView.table.tokenAddressL1') : ''"
+      >
+        <div v-if="shouldDisplayL1Address(item.l1Address)" class="token-address-container max-w-sm">
+          <TransactionNetworkSquareBlock network="L1" />
+          <AddressLink
+            :data-testid="$testId.tokenAddress"
+            :address="item.l1Address"
+            network="L1"
+            class="token-address block max-w-sm"
+          >
+            {{ shortenFitText(item.l1Address, "left", 100, subtraction) }}
+          </AddressLink>
+          <CopyButton :value="item.l1Address" />
         </div>
       </TableBodyColumn>
     </template>
@@ -55,7 +72,10 @@
           <ContentLoader class="w-16" />
         </TableBodyColumn>
         <TableBodyColumn>
-          <ContentLoader />
+          <ContentLoader class="w-16" />
+        </TableBodyColumn>
+        <TableBodyColumn>
+          <ContentLoader class="w-16" />
         </TableBodyColumn>
       </tr>
     </template>
@@ -80,6 +100,8 @@ import TransactionNetworkSquareBlock from "@/components/transactions/Transaction
 
 import type { Token } from "@/composables/useToken";
 
+import { BASE_TOKEN_L1_ADDRESS } from "@/utils/constants";
+
 defineProps({
   tokens: {
     type: Array as PropType<Token[]>,
@@ -98,6 +120,10 @@ const { width } = useElementSize(table);
 watch(width, () => {
   width.value <= 500 ? (subtraction.value = 10) : (subtraction.value = 5);
 });
+
+const shouldDisplayL1Address = (l1Address?: string) => {
+  return l1Address && l1Address !== BASE_TOKEN_L1_ADDRESS;
+};
 </script>
 
 <style scoped lang="scss">
