@@ -25,7 +25,7 @@
         <div class="token-name">
           {{ name }}
         </div>
-        <div style="display: flex; gap: 0.5rem">
+        <div class="token-badge">
           <Badge v-if="bridged" color="primary" class="verified-badge" :tooltip="t('tokensView.table.bridged.tooltip')">
             {{ t("tokensView.table.bridged.title") }}
           </Badge>
@@ -142,6 +142,9 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
     }
     .token-name {
       @apply text-xs text-neutral-400;
+    }
+    .token-badge {
+      @apply flex items-center gap-x-1;
     }
   }
 }

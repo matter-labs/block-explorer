@@ -593,7 +593,7 @@
             "price": "Price",
             "tokenAddress": "Token Address",
             "bridged": {
-                "title": "Default bridge",
+                "title": "Bridged",
                 "tooltip": "This token is bridged from L1 to ZKsync Era"
             },
             "native": {
