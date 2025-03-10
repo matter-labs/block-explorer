@@ -14,6 +14,7 @@
           :address="item.l2Address"
           :name="item.name"
           :icon-url="item.iconURL"
+          :bridged="item.l1Address ? true : false"
         />
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('tokensView.table.price')">
