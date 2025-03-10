@@ -31,6 +31,15 @@ export default () => {
     TO_BLOCK,
     COINGECKO_IS_PRO_PLAN,
     COINGECKO_API_KEY,
+    DISABLE_MISSING_BLOCKS_METRIC,
+    CHECK_MISSING_BLOCKS_METRIC_INTERVAL,
+    RPC_HEALTH_CHECK_TIMEOUT_MS,
+    DB_HEALTH_CHECK_TIMEOUT_MS,
+    BASE_TOKEN_SYMBOL,
+    BASE_TOKEN_DECIMALS,
+    BASE_TOKEN_L1_ADDRESS,
+    BASE_TOKEN_ICON_URL,
+    BASE_TOKEN_NAME,
   } = process.env;
 
   return {
@@ -86,10 +95,25 @@ export default () => {
         isProPlan: COINGECKO_IS_PRO_PLAN === "true",
         apiKey: COINGECKO_API_KEY,
       },
+      baseToken: {
+        symbol: BASE_TOKEN_SYMBOL || "ETH",
+        decimals: parseInt(BASE_TOKEN_DECIMALS, 10) || 18,
+        l1Address: BASE_TOKEN_L1_ADDRESS || "0x0000000000000000000000000000000000000000",
+        iconUrl: BASE_TOKEN_ICON_URL || "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+        name: BASE_TOKEN_NAME || "Ether",
+      },
     },
     metrics: {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
       collectBlocksToProcessMetricInterval: parseInt(COLLECT_BLOCKS_TO_PROCESS_METRIC_INTERVAL, 10) || 10000,
+      missingBlocks: {
+        disabled: DISABLE_MISSING_BLOCKS_METRIC === "true",
+        interval: parseInt(CHECK_MISSING_BLOCKS_METRIC_INTERVAL, 10) || 86_400_000, // 1 day
+      },
+    },
+    healthChecks: {
+      rpcHealthCheckTimeoutMs: parseInt(RPC_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
+      dbHealthCheckTimeoutMs: parseInt(DB_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
     },
   };
 };

@@ -8,6 +8,8 @@ import TimeField from "@/components/common/table/fields/TimeField.vue";
 
 import enUS from "@/locales/en.json";
 
+import { TimeFormat } from "@/types";
+
 describe("TimeField", () => {
   const i18n = createI18n({
     locale: "en",
@@ -31,7 +33,7 @@ describe("TimeField", () => {
     expect(container.querySelector(".info-field-time")?.getAttribute("title")).toBe("2022-12-02 09:26:06 UTC");
     unmount();
   });
-  it("renders full date when showExactDate is true by default", () => {
+  it("renders full date when time format is not specified", () => {
     const { container, unmount } = render(TimeField, {
       global,
       props: {
@@ -42,12 +44,12 @@ describe("TimeField", () => {
     expect(container.querySelector(".full-date")?.textContent).toBe("2022-12-02 12:26");
     unmount();
   });
-  it("doesn't render full date when showExactDate is false", () => {
+  it("doesn't render full date when time format is TIME_AGO", () => {
     const { container, unmount } = render(TimeField, {
       global,
       props: {
         value: "2022-12-02T09:26:06.605Z",
-        showExactDate: false,
+        format: TimeFormat.TIME_AGO,
       },
     });
 

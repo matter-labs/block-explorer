@@ -53,12 +53,14 @@ const transactionDataDecodedMethod = {
   inputs: [
     {
       name: "recipient",
+      inputs: [],
       type: "address",
       value: "0xa1cf087DB965Ab02Fb3CFaCe1f5c63935815f044",
       encodedValue: "000000000000000000000000a1cf087db965ab02fb3cface1f5c63935815f044",
     },
     {
       name: "amount",
+      inputs: [],
       type: "uint256",
       value: "1",
       encodedValue: "0000000000000000000000000000000000000000000000000000000000000001",
@@ -175,12 +177,14 @@ describe("useTransactionData:", () => {
         inputs: [
           {
             encodedValue: "000000000000000000000000a1cf087db965ab02fb3cface1f5c63935815f044",
+            inputs: [],
             name: "recipient",
             type: "address",
             value: "0xa1cf087DB965Ab02Fb3CFaCe1f5c63935815f044",
           },
           {
             encodedValue: "0000000000000000000000000000000000000000000000000000000000000001",
+            inputs: [],
             name: "amount",
             type: "uint256",
             value: "1",

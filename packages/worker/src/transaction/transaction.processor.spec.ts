@@ -11,6 +11,7 @@ import {
 } from "../repositories";
 import { TransactionProcessor } from "./transaction.processor";
 import { TransactionData } from "../dataFetcher/types";
+import { ConfigService } from "@nestjs/config";
 
 describe("TransactionProcessor", () => {
   let transactionProcessor: TransactionProcessor;
@@ -20,6 +21,7 @@ describe("TransactionProcessor", () => {
   let addressRepositoryMock: AddressRepository;
   let tokenRepositoryMock: TokenRepository;
   let logRepositoryMock: LogRepository;
+  let configServiceMock: ConfigService;
 
   let startTxProcessingDurationMetricMock: jest.Mock;
   let stopTxProcessingDurationMetricMock: jest.Mock;
@@ -34,6 +36,19 @@ describe("TransactionProcessor", () => {
 
     stopTxProcessingDurationMetricMock = jest.fn();
     startTxProcessingDurationMetricMock = jest.fn().mockReturnValue(stopTxProcessingDurationMetricMock);
+
+    configServiceMock = mock<ConfigService>({
+      get: jest.fn((key: string) => {
+        const configValues: Record<string, any> = {
+          "tokens.baseToken.l1Address": "0x0000000000000000000000000000000000000000",
+          "tokens.baseToken.symbol": "ETH",
+          "tokens.baseToken.name": "ETH",
+          "tokens.baseToken.decimals": 18,
+          "tokens.baseToken.iconUrl": "https://eth-icon-url",
+        };
+        return configValues[key];
+      }),
+    });
 
     const app = await Test.createTestingModule({
       providers: [
@@ -63,6 +78,10 @@ describe("TransactionProcessor", () => {
           useValue: tokenRepositoryMock,
         },
         {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
+        {
           provide: "PROM_METRIC_TRANSACTION_PROCESSING_DURATION_SECONDS",
           useValue: {
             startTimer: startTxProcessingDurationMetricMock,
@@ -83,6 +102,7 @@ describe("TransactionProcessor", () => {
         hash: "transactionHash",
         receivedAt: "2023-12-29T06:52:51.438Z",
         type: 3,
+        contractAddress: null,
       },
       transactionReceipt: {
         hash: "transactionHash",
@@ -112,7 +132,20 @@ describe("TransactionProcessor", () => {
           logIndex: 2,
         },
       ],
-      tokens: [{ l2Address: "l2Address1" }, { l2Address: "l2Address2" }],
+      tokens: [
+        { l2Address: "l2Address1" },
+        { l2Address: "l2Address2" },
+        {
+          l2Address: "0x000000000000000000000000000000000000800a",
+          blockNumber: 123,
+          transactionHash: "0xtxhash",
+          logIndex: 1,
+          name: "Token Name",
+          symbol: "Token Symbol",
+          decimals: 6,
+          iconURL: "https://token-icon.url",
+        },
+      ],
     } as unknown as TransactionData;
 
     it("starts the transaction duration metric", async () => {
@@ -179,11 +212,22 @@ describe("TransactionProcessor", () => {
       });
     });
 
-    it("saves tokens to the DB", async () => {
+    it("saves tokens to the DB and overwrites base token with config values", async () => {
       await transactionProcessor.add(blockNumber, transactionData);
-      expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(2);
+      expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(3);
       expect(tokenRepositoryMock.upsert).toHaveBeenNthCalledWith(1, transactionData.tokens[0]);
       expect(tokenRepositoryMock.upsert).toHaveBeenNthCalledWith(2, transactionData.tokens[1]);
+      expect(tokenRepositoryMock.upsert).toHaveBeenNthCalledWith(3, {
+        blockNumber: 123,
+        transactionHash: "0xtxhash",
+        logIndex: 1,
+        l2Address: "0x000000000000000000000000000000000000800a",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        symbol: "ETH",
+        name: "ETH",
+        decimals: 18,
+        iconURL: "https://eth-icon-url",
+      });
     });
 
     it("stops the transaction duration metric", async () => {

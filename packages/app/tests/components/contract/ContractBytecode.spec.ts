@@ -21,6 +21,7 @@ const contract: Contract = {
   creatorAddress: "0xa76640095ce5f618eeb71d6692e17b4a1a92dbb6",
   creatorTxHash: "0xcdab4a39d32a15bafb0b992da1dff8a4b782be450be63c8a64c955758370574f",
   createdInBlockNumber: 142622,
+  isEvmLike: false,
   verificationInfo: {
     artifacts: {
       abi: [

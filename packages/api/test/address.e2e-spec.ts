@@ -790,6 +790,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -849,6 +850,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -908,6 +910,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -967,6 +970,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -987,6 +991,7 @@ describe("AddressController (e2e)", () => {
                 createdInBlockNumber: 10,
                 creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
                 creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+                isEvmLike: false,
                 totalTransactions: 0,
                 type: "contract",
               })

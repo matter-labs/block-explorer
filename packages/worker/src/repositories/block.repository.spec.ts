@@ -137,6 +137,37 @@ describe("BlockRepository", () => {
     });
   });
 
+  describe("getMissingBlocksCount", () => {
+    let queryBuilderMock: SelectQueryBuilder<Block>;
+
+    beforeEach(() => {
+      queryBuilderMock = mock<SelectQueryBuilder<Block>>({
+        select: jest.fn().mockReturnThis(),
+        getRawOne: jest.fn().mockResolvedValue({
+          count: 50,
+        }),
+      });
+
+      (entityManagerMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
+    });
+
+    it("returns count of missing blocks", async () => {
+      const result = await repository.getMissingBlocksCount();
+      expect(result).toBe(50);
+    });
+
+    it("returns 0 when count is not defined", async () => {
+      (queryBuilderMock.getRawOne as jest.Mock).mockResolvedValueOnce({ count: null });
+      const result = await repository.getMissingBlocksCount();
+      expect(result).toBe(0);
+    });
+
+    it("runs proper query to calculate missing blocks", async () => {
+      await repository.getMissingBlocksCount();
+      expect(queryBuilderMock.select).toBeCalledWith("MAX(number) - COUNT(number) + 1 AS count");
+    });
+  });
+
   describe("add", () => {
     it("adds the block", async () => {
       await repository.add(blockDto, blockDetailsDto);

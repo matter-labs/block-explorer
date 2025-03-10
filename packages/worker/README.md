@@ -31,6 +31,36 @@ The service doesn't create database automatically, you can create database by ru
 $ npm run db:create
 ```
 
+## Custom base token configuration
+For networks with a custom base token, there are a number of environment variables used to configure custom base token:
+- `BASE_TOKEN_L1_ADDRESS` - example: `0xB44A106F271944fEc1c27cd60b8D6C8792df86d8`. Base token L1 address can be fetched using the RPC call:
+  ```
+  curl http://localhost:3050 \
+  -X POST \
+  -H "Content-Type: application/json" \
+  --data '{"method":"zks_getBaseTokenL1Address","params":[],"id":1,"jsonrpc":"2.0"}'
+  ```
+  or SDK:
+  ```
+  import { Provider } from "zksync-ethers";
+
+  async function main() {
+      const l2provider = new Provider("http://localhost:3050");
+      const baseTokenAddress = await l2provider.getBaseTokenContractAddress();
+      console.log('baseTokenAddress', baseTokenAddress);
+  }
+  main()
+      .then()
+      .catch((error) => {
+          console.error(error);
+          process.exitCode = 1;
+      });
+  ```
+- `BASE_TOKEN_SYMBOL` - base token symbol, e.g.: `ZK`
+- `BASE_TOKEN_NAME` - base token name, e.g.: `ZK`
+- `BASE_TOKEN_DECIMALS` - base token decimals, e.g.: `18`
+- `BASE_TOKEN_ICON_URL` - base token icon url, e.g.: `https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266`
+
 ## Running the app
 
 ```bash

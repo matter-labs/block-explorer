@@ -176,6 +176,8 @@ const transaction: TransactionItem = {
   gasPerPubdata: "800",
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
+  isEvmLike: false,
+  contractAddress: null,
 };
 
 vi.mock("@/composables/useToken", () => {

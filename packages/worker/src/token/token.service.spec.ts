@@ -8,6 +8,7 @@ import { AddressRepository } from "../repositories/address.repository";
 import { TokenService } from "./token.service";
 import { ContractAddress } from "../dataFetcher/types";
 import { Token } from "../entities";
+import { ConfigService } from "@nestjs/config";
 
 describe("TokenService", () => {
   let tokenService: TokenService;
@@ -16,7 +17,7 @@ describe("TokenService", () => {
   let addressRepositoryMock: AddressRepository;
   let startGetTokenInfoDurationMetricMock: jest.Mock;
   let stopGetTokenInfoDurationMetricMock: jest.Mock;
-
+  let configServiceMock: ConfigService;
   beforeEach(async () => {
     blockchainServiceMock = mock<BlockchainService>({
       bridgeAddresses: {
@@ -28,6 +29,16 @@ describe("TokenService", () => {
 
     stopGetTokenInfoDurationMetricMock = jest.fn();
     startGetTokenInfoDurationMetricMock = jest.fn().mockReturnValue(stopGetTokenInfoDurationMetricMock);
+
+    configServiceMock = mock<ConfigService>({
+      get: jest
+        .fn()
+        .mockReturnValueOnce("0x0000000000000000000000000000000000000000")
+        .mockReturnValueOnce("ETH")
+        .mockReturnValueOnce("Ether")
+        .mockReturnValueOnce(18)
+        .mockReturnValueOnce("https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501427"),
+    });
 
     const app: TestingModule = await Test.createTestingModule({
       providers: [
@@ -43,6 +54,10 @@ describe("TokenService", () => {
         {
           provide: AddressRepository,
           useValue: addressRepositoryMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
         {
           provide: "PROM_METRIC_GET_TOKEN_INFO_DURATION_SECONDS",
@@ -122,7 +137,8 @@ describe("TokenService", () => {
           const ethTokenData = {
             symbol: "ETH",
             decimals: 18,
-            name: "Ethers",
+            name: "Ether",
+            iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501427",
           };
           const deployedETHContractAddress = mock<ContractAddress>({
             address: utils.L2_BASE_TOKEN_ADDRESS,
@@ -141,6 +157,7 @@ describe("TokenService", () => {
             l2Address: deployedETHContractAddress.address,
             l1Address: utils.ETH_ADDRESS,
             logIndex: deployedETHContractAddress.logIndex,
+            iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501427",
           });
         });
       });

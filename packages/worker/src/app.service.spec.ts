@@ -13,6 +13,7 @@ import { BlocksRevertService } from "./blocksRevert";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
+import { SystemContractService } from "./contract/systemContract.service";
 
 jest.mock("./utils/runMigrations");
 
@@ -39,6 +40,7 @@ describe("AppService", () => {
   let tokenOffChainDataSaverService: TokenOffChainDataSaverService;
   let dataSourceMock: DataSource;
   let configServiceMock: ConfigService;
+  let systemContractService: SystemContractService;
 
   beforeEach(async () => {
     balancesCleanerService = mock<BalancesCleanerService>({
@@ -67,6 +69,9 @@ describe("AppService", () => {
     dataSourceMock = mock<DataSource>();
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockReturnValue(false),
+    });
+    systemContractService = mock<SystemContractService>({
+      addSystemContracts: jest.fn().mockResolvedValue(null),
     });
 
     const module = await Test.createTestingModule({
@@ -105,6 +110,10 @@ describe("AppService", () => {
         {
           provide: ConfigService,
           useValue: configServiceMock,
+        },
+        {
+          provide: SystemContractService,
+          useValue: systemContractService,
         },
       ],
     }).compile();
@@ -204,6 +213,13 @@ describe("AppService", () => {
       expect(tokenOffChainDataSaverService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
       expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
+    });
+
+    it("adds system contracts", async () => {
+      appService.onModuleInit();
+      await migrationsRunFinished;
+      expect(systemContractService.addSystemContracts).toBeCalledTimes(1);
+      appService.onModuleDestroy();
     });
   });
 

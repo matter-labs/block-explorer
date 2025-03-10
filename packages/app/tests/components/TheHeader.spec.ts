@@ -74,7 +74,7 @@ describe("TheHeader:", () => {
     });
     const routerArray = wrapper.findAll(".socials-container > a");
     expect(routerArray[0].attributes("href")).toBe("https://join.zksync.dev/");
-    expect(routerArray[1].attributes("href")).toBe("https://twitter.com/zksync");
+    expect(routerArray[1].attributes("href")).toBe("https://x.com/zksync");
   });
   it("renders network switch", () => {
     const wrapper = mount(TheHeader, {

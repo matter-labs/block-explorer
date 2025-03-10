@@ -13,8 +13,10 @@ export class TransactionDto {
     type: String,
     description: "The address this transaction is to",
     example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
   })
-  public readonly to: string;
+  public readonly to?: string;
 
   @ApiProperty({
     type: String,
@@ -204,4 +206,20 @@ export class TransactionDto {
     nullable: true,
   })
   public readonly revertReason?: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Gas used by the transaction",
+    example: "50000000",
+  })
+  public readonly gasUsed: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Address of the deployed contract",
+    example: "50000000",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
+  })
+  public readonly contractAddress?: string;
 }

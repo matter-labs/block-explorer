@@ -15,6 +15,7 @@ export default () => {
     RPC_BATCH_STALL_TIME_MS,
     MAX_BLOCKS_BATCH_SIZE,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
+    RPC_HEALTH_CHECK_TIMEOUT_MS,
   } = process.env;
 
   return {
@@ -42,5 +43,8 @@ export default () => {
     },
     maxBlocksBatchSize: parseInt(MAX_BLOCKS_BATCH_SIZE, 10) || 20,
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
+    healthChecks: {
+      rpcHealthCheckTimeoutMs: parseInt(RPC_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
+    },
   };
 };

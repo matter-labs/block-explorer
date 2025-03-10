@@ -7,7 +7,12 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <Title :title="t('transactions.transaction')" :value="hash" class="transaction-title" />
+    <Title
+      :title="t('transactions.transaction')"
+      :value="hash"
+      class="transaction-title"
+      :is-evm-like="transaction?.isEvmLike"
+    />
     <Tabs class="transactions-info-tabs" v-if="transaction || isRequestPending" :tabs="tabs">
       <template #tab-1-content>
         <GeneralInfo

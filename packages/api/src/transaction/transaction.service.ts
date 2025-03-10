@@ -5,7 +5,6 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, CounterCriteria, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
-import { TransactionDetails } from "./entities/transactionDetails.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 import { CounterService } from "../counter/counter.service";
@@ -30,8 +29,6 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    @InjectRepository(TransactionDetails)
-    private readonly transactionDetailsRepository: Repository<TransactionDetails>,
     @InjectRepository(AddressTransaction)
     private readonly addressTransactionRepository: Repository<AddressTransaction>,
     @InjectRepository(Batch)
@@ -39,11 +36,11 @@ export class TransactionService {
     private readonly counterService: CounterService
   ) {}
 
-  public async findOne(hash: string): Promise<TransactionDetails> {
-    const queryBuilder = this.transactionDetailsRepository.createQueryBuilder("transaction");
+  public async findOne(hash: string): Promise<Transaction> {
+    const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
     queryBuilder.leftJoinAndSelect("transaction.batch", "batch");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
-    queryBuilder.addSelect(["transactionReceipt.gasUsed"]);
+    queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
     queryBuilder.where({ hash });
     return await queryBuilder.getOne();
   }
@@ -60,6 +57,8 @@ export class TransactionService {
       const queryBuilder = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
       queryBuilder.select("addressTransaction.number");
       queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");
+      queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
+      queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
       queryBuilder.leftJoin("transaction.batch", "batch");
       queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
       queryBuilder.where({
@@ -87,6 +86,8 @@ export class TransactionService {
       };
     } else {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
+      queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
+      queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
       queryBuilder.leftJoin("transaction.batch", "batch");
       queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
       queryBuilder.where(filterOptions);

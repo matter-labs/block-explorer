@@ -9,14 +9,7 @@
         </div>
       </div>
       <div class="contract-link-container">
-        <Button
-          class="contract-verification-link"
-          :data-testid="$testId.contractVerificationButton"
-          tag="RouterLink"
-          :to="{ name: 'contract-verification', query: { address: contract.address } }"
-        >
-          {{ t("contract.bytecode.verifyButton") }}
-        </Button>
+        <VerificationButton :address="contract.address" />
       </div>
     </div>
     <div v-else class="functions-contract-container">
@@ -47,11 +40,11 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import Button from "@/components/common/Button.vue";
 import AbiData from "@/components/common/table/fields/AbiData.vue";
 import ByteData from "@/components/common/table/fields/ByteData.vue";
 import CodeBlock from "@/components/contract/CodeBlock.vue";
 import CompilationInfo from "@/components/contract/CompilationInfo.vue";
+import VerificationButton from "@/components/contract/VerificationButton.vue";
 
 import type { Contract } from "@/composables/useAddress";
 import type { PropType } from "vue";
@@ -129,9 +122,6 @@ const abiJson = computed<undefined | string>(() => {
     }
     .contract-link-container {
       @apply mt-5 flex items-end md:mt-0;
-      .contract-verification-link {
-        @apply whitespace-nowrap md:px-5 md:py-3;
-      }
     }
   }
   .functions-contract-container {

@@ -52,6 +52,7 @@ import { MetricsModule } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
 import { UnitOfWorkModule } from "./unitOfWork";
 import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
+import { SystemContractService } from "./contract/systemContract.service";
 
 @Module({
   imports: [
@@ -130,6 +131,7 @@ import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
     Logger,
     RetryDelayProvider,
     DbMetricsService,
+    SystemContractService,
   ],
 })
 export class AppModule {}

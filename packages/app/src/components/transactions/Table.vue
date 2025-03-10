@@ -8,8 +8,12 @@
       <TableHeadColumn v-if="columns.includes('method')">
         {{ t("transactions.table.method") }}
       </TableHeadColumn>
-      <TableHeadColumn v-if="columns.includes('age')">
-        {{ t("transactions.table.age") }}
+      <TableHeadColumn
+        v-if="columns.includes('age')"
+        @click="toggleAgeTimestamp()"
+        class="hover:cursor-pointer text-blue-700"
+      >
+        {{ isTimeAgeView ? t("transactions.table.age") : t("transactions.table.dateTimeUTC") }}
       </TableHeadColumn>
       <TableHeadColumn v-if="columns.includes('from')" class="tablet-column-hidden">
         {{ t("transactions.table.from") }}
@@ -71,7 +75,11 @@
         :data-heading="t('transactions.table.age')"
       >
         <CopyButton :value="utcStringFromISOString(item.receivedAt)">
-          <TimeField :value="item.receivedAt" :show-exact-date="false" :data-testid="$testId.timestamp" />
+          <TimeField
+            :value="item.receivedAt"
+            :data-testid="$testId.timestamp"
+            :format="isTimeAgeView ? TimeFormat.TIME_AGO : TimeFormat.FULL"
+          />
         </CopyButton>
       </TableBodyColumn>
       <TableBodyColumn
@@ -111,8 +119,17 @@
             </span>
             <span class="transactions-data-link">
               <TransactionNetworkSquareBlock :network="item.toNetwork" />
-              <AddressLink :address="item.to" :network="item.toNetwork" class="transactions-data-link-value">
-                {{ shortenFitText(item.to, "left", 125) }}
+              <AddressLink
+                v-if="!!item.displayedTxReceiver"
+                :address="item.displayedTxReceiver"
+                :network="item.toNetwork"
+                class="transactions-data-link-value"
+              >
+                {{
+                  item.isContractDeploymentTx
+                    ? t("contract.contractCreated")
+                    : shortenFitText(item.displayedTxReceiver, "left", 125)
+                }}
               </AddressLink>
             </span>
           </div>
@@ -133,12 +150,17 @@
         <span class="transactions-data-link">
           <TransactionNetworkSquareBlock :network="item.toNetwork" />
           <AddressLink
+            v-if="!!item.displayedTxReceiver"
             :data-testid="$testId.toAddress"
-            :address="item.to"
+            :address="item.displayedTxReceiver"
             :network="item.toNetwork"
             class="transactions-data-link-value"
           >
-            {{ shortenFitText(item.to, "left", 125) }}
+            {{
+              item.isContractDeploymentTx
+                ? t("contract.contractCreated")
+                : shortenFitText(item.displayedTxReceiver, "left", 125)
+            }}
           </AddressLink>
         </span>
       </TableBodyColumn>
@@ -223,9 +245,9 @@ import useTransactions, { type TransactionListItem, type TransactionSearchParams
 
 import type { Direction } from "@/components/transactions/TransactionDirectionTableCell.vue";
 import type { AbiFragment } from "@/composables/useAddress";
-import type { NetworkOrigin } from "@/types";
 
-import { utcStringFromISOString } from "@/utils/helpers";
+import { type NetworkOrigin, TimeFormat } from "@/types";
+import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
 
@@ -325,17 +347,24 @@ type TransactionListItemMapped = TransactionListItem & {
   toNetwork: NetworkOrigin;
   statusIcon: unknown;
   statusColor: "danger" | "dark-success";
+  isContractDeploymentTx: boolean;
+  displayedTxReceiver: string | null;
 };
 
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
-  return data.value?.map((transaction) => ({
-    ...transaction,
-    methodName: getTransactionMethod(transaction, methodNames.value),
-    fromNetwork: transaction.isL1Originated ? "L1" : "L2",
-    toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
-    statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-    statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
-  }));
+  return data.value?.map((transaction) => {
+    const isContractDeploymentTx = isContractDeployerAddress(transaction.to) && !!transaction.contractAddress;
+    return {
+      ...transaction,
+      methodName: getTransactionMethod(transaction, methodNames.value),
+      fromNetwork: transaction.isL1Originated ? "L1" : "L2",
+      toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
+      statusColor: transaction.status === "failed" ? "danger" : "dark-success",
+      statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
+      isContractDeploymentTx,
+      displayedTxReceiver: isContractDeploymentTx ? transaction.contractAddress : transaction.to,
+    };
+  });
 });
 
 const isHighRowsSize = computed(() => props.columns.includes("fee"));
@@ -343,6 +372,12 @@ const isHighRowsSize = computed(() => props.columns.includes("fee"));
 function getDirection(item: TransactionListItem): Direction {
   return item.from === item.to ? "self" : item.to !== props.searchParams?.address ? "out" : "in";
 }
+
+const isTimeAgeView = ref(true);
+
+const toggleAgeTimestamp = () => {
+  isTimeAgeView.value = !isTimeAgeView.value;
+};
 </script>
 
 <style lang="scss">

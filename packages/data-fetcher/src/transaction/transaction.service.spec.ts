@@ -143,6 +143,7 @@ describe("TransactionService", () => {
         ...transactionDetails,
         l1BatchNumber: blockDetails.l1BatchNumber,
         receiptStatus: transactionReceipt.status,
+        to: undefined,
       });
     });
 
@@ -181,6 +182,7 @@ describe("TransactionService", () => {
             receiptStatus: 0,
             error: traceTransactionResult.error,
             revertReason: traceTransactionResult.revertReason,
+            to: undefined,
           });
         });
       });
@@ -194,6 +196,7 @@ describe("TransactionService", () => {
             ...transactionDetails,
             l1BatchNumber: blockDetails.l1BatchNumber,
             receiptStatus: 0,
+            to: undefined,
           });
         });
       });

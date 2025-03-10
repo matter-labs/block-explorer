@@ -41,6 +41,15 @@ export class BlockRepository {
     return lastExecutedBlock?.number || 0;
   }
 
+  public async getMissingBlocksCount(): Promise<number> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    const { count } = await transactionManager
+      .createQueryBuilder(Block, "block")
+      .select("MAX(number) - COUNT(number) + 1 AS count") // +1 for the block #0
+      .getRawOne<{ count: number }>();
+    return Number(count);
+  }
+
   public async add(blockDto: BlockDto, blockDetailsDto: types.BlockDetails): Promise<void> {
     const transactionManager = this.unitOfWork.getTransactionManager();
     await transactionManager.insert<Block>(Block, {

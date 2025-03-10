@@ -14,20 +14,20 @@ Feature: Redirection
     Examples:
       | Extra button name | url                                     |
       | Docs              | https://docs.zksync.io/zksync-era/tooling/block-explorers         |
-      | Terms             | https://zksync.io/terms                 |
-      | Contact           | https://zksync.io/contact      |
+      | Terms             | https://www.zksync.io/terms                 |
+      | Contact           | https://www.zksync.io/contact      |
 
   #Header
   @id231
   Scenario Outline: Verify redirection for "<Icon>" social network icon  on Header
     When I click by element with partial href "<Icon>"
-    Then New page have "<url>" address
+    Then New page address matches the "<regexp>"
 
     Examples:
-      | Icon    | url                                |
+      | Icon    | regexp                                |
       # discord renamed to "join"
-      | join    | https://join.zksync.dev/           |
-      | twitter | https://x.com/zksync               |
+      | join    | ^https://join.zksync.dev/$           |
+      | x.com | ^https://x.com/zksync(\\?.*)?$               |
 
   @id251
   Scenario: Verify redirection for Documentation link

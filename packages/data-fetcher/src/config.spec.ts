@@ -22,6 +22,9 @@ describe("config", () => {
       },
       maxBlocksBatchSize: 20,
       gracefulShutdownTimeoutMs: 0,
+      healthChecks: {
+        rpcHealthCheckTimeoutMs: 20_000,
+      },
     };
   });
 

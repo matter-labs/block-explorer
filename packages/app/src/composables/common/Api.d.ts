@@ -69,7 +69,7 @@ declare namespace Api {
 
     type Transaction = {
       hash: string;
-      to: string;
+      to: string | null;
       from: string;
       transactionIndex: number;
       data: string;
@@ -94,6 +94,7 @@ declare namespace Api {
       status: "included" | "committed" | "proved" | "verified" | "failed";
       error: string | null;
       revertReason: string | null;
+      contractAddress: string | null;
     };
 
     type Transfer = {
@@ -136,6 +137,7 @@ declare namespace Api {
       creatorTxHash: string;
       createdInBlockNumber: number;
       totalTransactions: number;
+      isEvmLike: boolean;
     };
   }
 }

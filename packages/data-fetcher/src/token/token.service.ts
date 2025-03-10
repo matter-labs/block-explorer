@@ -74,6 +74,7 @@ export class TokenService {
 
     const bridgeLog =
       transactionReceipt &&
+      transactionReceipt.to &&
       transactionReceipt.to.toLowerCase() === this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge &&
       transactionReceipt.logs?.find(
         (log) =>
