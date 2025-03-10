@@ -25,6 +25,14 @@
         <div class="token-name">
           {{ name }}
         </div>
+        <div style="display: flex; gap: 0.5rem">
+          <Badge v-if="bridged" color="primary" class="verified-badge" :tooltip="t('tokensView.table.bridged.tooltip')">
+            {{ t("tokensView.table.bridged.title") }}
+          </Badge>
+          <Badge v-else color="progress" class="verified-badge" :tooltip="t('tokensView.table.native.tooltip')">
+            {{ t("tokensView.table.native.title") }}
+          </Badge>
+        </div>
       </div>
     </div>
   </div>
@@ -36,6 +44,7 @@ import { useI18n } from "vue-i18n";
 import { useImage } from "@vueuse/core";
 
 import AddressLink from "@/components/AddressLink.vue";
+import Badge from "@/components/common/Badge.vue";
 
 import type { Hash } from "@/types";
 
@@ -67,6 +76,10 @@ const props = defineProps({
   name: {
     type: String,
     default: "",
+  },
+  bridged: {
+    type: Boolean,
+    default: false,
   },
 });
 

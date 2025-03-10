@@ -2,7 +2,6 @@
   <Table :data-testid="$testId.tokensTable" :loading="loading" :items="tokens" ref="table">
     <template #table-head>
       <table-head-column>{{ t("tokensView.table.tokenName") }}</table-head-column>
-      <table-head-column>{{ t("tokensView.table.type") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.price") }}</table-head-column>
       <table-head-column>{{ t("tokensView.table.tokenAddress") }}</table-head-column>
     </template>
@@ -14,17 +13,8 @@
           :address="item.l2Address"
           :name="item.name"
           :icon-url="item.iconURL"
+          :bridged="item.l1Address ? true : false"
         />
-      </TableBodyColumn>
-      <TableBodyColumn :data-heading="t('tokensView.table.bridged')">
-        <div v-if="item.l1Address" class="tokens-type">
-          <span>{{ t("tokensView.table.bridged.title") }}</span>
-          <InfoTooltip>{{ t("tokensView.table.bridged.tooltip") }}</InfoTooltip>
-        </div>
-        <div v-else class="tokens-type">
-          <span>{{ t("tokensView.table.native.title") }}</span>
-          <InfoTooltip>{{ t("tokensView.table.native.tooltip") }}</InfoTooltip>
-        </div>
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('tokensView.table.price')">
         <TokenPrice :address="item.l2Address" />
@@ -82,7 +72,6 @@ import AddressLink from "@/components/AddressLink.vue";
 import TokenIconLabel from "@/components/TokenIconLabel.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import { shortenFitText } from "@/components/common/HashLabel.vue";
-import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
@@ -131,9 +120,6 @@ watch(width, () => {
   }
   .tokens-not-found {
     @apply px-1.5 py-2 text-gray-700;
-  }
-  .tokens-type {
-    @apply flex gap-x-1;
   }
 }
 </style>
