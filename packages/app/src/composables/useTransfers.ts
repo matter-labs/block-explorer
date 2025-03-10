@@ -27,6 +27,7 @@ export default (address: ComputedRef<string>, context = useContext()) => {
         usdPrice: null,
         liquidity: null,
         iconURL: null,
+        type: null,
       },
       fromNetwork: transfer.type === "deposit" ? "L1" : "L2",
       toNetwork: transfer.type === "withdrawal" ? "L1" : "L2",

@@ -11,6 +11,7 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { baseToken } from "../src/config";
+import { NftItem } from "../src/nft/nftItem.entity";
 
 describe("TokenController (e2e)", () => {
   let ETH_TOKEN;
@@ -20,6 +21,7 @@ describe("TokenController (e2e)", () => {
   let transactionRepository: Repository<Transaction>;
   let transferRepository: Repository<Transfer>;
   let batchRepository: Repository<BatchDetails>;
+  let nftRepository: Repository<NftItem>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -37,6 +39,7 @@ describe("TokenController (e2e)", () => {
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
+    nftRepository = app.get<Repository<NftItem>>(getRepositoryToken(NftItem));
 
     await batchRepository.insert({
       number: 1,
@@ -98,6 +101,7 @@ describe("TokenController (e2e)", () => {
       decimals: ETH_TOKEN.decimals,
       blockNumber: 0,
       logIndex: 0,
+      type: TokenType.BaseToken,
     });
 
     for (let i = 1; i <= 30; i++) {
@@ -109,8 +113,28 @@ describe("TokenController (e2e)", () => {
         decimals: 18,
         blockNumber: 1,
         logIndex: tokenIndex++,
+        type: TokenType.ERC20,
       });
     }
+
+    await tokenRepository.insert({
+      l2Address: "0xd4069ec5f89ce5ea2926441148f0054ff62da1f1",
+      symbol: "NFT",
+      name: "TEST nft 1",
+      decimals: 0,
+      blockNumber: 1,
+      logIndex: tokenIndex++,
+      type: TokenType.ERC721,
+    });
+
+    nftRepository.insert({
+      tokenId: "1",
+      tokenAddress: "0xd4069ec5f89ce5ea2926441148f0054ff62da1f1",
+      owner: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+      name: "NFT",
+      imageUrl: "https://testnft.com/1",
+      metadataUrl: "https://testnft.com/1/metadata",
+    });
 
     for (let i = 1; i <= 3; i++) {
       await transferRepository.insert({
@@ -201,8 +225,7 @@ describe("TokenController (e2e)", () => {
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
         amount: undefined,
         type: TransferType.Mint,
-        tokenType: TokenType.ERC721,
-        fields: { tokenId: "1" },
+        tokenType: TokenType.ERC20,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -242,6 +265,25 @@ describe("TokenController (e2e)", () => {
         isInternal: false,
       });
     }
+
+    await transferRepository.insert({
+      from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+      to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+      blockNumber: 1,
+      transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+      tokenAddress: "0xd4069ec5f89ce5ea2926441148f0054ff62da1f1",
+      amount: "1000",
+      type: TransferType.Mint,
+      fields: {
+        tokenId: "1",
+      },
+      tokenType: TokenType.ERC721,
+      logIndex: transferIndex++,
+      transactionIndex: 0,
+      timestamp: "2022-11-21T18:16:51.000Z",
+      isFeeOrRefund: false,
+      isInternal: false,
+    });
   });
 
   afterAll(async () => {
@@ -269,6 +311,7 @@ describe("TokenController (e2e)", () => {
             iconURL: null,
             liquidity: null,
             usdPrice: null,
+            type: "ERC20",
           })
         );
     });
@@ -287,6 +330,7 @@ describe("TokenController (e2e)", () => {
             iconURL: null,
             liquidity: null,
             usdPrice: null,
+            type: "ERC20",
           })
         );
     });
@@ -305,6 +349,7 @@ describe("TokenController (e2e)", () => {
             iconURL: null,
             liquidity: null,
             usdPrice: null,
+            type: "ERC20",
           })
         );
     });
@@ -323,6 +368,7 @@ describe("TokenController (e2e)", () => {
             iconURL: null,
             liquidity: null,
             usdPrice: null,
+            type: "BASETOKEN",
           })
         );
     });
@@ -360,6 +406,17 @@ describe("TokenController (e2e)", () => {
         .expect((res) =>
           expect(res.body.items).toStrictEqual([
             {
+              l1Address: "0xF754ff5E8a6F257E162F72578A4Bb0493c068129",
+              l2Address: "0xd754FF5e8A6F257e162F72578a4Bb0493C068129",
+              name: "TEST token 29",
+              symbol: "TEST29",
+              decimals: 18,
+              iconURL: null,
+              liquidity: null,
+              usdPrice: null,
+              type: "ERC20",
+            },
+            {
               l1Address: null,
               l2Address: "0xd754Ff5e8A6F257e162f72578A4BB0493c068128",
               name: "TEST token 28",
@@ -368,16 +425,7 @@ describe("TokenController (e2e)", () => {
               iconURL: null,
               liquidity: null,
               usdPrice: null,
-            },
-            {
-              l1Address: "0xF754ff5E8a6F257E162f72578A4bB0493C068127",
-              l2Address: "0xd754ff5e8a6f257e162f72578a4bb0493c068127",
-              name: "TEST token 27",
-              symbol: "TEST27",
-              decimals: 18,
-              iconURL: null,
-              liquidity: null,
-              usdPrice: null,
+              type: "ERC20",
             },
           ])
         );
@@ -392,7 +440,7 @@ describe("TokenController (e2e)", () => {
             currentPage: 2,
             itemCount: 10,
             itemsPerPage: 10,
-            totalItems: 31,
+            totalItems: 32,
             totalPages: 4,
           })
         );
@@ -451,6 +499,7 @@ describe("TokenController (e2e)", () => {
               from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -460,6 +509,7 @@ describe("TokenController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -474,6 +524,7 @@ describe("TokenController (e2e)", () => {
               from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -483,6 +534,7 @@ describe("TokenController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -493,12 +545,11 @@ describe("TokenController (e2e)", () => {
             {
               amount: null,
               blockNumber: 1,
-              fields: {
-                tokenId: "1",
-              },
               from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              fields: null,
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -508,11 +559,12 @@ describe("TokenController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
-              tokenType: "ERC721",
+              tokenType: "ERC20",
               isInternal: false,
             },
             {
@@ -522,6 +574,7 @@ describe("TokenController (e2e)", () => {
               from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -531,6 +584,7 @@ describe("TokenController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -545,6 +599,7 @@ describe("TokenController (e2e)", () => {
               from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -554,6 +609,7 @@ describe("TokenController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -568,6 +624,7 @@ describe("TokenController (e2e)", () => {
               from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -577,6 +634,7 @@ describe("TokenController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -591,6 +649,7 @@ describe("TokenController (e2e)", () => {
               from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
               timestamp: "2022-11-21T18:16:51.000Z",
               to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -600,11 +659,58 @@ describe("TokenController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
               tokenType: "ERC20",
+              isInternal: false,
+            },
+          ])
+        );
+    });
+
+    it("returns HTTP 200 and token transfers for the nft items", () => {
+      return request(app.getHttpServer())
+        .get("/tokens/0xd4069ec5f89ce5ea2926441148f0054ff62da1f1/transfers")
+        .expect(200)
+        .expect((res) =>
+          expect(res.body.items).toStrictEqual([
+            {
+              amount: "1000",
+              blockNumber: 1,
+              fields: {
+                tokenId: "1",
+              },
+              from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              timestamp: "2022-11-21T18:16:51.000Z",
+              to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              nftItem: {
+                imageUrl: "https://testnft.com/1",
+                metadataUrl: "https://testnft.com/1/metadata",
+                name: "NFT",
+                tokenId: "1",
+                tokenAddress: "0xd4069ec5f89ce5ea2926441148f0054ff62da1f1",
+                owner: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+                number: "1",
+                description: null,
+              },
+              token: {
+                decimals: 0,
+                l1Address: null,
+                l2Address: "0xd4069eC5f89CE5EA2926441148F0054FF62Da1F1",
+                name: "TEST nft 1",
+                symbol: "NFT",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
+                type: "ERC721",
+              },
+              tokenAddress: "0xd4069eC5f89CE5EA2926441148F0054FF62Da1F1",
+              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+              type: "mint",
+              tokenType: "ERC721",
               isInternal: false,
             },
           ])
@@ -653,6 +759,7 @@ describe("TokenController (e2e)", () => {
                 fields: null,
                 from: "0x0000000000000000000000000000000000008001",
                 isInternal: false,
+                nftItem: null,
                 timestamp: "2022-11-21T18:16:51.000Z",
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
                 token: {
@@ -664,6 +771,7 @@ describe("TokenController (e2e)", () => {
                   iconURL: null,
                   liquidity: null,
                   usdPrice: null,
+                  type: "BASETOKEN",
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 tokenType: "BASETOKEN",
@@ -678,6 +786,7 @@ describe("TokenController (e2e)", () => {
                 isInternal: false,
                 timestamp: "2022-11-21T18:16:51.000Z",
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+                nftItem: null,
                 token: {
                   decimals: 18,
                   l1Address: "0x0000000000000000000000000000000000000000",
@@ -687,6 +796,7 @@ describe("TokenController (e2e)", () => {
                   iconURL: null,
                   liquidity: null,
                   usdPrice: null,
+                  type: "BASETOKEN",
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 tokenType: "BASETOKEN",
@@ -701,6 +811,7 @@ describe("TokenController (e2e)", () => {
                 isInternal: false,
                 timestamp: "2022-11-21T18:16:51.000Z",
                 to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+                nftItem: null,
                 token: {
                   decimals: 18,
                   l1Address: "0x0000000000000000000000000000000000000000",
@@ -710,6 +821,7 @@ describe("TokenController (e2e)", () => {
                   iconURL: null,
                   liquidity: null,
                   usdPrice: null,
+                  type: "BASETOKEN",
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 tokenType: "BASETOKEN",

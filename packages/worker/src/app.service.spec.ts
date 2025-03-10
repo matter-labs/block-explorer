@@ -14,6 +14,7 @@ import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOf
 import runMigrations from "./utils/runMigrations";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
 import { SystemContractService } from "./contract/systemContract.service";
+import { NftItemService } from "./nfts/nftItem.service";
 
 jest.mock("./utils/runMigrations");
 
@@ -41,6 +42,7 @@ describe("AppService", () => {
   let dataSourceMock: DataSource;
   let configServiceMock: ConfigService;
   let systemContractService: SystemContractService;
+  let nftItemService: NftItemService;
 
   beforeEach(async () => {
     balancesCleanerService = mock<BalancesCleanerService>({
@@ -72,6 +74,9 @@ describe("AppService", () => {
     });
     systemContractService = mock<SystemContractService>({
       addSystemContracts: jest.fn().mockResolvedValue(null),
+    });
+    nftItemService = mock<NftItemService>({
+      saveNftItems: jest.fn().mockResolvedValue(null),
     });
 
     const module = await Test.createTestingModule({
@@ -114,6 +119,10 @@ describe("AppService", () => {
         {
           provide: SystemContractService,
           useValue: systemContractService,
+        },
+        {
+          provide: NftItemService,
+          useValue: nftItemService,
         },
       ],
     }).compile();

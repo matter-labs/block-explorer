@@ -31,6 +31,15 @@ export type TokenTransfer = {
   fromNetwork: NetworkOrigin;
   toNetwork: NetworkOrigin;
   tokenInfo?: TokenInfo;
+  nftItem?: NftItem | null;
+};
+
+export type NftItem = {
+  tokenAddress: Hash;
+  tokenId: string;
+  imageUrl?: string;
+  owner: Hash;
+  name?: string;
 };
 
 export type TransactionDetails = types.TransactionDetails & {
@@ -284,6 +293,7 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
     fromNetwork: getTransferNetworkOrigin(item, "from"),
     toNetwork: getTransferNetworkOrigin(item, "to"),
     type: item.type,
+    nftItem: item.nftItem,
     tokenInfo: {
       address: item.tokenAddress,
       l1Address: item.token?.l1Address,

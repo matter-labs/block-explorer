@@ -25,6 +25,9 @@
         {{ name }}
       </div>
     </div>
+    <div v-if="tag" class="token-tag">
+      {{ tag }}
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -66,6 +69,10 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  tag: {
+    type: String,
+    default: "",
+  },
 });
 
 const imgSource = computed(() => {
@@ -77,6 +84,10 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
 <style lang="scss">
 .token-icon-label {
   @apply flex items-center gap-x-2 text-sm;
+
+  .token-tag {
+    @apply text-xs text-neutral-400;
+  }
 
   .token-link {
     @apply flex items-center gap-x-1;

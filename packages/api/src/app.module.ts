@@ -24,6 +24,7 @@ import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
 import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
+import { NftItemModule } from "./nft/nftItem.module";
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import config from "./config";
     LogModule,
     StatsModule,
     HealthModule,
+    NftItemModule,
   ],
   providers: [Logger, ...metricProviders, DbMetricsService],
 })

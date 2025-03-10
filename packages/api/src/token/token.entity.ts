@@ -47,4 +47,7 @@ export class Token extends BaseEntity {
   @Index()
   @Column({ type: "timestamp", nullable: true, select: false })
   public readonly offChainDataUpdatedAt?: Date;
+
+  @Column({ type: "enum", enum: TokenType, default: TokenType.ERC20 })
+  public readonly type: TokenType;
 }

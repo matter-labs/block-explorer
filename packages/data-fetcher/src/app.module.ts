@@ -13,6 +13,7 @@ import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
 import { MetricsModule } from "./metrics";
+import { NftService } from "./nft/nft.service";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { MetricsModule } from "./metrics";
     LogService,
     BlockService,
     Logger,
+    NftService,
   ],
 })
 export class AppModule {}

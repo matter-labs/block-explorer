@@ -14,6 +14,7 @@ import {
   BlockProcessingMetricLabels,
   ProcessingActionMetricLabel,
 } from "../metrics";
+import { NftItem, NftService } from "../nft/nft.service";
 
 export interface BlockData {
   block: types.Block;
@@ -22,6 +23,7 @@ export interface BlockData {
   blockLogs: types.Log[];
   blockTransfers: Transfer[];
   changedBalances: Balance[];
+  nftItems: NftItem[];
 }
 
 @Injectable()
@@ -33,6 +35,7 @@ export class BlockService {
     private readonly transactionService: TransactionService,
     private readonly logService: LogService,
     private readonly balanceService: BalanceService,
+    private readonly nftService: NftService,
     @InjectMetric(BLOCK_PROCESSING_DURATION_METRIC_NAME)
     private readonly processingDurationMetric: Histogram<BlockProcessingMetricLabels>,
     @InjectMetric(BALANCES_PROCESSING_DURATION_METRIC_NAME)
@@ -63,6 +66,7 @@ export class BlockService {
     let blockLogData: LogsData;
     let changedBalances: Balance[];
     let blockLogs: types.Log[];
+    let nftItems: NftItem[];
 
     try {
       transactions = await Promise.all(
@@ -82,11 +86,15 @@ export class BlockService {
       this.logger.debug({ message: "Getting balances", blockNumber });
       changedBalances = await this.balanceService.getChangedBalances(blockNumber);
       stopBalancesDurationMeasuring();
+
+      this.logger.debug({ message: "Getting NFTs", blockNumber });
+      nftItems = await this.nftService.getNftItems(blockNumber);
     } catch (error) {
       blockProcessingStatus = "error";
       throw error;
     } finally {
       this.balanceService.clearTrackedState(blockNumber);
+      this.nftService.clearTrackedState(blockNumber);
       stopDurationMeasuring({ status: blockProcessingStatus, action: "get" });
     }
 
@@ -98,6 +106,7 @@ export class BlockService {
       blockTransfers: blockLogData?.transfers || [],
       transactions,
       changedBalances: changedBalances || [],
+      nftItems: nftItems || [],
     };
   }
 }

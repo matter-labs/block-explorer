@@ -9,6 +9,7 @@ import { TokenService, Token } from "../token/token.service";
 import { AddressService } from "../address/address.service";
 import { BalanceService } from "../balance/balance.service";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
+import { NftService } from "../nft/nft.service";
 
 describe("LogService", () => {
   let logService: LogService;
@@ -16,12 +17,14 @@ describe("LogService", () => {
   let balanceServiceMock: BalanceService;
   let transferServiceMock: TransferService;
   let tokenServiceMock: TokenService;
+  let nftServiceMock: NftService;
 
   beforeEach(async () => {
     addressServiceMock = mock<AddressService>();
     balanceServiceMock = mock<BalanceService>();
     transferServiceMock = mock<TransferService>();
     tokenServiceMock = mock<TokenService>();
+    nftServiceMock = mock<NftService>();
 
     const app = await Test.createTestingModule({
       providers: [
@@ -41,6 +44,10 @@ describe("LogService", () => {
         {
           provide: TokenService,
           useValue: tokenServiceMock,
+        },
+        {
+          provide: NftService,
+          useValue: nftServiceMock,
         },
       ],
     }).compile();
@@ -81,8 +88,8 @@ describe("LogService", () => {
     beforeEach(() => {
       jest.spyOn(addressServiceMock, "getContractAddresses").mockResolvedValueOnce(deployedContractAddresses);
       jest.spyOn(transferServiceMock, "getTransfers").mockReturnValueOnce(transfers);
-      jest.spyOn(tokenServiceMock, "getERC20Token").mockResolvedValueOnce(tokens[0]);
-      jest.spyOn(tokenServiceMock, "getERC20Token").mockResolvedValueOnce(tokens[1]);
+      jest.spyOn(tokenServiceMock, "getToken").mockResolvedValueOnce(tokens[0]);
+      jest.spyOn(tokenServiceMock, "getToken").mockResolvedValueOnce(tokens[1]);
 
       transactionReceipt = mock<types.TransactionReceipt>();
       transactionDetails = mock<types.TransactionDetails>({
@@ -125,9 +132,9 @@ describe("LogService", () => {
 
       it("returns data with ERC20 tokens", async () => {
         const logsData = await logService.getData(logs, blockDetails, transactionDetails, transactionReceipt);
-        expect(tokenServiceMock.getERC20Token).toHaveBeenCalledTimes(2);
-        expect(tokenServiceMock.getERC20Token).toHaveBeenCalledWith(deployedContractAddresses[0], transactionReceipt);
-        expect(tokenServiceMock.getERC20Token).toHaveBeenCalledWith(deployedContractAddresses[1], transactionReceipt);
+        expect(tokenServiceMock.getToken).toHaveBeenCalledTimes(2);
+        expect(tokenServiceMock.getToken).toHaveBeenCalledWith(deployedContractAddresses[0], transactionReceipt);
+        expect(tokenServiceMock.getToken).toHaveBeenCalledWith(deployedContractAddresses[1], transactionReceipt);
         expect(logsData.tokens).toEqual(tokens);
       });
     });

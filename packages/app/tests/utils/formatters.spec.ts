@@ -72,6 +72,7 @@ describe("formatters:", () => {
       usdPrice: 3500,
       liquidity: null,
       iconURL: null,
+      type: null,
     };
 
     it("return correct price", () => {

@@ -12,7 +12,7 @@
       :address="transfer.to"
       :is-paymaster="transfer.to === paymasterAddress"
     />
-    <div class="transfer-amount-container">
+    <div v-if="!transfer.nftItem" class="transfer-amount-container">
       <span>{{ t("transactions.table.for") }}</span>
       <span class="transfer-amount-value">{{ transferAmount }}</span>
       <TokenIconLabel
@@ -25,6 +25,19 @@
         show-link-symbol
       />
     </div>
+    <div v-else class="transfer-nft-container">
+      <span>{{ t("transactions.table.for") }}</span>
+      <NftItemTableCell
+        class="nft-icon"
+        v-if="transfer.nftItem"
+        :url="transfer.nftItem.imageUrl"
+        :symbol="transfer.tokenInfo?.symbol"
+        :name="transfer.nftItem.name"
+        :tokenAddress="transfer.tokenInfo?.l2Address"
+        :token-id="transfer.nftItem.tokenId"
+        :iconSize="'md'"
+      />
+    </div>
   </div>
 </template>
 
@@ -33,6 +46,7 @@ import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
 import TokenIconLabel from "@/components/TokenIconLabel.vue";
+import NftItemTableCell from "@/components/nft/NftItemTableCell.vue";
 import TransferInfo from "@/components/transactions/infoTable/TransferInfo.vue";
 
 import type { TokenTransfer } from "@/composables/useTransaction";
@@ -64,6 +78,13 @@ const transferAmount = computed(() =>
   .transfer-amount-container {
     @apply inline-flex items-center gap-x-1;
     .token-icon {
+      @apply inline-flex;
+    }
+  }
+
+  .transfer-nft-container {
+    @apply inline-flex items-center gap-x-1;
+    .nft-icon {
       @apply inline-flex;
     }
   }

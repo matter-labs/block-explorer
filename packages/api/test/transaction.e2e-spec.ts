@@ -183,6 +183,7 @@ describe("TransactionController (e2e)", () => {
       decimals: ETH_TOKEN.decimals,
       blockNumber: 0,
       logIndex: 0,
+      type: TokenType.BaseToken,
     });
 
     await tokenRepository.insert({
@@ -1201,6 +1202,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1210,6 +1212,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "BASETOKEN",
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1224,6 +1227,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -1233,6 +1237,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1247,6 +1252,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1256,6 +1262,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "BASETOKEN",
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1270,6 +1277,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -1279,6 +1287,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1293,6 +1302,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1302,6 +1312,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "BASETOKEN",
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1316,6 +1327,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -1325,6 +1337,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1339,6 +1352,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1348,6 +1362,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "BASETOKEN",
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1362,6 +1377,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 decimals: 18,
                 l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
@@ -1371,6 +1387,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "ERC20",
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1385,6 +1402,7 @@ describe("TransactionController (e2e)", () => {
               from: "0x0000000000000000000000000000000000008007",
               timestamp: "2022-11-21T18:16:00.000Z",
               to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+              nftItem: null,
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1394,6 +1412,7 @@ describe("TransactionController (e2e)", () => {
                 iconURL: null,
                 liquidity: null,
                 usdPrice: null,
+                type: "BASETOKEN",
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
@@ -1453,6 +1472,7 @@ describe("TransactionController (e2e)", () => {
                 from: "0x0000000000000000000000000000000000008007",
                 timestamp: "2022-11-21T18:16:00.000Z",
                 to: "0x52312Ad6f01657413b2eae9287F6b9Adad93d5fd",
+                nftItem: null,
                 token: {
                   decimals: 18,
                   l1Address: "0x0000000000000000000000000000000000000000",
@@ -1462,6 +1482,7 @@ describe("TransactionController (e2e)", () => {
                   iconURL: null,
                   liquidity: null,
                   usdPrice: null,
+                  type: "BASETOKEN",
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",

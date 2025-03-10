@@ -1835,6 +1835,68 @@ describe("BlockchainService", () => {
       expect(tokenData).toEqual({ symbol, decimals, name });
     });
 
+    describe("getTokenData", () => {
+      const contractAddress = "contractAddress";
+      const symbol = "symbol";
+      const name = "name";
+      let symbolMock: jest.Mock;
+      let decimalMock: jest.Mock;
+      let nameMock: jest.Mock;
+      let supportedInterfacesMock: jest.Mock;
+
+      beforeEach(() => {
+        symbolMock = jest.fn();
+        decimalMock = jest.fn();
+        nameMock = jest.fn();
+        supportedInterfacesMock = jest.fn();
+
+        (RetryableContract as jest.Mock).mockImplementation(() => ({
+          supportsInterface: supportedInterfacesMock,
+          symbol: symbolMock,
+          name: nameMock,
+          decimals: decimalMock,
+        }));
+      });
+
+      it("uses ERC20 token contract interface", async () => {
+        supportedInterfacesMock.mockResolvedValue(false);
+        symbolMock.mockResolvedValue(symbol);
+        decimalMock.mockResolvedValue(18);
+        nameMock.mockResolvedValue(name);
+
+        const tokenData = await blockchainService.getTokenData(contractAddress);
+        expect(RetryableContract).toHaveBeenCalledTimes(2);
+        expect(RetryableContract).toBeCalledWith(contractAddress, utils.IERC20, provider);
+        expect(symbolMock).toHaveBeenCalledTimes(1);
+        expect(decimalMock).toHaveBeenCalledTimes(1);
+        expect(nameMock).toHaveBeenCalledTimes(1);
+        expect(tokenData).toEqual({ symbol, decimals, name, type: "ERC20" });
+      });
+
+      it("uses ERC721 token contract interface", async () => {
+        symbolMock.mockResolvedValue(symbol);
+        nameMock.mockResolvedValue(name);
+        supportedInterfacesMock = jest.fn().mockResolvedValue(true);
+
+        const token = await blockchainService.getTokenData(contractAddress);
+        expect(supportedInterfacesMock).toHaveBeenCalledTimes(1);
+        expect(RetryableContract).toHaveBeenCalledTimes(1);
+        expect(token).toEqual({ symbol, name, decimals: 0, type: "ERC721" });
+      });
+
+      it("uses non token contract interface with error", async () => {
+        const error = new Error("contract error");
+        supportedInterfacesMock = jest.fn().mockImplementation(() => {
+          throw error;
+        });
+        symbolMock = jest.fn().mockImplementation(() => {
+          throw error;
+        });
+
+        expect(await blockchainService.getTokenData(contractAddress)).toBeNull();
+      });
+    });
+
     describe("when contract function throws an error", () => {
       const error = new Error("contract error");
 

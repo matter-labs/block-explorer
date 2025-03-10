@@ -13,6 +13,7 @@ const token: Api.Response.Token = {
   liquidity: 220000000000,
   usdPrice: 150,
   iconURL: null,
+  type: null,
 };
 
 describe("BalanceValue:", () => {

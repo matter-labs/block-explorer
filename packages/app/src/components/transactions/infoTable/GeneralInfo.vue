@@ -282,8 +282,7 @@ const displayedTxReceiver = computed(() => {
 });
 
 const tokenTransfers = computed(() => {
-  // exclude transfers with no amount, such as NFT until we fully support them
-  return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
+  return props.transaction?.transfers.filter((transfer) => transfer.amount || transfer.nftItem) || [];
 });
 
 const gasUsedPercent = computed(() => {
