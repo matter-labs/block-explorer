@@ -17,12 +17,14 @@
         />
       </div>
     </AddressLink>
-    <div class="token-info" v-if="name && symbol">
-      <div class="token-symbol">
-        {{ symbol }}
-      </div>
-      <div class="token-name">
-        {{ name }}
+    <div class="token-info-container">
+      <div class="token-info" v-if="name && symbol">
+        <div class="token-symbol">
+          {{ symbol }}
+        </div>
+        <div class="token-name">
+          {{ name }}
+        </div>
       </div>
     </div>
   </div>
@@ -114,6 +116,12 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
         }
       }
     }
+  }
+  .token-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
   }
   .token-info {
     .token-symbol {
