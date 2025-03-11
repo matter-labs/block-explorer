@@ -353,6 +353,15 @@
         "table": {
             "tokenName": "Назва Токена",
             "price": "Ціна",
+            "tokenAddress": "Адреса Токена",
+            "bridged": {
+                "title": "Бридж",
+                "tooltip": "Цей токен перенесений з L1 до ZKsync Era"
+            },
+            "native": {
+                "title": "L2-нативний",
+                "tooltip": "Цей токен є нативним для ZKsync Era"
+            },
             "tokenAddressL2": "L2 Адреса Токена",
             "tokenAddressL1": "L1 Адреса Токена"
         }
