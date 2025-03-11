@@ -599,6 +599,15 @@
         "table": {
             "tokenName": "Token Name",
             "price": "Price",
+            "tokenAddress": "Token Address",
+            "bridged": {
+                "title": "Bridged",
+                "tooltip": "This token is bridged from L1 to ZKsync Era"
+            },
+            "native": {
+                "title": "L2-native",
+                "tooltip": "This token is native to ZKsync Era"
+            },
             "tokenAddressL2": "L2 Token address",
             "tokenAddressL1": "L1 Token address"
         }
