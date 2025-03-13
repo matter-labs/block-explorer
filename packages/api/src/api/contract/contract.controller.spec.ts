@@ -457,6 +457,69 @@ describe("ContractController", () => {
       });
     });
 
+    it("sends proper payload to the verification endpoint for EVM standard JSON input", async () => {
+      const evmJsonRequest = {
+        module: "contract",
+        action: "verifysourcecode",
+        contractaddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        sourceCode: JSON.stringify({
+          language: "Solidity",
+          sources: {
+            "contracts/Test.sol": {
+              content: "// SPDX-License-Identifier: MIT",
+            },
+          },
+          settings: {
+            optimizer: {
+              enabled: true,
+              runs: 200,
+            },
+          },
+        }),
+        codeformat: "solidity-standard-json-input",
+        contractname: "contracts/Test.sol:Test",
+        compilerversion: "v0.8.17+commit.8df45f5f",
+        optimizationUsed: "1",
+        evmVersion: "london",
+        runs: 200,
+      } as unknown as VerifyContractRequestDto;
+
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(evmJsonRequest.contractaddress, evmJsonRequest);
+
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "solidity-standard-json-input",
+        compilerSolcVersion: "0.8.17",
+        constructorArguments: undefined,
+        contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        contractName: "contracts/Test.sol:Test",
+        evmVersion: "london",
+        optimizationUsed: true,
+        sourceCode: {
+          language: "Solidity",
+          sources: {
+            "contracts/Test.sol": {
+              content: "// SPDX-License-Identifier: MIT",
+            },
+          },
+          settings: {
+            libraries: {},
+            optimizer: {
+              enabled: true,
+              runs: 200,
+            },
+          },
+        },
+      });
+    });
+
     it("throws error when verification endpoint fails with response status different to 400", async () => {
       pipeMock.mockImplementation((callback) => {
         callback({
