@@ -1,6 +1,6 @@
 <template>
-  <label class="checkbox-input-container" :class="{ checked: inputted }">
-    <input type="checkbox" :checked="inputted" v-model="inputted" v-bind="$attrs" />
+  <label class="checkbox-input-container" :class="{ checked: inputted, disabled }">
+    <input type="checkbox" :checked="inputted" v-model="inputted" v-bind="$attrs" :disabled="disabled" />
     <slot />
   </label>
 </template>
@@ -17,6 +17,10 @@ const props = defineProps({
   modelValue: {
     type: Boolean,
     default: null,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
   },
 });
 const emit = defineEmits<{
@@ -35,8 +39,14 @@ const inputted = computed({
 .checkbox-input-container {
   @apply flex items-center mb-1 cursor-pointer float-right leading-snug;
 
-  input {
-    @apply rounded me-1 text-primary-600 cursor-pointer border-neutral-200 checked:border-primary-600 hover:border-primary-600 ring-transparent;
+  &.disabled {
+    @apply opacity-50;
   }
+
+  input {
+    @apply rounded me-1 text-primary-600 cursor-pointer border-neutral-200 checked:border-primary-600 disabled:opacity-50 hover:border-primary-600 ring-transparent;
+  }
+}
+.checkbox-input-container {
 }
 </style>

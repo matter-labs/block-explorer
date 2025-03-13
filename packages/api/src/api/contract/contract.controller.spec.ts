@@ -446,6 +446,7 @@ describe("ContractController", () => {
         contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
         contractName: "contracts/Greeter.vy:Greeter",
         optimizationUsed: true,
+        runs: undefined,
         sourceCode: {
           sources: {
             "contracts/Greeter.vy": {

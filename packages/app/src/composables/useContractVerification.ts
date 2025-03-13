@@ -86,32 +86,55 @@ export default (context = useContext()) => {
         ContractVerificationCodeFormatEnum.soliditySingleFile,
         ContractVerificationCodeFormatEnum.solidityMultiPart,
       ].includes(data.codeFormat);
-
-      const { sourceCode, zkCompilerVersion, compilerVersion, ...payload } = data;
+      const { sourceCode, zkCompilerVersion, compilerVersion, isEVM, ...payload } = data;
       const response = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification`, {
         method: "POST",
         body: {
           ...payload,
-          ...(isSolidityContract && {
-            sourceCode,
-            compilerZksolcVersion: zkCompilerVersion,
-            compilerSolcVersion: compilerVersion,
-          }),
-          ...(!isSolidityContract && {
-            ...(typeof sourceCode === "string" && {
-              sourceCode: {
-                [payload.contractName]: sourceCode,
-              },
+          ...(isSolidityContract &&
+            !isEVM && {
+              sourceCode,
+              compilerZksolcVersion: zkCompilerVersion,
+              compilerSolcVersion: compilerVersion,
             }),
-            ...(typeof sourceCode !== "string" && {
-              sourceCode: Object.keys(sourceCode.sources).reduce((acc: Record<string, string>, filename: string) => {
-                acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
-                return acc;
-              }, {}),
+          ...(isSolidityContract &&
+            isEVM && {
+              sourceCode,
+              evmVersion: zkCompilerVersion,
+              compilerSolcVersion: compilerVersion,
             }),
-            compilerZkvyperVersion: zkCompilerVersion,
-            compilerVyperVersion: compilerVersion,
-          }),
+          ...(!isSolidityContract &&
+            !isEVM && {
+              ...(typeof sourceCode === "string" && {
+                sourceCode: {
+                  [payload.contractName]: sourceCode,
+                },
+              }),
+              ...(typeof sourceCode !== "string" && {
+                sourceCode: Object.keys(sourceCode.sources).reduce((acc: Record<string, string>, filename: string) => {
+                  acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
+                  return acc;
+                }, {}),
+              }),
+              compilerZkvyperVersion: zkCompilerVersion,
+              compilerVyperVersion: compilerVersion,
+            }),
+          ...(!isSolidityContract &&
+            isEVM && {
+              ...(typeof sourceCode === "string" && {
+                sourceCode: {
+                  [payload.contractName]: sourceCode,
+                },
+              }),
+              ...(typeof sourceCode !== "string" && {
+                sourceCode: Object.keys(sourceCode.sources).reduce((acc: Record<string, string>, filename: string) => {
+                  acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
+                  return acc;
+                }, {}),
+              }),
+              evmVersion: zkCompilerVersion,
+              compilerVyperVersion: compilerVersion,
+            }),
           constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
         },
       });

@@ -468,7 +468,8 @@
                     "required": "Solc version is required"
                 },
                 "error": "Unable to get list of supported Solc versions",
-                "zkVM": "zkVM"
+                "zkVM": "zkVM",
+                "EVM": "EVM"
             },
             "zksolcVersion": {
                 "label": "Zksolc Version",
@@ -477,6 +478,20 @@
                     "required": "Zksolc version is required"
                 },
                 "error": "Unable to get list of supported Zksolc versions",
+                "details": "Details",
+                "evmVersionToTarget": {
+                    "label": "EVM Version to target",
+                    "custom": "Custom",
+                    "inputPlaceholder": "Custom version..."
+                }
+            },
+            "evmVersion": {
+                "label": "EVM Version to target",
+                "placeholder": "Choose version",
+                "validation": {
+                    "required": "EVM version is required"
+                },
+                "error": "Unable to get list of supported EVM versions",
                 "details": "Details"
             },
             "vyperVersion": {
@@ -494,7 +509,12 @@
                     "required": "Zkvyper version is required"
                 },
                 "error": "Unable to get list of supported Zkvyper versions",
-                "details": "Details"
+                "details": "Details",
+                "evmVersionToTarget": {
+                    "label": "EVM Version to target",
+                    "custom": "Custom",
+                    "inputPlaceholder": "Custom version..."
+                }
             },
             "compilerType": {
                 "label": "Compiler type",

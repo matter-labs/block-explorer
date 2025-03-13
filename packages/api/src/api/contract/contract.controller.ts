@@ -136,6 +136,12 @@ export class ContractController {
       ContractVerificationCodeFormatEnum.solidityJsonInput,
     ].includes(request.codeformat);
 
+    const isEVMContract = !request.zkCompilerVersion;
+    if (isEVMContract && request.codeformat.includes("json")) {
+      request.sourceCode = JSON.parse(request.sourceCode);
+      request.compilerversion = request.compilerversion.replace("v", "").split("+")[0];
+    }
+
     if (isSolidityContract && request.sourceCode instanceof Object) {
       const libraries: { [key: string]: Record<string, string> } = {};
       for (let i = 1; i <= 10; i++) {
@@ -172,17 +178,29 @@ export class ContractController {
           codeFormat: request.codeformat,
           contractAddress,
           contractName: request.contractname,
-          optimizationUsed: request.optimizationUsed === "1",
           sourceCode: request.sourceCode,
           constructorArguments: request.constructorArguements,
-          ...(isSolidityContract && {
-            compilerZksolcVersion: request.zkCompilerVersion,
-            compilerSolcVersion: request.compilerversion,
-          }),
-          ...(!isSolidityContract && {
-            compilerZkvyperVersion: request.zkCompilerVersion,
-            compilerVyperVersion: request.compilerversion,
-          }),
+          optimizationUsed: request.optimizationUsed === "1",
+          ...(isSolidityContract &&
+            !isEVMContract && {
+              compilerZksolcVersion: request.zkCompilerVersion,
+              compilerSolcVersion: request.compilerversion,
+            }),
+          ...(isSolidityContract &&
+            isEVMContract && {
+              evmVersion: request.evmVersion,
+              compilerSolcVersion: request.compilerversion,
+            }),
+          ...(!isSolidityContract &&
+            !isEVMContract && {
+              compilerZkvyperVersion: request.zkCompilerVersion,
+              compilerVyperVersion: request.compilerversion,
+            }),
+          ...(!isSolidityContract &&
+            isEVMContract && {
+              evmVersion: request.evmVersion,
+              compilerVyperVersion: request.compilerversion,
+            }),
         })
         .pipe(
           catchError((error: AxiosError) => {
