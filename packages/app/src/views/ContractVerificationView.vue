@@ -456,6 +456,7 @@ const defaultValues = computed<
     constructorArguments: "",
     files: [],
     mainFileName: "",
+    isEVM: isEVMSolcCompiler.value,
   };
 });
 
