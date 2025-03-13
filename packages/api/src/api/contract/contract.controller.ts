@@ -137,9 +137,11 @@ export class ContractController {
     ].includes(request.codeformat);
 
     const isEVMContract = !request.zkCompilerVersion;
-    if (isEVMContract && request.codeformat.includes("json")) {
-      request.sourceCode = JSON.parse(request.sourceCode);
+    if (isEVMContract) {
       request.compilerversion = request.compilerversion.replace("v", "").split("+")[0];
+      if (request.codeformat.includes("json")) {
+        request.sourceCode = JSON.parse(request.sourceCode);
+      }
     }
 
     if (isSolidityContract && request.sourceCode instanceof Object) {

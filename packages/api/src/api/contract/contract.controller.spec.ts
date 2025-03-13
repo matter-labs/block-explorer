@@ -520,6 +520,52 @@ describe("ContractController", () => {
       });
     });
 
+    it("sends proper payload to the verification endpoint for EVM Vyper multi-file", async () => {
+      const evmVyperRequest = {
+        module: "contract",
+        action: "verifysourcecode",
+        contractaddress: "0x589160F112A9BFB16f0FD8C6434a27bC3703507D",
+        sourceCode: {
+          sources: {
+            "contracts/Greeter.vy": {
+              content: "# @version ^0.3.3\n# vim: ft=python\n\ndef __init__():\n    pass",
+            },
+          },
+        },
+        codeformat: "vyper-multi-file",
+        contractname: "contracts/Greeter.vy:Greeter",
+        compilerversion: "v0.3.7+commit.7020e74",
+        optimizationUsed: "1",
+        evmVersion: "london",
+      } as unknown as VerifyContractRequestDto;
+
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(evmVyperRequest.contractaddress, evmVyperRequest);
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "vyper-multi-file",
+        compilerVyperVersion: "0.3.7",
+        evmVersion: "london",
+        constructorArguments: undefined,
+        contractAddress: "0x589160F112A9BFB16f0FD8C6434a27bC3703507D",
+        contractName: "contracts/Greeter.vy:Greeter",
+        optimizationUsed: true,
+        sourceCode: {
+          sources: {
+            "contracts/Greeter.vy": {
+              content: "# @version ^0.3.3\n# vim: ft=python\n\ndef __init__():\n    pass",
+            },
+          },
+        },
+      });
+    });
+
     it("throws error when verification endpoint fails with response status different to 400", async () => {
       pipeMock.mockImplementation((callback) => {
         callback({
