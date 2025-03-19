@@ -114,7 +114,7 @@
           <CheckBoxInput
             v-model="isEvmVersionCustom"
             :disabled="!isEVMSolcCompiler"
-            @update:model-value="onEVMSelectionCustomChanged"
+            @update:model-value="onEVMSelectionChanged"
           >
             {{ t("contractVerification.form.zksolcVersion.evmVersionToTarget.custom") }}
           </CheckBoxInput>
@@ -567,10 +567,6 @@ const v$ = useVuelidate(
   },
   form
 );
-
-function onEVMSelectionCustomChanged() {
-  selectedCompilerVersion.value = EVM_VERSION_TO_TARGET[0] || "";
-}
 
 function onZkVMSelectionChanged() {
   selectedCompilerVersion.value = selectedCompiler.value.versions[0] || "";

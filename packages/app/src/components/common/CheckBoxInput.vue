@@ -41,12 +41,14 @@ const inputted = computed({
 
   &.disabled {
     @apply opacity-50;
+
+    input {
+      @apply hover:border-neutral-200;
+    }
   }
 
   input {
     @apply rounded me-1 text-primary-600 cursor-pointer border-neutral-200 checked:border-primary-600 disabled:opacity-50 hover:border-primary-600 ring-transparent;
   }
-}
-.checkbox-input-container {
 }
 </style>
