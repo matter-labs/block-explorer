@@ -26,6 +26,7 @@ export const assetRouterFinalizeDepositHandler: ExtractTransferHandler = {
     }
 
     const assetData = parsedLog.args.assetData;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [originalCaller, remoteReceiver, _, amount] = AbiCoder.defaultAbiCoder().decode(
       ["address", "address", "address", "uint256", "bytes"],
       assetData
