@@ -47,6 +47,18 @@ export enum LogType {
 
   // event Withdrawal(address indexed _l2Sender, address indexed _l1Receiver, uint256 _amount)
   Withdrawal = "0x2717ead6b9200dd235aad468c9809ea400fe33ac69b5bfaa6d3e90fc922b6398",
+
+  // event BridgeBurn(uint256 indexed chainId, bytes32 indexed assetId, address indexed sender, address receiver, uint256 amount)
+  L2NativeTokenVaultBridgeBurn = "0x1cd02155ad1064c60598a8bd0e4e795d7e7d0a0f3c38aad04d261f1297fb2545",
+
+  // event BridgeMint((uint256 indexed chainId, bytes32 indexed assetId, address receiver, uint256 amount)
+  L2NativeTokenVaultBridgeMint = "0xbc0f4055a7869d8ecad34b33382a0bc181c5811565fec42f335505be5fd661d2",
+
+  // event WithdrawalInitiatedAssetRouter(uint256 chainId, address indexed l2Sender, bytes32 indexed assetId, bytes assetData)
+  WithdrawalInitiatedAssetRouter = "0x55362fc62473cb1255e770af5d5e02ba6ee5bc7ed6969c30eb11ca31b92384dc",
+
+  // event DepositFinalizedAssetRouter(uint256 indexed chainId, bytes32 indexed assetId, bytes assetData)
+  DepositFinalizedAssetRouter = "0x44eb9a840094a49b3cd0a5205042598a1c08c4e87bafb5760bc2d8efa170c541",
 }
 
 export const isLogOfType = (log: types.Log, types: LogType[]): boolean => {

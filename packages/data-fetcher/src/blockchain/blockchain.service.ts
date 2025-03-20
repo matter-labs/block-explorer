@@ -9,6 +9,7 @@ import { ProviderEvent } from "ethers";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
+import { L2_NATIVE_TOKEN_VAULT_ADDRESS, CONTRACT_INTERFACES } from "../constants";
 
 export interface BridgeAddresses {
   l2Erc20DefaultBridge?: string;
@@ -164,6 +165,16 @@ export class BlockchainService implements OnModuleInit {
       decimals,
       name,
     };
+  }
+
+  public async getTokenAddressByAssetId(assetId: string): Promise<string> {
+    const erc20Contract = new RetryableContract(
+      L2_NATIVE_TOKEN_VAULT_ADDRESS,
+      CONTRACT_INTERFACES.L2_NATIVE_TOKEN_VAULT.interface,
+      this.provider
+    );
+    const tokenAddress = await erc20Contract.tokenAddress(assetId);
+    return tokenAddress;
   }
 
   public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<bigint> {
