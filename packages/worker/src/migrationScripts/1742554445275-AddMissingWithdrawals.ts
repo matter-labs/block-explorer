@@ -199,6 +199,7 @@ const main = async () => {
     await typeOrmCliDataSource.manager.transaction(async (entityManager) => {
       const result = await entityManager.insert(Transfer, missingTransfers[i]);
       const transferNumber = Number(result.identifiers[0].number);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { number, ...addressTransferData } = missingTransfers[i];
       const addressTransfers = [{ ...addressTransferData, address: addressTransferData.from, transferNumber }];
       if (transfer.from !== transfer.to) {
