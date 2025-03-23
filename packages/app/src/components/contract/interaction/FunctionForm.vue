@@ -187,8 +187,33 @@ const errors = computed(() => {
   );
 });
 
-const convertBoolean = (value: string | boolean) =>
-  typeof value === "string" ? !["0", "false"].includes(value) : value;
+const convertBoolean = (value: string | boolean) => {
+  if (typeof value === "boolean") return value;
+
+  if (typeof value === "string") {
+    const lowercaseValue = value.toLowerCase().trim();
+
+    // Check for false values
+    if (["0", "false", "f"].includes(lowercaseValue)) {
+      return false;
+    }
+
+    // Check for true values
+    if (["1", "true", "t"].includes(lowercaseValue)) {
+      return true;
+    }
+
+    // For any other value, try to parse as integer
+    // If it's a non-zero number, it's true, otherwise false
+    const numValue = parseInt(lowercaseValue);
+    if (!isNaN(numValue)) {
+      return numValue !== 0;
+    }
+  }
+
+  // Default for any other input
+  return false;
+};
 
 const submit = async () => {
   const validationResult = await v$.value.$validate();
