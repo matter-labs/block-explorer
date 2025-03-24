@@ -266,6 +266,14 @@
                 },
                 "underline": "Якщо ви ввімкнули оптимізацію під час компіляції, виберіть так."
             },
+            "enableEraVMExtensions": {
+                "label": "Ввімкнути EraVM Extensions",
+                "options": {
+                    "yes": "Так",
+                    "no": "Ні"
+                },
+                "underline": "Якщо ви ввімкнули EraVM Extensions під час компіляції, виберіть так."
+            },
             "solcVersion": {
                 "label": "Solc версія",
                 "placeholder": "Вибрати версію",

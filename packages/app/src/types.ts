@@ -38,6 +38,7 @@ export type ContractVerificationData = {
   contractAddress: string;
   contractName: string;
   optimizationUsed: boolean;
+  enableEraVMExtensions: boolean;
   sourceCode:
     | string
     | {
@@ -48,6 +49,7 @@ export type ContractVerificationData = {
           };
         };
         settings: {
+          enableEraVMExtensions: boolean;
           optimizer: {
             enabled: boolean;
           };

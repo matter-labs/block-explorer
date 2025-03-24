@@ -204,13 +204,14 @@ Feature: Main Page
     Then Element with "<Selector type>" "<Element>" should be "<Assertion>"
 
     Examples:
-      | Selector type | Element               | Assertion |
-      | id            | contractAddress       | visible   |
-      | id            | contractName          | visible   |
-      | testId        | radio-buttons         | visible   |
-      | id            | compilerVersion       | visible   |
-      | id            | zkCompilerVersion     | visible   |
-      | id            | sourceCode            | visible   |
-      | id            | constructorArguments  | visible   |
-      | text          | Verify Smart Contract | clickable |
-      | text          | Clear                 | clickable |
+      | Selector type | Element                                 | Assertion |
+      | id            | contractAddress                         | visible   |
+      | id            | contractName                            | visible   |
+      | testId        | radio-buttons-optimization              | visible   |
+      | testId        | radio-buttons-enable-era-extensions     | visible   |
+      | id            | compilerVersion                         | visible   |
+      | id            | zkCompilerVersion                       | visible   |
+      | id            | sourceCode                              | visible   |
+      | id            | constructorArguments                    | visible   |
+      | text          | Verify Smart Contract                   | clickable |
+      | text          | Clear                                   | clickable |
