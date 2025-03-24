@@ -32,7 +32,6 @@ import {
   ContractVerificationStatusResponse,
 } from "../types";
 import { VerifyContractResponseDto } from "../dtos/contract/verifyContractResponse.dto";
-
 const entityName = "contract";
 
 export const parseAddressListPipeExceptionFactory = () => new BadRequestException("Missing contract addresses");
@@ -136,6 +135,14 @@ export class ContractController {
       ContractVerificationCodeFormatEnum.solidityJsonInput,
     ].includes(request.codeformat);
 
+    request.zksolcVersion = request.zksolcVersion || request.zkCompilerVersion;
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const semver = require("semver");
+    if (semver.gte(request.zksolcVersion, "1.3.23")) {
+      request.compilerversion = `zkVM-${request.compilerversion}-1.0.1`;
+    }
+
     if (isSolidityContract && request.sourceCode instanceof Object) {
       const libraries: { [key: string]: Record<string, string> } = {};
       for (let i = 1; i <= 10; i++) {
@@ -166,6 +173,18 @@ export class ContractController {
       }
     }
 
+    let formatedStringSourceCode = undefined;
+    if (isSolidityContract && typeof request.sourceCode === "string") {
+      try {
+        formatedStringSourceCode = JSON.parse(request.sourceCode);
+        if (formatedStringSourceCode.settings.optimizer?.enabled) {
+          request.optimizationUsed = "1";
+        }
+      } catch (e) {
+        formatedStringSourceCode = request.sourceCode;
+      }
+    }
+
     const { data } = await firstValueFrom<{ data: number }>(
       this.httpService
         .post(`${this.contractVerificationApiUrl}/contract_verification`, {
@@ -173,14 +192,18 @@ export class ContractController {
           contractAddress,
           contractName: request.contractname,
           optimizationUsed: request.optimizationUsed === "1",
-          sourceCode: request.sourceCode,
-          constructorArguments: request.constructorArguements,
+          sourceCode: typeof request.sourceCode === "string" ? formatedStringSourceCode : request.sourceCode,
+          constructorArguments: request.constructorArguements
+            ? request.constructorArguements.slice(0, 2) !== "0x"
+              ? `0x${request.constructorArguements}`
+              : request.constructorArguements
+            : "0x",
           ...(isSolidityContract && {
-            compilerZksolcVersion: request.zkCompilerVersion,
+            compilerZksolcVersion: request.zksolcVersion,
             compilerSolcVersion: request.compilerversion,
           }),
           ...(!isSolidityContract && {
-            compilerZkvyperVersion: request.zkCompilerVersion,
+            compilerZkvyperVersion: request.zksolcVersion,
             compilerVyperVersion: request.compilerversion,
           }),
         })
