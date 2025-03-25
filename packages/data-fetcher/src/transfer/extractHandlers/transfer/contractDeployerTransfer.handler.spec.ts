@@ -1,5 +1,6 @@
 import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
+import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { contractDeployerTransferHandler } from "./contractDeployerTransfer.handler";
@@ -8,6 +9,7 @@ describe("contractDeployerTransferHandler", () => {
   let log: types.Log;
   let txReceipt: types.TransactionReceipt;
   let blockDetails: types.BlockDetails;
+  let blockchainService: BlockchainService;
   beforeEach(() => {
     txReceipt = mock<types.TransactionReceipt>({
       to: "0x0000000000000000000000000000000000008006",
@@ -31,6 +33,7 @@ describe("contractDeployerTransferHandler", () => {
     blockDetails = mock<types.BlockDetails>({
       timestamp: new Date().getTime() / 1000,
     });
+    blockchainService = mock<BlockchainService>();
   });
 
   describe("matches", () => {
@@ -84,74 +87,74 @@ describe("contractDeployerTransferHandler", () => {
         });
       });
 
-      it("extracts transfer with from field populated with lower cased to", () => {
-        const result = contractDeployerTransferHandler.extract(log, blockDetails);
+      it("extracts transfer with from field populated with lower cased to", async () => {
+        const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
         expect(result.from).toBe("0x934f351e49800ff7d72b63d11d12ea0027e57302");
       });
 
-      it("extracts transfer with to field populated with lower cased to", () => {
-        const result = contractDeployerTransferHandler.extract(log, blockDetails);
+      it("extracts transfer with to field populated with lower cased to", async () => {
+        const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
         expect(result.to).toBe("0x934f351e49800ff7d72b63d11d12ea0027e57302");
       });
     });
 
-    it("extracts transfer with from field populated with lower cased to", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with from field populated with lower cased to", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0x7aa5f26e03b12a78e3ff1c454547701443144c67");
     });
 
-    it("extracts transfer with to field populated with lower cased to", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with to field populated with lower cased to", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.to).toBe("0x7aa5f26e03b12a78e3ff1c454547701443144c67");
     });
 
-    it("extracts transfer with populated transactionHash", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated transactionHash", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.transactionHash).toBe("0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0");
     });
 
-    it("extracts transfer with populated blockNumber", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated blockNumber", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.blockNumber).toBe(3233097);
     });
 
-    it("extracts transfer with populated amount", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated amount", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.amount).toStrictEqual(BigInt("0x016345785d8a0000"));
     });
 
-    it("extracts transfer with tokenAddress field populated with lower cased log address", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with tokenAddress field populated with lower cased log address", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.tokenAddress).toBe("0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c");
     });
 
-    it("extracts transfer of mint type", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer of mint type", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.type).toBe(TransferType.Mint);
     });
 
-    it("extracts transfer with ERC20 token type", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with ERC20 token type", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.tokenType).toBe(TokenType.ERC20);
     });
 
-    it("adds isFeeOrRefund as false", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("adds isFeeOrRefund as false", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.isFeeOrRefund).toBe(false);
     });
 
-    it("extracts transfer with logIndex populated from log", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with logIndex populated from log", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.logIndex).toBe(log.index);
     });
 
-    it("extracts transfer with transactionIndex populated from log", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with transactionIndex populated from log", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.transactionIndex).toBe(log.transactionIndex);
     });
 
-    it("extracts transfer with block timestamp", () => {
-      const result = contractDeployerTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with block timestamp", async () => {
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.timestamp).toEqual(new Date(blockDetails.timestamp * 1000));
     });
 
@@ -160,8 +163,13 @@ describe("contractDeployerTransferHandler", () => {
       const transactionDetails = mock<types.TransactionDetails>();
       transactionDetails.receivedAt = receivedAt;
 
-      it("extracts transfer with timestamp equals to transaction receivedAt", () => {
-        const result = contractDeployerTransferHandler.extract(log, blockDetails, transactionDetails);
+      it("extracts transfer with timestamp equals to transaction receivedAt", async () => {
+        const result = await contractDeployerTransferHandler.extract(
+          log,
+          blockchainService,
+          blockDetails,
+          transactionDetails
+        );
         expect(result.timestamp).toBe(receivedAt);
       });
     });

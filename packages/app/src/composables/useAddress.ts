@@ -62,6 +62,8 @@ type ContractVerificationRequest = {
   optimizationUsed: boolean;
 };
 
+export const VERIFICATION_PROBLEM_INCORRECT_METADATA = "incorrectMetadata";
+
 export type ContractVerificationInfo = {
   artifacts: {
     abi: AbiFragment[];
@@ -69,6 +71,7 @@ export type ContractVerificationInfo = {
   };
   request: ContractVerificationRequest;
   verifiedAt: string;
+  verificationProblems?: string[];
 };
 
 export type Balance = Api.Response.TokenAddress;

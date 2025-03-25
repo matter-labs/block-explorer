@@ -1,5 +1,6 @@
 import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
+import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { defaultTransferHandler } from "./default.handler";
@@ -7,6 +8,7 @@ import { BASE_TOKEN_ADDRESS } from "../../../../src/constants";
 describe("defaultTransferHandler", () => {
   let log: types.Log;
   let blockDetails: types.BlockDetails;
+  let blockchainService: BlockchainService;
   beforeEach(() => {
     log = mock<types.Log>({
       transactionIndex: 1,
@@ -25,6 +27,7 @@ describe("defaultTransferHandler", () => {
     blockDetails = mock<types.BlockDetails>({
       timestamp: new Date().getTime() / 1000,
     });
+    blockchainService = mock<BlockchainService>();
   });
 
   describe("matches", () => {
@@ -81,70 +84,70 @@ describe("defaultTransferHandler", () => {
   });
 
   describe("extract", () => {
-    it("extracts transfer with from field populated with lower cased from", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with from field populated with lower cased from", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c");
     });
 
-    it("extracts transfer with to field populated with lower cased to", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with to field populated with lower cased to", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.to).toBe("0x7aa5f26e03b12a78e3ff1c454547701443144c67");
     });
 
-    it("extracts transfer with populated transactionHash", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated transactionHash", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.transactionHash).toBe("0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0");
     });
 
-    it("extracts transfer with populated blockNumber", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated blockNumber", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.blockNumber).toBe(3233097);
     });
 
-    it("extracts transfer with populated amount", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated amount", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.amount).toStrictEqual(BigInt("0x016345785d8a0000"));
     });
 
-    it("extracts transfer with 0x000000000000000000000000000000000000800a as a tokenAddress if log address is 0x000000000000000000000000000000000000800a", () => {
+    it("extracts transfer with 0x000000000000000000000000000000000000800a as a tokenAddress if log address is 0x000000000000000000000000000000000000800a", async () => {
       log = mock<types.Log>({
         ...log,
         address: BASE_TOKEN_ADDRESS,
       });
-      const result = defaultTransferHandler.extract(log, blockDetails);
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.tokenAddress).toBe(BASE_TOKEN_ADDRESS);
       expect(result.tokenType).toBe(TokenType.BaseToken);
     });
 
-    it("extracts transfer with tokenAddress field populated with lower cased log address", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with tokenAddress field populated with lower cased log address", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.tokenAddress).toBe("0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c");
       expect(result.tokenType).toBe(TokenType.ERC20);
     });
 
-    it("extracts transfer of fee type if to address is a bootloader address", () => {
+    it("extracts transfer of fee type if to address is a bootloader address", async () => {
       log = mock<types.Log>({
         ...log,
         topics: log.topics.map((val, index) =>
           index === 2 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
         ),
       });
-      const result = defaultTransferHandler.extract(log, blockDetails);
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.type).toBe(TransferType.Fee);
     });
 
-    it("adds isFeeOrRefund as true if to address is a bootloader address", () => {
+    it("adds isFeeOrRefund as true if to address is a bootloader address", async () => {
       log = mock<types.Log>({
         ...log,
         topics: log.topics.map((val, index) =>
           index === 2 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
         ),
       });
-      const result = defaultTransferHandler.extract(log, blockDetails);
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.isFeeOrRefund).toBe(true);
     });
 
-    it("extracts transfer of refund type if from address is a bootloader address and there are transaction details", () => {
+    it("extracts transfer of refund type if from address is a bootloader address and there are transaction details", async () => {
       const transactionDetails = mock<types.TransactionDetails>();
       log = mock<types.Log>({
         ...log,
@@ -152,22 +155,22 @@ describe("defaultTransferHandler", () => {
           index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
         ),
       });
-      const result = defaultTransferHandler.extract(log, blockDetails, transactionDetails);
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails, transactionDetails);
       expect(result.type).toBe(TransferType.Refund);
     });
 
-    it("extracts transfer of transfer type if from address is a bootloader address and there are no transaction details", () => {
+    it("extracts transfer of transfer type if from address is a bootloader address and there are no transaction details", async () => {
       log = mock<types.Log>({
         ...log,
         topics: log.topics.map((val, index) =>
           index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
         ),
       });
-      const result = defaultTransferHandler.extract(log, blockDetails);
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.type).toBe(TransferType.Transfer);
     });
 
-    it("adds isFeeOrRefund as true if from address is a bootloader address and there are transaction details", () => {
+    it("adds isFeeOrRefund as true if from address is a bootloader address and there are transaction details", async () => {
       const transactionDetails = mock<types.TransactionDetails>();
       log = mock<types.Log>({
         ...log,
@@ -175,43 +178,43 @@ describe("defaultTransferHandler", () => {
           index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
         ),
       });
-      const result = defaultTransferHandler.extract(log, blockDetails, transactionDetails);
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails, transactionDetails);
       expect(result.isFeeOrRefund).toBe(true);
     });
 
-    it("adds isFeeOrRefund as false if from address is a bootloader address and there are no transaction details", () => {
+    it("adds isFeeOrRefund as false if from address is a bootloader address and there are no transaction details", async () => {
       log = mock<types.Log>({
         ...log,
         topics: log.topics.map((val, index) =>
           index === 1 ? "0x0000000000000000000000000000000000000000000000000000000000008001" : val
         ),
       });
-      const result = defaultTransferHandler.extract(log, blockDetails);
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.isFeeOrRefund).toBe(false);
     });
 
-    it("extracts transfer of transfer type if neither to address nor from address is a bootload address", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer of transfer type if neither to address nor from address is a bootload address", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.type).toBe(TransferType.Transfer);
     });
 
-    it("adds isFeeOrRefund as false if neither to address nor from address is a bootload address", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("adds isFeeOrRefund as false if neither to address nor from address is a bootload address", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.isFeeOrRefund).toBe(false);
     });
 
-    it("extracts transfer with logIndex populated from log", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with logIndex populated from log", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.logIndex).toBe(log.index);
     });
 
-    it("extracts transfer with transactionIndex populated from log", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with transactionIndex populated from log", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.transactionIndex).toBe(log.transactionIndex);
     });
 
-    it("extracts transfer with block timestamp", () => {
-      const result = defaultTransferHandler.extract(log, blockDetails);
+    it("extracts transfer with block timestamp", async () => {
+      const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.timestamp).toEqual(new Date(blockDetails.timestamp * 1000));
     });
 
@@ -220,8 +223,8 @@ describe("defaultTransferHandler", () => {
       const transactionDetails = mock<types.TransactionDetails>();
       transactionDetails.receivedAt = receivedAt;
 
-      it("extracts transfer with timestamp equals to transaction receivedAt", () => {
-        const result = defaultTransferHandler.extract(log, blockDetails, transactionDetails);
+      it("extracts transfer with timestamp equals to transaction receivedAt", async () => {
+        const result = await defaultTransferHandler.extract(log, blockchainService, blockDetails, transactionDetails);
         expect(result.timestamp).toBe(receivedAt);
       });
     });

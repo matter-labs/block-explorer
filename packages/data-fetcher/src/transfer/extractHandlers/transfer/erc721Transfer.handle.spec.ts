@@ -1,5 +1,6 @@
 import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
+import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
@@ -8,6 +9,7 @@ import { erc721TransferHandler } from "./erc721Transfer.handler";
 describe("erc721TransferHandler", () => {
   let log: types.Log;
   let blockDetails: types.BlockDetails;
+  let blockchainService: BlockchainService;
   beforeEach(() => {
     log = mock<types.Log>({
       transactionIndex: 0,
@@ -27,6 +29,7 @@ describe("erc721TransferHandler", () => {
     blockDetails = mock<types.BlockDetails>({
       timestamp: new Date().getTime() / 1000,
     });
+    blockchainService = mock<BlockchainService>();
   });
 
   describe("matches", () => {
@@ -50,87 +53,87 @@ describe("erc721TransferHandler", () => {
   });
 
   describe("extract", () => {
-    it("extracts transfer with from field populated with lower cased from address if from log address is not a zero address", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with from field populated with lower cased from address if from log address is not a zero address", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c");
     });
 
-    it("extracts transfer with from equals to `to` address if from log address is a zero address", () => {
+    it("extracts transfer with from equals to `to` address if from log address is a zero address", async () => {
       log = mock<types.Log>({
         ...log,
         topics: log.topics.map((val, index) => (index === 1 ? ZERO_HASH_64 : val)),
       });
-      const result = erc721TransferHandler.extract(log, blockDetails);
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0x7aa5f26e03b12a78e3ff1c454547701443144c67");
     });
 
-    it("extracts transfer with to field populated with lower cased to", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with to field populated with lower cased to", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.to).toBe("0x7aa5f26e03b12a78e3ff1c454547701443144c67");
     });
 
-    it("extracts transfer with populated transactionHash", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated transactionHash", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.transactionHash).toBe("0x6bedb809e97f58d987aea7aad4fcfa8a3f5ecc3cde9a97093b2f3a1a170692a0");
     });
 
-    it("extracts transfer with populated blockNumber", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated blockNumber", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.blockNumber).toBe(3459471);
     });
 
-    it("extracts transfer with undefined amount", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with undefined amount", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.amount).toBe(undefined);
     });
 
-    it("extracts transfer with populated tokenId", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with populated tokenId", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.fields).toBeDefined();
       expect(result.fields.tokenId).toStrictEqual(BigInt(1));
     });
 
-    it("extracts transfer with tokenAddress field populated with lower cased log address", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with tokenAddress field populated with lower cased log address", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.tokenAddress).toBe("0x89bcb56033920b8a654109faeb1f87e0c3358cad");
     });
 
-    it("extracts transfer of ERC721 token type", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer of ERC721 token type", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.tokenType).toBe(TokenType.ERC721);
     });
 
-    it("extracts transfer of transfer type if from address is not a zero address", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer of transfer type if from address is not a zero address", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.type).toBe(TransferType.Transfer);
     });
 
-    it("adds isFeeOrRefund as false", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("adds isFeeOrRefund as false", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.isFeeOrRefund).toBe(false);
     });
 
-    it("extracts transfer of mint type if from address is a zero address", () => {
+    it("extracts transfer of mint type if from address is a zero address", async () => {
       log = mock<types.Log>({
         ...log,
         topics: log.topics.map((val, index) => (index === 1 ? ZERO_HASH_64 : val)),
       });
-      const result = erc721TransferHandler.extract(log, blockDetails);
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.type).toBe(TransferType.Mint);
     });
 
-    it("extracts transfer with logIndex populated from log", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with logIndex populated from log", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.logIndex).toBe(log.index);
     });
 
-    it("extracts transfer with transactionIndex populated from log", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with transactionIndex populated from log", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.transactionIndex).toBe(log.transactionIndex);
     });
 
-    it("extracts transfer with block timestamp", () => {
-      const result = erc721TransferHandler.extract(log, blockDetails);
+    it("extracts transfer with block timestamp", async () => {
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.timestamp).toEqual(new Date(blockDetails.timestamp * 1000));
     });
 
@@ -139,8 +142,8 @@ describe("erc721TransferHandler", () => {
       const transactionDetails = mock<types.TransactionDetails>();
       transactionDetails.receivedAt = receivedAt;
 
-      it("extracts transfer with timestamp equals to transaction receivedAt", () => {
-        const result = erc721TransferHandler.extract(log, blockDetails, transactionDetails);
+      it("extracts transfer with timestamp equals to transaction receivedAt", async () => {
+        const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails, transactionDetails);
         expect(result.timestamp).toBe(receivedAt);
       });
     });

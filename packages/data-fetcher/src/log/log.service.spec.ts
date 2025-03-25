@@ -80,7 +80,7 @@ describe("LogService", () => {
 
     beforeEach(() => {
       jest.spyOn(addressServiceMock, "getContractAddresses").mockResolvedValueOnce(deployedContractAddresses);
-      jest.spyOn(transferServiceMock, "getTransfers").mockReturnValueOnce(transfers);
+      jest.spyOn(transferServiceMock, "getTransfers").mockResolvedValueOnce(transfers);
       jest.spyOn(tokenServiceMock, "getERC20Token").mockResolvedValueOnce(tokens[0]);
       jest.spyOn(tokenServiceMock, "getERC20Token").mockResolvedValueOnce(tokens[1]);
 
