@@ -137,6 +137,11 @@
           </div>
         </div>
       </template>
+      <template #tab-6-content>
+        <div class="functions-contract-container">
+          <DiamondProxy :contract="props.contract" />
+        </div>
+      </template>
     </Tabs>
     <ContractBytecode v-else :contract="contract" />
   </div>
@@ -151,6 +156,7 @@ import Alert from "@/components/common/Alert.vue";
 import HashLabel from "@/components/common/HashLabel.vue";
 import Tabs from "@/components/common/Tabs.vue";
 import ContractBytecode from "@/components/contract/ContractBytecode.vue";
+import DiamondProxy from "@/components/contract/ContractInfoTabDiamondProxy.vue";
 import FunctionDropdown from "@/components/contract/interaction/FunctionDropdown.vue";
 
 import type { Contract } from "@/composables/useAddress";
@@ -237,6 +243,7 @@ const readProxyFunctions = computed(() => {
 const tabs = computed(() => {
   const isVerified = !!props.contract?.verificationInfo;
   const isProxy = !!props.contract?.proxyInfo;
+  const isDiamondProxy = !!props.contract?.diamondProxyInfo;
   if (isVerified || isProxy) {
     return [
       { title: t("contractInfoTabs.contract"), hash: "#contract-info" },
@@ -244,6 +251,7 @@ const tabs = computed(() => {
       { title: t("contractInfoTabs.write"), hash: isVerified ? "#write" : null },
       { title: t("contractInfoTabs.readAsProxy"), hash: isProxy ? "#read-proxy" : null },
       { title: t("contractInfoTabs.writeAsProxy"), hash: isProxy ? "#write-proxy" : null },
+      { title: t("contractInfoTabs.diamondProxy"), hash: isDiamondProxy ? "#diamon-proxy" : null },
     ];
   }
   return [];
@@ -270,23 +278,5 @@ const tabs = computed(() => {
 <style lang="scss" scoped>
 .functions-contract-container {
   @apply mt-4;
-  .functions-dropdown-container {
-    @apply grid grid-cols-1 gap-4 md:mb-10;
-    .function-dropdown-spacer {
-      @apply space-y-4;
-      .metamask-button-container {
-        @apply flex flex-col justify-between sm:flex-row;
-      }
-      .function-type-title {
-        @apply text-xl leading-8 text-neutral-700;
-      }
-    }
-  }
-  .proxy-implementation-link {
-    @apply mb-4;
-  }
-  .to-lowercase {
-    @apply lowercase;
-  }
 }
 </style>
