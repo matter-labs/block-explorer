@@ -222,7 +222,7 @@ const submit = async () => {
   }
   // remove optional empty values from array
   const data: { [key: string]: string | string[] | boolean | boolean[] } = Object.fromEntries(
-    Object.entries(form.value).map(([key, val]) => [key, Array.isArray(val) ? val.filter((v) => !!v) : val])
+    Object.entries(form.value).map(([key, val]) => [key, Array.isArray(val) ? val.filter((v) => v !== "") : val])
   );
   // convert booleans from string to bool
   inputs.value
@@ -230,7 +230,15 @@ const submit = async () => {
     .forEach((boolInput) => {
       const field = data[boolInput.key];
       if (field) {
-        data[boolInput.key] = Array.isArray(field) ? field.map(convertBoolean) : convertBoolean(field);
+        if (Array.isArray(field)) {
+          // For arrays, convert each value individually
+          data[boolInput.key] = field.map((v) => {
+            if (v === "") return false;
+            return convertBoolean(v);
+          });
+        } else {
+          data[boolInput.key] = convertBoolean(field);
+        }
       }
     });
   emit("submit", data);
