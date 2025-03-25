@@ -111,17 +111,13 @@
           class="label-inline-block"
           v-if="isEVMSolcCompiler"
         >
-          <CheckBoxInput
-            v-model="isEvmVersionCustom"
-            :disabled="!isEVMSolcCompiler"
-            @update:model-value="onEVMSelectionChanged"
-          >
+          <CheckBoxInput v-model="isEvmVersionCustom" :disabled="!isEVMSolcCompiler">
             {{ t("contractVerification.form.zksolcVersion.evmVersionToTarget.custom") }}
           </CheckBoxInput>
           <Dropdown
             v-if="!isEvmVersionCustom"
             class="clear-both"
-            v-model="selectedZkCompilerVersion"
+            v-model="selectedEvmVersion"
             id="evmVersionToTarget"
             :default-option="EVM_VERSION_TO_TARGET[0] || ''"
             :options="EVM_VERSION_TO_TARGET"
@@ -131,7 +127,7 @@
               id="evmVersionToTargetCustom"
               type="text"
               :placeholder="t('contractVerification.form.zksolcVersion.evmVersionToTarget.inputPlaceholder')"
-              v-model="form.zkCompilerVersion"
+              v-model="form.evmVersion"
             />
           </FormItem>
         </FormItem>
@@ -425,6 +421,7 @@ const selectedCompiler = computed(() => {
 const selectedZkCompilerVersion = ref(
   selectedZkCompiler.value.versions[selectedZkCompiler.value.versions.length - 1] || ""
 );
+const selectedEvmVersion = ref(EVM_VERSION_TO_TARGET[0] || "");
 const selectedCompilerVersion = ref(selectedCompiler.value.versions[selectedCompiler.value.versions.length - 1] || "");
 
 const disabledSubmitButton = computed(() => {
@@ -441,7 +438,12 @@ const disabledClearButton = computed(() => {
 });
 
 const defaultValues = computed<
-  ContractVerificationData & { contractPath: string; sourceCode: string; files: File[]; mainFileName: string }
+  ContractVerificationData & {
+    contractPath: string;
+    sourceCode: string;
+    files: File[];
+    mainFileName: string;
+  }
 >(() => {
   return {
     codeFormat: ContractVerificationCodeFormatEnum.soliditySingleFile,
@@ -449,8 +451,8 @@ const defaultValues = computed<
     contractName: "",
     contractPath: "",
     optimizationUsed: true,
-    zkCompilerVersion:
-      isEVMSolcCompiler.value && isEvmVersionCustom.value ? "" : selectedZkCompiler.value.versions[0] || "",
+    zkCompilerVersion: selectedZkCompiler.value.versions[0] || "",
+    evmVersion: EVM_VERSION_TO_TARGET[0] || "",
     compilerVersion: selectedCompiler.value.versions[0] || "",
     sourceCode: "",
     constructorArguments: "",
@@ -471,6 +473,9 @@ const isFilePathRequired = computed(() => {
     return false;
   }
   if (selectedCompilationType.value === CompilationTypeOptionsEnum.solidityMultiPart) {
+    return false;
+  }
+  if (isEVMSolcCompiler.value) {
     return false;
   }
   if (!selectedZkCompilerVersion.value) {
@@ -518,6 +523,12 @@ const v$ = useVuelidate(
     zkCompilerVersion: {
       required: withI18nMessage(required, {
         messagePath: () => `contractVerification.form.${selectedZkCompiler.value.name}Version.validation.required`,
+      }),
+    },
+    evmVersion: {
+      required: withI18nMessage(required, {
+        messagePath: () =>
+          `contractVerification.form.${selectedZkCompiler.value.name}Version.evmVersionToTarget.validation.required`,
       }),
     },
     compilerVersion: {
@@ -573,21 +584,27 @@ function onZkVMSelectionChanged() {
 }
 
 function onEVMSelectionChanged() {
-  selectedCompilerVersion.value = EVM_VERSION_TO_TARGET[0] || "";
+  selectedEvmVersion.value = EVM_VERSION_TO_TARGET[0] || "";
+  selectedZkCompilerVersion.value = selectedZkCompiler.value.versions[0];
 }
 
 function onCompilationTypeChange() {
+  isEVMSolcCompiler.value = false;
+  selectedEvmVersion.value = EVM_VERSION_TO_TARGET[0] || "";
   selectedZkCompilerVersion.value = selectedZkCompiler.value.versions[0] || "";
   selectedCompilerVersion.value = selectedCompiler.value.versions[0] || "";
 }
 function clearForm() {
   form.value = Object.assign({}, defaultValues.value);
+  selectedEvmVersion.value = "";
   selectedZkCompilerVersion.value = "";
   selectedCompilerVersion.value = "";
   v$.value.$reset();
 }
+
 async function submitForm() {
   form.value.zkCompilerVersion = selectedZkCompilerVersion.value || defaultValues.value.zkCompilerVersion;
+  form.value.evmVersion = selectedEvmVersion.value || EVM_VERSION_TO_TARGET[0];
   form.value.compilerVersion = selectedCompilerVersion.value || defaultValues.value.compilerVersion;
   const validationResult = await v$.value.$validate();
   if (!validationResult) {
@@ -598,6 +615,7 @@ async function submitForm() {
     contractAddress: form.value.contractAddress,
     optimizationUsed: form.value.optimizationUsed,
     zkCompilerVersion: form.value.zkCompilerVersion,
+    evmVersion: form.value.evmVersion,
     compilerVersion: form.value.compilerVersion,
     constructorArguments: form.value.constructorArguments,
     isEVM: isEVMSolcCompiler.value,

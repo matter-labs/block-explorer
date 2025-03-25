@@ -40,10 +40,10 @@ const inputted = computed({
   @apply flex items-center mb-1 cursor-pointer float-right leading-snug;
 
   &.disabled {
-    @apply opacity-50;
+    @apply opacity-50 cursor-default;
 
     input {
-      @apply hover:border-neutral-200;
+      @apply hover:border-neutral-200 cursor-default;
     }
   }
 

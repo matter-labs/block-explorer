@@ -482,7 +482,10 @@
                 "evmVersionToTarget": {
                     "label": "EVM Version to target",
                     "custom": "Custom",
-                    "inputPlaceholder": "Custom version..."
+                    "inputPlaceholder": "Custom version...",
+                    "validation": {
+                        "required": "EVM Version to target is required"
+                    }
                 }
             },
             "evmVersion": {

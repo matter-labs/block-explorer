@@ -55,6 +55,7 @@ export type ContractVerificationData = {
         };
       };
   zkCompilerVersion: string;
+  evmVersion: string;
   compilerVersion: string;
   constructorArguments: string;
 };
