@@ -478,7 +478,7 @@ const isFilePathRequired = computed(() => {
   if (isEVMSolcCompiler.value) {
     return false;
   }
-  if (!selectedZkCompilerVersion.value) {
+  if (!selectedZkCompilerVersion.value || !selectedEvmVersion.value) {
     return true;
   }
   const targetVersion = "v1.3.6";
