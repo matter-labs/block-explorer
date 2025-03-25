@@ -16,10 +16,16 @@ export class BatchService {
     blockRepository: BlockRepository,
     configService: ConfigService
   ) {
-    this.batchWorkers = [BatchState.Executed, BatchState.Proven, BatchState.Committed, BatchState.New].map(
+    this.batchWorkers = [
+      BatchState.Executed,
+      BatchState.Proven,
+      BatchState.Committed,
+      BatchState.New,
+      BatchState.TeeProven,
+    ].map(
       (batchState) =>
         new BatchWorker(
-          new BatchProcessor(batchState, blockchainService, batchRepository, blockRepository),
+          new BatchProcessor(batchState, blockchainService, batchRepository, blockRepository, configService),
           configService.get<number>("batches.batchesProcessingPollingInterval")
         )
     );
