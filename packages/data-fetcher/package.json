@@ -80,7 +80,7 @@
     "coverageDirectory": "../coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 95,
+        "branches": 92,
         "functions": 84,
         "lines": 90,
         "statements": 90

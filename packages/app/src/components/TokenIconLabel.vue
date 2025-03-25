@@ -22,12 +22,22 @@
         />
       </div>
     </AddressLink>
-    <div class="token-info" v-if="name && symbol">
-      <div class="token-symbol">
-        {{ symbol }}
-      </div>
-      <div class="token-name">
-        {{ name }}
+    <div class="token-info-container">
+      <div class="token-info" v-if="name && symbol">
+        <div class="token-symbol">
+          {{ symbol }}
+        </div>
+        <div class="token-name">
+          {{ name }}
+        </div>
+        <div class="token-badge">
+          <Badge v-if="bridged" color="primary" class="verified-badge" :tooltip="t('tokensView.table.bridged.tooltip')">
+            {{ t("tokensView.table.bridged.title") }}
+          </Badge>
+          <Badge v-else color="progress" class="verified-badge" :tooltip="t('tokensView.table.native.tooltip')">
+            {{ t("tokensView.table.native.title") }}
+          </Badge>
+        </div>
       </div>
     </div>
   </div>
@@ -40,6 +50,7 @@ import { useImage } from "@vueuse/core";
 import { L2_BASE_TOKEN_ADDRESS } from "zksync-ethers/build/utils";
 
 import AddressLink from "@/components/AddressLink.vue";
+import Badge from "@/components/common/Badge.vue";
 
 import type { Hash } from "@/types";
 
@@ -71,6 +82,10 @@ const props = defineProps({
   name: {
     type: String,
     default: "",
+  },
+  bridged: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -121,12 +136,21 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
       }
     }
   }
+  .token-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
   .token-info {
     .token-symbol {
       @apply text-neutral-600;
     }
     .token-name {
       @apply text-xs text-neutral-400;
+    }
+    .token-badge {
+      @apply flex items-center justify-end md:justify-start gap-x-1;
     }
   }
 }

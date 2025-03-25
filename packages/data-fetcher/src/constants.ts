@@ -5,10 +5,14 @@ import * as l2SharedBridgeAbi from "zksync-ethers/abi/IL2SharedBridge.json";
 import * as erc721Abi from "./abis/erc721.json";
 import * as transferEventWithNoIndexesAbi from "./abis/transferEventWithNoIndexes.json";
 import * as l2StandardERC20Abi from "./abis/l2StandardERC20.json";
+import * as l2AssetRouterAbi from "./abis/l2AssetRouter.json";
+import * as l2NativeTokenVaultAbi from "./abis/l2NativeTokenVault.json";
 
 export const ZERO_HASH_64 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const BASE_TOKEN_ADDRESS = "0x000000000000000000000000000000000000800a";
 export const ETH_L1_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const L2_ASSET_ROUTER_ADDRESS = "0x0000000000000000000000000000000000010003";
+export const L2_NATIVE_TOKEN_VAULT_ADDRESS = "0x0000000000000000000000000000000000010004";
 
 export const CONTRACT_INTERFACES = {
   ERC20: {
@@ -34,5 +38,13 @@ export const CONTRACT_INTERFACES = {
   L2_SHARED_BRIDGE: {
     interface: new Interface(l2SharedBridgeAbi),
     abi: l2SharedBridgeAbi,
+  },
+  L2_ASSET_ROUTER: {
+    interface: new Interface(l2AssetRouterAbi),
+    abi: l2AssetRouterAbi,
+  },
+  L2_NATIVE_TOKEN_VAULT: {
+    interface: new Interface(l2NativeTokenVaultAbi),
+    abi: l2NativeTokenVaultAbi,
   },
 };

@@ -143,6 +143,7 @@
             "transferMethodName": "Transfer",
             "timestamp": "Timestamp",
             "age": "Age",
+            "dateTimeUTC": "Date Time (UTC)",
             "tokenAddress": "Token address",
             "tokenName": "Token name",
             "tokenSymbol": "Token symbol",
@@ -558,7 +559,10 @@
             "compilerVersion": "Compiler Version",
             "zksolcVersion": "Zksolc Version",
             "zkvyperVersion": "Zkvyper Version",
-            "optimization": "Optimization"
+            "optimization": "Optimization",
+            "autoVerified": "The contract wasn't manually verified, but its bytecode matches the bytecode of the following contract:",
+            "partialVerification": "Contract is partially verified: the contract metadata hash and/or constructor arguments do not match. Partial verification provides less guarantees about the authenticity of the code.",
+            "partialVerificationDetails": "See more details"
         },
         "multiFileVerification": {
             "solcTitle": "Please select the Solidity (*.sol) files for upload",
@@ -613,7 +617,17 @@
         "table": {
             "tokenName": "Token Name",
             "price": "Price",
-            "tokenAddress": "Token Address"
+            "tokenAddress": "Token Address",
+            "bridged": {
+                "title": "Bridged",
+                "tooltip": "This token is bridged from L1 to ZKsync Era"
+            },
+            "native": {
+                "title": "L2-native",
+                "tooltip": "This token is native to ZKsync Era"
+            },
+            "tokenAddressL2": "L2 Token address",
+            "tokenAddressL1": "L1 Token address"
         }
     },
     "tokenHolders": {
@@ -760,8 +774,8 @@
         }
     },
     "systemAlert": {
-        "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
-        "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
+        "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">explorers</a> meanwhile.",
+        "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">explorers</a> meanwhile."
     },
     "pagination": {
         "records": "Records"

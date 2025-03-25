@@ -11,6 +11,8 @@ import {
 } from "../repositories";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME } from "../metrics";
 import { TransactionData } from "../dataFetcher/types";
+import { ConfigService } from "@nestjs/config";
+import { utils } from "zksync-ethers";
 
 @Injectable()
 export class TransactionProcessor {
@@ -23,6 +25,7 @@ export class TransactionProcessor {
     private readonly transferRepository: TransferRepository,
     private readonly addressRepository: AddressRepository,
     private readonly tokenRepository: TokenRepository,
+    private readonly configService: ConfigService,
     @InjectMetric(TRANSACTION_PROCESSING_DURATION_METRIC_NAME)
     private readonly transactionProcessingDurationMetric: Histogram
   ) {
@@ -103,7 +106,21 @@ export class TransactionProcessor {
     });
     await Promise.all(
       transactionData.tokens.map((token) => {
-        return this.tokenRepository.upsert(token);
+        if (token.l2Address.toLowerCase() === utils.L2_BASE_TOKEN_ADDRESS.toLowerCase()) {
+          return this.tokenRepository.upsert({
+            blockNumber: token.blockNumber,
+            transactionHash: token.transactionHash,
+            logIndex: token.logIndex,
+            l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+            l1Address: this.configService.get<string>("tokens.baseToken.l1Address"),
+            symbol: this.configService.get<string>("tokens.baseToken.symbol"),
+            name: this.configService.get<string>("tokens.baseToken.name"),
+            decimals: this.configService.get<number>("tokens.baseToken.decimals"),
+            iconURL: this.configService.get<string>("tokens.baseToken.iconUrl"),
+          });
+        } else {
+          return this.tokenRepository.upsert(token);
+        }
       })
     );
 

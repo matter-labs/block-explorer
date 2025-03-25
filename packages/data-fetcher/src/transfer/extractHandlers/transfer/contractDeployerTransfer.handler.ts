@@ -12,11 +12,12 @@ export const contractDeployerTransferHandler: ExtractTransferHandler = {
   matches: (log: types.Log, transactionReceipt: types.TransactionReceipt): boolean =>
     transactionReceipt?.to === utils.CONTRACT_DEPLOYER_ADDRESS &&
     (log.topics.length === 1 || log.topics[1] === ZERO_HASH_64),
-  extract: (
+  extract: async (
     log: types.Log,
+    _,
     blockDetails: types.BlockDetails,
     transactionDetails?: types.TransactionDetails
-  ): Transfer => {
+  ): Promise<Transfer> => {
     const parsedLog =
       log.topics.length === 1
         ? parseLog(CONTRACT_INTERFACES.TRANSFER_WITH_NO_INDEXES, log)
