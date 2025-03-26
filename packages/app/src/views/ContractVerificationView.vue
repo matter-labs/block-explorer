@@ -106,28 +106,32 @@
           />
         </FormItem>
         <FormItem
-          id="evmVersionToTarget"
-          :label="t(`contractVerification.form.${selectedZkCompiler.name}Version.evmVersionToTarget.label`)"
+          id="evmVersion"
+          :label="t(`contractVerification.form.${selectedZkCompiler.name}Version.evmVersion.label`)"
           class="label-inline-block"
           v-if="isEVMSolcCompiler"
         >
-          <CheckBoxInput v-model="isEvmVersionCustom" :disabled="!isEVMSolcCompiler">
-            {{ t("contractVerification.form.zksolcVersion.evmVersionToTarget.custom") }}
+          <CheckBoxInput
+            v-model="isEvmVersionCustom"
+            :disabled="!isEVMSolcCompiler"
+            @update:model-value="onCustomEvmVersionChanged"
+          >
+            {{ t("contractVerification.form.zksolcVersion.evmVersion.custom") }}
           </CheckBoxInput>
           <Dropdown
             v-if="!isEvmVersionCustom"
             class="clear-both"
             v-model="selectedEvmVersion"
-            id="evmVersionToTarget"
+            id="evmVersion"
             :default-option="EVM_VERSION_TO_TARGET[0] || ''"
             :options="EVM_VERSION_TO_TARGET"
           />
-          <FormItem v-else-if="isEvmVersionCustom" id="evmVersionToTargetCustom" class="clear-both">
+          <FormItem v-else-if="isEvmVersionCustom" id="evmVersionCustom" class="clear-both">
             <Input
-              id="evmVersionToTargetCustom"
+              id="evmVersionCustom"
               type="text"
-              :placeholder="t('contractVerification.form.zksolcVersion.evmVersionToTarget.inputPlaceholder')"
-              v-model="form.evmVersion"
+              :placeholder="t('contractVerification.form.zksolcVersion.evmVersion.inputPlaceholder')"
+              v-model="selectedEvmVersion"
             />
           </FormItem>
         </FormItem>
@@ -528,7 +532,7 @@ const v$ = useVuelidate(
     evmVersion: {
       required: withI18nMessage(required, {
         messagePath: () =>
-          `contractVerification.form.${selectedZkCompiler.value.name}Version.evmVersionToTarget.validation.required`,
+          `contractVerification.form.${selectedZkCompiler.value.name}Version.evmVersion.validation.required`,
       }),
     },
     compilerVersion: {
@@ -578,6 +582,14 @@ const v$ = useVuelidate(
   },
   form
 );
+
+function onCustomEvmVersionChanged(isChecked: unknown) {
+  if (isChecked) {
+    selectedEvmVersion.value = "";
+  } else {
+    selectedEvmVersion.value = EVM_VERSION_TO_TARGET[0] || "";
+  }
+}
 
 function onZkVMSelectionChanged() {
   selectedCompilerVersion.value = selectedCompiler.value.versions[0] || "";

@@ -99,6 +99,8 @@ export default (context = useContext()) => {
           acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
           return acc;
         }, {});
+      } else {
+        sourceCodeVal = sourceCode;
       }
 
       let compilerVersionsVal;
