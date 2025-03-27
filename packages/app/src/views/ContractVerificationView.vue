@@ -405,7 +405,7 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
 
 const isEvmVersionCustom = ref(false);
 
-const isZkVMSolcCompiler = ref(false);
+const isZkVMSolcCompiler = ref(true);
 const isEVMSolcCompiler = ref(false);
 const selectedCompilationType = ref(CompilationTypeOptionsEnum.soliditySingleFile);
 const isSingleFile = computed(() =>
@@ -471,7 +471,7 @@ const defaultValues = computed<
     files: [],
     mainFileName: "",
     isEVM: isEVMSolcCompiler.value,
-    runs: 0,
+    runs: 200,
   };
 });
 
@@ -486,9 +486,6 @@ const isFilePathRequired = computed(() => {
     return false;
   }
   if (selectedCompilationType.value === CompilationTypeOptionsEnum.solidityMultiPart) {
-    return false;
-  }
-  if (isEVMSolcCompiler.value) {
     return false;
   }
   if (!selectedZkCompilerVersion.value || !selectedEvmVersion.value) {
