@@ -125,16 +125,6 @@ export default (context = useContext()) => {
         };
       }
 
-      const bodyRequest = {
-        ...payload,
-        sourceCode: sourceCodeVal,
-        ...compilerVersionsVal,
-        ...(isEVM ? { runs: runs || 0 } : {}),
-        constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
-      };
-
-      console.log({ bodyRequest });
-
       const response = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification`, {
         method: "POST",
         body: {
