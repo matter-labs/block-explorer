@@ -230,7 +230,11 @@
         />
         <template #underline>{{ t("contractVerification.form.contractPath.underline") }}</template>
       </FormItem>
-      <FormItem v-if="form.optimizationUsed" id="contractRuns" :label="t('contractVerification.form.runs.label')">
+      <FormItem
+        v-if="form.optimizationUsed && isEVMSolcCompiler"
+        id="contractRuns"
+        :label="t('contractVerification.form.runs.label')"
+      >
         <Input id="contractName" type="number" :disabled="isRequestPending" v-model="form.runs" />
         <template #underline>{{ t("contractVerification.form.runs.underline") }}</template>
       </FormItem>

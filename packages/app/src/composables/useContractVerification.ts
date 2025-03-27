@@ -132,7 +132,7 @@ export default (context = useContext()) => {
           ...payload,
           sourceCode: sourceCodeVal,
           ...compilerVersionsVal,
-          ...(optimizationUsed ? { runs } : {}),
+          ...(isEVM && optimizationUsed ? { runs } : {}),
           constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
         },
       });
