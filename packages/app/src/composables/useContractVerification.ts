@@ -86,7 +86,7 @@ export default (context = useContext()) => {
         ContractVerificationCodeFormatEnum.soliditySingleFile,
         ContractVerificationCodeFormatEnum.solidityMultiPart,
       ].includes(data.codeFormat);
-      const { sourceCode, zkCompilerVersion, evmVersion, compilerVersion, isEVM, ...payload } = data;
+      const { sourceCode, zkCompilerVersion, evmVersion, compilerVersion, runs, isEVM, ...payload } = data;
 
       let sourceCodeVal;
 
@@ -125,12 +125,23 @@ export default (context = useContext()) => {
         };
       }
 
+      const bodyRequest = {
+        ...payload,
+        sourceCode: sourceCodeVal,
+        ...compilerVersionsVal,
+        ...(isEVM ? { runs: runs || 0 } : {}),
+        constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
+      };
+
+      console.log({ bodyRequest });
+
       const response = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification`, {
         method: "POST",
         body: {
           ...payload,
           sourceCode: sourceCodeVal,
           ...compilerVersionsVal,
+          ...(isEVM ? { runs } : {}),
           constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
         },
       });

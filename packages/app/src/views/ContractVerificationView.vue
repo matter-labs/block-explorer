@@ -230,6 +230,10 @@
         />
         <template #underline>{{ t("contractVerification.form.contractPath.underline") }}</template>
       </FormItem>
+      <FormItem v-if="isEVMSolcCompiler" id="contractRuns" :label="t('contractVerification.form.runs.label')">
+        <Input id="contractName" type="number" :disabled="isRequestPending" v-model="form.runs" />
+        <template #underline>{{ t("contractVerification.form.runs.underline") }}</template>
+      </FormItem>
       <FormItem
         v-if="isSingleFile"
         class="full-grid-width"
@@ -463,6 +467,7 @@ const defaultValues = computed<
     files: [],
     mainFileName: "",
     isEVM: isEVMSolcCompiler.value,
+    runs: 0,
   };
 });
 
@@ -631,6 +636,7 @@ async function submitForm() {
     compilerVersion: form.value.compilerVersion,
     constructorArguments: form.value.constructorArguments,
     isEVM: isEVMSolcCompiler.value,
+    runs: form.value.runs,
   };
   if (isSingleFile.value) {
     await requestVerification({

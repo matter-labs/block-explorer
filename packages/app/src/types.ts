@@ -39,6 +39,7 @@ export type ContractVerificationData = {
   contractName: string;
   optimizationUsed: boolean;
   isEVM: boolean;
+  runs: number;
   sourceCode:
     | string
     | {

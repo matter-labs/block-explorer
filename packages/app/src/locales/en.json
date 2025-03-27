@@ -453,6 +453,10 @@
                     "required": "Contract path is required"
                 }
             },
+            "runs": {
+                "label": "Runs",
+                "underline": "Optimize for how many times you intend to run the code. Lower values will optimize more for initial deployment cost, higher values will optimize more for high-frequency usage."
+            },
             "optimizationUsed": {
                 "label": "Optimization",
                 "options": {
