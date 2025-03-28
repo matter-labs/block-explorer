@@ -1,12 +1,15 @@
 import { types, utils } from "zksync-ethers";
 import { Injectable, Logger } from "@nestjs/common";
+import { BlockchainService } from "../blockchain/blockchain.service";
 import { LogType } from "../log/logType";
 import isInternalTransaction from "../utils/isInternalTransaction";
 import { ExtractTransferHandler } from "./interfaces/extractTransferHandler.interface";
 import { Transfer } from "./interfaces/transfer.interface";
 import {
   defaultFinalizeDepositHandler,
+  assetRouterFinalizeDepositHandler,
   defaultWithdrawalInitiatedHandler,
+  assetRouterWithdrawalInitiatedHandler,
   erc721TransferHandler,
   contractDeployerTransferHandler,
   defaultTransferHandler,
@@ -25,33 +28,57 @@ export enum TransferType {
 
 const extractTransfersHandlers: Record<string, ExtractTransferHandler[]> = {
   [LogType.FinalizeDeposit]: [defaultFinalizeDepositHandler],
+  [LogType.DepositFinalizedAssetRouter]: [assetRouterFinalizeDepositHandler],
   [LogType.WithdrawalInitiated]: [defaultWithdrawalInitiatedHandler],
+  [LogType.WithdrawalInitiatedAssetRouter]: [assetRouterWithdrawalInitiatedHandler],
   [LogType.Transfer]: [erc721TransferHandler, contractDeployerTransferHandler, defaultTransferHandler],
   [LogType.Mint]: [ethMintFromL1Handler],
   [LogType.Withdrawal]: [ethWithdrawalToL1Handler],
 };
 
+// Array of logs that tell about the same event, e.g. one is legacy another is a new one.
+// This is used to make sure multiple transfers are not produces by these logs.
+const conflictingTransferLogs = [
+  [LogType.FinalizeDeposit, LogType.DepositFinalizedAssetRouter],
+  [LogType.WithdrawalInitiated, LogType.WithdrawalInitiatedAssetRouter],
+];
+
 @Injectable()
 export class TransferService {
   private readonly logger: Logger;
 
-  constructor() {
+  constructor(private readonly blockchainService: BlockchainService) {
     this.logger = new Logger(TransferService.name);
   }
 
-  public getTransfers(
+  public async getTransfers(
     logs: ReadonlyArray<types.Log>,
     blockDetails: types.BlockDetails,
     transactionDetails?: types.TransactionDetails,
     transactionReceipt?: types.TransactionReceipt
-  ): Transfer[] {
+  ): Promise<Transfer[]> {
     const transfers: Transfer[] = [];
     if (!logs) {
       return transfers;
     }
 
+    // Remove handlers for logs that tell about the same event as other present logs
+    // This is done to avoid having duplicated transfers produces
+    const uniqueExtractTransfersHandlers = {
+      ...extractTransfersHandlers,
+    };
+    for (const topics of conflictingTransferLogs) {
+      const firstMatchingLog = logs.find((log) => topics.find((topic) => log.topics[0] === topic));
+      if (firstMatchingLog) {
+        const topicsToRemoveHandlers = topics.filter((t) => t !== firstMatchingLog.topics[0]);
+        for (const topicToRemoveHandlers of topicsToRemoveHandlers) {
+          delete uniqueExtractTransfersHandlers[topicToRemoveHandlers];
+        }
+      }
+    }
+
     for (const log of logs) {
-      const handlerForLog = extractTransfersHandlers[log.topics[0]]?.find((handler) =>
+      const handlerForLog = uniqueExtractTransfersHandlers[log.topics[0]]?.find((handler) =>
         handler.matches(log, transactionReceipt)
       );
 
@@ -60,7 +87,7 @@ export class TransferService {
       }
 
       try {
-        const transfer = handlerForLog.extract(log, blockDetails, transactionDetails);
+        const transfer = await handlerForLog.extract(log, this.blockchainService, blockDetails, transactionDetails);
         if (transfer) {
           transfers.push(transfer);
         }

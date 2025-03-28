@@ -2,6 +2,7 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import { types } from "zksync-ethers";
+import { BlockchainService } from "../blockchain/blockchain.service";
 import { TransferService } from "./transfer.service";
 import { TokenType } from "../token/token.service";
 
@@ -63,10 +64,18 @@ const toTxReceipt = (receipt: any): types.TransactionReceipt => receipt as types
 
 describe("TransferService", () => {
   let transferService: TransferService;
+  let blockchainServiceMock: BlockchainService;
 
   beforeEach(async () => {
+    blockchainServiceMock = mock<BlockchainService>();
     const app = await Test.createTestingModule({
-      providers: [TransferService],
+      providers: [
+        TransferService,
+        {
+          provide: BlockchainService,
+          useValue: blockchainServiceMock,
+        },
+      ],
     }).compile();
 
     app.useLogger(mock<Logger>());
@@ -2096,9 +2105,9 @@ describe("TransferService", () => {
     describe("when tx contains transfer log which fails to be parsed", () => {
       it("throws an error", async () => {
         const txReceipt = toTxReceipt(logParsingError);
-        expect(() =>
+        await expect(
           transferService.getTransfers(txReceipt.logs, blockDetails, transactionDetails, txReceipt)
-        ).toThrowError();
+        ).rejects.toThrowError();
       });
     });
 
