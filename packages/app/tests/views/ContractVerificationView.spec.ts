@@ -145,7 +145,7 @@ describe("ContractVerificationView:", () => {
 
     await wrapper.find("#compilerType").trigger("click");
     await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(3)`).trigger("click");
-    expect(wrapper.findAll(".checkbox-input-container").length).toBe(1);
+    expect(wrapper.find(".checkbox-input-container").exists()).toBe(false);
   });
   it("doesn't show zkVM checkbox when vyper MFV was select", async () => {
     const wrapper = mount(ContractVerificationView, {
@@ -157,7 +157,7 @@ describe("ContractVerificationView:", () => {
 
     await wrapper.find("#compilerType").trigger("click");
     await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(4)`).trigger("click");
-    expect(wrapper.findAll(".checkbox-input-container").length).toBe(1);
+    expect(wrapper.find(".checkbox-input-container").exists()).toBe(false);
   });
   it("shows custom error text", async () => {
     const mock = vi.spyOn(useContractVerification, "default").mockReturnValue({
