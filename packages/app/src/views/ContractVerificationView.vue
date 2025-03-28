@@ -145,16 +145,8 @@
               v-if="selectedCompiler.name === CompilerEnum.solc"
               v-model="isZkVMSolcCompiler"
               @update:model-value="onZkVMSelectionChanged"
-              :disabled="isEVMSolcCompiler"
             >
               {{ t("contractVerification.form.solcVersion.zkVM") }}
-            </CheckBoxInput>
-            <CheckBoxInput
-              v-model="isEVMSolcCompiler"
-              @update:model-value="onEVMSelectionChanged"
-              :disabled="isZkVMSolcCompiler"
-            >
-              {{ t("contractVerification.form.solcVersion.EVM") }}
             </CheckBoxInput>
           </div>
           <Dropdown
@@ -196,6 +188,14 @@
         </div>
         <template #underline>{{ t("contractVerification.form.optimizationUsed.underline") }}</template>
       </FormItem>
+
+      <h3 class="form-subheading">{{ t("contractVerification.form.compilationTarget.title") }}</h3>
+      <ToggleSwitch
+        v-model="isEVMSolcCompiler"
+        :label-left="'EraVM'"
+        :label-right="t('contractVerification.form.solcVersion.EVM')"
+        @on-changed="onEVMSelectionChanged"
+      />
 
       <h3 class="form-subheading">Contract info</h3>
       <FormItem id="contractName" :label="t('contractVerification.form.contractName.label')">
@@ -336,6 +336,7 @@ import Dropdown from "@/components/common/Dropdown.vue";
 import ExpandableText from "@/components/common/ExpandableText.vue";
 import Input from "@/components/common/Input.vue";
 import RadioInput from "@/components/common/RadioInput.vue";
+import ToggleSwitch from "@/components/common/ToggleSwitch.vue";
 import MultiFileVerification from "@/components/contract/verification/MultiFileVerification.vue";
 import SuccessScreen from "@/components/contract/verification/SuccessScreen.vue";
 import FormItem from "@/components/form/FormItem.vue";

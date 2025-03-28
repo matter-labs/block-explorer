@@ -435,6 +435,9 @@
                     "not_valid": "Please, provide a valid contract address"
                 }
             },
+            "compilationTarget": {
+                "title": "Compilation target"
+            },
             "contractName": {
                 "label": "Contract Name",
                 "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
@@ -472,7 +475,7 @@
                     "required": "Solc version is required"
                 },
                 "error": "Unable to get list of supported Solc versions",
-                "zkVM": "zkVM",
+                "zkVM": "Use zkVM solc",
                 "EVM": "EVM"
             },
             "zksolcVersion": {
