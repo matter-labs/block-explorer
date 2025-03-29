@@ -66,6 +66,14 @@
         <template #underline>{{ t("contractVerification.form.contractAddress.underline") }}</template>
       </FormItem>
 
+      <h3 class="form-subheading">{{ t("contractVerification.form.compilationTarget.title") }}</h3>
+      <ToggleSwitch
+        v-model="isEVMSolcCompiler"
+        :label-left="'EraVM'"
+        :label-right="t('contractVerification.form.solcVersion.EVM')"
+        @on-changed="onEVMSelectionChanged"
+      />
+
       <h3 class="form-subheading">{{ t("contractVerification.form.compilationInfo") }}</h3>
       <FormItem id="compilerType" :label="t('contractVerification.form.compilerType.label')">
         <Dropdown
@@ -189,15 +197,7 @@
         <template #underline>{{ t("contractVerification.form.optimizationUsed.underline") }}</template>
       </FormItem>
 
-      <h3 class="form-subheading">{{ t("contractVerification.form.compilationTarget.title") }}</h3>
-      <ToggleSwitch
-        v-model="isEVMSolcCompiler"
-        :label-left="'EraVM'"
-        :label-right="t('contractVerification.form.solcVersion.EVM')"
-        @on-changed="onEVMSelectionChanged"
-      />
-
-      <h3 class="form-subheading">Contract info</h3>
+      <h3 class="form-subheading">Contract Info</h3>
       <FormItem id="contractName" :label="t('contractVerification.form.contractName.label')">
         <Input
           id="contractName"
@@ -406,7 +406,7 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
 
 const isEvmVersionCustom = ref(false);
 
-const isZkVMSolcCompiler = ref(true);
+const isZkVMSolcCompiler = ref(false);
 const isEVMSolcCompiler = ref(false);
 const selectedCompilationType = ref(CompilationTypeOptionsEnum.soliditySingleFile);
 const isSingleFile = computed(() =>
