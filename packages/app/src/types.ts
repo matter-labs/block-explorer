@@ -39,7 +39,7 @@ export type ContractVerificationData = {
   contractName: string;
   optimizationUsed: boolean;
   isEVM: boolean;
-  runs: number;
+  optimizerRuns: number;
   sourceCode:
     | string
     | {
@@ -52,6 +52,7 @@ export type ContractVerificationData = {
         settings: {
           optimizer: {
             enabled: boolean;
+            runs: number;
           };
         };
       };

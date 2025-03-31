@@ -86,8 +86,16 @@ export default (context = useContext()) => {
         ContractVerificationCodeFormatEnum.soliditySingleFile,
         ContractVerificationCodeFormatEnum.solidityMultiPart,
       ].includes(data.codeFormat);
-      const { sourceCode, zkCompilerVersion, evmVersion, compilerVersion, runs, isEVM, optimizationUsed, ...payload } =
-        data;
+      const {
+        sourceCode,
+        zkCompilerVersion,
+        evmVersion,
+        compilerVersion,
+        optimizerRuns,
+        isEVM,
+        optimizationUsed,
+        ...payload
+      } = data;
 
       let sourceCodeVal;
 
@@ -132,8 +140,9 @@ export default (context = useContext()) => {
           ...payload,
           sourceCode: sourceCodeVal,
           ...compilerVersionsVal,
-          ...(isEVM && optimizationUsed ? { runs } : {}),
+          ...(isEVM && optimizationUsed ? { optimizerRuns } : {}),
           constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
+          optimizationUsed,
         },
       });
       if (typeof response === "number") {

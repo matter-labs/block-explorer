@@ -235,7 +235,7 @@
         id="contractRuns"
         :label="t('contractVerification.form.runs.label')"
       >
-        <Input id="contractName" type="number" :disabled="isRequestPending" v-model="form.runs" />
+        <Input id="contractName" type="number" :disabled="isRequestPending" v-model="form.optimizerRuns" />
         <template #underline>{{ t("contractVerification.form.runs.underline") }}</template>
       </FormItem>
       <FormItem
@@ -472,7 +472,7 @@ const defaultValues = computed<
     files: [],
     mainFileName: "",
     isEVM: isEVMSolcCompiler.value,
-    runs: 200,
+    optimizerRuns: 200,
   };
 });
 
@@ -638,7 +638,7 @@ async function submitForm() {
     compilerVersion: form.value.compilerVersion,
     constructorArguments: form.value.constructorArguments,
     isEVM: isEVMSolcCompiler.value,
-    runs: form.value.runs,
+    optimizerRuns: form.value.optimizerRuns,
   };
   if (isSingleFile.value) {
     await requestVerification({
@@ -666,6 +666,7 @@ async function submitForm() {
         settings: {
           optimizer: {
             enabled: form.value.optimizationUsed,
+            runs: form.value.optimizerRuns,
           },
         },
       },
