@@ -52,7 +52,7 @@ export type ContractVerificationData = {
         settings: {
           optimizer: {
             enabled: boolean;
-            runs: number;
+            runs?: number;
           };
         };
       };

@@ -656,6 +656,7 @@ async function submitForm() {
         sources[file.name] = { content: fileContent };
       })
     );
+    const shouldPassOptimizerRuns = isEVMSolcCompiler.value && form.value.optimizationUsed;
     await requestVerification({
       contractName: form.value.mainFileName
         ? `${form.value.mainFileName}:${form.value.contractName}`
@@ -666,7 +667,7 @@ async function submitForm() {
         settings: {
           optimizer: {
             enabled: form.value.optimizationUsed,
-            runs: form.value.optimizerRuns,
+            ...(shouldPassOptimizerRuns ? { runs: form.value.optimizerRuns } : {}),
           },
         },
       },
