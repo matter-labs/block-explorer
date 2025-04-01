@@ -86,33 +86,63 @@ export default (context = useContext()) => {
         ContractVerificationCodeFormatEnum.soliditySingleFile,
         ContractVerificationCodeFormatEnum.solidityMultiPart,
       ].includes(data.codeFormat);
+      const {
+        sourceCode,
+        zkCompilerVersion,
+        evmVersion,
+        compilerVersion,
+        optimizerRuns,
+        isEVM,
+        optimizationUsed,
+        ...payload
+      } = data;
 
-      const { sourceCode, zkCompilerVersion, compilerVersion, ...payload } = data;
+      let sourceCodeVal;
+
+      if (!isSolidityContract && typeof sourceCode === "string") {
+        sourceCodeVal = {
+          [payload.contractName]: sourceCode,
+        };
+      } else if (!isSolidityContract && typeof sourceCode !== "string") {
+        sourceCodeVal = Object.keys(sourceCode.sources).reduce((acc: Record<string, string>, filename: string) => {
+          acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
+          return acc;
+        }, {});
+      } else {
+        sourceCodeVal = sourceCode;
+      }
+
+      let compilerVersionsVal;
+      if (isEVM) {
+        compilerVersionsVal = {
+          evmVersion,
+          ...(isSolidityContract
+            ? { compilerSolcVersion: compilerVersion }
+            : { compilerVyperVersion: compilerVersion }),
+        };
+      } else {
+        compilerVersionsVal = {
+          ...(isSolidityContract
+            ? {
+                compilerZksolcVersion: zkCompilerVersion,
+                compilerSolcVersion: compilerVersion,
+              }
+            : {
+                compilerZkvyperVersion: zkCompilerVersion,
+                compilerVyperVersion: compilerVersion,
+              }),
+        };
+      }
+
       const response = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification`, {
         method: "POST",
         body: {
           ...payload,
-          ...(isSolidityContract && {
-            sourceCode,
-            compilerZksolcVersion: zkCompilerVersion,
-            compilerSolcVersion: compilerVersion,
-          }),
-          ...(!isSolidityContract && {
-            ...(typeof sourceCode === "string" && {
-              sourceCode: {
-                [payload.contractName]: sourceCode,
-              },
-            }),
-            ...(typeof sourceCode !== "string" && {
-              sourceCode: Object.keys(sourceCode.sources).reduce((acc: Record<string, string>, filename: string) => {
-                acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
-                return acc;
-              }, {}),
-            }),
-            compilerZkvyperVersion: zkCompilerVersion,
-            compilerVyperVersion: compilerVersion,
-          }),
+          sourceCode: sourceCodeVal,
+          ...compilerVersionsVal,
+          ...(isEVM && optimizationUsed ? { optimizerRuns } : {}),
           constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
+          optimizationUsed,
         },
       });
       if (typeof response === "number") {

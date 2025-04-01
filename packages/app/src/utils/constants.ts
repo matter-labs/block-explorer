@@ -15,3 +15,19 @@ export const PROXY_CONTRACT_IMPLEMENTATION_ABI = [
     type: "function",
   },
 ];
+
+export const EVM_VERSION_TO_TARGET = [
+  "default",
+  "homestead",
+  "tangerineWhistle",
+  "spuriousDragon",
+  "byzantium",
+  "constantinople",
+  "petersburg",
+  "istanbul",
+  "berlin",
+  "london",
+  "paris",
+  "shanghai",
+  "cancun",
+];

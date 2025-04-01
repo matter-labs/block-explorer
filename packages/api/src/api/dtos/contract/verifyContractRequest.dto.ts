@@ -92,11 +92,21 @@ export class VerifyContractRequestDto {
     name: "zkCompilerVersion",
     description: "Zk compiler version",
     example: "v1.3.14",
-    required: true,
+    required: false,
   })
   @IsString()
-  @IsNotEmpty({ message: "Missing zkCompilerVersion" })
+  @IsOptional()
   public zkCompilerVersion: string;
+
+  @ApiProperty({
+    name: "evmVersion",
+    description: "EVM version",
+    example: "cancun",
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  public evmVersion?: string;
 
   @ApiProperty({
     name: "runs",
@@ -115,11 +125,12 @@ export class VerifyContractRequestDto {
     name: "optimizationUsed",
     description: "0 = No Optimization, 1 = Optimization used",
     example: "1",
-    required: true,
+    required: false,
   })
   @IsEnum(["0", "1"], {
     message: "Invalid optimizationUsed",
   })
+  @IsOptional()
   @IsNotEmpty({ message: "Missing optimizationUsed" })
   public optimizationUsed: string;
 

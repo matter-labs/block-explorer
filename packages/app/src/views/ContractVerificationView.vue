@@ -66,6 +66,14 @@
         <template #underline>{{ t("contractVerification.form.contractAddress.underline") }}</template>
       </FormItem>
 
+      <h3 class="form-subheading">{{ t("contractVerification.form.compilationTarget.title") }}</h3>
+      <ToggleSwitch
+        v-model="isEVMSolcCompiler"
+        :label-left="'EraVM'"
+        :label-right="t('contractVerification.form.solcVersion.EVM')"
+        @on-changed="onEVMSelectionChanged"
+      />
+
       <h3 class="form-subheading">{{ t("contractVerification.form.compilationInfo") }}</h3>
       <FormItem id="compilerType" :label="t('contractVerification.form.compilerType.label')">
         <Dropdown
@@ -82,6 +90,7 @@
           id="zkCompilerVersion"
           :label="t(`contractVerification.form.${selectedZkCompiler.name}Version.label`)"
           class="label-inline-block"
+          v-if="!isEVMSolcCompiler"
         >
           <a
             href="https://docs.zksync.io/build/tooling/block-explorer/contract-verification.html#user-interface"
@@ -105,16 +114,49 @@
           />
         </FormItem>
         <FormItem
+          id="evmVersion"
+          :label="t(`contractVerification.form.${selectedZkCompiler.name}Version.evmVersion.label`)"
+          class="label-inline-block"
+          v-if="isEVMSolcCompiler"
+        >
+          <CheckBoxInput
+            v-model="isEvmVersionCustom"
+            :disabled="!isEVMSolcCompiler"
+            @update:model-value="onCustomEvmVersionChanged"
+          >
+            {{ t("contractVerification.form.zksolcVersion.evmVersion.custom") }}
+          </CheckBoxInput>
+          <Dropdown
+            v-if="!isEvmVersionCustom"
+            class="clear-both"
+            v-model="selectedEvmVersion"
+            id="evmVersion"
+            :default-option="EVM_VERSION_TO_TARGET[0] || ''"
+            :options="EVM_VERSION_TO_TARGET"
+          />
+          <FormItem v-else-if="isEvmVersionCustom" id="evmVersionCustom" class="clear-both">
+            <Input
+              id="evmVersionCustom"
+              type="text"
+              :placeholder="t('contractVerification.form.zksolcVersion.evmVersion.inputPlaceholder')"
+              v-model="selectedEvmVersion"
+            />
+          </FormItem>
+        </FormItem>
+        <FormItem
           id="compilerVersion"
           :label="t(`contractVerification.form.${selectedCompiler.name}Version.label`)"
           class="label-inline-block"
         >
-          <CheckBoxInput
-            v-if="selectedCompiler.name === CompilerEnum.solc"
-            v-model="isZkVMSolcCompiler"
-            @update:model-value="onZkVMSelectionChanged"
-            >{{ t("contractVerification.form.solcVersion.zkVM") }}</CheckBoxInput
-          >
+          <div class="solc-version-checkbox">
+            <CheckBoxInput
+              v-if="selectedCompiler.name === CompilerEnum.solc"
+              v-model="isZkVMSolcCompiler"
+              @update:model-value="onZkVMSelectionChanged"
+            >
+              {{ t("contractVerification.form.solcVersion.zkVM") }}
+            </CheckBoxInput>
+          </div>
           <Dropdown
             class="clear-both"
             v-model="selectedCompilerVersion"
@@ -155,7 +197,7 @@
         <template #underline>{{ t("contractVerification.form.optimizationUsed.underline") }}</template>
       </FormItem>
 
-      <h3 class="form-subheading">Contract info</h3>
+      <h3 class="form-subheading">Contract Info</h3>
       <FormItem id="contractName" :label="t('contractVerification.form.contractName.label')">
         <Input
           id="contractName"
@@ -187,6 +229,14 @@
           v-model="form.contractPath"
         />
         <template #underline>{{ t("contractVerification.form.contractPath.underline") }}</template>
+      </FormItem>
+      <FormItem
+        v-if="form.optimizationUsed && isEVMSolcCompiler"
+        id="contractRuns"
+        :label="t('contractVerification.form.runs.label')"
+      >
+        <Input id="contractName" type="number" :disabled="isRequestPending" v-model="form.optimizerRuns" />
+        <template #underline>{{ t("contractVerification.form.runs.underline") }}</template>
       </FormItem>
       <FormItem
         v-if="isSingleFile"
@@ -286,6 +336,7 @@ import Dropdown from "@/components/common/Dropdown.vue";
 import ExpandableText from "@/components/common/ExpandableText.vue";
 import Input from "@/components/common/Input.vue";
 import RadioInput from "@/components/common/RadioInput.vue";
+import ToggleSwitch from "@/components/common/ToggleSwitch.vue";
 import MultiFileVerification from "@/components/contract/verification/MultiFileVerification.vue";
 import SuccessScreen from "@/components/contract/verification/SuccessScreen.vue";
 import FormItem from "@/components/form/FormItem.vue";
@@ -301,6 +352,7 @@ import {
   ContractVerificationCodeFormatEnum,
   type ContractVerificationData,
 } from "@/types";
+import { EVM_VERSION_TO_TARGET } from "@/utils/constants";
 import { isAddress } from "@/utils/validators";
 
 const compilerTypeMap = {
@@ -352,7 +404,10 @@ const breadcrumbItems = computed((): BreadcrumbItem[] => [
   },
 ]);
 
+const isEvmVersionCustom = ref(false);
+
 const isZkVMSolcCompiler = ref(false);
+const isEVMSolcCompiler = ref(false);
 const selectedCompilationType = ref(CompilationTypeOptionsEnum.soliditySingleFile);
 const isSingleFile = computed(() =>
   [CompilationTypeOptionsEnum.soliditySingleFile, CompilationTypeOptionsEnum.vyperSingleFile].includes(
@@ -379,6 +434,7 @@ const selectedCompiler = computed(() => {
 const selectedZkCompilerVersion = ref(
   selectedZkCompiler.value.versions[selectedZkCompiler.value.versions.length - 1] || ""
 );
+const selectedEvmVersion = ref(EVM_VERSION_TO_TARGET[0] || "");
 const selectedCompilerVersion = ref(selectedCompiler.value.versions[selectedCompiler.value.versions.length - 1] || "");
 
 const disabledSubmitButton = computed(() => {
@@ -395,7 +451,12 @@ const disabledClearButton = computed(() => {
 });
 
 const defaultValues = computed<
-  ContractVerificationData & { contractPath: string; sourceCode: string; files: File[]; mainFileName: string }
+  ContractVerificationData & {
+    contractPath: string;
+    sourceCode: string;
+    files: File[];
+    mainFileName: string;
+  }
 >(() => {
   return {
     codeFormat: ContractVerificationCodeFormatEnum.soliditySingleFile,
@@ -404,11 +465,14 @@ const defaultValues = computed<
     contractPath: "",
     optimizationUsed: true,
     zkCompilerVersion: selectedZkCompiler.value.versions[0] || "",
+    evmVersion: EVM_VERSION_TO_TARGET[0] || "",
     compilerVersion: selectedCompiler.value.versions[0] || "",
     sourceCode: "",
     constructorArguments: "",
     files: [],
     mainFileName: "",
+    isEVM: isEVMSolcCompiler.value,
+    optimizerRuns: 200,
   };
 });
 
@@ -425,7 +489,7 @@ const isFilePathRequired = computed(() => {
   if (selectedCompilationType.value === CompilationTypeOptionsEnum.solidityMultiPart) {
     return false;
   }
-  if (!selectedZkCompilerVersion.value) {
+  if (!selectedZkCompilerVersion.value || !selectedEvmVersion.value) {
     return true;
   }
   const targetVersion = "v1.3.6";
@@ -470,6 +534,12 @@ const v$ = useVuelidate(
     zkCompilerVersion: {
       required: withI18nMessage(required, {
         messagePath: () => `contractVerification.form.${selectedZkCompiler.value.name}Version.validation.required`,
+      }),
+    },
+    evmVersion: {
+      required: withI18nMessage(required, {
+        messagePath: () =>
+          `contractVerification.form.${selectedZkCompiler.value.name}Version.evmVersion.validation.required`,
       }),
     },
     compilerVersion: {
@@ -520,22 +590,40 @@ const v$ = useVuelidate(
   form
 );
 
+function onCustomEvmVersionChanged(isChecked: unknown) {
+  if (isChecked) {
+    selectedEvmVersion.value = "";
+  } else {
+    selectedEvmVersion.value = EVM_VERSION_TO_TARGET[0] || "";
+  }
+}
+
 function onZkVMSelectionChanged() {
   selectedCompilerVersion.value = selectedCompiler.value.versions[0] || "";
 }
 
+function onEVMSelectionChanged() {
+  selectedEvmVersion.value = EVM_VERSION_TO_TARGET[0] || "";
+  selectedZkCompilerVersion.value = selectedZkCompiler.value.versions[0];
+}
+
 function onCompilationTypeChange() {
+  isEVMSolcCompiler.value = false;
+  selectedEvmVersion.value = EVM_VERSION_TO_TARGET[0] || "";
   selectedZkCompilerVersion.value = selectedZkCompiler.value.versions[0] || "";
   selectedCompilerVersion.value = selectedCompiler.value.versions[0] || "";
 }
 function clearForm() {
   form.value = Object.assign({}, defaultValues.value);
+  selectedEvmVersion.value = "";
   selectedZkCompilerVersion.value = "";
   selectedCompilerVersion.value = "";
   v$.value.$reset();
 }
+
 async function submitForm() {
   form.value.zkCompilerVersion = selectedZkCompilerVersion.value || defaultValues.value.zkCompilerVersion;
+  form.value.evmVersion = selectedEvmVersion.value || EVM_VERSION_TO_TARGET[0];
   form.value.compilerVersion = selectedCompilerVersion.value || defaultValues.value.compilerVersion;
   const validationResult = await v$.value.$validate();
   if (!validationResult) {
@@ -546,8 +634,11 @@ async function submitForm() {
     contractAddress: form.value.contractAddress,
     optimizationUsed: form.value.optimizationUsed,
     zkCompilerVersion: form.value.zkCompilerVersion,
+    evmVersion: form.value.evmVersion,
     compilerVersion: form.value.compilerVersion,
     constructorArguments: form.value.constructorArguments,
+    isEVM: isEVMSolcCompiler.value,
+    optimizerRuns: form.value.optimizerRuns,
   };
   if (isSingleFile.value) {
     await requestVerification({
@@ -565,6 +656,7 @@ async function submitForm() {
         sources[file.name] = { content: fileContent };
       })
     );
+    const shouldPassOptimizerRuns = isEVMSolcCompiler.value && form.value.optimizationUsed;
     await requestVerification({
       contractName: form.value.mainFileName
         ? `${form.value.mainFileName}:${form.value.contractName}`
@@ -575,6 +667,7 @@ async function submitForm() {
         settings: {
           optimizer: {
             enabled: form.value.optimizationUsed,
+            ...(shouldPassOptimizerRuns ? { runs: form.value.optimizerRuns } : {}),
           },
         },
       },
@@ -662,6 +755,9 @@ async function submitForm() {
     @apply grid gap-4 md:grid-cols-2;
     .docs-link {
       @apply float-right rounded-md px-0.5 pt-0.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-600;
+    }
+    .solc-version-checkbox {
+      @apply flex items-center justify-end gap-2;
     }
   }
 }

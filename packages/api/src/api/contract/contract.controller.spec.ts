@@ -446,10 +446,120 @@ describe("ContractController", () => {
         contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
         contractName: "contracts/Greeter.vy:Greeter",
         optimizationUsed: true,
+        runs: undefined,
         sourceCode: {
           sources: {
             "contracts/Greeter.vy": {
               content: "# @version ^0.3.3 # vim: ft=python",
+            },
+          },
+        },
+      });
+    });
+
+    it("sends proper payload to the verification endpoint for EVM standard JSON input", async () => {
+      const evmJsonRequest = {
+        module: "contract",
+        action: "verifysourcecode",
+        contractaddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        sourceCode: JSON.stringify({
+          language: "Solidity",
+          sources: {
+            "contracts/Test.sol": {
+              content: "// SPDX-License-Identifier: MIT",
+            },
+          },
+          settings: {
+            optimizer: {
+              enabled: true,
+              runs: 200,
+            },
+          },
+        }),
+        codeformat: "solidity-standard-json-input",
+        contractname: "contracts/Test.sol:Test",
+        compilerversion: "v0.8.17+commit.8df45f5f",
+        optimizationUsed: "1",
+        evmVersion: "london",
+        runs: 200,
+      } as unknown as VerifyContractRequestDto;
+
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(evmJsonRequest.contractaddress, evmJsonRequest);
+
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "solidity-standard-json-input",
+        compilerSolcVersion: "0.8.17",
+        constructorArguments: undefined,
+        contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+        contractName: "contracts/Test.sol:Test",
+        evmVersion: "london",
+        optimizationUsed: true,
+        sourceCode: {
+          language: "Solidity",
+          sources: {
+            "contracts/Test.sol": {
+              content: "// SPDX-License-Identifier: MIT",
+            },
+          },
+          settings: {
+            libraries: {},
+            optimizer: {
+              enabled: true,
+              runs: 200,
+            },
+          },
+        },
+      });
+    });
+
+    it("sends proper payload to the verification endpoint for EVM Vyper multi-file", async () => {
+      const evmVyperRequest = {
+        module: "contract",
+        action: "verifysourcecode",
+        contractaddress: "0x589160F112A9BFB16f0FD8C6434a27bC3703507D",
+        sourceCode: {
+          sources: {
+            "contracts/Greeter.vy": {
+              content: "# @version ^0.3.3\n# vim: ft=python\n\ndef __init__():\n    pass",
+            },
+          },
+        },
+        codeformat: "vyper-multi-file",
+        contractname: "contracts/Greeter.vy:Greeter",
+        compilerversion: "v0.3.7+commit.7020e74",
+        optimizationUsed: "1",
+        evmVersion: "london",
+      } as unknown as VerifyContractRequestDto;
+
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: 1234,
+          });
+        })
+      );
+
+      await controller.verifySourceContract(evmVyperRequest.contractaddress, evmVyperRequest);
+      expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+        codeFormat: "vyper-multi-file",
+        compilerVyperVersion: "0.3.7",
+        evmVersion: "london",
+        constructorArguments: undefined,
+        contractAddress: "0x589160F112A9BFB16f0FD8C6434a27bC3703507D",
+        contractName: "contracts/Greeter.vy:Greeter",
+        optimizationUsed: true,
+        sourceCode: {
+          sources: {
+            "contracts/Greeter.vy": {
+              content: "# @version ^0.3.3\n# vim: ft=python\n\ndef __init__():\n    pass",
             },
           },
         },
