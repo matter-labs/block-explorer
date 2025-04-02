@@ -144,6 +144,10 @@ export class ContractController {
       }
     }
 
+    if (request.constructorArguements != null && !request.constructorArguements.startsWith("0x")) {
+      request.constructorArguements = `0x${request.constructorArguements}`;
+    }
+
     if (isSolidityContract && request.sourceCode instanceof Object) {
       const libraries: { [key: string]: Record<string, string> } = {};
       for (let i = 1; i <= 10; i++) {
