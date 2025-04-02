@@ -780,6 +780,158 @@ describe("ContractController", () => {
     });
   });
 
+  describe("checkVerificationStatus", () => {
+    let pipeMock = jest.fn();
+    const verificationId = "1234";
+
+    beforeEach(() => {
+      pipeMock = jest.fn();
+      jest.spyOn(httpServiceMock, "get").mockReturnValue({
+        pipe: pipeMock,
+      } as unknown as rxjs.Observable<AxiosResponse>);
+      jest.spyOn(rxjs, "catchError").mockImplementation((callback) => callback as any);
+    });
+
+    it("throws error when contract verification API fails with response status different to 404", async () => {
+      pipeMock.mockImplementation((callback) => {
+        callback({
+          stack: "error stack",
+          response: {
+            data: "response data",
+            status: 500,
+          },
+        } as AxiosError);
+      });
+
+      await expect(controller.checkVerificationStatus(verificationId)).rejects.toThrowError(
+        new InternalServerErrorException("Failed to get verification status")
+      );
+    });
+
+    it("throws error when contract verification info API fails with response status 404", async () => {
+      pipeMock.mockImplementation((callback) => {
+        callback({
+          stack: "error stack",
+          response: {
+            data: "response data",
+            status: 404,
+          },
+        } as AxiosError);
+      });
+
+      await expect(controller.checkVerificationStatus(address)).rejects.toThrowError(
+        new InternalServerErrorException("Contract verification submission not found")
+      );
+    });
+
+    it("throws error when contract verification info API fails without response data", async () => {
+      pipeMock.mockImplementation((callback) => {
+        callback({
+          stack: "error stack",
+        } as AxiosError);
+      });
+
+      await expect(controller.checkVerificationStatus(address)).rejects.toThrowError(
+        new InternalServerErrorException("Failed to get verification status")
+      );
+    });
+
+    it("throws error when contract verification is not specified", async () => {
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: {},
+          });
+        })
+      );
+
+      await expect(controller.checkVerificationStatus(undefined)).rejects.toThrowError(
+        new BadRequestException("Verification ID is not specified")
+      );
+    });
+
+    it("returns successful verification status", async () => {
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: {
+              status: "successful",
+            },
+          });
+        })
+      );
+
+      const response = await controller.checkVerificationStatus(verificationId);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: ResponseResultMessage.VERIFICATION_SUCCESSFUL,
+      });
+      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/${verificationId}`);
+    });
+
+    it("returns queued verification status", async () => {
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: {
+              status: "queued",
+            },
+          });
+        })
+      );
+
+      const response = await controller.checkVerificationStatus(verificationId);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: ResponseResultMessage.VERIFICATION_QUEUED,
+      });
+      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/${verificationId}`);
+    });
+
+    it("returns in progress verification status", async () => {
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: {
+              status: "in_progress",
+            },
+          });
+        })
+      );
+
+      const response = await controller.checkVerificationStatus(verificationId);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: ResponseResultMessage.VERIFICATION_IN_PROGRESS,
+      });
+      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/${verificationId}`);
+    });
+
+    it("returns in progress verification status", async () => {
+      pipeMock.mockReturnValue(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: {
+              status: "failed",
+              error: "ERROR! Compilation error.",
+            },
+          });
+        })
+      );
+
+      const response = await controller.checkVerificationStatus(verificationId);
+      expect(response).toEqual({
+        status: ResponseStatus.NOTOK,
+        message: ResponseMessage.NOTOK,
+        result: "ERROR! Compilation error.",
+      });
+      expect(httpServiceMock.get).toBeCalledWith(`http://verification.api/contract_verification/${verificationId}`);
+    });
+  });
+
   describe("getContractCreation", () => {
     it("thrown an error when called with more than 5 addresses", async () => {
       await expect(
