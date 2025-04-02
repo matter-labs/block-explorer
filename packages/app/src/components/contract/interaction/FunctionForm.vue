@@ -194,12 +194,12 @@ const convertBoolean = (value: string | boolean) => {
     const lowercaseValue = value.toLowerCase().trim();
 
     // Check for false values
-    if (["0", "false", "f"].includes(lowercaseValue)) {
+    if (["0", "false", "f", "[false]"].includes(lowercaseValue)) {
       return false;
     }
 
     // Check for true values
-    if (["1", "true", "t"].includes(lowercaseValue)) {
+    if (["1", "true", "t", "[true]"].includes(lowercaseValue)) {
       return true;
     }
 
@@ -226,19 +226,11 @@ const submit = async () => {
   );
   // convert booleans from string to bool
   inputs.value
-    .filter((input) => input.type === "bool")
+    .filter((input) => input.type === "bool" || input.type === "bool[]")
     .forEach((boolInput) => {
       const field = data[boolInput.key];
       if (field) {
-        if (Array.isArray(field)) {
-          // For arrays, convert each value individually
-          data[boolInput.key] = field.map((v) => {
-            if (v === "") return false;
-            return convertBoolean(v);
-          });
-        } else {
-          data[boolInput.key] = convertBoolean(field);
-        }
+        data[boolInput.key] = Array.isArray(field) ? field.map(convertBoolean) : convertBoolean(field);
       }
     });
   emit("submit", data);
