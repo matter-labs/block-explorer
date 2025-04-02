@@ -259,6 +259,14 @@ export class ContractController {
     };
   }
 
+  @HttpCode(200)
+  @Post("/checkverifystatus")
+  public async checkVerificationStatus(
+    @Body("guid") verificationId: string
+  ): Promise<ContractVerificationStatusResponseDto> {
+    return this.getVerificationStatus(verificationId);
+  }
+
   @Get("/checkverifystatus")
   public async getVerificationStatus(
     @Query("guid") verificationId: string
