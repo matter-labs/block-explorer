@@ -33,7 +33,12 @@ export class LogService {
     transactionDetails?: types.TransactionDetails,
     transactionReceipt?: types.TransactionReceipt
   ): Promise<LogsData> {
-    const transfers = this.transferService.getTransfers(logs, blockDetails, transactionDetails, transactionReceipt);
+    const transfers = await this.transferService.getTransfers(
+      logs,
+      blockDetails,
+      transactionDetails,
+      transactionReceipt
+    );
 
     const logsData: LogsData = {
       transfers,

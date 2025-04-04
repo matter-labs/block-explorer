@@ -26,7 +26,7 @@ export class TokensPage extends BasePage {
 
   async clickCopyBtnByRow(rowName: string) {
     const copyBtn = this.copyBtn;
-    element = (await this.getRowByText(rowName)) + "/..//..//..//.." + copyBtn;
+    element = (await this.getRowByText(rowName)) + "/..//..//..//..//.." + copyBtn;
 
     await this.world.page?.locator(element).first().click();
   }

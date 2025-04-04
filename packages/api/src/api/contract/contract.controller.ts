@@ -136,6 +136,18 @@ export class ContractController {
       ContractVerificationCodeFormatEnum.solidityJsonInput,
     ].includes(request.codeformat);
 
+    const isEVMContract = !request.zkCompilerVersion;
+    if (isEVMContract) {
+      request.compilerversion = request.compilerversion.replace("v", "").split("+")[0];
+      if (request.codeformat.includes("json")) {
+        request.sourceCode = JSON.parse(request.sourceCode);
+      }
+    }
+
+    if (request.constructorArguements != null && !request.constructorArguements.startsWith("0x")) {
+      request.constructorArguements = `0x${request.constructorArguements}`;
+    }
+
     if (isSolidityContract && request.sourceCode instanceof Object) {
       const libraries: { [key: string]: Record<string, string> } = {};
       for (let i = 1; i <= 10; i++) {
@@ -172,17 +184,29 @@ export class ContractController {
           codeFormat: request.codeformat,
           contractAddress,
           contractName: request.contractname,
-          optimizationUsed: request.optimizationUsed === "1",
           sourceCode: request.sourceCode,
           constructorArguments: request.constructorArguements,
-          ...(isSolidityContract && {
-            compilerZksolcVersion: request.zkCompilerVersion,
-            compilerSolcVersion: request.compilerversion,
-          }),
-          ...(!isSolidityContract && {
-            compilerZkvyperVersion: request.zkCompilerVersion,
-            compilerVyperVersion: request.compilerversion,
-          }),
+          optimizationUsed: request.optimizationUsed === "1",
+          ...(isSolidityContract &&
+            !isEVMContract && {
+              compilerZksolcVersion: request.zkCompilerVersion,
+              compilerSolcVersion: request.compilerversion,
+            }),
+          ...(isSolidityContract &&
+            isEVMContract && {
+              evmVersion: request.evmVersion,
+              compilerSolcVersion: request.compilerversion,
+            }),
+          ...(!isSolidityContract &&
+            !isEVMContract && {
+              compilerZkvyperVersion: request.zkCompilerVersion,
+              compilerVyperVersion: request.compilerversion,
+            }),
+          ...(!isSolidityContract &&
+            isEVMContract && {
+              evmVersion: request.evmVersion,
+              compilerVyperVersion: request.compilerversion,
+            }),
         })
         .pipe(
           catchError((error: AxiosError) => {
@@ -237,6 +261,14 @@ export class ContractController {
       message: result.length ? ResponseMessage.OK : ResponseMessage.NO_DATA_FOUND,
       result: result.length ? result : null,
     };
+  }
+
+  @HttpCode(200)
+  @Post("/checkverifystatus")
+  public async checkVerificationStatus(
+    @Body("guid") verificationId: string
+  ): Promise<ContractVerificationStatusResponseDto> {
+    return this.getVerificationStatus(verificationId);
   }
 
   @Get("/checkverifystatus")

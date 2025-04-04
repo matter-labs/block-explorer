@@ -437,6 +437,9 @@
           "not_valid": "Please, provide a valid contract address"
         }
       },
+      "compilationTarget": {
+        "title": "Compilation target"
+      },
       "contractName": {
         "label": "Contract Name",
         "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
@@ -455,6 +458,10 @@
           "required": "Contract path is required"
         }
       },
+      "runs": {
+        "label": "Runs",
+        "underline": "Optimize for how many times you intend to run the code. Lower values will optimize more for initial deployment cost, higher values will optimize more for high-frequency usage."
+      },
       "optimizationUsed": {
         "label": "Optimization",
         "options": {
@@ -470,7 +477,8 @@
           "required": "Solc version is required"
         },
         "error": "Unable to get list of supported Solc versions",
-        "zkVM": "zkVM"
+        "zkVM": "zkVM",
+        "EVM": "EVM"
       },
       "zksolcVersion": {
         "label": "Zksolc Version",
@@ -479,7 +487,15 @@
           "required": "Zksolc version is required"
         },
         "error": "Unable to get list of supported Zksolc versions",
-        "details": "Details"
+        "details": "Details",
+        "evmVersion": {
+          "label": "EVM Version",
+          "custom": "Custom",
+          "inputPlaceholder": "Custom version...",
+          "validation": {
+            "required": "EVM Version is required"
+          }
+        }
       },
       "vyperVersion": {
         "label": "Vyper Version",
@@ -496,7 +512,13 @@
           "required": "Zkvyper version is required"
         },
         "error": "Unable to get list of supported Zkvyper versions",
-        "details": "Details"
+        "details": "Details",
+        "evmVersion": {
+          "label": "EVM Version",
+          "validation": {
+            "required": "EVM Version is required"
+          }
+        }
       },
       "compilerType": {
         "label": "Compiler type",
@@ -601,7 +623,17 @@
     "table": {
       "tokenName": "Token Name",
       "price": "Price",
-      "tokenAddress": "Token Address"
+      "tokenAddress": "Token Address",
+      "bridged": {
+        "title": "Bridged",
+        "tooltip": "This token is bridged from L1 to Sophon"
+      },
+      "native": {
+        "title": "L2-native",
+        "tooltip": "This token is native to Sophon"
+      },
+      "tokenAddressL2": "L2 Token address",
+      "tokenAddressL1": "L1 Token address"
     }
   },
   "pageError": {
