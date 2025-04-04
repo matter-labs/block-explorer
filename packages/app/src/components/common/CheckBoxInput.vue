@@ -48,7 +48,7 @@ const inputted = computed({
   }
 
   input {
-    @apply rounded me-1 text-primary-600 cursor-pointer border-neutral-200 checked:border-primary-600 disabled:opacity-50 hover:border-primary-600 ring-transparent;
+    @apply rounded me-1 cursor-pointer border-neutral-200 checked:border-primary-600 disabled:opacity-50 hover:border-primary-600 ring-transparent;
   }
 }
 </style>
