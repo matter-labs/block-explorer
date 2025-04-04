@@ -63,7 +63,7 @@ const toggle = () => {
   }
 
   .toggle-handle {
-    @apply bg-primary-600 border-2 border-neutral-50 rounded-full absolute w-4 h-4 transition-transform duration-300;
+    @apply bg-blue border-2 border-neutral-50 rounded-full absolute w-4 h-4 transition-transform duration-300;
   }
 
   .toggle-switch.checked .toggle-handle {
