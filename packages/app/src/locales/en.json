@@ -1,6 +1,6 @@
 {
   "general": {
-    "l2NetworkName": "ZKsync Era",
+    "l2NetworkName": "Sophon",
     "l1NetworkName": "Ethereum"
   },
   "copyButton": {
@@ -15,7 +15,7 @@
   "networkStats": {
     "title": "Network Stats",
     "subtitleTestnet": "Stats are occasionally reset on testnet.",
-    "subtitleMainnet": "ZKsync Era Mainnet is open to everyone.",
+    "subtitleMainnet": "Sophon Mainnet is open to everyone.",
     "committed": "Committed Blocks",
     "verified": "Verified Blocks",
     "transactions": "Transactions",
@@ -105,6 +105,8 @@
       "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
       "nonce": "Nonce",
       "nonceTooltip": "Number of transactions sent from a sender address",
+      "created": "Created",
+      "createdTooltip": "The date and time at which a transaction is added to the block",
       "receivedAt": "Received",
       "receivedAtTooltip": "The date and time when the transaction was received",
       "sendersNonce": "Sender`s Nonce",
@@ -312,8 +314,8 @@
     "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
   },
   "blockExplorer": {
-    "title": "ZKsync Era Block Explorer",
-    "subtitle": "ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network.",
+    "title": "Sophon Block Explorer",
+    "subtitle": "Sophon Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into Sophon and explore the network.",
     "latestBlocks": "Latest Blocks",
     "latestTransactions": "Latest Transactions",
     "batches": "Latest Batches"
@@ -417,7 +419,7 @@
   },
   "contractVerification": {
     "title": "Smart Contract Verification",
-    "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Era Explorer will match the compiled code with that on the blockchain.",
+    "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Sophon Explorer will match the compiled code with that on the blockchain.",
     "resources": {
       "title": "You can also verify your smart-contract using {hardhat}",
       "links": {
@@ -450,8 +452,8 @@
       "contractPath": {
         "label": "Contract Path",
         "underline": "Relative path to your contract at the moment of compilation",
-        "solcPlaceholder": "contracts/ContractFile.sol",
-        "vyperPlaceholder": "contracts/ContractFile.vy",
+        "solcPlaceholder": "/contracts/ContractFile.sol",
+        "vyperPlaceholder": "/contracts/ContractFile.vy",
         "validation": {
           "required": "Contract path is required"
         }
@@ -475,7 +477,7 @@
           "required": "Solc version is required"
         },
         "error": "Unable to get list of supported Solc versions",
-        "zkVM": "Use zkVM solc",
+        "zkVM": "zkVM",
         "EVM": "EVM"
       },
       "zksolcVersion": {
@@ -624,11 +626,11 @@
       "tokenAddress": "Token Address",
       "bridged": {
         "title": "Bridged",
-        "tooltip": "This token is bridged from L1 to ZKsync Era"
+        "tooltip": "This token is bridged from L1 to Sophon"
       },
       "native": {
         "title": "L2-native",
-        "tooltip": "This token is native to ZKsync Era"
+        "tooltip": "This token is native to Sophon"
       },
       "tokenAddressL2": "L2 Token address",
       "tokenAddressL1": "L1 Token address"
@@ -709,7 +711,7 @@
     }
   },
   "document": {
-    "title": "ZKsync Era Block Explorer",
+    "title": "Sophon Block Explorer",
     "home": "Transactions, Blocks, Contracts and much more"
   },
   "notFound": {
@@ -719,11 +721,11 @@
     "contactSupport": "contact support"
   },
   "maintenance": {
-    "title": "ZKsync {network} is on maintainance",
-    "description": "ZKsync {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
-    "twitterLink": "ZKsync Developers",
+    "title": "Sophon {network} is on maintainance",
+    "description": "Sophon {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
+    "twitterLink": "Sohpon Developers",
     "uptimeLink": "UpTime",
-    "twitterButton": "ZKsync Developers"
+    "twitterButton": "Sophon Developers"
   },
   "tabs": {
     "transactions": "Transactions",
@@ -768,8 +770,8 @@
     }
   },
   "systemAlert": {
-    "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">explorers</a> meanwhile.",
-    "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">explorers</a> meanwhile."
+    "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://sophon.xyz/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
+    "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://sophon.xyz/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
   },
   "pagination": {
     "records": "Records"
