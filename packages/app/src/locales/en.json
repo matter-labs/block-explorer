@@ -1,6 +1,6 @@
 {
   "general": {
-    "l2NetworkName": "Sophon",
+    "l2NetworkName": "ZKsync Era",
     "l1NetworkName": "Ethereum"
   },
   "copyButton": {
@@ -15,7 +15,7 @@
   "networkStats": {
     "title": "Network Stats",
     "subtitleTestnet": "Stats are occasionally reset on testnet.",
-    "subtitleMainnet": "Sophon Mainnet is open to everyone.",
+    "subtitleMainnet": "ZKsync Era Mainnet is open to everyone.",
     "committed": "Committed Blocks",
     "verified": "Verified Blocks",
     "transactions": "Transactions",
@@ -105,8 +105,6 @@
       "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
       "nonce": "Nonce",
       "nonceTooltip": "Number of transactions sent from a sender address",
-      "created": "Created",
-      "createdTooltip": "The date and time at which a transaction is added to the block",
       "receivedAt": "Received",
       "receivedAtTooltip": "The date and time when the transaction was received",
       "sendersNonce": "Sender`s Nonce",
@@ -275,409 +273,73 @@
       "notFoundHomePage": "We haven't had any batches yet. Please, check again later.",
       "transactionsShort": "txns"
     },
-    "locale": {
-      "en": "EN",
-      "uk": "UA"
-    },
-    "footer": {
-      "nav": {
-        "docs": "Docs",
-        "terms": "Terms",
-        "contact": "Contact"
-      }
-    },
-    "searchForm": {
-      "placeholder": "Search by address, batch number, contract, or tx hash",
-      "errorMessage": "Please, enter a correct query"
-    },
-    "estimatedCost": {
-      "title": "Estimated cost of transfers & interactions",
-      "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
-    },
-    "blockExplorer": {
-      "title": "Sophon Block Explorer",
-      "subtitle": "Sophon Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into Sophon and explore the network.",
-      "latestBlocks": "Latest Blocks",
-      "latestTransactions": "Latest Transactions",
-      "batches": "Latest Batches"
-    },
-    "failedRequest": "Failed to show .... Please, try to refresh the page.",
-    "addressView": {
-      "title": "Address"
-    },
-    "contract": {
-      "title": "Contract",
-      "contractNumber": "Contract ",
-      "infoTableTitle": "Contract Info",
-      "infoTableError": "An Error Occurred",
-      "balanceTableTitle": "Balances",
-      "notFound": "Not Found",
-      "verified": "Source Code",
-      "verifiedTooltip": "The contract's source code has been verified to match its on-chain Bytecode. Source code verification does not imply the contract is safe to interact with.",
-      "evm": "EVM",
-      "created": "Created",
-      "contractCreated": "Contract created",
-      "evmTooltip": "This is an EVM contract.",
-      "transactionTable": {
-        "error": "Something went wrong",
-        "notFound": {
-          "title": "This smart contract doesn’t have any transactions",
-          "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
-        }
-      },
-      "balances": {
-        "error": {
-          "title": "Balances:",
-          "subtitle": "Something went wrong.\nPlease return to this page in a minute."
-        },
-        "notFound": {
-          "title": "This smart contract doesn’t have any balances",
-          "subtitle": "We can’t find any balances related to this smart-contract."
-        }
-      },
-      "table": {
-        "address": "Address",
-        "creator": "Creator",
-        "transactions": "Transactions",
-        "fees": "Fees Paid"
-      },
-      "bytecode": {
-        "areYouAnOwner": "Are you owner of this smart-contract?",
-        "verifyAndPublishToday": "Verify and Publish your contract source code today!\nThis contract was created by the contract code at ",
-        "verifyButton": "Verify Smart Contract",
-        "readWriteMissingMessage": "This contract does not have Read/Write functions for interaction",
-        "writeMissingMessage": "This contract does not have Write functions for interaction",
-        "readMissingMessage": "This contract does not have Read functions for interaction",
-        "deployedBytecode": "Deployed bytecode"
-      },
-      "sourceCode": {
-        "label": "Contract Source Code",
-        "singleFileContract": "Single file contract",
-        "fileLabel": "File {index} of {total}: {fileName}"
-      },
-      "events": {
-        "txnHash": "txn hash",
-        "method": "method",
-        "logs": "logs",
-        "notFound": "Smart Contract doesn't have any events at this moment",
-        "value": "value",
-        "showMore": "Show More",
-        "hide": "Hide"
-      },
-      "abiInteraction": {
-        "contractAbi": "Contract ABI",
-        "transactionHash": "Transaction Hash: {transactionHash}",
-        "connectWalletToInteract": "Connect Wallet to write",
-        "metaMaskNotFound": "MetaMask not found. Please install MetaMask to continue.",
-        "contractImplementationFound": "Implementation contract found at",
-        "contractImplementationAt": "The implementation contract at",
-        "contractNotVerified": "Is not verified",
-        "verifyImplementationMessage": "Please verify the implementation contract in order to Read/Write the contract as Proxy.",
-        "proxyCautionMessage": "Please note that the proxy identification process is based on analysis of popular proxy standards and might not be always accurate. Proceed with caution when interacting with any smart contract.",
-        "method": {
-          "read": {
-            "name": "Read",
-            "action": "Query"
-          },
-          "write": {
-            "name": "Write",
-            "action": "Write"
-          },
-          "readAsProxy": {
-            "name": "Read as Proxy",
-            "action": "Query"
-          },
-          "writeAsProxy": {
-            "name": "Write as Proxy",
-            "action": "Write"
-          }
-        },
-        "validation": {
-          "required": "Value is required",
-          "invalid": "Value is invalid"
-        }
-      }
-    },
-    "contractVerification": {
-      "title": "Smart Contract Verification",
-      "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Sophon Explorer will match the compiled code with that on the blockchain.",
-      "resources": {
-        "title": "You can also verify your smart-contract using {hardhat}",
-        "links": {
-          "hardhat": "HardHat Plugin"
-        }
-      },
-      "form": {
-        "compilationInfo": "Compilation Info",
-        "contractAddress": {
-          "title": "Contract Address",
-          "underline": "The 0x address supplied on contract creation.",
-          "placeholder": "0x0000...",
-          "validation": {
-            "required": "Contract address is required",
-            "not_valid": "Please, provide a valid contract address"
-          }
-        },
-        "compilationTarget": {
-          "title": "Compilation target"
-        },
-        "contractName": {
-          "label": "Contract Name",
-          "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
-          "vyperUnderline": "Must match the filename. For example, in contract MyContract.vy MyContract is the contract name.",
-          "placeholder": "Name",
-          "validation": {
-            "required": "Contract name is required"
-          }
-        },
-        "contractPath": {
-          "label": "Contract Path",
-          "underline": "Relative path to your contract at the moment of compilation",
-          "solcPlaceholder": "contracts/ContractFile.sol",
-          "vyperPlaceholder": "contracts/ContractFile.vy",
-          "validation": {
-            "required": "Contract path is required"
-          }
-        },
-        "runs": {
-          "label": "Runs",
-          "underline": "Optimize for how many times you intend to run the code. Lower values will optimize more for initial deployment cost, higher values will optimize more for high-frequency usage."
-        },
-        "optimizationUsed": {
-          "label": "Optimization",
-          "options": {
-            "yes": "Yes",
-            "no": "No"
-          },
-          "underline": "If you enabled optimization during compilation, select yes."
-        },
-        "solcVersion": {
-          "label": "Solc Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Solc version is required"
-          },
-          "error": "Unable to get list of supported Solc versions",
-          "zkVM": "Use zkVM solc",
-          "EVM": "EVM"
-        },
-        "zksolcVersion": {
-          "label": "Zksolc Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Zksolc version is required"
-          },
-          "error": "Unable to get list of supported Zksolc versions",
-          "details": "Details",
-          "evmVersion": {
-            "label": "EVM Version",
-            "custom": "Custom",
-            "inputPlaceholder": "Custom version...",
-            "validation": {
-              "required": "EVM Version is required"
-            }
-          }
-        },
-        "vyperVersion": {
-          "label": "Vyper Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Vyper version is required"
-          },
-          "error": "Unable to get list of supported Vyper versions"
-        },
-        "zkvyperVersion": {
-          "label": "Zkvyper Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Zkvyper version is required"
-          },
-          "error": "Unable to get list of supported Zkvyper versions",
-          "details": "Details",
-          "evmVersion": {
-            "label": "EVM Version",
-            "validation": {
-              "required": "EVM Version is required"
-            }
-          }
-        },
-        "compilerType": {
-          "label": "Compiler type",
-          "underline": "Contract verification method",
-          "soliditySingleFile": "Solidity (Single file)",
-          "solidityMultiPart": "Solidity (Multi-part contract)",
-          "vyperSingleFile": "Vyper (Single file)",
-          "vyperMultiPart": "Vyper (Multi-part contract)"
-        },
-        "sourceCode": {
-          "solcLabel": "Enter the Solidity Contract Code",
-          "vyperLabel": "Enter the Vyper Contract Code",
-          "validation": {
-            "required": "Contract sourceCode is required"
-          }
-        },
-        "constructorArguments": {
-          "label": "Constructor Arguments",
-          "placeholder": "0x"
-        },
-        "buttonVerify": "Verify Smart Contract",
-        "buttonVerifying": "Verifying...",
-        "buttonClear": "Clear",
-        "unknownError": "Unsuccessful contract verification! We can’t verify your contract based on your information, please check it",
-        "flattenerInfo": {
-          "title": "If your contract uses \"imports\", you will need to concatenate the code into one file ( otherwise known as \"flattening\" ). For that purpose you can use {flattener} or {flattery}",
-          "solidityFlattener": "solidity-flattener",
-          "solidityFlattery": "SolidityFlattery"
-        }
-      },
-      "compilationError": {
-        "title": "Failed compilation",
-        "showMoreButton": "Show more",
-        "showLessButton": "Show less"
-      },
-      "verified": {
-        "title": "Contract verified!",
-        "underline": "Anyone on {link} could check it’s code and interact with it",
-        "blockExplorer": "block explorer",
-        "back": "Back to Contract"
-      },
-      "compilationInfo": {
-        "contractName": "Contract Name",
-        "compilerVersion": "Compiler Version",
-        "zksolcVersion": "Zksolc Version",
-        "zkvyperVersion": "Zkvyper Version",
-        "optimization": "Optimization",
-        "autoVerified": "The contract wasn't manually verified, but its bytecode matches the bytecode of the following contract:",
-        "partialVerification": "Contract is partially verified: the contract metadata hash and/or constructor arguments do not match. Partial verification provides less guarantees about the authenticity of the code.",
-        "partialVerificationDetails": "See more details"
-      },
-      "multiFileVerification": {
-        "solcTitle": "Please select the Solidity (*.sol) files for upload",
-        "vyperTitle": "Please select the Vyper (*.vy) files for upload",
-        "chooseFiles": "Choose Files",
-        "yourFiles": "Your Files",
-        "bytes": "Bytes",
-        "files": {
-          "label": "Choose Files",
-          "validation": {
-            "required": "Please upload at least one file"
-          }
-        },
-        "mainFile": {
-          "label": "Main File",
-          "placeholder": "Choose Main File",
-          "validation": {
-            "required": "Please select file where your contract is declared"
-          }
-        }
-      }
-    },
-    "blockView": {
-      "blockNumber": "Block #",
-      "infoTableTitle": "Block Information",
-      "infoTableError": "En Error Occurred",
-      "transactionTableError": "Something went wrong",
-      "transactionTable": {
-        "title": "Block Transactions",
-        "footer": "Show more transactions ->"
-      },
-      "blockInfo": {
-        "number": "Block Number",
-        "blockSize": "Block Size",
-        "rootHash": "New root hash",
-        "commitTxHash": "Commit tx hash",
-        "committedAt": "Committed",
-        "status": "Status",
-        "proveTxHash": "Verify tx hash"
-      }
-    },
-    "blocksView": {
-      "title": "Blocks"
-    },
-    "transactionsView": {
-      "title": "Transactions"
-    },
-    "tokensView": {
-      "title": "Tokens",
-      "heading": "Tokens",
-      "offChainDataPoweredBy": "Off-chain data powered by",
-      "table": {
-        "tokenName": "Token Name",
-        "price": "Price",
-        "tokenAddress": "Token Address",
-        "bridged": {
-          "title": "Bridged",
-          "tooltip": "This token is bridged from L1 to Sophon"
-        },
-        "native": {
-          "title": "L2-native",
-          "tooltip": "This token is native to Sophon"
-        },
-        "tokenAddressL2": "L2 Token address",
-        "tokenAddressL1": "L1 Token address"
-      }
-    },
-    "pageError": {
-      "title": "Something went wrong",
-      "subtitle": "Unknown request, please try again, or go to the homepage.",
-      "button": "Homepage"
-    },
-    "timeMessages": {
-      "justNow": "just now",
-      "past": "ago",
-      "future": "in",
-      "lastMonth": "last month",
-      "nextMonth": "next month",
-      "month": "month",
-      "monthPlural": "months",
-      "yesterday": "yesterday",
-      "tomorrow": "tomorrow",
-      "day": "day",
-      "dayPlural": "days",
-      "lastYear": "last year",
-      "nextYear": "next year",
-      "year": "year",
-      "yearPlural": "years",
-      "lastWeek": "last week",
-      "nextWeek": "next week",
-      "week": "week",
-      "weekPlural": "weeks",
-      "hourPlural": "hours",
-      "hour": "hour",
-      "minute": "min",
-      "minutePlural": "min",
-      "second": "sec",
-      "secondPlural": "sec"
-    },
-    "accountView": {
-      "title": "Account",
-      "infoTableError": "An Error Occurred",
-      "accountNumber": "Account ",
-      "accountInfo": {
-        "address": "Address",
-        "verifiedNonce": "Verified nonce",
-        "sealedNonce": "Committed nonce"
-      },
-      "infoTableTitle": "Account Info",
-      "transactionTableError": "Something went wrong",
-      "transactionTable": {
-        "title": "Latest Transactions",
-        "notFound": {
-          "title": "This account doesn’t have any transactions",
-          "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
-        },
-        "error": "Something went wrong"
-      },
-      "balanceTableTitle": "Balances",
-      "balances": {
-        "error": {
-          "title": "Balances:",
-          "subtitle": "Something went wrong.\nPlease return to this page in a minute."
-        },
-        "notFound": {
-          "title": "This account doesn’t have any balances",
-          "subtitle": "We can’t find any balances related to this account."
-        }
+    "tooltipInfo": "Latest batches submitted to Ethereum Network",
+    "viewAll": "View All Batches",
+    "status": {
+      "verified": "Executed on",
+      "sealed": "Processed on",
+      "failed": "Failed"
+    }
+  },
+  "header": {
+    "nav": {
+      "blockExplorer": "Block Explorer",
+      "documentation": "Documentation",
+      "tools": "Tools",
+      "apiDocs": "API Documentation",
+      "contractVerification": "Smart Contract Verification",
+      "debugger": "zkEVM Debugger",
+      "bridge": "Bridge"
+    }
+  },
+  "locale": {
+    "en": "EN",
+    "uk": "UA"
+  },
+  "footer": {
+    "nav": {
+      "docs": "Docs",
+      "terms": "Terms",
+      "contact": "Contact"
+    }
+  },
+  "searchForm": {
+    "placeholder": "Search by address, batch number, contract, or tx hash",
+    "errorMessage": "Please, enter a correct query"
+  },
+  "estimatedCost": {
+    "title": "Estimated cost of transfers & interactions",
+    "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
+  },
+  "blockExplorer": {
+    "title": "ZKsync Era Block Explorer",
+    "subtitle": "ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network.",
+    "latestBlocks": "Latest Blocks",
+    "latestTransactions": "Latest Transactions",
+    "batches": "Latest Batches"
+  },
+  "failedRequest": "Failed to show .... Please, try to refresh the page.",
+  "addressView": {
+    "title": "Address"
+  },
+  "contract": {
+    "title": "Contract",
+    "contractNumber": "Contract ",
+    "infoTableTitle": "Contract Info",
+    "infoTableError": "An Error Occurred",
+    "balanceTableTitle": "Balances",
+    "notFound": "Not Found",
+    "verified": "Source Code",
+    "verifiedTooltip": "The contract's source code has been verified to match its on-chain Bytecode. Source code verification does not imply the contract is safe to interact with.",
+    "evm": "EVM",
+    "created": "Created",
+    "contractCreated": "Contract created",
+    "evmTooltip": "This is an EVM contract.",
+    "transactionTable": {
+      "error": "Something went wrong",
+      "notFound": {
+        "title": "This smart contract doesn’t have any transactions",
+        "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
       }
     },
     "balances": {
@@ -747,399 +409,369 @@
           "action": "Write"
         }
       },
-      "document": {
-        "title": "Sophon Block Explorer",
-        "home": "Transactions, Blocks, Contracts and much more"
+      "validation": {
+        "required": "Value is required",
+        "invalid": "Value is invalid"
+      }
+    }
+  },
+  "contractVerification": {
+    "title": "Smart Contract Verification",
+    "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Era Explorer will match the compiled code with that on the blockchain.",
+    "resources": {
+      "title": "You can also verify your smart-contract using {hardhat}",
+      "links": {
+        "hardhat": "HardHat Plugin"
+      }
+    },
+    "form": {
+      "compilationInfo": "Compilation Info",
+      "contractAddress": {
+        "title": "Contract Address",
+        "underline": "The 0x address supplied on contract creation.",
+        "placeholder": "0x0000...",
+        "validation": {
+          "required": "Contract address is required",
+          "not_valid": "Please, provide a valid contract address"
+        }
+      },
+      "compilationTarget": {
+        "title": "Compilation target"
+      },
+      "contractName": {
+        "label": "Contract Name",
+        "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
+        "vyperUnderline": "Must match the filename. For example, in contract MyContract.vy MyContract is the contract name.",
+        "placeholder": "Name",
+        "validation": {
+          "required": "Contract name is required"
+        }
+      },
+      "contractPath": {
+        "label": "Contract Path",
+        "underline": "Relative path to your contract at the moment of compilation",
+        "solcPlaceholder": "contracts/ContractFile.sol",
+        "vyperPlaceholder": "contracts/ContractFile.vy",
+        "validation": {
+          "required": "Contract path is required"
+        }
+      },
+      "runs": {
+        "label": "Runs",
+        "underline": "Optimize for how many times you intend to run the code. Lower values will optimize more for initial deployment cost, higher values will optimize more for high-frequency usage."
+      },
+      "optimizationUsed": {
+        "label": "Optimization",
+        "options": {
+          "yes": "Yes",
+          "no": "No"
+        },
+        "underline": "If you enabled optimization during compilation, select yes."
+      },
+      "solcVersion": {
+        "label": "Solc Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Solc version is required"
+        },
+        "error": "Unable to get list of supported Solc versions",
+        "zkVM": "Use zkVM solc",
+        "EVM": "EVM"
+      },
+      "zksolcVersion": {
+        "label": "Zksolc Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Zksolc version is required"
+        },
+        "error": "Unable to get list of supported Zksolc versions",
+        "details": "Details",
+        "evmVersion": {
+          "label": "EVM Version",
+          "custom": "Custom",
+          "inputPlaceholder": "Custom version...",
+          "validation": {
+            "required": "EVM Version is required"
+          }
+        }
+      },
+      "vyperVersion": {
+        "label": "Vyper Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Vyper version is required"
+        },
+        "error": "Unable to get list of supported Vyper versions"
+      },
+      "zkvyperVersion": {
+        "label": "Zkvyper Version",
+        "placeholder": "Choose version",
+        "validation": {
+          "required": "Zkvyper version is required"
+        },
+        "error": "Unable to get list of supported Zkvyper versions",
+        "details": "Details",
+        "evmVersion": {
+          "label": "EVM Version",
+          "validation": {
+            "required": "EVM Version is required"
+          }
+        }
+      },
+      "compilerType": {
+        "label": "Compiler type",
+        "underline": "Contract verification method",
+        "soliditySingleFile": "Solidity (Single file)",
+        "solidityMultiPart": "Solidity (Multi-part contract)",
+        "vyperSingleFile": "Vyper (Single file)",
+        "vyperMultiPart": "Vyper (Multi-part contract)"
+      },
+      "sourceCode": {
+        "solcLabel": "Enter the Solidity Contract Code",
+        "vyperLabel": "Enter the Vyper Contract Code",
+        "validation": {
+          "required": "Contract sourceCode is required"
+        }
+      },
+      "constructorArguments": {
+        "label": "Constructor Arguments",
+        "placeholder": "0x"
+      },
+      "buttonVerify": "Verify Smart Contract",
+      "buttonVerifying": "Verifying...",
+      "buttonClear": "Clear",
+      "unknownError": "Unsuccessful contract verification! We can’t verify your contract based on your information, please check it",
+      "flattenerInfo": {
+        "title": "If your contract uses \"imports\", you will need to concatenate the code into one file ( otherwise known as \"flattening\" ). For that purpose you can use {flattener} or {flattery}",
+        "solidityFlattener": "solidity-flattener",
+        "solidityFlattery": "SolidityFlattery"
+      }
+    },
+    "compilationError": {
+      "title": "Failed compilation",
+      "showMoreButton": "Show more",
+      "showLessButton": "Show less"
+    },
+    "verified": {
+      "title": "Contract verified!",
+      "underline": "Anyone on {link} could check it’s code and interact with it",
+      "blockExplorer": "block explorer",
+      "back": "Back to Contract"
+    },
+    "compilationInfo": {
+      "contractName": "Contract Name",
+      "compilerVersion": "Compiler Version",
+      "zksolcVersion": "Zksolc Version",
+      "zkvyperVersion": "Zkvyper Version",
+      "optimization": "Optimization",
+      "autoVerified": "The contract wasn't manually verified, but its bytecode matches the bytecode of the following contract:",
+      "partialVerification": "Contract is partially verified: the contract metadata hash and/or constructor arguments do not match. Partial verification provides less guarantees about the authenticity of the code.",
+      "partialVerificationDetails": "See more details"
+    },
+    "multiFileVerification": {
+      "solcTitle": "Please select the Solidity (*.sol) files for upload",
+      "vyperTitle": "Please select the Vyper (*.vy) files for upload",
+      "chooseFiles": "Choose Files",
+      "yourFiles": "Your Files",
+      "bytes": "Bytes",
+      "files": {
+        "label": "Choose Files",
+        "validation": {
+          "required": "Please upload at least one file"
+        }
+      },
+      "mainFile": {
+        "label": "Main File",
+        "placeholder": "Choose Main File",
+        "validation": {
+          "required": "Please select file where your contract is declared"
+        }
+      }
+    }
+  },
+  "blockView": {
+    "blockNumber": "Block #",
+    "infoTableTitle": "Block Information",
+    "infoTableError": "En Error Occurred",
+    "transactionTableError": "Something went wrong",
+    "transactionTable": {
+      "title": "Block Transactions",
+      "footer": "Show more transactions ->"
+    },
+    "blockInfo": {
+      "number": "Block Number",
+      "blockSize": "Block Size",
+      "rootHash": "New root hash",
+      "commitTxHash": "Commit tx hash",
+      "committedAt": "Committed",
+      "status": "Status",
+      "proveTxHash": "Verify tx hash"
+    }
+  },
+  "blocksView": {
+    "title": "Blocks"
+  },
+  "transactionsView": {
+    "title": "Transactions"
+  },
+  "tokensView": {
+    "title": "Tokens",
+    "heading": "Tokens",
+    "offChainDataPoweredBy": "Off-chain data powered by",
+    "table": {
+      "tokenName": "Token Name",
+      "price": "Price",
+      "tokenAddress": "Token Address",
+      "bridged": {
+        "title": "Bridged",
+        "tooltip": "This token is bridged from L1 to ZKsync Era"
+      },
+      "native": {
+        "title": "L2-native",
+        "tooltip": "This token is native to ZKsync Era"
+      },
+      "tokenAddressL2": "L2 Token address",
+      "tokenAddressL1": "L1 Token address"
+    }
+  },
+  "pageError": {
+    "title": "Something went wrong",
+    "subtitle": "Unknown request, please try again, or go to the homepage.",
+    "button": "Homepage"
+  },
+  "timeMessages": {
+    "justNow": "just now",
+    "past": "ago",
+    "future": "in",
+    "lastMonth": "last month",
+    "nextMonth": "next month",
+    "month": "month",
+    "monthPlural": "months",
+    "yesterday": "yesterday",
+    "tomorrow": "tomorrow",
+    "day": "day",
+    "dayPlural": "days",
+    "lastYear": "last year",
+    "nextYear": "next year",
+    "year": "year",
+    "yearPlural": "years",
+    "lastWeek": "last week",
+    "nextWeek": "next week",
+    "week": "week",
+    "weekPlural": "weeks",
+    "hourPlural": "hours",
+    "hour": "hour",
+    "minute": "min",
+    "minutePlural": "min",
+    "second": "sec",
+    "secondPlural": "sec"
+  },
+  "accountView": {
+    "title": "Account",
+    "infoTableError": "An Error Occurred",
+    "accountNumber": "Account ",
+    "accountInfo": {
+      "address": "Address",
+      "verifiedNonce": "Verified nonce",
+      "sealedNonce": "Committed nonce"
+    },
+    "infoTableTitle": "Account Info",
+    "transactionTableError": "Something went wrong",
+    "transactionTable": {
+      "title": "Latest Transactions",
+      "notFound": {
+        "title": "This account doesn’t have any transactions",
+        "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
+      },
+      "error": "Something went wrong"
+    },
+    "balanceTableTitle": "Balances",
+    "balances": {
+      "error": {
+        "title": "Balances:",
+        "subtitle": "Something went wrong.\nPlease return to this page in a minute."
       },
       "notFound": {
-        "title": "Oops, we can’t find anything",
-        "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
-        "contactSupportTitle": "If you think this is a problem with us, please",
-        "contactSupport": "contact support"
-      },
-      "maintenance": {
-        "title": "Sophon {network} is on maintainance",
-        "description": "Sophon {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
-        "twitterLink": "Sohpon Developers",
-        "uptimeLink": "UpTime",
-        "twitterButton": "Sophon Developers"
-      },
-      "tabs": {
-        "transactions": "Transactions",
-        "contract": "Contract",
-        "events": "Events",
-        "transfers": "Transfers"
-      },
-      "contractInfoTabs": {
-        "contract": "Contract",
-        "read": "Read",
-        "write": "Write",
-        "readAsProxy": "Read as Proxy",
-        "writeAsProxy": "Write as Proxy"
-      },
-      "debuggerTool": {
-        "title": "zkEVM Debugger",
-        "whatFor": "With this tool you can replay execution of your smart-contracts, and read each instruction",
-        "uploadJSON": "Upload JSON file",
-        "orDropHere": "or drop here",
-        "unableToParseTrace": "Sorry, we couldn't parse this trace file",
-        "transaction": "Transaction: from trace file",
-        "executionStepNavigation": "Arrow Left/Right",
-        "searchPlaceholder": "Search",
-        "start": "Start",
-        "child": "Child",
-        "parent": "Parent",
-        "hex": "Hex",
-        "dec": "Dec",
-        "metadataBlock": {
-          "contract": "Current Contract",
-          "tag": "Tag",
-          "registers": "Registers",
-          "memory": "Memory",
-          "memoryChanges": "Memory Changes",
-          "memoryPageIndex": {
-            "stack": "stack",
-            "heap": "heap",
-            "code": "code",
-            "returnData": "returndata",
-            "callData": "calldata"
-          }
-        }
-      },
-      "systemAlert": {
-        "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://sophon.xyz/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
-        "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://sophon.xyz/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
-      },
-      "pagination": {
-        "records": "Records"
+        "title": "This account doesn’t have any balances",
+        "subtitle": "We can’t find any balances related to this account."
       }
-    },
-    "contractVerification": {
-      "title": "Smart Contract Verification",
-      "subtitle": "Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, Sophon Explorer will match the compiled code with that on the blockchain.",
-      "resources": {
-        "title": "You can also verify your smart-contract using {hardhat}",
-        "links": {
-          "hardhat": "HardHat Plugin"
-        }
-      },
-      "form": {
-        "compilationInfo": "Compilation Info",
-        "contractAddress": {
-          "title": "Contract Address",
-          "underline": "The 0x address supplied on contract creation.",
-          "placeholder": "0x0000...",
-          "validation": {
-            "required": "Contract address is required",
-            "not_valid": "Please, provide a valid contract address"
-          }
-        },
-        "contractName": {
-          "label": "Contract Name",
-          "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
-          "vyperUnderline": "Must match the filename. For example, in contract MyContract.vy MyContract is the contract name.",
-          "placeholder": "Name",
-          "validation": {
-            "required": "Contract name is required"
-          }
-        },
-        "contractPath": {
-          "label": "Contract Path",
-          "underline": "Relative path to your contract at the moment of compilation",
-          "solcPlaceholder": "/contracts/ContractFile.sol",
-          "vyperPlaceholder": "/contracts/ContractFile.vy",
-          "validation": {
-            "required": "Contract path is required"
-          }
-        },
-        "optimizationUsed": {
-          "label": "Optimization",
-          "options": {
-            "yes": "Yes",
-            "no": "No"
-          },
-          "underline": "If you enabled optimization during compilation, select yes."
-        },
-        "solcVersion": {
-          "label": "Solc Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Solc version is required"
-          },
-          "error": "Unable to get list of supported Solc versions",
-          "zkVM": "zkVM"
-        },
-        "zksolcVersion": {
-          "label": "Zksolc Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Zksolc version is required"
-          },
-          "error": "Unable to get list of supported Zksolc versions",
-          "details": "Details"
-        },
-        "vyperVersion": {
-          "label": "Vyper Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Vyper version is required"
-          },
-          "error": "Unable to get list of supported Vyper versions"
-        },
-        "zkvyperVersion": {
-          "label": "Zkvyper Version",
-          "placeholder": "Choose version",
-          "validation": {
-            "required": "Zkvyper version is required"
-          },
-          "error": "Unable to get list of supported Zkvyper versions",
-          "details": "Details"
-        },
-        "compilerType": {
-          "label": "Compiler type",
-          "underline": "Contract verification method",
-          "soliditySingleFile": "Solidity (Single file)",
-          "solidityMultiPart": "Solidity (Multi-part contract)",
-          "vyperSingleFile": "Vyper (Single file)",
-          "vyperMultiPart": "Vyper (Multi-part contract)"
-        },
-        "sourceCode": {
-          "solcLabel": "Enter the Solidity Contract Code",
-          "vyperLabel": "Enter the Vyper Contract Code",
-          "validation": {
-            "required": "Contract sourceCode is required"
-          }
-        },
-        "constructorArguments": {
-          "label": "Constructor Arguments",
-          "placeholder": "0x"
-        },
-        "buttonVerify": "Verify Smart Contract",
-        "buttonVerifying": "Verifying...",
-        "buttonClear": "Clear",
-        "unknownError": "Unsuccessful contract verification! We can’t verify your contract based on your information, please check it",
-        "flattenerInfo": {
-          "title": "If your contract uses \"imports\", you will need to concatenate the code into one file ( otherwise known as \"flattening\" ). For that purpose you can use {flattener} or {flattery}",
-          "solidityFlattener": "solidity-flattener",
-          "solidityFlattery": "SolidityFlattery"
-        }
-      },
-      "compilationError": {
-        "title": "Failed compilation",
-        "showMoreButton": "Show more",
-        "showLessButton": "Show less"
-      },
-      "verified": {
-        "title": "Contract verified!",
-        "underline": "Anyone on {link} could check it’s code and interact with it",
-        "blockExplorer": "block explorer",
-        "back": "Back to Contract"
-      },
-      "compilationInfo": {
-        "contractName": "Contract Name",
-        "compilerVersion": "Compiler Version",
-        "zksolcVersion": "Zksolc Version",
-        "zkvyperVersion": "Zkvyper Version",
-        "optimization": "Optimization",
-        "autoVerified": "The contract wasn't manually verified, but its bytecode matches the bytecode of the following contract:",
-        "partialVerification": "Contract is partially verified: the contract metadata hash and/or constructor arguments do not match. Partial verification provides less guarantees about the authenticity of the code.",
-        "partialVerificationDetails": "See more details"
-      },
-      "multiFileVerification": {
-        "solcTitle": "Please select the Solidity (*.sol) files for upload",
-        "vyperTitle": "Please select the Vyper (*.vy) files for upload",
-        "chooseFiles": "Choose Files",
-        "yourFiles": "Your Files",
-        "bytes": "Bytes",
-        "files": {
-          "label": "Choose Files",
-          "validation": {
-            "required": "Please upload at least one file"
-          }
-        },
-        "mainFile": {
-          "label": "Main File",
-          "placeholder": "Choose Main File",
-          "validation": {
-            "required": "Please select file where your contract is declared"
-          }
-        }
-      }
-    },
-    "blockView": {
-      "blockNumber": "Block #",
-      "infoTableTitle": "Block Information",
-      "infoTableError": "En Error Occurred",
-      "transactionTableError": "Something went wrong",
-      "transactionTable": {
-        "title": "Block Transactions",
-        "footer": "Show more transactions ->"
-      },
-      "blockInfo": {
-        "number": "Block Number",
-        "blockSize": "Block Size",
-        "rootHash": "New root hash",
-        "commitTxHash": "Commit tx hash",
-        "committedAt": "Committed",
-        "status": "Status",
-        "proveTxHash": "Verify tx hash"
-      }
-    },
-    "blocksView": {
-      "title": "Blocks"
-    },
-    "transactionsView": {
-      "title": "Transactions"
-    },
-    "tokensView": {
-      "title": "Tokens",
-      "heading": "Tokens",
-      "offChainDataPoweredBy": "Off-chain data powered by",
-      "table": {
-        "tokenName": "Token Name",
-        "price": "Price",
-        "tokenAddress": "Token Address"
-      }
-    },
-    "pageError": {
-      "title": "Something went wrong",
-      "subtitle": "Unknown request, please try again, or go to the homepage.",
-      "button": "Homepage"
-    },
-    "timeMessages": {
-      "justNow": "just now",
-      "past": "ago",
-      "future": "in",
-      "lastMonth": "last month",
-      "nextMonth": "next month",
-      "month": "month",
-      "monthPlural": "months",
-      "yesterday": "yesterday",
-      "tomorrow": "tomorrow",
-      "day": "day",
-      "dayPlural": "days",
-      "lastYear": "last year",
-      "nextYear": "next year",
-      "year": "year",
-      "yearPlural": "years",
-      "lastWeek": "last week",
-      "nextWeek": "next week",
-      "week": "week",
-      "weekPlural": "weeks",
-      "hourPlural": "hours",
-      "hour": "hour",
-      "minute": "min",
-      "minutePlural": "min",
-      "second": "sec",
-      "secondPlural": "sec"
-    },
-    "accountView": {
-      "title": "Account",
-      "infoTableError": "An Error Occurred",
-      "accountNumber": "Account ",
-      "accountInfo": {
-        "address": "Address",
-        "verifiedNonce": "Verified nonce",
-        "sealedNonce": "Committed nonce"
-      },
-      "infoTableTitle": "Account Info",
-      "transactionTableError": "Something went wrong",
-      "transactionTable": {
-        "title": "Latest Transactions",
-        "notFound": {
-          "title": "This account doesn’t have any transactions",
-          "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
-        },
-        "error": "Something went wrong"
-      },
-      "balanceTableTitle": "Balances",
-      "balances": {
-        "error": {
-          "title": "Balances:",
-          "subtitle": "Something went wrong.\nPlease return to this page in a minute."
-        },
-        "notFound": {
-          "title": "This account doesn’t have any balances",
-          "subtitle": "We can’t find any balances related to this account."
-        }
-      }
-    },
-    "balances": {
-      "table": {
-        "asset": "Asset",
-        "balance": "Balance",
-        "address": "Token Address",
-        "notFound": "Not Found",
-        "error": "En error occurred",
-        "unknownSymbol": "unknown",
-        "showAll": "Show all Balances"
-      }
-    },
-    "document": {
-      "title": "Sophon Block Explorer",
-      "home": "Transactions, Blocks, Contracts and much more"
-    },
-    "notFound": {
-      "title": "Oops, we can’t find anything",
-      "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
-      "contactSupportTitle": "If you think this is a problem with us, please",
-      "contactSupport": "contact support"
-    },
-    "maintenance": {
-      "title": "Sophon {network} is on maintainance",
-      "description": "Sophon {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
-      "twitterLink": "Sohpon Developers",
-      "uptimeLink": "UpTime",
-      "twitterButton": "Sophon Developers"
-    },
-    "tabs": {
-      "transactions": "Transactions",
-      "contract": "Contract",
-      "events": "Events",
-      "transfers": "Transfers"
-    },
-    "contractInfoTabs": {
-      "contract": "Contract",
-      "read": "Read",
-      "write": "Write",
-      "readAsProxy": "Read as Proxy",
-      "writeAsProxy": "Write as Proxy"
-    },
-    "debuggerTool": {
-      "title": "zkEVM Debugger",
-      "whatFor": "With this tool you can replay execution of your smart-contracts, and read each instruction",
-      "uploadJSON": "Upload JSON file",
-      "orDropHere": "or drop here",
-      "unableToParseTrace": "Sorry, we couldn't parse this trace file",
-      "transaction": "Transaction: from trace file",
-      "executionStepNavigation": "Arrow Left/Right",
-      "searchPlaceholder": "Search",
-      "start": "Start",
-      "child": "Child",
-      "parent": "Parent",
-      "hex": "Hex",
-      "dec": "Dec",
-      "metadataBlock": {
-        "contract": "Current Contract",
-        "tag": "Tag",
-        "registers": "Registers",
-        "memory": "Memory",
-        "memoryChanges": "Memory Changes",
-        "memoryPageIndex": {
-          "stack": "stack",
-          "heap": "heap",
-          "code": "code",
-          "returnData": "returndata",
-          "callData": "calldata"
-        }
-      }
-    },
-    "systemAlert": {
-      "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://sophon.xyz/explore/\" style=\"color: inherit\">explorers</a> meanwhile.",
-      "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://sophon.xyz/explore/\" style=\"color: inherit\">explorers</a> meanwhile."
-    },
-    "pagination": {
-      "records": "Records"
     }
+  },
+  "balances": {
+    "table": {
+      "asset": "Asset",
+      "balance": "Balance",
+      "address": "Token Address",
+      "notFound": "Not Found",
+      "error": "En error occurred",
+      "unknownSymbol": "unknown",
+      "showAll": "Show all Balances"
+    }
+  },
+  "document": {
+    "title": "ZKsync Era Block Explorer",
+    "home": "Transactions, Blocks, Contracts and much more"
+  },
+  "notFound": {
+    "title": "Oops, we can’t find anything",
+    "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
+    "contactSupportTitle": "If you think this is a problem with us, please",
+    "contactSupport": "contact support"
+  },
+  "maintenance": {
+    "title": "ZKsync {network} is on maintainance",
+    "description": "ZKsync {network} is unavailable due to maintainance, you can find updates in our {twitter} or on {uptime}",
+    "twitterLink": "ZKsync Developers",
+    "uptimeLink": "UpTime",
+    "twitterButton": "ZKsync Developers"
+  },
+  "tabs": {
+    "transactions": "Transactions",
+    "contract": "Contract",
+    "events": "Events",
+    "transfers": "Transfers"
+  },
+  "contractInfoTabs": {
+    "contract": "Contract",
+    "read": "Read",
+    "write": "Write",
+    "readAsProxy": "Read as Proxy",
+    "writeAsProxy": "Write as Proxy"
+  },
+  "debuggerTool": {
+    "title": "zkEVM Debugger",
+    "whatFor": "With this tool you can replay execution of your smart-contracts, and read each instruction",
+    "uploadJSON": "Upload JSON file",
+    "orDropHere": "or drop here",
+    "unableToParseTrace": "Sorry, we couldn't parse this trace file",
+    "transaction": "Transaction: from trace file",
+    "executionStepNavigation": "Arrow Left/Right",
+    "searchPlaceholder": "Search",
+    "start": "Start",
+    "child": "Child",
+    "parent": "Parent",
+    "hex": "Hex",
+    "dec": "Dec",
+    "metadataBlock": {
+      "contract": "Current Contract",
+      "tag": "Tag",
+      "registers": "Registers",
+      "memory": "Memory",
+      "memoryChanges": "Memory Changes",
+      "memoryPageIndex": {
+        "stack": "stack",
+        "heap": "heap",
+        "code": "code",
+        "returnData": "returndata",
+        "callData": "calldata"
+      }
+    }
+  },
+  "systemAlert": {
+    "indexerDelayed": "Transaction indexing is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">explorers</a> meanwhile.",
+    "indexerDelayedDueToHeavyLoad": "The network is under a heavy load at the moment and transaction indexing on the explorer is {indexerDelayInHours} hours behind. Transactions are being processed normally and will gradually show up. You can also use other <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">explorers</a> meanwhile."
+  },
+  "pagination": {
+    "records": "Records"
   }
 }
