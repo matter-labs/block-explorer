@@ -50,6 +50,8 @@ type ContractVerificationRequest = {
         settings: {
           optimizer: {
             enabled: boolean;
+            runs?: number;
+            mode?: string;
           };
         };
         sources: {
@@ -60,6 +62,9 @@ type ContractVerificationRequest = {
       }
     | Record<string, string>;
   optimizationUsed: boolean;
+  evmVersion?: string;
+  optimizerRuns?: number;
+  optimizerMode?: string;
 };
 
 export const VERIFICATION_PROBLEM_INCORRECT_METADATA = "incorrectMetadata";
