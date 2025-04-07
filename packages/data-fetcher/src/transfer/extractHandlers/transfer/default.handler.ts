@@ -10,11 +10,12 @@ import { CONTRACT_INTERFACES } from "../../../constants";
 
 export const defaultTransferHandler: ExtractTransferHandler = {
   matches: (log: types.Log): boolean => log.topics.length === 3,
-  extract: (
+  extract: async (
     log: types.Log,
+    _,
     blockDetails: types.BlockDetails,
     transactionDetails?: types.TransactionDetails
-  ): Transfer => {
+  ): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC20, log);
 
     let transferType: TransferType = TransferType.Transfer;

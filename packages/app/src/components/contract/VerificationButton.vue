@@ -14,13 +14,9 @@ import { useI18n } from "vue-i18n";
 
 import Button from "@/components/common/Button.vue";
 
-import type { Address } from "@/types";
-import type { PropType } from "vue";
-
 defineProps({
   address: {
-    type: Object as PropType<Address>,
-    default: () => ({}),
+    type: String,
     required: true,
   },
 });

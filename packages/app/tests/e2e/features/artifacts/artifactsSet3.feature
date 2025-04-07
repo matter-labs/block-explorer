@@ -64,27 +64,29 @@ Feature: Main Page
 
   @id249 @testnet @testnetSmokeSuite
   Scenario Outline: Verify table contains "<Column name>" column name on Tokens page
-    Given I go to page "/tokenlist"
+    Given I go to page "/tokens"
     # And Table "Tokens" should have "1" rows
     Then Column with "<Column name>" name is visible
 
     Examples:
-      | Column name   |
-      | Token Name    |
-      | Price         |
-      | Token Address |
+      | Column name       |
+      | Token Name        |
+      | Price             |
+      | L2 Token address  |
+      | L1 Token address  |
 
   @id249 @mainnet
   Scenario Outline: Verify table contains "<Column name>" column name on Tokens page
-    Given I go to page "/tokenlist"
+    Given I go to page "/tokens"
     # And Table "Tokens" should have "56" rows
     Then Column with "<Column name>" name is visible
 
     Examples:
-      | Column name   |
-      | Token Name    |
-      | Price         |
-      | Token Address |
+      | Column name       |
+      | Token Name        |
+      | Price             |
+      | L2 Token address  |
+      | L1 Token address  |
 
   @id381 @testnet @testnetSmokeSuite
   Scenario Outline: Verify label "out" for Account info on Account page
