@@ -33,7 +33,7 @@
         {{ t("contractVerification.compilationInfo.evmVersion") }}
       </p>
       <p class="text">
-        {{ verificationRequest.evmVersion }}
+        {{ verificationRequest?.evmVersion }}
       </p>
     </div>
     <div v-else>
