@@ -1,4 +1,4 @@
-<h1 align="center">Revolution Block Explorer</h1>
+<h1 align="center">Revolution Block Explorer</h1> 
 
 <p align="center">Online blockchain browser for viewing and analyzing <a href="https://zksync.io">Revolution</a> blockchain.</p>
 
