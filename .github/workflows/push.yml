@@ -1,10 +1,11 @@
-name: CI/CD Pipeline
+name: build-on-push
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 env:
   REGISTRY: docker.io
@@ -62,9 +63,7 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/block-explorer-${{ matrix.service }}
           tags: |
-            type=ref,event=branch
-            type=sha,format=short
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
 
       - name: Build and push
         uses: docker/build-push-action@v4
