@@ -194,7 +194,7 @@ describe("ContractBytecode", () => {
       },
     });
     const codeBlocks = wrapper.findAllComponents(CodeBlock);
-    expect(codeBlocks.length).toBe(2);
+    expect(codeBlocks.length).toBe(3);
     expect(codeBlocks[0].props().label).toBe("File 1 of 2: ERC20.sol");
     expect(codeBlocks[0].props().code).toBe(
       verifiedContractSources["@openzeppelin/contracts/token/ERC20/ERC20.sol"].content
@@ -202,6 +202,18 @@ describe("ContractBytecode", () => {
     expect(codeBlocks[1].props().label).toBe("File 2 of 2: IERC20.sol");
     expect(codeBlocks[1].props().code).toBe(
       verifiedContractSources["@openzeppelin/contracts/token/ERC20/IERC20.sol"].content
+    );
+    expect(codeBlocks[2].props().label).toBe("Settings");
+    expect(codeBlocks[2].props().code).toBe(
+      JSON.stringify(
+        {
+          optimizer: {
+            enabled: true,
+          },
+        },
+        null,
+        4
+      )
     );
   });
 
