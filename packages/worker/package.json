@@ -1,8 +1,8 @@
 {
   "name": "worker",
   "version": "0.0.0",
-  "title": "ZKsync Era Block Explorer Worker",
-  "description": "ZKsync Era Block Explorer Worker",
+  "title": "Revolution Block Explorer Worker",
+  "description": "Revolution Block Explorer Worker",
   "author": "Matter Labs",
   "private": true,
   "license": "MIT",

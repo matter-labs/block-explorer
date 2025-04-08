@@ -63,8 +63,8 @@ Feature: Redirection
     Examples: 
      | Initial page                                             | Network                   | url                                                                      |
      | /address/0x000000000000000000000000000000000000800A      | Goerli (Stage2)           | /address/0x000000000000000000000000000000000000800A/?network=goerli-beta | 
-     | /address/0x000000000000000000000000000000000000800A      | ZKsync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     |
-     | /address/0x000000000000000000000000000000000000800A      | ZKsync Era Sepolia Testnet | /address/0x000000000000000000000000000000000000800A/?network=sepolia    |  
+     | /address/0x000000000000000000000000000000000000800A      | Revolution Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     |
+     | /address/0x000000000000000000000000000000000000800A      | Revolution Sepolia Testnet | /address/0x000000000000000000000000000000000000800A/?network=sepolia    |  
 
   @id561:I @id562:I @id563:I @productionEnv
   Scenario Outline: Verify redirection to "<Network>" network 
@@ -74,5 +74,5 @@ Feature: Redirection
 
     Examples: 
      | Initial page                                         | Network                           | url                                                                      | 
-     | /address/0x000000000000000000000000000000000000800A  | ZKsync Era Sepolia Testnet        | /address/0x000000000000000000000000000000000000800A/?network=sepolia     | 
-     | /address/0x000000000000000000000000000000000000800A  | ZKsync Era Mainnet                | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 
+     | /address/0x000000000000000000000000000000000000800A  | Revolution Sepolia Testnet        | /address/0x000000000000000000000000000000000000800A/?network=sepolia     | 
+     | /address/0x000000000000000000000000000000000000800A  | Revolution Mainnet                | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 

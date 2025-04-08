@@ -6,14 +6,14 @@ import { parse as parseConnectionString } from "pg-connection-string";
 
 const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
   networks: [{
-    apiUrl: "http://localhost:3020",
+    apiUrl: "http://66.228.43.83:3020",
     verificationApiUrl: zkSyncEnvs.API_CONTRACT_VERIFICATION_URL || "",
-    hostnames: ["localhost"],
+    hostnames: ["localhost", "66.228.43.83"],
     icon: "/images/icons/zksync-arrows.svg",
     l2ChainId: parseInt(zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK_ID, 10) || "",
     l2NetworkName: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
-    bridgeUrl: "http://localhost:3000/bridge",
-    l2WalletUrl: "http://localhost:3000",
+    bridgeUrl: "http://66.228.43.83:3000/bridge",
+    l2WalletUrl: "http://66.228.43.83:3000",
     maintenance: false,
     name: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
     published: true,
@@ -36,7 +36,7 @@ const buildWorkerConfig = (zkSyncEnvs: { [key: string]: string }) => {
     DATABASE_USER: dbConfig.user || "",
     DATABASE_PASSWORD: dbConfig.password || "",
     DATABASE_NAME: "block-explorer",
-    DATA_FETCHER_URL: "http://localhost:3040",
+    DATA_FETCHER_URL: "http://66.228.43.83:3040",
   }
 };
 

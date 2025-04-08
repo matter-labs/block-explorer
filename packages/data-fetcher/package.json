@@ -1,8 +1,8 @@
 {
   "name": "data-fetcher",
   "version": "0.0.0",
-  "title": "ZKsync Era Block Explorer Data Fetcher",
-  "description": "ZKsync Era Block Explorer Data Fetcher",
+  "title": "Revolution Block Explorer Data Fetcher",
+  "description": "Revolution Block Explorer Data Fetcher",
   "author": "Matter Labs",
   "private": true,
   "license": "MIT",

@@ -1,6 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "ZKsync Era",
+        "l2NetworkName": "Revolution",
         "l1NetworkName": "Ethereum"
     },
     "copyButton": {
@@ -15,7 +15,7 @@
     "networkStats": {
         "title": "Network Stats",
         "subtitleTestnet": "Stats are occasionally reset on testnet.",
-        "subtitleMainnet": "ZKsync Era Mainnet is open to everyone.",
+        "subtitleMainnet": "Revolution Mainnet is open to everyone.",
         "committed": "Committed Blocks",
         "verified": "Verified Blocks",
         "transactions": "Transactions",
@@ -312,8 +312,8 @@
         "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "ZKsync Era Block Explorer",
-        "subtitle": "ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network.",
+        "title": "Revolution Block Explorer",
+        "subtitle": "Revolution Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into Revolution and explore the network.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions",
         "batches": "Latest Batches"
@@ -624,11 +624,11 @@
             "tokenAddress": "Token Address",
             "bridged": {
                 "title": "Bridged",
-                "tooltip": "This token is bridged from L1 to ZKsync Era"
+                "tooltip": "This token is bridged from L1 to Revolution"
             },
             "native": {
                 "title": "L2-native",
-                "tooltip": "This token is native to ZKsync Era"
+                "tooltip": "This token is native to Revolution"
             },
             "tokenAddressL2": "L2 Token address",
             "tokenAddressL1": "L1 Token address"
@@ -709,7 +709,7 @@
         }
     },
     "document": {
-        "title": "ZKsync Era Block Explorer",
+        "title": "Revolution Block Explorer",
         "home": "Transactions, Blocks, Contracts and much more"
     },
     "notFound": {

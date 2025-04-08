@@ -9,7 +9,7 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   icon: "/images/icons/zksync-arrows.svg",
   l1ExplorerUrl: "https://sepolia.etherscan.io",
   l2ChainId: 300,
-  l2NetworkName: "ZKsync Era Sepolia Testnet",
+  l2NetworkName: "Revolution Sepolia Testnet",
   maintenance: false,
   name: "sepolia",
   published: true,

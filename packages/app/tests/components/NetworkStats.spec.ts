@@ -161,7 +161,7 @@ describe("NetworkStats:", () => {
       global,
     });
 
-    expect(wrapper.find(".subtitle").text()).toBe("ZKsync Era Mainnet is open to everyone.");
+    expect(wrapper.find(".subtitle").text()).toBe("Revolution Mainnet is open to everyone.");
     mockNetwork.mockRestore();
   });
 });

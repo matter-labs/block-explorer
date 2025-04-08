@@ -1,6 +1,6 @@
-# ZKsync Era Block Explorer App
+# Revolution Block Explorer App
 ## Overview
-`ZKsync Era Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [ZKsync Era](https://zksync.io) blockchain.
+`Revolution Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [Revolution](https://zksync.io) blockchain.
 
 ## Recommended IDE Setup
 
