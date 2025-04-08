@@ -1,5 +1,4 @@
-name: CI/CD Pipeline
-
+name: buid-on-tag
 on:
   workflow_dispatch:
   push:
@@ -39,6 +38,7 @@ jobs:
   docker-build-push:
     needs: build-and-test
     runs-on: ubuntu-latest
+    if: github.event_name == 'push'
     
     strategy:
       matrix:
@@ -67,7 +67,6 @@ jobs:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/block-explorer-${{ matrix.service }}
           tags: |
             type=semver,pattern={{version}}
-
       - name: Build and push
         uses: docker/build-push-action@v6
         with:

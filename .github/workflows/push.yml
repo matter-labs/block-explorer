@@ -63,8 +63,9 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/block-explorer-${{ matrix.service }}
           tags: |
-            type=raw,value=latest
-
+            type=ref,event=branch
+            type=sha,format=short
+            type=raw,value=latest,enable={{is_default_branch}}
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
