@@ -35,6 +35,7 @@ describe("getSolcFullVersion", () => {
   });
 
   it("requests unknown solc version from the API", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mock = ($fetch as any).mockResolvedValueOnce({
       builds: [
         {
@@ -56,6 +57,7 @@ describe("getSolcFullVersion", () => {
   });
 
   it("returns version unchanged if the API call fails", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mock = ($fetch as any).mockRejectedValue(new Error("An error occurred"));
     expect(await getSolcFullVersion("0.9.1")).toBe("0.9.1");
     expect($fetch).toHaveBeenCalledTimes(1);
