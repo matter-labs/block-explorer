@@ -1,7 +1,7 @@
 <template>
   <div class="code-block-container">
     <div class="code-block-header">
-      <div class="code-block-label">{{ label }}</div>
+      <div :class="['code-block-label', { bold: labelBold }]">{{ label }}</div>
       <div class="code-block-buttons">
         <CopyButton :value="code" />
         <button class="expand-button" @click="expanded = !expanded">
@@ -27,6 +27,10 @@ defineProps({
     type: String,
     required: true,
   },
+  labelBold: {
+    type: Boolean,
+    default: false,
+  },
   code: {
     type: String,
     required: true,
@@ -43,6 +47,10 @@ const expanded = ref(false);
 
     .code-block-label {
       @apply text-left text-sm;
+
+      &.bold {
+        @apply text-sm font-bold text-neutral-700;
+      }
     }
     .code-block-buttons {
       @apply flex items-center gap-1;

@@ -28,7 +28,15 @@
       <p class="label">{{ t("contractVerification.compilationInfo.compilerVersion") }}</p>
       <p class="text">{{ verificationRequest?.compilerSolcVersion || verificationRequest?.compilerVyperVersion }}</p>
     </div>
-    <div>
+    <div v-if="contract.isEvmLike">
+      <p class="label">
+        {{ t("contractVerification.compilationInfo.evmVersion") }}
+      </p>
+      <p class="text">
+        {{ verificationRequest?.evmVersion }}
+      </p>
+    </div>
+    <div v-else>
       <p class="label">
         {{
           verificationRequest?.compilerVyperVersion
@@ -41,8 +49,25 @@
       </p>
     </div>
     <div>
-      <p class="label">{{ t("contractVerification.compilationInfo.optimization") }}</p>
-      <p class="text">{{ optimization }}</p>
+      <p class="label">{{ t("contractVerification.compilationInfo.optimization.title") }}</p>
+      <p class="text" v-if="optimizationInfo.enabled">
+        <span>{{ t("contractVerification.compilationInfo.optimization.enabled") }}</span>
+        <span v-if="optimizationInfo.runs">
+          {{
+            t("contractVerification.compilationInfo.optimization.runsTemplate", {
+              runs: optimizationInfo.runs,
+            })
+          }}
+        </span>
+        <span v-if="optimizationInfo.mode">
+          {{
+            t("contractVerification.compilationInfo.optimization.modeTemplate", {
+              mode: optimizationInfo.mode,
+            })
+          }}
+        </span>
+      </p>
+      <p class="text" v-else>{{ t("contractVerification.compilationInfo.optimization.disabled") }}</p>
     </div>
   </div>
 </template>
@@ -62,6 +87,11 @@ import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();
 
+type OptimizationInfo = {
+  enabled: boolean;
+  runs?: number;
+  mode?: string;
+};
 const props = defineProps({
   contract: {
     type: Object as PropType<Contract>,
@@ -70,7 +100,34 @@ const props = defineProps({
   },
 });
 const verificationRequest = computed(() => props.contract.verificationInfo?.request);
-const optimization = computed(() => (props.contract.verificationInfo?.request.optimizationUsed ? "Yes" : "No"));
+const optimizationInfo = computed(() => {
+  let optimizationInfo: OptimizationInfo = {
+    enabled: false,
+  };
+  if (typeof props.contract.verificationInfo?.request?.sourceCode === "string") {
+    const {
+      optimizationUsed: enabled,
+      optimizerRuns: runs,
+      optimizerMode: mode,
+    } = props.contract.verificationInfo.request;
+    optimizationInfo = {
+      enabled,
+      runs,
+      mode,
+    };
+  } else if (
+    typeof props.contract.verificationInfo?.request?.sourceCode?.settings === "object" &&
+    props.contract.verificationInfo?.request?.sourceCode?.settings?.optimizer
+  ) {
+    const { enabled, runs, mode } = props.contract.verificationInfo.request.sourceCode.settings.optimizer;
+    optimizationInfo = {
+      enabled,
+      runs,
+      mode,
+    };
+  }
+  return optimizationInfo;
+});
 const contractName = computed(() => props.contract.verificationInfo?.request.contractName.replace(/.*\.(sol|vy):/, ""));
 // If address of the contract doesn't match address in the request, the contract was verified "automatically".
 const autoVerified = computed(
