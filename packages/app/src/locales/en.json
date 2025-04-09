@@ -374,6 +374,9 @@
       "singleFileContract": "Single file contract",
       "fileLabel": "File {index} of {total}: {fileName}"
     },
+    "settings": {
+      "label": "Settings"
+    },
     "events": {
       "txnHash": "txn hash",
       "method": "method",
@@ -565,7 +568,14 @@
       "compilerVersion": "Compiler Version",
       "zksolcVersion": "Zksolc Version",
       "zkvyperVersion": "Zkvyper Version",
-      "optimization": "Optimization",
+      "evmVersion": "EVM Version",
+      "optimization": {
+        "title": "Optimization",
+        "enabled": "Yes",
+        "disabled": "No",
+        "runsTemplate": ", with {runs} runs",
+        "modeTemplate": ", with mode {mode}"
+      },
       "autoVerified": "The contract wasn't manually verified, but its bytecode matches the bytecode of the following contract:",
       "partialVerification": "Contract is partially verified: the contract metadata hash and/or constructor arguments do not match. Partial verification provides less guarantees about the authenticity of the code.",
       "partialVerificationDetails": "See more details"
