@@ -7,6 +7,7 @@ import useContext from "./useContext";
 
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
 import { numberToHexString } from "@/utils/formatters";
+import { getSolcFullVersion } from "@/utils/solcFullVersions";
 
 const oneBigInt = BigInt(1);
 const EIP1967_PROXY_IMPLEMENTATION_SLOT = numberToHexString(
@@ -104,7 +105,15 @@ export default (context = useContext()) => {
       return null;
     }
     try {
-      return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
+      const verificationInfo = await $fetch<ContractVerificationInfo>(
+        `${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`
+      );
+      if (verificationInfo?.request?.compilerSolcVersion) {
+        verificationInfo.request.compilerSolcVersion = await getSolcFullVersion(
+          verificationInfo.request.compilerSolcVersion
+        );
+      }
+      return verificationInfo;
     } catch (e) {
       if (!(e instanceof FetchError) || e.response?.status !== 404) {
         throw e;
