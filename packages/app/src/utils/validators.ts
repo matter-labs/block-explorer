@@ -18,7 +18,18 @@ export const isBlockNumber = (s: number | string) => {
 export const validateAbiValue = (value: string, type: string) => {
   try {
     /* Will throw an error in case if it is impossible to encode the value to required type */
-    defaultAbiCoder.encode([type], [value]);
+    if (type === "bool") {
+      // Handle bool type specially
+      const lowerValue = value.toLowerCase().trim();
+      if (["true", "false", "0", "1", "[true]", "[false]"].includes(lowerValue)) {
+        const boolValue = ["true", "1", "[true]"].includes(lowerValue);
+        defaultAbiCoder.encode([type], [boolValue]);
+      } else {
+        return false;
+      }
+    } else {
+      defaultAbiCoder.encode([type], [value]);
+    }
   } catch {
     return false;
   }
