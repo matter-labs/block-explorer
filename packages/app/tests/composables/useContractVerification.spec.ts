@@ -16,6 +16,13 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
+vi.mock("@/utils/solcFullVersions", () => {
+  return {
+    getSolcFullVersion: vi.fn().mockImplementation(async (v) => `full-${v}`),
+    getSolcShortVersion: vi.fn().mockImplementation((v) => v),
+  };
+});
+
 describe("useContractVerification:", () => {
   it("creates useContractVerification composable", () => {
     const result = useContractVerification();
@@ -125,6 +132,20 @@ describe("useContractVerification:", () => {
       await requestCompilerVersions(CompilerEnum.zksolc);
 
       expect(compilerVersions.value.zksolc.versions).toEqual(["v1.1.4", "v1.1.3", "v1.1.2", "v1.1.0"]);
+      mock.mockRestore();
+    });
+    it("sets compiler versions to full compiler versions for solc compiler", async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mock = ($fetch as any).mockResolvedValue(["v1.1.4", "v1.1.2", "v1.1.0", "v1.1.3"]);
+      const { compilerVersions, requestCompilerVersions } = useContractVerification();
+      await requestCompilerVersions(CompilerEnum.solc);
+
+      expect(compilerVersions.value.solc.versions).toEqual([
+        "full-v1.1.4",
+        "full-v1.1.3",
+        "full-v1.1.2",
+        "full-v1.1.0",
+      ]);
       mock.mockRestore();
     });
     it("sorts compiler versions starting from the latest version", async () => {
