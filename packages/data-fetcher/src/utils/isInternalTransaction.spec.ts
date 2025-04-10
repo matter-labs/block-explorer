@@ -92,4 +92,21 @@ describe("isInternalTransaction", () => {
       } as Transfer)
     ).toBeTruthy();
   });
+
+  it("returns true when transfer from addresses are the same but receipt to is null", () => {
+    expect(
+      isInternalTransaction(
+        {
+          type: TransferType.Transfer,
+          tokenAddress: BASE_TOKEN_ADDRESS,
+          from: "FROM",
+          to: "to",
+        } as Transfer,
+        {
+          from: "from",
+          to: null,
+        } as types.TransactionReceipt
+      )
+    ).toBeTruthy();
+  });
 });
