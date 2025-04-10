@@ -390,6 +390,9 @@
             "singleFileContract": "Single file contract",
             "fileLabel": "File {index} of {total}: {fileName}"
         },
+        "settings": {
+            "label": "Settings"
+        },
         "events": {
             "txnHash": "txn hash",
             "method": "method",
@@ -453,6 +456,9 @@
                     "not_valid": "Please, provide a valid contract address"
                 }
             },
+            "compilationTarget": {
+                "title": "Compilation target"
+            },
             "contractName": {
                 "label": "Contract Name",
                 "solcUnderline": "Must match the name specified in the code. For example, in contract MyContract { '{..}' } MyContract is the contract name.",
@@ -471,6 +477,10 @@
                     "required": "Contract path is required"
                 }
             },
+            "runs": {
+                "label": "Runs",
+                "underline": "Optimize for how many times you intend to run the code. Lower values will optimize more for initial deployment cost, higher values will optimize more for high-frequency usage."
+            },
             "optimizationUsed": {
                 "label": "Optimization",
                 "options": {
@@ -486,7 +496,8 @@
                     "required": "Solc version is required"
                 },
                 "error": "Unable to get list of supported Solc versions",
-                "zkVM": "zkVM"
+                "zkVM": "Use zkVM solc",
+                "EVM": "EVM"
             },
             "zksolcVersion": {
                 "label": "Zksolc Version",
@@ -495,7 +506,15 @@
                     "required": "Zksolc version is required"
                 },
                 "error": "Unable to get list of supported Zksolc versions",
-                "details": "Details"
+                "details": "Details",
+                "evmVersion": {
+                    "label": "EVM Version",
+                    "custom": "Custom",
+                    "inputPlaceholder": "Custom version...",
+                    "validation": {
+                        "required": "EVM Version is required"
+                    }
+                }
             },
             "vyperVersion": {
                 "label": "Vyper Version",
@@ -512,7 +531,13 @@
                     "required": "Zkvyper version is required"
                 },
                 "error": "Unable to get list of supported Zkvyper versions",
-                "details": "Details"
+                "details": "Details",
+                "evmVersion": {
+                    "label": "EVM Version",
+                    "validation": {
+                        "required": "EVM Version is required"
+                    }
+                }
             },
             "compilerType": {
                 "label": "Compiler type",
@@ -559,7 +584,14 @@
             "compilerVersion": "Compiler Version",
             "zksolcVersion": "Zksolc Version",
             "zkvyperVersion": "Zkvyper Version",
-            "optimization": "Optimization",
+            "evmVersion": "EVM Version",
+            "optimization": {
+                "title": "Optimization",
+                "enabled": "Yes",
+                "disabled": "No",
+                "runsTemplate": ", with {runs} runs",
+                "modeTemplate": ", with mode {mode}"
+            },
             "autoVerified": "The contract wasn't manually verified, but its bytecode matches the bytecode of the following contract:",
             "partialVerification": "Contract is partially verified: the contract metadata hash and/or constructor arguments do not match. Partial verification provides less guarantees about the authenticity of the code.",
             "partialVerificationDetails": "See more details"

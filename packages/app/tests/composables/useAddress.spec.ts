@@ -12,6 +12,9 @@ vi.mock("ohmyfetch", () => {
       if (url.includes("contract_verification")) {
         return {
           artifacts: { abi: "abi" },
+          request: {
+            compilerSolcVersion: "0.8.0",
+          },
         };
       }
       return {
@@ -47,6 +50,12 @@ vi.mock("@/composables/useContext", () => {
         getStorage: (slot: string) => mockGetStorage(slot),
       }),
     }),
+  };
+});
+
+vi.mock("@/utils/solcFullVersions", () => {
+  return {
+    getSolcFullVersion: vi.fn().mockImplementation(async (v) => `full-${v}`),
   };
 });
 
@@ -101,12 +110,18 @@ describe("useAddresses", () => {
         type: "contract",
         verificationInfo: {
           artifacts: { abi: "abi" },
+          request: {
+            compilerSolcVersion: "full-0.8.0",
+          },
         },
         proxyInfo: {
           implementation: {
             address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10",
             verificationInfo: {
               artifacts: { abi: "abi" },
+              request: {
+                compilerSolcVersion: "full-0.8.0",
+              },
             },
           },
         },
@@ -140,12 +155,18 @@ describe("useAddresses", () => {
         type: "contract",
         verificationInfo: {
           artifacts: { abi: "abi" },
+          request: {
+            compilerSolcVersion: "full-0.8.0",
+          },
         },
         proxyInfo: {
           implementation: {
             address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10",
             verificationInfo: {
               artifacts: { abi: "abi" },
+              request: {
+                compilerSolcVersion: "full-0.8.0",
+              },
             },
           },
         },
@@ -170,12 +191,18 @@ describe("useAddresses", () => {
           type: "contract",
           verificationInfo: {
             artifacts: { abi: "abi" },
+            request: {
+              compilerSolcVersion: "full-0.8.0",
+            },
           },
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a12",
               verificationInfo: {
                 artifacts: { abi: "abi" },
+                request: {
+                  compilerSolcVersion: "full-0.8.0",
+                },
               },
             },
           },
@@ -199,12 +226,18 @@ describe("useAddresses", () => {
           type: "contract",
           verificationInfo: {
             artifacts: { abi: "abi" },
+            request: {
+              compilerSolcVersion: "full-0.8.0",
+            },
           },
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a13",
               verificationInfo: {
                 artifacts: { abi: "abi" },
+                request: {
+                  compilerSolcVersion: "full-0.8.0",
+                },
               },
             },
           },
@@ -229,12 +262,18 @@ describe("useAddresses", () => {
           type: "contract",
           verificationInfo: {
             artifacts: { abi: "abi" },
+            request: {
+              compilerSolcVersion: "full-0.8.0",
+            },
           },
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a14",
               verificationInfo: {
                 artifacts: { abi: "abi" },
+                request: {
+                  compilerSolcVersion: "full-0.8.0",
+                },
               },
             },
           },
@@ -258,6 +297,9 @@ describe("useAddresses", () => {
           type: "contract",
           verificationInfo: {
             artifacts: { abi: "abi" },
+            request: {
+              compilerSolcVersion: "full-0.8.0",
+            },
           },
           proxyInfo: null,
         });

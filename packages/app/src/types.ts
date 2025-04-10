@@ -38,6 +38,8 @@ export type ContractVerificationData = {
   contractAddress: string;
   contractName: string;
   optimizationUsed: boolean;
+  isEVM: boolean;
+  optimizerRuns: number;
   sourceCode:
     | string
     | {
@@ -50,10 +52,12 @@ export type ContractVerificationData = {
         settings: {
           optimizer: {
             enabled: boolean;
+            runs?: number;
           };
         };
       };
   zkCompilerVersion: string;
+  evmVersion: string;
   compilerVersion: string;
   constructorArguments: string;
 };

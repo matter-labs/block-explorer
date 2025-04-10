@@ -11,6 +11,7 @@ import {
   type ContractVerificationData,
   type ContractVerificationStatus,
 } from "@/types";
+import { getSolcFullVersion, getSolcShortVersion } from "@/utils/solcFullVersions";
 
 type CompilerState = {
   name: Compiler;
@@ -86,33 +87,63 @@ export default (context = useContext()) => {
         ContractVerificationCodeFormatEnum.soliditySingleFile,
         ContractVerificationCodeFormatEnum.solidityMultiPart,
       ].includes(data.codeFormat);
+      const {
+        sourceCode,
+        zkCompilerVersion,
+        evmVersion,
+        compilerVersion,
+        optimizerRuns,
+        isEVM,
+        optimizationUsed,
+        ...payload
+      } = data;
 
-      const { sourceCode, zkCompilerVersion, compilerVersion, ...payload } = data;
+      let sourceCodeVal;
+
+      if (!isSolidityContract && typeof sourceCode === "string") {
+        sourceCodeVal = {
+          [payload.contractName]: sourceCode,
+        };
+      } else if (!isSolidityContract && typeof sourceCode !== "string") {
+        sourceCodeVal = Object.keys(sourceCode.sources).reduce((acc: Record<string, string>, filename: string) => {
+          acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
+          return acc;
+        }, {});
+      } else {
+        sourceCodeVal = sourceCode;
+      }
+
+      let compilerVersionsVal;
+      if (isEVM) {
+        compilerVersionsVal = {
+          evmVersion,
+          ...(isSolidityContract
+            ? { compilerSolcVersion: getSolcShortVersion(compilerVersion) }
+            : { compilerVyperVersion: compilerVersion }),
+        };
+      } else {
+        compilerVersionsVal = {
+          ...(isSolidityContract
+            ? {
+                compilerZksolcVersion: zkCompilerVersion,
+                compilerSolcVersion: getSolcShortVersion(compilerVersion),
+              }
+            : {
+                compilerZkvyperVersion: zkCompilerVersion,
+                compilerVyperVersion: compilerVersion,
+              }),
+        };
+      }
+
       const response = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification`, {
         method: "POST",
         body: {
           ...payload,
-          ...(isSolidityContract && {
-            sourceCode,
-            compilerZksolcVersion: zkCompilerVersion,
-            compilerSolcVersion: compilerVersion,
-          }),
-          ...(!isSolidityContract && {
-            ...(typeof sourceCode === "string" && {
-              sourceCode: {
-                [payload.contractName]: sourceCode,
-              },
-            }),
-            ...(typeof sourceCode !== "string" && {
-              sourceCode: Object.keys(sourceCode.sources).reduce((acc: Record<string, string>, filename: string) => {
-                acc[filename.replace(".vy", "")] = sourceCode.sources[filename].content;
-                return acc;
-              }, {}),
-            }),
-            compilerZkvyperVersion: zkCompilerVersion,
-            compilerVyperVersion: compilerVersion,
-          }),
+          sourceCode: sourceCodeVal,
+          ...compilerVersionsVal,
+          ...(isEVM && optimizationUsed ? { optimizerRuns } : {}),
           constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
+          optimizationUsed,
         },
       });
       if (typeof response === "number") {
@@ -135,9 +166,21 @@ export default (context = useContext()) => {
     compilerVersions.value[compiler].isRequestPending = true;
     compilerVersions.value[compiler].isRequestFailed = false;
     try {
-      const result = await $fetch(
-        `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
-      );
+      let result;
+
+      if (compiler === CompilerEnum.solc) {
+        const solcVersions = await $fetch(
+          `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
+        );
+        result = [];
+        for (const version of solcVersions) {
+          result.push(await getSolcFullVersion(version));
+        }
+      } else {
+        result = await $fetch(
+          `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
+        );
+      }
       compilerVersions.value[compiler].versions = result.sort((a: string, b: string) => {
         return b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" });
       });
