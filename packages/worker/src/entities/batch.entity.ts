@@ -8,6 +8,7 @@ export enum BatchState {
   Committed = 1,
   Proven = 2,
   Executed = 3,
+  TeeProven = 4,
 }
 
 @Entity({ name: "batches" })
@@ -55,4 +56,22 @@ export class Batch extends BaseEntity {
 
   @Column({ type: "int" })
   public readonly l2TxCount: number;
+
+  @Column({ type: "timestamp", nullable: true })
+  public readonly teeProvenAt?: Date;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly teeAttestation?: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly teeSignature?: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly teeStatus?: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly teePubkey?: string;
+
+  @Column({ type: "varchar", length: 32, nullable: true })
+  public readonly teeType?: string;
 }
