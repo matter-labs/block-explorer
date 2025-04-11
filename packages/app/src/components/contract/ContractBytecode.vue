@@ -20,6 +20,9 @@
         <div class="info-field-label">{{ t("contract.sourceCode.label") }}</div>
         <CodeBlock v-for="(item, index) in sourceCode" :key="index" :code="item.code" :label="item.label" />
       </div>
+      <div v-if="settings" class="source-code-container">
+        <CodeBlock :code="settings" :label="t('contract.settings.label')" :label-bold="true" />
+      </div>
       <div v-if="sourceCode" class="abi-json-field-container">
         <div class="info-field-label">{{ t("contract.abiInteraction.contractAbi") }}</div>
         <div class="abi-json">
@@ -59,6 +62,13 @@ const props = defineProps({
 
 const { t } = useI18n();
 
+const settings = computed(() => {
+  const sourceCode = props.contract?.verificationInfo?.request?.sourceCode;
+  if (typeof sourceCode === "object" && typeof sourceCode.settings === "object" && sourceCode.settings) {
+    return JSON.stringify(sourceCode.settings, null, 4);
+  }
+  return undefined;
+});
 const sourceCode = computed<undefined | { code: string; label: string }[]>(() => {
   if (!props.contract?.verificationInfo) {
     return undefined;
