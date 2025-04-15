@@ -8,9 +8,6 @@ import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { BalanceForHolderDto } from "../api/dtos/balances/balanceForHolder.dto";
-import { BalanceService } from "../balance/balance.service";
-import { TokenOverviewDto } from "src/api/dtos/token/tokenOverview.dto";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
@@ -19,13 +16,11 @@ describe("TokenController", () => {
   let controller: TokenController;
   let serviceMock: TokenService;
   let transferServiceMock: TransferService;
-  let balanceServiceMock: BalanceService;
   let token;
 
   beforeEach(async () => {
     serviceMock = mock<TokenService>();
     transferServiceMock = mock<TransferService>();
-    balanceServiceMock = mock<BalanceService>();
 
     token = {
       l2Address: "tokenAddress",
@@ -41,10 +36,6 @@ describe("TokenController", () => {
         {
           provide: TransferService,
           useValue: transferServiceMock,
-        },
-        {
-          provide: BalanceService,
-          useValue: balanceServiceMock,
         },
       ],
     }).compile();
@@ -147,85 +138,6 @@ describe("TokenController", () => {
 
         try {
           await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit);
-        } catch (error) {
-          expect(error).toBeInstanceOf(NotFoundException);
-        }
-      });
-    });
-  });
-  describe("getTokenHolders", () => {
-    const tokenHolders = mock<Pagination<BalanceForHolderDto>>();
-    describe("when token exists", () => {
-      beforeEach(() => {
-        (serviceMock.exists as jest.Mock).mockResolvedValueOnce(true);
-        (balanceServiceMock.getBalancesForTokenAddress as jest.Mock).mockResolvedValueOnce(tokenHolders);
-      });
-
-      it("queries transfers with the specified options", async () => {
-        await controller.getTokenHolders(tokenAddress, pagingOptionsWithLimit);
-        expect(balanceServiceMock.getBalancesForTokenAddress).toHaveBeenCalledTimes(1);
-        expect(balanceServiceMock.getBalancesForTokenAddress).toHaveBeenCalledWith(tokenAddress, {
-          ...pagingOptionsWithLimit,
-          route: `tokens/${tokenAddress}/holders`,
-        });
-      });
-
-      it("returns token transfers", async () => {
-        const result = await controller.getTokenHolders(tokenAddress, pagingOptionsWithLimit);
-        expect(result).toBe(tokenHolders);
-      });
-    });
-
-    describe("when token does not exist", () => {
-      beforeEach(() => {
-        (serviceMock.exists as jest.Mock).mockResolvedValueOnce(false);
-      });
-
-      it("throws NotFoundException", async () => {
-        expect.assertions(1);
-
-        try {
-          await controller.getTokenHolders(tokenAddress, pagingOptionsWithLimit);
-        } catch (error) {
-          expect(error).toBeInstanceOf(NotFoundException);
-        }
-      });
-    });
-  });
-
-  describe("getTokenOverview", () => {
-    describe("when token exists", () => {
-      const tokenOverview = mock<TokenOverviewDto>({
-        holders: 2,
-        maxTotalSupply: 10000000000000000000000000000,
-      });
-      beforeEach(() => {
-        (serviceMock.exists as jest.Mock).mockResolvedValueOnce(true);
-        (balanceServiceMock.getSumAndCountBalances as jest.Mock).mockResolvedValueOnce(tokenOverview);
-      });
-
-      it("queries overview with the specified options", async () => {
-        await controller.getTokenOverview(tokenAddress);
-        expect(balanceServiceMock.getSumAndCountBalances).toHaveBeenCalledTimes(1);
-        expect(balanceServiceMock.getSumAndCountBalances).toHaveBeenCalledWith(tokenAddress);
-      });
-
-      it("returns token overview", async () => {
-        const result = await controller.getTokenOverview(tokenAddress);
-        expect(result).toBe(tokenOverview);
-      });
-    });
-
-    describe("when token does not exist", () => {
-      beforeEach(() => {
-        (serviceMock.exists as jest.Mock).mockResolvedValueOnce(false);
-      });
-
-      it("throws NotFoundException", async () => {
-        expect.assertions(1);
-
-        try {
-          await controller.getTokenOverview(tokenAddress);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
