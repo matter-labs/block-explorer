@@ -56,8 +56,7 @@ describe("Account:", () => {
       default: () => ({
         getTokenOverview: () => undefined,
         tokenOverview: computed(() => ({
-          holders: 140221,
-          maxTotalSupply: 100000000000000000000000000,
+          totalSupply: 100000000000000000000000000,
         })),
       }),
     };
@@ -79,7 +78,7 @@ describe("Account:", () => {
         stubs: { RouterLink: RouterLinkStub, TransfersTable: { template: "<div />" } },
       },
     });
-    expect(container.querySelector(".breadcrumb-item-active")?.textContent).toBe("Contract 0xDB75...DEd4");
+    expect(container.querySelector(".breadcrumb-item-active")?.textContent).toBe("Token 0xDB75...DEd4");
     expect(container.querySelector(".token-info-table")).toBeDefined();
     expect(container.querySelector(".transactions-table")).toBeDefined();
   });

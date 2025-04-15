@@ -52,10 +52,6 @@ describe("MarketTokenInfoTable", () => {
     const price = rowArray[1].findAll("td");
     expect(price[0].text()).toBe("Price");
     expect(price[1].text()).toBe("$0.33");
-
-    const tokenContract = rowArray[2].findAll("td");
-    expect(tokenContract[0].text()).toBe("Circulating Supply Market Cap");
-    expect(tokenContract[1].text()).toBe("666666666667");
   });
 
   it("renders loading state", () => {

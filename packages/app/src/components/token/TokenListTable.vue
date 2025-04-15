@@ -88,7 +88,6 @@ import { type PropType, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useElementSize } from "@vueuse/core";
-import { L2_BASE_TOKEN_ADDRESS } from "zksync-ethers/build/utils";
 
 import AddressLink from "@/components/AddressLink.vue";
 import TokenIconLabel from "@/components/TokenIconLabel.vue";

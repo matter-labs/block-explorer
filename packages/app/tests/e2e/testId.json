@@ -27,15 +27,10 @@
   "latestTransactionsTable": "latest-transaction-table",
   "latestBatchesTable": "latest-batches-table",
   "tokensTable": "tokens-table",
-  "tokensHoldersTable": "tokens-holders-table",
   "toAddress": "to-address",
   "transferType": "transfer-type",
   "transferFromOrigin": "transfer-from-origin",
   "transferToOrigin": "transfer-to-origin",
   "transferFromOriginTablet": "transfer-from-origin-tablet",
-  "transferToOriginTablet": "transfer-to-origin-tablet",
-  "tokenHoldersAddress": "token-holders-address",
-  "tokenHoldersBalance": "token-holders-balance",
-  "tokenHoldersPercentage": "token-holders-percentage",
-  "tokenHoldersValue": "token-holders-value"
+  "transferToOriginTablet": "transfer-to-origin-tablet"
 }

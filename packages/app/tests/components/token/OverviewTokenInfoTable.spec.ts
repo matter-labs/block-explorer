@@ -33,8 +33,7 @@ describe("OverviewTokenInfoTable", () => {
           symbol: "ETH",
         } as Token,
         tokenOverview: {
-          holders: 31231,
-          maxTotalSupply: 100000000000000000000000000,
+          totalSupply: 100000000000000000000000000,
         },
         loading: false,
       },
@@ -44,11 +43,7 @@ describe("OverviewTokenInfoTable", () => {
     expect(maxTotalSupply[0].text()).toBe("Max Total Supply");
     expect(maxTotalSupply[1].text()).toBe("100000000.000000004764729344");
 
-    const holders = rowArray[1].findAll("td");
-    expect(holders[0].text()).toBe("Holders");
-    expect(holders[1].text()).toBe("31231");
-
-    const tokenContract = rowArray[2].findAll("td");
+    const tokenContract = rowArray[1].findAll("td");
     expect(tokenContract[0].text()).toBe("Token Contract");
     expect(tokenContract[1].text()).toBe("0xc2675AE7F35b...Dea3");
     const [tokenLink] = tokenContract[1].findAllComponents(RouterLinkStub);
