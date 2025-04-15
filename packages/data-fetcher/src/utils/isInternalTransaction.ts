@@ -12,7 +12,7 @@ export default function isInternalTransaction(transfer: Transfer, transactionRec
   }
   if (
     transactionReceipt?.from.toLowerCase() === transfer.from.toLowerCase() &&
-    transactionReceipt.to.toLowerCase() === transfer.to.toLowerCase()
+    transactionReceipt.to?.toLowerCase() === transfer.to.toLowerCase()
   ) {
     return false;
   }

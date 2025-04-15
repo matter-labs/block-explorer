@@ -5,6 +5,7 @@ import type { Address } from "@/types";
 import {
   checksumAddress,
   convert,
+  formatAddressFromHash,
   formatBigNumberish,
   formatHexDecimals,
   formatMoney,
@@ -89,6 +90,30 @@ describe("formatters:", () => {
 
     it("returns hex str for the specified bigint", () => {
       expect(numberToHexString(BigInt("1000000000000000000000000"))).toBe("0xd3c21bcecceda1000000");
+    });
+  });
+
+  describe("formatAddressFromHash", () => {
+    it("returns empty string for empty hash", () => {
+      expect(formatAddressFromHash("0x")).toBe("0x0000000000000000000000000000000000000000");
+    });
+
+    it("returns formatted address from hash for zero address", () => {
+      expect(formatAddressFromHash("0x0000000000000000000000000000000000000000000000000000000000000000")).toBe(
+        "0x0000000000000000000000000000000000000000"
+      );
+    });
+
+    it("return formatted valid address", () => {
+      expect(formatAddressFromHash("0x000000000000000000000000085b8b6407f150d62adb1ef926f7f304600ec714")).toBe(
+        "0x085b8b6407f150d62adb1ef926f7f304600ec714"
+      );
+    });
+
+    it("throw error for invalid hash", () => {
+      expect(() =>
+        formatAddressFromHash("0x000000000000000000000000085b8b6407f150d62adb1ef926f7f304600ec7141")
+      ).toThrow();
     });
   });
 });
