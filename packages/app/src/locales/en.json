@@ -322,6 +322,25 @@
     "addressView": {
         "title": "Address"
     },
+    "tokenView": {
+        "title": "Token",
+        "token": "Token",
+        "table": {
+            "market": {
+                "marketCap": "Market Cap",
+                "totalSupply": "Total Supply",
+                "circulatingSupply": "Circulating Supply Market Cap",
+                "price": "Price",
+                "decimals": "Decimals"
+            },
+            "overview": {
+                "holders": "Holders",
+                "maxTotalSupply": "Max Total Supply",
+                "totalTransfers": "Total Transfers",
+                "tokenContract": "Token Contract"
+            }
+        }
+    },
     "contract": {
         "title": "Contract",
         "contractNumber": "Contract ",
@@ -644,6 +663,15 @@
             "tokenAddressL1": "L1 Token address"
         }
     },
+    "tokenHolders": {
+        "notFound": "Token doesn't have any holders at this moment",
+        "table": {
+            "address": "Address",
+            "balance": "Quantity",
+            "percentage": "Percentage",
+            "value": "Value"
+        }
+    },
     "pageError": {
         "title": "Something went wrong",
         "subtitle": "Unknown request, please try again, or go to the homepage.",
@@ -739,7 +767,8 @@
         "transactions": "Transactions",
         "contract": "Contract",
         "events": "Events",
-        "transfers": "Transfers"
+        "transfers": "Transfers",
+        "holders": "Holders"
     },
     "contractInfoTabs": {
         "contract": "Contract",
