@@ -1,7 +1,7 @@
 <template>
   <Table class="token-info-table" :loading="loading">
     <template v-if="!loading && tokenInfo" #default>
-      <tr>
+      <tr v-if="tokenInfo">
         <table-body-column class="token-info-field-label">
           {{ t("tokenView.table.overview.maxTotalSupply") }}
         </table-body-column>
@@ -13,7 +13,7 @@
         <table-body-column class="token-info-field-label">
           {{ t("tokenView.table.overview.tokenContract") }}
         </table-body-column>
-        <table-body-column class="contract-info-field-value">
+        <table-body-column v-if="tokenInfo" class="contract-info-field-value">
           <AddressLink :address="tokenInfo.l2Address" class="block max-w-sm">
             {{ shortenFitText(tokenInfo.l2Address, "left", 210, subtraction) }}
           </AddressLink>
