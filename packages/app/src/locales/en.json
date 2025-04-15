@@ -324,6 +324,7 @@
     },
     "tokenView": {
         "title": "Token",
+        "token": "Token",
         "table": {
             "market": {
                 "marketCap": "Market Cap",

@@ -1,11 +1,6 @@
 <template>
   <div class="token-icon-label">
-    <AddressLink
-      :address="address"
-      class="token-link"
-      :data-testid="$testId?.tokensIcon"
-      :is-token-address="address.toLowerCase() === L2_BASE_TOKEN_ADDRESS ? false : true"
-    >
+    <AddressLink :address="address" class="token-link" :data-testid="$testId?.tokensIcon">
       <span v-if="showLinkSymbol" class="token-symbol">
         <span v-if="symbol">
           {{ symbol }}
@@ -47,7 +42,6 @@ import { computed, type PropType } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useImage } from "@vueuse/core";
-import { L2_BASE_TOKEN_ADDRESS } from "zksync-ethers/build/utils";
 
 import AddressLink from "@/components/AddressLink.vue";
 import Badge from "@/components/common/Badge.vue";

@@ -19,14 +19,6 @@
           <TokenPrice :address="tokenInfo.l2Address" />
         </table-body-column>
       </tr>
-      <tr>
-        <table-body-column class="token-info-field-label">
-          {{ t("tokenView.table.market.circulatingSupply") }}
-        </table-body-column>
-        <table-body-column v-if="tokenInfo.liquidity && tokenInfo.usdPrice" class="contract-info-field-value">
-          {{ (tokenInfo.liquidity / tokenInfo.usdPrice).toFixed(0) }}
-        </table-body-column>
-      </tr>
     </template>
     <template v-if="!loading && !tokenInfo" #empty>
       <TableBodyColumn colspan="3">

@@ -1,20 +1,12 @@
 <template>
   <Table class="token-info-table" :loading="loading">
-    <template v-if="!loading && tokenOverview && tokenInfo" #default>
+    <template v-if="!loading && tokenInfo" #default>
       <tr>
         <table-body-column class="token-info-field-label">
           {{ t("tokenView.table.overview.maxTotalSupply") }}
         </table-body-column>
         <table-body-column class="token-info-field-value">
-          {{ formatValue(tokenOverview.maxTotalSupply, tokenInfo.decimals) }}
-        </table-body-column>
-      </tr>
-      <tr>
-        <table-body-column class="token-info-field-label">
-          {{ t("tokenView.table.overview.holders") }}
-        </table-body-column>
-        <table-body-column class="contract-info-field-value">
-          {{ tokenOverview.holders }}
+          {{ tokenOverview?.totalSupply ? formatValue(tokenOverview.totalSupply, tokenInfo.decimals) : "" }}
         </table-body-column>
       </tr>
       <tr>
@@ -27,13 +19,6 @@
           </AddressLink>
         </table-body-column>
       </tr>
-    </template>
-    <template v-if="!loading && !tokenOverview" #empty>
-      <TableBodyColumn colspan="3">
-        <div class="token-not-found">
-          {{ t("transactions.table.notFound") }}
-        </div>
-      </TableBodyColumn>
     </template>
     <template #loading>
       <tr class="loading-row" v-for="row in 3" :key="row">
@@ -65,11 +50,11 @@ import { formatValue } from "@/utils/formatters";
 
 defineProps({
   tokenOverview: {
-    type: Object as PropType<TokenOverview>,
+    type: Object as PropType<TokenOverview | null>,
     default: () => ({}),
   },
   tokenInfo: {
-    type: Object as PropType<Token>,
+    type: Object as PropType<Token | null>,
     default: () => ({}),
   },
   loading: {

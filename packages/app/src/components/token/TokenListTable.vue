@@ -26,7 +26,7 @@
           <AddressLink
             :data-testid="$testId.tokenAddress"
             :address="item.l2Address"
-            :is-token-address="item.l2Address.toLowerCase() === L2_BASE_TOKEN_ADDRESS ? false : true"
+            :is-token-address="true"
             class="token-address block max-w-sm"
           >
             {{ shortenFitText(item.l2Address, "left", 210, subtraction) }}

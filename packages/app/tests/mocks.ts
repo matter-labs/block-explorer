@@ -10,7 +10,6 @@ import * as useContext from "@/composables/useContext";
 import * as useContractEvents from "@/composables/useContractEvents";
 import * as useContractInteractionFactory from "@/composables/useContractInteraction";
 import * as useTokenFactory from "@/composables/useToken";
-import * as useTokenHolders from "@/composables/useTokenHolders";
 import * as useTokenLibraryMockFactory from "@/composables/useTokenLibrary";
 import * as useTransaction from "@/composables/useTransaction";
 import * as useTransactions from "@/composables/useTransactions";
@@ -194,18 +193,4 @@ export const useContextMock = (params: any = {}) => {
   });
 
   return mockContextConfig;
-};
-
-export const useTokenHoldersMock = (params: any = {}) => {
-  const mockBlocks = vi.spyOn(useTokenHolders, "default").mockReturnValue({
-    data: ref([]),
-    total: ref(0),
-    load: () => vi.fn(),
-    pending: ref(false),
-    failed: ref(false),
-    page: ref(1),
-    pageSize: ref(10),
-    ...params,
-  });
-  return mockBlocks;
 };

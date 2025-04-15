@@ -407,6 +407,7 @@
     },
     "tokenView": {
         "title": "Токен",
+        "token": "Токен",
         "table": {
             "market": {
                 "marketCap": "Капіталізація ринку",

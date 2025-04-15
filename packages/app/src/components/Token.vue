@@ -8,7 +8,7 @@
       <img
         v-if="contract?.address && !pending && tokenInfo"
         class="token-img"
-        :src="tokenInfo.iconURL ?? undefined"
+        :src="tokenInfo.iconURL || '/images/currencies/customToken.svg'"
         :alt="tokenInfo.symbol || t('balances.table.unknownSymbol')"
       />
     </div>
@@ -32,8 +32,8 @@
         <OverviewTokenInfoTable
           class="token-info-table"
           :loading="isLoadingTokenOverview"
-          :tokenOverview="tokenOverview!"
-          :tokenInfo="tokenInfo!"
+          :tokenOverview="tokenOverview"
+          :tokenInfo="tokenInfo"
         />
       </div>
       <div>
@@ -54,24 +54,10 @@
         </TransactionsTable>
       </template>
       <template #tab-2-content>
-        <TransfersTable :address="contract.address" />
-      </template>
-      <template #tab-3-content>
         <ContractInfoTab :contract="contract" />
       </template>
-      <template #tab-4-content>
+      <template #tab-3-content>
         <ContractEvents :contract="contract" />
-      </template>
-      <template v-if="tokenInfo && !isLoadingTokenInfo" #tab-5-content>
-        <TokenHoldersList
-          v-if="tokenInfo && !isLoadingTokenInfo && tokenOverview && !isLoadingTokenInfo"
-          :tokenInfo="tokenInfo"
-          :tokenOverview="tokenOverview"
-        >
-          <template #not-found>
-            <TokenHoldersListEmptyState />
-          </template>
-        </TokenHoldersList>
       </template>
     </Tabs>
   </div>
@@ -92,10 +78,7 @@ import TransactionEmptyState from "@/components/contract/TransactionEmptyState.v
 import ContractEvents from "@/components/event/ContractEvents.vue";
 import MarketTokenInfoTable from "@/components/token/MarketTokenInfoTable.vue";
 import OverviewTokenInfoTable from "@/components/token/OverviewTokenInfoTable.vue";
-import TokenHoldersList from "@/components/token/TokenHoldersList.vue";
-import TokenHoldersListEmptyState from "@/components/token/TokenHoldersListEmptyState.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
-import TransfersTable from "@/components/transfers/Table.vue";
 
 import useToken from "@/composables/useToken";
 import useTokenOverview from "@/composables/useTokenOverview";
@@ -123,7 +106,7 @@ const props = defineProps({
   },
 });
 
-const { getTokenInfo, tokenInfo, isRequestPending: isLoadingTokenInfo } = useToken();
+const { getTokenInfo, tokenInfo } = useToken();
 const { getTokenOverview, tokenOverview, isRequestPending: isLoadingTokenOverview } = useTokenOverview();
 
 watchEffect(() => {
@@ -135,21 +118,19 @@ watchEffect(() => {
 
 const tabs = computed(() => [
   { title: t("tabs.transactions"), hash: "#transactions" },
-  { title: t("tabs.transfers"), hash: "#transfers" },
   {
     title: t("tabs.contract"),
     hash: "#contract",
     icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
   },
   { title: t("tabs.events"), hash: "#events" },
-  ...(tokenInfo?.value?.l2Address ? [{ title: t("tabs.holders"), hash: "#holders" }] : []),
 ]);
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   if (props.contract?.address) {
     return [
       { to: { name: "home" }, text: t("breadcrumbs.home") },
       {
-        text: `${t("contract.contractNumber")}${shortValue(props.contract?.address)}`,
+        text: `${t("tokenView.token")} ${shortValue(props.contract?.address)}`,
       },
     ];
   }
