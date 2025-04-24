@@ -62,11 +62,20 @@ export function convert(value: BigNumberish | null, token: Token | null, tokenPr
 export function formatHexDecimals(value: string, showValueAs: HexDecimals) {
   const validValue = value === "0x" ? "0" : value;
   const prefix = isHexString(validValue) ? "" : "0x";
+
   if (showValueAs === "Dec") {
     return BigInt(prefix + validValue).toString();
   }
+
+  if (showValueAs === "Hex" && value.length >= 42) {
+    const hexValue = validValue.replace(/^0x/, "");
+    const addressHex = hexValue.slice(-40);
+    return `0x${addressHex}`;
+  }
+
   return `0x${BigInt(prefix + validValue).toString(16)}`;
 }
+
 export const numberToHexString = (num: number | bigint) => `0x${num.toString(16)}`;
 
 export function formatPricePretty(amount: BigNumberish, decimals: number, usdPrice: string) {
