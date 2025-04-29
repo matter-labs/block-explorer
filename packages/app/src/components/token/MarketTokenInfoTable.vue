@@ -86,14 +86,14 @@ const { t } = useI18n();
     }
   }
   .token-info-field-label {
-    @apply text-gray-400;
+    @apply text-gray;
   }
   .token-info-field-value {
-    @apply text-gray-800;
+    @apply text-gray-4;
   }
 
   .token-not-found {
-    @apply px-1.5 py-2 text-gray-700;
+    @apply px-1.5 py-2 text-gray-3;
   }
 }
 </style>
