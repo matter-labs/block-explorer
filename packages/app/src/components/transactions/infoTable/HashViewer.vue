@@ -36,7 +36,7 @@ import { useI18n } from "vue-i18n";
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
 import { CheckIcon, ChevronDownIcon } from "@heroicons/vue/outline";
 
-import { formatHexDecimals } from "@/utils/formatters";
+import { formatAddressFromHash, formatHexDecimals } from "@/utils/formatters";
 
 export type DecodingType = "hex" | "number" | "text" | "address";
 
@@ -65,7 +65,7 @@ const convertedValue = computed(() => {
   if (selected.value === "number") {
     return formatHexDecimals(props.hash, "Dec");
   } else if (selected.value === "address") {
-    return formatHexDecimals(props.hash, "Hex");
+    return formatAddressFromHash(props.hash);
   } else if (selected.value === "text") {
     return hexStringToUTF8(props.hash);
   } else {
