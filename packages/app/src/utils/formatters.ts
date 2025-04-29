@@ -1,8 +1,8 @@
-import { type BigNumberish, formatUnits, getAddress, isHexString } from "ethers";
+import { type BigNumberish, formatUnits, getAddress, isHexString, ZeroAddress } from "ethers";
 
 import type { Token } from "@/composables/useToken";
 import type { HexDecimals } from "@/composables/useTrace";
-import type { Address } from "@/types";
+import type { Address, Hash } from "@/types";
 
 export function formatMoney(num: number, maximumFractionDigits = 1) {
   return new Intl.NumberFormat("en-US", {
@@ -59,20 +59,26 @@ export function convert(value: BigNumberish | null, token: Token | null, tokenPr
   }
 }
 
+export function formatAddressFromHash(value: Hash) {
+  if (value === "0x") {
+    return ZeroAddress;
+  }
+
+  const validValue = value.slice(0, 2) === "0x" ? value.slice(2) : value;
+
+  if (validValue.length !== 64) {
+    throw new Error("Invalid hash");
+  }
+
+  return `0x${validValue.slice(24)}`;
+}
+
 export function formatHexDecimals(value: string, showValueAs: HexDecimals) {
   const validValue = value === "0x" ? "0" : value;
   const prefix = isHexString(validValue) ? "" : "0x";
-
   if (showValueAs === "Dec") {
     return BigInt(prefix + validValue).toString();
   }
-
-  if (showValueAs === "Hex" && value.length >= 42) {
-    const hexValue = validValue.replace(/^0x/, "");
-    const addressHex = hexValue.slice(-40);
-    return `0x${addressHex}`;
-  }
-
   return `0x${BigInt(prefix + validValue).toString(16)}`;
 }
 

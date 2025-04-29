@@ -11,6 +11,7 @@ import {
   type ContractVerificationData,
   type ContractVerificationStatus,
 } from "@/types";
+import { getSolcFullVersion, getSolcShortVersion } from "@/utils/solcFullVersions";
 
 type CompilerState = {
   name: Compiler;
@@ -117,7 +118,7 @@ export default (context = useContext()) => {
         compilerVersionsVal = {
           evmVersion,
           ...(isSolidityContract
-            ? { compilerSolcVersion: compilerVersion }
+            ? { compilerSolcVersion: getSolcShortVersion(compilerVersion) }
             : { compilerVyperVersion: compilerVersion }),
         };
       } else {
@@ -125,7 +126,7 @@ export default (context = useContext()) => {
           ...(isSolidityContract
             ? {
                 compilerZksolcVersion: zkCompilerVersion,
-                compilerSolcVersion: compilerVersion,
+                compilerSolcVersion: getSolcShortVersion(compilerVersion),
               }
             : {
                 compilerZkvyperVersion: zkCompilerVersion,
@@ -165,9 +166,21 @@ export default (context = useContext()) => {
     compilerVersions.value[compiler].isRequestPending = true;
     compilerVersions.value[compiler].isRequestFailed = false;
     try {
-      const result = await $fetch(
-        `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
-      );
+      let result;
+
+      if (compiler === CompilerEnum.solc) {
+        const solcVersions = await $fetch(
+          `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
+        );
+        result = [];
+        for (const version of solcVersions) {
+          result.push(await getSolcFullVersion(version));
+        }
+      } else {
+        result = await $fetch(
+          `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
+        );
+      }
       compilerVersions.value[compiler].versions = result.sort((a: string, b: string) => {
         return b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" });
       });
