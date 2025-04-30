@@ -22,16 +22,10 @@ import { StatsModule } from "./stats/stats.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
-import { disableExternalAPI } from "./config/featureFlags";
+import { disableExternalAPI, doubleZero } from "./config/featureFlags";
 import config from "./config";
-import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
-import { z } from "zod";
-
-const PRIVIDIUM_TOKEN = "PRIVIDIUM";
-
-interface AppModuleConfig {
-  prividium?: boolean;
-}
+import { AuthMiddleware } from "./middlewares/auth.middleware";
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -51,6 +45,7 @@ interface AppModuleConfig {
     LogModule,
     StatsModule,
     HealthModule,
+    ...(doubleZero ? [AuthModule] : []),
   ],
   providers: [Logger, ...metricProviders, DbMetricsService],
 })
@@ -75,35 +70,8 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
-    if (this.prividium) {
-      applyPrividiumMiddlewares(consumer);
+    if (doubleZero) {
+      consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify").forRoutes("*");
     }
-  }
-
-  // Factory method to be able to include or exclude Prividium modules
-  static build({ prividium }: AppModuleConfig = {}): DynamicModule {
-    // Notice that values in DynamicModules extend the base module instead of override,
-    // as explained here: https://docs.nestjs.com/modules#dynamic-modules
-    return {
-      module: AppModule,
-      providers: [
-        {
-          provide: PRIVIDIUM_TOKEN,
-          useValue: {
-            prividium,
-          },
-        },
-      ],
-      imports: [
-        /// Only enable prividium modules for prividium chains
-        ...(prividium ? PRIVIDIUM_MODULES : []),
-        // TMP: disable API modules in Prividium mode until defined how to handle API authentication
-        ...(prividium ? [] : [ApiModule, ApiContractModule]),
-        /// TMP: disable external API until release
-        ...(disableExternalAPI || prividium
-          ? []
-          : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
-      ],
-    };
   }
 }
