@@ -7,8 +7,8 @@ import { configureApp } from "./configureApp";
 import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
-import { prividium } from "./config/featureFlags";
-import { applyPrividiumExpressConfig } from "./prividium";
+import cookieSession from "cookie-session";
+import { doubleZero } from "./config/featureFlags";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -39,8 +39,18 @@ async function bootstrap() {
     SwaggerModule.setup("docs", app, document);
   }
 
-  if (prividium) {
-    applyPrividiumExpressConfig(app, process.env.PRIVIDIUM_SESSION_SECRET);
+  if (doubleZero) {
+    app.use(
+      cookieSession({
+        name: "_auth",
+        secret: process.env.SESSION_SECRET,
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: "strict",
+        path: "/",
+      })
+    );
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
