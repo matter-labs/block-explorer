@@ -1,19 +1,19 @@
 <template>
   <div class="metamask-button" :class="{ disabled: buttonDisabled }">
     <img src="/images/metamask.svg" class="metamask-image" />
-    <button v-if="!address" :disabled="buttonDisabled" class="login-button" @click="connect">
+    <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="connect">
       {{ buttonText }}
     </button>
     <template v-else>
-      <HashLabel class="address-text" placement="left" :text="address" />
+      <HashLabel class="address-text" placement="left" :text="displayAddress" />
       <div class="dropdown-container">
         <Listbox>
           <ListboxButton class="dropdown-button">
-            <DotsVerticalIcon />
+            <DotsVerticalIcon class="h-5 w-5" />
           </ListboxButton>
           <ListboxOptions class="dropdown-options">
             <ListboxOption>
-              <button class="logout-button" type="button" @click="disconnect">
+              <button class="logout-button" type="button" @click="handleLogout">
                 {{ t("connectMetamaskButton.logout") }}
               </button>
             </ListboxOption>
@@ -27,6 +27,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
 import { DotsVerticalIcon } from "@heroicons/vue/outline";
@@ -34,11 +35,13 @@ import { DotsVerticalIcon } from "@heroicons/vue/outline";
 import HashLabel from "@/components/common/HashLabel.vue";
 
 import useContext from "@/composables/useContext";
+import useLogin from "@/composables/useLogin";
 import { default as useWallet } from "@/composables/useWallet";
 
 const { t } = useI18n();
-
+const router = useRouter();
 const context = useContext();
+const { logout } = useLogin(context);
 
 const { address, isConnectPending, isReady, isMetamaskInstalled, connect, disconnect } = useWallet({
   ...context,
@@ -49,6 +52,19 @@ const { address, isConnectPending, isReady, isMetamaskInstalled, connect, discon
     ...context.currentNetwork.value,
   })),
 });
+
+const displayAddress = computed(() => {
+  if (context.user.value.loggedIn) {
+    return context.user.value.address;
+  }
+  return address.value;
+});
+
+const handleLogout = async () => {
+  await logout();
+  await disconnect();
+  router.push("/login");
+};
 
 const buttonDisabled = computed(() => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value);
 const buttonText = computed(() => {
@@ -64,29 +80,35 @@ const buttonText = computed(() => {
 
 <style lang="scss">
 .metamask-button {
-  @apply relative flex w-max min-w-[200px] rounded-lg bg-neutral-200 p-1 pl-2 pr-5 text-neutral-900;
+  @apply relative flex w-max min-w-[200px] items-center rounded-md border border-primary-800 bg-primary-800 p-2 text-white;
   &:not(.disabled) {
-    @apply hover:bg-neutral-300;
+    @apply hover:cursor-pointer;
   }
   &.disabled {
     @apply opacity-50;
   }
   .metamask-image {
-    @apply mr-2 h-[24px] w-[24px];
+    @apply mr-2 h-4 w-4;
   }
   .address-text {
-    @apply flex flex-none;
+    @apply flex flex-none font-sans text-base;
   }
   .dropdown-container {
-    @apply absolute left-0 right-0 top-1 z-10 flex flex-col items-end;
+    @apply absolute right-2 top-1/2 -translate-y-1/2;
     .dropdown-button {
-      @apply mr-1 h-6 w-6 rounded-md hover:bg-neutral-300;
+      @apply flex h-6 w-6 items-center justify-center rounded-md hover:bg-primary-700;
     }
     .dropdown-options {
-      @apply top-[10px] w-full self-start rounded-lg bg-white shadow-md;
+      @apply absolute right-0 top-[calc(100%+4px)] w-[120px] rounded-lg bg-white shadow-md;
       .logout-button {
-        @apply w-full rounded-lg px-2 py-1 text-left hover:bg-neutral-200;
+        @apply w-full rounded-lg px-2 py-1 text-left text-neutral-700 hover:bg-neutral-100;
       }
+    }
+  }
+  .login-button {
+    @apply font-sans text-base text-white;
+    &:disabled {
+      @apply cursor-not-allowed;
     }
   }
 }

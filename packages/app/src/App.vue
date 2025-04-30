@@ -1,12 +1,12 @@
 <template>
   <template v-if="isReady">
-    <the-header :class="$route?.name" />
-    <div class="container-app">
+    <the-header v-if="$route.name !== 'login'" :class="$route?.name" />
+    <div :class="{ 'container-app': $route.name !== 'login' }">
       <IndexerDelayAlert v-if="!currentNetwork.maintenance && currentNetwork.name === 'mainnet'" />
       <MaintenanceView v-if="currentNetwork.maintenance" />
       <router-view v-else />
     </div>
-    <the-footer />
+    <the-footer v-if="$route.name !== 'login'" />
   </template>
 </template>
 
