@@ -151,6 +151,15 @@ export class AuthController {
     return validatedData;
   }
 
+  @Post("logout")
+  @Header("Content-Type", "application/json")
+  @ApiNoContentResponse({
+    description: "User was logged out successfully",
+  })
+  public async logout(@Req() req: Request) {
+    req.session = null;
+  }
+
   @Get("me")
   @Header("Content-Type", "application/json")
   @ApiOkResponse({

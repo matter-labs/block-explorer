@@ -75,8 +75,8 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
-    if (this.prividium) {
-      applyPrividiumMiddlewares(consumer);
+    if (doubleZero) {
+      consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify", "/auth/logout").forRoutes("*");
     }
   }
 
