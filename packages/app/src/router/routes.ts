@@ -3,6 +3,7 @@ import useSearch from "@/composables/useSearch";
 import type { RouteLocation, RouteRecordRaw } from "vue-router";
 
 import HomeView from "@/views/HomeView.vue";
+import LoginView from "@/views/LoginView.vue";
 const { getSearchRoute } = useSearch();
 
 export default [
@@ -12,6 +13,15 @@ export default [
     component: HomeView,
     meta: {
       title: "document.home",
+    },
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: LoginView,
+    meta: {
+      title: "Login",
+      requiresAuth: false,
     },
   },
   {
