@@ -16,6 +16,7 @@ import {
   ApiUnprocessableEntityResponse,
   ApiResponse,
   ApiBadRequestResponse,
+  ApiNoContentResponse,
 } from "@nestjs/swagger";
 import { swagger } from "../config/featureFlags";
 import { generateNonce, SiweError, SiweErrorType, SiweMessage } from "siwe";
@@ -86,6 +87,15 @@ export class AuthController {
 
       throw new BadRequestException({ message: "Failed to verify signature" });
     }
+  }
+
+  @Post("logout")
+  @Header("Content-Type", "application/json")
+  @ApiNoContentResponse({
+    description: "User was logged out successfully",
+  })
+  public async logout(@Req() req: Request) {
+    req.session = null;
   }
 
   @Get("me")

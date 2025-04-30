@@ -71,7 +71,7 @@ export class AppModule implements NestModule {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
     if (doubleZero) {
-      consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify").forRoutes("*");
+      consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify", "/auth/logout").forRoutes("*");
     }
   }
 }
