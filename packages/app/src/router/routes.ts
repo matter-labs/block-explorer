@@ -59,6 +59,15 @@ export default [
     },
   },
   {
+    path: "/token/:address",
+    name: "token",
+    component: () => import("@/views/TokenView.vue"),
+    props: true,
+    meta: {
+      title: "tokenView.title",
+    },
+  },
+  {
     path: "/contracts/verify",
     name: "contract-verification",
     component: () => import("@/views/ContractVerificationView.vue"),

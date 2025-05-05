@@ -203,7 +203,7 @@ describe("ConvertHashDropdown", () => {
     expect(container.querySelector(".data-value")?.textContent).toBe("0x");
     await fireEvent.click(container.querySelector(".toggle-button")!);
     await fireEvent.click(getByText("Address"));
-    expect(container.querySelector(".data-value")?.textContent).toBe("0x0");
+    expect(container.querySelector(".data-value")?.textContent).toBe("0x0000000000000000000000000000000000000000");
     unmount();
   });
 });

@@ -15,6 +15,22 @@ export const PROXY_CONTRACT_IMPLEMENTATION_ABI = [
     type: "function",
   },
 ];
+export const ERC20_ABI = [
+  {
+    constant: true,
+    inputs: [],
+    name: "totalSupply",
+    outputs: [
+      {
+        name: "",
+        type: "uint256",
+      },
+    ],
+    payable: false,
+    stateMutability: "view",
+    type: "function",
+  },
+];
 
 export const EVM_VERSION_TO_TARGET = [
   "default",

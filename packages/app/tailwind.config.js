@@ -15,6 +15,8 @@ module.exports = {
         "blue-lightest": "#f5f5f7",
         gray: "#6e6e73",
         "gray-2": "#888",
+        "gray-3": "#374151",
+        "gray-4": "#1f2937",
         secondary: "#0071e3",
         "error-red": "#ff4f00",
         neutral: colors.gray,
