@@ -19,7 +19,10 @@ const retrieveTokens = useMemoize(
 
     while (hasMore) {
       const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
-        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`
+        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`,
+        {
+          credentials: "include",
+        }
       );
       tokens.push(...tokensResponse.items);
       page++;
