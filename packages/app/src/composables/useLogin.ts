@@ -42,7 +42,7 @@ export default (
 
   const initializeLogin = async () => {
     try {
-      const response = await $fetch<{ address: string }>(`${context.currentNetwork.value.apiUrl}/auth/user`, {
+      const response = await $fetch<{ address: string }>(`${context.currentNetwork.value.apiUrl}/auth/me`, {
         credentials: "include",
       });
       if (response.address) {
@@ -115,6 +115,7 @@ export default (
   const logout = async () => {
     await $fetch(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
       credentials: "include",
+      method: "POST",
     });
     context.user.value = { loggedIn: false };
   };
