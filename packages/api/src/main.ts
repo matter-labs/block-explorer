@@ -7,6 +7,8 @@ import { configureApp } from "./configureApp";
 import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
+import cookieSession from "cookie-session";
+import { doubleZero } from "./config/featureFlags";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -34,6 +36,20 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup("docs", app, document);
+  }
+
+  if (doubleZero) {
+    app.use(
+      cookieSession({
+        name: "_auth",
+        secret: process.env.SESSION_SECRET,
+        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        secure: process.env.NODE_ENV === "production",
+        httpOnly: true,
+        sameSite: "strict",
+        path: "/",
+      })
+    );
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
