@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, ForbiddenException, Get, Param, Query, Req } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -25,13 +25,15 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { AddressControllerAbstract } from "./address.controller.abstract";
+import { Request } from "express";
 
 const entityName = "address";
 
 @ApiTags("Address BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-export class AddressController {
+export class AddressController extends AddressControllerAbstract {
   constructor(
     private readonly addressService: AddressService,
     private readonly blockService: BlockService,
@@ -39,7 +41,9 @@ export class AddressController {
     private readonly logService: LogService,
     private readonly balanceService: BalanceService,
     private readonly transferService: TransferService
-  ) {}
+  ) {
+    super();
+  }
 
   @Get(":address")
   @ApiParam({
@@ -57,8 +61,13 @@ export class AddressController {
   })
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
-    @Param("address", new ParseAddressPipe()) address: string
+    @Param("address", new ParseAddressPipe()) address: string,
+    @Req() req: Request
   ): Promise<AccountDto | ContractDto> {
+    return this.dispatchGetAddress(address, req);
+  }
+
+  protected async publicGetAddress(address: string): Promise<AccountDto | ContractDto> {
     const [addressRecord, addressBalance] = await Promise.all([
       this.addressService.findOne(address),
       this.balanceService.getBalances(address),
@@ -103,6 +112,14 @@ export class AddressController {
       sealedNonce: 0,
       verifiedNonce: 0,
     };
+  }
+
+  protected async privateGetAddress(address: string, req: Request): Promise<AccountDto | ContractDto> {
+    if (address.toLowerCase() !== req.session.siwe.address.toLowerCase()) {
+      throw new ForbiddenException({ message: "User does not have access to this address" });
+    }
+
+    return this.publicGetAddress(address);
   }
 
   @Get(":address/logs")
