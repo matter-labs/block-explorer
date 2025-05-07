@@ -7,8 +7,8 @@ import { configureApp } from "./configureApp";
 import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
-import { prividium } from "./config/featureFlags";
-import { applyPrividiumExpressConfig } from "./prividium";
+import { privateValidium } from "./config/featureFlags";
+import { applyPrivateValidiumExpressConfig } from "./private-validium";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -39,14 +39,8 @@ async function bootstrap() {
     SwaggerModule.setup("docs", app, document);
   }
 
-  if (prividium) {
-    // Prividium config includes strict CORS configuration
-    applyPrividiumExpressConfig(app, {
-      sessionSecret: configService.get<string>("prividium.privateRpcSecret"),
-      appUrl: configService.get<string>("appUrl"),
-    });
-  } else {
-    app.enableCors();
+  if (privateValidium) {
+    applyPrivateValidiumExpressConfig(app);
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });

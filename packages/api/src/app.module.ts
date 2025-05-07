@@ -22,16 +22,9 @@ import { StatsModule } from "./stats/stats.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
-import { disableExternalAPI } from "./config/featureFlags";
+import { disableExternalAPI, privateValidium } from "./config/featureFlags";
 import config from "./config";
-import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
-import { z } from "zod";
-
-const PRIVIDIUM_TOKEN = "PRIVIDIUM";
-
-interface AppModuleConfig {
-  prividium?: boolean;
-}
+import { applyPrivateValidiumMiddlewares, PRIVATE_VALIDIUM_MODULES } from "./private-validium";
 
 @Module({
   imports: [
@@ -51,6 +44,7 @@ interface AppModuleConfig {
     LogModule,
     StatsModule,
     HealthModule,
+    ...(privateValidium ? PRIVATE_VALIDIUM_MODULES : []),
   ],
   providers: [Logger, ...metricProviders, DbMetricsService],
 })
@@ -75,8 +69,8 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
-    if (doubleZero) {
-      consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify", "/auth/logout").forRoutes("*");
+    if (privateValidium) {
+      applyPrivateValidiumMiddlewares(consumer);
     }
   }
 
