@@ -118,6 +118,22 @@ describe("AccountController", () => {
     });
     balanceServiceMock = mock<BalanceService>({
       getBalance: jest.fn().mockResolvedValue("1000"),
+      getBalances: jest.fn().mockResolvedValue({
+        balances: {
+          "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C": {
+            balance: "20000",
+            token: {
+              l2Address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+              number: 1,
+              symbol: "TKN",
+              name: "Token",
+              decimals: 18,
+              blockNumber: 50,
+              logIndex: 100,
+            },
+          },
+        },
+      }),
       getBalancesByAddresses: jest.fn().mockResolvedValue([
         {
           address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -574,6 +590,52 @@ describe("AccountController", () => {
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
         result: "1000",
+      });
+    });
+  });
+
+  describe("getAccountTokenHoldings", () => {
+    it("calls balanceService.getBalances and returns account token holdings", async () => {
+      const response = await controller.getAccountTokenHoldings(address);
+      expect(balanceServiceMock.getBalances).toBeCalledWith(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          {
+            TokenAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+            TokenName: "Token",
+            TokenSymbol: "TKN",
+            TokenQuantity: "20000",
+            TokenDivisor: "18",
+          },
+        ],
+      });
+    });
+
+    it("sets empty string value for token fields if token is missing", async () => {
+      jest.spyOn(balanceServiceMock, "getBalances").mockResolvedValueOnce({
+        balances: {
+          "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C": {
+            balance: "20000",
+          },
+        },
+        blockNumber: 0,
+      });
+      const response = await controller.getAccountTokenHoldings(address);
+      expect(balanceServiceMock.getBalances).toBeCalledWith(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          {
+            TokenAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+            TokenName: "",
+            TokenSymbol: "",
+            TokenQuantity: "20000",
+            TokenDivisor: "",
+          },
+        ],
       });
     });
   });
