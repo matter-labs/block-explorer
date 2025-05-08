@@ -238,17 +238,17 @@ export class AccountController {
       ([tokenAddress, tokenBalance]) => {
         return {
           TokenAddress: tokenAddress,
-          TokenName: tokenBalance.token.name,
-          TokenSymbol: tokenBalance.token.symbol,
+          TokenName: tokenBalance.token?.name || "",
+          TokenSymbol: tokenBalance.token?.symbol || "",
           TokenQuantity: tokenBalance.balance,
-          TokenDivisor: tokenBalance.token.decimals.toString(),
+          TokenDivisor: tokenBalance.token?.decimals.toString() || "",
         };
       }
     );
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: result,
+      result,
     };
   }
 
