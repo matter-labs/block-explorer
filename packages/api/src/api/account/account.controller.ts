@@ -28,6 +28,7 @@ import {
 } from "../dtos/account/accountEtherBalanceResponse.dto";
 import { AccountMinedBlocksResponseDto } from "../dtos/account/accountMinedBlocksResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
+import { AccountTokenHoldingsResponseDto, TokenInfoBalanceDto } from "../dtos/account/accountTokenHoldingsResponse.dto";
 
 const entityName = "account";
 
@@ -225,6 +226,29 @@ export class AccountController {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
       result: balance,
+    };
+  }
+
+  @Get("/addresstokenbalance")
+  public async getAccountTokenHoldings(
+    @Query("address", new ParseAddressPipe()) address: string
+  ): Promise<AccountTokenHoldingsResponseDto> {
+    const addressBalances = await this.balanceService.getBalances(address);
+    const result: TokenInfoBalanceDto[] = Object.entries(addressBalances.balances).map(
+      ([tokenAddress, tokenBalance]) => {
+        return {
+          TokenAddress: tokenAddress,
+          TokenName: tokenBalance.token.name,
+          TokenSymbol: tokenBalance.token.symbol,
+          TokenQuantity: tokenBalance.balance,
+          TokenDivisor: tokenBalance.token.decimals.toString(),
+        };
+      }
+    );
+    return {
+      status: ResponseStatus.OK,
+      message: ResponseMessage.OK,
+      result: result,
     };
   }
 
