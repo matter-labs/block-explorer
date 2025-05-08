@@ -26,4 +26,7 @@ export class BatchDetails extends Batch {
 
   @Column({ type: "varchar", length: 128 })
   public readonly l2FairGasPrice: string;
+
+  @Column({ type: "timestamp", nullable: true })
+  public readonly teeProvenAt?: Date;
 }
