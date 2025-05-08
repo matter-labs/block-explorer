@@ -1,39 +1,26 @@
 <template>
-  <div class="fixed inset-0 flex flex-col items-center justify-center bg-primary-900">
-    <div class="p-8 bg-white rounded-lg shadow-md">
-      <div class="flex justify-center mb-6">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 729.32 137.91" height="28" class="text-primary-600">
-          <g fill="currentColor">
-            <g>
-              <path
-                d="m583.35,137.91h-31.72c-38.03,0-68.95-30.92-68.95-68.95S513.6,0,551.64,0s68.95,30.92,68.95,68.95v67.58h-27.58v-67.58c0-22.86-18.51-41.37-41.37-41.37s-41.37,18.51-41.37,41.37,18.51,41.37,41.37,41.37h31.72v27.58Z"
-              ></path>
-              <path
-                d="m427.52,136.53h-27.58v-67.58c0-38.03,30.92-68.95,68.95-68.95v27.58c-22.86,0-41.37,18.51-41.37,41.37v67.58Z"
-              ></path>
-              <path
-                d="m303.4,137.91c-38.03,0-68.95-30.92-68.95-68.95S265.37,0,303.4,0s68.95,30.92,68.95,68.95v13.79h-79.3v-27.58h49.32c-5.73-16.08-21.01-27.58-38.94-27.58-22.86,0-41.37,18.51-41.37,41.37s18.51,41.37,41.37,41.37c13.79,0,26.67-6.9,34.37-18.4l22.86,15.39c-12.77,19.09-34.15,30.59-57.27,30.59Z"
-              ></path>
-              <path d="m729.32,27.58h-67.36v108.95h67.36V27.58Z"></path>
-              <polygon
-                points="137.91 124.12 193.07 68.95 137.91 13.79 137.91 55.16 82.75 96.54 137.91 96.54 137.91 124.12"
-              ></polygon>
-              <polygon
-                points="55.16 13.79 0 68.95 55.16 124.12 55.16 82.75 110.33 41.37 55.16 41.37 55.16 13.79"
-              ></polygon>
-            </g>
-          </g>
-        </svg>
+  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B] font-['Inter']">
+    <div class="p-8 rounded-lg max-w-xxl w-full flex flex-col items-center">
+      <div class="flex justify-center mb-10">
+        <img src="/images/zksync-light.svg" class="w-[233px] h-[48px]" />
       </div>
-      <h1 class="text-2xl font-bold mb-6 text-center text-black">Welcome to Block Explorer</h1>
-      <p class="text-gray-600 mb-6 text-center text-black">Please connect your wallet to continue</p>
+      <h1 class="text-[30px] leading-[36px] font-[700] tracking-[0%] font-['Inter'] mb-2 text-center text-white">
+        Private Explorer Access
+      </h1>
+      <p class="text-white font-normal text-xl leading-8 mb-10 text-center">Sign in with your crypto wallet</p>
+      <p class="text-white font-normal text-base leading-7 mb-8 text-center px-0">
+        Connect with your authorized wallet to to access data on ZKsync's private chain.
+      </p>
       <button
         @click="handleLogin"
         :disabled="isLoginPending"
-        class="w-full px-4 py-2 text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="w-[200px] h-[56px] px-8 py-4 text-black bg-white rounded-[28px] hover:bg-gray-200 disabled:opacity-70 disabled:cursor-not-allowed font-semibold text-base flex items-center justify-center mx-auto"
       >
-        {{ isLoginPending ? "Connecting..." : "Connect Wallet" }}
+        {{ isLoginPending ? "Connecting..." : "Connect wallet" }}
       </button>
+      <p class="text-gray-500 mt-6 text-center text-[14px] leading-[20px] font-normal">
+        Only authorized addresses can continue.
+      </p>
     </div>
   </div>
 </template>
@@ -53,10 +40,7 @@ const route = useRoute();
 const handleLogin = async () => {
   try {
     await login();
-    if (context.user.value.loggedIn) {
-      const redirectPath = route.query.redirect as string;
-      router.push(redirectPath || "/");
-    }
+    router.push({ name: "reviewing-permissions" });
   } catch (error) {
     console.error("Login failed:", error);
   }
@@ -66,7 +50,11 @@ onMounted(async () => {
   await initializeLogin();
   if (context.user.value.loggedIn) {
     const redirectPath = route.query.redirect as string;
-    router.push(redirectPath || "/");
+    if (redirectPath) {
+      router.push(redirectPath);
+    } else {
+      router.push("/");
+    }
   }
 });
 </script>

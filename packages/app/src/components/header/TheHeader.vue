@@ -284,13 +284,13 @@ const hasContent = computed(() => {
     }
   }
   .header-right-side {
-    @apply hidden items-center justify-end md:flex-1 lg:flex lg:w-0;
+    @apply hidden items-stretch justify-end md:flex-1 lg:flex lg:w-0 gap-x-4;
 
     .metamask-button-container {
-      @apply mr-4;
+      // @apply mr-4;
     }
     .network-switch {
-      @apply mr-4;
+      // @apply mr-4;
     }
     .language-switch {
       @apply mr-6;
