@@ -612,6 +612,32 @@ describe("AccountController", () => {
         ],
       });
     });
+
+    it("sets empty string value for token fields if token is missing", async () => {
+      jest.spyOn(balanceServiceMock, "getBalances").mockResolvedValueOnce({
+        balances: {
+          "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C": {
+            balance: "20000",
+          },
+        },
+        blockNumber: 0,
+      });
+      const response = await controller.getAccountTokenHoldings(address);
+      expect(balanceServiceMock.getBalances).toBeCalledWith(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          {
+            TokenAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+            TokenName: "",
+            TokenSymbol: "",
+            TokenQuantity: "20000",
+            TokenDivisor: "",
+          },
+        ],
+      });
+    });
   });
 
   describe("getAccountsEtherBalances", () => {
