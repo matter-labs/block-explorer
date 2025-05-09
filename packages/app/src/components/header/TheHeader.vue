@@ -29,6 +29,7 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
+          <ConnectMetamaskButton class="metamask-button-container" />
           <NetworkSwitch />
           <LocaleSwitch
             :value="(locale as string)"
@@ -139,6 +140,7 @@ import { MenuIcon, XIcon } from "@heroicons/vue/outline";
 import LinksMobilePopover from "./LinksMobilePopover.vue";
 import LinksPopover from "./LinksPopover.vue";
 
+import ConnectMetamaskButton from "@/components/ConnectMetamaskButton.vue";
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
 import DiscordIcon from "@/components/icons/DiscordIcon.vue";
@@ -282,10 +284,13 @@ const hasContent = computed(() => {
     }
   }
   .header-right-side {
-    @apply hidden items-center justify-end md:flex-1 lg:flex lg:w-0;
+    @apply hidden items-stretch justify-end md:flex-1 lg:flex lg:w-0 gap-x-4;
 
+    .metamask-button-container {
+      // @apply mr-4;
+    }
     .network-switch {
-      @apply mr-4;
+      // @apply mr-4;
     }
     .language-switch {
       @apply mr-6;
