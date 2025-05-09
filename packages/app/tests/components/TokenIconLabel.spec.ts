@@ -71,7 +71,7 @@ describe("TokenIconLabel", () => {
     });
     expect(wrapper.find(".token-symbol").text()).toBe(i18n.global.t("balances.table.unknownSymbol"));
   });
-  it("renders correct link of contract page", () => {
+  it("renders correct link of token page", () => {
     const wrapper = mount(TokenIconLabel, {
       global,
       props: {
@@ -79,10 +79,10 @@ describe("TokenIconLabel", () => {
         address: "0xc2675ae7f35b7d85ed1e828ccf6d0376b01adea3",
       },
     });
-    const contractPageUrl = wrapper.findAllComponents(RouterLinkStub);
+    const tokenPageUrl = wrapper.findAllComponents(RouterLinkStub);
 
-    expect(contractPageUrl[0].props().to.name).toBe("address");
-    expect(contractPageUrl[0].props().to.params.address).toBe("0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3");
+    expect(tokenPageUrl[0].props().to.name).toBe("token");
+    expect(tokenPageUrl[0].props().to.params.address).toBe("0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3");
   });
   it("renders default 'sm' size for icon", () => {
     const { container } = render(TokenIconLabel, {
