@@ -5,7 +5,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
-import { hexTransformer } from "src/common/transformers/hex.transformer";
+import { hexTransformer } from "../common/transformers/hex.transformer";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
