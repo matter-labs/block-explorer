@@ -62,7 +62,7 @@ export class TransactionService {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
 
       const commonParams: Record<string, string | number | Date> = {
-        address: filterOptions.address,
+        address: hexTransformer.to(filterOptions.address),
         ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
         ...(filterOptions.l1BatchNumber !== undefined && { l1BatchNumber: filterOptions.l1BatchNumber }),
       };
