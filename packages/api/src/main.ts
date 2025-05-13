@@ -7,8 +7,8 @@ import { configureApp } from "./configureApp";
 import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
-import { privateValidium } from "./config/featureFlags";
-import { applyPrivateValidiumExpressConfig } from "./private-validium";
+import { prividium } from "./config/featureFlags";
+import { applyPrividiumExpressConfig } from "./prividium";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -39,8 +39,8 @@ async function bootstrap() {
     SwaggerModule.setup("docs", app, document);
   }
 
-  if (privateValidium) {
-    applyPrivateValidiumExpressConfig(app);
+  if (prividium) {
+    applyPrividiumExpressConfig(app);
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
