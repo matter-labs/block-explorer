@@ -5,7 +5,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
-import { hexTransformer } from "../common/transformers/hex.transformer";
+import { hexTransformer } from "src/common/transformers/hex.transformer";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
@@ -108,16 +108,16 @@ export class LogService {
         blockNumber: LessThanOrEqual(toBlock),
       });
     }
-    if (topics.topic0 !== undefined) {
+    if (topics?.topic0 !== undefined) {
       queryBuilder.andWhere("log.topics[1] = :topic0", { topic0: hexTransformer.to(topics.topic0) });
     }
-    if (topics.topic1 !== undefined) {
+    if (topics?.topic1 !== undefined) {
       queryBuilder.andWhere("log.topics[2] = :topic1", { topic1: hexTransformer.to(topics.topic1) });
     }
-    if (topics.topic2 !== undefined) {
+    if (topics?.topic2 !== undefined) {
       queryBuilder.andWhere("log.topics[3] = :topic2", { topic2: hexTransformer.to(topics.topic2) });
     }
-    if (topics.topic3 !== undefined) {
+    if (topics?.topic3 !== undefined) {
       queryBuilder.andWhere("log.topics[4] = :topic3", { topic3: hexTransformer.to(topics.topic3) });
     }
 
