@@ -61,12 +61,33 @@ export class TransactionService {
     if (filterOptions.address) {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
 
-      const commonParams = {
+      const commonParams: Record<string, string | number | Date> = {
         address: filterOptions.address,
         ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
         ...(filterOptions.l1BatchNumber !== undefined && { l1BatchNumber: filterOptions.l1BatchNumber }),
-        ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
       };
+
+      // FindOperator doesn't work with this query, so we need to build the filter manually
+      let receivedAtFilter: string | undefined = undefined;
+      if (filterOptions.receivedAt !== undefined) {
+        switch (filterOptions.receivedAt.type) {
+          case "between":
+            receivedAtFilter = `BETWEEN :receivedAtStart AND :receivedAtEnd`;
+            commonParams.receivedAtStart = filterOptions.receivedAt.value[0];
+            commonParams.receivedAtEnd = filterOptions.receivedAt.value[1];
+            break;
+          case "moreThanOrEqual":
+            receivedAtFilter = `>= :receivedAt`;
+            commonParams.receivedAt = filterOptions.receivedAt.value;
+            break;
+          case "lessThanOrEqual":
+            receivedAtFilter = `<= :receivedAt`;
+            commonParams.receivedAt = filterOptions.receivedAt.value;
+            break;
+          default:
+            throw new Error(`Unsupported FindOperator type: ${filterOptions.receivedAt.type}`);
+        }
+      }
 
       const subQuery1 = this.addressTransactionRepository
         .createQueryBuilder("sub1_addressTransaction")
@@ -80,15 +101,15 @@ export class TransactionService {
       if (filterOptions.l1BatchNumber !== undefined) {
         subQuery1.andWhere("sub1_transaction.l1BatchNumber = :l1BatchNumber");
       }
-      if (filterOptions.receivedAt) {
-        subQuery1.andWhere("sub1_transaction.receivedAt = :receivedAt");
+      if (filterOptions.receivedAt !== undefined) {
+        subQuery1.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
       }
 
       if (filterOptions.filterAddressInLogTopics) {
         const subQuery2 = this.logRepository
           .createQueryBuilder("sub2_log")
           .select("sub2_log.transactionHash")
-          .innerJoin(Transaction, "sub2_transaction", "sub2_transaction.hash = sub2_log.transactionHash");
+          .innerJoin("sub2_log.transaction", "sub2_transaction");
 
         subQuery2.where(
           new Brackets((qb) => {
@@ -99,13 +120,13 @@ export class TransactionService {
         );
 
         if (filterOptions.blockNumber !== undefined) {
-          subQuery2.andWhere("sub_tx2.blockNumber = :blockNumber");
+          subQuery2.andWhere("sub2_transaction.blockNumber = :blockNumber");
         }
         if (filterOptions.l1BatchNumber !== undefined) {
-          subQuery2.andWhere("sub_tx2.l1BatchNumber = :l1BatchNumber");
+          subQuery2.andWhere("sub2_transaction.l1BatchNumber = :l1BatchNumber");
         }
-        if (filterOptions.receivedAt) {
-          subQuery2.andWhere("sub_tx2.receivedAt = :receivedAt");
+        if (filterOptions.receivedAt !== undefined) {
+          subQuery2.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
         }
 
         const addressBytes = filterOptions.address.substring(2);
