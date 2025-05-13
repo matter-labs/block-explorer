@@ -51,7 +51,6 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       page: 1,
       offset: 1,
     });
-    console.log("LOGS", logs);
     const newOwner = logs[0]?.topics[2];
     if (newOwner === undefined) {
       throw new ForbiddenException({ message: "User does not have access to this address" });
