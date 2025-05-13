@@ -9,7 +9,7 @@ import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 import { CounterService } from "../counter/counter.service";
 import { Log } from "../log/log.entity";
-import { hexTransformer } from "src/common/transformers/hex.transformer";
+import { hexTransformer } from "../common/transformers/hex.transformer";
 
 export interface FilterTransactionsOptions {
   blockNumber?: number;
