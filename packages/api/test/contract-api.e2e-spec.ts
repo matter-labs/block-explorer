@@ -1,9 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import * as request from "supertest";
+import request from "supertest";
 import { Repository } from "typeorm";
-import * as nock from "nock";
+import nock from "nock";
 import { Address } from "../src/address/address.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
