@@ -3,6 +3,9 @@ import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { AuthModule } from "./auth/auth.module";
 import cookieSession from "cookie-session";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { PrivateFilteringMiddleware } from "./middlewares/private-filtering.middleware";
+import { AddressController } from "./address/address.controller";
+import { TransactionController } from "./transaction/transaction.controller";
 
 export function applyPrivateValidiumExpressConfig(app: NestExpressApplication) {
   app.use(
@@ -20,6 +23,7 @@ export function applyPrivateValidiumExpressConfig(app: NestExpressApplication) {
 
 export function applyPrivateValidiumMiddlewares(consumer: MiddlewareConsumer) {
   consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify", "/auth/logout").forRoutes("*");
+  consumer.apply(PrivateFilteringMiddleware).forRoutes(AddressController, TransactionController);
 }
 
 export const PRIVATE_VALIDIUM_MODULES = [AuthModule];
