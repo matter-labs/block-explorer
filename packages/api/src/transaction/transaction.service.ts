@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import { Repository, FindOperator, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, CounterCriteria, SortingOrder } from "../common/types";
@@ -8,12 +8,15 @@ import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 import { CounterService } from "../counter/counter.service";
+import { Log } from "../log/log.entity";
+import { hexTransformer } from "src/common/transformers/hex.transformer";
 
 export interface FilterTransactionsOptions {
   blockNumber?: number;
   address?: string;
   l1BatchNumber?: number;
   receivedAt?: FindOperator<Date>;
+  filterAddressInLogTopics?: boolean;
 }
 
 export interface FindByAddressFilterTransactionsOptions {
@@ -33,7 +36,9 @@ export class TransactionService {
     private readonly addressTransactionRepository: Repository<AddressTransaction>,
     @InjectRepository(Batch)
     private readonly batchRepository: Repository<Batch>,
-    private readonly counterService: CounterService
+    private readonly counterService: CounterService,
+    @InjectRepository(Log)
+    private readonly logRepository: Repository<Log>
   ) {}
 
   public async findOne(hash: string): Promise<Transaction> {
@@ -54,36 +59,83 @@ export class TransactionService {
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
     if (filterOptions.address) {
-      const queryBuilder = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
-      queryBuilder.select("addressTransaction.number");
-      queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");
+      const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
+
+      const commonParams = {
+        address: filterOptions.address,
+        ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
+        ...(filterOptions.l1BatchNumber !== undefined && { l1BatchNumber: filterOptions.l1BatchNumber }),
+        ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
+      };
+
+      const subQuery1 = this.addressTransactionRepository
+        .createQueryBuilder("sub1_addressTransaction")
+        .select("sub1_addressTransaction.transactionHash")
+        .innerJoin("sub1_addressTransaction.transaction", "sub1_transaction")
+        .where("sub1_addressTransaction.address = :address");
+
+      if (filterOptions.blockNumber !== undefined) {
+        subQuery1.andWhere("sub1_transaction.blockNumber = :blockNumber");
+      }
+      if (filterOptions.l1BatchNumber !== undefined) {
+        subQuery1.andWhere("sub1_transaction.l1BatchNumber = :l1BatchNumber");
+      }
+      if (filterOptions.receivedAt) {
+        subQuery1.andWhere("sub1_transaction.receivedAt = :receivedAt");
+      }
+
+      if (filterOptions.filterAddressInLogTopics) {
+        const subQuery2 = this.logRepository
+          .createQueryBuilder("sub2_log")
+          .select("sub2_log.transactionHash")
+          .innerJoin(Transaction, "sub2_transaction", "sub2_transaction.hash = sub2_log.transactionHash");
+
+        subQuery2.where(
+          new Brackets((qb) => {
+            qb.where("sub2_log.topics[1] = :paddedAddressBytes")
+              .orWhere("sub2_log.topics[2] = :paddedAddressBytes")
+              .orWhere("sub2_log.topics[3] = :paddedAddressBytes");
+          })
+        );
+
+        if (filterOptions.blockNumber !== undefined) {
+          subQuery2.andWhere("sub_tx2.blockNumber = :blockNumber");
+        }
+        if (filterOptions.l1BatchNumber !== undefined) {
+          subQuery2.andWhere("sub_tx2.l1BatchNumber = :l1BatchNumber");
+        }
+        if (filterOptions.receivedAt) {
+          subQuery2.andWhere("sub_tx2.receivedAt = :receivedAt");
+        }
+
+        const addressBytes = filterOptions.address.substring(2);
+        const paddedAddress = `0x${"0".repeat(24)}${addressBytes}`;
+        const logAddressParam = { paddedAddressBytes: hexTransformer.to(paddedAddress) };
+
+        queryBuilder.where(`transaction.hash IN (
+          (${subQuery1.getQuery()})
+          UNION
+          (${subQuery2.getQuery()})
+        )`);
+        queryBuilder.setParameters({
+          ...commonParams,
+          ...logAddressParam,
+        });
+      } else {
+        queryBuilder.where(`transaction.hash IN (${subQuery1.getQuery()})`);
+        queryBuilder.setParameters(commonParams);
+      }
+
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
       queryBuilder.leftJoin("transaction.batch", "batch");
       queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
-      queryBuilder.where({
-        address: filterOptions.address,
-        ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
-        // can't add filters on transaction here due to typeOrm issue with filters on joined tables
-      });
-      if (filterOptions.blockNumber !== undefined) {
-        // can't use filters on transaction as object here due to typeOrm issue with filters on joined tables
-        queryBuilder.andWhere("transaction.blockNumber = :blockNumber", { blockNumber: filterOptions.blockNumber });
-      }
-      if (filterOptions.l1BatchNumber !== undefined) {
-        // can't use filters on transaction as object here due to typeOrm issue with filters on joined tables
-        queryBuilder.andWhere("transaction.l1BatchNumber = :l1BatchNumber", {
-          l1BatchNumber: filterOptions.l1BatchNumber,
-        });
-      }
-      queryBuilder.orderBy("addressTransaction.blockNumber", "DESC");
-      queryBuilder.addOrderBy("addressTransaction.receivedAt", "DESC");
-      queryBuilder.addOrderBy("addressTransaction.transactionIndex", "DESC");
-      const addressTransactions = await paginate<AddressTransaction>(queryBuilder, paginationOptions);
-      return {
-        ...addressTransactions,
-        items: addressTransactions.items.map((item) => item.transaction),
-      };
+
+      queryBuilder.orderBy("transaction.blockNumber", "DESC");
+      queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
+      queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
+
+      return await paginate<Transaction>(queryBuilder, paginationOptions);
     } else {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
