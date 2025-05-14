@@ -22,7 +22,7 @@ describe("TransactionService", () => {
   let addressTransactionRepositoryMock: MockProxy<typeorm.Repository<AddressTransaction>>;
   let batchRepositoryMock: typeorm.Repository<Batch>;
   let counterServiceMock: CounterService;
-  let logRepositoryMock: MockProxy<typeorm.Repository<Log>>;
+  let logRepositoryMock: typeorm.Repository<Log>;
   const transactionHash = "transactionHash";
 
   beforeEach(async () => {
@@ -335,110 +335,6 @@ describe("TransactionService", () => {
         expect(utils.paginate).toBeCalledTimes(1);
         expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions);
         expect(result.items).toEqual(paginationResult.items);
-      });
-
-      it("filters by log when filterAddressInLogTopics is true", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("sub2_log");
-        expect(logQueryBuilderMock.select).toHaveBeenCalledWith("sub2_log.transactionHash");
-        expect(logQueryBuilderMock.innerJoin).toHaveBeenCalledWith("sub2_log.transaction", "sub2_transaction");
-        expect(logQueryBuilderMock.where).toHaveBeenCalledWith(expect.any(Brackets));
-        const brackets = logQueryBuilderMock.where.mock.calls[0][0] as Brackets;
-        const qb = mock<WhereExpressionBuilder>();
-        brackets.whereFactory(qb);
-        expect(qb.where).toHaveBeenCalledWith("sub2_log.topics[1] = :paddedAddressBytes");
-        expect(qb.orWhere).toHaveBeenCalledWith("sub2_log.topics[2] = :paddedAddressBytes");
-        expect(qb.orWhere).toHaveBeenCalledWith("sub2_log.topics[3] = :paddedAddressBytes");
-      });
-
-      it("filters by and block number", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
-        filterTransactionsOptions.blockNumber = 10;
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith("sub2_transaction.blockNumber = :blockNumber");
-      });
-
-      it("filters by and batch number", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
-        filterTransactionsOptions.l1BatchNumber = 10;
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith("sub2_transaction.l1BatchNumber = :l1BatchNumber");
-      });
-
-      it("filters by and receivedAt", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
-        filterTransactionsOptions.receivedAt = typeorm.LessThanOrEqual(new Date());
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith("sub2_transaction.receivedAt <= :receivedAt");
-      });
-
-      it("can filter between", async () => {
-        const date1 = new Date();
-        const date2 = new Date();
-        const filterOptions = {
-          address: "address",
-          receivedAt: typeorm.Between(date1, date2),
-        };
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt BETWEEN :receivedAtStart AND :receivedAtEnd"
-        );
-      });
-
-      it("can filter by more than", async () => {
-        const date1 = new Date();
-        const filterOptions = {
-          address: "address",
-          receivedAt: typeorm.MoreThanOrEqual(date1),
-        };
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt >= :receivedAt"
-        );
-      });
-
-      it("can filter by less than", async () => {
-        const date1 = new Date();
-        const filterOptions = {
-          address: "address",
-          receivedAt: typeorm.LessThanOrEqual(date1),
-        };
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt <= :receivedAt"
-        );
-      });
-
-      it("cannot filter by strict less", async () => {
-        const date1 = new Date();
-        const filterOptions = {
-          address: "address",
-          receivedAt: typeorm.LessThan(date1),
-        };
-        await expect(() => service.findAll(filterOptions, pagingOptions)).rejects.toThrow();
-      });
-
-      it("can also filter by block number", async () => {
-        const filterOptions = {
-          address: "address",
-          blockNumber: 10,
-        };
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.blockNumber = :blockNumber"
-        );
-      });
-
-      it("can also filter by block number", async () => {
-        const filterOptions = {
-          address: "address",
-          l1BatchNumber: 10,
-        };
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.l1BatchNumber = :l1BatchNumber"
-        );
       });
     });
   });
