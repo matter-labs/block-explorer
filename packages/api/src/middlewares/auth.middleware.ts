@@ -4,7 +4,7 @@ import { getUrlWithoutParams } from "../common/utils";
 
 const UNPROTECTED_ROUTES = ["/auth/message", "/auth/verify", "/auth/logout", "/health", "/ready"];
 
-const UNPROTECTED_ROUTES = ["/health", "/ready"];
+const UNPROTECTED_ROUTES = ["/auth/nonce", "/auth/verify", "/auth/logout", "/health", "/ready"];
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
