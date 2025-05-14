@@ -13,16 +13,16 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
   constructor(private readonly addressService: AddressService, private readonly logService: LogService) {}
 
   public async use(req: Request, res: Response, next: NextFunction) {
-    if (UNFILTERED_ROUTES.some((route) => req.path.startsWith(route))) {
+    if (UNFILTERED_ROUTES.some((route) => req.originalUrl.startsWith(route))) {
       return next();
     }
 
-    if (req.path.startsWith("/address")) {
+    if (req.originalUrl.startsWith("/address")) {
       await this.filterAddressControllerRoutes(req);
       return next();
     }
 
-    if (req.path.startsWith("/transactions")) {
+    if (req.originalUrl.startsWith("/transactions")) {
       this.filterTransactionControllerRoutes(req, res);
       return next();
     }
@@ -32,7 +32,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
 
   private async filterAddressControllerRoutes(req: Request) {
     // All routes are filtered by address
-    const reqAddress = req.path.match(/\/address\/([^\/]+)/)?.[1];
+    const reqAddress = req.originalUrl.match(/\/address\/([^\/]+)/)?.[1];
     const userAddress = req.session.siwe.address;
     const addressRecord = await this.addressService.findOne(reqAddress);
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
@@ -71,7 +71,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
 
   private filterTransactionControllerRoutes(req: Request, res: Response) {
     // Only /transactions route is filtered by address
-    if (req.path === "/transactions") {
+    if (req.originalUrl === "/transactions") {
       const filter: FilterTransactionsOptions = {
         address: req.session.siwe.address,
         filterAddressInLogTopics: true,
