@@ -3,12 +3,15 @@ import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { AuthModule } from "./auth/auth.module";
 import cookieSession from "cookie-session";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { PrividiumFilteringMiddleware } from "./middlewares/prividium-filtering.middleware";
+import { AddressController } from "./address/address.controller";
+import { TransactionController } from "./transaction/transaction.controller";
 
-export function applyPrivateValidiumExpressConfig(app: NestExpressApplication) {
+export function applyPrividiumExpressConfig(app: NestExpressApplication) {
   app.use(
     cookieSession({
       name: "_auth",
-      secret: process.env.PRIVATE_VALIDIUM_SESSION_SECRET,
+      secret: process.env.PRIVIDIUM_SESSION_SECRET,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
@@ -18,8 +21,9 @@ export function applyPrivateValidiumExpressConfig(app: NestExpressApplication) {
   );
 }
 
-export function applyPrivateValidiumMiddlewares(consumer: MiddlewareConsumer) {
+export function applyPrividiumMiddlewares(consumer: MiddlewareConsumer) {
   consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify", "/auth/logout").forRoutes("*");
+  consumer.apply(PrividiumFilteringMiddleware).forRoutes(AddressController, TransactionController);
 }
 
-export const PRIVATE_VALIDIUM_MODULES = [AuthModule];
+export const PRIVIDIUM_MODULES = [AuthModule];
