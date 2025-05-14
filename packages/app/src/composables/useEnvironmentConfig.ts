@@ -12,6 +12,7 @@ const DEVELOPMENT_CONFIG_NAME = "dev";
 
 export async function loadEnvironmentConfig(runtimeConfig: RuntimeConfig): Promise<void> {
   // runtime environment config takes precedence over hard coded config
+  console.log("runtimeConfig", runtimeConfig);
   if (runtimeConfig.environmentConfig) {
     config.value = runtimeConfig.environmentConfig;
     return;
@@ -41,6 +42,12 @@ export default () => {
       config.value && Array.isArray(config.value.networks)
         ? config.value.networks.filter((e) => e.published === true)
         : []
+    ),
+    isPrividium: computed((): boolean => {
+      return config.value?.networks?.[0]?.isPrividium ?? false;
+    }),
+    baseTokenAddress: computed(
+      () => config.value?.networks?.[0]?.baseTokenAddress ?? "0x000000000000000000000000000000000000800A"
     ),
   };
 };
