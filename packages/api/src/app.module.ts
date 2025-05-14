@@ -1,4 +1,4 @@
-import { Module, Logger, MiddlewareConsumer, NestModule, DynamicModule } from "@nestjs/common";
+import { Module, Logger, MiddlewareConsumer, NestModule, DynamicModule, Inject } from "@nestjs/common";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { HealthModule } from "./health/health.module";
@@ -25,7 +25,9 @@ import { DbMetricsService } from "./dbMetrics.service";
 import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
 import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
-import * as process from "node:process";
+
+const IS_PRIVIDIUM_TOKEN = "IS_PRIVIDIUM";
+type IsPrividium = { isPrividium: boolean };
 
 @Module({
   imports: [
@@ -35,12 +37,6 @@ import * as process from "node:process";
       useFactory: (configService: ConfigService) => configService.get<TypeOrmModuleOptions>("typeORM"),
       inject: [ConfigService],
     }),
-    // TMP: disable API modules in Prividium mode until defined how to handle API authentication
-    ...(prividium ? [] : [ApiModule, ApiContractModule]),
-    // TMP: disable external API until release
-    ...(disableExternalAPI || prividium
-      ? []
-      : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
     TokenModule,
     AddressModule,
     BalanceModule,
@@ -57,9 +53,8 @@ import * as process from "node:process";
 export class AppModule implements NestModule {
   private isPrividium: boolean;
 
-  constructor(service: ConfigService) {
-    const { prividium } = service.get<{ prividium: boolean }>("featureFlags");
-    this.isPrividium = prividium;
+  constructor(@Inject(IS_PRIVIDIUM_TOKEN) config: IsPrividium) {
+    this.isPrividium = config.isPrividium;
   }
 
   configure(consumer: MiddlewareConsumer) {
@@ -76,7 +71,22 @@ export class AppModule implements NestModule {
     // as explained here: https://docs.nestjs.com/modules#dynamic-modules
     return {
       module: AppModule,
-      imports: isPrividium ? PRIVIDIUM_MODULES : [],
+      providers: [
+        {
+          provide: IS_PRIVIDIUM_TOKEN,
+          useValue: { isPrividium },
+        },
+      ],
+      imports: [
+        /// Only enable prividium modules for prividium chains
+        ...(isPrividium ? PRIVIDIUM_MODULES : []),
+        // TMP: disable API modules in Prividium mode until defined how to handle API authentication
+        ...(isPrividium ? [] : [ApiModule, ApiContractModule]),
+        /// TMP: disable external API until release
+        ...(disableExternalAPI || isPrividium
+          ? []
+          : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
+      ],
     };
   }
 }
