@@ -13,7 +13,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
   constructor(private readonly addressService: AddressService, private readonly logService: LogService) {}
 
   public async use(req: Request, res: Response, next: NextFunction) {
-    if (UNFILTERED_ROUTES.some((route) => req.path.startsWith(route))) {
+    if (UNFILTERED_ROUTES.some((route) => req.baseUrl.startsWith(route))) {
       return next();
     }
 
