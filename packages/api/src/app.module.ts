@@ -22,9 +22,9 @@ import { StatsModule } from "./stats/stats.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
-import { disableExternalAPI, privateValidium } from "./config/featureFlags";
+import { disableExternalAPI, prividium } from "./config/featureFlags";
 import config from "./config";
-import { applyPrivateValidiumMiddlewares, PRIVATE_VALIDIUM_MODULES } from "./private-validium";
+import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
 
 @Module({
   imports: [
@@ -34,10 +34,10 @@ import { applyPrivateValidiumMiddlewares, PRIVATE_VALIDIUM_MODULES } from "./pri
       useFactory: (configService: ConfigService) => configService.get<TypeOrmModuleOptions>("typeORM"),
       inject: [ConfigService],
     }),
-    ApiModule,
-    ApiContractModule,
+    // TMP: disable API modules in Prividium mode until defined how to handle API authentication
+    ...(prividium ? [] : [ApiModule, ApiContractModule]),
     // TMP: disable external API until release
-    ...(disableExternalAPI
+    ...(disableExternalAPI || prividium
       ? []
       : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
     TokenModule,
@@ -50,7 +50,7 @@ import { applyPrivateValidiumMiddlewares, PRIVATE_VALIDIUM_MODULES } from "./pri
     LogModule,
     StatsModule,
     HealthModule,
-    ...(privateValidium ? PRIVATE_VALIDIUM_MODULES : []),
+    ...(prividium ? PRIVIDIUM_MODULES : []),
   ],
   providers: [Logger, ...metricProviders, DbMetricsService],
 })
@@ -58,8 +58,8 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
-    if (privateValidium) {
-      applyPrivateValidiumMiddlewares(consumer);
+    if (prividium) {
+      applyPrividiumMiddlewares(consumer);
     }
   }
 }
