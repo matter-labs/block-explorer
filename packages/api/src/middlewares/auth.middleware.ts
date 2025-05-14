@@ -6,7 +6,7 @@ const UNPROTECTED_ROUTES = ["/auth/nonce", "/auth/verify", "/auth/logout", "/hea
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   public use(req: Request, res: Response, next: NextFunction) {
-    if (UNPROTECTED_ROUTES.some((route) => req.path.startsWith(route))) {
+    if (UNPROTECTED_ROUTES.some((route) => req.originalUrl.startsWith(route))) {
       next();
       return;
     }
