@@ -121,3 +121,7 @@ export const parseIntToHex = (numStr: string) => {
   }
   return "0x";
 };
+
+export const getUrlWithoutParams = (url: string) => {
+  return url.split("?")[0];
+};
