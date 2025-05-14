@@ -1,9 +1,16 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 
+const UNPROTECTED_ROUTES = ["/health", "/ready"];
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   public use(req: Request, res: Response, next: NextFunction) {
+    if (UNPROTECTED_ROUTES.some((route) => req.path.startsWith(route))) {
+      next();
+      return;
+    }
+
     if (!req.session.siwe) {
       throw new UnauthorizedException({ message: "Unauthorized request" });
     }
