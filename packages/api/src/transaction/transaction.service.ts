@@ -89,29 +89,29 @@ export class TransactionService {
         }
       }
 
-      const subQuery1 = this.addressTransactionRepository
+      const addressTransactionSubQuery = this.addressTransactionRepository
         .createQueryBuilder("sub1_addressTransaction")
         .select("sub1_addressTransaction.transactionHash")
         .innerJoin("sub1_addressTransaction.transaction", "sub1_transaction")
         .where("sub1_addressTransaction.address = :address");
 
       if (filterOptions.blockNumber !== undefined) {
-        subQuery1.andWhere("sub1_transaction.blockNumber = :blockNumber");
+        addressTransactionSubQuery.andWhere("sub1_transaction.blockNumber = :blockNumber");
       }
       if (filterOptions.l1BatchNumber !== undefined) {
-        subQuery1.andWhere("sub1_transaction.l1BatchNumber = :l1BatchNumber");
+        addressTransactionSubQuery.andWhere("sub1_transaction.l1BatchNumber = :l1BatchNumber");
       }
       if (filterOptions.receivedAt !== undefined) {
-        subQuery1.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
+        addressTransactionSubQuery.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
       }
 
       if (filterOptions.filterAddressInLogTopics) {
-        const subQuery2 = this.logRepository
+        const logSubQuery = this.logRepository
           .createQueryBuilder("sub2_log")
           .select("sub2_log.transactionHash")
           .innerJoin("sub2_log.transaction", "sub2_transaction");
 
-        subQuery2.where(
+        logSubQuery.where(
           new Brackets((qb) => {
             qb.where("sub2_log.topics[1] = :paddedAddressBytes")
               .orWhere("sub2_log.topics[2] = :paddedAddressBytes")
@@ -120,13 +120,13 @@ export class TransactionService {
         );
 
         if (filterOptions.blockNumber !== undefined) {
-          subQuery2.andWhere("sub2_transaction.blockNumber = :blockNumber");
+          logSubQuery.andWhere("sub2_transaction.blockNumber = :blockNumber");
         }
         if (filterOptions.l1BatchNumber !== undefined) {
-          subQuery2.andWhere("sub2_transaction.l1BatchNumber = :l1BatchNumber");
+          logSubQuery.andWhere("sub2_transaction.l1BatchNumber = :l1BatchNumber");
         }
         if (filterOptions.receivedAt !== undefined) {
-          subQuery2.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
+          logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
         }
 
         const addressBytes = filterOptions.address.substring(2);
@@ -134,16 +134,16 @@ export class TransactionService {
         const logAddressParam = { paddedAddressBytes: hexTransformer.to(paddedAddress) };
 
         queryBuilder.where(`transaction.hash IN (
-          (${subQuery1.getQuery()})
+          (${addressTransactionSubQuery.getQuery()})
           UNION
-          (${subQuery2.getQuery()})
+          (${logSubQuery.getQuery()})
         )`);
         queryBuilder.setParameters({
           ...commonParams,
           ...logAddressParam,
         });
       } else {
-        queryBuilder.where(`transaction.hash IN (${subQuery1.getQuery()})`);
+        queryBuilder.where(`transaction.hash IN (${addressTransactionSubQuery.getQuery()})`);
         queryBuilder.setParameters(commonParams);
       }
 
