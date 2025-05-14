@@ -48,7 +48,9 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      blockItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
+      blockItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`, {
+        credentials: "include",
+      });
     } catch (error: unknown) {
       blockItem.value = null;
       if (!(error instanceof FetchError) || error.response?.status !== 404) {

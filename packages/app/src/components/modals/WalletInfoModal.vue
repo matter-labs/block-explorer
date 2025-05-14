@@ -131,10 +131,9 @@ const formattedAddress = computed(() => {
     }
 
     .balance-info {
-      // Slot content (TokenAmountPrice) will likely have its own alignment, text-center here is a fallback.
     }
+
     .network-info {
-      // text-center applied above to the common class.
       span {
         @apply text-neutral-600;
       }
