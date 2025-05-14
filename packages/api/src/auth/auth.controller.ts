@@ -85,10 +85,9 @@ export class AuthController {
     }
 
     try {
-      // const siweMessage = new SiweMessage(body.message);
-      // // const { data: message } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce });
-      // req.session.siwe = siweMessage;
-      req.session.siwe = { address: "0xe5b06bfd663c94005b8b159cd320fd7976549f9b" } as any;
+      const siweMessage = new SiweMessage(body.message);
+      const { data: message } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce });
+      req.session.siwe = message;
       return true;
     } catch (err) {
       req.session = null;
