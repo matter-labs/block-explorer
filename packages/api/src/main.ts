@@ -20,10 +20,12 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+  console.log("prividium", prividium);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule.build(prividium), {
     logger,
     rawBody: true,
   });
+
   const configService = app.get(ConfigService);
   const metricsApp = await NestFactory.create(AppMetricsModule);
   metricsApp.enableShutdownHooks();
