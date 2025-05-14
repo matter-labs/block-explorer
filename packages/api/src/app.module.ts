@@ -34,6 +34,12 @@ import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
       useFactory: (configService: ConfigService) => configService.get<TypeOrmModuleOptions>("typeORM"),
       inject: [ConfigService],
     }),
+    // TMP: disable API modules in Prividium mode until defined how to handle API authentication
+    ...(prividium ? [] : [ApiModule, ApiContractModule]),
+    // TMP: disable external API until release
+    ...(disableExternalAPI || prividium
+      ? []
+      : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
     TokenModule,
     AddressModule,
     BalanceModule,
