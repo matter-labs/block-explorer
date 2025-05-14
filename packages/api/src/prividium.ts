@@ -22,7 +22,7 @@ export function applyPrividiumExpressConfig(app: NestExpressApplication) {
 }
 
 export function applyPrividiumMiddlewares(consumer: MiddlewareConsumer) {
-  consumer.apply(AuthMiddleware).exclude("/auth/nonce", "/auth/verify", "/auth/logout").forRoutes("*");
+  consumer.apply(AuthMiddleware).forRoutes("*");
   consumer.apply(PrividiumFilteringMiddleware).forRoutes(AddressController, TransactionController);
 }
 
