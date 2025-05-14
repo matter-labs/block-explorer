@@ -22,6 +22,23 @@
       </div>
     </template>
   </div>
+  <WalletInfoModal
+    v-if="displayAddress"
+    :opened="isWalletInfoModalOpen"
+    :address="displayAddress"
+    :networkName="context.currentNetwork.value.l2NetworkName"
+    @close="closeModal"
+    @disconnect="handleLogoutAndCloseModal"
+  >
+    <template #balance>
+      <div v-if="isAccountDataPendingLocally">Loading...</div>
+      <div v-else>
+        <span
+          >{{ accountBaseTokenInfo.accountBaseTokenBalance }} {{ accountBaseTokenInfo.accountBaseTokenSymbol }}</span
+        >
+      </div>
+    </template>
+  </WalletInfoModal>
 </template>
 
 <script setup lang="ts">
@@ -34,13 +51,16 @@ import { DotsVerticalIcon } from "@heroicons/vue/outline";
 
 import HashLabel from "@/components/common/HashLabel.vue";
 
+import useAddress from "@/composables/useAddress";
 import useContext from "@/composables/useContext";
+import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
 import useLogin from "@/composables/useLogin";
-import { default as useWallet } from "@/composables/useWallet";
+import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
 
 const { t } = useI18n();
 const router = useRouter();
 const context = useContext();
+const { networks } = useEnvironmentConfig();
 const { logout } = useLogin(context);
 
 const { address, isConnectPending, isReady, isMetamaskInstalled, connect, disconnect } = useWallet({
@@ -53,6 +73,8 @@ const { address, isConnectPending, isReady, isMetamaskInstalled, connect, discon
   })),
 });
 
+const isWalletInfoModalOpen = ref(false);
+
 const displayAddress = computed(() => {
   if (context.user.value.loggedIn) {
     return context.user.value.address;
@@ -60,10 +82,54 @@ const displayAddress = computed(() => {
   return address.value;
 });
 
+const { item: accountData, getByAddress } = useAddress();
+const isAccountDataPendingLocally = ref(false);
+
+watch(isWalletInfoModalOpen, async (isOpen) => {
+  if (isOpen && displayAddress.value) {
+    isAccountDataPendingLocally.value = true;
+    try {
+      await getByAddress(displayAddress.value);
+    } finally {
+      isAccountDataPendingLocally.value = false;
+    }
+  } else if (!isOpen) {
+    accountData.value = null;
+  }
+});
+
+const accountBaseTokenInfo = computed(() => {
+  const balance = accountData.value?.balances?.[networks.value[0].baseTokenAddress]?.balance ?? 0;
+  const symbol = accountData.value?.balances?.[networks.value[0].baseTokenAddress]?.token?.symbol ?? "ETH";
+  return { accountBaseTokenBalance: balance, accountBaseTokenSymbol: symbol };
+});
+
+const openModal = () => {
+  if (displayAddress.value) {
+    isWalletInfoModalOpen.value = true;
+  }
+};
+
+// Wrapper for icon click, so it only opens modal if an address is already displayed
+const openModalConditionally = () => {
+  if (displayAddress.value) {
+    openModal();
+  }
+};
+
+const closeModal = () => {
+  isWalletInfoModalOpen.value = false;
+};
+
 const handleLogout = async () => {
   await logout();
   await disconnect();
   router.push("/login");
+};
+
+const handleLogoutAndCloseModal = async () => {
+  await handleLogout();
+  closeModal();
 };
 
 const buttonDisabled = computed(() => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value);
