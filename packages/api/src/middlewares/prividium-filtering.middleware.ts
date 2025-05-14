@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, InternalServerErrorException, NestMiddleware } from "@nestjs/common";
+import { ForbiddenException, Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 import { AddressService } from "../address/address.service";
 import { LogService } from "../log/log.service";
@@ -6,11 +6,17 @@ import { FilterTransactionsOptions } from "../transaction/transaction.service";
 
 const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
 
+const UNFILTERED_ROUTES = ["/auth", "/batches", "/blocks", "/health", "/ready", "/stats", "/tokens"];
+
 @Injectable()
 export class PrividiumFilteringMiddleware implements NestMiddleware {
   constructor(private readonly addressService: AddressService, private readonly logService: LogService) {}
 
   public async use(req: Request, res: Response, next: NextFunction) {
+    if (UNFILTERED_ROUTES.some((route) => req.path.startsWith(route))) {
+      return next();
+    }
+
     if (req.path.startsWith("/address")) {
       await this.filterAddressControllerRoutes(req);
       return next();
@@ -21,7 +27,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       return next();
     }
 
-    throw new InternalServerErrorException({ message: "Internal server error" });
+    throw new ForbiddenException({ message: "Access denied" });
   }
 
   private async filterAddressControllerRoutes(req: Request) {
@@ -32,14 +38,14 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 
     if (!reqAddress) {
-      throw new ForbiddenException({ message: "User does not have access to this address" });
+      throw new ForbiddenException({ message: "Access denied" });
     }
 
     if (!isContract) {
       if (reqAddress.toLowerCase() === userAddress.toLowerCase()) {
         return;
       }
-      throw new ForbiddenException({ message: "User does not have access to this address" });
+      throw new ForbiddenException({ message: "Access denied" });
     }
 
     // Check if user is owner of the contract
@@ -53,13 +59,13 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     });
     const newOwner = logs[0]?.topics[2];
     if (newOwner === undefined) {
-      throw new ForbiddenException({ message: "User does not have access to this address" });
+      throw new ForbiddenException({ message: "Access denied" });
     }
 
     // Parse from log topic (32 bytes) to address (20 bytes)
     const newOwnerAddress = `0x${newOwner.slice(64 + 2 - 40)}`;
     if (newOwnerAddress.toLowerCase() !== userAddress.toLowerCase()) {
-      throw new ForbiddenException({ message: "User does not have access to this address" });
+      throw new ForbiddenException({ message: "Access denied" });
     }
   }
 
