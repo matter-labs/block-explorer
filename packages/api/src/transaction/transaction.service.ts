@@ -89,11 +89,11 @@ export class TransactionService {
         }
       }
 
-      const addressTransactionSubQuery = this.addressTransactionRepository
-        .createQueryBuilder("sub1_addressTransaction")
-        .select("sub1_addressTransaction.transactionHash")
-        .innerJoin("sub1_addressTransaction.transaction", "sub1_transaction")
-        .where("sub1_addressTransaction.address = :address");
+      const addressTransactionSubQuery =
+        this.addressTransactionRepository.createQueryBuilder("sub1_addressTransaction");
+      addressTransactionSubQuery.select("sub1_addressTransaction.transactionHash");
+      addressTransactionSubQuery.innerJoin("sub1_addressTransaction.transaction", "sub1_transaction");
+      addressTransactionSubQuery.where("sub1_addressTransaction.address = :address");
 
       if (filterOptions.blockNumber !== undefined) {
         addressTransactionSubQuery.andWhere("sub1_transaction.blockNumber = :blockNumber");
@@ -106,10 +106,9 @@ export class TransactionService {
       }
 
       if (filterOptions.filterAddressInLogTopics) {
-        const logSubQuery = this.logRepository
-          .createQueryBuilder("sub2_log")
-          .select("sub2_log.transactionHash")
-          .innerJoin("sub2_log.transaction", "sub2_transaction");
+        const logSubQuery = this.logRepository.createQueryBuilder("sub2_log");
+        logSubQuery.select("sub2_log.transactionHash");
+        logSubQuery.innerJoin("sub2_log.transaction", "sub2_transaction");
 
         logSubQuery.where(
           new Brackets((qb) => {

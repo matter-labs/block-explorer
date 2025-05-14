@@ -11,6 +11,7 @@ import { Transfer } from "../transfer/transfer.entity";
 import { Log } from "../log/log.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
+import { Response } from "express";
 
 jest.mock("../common/utils", () => ({
   buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
@@ -72,7 +73,8 @@ describe("TransactionController", () => {
     });
 
     it("queries transactions with the specified options", async () => {
-      await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions);
+      const response = mock<Response>();
+      await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, response);
       expect(serviceMock.findAll).toHaveBeenCalledTimes(1);
       expect(serviceMock.findAll).toHaveBeenCalledWith(
         {
@@ -88,7 +90,13 @@ describe("TransactionController", () => {
     });
 
     it("returns the transactions", async () => {
-      const result = await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions);
+      const response = mock<Response>();
+      const result = await controller.getTransactions(
+        filterTransactionsOptions,
+        listFilterOptions,
+        pagingOptions,
+        response
+      );
       expect(result).toBe(transactions);
     });
   });
