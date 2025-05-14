@@ -178,7 +178,9 @@ export default (context = useContext()) => {
 
     try {
       const [txResponse, txTransfers, txLogs] = await Promise.all([
-        $fetch<Api.Response.Transaction>(`${context.currentNetwork.value.apiUrl}/transactions/${hash}`),
+        $fetch<Api.Response.Transaction>(`${context.currentNetwork.value.apiUrl}/transactions/${hash}`, {
+          credentials: "include",
+        }),
         all<Api.Response.Transfer>(
           new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/transfers?limit=100`)
         ),
@@ -322,7 +324,9 @@ async function all<T>(url: URL): Promise<T[]> {
   url.searchParams.set("limit", limit.toString());
   for (let page = 1; page < 100; page++) {
     url.searchParams.set("page", page.toString());
-    const response = await $fetch<Api.Response.Collection<T>>(url.toString());
+    const response = await $fetch<Api.Response.Collection<T>>(url.toString(), {
+      credentials: "include",
+    });
 
     if (!response.items.length) {
       break;
