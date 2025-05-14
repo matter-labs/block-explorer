@@ -20,16 +20,12 @@
     @disconnect="handleLogoutAndCloseModal"
   >
     <template #balance>
-      <div v-if="isAccountDataPendingLocally" class="balance-loading">
-        {{ t("walletInfoModal.loadingBalance") }}
-      </div>
-      <div v-else-if="accountEthBalance && ethTokenForDisplay">
-        <TokenAmountPrice :token="ethTokenForDisplay" :amount="accountEthBalance" />
-      </div>
+      <div v-if="isAccountDataPendingLocally">Loading...</div>
       <div v-else>
-        {{ t("walletInfoModal.noEthBalance") }}
+        <span
+          >{{ accountBaseTokenInfo.accountBaseTokenBalance }} {{ accountBaseTokenInfo.accountBaseTokenSymbol }}</span
+        >
       </div>
-      <!-- We can iterate through accountData?.balances for other tokens here if needed -->
     </template>
   </WalletInfoModal>
 </template>
@@ -41,22 +37,19 @@ import { useRouter } from "vue-router";
 
 import { DotsVerticalIcon } from "@heroicons/vue/outline";
 
-import TokenAmountPrice from "@/components/TokenAmountPrice.vue";
 import HashLabel from "@/components/common/HashLabel.vue";
 import WalletInfoModal from "@/components/modals/WalletInfoModal.vue";
 
-import useAddress, { type Account } from "@/composables/useAddress";
+import useAddress from "@/composables/useAddress";
 import useContext from "@/composables/useContext";
+import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
 import useLogin from "@/composables/useLogin";
 import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
-
-import type { Token } from "@/composables/useToken";
-
-import { BASE_TOKEN_L2_ADDRESS } from "@/utils/constants";
 
 const { t } = useI18n();
 const router = useRouter();
 const context = useContext();
+const { networks } = useEnvironmentConfig();
 const { logout } = useLogin(context);
 
 const {
@@ -76,11 +69,7 @@ const {
   })),
 });
 
-const { item: accountData, isRequestPending: accDataPending, getByAddress } = useAddress();
-
 const isWalletInfoModalOpen = ref(false);
-// To avoid showing stale data briefly if modal is closed and reopened quickly
-const isAccountDataPendingLocally = ref(false);
 
 const displayAddress = computed(() => {
   if (context.user.value.loggedIn && context.user.value.address) {
@@ -90,6 +79,28 @@ const displayAddress = computed(() => {
     return address.value;
   }
   return null;
+});
+
+const { item: accountData, getByAddress } = useAddress();
+const isAccountDataPendingLocally = ref(false);
+
+watch(isWalletInfoModalOpen, async (isOpen) => {
+  if (isOpen && displayAddress.value) {
+    isAccountDataPendingLocally.value = true;
+    try {
+      await getByAddress(displayAddress.value);
+    } finally {
+      isAccountDataPendingLocally.value = false;
+    }
+  } else if (!isOpen) {
+    accountData.value = null;
+  }
+});
+
+const accountBaseTokenInfo = computed(() => {
+  const balance = accountData.value?.balances?.[networks.value[0].baseTokenAddress]?.balance ?? 0;
+  const symbol = accountData.value?.balances?.[networks.value[0].baseTokenAddress]?.token?.symbol ?? "ETH";
+  return { accountBaseTokenBalance: balance, accountBaseTokenSymbol: symbol };
 });
 
 const openModal = () => {
@@ -103,7 +114,6 @@ const openModalConditionally = () => {
   if (displayAddress.value) {
     openModal();
   }
-  // If no address, clicking the icon does nothing, like the main button area
 };
 
 const closeModal = () => {
@@ -120,53 +130,6 @@ const handleLogoutAndCloseModal = async () => {
   await handleLogout();
   closeModal();
 };
-
-watch(isWalletInfoModalOpen, async (isOpen) => {
-  if (isOpen && displayAddress.value) {
-    isAccountDataPendingLocally.value = true;
-    // Use accDataPending from useAddress to track loading state
-    // and ensure accountData is properly typed before accessing it.
-    try {
-      await getByAddress(displayAddress.value);
-    } finally {
-      isAccountDataPendingLocally.value = false;
-    }
-  } else if (!isOpen) {
-    // Reset account data when modal is closed to ensure fresh data next time
-    accountData.value = null;
-  }
-});
-
-const accountEthBalance = computed(() => {
-  const currentAccountData = accountData.value as Account | null; // Ensure type
-  if (currentAccountData?.balances && currentAccountData.balances[BASE_TOKEN_L2_ADDRESS]) {
-    return currentAccountData.balances[BASE_TOKEN_L2_ADDRESS].balance;
-  }
-  return null;
-});
-
-const ethTokenForDisplay = computed((): Token | undefined => {
-  const currentAccountData = accountData.value as Account | null; // Ensure type
-  const balances = currentAccountData?.balances;
-  if (balances && balances[BASE_TOKEN_L2_ADDRESS]?.token) {
-    return balances[BASE_TOKEN_L2_ADDRESS].token;
-  }
-  // TODO
-  // Fallback to a generic ETH token structure if not in balances but is the base token
-  if (context.currentNetwork.value.baseTokenAddress === BASE_TOKEN_L2_ADDRESS) {
-    return {
-      l1Address: "",
-      l2Address: BASE_TOKEN_L2_ADDRESS,
-      name: "Ether",
-      symbol: "ETH",
-      decimals: 18,
-      usdPrice: null,
-      liquidity: null,
-      iconURL: "/images/eth.svg",
-    } as Token;
-  }
-  return undefined;
-});
 
 const buttonDisabled = computed(() => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value);
 const buttonText = computed(() => {
