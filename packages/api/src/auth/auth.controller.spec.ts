@@ -4,13 +4,27 @@ import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { BadRequestException, HttpException, UnprocessableEntityException } from "@nestjs/common";
 import { calculateSiwe } from "../../test/utils/siwe-message-tools";
+import { ConfigService } from "@nestjs/config";
 
 describe("AuthController", () => {
   let controller: AuthController;
   let req: Request;
+  let configServiceMock: ConfigService;
 
   beforeEach(() => {
-    controller = new AuthController();
+    configServiceMock = mock<ConfigService>({
+      get: jest.fn().mockImplementation((key: string) => {
+        switch (key) {
+          case "NODE_ENV":
+            return "production";
+          case "appHostname":
+            return "blockexplorer.com";
+          default:
+            return undefined;
+        }
+      }),
+    });
+    controller = new AuthController(configServiceMock);
     req = mock<Request>();
   });
 
@@ -62,7 +76,17 @@ describe("AuthController", () => {
         nonce: nonce,
       };
 
-      const { msg, signature, address, siwe: originalSiwe } = await calculateSiwe(nonce, privateKey);
+      const {
+        msg,
+        signature,
+        address,
+        siwe: originalSiwe,
+      } = await calculateSiwe({
+        nonce,
+        privateKey,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
 
       body.message = msg;
       body.signature = signature;
@@ -74,6 +98,7 @@ describe("AuthController", () => {
       expect(req.session.siwe.uri).toBe(originalSiwe.uri);
       expect(req.session.siwe.chainId).toBe(originalSiwe.chainId);
       expect(req.session.siwe.domain).toBe(originalSiwe.domain);
+      expect(req.session.siwe.scheme).toBe(originalSiwe.scheme);
     });
 
     it("throws error and set session to null when a nonce does not match", async () => {
@@ -83,7 +108,7 @@ describe("AuthController", () => {
         nonce: nonce,
       };
 
-      const { msg, signature } = await calculateSiwe(nonce, privateKey);
+      const { msg, signature } = await calculateSiwe({ nonce, privateKey });
 
       body.message = msg.replace(nonce, "falsenonce");
       body.signature = signature;
@@ -115,7 +140,7 @@ describe("AuthController", () => {
         nonce: nonce,
       };
 
-      const { msg, signature } = await calculateSiwe(nonce, privateKey);
+      const { msg, signature } = await calculateSiwe({ nonce, privateKey });
       const badSig = Buffer.from(signature.replace("0x", ""), "hex");
       badSig[badSig.length - 1] = ~badSig[badSig.length - 1] & 0xff; // change 1 byte
 
@@ -135,7 +160,7 @@ describe("AuthController", () => {
 
       const expiresAt = new Date();
       expiresAt.setFullYear(expiresAt.getFullYear() - 1); // One year ago;
-      const { msg, signature } = await calculateSiwe(nonce, privateKey, expiresAt);
+      const { msg, signature } = await calculateSiwe({ nonce, privateKey, expiresAt });
 
       body.message = msg;
       body.signature = signature;
@@ -160,7 +185,7 @@ describe("AuthController", () => {
     it("returns address stored in session", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      const { siwe, address } = await calculateSiwe(nonce, privateKey);
+      const { siwe, address } = await calculateSiwe({ nonce, privateKey });
       req.session.siwe = siwe;
       const res = await controller.me(req);
       expect(res).toEqual({ address });
