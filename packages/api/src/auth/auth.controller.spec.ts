@@ -2,7 +2,47 @@ import { AuthController } from "./auth.controller";
 import { mock } from "jest-mock-extended";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException, HttpException, UnprocessableEntityException } from "@nestjs/common";
+import { privateKeyToAccount } from "viem/accounts";
+import { bytesToHex, Hex } from "viem";
+import { SiweMessage } from "siwe";
+
+type CalculatedSiwe = {
+  msg: string;
+  signature: Hex;
+  siwe: SiweMessage;
+  address: Hex;
+};
+
+async function calculateSiwe(nonce: string, privateKey: Hex, expiresAt: null | Date = null): Promise<CalculatedSiwe> {
+  // Create account from private key
+  const account = privateKeyToAccount(privateKey as Hex);
+
+  // Create SIWE message
+  const message = new SiweMessage({
+    domain: "localhost",
+    address: account.address,
+    statement: "Sign in with Ethereum",
+    uri: "http://localhost:3000",
+    version: "1",
+    chainId: 1,
+    nonce,
+  });
+
+  if (expiresAt !== null) {
+    message.expirationTime = expiresAt.toISOString();
+  }
+
+  // Create message string and sign it
+  const messageString = message.prepareMessage();
+  const signature = await account.signMessage({ message: messageString });
+  return {
+    msg: messageString,
+    signature,
+    siwe: message,
+    address: account.address,
+  };
+}
 
 describe("AuthController", () => {
   let controller: AuthController;
@@ -55,30 +95,92 @@ describe("AuthController", () => {
     });
 
     it("returns true when a correctly signed message is send", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
       req.session = {
-        nonce: "8r2cXq20yD3l5bomR",
+        nonce: nonce,
       };
-      body.message =
-        "localhost wants you to sign in with your Ethereum account:\n0x36Ea1B6673eA6269014D6cA0AdCca6598f618319\n\nSign in with Ethereum\n\nURI: http://localhost:3000\nVersion: 1\nChain ID: 1\nNonce: 8r2cXq20yD3l5bomR\nIssued At: 2025-05-15T00:07:06.055Z";
-      body.signature =
-        "0xc8db1d7c3e28fc25444fb1365457213f5026039905d20ff45651d2227fadd87d7fc3378d7e8cd8a9e072b649844e2082bb145f38b6ff2e5e987f8c1ff9d4a7361c";
+
+      const { msg, signature } = await calculateSiwe(nonce, privateKey);
+
+      body.message = msg;
+      body.signature = signature;
 
       const res = await controller.verifySignature(body, req);
       expect(res).toBe(true);
       expect(req.session.siwe).not.toBe(undefined);
     });
 
-    it("returns false and set session to null when a signature cannot be verified", async () => {
+    it("throws error and set session to null when a nonce does not match", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
       req.session = {
-        nonce: "8r2cXq20yD3l5bomR",
+        nonce: nonce,
       };
-      body.message =
-        "localhost wants you to sign in with your Ethereum account:\n0x36Ea1B6673eA6269014D6cA0AdCca6598f618319\n\nSign in with Ethereum\n\nURI: http://localhost:3000\nVersion: 1\nChain ID: 1\nNonce: 8r2cXq20yD3l5bomR\nIssued At: 2025-05-15T00:07:06.055Z";
-      body.signature =
-        "0xc8db1d7c3e28fc25444fb1365457213f5026039905d20ff45651d2227fadd87d7fc3378d7e8cd8a9e072b649844e2082bb145f38b6ff2e5e987f8c1ff9d4a7361b";
+
+      const { msg, signature } = await calculateSiwe(nonce, privateKey);
+
+      body.message = msg.replace(nonce, "falsenonce");
+      body.signature = signature;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(BadRequestException);
       expect(req.session).toBe(null);
+    });
+
+    it("throws error and set session to null when a signature cannot be verified", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+      req.session = {
+        nonce: nonce,
+      };
+
+      const { msg } = await calculateSiwe(nonce, privateKey);
+
+      body.message = msg;
+      body.signature = bytesToHex(Buffer.alloc(64).fill(0));
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(UnprocessableEntityException);
+      expect(req.session).toBe(null);
+    });
+
+    it("throws error and set session to null when message is expired", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+      req.session = {
+        nonce: nonce,
+      };
+
+      const expiresAt = new Date();
+      expiresAt.setFullYear(expiresAt.getFullYear() - 1); // One year ago;
+      const { msg, signature } = await calculateSiwe(nonce, privateKey, expiresAt);
+
+      body.message = msg;
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(HttpException);
+      expect(req.session).toBe(null);
+    });
+  });
+
+  describe("logout", () => {
+    it("sets session to null", () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      req.session = {
+        nonce: nonce,
+      };
+      controller.logout(req);
+      expect(req.session).toEqual(null);
+    });
+  });
+
+  describe("me", () => {
+    it("returns address stored in session", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+      const { siwe, address } = await calculateSiwe(nonce, privateKey);
+      req.session.siwe = siwe;
+      const res = await controller.me(req);
+      expect(res).toEqual({ address });
     });
   });
 });
