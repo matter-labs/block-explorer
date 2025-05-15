@@ -39,7 +39,7 @@ async function bootstrap() {
     SwaggerModule.setup("docs", app, document);
   }
 
-  if (disablePrividium) {
+  if (!disablePrividium) {
     applyPrividiumExpressConfig(app);
   }
 
