@@ -5,21 +5,7 @@
       {{ buttonText }}
     </button>
     <template v-else>
-      <HashLabel class="address-text" placement="left" :text="displayAddress" />
-      <div class="dropdown-container">
-        <Listbox>
-          <ListboxButton class="dropdown-button">
-            <DotsVerticalIcon class="h-5 w-5" />
-          </ListboxButton>
-          <ListboxOptions class="dropdown-options">
-            <ListboxOption>
-              <button class="logout-button" type="button" @click="handleLogout">
-                {{ t("connectMetamaskButton.logout") }}
-              </button>
-            </ListboxOption>
-          </ListboxOptions>
-        </Listbox>
-      </div>
+      <HashLabel class="address-text" placement="left" :text="shortenedAddress" @click="openModal" />
     </template>
   </div>
   <WalletInfoModal
@@ -27,6 +13,8 @@
     :opened="isWalletInfoModalOpen"
     :address="displayAddress"
     :networkName="context.currentNetwork.value.l2NetworkName"
+    :networkChainId="context.currentNetwork.value.l2ChainId"
+    :isWrongNetwork="isWrongNetwork"
     @close="closeModal"
     @disconnect="handleLogoutAndCloseModal"
   >
@@ -46,9 +34,6 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from "@headlessui/vue";
-import { DotsVerticalIcon } from "@heroicons/vue/outline";
-
 import HashLabel from "@/components/common/HashLabel.vue";
 
 import useAddress from "@/composables/useAddress";
@@ -63,7 +48,15 @@ const context = useContext();
 const { networks } = useEnvironmentConfig();
 const { logout } = useLogin(context);
 
-const { address, isConnectPending, isReady, isMetamaskInstalled, connect, disconnect } = useWallet({
+const {
+  address,
+  isConnectPending,
+  isReady,
+  isMetamaskInstalled,
+  connect,
+  disconnect: walletDisconnect,
+  getEthereumProvider,
+} = useWallet({
   ...context,
   currentNetwork: computed(() => ({
     explorerUrl: context.currentNetwork.value.rpcUrl,
@@ -84,6 +77,35 @@ const displayAddress = computed(() => {
 
 const { item: accountData, getByAddress } = useAddress();
 const isAccountDataPendingLocally = ref(false);
+
+const currentChainId = ref<string | null>(null);
+
+const updateChainId = async () => {
+  const provider = await getEthereumProvider();
+  if (provider) {
+    currentChainId.value = provider.chainId;
+  }
+};
+
+watch(
+  () => address.value,
+  async () => {
+    if (address.value) {
+      await updateChainId();
+    } else {
+      currentChainId.value = null;
+    }
+  }
+);
+
+if (address.value) {
+  updateChainId();
+}
+
+const isWrongNetwork = computed(() => {
+  if (!currentChainId.value) return false;
+  return currentChainId.value !== `0x${context.currentNetwork.value.l2ChainId.toString(16)}`;
+});
 
 watch(isWalletInfoModalOpen, async (isOpen) => {
   if (isOpen && displayAddress.value) {
@@ -110,7 +132,6 @@ const openModal = () => {
   }
 };
 
-// Wrapper for icon click, so it only opens modal if an address is already displayed
 const openModalConditionally = () => {
   if (displayAddress.value) {
     openModal();
@@ -142,11 +163,16 @@ const buttonText = computed(() => {
   }
   return t("connectMetamaskButton.label");
 });
+
+const shortenedAddress = computed(() => {
+  if (!displayAddress.value) return "-";
+  return `${displayAddress.value.slice(0, 6)}...${displayAddress.value.slice(-4)}`;
+});
 </script>
 
 <style lang="scss">
 .metamask-button {
-  @apply relative flex w-max min-w-[200px] items-center rounded-md border border-primary-800 bg-primary-800 p-2 text-white;
+  @apply relative flex w-full min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
   &:not(.disabled) {
     @apply hover:cursor-pointer;
   }
@@ -157,7 +183,7 @@ const buttonText = computed(() => {
     @apply mr-2 h-4 w-4;
   }
   .address-text {
-    @apply flex flex-none font-sans text-base;
+    @apply flex font-sans font-medium text-sm leading-5 cursor-pointer items-center justify-center w-full;
   }
   .dropdown-container {
     @apply absolute right-2 top-1/2 -translate-y-1/2;

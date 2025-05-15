@@ -30,7 +30,7 @@
         </PopoverGroup>
         <div class="header-right-side">
           <div v-if="isPrividium">
-            <ConnectMetamaskButton class="metamask-button-container" />
+            <WalletStatusBar class="metamask-button-container" />
           </div>
           <div v-else>
             <NetworkSwitch />
@@ -110,7 +110,7 @@
             </div>
             <div class="mobile-network-switch-container">
               <div v-if="isPrividium">
-                <ConnectMetamaskButton class="metamask-button-container" />
+                <WalletStatusBar class="metamask-button-container" />
               </div>
               <div v-else>
                 <NetworkSwitch />
@@ -149,9 +149,9 @@ import { MenuIcon, XIcon } from "@heroicons/vue/outline";
 import LinksMobilePopover from "./LinksMobilePopover.vue";
 import LinksPopover from "./LinksPopover.vue";
 
-import ConnectMetamaskButton from "@/components/ConnectMetamaskButton.vue";
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
+import WalletStatusBar from "@/components/WalletStatusBar.vue";
 import DiscordIcon from "@/components/icons/DiscordIcon.vue";
 import HeroArrows from "@/components/icons/HeroArrows.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
