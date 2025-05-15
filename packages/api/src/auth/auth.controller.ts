@@ -22,6 +22,7 @@ import { swagger } from "../config/featureFlags";
 import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
+import { ConfigService } from "@nestjs/config";
 
 const entityName = "auth";
 
@@ -29,6 +30,8 @@ const entityName = "auth";
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class AuthController {
+  constructor(private readonly configService: ConfigService) {}
+
   @Get("nonce")
   @Header("Content-Type", "text/plain")
   @ApiOkResponse({
@@ -73,7 +76,15 @@ export class AuthController {
       data: message,
       success,
       error,
-    } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce }, { suppressExceptions: true });
+    } = await siweMessage.verify(
+      {
+        signature: body.signature,
+        nonce: req.session.nonce,
+        domain: this.configService.get("appHostname"),
+        scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
+      },
+      { suppressExceptions: true }
+    );
 
     if (!success) {
       req.session = null;
