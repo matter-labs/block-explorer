@@ -3,20 +3,23 @@ import { mock } from "jest-mock-extended";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { BadRequestException, HttpException, UnprocessableEntityException } from "@nestjs/common";
-import { privateKeyToAccount } from "viem/accounts";
-import { bytesToHex, Hex } from "viem";
+import { Wallet } from "zksync-ethers";
 import { SiweMessage } from "siwe";
 
 type CalculatedSiwe = {
   msg: string;
-  signature: Hex;
+  signature: string;
   siwe: SiweMessage;
-  address: Hex;
+  address: string;
 };
 
-async function calculateSiwe(nonce: string, privateKey: Hex, expiresAt: null | Date = null): Promise<CalculatedSiwe> {
+async function calculateSiwe(
+  nonce: string,
+  privateKey: string,
+  expiresAt: null | Date = null
+): Promise<CalculatedSiwe> {
   // Create account from private key
-  const account = privateKeyToAccount(privateKey as Hex);
+  const account = new Wallet(privateKey);
 
   // Create SIWE message
   const message = new SiweMessage({
@@ -35,7 +38,7 @@ async function calculateSiwe(nonce: string, privateKey: Hex, expiresAt: null | D
 
   // Create message string and sign it
   const messageString = message.prepareMessage();
-  const signature = await account.signMessage({ message: messageString });
+  const signature = await account.signMessage(messageString);
   return {
     msg: messageString,
     signature,
@@ -85,7 +88,7 @@ describe("AuthController", () => {
   });
 
   describe("verifySignature", () => {
-    let body;
+    let body: VerifySignatureDto;
     beforeEach(() => {
       body = new VerifySignatureDto();
     });
@@ -134,10 +137,12 @@ describe("AuthController", () => {
         nonce: nonce,
       };
 
-      const { msg } = await calculateSiwe(nonce, privateKey);
+      const { msg, signature } = await calculateSiwe(nonce, privateKey);
+      const badSig = Buffer.from(signature.replace("0x", ""), "hex");
+      badSig[badSig.length - 1] = ~badSig[badSig.length - 1] & 0xff; // change 1 byte
 
       body.message = msg;
-      body.signature = bytesToHex(Buffer.alloc(64).fill(0));
+      body.signature = `0x${badSig.toString("hex")}`;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(UnprocessableEntityException);
       expect(req.session).toBe(null);
