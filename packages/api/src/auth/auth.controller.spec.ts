@@ -140,7 +140,12 @@ describe("AuthController", () => {
         nonce: nonce,
       };
 
-      const { msg, signature } = await calculateSiwe({ nonce, privateKey });
+      const { msg, signature } = await calculateSiwe({
+        nonce,
+        privateKey,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
       const badSig = Buffer.from(signature.replace("0x", ""), "hex");
       badSig[badSig.length - 1] = ~badSig[badSig.length - 1] & 0xff; // change 1 byte
 
