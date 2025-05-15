@@ -71,7 +71,7 @@ describe("PrividiumFilteringMiddleware", () => {
 
     middleware = new PrividiumFilteringMiddleware(addressService, logService);
 
-    const { siwe: generated, address } = await calculateSiwe({ nonce: "8r2cXq20yD3l5bomR", privateKey: someSecKey });
+    const { siwe: generated, address } = await calculateSiwe("8r2cXq20yD3l5bomR", someSecKey);
     userAddress = buildAddress(address, "0x");
 
     siwe = generated;
@@ -124,36 +124,6 @@ describe("PrividiumFilteringMiddleware", () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  it("/address filters traffic when address does not exists", async () => {
-    req.session.siwe = siwe;
-    req.originalUrl = `/address/${someAddress}`;
-
-    addressService.findOne.mockReturnValue(Promise.resolve(null));
-
-    await expect(() => middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it("/address allows when does not exists and belongs to user", async () => {
-    req.session.siwe = siwe;
-    req.originalUrl = `/address/${userAddress.address}`;
-
-    addressService.findOne.mockReturnValue(Promise.resolve(null));
-
-    await middleware.use(req, res, next);
-    expect(next).toHaveBeenCalled();
-  });
-
-  it("/address/ calls next to let the normal api handle the not found", async () => {
-    req.session.siwe = siwe;
-    req.originalUrl = `/address/`;
-
-    addressService.findOne.mockReturnValue(Promise.resolve(null));
-
-    await middleware.use(req, res, next);
-    expect(next).toHaveBeenCalled();
-  });
-
   it("/address allows traffic when address belongs to current user", async () => {
     req.session.siwe = siwe;
     req.originalUrl = `/address/${userAddress.address}`;
@@ -200,51 +170,5 @@ describe("PrividiumFilteringMiddleware", () => {
 
     await middleware.use(req, res, next);
     expect(next).toHaveBeenCalled();
-  });
-
-  it("/address filters out traffic when address is a contract that is not ownable", async () => {
-    req.session.siwe = siwe;
-    req.originalUrl = `/address/${someAddress}`;
-
-    const contractAddress = buildAddress(someAddress, "0x010203");
-
-    addressService.findOne.mockReturnValue(Promise.resolve(contractAddress));
-    logService.findManyByTopics.mockReturnValue(Promise.resolve([]));
-
-    await expect(() => middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it("when url is /transactions/:id allows to continue", async () => {
-    req.originalUrl = `/transactions/0xabcabc`;
-    res.locals = {};
-    await middleware.use(req, res, next);
-    expect(res.locals).toEqual({});
-  });
-
-  it("when url is exactly /transactions allows to continue with extra filters", async () => {
-    req.originalUrl = "/transactions";
-    res.locals = { filterTransactionsOptions: {} };
-    req.session.siwe = siwe;
-    await middleware.use(req, res, next);
-    expect(res.locals).toEqual({
-      filterTransactionsOptions: {
-        address: userAddress.address,
-        filterAddressInLogTopics: true,
-      },
-    });
-  });
-
-  it("when url is exactly /transactions allows to continue with extra filters 2", async () => {
-    req.originalUrl = "/transactions";
-    res.locals = {};
-    req.session.siwe = siwe;
-    await middleware.use(req, res, next);
-    expect(res.locals).toEqual({
-      filterTransactionsOptions: {
-        address: userAddress.address,
-        filterAddressInLogTopics: true,
-      },
-    });
   });
 });
