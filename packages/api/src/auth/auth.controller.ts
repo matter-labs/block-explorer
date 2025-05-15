@@ -38,21 +38,9 @@ export class AuthController {
     description: "Message was returned successfully",
     schema: { type: "string" },
   })
-  public getMessage(@Req() req: Request, @Body() body: { address: string }): string {
-    const message = new SiweMessage({
-      domain: this.configService.get("appHostname"),
-      address: body.address,
-      statement: "Sign in to the Block Explorer",
-      uri: this.configService.get("appUrl"),
-      version: "1",
-      chainId: this.configService.get("prividium.chainId"),
-      nonce: generateNonce(),
-      scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
-      issuedAt: new Date().toISOString(),
-      expirationTime: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour
-    });
-    req.session.siwe = message;
-    return message.prepareMessage();
+  public getNonce(@Req() req: Request): string {
+    req.session.nonce = generateNonce();
+    return req.session.nonce;
   }
 
   @Post("verify")
@@ -121,6 +109,31 @@ export class AuthController {
   })
   public async logout(@Req() req: Request) {
     req.session = null;
+  }
+
+  @Post("token")
+  @Header("Content-Type", "application/json")
+  @ApiOkResponse({
+    description: "Token was returned successfully",
+    schema: {
+      type: "object",
+      properties: {
+        token: { type: "string" },
+        ok: { type: "boolean" },
+      },
+    },
+  })
+  public async token(@Req() req: Request) {
+    const response = await fetch(this.configService.get("prividiumPrivateRpcUrl"), {
+      method: "POST",
+      body: JSON.stringify({
+        address: req.session.siwe.address,
+        secret: this.configService.get("prividiumPrivateRpcSecret"),
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    return data;
   }
 
   @Get("me")
