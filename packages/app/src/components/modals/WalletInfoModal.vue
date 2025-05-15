@@ -49,9 +49,6 @@ import CopyButton from "@/components/common/CopyButton.vue";
 import HashLabel from "@/components/common/HashLabel.vue";
 import Popup from "@/components/common/Popup.vue";
 
-import useContext from "@/composables/useContext";
-import useWallet from "@/composables/useWallet";
-
 const props = defineProps({
   opened: {
     type: Boolean,
@@ -81,24 +78,9 @@ defineEmits<{
 }>();
 
 const { t } = useI18n();
-const context = useContext();
-
-const wallet = useWallet({
-  ...context,
-  currentNetwork: computed(() => ({
-    explorerUrl: context.currentNetwork.value.rpcUrl,
-    chainName: context.currentNetwork.value.l2NetworkName,
-    l1ChainId: null as unknown as number,
-    ...context.currentNetwork.value,
-  })),
-});
 
 const switchNetwork = async () => {
-  try {
-    await wallet.getL2Signer();
-  } catch (error) {
-    console.error("Failed to switch network:", error);
-  }
+  // TODO: Implement network switch
 };
 
 const formattedAddress = computed(() => {
