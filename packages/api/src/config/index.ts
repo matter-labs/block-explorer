@@ -93,8 +93,6 @@ export default () => {
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
     APP_HOSTNAME,
-    PRIVIDIUM_PRIVATE_RPC_URL,
-    PRIVIDIUM_PRIVATE_RPC_SECRET,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -168,6 +166,5 @@ export default () => {
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
     appHostname: APP_HOSTNAME,
-    prividium: getPrividiumConfig(),
   };
 };
