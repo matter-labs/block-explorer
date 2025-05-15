@@ -38,7 +38,7 @@ export class AuthController {
     description: "Message was returned successfully",
     schema: { type: "string" },
   })
-  public async getNonce(@Req() req: Request): Promise<string> {
+  public getNonce(@Req() req: Request): string {
     req.session.nonce = generateNonce();
     return req.session.nonce;
   }
@@ -109,6 +109,31 @@ export class AuthController {
   })
   public async logout(@Req() req: Request) {
     req.session = null;
+  }
+
+  @Post("token")
+  @Header("Content-Type", "application/json")
+  @ApiOkResponse({
+    description: "Token was returned successfully",
+    schema: {
+      type: "object",
+      properties: {
+        token: { type: "string" },
+        ok: { type: "boolean" },
+      },
+    },
+  })
+  public async token(@Req() req: Request) {
+    const response = await fetch(this.configService.get("prividiumPrivateRpcUrl"), {
+      method: "POST",
+      body: JSON.stringify({
+        address: req.session.siwe.address,
+        secret: this.configService.get("prividiumPrivateRpcSecret"),
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    return data;
   }
 
   @Get("me")
