@@ -6,12 +6,19 @@
           <XIcon class="h-6 w-6" />
         </button>
         <span class="your-wallet-title">{{ t("walletInfoModal.yourWalletTitle") }}</span>
-
         <div class="address-container">
           <span class="address-group">
             <HashLabel :text="formattedAddress" class="address-display" />
             <CopyButton :value="address" class="address-copy-button" />
           </span>
+        </div>
+
+        <div v-if="props.isWrongNetwork" class="network-mismatch-banner-ui">
+          <div class="flex items-center w-full">
+            <ExclamationCircleIcon class="h-6 w-6 mr-2 text-black" />
+            <span class="text-lg text-black flex-1"> Your wallet activated incorrect network </span>
+          </div>
+          <button class="switch-network-ui-btn" @click="switchNetwork">Switch to Prividium</button>
         </div>
 
         <div class="info-row">
@@ -24,7 +31,7 @@
           </div>
         </div>
 
-        <button type="button" class="disconnect-button" @click="$emit('disconnect')">
+        <button type="button" class="disconnect-ui-btn" @click="$emit('disconnect')">
           {{ t("walletInfoModal.disconnectButton") }}
         </button>
       </div>
@@ -36,11 +43,14 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { XIcon } from "@heroicons/vue/outline";
+import { ExclamationCircleIcon, XIcon } from "@heroicons/vue/outline";
 
 import CopyButton from "@/components/common/CopyButton.vue";
 import HashLabel from "@/components/common/HashLabel.vue";
 import Popup from "@/components/common/Popup.vue";
+
+import useContext from "@/composables/useContext";
+import useWallet from "@/composables/useWallet";
 
 const props = defineProps({
   opened: {
@@ -55,6 +65,14 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  networkChainId: {
+    type: Number,
+    required: true,
+  },
+  isWrongNetwork: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 defineEmits<{
@@ -63,6 +81,25 @@ defineEmits<{
 }>();
 
 const { t } = useI18n();
+const context = useContext();
+
+const wallet = useWallet({
+  ...context,
+  currentNetwork: computed(() => ({
+    explorerUrl: context.currentNetwork.value.rpcUrl,
+    chainName: context.currentNetwork.value.l2NetworkName,
+    l1ChainId: null as unknown as number,
+    ...context.currentNetwork.value,
+  })),
+});
+
+const switchNetwork = async () => {
+  try {
+    await wallet.getL2Signer();
+  } catch (error) {
+    console.error("Failed to switch network:", error);
+  }
+};
 
 const formattedAddress = computed(() => {
   if (props.address && props.address.length > 10) {
@@ -73,81 +110,69 @@ const formattedAddress = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.wallet-info-modal-container {
-  // This outer container helps with the fixed positioning of the popup content if needed
-  // Popup.vue already handles centering, so we mainly focus on inner styling.
-}
-
 .wallet-info-modal {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 32px 24px 24px;
-  gap: 30px;
+  gap: 10px;
   isolation: isolate;
-  width: 400px;
+  width: 600px;
   min-height: 252px;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
   position: relative;
+  text-align: center;
 
   .close-button-icon {
     @apply absolute top-6 right-6 text-neutral-700 hover:text-neutral-900;
   }
 
   .your-wallet-title {
-    @apply font-sans font-medium text-sm leading-5 tracking-tight text-neutral-500;
+    @apply font-sans font-medium text-lg leading-6 tracking-tight text-neutral-500 text-center;
+    margin-bottom: 0.5rem;
   }
 
   .address-container {
-    @apply w-full text-center -mt-6;
-
+    @apply w-full text-center;
+    margin-top: 0;
     .address-group {
-      @apply inline-flex items-baseline gap-x-1.5; // Changed items-center to items-baseline
-
+      @apply inline-flex items-baseline gap-x-1.5;
       .address-display {
-        // No longer needs inline-block, styles target inner text
         :deep(span.displayed-string) {
-          @apply font-sans font-medium text-xl leading-8 tracking-tight text-black;
+          @apply font-sans text-3xl leading-8 tracking-tight text-black;
         }
         :deep(span.actual-string) {
           @apply hidden;
         }
       }
       .address-copy-button {
-        @apply w-5 h-5 text-neutral-500 hover:text-neutral-700; // Removed relative -top-px
+        @apply w-6 h-6 text-neutral-500 hover:text-neutral-700;
       }
     }
   }
 
   .info-row {
-    @apply flex w-full items-center;
-
-    .balance-info,
-    .network-info {
-      @apply flex-1 font-sans font-medium text-sm leading-5 tracking-tight text-neutral-700 text-center;
-    }
-
-    .balance-info {
-    }
-
-    .network-info {
-      span {
-        @apply text-neutral-600;
-      }
-    }
-    .separator {
-      @apply h-5 w-px bg-black/[.10] mx-3;
-    }
+    display: none;
   }
+}
 
-  .disconnect-button {
-    @apply w-full bg-black/[.10] hover:bg-black/[.15] text-black font-medium text-[14px] py-3 px-4 rounded-[8px];
-    border: none;
-    cursor: pointer;
-    outline: none;
-  }
+.network-mismatch-banner-ui {
+  @apply w-full flex flex-col items-center justify-center text-center rounded-2xl px-6 py-5 mb-0 mt-10;
+  background: #ffc81a;
+}
+.switch-network-ui-btn,
+.disconnect-ui-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.switch-network-ui-btn {
+  @apply w-full mt-4 bg-[#23234C] text-white text-lg rounded-xl py-3 transition hover:bg-[#1a1a3a];
+}
+.disconnect-ui-btn {
+  @apply w-full mt-4 bg-neutral-200 text-black text-lg rounded-xl py-3;
 }
 </style>
