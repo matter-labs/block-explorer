@@ -68,7 +68,7 @@ export class AuthController {
       throw new BadRequestException({ message: "Nonce must be requested first" });
     }
 
-    const siweMessage = new SiweMessage(body.message);
+    const siweMessage = this.buildSiweMessage(body.message);
     const {
       data: message,
       success,
@@ -108,5 +108,13 @@ export class AuthController {
   })
   public async me(@Req() req: Request) {
     return { address: req.session.siwe.address };
+  }
+
+  private buildSiweMessage(msg: string): SiweMessage {
+    try {
+      return new SiweMessage(msg);
+    } catch (_e) {
+      throw new BadRequestException({ message: "Failed to verify signature" });
+    }
   }
 }
