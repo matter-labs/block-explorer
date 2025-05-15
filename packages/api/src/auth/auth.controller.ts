@@ -19,7 +19,7 @@ import {
   ApiNoContentResponse,
 } from "@nestjs/swagger";
 import { swagger } from "../config/featureFlags";
-import { generateNonce, SiweError, SiweErrorType, SiweMessage } from "siwe";
+import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 
@@ -68,25 +68,27 @@ export class AuthController {
       throw new BadRequestException({ message: "Nonce must be requested first" });
     }
 
-    try {
-      const siweMessage = new SiweMessage(body.message);
-      const { data: message } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce });
-      req.session.siwe = message;
-      return true;
-    } catch (err) {
+    const siweMessage = this.buildSiweMessage(body.message);
+    const {
+      data: message,
+      success,
+      error,
+    } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce }, { suppressExceptions: true });
+
+    if (!success) {
       req.session = null;
-
-      if (err instanceof SiweError) {
-        switch (err.type) {
-          case SiweErrorType.EXPIRED_MESSAGE:
-            throw new HttpException({ message: err.type }, 440);
-          case SiweErrorType.INVALID_SIGNATURE:
-            throw new UnprocessableEntityException({ message: err.type });
-        }
+      switch (error.type) {
+        case SiweErrorType.EXPIRED_MESSAGE:
+          throw new HttpException({ message: error.type }, 440);
+        case SiweErrorType.INVALID_SIGNATURE:
+          throw new UnprocessableEntityException({ message: error.type });
+        default:
+          throw new BadRequestException({ message: "Failed to verify signature" });
       }
-
-      throw new BadRequestException({ message: "Failed to verify signature" });
     }
+
+    req.session.siwe = message;
+    return true;
   }
 
   @Post("logout")
@@ -106,5 +108,13 @@ export class AuthController {
   })
   public async me(@Req() req: Request) {
     return { address: req.session.siwe.address };
+  }
+
+  private buildSiweMessage(msg: string): SiweMessage {
+    try {
+      return new SiweMessage(msg);
+    } catch (_e) {
+      throw new BadRequestException({ message: "Failed to verify signature" });
+    }
   }
 }

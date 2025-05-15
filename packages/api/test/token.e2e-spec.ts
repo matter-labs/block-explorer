@@ -23,7 +23,7 @@ describe("TokenController (e2e)", () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.build()],
     }).compile();
     ETH_TOKEN = baseToken;
     app = moduleFixture.createNestApplication({ logger: false });

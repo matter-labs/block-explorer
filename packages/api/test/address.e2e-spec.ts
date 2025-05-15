@@ -37,7 +37,7 @@ describe("AddressController (e2e)", () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.build()],
     }).compile();
 
     app = moduleFixture.createNestApplication({ logger: false });
