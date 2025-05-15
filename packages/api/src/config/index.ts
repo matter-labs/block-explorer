@@ -92,6 +92,7 @@ export default () => {
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
+    APP_HOSTNAME,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -157,5 +158,6 @@ export default () => {
     baseToken: getBaseToken(),
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
+    appHostname: APP_HOSTNAME,
   };
 };
