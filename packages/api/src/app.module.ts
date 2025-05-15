@@ -26,8 +26,11 @@ import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
 import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
 
-const IS_PRIVIDIUM_TOKEN = "IS_PRIVIDIUM";
-type IsPrividium = { isPrividium: boolean };
+const DISABLE_PRIVIDIUM_TOKEN = "DISABLE_PRIVIDIUM";
+
+interface AppModuleConfig {
+  disablePrividium: boolean;
+}
 
 @Module({
   imports: [
@@ -51,39 +54,39 @@ type IsPrividium = { isPrividium: boolean };
   providers: [Logger, ...metricProviders, DbMetricsService],
 })
 export class AppModule implements NestModule {
-  private isPrividium: boolean;
+  private disablePrividium: boolean;
 
-  constructor(@Inject(IS_PRIVIDIUM_TOKEN) config: IsPrividium) {
-    this.isPrividium = config.isPrividium;
+  constructor(@Inject(DISABLE_PRIVIDIUM_TOKEN) config: AppModuleConfig) {
+    this.disablePrividium = config.disablePrividium;
   }
 
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
-    if (this.isPrividium) {
+    if (!this.disablePrividium) {
       applyPrividiumMiddlewares(consumer);
     }
   }
 
   // Factory method to be able to include or exclude Prividium modules
-  static build(isPrividium = false): DynamicModule {
+  static build({ disablePrividium }: AppModuleConfig): DynamicModule {
     // Notice that values in DynamicModules extend the base module instead of override,
     // as explained here: https://docs.nestjs.com/modules#dynamic-modules
     return {
       module: AppModule,
       providers: [
         {
-          provide: IS_PRIVIDIUM_TOKEN,
-          useValue: { isPrividium },
+          provide: DISABLE_PRIVIDIUM_TOKEN,
+          useValue: { disablePrividium },
         },
       ],
       imports: [
         /// Only enable prividium modules for prividium chains
-        ...(isPrividium ? PRIVIDIUM_MODULES : []),
+        ...(disablePrividium ? [] : PRIVIDIUM_MODULES),
         // TMP: disable API modules in Prividium mode until defined how to handle API authentication
-        ...(isPrividium ? [] : [ApiModule, ApiContractModule]),
+        ...(disablePrividium ? [ApiModule, ApiContractModule] : []),
         /// TMP: disable external API until release
-        ...(disableExternalAPI || isPrividium
+        ...(disableExternalAPI || !disablePrividium
           ? []
           : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
       ],
