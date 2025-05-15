@@ -84,7 +84,7 @@ export class AuthController {
       throw new BadRequestException({ message: "Message must be requested first" });
     }
 
-    const siweMessage = new SiweMessage(body.message);
+    const siweMessage = this.buildSiweMessage(body.message);
     const {
       data: message,
       success,
@@ -126,17 +126,11 @@ export class AuthController {
     return { address: req.session.siwe.address };
   }
 
-  private validatePrivateRpcResponse(response: unknown) {
-    const schema = z.object({
-      ok: z.literal(true),
-      token: z.string().min(1),
-    });
-
-    const result = schema.safeParse(response);
-    if (!result.success) {
-      throw new BadRequestException({ message: "Failed to generate token" });
+  private buildSiweMessage(msg: string): SiweMessage {
+    try {
+      return new SiweMessage(msg);
+    } catch (_e) {
+      throw new BadRequestException({ message: "Failed to verify signature" });
     }
-
-    return result.data;
   }
 }
