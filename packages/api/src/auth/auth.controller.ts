@@ -68,25 +68,27 @@ export class AuthController {
       throw new BadRequestException({ message: "Message must be requested first" });
     }
 
-    try {
-      const siweMessage = new SiweMessage(body.message);
-      const { data: message } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce });
-      req.session.siwe = message;
-      return true;
-    } catch (err) {
+    const siweMessage = new SiweMessage(body.message);
+    const {
+      data: message,
+      success,
+      error,
+    } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce }, { suppressExceptions: true });
+
+    if (!success) {
       req.session = null;
-
-      if (err instanceof SiweError) {
-        switch (err.type) {
-          case SiweErrorType.EXPIRED_MESSAGE:
-            throw new HttpException({ message: err.type }, 440);
-          case SiweErrorType.INVALID_SIGNATURE:
-            throw new UnprocessableEntityException({ message: err.type });
-        }
+      switch (error.type) {
+        case SiweErrorType.EXPIRED_MESSAGE:
+          throw new HttpException({ message: error.type }, 440);
+        case SiweErrorType.INVALID_SIGNATURE:
+          throw new UnprocessableEntityException({ message: error.type });
+        default:
+          throw new BadRequestException({ message: "Failed to verify signature" });
       }
-
-      throw new BadRequestException({ message: "Failed to verify signature" });
     }
+
+    req.session.siwe = message;
+    return true;
   }
 
   @Post("logout")
