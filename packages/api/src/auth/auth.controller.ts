@@ -19,7 +19,7 @@ import {
   ApiNoContentResponse,
 } from "@nestjs/swagger";
 import { swagger } from "../config/featureFlags";
-import { generateNonce, SiweError, SiweErrorType, SiweMessage } from "siwe";
+import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 
