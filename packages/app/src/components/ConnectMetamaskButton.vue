@@ -5,10 +5,7 @@
       {{ buttonText }}
     </button>
     <template v-else>
-      <HashLabel class="address-text" placement="left" :text="displayAddress" @click="openModal" />
-      <div class="clickable-icon-area" @click="openModal">
-        <DotsVerticalIcon class="h-5 w-5" />
-      </div>
+      <HashLabel class="address-text" placement="left" :text="shortenedAddress" @click="openModal" />
     </template>
   </div>
   <WalletInfoModal
@@ -16,6 +13,8 @@
     :opened="isWalletInfoModalOpen"
     :address="displayAddress"
     :networkName="context.currentNetwork.value.l2NetworkName"
+    :networkChainId="context.currentNetwork.value.l2ChainId"
+    :isWrongNetwork="isWrongNetwork"
     @close="closeModal"
     @disconnect="handleLogoutAndCloseModal"
   >
@@ -34,8 +33,6 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-
-import { DotsVerticalIcon } from "@heroicons/vue/outline";
 
 import HashLabel from "@/components/common/HashLabel.vue";
 import WalletInfoModal from "@/components/modals/WalletInfoModal.vue";
@@ -59,6 +56,7 @@ const {
   isMetamaskInstalled,
   connect,
   disconnect: walletDisconnect,
+  getEthereumProvider,
 } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
@@ -83,6 +81,35 @@ const displayAddress = computed(() => {
 
 const { item: accountData, getByAddress } = useAddress();
 const isAccountDataPendingLocally = ref(false);
+
+const currentChainId = ref<string | null>(null);
+
+const updateChainId = async () => {
+  const provider = await getEthereumProvider();
+  if (provider) {
+    currentChainId.value = provider.chainId;
+  }
+};
+
+watch(
+  () => address.value,
+  async () => {
+    if (address.value) {
+      await updateChainId();
+    } else {
+      currentChainId.value = null;
+    }
+  }
+);
+
+if (address.value) {
+  updateChainId();
+}
+
+const isWrongNetwork = computed(() => {
+  if (!currentChainId.value) return false;
+  return currentChainId.value !== `0x${context.currentNetwork.value.l2ChainId.toString(16)}`;
+});
 
 watch(isWalletInfoModalOpen, async (isOpen) => {
   if (isOpen && displayAddress.value) {
@@ -109,7 +136,6 @@ const openModal = () => {
   }
 };
 
-// Wrapper for icon click, so it only opens modal if an address is already displayed
 const openModalConditionally = () => {
   if (displayAddress.value) {
     openModal();
@@ -141,11 +167,16 @@ const buttonText = computed(() => {
   }
   return t("connectMetamaskButton.label");
 });
+
+const shortenedAddress = computed(() => {
+  if (!displayAddress.value) return "-";
+  return `${displayAddress.value.slice(0, 6)}...${displayAddress.value.slice(-4)}`;
+});
 </script>
 
 <style lang="scss">
 .metamask-button {
-  @apply relative flex w-max min-w-[200px] items-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
+  @apply relative flex w-full min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
   &:not(.disabled) {
     @apply hover:cursor-pointer;
     &:hover {
@@ -162,7 +193,7 @@ const buttonText = computed(() => {
     }
   }
   .address-text {
-    @apply flex flex-none font-sans font-medium text-sm leading-5 cursor-pointer;
+    @apply flex font-sans font-medium text-sm leading-5 cursor-pointer items-center justify-center w-full;
   }
   .clickable-icon-area {
     @apply absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-md hover:bg-primary-700 cursor-pointer;
