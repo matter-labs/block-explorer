@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { AddressService } from "../address/address.service";
 import { LogService } from "../log/log.service";
 import { FilterTransactionsOptions } from "../transaction/transaction.service";
+import { getUrlWithoutParams } from "../common/utils";
 
 const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
 
@@ -13,26 +14,27 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
   constructor(private readonly addressService: AddressService, private readonly logService: LogService) {}
 
   public async use(req: Request, res: Response, next: NextFunction) {
-    if (UNFILTERED_ROUTES.some((route) => req.baseUrl.startsWith(route))) {
+    const url = getUrlWithoutParams(req.originalUrl);
+    if (UNFILTERED_ROUTES.some((route) => url.startsWith(route))) {
       return next();
     }
 
-    if (req.path.startsWith("/address")) {
-      await this.filterAddressControllerRoutes(req);
+    if (url.startsWith("/address")) {
+      await this.filterAddressControllerRoutes(req, url);
       return next();
     }
 
-    if (req.path.startsWith("/transactions")) {
-      this.filterTransactionControllerRoutes(req, res);
+    if (url.startsWith("/transactions")) {
+      this.filterTransactionControllerRoutes(req, res, url);
       return next();
     }
 
     throw new ForbiddenException({ message: "Access denied" });
   }
 
-  private async filterAddressControllerRoutes(req: Request) {
+  private async filterAddressControllerRoutes(req: Request, url: string) {
     // All routes are filtered by address
-    const reqAddress = req.path.match(/\/address\/([^\/]+)/)?.[1];
+    const reqAddress = url.match(/\/address\/([^\/]+)/)?.[1];
     const userAddress = req.session.siwe.address;
     const addressRecord = await this.addressService.findOne(reqAddress);
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
@@ -69,9 +71,9 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     }
   }
 
-  private filterTransactionControllerRoutes(req: Request, res: Response) {
+  private filterTransactionControllerRoutes(req: Request, res: Response, url: string) {
     // Only /transactions route is filtered by address
-    if (req.path === "/transactions") {
+    if (url === "/transactions") {
       const filter: FilterTransactionsOptions = {
         address: req.session.siwe.address,
         filterAddressInLogTopics: true,
