@@ -5,6 +5,7 @@ import { VerifySignatureDto } from "./auth.dto";
 import { BadRequestException, HttpException, UnprocessableEntityException } from "@nestjs/common";
 import { Wallet } from "zksync-ethers";
 import { SiweMessage } from "siwe";
+import * as domain from "node:domain";
 
 type CalculatedSiwe = {
   msg: string;
@@ -104,7 +105,7 @@ describe("AuthController", () => {
         nonce: nonce,
       };
 
-      const { msg, signature } = await calculateSiwe(nonce, privateKey);
+      const { msg, signature, address, siwe: originalSiwe } = await calculateSiwe(nonce, privateKey);
 
       body.message = msg;
       body.signature = signature;
@@ -112,6 +113,10 @@ describe("AuthController", () => {
       const res = await controller.verifySignature(body, req);
       expect(res).toBe(true);
       expect(req.session.siwe).not.toBe(undefined);
+      expect(req.session.siwe.address).toBe(address);
+      expect(req.session.siwe.uri).toBe(originalSiwe.uri);
+      expect(req.session.siwe.chainId).toBe(originalSiwe.chainId);
+      expect(req.session.siwe.domain).toBe(originalSiwe.domain);
     });
 
     it("throws error and set session to null when a nonce does not match", async () => {
