@@ -84,12 +84,14 @@ export class AuthController {
       throw new BadRequestException({ message: "Message must be requested first" });
     }
 
-    try {
-      const siweMessage = new SiweMessage(body.message);
-      const { data: message } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce });
-      req.session.siwe = message;
-      return true;
-    } catch (err) {
+    const siweMessage = new SiweMessage(body.message);
+    const {
+      data: message,
+      success,
+      error,
+    } = await siweMessage.verify({ signature: body.signature, nonce: req.session.nonce }, { suppressExceptions: true });
+
+    if (!success) {
       req.session = null;
       switch (error.type) {
         case SiweErrorType.EXPIRED_MESSAGE:
@@ -101,47 +103,8 @@ export class AuthController {
       }
     }
 
-    req.session.verified = true;
+    req.session.siwe = message;
     return true;
-  }
-
-  @Post("logout")
-  @Header("Content-Type", "application/json")
-  @ApiNoContentResponse({
-    description: "User was logged out successfully",
-  })
-  public async logout(@Req() req: Request) {
-    req.session = null;
-  }
-
-  @Post("token")
-  @Header("Content-Type", "application/json")
-  @ApiOkResponse({
-    description: "Token was returned successfully",
-    schema: {
-      type: "object",
-      properties: {
-        token: { type: "string" },
-        ok: { type: "boolean" },
-      },
-    },
-  })
-  public async token(@Req() req: Request) {
-    const response = await fetch(`${this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL")}/users`, {
-      method: "POST",
-      body: JSON.stringify({
-        address: req.session.siwe.address,
-        secret: this.configService.get("PRIVIDIUM_PRIVATE_RPC_SECRET"),
-      }),
-      headers: { "Content-Type": "application/json" },
-    });
-    if (!response.ok) {
-      throw new HttpException("Error creating token", 424);
-    }
-
-    const data = await response.json();
-    const validatedData = this.validatePrivateRpcResponse(data);
-    return validatedData;
   }
 
   @Post("logout")
