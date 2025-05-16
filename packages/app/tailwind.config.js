@@ -7,7 +7,7 @@ module.exports = {
     container: false,
     extend: {
       fontFamily: {
-        sans: ["Inter", ...defaultTheme.fontFamily.sans],
+        sans: ["Roboto", ...defaultTheme.fontFamily.sans],
         mono: ["Roboto Mono", ...defaultTheme.fontFamily.mono],
       },
       colors: {
