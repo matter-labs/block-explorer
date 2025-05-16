@@ -32,7 +32,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 
 import HashLabel from "@/components/common/HashLabel.vue";
 
@@ -45,7 +44,6 @@ import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
 import { formatShortAddress } from "@/utils/formatters";
 
 const { t } = useI18n();
-const router = useRouter();
 const context = useContext();
 const { networks } = useEnvironmentConfig();
 const { logout } = useLogin(context);
@@ -146,8 +144,7 @@ const closeModal = () => {
 
 const handleLogout = async () => {
   await logout();
-  await disconnect();
-  router.push("/login");
+  walletDisconnect();
 };
 
 const handleLogoutAndCloseModal = async () => {
