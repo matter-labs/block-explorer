@@ -125,11 +125,11 @@ export class AuthController {
     },
   })
   public async token(@Req() req: Request) {
-    const response = await fetch(this.configService.get("prividiumPrivateRpcUrl"), {
+    const response = await fetch(`${this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL")}/users`, {
       method: "POST",
       body: JSON.stringify({
         address: req.session.siwe.address,
-        secret: this.configService.get("prividiumPrivateRpcSecret"),
+        secret: this.configService.get("PRIVIDIUM_PRIVATE_RPC_SECRET"),
       }),
       headers: { "Content-Type": "application/json" },
     });
