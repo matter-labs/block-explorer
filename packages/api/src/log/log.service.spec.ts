@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
@@ -11,7 +11,7 @@ jest.mock("../common/utils");
 
 describe("LogService", () => {
   let service: LogService;
-  let repositoryMock: Repository<Log>;
+  let repositoryMock: MockProxy<Repository<Log>>;
 
   const pagingOptions = {
     limit: 10,
@@ -211,6 +211,23 @@ describe("LogService", () => {
         ]);
         expect(queryBuilderMock.getMany).toBeCalledTimes(1);
       });
+    });
+  });
+
+  describe("findManyByTopics", () => {
+    const someAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    let queryBuilderMock;
+
+    beforeEach(() => {
+      queryBuilderMock = mock<SelectQueryBuilder<Log>>();
+      repositoryMock.createQueryBuilder.mockReturnValue(queryBuilderMock);
+    });
+
+    it("", async () => {
+      await service.findManyByTopics({
+        address: someAddress,
+      });
+      expect(queryBuilderMock.)
     });
   });
 });
