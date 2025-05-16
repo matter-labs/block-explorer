@@ -1,12 +1,19 @@
 <template>
   <template v-if="isReady">
-    <the-header v-if="$route.name !== 'login'" :class="$route?.name" />
-    <div :class="{ 'container-app': $route.name !== 'login' }">
+    <the-header
+      v-if="!['login', 'reviewing-permissions', 'not-authorized'].some((route) => route === $route.name)"
+      :class="$route?.name"
+    />
+    <div
+      :class="{
+        'container-app': !['login', 'reviewing-permissions', 'not-authorized'].some((route) => route === $route.name),
+      }"
+    >
       <IndexerDelayAlert v-if="!currentNetwork.maintenance && currentNetwork.name === 'mainnet'" />
       <MaintenanceView v-if="currentNetwork.maintenance" />
       <router-view v-else />
     </div>
-    <the-footer v-if="$route.name !== 'login'" />
+    <the-footer v-if="!['login', 'reviewing-permissions', 'not-authorized'].some((route) => route === $route.name)" />
   </template>
 </template>
 
