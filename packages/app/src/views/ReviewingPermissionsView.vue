@@ -43,8 +43,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const handleDisconnect = async () => {
-  router.push("/login"); // Redirect to login or a specific page after disconnect
-  console.log("Disconnect clicked");
+  router.push("/login");
 };
 
 // Simulate permission review and redirect after 3 seconds for testing
@@ -54,7 +53,3 @@ onMounted(() => {
   }, 1500); // 3 seconds delay
 });
 </script>
-
-<style scoped>
-/* Scoped styles if needed, though Tailwind is used primarily */
-</style>

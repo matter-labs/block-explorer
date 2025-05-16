@@ -29,6 +29,5 @@ const router = useRouter();
 
 const handleTryAnotherWallet = async () => {
   router.push("/login");
-  console.log("Try another wallet clicked");
 };
 </script>

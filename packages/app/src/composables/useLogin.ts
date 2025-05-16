@@ -57,7 +57,6 @@ export default (
     try {
       context.user.value = { loggedIn: false };
       state.isLoginPending = true;
-      console.log("login");
 
       const ethereum = await getEthereumProvider();
       if (!ethereum) {
@@ -72,8 +71,6 @@ export default (
         credentials: "include",
       });
 
-      console.log("nonce", nonce);
-
       // Create SIWE message
       const address = await signer.getAddress();
       const message = new SiweMessage({
@@ -86,9 +83,7 @@ export default (
         nonce,
         scheme: import.meta.env.NODE_ENV === "production" ? "https" : "http",
       }).prepareMessage();
-      console.log("SIWE Message:", message);
       const signature = await signer.signMessage(message);
-      console.log("Signature:", signature);
 
       // Send signature to proxy
       try {
