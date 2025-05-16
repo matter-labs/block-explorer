@@ -81,7 +81,6 @@ export default (
         version: "1",
         chainId: context.currentNetwork.value.l2ChainId,
         nonce,
-        scheme: import.meta.env.NODE_ENV === "production" ? "https" : "http",
       }).prepareMessage();
       const signature = await signer.signMessage(message);
 

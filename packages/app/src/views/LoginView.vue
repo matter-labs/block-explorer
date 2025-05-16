@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import useContext from "@/composables/useContext";
@@ -40,21 +40,26 @@ const route = useRoute();
 const handleLogin = async () => {
   try {
     await login();
-    router.push({ name: "reviewing-permissions" });
   } catch (error) {
     console.error("Login failed:", error);
   }
 };
 
-onMounted(async () => {
-  await initializeLogin();
-  if (context.user.value.loggedIn) {
-    const redirectPath = route.query.redirect as string;
-    if (redirectPath) {
-      router.push(redirectPath);
-    } else {
-      router.push("/");
+watch(
+  () => context.user.value.loggedIn,
+  (isLoggedIn) => {
+    if (isLoggedIn) {
+      const redirectPath = route.query.redirect as string;
+      if (redirectPath) {
+        router.push(redirectPath);
+      } else {
+        router.push("/");
+      }
     }
   }
+);
+
+onMounted(async () => {
+  await initializeLogin();
 });
 </script>
