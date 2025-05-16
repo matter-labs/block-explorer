@@ -12,7 +12,6 @@ const DEVELOPMENT_CONFIG_NAME = "dev";
 
 export async function loadEnvironmentConfig(runtimeConfig: RuntimeConfig): Promise<void> {
   // runtime environment config takes precedence over hard coded config
-  console.log("runtimeConfig", runtimeConfig);
   if (runtimeConfig.environmentConfig) {
     config.value = runtimeConfig.environmentConfig;
     return;
