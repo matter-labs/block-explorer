@@ -8,6 +8,7 @@ import {
   HttpException,
   UnprocessableEntityException,
   BadRequestException,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -133,6 +134,10 @@ export class AuthController {
       }),
       headers: { "Content-Type": "application/json" },
     });
+    if (!response.ok) {
+      throw new HttpException("Error creating token", 424);
+    }
+
     const data = await response.json();
     const validatedData = this.validatePrivateRpcResponse(data);
     return validatedData;
