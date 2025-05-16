@@ -1,10 +1,10 @@
 <template>
-  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B] font-['Inter']">
+  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B]">
     <div class="p-8 rounded-lg max-w-xxl w-full flex flex-col items-center">
       <div class="flex justify-center mb-10">
         <img src="/images/zksync-light.svg" class="w-[233px] h-[48px]" />
       </div>
-      <h1 class="text-[30px] leading-[36px] font-[700] tracking-[0%] font-['Inter'] mb-2 text-center text-white">
+      <h1 class="text-[30px] leading-[36px] font-bold tracking-[0%] mb-2 text-center text-white">
         Private Explorer Access
       </h1>
       <p class="text-white font-normal text-xl leading-8 mb-10 text-center">Sign in with your crypto wallet</p>

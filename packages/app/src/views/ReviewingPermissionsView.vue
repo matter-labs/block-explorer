@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B] font-['Inter'] text-white">
+  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B] text-white">
     <div class="flex flex-col items-center text-center">
       <!-- Logo -->
       <div class="mb-10">
@@ -7,7 +7,7 @@
       </div>
 
       <!-- Heading -->
-      <h1 class="text-[30px] leading-[36px] font-[700] mb-12">Private Explorer Access</h1>
+      <h1 class="text-[30px] leading-[36px] font-bold mb-12">Private Explorer Access</h1>
 
       <!-- Loading Spinner and Text -->
       <div class="flex items-center mb-10">
