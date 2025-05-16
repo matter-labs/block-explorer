@@ -51,7 +51,7 @@ const handleDisconnect = async () => {
 onMounted(() => {
   setTimeout(() => {
     router.push("/"); // Navigate to home page
-  }, 3000); // 3 seconds delay
+  }, 1500); // 3 seconds delay
 });
 </script>
 

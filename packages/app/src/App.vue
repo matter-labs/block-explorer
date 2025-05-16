@@ -18,7 +18,13 @@
 </template>
 
 <script setup lang="ts">
+import { watchEffect } from "vue";
+import { useRoute, useRouter } from "vue-router";
+
 import { useTitle } from "@vueuse/core";
+
+import useEnvironmentConfig from "./composables/useEnvironmentConfig";
+import { PUBLIC_ROUTES } from "./utils/public-routes";
 
 import IndexerDelayAlert from "@/components/IndexerDelayAlert.vue";
 import TheFooter from "@/components/TheFooter.vue";
@@ -32,11 +38,25 @@ import MaintenanceView from "@/views/MaintenanceView.vue";
 
 const { setup } = useLocalization();
 const { title } = useRouteTitle();
+const context = useContext();
+const { isPrividium } = useEnvironmentConfig();
+const route = useRoute();
+const router = useRouter();
 
 useTitle(title);
 const { isReady, currentNetwork } = useContext();
 
 setup();
+
+watchEffect(() => {
+  if (!isPrividium.value) {
+    return;
+  }
+
+  if (!context.user.value.loggedIn && !PUBLIC_ROUTES.includes(route.path)) {
+    return router.push({ name: "login", query: { redirect: route.fullPath } });
+  }
+});
 </script>
 
 <style lang="scss">
