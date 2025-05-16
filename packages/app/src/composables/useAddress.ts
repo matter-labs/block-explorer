@@ -184,7 +184,8 @@ export default (context = useContext()) => {
 
     try {
       const response: Api.Response.Account | Api.Response.Contract = await $fetch(
-        `${context.currentNetwork.value.apiUrl}/address/${address}`
+        `${context.currentNetwork.value.apiUrl}/address/${address}`,
+        { credentials: "include" }
       );
       if (response.type === "account") {
         item.value = response;

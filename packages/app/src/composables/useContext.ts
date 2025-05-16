@@ -11,11 +11,15 @@ import type { NetworkConfig } from "@/configs";
 import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
 
+export type UserContext = { address: string; loggedIn: true } | { loggedIn: false };
+
 const network = useStorage("selectedNetwork_v2", DEFAULT_NETWORK.name);
 const isReady = ref(false);
+const user = ref<UserContext>({ loggedIn: false });
 
 export type Context = {
   isReady: Ref<boolean>;
+  user: Ref<UserContext>;
   currentNetwork: ComputedRef<NetworkConfig>;
   networks: ComputedRef<NetworkConfig[]>;
   getL2Provider: () => Provider;
@@ -72,6 +76,7 @@ export default (): Context => {
 
   return {
     isReady,
+    user,
     currentNetwork,
     networks,
     identifyNetwork,

@@ -31,6 +31,7 @@ type UseWallet = ToRefs<WalletState> & {
 
   getL1Signer: () => Promise<L1Signer>;
   getL2Signer: () => Promise<Signer>;
+  getEthereumProvider: () => Promise<BaseProvider | undefined>;
 };
 
 export type NetworkConfiguration = {
@@ -232,6 +233,7 @@ export default (
 
     getL1Signer,
     getL2Signer,
+    getEthereumProvider,
   };
 };
 

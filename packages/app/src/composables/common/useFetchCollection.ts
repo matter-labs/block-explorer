@@ -47,7 +47,9 @@ export function useFetchCollection<T, TApiResponse = T>(
         url.searchParams.set("toDate", toDate.toISOString());
       }
 
-      const response = await $fetch<Api.Response.Collection<TApiResponse>>(url.toString());
+      const response = await $fetch<Api.Response.Collection<TApiResponse>>(url.toString(), {
+        credentials: "include",
+      });
       data.value = itemMapper ? response.items?.map((item) => itemMapper(item)) : (response.items as unknown as T[]);
       total.value = response.meta.totalItems;
     } catch (error) {

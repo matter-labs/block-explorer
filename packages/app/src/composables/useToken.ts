@@ -11,7 +11,9 @@ import type { Hash } from "@/types";
 export type Token = Api.Response.Token;
 export const retrieveToken = useMemoize(
   (tokenAddress: Hash, context: Context = useContext()): Promise<Api.Response.Token> => {
-    return $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`);
+    return $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`, {
+      credentials: "include",
+    });
   },
   {
     getKey(tokenAddress: Hash, context: Context = useContext()) {

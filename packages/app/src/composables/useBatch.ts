@@ -16,7 +16,9 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      batchItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/batches/${id}`);
+      batchItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/batches/${id}`, {
+        credentials: "include",
+      });
     } catch (error: unknown) {
       batchItem.value = null;
       if (!(error instanceof FetchError) || error.response?.status !== 404) {

@@ -42,5 +42,11 @@ export default () => {
         ? config.value.networks.filter((e) => e.published === true)
         : []
     ),
+    isPrividium: computed((): boolean => {
+      return config.value?.networks?.[0]?.isPrividium ?? false;
+    }),
+    baseTokenAddress: computed(
+      () => config.value?.networks?.[0]?.baseTokenAddress ?? "0x000000000000000000000000000000000000800A"
+    ),
   };
 };
