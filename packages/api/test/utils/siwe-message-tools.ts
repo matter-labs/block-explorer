@@ -8,23 +8,32 @@ type CalculatedSiwe = {
   address: string;
 };
 
-export async function calculateSiwe(
-  nonce: string,
-  privateKey: string,
-  expiresAt: null | Date = null
-): Promise<CalculatedSiwe> {
+export async function calculateSiwe({
+  nonce,
+  privateKey,
+  expiresAt = null,
+  scheme = "http",
+  domain = "localhost",
+}: {
+  nonce: string;
+  privateKey: string;
+  expiresAt?: null | Date;
+  scheme?: "http" | "https";
+  domain?: string;
+}): Promise<CalculatedSiwe> {
   // Create account from private key
   const account = new Wallet(privateKey);
 
   // Create SIWE message
   const message = new SiweMessage({
-    domain: "localhost",
+    domain,
     address: account.address,
     statement: "Sign in with Ethereum",
-    uri: "http://localhost:3000",
+    uri: `${scheme}://${domain}`,
     version: "1",
     chainId: 1,
     nonce,
+    scheme,
   });
 
   if (expiresAt !== null) {

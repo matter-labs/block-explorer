@@ -25,9 +25,13 @@ import { DbMetricsService } from "./dbMetrics.service";
 import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
 import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
+import { z } from "zod";
 
-const IS_PRIVIDIUM_TOKEN = "IS_PRIVIDIUM";
-type IsPrividium = { isPrividium: boolean };
+const PRIVIDIUM_TOKEN = "PRIVIDIUM";
+
+interface AppModuleConfig {
+  prividium?: boolean;
+}
 
 @Module({
   imports: [
@@ -51,39 +55,52 @@ type IsPrividium = { isPrividium: boolean };
   providers: [Logger, ...metricProviders, DbMetricsService],
 })
 export class AppModule implements NestModule {
-  private isPrividium: boolean;
+  private prividium?: boolean;
 
-  constructor(@Inject(IS_PRIVIDIUM_TOKEN) config: IsPrividium) {
-    this.isPrividium = config.isPrividium;
+  constructor(@Inject(PRIVIDIUM_TOKEN) moduleConfig: AppModuleConfig, allConfigs: ConfigService) {
+    this.prividium = moduleConfig.prividium;
+
+    if (this.prividium) {
+      const schema = z.object({
+        privateRpcUrl: z.string().url(),
+        privateRpcSecret: z.string().min(1),
+      });
+      const result = schema.safeParse(allConfigs.get("prividium"));
+      if (!result.success) {
+        throw new Error("Invalid Prividium config");
+      }
+    }
   }
 
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
-    if (this.isPrividium) {
+    if (this.prividium) {
       applyPrividiumMiddlewares(consumer);
     }
   }
 
   // Factory method to be able to include or exclude Prividium modules
-  static build(isPrividium = false): DynamicModule {
+  static build({ prividium }: AppModuleConfig = {}): DynamicModule {
     // Notice that values in DynamicModules extend the base module instead of override,
     // as explained here: https://docs.nestjs.com/modules#dynamic-modules
     return {
       module: AppModule,
       providers: [
         {
-          provide: IS_PRIVIDIUM_TOKEN,
-          useValue: { isPrividium },
+          provide: PRIVIDIUM_TOKEN,
+          useValue: {
+            prividium,
+          },
         },
       ],
       imports: [
         /// Only enable prividium modules for prividium chains
-        ...(isPrividium ? PRIVIDIUM_MODULES : []),
+        ...(prividium ? PRIVIDIUM_MODULES : []),
         // TMP: disable API modules in Prividium mode until defined how to handle API authentication
-        ...(isPrividium ? [] : [ApiModule, ApiContractModule]),
+        ...(prividium ? [] : [ApiModule, ApiContractModule]),
         /// TMP: disable external API until release
-        ...(disableExternalAPI || isPrividium
+        ...(disableExternalAPI || prividium
           ? []
           : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
       ],

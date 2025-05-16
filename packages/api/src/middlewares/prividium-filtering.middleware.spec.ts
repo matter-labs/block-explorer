@@ -71,7 +71,7 @@ describe("PrividiumFilteringMiddleware", () => {
 
     middleware = new PrividiumFilteringMiddleware(addressService, logService);
 
-    const { siwe: generated, address } = await calculateSiwe("8r2cXq20yD3l5bomR", someSecKey);
+    const { siwe: generated, address } = await calculateSiwe({ nonce: "8r2cXq20yD3l5bomR", privateKey: someSecKey });
     userAddress = buildAddress(address, "0x");
 
     siwe = generated;
