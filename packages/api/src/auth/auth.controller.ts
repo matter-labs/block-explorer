@@ -8,7 +8,6 @@ import {
   HttpException,
   UnprocessableEntityException,
   BadRequestException,
-  InternalServerErrorException,
 } from "@nestjs/common";
 import {
   ApiTags,
