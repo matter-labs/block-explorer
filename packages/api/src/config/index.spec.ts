@@ -64,6 +64,7 @@ describe("config", () => {
         feature2Enabled: false,
       }),
       gracefulShutdownTimeoutMs: 0,
+      prividium: {},
     });
   });
 
@@ -136,6 +137,7 @@ describe("config", () => {
           feature2Enabled: false,
         }),
         gracefulShutdownTimeoutMs: 0,
+        prividium: {},
       });
     });
 
@@ -200,6 +202,7 @@ describe("config", () => {
             feature2Enabled: false,
           }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });
@@ -263,6 +266,7 @@ describe("config", () => {
             feature2Enabled: false,
           }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });
