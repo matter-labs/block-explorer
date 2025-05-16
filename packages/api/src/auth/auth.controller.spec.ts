@@ -3,9 +3,6 @@ import { mock } from "jest-mock-extended";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { BadRequestException, HttpException, UnprocessableEntityException } from "@nestjs/common";
-import { Wallet } from "zksync-ethers";
-import { SiweMessage } from "siwe";
-import * as domain from "node:domain";
 import { calculateSiwe } from "../../test/utils/siwe-message-tools";
 
 describe("AuthController", () => {
@@ -89,6 +86,22 @@ describe("AuthController", () => {
       const { msg, signature } = await calculateSiwe(nonce, privateKey);
 
       body.message = msg.replace(nonce, "falsenonce");
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(BadRequestException);
+      expect(req.session).toBe(null);
+    });
+
+    it("throws when msg is not a correct siwe message", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+      req.session = {
+        nonce: nonce,
+      };
+
+      const { signature } = await calculateSiwe(nonce, privateKey);
+
+      body.message = "badmsg";
       body.signature = signature;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(BadRequestException);
