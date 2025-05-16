@@ -6,7 +6,6 @@ import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
 import { Log } from "./log.entity";
-import { hexTransformer } from "../common/transformers/hex.transformer";
 
 jest.mock("../common/utils");
 
