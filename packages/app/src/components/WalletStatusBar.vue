@@ -6,20 +6,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect } from "vue";
+import { computed, onMounted, onUnmounted, ref, watchEffect } from "vue";
 
 import ConnectMetamaskButton from "@/components/ConnectMetamaskButton.vue";
 import NetworkIndicator from "@/components/NetworkIndicator.vue";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
-import useWallet from "@/composables/useWallet";
+import { default as useWallet } from "@/composables/useWallet";
 
 const context = useContext();
 const { logout } = useLogin(context);
 const currentNetwork = computed(() => context.currentNetwork.value);
 
-const { address, getEthereumProvider } = useWallet({
+const { address, getEthereumProvider, isReady } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
     explorerUrl: context.currentNetwork.value.rpcUrl,
@@ -31,6 +31,10 @@ const { address, getEthereumProvider } = useWallet({
 
 const currentChainId = ref<string | null>(null);
 
+const handleChainChange = (chainId: string) => {
+  currentChainId.value = chainId;
+};
+
 const updateChainId = async () => {
   const provider = await getEthereumProvider();
   if (provider && provider.chainId) {
@@ -40,17 +44,32 @@ const updateChainId = async () => {
   }
 };
 
-watchEffect(() => {
-  if (!address.value) {
-    logout();
+const setupChainListener = async () => {
+  const provider = await getEthereumProvider();
+  if (provider) {
+    provider.on("chainChanged", handleChainChange);
   }
+};
+
+const cleanupChainListener = async () => {
+  const provider = await getEthereumProvider();
+  if (provider) {
+    provider.removeListener("chainChanged", handleChainChange);
+  }
+};
+
+onMounted(async () => {
+  await updateChainId();
+  await setupChainListener();
 });
 
-watchEffect(async () => {
-  if (address.value) {
-    await updateChainId();
-  } else {
-    currentChainId.value = null;
+onUnmounted(async () => {
+  await cleanupChainListener();
+});
+
+watchEffect(() => {
+  if (isReady.value && !address.value) {
+    logout();
   }
 });
 
