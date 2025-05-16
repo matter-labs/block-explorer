@@ -23,6 +23,7 @@ import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
+import { z } from "zod";
 
 const entityName = "auth";
 
@@ -133,7 +134,8 @@ export class AuthController {
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
-    return data;
+    const validatedData = this.validatePrivateRpcResponse(data);
+    return validatedData;
   }
 
   @Get("me")
@@ -153,5 +155,19 @@ export class AuthController {
       req.session = null;
       throw new BadRequestException({ message: "Failed to verify signature" });
     }
+  }
+
+  private validatePrivateRpcResponse(response: unknown) {
+    const schema = z.object({
+      ok: z.literal(true),
+      token: z.string().min(1),
+    });
+
+    const result = schema.safeParse(response);
+    if (!result.success) {
+      throw new BadRequestException({ message: "Failed to generate token" });
+    }
+
+    return result.data;
   }
 }
