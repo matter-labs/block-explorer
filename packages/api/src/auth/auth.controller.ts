@@ -23,6 +23,7 @@ import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
+import { z } from "zod";
 
 const entityName = "auth";
 
@@ -38,7 +39,7 @@ export class AuthController {
     description: "Nonce was returned successfully",
     schema: { type: "string", example: "2lkRALIfNHY16ZARc" },
   })
-  public async getNonce(@Req() req: Request): Promise<string> {
+  public getNonce(@Req() req: Request): string {
     req.session.nonce = generateNonce();
     return req.session.nonce;
   }
@@ -111,6 +112,32 @@ export class AuthController {
     req.session = null;
   }
 
+  @Post("token")
+  @Header("Content-Type", "application/json")
+  @ApiOkResponse({
+    description: "Token was returned successfully",
+    schema: {
+      type: "object",
+      properties: {
+        token: { type: "string" },
+        ok: { type: "boolean" },
+      },
+    },
+  })
+  public async token(@Req() req: Request) {
+    const response = await fetch(this.configService.get("prividiumPrivateRpcUrl"), {
+      method: "POST",
+      body: JSON.stringify({
+        address: req.session.siwe.address,
+        secret: this.configService.get("prividiumPrivateRpcSecret"),
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const data = await response.json();
+    const validatedData = this.validatePrivateRpcResponse(data);
+    return validatedData;
+  }
+
   @Get("me")
   @Header("Content-Type", "application/json")
   @ApiOkResponse({
@@ -127,5 +154,19 @@ export class AuthController {
     } catch (_e) {
       throw new BadRequestException({ message: "Failed to verify signature" });
     }
+  }
+
+  private validatePrivateRpcResponse(response: unknown) {
+    const schema = z.object({
+      ok: z.literal(true),
+      token: z.string().min(1),
+    });
+
+    const result = schema.safeParse(response);
+    if (!result.success) {
+      throw new BadRequestException({ message: "Failed to generate token" });
+    }
+
+    return result.data;
   }
 }

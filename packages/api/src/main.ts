@@ -7,7 +7,7 @@ import { configureApp } from "./configureApp";
 import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
-import { disablePrividium } from "./config/featureFlags";
+import { prividium } from "./config/featureFlags";
 import { applyPrividiumExpressConfig } from "./prividium";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
@@ -20,7 +20,7 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule.build({ disablePrividium }), {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule.build({ prividium }), {
     logger,
     rawBody: true,
   });
@@ -39,7 +39,7 @@ async function bootstrap() {
     SwaggerModule.setup("docs", app, document);
   }
 
-  if (!disablePrividium) {
+  if (prividium) {
     applyPrividiumExpressConfig(app);
   }
 
