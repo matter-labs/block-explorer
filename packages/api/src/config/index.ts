@@ -1,6 +1,7 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { z } from "zod";
 
 export type BaseToken = {
   name: string;
@@ -147,6 +148,26 @@ export default () => {
     };
   };
 
+  const getPrividiumConfig = () => {
+    if (!featureFlags.prividium) {
+      return null;
+    }
+
+    const schema = z.object({
+      privateRpcUrl: z.string().url(),
+      privateRpcSecret: z.string().min(1),
+    });
+    const result = schema.safeParse({
+      privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
+      privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
+    });
+    if (!result.success) {
+      throw new Error("Invalid Prividium config");
+    }
+
+    return result.data;
+  };
+
   return {
     NODE_ENV,
     port: parseInt(PORT, 10) || 3020,
@@ -161,7 +182,6 @@ export default () => {
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
     appHostname: APP_HOSTNAME,
-    prividiumPrivateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
-    prividiumPrivateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
+    prividium: getPrividiumConfig(),
   };
 };
