@@ -44,7 +44,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 
     if (!reqAddress) {
-      throw new ForbiddenException({ message: "Access denied" });
+      return;
     }
 
     if (!isContract) {
