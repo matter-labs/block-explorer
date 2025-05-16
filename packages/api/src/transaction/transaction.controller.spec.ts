@@ -99,6 +99,30 @@ describe("TransactionController", () => {
       );
       expect(result).toBe(transactions);
     });
+
+    it("works when locals is not defined", async () => {
+      const response = mock<Response>();
+      response.locals.filterTransactionsOptions = undefined;
+      const result = await controller.getTransactions(
+        filterTransactionsOptions,
+        listFilterOptions,
+        pagingOptions,
+        response
+      );
+      expect(result).toBe(transactions);
+    });
+
+    it("works when locals are defined", async () => {
+      const response = mock<Response>();
+      response.locals.filterTransactionsOptions = {};
+      const result = await controller.getTransactions(
+        filterTransactionsOptions,
+        listFilterOptions,
+        pagingOptions,
+        response
+      );
+      expect(result).toBe(transactions);
+    });
   });
 
   describe("getTransaction", () => {
