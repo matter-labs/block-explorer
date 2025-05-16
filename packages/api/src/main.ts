@@ -40,7 +40,7 @@ async function bootstrap() {
   }
 
   if (prividium) {
-    applyPrividiumExpressConfig(app);
+    applyPrividiumExpressConfig(app, process.env.PRIVIDIUM_SESSION_SECRET);
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
