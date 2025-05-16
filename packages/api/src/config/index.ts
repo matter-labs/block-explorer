@@ -1,8 +1,6 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
-import { z } from "zod";
-import { prividium } from "./featureFlags";
 
 export type BaseToken = {
   name: string;
