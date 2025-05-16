@@ -68,7 +68,7 @@ export class AuthController {
       throw new BadRequestException({ message: "Message must be requested first" });
     }
 
-    const siweMessage = this.buildSiweMessage(body.message);
+    const siweMessage = this.buildSiweMessage(body.message, req);
     const {
       data: message,
       success,
@@ -110,10 +110,11 @@ export class AuthController {
     return { address: req.session.siwe.address };
   }
 
-  private buildSiweMessage(msg: string): SiweMessage {
+  private buildSiweMessage(msg: string, req: Request): SiweMessage {
     try {
       return new SiweMessage(msg);
     } catch (_e) {
+      req.session = null;
       throw new BadRequestException({ message: "Failed to verify signature" });
     }
   }
