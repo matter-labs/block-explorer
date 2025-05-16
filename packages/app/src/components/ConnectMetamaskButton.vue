@@ -43,6 +43,8 @@ import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
 import useLogin from "@/composables/useLogin";
 import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
 
+import { formatShortAddress } from "@/utils/formatters";
+
 const { t } = useI18n();
 const router = useRouter();
 const context = useContext();
@@ -168,10 +170,7 @@ const buttonText = computed(() => {
   return t("connectMetamaskButton.label");
 });
 
-const shortenedAddress = computed(() => {
-  if (!displayAddress.value) return "-";
-  return `${displayAddress.value.slice(0, 6)}...${displayAddress.value.slice(-4)}`;
-});
+const shortenedAddress = computed(() => formatShortAddress(displayAddress.value));
 </script>
 
 <style lang="scss">
