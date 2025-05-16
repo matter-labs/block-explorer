@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
+import { Brackets, FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
@@ -112,9 +112,9 @@ export class TransactionService {
 
         logSubQuery.where(
           new Brackets((qb) => {
-            qb.where("sub2_log.topics[1] = :paddedAddressBytes")
-              .orWhere("sub2_log.topics[2] = :paddedAddressBytes")
-              .orWhere("sub2_log.topics[3] = :paddedAddressBytes");
+            qb.where("sub2_log.topics[1] = :paddedAddressBytes");
+            qb.orWhere("sub2_log.topics[2] = :paddedAddressBytes");
+            qb.orWhere("sub2_log.topics[3] = :paddedAddressBytes");
           })
         );
 
