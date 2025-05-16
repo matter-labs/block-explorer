@@ -6,6 +6,7 @@ import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
 import { Log } from "./log.entity";
+import { hexTransformer } from "../common/transformers/hex.transformer";
 
 jest.mock("../common/utils");
 
@@ -223,11 +224,106 @@ describe("LogService", () => {
       repositoryMock.createQueryBuilder.mockReturnValue(queryBuilderMock);
     });
 
-    it("", async () => {
+    it("filters by address when address is defined", async () => {
       await service.findManyByTopics({
         address: someAddress,
+        topics: {},
       });
-      expect(queryBuilderMock.)
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ address: someAddress });
+    });
+
+    it("does not filter by address when address is not defined", async () => {
+      await service.findManyByTopics({
+        topics: {},
+      });
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith({ address: expect.anything() });
+    });
+
+    it("filters by fromBlock when address is defined", async () => {
+      await service.findManyByTopics({
+        fromBlock: 10,
+        topics: {},
+      });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ blockNumber: MoreThanOrEqual(10) });
+    });
+
+    it("filters by toBlock when address is defined", async () => {
+      await service.findManyByTopics({
+        toBlock: 10,
+        topics: {},
+      });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ blockNumber: LessThanOrEqual(10) });
+    });
+
+    it("does not restrict by block when no block conditions are sent", async () => {
+      await service.findManyByTopics({
+        topics: {},
+      });
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith({ blockNumber: expect.anything() });
+    });
+
+    function hexToBuf(hex: string): Buffer {
+      return Buffer.from(hex.replace("0x", ""), "hex");
+    }
+
+    it("filters by first topic when topic0 is defined", async () => {
+      const topic = "0xabab";
+      await service.findManyByTopics({
+        topics: {
+          topic0: topic,
+        },
+      });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[1] = :topic0", {
+        topic0: hexToBuf(topic),
+      });
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[2\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[4\]/, expect.anything());
+    });
+
+    it("filters by second topic when topic1 is defined", async () => {
+      const topic = "0xabab";
+      await service.findManyByTopics({
+        topics: {
+          topic1: topic,
+        },
+      });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[2] = :topic1", {
+        topic1: hexToBuf(topic),
+      });
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[0\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[4\]/, expect.anything());
+    });
+
+    it("filters by third topic when topic2 is defined", async () => {
+      const topic = "0xabab";
+      await service.findManyByTopics({
+        topics: {
+          topic2: topic,
+        },
+      });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[3] = :topic2", {
+        topic2: hexToBuf(topic),
+      });
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[0\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[1\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[4\]/, expect.anything());
+    });
+
+    it("filters by fourth topic when topic3 is defined", async () => {
+      const topic = "0xabab";
+      await service.findManyByTopics({
+        topics: {
+          topic3: topic,
+        },
+      });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[4] = :topic3", {
+        topic3: hexToBuf(topic),
+      });
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[1\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[2\]/, expect.anything());
+      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
     });
   });
 });
