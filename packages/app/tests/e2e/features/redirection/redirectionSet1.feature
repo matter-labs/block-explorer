@@ -88,8 +88,8 @@ Feature: Redirection
       | tx hash           | /tx/        |
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
   #Account page
   @id367 @testnet
@@ -115,8 +115,8 @@ Feature: Redirection
       | tx hash           | /tx/        |
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
   #Account page
   @id367:I @mainnet
@@ -142,8 +142,8 @@ Feature: Redirection
       | tx hash           | /tx/        |
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
   #Blocks page
   @id246
