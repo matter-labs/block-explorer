@@ -99,7 +99,7 @@ Feature: Redirection
       | Artifact type     | url        |
       | block number      | /block/    |
       | To                | /address/  |
-      | Fee               | /address/  |
+      | Fee               | /token/  |
       | Tokens Transferred | /address/ |
 
   @id241 @id553 @id339 @id340 @mainnet 
@@ -112,7 +112,7 @@ Feature: Redirection
       | Artifact type     | url        |
       | block number      | /block/    |
       | To                | /address/  |
-      | Fee               | /address/  |
+      | Fee               | /token/  |
       | Tokens Transferred | /address/ |
 
   #Transactions page
@@ -128,8 +128,8 @@ Feature: Redirection
       # | initiator address | /address/   | Removed
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
 
   #Tokens page 

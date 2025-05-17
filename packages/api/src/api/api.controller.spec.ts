@@ -199,6 +199,13 @@ describe("ApiController", () => {
     });
   });
 
+  describe("getAccountTokenHoldings", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getAccountTokenHoldings();
+      expect(result).toBe(null);
+    });
+  });
+
   describe("getAccountMinedBlocks", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
       const result = await controller.getAccountMinedBlocks({ page: 1, offset: 10, maxLimit: 1000 });

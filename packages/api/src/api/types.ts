@@ -20,6 +20,7 @@ export enum ApiAccountAction {
   Balance = "balance",
   BalanceMulti = "balancemulti",
   TokenBalance = "tokenbalance",
+  AddressTokenBalance = "addresstokenbalance",
   TokenTransfers = "tokentx",
   NFTTransfers = "tokennfttx",
   GetMinedBlocks = "getminedblocks",

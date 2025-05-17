@@ -1,6 +1,6 @@
 <template>
   <div class="token-icon-label">
-    <AddressLink :address="address" class="token-link" :data-testid="$testId?.tokensIcon">
+    <AddressLink :address="address" :is-token-address="true" class="token-link" :data-testid="$testId?.tokensIcon">
       <span v-if="showLinkSymbol" class="token-symbol">
         <span v-if="symbol">
           {{ symbol }}
