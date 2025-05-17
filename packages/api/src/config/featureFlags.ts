@@ -10,4 +10,4 @@ export const swagger = {
 
 export const disableExternalAPI = DISABLE_EXTERNAL_API === "true";
 
-export const prividium = PRIVIDIUM !== undefined && PRIVIDIUM !== "false";
+export const prividium = !["false", undefined].includes(PRIVIDIUM);
