@@ -42,8 +42,8 @@ export default () => {
         ? config.value.networks.filter((e) => e.published === true)
         : []
     ),
-    isPrividium: computed((): boolean => {
-      return config.value?.networks?.[0]?.isPrividium ?? false;
+    prividium: computed((): boolean => {
+      return config.value?.networks?.[0]?.prividium ?? false;
     }),
     baseTokenAddress: computed(() => config.value?.networks?.[0]?.baseTokenAddress ?? BASE_TOKEN_L2_ADDRESS),
   };
