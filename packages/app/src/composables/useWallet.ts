@@ -87,11 +87,20 @@ export default (
       isAuthenticated.value = true;
     } else {
       state.address = null;
+      isAuthenticated.value = false;
+      disconnect();
     }
   };
 
   const handleChainChanged = (chainId: string) => {
     state.currentChainId = chainId;
+  };
+
+  const handleDisconnect = () => {
+    state.address = null;
+    state.currentChainId = null;
+    isAuthenticated.value = false;
+    disconnect();
   };
 
   const initialize = async () => {
@@ -124,6 +133,7 @@ export default (
 
     provider.on("accountsChanged", handleAccountsChanged);
     provider.on("chainChanged", handleChainChanged);
+    provider.on("disconnect", handleDisconnect);
   };
 
   const connect = async () => {

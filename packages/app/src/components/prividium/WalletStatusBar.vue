@@ -9,7 +9,7 @@
 import { computed, ref, watch, watchEffect } from "vue";
 
 import ConnectMetamaskButton from "@/components/ConnectMetamaskButton.vue";
-import NetworkIndicator from "@/components/NetworkIndicator.vue";
+import NetworkIndicator from "@/components/prividium/NetworkIndicator.vue";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";

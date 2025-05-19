@@ -34,6 +34,7 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import HashLabel from "@/components/common/HashLabel.vue";
+import WalletInfoModal from "@/components/prividium/WalletInfoModal.vue";
 
 import useAddress from "@/composables/useAddress";
 import useContext from "@/composables/useContext";
