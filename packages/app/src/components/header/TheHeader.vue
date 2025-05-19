@@ -4,7 +4,7 @@
       <div class="header-container flex items-center justify-between py-4 md:space-x-10 lg:justify-start">
         <div class="logo-container flex justify-start">
           <router-link class="flex items-center gap-2 text-black no-underline" :to="{ name: 'home' }">
-            <img :src="logoImage" />
+            <img :src="logoImage" class="h-8" />
           </router-link>
         </div>
         <div class="burger-button-container -my-2 -mr-2 lg:hidden">
