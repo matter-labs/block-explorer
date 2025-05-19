@@ -119,4 +119,3 @@ describe("useFetchCollection:", () => {
     });
   });
 });
-ets.zksync.dev/?a=b
