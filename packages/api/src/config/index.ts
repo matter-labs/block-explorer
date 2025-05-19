@@ -95,6 +95,7 @@ export default () => {
     APP_HOSTNAME,
     PRIVIDIUM_PRIVATE_RPC_URL,
     PRIVIDIUM_PRIVATE_RPC_SECRET,
+    APP_URL,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -169,5 +170,6 @@ export default () => {
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
     appHostname: APP_HOSTNAME,
     prividium: getPrividiumConfig(),
+    appUrl: APP_URL,
   };
 };

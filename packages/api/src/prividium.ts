@@ -5,11 +5,14 @@ import cookieSession from "cookie-session";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { PrividiumFilteringMiddleware } from "./middlewares/prividium-filtering.middleware";
 
-export function applyPrividiumExpressConfig(app: NestExpressApplication, prividiumSecret: string) {
+export function applyPrividiumExpressConfig(
+  app: NestExpressApplication,
+  { sessionSecret, appUrl }: { sessionSecret: string; appUrl: string }
+) {
   app.use(
     cookieSession({
       name: "_auth",
-      secret: prividiumSecret,
+      secret: sessionSecret,
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
@@ -17,6 +20,10 @@ export function applyPrividiumExpressConfig(app: NestExpressApplication, prividi
       path: "/",
     })
   );
+  app.enableCors({
+    origin: appUrl,
+    credentials: true,
+  });
 }
 
 export function applyPrividiumMiddlewares(consumer: MiddlewareConsumer) {
