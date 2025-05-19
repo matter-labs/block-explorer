@@ -4,7 +4,6 @@ import { SiweMessage } from "siwe";
 declare global {
   namespace CookieSessionInterfaces {
     interface CookieSessionObject {
-      nonce?: string;
       siwe?: SiweMessage;
       verified?: boolean;
     }
