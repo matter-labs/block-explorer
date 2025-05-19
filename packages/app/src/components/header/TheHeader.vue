@@ -143,12 +143,12 @@ import LinksPopover from "./LinksPopover.vue";
 
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
-import WalletStatusBar from "@/components/WalletStatusBar.vue";
 import DiscordIcon from "@/components/icons/DiscordIcon.vue";
 import HeroArrows from "@/components/icons/HeroArrows.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 import ZkSync from "@/components/icons/ZkSync.vue";
 import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
+import WalletStatusBar from "@/components/prividium/WalletStatusBar.vue";
 
 import useContext from "@/composables/useContext";
 import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
