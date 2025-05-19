@@ -6,6 +6,7 @@ declare global {
     interface CookieSessionObject {
       nonce?: string;
       siwe?: SiweMessage;
+      verified?: boolean;
     }
   }
 }

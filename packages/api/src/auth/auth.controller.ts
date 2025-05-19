@@ -44,6 +44,35 @@ export class AuthController {
     return req.session.nonce;
   }
 
+  @Post("message")
+  @Header("Content-Type", "text/plain")
+  @ApiOkResponse({
+    description: "Message was returned successfully",
+    schema: { type: "string" },
+  })
+  @ApiBadRequestResponse({
+    description: "Nonce must be requested first",
+    schema: { type: "object", properties: { message: { type: "string" } } },
+  })
+  public getMessage(@Req() req: Request, @Body() body: { address: string }): string {
+    if (!req.session.nonce) {
+      throw new BadRequestException({ message: "Nonce must be requested first" });
+    }
+
+    const message = new SiweMessage({
+      domain: this.configService.get("appHostname"),
+      address: body.address,
+      statement: "Sign in to the Block Explorer",
+      uri: this.configService.get("appUrl"),
+      version: "1",
+      chainId: this.configService.get("prividium.chainId"),
+      nonce: req.session.nonce,
+      scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
+    });
+    req.session.siwe = message;
+    return message.prepareMessage();
+  }
+
   @Post("verify")
   @Header("Content-Type", "application/json")
   @ApiOkResponse({
@@ -72,12 +101,12 @@ export class AuthController {
       throw new BadRequestException({ message: "Nonce must be requested first" });
     }
 
-    const siweMessage = this.buildSiweMessage(body.message, req);
-    const {
-      data: message,
-      success,
-      error,
-    } = await siweMessage.verify(
+    if (!req.session.siwe) {
+      throw new BadRequestException({ message: "Message must be requested first" });
+    }
+
+    const siweMessage = req.session.siwe;
+    const { success, error } = await new SiweMessage(siweMessage).verify(
       {
         signature: body.signature,
         nonce: req.session.nonce,
@@ -99,7 +128,7 @@ export class AuthController {
       }
     }
 
-    req.session.siwe = message;
+    req.session.verified = true;
     return true;
   }
 
@@ -150,15 +179,6 @@ export class AuthController {
   })
   public async me(@Req() req: Request) {
     return { address: req.session.siwe.address };
-  }
-
-  private buildSiweMessage(msg: string, req: Request): SiweMessage {
-    try {
-      return new SiweMessage(msg);
-    } catch (_e) {
-      req.session = null;
-      throw new BadRequestException({ message: "Failed to verify signature" });
-    }
   }
 
   private validatePrivateRpcResponse(response: unknown) {
