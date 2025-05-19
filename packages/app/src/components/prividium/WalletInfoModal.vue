@@ -49,6 +49,10 @@ import CopyButton from "@/components/common/CopyButton.vue";
 import HashLabel from "@/components/common/HashLabel.vue";
 import Popup from "@/components/common/Popup.vue";
 
+import useContext from "@/composables/useContext";
+import usePrividiumRpc from "@/composables/usePrividiumRpc";
+import useWallet from "@/composables/useWallet";
+
 const props = defineProps({
   opened: {
     type: Boolean,
@@ -78,9 +82,23 @@ defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { updatePrividiumRpcUrl, prividiumRpcUrl } = usePrividiumRpc();
+const context = useContext();
+const { addNetwork } = useWallet({
+  ...context,
+  currentNetwork: computed(() => ({
+    explorerUrl: context.currentNetwork.value.rpcUrl,
+    chainName: context.currentNetwork.value.l2NetworkName,
+    l1ChainId: 0,
+    ...context.currentNetwork.value,
+  })),
+});
 
 const switchNetwork = async () => {
-  // TODO: Implement network switch
+  await updatePrividiumRpcUrl();
+  if (prividiumRpcUrl.value) {
+    await addNetwork(prividiumRpcUrl.value);
+  }
 };
 
 const formattedAddress = computed(() => {
