@@ -36,7 +36,7 @@ import MaintenanceView from "@/views/MaintenanceView.vue";
 const { setup } = useLocalization();
 const { title } = useRouteTitle();
 const context = useContext();
-const { isPrividium } = useEnvironmentConfig();
+const { prividium } = useEnvironmentConfig();
 const route = useRoute();
 const router = useRouter();
 
@@ -46,7 +46,7 @@ const { isReady, currentNetwork } = useContext();
 setup();
 
 watchEffect(() => {
-  if (!isPrividium.value) {
+  if (!prividium.value) {
     return;
   }
 

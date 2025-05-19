@@ -29,7 +29,7 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
-          <WalletStatusBar v-if="isPrividium" class="metamask-button-container" />
+          <WalletStatusBar v-if="prividium" class="metamask-button-container" />
           <NetworkSwitch v-else />
           <LocaleSwitch
             :value="(locale as string)"
@@ -105,7 +105,7 @@
               </nav>
             </div>
             <div class="mobile-network-switch-container">
-              <WalletStatusBar v-if="isPrividium" class="metamask-button-container" />
+              <WalletStatusBar v-if="prividium" class="metamask-button-container" />
               <NetworkSwitch v-else />
               <LocaleSwitch
                 :value="(locale as string)"
@@ -159,7 +159,7 @@ const { changeLanguage } = useLocalization();
 const { t, locale } = useI18n({ useScope: "global" });
 const route = useRoute();
 const { currentNetwork } = useContext();
-const { isPrividium } = useEnvironmentConfig();
+const { prividium } = useEnvironmentConfig();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
