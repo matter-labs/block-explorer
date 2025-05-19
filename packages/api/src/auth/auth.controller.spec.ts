@@ -31,7 +31,7 @@ describe("AuthController", () => {
 
   describe("#getNonce", () => {
     it("returns a nonce", async () => {
-      const nonce = await controller.getNonce(req);
+      const nonce = controller.getNonce(req);
       expect(nonce).toHaveLength(17);
     });
 
@@ -160,7 +160,7 @@ describe("AuthController", () => {
         nonce: nonce,
       };
 
-      const { signature } = await calculateSiwe(nonce, privateKey);
+      const { signature } = await calculateSiwe({ nonce, privateKey });
 
       body.message = "badmsg";
       body.signature = signature;
