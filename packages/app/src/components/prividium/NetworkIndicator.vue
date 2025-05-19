@@ -35,8 +35,7 @@ defineProps<{
       @apply h-3 w-3 flex-shrink-0;
     }
     .network-item-label {
-      @apply block truncate;
-      font-size: 11px;
+      @apply block truncate text-base;
       line-height: 1.1;
     }
   }
