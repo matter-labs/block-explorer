@@ -29,12 +29,8 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
-          <div v-if="isPrividium">
-            <WalletStatusBar class="metamask-button-container" />
-          </div>
-          <div v-else>
-            <NetworkSwitch />
-          </div>
+          <WalletStatusBar v-if="isPrividium" class="metamask-button-container" />
+          <NetworkSwitch v-else />
           <LocaleSwitch
             :value="(locale as string)"
             @update:value="changeLanguage"
@@ -109,12 +105,8 @@
               </nav>
             </div>
             <div class="mobile-network-switch-container">
-              <div v-if="isPrividium">
-                <WalletStatusBar class="metamask-button-container" />
-              </div>
-              <div v-else>
-                <NetworkSwitch />
-              </div>
+              <WalletStatusBar v-if="isPrividium" class="metamask-button-container" />
+              <NetworkSwitch v-else />
               <LocaleSwitch
                 :value="(locale as string)"
                 @update:value="changeLanguage"
