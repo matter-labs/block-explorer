@@ -96,6 +96,7 @@ export default () => {
     PRIVIDIUM_PRIVATE_RPC_URL,
     PRIVIDIUM_PRIVATE_RPC_SECRET,
     APP_URL,
+    PRIVIDIUM_CHAIN_ID,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -152,6 +153,7 @@ export default () => {
     return {
       privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
       privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
+      chainId: parseInt(PRIVIDIUM_CHAIN_ID, 10),
     };
   };
 
