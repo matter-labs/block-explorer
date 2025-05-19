@@ -47,3 +47,5 @@ export const EVM_VERSION_TO_TARGET = [
   "shanghai",
   "cancun",
 ];
+
+export const DEFAULT_BASE_TOKEN_ADDRESS = "0x000000000000000000000000000000000000800A";
