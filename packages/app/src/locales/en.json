@@ -822,5 +822,6 @@
         "balanceUnavailable": "Balance unavailable",
         "loadingBalance": "Loading balance...",
         "noEthBalance": "ETH balance not found"
-    }
+    },
+    "Login": "Login"
 }
