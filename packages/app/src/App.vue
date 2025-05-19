@@ -1,19 +1,16 @@
 <template>
   <template v-if="isReady">
-    <the-header
-      v-if="!['login', 'reviewing-permissions', 'not-authorized'].some((route) => route === $route.name)"
-      :class="$route?.name"
-    />
+    <the-header v-if="!PUBLIC_ROUTES.includes($route.path)" :class="$route?.name" />
     <div
       :class="{
-        'container-app': !['login', 'reviewing-permissions', 'not-authorized'].some((route) => route === $route.name),
+        'container-app': !PUBLIC_ROUTES.includes($route.path),
       }"
     >
       <IndexerDelayAlert v-if="!currentNetwork.maintenance && currentNetwork.name === 'mainnet'" />
       <MaintenanceView v-if="currentNetwork.maintenance" />
       <router-view v-else />
     </div>
-    <the-footer v-if="!['login', 'reviewing-permissions', 'not-authorized'].some((route) => route === $route.name)" />
+    <the-footer v-if="!PUBLIC_ROUTES.includes($route.path)" />
   </template>
 </template>
 
