@@ -42,16 +42,16 @@ const handleLogin = async () => {
   }
 };
 
+const isValidRedirectPath = (path: unknown): path is string => {
+  return typeof path === "string" && path.length > 0;
+};
+
 watch(
   () => context.user.value.loggedIn,
   (isLoggedIn) => {
     if (isLoggedIn) {
-      const redirectPath = route.query.redirect as string;
-      if (redirectPath) {
-        router.push(redirectPath);
-      } else {
-        router.push("/");
-      }
+      const redirectPath = route.query.redirect;
+      router.push(isValidRedirectPath(redirectPath) ? redirectPath : { name: "home" });
     }
   }
 );

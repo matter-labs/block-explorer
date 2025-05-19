@@ -21,6 +21,7 @@ type WalletState = {
   isConnectFailed: boolean;
   isMetamaskInstalled: boolean;
   address: string | null;
+  currentChainId: string | null;
 };
 
 type UseWallet = ToRefs<WalletState> & {
@@ -31,7 +32,7 @@ type UseWallet = ToRefs<WalletState> & {
 
   getL1Signer: () => Promise<L1Signer>;
   getL2Signer: () => Promise<Signer>;
-  getEthereumProvider: () => Promise<BaseProvider | undefined>;
+  getEthereumProvider: () => Promise<BaseProvider | null>;
 };
 
 export type NetworkConfiguration = {
@@ -61,8 +62,8 @@ const state = reactive<WalletState>({
   isMetamaskInstalled: false,
   isConnectPending: false,
   isConnectFailed: false,
-
   address: null,
+  currentChainId: null,
 });
 
 export const isAuthenticated: RemovableRef<boolean> = useStorage<boolean>("useWallet_isAuthenticated", false);
@@ -89,6 +90,10 @@ export default (
     }
   };
 
+  const handleChainChanged = (chainId: string) => {
+    state.currentChainId = chainId;
+  };
+
   const initialize = async () => {
     let provider;
     try {
@@ -103,6 +108,7 @@ export default (
     }
 
     state.isMetamaskInstalled = true;
+    state.currentChainId = provider.chainId;
 
     if (isAuthenticated.value) {
       await provider
@@ -117,6 +123,7 @@ export default (
     }
 
     provider.on("accountsChanged", handleAccountsChanged);
+    provider.on("chainChanged", handleChainChanged);
   };
 
   const connect = async () => {
@@ -199,6 +206,7 @@ export default (
 
   const disconnect = () => {
     state.address = null;
+    state.currentChainId = null;
     isAuthenticated.value = false;
   };
 

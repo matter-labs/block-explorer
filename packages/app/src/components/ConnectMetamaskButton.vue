@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import HashLabel from "@/components/common/HashLabel.vue";
@@ -55,7 +55,7 @@ const {
   isMetamaskInstalled,
   connect,
   disconnect: walletDisconnect,
-  getEthereumProvider,
+  currentChainId,
 } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
@@ -69,41 +69,20 @@ const {
 const isWalletInfoModalOpen = ref(false);
 
 const displayAddress = computed(() => {
-  if (context.user.value.loggedIn) {
+  if (context.user.value.loggedIn && context.user.value.address !== null) {
     return context.user.value.address;
   }
-  return address.value;
+  if (isAuthenticated.value && address.value !== null) {
+    return address.value;
+  }
+  return null;
 });
 
 const { item: accountData, getByAddress } = useAddress();
 const isAccountDataPendingLocally = ref(false);
 
-const currentChainId = ref<string | null>(null);
-
-const updateChainId = async () => {
-  const provider = await getEthereumProvider();
-  if (provider) {
-    currentChainId.value = provider.chainId;
-  }
-};
-
-watch(
-  () => address.value,
-  async () => {
-    if (address.value) {
-      await updateChainId();
-    } else {
-      currentChainId.value = null;
-    }
-  }
-);
-
-onMounted(() => {
-  updateChainId();
-});
-
 const isWrongNetwork = computed(() => {
-  if (!currentChainId.value) return false;
+  if (currentChainId.value === null) return false;
   return currentChainId.value !== `0x${context.currentNetwork.value.l2ChainId.toString(16)}`;
 });
 
@@ -127,13 +106,13 @@ const accountBaseTokenInfo = computed(() => {
 });
 
 const openModal = () => {
-  if (displayAddress.value) {
+  if (displayAddress.value !== null) {
     isWalletInfoModalOpen.value = true;
   }
 };
 
 const openModalConditionally = () => {
-  if (displayAddress.value) {
+  if (displayAddress.value !== null) {
     openModal();
   }
 };
