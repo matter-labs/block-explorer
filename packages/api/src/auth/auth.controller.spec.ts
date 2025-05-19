@@ -31,7 +31,7 @@ describe("AuthController", () => {
 
   describe("#getNonce", () => {
     it("returns a nonce", async () => {
-      const nonce = await controller.getNonce(req);
+      const nonce = controller.getNonce(req);
       expect(nonce).toHaveLength(17);
     });
 
