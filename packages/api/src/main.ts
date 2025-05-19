@@ -40,12 +40,17 @@ async function bootstrap() {
   }
 
   if (prividium) {
-    applyPrividiumExpressConfig(app, process.env.PRIVIDIUM_SESSION_SECRET);
+    // Prividium config includes strict CORS configuration
+    applyPrividiumExpressConfig(app, {
+      sessionSecret: configService.get<string>("prividium.privateRpcSecret"),
+      appUrl: configService.get<string>("appUrl"),
+    });
+  } else {
+    app.enableCors();
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
   app.useBodyParser("urlencoded", { limit: BODY_PARSER_SIZE_LIMIT, extended: true });
-  app.enableCors();
   app.use(helmet());
   configureApp(app);
   app.enableShutdownHooks();
