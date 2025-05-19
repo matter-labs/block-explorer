@@ -134,7 +134,9 @@ describe("useAddresses", () => {
       const { item, getByAddress } = useAddress({ currentNetwork } as any);
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
       expect($fetch).toHaveBeenCalledOnce();
-      expect($fetch).toHaveBeenCalledWith("http://api.url/address/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+      expect($fetch).toHaveBeenCalledWith("http://api.url/address/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c", {
+        credentials: "include",
+      });
       expect(item.value).toEqual({
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
