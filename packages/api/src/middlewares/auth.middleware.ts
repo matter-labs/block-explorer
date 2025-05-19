@@ -2,7 +2,7 @@ import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/commo
 import { Request, Response, NextFunction } from "express";
 import { getUrlWithoutParams } from "../common/utils";
 
-const UNPROTECTED_ROUTES = ["/auth/message", "/auth/nonce", "/auth/verify", "/auth/logout", "/health", "/ready"];
+const UNPROTECTED_ROUTES = ["/auth/message", "/auth/verify", "/auth/logout", "/health", "/ready"];
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
