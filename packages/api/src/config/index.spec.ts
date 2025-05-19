@@ -59,11 +59,12 @@ describe("config", () => {
         applicationName: "block-explorer-api",
       },
       contractVerificationApiUrl: "http://127.0.0.1:3070",
-      featureFlags: {
+      featureFlags: expect.objectContaining({
         feature1Enabled: true,
         feature2Enabled: false,
-      },
+      }),
       gracefulShutdownTimeoutMs: 0,
+      prividium: {},
     });
   });
 
@@ -131,11 +132,12 @@ describe("config", () => {
           applicationName: "block-explorer-api",
         },
         contractVerificationApiUrl: "http://127.0.0.1:3070",
-        featureFlags: {
+        featureFlags: expect.objectContaining({
           feature1Enabled: true,
           feature2Enabled: false,
-        },
+        }),
         gracefulShutdownTimeoutMs: 0,
+        prividium: {},
       });
     });
 
@@ -195,11 +197,12 @@ describe("config", () => {
             applicationName: "block-explorer-api",
           },
           contractVerificationApiUrl: "http://127.0.0.1:3070",
-          featureFlags: {
+          featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
-          },
+          }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });
@@ -258,11 +261,12 @@ describe("config", () => {
             applicationName: "block-explorer-api",
           },
           contractVerificationApiUrl: "http://127.0.0.1:3070",
-          featureFlags: {
+          featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
-          },
+          }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });

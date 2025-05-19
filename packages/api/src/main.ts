@@ -20,10 +20,11 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule.build({ prividium }), {
     logger,
     rawBody: true,
   });
+
   const configService = app.get(ConfigService);
   const metricsApp = await NestFactory.create(AppMetricsModule);
   metricsApp.enableShutdownHooks();
@@ -39,7 +40,7 @@ async function bootstrap() {
   }
 
   if (prividium) {
-    applyPrividiumExpressConfig(app);
+    applyPrividiumExpressConfig(app, process.env.PRIVIDIUM_SESSION_SECRET);
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });

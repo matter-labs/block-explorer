@@ -7,7 +7,7 @@ import { hexTransformer } from "../common/transformers/hex.transformer";
 
 export interface TokenBalance {
   balance: string;
-  token: Token;
+  token?: Token;
 }
 
 @Injectable()

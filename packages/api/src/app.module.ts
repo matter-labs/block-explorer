@@ -1,4 +1,4 @@
-import { Module, Logger, MiddlewareConsumer, NestModule } from "@nestjs/common";
+import { Module, Logger, MiddlewareConsumer, NestModule, DynamicModule, Inject } from "@nestjs/common";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { HealthModule } from "./health/health.module";
@@ -22,9 +22,16 @@ import { StatsModule } from "./stats/stats.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
-import { disableExternalAPI, prividium } from "./config/featureFlags";
+import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
 import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
+import { z } from "zod";
+
+const PRIVIDIUM_TOKEN = "PRIVIDIUM";
+
+interface AppModuleConfig {
+  prividium?: boolean;
+}
 
 @Module({
   imports: [
@@ -34,12 +41,6 @@ import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
       useFactory: (configService: ConfigService) => configService.get<TypeOrmModuleOptions>("typeORM"),
       inject: [ConfigService],
     }),
-    // TMP: disable API modules in Prividium mode until defined how to handle API authentication
-    ...(prividium ? [] : [ApiModule, ApiContractModule]),
-    // TMP: disable external API until release
-    ...(disableExternalAPI || prividium
-      ? []
-      : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
     TokenModule,
     AddressModule,
     BalanceModule,
@@ -50,16 +51,59 @@ import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
     LogModule,
     StatsModule,
     HealthModule,
-    ...(prividium ? PRIVIDIUM_MODULES : []),
   ],
   providers: [Logger, ...metricProviders, DbMetricsService],
 })
 export class AppModule implements NestModule {
+  private prividium?: boolean;
+
+  constructor(@Inject(PRIVIDIUM_TOKEN) moduleConfig: AppModuleConfig, allConfigs: ConfigService) {
+    this.prividium = moduleConfig.prividium;
+
+    if (this.prividium) {
+      const schema = z.object({
+        privateRpcUrl: z.string().url(),
+        privateRpcSecret: z.string().min(1),
+      });
+      const result = schema.safeParse(allConfigs.get("prividium"));
+      if (!result.success) {
+        throw new Error("Invalid Prividium config");
+      }
+    }
+  }
+
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(MetricsMiddleware).forRoutes("*");
 
-    if (prividium) {
+    if (this.prividium) {
       applyPrividiumMiddlewares(consumer);
     }
+  }
+
+  // Factory method to be able to include or exclude Prividium modules
+  static build({ prividium }: AppModuleConfig = {}): DynamicModule {
+    // Notice that values in DynamicModules extend the base module instead of override,
+    // as explained here: https://docs.nestjs.com/modules#dynamic-modules
+    return {
+      module: AppModule,
+      providers: [
+        {
+          provide: PRIVIDIUM_TOKEN,
+          useValue: {
+            prividium,
+          },
+        },
+      ],
+      imports: [
+        /// Only enable prividium modules for prividium chains
+        ...(prividium ? PRIVIDIUM_MODULES : []),
+        // TMP: disable API modules in Prividium mode until defined how to handle API authentication
+        ...(prividium ? [] : [ApiModule, ApiContractModule]),
+        /// TMP: disable external API until release
+        ...(disableExternalAPI || prividium
+          ? []
+          : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
+      ],
+    };
   }
 }

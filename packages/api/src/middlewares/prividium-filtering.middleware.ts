@@ -13,18 +13,22 @@ const UNFILTERED_ROUTES = ["/auth", "/batches", "/blocks", "/health", "/ready", 
 export class PrividiumFilteringMiddleware implements NestMiddleware {
   constructor(private readonly addressService: AddressService, private readonly logService: LogService) {}
 
+  private matchRoute(url: string, match: string): boolean {
+    return url === match || url.startsWith(`${match}/`);
+  }
+
   public async use(req: Request, res: Response, next: NextFunction) {
     const url = getUrlWithoutParams(req.originalUrl);
-    if (UNFILTERED_ROUTES.some((route) => url.startsWith(route))) {
+    if (UNFILTERED_ROUTES.some((route) => this.matchRoute(url, route))) {
       return next();
     }
 
-    if (url.startsWith("/address")) {
+    if (this.matchRoute(url, "/address")) {
       await this.filterAddressControllerRoutes(req, url);
       return next();
     }
 
-    if (url.startsWith("/transactions")) {
+    if (this.matchRoute(url, "/transactions")) {
       this.filterTransactionControllerRoutes(req, res, url);
       return next();
     }
@@ -40,7 +44,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 
     if (!reqAddress) {
-      throw new ForbiddenException({ message: "Access denied" });
+      return;
     }
 
     if (!isContract) {
