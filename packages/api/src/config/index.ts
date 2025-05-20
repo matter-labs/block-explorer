@@ -150,6 +150,10 @@ export default () => {
   };
 
   const getPrividiumConfig = () => {
+    if (!featureFlags.prividium) {
+      return {};
+    }
+
     return {
       privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
       privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
