@@ -44,6 +44,7 @@ async function bootstrap() {
     applyPrividiumExpressConfig(app, {
       sessionSecret: configService.get<string>("prividium.privateRpcSecret"),
       appUrl: configService.get<string>("appUrl"),
+      sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
     });
   } else {
     app.enableCors();

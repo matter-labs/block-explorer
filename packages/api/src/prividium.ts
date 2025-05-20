@@ -7,13 +7,13 @@ import { PrividiumFilteringMiddleware } from "./middlewares/prividium-filtering.
 
 export function applyPrividiumExpressConfig(
   app: NestExpressApplication,
-  { sessionSecret, appUrl }: { sessionSecret: string; appUrl: string }
+  { sessionSecret, appUrl, sessionMaxAge }: { sessionSecret: string; appUrl: string; sessionMaxAge: number }
 ) {
   app.use(
     cookieSession({
       name: "_auth",
       secret: sessionSecret,
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      maxAge: sessionMaxAge,
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
       sameSite: "strict",
