@@ -47,8 +47,11 @@ describe("AuthController", () => {
     });
 
     it("returns a new message each time", async () => {
+      // Ensure that issuedAt and expirationTime are different
       const message1String = controller.getMessage(req, { address });
+      await new Promise((resolve) => setTimeout(resolve, 1));
       const message2String = controller.getMessage(req, { address });
+      await new Promise((resolve) => setTimeout(resolve, 1));
       const message3String = controller.getMessage(req, { address });
 
       const siweMessage1 = new SiweMessage(message1String);
