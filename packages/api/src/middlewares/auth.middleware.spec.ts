@@ -8,7 +8,7 @@ describe("AuthMiddleware", () => {
   it("allows traffic for unprotected route", () => {
     const middleware = new AuthMiddleware();
     const req = mock<Request>();
-    req.originalUrl = "/auth/nonce";
+    req.originalUrl = "/auth/message";
     const res = mock<Response>();
     const next = jest.fn();
     middleware.use(req, res, next);
@@ -33,6 +33,7 @@ describe("AuthMiddleware", () => {
       siwe: new SiweMessage(
         "localhost wants you to sign in with your Ethereum account:\n0x36Ea1B6673eA6269014D6cA0AdCca6598f618319\n\nSign in with Ethereum\n\nURI: http://localhost:3000\nVersion: 1\nChain ID: 1\nNonce: OCLnJ6jNbWdNsxCVl\nIssued At: 2025-05-13T21:38:24.758Z"
       ),
+      verified: true,
     };
     const res = mock<Response>();
     const next = jest.fn();
