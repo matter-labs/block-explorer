@@ -49,6 +49,7 @@ describe("PrividiumFilteringMiddleware", () => {
   const someSecKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
   const someAddress = "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65";
   const someOtherAddress = "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65";
+  const chainId = 300;
 
   let req: Request;
   let res: Response;
@@ -71,7 +72,11 @@ describe("PrividiumFilteringMiddleware", () => {
 
     middleware = new PrividiumFilteringMiddleware(addressService, logService);
 
-    const { siwe: generated, address } = await calculateSiwe({ nonce: "8r2cXq20yD3l5bomR", privateKey: someSecKey });
+    const { siwe: generated, address } = await calculateSiwe({
+      nonce: "8r2cXq20yD3l5bomR",
+      privateKey: someSecKey,
+      chainId,
+    });
     userAddress = buildAddress(address, "0x");
 
     siwe = generated;

@@ -95,6 +95,8 @@ export default () => {
     APP_HOSTNAME,
     PRIVIDIUM_PRIVATE_RPC_URL,
     PRIVIDIUM_PRIVATE_RPC_SECRET,
+    APP_URL,
+    PRIVIDIUM_CHAIN_ID,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -148,9 +150,14 @@ export default () => {
   };
 
   const getPrividiumConfig = () => {
+    if (!featureFlags.prividium) {
+      return {};
+    }
+
     return {
       privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
       privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
+      chainId: parseInt(PRIVIDIUM_CHAIN_ID, 10),
     };
   };
 
@@ -169,5 +176,6 @@ export default () => {
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
     appHostname: APP_HOSTNAME,
     prividium: getPrividiumConfig(),
+    appUrl: APP_URL,
   };
 };

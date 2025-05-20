@@ -14,12 +14,14 @@ export async function calculateSiwe({
   expiresAt = null,
   scheme = "http",
   domain = "localhost",
+  chainId,
 }: {
   nonce: string;
   privateKey: string;
   expiresAt?: null | Date;
   scheme?: "http" | "https";
   domain?: string;
+  chainId: number;
 }): Promise<CalculatedSiwe> {
   // Create account from private key
   const account = new Wallet(privateKey);
@@ -31,7 +33,7 @@ export async function calculateSiwe({
     statement: "Sign in with Ethereum",
     uri: `${scheme}://${domain}`,
     version: "1",
-    chainId: 1,
+    chainId,
     nonce,
     scheme,
   });

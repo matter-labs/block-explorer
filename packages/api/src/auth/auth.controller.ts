@@ -8,6 +8,7 @@ import {
   HttpException,
   UnprocessableEntityException,
   BadRequestException,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -17,6 +18,7 @@ import {
   ApiResponse,
   ApiBadRequestResponse,
   ApiNoContentResponse,
+  ApiBody,
 } from "@nestjs/swagger";
 import { swagger } from "../config/featureFlags";
 import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
@@ -33,15 +35,36 @@ const entityName = "auth";
 export class AuthController {
   constructor(private readonly configService: ConfigService) {}
 
-  @Get("nonce")
+  @Post("message")
   @Header("Content-Type", "text/plain")
-  @ApiOkResponse({
-    description: "Nonce was returned successfully",
-    schema: { type: "string", example: "2lkRALIfNHY16ZARc" },
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        address: { type: "string", example: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" },
+      },
+      required: ["address"],
+    },
   })
-  public getNonce(@Req() req: Request): string {
-    req.session.nonce = generateNonce();
-    return req.session.nonce;
+  @ApiOkResponse({
+    description: "Message was returned successfully",
+    schema: { type: "string" },
+  })
+  public getMessage(@Req() req: Request, @Body() body: { address: string }): string {
+    const message = new SiweMessage({
+      domain: this.configService.get("appHostname"),
+      address: body.address,
+      statement: "Sign in to the Block Explorer",
+      uri: this.configService.get("appUrl"),
+      version: "1",
+      chainId: this.configService.get("prividium.chainId"),
+      nonce: generateNonce(),
+      scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
+      issuedAt: new Date().toISOString(),
+      expirationTime: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour
+    });
+    req.session.siwe = message;
+    return message.prepareMessage();
   }
 
   @Post("verify")
@@ -51,7 +74,7 @@ export class AuthController {
     schema: { type: "boolean" },
   })
   @ApiBadRequestResponse({
-    description: "Nonce must be requested first",
+    description: "Message must be requested first",
     schema: { type: "object", properties: { message: { type: "string" } } },
   })
   @ApiBadRequestResponse({
@@ -68,27 +91,30 @@ export class AuthController {
     schema: { type: "object", properties: { message: { type: "string" } } },
   })
   public async verifySignature(@Body() body: VerifySignatureDto, @Req() req: Request): Promise<boolean> {
-    if (!req.session.nonce) {
-      throw new BadRequestException({ message: "Nonce must be requested first" });
+    if (!req.session.siwe) {
+      this.clearSession(req);
+      throw new BadRequestException({ message: "Message must be requested first" });
     }
 
-    const siweMessage = this.buildSiweMessage(body.message, req);
-    const {
-      data: message,
-      success,
-      error,
-    } = await siweMessage.verify(
+    const siweMessage = new SiweMessage(req.session.siwe);
+    if (siweMessage.chainId !== this.configService.get("prividium.chainId")) {
+      this.clearSession(req);
+      throw new BadRequestException({ message: "Failed to verify signature" });
+    }
+
+    const { success, error } = await siweMessage.verify(
       {
         signature: body.signature,
-        nonce: req.session.nonce,
+        nonce: siweMessage.nonce,
         domain: this.configService.get("appHostname"),
         scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
+        time: new Date().toISOString(),
       },
       { suppressExceptions: true }
     );
 
     if (!success) {
-      req.session = null;
+      this.clearSession(req);
       switch (error.type) {
         case SiweErrorType.EXPIRED_MESSAGE:
           throw new HttpException({ message: error.type }, 440);
@@ -99,7 +125,7 @@ export class AuthController {
       }
     }
 
-    req.session.siwe = message;
+    req.session.verified = true;
     return true;
   }
 
@@ -109,7 +135,7 @@ export class AuthController {
     description: "User was logged out successfully",
   })
   public async logout(@Req() req: Request) {
-    req.session = null;
+    this.clearSession(req);
   }
 
   @Post("token")
@@ -123,6 +149,11 @@ export class AuthController {
         ok: { type: "boolean" },
       },
     },
+  })
+  @ApiResponse({
+    status: 424,
+    description: "Error creating token",
+    schema: { type: "object", properties: { message: { type: "string" } } },
   })
   public async token(@Req() req: Request) {
     const response = await fetch(`${this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL")}/users`, {
@@ -152,15 +183,6 @@ export class AuthController {
     return { address: req.session.siwe.address };
   }
 
-  private buildSiweMessage(msg: string, req: Request): SiweMessage {
-    try {
-      return new SiweMessage(msg);
-    } catch (_e) {
-      req.session = null;
-      throw new BadRequestException({ message: "Failed to verify signature" });
-    }
-  }
-
   private validatePrivateRpcResponse(response: unknown) {
     const schema = z.object({
       ok: z.literal(true),
@@ -169,9 +191,16 @@ export class AuthController {
 
     const result = schema.safeParse(response);
     if (!result.success) {
-      throw new BadRequestException({ message: "Failed to generate token" });
+      // Left as 500 since now everyone is able to generate RPC tokens.
+      // In the future, this must be changed to handle unauthorized responses, once the
+      // Private RPC is adapted.
+      throw new InternalServerErrorException();
     }
 
     return result.data;
+  }
+
+  private clearSession(req: Request) {
+    req.session = null;
   }
 }

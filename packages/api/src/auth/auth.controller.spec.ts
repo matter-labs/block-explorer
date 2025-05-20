@@ -11,52 +11,86 @@ describe("AuthController", () => {
   let controller: AuthController;
   let req: Request;
   let configServiceMock: ConfigService;
+  const address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const chainId = 300;
+  const configServiceValues = {
+    NODE_ENV: "production",
+    appHostname: "blockexplorer.com",
+    appUrl: "https://blockexplorer.com",
+    "prividium.chainId": chainId,
+  };
 
   beforeEach(() => {
     configServiceMock = mock<ConfigService>({
-      get: jest.fn().mockImplementation((key: string) => {
-        switch (key) {
-          case "NODE_ENV":
-            return "production";
-          case "appHostname":
-            return "blockexplorer.com";
-          default:
-            return undefined;
-        }
-      }),
+      get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
     });
     controller = new AuthController(configServiceMock);
     req = mock<Request>();
   });
 
-  describe("#getNonce", () => {
-    it("returns a nonce", async () => {
-      const nonce = controller.getNonce(req);
-      expect(nonce).toHaveLength(17);
+  describe("#getMessage", () => {
+    it("returns a message to sign", async () => {
+      const message = controller.getMessage(req, { address });
+      const siweMessage = new SiweMessage(message);
+      expect(siweMessage.address).toBe(address);
+      expect(siweMessage.nonce).toHaveLength(17);
+      expect(siweMessage.domain).toBe("blockexplorer.com");
+      expect(siweMessage.scheme).toBe("https");
+      expect(siweMessage.expirationTime).toBeDefined();
+      expect(siweMessage.issuedAt).toBeDefined();
     });
 
-    it("returns a new nonce each time", async () => {
-      const nonce1 = controller.getNonce(req);
-      const nonce2 = controller.getNonce(req);
-      const nonce3 = controller.getNonce(req);
+    it("returns a new message each time", async () => {
+      // Ensure that issuedAt and expirationTime are different
+      const message1String = controller.getMessage(req, { address });
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      const message2String = controller.getMessage(req, { address });
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      const message3String = controller.getMessage(req, { address });
 
-      expect(nonce1).not.toEqual(nonce2);
-      expect(nonce1).not.toEqual(nonce3);
-      expect(nonce2).not.toEqual(nonce3);
+      const siweMessage1 = new SiweMessage(message1String);
+      const siweMessage2 = new SiweMessage(message2String);
+      const siweMessage3 = new SiweMessage(message3String);
+
+      // Nonce, ExpirationTime, and IssuedAt should be unique across the three messages
+      const nonces = new Set([siweMessage1.nonce, siweMessage2.nonce, siweMessage3.nonce]);
+      expect(nonces.size).toBe(3);
+
+      const expirationTimes = new Set([
+        siweMessage1.expirationTime,
+        siweMessage2.expirationTime,
+        siweMessage3.expirationTime,
+      ]);
+      expect(expirationTimes.size).toBe(3);
+
+      const issuedAtValues = new Set([siweMessage1.issuedAt, siweMessage2.issuedAt, siweMessage3.issuedAt]);
+      expect(issuedAtValues.size).toBe(3);
     });
 
-    it("sets the new nonce in the cookie", async () => {
-      const nonce = controller.getNonce(req);
-
-      expect(req.session.nonce).toEqual(nonce);
+    it("returns a message with scheme http in development", async () => {
+      const newConfigServiceValues = {
+        ...configServiceValues,
+        NODE_ENV: "development",
+      };
+      configServiceMock = mock<ConfigService>({
+        get: jest.fn().mockImplementation((key: string) => newConfigServiceValues[key]),
+      });
+      const controller = new AuthController(configServiceMock);
+      const message = controller.getMessage(req, { address });
+      const siweMessage = new SiweMessage(message);
+      expect(siweMessage.scheme).toBe("http");
     });
 
-    it("replaces old nonde with new nonce each time", async () => {
-      const nonce1 = controller.getNonce(req);
-      const nonce2 = controller.getNonce(req);
+    it("sets the new message in the cookie", async () => {
+      const message = controller.getMessage(req, { address });
+      expect(req.session.siwe).toEqual(new SiweMessage(message));
+    });
 
-      expect(nonce1).not.toEqual(nonce2);
-      expect(req.session.nonce).toEqual(nonce2);
+    it("replaces old message with a new message each time", async () => {
+      const message1 = controller.getMessage(req, { address });
+      const message2 = controller.getMessage(req, { address });
+      expect(message1).not.toEqual(message2);
+      expect(req.session.siwe).toEqual(new SiweMessage(message2));
     });
   });
 
@@ -66,7 +100,7 @@ describe("AuthController", () => {
       body = new VerifySignatureDto();
     });
 
-    it("throws when there is no nonce", async () => {
+    it("throws when there is no message", async () => {
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(BadRequestException);
     });
 
@@ -87,33 +121,27 @@ describe("AuthController", () => {
 
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      req.session = {
-        nonce: nonce,
-      };
 
-      const { msg, signature } = await calculateSiwe({
+      const { signature, siwe } = await calculateSiwe({
         nonce,
         privateKey,
         domain: "blockexplorer.com",
         scheme: "http",
+        chainId,
       });
-
-      body.message = msg;
+      req.session.siwe = siwe;
+      req.session.verified = false;
       body.signature = signature;
 
       const res = await controller.verifySignature(body, req);
       expect(res).toBe(true);
+      expect(req.session.verified).toBe(true);
     });
 
     it("returns true when a correctly signed message is send", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      req.session = {
-        nonce: nonce,
-      };
-
       const {
-        msg,
         signature,
         address,
         siwe: originalSiwe,
@@ -122,9 +150,10 @@ describe("AuthController", () => {
         privateKey,
         domain: "blockexplorer.com",
         scheme: "https",
+        chainId,
       });
-
-      body.message = msg;
+      req.session.siwe = originalSiwe;
+      req.session.verified = false;
       body.signature = signature;
 
       const res = await controller.verifySignature(body, req);
@@ -135,34 +164,32 @@ describe("AuthController", () => {
       expect(req.session.siwe.chainId).toBe(originalSiwe.chainId);
       expect(req.session.siwe.domain).toBe(originalSiwe.domain);
       expect(req.session.siwe.scheme).toBe(originalSiwe.scheme);
+      expect(req.session.siwe.expirationTime).toBe(originalSiwe.expirationTime);
+      expect(req.session.siwe.issuedAt).toBe(originalSiwe.issuedAt);
+      expect(req.session.siwe.nonce).toBe(originalSiwe.nonce);
+      expect(req.session.verified).toBe(true);
     });
 
-    it("throws error and set session to null when a nonce does not match", async () => {
+    it("throws when msg is not a correct siwe message", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      req.session = {
-        nonce: nonce,
-      };
+      const { signature, siwe } = await calculateSiwe({ nonce, privateKey, chainId });
+      req.session.siwe = siwe;
+      req.session.verified = false;
 
-      const { msg, signature } = await calculateSiwe({ nonce, privateKey });
-
-      body.message = msg.replace(nonce, "falsenonce");
       body.signature = signature;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(BadRequestException);
       expect(req.session).toBe(null);
     });
 
-    it("throws when msg is not a correct siwe message", async () => {
+    it("throws when msg has wrong chainId", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      req.session = {
-        nonce: nonce,
-      };
+      const { signature, siwe } = await calculateSiwe({ nonce, privateKey, chainId: chainId + 1 });
+      req.session.siwe = siwe;
+      req.session.verified = false;
 
-      const { signature } = await calculateSiwe({ nonce, privateKey });
-
-      body.message = "badmsg";
       body.signature = signature;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(BadRequestException);
@@ -172,20 +199,20 @@ describe("AuthController", () => {
     it("throws error and set session to null when a signature cannot be verified", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      req.session = {
-        nonce: nonce,
-      };
 
-      const { msg, signature } = await calculateSiwe({
+      const { signature, siwe } = await calculateSiwe({
         nonce,
         privateKey,
         domain: "blockexplorer.com",
         scheme: "https",
+        chainId,
       });
+
       const badSig = Buffer.from(signature.replace("0x", ""), "hex");
       badSig[badSig.length - 1] = ~badSig[badSig.length - 1] & 0xff; // change 1 byte
 
-      body.message = msg;
+      req.session.siwe = siwe;
+      req.session.verified = false;
       body.signature = `0x${badSig.toString("hex")}`;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(UnprocessableEntityException);
@@ -195,21 +222,18 @@ describe("AuthController", () => {
     it("throws error and set session to null when message is expired", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      req.session = {
-        nonce: nonce,
-      };
-
       const expiresAt = new Date();
       expiresAt.setFullYear(expiresAt.getFullYear() - 1); // One year ago;
-      const { msg, signature } = await calculateSiwe({
+      const { signature, siwe } = await calculateSiwe({
         scheme: "https",
         domain: "blockexplorer.com",
         nonce,
         privateKey,
         expiresAt,
+        chainId,
       });
-
-      body.message = msg;
+      req.session.siwe = siwe;
+      req.session.verified = false;
       body.signature = signature;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(
@@ -234,7 +258,7 @@ describe("AuthController", () => {
     it("returns address stored in session", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      const { siwe, address } = await calculateSiwe({ nonce, privateKey });
+      const { siwe, address } = await calculateSiwe({ nonce, privateKey, chainId });
       req.session.siwe = siwe;
       const res = await controller.me(req);
       expect(res).toEqual({ address });
@@ -253,7 +277,7 @@ describe("AuthController", () => {
       global.fetch = mock;
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      const { siwe: siweMsg } = await calculateSiwe({ nonce, privateKey });
+      const { siwe: siweMsg } = await calculateSiwe({ nonce, privateKey, chainId });
       siwe = siweMsg;
     });
 
