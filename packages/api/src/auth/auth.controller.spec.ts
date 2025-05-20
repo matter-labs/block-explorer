@@ -12,23 +12,16 @@ describe("AuthController", () => {
   let req: Request;
   let configServiceMock: ConfigService;
   const address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const configServiceValues = {
+    NODE_ENV: "production",
+    appHostname: "blockexplorer.com",
+    appUrl: "https://blockexplorer.com",
+    "prividium.chainId": 300,
+  };
 
   beforeEach(() => {
     configServiceMock = mock<ConfigService>({
-      get: jest.fn().mockImplementation((key: string) => {
-        switch (key) {
-          case "NODE_ENV":
-            return "production";
-          case "appHostname":
-            return "blockexplorer.com";
-          case "appUrl":
-            return "https://blockexplorer.com";
-          case "prividium.chainId":
-            return 300;
-          default:
-            return undefined;
-        }
-      }),
+      get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
     });
     controller = new AuthController(configServiceMock);
     req = mock<Request>();
@@ -71,6 +64,20 @@ describe("AuthController", () => {
 
       const issuedAtValues = new Set([siweMessage1.issuedAt, siweMessage2.issuedAt, siweMessage3.issuedAt]);
       expect(issuedAtValues.size).toBe(3);
+    });
+
+    it("returns a message with scheme http in development", async () => {
+      const newConfigServiceValues = {
+        ...configServiceValues,
+        NODE_ENV: "development",
+      };
+      configServiceMock = mock<ConfigService>({
+        get: jest.fn().mockImplementation((key: string) => newConfigServiceValues[key]),
+      });
+      const controller = new AuthController(configServiceMock);
+      const message = controller.getMessage(req, { address });
+      const siweMessage = new SiweMessage(message);
+      expect(siweMessage.scheme).toBe("http");
     });
 
     it("sets the new message in the cookie", async () => {
