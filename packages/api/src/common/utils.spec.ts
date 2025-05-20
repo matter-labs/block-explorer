@@ -11,7 +11,6 @@ import {
   dateToTimestamp,
   numberToHex,
   parseIntToHex,
-  getUrlWithoutParams,
 } from "./utils";
 import { IPaginationOptions } from "./types";
 
@@ -414,24 +413,6 @@ describe("utils", () => {
 
     it("returns 0x if the specified number is not valid int", () => {
       expect(parseIntToHex("azxf")).toBe("0x");
-    });
-  });
-
-  describe("getUrlWithoutParams", () => {
-    it("returns url without params", () => {
-      expect(getUrlWithoutParams("https://example.com/test?param1=value1&param2=value2")).toBe(
-        "https://example.com/test"
-      );
-    });
-
-    it("returns url without params when there are no params", () => {
-      expect(getUrlWithoutParams("https://example.com/test")).toBe("https://example.com/test");
-    });
-
-    it("returns url without params but with hash fragment if present", () => {
-      expect(getUrlWithoutParams("https://example.com/test?param1=value1#section1")).toBe(
-        "https://example.com/test#section1"
-      );
     });
   });
 });

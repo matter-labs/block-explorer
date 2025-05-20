@@ -9,6 +9,7 @@ import {
   UnprocessableEntityException,
   BadRequestException,
   InternalServerErrorException,
+  Param,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -26,6 +27,8 @@ import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
+import { ParseAddressPipe } from "../common/pipes/parseAddress.pipe";
+import { getAddress } from "ethers";
 
 const entityName = "auth";
 

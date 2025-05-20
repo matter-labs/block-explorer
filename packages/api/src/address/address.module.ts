@@ -21,7 +21,6 @@ import { PrividiumAddressController } from "./prividium-address.controller";
     BalanceModule,
     TransferModule,
   ],
-  controllers: [AddressController],
   providers: [AddressService],
   exports: [AddressService],
 })

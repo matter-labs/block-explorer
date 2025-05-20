@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req } from "@nestjs/common";
+import { Controller, Get, Param, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -9,15 +9,14 @@ import {
   ApiExcludeController,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
-import { formatHexAddress, buildDateFilter } from "../common/utils";
+import { buildDateFilter } from "../common/utils";
 import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { BalanceService } from "../balance/balance.service";
-import { AddressType, ContractDto, AccountDto, TokenAddressDto, FilterAddressTransfersOptionsDto } from "./dtos";
+import { ContractDto, AccountDto, TokenAddressDto, FilterAddressTransfersOptionsDto } from "./dtos";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
@@ -25,7 +24,6 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
-import { Request } from "express";
 
 const entityName = "address";
 
@@ -58,54 +56,9 @@ export class AddressController {
   })
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
-    @Param("address", new ParseAddressPipe()) address: string,
-    @Req() _req: Request,
-    includeBalances = true
+    @Param("address", new ParseAddressPipe()) address: string
   ): Promise<AccountDto | ContractDto> {
-    const [addressRecord, addressBalance] = await Promise.all([
-      this.addressService.findOne(address),
-      includeBalances ? this.balanceService.getBalances(address) : Promise.resolve({ balances: {}, blockNumber: 0 }),
-    ]);
-
-    if (addressRecord?.bytecode.length > 2) {
-      const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
-      return {
-        type: AddressType.Contract,
-        ...addressRecord,
-        blockNumber: addressBalance.blockNumber || addressRecord.createdInBlockNumber,
-        balances: addressBalance.balances,
-        createdInBlockNumber: addressRecord.createdInBlockNumber,
-        creatorTxHash: addressRecord.creatorTxHash,
-        totalTransactions,
-        creatorAddress: addressRecord.creatorAddress,
-        isEvmLike: addressRecord.isEvmLike,
-      };
-    }
-
-    if (addressBalance.blockNumber) {
-      const [sealedNonce, verifiedNonce] = await Promise.all([
-        this.transactionService.getAccountNonce({ accountAddress: address }),
-        this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
-      ]);
-
-      return {
-        type: AddressType.Account,
-        address: ethersGetAddress(address),
-        blockNumber: addressBalance.blockNumber,
-        balances: addressBalance.balances,
-        sealedNonce,
-        verifiedNonce,
-      };
-    }
-
-    return {
-      type: AddressType.Account,
-      address: ethersGetAddress(address),
-      blockNumber: await this.blockService.getLastBlockNumber(),
-      balances: {},
-      sealedNonce: 0,
-      verifiedNonce: 0,
-    };
+    return this.addressService.findFullAddress(address, true);
   }
 
   @Get(":address/logs")

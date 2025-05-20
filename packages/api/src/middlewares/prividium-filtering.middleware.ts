@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from "express";
 import { AddressService } from "../address/address.service";
 import { LogService } from "../log/log.service";
 import { FilterTransactionsOptions } from "../transaction/transaction.service";
-import { getUrlWithoutParams } from "../common/utils";
 
 const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
 
@@ -18,17 +17,17 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
   }
 
   public async use(req: Request, res: Response, next: NextFunction) {
-    const url = getUrlWithoutParams(req.originalUrl);
-    if (UNFILTERED_ROUTES.some((route) => this.matchRoute(url, route))) {
+    const path = req.baseUrl;
+    if (UNFILTERED_ROUTES.some((route) => this.matchRoute(path, route))) {
       return next();
     }
 
-    if (this.matchRoute(url, "/address")) {
+    if (this.matchRoute(path, "/address")) {
       return next();
     }
 
-    if (this.matchRoute(url, "/transactions")) {
-      this.filterTransactionControllerRoutes(req, res, url);
+    if (this.matchRoute(path, "/transactions")) {
+      this.filterTransactionControllerRoutes(req, res, path);
       return next();
     }
 

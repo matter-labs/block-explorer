@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import { Repository, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
@@ -10,6 +10,7 @@ import { hexTransformer } from "../common/transformers/hex.transformer";
 export interface FilterLogsOptions {
   transactionHash?: string;
   address?: string;
+  someLogMatch?: string;
 }
 
 export interface FilterLogsByAddressOptions {
@@ -45,10 +46,26 @@ export class LogService {
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
+    const { someLogMatch, ...baseFilters } = filterOptions;
     const queryBuilder = this.logRepository.createQueryBuilder("log");
-    queryBuilder.where(filterOptions);
+    queryBuilder.where(baseFilters);
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
+
+    let params = {};
+    if (someLogMatch) {
+      params = { addr: hexTransformer.to(someLogMatch) };
+
+      queryBuilder.where(
+        new Brackets((qb) => {
+          qb.where(`log.topics[1] = :addr`);
+          qb.orWhere("log.topics[2] = :addr");
+          qb.orWhere("log.topics[3] = :addr");
+        })
+      );
+    }
+    queryBuilder.setParameters(params);
+
     return await paginate<Log>(queryBuilder, paginationOptions);
   }
 
@@ -128,7 +145,7 @@ export class LogService {
   }
 
   // Returns address padded to 32 bytes;
-  async findContractOwner(address: string): Promise<string | null> {
+  async findContractOwnerTopic(address: string): Promise<string | null> {
     const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
     const [log] = await this.findManyByTopics({
       address: address,

@@ -1,13 +1,12 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
-import { getUrlWithoutParams } from "../common/utils";
 
-const UNPROTECTED_ROUTES = ["/auth/message", "/auth/verify", "/auth/logout", "/health", "/ready"];
+const UNPROTECTED_ROUTES = ["/auth/message", "/auth/mock", "/auth/verify", "/auth/logout", "/health", "/ready"];
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  public use(req: Request, res: Response, next: NextFunction) {
-    const url = getUrlWithoutParams(req.originalUrl);
+  public use(req: Request, _res: Response, next: NextFunction) {
+    const url = req.baseUrl;
 
     if (UNPROTECTED_ROUTES.some((route) => url.startsWith(route))) {
       next();
