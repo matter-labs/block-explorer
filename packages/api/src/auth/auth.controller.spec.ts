@@ -12,11 +12,12 @@ describe("AuthController", () => {
   let req: Request;
   let configServiceMock: ConfigService;
   const address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const chainId = 300;
   const configServiceValues = {
     NODE_ENV: "production",
     appHostname: "blockexplorer.com",
     appUrl: "https://blockexplorer.com",
-    "prividium.chainId": 300,
+    "prividium.chainId": chainId,
   };
 
   beforeEach(() => {
@@ -126,6 +127,7 @@ describe("AuthController", () => {
         privateKey,
         domain: "blockexplorer.com",
         scheme: "http",
+        chainId,
       });
       req.session.siwe = siwe;
       req.session.verified = false;
@@ -148,6 +150,7 @@ describe("AuthController", () => {
         privateKey,
         domain: "blockexplorer.com",
         scheme: "https",
+        chainId,
       });
       req.session.siwe = originalSiwe;
       req.session.verified = false;
@@ -170,7 +173,20 @@ describe("AuthController", () => {
     it("throws when msg is not a correct siwe message", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      const { signature, siwe } = await calculateSiwe({ nonce, privateKey });
+      const { signature, siwe } = await calculateSiwe({ nonce, privateKey, chainId });
+      req.session.siwe = siwe;
+      req.session.verified = false;
+
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(BadRequestException);
+      expect(req.session).toBe(null);
+    });
+
+    it("throws when msg has wrong chainId", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+      const { signature, siwe } = await calculateSiwe({ nonce, privateKey, chainId: chainId + 1 });
       req.session.siwe = siwe;
       req.session.verified = false;
 
@@ -189,6 +205,7 @@ describe("AuthController", () => {
         privateKey,
         domain: "blockexplorer.com",
         scheme: "https",
+        chainId,
       });
 
       const badSig = Buffer.from(signature.replace("0x", ""), "hex");
@@ -213,6 +230,7 @@ describe("AuthController", () => {
         nonce,
         privateKey,
         expiresAt,
+        chainId,
       });
       req.session.siwe = siwe;
       req.session.verified = false;
@@ -240,7 +258,7 @@ describe("AuthController", () => {
     it("returns address stored in session", async () => {
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      const { siwe, address } = await calculateSiwe({ nonce, privateKey });
+      const { siwe, address } = await calculateSiwe({ nonce, privateKey, chainId });
       req.session.siwe = siwe;
       const res = await controller.me(req);
       expect(res).toEqual({ address });
@@ -259,7 +277,7 @@ describe("AuthController", () => {
       global.fetch = mock;
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-      const { siwe: siweMsg } = await calculateSiwe({ nonce, privateKey });
+      const { siwe: siweMsg } = await calculateSiwe({ nonce, privateKey, chainId });
       siwe = siweMsg;
     });
 

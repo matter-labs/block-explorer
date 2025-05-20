@@ -8,6 +8,7 @@ import {
   HttpException,
   UnprocessableEntityException,
   BadRequestException,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -17,6 +18,7 @@ import {
   ApiResponse,
   ApiBadRequestResponse,
   ApiNoContentResponse,
+  ApiBody,
 } from "@nestjs/swagger";
 import { swagger } from "../config/featureFlags";
 import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
@@ -35,6 +37,15 @@ export class AuthController {
 
   @Post("message")
   @Header("Content-Type", "text/plain")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        address: { type: "string", example: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" },
+      },
+      required: ["address"],
+    },
+  })
   @ApiOkResponse({
     description: "Message was returned successfully",
     schema: { type: "string" },
@@ -63,7 +74,7 @@ export class AuthController {
     schema: { type: "boolean" },
   })
   @ApiBadRequestResponse({
-    description: "Nonce must be requested first",
+    description: "Message must be requested first",
     schema: { type: "object", properties: { message: { type: "string" } } },
   })
   @ApiBadRequestResponse({
@@ -81,10 +92,16 @@ export class AuthController {
   })
   public async verifySignature(@Body() body: VerifySignatureDto, @Req() req: Request): Promise<boolean> {
     if (!req.session.siwe) {
+      this.clearSession(req);
       throw new BadRequestException({ message: "Message must be requested first" });
     }
 
     const siweMessage = new SiweMessage(req.session.siwe);
+    if (siweMessage.chainId !== this.configService.get("prividium.chainId")) {
+      this.clearSession(req);
+      throw new BadRequestException({ message: "Failed to verify signature" });
+    }
+
     const { success, error } = await siweMessage.verify(
       {
         signature: body.signature,
@@ -97,7 +114,7 @@ export class AuthController {
     );
 
     if (!success) {
-      req.session = null;
+      this.clearSession(req);
       switch (error.type) {
         case SiweErrorType.EXPIRED_MESSAGE:
           throw new HttpException({ message: error.type }, 440);
@@ -118,7 +135,7 @@ export class AuthController {
     description: "User was logged out successfully",
   })
   public async logout(@Req() req: Request) {
-    req.session = null;
+    this.clearSession(req);
   }
 
   @Post("token")
@@ -132,6 +149,11 @@ export class AuthController {
         ok: { type: "boolean" },
       },
     },
+  })
+  @ApiResponse({
+    status: 424,
+    description: "Error creating token",
+    schema: { type: "object", properties: { message: { type: "string" } } },
   })
   public async token(@Req() req: Request) {
     const response = await fetch(`${this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL")}/users`, {
@@ -169,9 +191,16 @@ export class AuthController {
 
     const result = schema.safeParse(response);
     if (!result.success) {
-      throw new BadRequestException({ message: "Failed to generate token" });
+      // Left as 500 since now everyone is able to generate RPC tokens.
+      // In the future, this must be changed to handle unauthorized responses, once the
+      // Private RPC is adapted.
+      throw new InternalServerErrorException();
     }
 
     return result.data;
+  }
+
+  private clearSession(req: Request) {
+    req.session = null;
   }
 }
