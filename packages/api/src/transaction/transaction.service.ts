@@ -10,6 +10,7 @@ import { Batch } from "../batch/batch.entity";
 import { CounterService } from "../counter/counter.service";
 import { Log } from "../log/log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { zeroPadValue } from "ethers";
 
 export interface FilterTransactionsOptions {
   blockNumber?: number;
@@ -128,9 +129,7 @@ export class TransactionService {
           logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
         }
 
-        const addressBytes = filterOptions.address.substring(2);
-        const paddedAddress = `0x${"0".repeat(24)}${addressBytes}`;
-        const logAddressParam = { paddedAddressBytes: hexTransformer.to(paddedAddress) };
+        const logAddressParam = { paddedAddressBytes: hexTransformer.to(zeroPadValue(filterOptions.address, 32)) };
 
         queryBuilder.where(`transaction.hash IN (
           (${addressTransactionSubQuery.getQuery()})

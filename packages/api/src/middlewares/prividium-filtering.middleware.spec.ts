@@ -8,13 +8,7 @@ import { calculateSiwe } from "../../test/utils/siwe-message-tools";
 import { SiweMessage } from "siwe";
 import { Address } from "../address/address.entity";
 import { Log } from "../log/log.entity";
-
-function pad(str: string): string {
-  const bytes = Buffer.from(str.replace("0x", ""), "hex");
-  const pad = Buffer.alloc(32 - bytes.byteLength).fill(0);
-  const padded = Buffer.concat([pad, bytes]);
-  return `0x${padded.toString("hex")}`;
-}
+import { zeroPadValue } from "ethers";
 
 function buildAddress(address: string, bytecode: string): Address {
   const obj = {
@@ -180,7 +174,7 @@ describe("PrividiumFilteringMiddleware", () => {
     const log = buildLog([
       "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
       "0x01",
-      pad(someOtherAddress),
+      zeroPadValue(someOtherAddress, 32),
     ]);
     logService.findManyByTopics.mockReturnValue(Promise.resolve([log]));
 
@@ -199,7 +193,7 @@ describe("PrividiumFilteringMiddleware", () => {
     const log = buildLog([
       "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
       "0x01",
-      pad(userAddress.address),
+      zeroPadValue(userAddress.address, 32),
     ]);
     logService.findManyByTopics.mockReturnValue(Promise.resolve([log]));
 
