@@ -40,13 +40,13 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
   private async filterAddressControllerRoutes(req: Request, url: string) {
     // All routes are filtered by address
     const reqAddress = url.match(/\/address\/([^\/]+)/)?.[1];
-    const userAddress = req.session.siwe.address;
-    const addressRecord = await this.addressService.findOne(reqAddress);
-    const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
-
     if (!reqAddress) {
       return;
     }
+
+    const userAddress = req.session.siwe.address;
+    const addressRecord = await this.addressService.findOne(reqAddress);
+    const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 
     if (!isContract) {
       if (reqAddress.toLowerCase() === userAddress.toLowerCase()) {
