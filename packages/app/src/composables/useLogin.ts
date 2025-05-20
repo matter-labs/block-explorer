@@ -3,7 +3,6 @@ import { type ComputedRef, reactive, type Ref, type ToRefs, toRefs } from "vue";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { BrowserProvider } from "ethers";
 import { $fetch } from "ohmyfetch";
-import { SiweMessage } from "siwe";
 
 import defaultLogger from "./../utils/logger";
 
@@ -65,24 +64,16 @@ export default (
 
       const provider = new BrowserProvider(ethereum);
       const signer = await provider.getSigner();
+      const address = await signer.getAddress();
 
-      // Get nonce from proxy
-      const nonce = await $fetch<string>(`${context.currentNetwork.value.apiUrl}/auth/nonce`, {
+      // Get SIWE message from server
+      const message = await $fetch<string>(`${context.currentNetwork.value.apiUrl}/auth/message`, {
+        method: "POST",
+        body: { address },
         credentials: "include",
       });
 
-      // Create SIWE message
-      const address = await signer.getAddress();
-      const message = new SiweMessage({
-        domain: window.location.host,
-        address,
-        statement: "Sign in with Ethereum",
-        uri: window.location.href,
-        version: "1",
-        chainId: context.currentNetwork.value.l2ChainId,
-        nonce,
-        scheme: process.env.NODE_ENV === "production" ? "https" : "http",
-      }).prepareMessage();
+      // Sign the message
       const signature = await signer.signMessage(message);
 
       // Send signature to proxy
