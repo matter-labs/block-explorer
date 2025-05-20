@@ -11,7 +11,11 @@ import { PrividiumFilteringMiddleware } from "./middlewares/prividium-filtering.
 describe("applyPrividiumExpressConfig", () => {
   it("allows to set cookies", async () => {
     const app = express();
-    applyPrividiumExpressConfig(app as unknown as NestExpressApplication, "secretvalue");
+    (app as any).enableCors = jest.fn(); // Fix for prividium express config
+    applyPrividiumExpressConfig(app as unknown as NestExpressApplication, {
+      sessionSecret: "secretvalue",
+      appUrl: "https://blockexplorer.com",
+    });
     const nonce = "somenonce";
     app.get("/test", (req, res) => {
       req.session.nonce = nonce;
