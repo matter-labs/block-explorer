@@ -24,7 +24,6 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     }
 
     if (this.matchRoute(url, "/address")) {
-      await this.filterAddressControllerRoutes(req, url);
       return next();
     }
 

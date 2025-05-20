@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Req } from "@nestjs/common";
+import { Controller, Get, NotFoundException, Param, Query, Req } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -9,15 +9,13 @@ import {
   ApiExcludeController,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
-import { formatHexAddress, buildDateFilter } from "../common/utils";
 import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { BalanceService } from "../balance/balance.service";
-import { AddressType, ContractDto, AccountDto, TokenAddressDto, FilterAddressTransfersOptionsDto } from "./dtos";
+import { ContractDto, AccountDto, TokenAddressDto, FilterAddressTransfersOptionsDto } from "./dtos";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
@@ -25,22 +23,26 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { AddressController } from "./address.controller";
 import { Request } from "express";
+import { mock } from "jest-mock-extended";
 
 const entityName = "address";
 
 @ApiTags("Address BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-export class AddressController {
+export class PrividiumAddressController extends AddressController {
   constructor(
-    protected readonly addressService: AddressService,
-    protected readonly blockService: BlockService,
-    protected readonly transactionService: TransactionService,
-    protected readonly logService: LogService,
-    protected readonly balanceService: BalanceService,
-    protected readonly transferService: TransferService
-  ) {}
+    addressService: AddressService,
+    blockService: BlockService,
+    transactionService: TransactionService,
+    logService: LogService,
+    balanceService: BalanceService,
+    transferService: TransferService
+  ) {
+    super(addressService, blockService, transactionService, logService, balanceService, transferService);
+  }
 
   @Get(":address")
   @ApiParam({
@@ -59,53 +61,23 @@ export class AddressController {
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Req() _req: Request,
-    includeBalances = true
+    @Req() req: Request
   ): Promise<AccountDto | ContractDto> {
-    const [addressRecord, addressBalance] = await Promise.all([
-      this.addressService.findOne(address),
-      includeBalances ? this.balanceService.getBalances(address) : Promise.resolve({ balances: {}, blockNumber: 0 }),
-    ]);
+    const userAddress = req.session.siwe.address;
+    const addressRecord = await this.addressService.findOne(address);
+    const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 
-    if (addressRecord?.bytecode.length > 2) {
-      const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
-      return {
-        type: AddressType.Contract,
-        ...addressRecord,
-        blockNumber: addressBalance.blockNumber || addressRecord.createdInBlockNumber,
-        balances: addressBalance.balances,
-        createdInBlockNumber: addressRecord.createdInBlockNumber,
-        creatorTxHash: addressRecord.creatorTxHash,
-        totalTransactions,
-        creatorAddress: addressRecord.creatorAddress,
-        isEvmLike: addressRecord.isEvmLike,
-      };
+    if (isContract) {
+      const contractOwner = await this.logService.findContractOwner(address);
+      const paddedUser = "0x" + userAddress.replace("0x", "").padStart(64, "0");
+      return super.getAddress(address, req, paddedUser === contractOwner);
     }
 
-    if (addressBalance.blockNumber) {
-      const [sealedNonce, verifiedNonce] = await Promise.all([
-        this.transactionService.getAccountNonce({ accountAddress: address }),
-        this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
-      ]);
-
-      return {
-        type: AddressType.Account,
-        address: ethersGetAddress(address),
-        blockNumber: addressBalance.blockNumber,
-        balances: addressBalance.balances,
-        sealedNonce,
-        verifiedNonce,
-      };
+    if (userAddress !== address) {
+      throw new NotFoundException();
     }
 
-    return {
-      type: AddressType.Account,
-      address: ethersGetAddress(address),
-      blockNumber: await this.blockService.getLastBlockNumber(),
-      balances: {},
-      sealedNonce: 0,
-      verifiedNonce: 0,
-    };
+    return super.getAddress(address, mock<Request>());
   }
 
   @Get(":address/logs")
@@ -124,13 +96,7 @@ export class AddressController {
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<LogDto>> {
-    return await this.logService.findAll(
-      { address },
-      {
-        ...pagingOptions,
-        route: `${entityName}/${address}/logs`,
-      }
-    );
+    return super.getAddressLogs(address, pagingOptions);
   }
 
   @Get(":address/transfers")
@@ -151,25 +117,6 @@ export class AddressController {
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransferDto>> {
-    const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
-
-    return await this.transferService.findAll(
-      {
-        address,
-        ...filterTransfersListOptions,
-        ...(filterAddressTransferOptions.type
-          ? {
-              type: filterAddressTransferOptions.type,
-            }
-          : {
-              isFeeOrRefund: false,
-            }),
-      },
-      {
-        filterOptions: { ...filterAddressTransferOptions, ...listFilterOptions },
-        ...pagingOptions,
-        route: `${entityName}/${address}/transfers`,
-      }
-    );
+    return super.getAddressTransfers(address, filterAddressTransferOptions, listFilterOptions, pagingOptions);
   }
 }
