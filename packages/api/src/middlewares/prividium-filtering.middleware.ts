@@ -92,13 +92,15 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
 
     // If target address is provided, and it's own address, transaction is not filtered
     if (this.isOwnAddress(req, targetAddress)) {
+      res.locals.filterTransactionsOptions = {
+        filterAddressInLogTopics: true,
+      };
       return;
     }
 
     // If target address is provided, and it's not own address, we filter transactions
     // between own address and target address
     res.locals.filterTransactionsOptions = {
-      address: targetAddress,
       visibleBy: req.session.siwe.address,
       filterAddressInLogTopics: true,
     };
