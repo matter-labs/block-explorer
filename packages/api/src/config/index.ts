@@ -92,6 +92,12 @@ export default () => {
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
+    APP_HOSTNAME,
+    PRIVIDIUM_PRIVATE_RPC_URL,
+    PRIVIDIUM_PRIVATE_RPC_SECRET,
+    APP_URL,
+    PRIVIDIUM_CHAIN_ID,
+    PRIVIDIUM_SESSION_MAX_AGE,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -144,6 +150,19 @@ export default () => {
     };
   };
 
+  const getPrividiumConfig = () => {
+    if (!featureFlags.prividium) {
+      return {};
+    }
+
+    return {
+      privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
+      privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
+      chainId: parseInt(PRIVIDIUM_CHAIN_ID, 10),
+      sessionMaxAge: parseInt(PRIVIDIUM_SESSION_MAX_AGE, 10),
+    };
+  };
+
   return {
     NODE_ENV,
     port: parseInt(PORT, 10) || 3020,
@@ -157,5 +176,8 @@ export default () => {
     baseToken: getBaseToken(),
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
+    appHostname: APP_HOSTNAME,
+    prividium: getPrividiumConfig(),
+    appUrl: APP_URL,
   };
 };
