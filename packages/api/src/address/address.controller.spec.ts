@@ -8,9 +8,7 @@ import { BlockService } from "../block/block.service";
 import { LogService } from "../log/log.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { Log } from "../log/log.entity";
-import { Token } from "../token/token.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { AddressType } from "./dtos/baseAddress.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer, TransferType } from "../transfer/transfer.entity";
 
@@ -28,7 +26,6 @@ describe("AddressController", () => {
   let transactionServiceMock: TransactionService;
   let transferServiceMock: TransferService;
   const blockchainAddress = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
-  const normalizedAddress = "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF";
   const pagingOptions: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
 
   beforeEach(async () => {
@@ -73,8 +70,6 @@ describe("AddressController", () => {
   });
 
   describe("getAddress", () => {
-    let addressRecord;
-
     beforeEach(() => {
       (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue({
         blockNumber: 0,

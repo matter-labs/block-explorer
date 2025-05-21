@@ -11,7 +11,6 @@ import { pad } from "../common/utils";
 import { BlockService } from "../block/block.service";
 import { getAddress } from "ethers";
 import { TransferType } from "../transfer/transfer.entity";
-import { undefined } from "zod";
 
 describe("PrividiumAddressController", () => {
   let addressService: MockProxy<AddressService>;

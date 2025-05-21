@@ -6,7 +6,6 @@ import {
   SelectQueryBuilder,
   MoreThanOrEqual,
   LessThanOrEqual,
-  QueryBuilder,
   Brackets,
   WhereExpressionBuilder,
 } from "typeorm";

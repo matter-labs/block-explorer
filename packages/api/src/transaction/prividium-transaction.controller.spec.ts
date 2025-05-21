@@ -1,4 +1,4 @@
-import { PrividiumTransactionController, TransactionControllerClass } from "./prividium-transaction.controller";
+import { PrividiumTransactionController } from "./prividium-transaction.controller";
 import { mock, MockProxy } from "jest-mock-extended";
 import { TransactionService } from "./transaction.service";
 import { TransferService } from "../transfer/transfer.service";
