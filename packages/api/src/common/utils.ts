@@ -129,7 +129,3 @@ export const parseIntToHex = (numStr: string) => {
 export const parseReqPathname = (req: Request) => {
   return new URL(req.originalUrl, "http://localhost").pathname;
 };
-
-export function pad(addr: string): string {
-  return "0x" + addr.replace("0x", "").padStart(64, "0");
-}

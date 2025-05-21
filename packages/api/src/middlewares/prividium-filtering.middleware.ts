@@ -2,7 +2,8 @@ import { ForbiddenException, Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 import { AddressService } from "../address/address.service";
 import { LogService } from "../log/log.service";
-import { pad, parseReqPathname } from "../common/utils";
+import { parseReqPathname } from "../common/utils";
+import { zeroPadValue } from "ethers";
 
 /** Hash of event `OwnershipTransferred(address indexed previousOwner, address indexed newOwner)` */
 const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
@@ -92,7 +93,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       throw new ForbiddenException();
     }
 
-    const isOwner = newOwner?.toLowerCase() === pad(userAddress).toLowerCase();
+    const isOwner = newOwner?.toLowerCase() === zeroPadValue(userAddress, 32).toLowerCase();
     res.locals.filterAddressOptions = {
       includeBalances: isOwner,
     };

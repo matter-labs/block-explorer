@@ -3,9 +3,10 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
-import { pad, paginate } from "../common/utils";
+import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { zeroPadValue } from "ethers";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
@@ -52,7 +53,7 @@ export class LogService {
 
     if (visibleBy !== undefined) {
       queryBuilder.innerJoin("log.transaction", "transactions");
-      const topic = pad(visibleBy);
+      const topic = zeroPadValue(visibleBy, 32);
       queryBuilder.where(
         new Brackets((qb) => {
           qb.where(`log.topics[1] = :visibleByTopic`);
