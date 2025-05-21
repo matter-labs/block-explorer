@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 import { AddressService } from "../address/address.service";
 import { LogService } from "../log/log.service";
-import { parseReqPathname } from "../common/utils";
+import { pad, parseReqPathname } from "../common/utils";
 
 /** Hash of event `OwnershipTransferred(address indexed previousOwner, address indexed newOwner)` */
 const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
@@ -20,7 +20,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     }
 
     if (this.matchRoute(pathname, "/address")) {
-      await this.filterAddressControllerRoutes(req, pathname);
+      await this.filterAddressControllerRoutes(req, pathname, res);
       return next();
     }
 
@@ -32,11 +32,14 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     throw new ForbiddenException();
   }
 
-  private async filterAddressControllerRoutes(req: Request, pathname: string) {
+  private async filterAddressControllerRoutes(req: Request, pathname: string, res: Response) {
     // All routes are filtered by address located in the path
     // /address/0x123/logs -> 0x123
     const pathSegments = pathname.split("/");
     const reqAddress = pathSegments[2];
+
+    // If no address is specified this keeps the chain and ends in not found
+    // beacuse /address does not exist.
     if (!reqAddress) {
       return;
     }
@@ -66,11 +69,11 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       throw new ForbiddenException();
     }
 
-    // Parse from log topic (32 bytes) to address (20 bytes)
-    const newOwnerAddress = `0x${newOwner.slice(64 + 2 - 40)}`;
-    if (newOwnerAddress.toLowerCase() !== userAddress.toLowerCase()) {
-      throw new ForbiddenException();
-    }
+    const isOwner = newOwner?.toLowerCase() === pad(userAddress).toLowerCase();
+    res.locals.filterAddressOptions = {
+      ...res.locals.filterAddressOptions,
+      includeBalances: isOwner,
+    };
   }
 
   private filterTransactionControllerRoutes(req: Request, res: Response, pathname: string) {

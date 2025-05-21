@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, Get, Param, Query, Res } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -25,6 +25,7 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { Response } from "express";
 
 const entityName = "address";
 
@@ -57,11 +58,14 @@ export class AddressController {
   })
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
-    @Param("address", new ParseAddressPipe()) address: string
+    @Param("address", new ParseAddressPipe()) address: string,
+    @Res({ passthrough: true }) res: Response
   ): Promise<AccountDto | ContractDto> {
+    const includeBalances = (res?.locals?.filterAddressOptions ?? { includeBalances: true }).includeBalances;
+
     const [addressRecord, addressBalance] = await Promise.all([
       this.addressService.findOne(address),
-      this.balanceService.getBalances(address),
+      includeBalances ? this.balanceService.getBalances(address) : Promise.resolve({ blockNumber: 0, balances: {} }),
     ]);
 
     if (addressRecord?.bytecode.length > 2) {

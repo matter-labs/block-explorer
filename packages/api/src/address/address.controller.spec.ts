@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { AddressController } from "./address.controller";
 import { AddressService } from "./address.service";
@@ -10,9 +10,10 @@ import { TransactionService } from "../transaction/transaction.service";
 import { Log } from "../log/log.entity";
 import { Token } from "../token/token.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { AddressType } from "./dtos/baseAddress.dto";
+import { AddressType } from "./dtos";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer, TransferType } from "../transfer/transfer.entity";
+import { Response } from "express";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -31,6 +32,8 @@ describe("AddressController", () => {
   const normalizedAddress = "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF";
   const pagingOptions: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
 
+  let res: MockProxy<Response>;
+
   beforeEach(async () => {
     serviceMock = mock<AddressService>();
     blockServiceMock = mock<BlockService>();
@@ -38,6 +41,8 @@ describe("AddressController", () => {
     logServiceMock = mock<LogService>();
     balanceServiceMock = mock<BalanceService>();
     transferServiceMock = mock<TransferService>();
+
+    res = mock<Response>();
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AddressController],
@@ -83,13 +88,15 @@ describe("AddressController", () => {
     });
 
     it("queries addresses by specified address", async () => {
-      await controller.getAddress(blockchainAddress);
+      const res = mock<Response>();
+      await controller.getAddress(blockchainAddress, res);
       expect(serviceMock.findOne).toHaveBeenCalledTimes(1);
       expect(serviceMock.findOne).toHaveBeenCalledWith(blockchainAddress);
     });
 
     it("queries address balances", async () => {
-      await controller.getAddress(blockchainAddress);
+      const res = mock<Response>();
+      await controller.getAddress(blockchainAddress, res);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
     });
@@ -127,7 +134,7 @@ describe("AddressController", () => {
       });
 
       it("queries totalTransactions value from transaction receipt repo with formatted contractAddress", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, res);
         expect(transactionServiceMock.count).toHaveBeenCalledTimes(1);
         expect(transactionServiceMock.count).toHaveBeenCalledWith({
           "from|to": "0xffffffffffffffffffffffffffffffffffffffff",
@@ -135,7 +142,7 @@ describe("AddressController", () => {
       });
 
       it("returns the contract address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, res);
         expect(result).toStrictEqual({
           type: AddressType.Contract,
           ...addressRecord,
@@ -157,7 +164,7 @@ describe("AddressController", () => {
         });
 
         it("returns the contract address record with empty balances and block number from the address record", async () => {
-          const result = await controller.getAddress(blockchainAddress);
+          const result = await controller.getAddress(blockchainAddress, res);
           expect(result).toStrictEqual({
             type: AddressType.Contract,
             ...addressRecord,
@@ -195,7 +202,7 @@ describe("AddressController", () => {
       });
 
       it("queries account sealed and verified nonce", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, res);
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledTimes(2);
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({ accountAddress: blockchainAddress });
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({
@@ -205,13 +212,13 @@ describe("AddressController", () => {
       });
 
       it("queries account balances", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, res);
         expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
         expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
       });
 
       it("returns the account address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, res);
         expect(result).toStrictEqual({
           type: AddressType.Account,
           address: normalizedAddress,
@@ -235,7 +242,7 @@ describe("AddressController", () => {
       });
 
       it("returns the default account address response", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, res);
         expect(result).toStrictEqual({
           type: AddressType.Account,
           address: normalizedAddress,
