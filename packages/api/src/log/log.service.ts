@@ -55,13 +55,14 @@ export class LogService {
       const topic = pad(visibleBy);
       queryBuilder.where(
         new Brackets((qb) => {
-          qb.where(`log.topics[1] = :addr1`, { addr1: hexTransformer.to(topic) });
-          qb.orWhere("log.topics[2] = :addr2", { addr2: hexTransformer.to(topic) });
-          qb.orWhere("log.topics[3] = :addr3", { addr3: hexTransformer.to(topic) });
-          qb.orWhere("transactions.from = :addrFrom", { addFrom: hexTransformer.to(visibleBy) });
-          qb.orWhere("transactions.to = :addrTo", { addrTo: hexTransformer.to(visibleBy) });
+          qb.where(`log.topics[1] = :visibleByTopic`);
+          qb.orWhere("log.topics[2] = :visibleByTopic");
+          qb.orWhere("log.topics[3] = :visibleByTopic");
+          qb.orWhere("transactions.from = :visibleBy");
+          qb.orWhere("transactions.to = :visibleBy");
         })
       );
+      queryBuilder.setParameters({ visibleByTopic: hexTransformer.to(topic), visibleBy: hexTransformer.to(visibleBy) });
     }
 
     queryBuilder.orderBy("log.timestamp", "DESC");
