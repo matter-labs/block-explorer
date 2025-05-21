@@ -15,6 +15,7 @@ describe("applyPrividiumExpressConfig", () => {
     applyPrividiumExpressConfig(app as unknown as NestExpressApplication, {
       sessionSecret: "secretvalue",
       appUrl: "https://blockexplorer.com",
+      sessionMaxAge: 1000,
     });
     const nonce = "somenonce";
     app.get("/test", (req, res) => {

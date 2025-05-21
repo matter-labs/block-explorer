@@ -72,6 +72,9 @@ describe("config", () => {
     process.env.PRIVIDIUM_PRIVATE_RPC_URL = "http://localhost:4000";
     process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "secret";
     process.env.PRIVIDIUM_CHAIN_ID = "300";
+    process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
+    process.env.APP_URL = "http://localhost:3020";
+    process.env.APP_HOSTNAME = "localhost";
 
     jest.resetModules();
     jest.doMock("./featureFlags", () => ({
@@ -132,7 +135,10 @@ describe("config", () => {
         privateRpcUrl: "http://localhost:4000",
         privateRpcSecret: "secret",
         chainId: 300,
+        sessionMaxAge: 1000,
       },
+      appUrl: "http://localhost:3020",
+      appHostname: "localhost",
     });
   });
 
