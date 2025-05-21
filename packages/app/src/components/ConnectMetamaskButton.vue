@@ -1,6 +1,6 @@
 <template>
   <div class="metamask-button" :class="{ disabled: buttonDisabled }">
-    <img src="/images/metamask.svg" class="metamask-image" />
+    <img src="/images/wallet_icon.svg" class="metamask-image" @click="openModalConditionally" />
     <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="connect">
       {{ buttonText }}
     </button>
@@ -151,33 +151,33 @@ const shortenedAddress = computed(() => formatShortAddress(displayAddress.value)
   @apply relative flex w-full min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
   &:not(.disabled) {
     @apply hover:cursor-pointer;
+    &:hover {
+      @apply bg-primary-700;
+    }
   }
   &.disabled {
     @apply opacity-50;
   }
   .metamask-image {
     @apply mr-2 h-4 w-4;
+    &.clickable {
+      @apply cursor-pointer;
+    }
   }
   .address-text {
     @apply flex font-sans font-medium text-sm leading-5 cursor-pointer items-center justify-center w-full;
   }
-  .dropdown-container {
-    @apply absolute right-2 top-1/2 -translate-y-1/2;
-    .dropdown-button {
-      @apply flex h-6 w-6 items-center justify-center rounded-md hover:bg-primary-700;
-    }
-    .dropdown-options {
-      @apply absolute right-0 top-[calc(100%+4px)] w-[120px] rounded-lg bg-white shadow-md;
-      .logout-button {
-        @apply w-full rounded-lg px-2 py-1 text-left text-neutral-700 hover:bg-neutral-100;
-      }
-    }
+  .clickable-icon-area {
+    @apply absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-md hover:bg-primary-700 cursor-pointer;
   }
   .login-button {
-    @apply font-sans text-base text-white;
+    @apply font-sans font-medium text-sm leading-5 text-white;
     &:disabled {
       @apply cursor-not-allowed;
     }
   }
+}
+.balance-loading {
+  @apply text-sm text-neutral-500;
 }
 </style>

@@ -14,10 +14,13 @@
       <button
         @click="handleLogin"
         :disabled="isLoginPending"
-        class="w-full px-4 py-2 text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="w-[200px] h-[56px] px-8 py-4 text-black bg-white rounded-[28px] hover:bg-gray-200 disabled:opacity-70 disabled:cursor-not-allowed font-semibold text-base flex items-center justify-center mx-auto"
       >
-        {{ isLoginPending ? "Connecting..." : "Connect Wallet" }}
+        {{ isLoginPending ? "Connecting..." : "Connect wallet" }}
       </button>
+      <p class="text-gray-500 mt-6 text-center text-[14px] leading-[20px] font-normal">
+        Only authorized addresses can continue.
+      </p>
     </div>
   </div>
 </template>
