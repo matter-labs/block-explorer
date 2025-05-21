@@ -52,6 +52,13 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       return;
     }
 
+    if (pathSegments[3] === "transfers") {
+      res.locals.filterAddressTransferOptions = {
+        forceAddress: userAddress,
+      };
+      return;
+    }
+
     const addressRecord = await this.addressService.findOne(reqAddress);
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 

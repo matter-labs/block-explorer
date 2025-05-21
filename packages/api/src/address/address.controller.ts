@@ -8,7 +8,7 @@ import {
   refs,
   ApiExcludeController,
 } from "@nestjs/swagger";
-import { Pagination } from "nestjs-typeorm-paginate";
+import { createPaginationObject, Pagination } from "nestjs-typeorm-paginate";
 import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
@@ -152,8 +152,19 @@ export class AddressController {
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() filterAddressTransferOptions: FilterAddressTransfersOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Res({ passthrough: true }) res: Response
   ): Promise<Pagination<TransferDto>> {
+    const { forceAddress } = res.locals.filterAddressTransferOptions ?? {};
+    if (forceAddress !== undefined && forceAddress.toLowerCase() !== address.toLowerCase()) {
+      return createPaginationObject({
+        items: [],
+        currentPage: 1,
+        limit: 10,
+        route: `${entityName}/${address}/transfers`,
+      });
+    }
+
     const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
 
     return await this.transferService.findAll(
