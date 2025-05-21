@@ -122,13 +122,11 @@ const closeModal = () => {
   isWalletInfoModalOpen.value = false;
 };
 
-const handleLogout = async () => {
-  await logout();
-  walletDisconnect();
-};
-
 const handleLogoutAndCloseModal = async () => {
-  await handleLogout();
+  if (context.currentNetwork.value.prividium) {
+    await logout();
+  }
+  walletDisconnect();
   closeModal();
 };
 

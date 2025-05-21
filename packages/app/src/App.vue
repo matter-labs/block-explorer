@@ -51,8 +51,10 @@ setup();
 const isAuthCheckComplete = ref(false);
 
 onMounted(async () => {
-  await initializeLogin();
-  isAuthCheckComplete.value = true;
+  if (prividium.value) {
+    await initializeLogin();
+    isAuthCheckComplete.value = true;
+  }
 });
 
 watchEffect(() => {

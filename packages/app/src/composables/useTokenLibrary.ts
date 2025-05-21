@@ -4,6 +4,7 @@ import { useMemoize } from "@vueuse/core";
 import { $fetch } from "ohmyfetch";
 
 import useContext, { type Context } from "@/composables/useContext";
+import useFetch from "@/composables/useFetch";
 
 const retrieveTokens = useMemoize(
   async (context: Context): Promise<Api.Response.Token[]> => {
@@ -18,11 +19,8 @@ const retrieveTokens = useMemoize(
     let hasMore = true;
 
     while (hasMore) {
-      const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
-        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`,
-        {
-          credentials: "include",
-        }
+      const tokensResponse = await useFetch()<Api.Response.Collection<Api.Response.Token>>(
+        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`
       );
       tokens.push(...tokensResponse.items);
       page++;

@@ -1,6 +1,6 @@
 import { computed, type ComputedRef, ref, type Ref } from "vue";
 
-import { $fetch } from "ohmyfetch";
+import useAnotherFetch from "@/composables/useFetch";
 
 export type UseFetch<T> = {
   pending: ComputedRef<boolean>;
@@ -22,9 +22,7 @@ export function useFetch<T>(getRequestUrl: (...params: string[]) => URL): UseFet
     failed.value = false;
 
     try {
-      const response = await $fetch<T>(getRequestUrl(...params).toString(), {
-        credentials: "include",
-      });
+      const response = await useAnotherFetch()<T>(getRequestUrl(...params).toString());
 
       item.value = response;
     } catch (error) {

@@ -2,9 +2,10 @@ import { type ComputedRef, reactive, type Ref, type ToRefs, toRefs } from "vue";
 
 import detectEthereumProvider from "@metamask/detect-provider";
 import { BrowserProvider } from "ethers";
-import { $fetch } from "ohmyfetch";
 
 import defaultLogger from "./../utils/logger";
+
+import useFetch from "@/composables/useFetch";
 
 import type { UserContext } from "./useContext";
 import type { NetworkConfig } from "../configs";
@@ -41,9 +42,7 @@ export default (
 
   const initializeLogin = async () => {
     try {
-      const response = await $fetch<{ address: string }>(`${context.currentNetwork.value.apiUrl}/auth/me`, {
-        credentials: "include",
-      });
+      const response = await useFetch()<{ address: string }>(`${context.currentNetwork.value.apiUrl}/auth/me`);
       if (response.address) {
         context.user.value = { address: response.address, loggedIn: true };
       }
@@ -67,10 +66,9 @@ export default (
       const address = await signer.getAddress();
 
       // Get SIWE message from server
-      const message = await $fetch<string>(`${context.currentNetwork.value.apiUrl}/auth/message`, {
+      const message = await useFetch()<string>(`${context.currentNetwork.value.apiUrl}/auth/message`, {
         method: "POST",
         body: { address },
-        credentials: "include",
       });
 
       // Sign the message
@@ -78,10 +76,9 @@ export default (
 
       // Send signature to proxy
       try {
-        await $fetch(`${context.currentNetwork.value.apiUrl}/auth/verify`, {
+        await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/verify`, {
           method: "POST",
           body: { signature, message },
-          credentials: "include",
         });
       } catch (error) {
         console.error("Verify request failed:", error);
@@ -100,8 +97,7 @@ export default (
   };
 
   const logout = async () => {
-    await $fetch(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
-      credentials: "include",
+    await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
       method: "POST",
     });
     context.user.value = { loggedIn: false };

@@ -1,8 +1,7 @@
 import { computed, ref } from "vue";
 
-import { $fetch } from "ohmyfetch";
-
 import useContext from "@/composables/useContext";
+import useFetch from "@/composables/useFetch";
 
 export default (context = useContext()) => {
   const rpcToken = ref<string | null>(null);
@@ -18,10 +17,12 @@ export default (context = useContext()) => {
       return;
     }
 
-    const response = await $fetch<{ ok: true; token: string }>(`${context.currentNetwork.value.apiUrl}/auth/token`, {
-      credentials: "include",
-      method: "POST",
-    });
+    const response = await useFetch()<{ ok: true; token: string }>(
+      `${context.currentNetwork.value.apiUrl}/auth/token`,
+      {
+        method: "POST",
+      }
+    );
     rpcToken.value = response.token;
   };
 
