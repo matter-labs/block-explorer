@@ -101,7 +101,7 @@ describe("PrividiumFilteringMiddleware", () => {
     }
   });
 
-  it("filters traffic four routes not whitelisted but that share prefix with whitelisted routes", async () => {
+  it("filters traffic for routes not whitelisted but that share prefix with whitelisted routes", async () => {
     req.originalUrl = "/health-sensitive";
     await expect(() => middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
     expect(next).not.toHaveBeenCalled();

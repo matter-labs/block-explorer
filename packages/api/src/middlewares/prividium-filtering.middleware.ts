@@ -16,16 +16,16 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
 
   public async use(req: Request, res: Response, next: NextFunction) {
     const pathname = parseReqPathname(req);
-    if (UNFILTERED_ROUTES.some((route) => pathname.startsWith(route))) {
+    if (UNFILTERED_ROUTES.some((route) => this.matchRoute(pathname, route))) {
       return next();
     }
 
-    if (pathname.startsWith("/address")) {
+    if (this.matchRoute(pathname, "/address")) {
       await this.filterAddressControllerRoutes(req, pathname);
       return next();
     }
 
-    if (pathname.startsWith("/transactions")) {
+    if (this.matchRoute(pathname, "/transactions")) {
       this.filterTransactionControllerRoutes(req, res, pathname);
       return next();
     }
@@ -39,7 +39,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     const pathSegments = pathname.split("/");
     const reqAddress = pathSegments[2];
     if (!reqAddress) {
-      throw new ForbiddenException();
+      return;
     }
 
     const userAddress = req.session.siwe.address;
@@ -86,5 +86,9 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
           ? { ...res.locals.filterTransactionsOptions, ...filter }
           : filter;
     }
+  }
+
+  private matchRoute(url: string, match: string): boolean {
+    return url === match || url.startsWith(`${match}/`);
   }
 }
