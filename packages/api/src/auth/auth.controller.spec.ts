@@ -2,7 +2,12 @@ import { AuthController } from "./auth.controller";
 import { mock } from "jest-mock-extended";
 import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
-import { BadRequestException, HttpException, UnprocessableEntityException } from "@nestjs/common";
+import {
+  BadRequestException,
+  HttpException,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from "@nestjs/common";
 import { calculateSiwe } from "../../test/utils/siwe-message-tools";
 import { ConfigService } from "@nestjs/config";
 import { SiweMessage } from "siwe";
@@ -112,6 +117,8 @@ describe("AuthController", () => {
               return "development";
             case "appHostname":
               return "blockexplorer.com";
+            case "prividium.chainId":
+              return chainId;
             default:
               return undefined;
           }
@@ -298,9 +305,7 @@ describe("AuthController", () => {
       req.session.siwe = siwe;
       mockFetch.mockReturnValue(Promise.resolve(rpcResponse));
 
-      await expect(() => controller.token(req)).rejects.toThrow(
-        new BadRequestException({ message: "Failed to generate token" })
-      );
+      await expect(() => controller.token(req)).rejects.toThrow(new InternalServerErrorException());
     });
 
     it("returns correct response if rpc returns correct value", async () => {
@@ -349,7 +354,7 @@ describe("AuthController", () => {
       req.session.siwe = siwe;
 
       mockFetch.mockReturnValue(Promise.resolve(rpcResponse));
-      await expect(() => controller.token(req)).rejects.toThrow(new BadRequestException("Failed to generate token"));
+      await expect(() => controller.token(req)).rejects.toThrow(new InternalServerErrorException());
     });
   });
 });
