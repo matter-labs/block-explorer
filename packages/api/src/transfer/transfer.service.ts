@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, SortingOrder } from "../common/types";
@@ -8,6 +8,7 @@ import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
+import { hexTransformer } from "../common/transformers/hex.transformer";
 
 export interface FilterTransfersOptions {
   tokenAddress?: string;
@@ -16,6 +17,7 @@ export interface FilterTransfersOptions {
   timestamp?: FindOperator<Date>;
   isFeeOrRefund?: boolean;
   type?: TransferType;
+  transactingWith?: string;
 }
 
 export interface FilterTokenTransfersOptions {
@@ -52,14 +54,28 @@ export class TransferService {
     filterOptions: FilterTransfersOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transfer>> {
-    if (filterOptions.address) {
+    const { transactingWith, ...basicOptions } = filterOptions;
+
+    if (basicOptions.address) {
       const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
       queryBuilder.select("addressTransfer.number");
       queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
-      queryBuilder.where(filterOptions);
+      queryBuilder.where(basicOptions);
       queryBuilder.orderBy("addressTransfer.timestamp", "DESC");
       queryBuilder.addOrderBy("addressTransfer.logIndex", "ASC");
+
+      if (transactingWith) {
+        queryBuilder.leftJoin("addressTransfer.transfer", "transfers");
+        queryBuilder.where(
+          new Brackets((qb) => {
+            qb.where("transfers.from = :transactingWith");
+            qb.orWhere("transfers.to = :transactingWith");
+          })
+        );
+        queryBuilder.setParameters({ transactingWith: hexTransformer.to(transactingWith) });
+      }
+
       const addressTransfers = await paginate<AddressTransfer>(queryBuilder, paginationOptions);
       return {
         ...addressTransfers,
@@ -67,7 +83,7 @@ export class TransferService {
       };
     } else {
       const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-      queryBuilder.where(filterOptions);
+      queryBuilder.where(basicOptions);
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
       queryBuilder.orderBy("transfer.timestamp", "DESC");
       queryBuilder.addOrderBy("transfer.logIndex", "ASC");

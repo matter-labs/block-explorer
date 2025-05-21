@@ -155,15 +155,7 @@ export class AddressController {
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @Res({ passthrough: true }) res: Response
   ): Promise<Pagination<TransferDto>> {
-    const { forceAddress } = res.locals.filterAddressTransferOptions ?? {};
-    if (forceAddress !== undefined && forceAddress.toLowerCase() !== address.toLowerCase()) {
-      return createPaginationObject({
-        items: [],
-        currentPage: 1,
-        limit: 10,
-        route: `${entityName}/${address}/transfers`,
-      });
-    }
+    const extraFilters = res.locals.filterAddressTransferOptions ?? {};
 
     const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
 
@@ -178,6 +170,7 @@ export class AddressController {
           : {
               isFeeOrRefund: false,
             }),
+        ...extraFilters,
       },
       {
         filterOptions: { ...filterAddressTransferOptions, ...listFilterOptions },
