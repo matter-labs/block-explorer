@@ -7,7 +7,7 @@ import { pad, parseReqPathname } from "../common/utils";
 /** Hash of event `OwnershipTransferred(address indexed previousOwner, address indexed newOwner)` */
 const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
 
-const UNFILTERED_ROUTES = ["/auth", "/batches", "/blocks", "/health", "/ready", "/stats", "/tokens"];
+const UNFILTERED_ROUTES = ["/auth", "/batches", "/blocks", "/health", "/ready", "/stats"];
 
 @Injectable()
 export class PrividiumFilteringMiddleware implements NestMiddleware {
@@ -26,6 +26,11 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
 
     if (this.matchRoute(pathname, "/transactions")) {
       this.filterTransactionControllerRoutes(req, res, pathname);
+      return next();
+    }
+
+    if (this.matchRoute(pathname, "/tokens")) {
+      this.filterTokenControllerRoutes(req, res, pathname);
       return next();
     }
 
@@ -88,6 +93,16 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       ...res.locals.filterAddressOptions,
       includeBalances: isOwner,
     };
+  }
+
+  private filterTokenControllerRoutes(req: Request, res: Response, pathname: string) {
+    const userAddress = req.session.siwe.address;
+    const pathSegments = pathname.split("/");
+    if (pathSegments[3] === "transfers") {
+      res.locals.tokenTransfersOptions = {
+        address: userAddress,
+      };
+    }
   }
 
   private filterTransactionControllerRoutes(req: Request, res: Response, pathname: string) {
