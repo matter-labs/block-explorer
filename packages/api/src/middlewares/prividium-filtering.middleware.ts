@@ -46,7 +46,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     const userAddress = req.session.siwe.address;
 
     // If no address is specified this keeps the chain and ends in not found
-    // beacuse /address does not exist.
+    // because /address does not exist.
     if (!reqAddress) {
       return;
     }
