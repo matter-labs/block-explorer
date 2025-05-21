@@ -4,6 +4,7 @@ import { IPaginationMeta, createPaginationObject, Pagination } from "nestjs-type
 import { NumerableEntity } from "../common/entities/numerable.entity";
 import { hexTransformer } from "./transformers/hex.transformer";
 import { IPaginationOptions } from "./types";
+import { Request } from "express";
 
 const MIN_OFFSET_TO_USE_NUMBER_FILTER = 1000;
 
@@ -122,8 +123,9 @@ export const parseIntToHex = (numStr: string) => {
   return "0x";
 };
 
-export const getUrlWithoutParams = (url: string) => {
-  const urlObj = new URL(url);
-  urlObj.search = "";
-  return urlObj.toString();
+/**
+ * Parses the request pathname from the request object
+ */
+export const parseReqPathname = (req: Request) => {
+  return new URL(req.originalUrl, "http://localhost").pathname;
 };
