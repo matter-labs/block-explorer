@@ -246,4 +246,31 @@ describe("PrividiumFilteringMiddleware", () => {
       },
     });
   });
+
+  it("when url is /transactions and owner address query is provided, it filters by owner address", async () => {
+    req.originalUrl = "/transactions";
+    res.locals = {};
+    req.session.siwe = siwe;
+    req.query.address = userAddress.address;
+    await middleware.use(req, res, next);
+    expect(res.locals).toEqual({
+      filterTransactionsOptions: {
+        filterAddressInLogTopics: true,
+      },
+    });
+  });
+
+  it("when url is /transactions and other address query is provided, it filters by transactions between owner and other address", async () => {
+    req.originalUrl = "/transactions";
+    res.locals = {};
+    req.session.siwe = siwe;
+    req.query.address = someAddress;
+    await middleware.use(req, res, next);
+    expect(res.locals).toEqual({
+      filterTransactionsOptions: {
+        visibleBy: userAddress.address,
+        filterAddressInLogTopics: true,
+      },
+    });
+  });
 });
