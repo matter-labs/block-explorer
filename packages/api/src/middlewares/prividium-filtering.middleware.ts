@@ -58,9 +58,13 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     }
 
     if (pathSegments[3] === "transfers") {
-      res.locals.filterAddressTransferOptions = {
-        transactingWith: userAddress,
-      };
+      if (userAddress.toLowerCase() !== pathSegments[2].toLowerCase()) {
+        res.locals.filterAddressTransferOptions = {
+          transactingWith: userAddress,
+        };
+      } else {
+        res.locals.filterAddressTransferOptions = {};
+      }
       return;
     }
 

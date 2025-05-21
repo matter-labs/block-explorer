@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
+import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions, SortingOrder } from "../common/types";
@@ -8,7 +8,6 @@ import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
-import { hexTransformer } from "../common/transformers/hex.transformer";
 
 export interface FilterTransfersOptions {
   tokenAddress?: string;
@@ -56,6 +55,26 @@ export class TransferService {
   ): Promise<Pagination<Transfer>> {
     const { transactingWith, ...basicOptions } = filterOptions;
 
+    if (transactingWith) {
+      const { address, ...rest } = basicOptions;
+      const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
+      queryBuilder.where(rest);
+      queryBuilder.andWhere([
+        {
+          from: address,
+          to: transactingWith,
+        },
+        {
+          from: transactingWith,
+          to: address,
+        },
+      ]);
+      queryBuilder.leftJoinAndSelect("transfer.token", "token");
+      queryBuilder.orderBy("transfer.timestamp", "DESC");
+      queryBuilder.addOrderBy("transfer.logIndex", "ASC");
+      return await paginate<Transfer>(queryBuilder, paginationOptions);
+    }
+
     if (basicOptions.address) {
       const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
       queryBuilder.select("addressTransfer.number");
@@ -64,18 +83,6 @@ export class TransferService {
       queryBuilder.where(basicOptions);
       queryBuilder.orderBy("addressTransfer.timestamp", "DESC");
       queryBuilder.addOrderBy("addressTransfer.logIndex", "ASC");
-
-      if (transactingWith) {
-        queryBuilder.leftJoin("addressTransfer.transfer", "transfers");
-        queryBuilder.where(
-          new Brackets((qb) => {
-            qb.where("transfers.from = :transactingWith");
-            qb.orWhere("transfers.to = :transactingWith");
-          })
-        );
-        queryBuilder.setParameters({ transactingWith: hexTransformer.to(transactingWith) });
-      }
-
       const addressTransfers = await paginate<AddressTransfer>(queryBuilder, paginationOptions);
       return {
         ...addressTransfers,
