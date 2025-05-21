@@ -16,7 +16,7 @@ export interface FilterTransfersOptions {
   timestamp?: FindOperator<Date>;
   isFeeOrRefund?: boolean;
   type?: TransferType;
-  transactingWith?: string;
+  visibleBy?: string;
 }
 
 export interface FilterTokenTransfersOptions {
@@ -53,19 +53,19 @@ export class TransferService {
     filterOptions: FilterTransfersOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transfer>> {
-    const { transactingWith, ...basicOptions } = filterOptions;
+    const { visibleBy, ...basicOptions } = filterOptions;
 
-    if (transactingWith) {
+    if (visibleBy) {
       const { address, ...rest } = basicOptions;
       const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
       queryBuilder.where(rest);
       queryBuilder.andWhere([
         {
           from: address,
-          to: transactingWith,
+          to: visibleBy,
         },
         {
-          from: transactingWith,
+          from: visibleBy,
           to: address,
         },
       ]);
