@@ -6,7 +6,7 @@ import { FilterTransactionsOptions } from "../transaction/transaction.service";
 
 const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
 
-const UNFILTERED_ROUTES = ["/auth", "/batches", "/blocks", "/health", "/ready", "/stats", "/tokens"];
+const UNFILTERED_ROUTES = ["/auth", "/batches", "/blocks", "/health", "/ready", "/stats", "/tokens", "/address"];
 
 @Injectable()
 export class PrividiumFilteringMiddleware implements NestMiddleware {
@@ -22,55 +22,12 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       return next();
     }
 
-    if (this.matchRoute(path, "/address")) {
-      return next();
-    }
-
     if (this.matchRoute(path, "/transactions")) {
       this.filterTransactionControllerRoutes(req, res, path);
       return next();
     }
 
     throw new ForbiddenException({ message: "Access denied" });
-  }
-
-  private async filterAddressControllerRoutes(req: Request, url: string) {
-    // All routes are filtered by address
-    const reqAddress = url.match(/\/address\/([^\/]+)/)?.[1];
-    const userAddress = req.session.siwe.address;
-    const addressRecord = await this.addressService.findOne(reqAddress);
-    const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
-
-    if (!reqAddress) {
-      return;
-    }
-
-    if (!isContract) {
-      if (reqAddress.toLowerCase() === userAddress.toLowerCase()) {
-        return;
-      }
-      throw new ForbiddenException({ message: "Access denied" });
-    }
-
-    // Check if user is owner of the contract
-    const logs = await this.logService.findManyByTopics({
-      address: reqAddress,
-      topics: {
-        topic0: OWNERSHIP_TRANSFERRED_TOPIC,
-      },
-      page: 1,
-      offset: 1,
-    });
-    const newOwner = logs[0]?.topics[2];
-    if (newOwner === undefined) {
-      throw new ForbiddenException({ message: "Access denied" });
-    }
-
-    // Parse from log topic (32 bytes) to address (20 bytes)
-    const newOwnerAddress = `0x${newOwner.slice(64 + 2 - 40)}`;
-    if (newOwnerAddress.toLowerCase() !== userAddress.toLowerCase()) {
-      throw new ForbiddenException({ message: "Access denied" });
-    }
   }
 
   private filterTransactionControllerRoutes(req: Request, res: Response, url: string) {

@@ -22,18 +22,21 @@ import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { Response } from "express";
+import { TransactionController } from "./transaction.controller";
 
 const entityName = "transactions";
 
 @ApiTags("Transaction BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-export class TransactionController {
+export class PrividiumTransactionController extends TransactionController {
   constructor(
-    protected readonly transactionService: TransactionService,
-    protected readonly transferService: TransferService,
-    protected readonly logService: LogService
-  ) {}
+    readonly transactionService: TransactionService,
+    readonly transferService: TransferService,
+    readonly logService: LogService
+  ) {
+    super(transactionService, transferService, logService);
+  }
 
   @Get("")
   @ApiListPageOkResponse(TransactionDto, { description: "Successfully returned transactions list" })
@@ -77,11 +80,7 @@ export class TransactionController {
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
   ): Promise<TransactionDto> {
-    const transactionDetail = await this.transactionService.findOne(transactionHash);
-    if (!transactionDetail) {
-      throw new NotFoundException();
-    }
-    return transactionDetail;
+    return super.getTransaction(transactionHash);
   }
 
   @Get(":transactionHash/transfers")
@@ -101,18 +100,7 @@ export class TransactionController {
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransferDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
-      throw new NotFoundException();
-    }
-
-    const transfers = await this.transferService.findAll(
-      { transactionHash },
-      {
-        ...pagingOptions,
-        route: `${entityName}/${transactionHash}/transfers`,
-      }
-    );
-    return transfers;
+    return super.getTransactionTransfers(transactionHash, pagingOptions);
   }
 
   @Get(":transactionHash/logs")
@@ -132,16 +120,6 @@ export class TransactionController {
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<LogDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
-      throw new NotFoundException();
-    }
-
-    return await this.logService.findAll(
-      { transactionHash },
-      {
-        ...pagingOptions,
-        route: `${entityName}/${transactionHash}/logs`,
-      }
-    );
+    return super.getTransactionLogs(transactionHash, pagingOptions);
   }
 }

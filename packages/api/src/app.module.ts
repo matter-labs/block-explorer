@@ -94,7 +94,8 @@ export class AppModule implements NestModule {
         },
       ],
       imports: [
-        AddressModule.build(prividium),
+        AddressModule.forRoot(prividium),
+        TransactionModule.forRoot(prividium),
         /// Only enable prividium modules for prividium chains
         ...(prividium ? PRIVIDIUM_MODULES : []),
         // TMP: disable API modules in Prividium mode until defined how to handle API authentication

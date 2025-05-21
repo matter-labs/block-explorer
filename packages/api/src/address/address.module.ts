@@ -25,7 +25,7 @@ import { PrividiumAddressController } from "./prividium-address.controller";
   exports: [AddressService],
 })
 export class AddressModule {
-  static build(prividium: boolean): DynamicModule {
+  static forRoot(prividium: boolean): DynamicModule {
     return {
       module: AddressModule,
       controllers: prividium ? [PrividiumAddressController] : [AddressController],

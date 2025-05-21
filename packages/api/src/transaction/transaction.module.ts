@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { DynamicModule, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TransactionController } from "./transaction.controller";
 import { TransactionService } from "./transaction.service";
@@ -11,6 +11,7 @@ import { TransferModule } from "../transfer/transfer.module";
 import { CounterModule } from "../counter/counter.module";
 import { LogModule } from "../log/log.module";
 import { Log } from "../log/log.entity";
+import { PrividiumTransactionController } from "./prividium-transaction.controller";
 
 @Module({
   imports: [
@@ -19,8 +20,14 @@ import { Log } from "../log/log.entity";
     LogModule,
     CounterModule,
   ],
-  controllers: [TransactionController],
   providers: [TransactionService, TransactionReceiptService],
   exports: [TransactionService, TransactionReceiptService],
 })
-export class TransactionModule {}
+export class TransactionModule {
+  static forRoot(prividium: boolean): DynamicModule {
+    return {
+      module: Transaction,
+      controllers: prividium ? [PrividiumTransactionController] : [TransactionController],
+    };
+  }
+}

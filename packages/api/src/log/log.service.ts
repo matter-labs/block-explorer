@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
+import { Brackets, LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { OWNERSHIP_TRANSFERRED_TOPIC } from "../common/constants";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
@@ -146,7 +147,6 @@ export class LogService {
 
   // Returns address padded to 32 bytes;
   async findContractOwnerTopic(address: string): Promise<string | null> {
-    const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
     const [log] = await this.findManyByTopics({
       address: address,
       topics: {

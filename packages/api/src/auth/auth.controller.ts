@@ -100,7 +100,7 @@ export class AuthController {
     }
 
     const siweMessage = new SiweMessage(req.session.siwe);
-    if (siweMessage.chainId !== this.configService.get("prividium.chainId")) {
+    if (siweMessage.chainId !== Number(this.configService.get("prividium.chainId"))) {
       this.clearSession(req);
       throw new BadRequestException({ message: "Failed to verify signature" });
     }

@@ -3,7 +3,6 @@ import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { AuthModule } from "./auth/auth.module";
 import cookieSession from "cookie-session";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { PrividiumFilteringMiddleware } from "./middlewares/prividium-filtering.middleware";
 
 export function applyPrividiumExpressConfig(
   app: NestExpressApplication,
@@ -28,7 +27,6 @@ export function applyPrividiumExpressConfig(
 
 export function applyPrividiumMiddlewares(consumer: MiddlewareConsumer) {
   consumer.apply(AuthMiddleware).forRoutes("*");
-  consumer.apply(PrividiumFilteringMiddleware).forRoutes("*");
 }
 
 export const PRIVIDIUM_MODULES = [AuthModule];
