@@ -37,7 +37,7 @@ export default (
     detectEthereumProvider({
       mustBeMetaMask: true,
       silent: false,
-    }) as Promise<BaseProvider | undefined>;
+    }) as Promise<BaseProvider | null>;
 
   const initializeLogin = async () => {
     try {

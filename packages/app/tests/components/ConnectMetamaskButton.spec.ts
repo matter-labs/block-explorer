@@ -9,7 +9,52 @@ import { useWalletMock } from "../mocks";
 
 import ConnectMetaMaskButton from "@/components/ConnectMetamaskButton.vue";
 
+import useContext from "@/composables/useContext";
+
 import enUS from "@/locales/en.json";
+
+// Mock useStorage
+vi.mock("@vueuse/core", () => ({
+  useStorage: vi.fn(() => computed(() => false)),
+}));
+
+// Mock useContext
+vi.mock("@/composables/useContext", () => ({
+  default: () => ({
+    isReady: computed(() => true),
+    user: computed(() => ({ loggedIn: false })),
+    currentNetwork: computed(() => ({
+      name: "test",
+      icon: "test",
+      apiUrl: "http://test",
+      maintenance: false,
+      l2NetworkName: "test",
+      l2ChainId: 270,
+      rpcUrl: "http://test",
+      baseTokenAddress: "0x0000000000000000000000000000000000000000",
+      prividium: false,
+      published: true,
+      hostnames: ["test.com"],
+    })),
+    networks: computed(() => [
+      {
+        name: "test",
+        icon: "test",
+        apiUrl: "http://test",
+        maintenance: false,
+        l2NetworkName: "test",
+        l2ChainId: 270,
+        rpcUrl: "http://test",
+        baseTokenAddress: "0x0000000000000000000000000000000000000000",
+        prividium: false,
+        published: true,
+        hostnames: ["test.com"],
+      },
+    ]),
+    getL2Provider: vi.fn(),
+    identifyNetwork: vi.fn(),
+  }),
+}));
 
 describe("ConnectMetaMaskButton:", () => {
   const i18n = createI18n({
@@ -57,6 +102,42 @@ describe("ConnectMetaMaskButton:", () => {
       address: computed(() => "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"),
     });
 
+    // Mock user as logged in
+    vi.mocked(useContext).mockReturnValue({
+      isReady: computed(() => true),
+      user: computed(() => ({ loggedIn: true, address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b" })),
+      currentNetwork: computed(() => ({
+        name: "test",
+        icon: "test",
+        apiUrl: "http://test",
+        maintenance: false,
+        l2NetworkName: "test",
+        l2ChainId: 270,
+        rpcUrl: "http://test",
+        baseTokenAddress: "0x0000000000000000000000000000000000000000",
+        prividium: false,
+        published: true,
+        hostnames: ["test.com"],
+      })),
+      networks: computed(() => [
+        {
+          name: "test",
+          icon: "test",
+          apiUrl: "http://test",
+          maintenance: false,
+          l2NetworkName: "test",
+          l2ChainId: 270,
+          rpcUrl: "http://test",
+          baseTokenAddress: "0x0000000000000000000000000000000000000000",
+          prividium: false,
+          published: true,
+          hostnames: ["test.com"],
+        },
+      ]),
+      getL2Provider: vi.fn(),
+      identifyNetwork: vi.fn(),
+    });
+
     const wrapper = mount(ConnectMetaMaskButton, {
       global: {
         plugins: [i18n],
@@ -89,6 +170,42 @@ describe("ConnectMetaMaskButton:", () => {
     const mock = useWalletMock({
       address: computed(() => "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"),
       disconnect: mockDisconnect,
+    });
+
+    // Mock user as logged in
+    vi.mocked(useContext).mockReturnValue({
+      isReady: computed(() => true),
+      user: computed(() => ({ loggedIn: true, address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b" })),
+      currentNetwork: computed(() => ({
+        name: "test",
+        icon: "test",
+        apiUrl: "http://test",
+        maintenance: false,
+        l2NetworkName: "test",
+        l2ChainId: 270,
+        rpcUrl: "http://test",
+        baseTokenAddress: "0x0000000000000000000000000000000000000000",
+        prividium: false,
+        published: true,
+        hostnames: ["test.com"],
+      })),
+      networks: computed(() => [
+        {
+          name: "test",
+          icon: "test",
+          apiUrl: "http://test",
+          maintenance: false,
+          l2NetworkName: "test",
+          l2ChainId: 270,
+          rpcUrl: "http://test",
+          baseTokenAddress: "0x0000000000000000000000000000000000000000",
+          prividium: false,
+          published: true,
+          hostnames: ["test.com"],
+        },
+      ]),
+      getL2Provider: vi.fn(),
+      identifyNetwork: vi.fn(),
     });
 
     const wrapper = mount(ConnectMetaMaskButton, {

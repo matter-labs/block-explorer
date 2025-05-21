@@ -9,6 +9,7 @@ const useTitleMock = vi.fn();
 vi.mock("@vueuse/core", () => {
   return {
     useTitle: useTitleMock,
+    useStorage: vi.fn(() => computed(() => false)),
   };
 });
 const maintenanceMock = vi.fn(() => false);
@@ -17,6 +18,7 @@ vi.mock("@/composables/useContext", () => {
     default: () => ({
       isReady: computed(() => true),
       currentNetwork: computed(() => ({ maintenance: maintenanceMock() })),
+      user: computed(() => ({ loggedIn: false })),
     }),
   };
 });

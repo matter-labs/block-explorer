@@ -82,7 +82,7 @@ export default (
     detectEthereumProvider({
       mustBeMetaMask: true,
       silent: false,
-    }) as Promise<BaseProvider | undefined>;
+    }) as Promise<BaseProvider | null>;
 
   const handleAccountsChanged = (accounts: unknown) => {
     if (Array.isArray(accounts) && accounts.length) {
