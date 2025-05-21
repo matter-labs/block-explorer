@@ -8,7 +8,7 @@ jest.mock("./featureFlags", () => ({
 describe("config", () => {
   const env = process.env;
 
-  beforeAll(() => {
+  beforeEach(() => {
     process.env = {
       NODE_ENV: "test",
     };
@@ -59,11 +59,80 @@ describe("config", () => {
         applicationName: "block-explorer-api",
       },
       contractVerificationApiUrl: "http://127.0.0.1:3070",
-      featureFlags: {
+      featureFlags: expect.objectContaining({
         feature1Enabled: true,
         feature2Enabled: false,
-      },
+      }),
       gracefulShutdownTimeoutMs: 0,
+      prividium: {},
+    });
+  });
+
+  it("sets prividium values", async () => {
+    process.env.PRIVIDIUM_PRIVATE_RPC_URL = "http://localhost:4000";
+    process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "secret";
+    process.env.PRIVIDIUM_CHAIN_ID = "300";
+
+    jest.resetModules();
+    jest.doMock("./featureFlags", () => ({
+      feature1Enabled: true,
+      feature2Enabled: false,
+      prividium: true,
+    }));
+
+    const { default: currentConfig } = await import("../config");
+
+    expect(currentConfig()).toEqual({
+      baseToken: {
+        l2Address: "0x000000000000000000000000000000000000800A",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        // Fallback data incase ETH token is not in the DB
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+      },
+      ethToken: {
+        decimals: 18,
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        l2Address: "0x000000000000000000000000000000000000800A",
+        name: "Ether",
+        symbol: "ETH",
+      },
+      NODE_ENV: "test",
+      port: 3020,
+      metrics: {
+        port: 3005,
+        collectDbConnectionPoolMetricsInterval: 10000,
+      },
+      typeORM: {
+        type: "postgres",
+        url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
+        poolSize: 300,
+        extra: {
+          idleTimeoutMillis: 60000,
+          statement_timeout: 90000,
+        },
+        synchronize: true,
+        logging: false,
+        autoLoadEntities: true,
+        retryAttempts: 10,
+        retryDelay: 3000,
+        applicationName: "block-explorer-api",
+      },
+      contractVerificationApiUrl: "http://127.0.0.1:3070",
+      featureFlags: expect.objectContaining({
+        feature1Enabled: true,
+        feature2Enabled: false,
+        prividium: true,
+      }),
+      gracefulShutdownTimeoutMs: 0,
+      prividium: {
+        privateRpcUrl: "http://localhost:4000",
+        privateRpcSecret: "secret",
+        chainId: 300,
+      },
     });
   });
 
@@ -131,11 +200,12 @@ describe("config", () => {
           applicationName: "block-explorer-api",
         },
         contractVerificationApiUrl: "http://127.0.0.1:3070",
-        featureFlags: {
+        featureFlags: expect.objectContaining({
           feature1Enabled: true,
           feature2Enabled: false,
-        },
+        }),
         gracefulShutdownTimeoutMs: 0,
+        prividium: {},
       });
     });
 
@@ -195,11 +265,12 @@ describe("config", () => {
             applicationName: "block-explorer-api",
           },
           contractVerificationApiUrl: "http://127.0.0.1:3070",
-          featureFlags: {
+          featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
-          },
+          }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });
@@ -258,11 +329,12 @@ describe("config", () => {
             applicationName: "block-explorer-api",
           },
           contractVerificationApiUrl: "http://127.0.0.1:3070",
-          featureFlags: {
+          featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
-          },
+          }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });
