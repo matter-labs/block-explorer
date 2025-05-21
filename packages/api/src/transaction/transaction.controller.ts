@@ -41,8 +41,7 @@ export class TransactionController {
   public async getTransactions(
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Res({ passthrough: true }) res: Response
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransactionDto>> {
     const filterTransactionsListOptions = buildDateFilter(
       listFilterOptions.fromDate,
@@ -53,7 +52,6 @@ export class TransactionController {
       {
         ...filterTransactionsOptions,
         ...filterTransactionsListOptions,
-        ...(res.locals.filterTransactionsOptions ?? {}),
       },
       {
         filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },

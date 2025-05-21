@@ -1,13 +1,28 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import {
+  Repository,
+  SelectQueryBuilder,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  QueryBuilder,
+  Brackets,
+  WhereExpressionBuilder,
+} from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
 import { Log } from "./log.entity";
+import { OWNERSHIP_TRANSFERRED_TOPIC } from "../common/constants";
+import { pad } from "../common/utils";
+import { hexTransformer } from "../common/transformers/hex.transformer";
 
 jest.mock("../common/utils");
+
+function hexToBuf(hex: string): Buffer {
+  return Buffer.from(hex.replace("0x", ""), "hex");
+}
 
 describe("LogService", () => {
   let service: LogService;
@@ -98,6 +113,18 @@ describe("LogService", () => {
       expect(utils.paginate).toBeCalledTimes(1);
       expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions);
       expect(result).toBe(paginationResult);
+    });
+
+    it("filters by topic when someTopicMatch option is present", async () => {
+      const topicToCheck = "0x02";
+      await service.findAll({ address: "0x01", someTopicMatch: topicToCheck }, pagingOptions);
+      expect(queryBuilderMock.where).toHaveBeenCalledWith(expect.any(Brackets));
+      const brackets = queryBuilderMock.where.mock.calls[1][0] as Brackets;
+      const qb = mock<WhereExpressionBuilder>();
+      brackets.whereFactory(qb);
+      expect(qb.where).toHaveBeenCalledWith("log.topics[1] = :addr1", { addr1: hexTransformer.to(topicToCheck) });
+      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[2] = :addr2", { addr2: hexTransformer.to(topicToCheck) });
+      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[3] = :addr3", { addr3: hexTransformer.to(topicToCheck) });
     });
   });
 
@@ -261,10 +288,6 @@ describe("LogService", () => {
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith({ blockNumber: expect.anything() });
     });
 
-    function hexToBuf(hex: string): Buffer {
-      return Buffer.from(hex.replace("0x", ""), "hex");
-    }
-
     it("filters by first topic when topic0 is defined", async () => {
       const topic = "0xabab";
       await service.findManyByTopics({
@@ -323,6 +346,74 @@ describe("LogService", () => {
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[1\]/, expect.anything());
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[2\]/, expect.anything());
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
+    });
+  });
+
+  describe("findContractOwnerTopic", () => {
+    const someAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    let queryBuilderMock: MockProxy<SelectQueryBuilder<Log>>;
+
+    beforeEach(() => {
+      queryBuilderMock = mock<SelectQueryBuilder<Log>>();
+      repositoryMock.createQueryBuilder.mockReturnValue(queryBuilderMock);
+    });
+
+    it("returns second topic when a log is found", async () => {
+      const targetTopic = "0x0101";
+      const log: Log = {
+        updatedAt: new Date(),
+        address: someAddress,
+        topics: [OWNERSHIP_TRANSFERRED_TOPIC, pad("0x01"), targetTopic],
+        createdAt: new Date(),
+        logIndex: 0,
+        blockNumber: 100,
+        data: "0x01",
+        transactionHash: pad("0x03"),
+        number: 10,
+        transactionIndex: 10,
+        timestamp: new Date(),
+        toJSON: () => this,
+      };
+
+      queryBuilderMock.getMany.mockReturnValue(Promise.resolve([log]));
+
+      const res = await service.findContractOwnerTopic(someAddress);
+
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[1] = :topic0", {
+        topic0: hexToBuf(OWNERSHIP_TRANSFERRED_TOPIC),
+      });
+      expect(res).toEqual(targetTopic);
+    });
+
+    it("returns null when no log is found", async () => {
+      queryBuilderMock.getMany.mockReturnValue(Promise.resolve([]));
+
+      const res = await service.findContractOwnerTopic(someAddress);
+
+      expect(res).toEqual(null);
+    });
+
+    it("returns null when log is found but it does not have second topic", async () => {
+      const log: Log = {
+        updatedAt: new Date(),
+        address: someAddress,
+        topics: [OWNERSHIP_TRANSFERRED_TOPIC, pad("0x01")],
+        createdAt: new Date(),
+        logIndex: 0,
+        blockNumber: 100,
+        data: "0x01",
+        transactionHash: pad("0x03"),
+        number: 10,
+        transactionIndex: 10,
+        timestamp: new Date(),
+        toJSON: () => this,
+      };
+
+      queryBuilderMock.getMany.mockReturnValue(Promise.resolve([log]));
+
+      const res = await service.findContractOwnerTopic(someAddress);
+
+      expect(res).toBe(null);
     });
   });
 });

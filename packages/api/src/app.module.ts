@@ -46,7 +46,6 @@ interface AppModuleConfig {
     BatchModule,
     BlockModule,
     TransferModule,
-    TransactionModule,
     LogModule,
     StatsModule,
     HealthModule,

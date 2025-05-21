@@ -53,19 +53,15 @@ export class LogService {
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
 
-    let params = {};
     if (someTopicMatch) {
-      params = { addr: hexTransformer.to(someTopicMatch) };
-
       queryBuilder.where(
         new Brackets((qb) => {
-          qb.where(`log.topics[1] = :addr`);
-          qb.orWhere("log.topics[2] = :addr");
-          qb.orWhere("log.topics[3] = :addr");
+          qb.where(`log.topics[1] = :addr1`, { addr1: hexTransformer.to(someTopicMatch) });
+          qb.orWhere("log.topics[2] = :addr2", { addr2: hexTransformer.to(someTopicMatch) });
+          qb.orWhere("log.topics[3] = :addr3", { addr3: hexTransformer.to(someTopicMatch) });
         })
       );
     }
-    queryBuilder.setParameters(params);
 
     return await paginate<Log>(queryBuilder, paginationOptions);
   }

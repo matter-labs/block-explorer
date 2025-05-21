@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Query, Res } from "@nestjs/common";
+import { Controller, Get, Inject, Param, Query, Req } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -20,22 +20,31 @@ import { LogService } from "../log/log.service";
 import { TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
 import { swagger } from "../config/featureFlags";
-import { constants } from "../config/docs";
-import { Response } from "express";
+import { Request } from "express";
 import { TransactionController } from "./transaction.controller";
+import { constants } from "../config/docs";
 
 const entityName = "transactions";
+
+export type TransactionControllerClass = new (
+  transactionService: TransactionService,
+  transferService: TransferService,
+  logService: LogService
+) => TransactionController;
 
 @ApiTags("Transaction BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-export class PrividiumTransactionController extends TransactionController {
+export class PrividiumTransactionController {
+  private implementation: TransactionController;
+
   constructor(
-    readonly transactionService: TransactionService,
-    readonly transferService: TransferService,
-    readonly logService: LogService
+    private readonly transactionService: TransactionService,
+    transferService: TransferService,
+    logService: LogService,
+    @Inject("TRANSACTION_MODULE_BASE") Implementation: TransactionControllerClass
   ) {
-    super(transactionService, transferService, logService);
+    this.implementation = new Implementation(transactionService, transferService, logService);
   }
 
   @Get("")
@@ -45,18 +54,24 @@ export class PrividiumTransactionController extends TransactionController {
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Res({ passthrough: true }) res: Response
+    @Req() req: Request
   ): Promise<Pagination<TransactionDto>> {
     const filterTransactionsListOptions = buildDateFilter(
       listFilterOptions.fromDate,
       listFilterOptions.toDate,
       "receivedAt"
     );
+
+    const extraFilter = {
+      address: req.session.siwe.address,
+      filterAddressInLogTopics: true,
+    };
+
     return await this.transactionService.findAll(
       {
         ...filterTransactionsOptions,
         ...filterTransactionsListOptions,
-        ...(res.locals.filterTransactionsOptions ?? {}),
+        ...extraFilter,
       },
       {
         filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
@@ -80,7 +95,7 @@ export class PrividiumTransactionController extends TransactionController {
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
   ): Promise<TransactionDto> {
-    return super.getTransaction(transactionHash);
+    return this.implementation.getTransaction(transactionHash);
   }
 
   @Get(":transactionHash/transfers")
@@ -100,7 +115,7 @@ export class PrividiumTransactionController extends TransactionController {
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransferDto>> {
-    return super.getTransactionTransfers(transactionHash, pagingOptions);
+    return this.implementation.getTransactionTransfers(transactionHash, pagingOptions);
   }
 
   @Get(":transactionHash/logs")
@@ -120,6 +135,6 @@ export class PrividiumTransactionController extends TransactionController {
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<LogDto>> {
-    return super.getTransactionLogs(transactionHash, pagingOptions);
+    return this.implementation.getTransactionLogs(transactionHash, pagingOptions);
   }
 }

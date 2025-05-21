@@ -12,6 +12,7 @@ import { CounterModule } from "../counter/counter.module";
 import { LogModule } from "../log/log.module";
 import { Log } from "../log/log.entity";
 import { PrividiumTransactionController } from "./prividium-transaction.controller";
+import { BlockModule } from "../block/block.module";
 
 @Module({
   imports: [
@@ -26,8 +27,15 @@ import { PrividiumTransactionController } from "./prividium-transaction.controll
 export class TransactionModule {
   static forRoot(prividium: boolean): DynamicModule {
     return {
-      module: Transaction,
+      module: TransactionModule,
+      imports: prividium ? [BlockModule] : [],
       controllers: prividium ? [PrividiumTransactionController] : [TransactionController],
+      providers: [
+        {
+          provide: "TRANSACTION_MODULE_BASE",
+          useValue: TransactionController,
+        },
+      ],
     };
   }
 }
