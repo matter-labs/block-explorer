@@ -2,7 +2,6 @@ import { ForbiddenException, Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 import { AddressService } from "../address/address.service";
 import { LogService } from "../log/log.service";
-import { FilterTransactionsOptions } from "../transaction/transaction.service";
 import { parseReqPathname } from "../common/utils";
 
 /** Hash of event `OwnershipTransferred(address indexed previousOwner, address indexed newOwner)` */
@@ -47,7 +46,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 
     if (!isContract) {
-      if (reqAddress.toLowerCase() === userAddress.toLowerCase()) {
+      if (this.isOwnAddress(req, reqAddress)) {
         return;
       }
       throw new ForbiddenException();
@@ -75,20 +74,42 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
   }
 
   private filterTransactionControllerRoutes(req: Request, res: Response, pathname: string) {
+    const targetAddress = req.query.address as string;
+
     // Only /transactions route is filtered by address
-    if (pathname === "/transactions") {
-      const filter: FilterTransactionsOptions = {
+    if (pathname !== "/transactions") {
+      return;
+    }
+
+    // If target address is not provided, we filter by own address
+    if (!targetAddress) {
+      res.locals.filterTransactionsOptions = {
         address: req.session.siwe.address,
         filterAddressInLogTopics: true,
       };
-      res.locals.filterTransactionsOptions =
-        res.locals.filterTransactionsOptions instanceof Object
-          ? { ...res.locals.filterTransactionsOptions, ...filter }
-          : filter;
+      return;
     }
+
+    // If target address is provided, and it's own address, transaction is not filtered
+    if (this.isOwnAddress(req, targetAddress)) {
+      return;
+    }
+
+    // If target address is provided, and it's not own address, we filter transactions
+    // between own address and target address
+    res.locals.filterTransactionsOptions = {
+      address: targetAddress,
+      visibleBy: req.session.siwe.address,
+      filterAddressInLogTopics: true,
+    };
+    return;
   }
 
   private matchRoute(url: string, match: string): boolean {
     return url === match || url.startsWith(`${match}/`);
+  }
+
+  private isOwnAddress(req: Request, address: string): boolean {
+    return req.session.siwe.address.toLowerCase() === address.toLowerCase();
   }
 }
