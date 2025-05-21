@@ -37,6 +37,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     // /address/0x123/logs -> 0x123
     const pathSegments = pathname.split("/");
     const reqAddress = pathSegments[2];
+    const userAddress = req.session.siwe.address;
 
     // If no address is specified this keeps the chain and ends in not found
     // beacuse /address does not exist.
@@ -44,7 +45,13 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       return;
     }
 
-    const userAddress = req.session.siwe.address;
+    if (pathSegments[3] === "logs") {
+      res.locals.filterAddressLogsOptions = {
+        visibleBy: userAddress,
+      };
+      return;
+    }
+
     const addressRecord = await this.addressService.findOne(reqAddress);
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 

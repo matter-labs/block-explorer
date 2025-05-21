@@ -1,15 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import { Repository, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
-import { paginate } from "../common/utils";
+import { pad, paginate } from "../common/utils";
 import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
   address?: string;
+  visibleBy?: string;
 }
 
 export interface FilterLogsByAddressOptions {
@@ -45,8 +46,24 @@ export class LogService {
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
+    const { visibleBy, ...basicFilters } = filterOptions;
     const queryBuilder = this.logRepository.createQueryBuilder("log");
-    queryBuilder.where(filterOptions);
+    queryBuilder.where(basicFilters);
+
+    if (visibleBy !== undefined) {
+      queryBuilder.innerJoin("log.transaction", "transactions");
+      const topic = pad(visibleBy);
+      queryBuilder.where(
+        new Brackets((qb) => {
+          qb.where(`log.topics[1] = :addr1`, { addr1: hexTransformer.to(topic) });
+          qb.orWhere("log.topics[2] = :addr2", { addr2: hexTransformer.to(topic) });
+          qb.orWhere("log.topics[3] = :addr3", { addr3: hexTransformer.to(topic) });
+          qb.orWhere("transactions.from = :addrFrom", { addFrom: hexTransformer.to(visibleBy) });
+          qb.orWhere("transactions.to = :addrTo", { addrTo: hexTransformer.to(visibleBy) });
+        })
+      );
+    }
+
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
     return await paginate<Log>(queryBuilder, paginationOptions);

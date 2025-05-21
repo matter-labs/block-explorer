@@ -123,10 +123,12 @@ export class AddressController {
   })
   public async getAddressLogs(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Res({ passthrough: true }) res: Response
   ): Promise<Pagination<LogDto>> {
+    const extraFilters = res.locals.filterAddressLogsOptions ?? {};
     return await this.logService.findAll(
-      { address },
+      { address, ...extraFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${address}/logs`,
