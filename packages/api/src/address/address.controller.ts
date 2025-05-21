@@ -61,7 +61,7 @@ export class AddressController {
     @Param("address", new ParseAddressPipe()) address: string,
     @Res({ passthrough: true }) res: Response
   ): Promise<AccountDto | ContractDto> {
-    const includeBalances = (res?.locals?.filterAddressOptions ?? { includeBalances: true }).includeBalances;
+    const includeBalances = res.locals?.filterAddressOptions?.includeBalances ?? true;
 
     const [addressRecord, addressBalance] = await Promise.all([
       this.addressService.findOne(address),
