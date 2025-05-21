@@ -123,8 +123,9 @@ export const parseIntToHex = (numStr: string) => {
   return "0x";
 };
 
-export const getUrlWithoutParams = (url: string) => {
-  const urlObj = new URL(url);
-  urlObj.search = "";
-  return urlObj.toString();
+/**
+ * Parses the request pathname from the request object
+ */
+export const parseReqPathname = (req: Request) => {
+  return new URL(req.originalUrl, "http://localhost").pathname;
 };
