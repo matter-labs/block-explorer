@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import { watchEffect } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { useTitle } from "@vueuse/core";
@@ -29,6 +29,7 @@ import TheHeader from "@/components/header/TheHeader.vue";
 
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
+import useLogin from "@/composables/useLogin";
 import useRouteTitle from "@/composables/useRouteTitle";
 
 import MaintenanceView from "@/views/MaintenanceView.vue";
@@ -40,14 +41,22 @@ const { prividium } = useEnvironmentConfig();
 const route = useRoute();
 const router = useRouter();
 const { isPublicRoute } = usePublicRoutes();
+const { initializeLogin } = useLogin(context);
 
 useTitle(title);
 const { isReady, currentNetwork } = useContext();
 
 setup();
 
+const isAuthCheckComplete = ref(false);
+
+onMounted(async () => {
+  await initializeLogin();
+  isAuthCheckComplete.value = true;
+});
+
 watchEffect(() => {
-  if (!prividium.value) {
+  if (!prividium.value || !isAuthCheckComplete.value) {
     return;
   }
 
