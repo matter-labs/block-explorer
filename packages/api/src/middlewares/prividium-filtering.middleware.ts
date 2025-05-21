@@ -94,7 +94,6 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
 
     const isOwner = newOwner?.toLowerCase() === pad(userAddress).toLowerCase();
     res.locals.filterAddressOptions = {
-      ...res.locals.filterAddressOptions,
       includeBalances: isOwner,
     };
   }

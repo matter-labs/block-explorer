@@ -8,7 +8,7 @@ import {
   refs,
   ApiExcludeController,
 } from "@nestjs/swagger";
-import { createPaginationObject, Pagination } from "nestjs-typeorm-paginate";
+import { Pagination } from "nestjs-typeorm-paginate";
 import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
