@@ -1,5 +1,5 @@
 <template>
-  <div class="wallet-status-bar">
+  <div class="flex items-center gap-2">
     <NetworkIndicator :currentNetwork="currentNetwork" :isWrongNetwork="isWrongNetwork" />
     <ConnectMetamaskButton />
   </div>
@@ -13,7 +13,7 @@ import NetworkIndicator from "@/components/prividium/NetworkIndicator.vue";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
-import { default as useWallet } from "@/composables/useWallet";
+import useWallet from "@/composables/useWallet";
 
 const context = useContext();
 const { logout, isLoginPending } = useLogin(context);
@@ -51,11 +51,3 @@ const isWrongNetwork = computed(() => {
   return currentChainId.value !== `0x${currentNetwork.value.l2ChainId.toString(16)}`;
 });
 </script>
-
-<style scoped>
-.wallet-status-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-</style>

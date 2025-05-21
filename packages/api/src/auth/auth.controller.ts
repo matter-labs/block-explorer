@@ -104,7 +104,6 @@ export class AuthController {
         case SiweErrorType.INVALID_SIGNATURE:
           throw new UnprocessableEntityException({ message: error.type });
         default:
-          console.log("error", error);
           throw new BadRequestException({ message: "Failed to verify signature" });
       }
     }

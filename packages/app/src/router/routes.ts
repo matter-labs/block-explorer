@@ -25,6 +25,24 @@ export default [
     },
   },
   {
+    path: "/reviewing-permissions",
+    name: "reviewing-permissions",
+    component: ReviewingPermissionsView,
+    meta: {
+      title: "Reviewing Permissions",
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/not-authorized",
+    name: "not-authorized",
+    component: NotAuthorizedView,
+    meta: {
+      title: "Not Authorized",
+      requiresAuth: false,
+    },
+  },
+  {
     path: "/blocks/",
     name: "blocks",
     component: () => import("@/views/BlocksView.vue"),

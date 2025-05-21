@@ -1,15 +1,12 @@
 <template>
   <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B] text-white">
     <div class="flex flex-col items-center text-center">
-      <!-- Logo -->
       <div class="mb-10">
         <img src="/images/zksync-light.svg" class="w-[233px] h-[48px]" alt="ZKsync Logo" />
       </div>
 
-      <!-- Heading -->
       <h1 class="text-[30px] leading-[36px] font-bold mb-12">Private Explorer Access</h1>
 
-      <!-- Loading Spinner and Text -->
       <div class="flex items-center mb-10">
         <svg
           class="animate-spin h-6 w-6 text-white mr-3"
@@ -27,7 +24,6 @@
         <span class="text-lg">Reviewing permissions...</span>
       </div>
 
-      <!-- Disconnect Message -->
       <p class="text-sm text-gray-400">
         If the system is not responding, you can
         <button @click="handleDisconnect" class="underline hover:text-gray-200 focus:outline-none">disconnect</button>.
