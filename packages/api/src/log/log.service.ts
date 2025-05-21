@@ -11,7 +11,7 @@ import { OWNERSHIP_TRANSFERRED_TOPIC } from "../common/constants";
 export interface FilterLogsOptions {
   transactionHash?: string;
   address?: string;
-  someLogMatch?: string;
+  someTopicMatch?: string;
 }
 
 export interface FilterLogsByAddressOptions {
@@ -47,15 +47,15 @@ export class LogService {
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
-    const { someLogMatch, ...baseFilters } = filterOptions;
+    const { someTopicMatch, ...baseFilters } = filterOptions;
     const queryBuilder = this.logRepository.createQueryBuilder("log");
     queryBuilder.where(baseFilters);
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
 
     let params = {};
-    if (someLogMatch) {
-      params = { addr: hexTransformer.to(someLogMatch) };
+    if (someTopicMatch) {
+      params = { addr: hexTransformer.to(someTopicMatch) };
 
       queryBuilder.where(
         new Brackets((qb) => {

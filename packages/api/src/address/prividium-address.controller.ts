@@ -12,7 +12,7 @@ import { Pagination, createPaginationObject } from "nestjs-typeorm-paginate";
 import { ListFiltersDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { AddressService } from "./address.service";
-import { AccountDto, ContractDto, FilterAddressTransfersOptionsDto, TokenAddressDto } from "./dtos";
+import { AccountDto, AddressType, ContractDto, FilterAddressTransfersOptionsDto, TokenAddressDto } from "./dtos";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { ADDRESS_REGEX_PATTERN, ParseAddressPipe } from "../common/pipes/parseAddress.pipe";
@@ -22,6 +22,8 @@ import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { Request } from "express";
 import { buildDateFilter, pad } from "../common/utils";
+import { getAddress } from "ethers";
+import { BlockService } from "../block/block.service";
 
 const entityName = "address";
 
@@ -32,7 +34,8 @@ export class PrividiumAddressController {
   constructor(
     private addressService: AddressService,
     private logService: LogService,
-    private transferService: TransferService
+    private transferService: TransferService,
+    private blockService: BlockService
   ) {}
 
   @Get(":address")
@@ -60,17 +63,19 @@ export class PrividiumAddressController {
     const isContract = !!(addressRecord && addressRecord.bytecode.length > 2);
 
     if (!isContract && !isUserAddress) {
-      throw new NotFoundException({ address });
+      return {
+        type: AddressType.Account,
+        address: getAddress(address),
+        blockNumber: await this.blockService.getLastBlockNumber(),
+        balances: {},
+        sealedNonce: 0,
+        verifiedNonce: 0,
+      };
     }
 
     const showBalanceForContract = isContract && (await this.isOwnerOfContract(userAddress, address));
 
     return this.addressService.findFullAddress(address, isUserAddress || showBalanceForContract);
-  }
-
-  private async isOwnerOfContract(userAddr: string, contractAddr: string): Promise<boolean> {
-    const contractOwner = await this.logService.findContractOwnerTopic(contractAddr);
-    return contractOwner && contractOwner.toLowerCase() === pad(userAddr).toLowerCase();
   }
 
   @Get(":address/logs")
@@ -93,7 +98,7 @@ export class PrividiumAddressController {
     const userAddress = req.session.siwe.address;
     const filter = (await this.isOwnerOfContract(userAddress, address))
       ? { address }
-      : { address, someLogMatch: pad(req.session.siwe.address) };
+      : { address, someTopicMatch: pad(req.session.siwe.address) };
 
     return await this.logService.findAll(filter, {
       ...pagingOptions,
@@ -148,5 +153,10 @@ export class PrividiumAddressController {
         route: `${entityName}/${address}/transfers`,
       }
     );
+  }
+
+  private async isOwnerOfContract(userAddr: string, contractAddr: string): Promise<boolean> {
+    const contractOwner = await this.logService.findContractOwnerTopic(contractAddr);
+    return contractOwner !== null && contractOwner.toLowerCase() === pad(userAddr).toLowerCase();
   }
 }
