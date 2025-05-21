@@ -12,6 +12,19 @@ vi.mock("@vueuse/core", () => {
     useStorage: vi.fn(() => computed(() => false)),
   };
 });
+
+// Mock vue-router
+vi.mock("vue-router", () => ({
+  useRoute: () => ({
+    name: "test-route",
+    path: "/",
+    fullPath: "/",
+  }),
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+}));
+
 const maintenanceMock = vi.fn(() => false);
 vi.mock("@/composables/useContext", () => {
   return {
@@ -36,6 +49,13 @@ vi.mock("@/composables/useRouteTitle", () => {
     }),
   };
 });
+vi.mock("@/composables/useEnvironmentConfig", () => {
+  return {
+    default: () => ({
+      prividium: computed(() => false),
+    }),
+  };
+});
 
 import enUS from "@/locales/en.json";
 
@@ -55,9 +75,6 @@ describe("App:", () => {
   const global = {
     stubs: ["the-header", "the-footer", "router-view", "MaintenanceView"],
     plugins: [i18n, $testId],
-    mocks: {
-      $route: { name: "test-route" },
-    },
   };
 
   it("uses title", async () => {

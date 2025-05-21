@@ -16,14 +16,33 @@ import enUS from "@/locales/en.json";
 // Mock useStorage
 vi.mock("@vueuse/core", () => ({
   useStorage: vi.fn(() => computed(() => false)),
+  useMemoize: vi.fn((fn) => fn),
+  useResizeObserver: vi.fn((target, callback) => {
+    // Simulate a resize event with a default width
+    callback([{ contentRect: { width: 200 } }]);
+    return { stop: vi.fn() };
+  }),
 }));
 
 // Mock useContext
-vi.mock("@/composables/useContext", () => ({
-  default: () => ({
-    isReady: computed(() => true),
-    user: computed(() => ({ loggedIn: false })),
-    currentNetwork: computed(() => ({
+const mockContext = {
+  isReady: computed(() => true),
+  user: computed(() => ({ loggedIn: false })),
+  currentNetwork: computed(() => ({
+    name: "test",
+    icon: "test",
+    apiUrl: "http://test",
+    maintenance: false,
+    l2NetworkName: "test",
+    l2ChainId: 270,
+    rpcUrl: "http://test",
+    baseTokenAddress: "0x0000000000000000000000000000000000000000",
+    prividium: false,
+    published: true,
+    hostnames: ["test.com"],
+  })),
+  networks: computed(() => [
+    {
       name: "test",
       icon: "test",
       apiUrl: "http://test",
@@ -35,25 +54,20 @@ vi.mock("@/composables/useContext", () => ({
       prividium: false,
       published: true,
       hostnames: ["test.com"],
-    })),
-    networks: computed(() => [
-      {
-        name: "test",
-        icon: "test",
-        apiUrl: "http://test",
-        maintenance: false,
-        l2NetworkName: "test",
-        l2ChainId: 270,
-        rpcUrl: "http://test",
-        baseTokenAddress: "0x0000000000000000000000000000000000000000",
-        prividium: false,
-        published: true,
-        hostnames: ["test.com"],
-      },
-    ]),
-    getL2Provider: vi.fn(),
-    identifyNetwork: vi.fn(),
-  }),
+    },
+  ]),
+  getL2Provider: vi.fn(),
+  identifyNetwork: vi.fn(),
+};
+
+vi.mock("@/composables/useContext", () => ({
+  default: vi.fn(() => mockContext),
+}));
+
+// Mock formatShortAddress and checksumAddress
+vi.mock("@/utils/formatters", () => ({
+  formatShortAddress: (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`,
+  checksumAddress: (address: string) => address,
 }));
 
 describe("ConnectMetaMaskButton:", () => {
@@ -144,7 +158,7 @@ describe("ConnectMetaMaskButton:", () => {
       },
     });
 
-    expect(wrapper.find(".address-text").text()).toBe("0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b");
+    expect(wrapper.find(".address-text").text()).toBe("0x0cc7...dc1b");
     mock.mockRestore();
   });
   it("connects when button is clicked", async () => {
@@ -214,8 +228,8 @@ describe("ConnectMetaMaskButton:", () => {
       },
     });
 
-    await wrapper.find(".dropdown-button").trigger("click");
-    await wrapper.find(".logout-button").trigger("click");
+    await wrapper.find(".metamask-image").trigger("click");
+    await wrapper.find(".address-text").trigger("click");
     expect(mockDisconnect).toHaveBeenCalledOnce();
     mock.mockRestore();
   });
