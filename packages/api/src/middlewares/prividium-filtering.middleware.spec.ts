@@ -90,8 +90,6 @@ describe("PrividiumFilteringMiddleware", () => {
       "/ready/foo",
       "/stats",
       "/stats/foo",
-      "/tokens",
-      "/tokens/foo",
     ];
 
     for (const route of routes) {
@@ -163,7 +161,7 @@ describe("PrividiumFilteringMiddleware", () => {
     expect(next).toHaveBeenCalled();
   });
 
-  it("/address blocks traffic when address is a contract and user is not the owner", async () => {
+  it("/address allows traffic when user is not the owner of the contract and skips balance check", async () => {
     req.session.siwe = siwe;
     req.originalUrl = `/address/${someAddress}`;
 
@@ -178,8 +176,9 @@ describe("PrividiumFilteringMiddleware", () => {
     ]);
     logService.findManyByTopics.mockReturnValue(Promise.resolve([log]));
 
-    await expect(() => middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
-    expect(next).not.toHaveBeenCalled();
+    await middleware.use(req, res, next);
+    expect(next).toHaveBeenCalled();
+    expect(res.locals.filterAddressOptions).toEqual({ includeBalances: false });
   });
 
   it("/address allows traffic when address is contract and user is owner", async () => {
@@ -201,6 +200,23 @@ describe("PrividiumFilteringMiddleware", () => {
     expect(next).toHaveBeenCalled();
   });
 
+  it("/address does not includes balances when owner topic is undefined", async () => {
+    req.session.siwe = siwe;
+    req.originalUrl = `/address/${someAddress}`;
+
+    const contractAddress = buildAddress(someAddress, "0x010203");
+
+    addressService.findOne.mockReturnValue(Promise.resolve(contractAddress));
+
+    const log = buildLog(["0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0", "0x01"]);
+    logService.findManyByTopics.mockReturnValue(Promise.resolve([log]));
+
+    res.locals = {};
+    await middleware.use(req, res, next);
+    expect(next).toHaveBeenCalled();
+    expect(res.locals).toEqual({ filterAddressOptions: { includeBalances: false } });
+  });
+
   it("/address filters out traffic when address is a contract that is not ownable", async () => {
     req.session.siwe = siwe;
     req.originalUrl = `/address/${someAddress}`;
@@ -210,8 +226,10 @@ describe("PrividiumFilteringMiddleware", () => {
     addressService.findOne.mockReturnValue(Promise.resolve(contractAddress));
     logService.findManyByTopics.mockReturnValue(Promise.resolve([]));
 
-    await expect(() => middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
-    expect(next).not.toHaveBeenCalled();
+    res.locals = {};
+    await middleware.use(req, res, next);
+    expect(next).toHaveBeenCalled();
+    expect(res.locals).toEqual({ filterAddressOptions: { includeBalances: false } });
   });
 
   it("when url is /transactions/:id allows to continue", async () => {
@@ -272,5 +290,57 @@ describe("PrividiumFilteringMiddleware", () => {
         filterAddressInLogTopics: true,
       },
     });
+  });
+
+  it("allows traffic for /tokens with no locals set", async () => {
+    req.originalUrl = "/tokens";
+    res.locals = {};
+    req.session.siwe = siwe;
+    await middleware.use(req, res, next);
+    expect(res.locals).toEqual({});
+  });
+
+  it("allows traffic for /tokens/:addr/transfers with extra filters", async () => {
+    req.originalUrl = "/tokens/someaddress/transfers";
+    res.locals = {};
+    req.session.siwe = siwe;
+    await middleware.use(req, res, next);
+    expect(res.locals).toEqual({
+      tokenTransfersOptions: {
+        address: userAddress.address,
+      },
+    });
+  });
+
+  it("sets filters for /address/:addr/logs with extra filters", async () => {
+    req.originalUrl = "/address/someaddress/logs";
+    res.locals = {};
+    req.session.siwe = siwe;
+    await middleware.use(req, res, next);
+    expect(res.locals).toEqual({
+      filterAddressLogsOptions: {
+        visibleBy: userAddress.address,
+      },
+    });
+  });
+
+  it("sets filters for /address/:addr/transfers", async () => {
+    req.originalUrl = "/address/someaddress/transfers";
+    res.locals = {};
+    req.session.siwe = siwe;
+    await middleware.use(req, res, next);
+    expect(res.locals).toEqual({
+      filterAddressTransferOptions: {
+        visibleBy: userAddress.address,
+      },
+    });
+  });
+
+  it("does not filters for /address/:addr/transfers with extra filters", async () => {
+    req.originalUrl = `/address/${userAddress.address}/transfers`;
+    res.locals = {};
+    req.session.siwe = siwe;
+    await middleware.use(req, res, next);
+    expect(res.locals).toEqual({});
   });
 });
