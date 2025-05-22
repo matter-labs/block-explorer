@@ -58,9 +58,7 @@ describe("useFetch:", () => {
 
       await fc.fetch();
 
-      expect($fetch).toHaveBeenCalledWith("https://block-explorer-api.testnets.zksync.dev/?a=b", {
-        credentials: "include",
-      });
+      expect($fetch).toHaveBeenCalledWith("https://block-explorer-api.testnets.zksync.dev/?a=b");
     });
   });
 });
