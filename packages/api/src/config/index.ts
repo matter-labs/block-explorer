@@ -92,7 +92,6 @@ export default () => {
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
-    APP_HOSTNAME,
     PRIVIDIUM_PRIVATE_RPC_URL,
     PRIVIDIUM_PRIVATE_RPC_SECRET,
     APP_URL,
@@ -176,8 +175,8 @@ export default () => {
     baseToken: getBaseToken(),
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
-    appHostname: APP_HOSTNAME,
     prividium: getPrividiumConfig(),
     appUrl: APP_URL,
+    appHostname: new URL(APP_URL).hostname,
   };
 };
