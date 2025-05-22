@@ -126,6 +126,23 @@ describe("TokenController", () => {
         );
       });
 
+      it("considers options in locals", async () => {
+        res.locals = { tokenTransfersOptions: { visibleBy: "userAddress" } };
+        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
+        expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
+        expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+          {
+            tokenAddress,
+            isFeeOrRefund: false,
+            visibleBy: "userAddress",
+          },
+          {
+            ...pagingOptionsWithLimit,
+            route: `tokens/${tokenAddress}/transfers`,
+          }
+        );
+      });
+
       it("returns token transfers", async () => {
         const result = await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
         expect(result).toBe(tokenTransfers);
