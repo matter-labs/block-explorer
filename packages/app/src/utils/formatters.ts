@@ -95,3 +95,8 @@ export function formatPricePretty(amount: BigNumberish, decimals: number, usdPri
     return `${formatMoney(price, priceDecimals)}`;
   }
 }
+
+export function formatShortAddress(address: string | null | undefined, prefixLength = 6, suffixLength = 4): string {
+  if (!address) return "-";
+  return `${address.slice(0, prefixLength)}...${address.slice(-suffixLength)}`;
+}
