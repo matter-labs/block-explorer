@@ -86,7 +86,7 @@ defineProps({
 
 .badge-content svg {
   width: 100%;
-  max-width: 32px;
+  max-width: 24px;
   max-height: 20px;
 }
 
