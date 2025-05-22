@@ -264,7 +264,7 @@ describe("AddressController", () => {
       });
 
       it("queries addresses with the specified options", async () => {
-        await controller.getAddressLogs(address, pagingOptions);
+        await controller.getAddressLogs(address, pagingOptions, res);
         expect(logServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(logServiceMock.findAll).toHaveBeenCalledWith(
           { address },
@@ -276,7 +276,7 @@ describe("AddressController", () => {
       });
 
       it("returns address logs", async () => {
-        const result = await controller.getAddressLogs(address, pagingOptions);
+        const result = await controller.getAddressLogs(address, pagingOptions, res);
         expect(result).toBe(transactionLogs);
       });
     });
@@ -296,7 +296,7 @@ describe("AddressController", () => {
     });
 
     it("queries transfers with the specified options when no filters provided", async () => {
-      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
+      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, res);
       expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
       expect(transferServiceMock.findAll).toHaveBeenCalledWith(
         {
@@ -313,7 +313,13 @@ describe("AddressController", () => {
     });
 
     it("queries transfers with the specified options when filters are provided", async () => {
-      await controller.getAddressTransfers(address, { type: TransferType.Transfer }, listFilterOptions, pagingOptions);
+      await controller.getAddressTransfers(
+        address,
+        { type: TransferType.Transfer },
+        listFilterOptions,
+        pagingOptions,
+        res
+      );
       expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
       expect(transferServiceMock.findAll).toHaveBeenCalledWith(
         {
@@ -330,7 +336,7 @@ describe("AddressController", () => {
     });
 
     it("returns the transfers", async () => {
-      const result = await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
+      const result = await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, res);
       expect(result).toBe(transfers);
     });
   });

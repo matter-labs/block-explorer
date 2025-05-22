@@ -90,8 +90,6 @@ describe("PrividiumFilteringMiddleware", () => {
       "/ready/foo",
       "/stats",
       "/stats/foo",
-      "/tokens",
-      "/tokens/foo",
     ];
 
     for (const route of routes) {
@@ -163,7 +161,7 @@ describe("PrividiumFilteringMiddleware", () => {
     expect(next).toHaveBeenCalled();
   });
 
-  it("/address blocks traffic when address is a contract and user is not the owner", async () => {
+  it("/address allows traffic when user is not the owner of the contract and skips balance check", async () => {
     req.session.siwe = siwe;
     req.originalUrl = `/address/${someAddress}`;
 
@@ -178,8 +176,9 @@ describe("PrividiumFilteringMiddleware", () => {
     ]);
     logService.findManyByTopics.mockReturnValue(Promise.resolve([log]));
 
-    await expect(() => middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
-    expect(next).not.toHaveBeenCalled();
+    await middleware.use(req, res, next);
+    expect(next).toHaveBeenCalled();
+    expect(res.locals.filterAddressOptions).toEqual({ includeBalances: false });
   });
 
   it("/address allows traffic when address is contract and user is owner", async () => {
