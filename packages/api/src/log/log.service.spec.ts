@@ -1,7 +1,14 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import {
+  Repository,
+  SelectQueryBuilder,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  Brackets,
+  WhereExpressionBuilder,
+} from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
@@ -98,6 +105,24 @@ describe("LogService", () => {
       expect(utils.paginate).toBeCalledTimes(1);
       expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions);
       expect(result).toBe(paginationResult);
+    });
+
+    it("does special query when visibleBy is defined", async () => {
+      const address1 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      const address2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+      const filterOptions = { address: address1, visibleBy: address2 };
+      await service.findAll(filterOptions, pagingOptions);
+      expect(queryBuilderMock.innerJoin).toBeCalledWith("log.transaction", "transactions");
+      expect(queryBuilderMock.where).toBeCalledWith(expect.any(Brackets));
+      const brackets = queryBuilderMock.where.mock.calls[1][0] as Brackets;
+      expect(brackets).toBeInstanceOf(Brackets);
+      const qb = mock<WhereExpressionBuilder>();
+      brackets.whereFactory(qb);
+      expect(qb.where).toHaveBeenCalledWith(`log.topics[1] = :visibleByTopic`);
+      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[2] = :visibleByTopic");
+      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[3] = :visibleByTopic");
+      expect(qb.orWhere).toHaveBeenCalledWith("transactions.from = :visibleBy");
+      expect(qb.orWhere).toHaveBeenCalledWith("transactions.to = :visibleBy");
     });
   });
 

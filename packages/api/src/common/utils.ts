@@ -1,7 +1,7 @@
 import { MoreThanOrEqual, LessThanOrEqual, Between, SelectQueryBuilder } from "typeorm";
 import { IPaginationMeta, createPaginationObject, Pagination } from "nestjs-typeorm-paginate";
 
-import { NumerableEntity } from "../common/entities/numerable.entity";
+import { NumerableEntity } from "./entities/numerable.entity";
 import { hexTransformer } from "./transformers/hex.transformer";
 import { IPaginationOptions } from "./types";
 import { Request } from "express";
