@@ -18,6 +18,7 @@ export interface FilterTransactionsOptions {
   l1BatchNumber?: number;
   receivedAt?: FindOperator<Date>;
   filterAddressInLogTopics?: boolean;
+  visibleBy?: string;
 }
 
 export interface FindByAddressFilterTransactionsOptions {
@@ -66,6 +67,7 @@ export class TransactionService {
         address: hexTransformer.to(filterOptions.address),
         ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
         ...(filterOptions.l1BatchNumber !== undefined && { l1BatchNumber: filterOptions.l1BatchNumber }),
+        ...(filterOptions.visibleBy !== undefined && { visibleBy: hexTransformer.to(filterOptions.visibleBy) }),
       };
 
       // FindOperator doesn't work with this query, so we need to build the filter manually
@@ -105,7 +107,19 @@ export class TransactionService {
       if (filterOptions.receivedAt !== undefined) {
         addressTransactionSubQuery.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
       }
+      // If `visibleBy` is provided, we filter by transactions that are
+      // from or to `visibleBy` address in addition to being from or to `address
+      if (filterOptions.visibleBy !== undefined) {
+        addressTransactionSubQuery.andWhere(
+          new Brackets((qb) => {
+            qb.where("sub1_transaction.from = :visibleBy");
+            qb.orWhere("sub1_transaction.to = :visibleBy");
+          })
+        );
+      }
 
+      // If `filterAddressInLogTopics` is provided, we filter by log topics where
+      // the address is mentioned
       if (filterOptions.filterAddressInLogTopics) {
         const logSubQuery = this.logRepository.createQueryBuilder("sub2_log");
         logSubQuery.select("sub2_log.transactionHash");
@@ -118,6 +132,16 @@ export class TransactionService {
             qb.orWhere("sub2_log.topics[3] = :paddedAddressBytes");
           })
         );
+        // If `visibleBy` is provided, in addition to filtering by log topics,
+        // we filter by transactions that were from or to `address`
+        if (filterOptions.visibleBy !== undefined) {
+          logSubQuery.andWhere(
+            new Brackets((qb) => {
+              qb.where("sub2_transaction.from = :address");
+              qb.orWhere("sub2_transaction.to = :address");
+            })
+          );
+        }
 
         if (filterOptions.blockNumber !== undefined) {
           logSubQuery.andWhere("sub2_transaction.blockNumber = :blockNumber");
@@ -129,7 +153,11 @@ export class TransactionService {
           logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
         }
 
-        const logAddressParam = { paddedAddressBytes: hexTransformer.to(zeroPadValue(filterOptions.address, 32)) };
+        // If `visibleBy` is provided, we use it to filter log topics given we want to see transactions
+        // from `visibleBy` perspective
+        const logAddressParam = {
+          paddedAddressBytes: hexTransformer.to(zeroPadValue(filterOptions.visibleBy || filterOptions.address, 32)),
+        };
 
         queryBuilder.where(`transaction.hash IN (
           (${addressTransactionSubQuery.getQuery()})

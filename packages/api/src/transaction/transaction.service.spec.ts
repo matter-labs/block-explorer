@@ -337,6 +337,17 @@ describe("TransactionService", () => {
         expect(result.items).toEqual(paginationResult.items);
       });
 
+      it("filters by visibleBy", async () => {
+        filterTransactionsOptions.visibleBy = "0xa61464658AfeAf65CccaaFD3a512b69A83B77618";
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
+        const brackets = addressTransactionsQueryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
+        const qb = mock<WhereExpressionBuilder>();
+        brackets.whereFactory(qb);
+        expect(qb.where).toHaveBeenCalledWith("sub1_transaction.from = :visibleBy");
+        expect(qb.orWhere).toHaveBeenCalledWith("sub1_transaction.to = :visibleBy");
+      });
+
       it("filters by log when filterAddressInLogTopics is true", async () => {
         filterTransactionsOptions.filterAddressInLogTopics = true;
         await service.findAll(filterTransactionsOptions, pagingOptions);
@@ -350,6 +361,21 @@ describe("TransactionService", () => {
         expect(qb.where).toHaveBeenCalledWith("sub2_log.topics[1] = :paddedAddressBytes");
         expect(qb.orWhere).toHaveBeenCalledWith("sub2_log.topics[2] = :paddedAddressBytes");
         expect(qb.orWhere).toHaveBeenCalledWith("sub2_log.topics[3] = :paddedAddressBytes");
+      });
+
+      it("filters by log when filterAddressInLogTopics is true and visibleBy is provided", async () => {
+        filterTransactionsOptions.filterAddressInLogTopics = true;
+        filterTransactionsOptions.visibleBy = "0xa61464658AfeAf65CccaaFD3a512b69A83B77618";
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(logRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("sub2_log");
+        expect(logQueryBuilderMock.select).toHaveBeenCalledWith("sub2_log.transactionHash");
+        expect(logQueryBuilderMock.innerJoin).toHaveBeenCalledWith("sub2_log.transaction", "sub2_transaction");
+        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
+        const brackets = logQueryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
+        const qb = mock<WhereExpressionBuilder>();
+        brackets.whereFactory(qb);
+        expect(qb.where).toHaveBeenCalledWith("sub2_transaction.from = :address");
+        expect(qb.orWhere).toHaveBeenCalledWith("sub2_transaction.to = :address");
       });
 
       it("filters by and block number", async () => {
