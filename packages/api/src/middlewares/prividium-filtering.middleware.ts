@@ -59,7 +59,7 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
     }
 
     if (pathSegments[3] === "transfers") {
-      if (this.isOwnAddress(req, pathSegments[2])) {
+      if (!this.isOwnAddress(req, pathSegments[2])) {
         res.locals.filterAddressTransferOptions = {
           visibleBy: userAddress,
         };
@@ -87,9 +87,6 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       offset: 1,
     });
     const newOwner = logs[0]?.topics[2];
-    if (newOwner === undefined) {
-      throw new ForbiddenException();
-    }
 
     const isOwner = newOwner?.toLowerCase() === zeroPadValue(userAddress, 32).toLowerCase();
     res.locals.filterAddressOptions = {
