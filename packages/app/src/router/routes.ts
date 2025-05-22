@@ -3,6 +3,9 @@ import useSearch from "@/composables/useSearch";
 import type { RouteLocation, RouteRecordRaw } from "vue-router";
 
 import HomeView from "@/views/HomeView.vue";
+import LoginView from "@/views/LoginView.vue";
+import NotAuthorizedView from "@/views/NotAuthorizedView.vue";
+import ReviewingPermissionsView from "@/views/ReviewingPermissionsView.vue";
 const { getSearchRoute } = useSearch();
 
 export default [
@@ -12,6 +15,33 @@ export default [
     component: HomeView,
     meta: {
       title: "document.home",
+    },
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: LoginView,
+    meta: {
+      title: "Login",
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/reviewing-permissions",
+    name: "reviewing-permissions",
+    component: ReviewingPermissionsView,
+    meta: {
+      title: "Reviewing Permissions",
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/not-authorized",
+    name: "not-authorized",
+    component: NotAuthorizedView,
+    meta: {
+      title: "Not Authorized",
+      requiresAuth: false,
     },
   },
   {

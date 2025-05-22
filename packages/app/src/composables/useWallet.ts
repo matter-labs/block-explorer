@@ -21,6 +21,8 @@ type WalletState = {
   isConnectFailed: boolean;
   isMetamaskInstalled: boolean;
   address: string | null;
+  currentChainId: string | null;
+  isAddNetworkPending: boolean;
 };
 
 type UseWallet = ToRefs<WalletState> & {
@@ -31,6 +33,8 @@ type UseWallet = ToRefs<WalletState> & {
 
   getL1Signer: () => Promise<L1Signer>;
   getL2Signer: () => Promise<Signer>;
+  getEthereumProvider: () => Promise<BaseProvider | null>;
+  addNetwork: (rpcUrl: string) => Promise<void>;
 };
 
 export type NetworkConfiguration = {
@@ -60,8 +64,9 @@ const state = reactive<WalletState>({
   isMetamaskInstalled: false,
   isConnectPending: false,
   isConnectFailed: false,
-
   address: null,
+  currentChainId: null,
+  isAddNetworkPending: false,
 });
 
 export const isAuthenticated: RemovableRef<boolean> = useStorage<boolean>("useWallet_isAuthenticated", false);
@@ -77,7 +82,7 @@ export default (
     detectEthereumProvider({
       mustBeMetaMask: true,
       silent: false,
-    }) as Promise<BaseProvider | undefined>;
+    }) as Promise<BaseProvider | null>;
 
   const handleAccountsChanged = (accounts: unknown) => {
     if (Array.isArray(accounts) && accounts.length) {
@@ -85,7 +90,20 @@ export default (
       isAuthenticated.value = true;
     } else {
       state.address = null;
+      isAuthenticated.value = false;
+      disconnect();
     }
+  };
+
+  const handleChainChanged = (chainId: string) => {
+    state.currentChainId = chainId;
+  };
+
+  const handleDisconnect = () => {
+    state.address = null;
+    state.currentChainId = null;
+    isAuthenticated.value = false;
+    disconnect();
   };
 
   const initialize = async () => {
@@ -102,6 +120,7 @@ export default (
     }
 
     state.isMetamaskInstalled = true;
+    state.currentChainId = provider.chainId;
 
     if (isAuthenticated.value) {
       await provider
@@ -116,6 +135,8 @@ export default (
     }
 
     provider.on("accountsChanged", handleAccountsChanged);
+    provider.on("chainChanged", handleChainChanged);
+    provider.on("disconnect", handleDisconnect);
   };
 
   const connect = async () => {
@@ -198,6 +219,7 @@ export default (
 
   const disconnect = () => {
     state.address = null;
+    state.currentChainId = null;
     isAuthenticated.value = false;
   };
 
@@ -223,6 +245,38 @@ export default (
     return Signer.from(await provider.getSigner(), context.currentNetwork.value.l2ChainId, context.getL2Provider()!);
   };
 
+  const addNetwork = async (rpcUrl: string) => {
+    const ethereum = await getEthereumProvider();
+    if (!ethereum) {
+      throw WalletError.UnknownError("MetaMask not installed");
+    }
+
+    try {
+      state.isAddNetworkPending = true;
+      await ethereum.request({
+        method: "wallet_addEthereumChain",
+        params: [
+          {
+            chainId: numberToHexString(context.currentNetwork.value.l2ChainId),
+            chainName: context.currentNetwork.value.chainName,
+            nativeCurrency: {
+              name: "Ether",
+              symbol: "ETH",
+              decimals: 18,
+            },
+            rpcUrls: [rpcUrl],
+            blockExplorerUrls: [window.location.origin],
+            iconUrls: ["https://zksync.io/favicon.ico"],
+          },
+        ],
+      });
+    } catch (error) {
+      processException(error, "Failed to add network to MetaMask");
+    } finally {
+      state.isAddNetworkPending = false;
+    }
+  };
+
   return {
     ...toRefs(state),
     initialize,
@@ -232,6 +286,8 @@ export default (
 
     getL1Signer,
     getL2Signer,
+    getEthereumProvider,
+    addNetwork,
   };
 };
 
