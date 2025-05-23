@@ -52,7 +52,7 @@ export class AuthController {
   })
   public getMessage(@Req() req: Request, @Body() body: { address: string }): string {
     const message = new SiweMessage({
-      domain: this.configService.get("appHostname"),
+      domain: this.configService.get<string>("prividium.appHostname"),
       address: body.address,
       statement: "Sign in to the Block Explorer",
       uri: this.configService.get("appUrl"),
@@ -106,7 +106,7 @@ export class AuthController {
       {
         signature: body.signature,
         nonce: siweMessage.nonce,
-        domain: this.configService.get("appHostname"),
+        domain: this.configService.get<string>("prividium.appHostname"),
         scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
         time: new Date().toISOString(),
       },

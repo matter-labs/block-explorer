@@ -34,4 +34,9 @@ ENV PORT $PORT
 USER node
 WORKDIR /usr/src/app/packages/app/dist
 
+COPY --chown=node:node ./packages/app/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+
 CMD http-server -p $PORT -c-1 --proxy="http://127.0.0.1:$PORT/index.html?"
