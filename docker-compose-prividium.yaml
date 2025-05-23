@@ -1,3 +1,4 @@
+name: prividium_block_explorer
 services:
   app:
     build:
@@ -21,7 +22,7 @@ services:
       - BASE_TOKEN_ADDRESS=0x000000000000000000000000000000000000800A
     depends_on:
       - api
-    restart: unless-stopped
+    restart: on-failure
 
   worker:
     build:
@@ -42,7 +43,7 @@ services:
     depends_on:
       zksync:
         condition: service_healthy
-    restart: unless-stopped
+    restart: on-failure
 
   data-fetcher:
     build:
@@ -57,7 +58,7 @@ services:
     depends_on:
       zksync:
         condition: service_healthy
-    restart: unless-stopped
+    restart: on-failure
 
   api:
     build:
@@ -82,7 +83,7 @@ services:
     depends_on:
       - worker
       - private-rpc
-    restart: unless-stopped
+    restart: on-failure
 
   postgres:
     image: "postgres:14"
@@ -142,7 +143,7 @@ services:
       timeout: 5s
       retries: 60
       start_period: 30s
-    restart: unless-stopped
+    restart: on-failure
 
   private-rpc:
     image: matterlabs/private-rpc:latest
@@ -155,21 +156,23 @@ services:
         condition: service_healthy
     ports:
       - 127.0.0.1:4000:3000
+    volumes:
+      - ./prividium-permissions.yaml:/app/permissions.yaml
     environment:
       - PORT=3000
       - DATABASE_URL=postgres://postgres:postgres@private-rpc-postgres/postgres
       - TARGET_RPC=http://zksync:3050
       - CORS_ORIGIN=http://localhost:3010
-      - PERMISSIONS_YAML_PATH=/app/example-permissions.yaml #FIXME
+      - PERMISSIONS_YAML_PATH=/app/permissions.yaml #FIXME
       - CREATE_TOKEN_SECRET=rpc_secret
     command: ["sh", "-c", "yarn db:migrate && node dist/index.js"]
-    # healthcheck:
-    #   test: curl --fail http://localhost:3071/health || exit 1
-    #   interval: 10s
-    #   timeout: 5s
-    #   retries: 60
-    #   start_period: 30s
-    restart: unless-stopped
+    healthcheck:
+     test: curl --fail http://localhost:3000/health || exit 1
+     interval: 10s
+     timeout: 5s
+     retries: 60
+     start_period: 30s
+    restart: on-failure
 
   private-rpc-postgres:
     image: "postgres:14"
