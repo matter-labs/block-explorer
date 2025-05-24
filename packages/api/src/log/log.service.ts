@@ -54,13 +54,12 @@ export class LogService {
     if (visibleBy !== undefined) {
       queryBuilder.innerJoin("log.transaction", "transactions");
       const topic = zeroPadValue(visibleBy, 32);
-      queryBuilder.where(
+      queryBuilder.andWhere(
         new Brackets((qb) => {
           qb.where(`log.topics[1] = :visibleByTopic`);
           qb.orWhere("log.topics[2] = :visibleByTopic");
           qb.orWhere("log.topics[3] = :visibleByTopic");
           qb.orWhere("transactions.from = :visibleBy");
-          qb.orWhere("transactions.to = :visibleBy");
         })
       );
       queryBuilder.setParameters({ visibleByTopic: hexTransformer.to(topic), visibleBy: hexTransformer.to(visibleBy) });
