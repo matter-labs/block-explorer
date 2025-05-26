@@ -20,9 +20,9 @@ describe("AuthController", () => {
   const chainId = 300;
   const configServiceValues = {
     NODE_ENV: "production",
-    appHostname: "blockexplorer.com",
     appUrl: "https://blockexplorer.com",
     "prividium.chainId": chainId,
+    "prividium.appHostname": "blockexplorer.com",
   };
 
   beforeEach(() => {
@@ -115,7 +115,7 @@ describe("AuthController", () => {
           switch (key) {
             case "NODE_ENV":
               return "development";
-            case "appHostname":
+            case "prividium.appHostname":
               return "blockexplorer.com";
             case "prividium.chainId":
               return chainId;
