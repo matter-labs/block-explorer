@@ -26,6 +26,7 @@ import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
+import { $fetch } from "ohmyfetch";
 
 const entityName = "auth";
 
@@ -156,7 +157,8 @@ export class AuthController {
     schema: { type: "object", properties: { message: { type: "string" } } },
   })
   public async token(@Req() req: Request) {
-    const response = await fetch(`${this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL")}/users`, {
+    const response = await $fetch("/users", {
+      baseURL: this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL"),
       method: "POST",
       body: JSON.stringify({
         address: req.session.siwe.address,
@@ -164,13 +166,7 @@ export class AuthController {
       }),
       headers: { "Content-Type": "application/json" },
     });
-    if (!response.ok) {
-      throw new HttpException("Error creating token", 424);
-    }
-
-    const data = await response.json();
-    const validatedData = this.validatePrivateRpcResponse(data);
-    return validatedData;
+    return this.validatePrivateRpcResponse(response);
   }
 
   @Get("me")
