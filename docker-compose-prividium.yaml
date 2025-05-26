@@ -1,0 +1,201 @@
+name: prividium_block_explorer
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./packages/app/Dockerfile
+    ports:
+      - '3010:3010'
+    environment:
+      - USE_DYNAMIC_CONFIG=true
+      - API_URL=http://localhost:3020
+      - BRIDGE_URL=http://localhost:3000/bridge
+      - HOSTNAMES=localhost
+      - ICON=/images/icons/zksync-arrows.svg
+      - L2_CHAIN_ID=270
+      - PRIVIDIUM=true
+      - L2_NETWORK_NAME=Prividium
+      - MAINTENANCE=false
+      - NETWORK_NAME=Prividium
+      - PUBLISHED=true
+      - RPC_URL=http://localhost:4000
+      - BASE_TOKEN_ADDRESS=0x000000000000000000000000000000000000800A
+    depends_on:
+      - api
+    restart: on-failure
+
+  worker:
+    build:
+      context: .
+      dockerfile: ./packages/worker/Dockerfile
+    environment:
+      - PORT=3001
+      - LOG_LEVEL=verbose
+      - DATABASE_HOST=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=block-explorer
+      - BLOCKCHAIN_RPC_URL=http://zksync:3050
+      - DATA_FETCHER_URL=http://data-fetcher:3040
+      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
+    ports:
+      - '3001:3001'
+    depends_on:
+      zksync:
+        condition: service_healthy
+    restart: on-failure
+
+  data-fetcher:
+    build:
+      context: .
+      dockerfile: ./packages/data-fetcher/Dockerfile
+    environment:
+      - PORT=3040
+      - LOG_LEVEL=verbose
+      - BLOCKCHAIN_RPC_URL=http://zksync:3050
+    ports:
+      - '3040:3040'
+    depends_on:
+      zksync:
+        condition: service_healthy
+    restart: on-failure
+
+  api:
+    build:
+      context: .
+      dockerfile: ./packages/api/Dockerfile
+    environment:
+      - PORT=3020
+      - METRICS_PORT=3005
+      - LOG_LEVEL=verbose
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
+      - APP_URL=http://localhost:3010
+      - PRIVIDIUM=true
+      - PRIVIDIUM_SESSION_SECRET=session_secret
+      - PRIVIDIUM_PRIVATE_RPC_URL=http://private-rpc:3000
+      - PRIVIDIUM_PRIVATE_RPC_SECRET=rpc_secret
+      - PRIVIDIUM_CHAIN_ID=270
+      - PRIVIDIUM_SESSION_MAX_AGE=86400000
+      - NODE_ENV=development # FIXME: should change http in another way
+    ports:
+      - '3020:3020'
+      - '3005:3005'
+    depends_on:
+      - worker
+      - private-rpc
+    restart: on-failure
+
+  postgres:
+    image: "postgres:14"
+    logging:
+      driver: none
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+     - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=block-explorer
+
+  reth:
+    restart: always
+    image: "ghcr.io/paradigmxyz/reth:v0.2.0-beta.2"
+    volumes:
+      - type: bind
+        source: ./reth_chaindata
+        target: /chaindata
+    command: node --dev --datadir /rethdata --http --http.addr 0.0.0.0 --http.port 8545  --dev.block-time 300ms --chain /chaindata/reth_config
+    environment:
+      - RUST_LOG=warn
+    ports:
+      - 127.0.0.1:8545:8545
+
+  zksync:
+    stdin_open: true
+    tty: true
+    image: matterlabs/local-node:latest2.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      reth:
+        condition: service_started
+    ports:
+      - 127.0.0.1:3050:3050 # JSON RPC HTTP port
+      - 127.0.0.1:3051:3051 # JSON RPC WS port
+    volumes:
+      # Configs folder bind
+      - zksync-config:/etc/env/
+      # Storage folder bind
+      - zksync-data:/var/lib/zksync/data
+    environment:
+      - DATABASE_PROVER_URL=postgres://postgres:postgres@postgres/prover_local
+      - DATABASE_URL=postgres://postgres:postgres@postgres/zksync_local
+      - ETH_CLIENT_WEB3_URL=http://reth:8545
+    healthcheck:
+      test: curl --fail http://localhost:3071/health || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 30s
+    restart: on-failure
+
+  private-rpc:
+    image: matterlabs/private-rpc:latest
+    depends_on:
+      private-rpc-postgres:
+        condition: service_healthy
+      reth:
+        condition: service_started
+      zksync:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:4000:3000
+    volumes:
+      - ./prividium-permissions.yaml:/app/permissions.yaml
+    environment:
+      - PORT=3000
+      - DATABASE_URL=postgres://postgres:postgres@private-rpc-postgres/postgres
+      - TARGET_RPC=http://zksync:3050
+      - CORS_ORIGIN=http://localhost:3010
+      - PERMISSIONS_YAML_PATH=/app/permissions.yaml #FIXME
+      - CREATE_TOKEN_SECRET=rpc_secret
+    command: ["sh", "-c", "yarn db:migrate && node dist/index.js"]
+    healthcheck:
+     test: curl --fail http://localhost:3000/health || exit 1
+     interval: 10s
+     timeout: 5s
+     retries: 60
+     start_period: 30s
+    restart: on-failure
+
+  private-rpc-postgres:
+    image: "postgres:14"
+    logging:
+      driver: none
+    volumes:
+      - private-rpc-postgres:/var/lib/postgresql/data
+    ports:
+     - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+
+volumes:
+  reth:
+  postgres:
+  private-rpc-postgres:
+  zksync-config:
+  zksync-data:

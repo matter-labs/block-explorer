@@ -20,7 +20,6 @@ describe("AuthController", () => {
   const chainId = 300;
   const configServiceValues = {
     NODE_ENV: "production",
-    appHostname: "blockexplorer.com",
     appUrl: "https://blockexplorer.com",
     "prividium.chainId": chainId,
     PRIVIDIUM_CHAIN_ID: chainId,
@@ -28,6 +27,8 @@ describe("AuthController", () => {
     PRIVIDIUM_PRIVATE_RPC_URL: "https://rpc.com",
     "prividium.privateRpcSecret": "secret",
     PRIVIDIUM_PRIVATE_RPC_SECRET: "secret",
+    "prividium.appHostname": "blockexplorer.com",
+    PRIVIDIUM_APP_HOSTNAME: "blockexplorer.com",
   };
 
   beforeEach(() => {
@@ -120,7 +121,7 @@ describe("AuthController", () => {
           switch (key) {
             case "NODE_ENV":
               return "development";
-            case "appHostname":
+            case "prividium.appHostname":
               return "blockexplorer.com";
             case "prividium.chainId":
               return chainId;
