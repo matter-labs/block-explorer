@@ -16,6 +16,7 @@ describe("applyPrividiumExpressConfig", () => {
       sessionSecret: "secretvalue",
       appUrl: "https://blockexplorer.com",
       sessionMaxAge: 1000,
+      sessionSameSite: "strict",
     });
     const nonce = "somenonce";
     app.get("/test", (req, res) => {

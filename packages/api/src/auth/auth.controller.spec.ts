@@ -22,7 +22,13 @@ describe("AuthController", () => {
     NODE_ENV: "production",
     appUrl: "https://blockexplorer.com",
     "prividium.chainId": chainId,
+    PRIVIDIUM_CHAIN_ID: chainId,
+    "prividium.privateRpcUrl": "https://rpc.com",
+    PRIVIDIUM_PRIVATE_RPC_URL: "https://rpc.com",
+    "prividium.privateRpcSecret": "secret",
+    PRIVIDIUM_PRIVATE_RPC_SECRET: "secret",
     "prividium.appHostname": "blockexplorer.com",
+    PRIVIDIUM_APP_HOSTNAME: "blockexplorer.com",
   };
 
   beforeEach(() => {
