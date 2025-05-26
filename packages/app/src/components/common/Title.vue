@@ -5,8 +5,8 @@
   >
     {{ title }}&nbsp;
     <div v-if="value" class="title-block flex items-center gap-3 font-semibold">
-      <slot>{{ shortValue(value) }}</slot>
-      <CopyButton :value="value" class="title-copy-button" />
+      <slot>{{ isName ? value : shortValue(value) }}</slot>
+      <CopyButton v-if="!isName" :value="value" class="title-copy-button" />
     </div>
     <div class="badge-container">
       <Badge v-if="isVerified" color="dark-success" class="verified-badge" :tooltip="t('contract.verifiedTooltip')">
@@ -43,6 +43,11 @@ defineProps({
     default: false,
     required: false,
   },
+  isName: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
 });
 
 const { t } = useI18n();
@@ -54,7 +59,7 @@ const { t } = useI18n();
     @apply flex gap-4 self-center font-bold;
     .title-copy-button {
       .copy-button {
-        @apply top-0.5 flex text-inherit hover:text-neutral-400 sm:top-0.5;
+        @apply -top-1 flex text-inherit hover:text-neutral-400 sm:-top-1.5;
         .copy-button-icon {
           @apply h-6 w-6 sm:h-7 sm:w-7;
         }

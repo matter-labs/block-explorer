@@ -306,7 +306,7 @@
     }
   },
   "searchForm": {
-    "placeholder": "Search by address, batch number, contract, or tx hash",
+    "placeholder": "Address, soph.id, batch number, contract, or tx hash",
     "errorMessage": "Please, enter a correct query"
   },
   "estimatedCost": {
