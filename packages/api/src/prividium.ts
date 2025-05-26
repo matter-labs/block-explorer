@@ -12,7 +12,7 @@ export function applyPrividiumExpressConfig(
     appUrl,
     sessionMaxAge,
     sessionSameSite,
-  }: { sessionSecret: string; appUrl: string; sessionMaxAge: number; sessionSameSite?: "none" | "strict" | "lax" }
+  }: { sessionSecret: string; appUrl: string; sessionMaxAge: number; sessionSameSite: "none" | "strict" | "lax" }
 ) {
   app.use(
     cookieSession({
@@ -21,7 +21,7 @@ export function applyPrividiumExpressConfig(
       maxAge: sessionMaxAge,
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: sessionSameSite ?? (process.env.NODE_ENV === "production" ? "none" : "strict"),
+      sameSite: sessionSameSite,
       path: "/",
     })
   );
