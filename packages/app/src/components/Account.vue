@@ -137,11 +137,7 @@ watch(
       const name = await fetchSNSName(address);
       if (name) {
         snsName.value = `${name}.soph.id`;
-      } else {
-        snsName.value = null;
       }
-    } else {
-      snsName.value = null;
     }
   },
   { immediate: true }
