@@ -188,8 +188,6 @@ export default () => {
     } catch (error) {
       isRequestFailed.value = true;
       return null;
-    } finally {
-      isRequestPending.value = false;
     }
   };
 
@@ -225,8 +223,6 @@ export default () => {
     } catch (error) {
       isRequestFailed.value = true;
       return null;
-    } finally {
-      isRequestPending.value = false;
     }
   };
 
