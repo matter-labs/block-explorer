@@ -98,6 +98,7 @@ export default () => {
     APP_URL,
     PRIVIDIUM_CHAIN_ID,
     PRIVIDIUM_SESSION_MAX_AGE,
+    PRIVIDIUM_SESSION_SAME_SITE,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -160,6 +161,7 @@ export default () => {
       privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
       chainId: parseInt(PRIVIDIUM_CHAIN_ID, 10),
       sessionMaxAge: parseInt(PRIVIDIUM_SESSION_MAX_AGE, 10),
+      sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
     };
   };
 
