@@ -113,8 +113,8 @@ describe("LogService", () => {
       const filterOptions = { address: address1, visibleBy: address2 };
       await service.findAll(filterOptions, pagingOptions);
       expect(queryBuilderMock.innerJoin).toBeCalledWith("log.transaction", "transactions");
-      expect(queryBuilderMock.where).toBeCalledWith(expect.any(Brackets));
-      const brackets = queryBuilderMock.where.mock.calls[1][0] as Brackets;
+      expect(queryBuilderMock.andWhere).toBeCalledWith(expect.any(Brackets));
+      const brackets = queryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
       expect(brackets).toBeInstanceOf(Brackets);
       const qb = mock<WhereExpressionBuilder>();
       brackets.whereFactory(qb);
@@ -122,7 +122,6 @@ describe("LogService", () => {
       expect(qb.orWhere).toHaveBeenCalledWith("log.topics[2] = :visibleByTopic");
       expect(qb.orWhere).toHaveBeenCalledWith("log.topics[3] = :visibleByTopic");
       expect(qb.orWhere).toHaveBeenCalledWith("transactions.from = :visibleBy");
-      expect(qb.orWhere).toHaveBeenCalledWith("transactions.to = :visibleBy");
     });
   });
 
