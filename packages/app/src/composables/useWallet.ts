@@ -23,6 +23,7 @@ type WalletState = {
   address: string | null;
   currentChainId: string | null;
   isAddNetworkPending: boolean;
+  isConnectedWrongNetwork: boolean;
 };
 
 type UseWallet = ToRefs<WalletState> & {
@@ -67,6 +68,7 @@ const state = reactive<WalletState>({
   address: null,
   currentChainId: null,
   isAddNetworkPending: false,
+  isConnectedWrongNetwork: false,
 });
 
 export const isAuthenticated: RemovableRef<boolean> = useStorage<boolean>("useWallet_isAuthenticated", false);
@@ -97,6 +99,7 @@ export default (
 
   const handleChainChanged = (chainId: string) => {
     state.currentChainId = chainId;
+    state.isConnectedWrongNetwork = chainId !== numberToHexString(context.currentNetwork.value.l2ChainId);
   };
 
   const handleDisconnect = () => {
@@ -120,16 +123,18 @@ export default (
     }
 
     state.isMetamaskInstalled = true;
-    state.currentChainId = provider.chainId;
+    if (provider.chainId !== null) {
+      handleChainChanged(provider.chainId);
+    }
 
     if (isAuthenticated.value) {
-      await provider
-        .request({ method: "eth_accounts" })
-        .then(handleAccountsChanged)
-        .catch((e) => logger.error(e))
-        .then(() => {
-          state.isReady = true;
-        });
+      try {
+        const accounts = await provider.request({ method: "eth_accounts" });
+        handleAccountsChanged(accounts);
+        state.isReady = true;
+      } catch (err) {
+        logger.error(err);
+      }
     } else {
       state.isReady = true;
     }
@@ -217,7 +222,20 @@ export default (
     }
   };
 
-  const disconnect = () => {
+  const disconnect = async () => {
+    try {
+      const ethereum = await getEthereumProvider();
+      ethereum?.request({
+        method: "wallet_revokePermissions",
+        params: [
+          {
+            eth_accounts: {},
+          },
+        ],
+      });
+    } catch (err) {
+      console.error("Failed to disconnect Metamask", err);
+    }
     state.address = null;
     state.currentChainId = null;
     isAuthenticated.value = false;

@@ -76,7 +76,7 @@ const props = defineProps({
   },
 });
 
-defineEmits<{
+const emit = defineEmits<{
   (eventName: "close"): void;
   (eventName: "disconnect"): void;
 }>();
@@ -98,6 +98,7 @@ const switchNetwork = async () => {
   await updatePrividiumRpcUrl();
   if (prividiumRpcUrl.value) {
     await addNetwork(prividiumRpcUrl.value);
+    emit("close");
   }
 };
 

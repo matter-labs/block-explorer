@@ -69,9 +69,10 @@ export default (): Context => {
   });
 
   function getL2Provider() {
+    const { prividiumRpcUrl } = usePrividiumRpc();
     if (!l2Provider) {
       if (currentNetwork.value.prividium) {
-        l2Provider = new Provider(usePrividiumRpc().prividiumRpcUrl.value ?? "");
+        l2Provider = new Provider(prividiumRpcUrl.value ?? "");
       } else {
         l2Provider = new Provider(currentNetwork.value.rpcUrl);
       }
