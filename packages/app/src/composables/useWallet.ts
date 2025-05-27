@@ -104,7 +104,6 @@ export default (
 
   const handleDisconnect = () => {
     state.address = null;
-    state.currentChainId = null;
     isAuthenticated.value = false;
     disconnect();
   };
@@ -237,7 +236,6 @@ export default (
       console.error("Failed to disconnect Metamask", err);
     }
     state.address = null;
-    state.currentChainId = null;
     isAuthenticated.value = false;
   };
 

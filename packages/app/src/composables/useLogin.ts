@@ -106,9 +106,13 @@ export default (
 
   const logout = async () => {
     wallet.disconnect();
-    await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
-      method: "POST",
-    });
+    try {
+      await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
+        method: "POST",
+      });
+    } catch (error) {
+      _logger.error("Logout failed:", error);
+    }
     context.user.value = { loggedIn: false };
   };
 

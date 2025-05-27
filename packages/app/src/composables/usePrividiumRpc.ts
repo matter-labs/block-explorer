@@ -8,6 +8,9 @@ const rpcUrl = ref<string | null>(null);
 
 export default (context = useContext()) => {
   const initializePrividiumRpcUrl = async () => {
+    if (!context.user.value.loggedIn) {
+      return;
+    }
     await updatePrividiumRpcUrl();
   };
 

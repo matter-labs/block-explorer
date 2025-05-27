@@ -9,9 +9,8 @@
     </template>
   </div>
   <WalletInfoModal
-    v-if="displayAddress"
     :opened="isWalletInfoModalOpen"
-    :address="displayAddress"
+    :address="displayAddress ?? ''"
     :networkName="context.currentNetwork.value.l2NetworkName"
     :networkChainId="context.currentNetwork.value.l2ChainId"
     :isWrongNetwork="isWrongNetwork"
@@ -125,8 +124,9 @@ const closeModal = () => {
 const handleLogoutAndCloseModal = async () => {
   if (context.currentNetwork.value.prividium) {
     await logout();
+  } else {
+    walletDisconnect();
   }
-  walletDisconnect();
   closeModal();
 };
 

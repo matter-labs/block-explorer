@@ -31,15 +31,23 @@ import { useRoute, useRouter } from "vue-router";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
+import usePrividiumRpc from "@/composables/usePrividiumRpc";
 
 const context = useContext();
 const { login, isLoginPending, initializeLogin } = useLogin(context);
+const { initializePrividiumRpcUrl } = usePrividiumRpc();
 const router = useRouter();
 const route = useRoute();
 
 const handleLogin = async () => {
   try {
     await login();
+  } catch (error) {
+    console.error("Login failed:", error);
+  }
+
+  try {
+    await initializePrividiumRpcUrl();
   } catch (error) {
     console.error("Login failed:", error);
   }
