@@ -25,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install Firebase CLI and auth
@@ -64,7 +64,7 @@ jobs:
         working-directory: ./packages/app
         id: check_channel
         run: |
-          
+
           CHANNEL_URL=$(firebase --project staging-scan-v2 hosting:channel:list --json | jq --arg channel_name "${CHANNEL_NAME}" -r '.result.channels[]|select(.name|contains($channel_name)) | .url')
           echo $CHANNEL_URL
           if [ -z "$CHANNEL_URL" ]; then
@@ -97,7 +97,7 @@ jobs:
       contents: write
     with:
       targetUrl: ${{ needs.build.outputs.dappUrl }}
-      testnet_network_value_for_e2e: "/?network=sepolia"
-      default_network_value_for_e2e: "/?network=mainnet"
+      testnet_network_value_for_e2e: '/?network=sepolia'
+      default_network_value_for_e2e: '/?network=mainnet'
       publish_to_allure: true
-      environmentTags: "and not @productionEnv"
+      environmentTags: 'and not @productionEnv'

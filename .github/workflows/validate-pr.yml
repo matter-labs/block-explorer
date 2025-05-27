@@ -38,7 +38,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -68,7 +68,7 @@ jobs:
             packages/worker/junit.xml
             packages/data-fetcher/junit.xml
           check_run_annotations: all tests, skipped tests
-          report_individual_runs: "true"
+          report_individual_runs: 'true'
           check_name: Unit Test Results
 
       - name: Build
