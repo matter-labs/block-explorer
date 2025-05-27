@@ -141,7 +141,12 @@ const buttonText = computed(() => {
   return t("connectMetamaskButton.label");
 });
 
-const shortenedAddress = computed(() => formatShortAddress(displayAddress.value));
+const shortenedAddress = computed(() => {
+  if (displayAddress.value === null) {
+    return "";
+  }
+  return formatShortAddress(displayAddress.value);
+});
 </script>
 
 <style lang="scss">

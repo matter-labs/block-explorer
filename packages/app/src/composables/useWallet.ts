@@ -30,7 +30,7 @@ type UseWallet = ToRefs<WalletState> & {
   initialize: () => Promise<void>;
 
   connect: () => Promise<void>;
-  disconnect: () => void;
+  disconnect: () => Promise<void>;
 
   getL1Signer: () => Promise<L1Signer>;
   getL2Signer: () => Promise<Signer>;
