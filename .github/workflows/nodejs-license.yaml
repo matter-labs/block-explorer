@@ -25,7 +25,7 @@ env:
   # glob-to-regexp@0.3.0 - BSD-2-Clause
   # map-stream@0.1.0 - MIT
   # It has to be one line, there must be no space between packages.
-  EXCLUDE_PACKAGES: gitconfiglocal@1.0.0;glob-to-regexp@0.3.0;map-stream@0.1.0
+  EXCLUDE_PACKAGES: gitconfiglocal@1.0.0;glob-to-regexp@0.3.0;map-stream@0.1.0;@img/sharp-libvips-linux-x64@1.0.4
 
 jobs:
   generate-matrix:
