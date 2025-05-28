@@ -103,6 +103,33 @@ describe("AuthController", () => {
       expect(message1).not.toEqual(message2);
       expect(req.session.siwe).toEqual(new SiweMessage(message2));
     });
+
+    it("clears session when message is requested", async () => {
+      const nonce = "8r2cXq20yD3l5bomR";
+      const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+
+      const { siwe } = await calculateSiwe({
+        nonce,
+        privateKey,
+        domain: "blockexplorer.com",
+        scheme: "http",
+        chainId,
+      });
+      req.session = { siwe, verified: true };
+      const message = controller.getMessage(req, { address });
+      expect(req.session.siwe).toEqual(new SiweMessage(message));
+      expect(req.session.verified).toBe(undefined);
+    });
+
+    it("throws when address is invalid", async () => {
+      expect(() => controller.getMessage(req, { address: "0x123" })).toThrow(BadRequestException);
+    });
+
+    it("throws when address has invalid checksum", async () => {
+      expect(() => controller.getMessage(req, { address: "0xF39Fd6e51aad88F6F4ce6aB8827279cffFb92266" })).toThrow(
+        BadRequestException
+      );
+    });
   });
 
   describe("verifySignature", () => {
