@@ -1,26 +1,37 @@
 <template>
-  <div :class="['network-status', { 'wrong-network': isWrongNetwork }]">
-    <template v-if="isWrongNetwork">
+  <div :class="['network-status', { 'wrong-network': isConnectedWrongNetwork }]">
+    <template v-if="isConnectedWrongNetwork">
       <span class="wrong-network-text">Wrong network</span>
     </template>
     <template v-else>
       <span class="network-item">
-        <img :src="currentNetwork.icon" :alt="`${currentNetwork.l2NetworkName} logo`" class="network-item-img" />
-        <span class="network-item-label">{{ currentNetwork.l2NetworkName }}</span>
+        <img
+          :src="context.currentNetwork.value.icon"
+          :alt="`${context.currentNetwork.value.l2NetworkName} logo`"
+          class="network-item-img"
+        />
+        <span class="network-item-label">{{ context.currentNetwork.value.l2NetworkName }}</span>
       </span>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue";
+import { computed } from "vue";
 
-import type { NetworkConfig } from "@/configs";
+import useContext from "@/composables/useContext";
+import useWallet from "@/composables/useWallet";
 
-defineProps<{
-  currentNetwork: NetworkConfig;
-  isWrongNetwork: boolean;
-}>();
+const context = useContext();
+const { isConnectedWrongNetwork } = useWallet({
+  ...context,
+  currentNetwork: computed(() => ({
+    explorerUrl: context.currentNetwork.value.rpcUrl,
+    chainName: context.currentNetwork.value.l2NetworkName,
+    l1ChainId: 0,
+    ...context.currentNetwork.value,
+  })),
+});
 </script>
 
 <style scoped lang="scss">

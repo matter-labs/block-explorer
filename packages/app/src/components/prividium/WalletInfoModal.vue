@@ -16,9 +16,11 @@
         <div v-if="props.isWrongNetwork" class="network-mismatch-banner-ui">
           <div class="flex items-center w-full">
             <ExclamationCircleIcon class="h-6 w-6 mr-2 text-black" />
-            <span class="text-lg text-black flex-1"> Your wallet activated incorrect network </span>
+            <span class="text-lg text-black flex-1">{{ t("walletInfoModal.wrongNetwork") }}</span>
           </div>
-          <button class="switch-network-ui-btn" @click="switchNetwork">Switch to Prividium</button>
+          <button class="switch-network-ui-btn" @click="switchNetwork">
+            {{ t("walletInfoModal.switchNetwork") }}
+          </button>
         </div>
 
         <div class="info-row">
@@ -76,7 +78,7 @@ const props = defineProps({
   },
 });
 
-defineEmits<{
+const emit = defineEmits<{
   (eventName: "close"): void;
   (eventName: "disconnect"): void;
 }>();
@@ -98,6 +100,7 @@ const switchNetwork = async () => {
   await updatePrividiumRpcUrl();
   if (prividiumRpcUrl.value) {
     await addNetwork(prividiumRpcUrl.value);
+    emit("close");
   }
 };
 

@@ -26,6 +26,7 @@ import { Request } from "express";
 import { VerifySignatureDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
+import { getAddress } from "ethers";
 
 const entityName = "auth";
 
@@ -51,9 +52,18 @@ export class AuthController {
     schema: { type: "string" },
   })
   public getMessage(@Req() req: Request, @Body() body: { address: string }): string {
+    this.clearSession(req);
+
+    let address: string;
+    try {
+      address = getAddress(body.address);
+    } catch (error) {
+      throw new BadRequestException({ message: "Invalid address" });
+    }
+
     const message = new SiweMessage({
       domain: this.configService.get<string>("prividium.appHostname"),
-      address: body.address,
+      address,
       statement: "Sign in to the Block Explorer",
       uri: this.configService.get("appUrl"),
       version: "1",
@@ -63,7 +73,7 @@ export class AuthController {
       issuedAt: new Date().toISOString(),
       expirationTime: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour
     });
-    req.session.siwe = message;
+    req.session = { siwe: message };
     return message.prepareMessage();
   }
 
