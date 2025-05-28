@@ -1,15 +1,14 @@
-import { type ComputedRef, reactive, type Ref, type ToRefs, toRefs } from "vue";
+import { computed, type ComputedRef, reactive, type Ref, type ToRefs, toRefs } from "vue";
 
-import detectEthereumProvider from "@metamask/detect-provider";
 import { BrowserProvider } from "ethers";
 
 import defaultLogger from "./../utils/logger";
+import useWallet, { isAuthenticated } from "./useWallet";
 
 import useFetch from "@/composables/useFetch";
 
 import type { UserContext } from "./useContext";
 import type { NetworkConfig } from "../configs";
-import type { BaseProvider } from "@metamask/providers";
 import type { Provider } from "zksync-ethers";
 
 type LoginState = {
@@ -34,11 +33,15 @@ export default (
   },
   _logger = defaultLogger
 ): UseLogin => {
-  const getEthereumProvider = () =>
-    detectEthereumProvider({
-      mustBeMetaMask: true,
-      silent: false,
-    }) as Promise<BaseProvider | null>;
+  const wallet = useWallet({
+    ...context,
+    currentNetwork: computed(() => ({
+      explorerUrl: context.currentNetwork.value.rpcUrl,
+      chainName: context.currentNetwork.value.l2NetworkName,
+      l1ChainId: 0,
+      ...context.currentNetwork.value,
+    })),
+  });
 
   const initializeLogin = async () => {
     try {
@@ -47,7 +50,7 @@ export default (
         context.user.value = { address: response.address, loggedIn: true };
       }
     } catch {
-      context.user.value = { loggedIn: false };
+      await logout();
     }
   };
 
@@ -56,9 +59,14 @@ export default (
       context.user.value = { loggedIn: false };
       state.isLoginPending = true;
 
-      const ethereum = await getEthereumProvider();
+      const ethereum = await wallet.getEthereumProvider();
       if (!ethereum) {
         throw new Error("MetaMask not found");
+      }
+
+      await wallet.connect();
+      if (!isAuthenticated.value) {
+        return;
       }
 
       const provider = new BrowserProvider(ethereum);
@@ -97,9 +105,14 @@ export default (
   };
 
   const logout = async () => {
-    await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
-      method: "POST",
-    });
+    wallet.disconnect();
+    try {
+      await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
+        method: "POST",
+      });
+    } catch (error) {
+      _logger.error("Logout failed:", error);
+    }
     context.user.value = { loggedIn: false };
   };
 
