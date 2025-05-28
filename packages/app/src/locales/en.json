@@ -821,7 +821,9 @@
     "disconnectButton": "Disconnect",
     "balanceUnavailable": "Balance unavailable",
     "loadingBalance": "Loading balance...",
-    "noEthBalance": "ETH balance not found"
+    "noEthBalance": "ETH balance not found",
+    "wrongNetwork": "Your wallet activated an incorrect network",
+    "switchNetwork": "Switch to Prividium"
   },
   "Login": "Login"
 }
