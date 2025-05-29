@@ -15,6 +15,13 @@ import { Log } from "../log/log.entity";
 
 jest.mock("../common/utils");
 
+const mockPrividiumFeatureFlag = jest.fn();
+jest.mock("../config/featureFlags", () => ({
+  get prividium() {
+    return mockPrividiumFeatureFlag();
+  },
+}));
+
 describe("TransactionService", () => {
   let transaction;
   let service: TransactionService;
@@ -238,6 +245,140 @@ describe("TransactionService", () => {
           address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         };
         (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+        mockPrividiumFeatureFlag.mockReturnValue(false);
+      });
+
+      afterEach(() => {
+        mockPrividiumFeatureFlag.mockRestore();
+      });
+
+      it("creates query builder with proper params", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
+        expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransaction");
+      });
+
+      it("selects address transactions number", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.select).toBeCalledTimes(1);
+        expect(addressTransactionsQueryBuilderMock.select).toHaveBeenCalledWith("addressTransaction.number");
+      });
+
+      it("joins transaction records", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
+        expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
+          "addressTransaction.transaction",
+          "transaction"
+        );
+      });
+
+      it("joins transactionReceipt record to get receipt specific fields", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
+          "transaction.transactionReceipt",
+          "transactionReceipt"
+        );
+      });
+
+      it("selects only needed transactionReceipt fields", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "transactionReceipt.gasUsed",
+          "transactionReceipt.contractAddress",
+        ]);
+      });
+
+      it("joins batch records", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
+        expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.batch", "batch");
+      });
+
+      it("filters transactions by the specified options when only address is defined", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith(filterTransactionsOptions);
+      });
+
+      it("filters transactions by the specified options when additional filters are defined", async () => {
+        const filterOptions = {
+          address: "address",
+          blockNumber: 100,
+          l1BatchNumber: 10,
+          receivedAt: new typeorm.FindOperator("lessThanOrEqual", new Date()),
+        };
+        await service.findAll(filterOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({
+          address: filterOptions.address,
+          receivedAt: filterOptions.receivedAt,
+        });
+        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+          "transaction.blockNumber = :blockNumber",
+          { blockNumber: filterOptions.blockNumber }
+        );
+        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+          "transaction.l1BatchNumber = :l1BatchNumber",
+          { l1BatchNumber: filterOptions.l1BatchNumber }
+        );
+      });
+
+      it("selects only needed batch fields", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+          "batch.commitTxHash",
+          "batch.executeTxHash",
+          "batch.proveTxHash",
+        ]);
+      });
+
+      it("orders transactions by blockNumber, receivedAt and transactionIndex DESC", async () => {
+        await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(addressTransactionsQueryBuilderMock.orderBy).toBeCalledTimes(1);
+        expect(addressTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith(
+          "addressTransaction.blockNumber",
+          "DESC"
+        );
+        expect(addressTransactionsQueryBuilderMock.addOrderBy).toBeCalledTimes(2);
+        expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
+          "addressTransaction.receivedAt",
+          "DESC"
+        );
+        expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
+          "addressTransaction.transactionIndex",
+          "DESC"
+        );
+      });
+
+      it("returns paginated result", async () => {
+        const result = await service.findAll(filterTransactionsOptions, pagingOptions);
+        expect(utils.paginate).toBeCalledTimes(1);
+        expect(utils.paginate).toBeCalledWith(addressTransactionsQueryBuilderMock, pagingOptions);
+        expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
+      });
+    });
+
+    describe("when address filter option is specified and prividium is enabled", () => {
+      const paginationResult = mock<Pagination<AddressTransaction, IPaginationMeta>>({
+        items: [
+          {
+            transaction: mock<Transaction>(),
+          },
+          {
+            transaction: mock<Transaction>(),
+          },
+        ],
+      });
+
+      beforeEach(() => {
+        filterTransactionsOptions = {
+          address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        };
+        (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+        mockPrividiumFeatureFlag.mockReturnValue(true);
+      });
+
+      afterEach(() => {
+        mockPrividiumFeatureFlag.mockRestore();
       });
 
       it("creates query builder with proper params", async () => {
