@@ -11,6 +11,7 @@ import { CounterService } from "../counter/counter.service";
 import { Log } from "../log/log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { zeroPadValue } from "ethers";
+import { prividium } from "../config/featureFlags";
 
 export interface FilterTransactionsOptions {
   blockNumber?: number;
@@ -61,6 +62,41 @@ export class TransactionService {
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
     if (filterOptions.address) {
+      if (!prividium) {
+        // TEMP FIX: Prividium query performs different than the production query, leaving this here for now until
+        // we can match both performance wise.
+        const queryBuilder = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
+        queryBuilder.select("addressTransaction.number");
+        queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");
+        queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
+        queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
+        queryBuilder.leftJoin("transaction.batch", "batch");
+        queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
+        queryBuilder.where({
+          address: filterOptions.address,
+          ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
+          // can't add filters on transaction here due to typeOrm issue with filters on joined tables
+        });
+        if (filterOptions.blockNumber !== undefined) {
+          // can't use filters on transaction as object here due to typeOrm issue with filters on joined tables
+          queryBuilder.andWhere("transaction.blockNumber = :blockNumber", { blockNumber: filterOptions.blockNumber });
+        }
+        if (filterOptions.l1BatchNumber !== undefined) {
+          // can't use filters on transaction as object here due to typeOrm issue with filters on joined tables
+          queryBuilder.andWhere("transaction.l1BatchNumber = :l1BatchNumber", {
+            l1BatchNumber: filterOptions.l1BatchNumber,
+          });
+        }
+        queryBuilder.orderBy("addressTransaction.blockNumber", "DESC");
+        queryBuilder.addOrderBy("addressTransaction.receivedAt", "DESC");
+        queryBuilder.addOrderBy("addressTransaction.transactionIndex", "DESC");
+        const addressTransactions = await paginate<AddressTransaction>(queryBuilder, paginationOptions);
+        return {
+          ...addressTransactions,
+          items: addressTransactions.items.map((item) => item.transaction),
+        };
+      }
+
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
 
       const commonParams: Record<string, string | number | Date> = {
@@ -160,10 +196,10 @@ export class TransactionService {
         };
 
         queryBuilder.where(`transaction.hash IN (
-          (${addressTransactionSubQuery.getQuery()})
-          UNION
-          (${logSubQuery.getQuery()})
-        )`);
+            (${addressTransactionSubQuery.getQuery()})
+            UNION
+            (${logSubQuery.getQuery()})
+          )`);
         queryBuilder.setParameters({
           ...commonParams,
           ...logAddressParam,
