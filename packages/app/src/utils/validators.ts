@@ -2,6 +2,10 @@ import { AbiCoder, isAddress as ethersIsAddress } from "ethers";
 
 const defaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
+export function isSNS(s: string) {
+  return !s.endsWith(".eth") && (s.endsWith(".soph.id") || !isAddress(s));
+}
+
 export function isAddress(address: string): boolean {
   return ethersIsAddress(address?.toLowerCase());
 }

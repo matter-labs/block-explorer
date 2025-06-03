@@ -20,18 +20,18 @@ on:
         default: '/?network=mainnet'
         required: true
       testnet_network_value_for_e2e:
-          type: string
-          default: '/?network=sepolia'
-          required: true
+        type: string
+        default: '/?network=sepolia'
+        required: true
       publish_to_allure: #Here we define the variable that can be overwritten by caller workflow
         type: boolean
-        description: "Publish test results to allure"
+        description: 'Publish test results to allure'
         default: true
         required: false
 
 env:
   ALLURE_SEARCH_REQUEST: '[{"id":"name","type":"string","value":"#${{ github.run_number }}"}]'
-  ALLURE_BASIC_TAGS: "${{ github.head_ref }}, #${{ github.run_number }}, ${{ github.event.pull_request.title }}"
+  ALLURE_BASIC_TAGS: '${{ github.head_ref }}, #${{ github.run_number }}, ${{ github.event.pull_request.title }}'
   ALLURE_PROJECT_ID: ${{ vars.ALLURE_PROJECT_ID }}
   ALLURE_ENDPOINT: ${{ vars.ALLURE_ENDPOINT }}
 
@@ -46,18 +46,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tags: [
-                "@artifactsSet1",
-                "@artifactsSet2",
-                "@artifactsSet3",
-                "@artifactsSet4",
-                "@redirectionSet1",
-                "@redirectionSet2",
-                "@redirectionSet3",
-                "@copying",
-                "@search",
-                "@testnetSmokeSuite"
-              ]
+        tags:
+          [
+            '@artifactsSet1',
+            '@artifactsSet2',
+            '@artifactsSet3',
+            '@artifactsSet4',
+            '@redirectionSet1',
+            '@redirectionSet2',
+            '@redirectionSet3',
+            '@copying',
+            '@search',
+            '@testnetSmokeSuite',
+          ]
 
     name: '${{ matrix.tags }}'
     container:
@@ -71,7 +72,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Cache node modules
@@ -85,9 +86,9 @@ jobs:
           path: node_modules
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-              ${{ runner.os }}-build-${{ env.cache-name }}-
-              ${{ runner.os }}-build-
-              ${{ runner.os }}-
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
 
       - name: Install dependencies
         working-directory: ./

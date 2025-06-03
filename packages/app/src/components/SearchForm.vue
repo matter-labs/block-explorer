@@ -35,17 +35,19 @@ import { or } from "@vuelidate/validators";
 import SearchField from "@/components/common/SearchField.vue";
 
 import useSearch from "@/composables/useSearch";
+import useSns from "@/composables/useSns";
 
-import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
+import { isAddress, isBlockNumber, isSNS, isTransactionHash } from "@/utils/validators";
 
 const searchValue = ref("");
 const { search, isRequestPending } = useSearch();
 const { t } = useI18n();
+const { resolveSNSName } = useSns();
 
 const v$ = useVuelidate(
   {
     searchValue: {
-      isSearchable: or(isBlockNumber, isAddress, isTransactionHash),
+      isSearchable: or(isBlockNumber, isAddress, isTransactionHash, isSNS),
     },
   },
   { searchValue },
@@ -57,6 +59,18 @@ const submit = async () => {
   if (!validationResult) {
     return;
   }
+
+  if (isSNS(searchValue.value)) {
+    try {
+      const address = await resolveSNSName(searchValue.value);
+      if (address) {
+        searchValue.value = address;
+      }
+    } catch (error) {
+      console.error("Error resolving SNS name", error);
+    }
+  }
+
   await search(searchValue.value);
 };
 </script>
