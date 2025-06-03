@@ -1,22 +1,27 @@
 <template>
-  <h1
-    class="title-container flex flex-wrap break-all text-3xl font-semibold tracking-tight sm:text-4xl"
-    :data-testid="$testId.pageTitle"
-  >
-    {{ title }}&nbsp;
-    <div v-if="value" class="title-block flex items-center gap-3 font-semibold">
-      <slot>{{ isName ? value : shortValue(value) }}</slot>
-      <CopyButton v-if="!isName" :value="value" class="title-copy-button" />
+  <span>
+    <h1
+      class="title-container flex flex-wrap break-all text-3xl font-semibold tracking-tight sm:text-4xl"
+      :data-testid="$testId.pageTitle"
+    >
+      {{ title }}&nbsp;
+      <div v-if="!isName && value" class="title-block flex items-center gap-3 font-semibold">
+        <slot>{{ shortValue(value) }}</slot>
+        <CopyButton :value="value" class="title-copy-button" />
+      </div>
+      <div class="badge-container">
+        <Badge v-if="isVerified" color="dark-success" class="verified-badge" :tooltip="t('contract.verifiedTooltip')">
+          {{ t("contract.verified") }}
+        </Badge>
+        <Badge v-if="isEvmLike" color="primary" class="verified-badge" :tooltip="t('contract.evmTooltip')">
+          {{ t("contract.evm") }}
+        </Badge>
+      </div>
+    </h1>
+    <div v-if="subTitle">
+      <span class="text-md text-gray-500">{{ subTitle }}</span>
     </div>
-    <div class="badge-container">
-      <Badge v-if="isVerified" color="dark-success" class="verified-badge" :tooltip="t('contract.verifiedTooltip')">
-        {{ t("contract.verified") }}
-      </Badge>
-      <Badge v-if="isEvmLike" color="primary" class="verified-badge" :tooltip="t('contract.evmTooltip')">
-        {{ t("contract.evm") }}
-      </Badge>
-    </div>
-  </h1>
+  </span>
 </template>
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
@@ -34,6 +39,10 @@ defineProps({
   },
   value: {
     type: String,
+  },
+  subTitle: {
+    type: String,
+    required: false,
   },
   isVerified: {
     type: Boolean,
