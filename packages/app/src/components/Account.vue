@@ -136,7 +136,7 @@ watch(
     if (address) {
       const name = await fetchSNSName(address);
       if (name) {
-        snsName.value = `${name}.soph.id`;
+        snsName.value = name;
       }
     }
   },
