@@ -112,4 +112,5 @@ jobs:
           tags: |
               "matterlabs/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+          file: packages/app/Dockerfile
           no-cache: true
