@@ -21,11 +21,12 @@ env:
     Unlicense;
     UNLICENSED;
     BlueOak-1.0.0;
+    LGPL-3.0-or-later;
   # gitconfiglocal@1.0.0 - BSD-3-Clause
   # glob-to-regexp@0.3.0 - BSD-2-Clause
   # map-stream@0.1.0 - MIT
   # It has to be one line, there must be no space between packages.
-  EXCLUDE_PACKAGES: gitconfiglocal@1.0.0;glob-to-regexp@0.3.0;map-stream@0.1.0
+  EXCLUDE_PACKAGES: gitconfiglocal@1.0.0;glob-to-regexp@0.3.0;map-stream@0.1.0;
 
 jobs:
   generate-matrix:
@@ -57,7 +58,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Install license checker
         run: npm install -g license-checker

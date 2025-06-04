@@ -6,9 +6,11 @@
   <Title
     v-if="contract?.address && !pending"
     :title="contractName ?? t('contract.title')"
-    :value="contractName ? undefined : contract?.address"
+    :value="snsName ? undefined : contractName ? undefined : contract?.address"
     :is-verified="contract?.verificationInfo != null"
     :is-evm-like="contract?.isEvmLike"
+    :is-name="!!snsName"
+    :sub-title="snsName || undefined"
   />
   <Spinner v-else size="md" />
   <div class="tables-container">
@@ -77,7 +79,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
+import { computed, type PropType, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { CheckCircleIcon } from "@heroicons/vue/solid";
@@ -95,6 +97,8 @@ import TransactionEmptyState from "@/components/contract/TransactionEmptyState.v
 import ContractEvents from "@/components/event/ContractEvents.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
+
+import useSns from "@/composables/useSns";
 
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
@@ -148,6 +152,23 @@ const contractABI = computed(() => props.contract?.verificationInfo?.artifacts.a
 const transactionsSearchParams = computed(() => ({
   address: props.contract?.address,
 }));
+
+const { fetchSNSName } = useSns();
+const snsName = ref<string | null>(null);
+
+watch(
+  () => props.contract?.address,
+  async (address) => {
+    snsName.value = null;
+    if (address) {
+      const name = await fetchSNSName(address);
+      if (name) {
+        snsName.value = name;
+      }
+    }
+  },
+  { immediate: true }
+);
 </script>
 <style lang="scss" scoped>
 .head-block {

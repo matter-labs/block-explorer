@@ -14,16 +14,20 @@
     </slot>
   </span>
   <router-link v-else :to="{ name: props.isTokenAddress ? `token` : `address`, params: { address: formattedAddress } }">
-    <slot>
+    <slot v-if="!snsName">
       {{ formattedAddress }}
     </slot>
+    <span v-else>
+      {{ snsName }}
+    </span>
   </router-link>
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
+import { computed, type PropType, ref, watch } from "vue";
 
 import useContext from "@/composables/useContext";
+import useSns from "@/composables/useSns";
 
 import type { Address } from "@/types";
 import type { NetworkOrigin } from "@/types";
@@ -49,4 +53,18 @@ const props = defineProps({
 
 const { currentNetwork } = useContext();
 const formattedAddress = computed(() => checksumAddress(props.address));
+const { fetchSNSName } = useSns();
+const snsName = ref<string | null>(null);
+watch(
+  () => formattedAddress.value,
+  async (newAddress) => {
+    if (newAddress) {
+      const name = await fetchSNSName(newAddress, true);
+      if (name) {
+        snsName.value = name;
+      }
+    }
+  },
+  { immediate: true }
+);
 </script>

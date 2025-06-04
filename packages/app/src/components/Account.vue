@@ -3,7 +3,12 @@
     <Breadcrumbs :items="breadcrumbItems" />
     <SearchForm class="search-form" />
   </div>
-  <Title v-if="account?.address" :title="t('accountView.title')" :value="account?.address" />
+  <Title
+    v-if="account?.address || snsName"
+    :title="snsName ? '' : t('accountView.title')"
+    :value="snsName || account?.address"
+    :is-name="!!snsName"
+  />
   <Spinner v-else size="md" />
   <div class="tables-container">
     <div class="account-tables-container">
@@ -61,7 +66,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
+import { computed, type PropType, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import SearchForm from "@/components/SearchForm.vue";
@@ -75,6 +80,8 @@ import Tabs from "@/components/common/Tabs.vue";
 import Title from "@/components/common/Title.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
+
+import useSns from "@/composables/useSns";
 
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Account } from "@/composables/useAddress";
@@ -118,6 +125,23 @@ const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
 const transactionsSearchParams = computed(() => ({
   address: props.account?.address,
 }));
+
+const { fetchSNSName } = useSns();
+const snsName = ref<string | null>(null);
+
+watch(
+  () => props.account?.address,
+  async (address) => {
+    snsName.value = null;
+    if (address) {
+      const name = await fetchSNSName(address);
+      if (name) {
+        snsName.value = name;
+      }
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style lang="scss">
