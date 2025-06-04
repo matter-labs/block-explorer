@@ -5,8 +5,6 @@ import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
-import useFetch from "@/composables/useFetch";
-
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
 import { numberToHexString } from "@/utils/formatters";
 import { getSolcFullVersion } from "@/utils/solcFullVersions";
@@ -185,7 +183,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const response: Api.Response.Account | Api.Response.Contract = await useFetch()(
+      const response: Api.Response.Account | Api.Response.Contract = await $fetch(
         `${context.currentNetwork.value.apiUrl}/address/${address}`
       );
       if (response.type === "account") {

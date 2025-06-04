@@ -1,14 +1,6 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
-import { URL } from "url";
-import { z } from "zod";
-
-const INVALID_RPC_URL_MSG = "PRIVIDIUM_PRIVATE_RPC_URL has to be valid url";
-const INVALID_RPC_SECRET_MSG = "PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string";
-const INVALID_CHAIN_ID_MSG = "PRIVIDIUM_CHAIN_ID has to be a positive integer";
-const PRIVIDIUM_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
-const APP_URL_ERROR_MSG = "APP_URL has to be a valid url";
 
 export type BaseToken = {
   name: string;
@@ -100,12 +92,6 @@ export default () => {
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
-    PRIVIDIUM_PRIVATE_RPC_URL,
-    PRIVIDIUM_PRIVATE_RPC_SECRET,
-    APP_URL,
-    PRIVIDIUM_CHAIN_ID,
-    PRIVIDIUM_SESSION_MAX_AGE,
-    PRIVIDIUM_SESSION_SAME_SITE,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -158,48 +144,6 @@ export default () => {
     };
   };
 
-  const getPrividiumConfig = () => {
-    if (!featureFlags.prividium) {
-      return {};
-    }
-
-    const prividiumSchema = z.object(
-      {
-        privateRpcUrl: z.string({ message: INVALID_RPC_URL_MSG }).url(INVALID_RPC_URL_MSG),
-        privateRpcSecret: z.string({ message: INVALID_RPC_SECRET_MSG }).nonempty(INVALID_RPC_SECRET_MSG),
-        chainId: z.coerce
-          .number({ message: INVALID_CHAIN_ID_MSG })
-          .int({ message: INVALID_CHAIN_ID_MSG })
-          .positive(INVALID_CHAIN_ID_MSG),
-        sessionMaxAge: z.coerce
-          .number({ message: PRIVIDIUM_MAX_AGE_MSG })
-          .int({ message: PRIVIDIUM_MAX_AGE_MSG })
-          .positive(PRIVIDIUM_MAX_AGE_MSG),
-        appHostname: z
-          .string({ message: APP_URL_ERROR_MSG })
-          .url(APP_URL_ERROR_MSG)
-          .transform((url) => new URL(url).hostname),
-      },
-      { message: "Invalid prividium configuration" }
-    );
-
-    const result = prividiumSchema.safeParse({
-      privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
-      privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
-      chainId: PRIVIDIUM_CHAIN_ID,
-      sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
-      sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
-      appHostname: APP_URL,
-    });
-
-    if (!result.success) {
-      const msg = result.error.errors.map((e) => e.message).join(", ");
-      throw new Error(`Invalid prividium config: ${msg}`);
-    }
-
-    return result.data;
-  };
-
   return {
     NODE_ENV,
     port: parseInt(PORT, 10) || 3020,
@@ -213,7 +157,5 @@ export default () => {
     baseToken: getBaseToken(),
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
-    prividium: getPrividiumConfig(),
-    appUrl: APP_URL,
   };
 };

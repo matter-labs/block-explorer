@@ -193,27 +193,6 @@ describe("TransferService", () => {
         expect(result).toStrictEqual({ ...paginationResult, items: transfers });
       });
     });
-
-    it("searchs for specific transfers when visibleBy is defined", async () => {
-      const filterOptions = {
-        address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        visibleBy: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        tokenAddress: "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
-      };
-      await service.findAll(filterOptions, pagingOptions);
-      expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
-      expect(queryBuilderMock.where).toHaveBeenCalledWith({ tokenAddress: filterOptions.tokenAddress });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith([
-        {
-          from: filterOptions.address,
-          to: filterOptions.visibleBy,
-        },
-        {
-          from: filterOptions.visibleBy,
-          to: filterOptions.address,
-        },
-      ]);
-    });
   });
 
   describe("findTokenTransfers", () => {

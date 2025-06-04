@@ -16,7 +16,6 @@ export interface FilterTransfersOptions {
   timestamp?: FindOperator<Date>;
   isFeeOrRefund?: boolean;
   type?: TransferType;
-  visibleBy?: string;
 }
 
 export interface FilterTokenTransfersOptions {
@@ -53,34 +52,12 @@ export class TransferService {
     filterOptions: FilterTransfersOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transfer>> {
-    const { visibleBy, ...basicOptions } = filterOptions;
-
-    if (visibleBy) {
-      const { address, ...rest } = basicOptions;
-      const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-      queryBuilder.where(rest);
-      queryBuilder.andWhere([
-        {
-          from: address,
-          to: visibleBy,
-        },
-        {
-          from: visibleBy,
-          to: address,
-        },
-      ]);
-      queryBuilder.leftJoinAndSelect("transfer.token", "token");
-      queryBuilder.orderBy("transfer.timestamp", "DESC");
-      queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-      return await paginate<Transfer>(queryBuilder, paginationOptions);
-    }
-
-    if (basicOptions.address) {
+    if (filterOptions.address) {
       const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
       queryBuilder.select("addressTransfer.number");
       queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
-      queryBuilder.where(basicOptions);
+      queryBuilder.where(filterOptions);
       queryBuilder.orderBy("addressTransfer.timestamp", "DESC");
       queryBuilder.addOrderBy("addressTransfer.logIndex", "ASC");
       const addressTransfers = await paginate<AddressTransfer>(queryBuilder, paginationOptions);
@@ -90,7 +67,7 @@ export class TransferService {
       };
     } else {
       const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-      queryBuilder.where(basicOptions);
+      queryBuilder.where(filterOptions);
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
       queryBuilder.orderBy("transfer.timestamp", "DESC");
       queryBuilder.addOrderBy("transfer.logIndex", "ASC");

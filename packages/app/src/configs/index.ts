@@ -4,7 +4,6 @@ export type NetworkConfig = {
   verificationApiUrl?: string;
   apiUrl: string;
   rpcUrl: string;
-  prividium?: boolean;
   bridgeUrl?: string;
   l2NetworkName: string;
   l2ChainId: 270 | 300 | 324;

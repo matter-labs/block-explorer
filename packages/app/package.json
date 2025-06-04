@@ -33,7 +33,6 @@
     "ohmyfetch": "0.4.21",
     "prismjs": "1.27.0",
     "sass-loader": "12.6.0",
-    "siwe": "^2.3.2",
     "vue": "3.2.42",
     "vue-i18n": "9.2.0-beta.35",
     "vue-prism-editor": "2.0.0-alpha.2",
