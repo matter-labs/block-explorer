@@ -11,7 +11,6 @@ import {
   dateToTimestamp,
   numberToHex,
   parseIntToHex,
-  parseReqPathname,
 } from "./utils";
 import { IPaginationOptions } from "./types";
 
@@ -414,51 +413,6 @@ describe("utils", () => {
 
     it("returns 0x if the specified number is not valid int", () => {
       expect(parseIntToHex("azxf")).toBe("0x");
-    });
-  });
-
-  describe("parseReqPathname", () => {
-    it("should return the pathname for a simple path", () => {
-      const req = {
-        originalUrl: "/test",
-      } as any;
-      expect(parseReqPathname(req)).toBe("/test");
-    });
-
-    it("should return the pathname when query parameters are present", () => {
-      const req = {
-        originalUrl: "/test?foo=bar&baz=qux",
-      } as any;
-      expect(parseReqPathname(req)).toBe("/test");
-    });
-
-    it("should return the pathname for a complex path", () => {
-      const req = {
-        originalUrl: "/api/v1/items/123",
-      } as any;
-      expect(parseReqPathname(req)).toBe("/api/v1/items/123");
-    });
-
-    it("should return '/' for the root path", () => {
-      const req = {
-        originalUrl: "/",
-      } as any;
-      expect(parseReqPathname(req)).toBe("/");
-    });
-
-    it("should return '/' for an empty originalUrl (which URL constructor treats as base path)", () => {
-      const req = {
-        originalUrl: "",
-      } as any;
-      // new URL("", "http://localhost") results in "http://localhost/"
-      expect(parseReqPathname(req)).toBe("/");
-    });
-
-    it("should handle full URLs in originalUrl and extract pathname", () => {
-      const req = {
-        originalUrl: "http://example.com/path/to/resource?query=1",
-      } as any;
-      expect(parseReqPathname(req)).toBe("/path/to/resource");
     });
   });
 });

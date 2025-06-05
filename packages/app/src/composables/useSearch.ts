@@ -1,11 +1,9 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
-import { FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
-
-import useFetch from "@/composables/useFetch";
 
 import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
 
@@ -13,7 +11,6 @@ export default (context = useContext()) => {
   const router = useRouter();
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
-  const $fetch = useFetch();
 
   const getSearchRoute = (param: string) => {
     try {

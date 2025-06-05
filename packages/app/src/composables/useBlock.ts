@@ -1,9 +1,8 @@
 import { ref } from "vue";
 
-import { FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "@/composables/useContext";
-import useFetch from "@/composables/useFetch";
 
 import type { Hash } from "@/types";
 
@@ -49,7 +48,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      blockItem.value = await useFetch()(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
+      blockItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
     } catch (error: unknown) {
       blockItem.value = null;
       if (!(error instanceof FetchError) || error.response?.status !== 404) {
