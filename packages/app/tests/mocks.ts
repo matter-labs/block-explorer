@@ -186,10 +186,6 @@ export const useContextMock = (params: any = {}) => {
   const mockContextConfig = vi.spyOn(useContext, "default").mockReturnValue({
     getL2Provider: () => vi.fn(() => null),
     currentNetwork: computed(() => TESTNET_NETWORK),
-    user: computed(() => ({
-      address: "0x000000000000000000000000000000000000800A",
-      loggedIn: true,
-    })),
     identifyNetwork: () => undefined,
     isReady: computed(() => true),
     networks: computed(() => [TESTNET_NETWORK]),

@@ -9,29 +9,14 @@ const useTitleMock = vi.fn();
 vi.mock("@vueuse/core", () => {
   return {
     useTitle: useTitleMock,
-    useStorage: vi.fn(() => computed(() => false)),
   };
 });
-
-// Mock vue-router
-vi.mock("vue-router", () => ({
-  useRoute: () => ({
-    name: "test-route",
-    path: "/",
-    fullPath: "/",
-  }),
-  useRouter: () => ({
-    push: vi.fn(),
-  }),
-}));
-
 const maintenanceMock = vi.fn(() => false);
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
       isReady: computed(() => true),
       currentNetwork: computed(() => ({ maintenance: maintenanceMock() })),
-      user: computed(() => ({ loggedIn: false })),
     }),
   };
 });
@@ -46,13 +31,6 @@ vi.mock("@/composables/useRouteTitle", () => {
   return {
     default: () => ({
       title: computed(() => "Page title"),
-    }),
-  };
-});
-vi.mock("@/composables/useEnvironmentConfig", () => {
-  return {
-    default: () => ({
-      prividium: computed(() => false),
     }),
   };
 });
@@ -75,6 +53,9 @@ describe("App:", () => {
   const global = {
     stubs: ["the-header", "the-footer", "router-view", "MaintenanceView"],
     plugins: [i18n, $testId],
+    mocks: {
+      $route: { name: "test-route" },
+    },
   };
 
   it("uses title", async () => {

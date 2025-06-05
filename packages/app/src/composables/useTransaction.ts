@@ -1,10 +1,8 @@
 import { ref } from "vue";
 
-import { FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
-
-import useFetch from "@/composables/useFetch";
 
 import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
@@ -180,7 +178,7 @@ export default (context = useContext()) => {
 
     try {
       const [txResponse, txTransfers, txLogs] = await Promise.all([
-        useFetch()<Api.Response.Transaction>(`${context.currentNetwork.value.apiUrl}/transactions/${hash}`),
+        $fetch<Api.Response.Transaction>(`${context.currentNetwork.value.apiUrl}/transactions/${hash}`),
         all<Api.Response.Transfer>(
           new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/transfers?limit=100`)
         ),
@@ -324,7 +322,7 @@ async function all<T>(url: URL): Promise<T[]> {
   url.searchParams.set("limit", limit.toString());
   for (let page = 1; page < 100; page++) {
     url.searchParams.set("page", page.toString());
-    const response = await useFetch()<Api.Response.Collection<T>>(url.toString());
+    const response = await $fetch<Api.Response.Collection<T>>(url.toString());
 
     if (!response.items.length) {
       break;

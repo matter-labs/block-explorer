@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Query, Res } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -21,7 +21,6 @@ import { TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
-import { Response } from "express";
 
 const entityName = "transactions";
 
@@ -41,8 +40,7 @@ export class TransactionController {
   public async getTransactions(
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Res({ passthrough: true }) res: Response
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransactionDto>> {
     const filterTransactionsListOptions = buildDateFilter(
       listFilterOptions.fromDate,
@@ -53,7 +51,6 @@ export class TransactionController {
       {
         ...filterTransactionsOptions,
         ...filterTransactionsListOptions,
-        ...(res.locals.filterTransactionsOptions ?? {}),
       },
       {
         filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },

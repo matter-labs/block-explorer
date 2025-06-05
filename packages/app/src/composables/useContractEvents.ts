@@ -1,9 +1,8 @@
 import { ref } from "vue";
 
-import { FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "@/composables/useContext";
-import useFetch from "@/composables/useFetch";
 
 import type { AbiFragment } from "@/composables/useAddress";
 import type { TransactionLogEntry } from "@/composables/useEventLog";
@@ -35,7 +34,6 @@ export default (context = useContext()) => {
   const isRequestFailed = ref(false);
   const collection = ref<TransactionLogEntry[]>([]);
   const total = ref<number>(0);
-  const $fetch = useFetch();
 
   const getCollection = async (params: EventsQueryParams, abi?: AbiFragment[]) => {
     isRequestPending.value = true;

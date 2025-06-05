@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock, MockProxy } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
 import { NotFoundException } from "@nestjs/common";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { TokenController } from "./token.controller";
@@ -8,7 +8,6 @@ import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { Response } from "express";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
@@ -19,12 +18,9 @@ describe("TokenController", () => {
   let transferServiceMock: TransferService;
   let token;
 
-  let res: MockProxy<Response>;
-
   beforeEach(async () => {
     serviceMock = mock<TokenService>();
     transferServiceMock = mock<TransferService>();
-    res = mock<Response>();
 
     token = {
       l2Address: "tokenAddress",
@@ -112,29 +108,12 @@ describe("TokenController", () => {
       });
 
       it("queries transfers with the specified options", async () => {
-        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
+        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit);
         expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(transferServiceMock.findAll).toHaveBeenCalledWith(
           {
             tokenAddress,
             isFeeOrRefund: false,
-          },
-          {
-            ...pagingOptionsWithLimit,
-            route: `tokens/${tokenAddress}/transfers`,
-          }
-        );
-      });
-
-      it("considers options in locals", async () => {
-        res.locals = { tokenTransfersOptions: { visibleBy: "userAddress" } };
-        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
-        expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
-        expect(transferServiceMock.findAll).toHaveBeenCalledWith(
-          {
-            tokenAddress,
-            isFeeOrRefund: false,
-            visibleBy: "userAddress",
           },
           {
             ...pagingOptionsWithLimit,
@@ -144,7 +123,7 @@ describe("TokenController", () => {
       });
 
       it("returns token transfers", async () => {
-        const result = await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
+        const result = await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit);
         expect(result).toBe(tokenTransfers);
       });
     });
@@ -158,7 +137,7 @@ describe("TokenController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
+          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }

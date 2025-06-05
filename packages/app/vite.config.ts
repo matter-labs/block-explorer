@@ -54,10 +54,6 @@ export default defineConfig({
     },
   },
   test: {
-    environment: "jsdom",
-    env: {
-      TZ: "UTC-3",
-    },
     include: ["./tests/**/**.spec.ts"],
     coverage: {
       reporter: ["text", "json", "html"],

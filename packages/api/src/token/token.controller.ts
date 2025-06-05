@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Query, Res } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -19,7 +19,6 @@ import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
-import { Response } from "express";
 
 const entityName = "tokens";
 
@@ -89,11 +88,8 @@ export class TokenController {
   @ApiNotFoundResponse({ description: "Token with the specified address does not exist" })
   public async getTokenTransfers(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Res({ passthrough: true }) res: Response
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransferDto>> {
-    const extraFilters = res.locals.tokenTransfersOptions ?? {};
-
     if (!(await this.tokenService.exists(address))) {
       throw new NotFoundException();
     }
@@ -102,7 +98,6 @@ export class TokenController {
       {
         tokenAddress: address,
         isFeeOrRefund: false,
-        ...extraFilters,
       },
       {
         ...pagingOptions,

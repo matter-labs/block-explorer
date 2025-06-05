@@ -148,7 +148,7 @@ describe("useWallet:", () => {
       const result = useWallet(defaultContext);
 
       await result.connect();
-      await result.disconnect();
+      result.disconnect();
 
       expect(result.address.value).toEqual(null);
       mockRequest.mockRestore();
@@ -162,7 +162,7 @@ describe("useWallet:", () => {
 
       const result = useWallet(defaultContext);
 
-      await result.disconnect();
+      result.disconnect();
 
       expect(isAuthenticated.value).toEqual(false);
       mockRequest.mockRestore();
