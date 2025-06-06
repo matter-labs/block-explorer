@@ -60,27 +60,50 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     );
 
     const tokensOffChainData: ITokenOffChainData[] = [];
-    let tokenIdsPerRequest = [];
-    for (let i = 0; i < supportedTokens.length; i++) {
-      tokenIdsPerRequest.push(supportedTokens[i].id);
-      if (tokenIdsPerRequest.length === API_NUMBER_OF_TOKENS_PER_REQUEST || i === supportedTokens.length - 1) {
-        const tokensMarkedData = await this.getTokensMarketData(tokenIdsPerRequest);
-        tokensOffChainData.push(
-          ...tokensMarkedData
-            .map((tokenMarketData) => {
-              const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
-              if (!token) return null;
-              return {
-                l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-                l2Address: token.platforms[this.chainId],
-                liquidity: tokenMarketData.market_cap,
-                usdPrice: tokenMarketData.current_price,
-                iconURL: tokenMarketData.image,
-              };
-            })
-            .filter(Boolean)
-        );
-        tokenIdsPerRequest = [];
+    const tokenIds = supportedTokens.map((token) => token.id);
+
+    if (tokenIds.length <= API_NUMBER_OF_TOKENS_PER_REQUEST) {
+      // If we have fewer tokens than the limit, fetch them all at once
+      const tokensMarkedData = await this.getTokensMarketData(tokenIds);
+      tokensOffChainData.push(
+        ...tokensMarkedData
+          .map((tokenMarketData) => {
+            const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
+            if (!token) return null;
+            return {
+              l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
+              l2Address: token.platforms[this.chainId],
+              liquidity: tokenMarketData.market_cap,
+              usdPrice: tokenMarketData.current_price,
+              iconURL: tokenMarketData.image,
+            };
+          })
+          .filter(Boolean)
+      );
+    } else {
+      // If we have more tokens than the limit, fetch them in batches
+      let tokenIdsPerRequest = [];
+      for (let i = 0; i < supportedTokens.length; i++) {
+        tokenIdsPerRequest.push(supportedTokens[i].id);
+        if (tokenIdsPerRequest.length === API_NUMBER_OF_TOKENS_PER_REQUEST || i === supportedTokens.length - 1) {
+          const tokensMarkedData = await this.getTokensMarketData(tokenIdsPerRequest);
+          tokensOffChainData.push(
+            ...tokensMarkedData
+              .map((tokenMarketData) => {
+                const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
+                if (!token) return null;
+                return {
+                  l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
+                  l2Address: token.platforms[this.chainId],
+                  liquidity: tokenMarketData.market_cap,
+                  usdPrice: tokenMarketData.current_price,
+                  iconURL: tokenMarketData.image,
+                };
+              })
+              .filter(Boolean)
+          );
+          tokenIdsPerRequest = [];
+        }
       }
     }
     return tokensOffChainData;
