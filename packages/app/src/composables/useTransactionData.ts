@@ -1,7 +1,5 @@
 import { ref } from "vue";
-
 import { Interface } from "ethers";
-
 import useAddress from "./useAddress";
 import useContext from "./useContext";
 import useContractABI from "./useContractABI";
@@ -52,10 +50,7 @@ export function decodeDataWithABI(
 }
 
 export default (context = useContext()) => {
-  const {
-    collection: ABICollection,
-    getCollection: getABICollection,
-  } = useContractABI(context);
+  const { collection: ABICollection, getCollection: getABICollection } = useContractABI(context);
   const { getContractProxyInfo } = useAddress(context);
   const data = ref<TransactionData | null>(null);
   const isDecodePending = ref(false);
@@ -73,9 +68,7 @@ export default (context = useContext()) => {
       decodingError.value = "";
       await getABICollection([transactionData.contractAddress]);
       const abi = ABICollection.value[transactionData.contractAddress];
-      
       let method = abi ? decodeDataWithABI(transactionData, abi) : undefined;
-      
       if (!method) {
         const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
         if (proxyInfo?.implementation.verificationInfo) {
