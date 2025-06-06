@@ -79,10 +79,6 @@ export default (context = useContext()) => {
         getABICollection([transactionData.contractAddress]),
       ]);
 
-      if (isABIRequestFailed.value) {
-        throw new Error("contract_request_failed");
-      }
-
       let method: TransactionData["method"] | undefined;
       const contractAbi = ABICollection.value[transactionData.contractAddress];
 
@@ -96,8 +92,11 @@ export default (context = useContext()) => {
         method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
       }
 
-      // If we have neither ABI, it's not verified
+      // Handle verification status
       if (!contractAbi && !proxyInfo?.implementation.verificationInfo) {
+        if (isABIRequestFailed.value) {
+          throw new Error("contract_request_failed");
+        }
         throw new Error("contract_not_verified");
       }
 
