@@ -73,34 +73,35 @@ export default (context = useContext()) => {
       isDecodePending.value = true;
       decodingError.value = "";
 
-      // First check if this is a proxy contract and try to decode using implementation
-      const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
-      let method: TransactionData["method"] | undefined;
+      // Try to get both proxy and contract ABIs
+      const [proxyInfo, _] = await Promise.all([
+        getContractProxyInfo(transactionData.contractAddress),
+        getABICollection([transactionData.contractAddress]),
+      ]);
 
-      if (proxyInfo?.implementation.verificationInfo) {
+      if (isABIRequestFailed.value) {
+        throw new Error("contract_request_failed");
+      }
+
+      let method: TransactionData["method"] | undefined;
+      const contractAbi = ABICollection.value[transactionData.contractAddress];
+
+      // Try decoding with contract's own ABI first if available
+      if (contractAbi) {
+        method = decodeDataWithABI(transactionData, contractAbi);
+      }
+
+      // If contract ABI didn't decode, try proxy implementation
+      if (!method && proxyInfo?.implementation.verificationInfo) {
         method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
       }
 
-      // If not decoded with proxy implementation, try with contract's own ABI
-      if (!method) {
-        await getABICollection([transactionData.contractAddress]);
-        const abi = ABICollection.value[transactionData.contractAddress];
-
-        if (isABIRequestFailed.value) {
-          throw new Error("contract_request_failed");
-        }
-
-        if (!abi) {
-          // Only throw not verified error if we don't have proxy implementation either
-          if (!proxyInfo?.implementation.verificationInfo) {
-            throw new Error("contract_not_verified");
-          }
-        } else {
-          method = decodeDataWithABI(transactionData, abi);
-        }
+      // If we have neither ABI, it's not verified
+      if (!contractAbi && !proxyInfo?.implementation.verificationInfo) {
+        throw new Error("contract_not_verified");
       }
 
-      // If we still couldn't decode with either ABI, it's a decoding failure
+      // If we have either ABI but couldn't decode, it's a decoding failure
       if (!method) {
         throw new Error("data_decode_failed");
       }
