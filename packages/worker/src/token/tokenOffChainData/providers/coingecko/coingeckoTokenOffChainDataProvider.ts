@@ -56,7 +56,9 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       (token) =>
         token.id === "ethereum" ||
         token.platforms[this.chainId] ||
-        bridgedTokensToInclude.find((bridgetTokenAddress) => bridgetTokenAddress === token.platforms.ethereum)
+        bridgedTokensToInclude.find(
+          (bridgetTokenAddress) => bridgetTokenAddress.toLowerCase() === (token.platforms.ethereum || "").toLowerCase()
+        )
     );
 
     const tokensOffChainData: ITokenOffChainData[] = [];
@@ -65,21 +67,23 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     if (tokenIds.length <= API_NUMBER_OF_TOKENS_PER_REQUEST) {
       // If we have fewer tokens than the limit, fetch them all at once
       const tokensMarkedData = await this.getTokensMarketData(tokenIds);
-      tokensOffChainData.push(
-        ...tokensMarkedData
-          .map((tokenMarketData) => {
-            const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
-            if (!token) return null;
-            return {
-              l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-              l2Address: token.platforms[this.chainId],
-              liquidity: tokenMarketData.market_cap,
-              usdPrice: tokenMarketData.current_price,
-              iconURL: tokenMarketData.image,
-            };
-          })
-          .filter(Boolean)
-      );
+      if (tokensMarkedData) {
+        tokensOffChainData.push(
+          ...tokensMarkedData
+            .map((tokenMarketData) => {
+              const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
+              if (!token) return null;
+              return {
+                l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
+                l2Address: token.platforms[this.chainId],
+                liquidity: tokenMarketData.market_cap,
+                usdPrice: tokenMarketData.current_price,
+                iconURL: tokenMarketData.image,
+              };
+            })
+            .filter(Boolean)
+        );
+      }
     } else {
       // If we have more tokens than the limit, fetch them in batches
       let tokenIdsPerRequest = [];
@@ -87,21 +91,23 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
         tokenIdsPerRequest.push(supportedTokens[i].id);
         if (tokenIdsPerRequest.length === API_NUMBER_OF_TOKENS_PER_REQUEST || i === supportedTokens.length - 1) {
           const tokensMarkedData = await this.getTokensMarketData(tokenIdsPerRequest);
-          tokensOffChainData.push(
-            ...tokensMarkedData
-              .map((tokenMarketData) => {
-                const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
-                if (!token) return null;
-                return {
-                  l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-                  l2Address: token.platforms[this.chainId],
-                  liquidity: tokenMarketData.market_cap,
-                  usdPrice: tokenMarketData.current_price,
-                  iconURL: tokenMarketData.image,
-                };
-              })
-              .filter(Boolean)
-          );
+          if (tokensMarkedData) {
+            tokensOffChainData.push(
+              ...tokensMarkedData
+                .map((tokenMarketData) => {
+                  const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
+                  if (!token) return null;
+                  return {
+                    l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
+                    l2Address: token.platforms[this.chainId],
+                    liquidity: tokenMarketData.market_cap,
+                    usdPrice: tokenMarketData.current_price,
+                    iconURL: tokenMarketData.image,
+                  };
+                })
+                .filter(Boolean)
+            );
+          }
           tokenIdsPerRequest = [];
         }
       }
@@ -132,16 +138,14 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     if (!list) {
       return [];
     }
-    return list
-      .filter((item) => item.id === "ethereum" || item.platforms[this.chainId] || item.platforms.ethereum)
-      .map((item) => ({
-        ...item,
-        platforms: {
-          // use substring(0, 42) to fix some instances when after address there is some additional text
-          [this.chainId]: item.platforms[this.chainId]?.substring(0, 42),
-          ethereum: item.platforms.ethereum?.substring(0, 42),
-        },
-      }));
+    return list.map((item) => ({
+      ...item,
+      platforms: {
+        // use substring(0, 42) to fix some instances when after address there is some additional text
+        [this.chainId]: item.platforms[this.chainId]?.substring(0, 42),
+        ethereum: item.platforms.ethereum?.substring(0, 42),
+      },
+    }));
   }
 
   private async makeApiRequestRetryable<T>({
