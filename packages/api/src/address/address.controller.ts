@@ -9,15 +9,14 @@ import {
   ApiExcludeController,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
-import { formatHexAddress, buildDateFilter } from "../common/utils";
+import { buildDateFilter } from "../common/utils";
 import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { BalanceService } from "../balance/balance.service";
-import { AddressType, ContractDto, AccountDto, TokenAddressDto, FilterAddressTransfersOptionsDto } from "./dtos";
+import { ContractDto, AccountDto, TokenAddressDto, FilterAddressTransfersOptionsDto } from "./dtos";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
@@ -33,12 +32,12 @@ const entityName = "address";
 @Controller(entityName)
 export class AddressController {
   constructor(
-    private readonly addressService: AddressService,
-    private readonly blockService: BlockService,
-    private readonly transactionService: TransactionService,
-    private readonly logService: LogService,
-    private readonly balanceService: BalanceService,
-    private readonly transferService: TransferService
+    protected readonly addressService: AddressService,
+    protected readonly blockService: BlockService,
+    protected readonly transactionService: TransactionService,
+    protected readonly logService: LogService,
+    protected readonly balanceService: BalanceService,
+    protected readonly transferService: TransferService
   ) {}
 
   @Get(":address")
@@ -59,50 +58,7 @@ export class AddressController {
   public async getAddress(
     @Param("address", new ParseAddressPipe()) address: string
   ): Promise<AccountDto | ContractDto> {
-    const [addressRecord, addressBalance] = await Promise.all([
-      this.addressService.findOne(address),
-      this.balanceService.getBalances(address),
-    ]);
-
-    if (addressRecord?.bytecode.length > 2) {
-      const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
-      return {
-        type: AddressType.Contract,
-        ...addressRecord,
-        blockNumber: addressBalance.blockNumber || addressRecord.createdInBlockNumber,
-        balances: addressBalance.balances,
-        createdInBlockNumber: addressRecord.createdInBlockNumber,
-        creatorTxHash: addressRecord.creatorTxHash,
-        totalTransactions,
-        creatorAddress: addressRecord.creatorAddress,
-        isEvmLike: addressRecord.isEvmLike,
-      };
-    }
-
-    if (addressBalance.blockNumber) {
-      const [sealedNonce, verifiedNonce] = await Promise.all([
-        this.transactionService.getAccountNonce({ accountAddress: address }),
-        this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
-      ]);
-
-      return {
-        type: AddressType.Account,
-        address: ethersGetAddress(address),
-        blockNumber: addressBalance.blockNumber,
-        balances: addressBalance.balances,
-        sealedNonce,
-        verifiedNonce,
-      };
-    }
-
-    return {
-      type: AddressType.Account,
-      address: ethersGetAddress(address),
-      blockNumber: await this.blockService.getLastBlockNumber(),
-      balances: {},
-      sealedNonce: 0,
-      verifiedNonce: 0,
-    };
+    return this.addressService.findFullAddress(address, true);
   }
 
   @Get(":address/logs")
