@@ -52,7 +52,7 @@ export function decodeDataWithABI(
 }
 
 export default (context = useContext()) => {
-  const { collection: ABICollection, getCollection: getABICollection } = useContractABI(context);
+  const { collection: ABICollection, isRequestFailed: isABIRequestFailed, getCollection: getABICollection } = useContractABI(context);
   const { getContractProxyInfo } = useAddress(context);
   const data = ref<TransactionData | null>(null);
   const isDecodePending = ref(false);
@@ -70,6 +70,15 @@ export default (context = useContext()) => {
       decodingError.value = "";
       await getABICollection([transactionData.contractAddress]);
       const abi = ABICollection.value[transactionData.contractAddress];
+
+      if (isABIRequestFailed.value) {
+        throw new Error("contract_request_failed");
+      }
+
+      if (!abi) {
+        throw new Error("contract_not_verified");
+      }
+
       let method = abi ? decodeDataWithABI(transactionData, abi) : undefined;
       if (!method) {
         const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
