@@ -74,7 +74,7 @@ export default (context = useContext()) => {
       decodingError.value = "";
 
       // Try to get both proxy and contract ABIs
-      const [proxyInfo, _] = await Promise.all([
+      const [proxyInfo] = await Promise.all([
         getContractProxyInfo(transactionData.contractAddress),
         getABICollection([transactionData.contractAddress]),
       ]);
