@@ -6,7 +6,7 @@ import { BlockchainService } from "../blockchain/blockchain.service";
 import { BatchRepository, BlockRepository } from "../repositories";
 import { Block } from "../entities";
 import { BatchProcessor } from "./batch.processor";
-
+import { ConfigService } from "@nestjs/config";
 const mockLoggerError = jest.fn();
 
 jest.mock("@nestjs/common", () => {
@@ -23,6 +23,7 @@ describe("BatchProcessor", () => {
     let blockRepositoryMock: BlockRepository;
     let blockchainServiceMock: BlockchainService;
     let nextBatchProcessor: BatchProcessor;
+    let configServiceMock: ConfigService;
 
     beforeEach(() => {
       batchRepositoryMock = mock<BatchRepository>({
@@ -33,11 +34,18 @@ describe("BatchProcessor", () => {
         getLastBlock: jest.fn().mockResolvedValue(null),
       });
       blockchainServiceMock = mock<BlockchainService>();
+      configServiceMock = mock<ConfigService>({
+        get: jest.fn((key: string) => {
+          const configValues: Record<string, any> = {};
+          return configValues[key];
+        }),
+      });
       nextBatchProcessor = new BatchProcessor(
         BatchState.Executed,
         blockchainServiceMock,
         batchRepositoryMock,
-        blockRepositoryMock
+        blockRepositoryMock,
+        configServiceMock
       );
     });
 
@@ -190,11 +198,18 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue(null),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.Executed,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
@@ -214,11 +229,18 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue({ number: 10 }),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.Executed,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
@@ -240,11 +262,18 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue(null),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.Proven,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
@@ -264,11 +293,18 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue({ number: 10 }),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.Proven,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
@@ -290,11 +326,18 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue(null),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.Committed,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
@@ -314,11 +357,18 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue({ number: 10 }),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.Committed,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
@@ -340,11 +390,18 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue(null),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.New,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
@@ -362,17 +419,92 @@ describe("BatchProcessor", () => {
         const batchRepository = mock<BatchRepository>({
           getLastBatch: jest.fn().mockResolvedValue({ number: 10 }),
         });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {};
+            return configValues[key];
+          }),
+        });
         const batchProcessor = new BatchProcessor(
           BatchState.New,
           mock<BlockchainService>(),
           batchRepository,
-          mock<BlockRepository>()
+          mock<BlockRepository>(),
+          configServiceMock
         );
         const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
 
         expect(batchRepository.getLastBatch).toBeCalledTimes(1);
         expect(batchRepository.getLastBatch).toBeCalledWith(
           {},
+          {
+            number: true,
+          }
+        );
+        expect(lastProcessedBatch).toBe(10);
+      });
+    });
+
+    describe("when state is teeProven", () => {
+      it("returns teeProofStartBatchNumber from config when there are no teeProven batches in the DB", async () => {
+        const batchRepository = mock<BatchRepository>({
+          getLastBatch: jest.fn().mockResolvedValue(null),
+        });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {
+              "batches.teeProofStartBatchNumber": 10,
+            };
+            return configValues[key];
+          }),
+        });
+        const batchProcessor = new BatchProcessor(
+          BatchState.TeeProven,
+          mock<BlockchainService>(),
+          batchRepository,
+          mock<BlockRepository>(),
+          configServiceMock
+        );
+        const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
+
+        expect(batchRepository.getLastBatch).toBeCalledTimes(1);
+        expect(batchRepository.getLastBatch).toBeCalledWith(
+          {
+            teeProvenAt: Not(IsNull()),
+          },
+          {
+            number: true,
+          }
+        );
+        expect(lastProcessedBatch).toBe(9);
+      });
+
+      it("returns the last teeProven batch number when there are teeProven batches in the DB", async () => {
+        const batchRepository = mock<BatchRepository>({
+          getLastBatch: jest.fn().mockResolvedValue({ number: 10 }),
+        });
+        const configServiceMock = mock<ConfigService>({
+          get: jest.fn((key: string) => {
+            const configValues: Record<string, any> = {
+              "batches.teeProofStartBatchNumber": 10,
+            };
+            return configValues[key];
+          }),
+        });
+        const batchProcessor = new BatchProcessor(
+          BatchState.TeeProven,
+          mock<BlockchainService>(),
+          batchRepository,
+          mock<BlockRepository>(),
+          configServiceMock
+        );
+        const lastProcessedBatch = await batchProcessor.getLastProcessedBatchNumber();
+
+        expect(batchRepository.getLastBatch).toBeCalledTimes(1);
+        expect(batchRepository.getLastBatch).toBeCalledWith(
+          {
+            teeProvenAt: Not(IsNull()),
+          },
           {
             number: true,
           }
@@ -390,13 +522,20 @@ describe("BatchProcessor", () => {
       batchRepositoryMock = mock<BatchRepository>({
         getLastBatch: jest.fn().mockResolvedValue({ number: 10 }),
       });
+      const configServiceMock = mock<ConfigService>({
+        get: jest.fn((key: string) => {
+          const configValues: Record<string, any> = {};
+          return configValues[key];
+        }),
+      });
       nextBatchProcessor = new BatchProcessor(
         BatchState.Executed,
         mock<BlockchainService>({
           getL1BatchDetails: jest.fn().mockResolvedValue(null),
         }),
         batchRepositoryMock,
-        mock<BlockRepository>()
+        mock<BlockRepository>(),
+        configServiceMock
       );
     });
 

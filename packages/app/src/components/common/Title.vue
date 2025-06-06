@@ -12,6 +12,9 @@
       <Badge v-if="isEvmLike" color="primary" class="verified-badge" :tooltip="t('contract.evmTooltip')">
         {{ t("contract.evm") }}
       </Badge>
+      <Badge v-if="isTeeVerified" color="dark-success" class="verified-badge" :tooltip="t('batches.teeTooltip')">
+        {{ t("batches.tee") }}
+      </Badge>
     </div>
   </h1>
 </template>
@@ -36,6 +39,11 @@ defineProps({
     type: Boolean,
   },
   isEvmLike: {
+    type: Boolean,
+    default: false,
+    required: false,
+  },
+  isTeeVerified: {
     type: Boolean,
     default: false,
     required: false,
