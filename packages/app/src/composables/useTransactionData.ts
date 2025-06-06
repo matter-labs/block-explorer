@@ -72,30 +72,45 @@ export default (context = useContext()) => {
     try {
       isDecodePending.value = true;
       decodingError.value = "";
+
+      // Get contract ABI first to properly handle verification errors
       await getABICollection([transactionData.contractAddress]);
-      const abi = ABICollection.value[transactionData.contractAddress];
-      if (!abi) {
-        if (!isABIRequestFailed.value) {
-          throw "contract_not_verified";
-        }
-        throw "contract_request_failed";
+
+      // Check for request failures first
+      if (isABIRequestFailed.value) {
+        throw new Error("contract_request_failed");
       }
-      let method = abi ? decodeDataWithABI(transactionData, abi) : undefined;
+
+      const contractAbi = ABICollection.value[transactionData.contractAddress];
+      const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
+
+      // Check for contract verification
+      if (!contractAbi && !proxyInfo?.implementation.verificationInfo) {
+        throw new Error("contract_not_verified");
+      }
+
+      // Try to decode with contract's own ABI first if available
+      let method: TransactionData["method"] | undefined;
+      if (contractAbi) {
+        method = decodeDataWithABI(transactionData, contractAbi);
+      }
+
+      // If that didn't work, try proxy implementation
+      if (!method && proxyInfo?.implementation.verificationInfo) {
+        method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
+      }
+
+      // If we have an ABI but couldn't decode, it's a decoding failure
       if (!method) {
-        const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
-        method = proxyInfo?.implementation.verificationInfo
-          ? decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi)
-          : undefined;
-      }
-      if (abi && !method) {
         throw new Error("data_decode_failed");
       }
+
       data.value = {
         ...transactionData,
         method,
       };
     } catch (error) {
-      decodingError.value = (error as Error)?.toString().replace(/^Error: /, "") || "unknown_error";
+      decodingError.value = (error as Error)?.message || "unknown_error";
       data.value = transactionData;
     } finally {
       isDecodePending.value = false;

@@ -1,23 +1,44 @@
 import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { $fetch } from "ohmyfetch";
 
 import useTransactionData, { decodeDataWithABI, type TransactionData } from "@/composables/useTransactionData";
-
-import ERC20ProxyVerificationInfo from "@/../mock/contracts/ERC20ProxyVerificationInfo.json";
-import ERC20VerificationInfo from "@/../mock/contracts/ERC20VerificationInfo.json";
 
 import type { AbiFragment } from "@/composables/useAddress";
 import type { Address } from "@/types";
 
+const ERC20VerificationInfo = {
+  artifacts: {
+    abi: [
+      {
+        inputs: [
+          {
+            name: "recipient",
+            type: "address",
+          },
+          {
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        name: "transfer",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
+  },
+};
+
+const ERC20ProxyVerificationInfo = {
+  artifacts: {
+    abi: ERC20VerificationInfo.artifacts.abi,
+  },
+};
+
 vi.mock("ohmyfetch", () => {
   return {
     $fetch: vi.fn(() => Promise.resolve(ERC20VerificationInfo)),
-    FetchError: function error() {
-      this.response = {
-        status: 404,
-      };
-    },
   };
 });
 const getContractProxyInfoMock = vi.fn(() => {
@@ -101,7 +122,11 @@ describe("useTransactionData:", () => {
     mock.mockRestore();
   });
   it("returns raw data in case contract is not verified", async () => {
-    const mock = ($fetch as unknown as SpyInstance).mockRejectedValue(new FetchError("404"));
+    const mock = ($fetch as unknown as SpyInstance).mockRejectedValue({
+      name: "FetchError",
+      message: "404",
+      response: { status: 404 },
+    });
     const { data, isDecodePending, decodingError, decodeTransactionData } = useTransactionData();
     const dataWithNewAddress = {
       ...transactionData,
