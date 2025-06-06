@@ -51,81 +51,50 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     bridgedTokensToInclude: string[];
   }): Promise<ITokenOffChainData[]> {
     const tokensList = await this.getTokensList();
+    if (!tokensList?.length) {
+      return [];
+    }
+
     // Include ETH, all chain-specific tokens and bridged tokens
     const supportedTokens = tokensList.filter(
       (token) =>
         token.id === "ethereum" ||
         token.platforms[this.chainId] ||
-        bridgedTokensToInclude.find(
+        bridgedTokensToInclude.some(
           (bridgetTokenAddress) => bridgetTokenAddress.toLowerCase() === (token.platforms.ethereum || "").toLowerCase()
         )
     );
 
-    const tokensOffChainData: ITokenOffChainData[] = [];
-    const tokenIds = supportedTokens.map((token) => token.id);
-
-    if (tokenIds.length <= API_NUMBER_OF_TOKENS_PER_REQUEST) {
-      // If we have fewer tokens than the limit, fetch them all at once
-      const tokensMarkedData = await this.getTokensMarketData(tokenIds);
-      if (tokensMarkedData) {
-        tokensOffChainData.push(
-          ...tokensMarkedData
-            .map((tokenMarketData) => {
-              const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
-              if (!token) return null;
-              return {
-                l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-                l2Address: token.platforms[this.chainId],
-                liquidity: tokenMarketData.market_cap,
-                usdPrice: tokenMarketData.current_price,
-                iconURL: tokenMarketData.image,
-              };
-            })
-            .filter(Boolean)
-        );
-      }
-    } else {
-      // If we have more tokens than the limit, fetch them in batches
-      let tokenIdsPerRequest = [];
-      for (let i = 0; i < supportedTokens.length; i++) {
-        tokenIdsPerRequest.push(supportedTokens[i].id);
-        if (tokenIdsPerRequest.length === API_NUMBER_OF_TOKENS_PER_REQUEST || i === supportedTokens.length - 1) {
-          const tokensMarkedData = await this.getTokensMarketData(tokenIdsPerRequest);
-          if (tokensMarkedData) {
-            tokensOffChainData.push(
-              ...tokensMarkedData
-                .map((tokenMarketData) => {
-                  const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
-                  if (!token) return null;
-                  return {
-                    l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-                    l2Address: token.platforms[this.chainId],
-                    liquidity: tokenMarketData.market_cap,
-                    usdPrice: tokenMarketData.current_price,
-                    iconURL: tokenMarketData.image,
-                  };
-                })
-                .filter(Boolean)
-            );
-          }
-          tokenIdsPerRequest = [];
-        }
-      }
+    if (!supportedTokens.length) {
+      return [];
     }
-    return tokensOffChainData;
-  }
 
-  private getTokensMarketData(tokenIds: string[]) {
-    return this.makeApiRequestRetryable<ITokenMarketDataProviderResponse[]>({
-      path: "/coins/markets",
-      query: {
-        vs_currency: "usd",
-        ids: tokenIds.join(","),
-        per_page: tokenIds.length.toString(),
-        page: "1",
-        locale: "en",
-      },
+    const tokenIds = supportedTokens.map((token) => token.id);
+    const tokensMarkedData = await this.makeApiRequest<ITokenMarketDataProviderResponse[]>("/coins/markets", {
+      vs_currency: "usd",
+      ids: tokenIds.join(","),
+      per_page: tokenIds.length.toString(),
+      page: "1",
+      locale: "en",
     });
+
+    if (!tokensMarkedData) {
+      return [];
+    }
+
+    return tokensMarkedData
+      .map((tokenMarketData) => {
+        const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
+        if (!token) return null;
+        return {
+          l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
+          l2Address: token.platforms[this.chainId],
+          liquidity: tokenMarketData.market_cap,
+          usdPrice: tokenMarketData.current_price,
+          iconURL: tokenMarketData.image,
+        };
+      })
+      .filter(Boolean);
   }
 
   private async getTokensList() {
