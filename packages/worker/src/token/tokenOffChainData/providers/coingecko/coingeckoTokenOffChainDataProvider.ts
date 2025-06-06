@@ -58,10 +58,12 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     const supportedTokens = tokensList.filter(
       (token) =>
         token.id === "ethereum" ||
-        token.platforms[this.chainId] ||
-        bridgedTokensToInclude.some(
-          (bridgetTokenAddress) => bridgetTokenAddress.toLowerCase() === (token.platforms.ethereum || "").toLowerCase()
-        )
+        (token.platforms &&
+          (token.platforms[this.chainId] ||
+            bridgedTokensToInclude.some(
+              (bridgetTokenAddress) =>
+                bridgetTokenAddress.toLowerCase() === (token.platforms.ethereum || "").toLowerCase()
+            )))
     );
 
     if (!supportedTokens.length) {
