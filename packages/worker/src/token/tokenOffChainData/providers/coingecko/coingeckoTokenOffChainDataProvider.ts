@@ -7,7 +7,6 @@ import { catchError, firstValueFrom } from "rxjs";
 import { utils } from "zksync-ethers";
 import { TokenOffChainDataProvider, ITokenOffChainData } from "../../tokenOffChainDataProvider.abstract";
 
-const API_NUMBER_OF_TOKENS_PER_REQUEST = 250;
 const API_INITIAL_RETRY_TIMEOUT = 5000;
 const API_RETRY_ATTEMPTS = 5;
 
