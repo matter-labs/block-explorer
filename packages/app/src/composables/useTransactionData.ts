@@ -73,34 +73,30 @@ export default (context = useContext()) => {
       isDecodePending.value = true;
       decodingError.value = "";
 
-      // Try to get both proxy and contract ABIs
-      const [proxyInfo] = await Promise.all([
-        getContractProxyInfo(transactionData.contractAddress),
-        getABICollection([transactionData.contractAddress]),
-      ]);
+      // Get contract ABI first to properly handle verification errors
+      await getABICollection([transactionData.contractAddress]);
 
-      let method: TransactionData["method"] | undefined;
+      if (isABIRequestFailed.value) {
+        throw new Error("contract_request_failed");
+      }
+
       const contractAbi = ABICollection.value[transactionData.contractAddress];
-
-      // Try decoding with contract's own ABI first if available
-      if (contractAbi) {
-        method = decodeDataWithABI(transactionData, contractAbi);
-      }
-
-      // If contract ABI didn't decode, try proxy implementation
-      if (!method && proxyInfo?.implementation.verificationInfo) {
-        method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
-      }
-
-      // Handle verification status
-      if (!contractAbi && !proxyInfo?.implementation.verificationInfo) {
-        if (isABIRequestFailed.value) {
-          throw new Error("contract_request_failed");
-        }
+      if (!contractAbi) {
         throw new Error("contract_not_verified");
       }
 
-      // If we have either ABI but couldn't decode, it's a decoding failure
+      // Try to decode with contract's own ABI first
+      let method = decodeDataWithABI(transactionData, contractAbi);
+
+      // If that didn't work, try proxy implementation
+      if (!method) {
+        const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
+        if (proxyInfo?.implementation.verificationInfo) {
+          method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
+        }
+      }
+
+      // If we have ABI but couldn't decode, it's a decoding failure
       if (!method) {
         throw new Error("data_decode_failed");
       }
