@@ -110,7 +110,7 @@ export default (context = useContext()) => {
         method,
       };
     } catch (error) {
-      decodingError.value = (error as Error)?.toString().replace(/^Error: /, "") || "unknown_error";
+      decodingError.value = (error as Error)?.message || "unknown_error";
       data.value = transactionData;
     } finally {
       isDecodePending.value = false;
