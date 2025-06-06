@@ -1,6 +1,6 @@
 import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { $fetch } from "ohmyfetch";
 
 import useTransactionData, { decodeDataWithABI, type TransactionData } from "@/composables/useTransactionData";
 
@@ -39,11 +39,6 @@ const ERC20ProxyVerificationInfo = {
 vi.mock("ohmyfetch", () => {
   return {
     $fetch: vi.fn(() => Promise.resolve(ERC20VerificationInfo)),
-    FetchError: function error() {
-      this.response = {
-        status: 404,
-      };
-    },
   };
 });
 const getContractProxyInfoMock = vi.fn(() => {
