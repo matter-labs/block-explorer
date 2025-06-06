@@ -52,7 +52,11 @@ export function decodeDataWithABI(
 }
 
 export default (context = useContext()) => {
-  const { collection: ABICollection, isRequestFailed: isABIRequestFailed, getCollection: getABICollection } = useContractABI(context);
+  const {
+    collection: ABICollection,
+    isRequestFailed: isABIRequestFailed,
+    getCollection: getABICollection,
+  } = useContractABI(context);
   const { getContractProxyInfo } = useAddress(context);
   const data = ref<TransactionData | null>(null);
   const isDecodePending = ref(false);
