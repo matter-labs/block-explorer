@@ -35,12 +35,14 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
   private readonly isProPlan: boolean;
   private readonly apiKey: string;
   private readonly apiUrl: string;
+  private readonly chainId: string;
 
   constructor(configService: ConfigService, private readonly httpService: HttpService) {
     this.logger = new Logger(CoingeckoTokenOffChainDataProvider.name);
     this.isProPlan = configService.get<boolean>("tokens.coingecko.isProPlan");
     this.apiKey = configService.get<string>("tokens.coingecko.apiKey");
     this.apiUrl = this.isProPlan ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
+    this.chainId = configService.get<string>("COINGECKO_PLATFORM_ID", "zksync"); // Default to zksync for backward compatibility
   }
 
   public async getTokensOffChainData({
@@ -49,11 +51,11 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     bridgedTokensToInclude: string[];
   }): Promise<ITokenOffChainData[]> {
     const tokensList = await this.getTokensList();
-    // Include ETH, all zksync L2 tokens and bridged tokens
+    // Include ETH, all chain-specific tokens and bridged tokens
     const supportedTokens = tokensList.filter(
       (token) =>
         token.id === "ethereum" ||
-        token.platforms.zksync ||
+        token.platforms[this.chainId] ||
         bridgedTokensToInclude.find((bridgetTokenAddress) => bridgetTokenAddress === token.platforms.ethereum)
     );
 
@@ -68,7 +70,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
             const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
             return {
               l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-              l2Address: token.platforms.zksync,
+              l2Address: token.platforms[this.chainId],
               liquidity: tokenMarketData.market_cap,
               usdPrice: tokenMarketData.current_price,
               iconURL: tokenMarketData.image,
@@ -105,12 +107,12 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       return [];
     }
     return list
-      .filter((item) => item.id === "ethereum" || item.platforms.zksync || item.platforms.ethereum)
+      .filter((item) => item.id === "ethereum" || item.platforms[this.chainId] || item.platforms.ethereum)
       .map((item) => ({
         ...item,
         platforms: {
           // use substring(0, 42) to fix some instances when after address there is some additional text
-          zksync: item.platforms.zksync?.substring(0, 42),
+          [this.chainId]: item.platforms[this.chainId]?.substring(0, 42),
           ethereum: item.platforms.ethereum?.substring(0, 42),
         },
       }));
