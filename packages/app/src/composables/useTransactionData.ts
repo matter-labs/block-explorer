@@ -75,7 +75,19 @@ export default (context = useContext()) => {
 
       // Get contract ABI first to properly handle verification errors
       await getABICollection([transactionData.contractAddress]);
+
+      // Check for request failures first
+      if (isABIRequestFailed.value) {
+        throw new Error("contract_request_failed");
+      }
+
       const contractAbi = ABICollection.value[transactionData.contractAddress];
+      const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
+
+      // Check for contract verification
+      if (!contractAbi && !proxyInfo?.implementation.verificationInfo) {
+        throw new Error("contract_not_verified");
+      }
 
       // Try to decode with contract's own ABI first if available
       let method: TransactionData["method"] | undefined;
@@ -84,21 +96,12 @@ export default (context = useContext()) => {
       }
 
       // If that didn't work, try proxy implementation
-      if (!method) {
-        const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
-        if (proxyInfo?.implementation.verificationInfo) {
-          method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
-        }
+      if (!method && proxyInfo?.implementation.verificationInfo) {
+        method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
       }
 
-      // Handle verification status and decoding failures
+      // If we have an ABI but couldn't decode, it's a decoding failure
       if (!method) {
-        if (isABIRequestFailed.value) {
-          throw new Error("contract_request_failed");
-        }
-        if (!contractAbi && !method) {
-          throw new Error("contract_not_verified");
-        }
         throw new Error("data_decode_failed");
       }
 
