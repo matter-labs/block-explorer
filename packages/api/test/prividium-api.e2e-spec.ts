@@ -11,13 +11,7 @@ import request from "supertest";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { setupPrividiumTestEnvironment } from "./prividium.env";
-import {
-  createTestSiweMessage,
-  createMockSession,
-  createAuthHeaders,
-  TEST_WALLET_DATA,
-  TEST_ADDRESSES,
-} from "./prividium/auth-utils";
+import { createTestSiweMessage, createMockSession, createAuthHeaders, TEST_WALLET_DATA } from "./prividium/auth-utils";
 
 describe("Prividium API (e2e)", () => {
   let app: INestApplication;
@@ -25,6 +19,12 @@ describe("Prividium API (e2e)", () => {
   beforeAll(async () => {
     // Ensure Prividium environment is configured
     setupPrividiumTestEnvironment();
+
+    // Skip app initialization if database is not available
+    if (process.env.PRIVIDIUM_DB_UNAVAILABLE === "true") {
+      console.warn("Skipping app initialization - database not available");
+      return;
+    }
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule.build({ prividium: true })],
@@ -40,10 +40,33 @@ describe("Prividium API (e2e)", () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
-  describe("Health Checks", () => {
+  // Skip all tests if database is not available
+  const skipIfDbUnavailable = () => {
+    if (process.env.PRIVIDIUM_DB_UNAVAILABLE === "true") {
+      return describe.skip;
+    }
+    return describe;
+  };
+
+  describe("Test Infrastructure", () => {
+    it("should have Prividium environment configured", () => {
+      expect(process.env.PRIVIDIUM).toBe("true");
+      expect(process.env.DATABASE_URL).toContain("prividium_test_db");
+    });
+
+    it("should have test wallet data available", () => {
+      expect(TEST_WALLET_DATA.AUTHENTICATED_USER.address).toBeDefined();
+      expect(TEST_WALLET_DATA.AUTHENTICATED_USER.privateKey).toBeDefined();
+      expect(TEST_WALLET_DATA.UNAUTHORIZED_USER.address).toBeDefined();
+    });
+  });
+
+  skipIfDbUnavailable()("Health Checks", () => {
     it("should return 200 OK for health endpoint", () => {
       return request(app.getHttpServer()).get("/health").expect(200);
     });
@@ -53,7 +76,7 @@ describe("Prividium API (e2e)", () => {
     });
   });
 
-  describe("Authentication Flow", () => {
+  skipIfDbUnavailable()("Authentication Flow", () => {
     it("should get SIWE message for authentication", async () => {
       const response = await request(app.getHttpServer())
         .post("/auth/message")
@@ -66,7 +89,7 @@ describe("Prividium API (e2e)", () => {
 
     it("should verify valid SIWE signature", async () => {
       // First get the message
-      const messageResponse = await request(app.getHttpServer())
+      await request(app.getHttpServer())
         .post("/auth/message")
         .send({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address });
 
@@ -99,7 +122,7 @@ describe("Prividium API (e2e)", () => {
     });
   });
 
-  describe("Basic API Endpoints", () => {
+  skipIfDbUnavailable()("Basic API Endpoints", () => {
     it("should return stats without authentication", async () => {
       const response = await request(app.getHttpServer()).get("/stats").expect(200);
 
@@ -122,7 +145,7 @@ describe("Prividium API (e2e)", () => {
     });
   });
 
-  describe("Address Information Access", () => {
+  skipIfDbUnavailable()("Address Information Access", () => {
     it("should allow access to own address data when authenticated", async () => {
       const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
       const headers = createAuthHeaders(session);
@@ -153,7 +176,7 @@ describe("Prividium API (e2e)", () => {
     });
   });
 
-  describe("Transaction Access Control", () => {
+  skipIfDbUnavailable()("Transaction Access Control", () => {
     it("should allow access to own transactions when authenticated", async () => {
       const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
       const headers = createAuthHeaders(session);
