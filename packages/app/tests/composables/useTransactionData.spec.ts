@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { $fetch } from "ohmyfetch";
 
 import useTransactionData, { decodeDataWithABI, type TransactionData } from "@/composables/useTransactionData";
 
@@ -44,8 +44,7 @@ vi.mock("ohmyfetch", () => {
     FetchError: function FetchError(message: string) {
       const error = new Error(message);
       error.name = "FetchError";
-      // @ts-ignore
-      error.response = { status: 404 };
+      (error as any).response = { status: 404 };
       return error;
     },
   };
