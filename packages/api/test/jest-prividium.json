@@ -1,0 +1,28 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": "prividium.*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "globalSetup": "./prividium/setup.ts",
+  "globalTeardown": "./prividium/teardown.ts",
+  "setupFilesAfterEnv": ["./prividium/test-setup.ts"],
+  "reporters": [
+    "default",
+    [
+      "jest-junit",
+      {
+        "suiteName": "Prividium E2E tests",
+        "outputFile": "prividium-e2e-junit.xml"
+      }
+    ]
+  ],
+  "testTimeout": 30000,
+  "verbose": true
+} 
