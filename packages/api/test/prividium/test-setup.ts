@@ -7,13 +7,11 @@
 
 import { setupPrividiumTestEnvironment } from "../prividium.env";
 
-declare const beforeEach: any;
 declare const jest: any;
 
-// Ensure Prividium environment is set up before each test
-beforeEach(() => {
-  setupPrividiumTestEnvironment();
-});
+// Set up Prividium environment immediately when this module is loaded
+// This must happen BEFORE any other modules import the config
+setupPrividiumTestEnvironment();
 
 // Increase timeout for Prividium tests as they may involve more complex authentication flows
 jest.setTimeout(30000);

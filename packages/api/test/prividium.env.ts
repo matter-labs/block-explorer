@@ -12,7 +12,7 @@ export const setupPrividiumTestEnvironment = () => {
   process.env.PRIVIDIUM = "true";
 
   // Database configuration - isolated database for Prividium tests
-  process.env.DATABASE_URL = "postgres://postgres:postgres@localhost:5432/prividium_test_db";
+  process.env.DATABASE_URL = "postgres://postgres:postgres@localhost:5432/block-explorer";
 
   // Server configuration - different ports to avoid conflicts
   process.env.METRICS_PORT = "3015";
@@ -75,7 +75,9 @@ export const validatePrividiumEnvironment = () => {
     throw new Error('PRIVIDIUM environment variable must be set to "true" for Prividium tests');
   }
 
-  if (!process.env.DATABASE_URL?.includes("prividium_test_db")) {
-    throw new Error("DATABASE_URL must point to prividium_test_db for proper test isolation");
+  if (!process.env.DATABASE_URL?.includes("postgres://postgres:postgres@localhost:5432/block-explorer")) {
+    throw new Error(
+      "DATABASE_URL must point to postgres://postgres:postgres@localhost:5432/block-explorer for proper test isolation"
+    );
   }
 };
