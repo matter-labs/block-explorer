@@ -99,5 +99,6 @@ jobs:
       targetUrl: ${{ needs.build.outputs.dappUrl }}
       testnet_network_value_for_e2e: "/?network=sepolia"
       default_network_value_for_e2e: "/?network=mainnet"
+      prividium_network_value_for_e2e: "/?network=prividium"
       publish_to_allure: true
       environmentTags: "and not @productionEnv"

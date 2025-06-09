@@ -1,5 +1,5 @@
 <template>
-  <div :class="['network-status', { 'wrong-network': isConnectedWrongNetwork }]">
+  <div :class="['network-status', { 'wrong-network': isConnectedWrongNetwork }]" data-testid="network-indicator">
     <template v-if="isConnectedWrongNetwork">
       <span class="wrong-network-text">Wrong network</span>
     </template>

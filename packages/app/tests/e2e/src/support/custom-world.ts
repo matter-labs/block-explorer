@@ -15,6 +15,7 @@ export interface ICustomWorld extends World {
   startTime?: Date;
   server?: AxiosInstance;
   playwrightOptions?: PlaywrightTestOptions;
+  walletStatusBefore?: string;
 }
 
 export class CustomWorld extends World implements ICustomWorld {

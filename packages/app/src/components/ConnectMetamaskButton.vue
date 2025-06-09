@@ -1,7 +1,13 @@
 <template>
   <div class="metamask-button" :class="{ disabled: buttonDisabled }">
     <img src="/images/wallet_icon.svg" class="metamask-image" @click="openModalConditionally" />
-    <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="connect">
+    <button
+      v-if="!displayAddress"
+      :disabled="buttonDisabled"
+      class="login-button"
+      data-testid="connect-wallet-button"
+      @click="connect"
+    >
       {{ buttonText }}
     </button>
     <template v-else>

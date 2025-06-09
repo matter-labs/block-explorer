@@ -32,5 +32,11 @@
   "transferFromOrigin": "transfer-from-origin",
   "transferToOrigin": "transfer-to-origin",
   "transferFromOriginTablet": "transfer-from-origin-tablet",
-  "transferToOriginTablet": "transfer-to-origin-tablet"
+  "transferToOriginTablet": "transfer-to-origin-tablet",
+  "loginButton": "login-button",
+  "walletStatusBar": "wallet-status-bar",
+  "networkIndicator": "network-indicator",
+  "connectWalletButton": "connect-wallet-button",
+  "logoutButton": "logout-button",
+  "privateNetworkDropdown": "private-network-dropdown"
 }

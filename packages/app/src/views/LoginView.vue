@@ -14,6 +14,7 @@
       <button
         @click="handleLogin"
         :disabled="isLoginPending"
+        data-testid="login-button"
         class="w-[200px] h-[56px] px-8 py-4 text-black bg-white rounded-[28px] hover:bg-gray-200 disabled:opacity-70 disabled:cursor-not-allowed font-semibold text-base flex items-center justify-center mx-auto"
       >
         {{ isLoginPending ? "Connecting..." : "Connect wallet" }}

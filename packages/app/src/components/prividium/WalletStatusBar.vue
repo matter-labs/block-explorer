@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-2">
+  <div class="flex items-center gap-2" data-testid="wallet-status-bar">
     <NetworkIndicator />
     <ConnectMetamaskButton />
   </div>

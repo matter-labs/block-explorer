@@ -16,6 +16,7 @@ export const config = {
   mainWindowSize: { width: 1920, height: 1080 },
   artifactsFolder: "tests/e2e/artifacts/",
   DAPP_NETWORK: process.env.E2ENETWORK || NetworkSwitcher.zkSyncEraMainnet,
+  PRIVIDIUM_MODE: process.env.PRIVIDIUM_MODE === "true",
   headless: true,
   slowMo: 10,
   defaultTimeout: { timeout: 5000 },
