@@ -20,13 +20,14 @@ export const setupPrividiumTestEnvironment = () => {
 
   // Session configuration for authentication testing
   process.env.SESSION_SECRET = "prividium-test-secret-key-for-testing";
-  process.env.SESSION_MAX_AGE = "86400000"; // 24 hours
-  process.env.SESSION_SAME_SITE = "lax";
+  process.env.PRIVIDIUM_SESSION_MAX_AGE = "86400000"; // 24 hours
+  process.env.PRIVIDIUM_SESSION_SAME_SITE = "lax";
   process.env.APP_URL = "http://localhost:3010";
 
   // Prividium specific configuration
-  process.env.PRIVATE_RPC_URL = "http://localhost:3050/rpc";
-  process.env.PRIVATE_RPC_SECRET = "test-private-rpc-secret";
+  process.env.PRIVIDIUM_PRIVATE_RPC_URL = "http://localhost:3050/rpc";
+  process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "test-private-rpc-secret";
+  process.env.PRIVIDIUM_CHAIN_ID = "324"; // zkSync Era testnet
 
   // API pagination limits
   process.env.LIMITED_PAGINATION_MAX_ITEMS = "15";
@@ -53,7 +54,16 @@ export const setupPrividiumTestEnvironment = () => {
  * Validates that all required Prividium environment variables are set
  */
 export const validatePrividiumEnvironment = () => {
-  const requiredVars = ["PRIVIDIUM", "DATABASE_URL", "PRIVATE_RPC_URL", "PRIVATE_RPC_SECRET", "SESSION_SECRET"];
+  const requiredVars = [
+    "PRIVIDIUM",
+    "DATABASE_URL",
+    "PRIVIDIUM_PRIVATE_RPC_URL",
+    "PRIVIDIUM_PRIVATE_RPC_SECRET",
+    "PRIVIDIUM_CHAIN_ID",
+    "PRIVIDIUM_SESSION_MAX_AGE",
+    "APP_URL",
+    "SESSION_SECRET",
+  ];
 
   const missing = requiredVars.filter((varName) => !process.env[varName]);
 

@@ -11,17 +11,18 @@ export default async () => {
   validatePrividiumEnvironment();
 
   // Create the isolated Prividium test database
-  await run(async (dataSource) => {
-    const { DATABASE_URL } = process.env;
-    const databaseName = DATABASE_URL.split("/").pop();
+  try {
+    await run(async (dataSource) => {
+      const { DATABASE_URL } = process.env;
+      const databaseName = DATABASE_URL.split("/").pop();
 
-    // Drop existing test database if it exists
-    try {
-      await dataSource.query(`DROP DATABASE IF EXISTS "${databaseName}";`);
-    } catch (error) {
-      // Ignore error if database doesn't exist
-      console.log(`Database ${databaseName} didn't exist, creating new one`);
-    }
+      // Drop existing test database if it exists
+      try {
+        await dataSource.query(`DROP DATABASE IF EXISTS "${databaseName}";`);
+      } catch (error) {
+        // Ignore error if database doesn't exist
+        console.log(`Database ${databaseName} didn't exist, creating new one`);
+      }
 
       // Create fresh test database
       await dataSource.query(`CREATE DATABASE "${databaseName}";`);
