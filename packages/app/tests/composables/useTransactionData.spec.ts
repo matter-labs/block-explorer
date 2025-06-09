@@ -42,9 +42,9 @@ vi.mock("ohmyfetch", () => {
   return {
     $fetch: vi.fn(() => Promise.resolve(ERC20VerificationInfo)),
     FetchError: function FetchError(message: string) {
-      const error = new Error(message);
+      const error = new Error(message) as Error & { response: { status: number } };
       error.name = "FetchError";
-      (error as any).response = { status: 404 };
+      error.response = { status: 404 };
       return error;
     },
   };
