@@ -40,6 +40,33 @@ jobs:
           PRIVIDIUM_MODE: true
           BASE_TOKEN_ADDRESS: "0x000000000000000000000000000000000000800A"
 
+      - name: Generate Prividium Config
+        run: |
+          # Create temporary Prividium config.js
+          cat > packages/app/public/config.js << 'EOF'
+          window["##runtimeConfig"] = {
+            appEnvironment: "default",
+            environmentConfig: {
+              networks: [
+                {
+                  name: "prividium",
+                  l2NetworkName: "prividium", 
+                  l2ChainId: 271,
+                  rpcUrl: "http://127.0.0.1:4041/rpc",
+                  apiUrl: "http://127.0.0.1:3002",
+                  baseTokenAddress: "0x000000000000000000000000000000000000800A",
+                  hostnames: [],
+                  icon: "/images/icons/zksync-arrows.svg",
+                  maintenance: false,
+                  published: true,
+                  verificationApiUrl: "http://127.0.0.1:3070",
+                  prividium: true,
+                },
+              ],
+            },
+          };
+          EOF
+
       - name: Start Prividium App
         run: |
           # Start the app in development mode with Prividium config
