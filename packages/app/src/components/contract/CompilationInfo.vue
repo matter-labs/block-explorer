@@ -136,10 +136,6 @@ const autoVerified = computed(
 // If there are any problems with the verification, the contract is only partially verified.
 const partialVerification = computed(() => {
   const problems = props.contract.verificationInfo?.verificationProblems;
-  // For auto-verified contracts, we don't consider verification problems since we have the ABI
-  if (autoVerified.value) {
-    return false;
-  }
   return problems ? problems.length > 0 : false;
 });
 
