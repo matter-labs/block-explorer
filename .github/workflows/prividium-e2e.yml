@@ -1,0 +1,80 @@
+name: Prividium E2E Tests
+
+on:
+  pull_request:
+    paths:
+      - "packages/app/**"
+      - "packages/api/**"
+      - ".github/workflows/prividium-e2e.yml"
+      - "docker-compose-prividium.yaml"
+
+jobs:
+  prividium-e2e:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build App (Prividium Mode)
+        run: |
+          cd packages/app
+          npm run build
+        env:
+          PRIVIDIUM: true
+          USE_DYNAMIC_CONFIG: true
+          API_URL: http://localhost:3020
+          L2_CHAIN_ID: 270
+          L2_NETWORK_NAME: Prividium
+          NETWORK_NAME: Prividium
+          RPC_URL: http://localhost:4000
+          PRIVIDIUM_MODE: true
+          BASE_TOKEN_ADDRESS: "0x000000000000000000000000000000000000800A"
+
+      - name: Start Prividium Services
+        run: |
+          # Start only the essential services for testing
+          docker-compose -f docker-compose-prividium.yaml up -d postgres
+          
+          # Wait for postgres to be ready
+          sleep 10
+          
+          # Start the app with Prividium config
+          cd packages/app
+          npm run preview -- --host 0.0.0.0 --port 3010 &
+          
+          # Wait for app to start
+          sleep 5
+        env:
+          PRIVIDIUM: true
+          USE_DYNAMIC_CONFIG: true
+          API_URL: http://localhost:3020
+          L2_CHAIN_ID: 270
+          L2_NETWORK_NAME: Prividium
+          NETWORK_NAME: Prividium
+          RPC_URL: http://localhost:4000
+          BASE_TOKEN_ADDRESS: "0x000000000000000000000000000000000000800A"
+
+      - name: Run Prividium E2E Tests
+        run: |
+          cd packages/app
+          E2ENETWORK='/?network=prividium' PRIVIDIUM_MODE=true npx cucumber-js --tags "@prividium"
+        env:
+          TARGET_ENV: http://localhost:3010
+          PRIVIDIUM_MODE: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prividium-e2e-results
+          path: packages/app/tests/e2e/artifacts/ 
