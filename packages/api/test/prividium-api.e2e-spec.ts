@@ -12,12 +12,14 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import request from "supertest";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { setupPrividiumTestEnvironment } from "./prividium.env";
-import { createTestSiweMessage, createMockSession, createAuthHeaders, TEST_WALLET_DATA } from "./prividium/auth-utils";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { SiweMessage } from "siwe";
+import { Wallet } from "zksync-ethers";
+import { applyPrividiumExpressConfig } from "../src/prividium";
+import { ConfigService } from "@nestjs/config";
 
 describe("Prividium API (e2e)", () => {
   let app: INestApplication;
@@ -25,24 +27,29 @@ describe("Prividium API (e2e)", () => {
   let transactionRepository: Repository<Transaction>;
   let blockRepository: Repository<BlockDetails>;
   let batchRepository: Repository<BatchDetails>;
+  let agent: request.SuperAgentTest;
+
+  const authorizedWallet = Wallet.createRandom();
+  const unauthorizedWallet = Wallet.createRandom();
 
   beforeAll(async () => {
-    // Ensure Prividium environment is configured
-    setupPrividiumTestEnvironment();
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule.build({ prividium: true })],
     }).compile();
 
     app = moduleFixture.createNestApplication({ logger: false });
-
-    // Configure app with Prividium mode
     configureApp(app);
+    const configService = moduleFixture.get(ConfigService);
+    applyPrividiumExpressConfig(app, {
+      sessionSecret: configService.get<string>("prividium.privateRpcSecret"),
+      appUrl: configService.get<string>("appUrl"),
+      sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
+      sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
+    });
     app.enableShutdownHooks();
 
     await app.init();
 
-    // Get repositories for test data setup
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
@@ -76,6 +83,10 @@ describe("Prividium API (e2e)", () => {
     });
   });
 
+  beforeEach(() => {
+    agent = request.agent(app.getHttpServer());
+  });
+
   afterAll(async () => {
     // Clean up test data
     await addressTransactionRepository.delete({});
@@ -86,164 +97,108 @@ describe("Prividium API (e2e)", () => {
     await app.close();
   });
 
-  describe("Test Infrastructure", () => {
-    it("should have Prividium environment configured", () => {
-      expect(process.env.PRIVIDIUM).toBe("true");
-      expect(process.env.DATABASE_URL).toContain("postgres://postgres:postgres@localhost:5432/block-explorer");
-    });
-
-    it("should have test wallet data available", () => {
-      expect(TEST_WALLET_DATA.AUTHENTICATED_USER.address).toBeDefined();
-      expect(TEST_WALLET_DATA.AUTHENTICATED_USER.privateKey).toBeDefined();
-      expect(TEST_WALLET_DATA.UNAUTHORIZED_USER.address).toBeDefined();
-    });
-
-    it("should have database connection", async () => {
-      try {
-        const count = await batchRepository.count();
-        console.log("Database connection successful, batch count:", count);
-        expect(count).toBeGreaterThanOrEqual(0);
-      } catch (error) {
-        console.error("Database connection failed:", error);
-        throw error;
-      }
-    });
-  });
-
-  describe("Health Checks", () => {
-    it("should return 200 OK for health endpoint", () => {
-      return request(app.getHttpServer()).get("/health").expect(200);
-    });
-
-    it("should return 200 OK for ready endpoint", () => {
-      return request(app.getHttpServer()).get("/ready").expect(200);
-    });
-  });
-
   describe("Authentication Flow", () => {
     it("should get SIWE message for authentication", async () => {
-      const response = await request(app.getHttpServer())
-        .post("/auth/message")
-        .send({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address })
-        .expect(201);
-
-      expect(response.text).toContain("wants you to sign in with your Ethereum account");
-      expect(response.text).toContain(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
+      const response = await agent.post("/auth/message").send({ address: authorizedWallet.address }).expect(201);
+      const message = new SiweMessage(response.text);
+      expect(message.address).toBe(authorizedWallet.address);
     });
 
-    it.skip("should verify valid SIWE signature", async () => {
-      // First get the message
-      await request(app.getHttpServer())
-        .post("/auth/message")
-        .send({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address });
+    it("should complete auth process", async () => {
+      const response = await agent.post("/auth/message").send({ address: authorizedWallet.address });
+      const message = new SiweMessage(response.text);
 
-      // Create and sign the SIWE message
-      const siweData = await createTestSiweMessage(TEST_WALLET_DATA.AUTHENTICATED_USER.privateKey);
+      // Sign the SIWE message
+      const signature = await authorizedWallet.signMessage(message.prepareMessage());
 
       // Verify the signature
-      const verifyResponse = await request(app.getHttpServer())
-        .post("/auth/verify")
-        .send({ signature: siweData.signature })
-        .expect(201);
+      await agent.post("/auth/verify").send({ signature }).expect(201, "true");
 
-      expect(verifyResponse.body).toBe(true);
-    });
+      // Return user info
+      await agent.get("/auth/me").expect(200, {
+        address: authorizedWallet.address,
+      });
 
-    it.skip("should return user info when authenticated", async () => {
-      const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-      const headers = createAuthHeaders(session);
+      // Logout
+      await agent.post("/auth/logout").expect(201);
 
-      const response = await request(app.getHttpServer()).get("/auth/me").set(headers).expect(200);
-
-      expect(response.body.address).toBe(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-    });
-
-    it("should logout and clear session", async () => {
-      const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-      const headers = createAuthHeaders(session);
-
-      await request(app.getHttpServer()).post("/auth/logout").set(headers).expect(201);
+      // Try to request user info without authentication
+      await agent.get("/auth/me").expect(401);
     });
   });
 
-  describe("Basic API Endpoints", () => {
-    it.skip("should return stats without authentication", async () => {
-      const response = await request(app.getHttpServer()).get("/stats");
+  // describe("Basic API Endpoints", () => {
+  //   it.skip("should return stats without authentication", async () => {
+  //     const response = await agent.get("/stats");
 
-      console.log("Stats response status:", response.status);
-      console.log("Stats response body:", response.body);
-      console.log("Stats response text:", response.text);
+  //     console.log("Stats response status:", response.status);
+  //     console.log("Stats response body:", response.body);
+  //     console.log("Stats response text:", response.text);
 
-      expect(response.status).toBe(200);
-      expect(response.body).toHaveProperty("lastSealedBatch");
-      expect(response.body).toHaveProperty("lastVerifiedBatch");
-    });
+  //     expect(response.status).toBe(200);
+  //     expect(response.body).toHaveProperty("lastSealedBatch");
+  //     expect(response.body).toHaveProperty("lastVerifiedBatch");
+  //   });
 
-    it.skip("should return blocks list without authentication", async () => {
-      const response = await request(app.getHttpServer()).get("/blocks").expect(200);
+  //   it.skip("should return blocks list without authentication", async () => {
+  //     const response = await agent.get("/blocks").expect(200);
 
-      expect(response.body).toHaveProperty("items");
-      expect(response.body).toHaveProperty("meta");
-    });
+  //     expect(response.body).toHaveProperty("items");
+  //     expect(response.body).toHaveProperty("meta");
+  //   });
 
-    it.skip("should return batches list without authentication", async () => {
-      const response = await request(app.getHttpServer()).get("/batches").expect(200);
+  //   it.skip("should return batches list without authentication", async () => {
+  //     const response = await agent.get("/batches").expect(200);
 
-      expect(response.body).toHaveProperty("items");
-      expect(response.body).toHaveProperty("meta");
-    });
-  });
+  //     expect(response.body).toHaveProperty("items");
+  //     expect(response.body).toHaveProperty("meta");
+  //   });
+  // });
 
-  describe("Address Information Access", () => {
-    it.skip("should allow access to own address data when authenticated", async () => {
-      const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-      const headers = createAuthHeaders(session);
+  // describe("Address Information Access", () => {
+  //   it.skip("should allow access to own address data when authenticated", async () => {
+  //     const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
+  //     const headers = createAuthHeaders(session);
 
-      const response = await request(app.getHttpServer())
-        .get(`/address/${TEST_WALLET_DATA.AUTHENTICATED_USER.address}`)
-        .set(headers)
-        .expect(200);
+  //     const response = await agent
+  //       .get(`/address/${TEST_WALLET_DATA.AUTHENTICATED_USER.address}`)
+  //       .set(headers)
+  //       .expect(200);
 
-      expect(response.body).toHaveProperty("address");
-      expect(response.body.address.toLowerCase()).toBe(TEST_WALLET_DATA.AUTHENTICATED_USER.address.toLowerCase());
-    });
+  //     expect(response.body).toHaveProperty("address");
+  //     expect(response.body.address.toLowerCase()).toBe(TEST_WALLET_DATA.AUTHENTICATED_USER.address.toLowerCase());
+  //   });
 
-    it.skip("should restrict access to other addresses when authenticated", async () => {
-      const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-      const headers = createAuthHeaders(session);
+  //   it.skip("should restrict access to other addresses when authenticated", async () => {
+  //     const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
+  //     const headers = createAuthHeaders(session);
 
-      // Try to access a different address
-      await request(app.getHttpServer())
-        .get(`/address/${TEST_WALLET_DATA.UNAUTHORIZED_USER.address}`)
-        .set(headers)
-        .expect(403); // Should be forbidden
-    });
+  //     // Try to access a different address
+  //     await agent.get(`/address/${TEST_WALLET_DATA.UNAUTHORIZED_USER.address}`).set(headers).expect(403); // Should be forbidden
+  //   });
 
-    it.skip("should deny access to address data when not authenticated", async () => {
-      // Try to access address without authentication
-      await request(app.getHttpServer()).get(`/address/${TEST_WALLET_DATA.AUTHENTICATED_USER.address}`).expect(401); // Should be unauthorized
-    });
-  });
+  //   it.skip("should deny access to address data when not authenticated", async () => {
+  //     // Try to access address without authentication
+  //     await agent.get(`/address/${TEST_WALLET_DATA.AUTHENTICATED_USER.address}`).expect(401); // Should be unauthorized
+  //   });
+  // });
 
-  describe("Transaction Access Control", () => {
-    it.skip("should allow access to own transactions when authenticated", async () => {
-      const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-      const headers = createAuthHeaders(session);
+  // describe("Transaction Access Control", () => {
+  //   it.skip("should allow access to own transactions when authenticated", async () => {
+  //     const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
+  //     const headers = createAuthHeaders(session);
 
-      const response = await request(app.getHttpServer())
-        .get("/transactions")
-        .query({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address })
-        .set(headers)
-        .expect(200);
+  //     const response = await agent
+  //       .get("/transactions")
+  //       .query({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address })
+  //       .set(headers)
+  //       .expect(200);
 
-      expect(response.body).toHaveProperty("items");
-    });
+  //     expect(response.body).toHaveProperty("items");
+  //   });
 
-    it.skip("should deny access to transactions without authentication", async () => {
-      await request(app.getHttpServer())
-        .get("/transactions")
-        .query({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address })
-        .expect(401); // Should be unauthorized
-    });
-  });
+  //   it.skip("should deny access to transactions without authentication", async () => {
+  //     await agent.get("/transactions").query({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address }).expect(401); // Should be unauthorized
+  //   });
+  // });
 });

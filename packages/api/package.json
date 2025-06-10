@@ -22,7 +22,7 @@
     "test:ci": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles",
-    "test:prividium": "jest --config ./test/jest-prividium.json --runInBand --detectOpenHandles",
+    "test:e2e-prividium": "jest --config ./test/jest-e2e-prividium.json --runInBand --detectOpenHandles",
     "test:perf": "artillery run ./performance/load-test.yaml"
   },
   "dependencies": {

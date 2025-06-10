@@ -6,8 +6,8 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-
-  "setupFilesAfterEnv": ["./prividium/test-setup.ts"],
+  "globalSetup": "./global/setup-prividium.ts",
+  "globalTeardown": "./global/clean.ts",
   "reporters": [
     "default",
     [
@@ -17,7 +17,5 @@
         "outputFile": "prividium-e2e-junit.xml"
       }
     ]
-  ],
-  "testTimeout": 30000,
-  "verbose": true
+  ]
 }
