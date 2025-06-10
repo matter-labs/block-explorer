@@ -50,7 +50,7 @@ jobs:
           
           # Start the app with Prividium config
           cd packages/app
-          npm run preview -- --host 0.0.0.0 --port 3010 &
+          npm run start &
           
           # Wait for app to start
           sleep 5
