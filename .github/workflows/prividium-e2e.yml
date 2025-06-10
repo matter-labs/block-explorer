@@ -43,7 +43,7 @@ jobs:
       - name: Start Prividium Services
         run: |
           # Start only the essential services for testing
-          docker-compose -f docker-compose-prividium.yaml up -d postgres
+          docker compose -f docker-compose-prividium.yaml up -d postgres
           
           # Wait for postgres to be ready
           sleep 10
