@@ -1,4 +1,5 @@
 import { After, AfterAll, Before, setDefaultTimeout } from "@cucumber/cucumber";
+import { Status } from "@cucumber/cucumber";
 import { chromium } from "@playwright/test";
 import dappwright, { MetaMaskWallet } from "@tenkeylabs/dappwright";
 
@@ -15,7 +16,7 @@ let legacyBrowser: Browser | null = null;
 let prividiumBrowser: Browser | null = null;
 
 Before({ tags: "@ignore" }, async function () {
-  return "skipped" as any;
+  return Status.SKIPPED;
 });
 
 Before({ tags: "not @prividium" }, async function (this: ICustomWorld, { pickle }: ITestCaseHookParameter) {
