@@ -30,7 +30,6 @@ describe("Prividium API (e2e)", () => {
   let agent: request.SuperAgentTest;
 
   const authorizedWallet = Wallet.createRandom();
-  const unauthorizedWallet = Wallet.createRandom();
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -98,107 +97,21 @@ describe("Prividium API (e2e)", () => {
   });
 
   describe("Authentication Flow", () => {
-    it("should get SIWE message for authentication", async () => {
+    it("should complete auth process", async () => {
+      // Verify user successfully logins
       const response = await agent.post("/auth/message").send({ address: authorizedWallet.address }).expect(201);
       const message = new SiweMessage(response.text);
       expect(message.address).toBe(authorizedWallet.address);
-    });
-
-    it("should complete auth process", async () => {
-      const response = await agent.post("/auth/message").send({ address: authorizedWallet.address });
-      const message = new SiweMessage(response.text);
-
-      // Sign the SIWE message
       const signature = await authorizedWallet.signMessage(message.prepareMessage());
 
-      // Verify the signature
       await agent.post("/auth/verify").send({ signature }).expect(201, "true");
-
-      // Return user info
       await agent.get("/auth/me").expect(200, {
         address: authorizedWallet.address,
       });
 
-      // Logout
+      // Logout user
       await agent.post("/auth/logout").expect(201);
-
-      // Try to request user info without authentication
       await agent.get("/auth/me").expect(401);
     });
   });
-
-  // describe("Basic API Endpoints", () => {
-  //   it.skip("should return stats without authentication", async () => {
-  //     const response = await agent.get("/stats");
-
-  //     console.log("Stats response status:", response.status);
-  //     console.log("Stats response body:", response.body);
-  //     console.log("Stats response text:", response.text);
-
-  //     expect(response.status).toBe(200);
-  //     expect(response.body).toHaveProperty("lastSealedBatch");
-  //     expect(response.body).toHaveProperty("lastVerifiedBatch");
-  //   });
-
-  //   it.skip("should return blocks list without authentication", async () => {
-  //     const response = await agent.get("/blocks").expect(200);
-
-  //     expect(response.body).toHaveProperty("items");
-  //     expect(response.body).toHaveProperty("meta");
-  //   });
-
-  //   it.skip("should return batches list without authentication", async () => {
-  //     const response = await agent.get("/batches").expect(200);
-
-  //     expect(response.body).toHaveProperty("items");
-  //     expect(response.body).toHaveProperty("meta");
-  //   });
-  // });
-
-  // describe("Address Information Access", () => {
-  //   it.skip("should allow access to own address data when authenticated", async () => {
-  //     const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-  //     const headers = createAuthHeaders(session);
-
-  //     const response = await agent
-  //       .get(`/address/${TEST_WALLET_DATA.AUTHENTICATED_USER.address}`)
-  //       .set(headers)
-  //       .expect(200);
-
-  //     expect(response.body).toHaveProperty("address");
-  //     expect(response.body.address.toLowerCase()).toBe(TEST_WALLET_DATA.AUTHENTICATED_USER.address.toLowerCase());
-  //   });
-
-  //   it.skip("should restrict access to other addresses when authenticated", async () => {
-  //     const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-  //     const headers = createAuthHeaders(session);
-
-  //     // Try to access a different address
-  //     await agent.get(`/address/${TEST_WALLET_DATA.UNAUTHORIZED_USER.address}`).set(headers).expect(403); // Should be forbidden
-  //   });
-
-  //   it.skip("should deny access to address data when not authenticated", async () => {
-  //     // Try to access address without authentication
-  //     await agent.get(`/address/${TEST_WALLET_DATA.AUTHENTICATED_USER.address}`).expect(401); // Should be unauthorized
-  //   });
-  // });
-
-  // describe("Transaction Access Control", () => {
-  //   it.skip("should allow access to own transactions when authenticated", async () => {
-  //     const session = createMockSession(TEST_WALLET_DATA.AUTHENTICATED_USER.address);
-  //     const headers = createAuthHeaders(session);
-
-  //     const response = await agent
-  //       .get("/transactions")
-  //       .query({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address })
-  //       .set(headers)
-  //       .expect(200);
-
-  //     expect(response.body).toHaveProperty("items");
-  //   });
-
-  //   it.skip("should deny access to transactions without authentication", async () => {
-  //     await agent.get("/transactions").query({ address: TEST_WALLET_DATA.AUTHENTICATED_USER.address }).expect(401); // Should be unauthorized
-  //   });
-  // });
 });
