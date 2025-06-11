@@ -3,13 +3,10 @@ import { computed, type ComputedRef, reactive, type Ref, type ToRefs, toRefs } f
 import { BrowserProvider } from "ethers";
 
 import defaultLogger from "./../utils/logger";
+import { FetchInstance } from "./useFetchInstance";
 import useWallet, { isAuthenticated } from "./useWallet";
 
-import useFetch from "@/composables/useFetch";
-
-import type { UserContext } from "./useContext";
-import type { NetworkConfig } from "../configs";
-import type { Provider } from "zksync-ethers";
+import type { Context } from "./useContext";
 
 type LoginState = {
   isLoginPending: boolean;
@@ -25,14 +22,7 @@ const state = reactive<LoginState>({
   isLoginPending: false,
 });
 
-export default (
-  context: {
-    user: Ref<UserContext>;
-    currentNetwork: ComputedRef<NetworkConfig>;
-    getL2Provider: () => Provider;
-  },
-  _logger = defaultLogger
-): UseLogin => {
+export default (context: Context, _logger = defaultLogger): UseLogin => {
   const wallet = useWallet({
     ...context,
     currentNetwork: computed(() => ({
@@ -45,7 +35,7 @@ export default (
 
   const initializeLogin = async () => {
     try {
-      const response = await useFetch()<{ address: string }>(`${context.currentNetwork.value.apiUrl}/auth/me`);
+      const response = await FetchInstance.api(context)<{ address: string }>(`/auth/me`);
       if (response.address) {
         context.user.value = { address: response.address, loggedIn: true };
       }
@@ -74,7 +64,7 @@ export default (
       const address = await signer.getAddress();
 
       // Get SIWE message from server
-      const message = await useFetch()<string>(`${context.currentNetwork.value.apiUrl}/auth/message`, {
+      const message = await FetchInstance.api(context)<string>(`/auth/message`, {
         method: "POST",
         body: { address },
       });
@@ -84,7 +74,7 @@ export default (
 
       // Send signature to proxy
       try {
-        await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/verify`, {
+        await FetchInstance.api(context)(`/auth/verify`, {
           method: "POST",
           body: { signature, message },
         });
@@ -107,7 +97,7 @@ export default (
   const logout = async () => {
     wallet.disconnect();
     try {
-      await useFetch()(`${context.currentNetwork.value.apiUrl}/auth/logout`, {
+      await FetchInstance.api(context)("/auth/logout", {
         method: "POST",
       });
     } catch (error) {
