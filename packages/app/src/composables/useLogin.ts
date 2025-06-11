@@ -1,4 +1,4 @@
-import { computed, type ComputedRef, reactive, type Ref, type ToRefs, toRefs } from "vue";
+import { computed, reactive, type ToRefs, toRefs } from "vue";
 
 import { BrowserProvider } from "ethers";
 
