@@ -2,7 +2,8 @@
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testEnvironment": "node",
-  "testRegex": "(?!prividium).*\\.e2e-spec\\.ts$",
+  "testRegex": ".e2e-spec.ts$",
+  "testPathIgnorePatterns": ["prividium"],
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
