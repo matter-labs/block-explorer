@@ -30,7 +30,6 @@ describe("useContext:", () => {
       it("returns environment networks", () => {
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
-          prividium: computed(() => false),
           baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
@@ -55,7 +54,6 @@ describe("useContext:", () => {
 
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
-          prividium: computed(() => false),
           baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
@@ -68,7 +66,6 @@ describe("useContext:", () => {
 
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
-          prividium: computed(() => false),
           baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
@@ -82,7 +79,6 @@ describe("useContext:", () => {
 
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
-          prividium: computed(() => false),
           baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
