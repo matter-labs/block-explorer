@@ -166,12 +166,12 @@ export class AuthController {
     schema: { type: "object", properties: { message: { type: "string" } } },
   })
   public async token(@Req() req: Request) {
-    const url = new URL("/users", this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL"));
+    const url = new URL("/users", this.configService.get("prividium.privateRpcUrl"));
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify({
         address: req.session.siwe.address,
-        secret: this.configService.get("PRIVIDIUM_PRIVATE_RPC_SECRET"),
+        secret: this.configService.get("prividium.privateRpcSecret"),
       }),
       headers: { "Content-Type": "application/json" },
     });
