@@ -2,9 +2,10 @@ import { Logger } from "@nestjs/common";
 import { IsNull, Not } from "typeorm";
 import { getBatchState } from "./batch.utils";
 import { unixTimeToDate } from "../utils/date";
-import { BlockchainService } from "../blockchain/blockchain.service";
+import { BlockchainService, TeeProof } from "../blockchain/blockchain.service";
 import { BatchRepository, BlockRepository } from "../repositories";
 import { BatchState } from "../entities/batch.entity";
+import { ConfigService } from "@nestjs/config";
 
 export class BatchProcessor {
   private lastProcessedBatchNumber: number = null;
@@ -14,7 +15,8 @@ export class BatchProcessor {
     private readonly state: BatchState,
     private readonly blockchainService: BlockchainService,
     private readonly batchRepository: BatchRepository,
-    private readonly blockRepository: BlockRepository
+    private readonly blockRepository: BlockRepository,
+    private readonly configService: ConfigService
   ) {
     this.logger = new Logger(BatchProcessor.name);
   }
@@ -31,9 +33,15 @@ export class BatchProcessor {
         ...(this.state === BatchState.Committed && {
           committedAt: Not(IsNull()),
         }),
+        ...(this.state === BatchState.TeeProven && {
+          teeProvenAt: Not(IsNull()),
+        }),
       },
       { number: true }
     );
+    if (this.state === BatchState.TeeProven && !lastProcessedBatch) {
+      return this.configService.get<number>("batches.teeProofStartBatchNumber") - 1;
+    }
     return lastProcessedBatch?.number ?? -1;
   }
 
@@ -56,7 +64,14 @@ export class BatchProcessor {
         return false;
       }
 
-      const nextBatchState = getBatchState(nextBatch);
+      let teeProof: TeeProof[] = [];
+      if (this.state === BatchState.TeeProven) {
+        teeProof = await this.blockchainService.getTeeProofs(nextBatch.number);
+        this.logger.debug({ message: "Tee proofs fetched", teeProof });
+      }
+
+      const nextBatchState =
+        this.state === BatchState.TeeProven && teeProof.length > 0 ? BatchState.TeeProven : getBatchState(nextBatch);
       if (nextBatchState !== this.state) {
         this.logger.debug({
           message: "Next batch state is different to the current batch state",
@@ -102,6 +117,14 @@ export class BatchProcessor {
       await this.batchRepository.upsert({
         ...nextBatch,
         timestamp: unixTimeToDate(nextBatch.timestamp),
+        ...(this.state === BatchState.TeeProven && {
+          teeProvenAt: teeProof[0].provedAt,
+          teeAttestation: teeProof[0].attestation,
+          teeSignature: teeProof[0].signature,
+          teePubkey: teeProof[0].pubkey,
+          teeType: teeProof[0].teeType,
+          teeStatus: teeProof[0].status,
+        }),
       });
 
       this.lastProcessedBatchNumber = nextBatchNumber;
