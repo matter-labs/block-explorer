@@ -8,9 +8,7 @@ import { BlockService } from "../block/block.service";
 import { LogService } from "../log/log.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { Log } from "../log/log.entity";
-import { Token } from "../token/token.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { AddressType } from "./dtos/baseAddress.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer, TransferType } from "../transfer/transfer.entity";
 
@@ -28,7 +26,6 @@ describe("AddressController", () => {
   let transactionServiceMock: TransactionService;
   let transferServiceMock: TransferService;
   const blockchainAddress = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
-  const normalizedAddress = "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF";
   const pagingOptions: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
 
   beforeEach(async () => {
@@ -73,8 +70,6 @@ describe("AddressController", () => {
   });
 
   describe("getAddress", () => {
-    let addressRecord;
-
     beforeEach(() => {
       (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue({
         blockNumber: 0,
@@ -84,167 +79,8 @@ describe("AddressController", () => {
 
     it("queries addresses by specified address", async () => {
       await controller.getAddress(blockchainAddress);
-      expect(serviceMock.findOne).toHaveBeenCalledTimes(1);
-      expect(serviceMock.findOne).toHaveBeenCalledWith(blockchainAddress);
-    });
-
-    it("queries address balances", async () => {
-      await controller.getAddress(blockchainAddress);
-      expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
-      expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
-    });
-
-    describe("when contract address exists", () => {
-      const transactionHash = "transactionHash";
-      const creatorAddress = "creatorAddress";
-      const totalTxCount = 20;
-      const addressBalances = {
-        balances: {
-          "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF": {
-            balance: "10",
-            token: mock<Token>({ l2Address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" }),
-          },
-          "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA": {
-            balance: "20",
-            token: mock<Token>({ l2Address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA" }),
-          },
-        },
-        blockNumber: 30,
-      };
-
-      beforeEach(() => {
-        addressRecord = {
-          address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-          blockNumber: 20,
-          bytecode: "0x123",
-          createdInBlockNumber: 30,
-          creatorTxHash: transactionHash,
-          creatorAddress,
-        };
-        (serviceMock.findOne as jest.Mock).mockResolvedValue(addressRecord);
-        (transactionServiceMock.count as jest.Mock).mockResolvedValue(totalTxCount);
-        (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue(addressBalances);
-      });
-
-      it("queries totalTransactions value from transaction receipt repo with formatted contractAddress", async () => {
-        await controller.getAddress(blockchainAddress);
-        expect(transactionServiceMock.count).toHaveBeenCalledTimes(1);
-        expect(transactionServiceMock.count).toHaveBeenCalledWith({
-          "from|to": "0xffffffffffffffffffffffffffffffffffffffff",
-        });
-      });
-
-      it("returns the contract address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
-        expect(result).toStrictEqual({
-          type: AddressType.Contract,
-          ...addressRecord,
-          blockNumber: addressBalances.blockNumber,
-          balances: addressBalances.balances,
-          totalTransactions: totalTxCount,
-          isEvmLike: addressRecord.isEvmLike,
-        });
-      });
-
-      describe("when there are no balances for the contract", () => {
-        const defaultBalancesResponse = {
-          balances: {},
-          blockNumber: 0,
-        };
-
-        beforeEach(() => {
-          (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue(defaultBalancesResponse);
-        });
-
-        it("returns the contract address record with empty balances and block number from the address record", async () => {
-          const result = await controller.getAddress(blockchainAddress);
-          expect(result).toStrictEqual({
-            type: AddressType.Contract,
-            ...addressRecord,
-            blockNumber: addressRecord.createdInBlockNumber,
-            balances: defaultBalancesResponse.balances,
-            totalTransactions: totalTxCount,
-            isEvmLike: addressRecord.isEvmLike,
-          });
-        });
-      });
-    });
-
-    describe("when address balances exist", () => {
-      const sealedNonce = 10;
-      const verifiedNonce = 10;
-      const addressBalances = {
-        balances: {
-          "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF": {
-            balance: "10",
-            token: mock<Token>({ l2Address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF" }),
-          },
-          "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA": {
-            balance: "20",
-            token: mock<Token>({ l2Address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA" }),
-          },
-        },
-        blockNumber: 30,
-      };
-      beforeEach(() => {
-        (serviceMock.findOne as jest.Mock).mockResolvedValue(null);
-        (transactionServiceMock.getAccountNonce as jest.Mock)
-          .mockResolvedValueOnce(sealedNonce)
-          .mockResolvedValueOnce(verifiedNonce);
-        (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue(addressBalances);
-      });
-
-      it("queries account sealed and verified nonce", async () => {
-        await controller.getAddress(blockchainAddress);
-        expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledTimes(2);
-        expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({ accountAddress: blockchainAddress });
-        expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({
-          accountAddress: blockchainAddress,
-          isVerified: true,
-        });
-      });
-
-      it("queries account balances", async () => {
-        await controller.getAddress(blockchainAddress);
-        expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
-        expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
-      });
-
-      it("returns the account address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
-        expect(result).toStrictEqual({
-          type: AddressType.Account,
-          address: normalizedAddress,
-          blockNumber: addressBalances.blockNumber,
-          balances: addressBalances.balances,
-          sealedNonce,
-          verifiedNonce,
-        });
-      });
-    });
-
-    describe("when balances do not exist", () => {
-      const blockNumber = 10;
-      beforeEach(() => {
-        (serviceMock.findOne as jest.Mock).mockResolvedValueOnce(null);
-        (blockServiceMock.getLastBlockNumber as jest.Mock).mockResolvedValueOnce(blockNumber);
-        (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue({
-          blockNumber: 0,
-          balances: {},
-        });
-      });
-
-      it("returns the default account address response", async () => {
-        const result = await controller.getAddress(blockchainAddress);
-        expect(result).toStrictEqual({
-          type: AddressType.Account,
-          address: normalizedAddress,
-          blockNumber,
-          balances: {},
-          sealedNonce: 0,
-          verifiedNonce: 0,
-        });
-      });
+      expect(serviceMock.findFullAddress).toHaveBeenCalledTimes(1);
+      expect(serviceMock.findFullAddress).toHaveBeenCalledWith(blockchainAddress, true);
     });
   });
 

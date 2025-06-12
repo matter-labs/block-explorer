@@ -2,7 +2,7 @@ import { mock } from "jest-mock-extended";
 import { MoreThanOrEqual, LessThanOrEqual, Between, SelectQueryBuilder } from "typeorm";
 import * as paginator from "nestjs-typeorm-paginate";
 import { hexTransformer } from "./transformers/hex.transformer";
-import { BaseEntity } from "../common/entities/base.entity";
+import { BaseEntity } from "./entities/base.entity";
 import {
   buildDateFilter,
   paginate,
@@ -11,6 +11,7 @@ import {
   dateToTimestamp,
   numberToHex,
   parseIntToHex,
+  pad,
 } from "./utils";
 import { IPaginationOptions } from "./types";
 
@@ -413,6 +414,18 @@ describe("utils", () => {
 
     it("returns 0x if the specified number is not valid int", () => {
       expect(parseIntToHex("azxf")).toBe("0x");
+    });
+  });
+
+  describe("pad", () => {
+    it("pads hex to 60 bytes", () => {
+      expect(pad("0x01")).toEqual("0x0000000000000000000000000000000000000000000000000000000000000001");
+      expect(pad("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")).toEqual(
+        "0x000000000000000000000000f39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+      );
+      expect(pad("0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")).toEqual(
+        "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+      );
     });
   });
 });

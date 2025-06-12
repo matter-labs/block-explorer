@@ -1,18 +1,35 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import { Brackets, LessThanOrEqual, MoreThanOrEqual, Repository } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
+import { hexTransformer } from "../common/transformers/hex.transformer";
+import { OWNERSHIP_TRANSFERRED_TOPIC } from "../common/constants";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
   address?: string;
+  someTopicMatch?: string;
 }
 
 export interface FilterLogsByAddressOptions {
   address: string;
+  fromBlock?: number;
+  toBlock?: number;
+  page?: number;
+  offset?: number;
+}
+
+export interface FilterLogsByTopicsOptions {
+  address?: string;
+  topics: {
+    topic0?: string;
+    topic1?: string;
+    topic2?: string;
+    topic3?: string;
+  };
   fromBlock?: number;
   toBlock?: number;
   page?: number;
@@ -30,10 +47,22 @@ export class LogService {
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
+    const { someTopicMatch, ...baseFilters } = filterOptions;
     const queryBuilder = this.logRepository.createQueryBuilder("log");
-    queryBuilder.where(filterOptions);
+    queryBuilder.where(baseFilters);
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
+
+    if (someTopicMatch) {
+      queryBuilder.where(
+        new Brackets((qb) => {
+          qb.where(`log.topics[1] = :addr1`, { addr1: hexTransformer.to(someTopicMatch) });
+          qb.orWhere("log.topics[2] = :addr2", { addr2: hexTransformer.to(someTopicMatch) });
+          qb.orWhere("log.topics[3] = :addr3", { addr3: hexTransformer.to(someTopicMatch) });
+        })
+      );
+    }
+
     return await paginate<Log>(queryBuilder, paginationOptions);
   }
 
@@ -65,5 +94,74 @@ export class LogService {
     queryBuilder.orderBy("log.blockNumber", "ASC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
     return await queryBuilder.getMany();
+  }
+
+  public async findManyByTopics({
+    address,
+    topics,
+    fromBlock,
+    toBlock,
+    page = 1,
+    offset = 10,
+  }: FilterLogsByTopicsOptions): Promise<Log[]> {
+    const queryBuilder = this.logRepository.createQueryBuilder("log");
+    queryBuilder.leftJoin("log.transaction", "transaction");
+    queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
+    queryBuilder.addSelect(["transaction.gasPrice", "transactionReceipt.gasUsed"]);
+
+    if (address !== undefined) {
+      queryBuilder.andWhere({ address });
+    }
+    if (fromBlock !== undefined) {
+      queryBuilder.andWhere({
+        blockNumber: MoreThanOrEqual(fromBlock),
+      });
+    }
+    if (toBlock !== undefined) {
+      queryBuilder.andWhere({
+        blockNumber: LessThanOrEqual(toBlock),
+      });
+    }
+    if (topics.topic0 !== undefined) {
+      queryBuilder.andWhere("log.topics[1] = :topic0", { topic0: hexTransformer.to(topics.topic0) });
+    }
+    if (topics.topic1 !== undefined) {
+      queryBuilder.andWhere("log.topics[2] = :topic1", { topic1: hexTransformer.to(topics.topic1) });
+    }
+    if (topics.topic2 !== undefined) {
+      queryBuilder.andWhere("log.topics[3] = :topic2", { topic2: hexTransformer.to(topics.topic2) });
+    }
+    if (topics.topic3 !== undefined) {
+      queryBuilder.andWhere("log.topics[4] = :topic3", { topic3: hexTransformer.to(topics.topic3) });
+    }
+
+    queryBuilder.offset((page - 1) * offset);
+    queryBuilder.limit(offset);
+    queryBuilder.orderBy("log.timestamp", "DESC");
+    return await queryBuilder.getMany();
+  }
+
+  // Returns address padded to 32 bytes;
+  async findContractOwnerTopic(address: string): Promise<string | null> {
+    const [log] = await this.findManyByTopics({
+      address: address,
+      topics: {
+        topic0: OWNERSHIP_TRANSFERRED_TOPIC,
+      },
+      page: 1,
+      offset: 1,
+    });
+
+    if (!log) {
+      return null;
+    }
+
+    const topic = log.topics[2];
+
+    if (!topic) {
+      return null;
+    }
+
+    return topic;
   }
 }

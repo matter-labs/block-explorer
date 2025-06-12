@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
+import { Controller, Get, Inject, Param, Query, Req } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -20,19 +20,32 @@ import { LogService } from "../log/log.service";
 import { TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
 import { swagger } from "../config/featureFlags";
+import { Request } from "express";
+import { TransactionController } from "./transaction.controller";
 import { constants } from "../config/docs";
 
 const entityName = "transactions";
 
+export type TransactionControllerClass = new (
+  transactionService: TransactionService,
+  transferService: TransferService,
+  logService: LogService
+) => TransactionController;
+
 @ApiTags("Transaction BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-export class TransactionController {
+export class PrividiumTransactionController {
+  private implementation: TransactionController;
+
   constructor(
-    protected readonly transactionService: TransactionService,
-    protected readonly transferService: TransferService,
-    protected readonly logService: LogService
-  ) {}
+    private readonly transactionService: TransactionService,
+    transferService: TransferService,
+    logService: LogService,
+    @Inject("TRANSACTION_MODULE_BASE") Implementation: TransactionControllerClass
+  ) {
+    this.implementation = new Implementation(transactionService, transferService, logService);
+  }
 
   @Get("")
   @ApiListPageOkResponse(TransactionDto, { description: "Successfully returned transactions list" })
@@ -40,17 +53,25 @@ export class TransactionController {
   public async getTransactions(
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Req() req: Request
   ): Promise<Pagination<TransactionDto>> {
     const filterTransactionsListOptions = buildDateFilter(
       listFilterOptions.fromDate,
       listFilterOptions.toDate,
       "receivedAt"
     );
+
+    const extraFilter = {
+      address: req.session.siwe.address,
+      filterAddressInLogTopics: true,
+    };
+
     return await this.transactionService.findAll(
       {
         ...filterTransactionsOptions,
         ...filterTransactionsListOptions,
+        ...extraFilter,
       },
       {
         filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
@@ -74,11 +95,7 @@ export class TransactionController {
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
   ): Promise<TransactionDto> {
-    const transactionDetail = await this.transactionService.findOne(transactionHash);
-    if (!transactionDetail) {
-      throw new NotFoundException();
-    }
-    return transactionDetail;
+    return this.implementation.getTransaction(transactionHash);
   }
 
   @Get(":transactionHash/transfers")
@@ -98,18 +115,7 @@ export class TransactionController {
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<TransferDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
-      throw new NotFoundException();
-    }
-
-    const transfers = await this.transferService.findAll(
-      { transactionHash },
-      {
-        ...pagingOptions,
-        route: `${entityName}/${transactionHash}/transfers`,
-      }
-    );
-    return transfers;
+    return this.implementation.getTransactionTransfers(transactionHash, pagingOptions);
   }
 
   @Get(":transactionHash/logs")
@@ -129,16 +135,6 @@ export class TransactionController {
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
   ): Promise<Pagination<LogDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
-      throw new NotFoundException();
-    }
-
-    return await this.logService.findAll(
-      { transactionHash },
-      {
-        ...pagingOptions,
-        route: `${entityName}/${transactionHash}/logs`,
-      }
-    );
+    return this.implementation.getTransactionLogs(transactionHash, pagingOptions);
   }
 }

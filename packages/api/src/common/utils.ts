@@ -1,5 +1,5 @@
-import { MoreThanOrEqual, LessThanOrEqual, Between, SelectQueryBuilder } from "typeorm";
-import { IPaginationMeta, createPaginationObject, Pagination } from "nestjs-typeorm-paginate";
+import { Between, LessThanOrEqual, MoreThanOrEqual, SelectQueryBuilder } from "typeorm";
+import { createPaginationObject, IPaginationMeta, Pagination } from "nestjs-typeorm-paginate";
 
 import { NumerableEntity } from "../common/entities/numerable.entity";
 import { hexTransformer } from "./transformers/hex.transformer";
@@ -121,3 +121,7 @@ export const parseIntToHex = (numStr: string) => {
   }
   return "0x";
 };
+
+export function pad(addr: string): string {
+  return "0x" + addr.replace("0x", "").padStart(64, "0");
+}
