@@ -9,6 +9,7 @@ import { TokenOffChainDataProvider, ITokenOffChainData } from "../../tokenOffCha
 
 const API_INITIAL_RETRY_TIMEOUT = 5000;
 const API_RETRY_ATTEMPTS = 5;
+const MAX_TOKENS_PER_REQUEST = 250;
 
 interface ITokenListItemProviderResponse {
   id: string;
@@ -71,19 +72,33 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     }
 
     const tokenIds = supportedTokens.map((token) => token.id);
-    const tokensMarkedData = await this.makeApiRequest<ITokenMarketDataProviderResponse[]>("/coins/markets", {
-      vs_currency: "usd",
-      ids: tokenIds.join(","),
-      per_page: tokenIds.length.toString(),
-      page: "1",
-      locale: "en",
-    });
+    const allTokensMarketData: ITokenMarketDataProviderResponse[] = [];
 
-    if (!tokensMarkedData) {
+    // Process tokens in batches of MAX_TOKENS_PER_REQUEST (250)
+    for (let i = 0; i < tokenIds.length; i += MAX_TOKENS_PER_REQUEST) {
+      const tokenIdsBatch = tokenIds.slice(i, i + MAX_TOKENS_PER_REQUEST);
+
+      const tokensMarketDataBatch = await this.makeApiRequestRetryable<ITokenMarketDataProviderResponse[]>({
+        path: "/coins/markets",
+        query: {
+          vs_currency: "usd",
+          ids: tokenIdsBatch.join(","),
+          per_page: tokenIdsBatch.length.toString(),
+          page: "1",
+          locale: "en",
+        },
+      });
+
+      if (tokensMarketDataBatch) {
+        allTokensMarketData.push(...tokensMarketDataBatch);
+      }
+    }
+
+    if (!allTokensMarketData.length) {
       return [];
     }
 
-    return tokensMarkedData
+    return allTokensMarketData
       .map((tokenMarketData) => {
         const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
         if (!token) return null;
