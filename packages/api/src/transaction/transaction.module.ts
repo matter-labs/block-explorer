@@ -10,10 +10,11 @@ import { Batch } from "../batch/batch.entity";
 import { TransferModule } from "../transfer/transfer.module";
 import { CounterModule } from "../counter/counter.module";
 import { LogModule } from "../log/log.module";
+import { Log } from "../log/log.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Transaction, AddressTransaction, TransactionReceipt, Batch]),
+    TypeOrmModule.forFeature([Transaction, AddressTransaction, TransactionReceipt, Batch, Log]),
     TransferModule,
     LogModule,
     CounterModule,

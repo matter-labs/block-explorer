@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, Get, Param, Query, Res } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -25,6 +25,7 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { Response } from "express";
 
 const entityName = "address";
 
@@ -57,11 +58,14 @@ export class AddressController {
   })
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
-    @Param("address", new ParseAddressPipe()) address: string
+    @Param("address", new ParseAddressPipe()) address: string,
+    @Res({ passthrough: true }) res: Response
   ): Promise<AccountDto | ContractDto> {
+    const includeBalances = res.locals?.filterAddressOptions?.includeBalances ?? true;
+
     const [addressRecord, addressBalance] = await Promise.all([
       this.addressService.findOne(address),
-      this.balanceService.getBalances(address),
+      includeBalances ? this.balanceService.getBalances(address) : Promise.resolve({ blockNumber: 0, balances: {} }),
     ]);
 
     if (addressRecord?.bytecode.length > 2) {
@@ -119,10 +123,12 @@ export class AddressController {
   })
   public async getAddressLogs(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Res({ passthrough: true }) res: Response
   ): Promise<Pagination<LogDto>> {
+    const extraFilters = res.locals.filterAddressLogsOptions ?? {};
     return await this.logService.findAll(
-      { address },
+      { address, ...extraFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${address}/logs`,
@@ -146,8 +152,11 @@ export class AddressController {
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() filterAddressTransferOptions: FilterAddressTransfersOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Res({ passthrough: true }) res: Response
   ): Promise<Pagination<TransferDto>> {
+    const extraFilters = res.locals.filterAddressTransferOptions ?? {};
+
     const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
 
     return await this.transferService.findAll(
@@ -161,6 +170,7 @@ export class AddressController {
           : {
               isFeeOrRefund: false,
             }),
+        ...extraFilters,
       },
       {
         filterOptions: { ...filterAddressTransferOptions, ...listFilterOptions },

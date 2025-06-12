@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { AddressController } from "./address.controller";
 import { AddressService } from "./address.service";
@@ -10,9 +10,10 @@ import { TransactionService } from "../transaction/transaction.service";
 import { Log } from "../log/log.entity";
 import { Token } from "../token/token.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { AddressType } from "./dtos/baseAddress.dto";
+import { AddressType } from "./dtos";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer, TransferType } from "../transfer/transfer.entity";
+import { Response } from "express";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -31,6 +32,8 @@ describe("AddressController", () => {
   const normalizedAddress = "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF";
   const pagingOptions: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
 
+  let res: MockProxy<Response>;
+
   beforeEach(async () => {
     serviceMock = mock<AddressService>();
     blockServiceMock = mock<BlockService>();
@@ -38,6 +41,8 @@ describe("AddressController", () => {
     logServiceMock = mock<LogService>();
     balanceServiceMock = mock<BalanceService>();
     transferServiceMock = mock<TransferService>();
+
+    res = mock<Response>();
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AddressController],
@@ -83,13 +88,15 @@ describe("AddressController", () => {
     });
 
     it("queries addresses by specified address", async () => {
-      await controller.getAddress(blockchainAddress);
+      const res = mock<Response>();
+      await controller.getAddress(blockchainAddress, res);
       expect(serviceMock.findOne).toHaveBeenCalledTimes(1);
       expect(serviceMock.findOne).toHaveBeenCalledWith(blockchainAddress);
     });
 
     it("queries address balances", async () => {
-      await controller.getAddress(blockchainAddress);
+      const res = mock<Response>();
+      await controller.getAddress(blockchainAddress, res);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
     });
@@ -127,7 +134,7 @@ describe("AddressController", () => {
       });
 
       it("queries totalTransactions value from transaction receipt repo with formatted contractAddress", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, res);
         expect(transactionServiceMock.count).toHaveBeenCalledTimes(1);
         expect(transactionServiceMock.count).toHaveBeenCalledWith({
           "from|to": "0xffffffffffffffffffffffffffffffffffffffff",
@@ -135,7 +142,7 @@ describe("AddressController", () => {
       });
 
       it("returns the contract address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, res);
         expect(result).toStrictEqual({
           type: AddressType.Contract,
           ...addressRecord,
@@ -157,7 +164,7 @@ describe("AddressController", () => {
         });
 
         it("returns the contract address record with empty balances and block number from the address record", async () => {
-          const result = await controller.getAddress(blockchainAddress);
+          const result = await controller.getAddress(blockchainAddress, res);
           expect(result).toStrictEqual({
             type: AddressType.Contract,
             ...addressRecord,
@@ -195,7 +202,7 @@ describe("AddressController", () => {
       });
 
       it("queries account sealed and verified nonce", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, res);
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledTimes(2);
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({ accountAddress: blockchainAddress });
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({
@@ -205,13 +212,13 @@ describe("AddressController", () => {
       });
 
       it("queries account balances", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, res);
         expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
         expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
       });
 
       it("returns the account address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, res);
         expect(result).toStrictEqual({
           type: AddressType.Account,
           address: normalizedAddress,
@@ -235,7 +242,7 @@ describe("AddressController", () => {
       });
 
       it("returns the default account address response", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, res);
         expect(result).toStrictEqual({
           type: AddressType.Account,
           address: normalizedAddress,
@@ -245,6 +252,30 @@ describe("AddressController", () => {
           verifiedNonce: 0,
         });
       });
+    });
+
+    it("assumes to query balances when no locals", async () => {
+      res.locals = undefined;
+      await controller.getAddress(blockchainAddress, res);
+      expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
+    });
+
+    it("assumes to query balances when locals is an empty object", async () => {
+      res.locals = {};
+      await controller.getAddress(blockchainAddress, res);
+      expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
+    });
+
+    it("queries balances when includeBalances is true", async () => {
+      res.locals = { filterAddressOptions: { includeBalances: true } };
+      await controller.getAddress(blockchainAddress, res);
+      expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not query balances when includeBalances is false", async () => {
+      res.locals = { filterAddressOptions: { includeBalances: false } };
+      await controller.getAddress(blockchainAddress, res);
+      expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(0);
     });
   });
 
@@ -257,7 +288,7 @@ describe("AddressController", () => {
       });
 
       it("queries addresses with the specified options", async () => {
-        await controller.getAddressLogs(address, pagingOptions);
+        await controller.getAddressLogs(address, pagingOptions, res);
         expect(logServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(logServiceMock.findAll).toHaveBeenCalledWith(
           { address },
@@ -269,9 +300,28 @@ describe("AddressController", () => {
       });
 
       it("returns address logs", async () => {
-        const result = await controller.getAddressLogs(address, pagingOptions);
+        const result = await controller.getAddressLogs(address, pagingOptions, res);
         expect(result).toBe(transactionLogs);
       });
+    });
+
+    it("includes filters in res.locals", async () => {
+      const visibleByAddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      res.locals = { filterAddressLogsOptions: { visibleBy: visibleByAddr } };
+      await controller.getAddressLogs(address, pagingOptions, res);
+      expect(logServiceMock.findAll).toHaveBeenCalledWith(
+        expect.objectContaining({ visibleBy: visibleByAddr }),
+        expect.anything()
+      );
+    });
+
+    it("when res locals is empty assumes empty object", async () => {
+      res.locals = {};
+      await controller.getAddressLogs(address, pagingOptions, res);
+      expect(logServiceMock.findAll).toHaveBeenCalledWith(
+        expect.objectContaining({ address: address }),
+        expect.anything()
+      );
     });
   });
 
@@ -289,7 +339,7 @@ describe("AddressController", () => {
     });
 
     it("queries transfers with the specified options when no filters provided", async () => {
-      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
+      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, res);
       expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
       expect(transferServiceMock.findAll).toHaveBeenCalledWith(
         {
@@ -306,7 +356,13 @@ describe("AddressController", () => {
     });
 
     it("queries transfers with the specified options when filters are provided", async () => {
-      await controller.getAddressTransfers(address, { type: TransferType.Transfer }, listFilterOptions, pagingOptions);
+      await controller.getAddressTransfers(
+        address,
+        { type: TransferType.Transfer },
+        listFilterOptions,
+        pagingOptions,
+        res
+      );
       expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
       expect(transferServiceMock.findAll).toHaveBeenCalledWith(
         {
@@ -323,8 +379,32 @@ describe("AddressController", () => {
     });
 
     it("returns the transfers", async () => {
-      const result = await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
+      const result = await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, res);
       expect(result).toBe(transfers);
+    });
+
+    it("includes filters in res.locals", async () => {
+      res.locals = { filterAddressTransferOptions: { visibleBy: "someAddress" } };
+      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, res);
+      expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+        expect.objectContaining({
+          visibleBy: "someAddress",
+        }),
+        expect.anything()
+      );
+    });
+
+    it("assumes no filters when res.locals is empty", async () => {
+      res.locals = {};
+      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, res);
+      expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+        {
+          address,
+          timestamp: "timestamp",
+          isFeeOrRefund: false,
+        },
+        expect.anything()
+      );
     });
   });
 });
