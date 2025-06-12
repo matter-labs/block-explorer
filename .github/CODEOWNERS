@@ -1,0 +1,10 @@
+# This CODEOWNERS file sets the individuals responsible for code in the block-explorer repository.
+
+# These users are the default owners for everything in the repo.
+# They will be requested for review when someone opens a pull request.
+* @matter-labs/devxp
+
+
+/worker/ @romsters @vasyl-ivanchuk
+/api/ @romsters @vasyl-ivanchuk
+/data-fetcher/ @romsters @vasyl-ivanchuk 

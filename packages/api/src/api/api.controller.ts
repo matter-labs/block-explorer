@@ -46,6 +46,7 @@ import { LogsResponseDto, LogApiDto } from "./dtos/log/logs.dto";
 import { TokenInfoResponseDto, TokenInfoDto } from "./dtos/token/tokenInfo.dto";
 import { EthPriceResponseDto, EthPriceDto } from "./dtos/stats/ethPrice.dto";
 import { constants } from "../config/docs";
+import { AccountTokenHoldingsResponseDto } from "./dtos/account/accountTokenHoldingsResponse.dto";
 
 @Controller("")
 export class ApiController {
@@ -414,6 +415,24 @@ export class ApiController {
     type: AccountTokenBalanceResponseDto,
   })
   public async getAccountTokenBalance(): Promise<AccountTokenBalanceResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
+  @Get("api?module=account&action=addresstokenbalance")
+  @ApiOperation({ summary: "Retrieve the ERC-20 tokens and amount held by an address" })
+  @ApiQuery({
+    name: "address",
+    type: String,
+    description: "The address to get token balances for",
+    example: constants.address,
+    required: true,
+  })
+  @ApiOkResponse({
+    description: "Account Token balance",
+    type: AccountTokenHoldingsResponseDto,
+  })
+  public async getAccountTokenHoldings(): Promise<AccountTokenHoldingsResponseDto> {
     return null;
   }
 

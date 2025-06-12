@@ -10,8 +10,22 @@ import { AppMetricsModule } from "./appMetrics.module";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
+function prividiumConfigFound() {
+  return Object.keys(process.env).some(
+    // Check for any prividium config, not only for feature flag setting
+    (key) => key.toLowerCase().startsWith("prividium")
+  );
+}
+
 async function bootstrap() {
   const logger = getLogger(process.env.NODE_ENV, process.env.LOG_LEVEL);
+
+  if (prividiumConfigFound()) {
+    logger.error(
+      "Prividium env variable found. Prividium is not supported in this release of explorer. Please use the version that supports it."
+    );
+    process.exit(1);
+  }
 
   process.on("uncaughtException", function (error) {
     logger.error(error.message, error.stack, "UnhandledExceptions");
