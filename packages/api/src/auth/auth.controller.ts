@@ -109,7 +109,7 @@ export class AuthController {
     const siweMessage = new SiweMessage(req.session.siwe);
     if (siweMessage.chainId !== this.configService.get("prividium.chainId")) {
       this.clearSession(req);
-      throw new BadRequestException({ message: "Failed to verify signature" });
+      throw new BadRequestException({ message: "Failed to verify signature", reason: "Invalid chain ID" });
     }
 
     const { success, error } = await siweMessage.verify(
@@ -205,7 +205,7 @@ export class AuthController {
       // Left as 500 since now everyone is able to generate RPC tokens.
       // In the future, this must be changed to handle unauthorized responses, once the
       // Private RPC is adapted.
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException({ message: "Error parsing private RPC response" });
     }
 
     return result.data;
