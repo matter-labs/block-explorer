@@ -34,14 +34,14 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
   private readonly isProPlan: boolean;
   private readonly apiKey: string;
   private readonly apiUrl: string;
-  private readonly chainId: string;
+  private readonly platformId: string;
 
   constructor(configService: ConfigService, private readonly httpService: HttpService) {
     this.logger = new Logger(CoingeckoTokenOffChainDataProvider.name);
     this.isProPlan = configService.get<boolean>("tokens.coingecko.isProPlan");
     this.apiKey = configService.get<string>("tokens.coingecko.apiKey");
     this.apiUrl = this.isProPlan ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
-    this.chainId = configService.get<string>("COINGECKO_PLATFORM_ID", "zksync"); // Default to zksync for backward compatibility
+    this.platformId = configService.get<string>("COINGECKO_PLATFORM_ID", "zksync"); // Default to zksync for backward compatibility
   }
 
   public async getTokensOffChainData({
@@ -59,7 +59,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       (token) =>
         token.id === "ethereum" ||
         (token.platforms &&
-          (token.platforms[this.chainId] ||
+          (token.platforms[this.platformId] ||
             bridgedTokensToInclude.some(
               (bridgetTokenAddress) =>
                 bridgetTokenAddress.toLowerCase() === (token.platforms.ethereum || "").toLowerCase()
@@ -89,7 +89,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
         if (!token) return null;
         return {
           l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-          l2Address: token.platforms[this.chainId],
+          l2Address: token.platforms[this.platformId],
           liquidity: tokenMarketData.market_cap,
           usdPrice: tokenMarketData.current_price,
           iconURL: tokenMarketData.image,
@@ -112,7 +112,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       ...item,
       platforms: {
         // use substring(0, 42) to fix some instances when after address there is some additional text
-        [this.chainId]: item.platforms[this.chainId]?.substring(0, 42),
+        [this.platformId]: item.platforms[this.platformId]?.substring(0, 42),
         ethereum: item.platforms.ethereum?.substring(0, 42),
       },
     }));
