@@ -42,8 +42,8 @@ async function bootstrap() {
   if (prividium) {
     // Prividium config includes strict CORS configuration
     applyPrividiumExpressConfig(app, {
-      sessionSecret: configService.get<string>("prividium.privateRpcSecret"),
-      appUrl: configService.get<string>("appUrl"),
+      sessionSecret: configService.get<string>("prividium.sessionSecret"),
+      appUrl: configService.get<string>("prividium.appUrl"),
       sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
       sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
     });

@@ -62,7 +62,7 @@ export class AuthController {
     }
 
     const message = new SiweMessage({
-      domain: this.configService.get<string>("prividium.appHostname"),
+      domain: new URL(this.configService.get<string>("prividium.appUrl")).hostname,
       address,
       statement: "Sign in to the Block Explorer",
       uri: this.configService.get("appUrl"),
@@ -71,7 +71,7 @@ export class AuthController {
       nonce: generateNonce(),
       scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
       issuedAt: new Date().toISOString(),
-      expirationTime: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour
+      expirationTime: new Date(Date.now() + this.configService.get("prividium.siweExpirationTime")).toISOString(),
     });
     req.session = { siwe: message };
     return message.prepareMessage();
