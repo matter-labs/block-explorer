@@ -42,7 +42,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     this.isProPlan = configService.get<boolean>("tokens.coingecko.isProPlan");
     this.apiKey = configService.get<string>("tokens.coingecko.apiKey");
     this.apiUrl = this.isProPlan ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
-    this.platformId = configService.get<string>("COINGECKO_PLATFORM_ID", "zksync"); // Default to zksync for backward compatibility
+    this.platformId = configService.get<string>("tokens.coingecko.platformId");
   }
 
   public async getTokensOffChainData({
