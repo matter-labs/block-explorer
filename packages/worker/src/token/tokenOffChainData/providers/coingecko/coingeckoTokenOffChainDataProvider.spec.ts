@@ -48,7 +48,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
 
   beforeEach(async () => {
     configServiceMock = mock<ConfigService>({
-      get: jest.fn().mockReturnValueOnce(true).mockReturnValueOnce("apiKey"),
+      get: jest.fn().mockReturnValueOnce(true).mockReturnValueOnce("apiKey").mockReturnValueOnce("zksync"),
     });
     httpServiceMock = mock<HttpService>();
     const module = await Test.createTestingModule({
@@ -107,7 +107,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           {
             provide: ConfigService,
             useValue: mock<ConfigService>({
-              get: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce("apiKey"),
+              get: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce("apiKey").mockReturnValueOnce("zksync"),
             }),
           },
           {
