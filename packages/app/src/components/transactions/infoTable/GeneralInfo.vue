@@ -30,26 +30,30 @@
           />
         </TableBodyColumn>
       </tr>
-      <tr v-if="transaction?.error || transaction?.revertReason" class="transaction-table-row">
+      <tr v-if="transaction?.error" class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label transaction-reason-label">
-            {{ t("transactions.table.reason") }}
+          <span class="transaction-info-field-label">
+            {{ t("transactions.table.error") }}
           </span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.reasonTooltip") }}
+            {{ t("transactions.table.errorTooltip") }}
           </InfoTooltip>
         </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value transaction-reason-value">
-          <div v-if="transaction?.error && transaction?.revertReason">
-            <div class="error-message"><strong>Error:</strong> {{ transaction.error }}</div>
-            <div class="revert-reason-message"><strong>Revert Reason:</strong> {{ transaction.revertReason }}</div>
-          </div>
-          <div v-else-if="transaction?.error">
-            {{ transaction.error }}
-          </div>
-          <div v-else-if="transaction?.revertReason">
-            {{ transaction.revertReason }}
-          </div>
+        <TableBodyColumn class="transaction-table-value transaction-error-value">
+          {{ transaction.error }}
+        </TableBodyColumn>
+      </tr>
+      <tr v-if="transaction?.revertReason" class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">
+            {{ t("transactions.table.revertReason") }}
+          </span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.revertReasonTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value transaction-revert-reason-value">
+          {{ transaction.revertReason }}
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
@@ -362,13 +366,11 @@ const gasUsedPercent = computed(() => {
   .transaction-status-value {
     @apply py-2;
   }
-  .transaction-reason-value {
+  .transaction-error-value {
     @apply text-error-600 whitespace-normal break-all;
-
-    .error-message,
-    .revert-reason-message {
-      @apply mb-2 last:mb-0;
-    }
+  }
+  .transaction-revert-reason-value {
+    @apply text-error-600 whitespace-normal break-all;
   }
 }
 </style>
