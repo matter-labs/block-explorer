@@ -370,7 +370,7 @@ const gasUsedPercent = computed(() => {
     @apply text-error-600 whitespace-normal break-all;
   }
   .transaction-reason-value {
-    @apply text-gray-800 whitespace-normal break-all;
+    @apply text-error-600 whitespace-normal break-all;
   }
 }
 </style>

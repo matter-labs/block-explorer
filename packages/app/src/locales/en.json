@@ -98,6 +98,8 @@
         "table": {
             "status": "Status",
             "statusTooltip": "The status of the transaction",
+            "reason": "Revert Reason",
+            "reasonTooltip": "The revert reason of the transaction",
             "revertReason": "Revert Reason",
             "revertReasonTooltip": "The revert reason of the transaction",
             "error": "Error",
@@ -359,8 +361,8 @@
         "transactionTable": {
             "error": "Something went wrong",
             "notFound": {
-                "title": "This smart contract doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this smart-contract. It's your chance to be the first"
+                "title": "This smart contract doesn't have any transactions",
+                "subtitle": "We can't find any transaction related to this smart-contract. It's your chance to be the first"
             }
         },
         "balances": {
@@ -369,8 +371,8 @@
                 "subtitle": "Something went wrong.\nPlease return to this page in a minute."
             },
             "notFound": {
-                "title": "This smart contract doesn’t have any balances",
-                "subtitle": "We can’t find any balances related to this smart-contract."
+                "title": "This smart contract doesn't have any balances",
+                "subtitle": "We can't find any balances related to this smart-contract."
             }
         },
         "table": {
@@ -564,7 +566,7 @@
             "buttonVerify": "Verify Smart Contract",
             "buttonVerifying": "Verifying...",
             "buttonClear": "Clear",
-            "unknownError": "Unsuccessful contract verification! We can’t verify your contract based on your information, please check it",
+            "unknownError": "Unsuccessful contract verification! We can't verify your contract based on your information, please check it",
             "flattenerInfo": {
                 "title": "If your contract uses \"imports\", you will need to concatenate the code into one file ( otherwise known as \"flattening\" ). For that purpose you can use {flattener} or {flattery}",
                 "solidityFlattener": "solidity-flattener",
@@ -578,7 +580,7 @@
         },
         "verified": {
             "title": "Contract verified!",
-            "underline": "Anyone on {link} could check it’s code and interact with it",
+            "underline": "Anyone on {link} could check it's code and interact with it",
             "blockExplorer": "block explorer",
             "back": "Back to Contract"
         },
@@ -720,8 +722,8 @@
         "transactionTable": {
             "title": "Latest Transactions",
             "notFound": {
-                "title": "This account doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this account. It's your chance to be the first"
+                "title": "This account doesn't have any transactions",
+                "subtitle": "We can't find any transaction related to this account. It's your chance to be the first"
             },
             "error": "Something went wrong"
         },
@@ -732,8 +734,8 @@
                 "subtitle": "Something went wrong.\nPlease return to this page in a minute."
             },
             "notFound": {
-                "title": "This account doesn’t have any balances",
-                "subtitle": "We can’t find any balances related to this account."
+                "title": "This account doesn't have any balances",
+                "subtitle": "We can't find any balances related to this account."
             }
         }
     },
@@ -753,8 +755,8 @@
         "home": "Transactions, Blocks, Contracts and much more"
     },
     "notFound": {
-        "title": "Oops, we can’t find anything",
-        "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
+        "title": "Oops, we can't find anything",
+        "description": "Sorry we can't find anything on your search result, please try one more time via seach bar below",
         "contactSupportTitle": "If you think this is a problem with us, please",
         "contactSupport": "contact support"
     },
