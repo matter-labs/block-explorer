@@ -31,6 +31,7 @@ export default () => {
     TO_BLOCK,
     COINGECKO_IS_PRO_PLAN,
     COINGECKO_API_KEY,
+    COINGECKO_PLATFORM_ID,
     DISABLE_MISSING_BLOCKS_METRIC,
     CHECK_MISSING_BLOCKS_METRIC_INTERVAL,
     RPC_HEALTH_CHECK_TIMEOUT_MS,
@@ -94,6 +95,7 @@ export default () => {
       coingecko: {
         isProPlan: COINGECKO_IS_PRO_PLAN === "true",
         apiKey: COINGECKO_API_KEY,
+        platformId: COINGECKO_PLATFORM_ID || "zksync",
       },
       baseToken: {
         symbol: BASE_TOKEN_SYMBOL || "ETH",
