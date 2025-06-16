@@ -2,17 +2,17 @@
   "networks": [
     {
       "apiUrl": "http://localhost:3020",
-      "bridgeUrl": "https://portal.sophon.xyz/bridge/",
+      "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [
-        "Sophon"
+        "localhost"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
-      "l2ChainId": 50104,
-      "l2NetworkName": "Sophon",
+      "l2ChainId": 270,
+      "l2NetworkName": "Local",
       "maintenance": false,
-      "name": "Sophon",
+      "name": "local",
       "published": true,
-      "rpcUrl": "https://rpc.sophon.xyz/",
+      "rpcUrl": "http://localhost:3050",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     }
   ]
