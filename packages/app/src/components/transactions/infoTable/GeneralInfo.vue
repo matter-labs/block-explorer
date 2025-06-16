@@ -32,7 +32,7 @@
       </tr>
       <tr v-if="transaction?.error" class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">
+          <span class="transaction-info-field-label transaction-error-label">
             {{ t("transactions.table.error") }}
           </span>
           <InfoTooltip class="transaction-info-field-tooltip">
@@ -45,11 +45,11 @@
       </tr>
       <tr v-if="transaction?.revertReason" class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">
-            {{ t("transactions.table.revertReason") }}
+          <span class="transaction-info-field-label transaction-reason-label">
+            {{ t("transactions.table.reason") }}
           </span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.revertReasonTooltip") }}
+            {{ t("transactions.table.reasonTooltip") }}
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value transaction-reason-value">
@@ -370,7 +370,7 @@ const gasUsedPercent = computed(() => {
     @apply text-error-600 whitespace-normal break-all;
   }
   .transaction-reason-value {
-    @apply text-error-600 whitespace-normal break-all;
+    @apply text-gray-800 whitespace-normal break-all;
   }
 }
 </style>
