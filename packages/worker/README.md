@@ -67,7 +67,7 @@ The worker service can fetch and update token metadata (prices, icons, market ca
 ### Environment variables for token offchain data:
 - `ENABLE_TOKEN_OFFCHAIN_DATA_SAVER` - set to `true` to enable the offchain data saver service (default: `false`)
 - `UPDATE_TOKEN_OFFCHAIN_DATA_INTERVAL` - interval in milliseconds between offchain data updates (default: `86400000` - 24 hours)
-- `SELECTED_TOKEN_OFFCHAIN_DATA_PROVIDER` - provider to use for fetching token data. Available options: `coingecko`, `portalsFi` (default: `coingecko`)
+- `SELECTED_TOKEN_OFFCHAIN_DATA_PROVIDER` - provider to use for fetching token data. Available options: `coingecko` (default: `coingecko`)
 
 ### CoinGecko provider configuration:
 - `COINGECKO_IS_PRO_PLAN` - set to `true` if using CoinGecko Pro API (default: `false`)
