@@ -30,6 +30,9 @@ export class Batch extends BaseEntity {
   @Column({ type: "varchar", length: 128 })
   public readonly l2FairGasPrice: number;
 
+  @Column({ type: "int", nullable: true })
+  public readonly commitChainId?: number;
+
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly commitTxHash?: string;
 
@@ -37,12 +40,18 @@ export class Batch extends BaseEntity {
   @Column({ type: "timestamp", nullable: true })
   public readonly committedAt?: Date;
 
+  @Column({ type: "int", nullable: true })
+  public readonly proveChainId?: number;
+
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly proveTxHash?: string;
 
   @Index()
   @Column({ type: "timestamp", nullable: true })
   public readonly provenAt?: Date;
+
+  @Column({ type: "int", nullable: true })
+  public readonly executeChainId?: number;
 
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly executeTxHash?: string;
