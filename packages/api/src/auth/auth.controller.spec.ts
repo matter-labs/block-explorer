@@ -41,7 +41,7 @@ describe("AuthController", () => {
     req = mock<Request>();
   });
 
-  describe("#getMessage", () => {
+  describe("getMessage", () => {
     it("returns a message to sign", async () => {
       const message = controller.getMessage(req, { address });
       const siweMessage = new SiweMessage(message);
