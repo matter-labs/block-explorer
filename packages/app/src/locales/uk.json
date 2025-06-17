@@ -77,8 +77,6 @@
             "reasonTooltip": "Причина відкату транзакції",
             "error": "Помилка",
             "errorTooltip": "Повідомлення про помилку транзакції",
-            "revertReason": "Причина відкату",
-            "revertReasonTooltip": "Причина відкату невдалої транзакції",
             "transactionHash": "Хеш Транзакції",
             "nonce": "Нонс",
             "receivedAt": "Отримано",

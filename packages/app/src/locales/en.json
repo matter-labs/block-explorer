@@ -100,8 +100,6 @@
             "statusTooltip": "The status of the transaction",
             "reason": "Revert Reason",
             "reasonTooltip": "The revert reason of the transaction",
-            "revertReason": "Revert Reason",
-            "revertReasonTooltip": "The revert reason of the transaction",
             "error": "Error",
             "errorTooltip": "The error message of the transaction",
             "txnHash": "Txn hash",

@@ -52,7 +52,7 @@
             {{ t("transactions.table.reasonTooltip") }}
           </InfoTooltip>
         </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value transaction-reason-value">
+        <TableBodyColumn class="transaction-table-value transaction-error-value">
           {{ transaction.revertReason }}
         </TableBodyColumn>
       </tr>
@@ -367,9 +367,6 @@ const gasUsedPercent = computed(() => {
     @apply py-2;
   }
   .transaction-error-value {
-    @apply text-error-600 whitespace-normal break-all;
-  }
-  .transaction-reason-value {
     @apply text-error-600 whitespace-normal break-all;
   }
 }
