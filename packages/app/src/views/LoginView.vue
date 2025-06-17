@@ -33,6 +33,8 @@ import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
 import usePrividiumRpc from "@/composables/usePrividiumRpc";
 
+import { isHttpError } from "@/types";
+
 const context = useContext();
 const { login, isLoginPending, initializeLogin } = useLogin(context);
 const { initializePrividiumRpcUrl } = usePrividiumRpc();
@@ -42,8 +44,12 @@ const route = useRoute();
 const handleLogin = async () => {
   try {
     await login();
-  } catch (error) {
-    console.error("Login failed:", error);
+  } catch (error: unknown) {
+    if (isHttpError(error) && error.response?.status === 403) {
+      router.push({ name: "not-authorized" });
+    } else {
+      console.error("Login failed:", error);
+    }
   }
 
   try {

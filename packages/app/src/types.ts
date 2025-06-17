@@ -69,3 +69,14 @@ export enum TimeFormat {
   FULL = "full",
   TIME_AGO_AND_FULL = "time_ago_and_full",
 }
+
+export type HttpError = {
+  response?: {
+    status?: number;
+  };
+  message?: string;
+};
+
+export const isHttpError = (error: unknown): error is HttpError => {
+  return typeof error === "object" && error !== null;
+};

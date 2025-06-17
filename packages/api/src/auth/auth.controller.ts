@@ -9,6 +9,7 @@ import {
   UnprocessableEntityException,
   BadRequestException,
   InternalServerErrorException,
+  ForbiddenException,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -135,6 +136,12 @@ export class AuthController {
       }
     }
 
+    const isWhitelisted = await this.checkWhitelist(siweMessage.address);
+    if (!isWhitelisted) {
+      this.clearSession(req);
+      throw new ForbiddenException("Your wallet is not whitelisted for access.");
+    }
+
     req.session.verified = true;
     return true;
   }
@@ -192,6 +199,27 @@ export class AuthController {
   })
   public async me(@Req() req: Request) {
     return { address: req.session.siwe.address };
+  }
+
+  private async checkWhitelist(address: string): Promise<boolean> {
+    const url = new URL(`/users/${address}`, this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL"));
+    const response = await fetch(url, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      // If the user is not found, the RPC returns a 404, which means they are not whitelisted.
+      // For other errors, we'll deny access by default.
+      return false;
+    }
+
+    const data = await response.json();
+    const schema = z.object({
+      authorized: z.boolean(),
+    });
+    const validation = schema.safeParse(data);
+    return validation.success && validation.data.authorized;
   }
 
   private validatePrivateRpcResponse(response: unknown) {
