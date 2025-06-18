@@ -21,13 +21,13 @@
             <li>
               <a
                 :href="
-                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                  settlementChainExplorerUrl ? `${settlementChainExplorerUrl}/tx/${finishedStatus.url}` : undefined
                 "
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="settlementChainExplorerUrl" class="badge-status-link-icon" />
               </a>
             </li>
           </ol>
@@ -38,12 +38,12 @@
         <template #default v-if="item.text">
           <a
             v-if="item.url"
-            :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
+            :href="settlementChainExplorerUrl ? `${settlementChainExplorerUrl}/tx/${item.url}` : undefined"
             class="badge-status-link"
             target="_blank"
           >
             <span class="badge-status-link-text"><CheckIcon />{{ item.text }}</span>
-            <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+            <ExternalLinkIcon v-if="settlementChainExplorerUrl" class="badge-status-link-icon" />
           </a>
           <span v-else>{{ item.text }}</span>
         </template>
@@ -106,24 +106,24 @@
             >
               <a
                 :href="
-                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                  settlementChainExplorerUrl ? `${settlementChainExplorerUrl}/tx/${finishedStatus.url}` : undefined
                 "
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="settlementChainExplorerUrl" class="badge-status-link-icon" />
               </a>
             </div>
 
             <div v-if="item.url" class="badge-status-popup-button status-active">
               <a
-                :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
+                :href="settlementChainExplorerUrl ? `${settlementChainExplorerUrl}/tx/${item.url}` : undefined"
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text status-next"><CheckIcon />{{ item.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="settlementChainExplorerUrl" class="badge-status-link-icon" />
               </a>
             </div>
             <div v-else class="badge-status-popup-button status-current">
@@ -179,6 +179,10 @@ const props = defineProps({
     type: [String, null] as PropType<string | null>,
     required: true,
   },
+});
+
+const settlementChainExplorerUrl = computed(() => {
+  return currentNetwork.value.settlementChainExplorerUrl || currentNetwork.value.l1ExplorerUrl;
 });
 
 const statusPopupOpened = ref(false);

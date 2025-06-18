@@ -80,6 +80,8 @@ const tableInfoItems = computed(() => {
       component: props.batch.rootHash ? CopyContent : undefined,
     }
   );
+  const settlementChainExplorerUrl =
+    currentNetwork.value.settlementChainExplorerUrl || currentNetwork.value.l1ExplorerUrl;
   for (const [key, timeKey] of [
     ["commitTxHash", "committedAt", "notYetCommitted"],
     ["proveTxHash", "provenAt", "notYetProven"],
@@ -92,9 +94,7 @@ const tableInfoItems = computed(() => {
           tooltip: t(`batches.${key}Tooltip`),
           value: { value: props.batch[key] },
           component: CopyContent,
-          url: currentNetwork.value.l1ExplorerUrl
-            ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.batch[key]}`
-            : undefined,
+          url: settlementChainExplorerUrl ? `${settlementChainExplorerUrl}/tx/${props.batch[key]}` : undefined,
         },
         {
           label: t(`batches.${timeKey}`),

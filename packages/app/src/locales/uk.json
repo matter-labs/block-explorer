@@ -1,6 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "ZKsync Era",
+        "l2NetworkName": "ZKsync",
         "l1NetworkName": "Ethereum"
     },
     "copyButton": {
@@ -179,7 +179,7 @@
         "subtitle": "zkRollups значно дешевше, ніж L1 або Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "ZKsync Era Провідник",
+        "title": "ZKsync Провідник",
         "subtitle": "Переглядайте в режимі реального часу інформацію про блоки, транзакції, контракти та іншу активність у мережі.",
         "latestBlocks": "Останні Блоки",
         "latestTransactions": "Останні транзакції"
@@ -358,11 +358,11 @@
             "tokenAddress": "Адреса Токена",
             "bridged": {
                 "title": "Бридж",
-                "tooltip": "Цей токен перенесений з L1 до ZKsync Era"
+                "tooltip": "Цей токен перенесений з L1 до ZKsync"
             },
             "native": {
                 "title": "L2-нативний",
-                "tooltip": "Цей токен є нативним для ZKsync Era"
+                "tooltip": "Цей токен є нативним для ZKsync"
             },
             "tokenAddressL2": "L2 Адреса Токена",
             "tokenAddressL1": "L1 Адреса Токена"
@@ -460,7 +460,7 @@
         }
     },
     "document": {
-        "title": "ZKsync Era Провідник",
+        "title": "ZKsync Провідник",
         "home": "Транзакції, Блоки, Контракти та інше"
     },
     "notFound": {

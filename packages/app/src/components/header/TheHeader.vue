@@ -5,7 +5,7 @@
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
             <span class="sr-only">ZKsync</span>
-            <zk-sync-era />
+            <zk-sync-arrows-logo />
           </router-link>
         </div>
         <div class="burger-button-container">
@@ -145,6 +145,7 @@ import DiscordIcon from "@/components/icons/DiscordIcon.vue";
 import HeroArrows from "@/components/icons/HeroArrows.vue";
 import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 import ZkSync from "@/components/icons/ZkSync.vue";
+import ZkSyncArrowsLogo from "@/components/icons/ZkSyncArrowsLogo.vue";
 import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
 
 import useContext from "@/composables/useContext";
