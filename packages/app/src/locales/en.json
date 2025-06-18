@@ -98,8 +98,10 @@
         "table": {
             "status": "Status",
             "statusTooltip": "The status of the transaction",
-            "reason": "Reason",
-            "reasonTooltip": "The failure reason of the transaction",
+            "reason": "Revert Reason",
+            "reasonTooltip": "The revert reason of the transaction",
+            "error": "Error",
+            "errorTooltip": "The error message of the transaction",
             "txnHash": "Txn hash",
             "transactionHash": "Transaction Hash",
             "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
@@ -358,7 +360,7 @@
             "error": "Something went wrong",
             "notFound": {
                 "title": "This smart contract doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
+                "subtitle": "We can’t find any transaction related to this smart-contract. It's your chance to be the first"
             }
         },
         "balances": {
@@ -752,7 +754,7 @@
     },
     "notFound": {
         "title": "Oops, we can’t find anything",
-        "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
+        "description": "Sorry we can’t find anything on your search result, please try one more time via search bar below",
         "contactSupportTitle": "If you think this is a problem with us, please",
         "contactSupport": "contact support"
     },

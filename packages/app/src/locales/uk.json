@@ -73,8 +73,10 @@
         "table": {
             "status": "Статус",
             "statusTooltip": "Статус транзакції",
-            "reason": "Причина",
-            "reasonTooltip": "Причина невиконання транзакції",
+            "reason": "Причина відкату",
+            "reasonTooltip": "Причина відкату транзакції",
+            "error": "Помилка",
+            "errorTooltip": "Повідомлення про помилку транзакції",
             "transactionHash": "Хеш Транзакції",
             "nonce": "Нонс",
             "receivedAt": "Отримано",
