@@ -15,7 +15,7 @@ const currentNetworkMock = vi.fn(() => "testnet");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
-      currentNetwork: computed(() => ({ name: currentNetworkMock() })),
+      currentNetwork: computed(() => ({ name: currentNetworkMock(), l2NetworkName: "Network" })),
     }),
   };
 });
@@ -161,7 +161,7 @@ describe("NetworkStats:", () => {
       global,
     });
 
-    expect(wrapper.find(".subtitle").text()).toBe("ZKsync Era Mainnet is open to everyone.");
+    expect(wrapper.find(".subtitle").text()).toBe("Network is open to everyone.");
     mockNetwork.mockRestore();
   });
 });

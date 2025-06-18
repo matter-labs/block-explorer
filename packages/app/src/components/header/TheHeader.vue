@@ -5,7 +5,8 @@
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
             <span class="sr-only">ZKsync</span>
-            <zk-sync-arrows-logo />
+            <zk-sync-era v-if="currentNetwork.groupId === 'era'" />
+            <zk-sync-arrows-logo v-else />
           </router-link>
         </div>
         <div class="burger-button-container">
