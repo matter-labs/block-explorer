@@ -31,6 +31,10 @@ import { getAddress } from "ethers";
 
 const entityName = "auth";
 
+const privateRpcUserResponseSchema = z.object({
+  authorized: z.boolean(),
+});
+
 @ApiTags("Auth BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
@@ -209,17 +213,24 @@ export class AuthController {
     });
 
     if (!response.ok) {
-      // If the user is not found, the RPC returns a 404, which means they are not whitelisted.
-      // For other errors, we'll deny access by default.
-      return false;
+      if (response.status === 404) {
+        // If the user is not found, the RPC returns a 404, which means they are not whitelisted.
+        return false;
+      }
+      // For other errors, we'll throw a 500
+      throw new InternalServerErrorException(
+        `Whitelist check failed with status: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = await response.json();
-    const schema = z.object({
-      authorized: z.boolean(),
-    });
-    const validation = schema.safeParse(data);
-    return validation.success && validation.data.authorized;
+    const validation = privateRpcUserResponseSchema.safeParse(data);
+
+    if (!validation.success) {
+      throw new InternalServerErrorException("Invalid response from private RPC for whitelist check");
+    }
+
+    return validation.data.authorized;
   }
 
   private validatePrivateRpcResponse(response: unknown) {

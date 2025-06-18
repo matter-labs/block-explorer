@@ -29,11 +29,11 @@
 import { onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
+import { FetchError } from "ohmyfetch";
+
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
 import usePrividiumRpc from "@/composables/usePrividiumRpc";
-
-import { isHttpError } from "@/types";
 
 const context = useContext();
 const { login, isLoginPending, initializeLogin } = useLogin(context);
@@ -45,7 +45,7 @@ const handleLogin = async () => {
   try {
     await login();
   } catch (error: unknown) {
-    if (isHttpError(error) && error.response?.status === 403) {
+    if (error instanceof FetchError && error.response?.status === 403) {
       router.push({ name: "not-authorized" });
     } else {
       console.error("Login failed:", error);

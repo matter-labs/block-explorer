@@ -33,6 +33,8 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
+import { FetchError } from "ohmyfetch";
+
 import HashLabel from "@/components/common/HashLabel.vue";
 import WalletInfoModal from "@/components/prividium/WalletInfoModal.vue";
 
@@ -42,7 +44,6 @@ import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
 import useLogin from "@/composables/useLogin";
 import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
 
-import { isHttpError } from "@/types";
 import { formatShortAddress } from "@/utils/formatters";
 
 const { t } = useI18n();
@@ -132,7 +133,7 @@ const handleLogin = async () => {
       await walletConnect();
     }
   } catch (err: unknown) {
-    if (isHttpError(err) && err.response?.status === 403) {
+    if (err instanceof FetchError && err.response?.status === 403) {
       router.push({ name: "not-authorized" });
     } else {
       console.error(err);
