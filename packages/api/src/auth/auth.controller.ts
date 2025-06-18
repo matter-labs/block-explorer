@@ -202,7 +202,7 @@ export class AuthController {
   }
 
   private async checkWhitelist(address: string): Promise<boolean> {
-    const url = new URL(`/users/${address}`, this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL"));
+    const url = new URL(`/users/${address}`, this.configService.get("prividium.privateRpcUrl"));
     const response = await fetch(url, {
       method: "GET",
       headers: { "Content-Type": "application/json" },
