@@ -98,159 +98,161 @@ vi.mock("ohmyfetch", async () => {
     revertReason: null,
     contractAddress: null,
   };
+  const fetchSpy = vi.fn((url: string) => {
+    if (url.endsWith(`/transactions/${hash}`) || url.endsWith(`/transactions/${hashPaidByPaymaster}`)) {
+      return Promise.resolve(transactionDetails);
+    }
+    if (url.endsWith(`transactions/${hash}/transfers?limit=100&page=1`)) {
+      return Promise.resolve({
+        items: [
+          {
+            from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x0000000000000000000000000000000000008001",
+            blockNumber: 1162235,
+            transactionHash: hash,
+            amount: "1561368069251910",
+            tokenAddress: ETH_TOKEN_MOCK.l2Address,
+            type: "fee",
+            fields: null,
+            token: ETH_TOKEN_MOCK,
+          },
+          {
+            from: "0x0000000000000000000000000000000000008001",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            blockNumber: 1162235,
+            transactionHash: hash,
+            amount: "116665569251910",
+            tokenAddress: ETH_TOKEN_MOCK.l2Address,
+            type: "refund",
+            fields: null,
+            token: ETH_TOKEN_MOCK,
+          },
+          {
+            from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            blockNumber: 1162235,
+            transactionHash: hash,
+            amount: "1",
+            tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47D",
+            type: "transfer",
+            fields: null,
+            token: null,
+          },
+          {
+            from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            blockNumber: 1162235,
+            transactionHash: hash,
+            amount: "12",
+            tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
+            type: "transfer",
+            fields: null,
+            token: {
+              l2Address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
+              l1Address: null,
+              symbol: "YourTokenSymbol",
+              name: "Your Token Name",
+              decimals: 18,
+            },
+          },
+          {
+            from: "0x0000000000000000000000000000000000008001",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            blockNumber: 1162235,
+            transactionHash: hash,
+            amount: "867466250000000",
+            tokenAddress: ETH_TOKEN_MOCK.l2Address,
+            type: "refund",
+            fields: null,
+            token: ETH_TOKEN_MOCK,
+          },
+        ],
+        meta: {
+          totalItems: 4,
+          itemCount: 4,
+          itemsPerPage: 100,
+          totalPages: 1,
+          currentPage: 1,
+        },
+        links: {
+          first: `transactions/${hash}/transfers?limit=100`,
+          previous: "",
+          next: "",
+          last: `transactions/${hash}/transfers?page=1&limit=100`,
+        },
+      });
+    }
+    if (url.endsWith(`transactions/${hashPaidByPaymaster}/transfers?limit=100&page=1`)) {
+      return Promise.resolve({
+        items: [
+          {
+            from: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x0000000000000000000000000000000000008001",
+            blockNumber: 1162235,
+            transactionHash: hashPaidByPaymaster,
+            amount: "1561368069251910",
+            tokenAddress: ETH_TOKEN_MOCK.l2Address,
+            type: "fee",
+            fields: null,
+            token: ETH_TOKEN_MOCK,
+          },
+          {
+            from: "0x0000000000000000000000000000000000008001",
+            to: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
+            blockNumber: 1162235,
+            transactionHash: hashPaidByPaymaster,
+            amount: "116665569251910",
+            tokenAddress: ETH_TOKEN_MOCK.l2Address,
+            type: "refund",
+            fields: null,
+            token: ETH_TOKEN_MOCK,
+          },
+        ],
+        meta: {
+          totalItems: 2,
+          itemCount: 2,
+          itemsPerPage: 100,
+          totalPages: 1,
+          currentPage: 1,
+        },
+        links: {
+          first: `transactions/${hashPaidByPaymaster}/transfers?limit=100`,
+          previous: "",
+          next: "",
+          last: `transactions/${hashPaidByPaymaster}/transfers?page=1&limit=100`,
+        },
+      });
+    }
+    if (url.includes("/logs?limit=100&page=1")) {
+      return Promise.resolve({
+        items: logs,
+        meta: {
+          totalItems: 4,
+          itemCount: 4,
+          itemsPerPage: 100,
+          totalPages: 1,
+          currentPage: 1,
+        },
+        links: {
+          first: `transactions/${hash}/logs?limit=100`,
+          previous: "",
+          next: "",
+          last: `transactions/${hash}/logs?page=1&limit=100`,
+        },
+      });
+    }
+
+    if (url.includes("/0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf")) {
+      const error = new mod.FetchError("Not found");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (error as any).response = { status: 404 };
+      return Promise.reject(error);
+    }
+  });
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
     ...mod,
-    $fetch: vi.fn((url: string) => {
-      if (url.endsWith(`/transactions/${hash}`) || url.endsWith(`/transactions/${hashPaidByPaymaster}`)) {
-        return Promise.resolve(transactionDetails);
-      }
-      if (url.endsWith(`transactions/${hash}/transfers?limit=100&page=1`)) {
-        return Promise.resolve({
-          items: [
-            {
-              from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-              to: "0x0000000000000000000000000000000000008001",
-              blockNumber: 1162235,
-              transactionHash: hash,
-              amount: "1561368069251910",
-              tokenAddress: ETH_TOKEN_MOCK.l2Address,
-              type: "fee",
-              fields: null,
-              token: ETH_TOKEN_MOCK,
-            },
-            {
-              from: "0x0000000000000000000000000000000000008001",
-              to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-              blockNumber: 1162235,
-              transactionHash: hash,
-              amount: "116665569251910",
-              tokenAddress: ETH_TOKEN_MOCK.l2Address,
-              type: "refund",
-              fields: null,
-              token: ETH_TOKEN_MOCK,
-            },
-            {
-              from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-              to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-              blockNumber: 1162235,
-              transactionHash: hash,
-              amount: "1",
-              tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47D",
-              type: "transfer",
-              fields: null,
-              token: null,
-            },
-            {
-              from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-              to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-              blockNumber: 1162235,
-              transactionHash: hash,
-              amount: "12",
-              tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-              type: "transfer",
-              fields: null,
-              token: {
-                l2Address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-                l1Address: null,
-                symbol: "YourTokenSymbol",
-                name: "Your Token Name",
-                decimals: 18,
-              },
-            },
-            {
-              from: "0x0000000000000000000000000000000000008001",
-              to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
-              blockNumber: 1162235,
-              transactionHash: hash,
-              amount: "867466250000000",
-              tokenAddress: ETH_TOKEN_MOCK.l2Address,
-              type: "refund",
-              fields: null,
-              token: ETH_TOKEN_MOCK,
-            },
-          ],
-          meta: {
-            totalItems: 4,
-            itemCount: 4,
-            itemsPerPage: 100,
-            totalPages: 1,
-            currentPage: 1,
-          },
-          links: {
-            first: `transactions/${hash}/transfers?limit=100`,
-            previous: "",
-            next: "",
-            last: `transactions/${hash}/transfers?page=1&limit=100`,
-          },
-        });
-      }
-      if (url.endsWith(`transactions/${hashPaidByPaymaster}/transfers?limit=100&page=1`)) {
-        return Promise.resolve({
-          items: [
-            {
-              from: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
-              to: "0x0000000000000000000000000000000000008001",
-              blockNumber: 1162235,
-              transactionHash: hashPaidByPaymaster,
-              amount: "1561368069251910",
-              tokenAddress: ETH_TOKEN_MOCK.l2Address,
-              type: "fee",
-              fields: null,
-              token: ETH_TOKEN_MOCK,
-            },
-            {
-              from: "0x0000000000000000000000000000000000008001",
-              to: "0x18d211E22dB19741FF25838A22e4e696FeE7eD36",
-              blockNumber: 1162235,
-              transactionHash: hashPaidByPaymaster,
-              amount: "116665569251910",
-              tokenAddress: ETH_TOKEN_MOCK.l2Address,
-              type: "refund",
-              fields: null,
-              token: ETH_TOKEN_MOCK,
-            },
-          ],
-          meta: {
-            totalItems: 2,
-            itemCount: 2,
-            itemsPerPage: 100,
-            totalPages: 1,
-            currentPage: 1,
-          },
-          links: {
-            first: `transactions/${hashPaidByPaymaster}/transfers?limit=100`,
-            previous: "",
-            next: "",
-            last: `transactions/${hashPaidByPaymaster}/transfers?page=1&limit=100`,
-          },
-        });
-      }
-      if (url.includes("/logs?limit=100&page=1")) {
-        return Promise.resolve({
-          items: logs,
-          meta: {
-            totalItems: 4,
-            itemCount: 4,
-            itemsPerPage: 100,
-            totalPages: 1,
-            currentPage: 1,
-          },
-          links: {
-            first: `transactions/${hash}/logs?limit=100`,
-            previous: "",
-            next: "",
-            last: `transactions/${hash}/logs?page=1&limit=100`,
-          },
-        });
-      }
-
-      if (url.includes("/0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf")) {
-        const error = new mod.FetchError("Not found");
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (error as any).response = { status: 404 };
-        return Promise.reject(error);
-      }
-    }),
+    $fetch: fetchSpy,
   };
 });
 

@@ -1,7 +1,9 @@
 import { ref } from "vue";
 
 import { useMemoize } from "@vueuse/core";
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext, { type Context } from "@/composables/useContext";
 
@@ -15,7 +17,7 @@ const retrieveAddressInfo = useMemoize(
     if (!context.currentNetwork.value.verificationApiUrl) {
       return null;
     }
-    return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
+    return await FetchInstance.verificationApi(context)(`/contract_verification/info/${address}`);
   },
   {
     getKey(address: Address, context: Context = useContext()) {

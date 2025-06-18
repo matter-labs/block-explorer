@@ -9,11 +9,12 @@ import { TESTNET_BETA_NETWORK } from "../mocks";
 import useTokenLibrary from "@/composables/useTokenLibrary";
 
 vi.mock("ohmyfetch", async () => {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-  const mod = await vi.importActual<typeof import("ohmyfetch")>("ohmyfetch");
+  const mod = await vi.importActual("ohmyfetch");
+  const fetchSpy = vi.fn();
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    ...mod,
-    $fetch: vi.fn(),
+    ...(mod as object),
+    $fetch: fetchSpy,
   };
 });
 

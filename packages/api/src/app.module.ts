@@ -25,7 +25,6 @@ import { DbMetricsService } from "./dbMetrics.service";
 import { disableExternalAPI } from "./config/featureFlags";
 import config from "./config";
 import { applyPrividiumMiddlewares, PRIVIDIUM_MODULES } from "./prividium";
-import { z } from "zod";
 
 const PRIVIDIUM_TOKEN = "PRIVIDIUM";
 
@@ -57,19 +56,8 @@ interface AppModuleConfig {
 export class AppModule implements NestModule {
   private prividium?: boolean;
 
-  constructor(@Inject(PRIVIDIUM_TOKEN) moduleConfig: AppModuleConfig, allConfigs: ConfigService) {
+  constructor(@Inject(PRIVIDIUM_TOKEN) moduleConfig: AppModuleConfig) {
     this.prividium = moduleConfig.prividium;
-
-    if (this.prividium) {
-      const schema = z.object({
-        privateRpcUrl: z.string().url(),
-        privateRpcSecret: z.string().min(1),
-      });
-      const result = schema.safeParse(allConfigs.get("prividium"));
-      if (!result.success) {
-        throw new Error("Invalid Prividium config");
-      }
-    }
   }
 
   configure(consumer: MiddlewareConsumer) {

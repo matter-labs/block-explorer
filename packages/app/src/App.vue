@@ -20,8 +20,8 @@ import { useRoute, useRouter } from "vue-router";
 
 import { useTitle } from "@vueuse/core";
 
-import useEnvironmentConfig from "./composables/useEnvironmentConfig";
 import usePublicRoutes from "./composables/usePublicRoutes";
+import useRuntimeConfig from "./composables/useRuntimeConfig";
 
 import IndexerDelayAlert from "@/components/IndexerDelayAlert.vue";
 import TheFooter from "@/components/TheFooter.vue";
@@ -38,12 +38,12 @@ import MaintenanceView from "@/views/MaintenanceView.vue";
 const { setup } = useLocalization();
 const { title } = useRouteTitle();
 const context = useContext();
-const { prividium } = useEnvironmentConfig();
 const route = useRoute();
 const router = useRouter();
 const { isPublicRoute } = usePublicRoutes();
 const { initializeLogin } = useLogin(context);
 const { initializePrividiumRpcUrl } = usePrividiumRpc();
+const runtimeConfig = useRuntimeConfig();
 
 useTitle(title);
 const { isReady, currentNetwork } = useContext();
@@ -53,7 +53,7 @@ setup();
 const isAuthCheckComplete = ref(false);
 
 onMounted(async () => {
-  if (prividium.value) {
+  if (runtimeConfig.appEnvironment === "prividium") {
     await initializeLogin();
     await initializePrividiumRpcUrl();
     isAuthCheckComplete.value = true;
@@ -61,7 +61,7 @@ onMounted(async () => {
 });
 
 watchEffect(() => {
-  if (!prividium.value || !isAuthCheckComplete.value) {
+  if (runtimeConfig.appEnvironment !== "prividium" || !isAuthCheckComplete.value) {
     return;
   }
 

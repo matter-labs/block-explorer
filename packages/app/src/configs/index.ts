@@ -24,6 +24,6 @@ export type EnvironmentConfig = {
 export type RuntimeConfig = {
   version: string;
   sentryDSN: string;
-  appEnvironment: string;
+  appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
   environmentConfig?: EnvironmentConfig;
 };

@@ -1,11 +1,11 @@
 import { ref } from "vue";
 
 import { Contract as EthersContract, isAddress, keccak256, toUtf8Bytes, ZeroAddress } from "ethers";
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
-import useFetch from "@/composables/useFetch";
+import { FetchInstance } from "@/composables/useFetchInstance";
 
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
 import { numberToHexString } from "@/utils/formatters";
@@ -107,8 +107,8 @@ export default (context = useContext()) => {
       return null;
     }
     try {
-      const verificationInfo = await $fetch<ContractVerificationInfo>(
-        `${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`
+      const verificationInfo = await FetchInstance.verificationApi()<ContractVerificationInfo>(
+        `/contract_verification/info/${address}`
       );
       if (verificationInfo?.request?.compilerSolcVersion) {
         verificationInfo.request.compilerSolcVersion = await getSolcFullVersion(
@@ -185,9 +185,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const response: Api.Response.Account | Api.Response.Contract = await useFetch()(
-        `${context.currentNetwork.value.apiUrl}/address/${address}`
-      );
+      const response: Api.Response.Account | Api.Response.Contract = await FetchInstance.api()(`/address/${address}`);
       if (response.type === "account") {
         item.value = response;
       } else if (response.type === "contract") {
