@@ -1,6 +1,7 @@
 {
   "networks": [
     {
+      "groupId": "era",
       "apiUrl": "http://localhost:3020",
       "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [
@@ -16,6 +17,7 @@
       "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     },
     {
+      "groupId": "era",
       "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
       "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
@@ -31,6 +33,7 @@
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
+      "groupId": "era",
       "apiUrl": "https://block-explorer-api.stage.zksync.dev",
       "verificationApiUrl": "https://z2-dev-api-explorer.zksync.dev",
       "hostnames": [
@@ -47,6 +50,7 @@
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
+      "groupId": "era",
       "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
       "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
@@ -64,6 +68,34 @@
       "tokensMinLiquidity": 0,
       "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "gateway",
+      "apiUrl": "https://block-explorer.era-gateway-testnet.zksync.dev",
+      "verificationApiUrl": "https://rpc-explorer-verify.era-gateway-testnet.zksync.dev",
+      "bridgeUrl": "https://portal.era-gateway-testnet.zksync.dev/bridge",
+      "hostnames": ["https://explorer.era-gateway-testnet.zksync.dev"],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l2ChainId": 32657,
+      "l2NetworkName": "ZKsync Gateway Testnet",
+      "maintenance": false,
+      "name": "gateway-testnet",
+      "published": true,
+      "rpcUrl": "https://rpc.era-gateway-testnet.zksync.dev"
+    },
+    {
+      "groupId": "gateway",
+      "apiUrl": "https://block-explorer-api.era-gateway-mainnet.zksync.dev",
+      "verificationApiUrl": "https://rpc-explorer-verify.era-gateway-mainnet.zksync.dev",
+      "bridgeUrl": "https://portal.era-gateway-mainnet.zksync.dev/bridge",
+      "hostnames": ["https://explorer.era-gateway-mainnet.zksync.dev"],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l2ChainId": 9075,
+      "l2NetworkName": "ZKsync Gateway Mainnet",
+      "maintenance": false,
+      "name": "gateway-mainnet",
+      "published": true,
+      "rpcUrl": "https://rpc.era-gateway-mainnet.zksync.dev"
     }
   ]
 }

@@ -26,6 +26,7 @@ vi.mock("@/composables/useContext", () => {
         bridgeUrl: "https://bridge.zksync.io/",
         apiUrl: "https://api-url",
       })),
+      networks: computed(() => []),
     }),
   };
 });

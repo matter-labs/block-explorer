@@ -78,7 +78,9 @@ defineProps({
 });
 
 const subtitle = computed(() =>
-  currentNetwork.value.name === "mainnet" ? t("networkStats.subtitleMainnet") : t("networkStats.subtitleTestnet")
+  currentNetwork.value.name.includes("mainnet")
+    ? t("networkStats.subtitleMainnet", { l2NetworkName: currentNetwork.value.l2NetworkName })
+    : t("networkStats.subtitleTestnet")
 );
 </script>
 
