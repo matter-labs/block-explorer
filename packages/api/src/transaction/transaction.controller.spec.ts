@@ -91,6 +91,16 @@ describe("TransactionController", () => {
       const result = await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions);
       expect(result).toBe(transactions);
     });
+
+    it("works when locals is not defined", async () => {
+      const result = await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions);
+      expect(result).toBe(transactions);
+    });
+
+    it("works when locals are defined", async () => {
+      const result = await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions);
+      expect(result).toBe(transactions);
+    });
   });
 
   describe("getTransaction", () => {
