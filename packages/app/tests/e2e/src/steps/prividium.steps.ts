@@ -5,6 +5,24 @@ import { config } from "../support/config";
 
 import type { ICustomWorld } from "../support/custom-world";
 
+Given("I am an authorized user", async function (this: ICustomWorld) {
+  await this.page?.route("**/auth/verify", (route) => {
+    route.fulfill({
+      status: 201,
+      body: "true",
+    });
+  });
+});
+
+Given("I am an unauthorized user", async function (this: ICustomWorld) {
+  await this.page?.route("**/auth/verify", (route) => {
+    route.fulfill({
+      status: 403,
+      body: "Forbidden",
+    });
+  });
+});
+
 Given("I am on the login page", async function (this: ICustomWorld) {
   expect(this.page?.url()).toContain(config.BASE_URL + "/login");
 });
@@ -66,6 +84,12 @@ Then("I should see a list of available networks", async function (this: ICustomW
 Then("I should see the wrong network indicator", async function (this: ICustomWorld) {
   const wrongNetwork = this.page!.getByText("Wrong network", { exact: true });
   await expect(wrongNetwork).toBeVisible();
+});
+
+Then("I should see the not authorized page", async function (this: ICustomWorld) {
+  const unauthorizedHeading = this.page!.getByRole("heading", { name: "You are not authorized" });
+  await expect(unauthorizedHeading).toBeVisible();
+  expect(this.page?.url()).toContain("/not-authorized");
 });
 
 Then("I should see the switch network button in the wallet info modal", async function (this: ICustomWorld) {

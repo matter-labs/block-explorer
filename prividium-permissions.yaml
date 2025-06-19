@@ -1,3 +1,6 @@
+whitelisted_wallets:
+   - "all"
+
 groups:
   - name: "group1"
     members:

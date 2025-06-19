@@ -97,7 +97,24 @@ describe("Prividium API (e2e)", () => {
   });
 
   describe("Authentication Flow", () => {
-    it("should complete auth process", async () => {
+    let fetchSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      fetchSpy = jest.spyOn(global, "fetch");
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
+    });
+
+    it("should complete auth process for a whitelisted user", async () => {
+      // Mock the whitelist check to succeed
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ authorized: true }),
+      } as Response);
+
       // Verify user successfully logins
       const response = await agent.post("/auth/message").send({ address: authorizedWallet.address }).expect(201);
       const message = new SiweMessage(response.text);
@@ -112,6 +129,21 @@ describe("Prividium API (e2e)", () => {
       // Logout user
       await agent.post("/auth/logout").expect(201);
       await agent.get("/auth/me").expect(401);
+    });
+
+    it("should reject a non-whitelisted user", async () => {
+      const unauthorizedWallet = Wallet.createRandom();
+      // Mock the whitelist check to fail
+      fetchSpy.mockResolvedValue({
+        ok: false,
+        status: 404,
+      } as Response);
+
+      const response = await agent.post("/auth/message").send({ address: unauthorizedWallet.address }).expect(201);
+      const message = new SiweMessage(response.text);
+      const signature = await unauthorizedWallet.signMessage(message.prepareMessage());
+
+      await agent.post("/auth/verify").send({ signature }).expect(403);
     });
   });
 });
