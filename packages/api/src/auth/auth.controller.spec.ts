@@ -134,8 +134,15 @@ describe("AuthController", () => {
 
   describe("verifySignature", () => {
     let body: VerifySignatureDto;
+    let fetchSpy: jest.SpyInstance;
+
     beforeEach(() => {
       body = new VerifySignatureDto();
+      fetchSpy = jest.spyOn(global, "fetch");
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
     });
 
     it("throws when there is no message", async () => {
@@ -143,6 +150,13 @@ describe("AuthController", () => {
     });
 
     it("validates for http in development", async () => {
+      // Mock the whitelist check to succeed
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ authorized: true }),
+      } as Response);
+
       const configServiceMock = mock<ConfigService>({
         get: jest.fn().mockImplementation((key: string) => {
           switch (key) {
@@ -152,6 +166,8 @@ describe("AuthController", () => {
               return "blockexplorer.com";
             case "prividium.chainId":
               return chainId;
+            case "prividium.privateRpcUrl":
+              return "http://localhost:3000";
             default:
               return undefined;
           }
@@ -179,6 +195,13 @@ describe("AuthController", () => {
     });
 
     it("returns true when a correctly signed message is send", async () => {
+      // Mock the whitelist check to succeed
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ authorized: true }),
+      } as Response);
+
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
       const {
@@ -211,6 +234,13 @@ describe("AuthController", () => {
     });
 
     it("throws when msg is not a correct siwe message", async () => {
+      // Mock the whitelist check to succeed
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ authorized: true }),
+      } as Response);
+
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
       const { signature, siwe } = await calculateSiwe({ nonce, privateKey, chainId });
@@ -224,6 +254,13 @@ describe("AuthController", () => {
     });
 
     it("throws when msg has wrong chainId", async () => {
+      // Mock the whitelist check to succeed
+      fetchSpy.mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ authorized: true }),
+      } as Response);
+
       const nonce = "8r2cXq20yD3l5bomR";
       const privateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
       const { signature, siwe } = await calculateSiwe({ nonce, privateKey, chainId: chainId + 1 });
@@ -279,6 +316,44 @@ describe("AuthController", () => {
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(
         new HttpException({ message: "Expired message." }, 440)
       );
+      expect(req.session).toBe(null);
+    });
+
+    it("throws error and set session to null when whitelist check fails with an unexpected error", async () => {
+      jest.spyOn(global, "fetch").mockRejectedValue(new Error("network error"));
+      const { signature, siwe } = await calculateSiwe({
+        nonce: "validnonce12345",
+        expiresAt: new Date(Date.now() + 1000),
+        privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        chainId,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
+      const session = {
+        siwe,
+        verified: false,
+      };
+      req.session = session;
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(InternalServerErrorException);
+      expect(req.session).toBe(null);
+    });
+
+    it("throws http exception and set session to null when signature has expired", async () => {
+      const { signature, siwe } = await calculateSiwe({
+        nonce: "8r2cXq20yD3l5bomR",
+        privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        domain: "blockexplorer.com",
+        scheme: "https",
+        chainId,
+        expiresAt: new Date(Date.now() - 1000 * 60 * 60),
+      });
+      req.session.siwe = siwe;
+      req.session.verified = false;
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(HttpException);
       expect(req.session).toBe(null);
     });
   });

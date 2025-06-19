@@ -10,6 +10,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
   ForbiddenException,
+  Logger,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -30,10 +31,6 @@ import { z } from "zod";
 import { getAddress } from "ethers";
 
 const entityName = "auth";
-
-const privateRpcUserResponseSchema = z.object({
-  authorized: z.boolean(),
-});
 
 @ApiTags("Auth BFF")
 @ApiExcludeController(!swagger.bffEnabled)
@@ -140,10 +137,15 @@ export class AuthController {
       }
     }
 
-    const isWhitelisted = await this.checkWhitelist(siweMessage.address);
-    if (!isWhitelisted) {
+    try {
+      const isWhitelisted = await this.checkWhitelist(siweMessage.address);
+      if (!isWhitelisted) {
+        this.clearSession(req);
+        throw new ForbiddenException("Your wallet is not whitelisted for access.");
+      }
+    } catch (error) {
       this.clearSession(req);
-      throw new ForbiddenException("Your wallet is not whitelisted for access.");
+      throw error;
     }
 
     req.session.verified = true;
@@ -207,30 +209,37 @@ export class AuthController {
 
   private async checkWhitelist(address: string): Promise<boolean> {
     const url = new URL(`/users/${address}`, this.configService.get("prividium.privateRpcUrl"));
-    const response = await fetch(url, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
+    const ZodWhitelistResponse = z.object({
+      authorized: z.boolean(),
     });
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        // If the user is not found, the RPC returns a 404, which means they are not whitelisted.
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-secret": this.configService.get("prividium.privateRpcSecret"),
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        const validation = ZodWhitelistResponse.safeParse(data);
+        if (validation.success) {
+          return validation.data.authorized;
+        } else {
+          throw new InternalServerErrorException("Invalid response from whitelist service");
+        }
+      } else if (response.status === 404) {
         return false;
+      } else {
+        throw new InternalServerErrorException(
+          `Whitelist service returned an unexpected status code: ${response.status} ${response.statusText}`
+        );
       }
-      // For other errors, we'll throw a 500
-      throw new InternalServerErrorException(
-        `Whitelist check failed with status: ${response.status} ${response.statusText}`
-      );
+    } catch (error) {
+      Logger.error(`Error checking whitelist for address ${address}: ${error.message}`, error.stack, "AuthController");
+      throw new InternalServerErrorException("Failed to check whitelist status");
     }
-
-    const data = await response.json();
-    const validation = privateRpcUserResponseSchema.safeParse(data);
-
-    if (!validation.success) {
-      throw new InternalServerErrorException("Invalid response from private RPC for whitelist check");
-    }
-
-    return validation.data.authorized;
   }
 
   private validatePrivateRpcResponse(response: unknown) {
