@@ -7,6 +7,7 @@ import {
   HttpException,
   InternalServerErrorException,
   UnprocessableEntityException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { calculateSiwe } from "../../test/utils/siwe-message-tools";
 import { ConfigService } from "@nestjs/config";
@@ -354,6 +355,101 @@ describe("AuthController", () => {
       body.signature = signature;
 
       await expect(() => controller.verifySignature(body, req)).rejects.toThrow(HttpException);
+      expect(req.session).toBe(null);
+    });
+
+    it("throws a forbidden exception when user is not whitelisted", async () => {
+      // Mock the whitelist check to fail
+      jest.spyOn(global, "fetch").mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ authorized: false }),
+      } as Response);
+
+      const { signature, siwe } = await calculateSiwe({
+        nonce: "validnonce12345",
+        expiresAt: new Date(Date.now() + 1000),
+        privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        chainId,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
+
+      req.session = { siwe, verified: false };
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(ForbiddenException);
+      expect(req.session).toBe(null);
+    });
+
+    it("throws an internal server error when whitelist service returns an invalid response", async () => {
+      // Mock the whitelist check to return a malformed response
+      jest.spyOn(global, "fetch").mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.resolve({ not_authorized: true }),
+      } as Response);
+
+      const { signature, siwe } = await calculateSiwe({
+        nonce: "validnonce12345",
+        expiresAt: new Date(Date.now() + 1000),
+        privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        chainId,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
+
+      req.session = { siwe, verified: false };
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(InternalServerErrorException);
+      expect(req.session).toBe(null);
+    });
+
+    it("throws an internal server error when whitelist service returns a non-404 error", async () => {
+      // Mock the whitelist check to return a 503 error
+      jest.spyOn(global, "fetch").mockResolvedValue({
+        ok: false,
+        status: 503,
+        statusText: "Service Unavailable",
+      } as Response);
+
+      const { signature, siwe } = await calculateSiwe({
+        nonce: "validnonce12345",
+        expiresAt: new Date(Date.now() + 1000),
+        privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        chainId,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
+
+      req.session = { siwe, verified: false };
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(InternalServerErrorException);
+      expect(req.session).toBe(null);
+    });
+
+    it("returns false when user is not found in whitelist", async () => {
+      // Mock the whitelist check to return a 404 error
+      jest.spyOn(global, "fetch").mockResolvedValue({
+        ok: false,
+        status: 404,
+      } as Response);
+
+      const { signature, siwe } = await calculateSiwe({
+        nonce: "validnonce12345",
+        expiresAt: new Date(Date.now() + 1000),
+        privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        chainId,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
+
+      req.session = { siwe, verified: false };
+      body.signature = signature;
+
+      await expect(controller.verifySignature(body, req)).rejects.toThrow(ForbiddenException);
       expect(req.session).toBe(null);
     });
   });
