@@ -9,6 +9,8 @@ import { TokenService, Token } from "../token/token.service";
 import { AddressService } from "../address/address.service";
 import { BalanceService } from "../balance/balance.service";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
+import { UpgradableService } from "../upgradable/upgradable.service";
+import { ProxyAddress } from "src/upgradable/interface/proxyAddress.interface";
 
 describe("LogService", () => {
   let logService: LogService;
@@ -16,12 +18,14 @@ describe("LogService", () => {
   let balanceServiceMock: BalanceService;
   let transferServiceMock: TransferService;
   let tokenServiceMock: TokenService;
+  let upgradableServiceMock: UpgradableService;
 
   beforeEach(async () => {
     addressServiceMock = mock<AddressService>();
     balanceServiceMock = mock<BalanceService>();
     transferServiceMock = mock<TransferService>();
     tokenServiceMock = mock<TokenService>();
+    upgradableServiceMock = mock<UpgradableService>();
 
     const app = await Test.createTestingModule({
       providers: [
@@ -42,6 +46,10 @@ describe("LogService", () => {
           provide: TokenService,
           useValue: tokenServiceMock,
         },
+        {
+          provide: UpgradableService,
+          useValue: upgradableServiceMock,
+        },
       ],
     }).compile();
 
@@ -59,6 +67,17 @@ describe("LogService", () => {
     const deployedContractAddresses = [
       mock<ContractAddress>({ address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571" }),
       mock<ContractAddress>({ address: "0xD144ca8Aa2E7DFECD56a3CCcBa1cd873c8e5db58" }),
+    ];
+
+    const upgradableAddresses = [
+      mock<ProxyAddress>({
+        address: "0xEBf9D3ead9A8c2bb8cEa438B8Dfa9f1AFf44bfa7",
+        implementationAddress: "0xf43624d811c5DC9eF91cF237ab9B8eE220D438eE",
+      }),
+      mock<ProxyAddress>({
+        address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
+        implementationAddress: "0xD144ca8Aa2E7DFECD56a3CCcBa1cd873c8e5db58",
+      }),
     ];
 
     const transfers = [
@@ -92,6 +111,7 @@ describe("LogService", () => {
 
     describe("when transaction details and receipt are defined", () => {
       beforeEach(() => {
+        jest.spyOn(upgradableServiceMock, "getUpgradableAddresses").mockResolvedValueOnce([]);
         transactionReceipt = mock<types.TransactionReceipt>({
           index: 0,
           logs: logs,
@@ -133,6 +153,9 @@ describe("LogService", () => {
     });
 
     describe("when transaction details and receipt are not defined", () => {
+      beforeEach(() => {
+        jest.spyOn(upgradableServiceMock, "getUpgradableAddresses").mockResolvedValueOnce([]);
+      });
       it("tracks changed balances", async () => {
         await logService.getData(logs, blockDetails);
         expect(balanceServiceMock.trackChangedBalances).toHaveBeenCalledTimes(1);
@@ -144,6 +167,22 @@ describe("LogService", () => {
         expect(transferServiceMock.getTransfers).toHaveBeenCalledTimes(1);
         expect(transferServiceMock.getTransfers).toHaveBeenCalledWith(logs, blockDetails, undefined, undefined);
         expect(logsData.transfers).toEqual(transfers);
+      });
+    });
+
+    describe("when there are upgradable addresses", () => {
+      beforeEach(() => {
+        jest.spyOn(upgradableServiceMock, "getUpgradableAddresses").mockResolvedValueOnce(upgradableAddresses);
+      });
+      it("returns data with upgradable addresses", async () => {
+        const logsData = await logService.getData(logs, blockDetails, transactionDetails, transactionReceipt);
+        expect(upgradableServiceMock.getUpgradableAddresses).toHaveBeenCalledTimes(1);
+        expect(tokenServiceMock.getERC20Token).toHaveBeenCalledTimes(3);
+        expect(logsData.tokens).toEqual([
+          { l1Address: "l1Address1" },
+          { l1Address: "l1Address2" },
+          { l2Address: "0xEBf9D3ead9A8c2bb8cEa438B8Dfa9f1AFf44bfa7" },
+        ]);
       });
     });
   });
