@@ -1,5 +1,4 @@
-whitelisted_wallets:
-   - "all"
+whitelisted_wallets: "all"
 
 groups:
   - name: "group1"
