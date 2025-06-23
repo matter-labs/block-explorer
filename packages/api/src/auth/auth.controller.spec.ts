@@ -452,6 +452,30 @@ describe("AuthController", () => {
       await expect(controller.verifySignature(body, req)).rejects.toThrow(ForbiddenException);
       expect(req.session).toBe(null);
     });
+
+    it("throws an internal server error when whitelist service returns invalid JSON", async () => {
+      // Mock the whitelist check to return invalid JSON
+      jest.spyOn(global, "fetch").mockResolvedValue({
+        ok: true,
+        status: 200,
+        json: () => Promise.reject(new Error("Invalid JSON")),
+      } as Response);
+
+      const { signature, siwe } = await calculateSiwe({
+        nonce: "validnonce12345",
+        expiresAt: new Date(Date.now() + 1000),
+        privateKey: "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+        chainId,
+        domain: "blockexplorer.com",
+        scheme: "https",
+      });
+
+      req.session = { siwe, verified: false };
+      body.signature = signature;
+
+      await expect(() => controller.verifySignature(body, req)).rejects.toThrow(InternalServerErrorException);
+      expect(req.session).toBe(null);
+    });
   });
 
   describe("logout", () => {
