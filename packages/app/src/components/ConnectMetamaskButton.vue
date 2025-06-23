@@ -45,6 +45,7 @@ import useLogin from "@/composables/useLogin";
 import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
 
 import { formatShortAddress } from "@/utils/formatters";
+import logger from "@/utils/logger";
 
 const { t } = useI18n();
 const context = useContext();
@@ -136,7 +137,7 @@ const handleLogin = async () => {
     if (err instanceof FetchError && err.response?.status === 403) {
       router.push({ name: "not-authorized" });
     } else {
-      console.error(err);
+      logger.error(err);
     }
   }
 };

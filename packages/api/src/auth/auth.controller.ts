@@ -32,6 +32,10 @@ import { getAddress } from "ethers";
 
 const entityName = "auth";
 
+const ZodWhitelistResponse = z.object({
+  authorized: z.boolean(),
+});
+
 @ApiTags("Auth BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
@@ -209,37 +213,54 @@ export class AuthController {
 
   private async checkWhitelist(address: string): Promise<boolean> {
     const url = new URL(`/users/${address}`, this.configService.get("prividium.privateRpcUrl"));
-    const ZodWhitelistResponse = z.object({
-      authorized: z.boolean(),
-    });
 
+    let response: Response;
     try {
-      const response = await fetch(url, {
+      response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           "x-secret": this.configService.get("prividium.privateRpcSecret"),
         },
       });
-      if (response.ok) {
-        const data = await response.json();
-        const validation = ZodWhitelistResponse.safeParse(data);
-        if (validation.success) {
-          return validation.data.authorized;
-        } else {
-          throw new InternalServerErrorException("Invalid response from whitelist service");
-        }
-      } else if (response.status === 404) {
-        return false;
-      } else {
-        throw new InternalServerErrorException(
-          `Whitelist service returned an unexpected status code: ${response.status} ${response.statusText}`
-        );
-      }
     } catch (error) {
-      Logger.error(`Error checking whitelist for address ${address}: ${error.message}`, error.stack, "AuthController");
+      Logger.error(`Error fetching whitelist for address ${address}: ${error.message}`, error.stack, "AuthController");
       throw new InternalServerErrorException("Failed to check whitelist status");
     }
+
+    if (response.status === 404) {
+      return false;
+    }
+
+    if (!response.ok) {
+      throw new InternalServerErrorException(
+        `Whitelist service returned an unexpected status code: ${response.status} ${response.statusText}`
+      );
+    }
+
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch (error) {
+      Logger.error(
+        `Error parsing whitelist response for address ${address}: ${error.message}`,
+        error.stack,
+        "AuthController"
+      );
+      throw new InternalServerErrorException("Invalid response from whitelist service");
+    }
+
+    const validation = ZodWhitelistResponse.safeParse(data);
+    if (!validation.success) {
+      Logger.error(
+        `Whitelist response validation error for address ${address}: ${validation.error.message}`,
+        validation.error,
+        "AuthController"
+      );
+      throw new InternalServerErrorException("Invalid response from whitelist service");
+    }
+
+    return validation.data.authorized;
   }
 
   private validatePrivateRpcResponse(response: unknown) {
