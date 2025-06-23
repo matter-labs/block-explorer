@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query, Res } from "@nestjs/common";
+import { Controller, ForbiddenException, Get, Logger, Param, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -12,7 +12,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
-import { formatHexAddress, buildDateFilter } from "../common/utils";
+import { formatHexAddress, buildDateFilter, isAddressEqual } from "../common/utils";
 import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
@@ -25,7 +25,7 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
-import { Response } from "express";
+import { User, UserParam } from "../user/user.decorator";
 
 const entityName = "address";
 
@@ -33,6 +33,8 @@ const entityName = "address";
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class AddressController {
+  private readonly logger: Logger;
+
   constructor(
     private readonly addressService: AddressService,
     private readonly blockService: BlockService,
@@ -40,7 +42,9 @@ export class AddressController {
     private readonly logService: LogService,
     private readonly balanceService: BalanceService,
     private readonly transferService: TransferService
-  ) {}
+  ) {
+    this.logger = new Logger(AddressController.name);
+  }
 
   @Get(":address")
   @ApiParam({
@@ -59,16 +63,31 @@ export class AddressController {
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Res({ passthrough: true }) res: Response
+    @User() user: UserParam
   ): Promise<AccountDto | ContractDto> {
-    const includeBalances = res.locals?.filterAddressOptions?.includeBalances ?? true;
+    const addressRecord = await this.addressService.findOne(address);
+    const addressType = !!(addressRecord && addressRecord.bytecode.length > 2)
+      ? AddressType.Contract
+      : AddressType.Account;
+    let includeBalances = true;
 
-    const [addressRecord, addressBalance] = await Promise.all([
-      this.addressService.findOne(address),
-      includeBalances ? this.balanceService.getBalances(address) : Promise.resolve({ blockNumber: 0, balances: {} }),
-    ]);
+    if (user) {
+      // If address is an account and is not own address, forbid access
+      if (addressType === AddressType.Account && !isAddressEqual(user.address, address)) {
+        throw new ForbiddenException();
+      }
 
-    if (addressRecord?.bytecode.length > 2) {
+      // If address is a contract and user is not owner, don't include balances
+      if (addressType === AddressType.Contract && !(await this.isUserOwnerOfContract(address, user.address))) {
+        includeBalances = false;
+      }
+    }
+
+    const addressBalance = includeBalances
+      ? await this.balanceService.getBalances(address)
+      : { blockNumber: 0, balances: {} };
+
+    if (addressType === AddressType.Contract) {
       const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
       return {
         type: AddressType.Contract,
@@ -124,11 +143,11 @@ export class AddressController {
   public async getAddressLogs(
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Res({ passthrough: true }) res: Response
+    @User() user: UserParam
   ): Promise<Pagination<LogDto>> {
-    const extraFilters = res.locals.filterAddressLogsOptions ?? {};
+    const userFilters = user ? { visibleBy: user.address } : {};
     return await this.logService.findAll(
-      { address, ...extraFilters },
+      { address, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${address}/logs`,
@@ -153,9 +172,9 @@ export class AddressController {
     @Query() filterAddressTransferOptions: FilterAddressTransfersOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Res({ passthrough: true }) res: Response
+    @User() user: UserParam
   ): Promise<Pagination<TransferDto>> {
-    const extraFilters = res.locals.filterAddressTransferOptions ?? {};
+    const userFilters = user ? { visibleBy: user.address } : {};
 
     const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
 
@@ -170,7 +189,7 @@ export class AddressController {
           : {
               isFeeOrRefund: false,
             }),
-        ...extraFilters,
+        ...userFilters,
       },
       {
         filterOptions: { ...filterAddressTransferOptions, ...listFilterOptions },
@@ -178,5 +197,44 @@ export class AddressController {
         route: `${entityName}/${address}/transfers`,
       }
     );
+  }
+
+  /**
+   * Checks if a user is the owner of a contract by looking for the most recent
+   * OwnershipTransferred event. This only works for contracts that implement
+   * the OpenZeppelin Ownable pattern.
+   *
+   * @param contractAddress - The contract address to check
+   * @param accountAddress - The account address to verify ownership for
+   * @returns Promise<boolean> - True if the account is the contract owner
+   */
+  private async isUserOwnerOfContract(contractAddress: string, accountAddress: string): Promise<boolean> {
+    try {
+      const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
+      const logs = await this.logService.findManyByTopics({
+        address: contractAddress,
+        topics: {
+          topic0: OWNERSHIP_TRANSFERRED_TOPIC,
+        },
+        page: 1,
+        offset: 1,
+      });
+      if (logs.length === 0) {
+        return false;
+      }
+
+      const ownerTopic = logs[0]?.topics[2];
+      if (!ownerTopic) {
+        return false;
+      }
+
+      // Topic is 32 bytes log, so we need to convert it to an address
+      // by removing the first 12 bytes and 0x prefix
+      const owner = `0x${ownerTopic.slice(2 + 12 * 2)}`;
+      return isAddressEqual(owner, accountAddress);
+    } catch (err) {
+      this.logger.error(err);
+      return false;
+    }
   }
 }

@@ -5,6 +5,7 @@ import { NumerableEntity } from "./entities/numerable.entity";
 import { hexTransformer } from "./transformers/hex.transformer";
 import { IPaginationOptions } from "./types";
 import { Request } from "express";
+import { getAddress } from "ethers";
 
 const MIN_OFFSET_TO_USE_NUMBER_FILTER = 1000;
 
@@ -128,4 +129,16 @@ export const parseIntToHex = (numStr: string) => {
  */
 export const parseReqPathname = (req: Request) => {
   return new URL(req.originalUrl, "http://localhost").pathname;
+};
+
+/**
+ * Compares two addresses and returns true if they are the same.
+ * If one of the addresses is invalid, returns false.
+ */
+export const isAddressEqual = (address1: string, address2: string): boolean => {
+  try {
+    return getAddress(address1) === getAddress(address2);
+  } catch {
+    return false;
+  }
 };

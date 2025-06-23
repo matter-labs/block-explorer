@@ -8,7 +8,7 @@ import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { Response } from "express";
+import { UserParam } from "../user/user.decorator";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
@@ -19,12 +19,9 @@ describe("TokenController", () => {
   let transferServiceMock: TransferService;
   let token;
 
-  let res: MockProxy<Response>;
-
   beforeEach(async () => {
     serviceMock = mock<TokenService>();
     transferServiceMock = mock<TransferService>();
-    res = mock<Response>();
 
     token = {
       l2Address: "tokenAddress",
@@ -112,29 +109,12 @@ describe("TokenController", () => {
       });
 
       it("queries transfers with the specified options", async () => {
-        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
+        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, null);
         expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(transferServiceMock.findAll).toHaveBeenCalledWith(
           {
             tokenAddress,
             isFeeOrRefund: false,
-          },
-          {
-            ...pagingOptionsWithLimit,
-            route: `tokens/${tokenAddress}/transfers`,
-          }
-        );
-      });
-
-      it("considers options in locals", async () => {
-        res.locals = { tokenTransfersOptions: { visibleBy: "userAddress" } };
-        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
-        expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
-        expect(transferServiceMock.findAll).toHaveBeenCalledWith(
-          {
-            tokenAddress,
-            isFeeOrRefund: false,
-            visibleBy: "userAddress",
           },
           {
             ...pagingOptionsWithLimit,
@@ -144,8 +124,32 @@ describe("TokenController", () => {
       });
 
       it("returns token transfers", async () => {
-        const result = await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
+        const result = await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, null);
         expect(result).toBe(tokenTransfers);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserParam>;
+        const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+        beforeEach(() => {
+          user = mock<UserParam>({ address: mockUser });
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, user);
+          expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
+          expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+            {
+              tokenAddress,
+              isFeeOrRefund: false,
+              visibleBy: mockUser,
+            },
+            {
+              ...pagingOptionsWithLimit,
+              route: `tokens/${tokenAddress}/transfers`,
+            }
+          );
+        });
       });
     });
 
@@ -158,7 +162,7 @@ describe("TokenController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, res);
+          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
