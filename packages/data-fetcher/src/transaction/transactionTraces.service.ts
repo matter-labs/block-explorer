@@ -80,7 +80,7 @@ export class TransactionTracesService {
           ]);
           contractAddress.bytecode = bytecode;
           // If it's 0x02, it's an EVM contract. Otherwise, it's an EraVM contract.
-          contractAddress.isEvmLike = bytecodeHash.startsWith("0x02");
+          contractAddress.isEvmLike = bytecodeHash?.startsWith("0x02");
           return contractAddress;
         })
       )

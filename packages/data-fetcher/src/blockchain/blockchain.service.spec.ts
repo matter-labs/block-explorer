@@ -2159,7 +2159,7 @@ describe("BlockchainService", () => {
       });
     });
 
-    describe("when AccountCodeStorage returns address hash", () => {
+    describe("when AccountCodeStorage contract returns bytecode hash", () => {
       let getRawCodeHashMock: jest.Mock;
 
       beforeEach(() => {
@@ -2215,7 +2215,7 @@ describe("BlockchainService", () => {
       });
     });
 
-    describe("when TokenVault returns address hash", () => {
+    describe("when TokenVault returns token address", () => {
       let getTokenAddressMock: jest.Mock;
 
       beforeEach(() => {
@@ -2246,62 +2246,6 @@ describe("BlockchainService", () => {
       it("returns the token address of the asset ID", async () => {
         const tokenAddress = await blockchainService.getTokenAddressByAssetId(assetId);
         expect(tokenAddress).toStrictEqual("0x123");
-      });
-    });
-  });
-
-  describe("getRawCodeHash", () => {
-    const address = "address";
-
-    describe("when AccountCodeStorage contract function throws an exception", () => {
-      const error = new Error("Ethers Contract error");
-
-      beforeEach(() => {
-        (RetryableContract as any as jest.Mock).mockReturnValueOnce(
-          mock<RetryableContract>({
-            getRawCodeHash: jest.fn().mockImplementationOnce(() => {
-              throw error;
-            }) as any,
-          })
-        );
-      });
-
-      it("throws an error", async () => {
-        await expect(blockchainService.getRawCodeHash(address)).rejects.toThrowError(error);
-      });
-    });
-
-    describe("when AccountCodeStorage returns address hash", () => {
-      let getRawCodeHashMock: jest.Mock;
-
-      beforeEach(() => {
-        getRawCodeHashMock = jest.fn().mockResolvedValueOnce("0x123");
-        (RetryableContract as any as jest.Mock).mockReturnValueOnce(
-          mock<RetryableContract>({
-            getRawCodeHash: getRawCodeHashMock as any,
-          })
-        );
-      });
-
-      it("uses the proper account code storage contract", async () => {
-        await blockchainService.getRawCodeHash(address);
-        expect(RetryableContract).toHaveBeenCalledTimes(1);
-        expect(RetryableContract).toBeCalledWith(
-          L2_ACCOUNT_CODE_STORAGE_ADDRESS,
-          CONTRACT_INTERFACES.L2_ACCOUNT_CODE_STORAGE.interface,
-          provider
-        );
-      });
-
-      it("gets the raw code hash for the specified address", async () => {
-        await blockchainService.getRawCodeHash(address);
-        expect(getRawCodeHashMock).toHaveBeenCalledTimes(1);
-        expect(getRawCodeHashMock).toHaveBeenCalledWith(address);
-      });
-
-      it("returns the raw code hash of the address", async () => {
-        const rawCodeHash = await blockchainService.getRawCodeHash(address);
-        expect(rawCodeHash).toStrictEqual("0x123");
       });
     });
   });
