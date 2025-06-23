@@ -119,6 +119,17 @@ describe("TransactionTracesService", () => {
       ]);
     });
 
+    describe("when transaction trace is null", () => {
+      beforeEach(() => {
+        jest.spyOn(blockchainServiceMock, "debugTraceTransaction").mockReset().mockResolvedValue(null);
+      });
+
+      it("returns null", async () => {
+        const data = await transactionTracesService.getData(transactionReceipt);
+        expect(data).toEqual({ contractAddresses: [], error: undefined, revertReason: undefined, tokens: [] });
+      });
+    });
+
     describe("when contract's bytecode is EVM-like", () => {
       beforeEach(() => {
         jest.spyOn(blockchainServiceMock, "getRawCodeHash").mockImplementation(async (address: string) => {

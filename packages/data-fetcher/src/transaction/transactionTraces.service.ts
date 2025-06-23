@@ -33,19 +33,21 @@ function getTransactionTraceData(
     };
   }
 
-  if (transactionTrace.type === "create") {
-    extractedData.contractAddresses.push({
-      address: transactionTrace.to,
-      blockNumber: transactionReceipt.blockNumber,
-      transactionHash: transactionReceipt.hash,
-      creatorAddress: transactionReceipt.from,
-      logIndex: extractedData.contractAddresses.length + 1,
+  if (transactionTrace) {
+    if (transactionTrace.type === "create") {
+      extractedData.contractAddresses.push({
+        address: transactionTrace.to,
+        blockNumber: transactionReceipt.blockNumber,
+        transactionHash: transactionReceipt.hash,
+        creatorAddress: transactionReceipt.from,
+        logIndex: extractedData.contractAddresses.length + 1,
+      });
+    }
+
+    transactionTrace.calls.forEach((subCall) => {
+      getTransactionTraceData(transactionReceipt, subCall, extractedData);
     });
   }
-
-  transactionTrace.calls.forEach((subCall) => {
-    getTransactionTraceData(transactionReceipt, subCall, extractedData);
-  });
 
   return extractedData;
 }
