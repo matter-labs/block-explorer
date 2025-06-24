@@ -65,7 +65,7 @@ export class AuthController {
       domain: new URL(this.configService.get<string>("prividium.appUrl")).hostname,
       address,
       statement: "Sign in to the Block Explorer",
-      uri: this.configService.get("appUrl"),
+      uri: this.configService.get("prividium.appUrl"),
       version: "1",
       chainId: this.configService.get("prividium.chainId"),
       nonce: generateNonce(),
