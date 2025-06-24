@@ -5,11 +5,11 @@ export type UserParam = {
   address: string;
 } | null;
 
-export const User = createParamDecorator<any, any, UserParam>((ctx: ExecutionContext) => {
+export const User = createParamDecorator<any, any, UserParam>((data: unknown, ctx: ExecutionContext) => {
   const request: Request = ctx.switchToHttp().getRequest();
-  const siwe = request.session.siwe;
+  const siwe = request.session?.siwe;
 
-  if (!request.session.verified || !siwe) {
+  if (!request.session?.verified || !siwe) {
     return null;
   }
 
