@@ -86,8 +86,17 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
       page: 1,
       offset: 1,
     });
-    const newOwner = logs[0]?.topics[2];
 
+    // Add validation for the log structure
+    if (!logs[0] || !logs[0].topics || logs[0].topics.length < 3) {
+      // Contract doesn't have a valid OwnershipTransferred event
+      res.locals.filterAddressOptions = {
+        includeBalances: false,
+      };
+      return;
+    }
+
+    const newOwner = logs[0].topics[2];
     const isOwner = newOwner?.toLowerCase() === zeroPadValue(userAddress, 32).toLowerCase();
     res.locals.filterAddressOptions = {
       includeBalances: isOwner,
