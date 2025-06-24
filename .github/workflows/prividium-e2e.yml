@@ -64,7 +64,6 @@ jobs:
             DATABASE_STATEMENT_TIMEOUT_MS=90000
             CONTRACT_VERIFICATION_API_URL=http://127.0.0.1:3070
             NETWORK_NAME=testnet-sepolia
-            APP_URL=http://127.0.0.1:3010
 
             BASE_TOKEN_SYMBOL=ETH
             BASE_TOKEN_DECIMALS=18
@@ -90,12 +89,14 @@ jobs:
             PRIVIDIUM_CHAIN_ID=271
             PRIVIDIUM_SESSION_MAX_AGE=86400000 # 1 day
             PRIVIDIUM_SESSION_SAME_SITE=strict
+            PRIVIDIUM_APP_URL=http://127.0.0.1:3010
+            PRIVIDIUM_SIWE_EXPIRATION_TIME=600000
 
           EOF
-          
+
           # Start API service
           npm run dev &
-          
+
           # Wait for API to be ready
           echo "Waiting for API to be ready..."
           for i in $(seq 1 30); do
@@ -137,7 +138,7 @@ jobs:
               networks: [
                 {
                   name: "prividium",
-                  l2NetworkName: "prividium", 
+                  l2NetworkName: "prividium",
                   l2ChainId: 271,
                   rpcUrl: "http://127.0.0.1:4041/rpc",
                   apiUrl: "http://127.0.0.1:3020",
@@ -159,7 +160,7 @@ jobs:
           # Start the app in development mode with Prividium config
           cd packages/app
           npm run dev -- --host 0.0.0.0 --port 3010 &
-          
+
           # Wait for app to be ready with retries
           echo "Waiting for app to be ready..."
           for i in $(seq 1 30); do
