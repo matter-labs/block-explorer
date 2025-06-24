@@ -5,7 +5,12 @@ export type UserParam = {
   address: string;
 } | null;
 
+/* istanbul ignore next */
 export const User = createParamDecorator<any, any, UserParam>((data: unknown, ctx: ExecutionContext) => {
+  return userFactory(ctx);
+});
+
+export function userFactory(ctx: ExecutionContext): UserParam {
   const request: Request = ctx.switchToHttp().getRequest();
   const siwe = request.session?.siwe;
 
@@ -14,4 +19,4 @@ export const User = createParamDecorator<any, any, UserParam>((data: unknown, ct
   }
 
   return { address: siwe.address };
-});
+}

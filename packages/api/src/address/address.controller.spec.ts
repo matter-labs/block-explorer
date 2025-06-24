@@ -265,49 +265,113 @@ describe("AddressController", () => {
         await expect(controller.getAddress(blockchainAddress, user)).rejects.toThrow(ForbiddenException);
       });
 
-      it("does not include balances if address is a contract and user is not owner", async () => {
-        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: mockUser, bytecode: "0x123" }));
-        logServiceMock.findManyByTopics.mockResolvedValueOnce([
-          {
-            topics: ["0x", "0x", zeroPadValue(Wallet.createRandom().address, 32)],
-            address: blockchainAddress,
-            blockNumber: 10,
-            logIndex: 0,
-            transactionHash: "0x",
-            transactionIndex: 0,
-            timestamp: new Date(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            number: 0,
-            data: "0x",
-            toJSON: jest.fn(),
-          },
-        ]);
-        await controller.getAddress(blockchainAddress, user);
-        expect(balanceServiceMock.getBalances).not.toHaveBeenCalled();
-      });
+      describe("when address is a contract", () => {
+        beforeEach(() => {
+          serviceMock.findOne.mockResolvedValue(mock<Address>({ address: blockchainAddress, bytecode: "0x123" }));
+          (transactionServiceMock.count as jest.Mock).mockResolvedValue(0);
+          (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue({
+            blockNumber: 30,
+            balances: {},
+          });
+        });
 
-      it("includes balances if address is a contract and user is owner", async () => {
-        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: mockUser, bytecode: "0x123" }));
-        logServiceMock.findManyByTopics.mockResolvedValueOnce([
-          {
-            topics: ["0x", "0x", zeroPadValue(mockUser, 32)],
+        it("does not include balances if user is not owner (no logs found)", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(logServiceMock.findManyByTopics).toHaveBeenCalledWith({
             address: blockchainAddress,
-            blockNumber: 10,
-            logIndex: 0,
-            transactionHash: "0x",
-            transactionIndex: 0,
-            timestamp: new Date(),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            number: 0,
-            data: "0x",
-            toJSON: jest.fn(),
-          },
-        ]);
-        await controller.getAddress(mockUser, user);
-        expect(serviceMock.findOne).toHaveBeenCalledWith(mockUser);
-        expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
+            topics: {
+              topic0: "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+            },
+            page: 1,
+            offset: 1,
+          });
+          expect(result.balances).toEqual({});
+        });
+
+        it("does not include balances if user is not owner (ownerTopic is undefined)", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+            {
+              topics: ["0x", "0x"], // topics[2] is undefined
+              address: blockchainAddress,
+              blockNumber: 10,
+              logIndex: 0,
+              transactionHash: "0x",
+              transactionIndex: 0,
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              number: 0,
+              data: "0x",
+              toJSON: jest.fn(),
+            },
+          ]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(result.balances).toEqual({});
+        });
+
+        it("does not include balances if user is not owner (different owner)", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+            {
+              topics: ["0x", "0x", zeroPadValue(Wallet.createRandom().address, 32)],
+              address: blockchainAddress,
+              blockNumber: 10,
+              logIndex: 0,
+              transactionHash: "0x",
+              transactionIndex: 0,
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              number: 0,
+              data: "0x",
+              toJSON: jest.fn(),
+            },
+          ]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(result.balances).toEqual({});
+        });
+
+        it("includes balances if user is owner", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+            {
+              topics: ["0x", "0x", zeroPadValue(mockUser, 32)],
+              address: blockchainAddress,
+              blockNumber: 10,
+              logIndex: 0,
+              transactionHash: "0x",
+              transactionIndex: 0,
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              number: 0,
+              data: "0x",
+              toJSON: jest.fn(),
+            },
+          ]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
+          expect(result.balances).toBeDefined();
+        });
+
+        it("does not include balances if logService throws an error", async () => {
+          logServiceMock.findManyByTopics.mockRejectedValueOnce(new Error("Database error"));
+          const loggerSpy = jest.spyOn(controller["logger"], "error").mockImplementation();
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(loggerSpy).toHaveBeenCalledWith(expect.any(Error));
+          expect(result.balances).toEqual({});
+
+          loggerSpy.mockRestore();
+        });
       });
 
       it("includes balances if address is an account and is self", async () => {

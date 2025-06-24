@@ -223,7 +223,7 @@ export class AddressController {
         return false;
       }
 
-      const ownerTopic = logs[0]?.topics[2];
+      const ownerTopic = logs[0].topics[2];
       if (!ownerTopic) {
         return false;
       }
