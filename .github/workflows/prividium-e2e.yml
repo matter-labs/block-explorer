@@ -64,7 +64,6 @@ jobs:
             DATABASE_STATEMENT_TIMEOUT_MS=90000
             CONTRACT_VERIFICATION_API_URL=http://127.0.0.1:3070
             NETWORK_NAME=testnet-sepolia
-            APP_URL=http://127.0.0.1:3010
 
             BASE_TOKEN_SYMBOL=ETH
             BASE_TOKEN_DECIMALS=18
@@ -90,12 +89,14 @@ jobs:
             PRIVIDIUM_CHAIN_ID=271
             PRIVIDIUM_SESSION_MAX_AGE=86400000 # 1 day
             PRIVIDIUM_SESSION_SAME_SITE=strict
+            PRIVIDIUM_APP_URL=http://127.0.0.1:3010
+            PRIVIDIUM_SIWE_EXPIRATION_TIME=600000
 
           EOF
-          
+
           # Start API service
           npm run dev &
-          
+
           # Wait for API to be ready
           echo "Waiting for API to be ready..."
           for i in $(seq 1 30); do
@@ -111,35 +112,19 @@ jobs:
             sleep 5
           done
 
-      - name: Build App (Prividium Mode)
-        run: |
-          cd packages/app
-          npm run build
-        env:
-          PRIVIDIUM: true
-          USE_DYNAMIC_CONFIG: true
-          API_URL: http://localhost:3020
-          BASE_URL: http://127.0.0.1:3010
-          L2_CHAIN_ID: 270
-          L2_NETWORK_NAME: Prividium
-          NETWORK_NAME: Prividium
-          RPC_URL: http://localhost:4000
-          PRIVIDIUM_MODE: true
-          BASE_TOKEN_ADDRESS: "0x000000000000000000000000000000000000800A"
-
       - name: Generate Prividium Config
         run: |
           # Create temporary Prividium config.js
           cat > packages/app/public/config.js << 'EOF'
           window["##runtimeConfig"] = {
-            appEnvironment: "default",
+            appEnvironment: "prividium",
             environmentConfig: {
               networks: [
                 {
                   name: "prividium",
-                  l2NetworkName: "prividium", 
-                  l2ChainId: 271,
-                  rpcUrl: "http://127.0.0.1:4041/rpc",
+                  l2NetworkName: "prividium",
+                  l2ChainId: 270,
+                  rpcUrl: "http://127.0.0.1:4040",
                   apiUrl: "http://127.0.0.1:3020",
                   baseTokenAddress: "0x000000000000000000000000000000000000800A",
                   hostnames: [],
@@ -159,7 +144,7 @@ jobs:
           # Start the app in development mode with Prividium config
           cd packages/app
           npm run dev -- --host 0.0.0.0 --port 3010 &
-          
+
           # Wait for app to be ready with retries
           echo "Waiting for app to be ready..."
           for i in $(seq 1 30); do
@@ -174,15 +159,6 @@ jobs:
             echo "Waiting for app to start... attempt $i"
             sleep 5
           done
-        env:
-          PRIVIDIUM: true
-          USE_DYNAMIC_CONFIG: true
-          API_URL: http://localhost:3020
-          L2_CHAIN_ID: 270
-          L2_NETWORK_NAME: Prividium
-          NETWORK_NAME: Prividium
-          RPC_URL: http://localhost:4000
-          BASE_TOKEN_ADDRESS: "0x000000000000000000000000000000000000800A"
 
       - name: Run Prividium E2E Tests
         timeout-minutes: 5
