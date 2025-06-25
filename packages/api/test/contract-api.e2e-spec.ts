@@ -113,7 +113,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "8.10.0",
-                ZkCompilerVersion: "10.0.0",
+                ZkSolcVersion: "10.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
                 EVMVersion: "Default",
@@ -185,7 +185,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "8.10.0",
-                ZkCompilerVersion: "10.0.0",
+                ZkSolcVersion: "10.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
                 EVMVersion: "Default",
@@ -238,7 +238,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "9.10.0",
-                ZkCompilerVersion: "11.0.0",
+                ZkSolcVersion: "11.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
                 EVMVersion: "Default",
@@ -290,7 +290,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "9.10.0",
-                ZkCompilerVersion: "11.0.0",
+                ZkSolcVersion: "11.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
                 EVMVersion: "Default",
@@ -363,7 +363,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>
@@ -403,7 +403,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorldCtor.sol:HelloWorldCtor",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
           constructorArguements: "0x94869207468657265210000000000000000000000000000000000000000000000",
           runs: 700,
         })
@@ -451,7 +451,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/Main.sol:Main",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
           constructorArguements: "0x94869207468657265210000000000000000000000000000000000000000000000",
           runs: 600,
           libraryname1: "contracts/MiniMath.sol:MiniMath",
@@ -485,7 +485,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>
@@ -511,7 +511,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>
