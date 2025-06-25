@@ -288,6 +288,41 @@ describe("ContractController", () => {
       } as unknown as VerifyContractRequestDto;
     });
 
+    describe("when deprecated zkCompilerVersion is used in the request", () => {
+      beforeEach(() => {
+        request.zkCompilerVersion = "v1.3.14";
+        request.zksolcVersion = undefined;
+      });
+
+      it("sends proper payload to the verification endpoint", async () => {
+        request = {
+          ...request,
+          sourceCode: "// SPDX-License-Identifier: UNLICENSED",
+          codeformat: ContractVerificationCodeFormatEnum.soliditySingleFile,
+        } as unknown as VerifyContractRequestDto;
+
+        pipeMock.mockReturnValue(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: 1234,
+            });
+          })
+        );
+
+        await controller.verifySourceContract(request.contractaddress, request);
+        expect(httpServiceMock.post).toBeCalledWith(`http://verification.api/contract_verification`, {
+          codeFormat: "solidity-single-file",
+          compilerSolcVersion: "0.8.17",
+          compilerZksolcVersion: "v1.3.14",
+          constructorArguments: "0x94869207468657265210000000000000000000000000000000000000000000000",
+          contractAddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
+          contractName: "contracts/HelloWorld.sol:HelloWorld",
+          optimizationUsed: true,
+          sourceCode: "// SPDX-License-Identifier: UNLICENSED",
+        });
+      });
+    });
+
     it("sends proper payload to the verification endpoint for single file solidity contract", async () => {
       request = {
         ...request,

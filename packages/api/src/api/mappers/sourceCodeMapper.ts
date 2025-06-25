@@ -61,6 +61,7 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
     }
   }
 
+  const zkCompilerVersion = data.request.compilerZksolcVersion || data.request.compilerZkvyperVersion;
   return {
     ABI: JSON.stringify(data.artifacts.abi),
     SourceCode: sourceCode,
@@ -78,6 +79,8 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
     SwarmSource: "",
     Proxy: "0",
     Implementation: "",
-    ZkSolcVersion: data.request.compilerZksolcVersion || data.request.compilerZkvyperVersion,
+    ZkSolcVersion: zkCompilerVersion,
+    // Deprecated fields, kept for backward compatibility
+    ZkCompilerVersion: zkCompilerVersion,
   };
 };

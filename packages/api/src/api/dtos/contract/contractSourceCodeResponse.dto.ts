@@ -138,6 +138,13 @@ export class ContractSourceCodeDto {
   public readonly CompilerVersion: string;
 
   @ApiProperty({
+    description: "Deprecated: Zk compiler version. Use ZkSolcVersion instead.",
+    example: "v1.3.14",
+    deprecated: true,
+  })
+  public readonly ZkCompilerVersion?: string;
+
+  @ApiProperty({
     description: "Zk compiler version",
     example: "v1.3.14",
   })

@@ -136,7 +136,9 @@ export class ContractController {
       ContractVerificationCodeFormatEnum.solidityJsonInput,
     ].includes(request.codeformat);
 
-    const isEVMContract = !request.zksolcVersion;
+    // zkCompilerVersion is an old field name, but we keep it for backward compatibility
+    const zkCompilerVersion = request.zksolcVersion || request.zkCompilerVersion;
+    const isEVMContract = !zkCompilerVersion;
     if (isEVMContract) {
       request.compilerversion = request.compilerversion.replace("v", "").split("+")[0];
       if (request.codeformat.includes("json")) {
@@ -189,7 +191,7 @@ export class ContractController {
           optimizationUsed: request.optimizationUsed === "1",
           ...(isSolidityContract &&
             !isEVMContract && {
-              compilerZksolcVersion: request.zksolcVersion,
+              compilerZksolcVersion: zkCompilerVersion,
               compilerSolcVersion: request.compilerversion,
             }),
           ...(isSolidityContract &&
@@ -199,7 +201,7 @@ export class ContractController {
             }),
           ...(!isSolidityContract &&
             !isEVMContract && {
-              compilerZkvyperVersion: request.zksolcVersion,
+              compilerZkvyperVersion: zkCompilerVersion,
               compilerVyperVersion: request.compilerversion,
             }),
           ...(!isSolidityContract &&
