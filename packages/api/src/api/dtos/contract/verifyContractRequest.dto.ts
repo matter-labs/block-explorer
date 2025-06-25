@@ -89,14 +89,14 @@ export class VerifyContractRequestDto {
   public compilerversion: string;
 
   @ApiProperty({
-    name: "zkCompilerVersion",
+    name: "zksolcVersion",
     description: "Zk compiler version",
     example: "v1.3.14",
     required: false,
   })
   @IsString()
   @IsOptional()
-  public zkCompilerVersion: string;
+  public zksolcVersion: string;
 
   @ApiProperty({
     name: "evmVersion",

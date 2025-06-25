@@ -78,6 +78,6 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
     SwarmSource: "",
     Proxy: "0",
     Implementation: "",
-    ZkCompilerVersion: data.request.compilerZksolcVersion || data.request.compilerZkvyperVersion,
+    ZkSolcVersion: data.request.compilerZksolcVersion || data.request.compilerZkvyperVersion,
   };
 };

@@ -141,7 +141,7 @@ export class ContractSourceCodeDto {
     description: "Zk compiler version",
     example: "v1.3.14",
   })
-  public readonly ZkCompilerVersion?: string;
+  public readonly ZkSolcVersion?: string;
 
   @ApiProperty({
     description: "EVM version",
