@@ -63,12 +63,19 @@ export class TransactionService {
     } as unknown as TransactionInfo;
 
     if (transactionReceipt.status === 0) {
-      const debugTraceTransactionResult = await this.blockchainService.debugTraceTransaction(transactionHash, true);
-      if (debugTraceTransactionResult?.error) {
-        transactionInfo.error = debugTraceTransactionResult.error;
-      }
-      if (debugTraceTransactionResult?.revertReason) {
-        transactionInfo.revertReason = debugTraceTransactionResult.revertReason;
+      try {
+        const debugTraceTransactionResult = await this.blockchainService.debugTraceTransaction(transactionHash, true);
+        if (debugTraceTransactionResult?.error) {
+          transactionInfo.error = debugTraceTransactionResult.error;
+        }
+        if (debugTraceTransactionResult?.revertReason) {
+          transactionInfo.revertReason = debugTraceTransactionResult.revertReason;
+        }
+      } catch (error) {
+        this.logger.error(
+          { message: "Failed to fetch transaction trace", transactionHash, error: error.message },
+          error.stack
+        );
       }
     }
 
