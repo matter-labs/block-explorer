@@ -52,7 +52,7 @@ export class BlockchainService implements OnModuleInit {
       stopDurationMeasuring({ function: functionName });
       return result;
     } catch (error) {
-      this.logger.error({ message: error.message, code: error.code }, error.stack);
+      this.logger.error({ message: error.message, code: error.code, function: functionName }, error.stack);
       const retryTimeout = this.errorCodesForQuickRetry.includes(error.code)
         ? this.rpcCallsQuickRetryTimeout
         : this.rpcCallsDefaultRetryTimeout;
