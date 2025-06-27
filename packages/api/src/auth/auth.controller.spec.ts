@@ -32,6 +32,7 @@ describe("AuthController", () => {
     PRIVIDIUM_APP_URL: "https://blockexplorer.com",
     "prividium.siweExpirationTime": 1000 * 60 * 60,
     PRIVIDIUM_SIWE_EXPIRATION_TIME: 1000 * 60 * 60,
+    "prividium.checkWhitelist": true,
   };
 
   beforeEach(() => {

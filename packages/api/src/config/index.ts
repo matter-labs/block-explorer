@@ -185,7 +185,10 @@ export default () => {
           .int({ message: PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG })
           .positive(PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG),
         appUrl: z.string({ message: PRIVIDIUM_APP_URL_ERROR_MSG }).url(PRIVIDIUM_APP_URL_ERROR_MSG),
-        checkWhiteList: z.enum(["true", "false"]).default("true"),
+        checkWhiteList: z
+          .enum(["true", "false"])
+          .default("true")
+          .transform((val) => val === "true"),
       },
       { message: "Invalid prividium configuration" }
     );

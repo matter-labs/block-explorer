@@ -59,14 +59,12 @@ export class TransactionService {
     filterOptions: FilterTransactionsOptions,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
-    const { visibleBy, ...basicFilters } = filterOptions;
     if (filterOptions.address) {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
       const commonParams: Record<string, string | number | Date> = {
         address: hexTransformer.to(filterOptions.address),
         ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
         ...(filterOptions.l1BatchNumber !== undefined && { l1BatchNumber: filterOptions.l1BatchNumber }),
-        ...(visibleBy !== undefined && { visibleBy: hexTransformer.to(filterOptions.visibleBy) }),
       };
 
       // FindOperator doesn't work with this query, so we need to build the filter manually
@@ -113,14 +111,8 @@ export class TransactionService {
       if (filterOptions.visibleBy !== undefined) {
         this.buildVisibleBySubquery(queryBuilder, filterOptions.visibleBy);
       }
-
-      const logAddressParam = {
-        paddedAddressBytes: hexTransformer.to(zeroPadValue(filterOptions.visibleBy || filterOptions.address, 32)),
-      };
-
       queryBuilder.setParameters({
         ...commonParams,
-        ...logAddressParam,
       });
 
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
@@ -133,14 +125,15 @@ export class TransactionService {
       queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
       return await paginate<Transaction>(queryBuilder, paginationOptions);
     } else {
+      const { visibleBy, ...basicFilters } = filterOptions;
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
       queryBuilder.leftJoin("transaction.batch", "batch");
       queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
       queryBuilder.where(basicFilters);
-      if (filterOptions.visibleBy !== undefined) {
-        this.buildVisibleBySubquery(queryBuilder, filterOptions.visibleBy);
+      if (visibleBy !== undefined) {
+        this.buildVisibleBySubquery(queryBuilder, visibleBy);
       }
       queryBuilder.orderBy("transaction.blockNumber", "DESC");
       queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
@@ -228,28 +221,25 @@ export class TransactionService {
   }
 
   private buildVisibleBySubquery(queryBuilder: SelectQueryBuilder<any>, address: string) {
-    const sq1 = this.transactionRepository
-      .createQueryBuilder("innerTx1")
-      .select("innerTx1.hash")
-      .where("innerTx1.from = :visibleBy");
-    const sq2 = this.transactionRepository
-      .createQueryBuilder("innerTx2")
-      .select("innerTx2.hash")
-      .where("innerTx2.to = :visibleBy");
-    const sq3 = this.logRepository
-      .createQueryBuilder("log1")
-      .select("log1.transactionHash")
-      .where("log1.topics[2] = :paddedVisibleBy");
+    const sq1 = this.transactionRepository.createQueryBuilder("innerTx1");
+    sq1.select("innerTx1.hash");
+    sq1.where("innerTx1.from = :visibleBy");
 
-    const sq4 = this.logRepository
-      .createQueryBuilder("log2")
-      .select("log2.transactionHash")
-      .where("log2.topics[3] = :paddedVisibleBy");
+    const sq2 = this.transactionRepository.createQueryBuilder("innerTx2");
+    sq2.select("innerTx2.hash");
+    sq2.where("innerTx2.to = :visibleBy");
 
-    const sq5 = this.logRepository
-      .createQueryBuilder("log3")
-      .select("log3.transactionHash")
-      .where("log3.topics[4] = :paddedVisibleBy");
+    const sq3 = this.logRepository.createQueryBuilder("log1");
+    sq3.select("log1.transactionHash");
+    sq3.where("log1.topics[2] = :paddedVisibleBy");
+
+    const sq4 = this.logRepository.createQueryBuilder("log2");
+    sq4.select("log2.transactionHash");
+    sq4.where("log2.topics[3] = :paddedVisibleBy");
+
+    const sq5 = this.logRepository.createQueryBuilder("log3");
+    sq5.select("log3.transactionHash");
+    sq5.where("log3.topics[4] = :paddedVisibleBy");
 
     const strings = [sq1, sq2, sq3, sq4, sq5].map((q) => q.getQuery()).join(" UNION ");
     const subquery = `(${strings})`;
