@@ -47,18 +47,8 @@ export class TransactionController {
     const userFilters: FilterTransactionsOptions = {};
 
     if (user) {
-      // In all cases we filter by log topics where the address is mentioned
-      userFilters.filterAddressInLogTopics = true;
-
       // If target address is not provided, we filter by own address
-      if (!filterTransactionsOptions.address) {
-        userFilters.address = user.address;
-      }
-
-      // If target address is provided and it's not own, we filter transactions between own and target address
-      if (filterTransactionsOptions.address && !isAddressEqual(filterTransactionsOptions.address, user.address)) {
-        userFilters.visibleBy = user.address;
-      }
+      userFilters.visibleBy = user.address;
     }
 
     const filterTransactionsListOptions = buildDateFilter(

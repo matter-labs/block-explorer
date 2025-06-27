@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import * as typeorm from "typeorm";
-import { Brackets, SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
+import { SelectQueryBuilder } from "typeorm";
 import { IPaginationMeta, Pagination } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { SortingOrder } from "../common/types";
@@ -12,6 +12,8 @@ import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
 import { Log } from "../log/log.entity";
+import { hexTransformer } from "../common/transformers/hex.transformer";
+import { zeroPadValue } from "ethers";
 
 jest.mock("../common/utils");
 
@@ -148,6 +150,7 @@ describe("TransactionService", () => {
 
     beforeEach(() => {
       queryBuilderMock = mock<typeorm.SelectQueryBuilder<Transaction>>();
+      queryBuilderMock.where;
       addressTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressTransaction>>();
       logQueryBuilderMock = mock<typeorm.SelectQueryBuilder<Log>>();
 
@@ -240,18 +243,13 @@ describe("TransactionService", () => {
         (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
       });
 
-      it("creates query builder with proper params", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
-        expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("sub1_addressTransaction");
-      });
-
       it("joins transaction records", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.innerJoin).toBeCalledTimes(1);
-        expect(addressTransactionsQueryBuilderMock.innerJoin).toHaveBeenCalledWith(
-          "sub1_addressTransaction.transaction",
-          "sub1_transaction"
+        expect(queryBuilderMock.innerJoin).toBeCalledTimes(1);
+        expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith(
+          AddressTransaction,
+          "addressTransaction",
+          "addressTransaction.transactionHash = transaction.hash"
         );
       });
 
@@ -275,19 +273,11 @@ describe("TransactionService", () => {
 
       it("filters transactions by the specified options when only address is defined", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith(
-          "sub1_addressTransaction.address = :address"
-        );
+        expect(queryBuilderMock.where).toHaveBeenCalledWith("addressTransaction.address = :address");
 
-        expect(addressTransactionsQueryBuilderMock.andWhere).not.toHaveBeenCalledWith(
-          "sub1_transaction.blockNumber = :blockNumber"
-        );
-        expect(addressTransactionsQueryBuilderMock.andWhere).not.toHaveBeenCalledWith(
-          "sub1_transaction.l1BatchNumber = :l1BatchNumber"
-        );
-        expect(addressTransactionsQueryBuilderMock.andWhere).not.toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt <= :receivedAt"
-        );
+        expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith("addressTransaction.blockNumber = :blockNumber");
+        expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith("addressTransaction.l1BatchNumber = :l1BatchNumber");
+        expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith("addressTransaction.receivedAt <= :receivedAt");
       });
 
       it("filters transactions by the specified options when additional filters are defined", async () => {
@@ -298,18 +288,11 @@ describe("TransactionService", () => {
           receivedAt: new typeorm.FindOperator("lessThanOrEqual", new Date()),
         };
         await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith(
-          "sub1_addressTransaction.address = :address"
-        );
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.blockNumber = :blockNumber"
-        );
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.l1BatchNumber = :l1BatchNumber"
-        );
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt <= :receivedAt"
-        );
+        expect(queryBuilderMock.where).toHaveBeenCalledWith("addressTransaction.address = :address");
+
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.blockNumber = :blockNumber");
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.l1BatchNumber = :l1BatchNumber");
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.receivedAt <= :receivedAt");
       });
 
       it("selects only needed batch fields", async () => {
@@ -340,63 +323,34 @@ describe("TransactionService", () => {
       it("filters by visibleBy", async () => {
         filterTransactionsOptions.visibleBy = "0xa61464658AfeAf65CccaaFD3a512b69A83B77618";
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
-        const brackets = addressTransactionsQueryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
-        const qb = mock<WhereExpressionBuilder>();
-        brackets.whereFactory(qb);
-        expect(qb.where).toHaveBeenCalledWith("sub1_transaction.from = :visibleBy");
-        expect(qb.orWhere).toHaveBeenCalledWith("sub1_transaction.to = :visibleBy");
-      });
-
-      it("filters by log when filterAddressInLogTopics is true", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("sub2_log");
-        expect(logQueryBuilderMock.select).toHaveBeenCalledWith("sub2_log.transactionHash");
-        expect(logQueryBuilderMock.innerJoin).toHaveBeenCalledWith("sub2_log.transaction", "sub2_transaction");
-        expect(logQueryBuilderMock.where).toHaveBeenCalledWith(expect.any(Brackets));
-        const brackets = logQueryBuilderMock.where.mock.calls[0][0] as Brackets;
-        const qb = mock<WhereExpressionBuilder>();
-        brackets.whereFactory(qb);
-        expect(qb.where).toHaveBeenCalledWith("sub2_log.topics[1] = :paddedAddressBytes");
-        expect(qb.orWhere).toHaveBeenCalledWith("sub2_log.topics[2] = :paddedAddressBytes");
-        expect(qb.orWhere).toHaveBeenCalledWith("sub2_log.topics[3] = :paddedAddressBytes");
-      });
-
-      it("filters by log when filterAddressInLogTopics is true and visibleBy is provided", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
-        filterTransactionsOptions.visibleBy = "0xa61464658AfeAf65CccaaFD3a512b69A83B77618";
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("sub2_log");
-        expect(logQueryBuilderMock.select).toHaveBeenCalledWith("sub2_log.transactionHash");
-        expect(logQueryBuilderMock.innerJoin).toHaveBeenCalledWith("sub2_log.transaction", "sub2_transaction");
-        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
-        const brackets = logQueryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
-        const qb = mock<WhereExpressionBuilder>();
-        brackets.whereFactory(qb);
-        expect(qb.where).toHaveBeenCalledWith("sub2_transaction.from = :address");
-        expect(qb.orWhere).toHaveBeenCalledWith("sub2_transaction.to = :address");
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(expect.stringMatching(/UNION/));
+        expect(queryBuilderMock.where).toHaveBeenCalledWith("innerTx1.from = :visibleBy");
+        expect(queryBuilderMock.where).toHaveBeenCalledWith("innerTx2.to = :visibleBy");
+        expect(logQueryBuilderMock.where).toHaveBeenCalledWith("log1.topics[2] = :paddedVisibleBy");
+        expect(logQueryBuilderMock.where).toHaveBeenCalledWith("log2.topics[3] = :paddedVisibleBy");
+        expect(logQueryBuilderMock.where).toHaveBeenCalledWith("log3.topics[4] = :paddedVisibleBy");
+        expect(queryBuilderMock.setParameters).toHaveBeenCalledWith({
+          visibleBy: hexTransformer.to("0xa61464658AfeAf65CccaaFD3a512b69A83B77618"),
+          paddedVisibleBy: hexTransformer.to(zeroPadValue("0xa61464658AfeAf65CccaaFD3a512b69A83B77618", 32)),
+        });
       });
 
       it("filters by and block number", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
         filterTransactionsOptions.blockNumber = 10;
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith("sub2_transaction.blockNumber = :blockNumber");
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.blockNumber = :blockNumber");
       });
 
       it("filters by and batch number", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
         filterTransactionsOptions.l1BatchNumber = 10;
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith("sub2_transaction.l1BatchNumber = :l1BatchNumber");
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.l1BatchNumber = :l1BatchNumber");
       });
 
       it("filters by and receivedAt", async () => {
-        filterTransactionsOptions.filterAddressInLogTopics = true;
         filterTransactionsOptions.receivedAt = typeorm.LessThanOrEqual(new Date());
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(logQueryBuilderMock.andWhere).toHaveBeenCalledWith("sub2_transaction.receivedAt <= :receivedAt");
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.receivedAt <= :receivedAt");
       });
 
       it("can filter between", async () => {
@@ -407,8 +361,8 @@ describe("TransactionService", () => {
           receivedAt: typeorm.Between(date1, date2),
         };
         await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt BETWEEN :receivedAtStart AND :receivedAtEnd"
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
+          "addressTransaction.receivedAt BETWEEN :receivedAtStart AND :receivedAtEnd"
         );
       });
 
@@ -419,9 +373,7 @@ describe("TransactionService", () => {
           receivedAt: typeorm.MoreThanOrEqual(date1),
         };
         await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt >= :receivedAt"
-        );
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.receivedAt >= :receivedAt");
       });
 
       it("can filter by less than", async () => {
@@ -431,9 +383,7 @@ describe("TransactionService", () => {
           receivedAt: typeorm.LessThanOrEqual(date1),
         };
         await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.receivedAt <= :receivedAt"
-        );
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.receivedAt <= :receivedAt");
       });
 
       it("cannot filter by strict less", async () => {
@@ -448,23 +398,10 @@ describe("TransactionService", () => {
       it("can also filter by block number", async () => {
         const filterOptions = {
           address: "address",
-          blockNumber: 10,
-        };
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.blockNumber = :blockNumber"
-        );
-      });
-
-      it("can also filter by block number", async () => {
-        const filterOptions = {
-          address: "address",
           l1BatchNumber: 10,
         };
         await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "sub1_transaction.l1BatchNumber = :l1BatchNumber"
-        );
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("addressTransaction.l1BatchNumber = :l1BatchNumber");
       });
     });
   });

@@ -212,6 +212,11 @@ export class AuthController {
   }
 
   private async checkWhitelist(address: string): Promise<boolean> {
+    const performCheck = this.configService.get<boolean>("prividium.checkWhitelist");
+    if (!performCheck) {
+      return true;
+    }
+
     const url = new URL(`/users/${address}`, this.configService.get("prividium.privateRpcUrl"));
 
     let response: Response;
