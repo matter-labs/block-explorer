@@ -106,6 +106,7 @@ export default () => {
     PRIVIDIUM_CHAIN_ID,
     PRIVIDIUM_SESSION_MAX_AGE,
     PRIVIDIUM_SESSION_SAME_SITE,
+    PRIVIDIUM_CHECK_WHITELIST,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -179,6 +180,7 @@ export default () => {
           .string({ message: APP_URL_ERROR_MSG })
           .url(APP_URL_ERROR_MSG)
           .transform((url) => new URL(url).hostname),
+        checkWhiteList: z.enum(["true", "false"]).default("true"),
       },
       { message: "Invalid prividium configuration" }
     );
@@ -190,6 +192,7 @@ export default () => {
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
       sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
       appHostname: APP_URL,
+      checkWhiteList: PRIVIDIUM_CHECK_WHITELIST,
     });
 
     if (!result.success) {

@@ -17,7 +17,6 @@ export interface FilterTransactionsOptions {
   address?: string;
   l1BatchNumber?: number;
   receivedAt?: FindOperator<Date>;
-  filterAddressInLogTopics?: boolean;
   visibleBy?: string;
 }
 
@@ -60,13 +59,14 @@ export class TransactionService {
     filterOptions: FilterTransactionsOptions,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
+    const { visibleBy, ...basicFilters } = filterOptions;
     if (filterOptions.address) {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
       const commonParams: Record<string, string | number | Date> = {
         address: hexTransformer.to(filterOptions.address),
         ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
         ...(filterOptions.l1BatchNumber !== undefined && { l1BatchNumber: filterOptions.l1BatchNumber }),
-        ...(filterOptions.visibleBy !== undefined && { visibleBy: hexTransformer.to(filterOptions.visibleBy) }),
+        ...(visibleBy !== undefined && { visibleBy: hexTransformer.to(filterOptions.visibleBy) }),
       };
 
       // FindOperator doesn't work with this query, so we need to build the filter manually
@@ -138,10 +138,14 @@ export class TransactionService {
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
       queryBuilder.leftJoin("transaction.batch", "batch");
       queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
-      queryBuilder.where(filterOptions);
+      queryBuilder.where(basicFilters);
+      if (filterOptions.visibleBy !== undefined) {
+        this.buildVisibleBySubquery(queryBuilder, filterOptions.visibleBy);
+      }
       queryBuilder.orderBy("transaction.blockNumber", "DESC");
       queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
       queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
+      console.log(queryBuilder.getQuery());
       return await paginate<Transaction>(queryBuilder, paginationOptions);
     }
   }
@@ -253,6 +257,6 @@ export class TransactionService {
 
     queryBuilder.andWhere(`transaction.hash in ${subquery}`);
     const paddedAddress = hexTransformer.to(zeroPadValue(address, 32));
-    queryBuilder.setParameters({ visibleBy: address, paddedVisibleBy: paddedAddress });
+    queryBuilder.setParameters({ visibleBy: hexTransformer.to(address), paddedVisibleBy: paddedAddress });
   }
 }

@@ -105,36 +105,12 @@ export class PrividiumFilteringMiddleware implements NestMiddleware {
   }
 
   private filterTransactionControllerRoutes(req: Request, res: Response, pathname: string) {
-    const targetAddress = req.query.address as string;
-
     // Only /transactions route is filtered by address
-    if (pathname !== "/transactions") {
-      return;
-    }
-
-    // If target address is not provided, we filter by own address
-    if (!targetAddress) {
+    if (pathname === "/transactions") {
       res.locals.filterTransactionsOptions = {
-        address: req.session.siwe.address,
-        filterAddressInLogTopics: true,
+        visibleBy: req.session.siwe.address,
       };
-      return;
     }
-
-    // If target address is provided, and it's own address, transaction is not filtered
-    if (this.isOwnAddress(req, targetAddress)) {
-      res.locals.filterTransactionsOptions = {
-        filterAddressInLogTopics: true,
-      };
-      return;
-    }
-
-    // If target address is provided, and it's not own address, we filter transactions
-    // between own address and target address
-    res.locals.filterTransactionsOptions = {
-      visibleBy: req.session.siwe.address,
-      filterAddressInLogTopics: true,
-    };
     return;
   }
 
