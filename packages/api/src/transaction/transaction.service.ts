@@ -108,7 +108,7 @@ export class TransactionService {
         addressTransactionSubQuery.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
       }
       // If `visibleBy` is provided, we filter by transactions that are
-      // from or to `visibleBy` address in addition to being from or to `address
+      // from or to `visibleBy` address in addition to being from or to `address`
       if (filterOptions.visibleBy !== undefined) {
         addressTransactionSubQuery.andWhere(
           new Brackets((qb) => {
