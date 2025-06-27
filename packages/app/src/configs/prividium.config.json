@@ -1,0 +1,18 @@
+{
+  "networks": [
+    {
+      "apiUrl": "http://localhost:3020",
+      "bridgeUrl": "http://localhost:3000/bridge",
+      "hostnames": ["localhost"],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l2ChainId": 270,
+      "l2NetworkName": "Prividium",
+      "maintenance": false,
+      "name": "Prividium",
+      "published": true,
+      "rpcUrl": "http://localhost:4000",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800A",
+      "prividium": true
+    }
+  ]
+}

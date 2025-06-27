@@ -145,7 +145,6 @@ export class TransactionService {
       queryBuilder.orderBy("transaction.blockNumber", "DESC");
       queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
       queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
-      console.log(queryBuilder.getQuery());
       return await paginate<Transaction>(queryBuilder, paginationOptions);
     }
   }

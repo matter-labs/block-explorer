@@ -8,8 +8,8 @@ export class AddIndexesForLogsTopics1746557256883 implements MigrationInterface 
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP INDEX LogsTopic1 on public.logs;`);
-    await queryRunner.query(`DROP INDEX LogsTopic2 on public.logs;`);
-    await queryRunner.query(`DROP INDEX LogsTopic3 on public.logs;`);
+    await queryRunner.query(`DROP INDEX LogsTopic1;`);
+    await queryRunner.query(`DROP INDEX LogsTopic2;`);
+    await queryRunner.query(`DROP INDEX LogsTopic3;`);
   }
 }

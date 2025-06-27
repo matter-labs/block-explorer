@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { NotFoundException } from "@nestjs/common";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { TransactionController } from "./transaction.controller";
@@ -11,10 +11,11 @@ import { Transfer } from "../transfer/transfer.entity";
 import { Log } from "../log/log.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
-import { Response } from "express";
+import { UserParam } from "../user/user.decorator";
 
 jest.mock("../common/utils", () => ({
   buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
+  isAddressEqual: jest.fn(),
 }));
 
 describe("TransactionController", () => {
@@ -73,8 +74,7 @@ describe("TransactionController", () => {
     });
 
     it("queries transactions with the specified options", async () => {
-      const response = mock<Response>();
-      await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, response);
+      await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, null);
       expect(serviceMock.findAll).toHaveBeenCalledTimes(1);
       expect(serviceMock.findAll).toHaveBeenCalledWith(
         {
@@ -90,38 +90,78 @@ describe("TransactionController", () => {
     });
 
     it("returns the transactions", async () => {
-      const response = mock<Response>();
       const result = await controller.getTransactions(
         filterTransactionsOptions,
         listFilterOptions,
         pagingOptions,
-        response
+        null
       );
       expect(result).toBe(transactions);
     });
 
-    it("works when locals is not defined", async () => {
-      const response = mock<Response>();
-      response.locals.filterTransactionsOptions = undefined;
-      const result = await controller.getTransactions(
-        filterTransactionsOptions,
-        listFilterOptions,
-        pagingOptions,
-        response
-      );
-      expect(result).toBe(transactions);
-    });
+    describe("when user is provided", () => {
+      let user: MockProxy<UserParam>;
+      const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      beforeEach(() => {
+        user = mock<UserParam>({ address: mockUser });
+      });
 
-    it("works when locals are defined", async () => {
-      const response = mock<Response>();
-      response.locals.filterTransactionsOptions = {};
-      const result = await controller.getTransactions(
-        filterTransactionsOptions,
-        listFilterOptions,
-        pagingOptions,
-        response
-      );
-      expect(result).toBe(transactions);
+      it("filters by own address when no address is provided", async () => {
+        const filterOptionsWithoutAddress = { blockNumber: 10 };
+        await controller.getTransactions(filterOptionsWithoutAddress, listFilterOptions, pagingOptions, user);
+        expect(serviceMock.findAll).toHaveBeenCalledWith(
+          {
+            ...filterOptionsWithoutAddress,
+            timestamp: "timestamp",
+            filterAddressInLogTopics: true,
+            address: mockUser,
+          },
+          {
+            filterOptions: { ...filterOptionsWithoutAddress, ...listFilterOptions },
+            ...pagingOptions,
+            route: "transactions",
+          }
+        );
+      });
+
+      it("filters transactions visible by user when different address is provided", async () => {
+        const { isAddressEqual } = jest.requireMock("../common/utils");
+        isAddressEqual.mockReturnValue(false);
+
+        await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, user);
+        expect(serviceMock.findAll).toHaveBeenCalledWith(
+          {
+            ...filterTransactionsOptions,
+            timestamp: "timestamp",
+            filterAddressInLogTopics: true,
+            visibleBy: mockUser,
+          },
+          {
+            filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
+            ...pagingOptions,
+            route: "transactions",
+          }
+        );
+      });
+
+      it("does not set visibleBy when provided address is same as user address", async () => {
+        const { isAddressEqual } = jest.requireMock("../common/utils");
+        isAddressEqual.mockReturnValue(true);
+
+        await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, user);
+        expect(serviceMock.findAll).toHaveBeenCalledWith(
+          {
+            ...filterTransactionsOptions,
+            timestamp: "timestamp",
+            filterAddressInLogTopics: true,
+          },
+          {
+            filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
+            ...pagingOptions,
+            route: "transactions",
+          }
+        );
+      });
     });
   });
 

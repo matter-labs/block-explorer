@@ -12,6 +12,7 @@ import {
   numberToHex,
   parseIntToHex,
   parseReqPathname,
+  isAddressEqual,
 } from "./utils";
 import { IPaginationOptions } from "./types";
 
@@ -459,6 +460,81 @@ describe("utils", () => {
         originalUrl: "http://example.com/path/to/resource?query=1",
       } as any;
       expect(parseReqPathname(req)).toBe("/path/to/resource");
+    });
+  });
+
+  describe("isAddressEqual", () => {
+    it("returns true when both addresses are identical and valid", () => {
+      const address = "0x1234567890123456789012345678901234567890";
+      expect(isAddressEqual(address, address)).toBe(true);
+    });
+
+    it("returns true when both addresses are the same but one is checksummed", () => {
+      const address1 = "0x1234567890123456789012345678901234567890";
+      const address2 = "0x1234567890123456789012345678901234567890"; // Same but potentially different checksum
+      expect(isAddressEqual(address1, address2)).toBe(true);
+    });
+
+    it("returns false when addresses are different", () => {
+      const address1 = "0x1234567890123456789012345678901234567890";
+      const address2 = "0x0987654321098765432109876543210987654321";
+      expect(isAddressEqual(address1, address2)).toBe(false);
+    });
+
+    it("returns false when first address is invalid", () => {
+      const invalidAddress = "0xinvalid";
+      const validAddress = "0x1234567890123456789012345678901234567890";
+      expect(isAddressEqual(invalidAddress, validAddress)).toBe(false);
+    });
+
+    it("returns false when second address is invalid", () => {
+      const validAddress = "0x1234567890123456789012345678901234567890";
+      const invalidAddress = "0xinvalid";
+      expect(isAddressEqual(validAddress, invalidAddress)).toBe(false);
+    });
+
+    it("returns false when both addresses are invalid", () => {
+      const invalidAddress1 = "0xinvalid";
+      const invalidAddress2 = "0xalsoinvalid";
+      expect(isAddressEqual(invalidAddress1, invalidAddress2)).toBe(false);
+    });
+
+    it("returns false when addresses are empty strings", () => {
+      expect(isAddressEqual("", "")).toBe(false);
+    });
+
+    it("returns false when one address is empty", () => {
+      const validAddress = "0x1234567890123456789012345678901234567890";
+      expect(isAddressEqual("", validAddress)).toBe(false);
+      expect(isAddressEqual(validAddress, "")).toBe(false);
+    });
+
+    it("returns false when addresses are too short", () => {
+      const shortAddress1 = "0x123";
+      const shortAddress2 = "0x456";
+      expect(isAddressEqual(shortAddress1, shortAddress2)).toBe(false);
+    });
+
+    it("returns false when addresses are too long", () => {
+      const longAddress1 = "0x12345678901234567890123456789012345678901234567890";
+      const longAddress2 = "0x98765432109876543210987654321098765432109876543210";
+      expect(isAddressEqual(longAddress1, longAddress2)).toBe(false);
+    });
+
+    it("returns false when addresses are not hex strings", () => {
+      const nonHexAddress1 = "not-an-address";
+      const nonHexAddress2 = "also-not-an-address";
+      expect(isAddressEqual(nonHexAddress1, nonHexAddress2)).toBe(false);
+    });
+
+    it("handles null and undefined gracefully", () => {
+      const validAddress = "0x1234567890123456789012345678901234567890";
+      expect(isAddressEqual(null as any, validAddress)).toBe(false);
+      expect(isAddressEqual(validAddress, null as any)).toBe(false);
+      expect(isAddressEqual(undefined as any, validAddress)).toBe(false);
+      expect(isAddressEqual(validAddress, undefined as any)).toBe(false);
+      expect(isAddressEqual(null as any, null as any)).toBe(false);
+      expect(isAddressEqual(undefined as any, undefined as any)).toBe(false);
     });
   });
 });

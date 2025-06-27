@@ -68,16 +68,16 @@ export class AuthController {
     }
 
     const message = new SiweMessage({
-      domain: this.configService.get<string>("prividium.appHostname"),
+      domain: new URL(this.configService.get<string>("prividium.appUrl")).hostname,
       address,
       statement: "Sign in to the Block Explorer",
-      uri: this.configService.get("appUrl"),
+      uri: this.configService.get("prividium.appUrl"),
       version: "1",
       chainId: this.configService.get("prividium.chainId"),
       nonce: generateNonce(),
       scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
       issuedAt: new Date().toISOString(),
-      expirationTime: new Date(Date.now() + 1000 * 60 * 60).toISOString(), // 1 hour
+      expirationTime: new Date(Date.now() + this.configService.get("prividium.siweExpirationTime")).toISOString(),
     });
     req.session = { siwe: message };
     return message.prepareMessage();
@@ -115,7 +115,7 @@ export class AuthController {
     const siweMessage = new SiweMessage(req.session.siwe);
     if (siweMessage.chainId !== this.configService.get("prividium.chainId")) {
       this.clearSession(req);
-      throw new BadRequestException({ message: "Failed to verify signature" });
+      throw new BadRequestException({ message: "Failed to verify signature", reason: "Invalid chain ID" });
     }
 
     const { success, error } = await siweMessage.verify(
@@ -183,12 +183,12 @@ export class AuthController {
     schema: { type: "object", properties: { message: { type: "string" } } },
   })
   public async token(@Req() req: Request) {
-    const url = new URL("/users", this.configService.get("PRIVIDIUM_PRIVATE_RPC_URL"));
+    const url = new URL("/users", this.configService.get("prividium.privateRpcUrl"));
     const response = await fetch(url, {
       method: "POST",
       body: JSON.stringify({
         address: req.session.siwe.address,
-        secret: this.configService.get("PRIVIDIUM_PRIVATE_RPC_SECRET"),
+        secret: this.configService.get("prividium.privateRpcSecret"),
       }),
       headers: { "Content-Type": "application/json" },
     });
@@ -279,7 +279,7 @@ export class AuthController {
       // Left as 500 since now everyone is able to generate RPC tokens.
       // In the future, this must be changed to handle unauthorized responses, once the
       // Private RPC is adapted.
-      throw new InternalServerErrorException();
+      throw new InternalServerErrorException({ message: "Error parsing private RPC response" });
     }
 
     return result.data;

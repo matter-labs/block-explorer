@@ -5,11 +5,15 @@ import { $fetch, FetchError } from "ohmyfetch";
 
 import useContractVerification from "@/composables/useContractVerification";
 
+import type { SpyInstance } from "vitest";
+
 import { CompilerEnum, type ContractVerificationData } from "@/types";
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => Promise.resolve());
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => Promise.resolve()),
+    $fetch: fetchSpy,
     FetchError: function error() {
       return;
     },

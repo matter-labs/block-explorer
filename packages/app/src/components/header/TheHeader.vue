@@ -29,7 +29,7 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
-          <WalletStatusBar v-if="prividium" class="metamask-button-container" />
+          <WalletStatusBar v-if="runtimeConfig.appEnvironment === 'prividium'" class="metamask-button-container" />
           <NetworkSwitch v-else />
           <LocaleSwitch
             :value="(locale as string)"
@@ -105,7 +105,7 @@
               </nav>
             </div>
             <div class="mobile-network-switch-container">
-              <WalletStatusBar v-if="prividium" class="metamask-button-container" />
+              <WalletStatusBar v-if="runtimeConfig.appEnvironment === 'prividium'" class="metamask-button-container" />
               <NetworkSwitch v-else />
               <LocaleSwitch
                 :value="(locale as string)"
@@ -151,15 +151,15 @@ import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
 import WalletStatusBar from "@/components/prividium/WalletStatusBar.vue";
 
 import useContext from "@/composables/useContext";
-import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
 import useLocalization from "@/composables/useLocalization";
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
 const { changeLanguage } = useLocalization();
 const { t, locale } = useI18n({ useScope: "global" });
 const route = useRoute();
 const { currentNetwork } = useContext();
-const { prividium } = useEnvironmentConfig();
+const runtimeConfig = useRuntimeConfig();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),

@@ -4,22 +4,10 @@ services:
     build:
       context: .
       dockerfile: ./packages/app/Dockerfile
+      args:
+        VITE_APP_ENVIRONMENT: prividium
     ports:
       - '3010:3010'
-    environment:
-      - USE_DYNAMIC_CONFIG=true
-      - API_URL=http://localhost:3020
-      - BRIDGE_URL=http://localhost:3000/bridge
-      - HOSTNAMES=localhost
-      - ICON=/images/icons/zksync-arrows.svg
-      - L2_CHAIN_ID=270
-      - PRIVIDIUM=true
-      - L2_NETWORK_NAME=Prividium
-      - MAINTENANCE=false
-      - NETWORK_NAME=Prividium
-      - PUBLISHED=true
-      - RPC_URL=http://localhost:4000
-      - BASE_TOKEN_ADDRESS=0x000000000000000000000000000000000000800A
     depends_on:
       - api
     restart: on-failure

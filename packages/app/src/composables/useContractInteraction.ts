@@ -114,16 +114,10 @@ export default (context = useContext()) => {
       errorMessage.value = null;
 
       let signer: Provider | Signer;
-      if (context.currentNetwork.value.prividium) {
+      if (walletAddress.value === null) {
         signer = new Provider(context.currentNetwork.value.rpcUrl);
-        if (walletAddress.value !== null) {
-          signer = await getL2Signer();
-        }
       } else {
-        signer = new Provider(context.currentNetwork.value.rpcUrl);
-        if (walletAddress.value !== null) {
-          signer = await getL2Signer();
-        }
+        signer = await getL2Signer();
       }
 
       const contract = new Contract(address, [abiFragment], signer!);
