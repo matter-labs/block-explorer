@@ -22,6 +22,17 @@ export interface TransactionTrace {
   revertReason: string | null;
 }
 
+export interface TeeProof {
+  attestation: string;
+  l1BatchNumber: number;
+  proof: string;
+  provedAt: string;
+  pubkey: string;
+  signature: string;
+  status: string;
+  teeType: string;
+}
+
 @Injectable()
 export class BlockchainService implements OnModuleInit {
   private readonly logger: Logger;
@@ -72,6 +83,12 @@ export class BlockchainService implements OnModuleInit {
       }
       return batchDetails;
     }, "getL1BatchDetails");
+  }
+
+  public async getTeeProofs(batchNumber: number): Promise<TeeProof[]> {
+    return await this.rpcCall(async () => {
+      return await this.provider.send("unstable_getTeeProofs", [batchNumber, "sgx"]);
+    }, "unstable_getTeeProofs");
   }
 
   public async getBlock(blockHashOrBlockTag: types.BlockTag): Promise<types.Block> {

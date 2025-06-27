@@ -7,7 +7,12 @@
       <Breadcrumbs :items="breadcrumbItems" />
       <SearchForm class="search-form" />
     </div>
-    <Title v-if="!batchPending" :title="t('batches.batchNumber')" :value="id">
+    <Title
+      v-if="!batchPending"
+      :title="t('batches.batchNumber')"
+      :value="id"
+      :is-tee-verified="!!batchItem?.teeProvenAt"
+    >
       {{ parseInt(id) }}
     </Title>
     <Spinner v-else size="md" />
