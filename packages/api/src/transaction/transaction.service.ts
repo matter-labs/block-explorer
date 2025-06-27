@@ -1,6 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Brackets, FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
+import {
+  Brackets,
+  FindOperator,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  QueryBuilder,
+  Repository,
+  SelectQueryBuilder,
+} from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
@@ -62,7 +70,6 @@ export class TransactionService {
   ): Promise<Pagination<Transaction>> {
     if (filterOptions.address) {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
-
       const commonParams: Record<string, string | number | Date> = {
         address: hexTransformer.to(filterOptions.address),
         ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
@@ -92,86 +99,37 @@ export class TransactionService {
         }
       }
 
-      const addressTransactionSubQuery =
-        this.addressTransactionRepository.createQueryBuilder("sub1_addressTransaction");
-      addressTransactionSubQuery.select("sub1_addressTransaction.transactionHash");
-      addressTransactionSubQuery.innerJoin("sub1_addressTransaction.transaction", "sub1_transaction");
-      addressTransactionSubQuery.where("sub1_addressTransaction.address = :address");
+      queryBuilder.innerJoin(
+        AddressTransaction,
+        "addressTransaction",
+        "addressTransaction.transactionHash = transaction.hash"
+      );
+      queryBuilder.where("addressTransaction.address = :address");
 
       if (filterOptions.blockNumber !== undefined) {
-        addressTransactionSubQuery.andWhere("sub1_transaction.blockNumber = :blockNumber");
+        queryBuilder.andWhere("addressTransaction.blockNumber = :blockNumber");
       }
+
       if (filterOptions.l1BatchNumber !== undefined) {
-        addressTransactionSubQuery.andWhere("sub1_transaction.l1BatchNumber = :l1BatchNumber");
+        queryBuilder.andWhere("addressTransaction.l1BatchNumber = :l1BatchNumber");
       }
+
       if (filterOptions.receivedAt !== undefined) {
-        addressTransactionSubQuery.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
+        queryBuilder.andWhere(`addressTransaction.receivedAt ${receivedAtFilter}`);
       }
-      // If `visibleBy` is provided, we filter by transactions that are
-      // from or to `visibleBy` address in addition to being from or to `address
+
       if (filterOptions.visibleBy !== undefined) {
-        addressTransactionSubQuery.andWhere(
-          new Brackets((qb) => {
-            qb.where("sub1_transaction.from = :visibleBy");
-            qb.orWhere("sub1_transaction.to = :visibleBy");
-          })
-        );
+        this.buildVisibleBySubquery(queryBuilder, filterOptions.visibleBy);
       }
 
-      // If `filterAddressInLogTopics` is provided, we filter by log topics where
-      // the address is mentioned
-      if (filterOptions.filterAddressInLogTopics) {
-        const logSubQuery = this.logRepository.createQueryBuilder("sub2_log");
-        logSubQuery.select("sub2_log.transactionHash");
-        logSubQuery.innerJoin("sub2_log.transaction", "sub2_transaction");
+      const logAddressParam = {
+        paddedAddressBytes: hexTransformer.to(zeroPadValue(filterOptions.visibleBy || filterOptions.address, 32)),
+      };
 
-        logSubQuery.where(
-          new Brackets((qb) => {
-            qb.where("sub2_log.topics[1] = :paddedAddressBytes");
-            qb.orWhere("sub2_log.topics[2] = :paddedAddressBytes");
-            qb.orWhere("sub2_log.topics[3] = :paddedAddressBytes");
-          })
-        );
-        // If `visibleBy` is provided, in addition to filtering by log topics,
-        // we filter by transactions that were from or to `address`
-        if (filterOptions.visibleBy !== undefined) {
-          logSubQuery.andWhere(
-            new Brackets((qb) => {
-              qb.where("sub2_transaction.from = :address");
-              qb.orWhere("sub2_transaction.to = :address");
-            })
-          );
-        }
-
-        if (filterOptions.blockNumber !== undefined) {
-          logSubQuery.andWhere("sub2_transaction.blockNumber = :blockNumber");
-        }
-        if (filterOptions.l1BatchNumber !== undefined) {
-          logSubQuery.andWhere("sub2_transaction.l1BatchNumber = :l1BatchNumber");
-        }
-        if (filterOptions.receivedAt !== undefined) {
-          logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
-        }
-
-        // If `visibleBy` is provided, we use it to filter log topics given we want to see transactions
-        // from `visibleBy` perspective
-        const logAddressParam = {
-          paddedAddressBytes: hexTransformer.to(zeroPadValue(filterOptions.visibleBy || filterOptions.address, 32)),
-        };
-
-        queryBuilder.where(`transaction.hash IN (
-          (${addressTransactionSubQuery.getQuery()})
-          UNION
-          (${logSubQuery.getQuery()})
-        )`);
-        queryBuilder.setParameters({
-          ...commonParams,
-          ...logAddressParam,
-        });
-      } else {
-        queryBuilder.where(`transaction.hash IN (${addressTransactionSubQuery.getQuery()})`);
-        queryBuilder.setParameters(commonParams);
-      }
+      queryBuilder.setParameters({
+        ...commonParams,
+        ...logAddressParam,
+      });
 
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
@@ -181,7 +139,6 @@ export class TransactionService {
       queryBuilder.orderBy("transaction.blockNumber", "DESC");
       queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
       queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
-
       return await paginate<Transaction>(queryBuilder, paginationOptions);
     } else {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
@@ -273,5 +230,37 @@ export class TransactionService {
 
   public count(criteria: CounterCriteria<Transaction> = {}): Promise<number> {
     return this.counterService.count(Transaction, criteria);
+  }
+
+  private buildVisibleBySubquery(queryBuilder: SelectQueryBuilder<any>, address: string) {
+    const sq1 = this.transactionRepository
+      .createQueryBuilder("innerTx1")
+      .select("innerTx1.hash")
+      .where("innerTx1.from = :visibleBy");
+    const sq2 = this.transactionRepository
+      .createQueryBuilder("innerTx2")
+      .select("innerTx2.hash")
+      .where("innerTx2.to = :visibleBy");
+    const sq3 = this.logRepository
+      .createQueryBuilder("log1")
+      .select("log1.transactionHash")
+      .where("log1.topics[2] = :paddedVisibleBy");
+
+    const sq4 = this.logRepository
+      .createQueryBuilder("log2")
+      .select("log2.transactionHash")
+      .where("log2.topics[3] = :paddedVisibleBy");
+
+    const sq5 = this.logRepository
+      .createQueryBuilder("log3")
+      .select("log3.transactionHash")
+      .where("log3.topics[4] = :paddedVisibleBy");
+
+    const strings = [sq1, sq2, sq3, sq4, sq5].map((q) => q.getQuery()).join(" UNION ");
+    const subquery = `(${strings})`;
+
+    queryBuilder.andWhere(`transaction.hash in ${subquery}`);
+    const paddedAddress = hexTransformer.to(zeroPadValue(address, 32));
+    queryBuilder.setParameters({ visibleBy: address, paddedVisibleBy: paddedAddress });
   }
 }
