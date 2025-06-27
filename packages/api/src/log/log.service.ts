@@ -141,7 +141,8 @@ export class LogService {
 
     queryBuilder.offset((page - 1) * offset);
     queryBuilder.limit(offset);
-    queryBuilder.orderBy("log.timestamp", "DESC");
+    queryBuilder.orderBy("log.blockNumber", "DESC");
+    queryBuilder.addOrderBy("log.logIndex", "DESC");
     return await queryBuilder.getMany();
   }
 }
