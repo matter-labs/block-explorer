@@ -19,6 +19,8 @@ RUN npm ci
 RUN rm -f .npmrc
 
 FROM development-stage AS build-stage
+ARG VITE_APP_ENVIRONMENT=default
+ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
 RUN npm run build
 
 FROM base-stage AS production-stage
@@ -33,10 +35,5 @@ ENV PORT $PORT
 
 USER node
 WORKDIR /usr/src/app/packages/app/dist
-
-COPY --chown=node:node ./packages/app/scripts/entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
-
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
 CMD http-server -p $PORT -c-1 --proxy="http://127.0.0.1:$PORT/index.html?"

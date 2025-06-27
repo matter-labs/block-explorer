@@ -73,8 +73,9 @@ describe("config", () => {
     process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "secret";
     process.env.PRIVIDIUM_CHAIN_ID = "300";
     process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
-    process.env.APP_URL = "http://localhost:3020";
-    process.env.APP_HOSTNAME = "localhost";
+    process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
+    process.env.PRIVIDIUM_SIWE_EXPIRATION_TIME = "1000";
+    process.env.PRIVIDIUM_SESSION_SECRET = "secret";
 
     jest.resetModules();
     jest.doMock("./featureFlags", () => ({
@@ -136,9 +137,10 @@ describe("config", () => {
         privateRpcSecret: "secret",
         chainId: 300,
         sessionMaxAge: 1000,
-        appHostname: "localhost",
+        appUrl: "http://localhost:3020",
+        siweExpirationTime: 1000,
+        sessionSecret: "secret",
       },
-      appUrl: "http://localhost:3020",
     });
   });
 
@@ -155,19 +157,25 @@ describe("config", () => {
       process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "secret";
       process.env.PRIVIDIUM_CHAIN_ID = "300";
       process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
-      process.env.APP_URL = "http://localhost:3020";
+      process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
+      process.env.PRIVIDIUM_SIWE_EXPIRATION_TIME = "1000";
+      process.env.PRIVIDIUM_SESSION_SECRET = "secret";
     });
 
-    it("throws error when prividium is true and APP_URL is missing", async () => {
-      process.env.APP_URL = undefined;
+    it("throws error when prividium is true and PRIVIDIUM_APP_URL is missing", async () => {
+      process.env.PRIVIDIUM_APP_URL = undefined;
       const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(new Error("Invalid prividium config: APP_URL has to be a valid url"));
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_APP_URL has to be a valid url")
+      );
     });
 
-    it("throws error when prividium is true and APP_URL is not a valid url", async () => {
-      process.env.APP_URL = "thisisnotavalidurl";
+    it("throws error when prividium is true and PRIVIDIUM_APP_URL is not a valid url", async () => {
+      process.env.PRIVIDIUM_APP_URL = "thisisnotavalidurl";
       const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(new Error("Invalid prividium config: APP_URL has to be a valid url"));
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_APP_URL has to be a valid url")
+      );
     });
 
     it("throws error when prividium is true and PRIVIDIUM_PRIVATE_RPC_SECRET is not present", async () => {
@@ -239,6 +247,14 @@ describe("config", () => {
       const { default: currentConfig } = await import("../config");
       expect(() => currentConfig()).toThrow(
         new Error("Invalid prividium config: PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer")
+      );
+    });
+
+    it("throws error hen prividium is true and PRIVIDIUM_SESSION_SECRET is absent", async () => {
+      process.env.PRIVIDIUM_SESSION_SECRET = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_SECRET has to be a non empty string")
       );
     });
 

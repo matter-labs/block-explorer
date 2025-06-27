@@ -30,7 +30,6 @@ describe("NetworkSwitch:", () => {
   beforeEach(() => {
     vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
       networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
-      prividium: computed(() => false),
       baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
     });
   });

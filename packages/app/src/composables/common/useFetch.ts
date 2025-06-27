@@ -1,6 +1,8 @@
 import { computed, type ComputedRef, ref, type Ref } from "vue";
 
-import useAnotherFetch from "@/composables/useFetch";
+import useContext from "../useContext";
+
+import { FetchInstance } from "@/composables/useFetchInstance";
 
 export type UseFetch<T> = {
   pending: ComputedRef<boolean>;
@@ -11,7 +13,7 @@ export type UseFetch<T> = {
   fetch: (...params: string[]) => Promise<void>;
 };
 
-export function useFetch<T>(getRequestUrl: (...params: string[]) => URL): UseFetch<T> {
+export function useFetch<T>(getRequestUrl: (...params: string[]) => URL, context = useContext()): UseFetch<T> {
   const item = ref<T | null>(null) as Ref<T | null>;
 
   const pending = ref(false);
@@ -22,7 +24,7 @@ export function useFetch<T>(getRequestUrl: (...params: string[]) => URL): UseFet
     failed.value = false;
 
     try {
-      const response = await useAnotherFetch()<T>(getRequestUrl(...params).toString());
+      const response = await FetchInstance.withCredentials(context)<T>(getRequestUrl(...params).toString());
 
       item.value = response;
     } catch (error) {

@@ -28,8 +28,10 @@ describe("AuthController", () => {
     PRIVIDIUM_PRIVATE_RPC_URL: "https://rpc.com",
     "prividium.privateRpcSecret": "secret",
     PRIVIDIUM_PRIVATE_RPC_SECRET: "secret",
-    "prividium.appHostname": "blockexplorer.com",
-    PRIVIDIUM_APP_HOSTNAME: "blockexplorer.com",
+    "prividium.appUrl": "https://blockexplorer.com",
+    PRIVIDIUM_APP_URL: "https://blockexplorer.com",
+    "prividium.siweExpirationTime": 1000 * 60 * 60,
+    PRIVIDIUM_SIWE_EXPIRATION_TIME: 1000 * 60 * 60,
   };
 
   beforeEach(() => {
@@ -40,7 +42,7 @@ describe("AuthController", () => {
     req = mock<Request>();
   });
 
-  describe("#getMessage", () => {
+  describe("getMessage", () => {
     it("returns a message to sign", async () => {
       const message = controller.getMessage(req, { address });
       const siweMessage = new SiweMessage(message);
@@ -163,8 +165,8 @@ describe("AuthController", () => {
           switch (key) {
             case "NODE_ENV":
               return "development";
-            case "prividium.appHostname":
-              return "blockexplorer.com";
+            case "prividium.appUrl":
+              return "https://blockexplorer.com";
             case "prividium.chainId":
               return chainId;
             case "prividium.privateRpcUrl":
@@ -533,7 +535,7 @@ describe("AuthController", () => {
       req.session.siwe = siwe;
       mockFetch.mockReturnValue(Promise.resolve(rpcResponse));
 
-      await expect(() => controller.token(req)).rejects.toThrow(new InternalServerErrorException());
+      await expect(() => controller.token(req)).rejects.toThrow(InternalServerErrorException);
     });
 
     it("returns correct response if rpc returns correct value", async () => {
@@ -582,7 +584,7 @@ describe("AuthController", () => {
       req.session.siwe = siwe;
 
       mockFetch.mockReturnValue(Promise.resolve(rpcResponse));
-      await expect(() => controller.token(req)).rejects.toThrow(new InternalServerErrorException());
+      await expect(() => controller.token(req)).rejects.toThrow(InternalServerErrorException);
     });
   });
 });

@@ -1,14 +1,15 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
-import { URL } from "url";
 import { z } from "zod";
 
 const INVALID_RPC_URL_MSG = "PRIVIDIUM_PRIVATE_RPC_URL has to be valid url";
 const INVALID_RPC_SECRET_MSG = "PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string";
 const INVALID_CHAIN_ID_MSG = "PRIVIDIUM_CHAIN_ID has to be a positive integer";
-const PRIVIDIUM_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
-const APP_URL_ERROR_MSG = "APP_URL has to be a valid url";
+const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
+const PRIVIDIUM_SESSION_SECRET_MSG = "PRIVIDIUM_SESSION_SECRET has to be a non empty string";
+const PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG = "PRIVIDIUM_SIWE_EXPIRATION_TIME has to be a positive integer";
+const PRIVIDIUM_APP_URL_ERROR_MSG = "PRIVIDIUM_APP_URL has to be a valid url";
 
 export type BaseToken = {
   name: string;
@@ -102,10 +103,12 @@ export default () => {
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
     PRIVIDIUM_PRIVATE_RPC_URL,
     PRIVIDIUM_PRIVATE_RPC_SECRET,
-    APP_URL,
+    PRIVIDIUM_APP_URL,
     PRIVIDIUM_CHAIN_ID,
     PRIVIDIUM_SESSION_MAX_AGE,
     PRIVIDIUM_SESSION_SAME_SITE,
+    PRIVIDIUM_SESSION_SECRET,
+    PRIVIDIUM_SIWE_EXPIRATION_TIME,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -171,14 +174,16 @@ export default () => {
           .number({ message: INVALID_CHAIN_ID_MSG })
           .int({ message: INVALID_CHAIN_ID_MSG })
           .positive(INVALID_CHAIN_ID_MSG),
+        sessionSecret: z.string({ message: PRIVIDIUM_SESSION_SECRET_MSG }).nonempty(PRIVIDIUM_SESSION_SECRET_MSG),
         sessionMaxAge: z.coerce
-          .number({ message: PRIVIDIUM_MAX_AGE_MSG })
-          .int({ message: PRIVIDIUM_MAX_AGE_MSG })
-          .positive(PRIVIDIUM_MAX_AGE_MSG),
-        appHostname: z
-          .string({ message: APP_URL_ERROR_MSG })
-          .url(APP_URL_ERROR_MSG)
-          .transform((url) => new URL(url).hostname),
+          .number({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
+          .int({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
+          .positive(PRIVIDIUM_SESSION_MAX_AGE_MSG),
+        siweExpirationTime: z.coerce
+          .number({ message: PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG })
+          .int({ message: PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG })
+          .positive(PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG),
+        appUrl: z.string({ message: PRIVIDIUM_APP_URL_ERROR_MSG }).url(PRIVIDIUM_APP_URL_ERROR_MSG),
       },
       { message: "Invalid prividium configuration" }
     );
@@ -187,9 +192,11 @@ export default () => {
       privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
       privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
       chainId: PRIVIDIUM_CHAIN_ID,
+      sessionSecret: PRIVIDIUM_SESSION_SECRET,
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
       sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
-      appHostname: APP_URL,
+      siweExpirationTime: PRIVIDIUM_SIWE_EXPIRATION_TIME,
+      appUrl: PRIVIDIUM_APP_URL,
     });
 
     if (!result.success) {
@@ -214,6 +221,5 @@ export default () => {
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
     prividium: getPrividiumConfig(),
-    appUrl: APP_URL,
   };
 };

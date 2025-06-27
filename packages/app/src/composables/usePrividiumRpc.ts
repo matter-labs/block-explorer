@@ -1,7 +1,8 @@
 import { ref } from "vue";
 
+import { FetchInstance } from "./useFetchInstance";
+
 import useContext from "@/composables/useContext";
-import useFetch from "@/composables/useFetch";
 
 const rpcToken = ref<string | null>(null);
 const rpcUrl = ref<string | null>(null);
@@ -19,12 +20,9 @@ export default (context = useContext()) => {
       return;
     }
 
-    const response = await useFetch()<{ ok: true; token: string }>(
-      `${context.currentNetwork.value.apiUrl}/auth/token`,
-      {
-        method: "POST",
-      }
-    );
+    const response = await FetchInstance.api(context)<{ ok: true; token: string }>("/auth/token", {
+      method: "POST",
+    });
     rpcToken.value = response.token;
     rpcUrl.value = `${context.currentNetwork.value.rpcUrl}/${response.token}`;
   };

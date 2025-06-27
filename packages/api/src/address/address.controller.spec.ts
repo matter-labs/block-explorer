@@ -88,14 +88,12 @@ describe("AddressController", () => {
     });
 
     it("queries addresses by specified address", async () => {
-      const res = mock<Response>();
       await controller.getAddress(blockchainAddress, res);
       expect(serviceMock.findOne).toHaveBeenCalledTimes(1);
       expect(serviceMock.findOne).toHaveBeenCalledWith(blockchainAddress);
     });
 
     it("queries address balances", async () => {
-      const res = mock<Response>();
       await controller.getAddress(blockchainAddress, res);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
