@@ -14,7 +14,7 @@ export interface BridgeAddresses {
   l2Erc20DefaultBridge?: string;
 }
 
-export interface TraceTransactionResult {
+export interface TransactionTrace {
   type: string;
   from: string;
   to: string;
@@ -48,7 +48,7 @@ export class BlockchainService implements OnModuleInit {
       stopDurationMeasuring({ function: functionName });
       return result;
     } catch (error) {
-      this.logger.error({ message: error.message, code: error.code }, error.stack);
+      this.logger.error({ message: error.message, code: error.code, function: functionName }, error.stack);
       if (this.errorCodesForQuickRetry.includes(error.code)) {
         await setTimeout(this.rpcCallsQuickRetryTimeout);
       } else {
@@ -128,7 +128,7 @@ export class BlockchainService implements OnModuleInit {
     }, "getDefaultBridgeAddresses");
   }
 
-  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TraceTransactionResult> {
+  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TransactionTrace> {
     return await this.rpcCall(async () => {
       return await this.provider.send("debug_traceTransaction", [
         txHash,

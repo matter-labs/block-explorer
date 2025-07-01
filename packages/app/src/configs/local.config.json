@@ -1,6 +1,7 @@
 {
   "networks": [
     {
+      "groupId": "era",
       "apiUrl": "http://localhost:3020",
       "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": [

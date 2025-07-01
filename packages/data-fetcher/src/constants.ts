@@ -7,12 +7,14 @@ import * as transferEventWithNoIndexesAbi from "./abis/transferEventWithNoIndexe
 import * as l2StandardERC20Abi from "./abis/l2StandardERC20.json";
 import * as l2AssetRouterAbi from "./abis/l2AssetRouter.json";
 import * as l2NativeTokenVaultAbi from "./abis/l2NativeTokenVault.json";
+import * as l2AccountCodeStorageAbi from "./abis/accountCodeStorage.json";
 
 export const ZERO_HASH_64 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const BASE_TOKEN_ADDRESS = "0x000000000000000000000000000000000000800a";
 export const ETH_L1_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const L2_ASSET_ROUTER_ADDRESS = "0x0000000000000000000000000000000000010003";
 export const L2_NATIVE_TOKEN_VAULT_ADDRESS = "0x0000000000000000000000000000000000010004";
+export const L2_ACCOUNT_CODE_STORAGE_ADDRESS = "0x0000000000000000000000000000000000008002";
 
 export const CONTRACT_INTERFACES = {
   ERC20: {
@@ -46,5 +48,9 @@ export const CONTRACT_INTERFACES = {
   L2_NATIVE_TOKEN_VAULT: {
     interface: new Interface(l2NativeTokenVaultAbi),
     abi: l2NativeTokenVaultAbi,
+  },
+  L2_ACCOUNT_CODE_STORAGE: {
+    interface: new Interface(l2AccountCodeStorageAbi),
+    abi: l2AccountCodeStorageAbi,
   },
 };

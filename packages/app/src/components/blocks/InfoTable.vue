@@ -103,6 +103,8 @@ const tableInfoItems = computed(() => {
       component: TimeField,
     }
   );
+  const settlementChainExplorerUrl =
+    currentNetwork.value.settlementChainExplorerUrl || currentNetwork.value.l1ExplorerUrl;
   for (const [key, timeKey] of [
     ["commitTxHash", "committedAt", "notYetCommitted"],
     ["proveTxHash", "provenAt", "notYetProven"],
@@ -115,9 +117,7 @@ const tableInfoItems = computed(() => {
           tooltip: t(`blocks.table.${key}Tooltip`),
           value: { value: props.block[key] },
           component: CopyContent,
-          url: currentNetwork.value.l1ExplorerUrl
-            ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.block[key]}`
-            : undefined,
+          url: settlementChainExplorerUrl ? `${settlementChainExplorerUrl}/tx/${props.block[key]}` : undefined,
         },
         {
           label: t(`blocks.table.${timeKey}`),

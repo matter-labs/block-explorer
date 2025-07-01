@@ -13,7 +13,6 @@ const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
     l2ChainId: parseInt(zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK_ID, 10) || "",
     l2NetworkName: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
     bridgeUrl: "http://localhost:3000/bridge",
-    l2WalletUrl: "http://localhost:3000",
     maintenance: false,
     name: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
     published: true,

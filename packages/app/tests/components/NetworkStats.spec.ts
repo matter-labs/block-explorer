@@ -15,7 +15,7 @@ const currentNetworkMock = vi.fn(() => "testnet");
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
-      currentNetwork: computed(() => ({ name: currentNetworkMock() })),
+      currentNetwork: computed(() => ({ name: currentNetworkMock(), l2NetworkName: "Network" })),
     }),
   };
 });
