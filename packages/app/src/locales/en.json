@@ -357,8 +357,8 @@
         "transactionTable": {
             "error": "Something went wrong",
             "notFound": {
-                "title": "This smart contract doesn't have any transactions",
-                "subtitle": "We can't find any transaction related to this smart-contract. It's your chance to be the first"
+                "title": "This smart contract doesn’t have any transactions",
+                "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
             }
         },
         "balances": {
