@@ -51,7 +51,8 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
     version: MetaMaskWallet.recommendedVersion,
-    headless: false,
+    slowMo: config.slowMo,
+    headless: config.headless,
     viewport: config.mainWindowSize,
     use: {
       trace: "on-first-retry",
