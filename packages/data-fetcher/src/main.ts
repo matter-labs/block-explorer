@@ -12,6 +12,10 @@ async function bootstrap() {
     process.exit(1);
   });
 
+  process.on("unhandledRejection", (reason) => {
+    logger.error("Unhandled Rejection: ", reason);
+  });
+
   const app = await NestFactory.create(AppModule, {
     logger,
   });

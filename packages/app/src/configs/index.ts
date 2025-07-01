@@ -1,4 +1,5 @@
 export type NetworkConfig = {
+  groupId?: string;
   name: string;
   icon: string;
   verificationApiUrl?: string;
@@ -9,6 +10,7 @@ export type NetworkConfig = {
   l2NetworkName: string;
   l2ChainId: 270 | 300 | 324;
   l1ExplorerUrl?: string;
+  settlementChainExplorerUrl?: string;
   maintenance: boolean;
   published: boolean;
   hostnames: string[];

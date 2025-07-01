@@ -113,6 +113,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "8.10.0",
+                ZkSolcVersion: "10.0.0",
                 ZkCompilerVersion: "10.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
@@ -185,6 +186,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "8.10.0",
+                ZkSolcVersion: "10.0.0",
                 ZkCompilerVersion: "10.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
@@ -238,6 +240,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "9.10.0",
+                ZkSolcVersion: "11.0.0",
                 ZkCompilerVersion: "11.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
@@ -290,6 +293,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "9.10.0",
+                ZkSolcVersion: "11.0.0",
                 ZkCompilerVersion: "11.0.0",
                 ConstructorArguments: "0001",
                 ContractName: "contractName",
@@ -347,6 +351,36 @@ describe("Contract API (e2e)", () => {
   });
 
   describe("/api POST", () => {
+    describe("when deprecated zkCompilerVersion is used in the request", () => {
+      it("returns HTTP 200 and contract verification id for single file Solidity contract", () => {
+        nock(CONTRACT_VERIFICATION_API_URL)
+          .post("/contract_verification")
+          .reply(200, 123 as unknown as nock.Body);
+
+        return request(app.getHttpServer())
+          .post("/api")
+          .send({
+            module: "contract",
+            action: "verifysourcecode",
+            contractaddress: "0x79efF59e5ae65D9876F1020b3cCAb4027B49c2a2",
+            sourceCode: "// SPDX-License-Identifier: UNLICENSED",
+            codeformat: "solidity-single-file",
+            contractname: "contracts/HelloWorld.sol:HelloWorld",
+            compilerversion: "0.8.17",
+            optimizationUsed: "1",
+            zkCompilerVersion: "v1.3.14",
+          })
+          .expect(200)
+          .expect((res) =>
+            expect(res.body).toStrictEqual({
+              message: "OK",
+              result: "123",
+              status: "1",
+            })
+          );
+      });
+    });
+
     it("returns HTTP 200 and contract verification id for single file Solidity contract", () => {
       nock(CONTRACT_VERIFICATION_API_URL)
         .post("/contract_verification")
@@ -363,7 +397,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>
@@ -403,7 +437,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorldCtor.sol:HelloWorldCtor",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
           constructorArguements: "0x94869207468657265210000000000000000000000000000000000000000000000",
           runs: 700,
         })
@@ -451,7 +485,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/Main.sol:Main",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
           constructorArguements: "0x94869207468657265210000000000000000000000000000000000000000000000",
           runs: 600,
           libraryname1: "contracts/MiniMath.sol:MiniMath",
@@ -485,7 +519,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>
@@ -511,7 +545,7 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zkCompilerVersion: "v1.3.14",
+          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>

@@ -1,6 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "ZKsync Era",
+        "l2NetworkName": "ZKsync",
         "l1NetworkName": "Ethereum"
     },
     "copyButton": {
@@ -15,7 +15,7 @@
     "networkStats": {
         "title": "Network Stats",
         "subtitleTestnet": "Stats are occasionally reset on testnet.",
-        "subtitleMainnet": "ZKsync Era Mainnet is open to everyone.",
+        "subtitleMainnet": "{l2NetworkName} is open to everyone.",
         "committed": "Committed Blocks",
         "verified": "Verified Blocks",
         "transactions": "Transactions",
@@ -98,8 +98,10 @@
         "table": {
             "status": "Status",
             "statusTooltip": "The status of the transaction",
-            "reason": "Reason",
-            "reasonTooltip": "The failure reason of the transaction",
+            "reason": "Revert Reason",
+            "reasonTooltip": "The revert reason of the transaction",
+            "error": "Error",
+            "errorTooltip": "The error message of the transaction",
             "txnHash": "Txn hash",
             "transactionHash": "Transaction Hash",
             "transactionHashTooltip": "Transaction hash is a unique 66-character identifier that is generated whenever a transaction is executed",
@@ -312,8 +314,8 @@
         "subtitle": "zkRollups significantly cheaper than L1 or Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "ZKsync Era Block Explorer",
-        "subtitle": "ZKsync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync Era and explore the network.",
+        "title": "ZKsync Block Explorer",
+        "subtitle": "ZKsync Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync and explore the network.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions",
         "batches": "Latest Batches"
@@ -358,7 +360,7 @@
             "error": "Something went wrong",
             "notFound": {
                 "title": "This smart contract doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this smart-contract. It’s your chance to be the first"
+                "subtitle": "We can’t find any transaction related to this smart-contract. It's your chance to be the first"
             }
         },
         "balances": {
@@ -653,11 +655,11 @@
             "tokenAddress": "Token Address",
             "bridged": {
                 "title": "Bridged",
-                "tooltip": "This token is bridged from L1 to ZKsync Era"
+                "tooltip": "This token is bridged from L1 to ZKsync"
             },
             "native": {
                 "title": "L2-native",
-                "tooltip": "This token is native to ZKsync Era"
+                "tooltip": "This token is native to ZKsync"
             },
             "tokenAddressL2": "L2 Token address",
             "tokenAddressL1": "L1 Token address"
@@ -747,12 +749,12 @@
         }
     },
     "document": {
-        "title": "ZKsync Era Block Explorer",
+        "title": "ZKsync Block Explorer",
         "home": "Transactions, Blocks, Contracts and much more"
     },
     "notFound": {
         "title": "Oops, we can’t find anything",
-        "description": "Sorry we can’t find anything on your search result, please try one more time via seach bar below",
+        "description": "Sorry we can’t find anything on your search result, please try one more time via search bar below",
         "contactSupportTitle": "If you think this is a problem with us, please",
         "contactSupport": "contact support"
     },

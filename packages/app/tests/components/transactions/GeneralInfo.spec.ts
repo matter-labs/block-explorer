@@ -347,7 +347,7 @@ describe("Transaction info table", () => {
     await nextTick();
     const status = wrapper.findAll("tbody tr td:nth-child(2)")[1];
     const badges = status.findAllComponents(Badge);
-    const reason = wrapper.find(".transaction-reason-value");
+    const reason = wrapper.find(".transaction-error-value");
     expect(badges.length).toBe(1);
     expect(badges[0].text()).toBe(i18n.global.t("transactions.statusComponent.failed"));
     expect(reason.text()).toBe("Revert reason");

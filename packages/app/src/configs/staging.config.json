@@ -1,6 +1,7 @@
 {
   "networks": [
     {
+      "groupId": "era",
       "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
       "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
@@ -18,6 +19,7 @@
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
+      "groupId": "era",
       "apiUrl": "https://block-explorer-api.stage.zksync.dev",
       "verificationApiUrl": "https://z2-dev-api-explorer.zksync.dev",
       "hostnames": [
@@ -34,6 +36,7 @@
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
+      "groupId": "era",
       "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
       "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
