@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Prividium E2E tests" tests="2" failures="0" errors="0" time="1.113">
+  <testsuite name="Prividium API (e2e)" errors="0" failures="0" skipped="0" timestamp="2025-06-23T18:38:46" time="1.082" tests="2">
+    <testcase classname="Prividium API (e2e) Authentication Flow should complete auth process for a whitelisted user" name="Prividium API (e2e) Authentication Flow should complete auth process for a whitelisted user" time="0.044">
+    </testcase>
+    <testcase classname="Prividium API (e2e) Authentication Flow should reject a non-whitelisted user" name="Prividium API (e2e) Authentication Flow should reject a non-whitelisted user" time="0.014">
+    </testcase>
+  </testsuite>
+</testsuites>
