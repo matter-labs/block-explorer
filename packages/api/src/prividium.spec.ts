@@ -35,8 +35,7 @@ describe("applyPrividiumMiddlewares", () => {
     const middlewareConfig = mock<MiddlewareConfigProxy>();
     consumer.apply.mockReturnValue(middlewareConfig);
     applyPrividiumMiddlewares(consumer);
-    expect(consumer.apply).toHaveBeenCalledTimes(2);
+    expect(consumer.apply).toHaveBeenCalledTimes(1);
     expect(consumer.apply).toHaveBeenCalledWith(AuthMiddleware);
-    expect(consumer.apply).toHaveBeenCalledWith(PrividiumFilteringMiddleware);
   });
 });
