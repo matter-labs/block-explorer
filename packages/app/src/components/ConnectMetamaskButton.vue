@@ -1,7 +1,7 @@
 <template>
   <div class="metamask-button" :class="{ disabled: buttonDisabled }">
     <img src="/images/wallet_icon.svg" class="metamask-image" @click="openModalConditionally" />
-    <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="connect">
+    <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="handleLogin">
       {{ buttonText }}
     </button>
     <template v-else>
@@ -31,6 +31,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+
+import { FetchError } from "ohmyfetch";
 
 import HashLabel from "@/components/common/HashLabel.vue";
 import WalletInfoModal from "@/components/prividium/WalletInfoModal.vue";
@@ -42,18 +45,20 @@ import useLogin from "@/composables/useLogin";
 import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
 
 import { formatShortAddress } from "@/utils/formatters";
+import logger from "@/utils/logger";
 
 const { t } = useI18n();
 const context = useContext();
 const { networks } = useEnvironmentConfig();
-const { logout } = useLogin(context);
+const { login, logout, isLoginPending } = useLogin(context);
+const router = useRouter();
 
 const {
   address,
   isConnectPending,
   isReady,
   isMetamaskInstalled,
-  connect,
+  connect: walletConnect,
   disconnect: walletDisconnect,
   currentChainId,
 } = useWallet({
@@ -121,6 +126,22 @@ const closeModal = () => {
   isWalletInfoModalOpen.value = false;
 };
 
+const handleLogin = async () => {
+  try {
+    if (context.currentNetwork.value.prividium) {
+      await login();
+    } else {
+      await walletConnect();
+    }
+  } catch (err: unknown) {
+    if (err instanceof FetchError && err.response?.status === 403) {
+      router.push({ name: "not-authorized" });
+    } else {
+      logger.error(err);
+    }
+  }
+};
+
 const handleLogoutAndCloseModal = async () => {
   if (context.currentNetwork.value.prividium) {
     await logout();
@@ -130,8 +151,13 @@ const handleLogoutAndCloseModal = async () => {
   closeModal();
 };
 
-const buttonDisabled = computed(() => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value);
+const buttonDisabled = computed(
+  () => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value || isLoginPending.value
+);
 const buttonText = computed(() => {
+  if (isLoginPending.value) {
+    return t("connectMetamaskButton.connecting");
+  }
   if (isConnectPending.value) {
     return t("connectMetamaskButton.connecting");
   }
