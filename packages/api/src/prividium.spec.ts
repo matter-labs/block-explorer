@@ -6,7 +6,6 @@ import { mock } from "jest-mock-extended";
 import { MiddlewareConsumer } from "@nestjs/common";
 import { MiddlewareConfigProxy } from "@nestjs/common/interfaces/middleware/middleware-config-proxy.interface";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
-import { PrividiumFilteringMiddleware } from "./middlewares/prividium-filtering.middleware";
 
 describe("applyPrividiumExpressConfig", () => {
   it("allows to set cookies", async () => {
