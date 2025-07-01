@@ -32,6 +32,12 @@ describe("Prividium API (e2e)", () => {
   const authorizedWallet = Wallet.createRandom();
 
   beforeAll(async () => {
+    // Set required environment variables for Prividium config validation
+    process.env.PRIVIDIUM_PRIVATE_RPC_URL = "http://localhost:4000";
+    process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "test-secret";
+    process.env.PRIVIDIUM_SESSION_MAX_AGE = "86400000";
+    process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule.build({ prividium: true })],
     }).compile();
@@ -40,10 +46,10 @@ describe("Prividium API (e2e)", () => {
     configureApp(app);
     const configService = moduleFixture.get(ConfigService);
     applyPrividiumExpressConfig(app, {
-      sessionSecret: configService.get<string>("prividium.privateRpcSecret"),
-      appUrl: configService.get<string>("appUrl"),
-      sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
-      sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
+      sessionSecret: configService.get<string>("prividium.privateRpcSecret") || "test-secret",
+      appUrl: configService.get<string>("appUrl") || "http://localhost:3010",
+      sessionMaxAge: configService.get<number>("prividium.sessionMaxAge") || 86400000,
+      sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite") || "strict",
     });
     app.enableShutdownHooks();
 
@@ -55,31 +61,35 @@ describe("Prividium API (e2e)", () => {
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
 
     // Set up minimal test data
-    await batchRepository.insert({
-      number: 0,
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      l1TxCount: 10,
-      l2TxCount: 20,
-      l1GasPrice: "10000000",
-      l2FairGasPrice: "20000000",
-      commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
-      proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
-      executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
-    });
+    if (batchRepository) {
+      await batchRepository.insert({
+        number: 0,
+        timestamp: new Date("2022-11-10T14:44:08.000Z"),
+        l1TxCount: 10,
+        l2TxCount: 20,
+        l1GasPrice: "10000000",
+        l2FairGasPrice: "20000000",
+        commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
+        proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
+        executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
+      });
+    }
 
-    await blockRepository.insert({
-      number: 1,
-      hash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      gasLimit: "0",
-      gasUsed: "0",
-      baseFeePerGas: "100000000",
-      extraData: "0x",
-      l1TxCount: 1,
-      l2TxCount: 1,
-      l1BatchNumber: 0,
-      miner: "0x0000000000000000000000000000000000000000",
-    });
+    if (blockRepository) {
+      await blockRepository.insert({
+        number: 1,
+        hash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
+        timestamp: new Date("2022-11-10T14:44:08.000Z"),
+        gasLimit: "0",
+        gasUsed: "0",
+        baseFeePerGas: "100000000",
+        extraData: "0x",
+        l1TxCount: 1,
+        l2TxCount: 1,
+        l1BatchNumber: 0,
+        miner: "0x0000000000000000000000000000000000000000",
+      });
+    }
   });
 
   beforeEach(() => {
@@ -87,13 +97,27 @@ describe("Prividium API (e2e)", () => {
   });
 
   afterAll(async () => {
-    // Clean up test data
-    await addressTransactionRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
-    await batchRepository.delete({});
+    // Clean up test data with proper error handling
+    try {
+      if (addressTransactionRepository) {
+        await addressTransactionRepository.delete({});
+      }
+      if (transactionRepository) {
+        await transactionRepository.delete({});
+      }
+      if (blockRepository) {
+        await blockRepository.delete({});
+      }
+      if (batchRepository) {
+        await batchRepository.delete({});
+      }
+    } catch (error) {
+      console.warn("Error cleaning up test data:", error);
+    }
 
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   describe("Authentication Flow", () => {
@@ -104,7 +128,9 @@ describe("Prividium API (e2e)", () => {
     });
 
     afterEach(() => {
-      fetchSpy.mockRestore();
+      if (fetchSpy && fetchSpy.mockRestore) {
+        fetchSpy.mockRestore();
+      }
     });
 
     it("should complete auth process for a whitelisted user", async () => {

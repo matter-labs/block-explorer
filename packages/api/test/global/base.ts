@@ -1,9 +1,12 @@
 import { config } from "dotenv";
 import { DataSource } from "typeorm";
 
-config({ path: ".env.test" });
+interface RunConfig {
+  prividium?: boolean;
+}
 
-export const run = async (action: (dataSource: DataSource) => Promise<void>) => {
+export const run = async (action: (dataSource: DataSource) => Promise<void>, { prividium }: RunConfig = {}) => {
+  config({ path: prividium ? ".env.prividium-test" : ".env.test" });
   const { DATABASE_URL } = process.env;
   const connectionStringWithoutDbName = DATABASE_URL.substring(0, DATABASE_URL.lastIndexOf("/"));
 
