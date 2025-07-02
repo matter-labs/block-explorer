@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B] font-['Inter'] text-white">
+  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B] text-white">
     <div class="flex flex-col items-center text-center max-w-md mx-auto px-4">
       <!-- Logo -->
       <div class="mb-10">
@@ -7,15 +7,15 @@
       </div>
 
       <!-- Heading -->
-      <h1 class="text-[30px] leading-[36px] font-bold mb-4">You are not authorized</h1>
+      <h1 class="text-[30px] leading-[36px] font-bold mb-2">You are not authorized</h1>
 
       <!-- Sub-heading -->
-      <p class="text-lg text-gray-400 mb-10">Contact your administrator to request access</p>
+      <p class="font-normal text-xl leading-8 mb-10">Contact your administrator to request access</p>
 
       <!-- Button -->
       <button
         @click="handleTryAnotherWallet"
-        class="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg text-base font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50"
+        class="w-[200px] h-[56px] px-8 py-4 text-black bg-white rounded-[28px] hover:bg-gray-200 disabled:opacity-70 disabled:cursor-not-allowed font-semibold text-base flex items-center justify-center mx-auto"
       >
         Try another wallet
       </button>
