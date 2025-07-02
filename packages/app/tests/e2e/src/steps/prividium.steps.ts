@@ -37,7 +37,7 @@ When("I sign the message to log in", async function (this: ICustomWorld) {
 });
 
 Then("I should see the main page", async function (this: ICustomWorld) {
-  const mainHeading = this.page!.getByRole("heading", { name: "ZKsync Era Block Explorer" });
+  const mainHeading = this.page!.getByRole("heading", { name: "ZKsync Block Explorer" });
   await expect(mainHeading).toBeVisible({ timeout: 10000 });
 });
 
