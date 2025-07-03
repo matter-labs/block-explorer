@@ -10,6 +10,7 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChainExplorerUrl": "https://sepolia.gateway.explorer.zksync.io",
       "l2ChainId": 300,
       "l2NetworkName": "ZKsync Era Sepolia Testnet",
       "maintenance": false,
