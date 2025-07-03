@@ -22,7 +22,7 @@ import type { Component, PropType } from "vue";
 
 const { t } = useI18n();
 const { width: screenWidth } = useWindowSize();
-const { currentNetwork } = useContext();
+const { getSettlementChainExplorerUrl } = useContext();
 
 const props = defineProps({
   batch: {
@@ -80,14 +80,13 @@ const tableInfoItems = computed(() => {
       component: props.batch.rootHash ? CopyContent : undefined,
     }
   );
-  const settlementChainExplorerUrl =
-    currentNetwork.value.settlementChainExplorerUrl || currentNetwork.value.l1ExplorerUrl;
-  for (const [key, timeKey] of [
-    ["commitTxHash", "committedAt", "notYetCommitted"],
-    ["proveTxHash", "provenAt", "notYetProven"],
-    ["executeTxHash", "executedAt", "notYetExecuted"],
-  ] as [keyof BatchDetails, keyof BatchDetails, string][]) {
+  for (const [key, timeKey, chainIdKey] of [
+    ["commitTxHash", "committedAt", "commitChainId", "notYetCommitted"],
+    ["proveTxHash", "provenAt", "proveChainId", "notYetProven"],
+    ["executeTxHash", "executedAt", "executeChainId", "notYetExecuted"],
+  ] as [keyof BatchDetails, keyof BatchDetails, keyof BatchDetails, string][]) {
     if (props.batch[key]) {
+      const settlementChainExplorerUrl = getSettlementChainExplorerUrl(props.batch[chainIdKey] as number | null);
       tableItemsRight.push(
         {
           label: t(`batches.${key}`),

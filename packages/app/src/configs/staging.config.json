@@ -10,7 +10,15 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChainExplorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }, {
+        "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+        "name": "Gateway",
+        "chainId": 32657
+      }],
       "l2ChainId": 300,
       "l2NetworkName": "ZKsync Era Sepolia Testnet",
       "maintenance": false,
@@ -46,6 +54,15 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://etherscan.io",
+        "name": "Ethereum",
+        "chainId": 1
+      }, {
+        "explorerUrl": "https://gateway.explorer.zksync.io",
+        "name": "Gateway",
+        "chainId": 9075
+      }],
       "l2ChainId": 324,
       "l2NetworkName": "ZKsync Era Mainnet",
       "maintenance": false,

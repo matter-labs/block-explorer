@@ -25,7 +25,7 @@ import { arrayHalfDivider } from "@/utils/helpers";
 
 const { t } = useI18n();
 const { width: screenWidth } = useWindowSize();
-const { currentNetwork } = useContext();
+const { getSettlementChainExplorerUrl } = useContext();
 
 const props = defineProps({
   block: {
@@ -103,14 +103,13 @@ const tableInfoItems = computed(() => {
       component: TimeField,
     }
   );
-  const settlementChainExplorerUrl =
-    currentNetwork.value.settlementChainExplorerUrl || currentNetwork.value.l1ExplorerUrl;
-  for (const [key, timeKey] of [
-    ["commitTxHash", "committedAt", "notYetCommitted"],
-    ["proveTxHash", "provenAt", "notYetProven"],
-    ["executeTxHash", "executedAt", "notYetExecuted"],
-  ] as [keyof Block, keyof Block, string][]) {
+  for (const [key, timeKey, chainIdKey] of [
+    ["commitTxHash", "committedAt", "commitChainId", "notYetCommitted"],
+    ["proveTxHash", "provenAt", "proveChainId", "notYetProven"],
+    ["executeTxHash", "executedAt", "executeChainId", "notYetExecuted"],
+  ] as [keyof Block, keyof Block, keyof Block, string][]) {
     if (props.block[key]) {
+      const settlementChainExplorerUrl = getSettlementChainExplorerUrl(props.block[chainIdKey] as number | null);
       tableItems.push(
         {
           label: t(`blocks.table.${key}`),

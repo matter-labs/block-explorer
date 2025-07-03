@@ -243,7 +243,7 @@ describe("Transaction info table", () => {
     ] = badges;
     expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sent") +
         i18n.global.t("transactions.statusComponent.validated") +
@@ -379,7 +379,7 @@ describe("Transaction info table", () => {
     ] = badges;
     expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sending") +
         i18n.global.t("transactions.statusComponent.validating") +
@@ -414,7 +414,7 @@ describe("Transaction info table", () => {
     ] = badges;
     expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sent") +
         i18n.global.t("transactions.statusComponent.validating") +
@@ -449,7 +449,7 @@ describe("Transaction info table", () => {
     ] = badges;
     expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sent") +
         i18n.global.t("transactions.statusComponent.validated") +
