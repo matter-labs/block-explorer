@@ -39,8 +39,10 @@ const ERC20ProxyVerificationInfo = {
 };
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => Promise.resolve(ERC20VerificationInfo));
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => Promise.resolve(ERC20VerificationInfo)),
+    $fetch: fetchSpy,
     FetchError: function FetchError(message: string) {
       const error = new Error(message) as Error & { response: { status: number } };
       error.name = "FetchError";

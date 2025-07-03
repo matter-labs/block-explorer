@@ -12,13 +12,14 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { TokenService } from "./token.service";
-import { TransferService } from "../transfer/transfer.service";
+import { FilterTransfersOptions, TransferService } from "../transfer/transfer.service";
 import { TokenDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { User, UserParam } from "../user/user.decorator";
 
 const entityName = "tokens";
 
@@ -88,16 +89,19 @@ export class TokenController {
   @ApiNotFoundResponse({ description: "Token with the specified address does not exist" })
   public async getTokenTransfers(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User() user: UserParam
   ): Promise<Pagination<TransferDto>> {
     if (!(await this.tokenService.exists(address))) {
       throw new NotFoundException();
     }
 
+    const userFilters: FilterTransfersOptions = user ? { visibleBy: user.address } : {};
     return await this.transferService.findAll(
       {
         tokenAddress: address,
         isFeeOrRefund: false,
+        ...userFilters,
       },
       {
         ...pagingOptions,
