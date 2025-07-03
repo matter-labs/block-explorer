@@ -46,6 +46,7 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://etherscan.io",
+      "settlementChainExplorerUrl": "https://gateway.explorer.zksync.io",
       "l2ChainId": 324,
       "l2NetworkName": "ZKsync Era Mainnet",
       "maintenance": false,
