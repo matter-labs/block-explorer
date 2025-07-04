@@ -125,13 +125,13 @@ export class AccountTransactionDto {
   public readonly commitTxHash?: string;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     nullable: true,
     description: "Commit transaction chain id",
-    example: 1,
-    examples: [1, null],
+    example: "1",
+    examples: ["1", null],
   })
-  public readonly commitChainId?: number;
+  public readonly commitChainId?: string;
 
   @ApiProperty({
     type: String,
@@ -143,13 +143,13 @@ export class AccountTransactionDto {
   public readonly proveTxHash?: string;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     nullable: true,
     description: "Prove transaction chain id",
-    example: 1,
-    examples: [1, null],
+    example: "1",
+    examples: ["1", null],
   })
-  public readonly proveChainId?: number;
+  public readonly proveChainId?: string;
 
   @ApiProperty({
     type: String,
@@ -161,13 +161,13 @@ export class AccountTransactionDto {
   public readonly executeTxHash?: string;
 
   @ApiProperty({
-    type: Number,
+    type: String,
     nullable: true,
     description: "Execute transaction chain id",
-    example: 1,
-    examples: [1, null],
+    example: "1",
+    examples: ["1", null],
   })
-  public readonly executeChainId?: number;
+  public readonly executeChainId?: string;
 
   @ApiProperty({
     type: String,
