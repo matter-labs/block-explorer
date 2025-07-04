@@ -1,4 +1,3 @@
-import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
