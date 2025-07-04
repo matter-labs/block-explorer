@@ -132,5 +132,23 @@ describe("transactionMapper", () => {
         ).isL1Originated
       ).toBe("0");
     });
+
+    it("handles null values in commit/prove/execute chain id", () => {
+      const result = mapTransactionListItem(
+        {
+          ...addressTransaction,
+          transaction: {
+            ...addressTransaction.transaction,
+            commitChainId: null,
+            proveChainId: null,
+            executeChainId: null,
+          } as Transaction,
+        },
+        100
+      );
+      expect(result.commitChainId).toBeUndefined();
+      expect(result.proveChainId).toBeUndefined();
+      expect(result.executeChainId).toBeUndefined();
+    });
   });
 });
