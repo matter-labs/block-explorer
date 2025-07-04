@@ -109,6 +109,7 @@ export default () => {
     PRIVIDIUM_SESSION_SAME_SITE,
     PRIVIDIUM_SESSION_SECRET,
     PRIVIDIUM_SIWE_EXPIRATION_TIME,
+    PRIVIDIUM_CHECK_WHITELIST,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -184,6 +185,10 @@ export default () => {
           .int({ message: PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG })
           .positive(PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG),
         appUrl: z.string({ message: PRIVIDIUM_APP_URL_ERROR_MSG }).url(PRIVIDIUM_APP_URL_ERROR_MSG),
+        checkWhiteList: z
+          .enum(["true", "false"])
+          .default("true")
+          .transform((val) => val === "true"),
       },
       { message: "Invalid prividium configuration" }
     );
@@ -197,6 +202,7 @@ export default () => {
       sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
       siweExpirationTime: PRIVIDIUM_SIWE_EXPIRATION_TIME,
       appUrl: PRIVIDIUM_APP_URL,
+      checkWhiteList: PRIVIDIUM_CHECK_WHITELIST,
     });
 
     if (!result.success) {

@@ -135,6 +135,7 @@ describe("config", () => {
       prividium: {
         privateRpcUrl: "http://localhost:4000",
         privateRpcSecret: "secret",
+        checkWhiteList: true,
         chainId: 300,
         sessionMaxAge: 1000,
         appUrl: "http://localhost:3020",

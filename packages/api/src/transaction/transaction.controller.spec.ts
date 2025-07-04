@@ -106,15 +106,14 @@ describe("TransactionController", () => {
         user = mock<UserParam>({ address: mockUser });
       });
 
-      it("filters by own address when no address is provided", async () => {
+      it("filters by visible by own address when no address is provided", async () => {
         const filterOptionsWithoutAddress = { blockNumber: 10 };
         await controller.getTransactions(filterOptionsWithoutAddress, listFilterOptions, pagingOptions, user);
         expect(serviceMock.findAll).toHaveBeenCalledWith(
           {
             ...filterOptionsWithoutAddress,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
-            address: mockUser,
+            visibleBy: mockUser,
           },
           {
             filterOptions: { ...filterOptionsWithoutAddress, ...listFilterOptions },
@@ -133,7 +132,6 @@ describe("TransactionController", () => {
           {
             ...filterTransactionsOptions,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
             visibleBy: mockUser,
           },
           {
@@ -144,7 +142,7 @@ describe("TransactionController", () => {
         );
       });
 
-      it("does not set visibleBy when provided address is same as user address", async () => {
+      it("sets visibleBy even when provided address is same as user address", async () => {
         const { isAddressEqual } = jest.requireMock("../common/utils");
         isAddressEqual.mockReturnValue(true);
 
@@ -153,7 +151,7 @@ describe("TransactionController", () => {
           {
             ...filterTransactionsOptions,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
+            visibleBy: user.address,
           },
           {
             filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
