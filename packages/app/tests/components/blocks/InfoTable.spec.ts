@@ -19,7 +19,7 @@ const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
-      currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+      getSettlementChainExplorerUrl: l1ExplorerUrlMock,
     }),
   };
 });
@@ -54,10 +54,13 @@ describe("InfoTable:", () => {
           status: "verified",
           commitTxHash: "0x5b5a05691d974803f5f095c1b918d2dd19152ed0a9de506d545c96df6cb9cac2",
           committedAt: "2022-04-13T16:54:37.622380Z",
+          commitChainId: 1,
           proveTxHash: "0xfb3532f4c38c2eaf78248da64cf80a354429d58204761d6ea6439391043f6fa9",
           provenAt: "2022-04-13T16:54:37.700089Z",
+          proveChainId: 1,
           executeTxHash: "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364",
           executedAt: "2022-04-13T16:54:37.784185Z",
+          executeChainId: 1,
         },
         blockNumber: "1",
         loading: false,

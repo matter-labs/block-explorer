@@ -22,6 +22,8 @@ vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
       currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+      getSettlementChainExplorerUrl: () => l1ExplorerUrlMock(),
+      getSettlementChainName: () => "Ethereum",
     }),
   };
 });
@@ -48,6 +50,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -66,6 +71,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -113,6 +121,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -175,6 +186,9 @@ describe("Status", () => {
           commitTxHash: "commitTxHash",
           proveTxHash: "proveTxHash",
           executeTxHash: "executeTxHash",
+          commitChainId: 1,
+          proveChainId: 1,
+          executeChainId: 1,
         },
       });
       const badges = wrapper.findAllComponents(Badge);
@@ -191,6 +205,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -256,6 +273,9 @@ describe("Status", () => {
           commitTxHash: "commitTxHash",
           proveTxHash: "proveTxHash",
           executeTxHash: "executeTxHash",
+          commitChainId: 1,
+          proveChainId: 1,
+          executeChainId: 1,
         },
       });
       const badges = wrapper.findAllComponents(Badge);
@@ -273,6 +293,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -337,6 +360,9 @@ describe("Status", () => {
           commitTxHash: "commitTxHash",
           proveTxHash: "proveTxHash",
           executeTxHash: "executeTxHash",
+          commitChainId: 1,
+          proveChainId: 1,
+          executeChainId: 1,
         },
       });
       const badges = wrapper.findAllComponents(Badge);
@@ -357,6 +383,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
 

@@ -18,7 +18,7 @@ const l1ExplorerUrlMock = vi.fn((): string | null => "https://sepolia.etherscan.
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
-      currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+      getSettlementChainExplorerUrl: l1ExplorerUrlMock,
     }),
   };
 });
@@ -42,10 +42,13 @@ describe("InfoTable:", () => {
     status: "verified",
     commitTxHash: "0x0ab34d8523b67f80783305760a2989ffe6ab205621813db5420a3012845f5ac7",
     committedAt: "2023-02-08T16:16:18.247570Z",
+    commitChainId: 1,
     proveTxHash: "0x87c5c5bf78100d88766101f13ec78d3b3356929556ee971cfacb6fe2a53b210a",
     provenAt: "2023-02-08T16:16:38.475210Z",
+    proveChainId: 1,
     executeTxHash: "0x57c44d7c183633f81bfa155bd30e68a94e3ff12c1e6265a4b5e06b6d4a7a1fa8",
     executedAt: "2023-02-08T16:17:00.484429Z",
+    executeChainId: 1,
     l1GasPrice: "39190145992",
     l2FairGasPrice: "500000000",
   };
