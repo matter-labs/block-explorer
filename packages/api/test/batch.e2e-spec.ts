@@ -43,6 +43,9 @@ describe("BatchController (e2e)", () => {
         committedAt: isCommitted ? new Date("2022-11-10T14:44:06.000Z") : null,
         provenAt: isProven ? new Date("2022-11-10T14:44:07.000Z") : null,
         executedAt: isExecuted ? new Date("2022-11-10T14:44:08.000Z") : null,
+        commitChainId: isCommitted ? 1 : null,
+        proveChainId: isProven ? 1 : null,
+        executeChainId: isExecuted ? 1 : null,
       });
     }
   });
@@ -75,6 +78,9 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: "2022-11-10T14:44:07.000Z",
             executedAt: "2022-11-10T14:44:08.000Z",
+            commitChainId: 1,
+            proveChainId: 1,
+            executeChainId: 1,
           })
         );
     });
@@ -92,6 +98,9 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: "2022-11-10T14:44:07.000Z",
             executedAt: "2022-11-10T14:44:08.000Z",
+            commitChainId: 1,
+            proveChainId: 1,
+            executeChainId: 1,
           })
         );
     });
@@ -109,6 +118,9 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: "2022-11-10T14:44:07.000Z",
             executedAt: null,
+            commitChainId: 1,
+            proveChainId: 1,
+            executeChainId: null,
           })
         );
     });
@@ -126,6 +138,9 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: null,
             executedAt: null,
+            commitChainId: 1,
+            proveChainId: null,
+            executeChainId: null,
           })
         );
     });
@@ -143,6 +158,9 @@ describe("BatchController (e2e)", () => {
             committedAt: null,
             provenAt: null,
             executedAt: null,
+            commitChainId: null,
+            proveChainId: null,
+            executeChainId: null,
           })
         );
     });

@@ -43,7 +43,6 @@ declare namespace Api {
       number: string;
       timestamp: string;
       rootHash?: string | null;
-      executedAt: string | null;
       status: "sealed" | "verified";
       l1TxCount: number;
       l2TxCount: number;
@@ -53,6 +52,10 @@ declare namespace Api {
       executeTxHash: string | null;
       committedAt: string | null;
       provenAt: string | null;
+      executedAt: string | null;
+      commitChainId: number | null;
+      proveChainId: number | null;
+      executeChainId: number | null;
       l1GasPrice: string;
       l2FairGasPrice: string;
     };
@@ -88,6 +91,9 @@ declare namespace Api {
       commitTxHash: string | null;
       proveTxHash: string | null;
       executeTxHash: string | null;
+      commitChainId: number | null;
+      proveChainId: number | null;
+      executeChainId: number | null;
       isL1Originated: boolean;
       l1BatchNumber: number | null;
       isL1BatchSealed: boolean;
