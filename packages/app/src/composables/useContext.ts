@@ -21,7 +21,7 @@ export type Context = {
   getL2Provider: () => Provider;
   identifyNetwork: () => void;
   getSettlementChainExplorerUrl: (chainId: number | null) => string | undefined;
-  getSettlementChainName: (chainId: number | null) => string;
+  getSettlementChainName: (chainId: number | null, commitTxHash?: string | null) => string;
 };
 
 let l2Provider: Provider | null;

@@ -35,6 +35,9 @@ const transaction: TransactionItem = {
   ethCommitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
   ethExecuteTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
   ethProveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
+  commitChainId: 1,
+  proveChainId: 1,
+  executeChainId: 1,
   fee: "0x521f303519100",
   feeData: {
     amountPaid: "0x521f303519100",
