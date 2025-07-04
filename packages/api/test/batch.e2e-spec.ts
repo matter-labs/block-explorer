@@ -26,6 +26,7 @@ describe("BatchController (e2e)", () => {
     batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
 
     for (let i = 0; i < 40; i++) {
+      const isTeeProven = i >= 5 && i < 20;
       const isCommitted = i < 30;
       const isProven = i < 20;
       const isExecuted = i < 10;
@@ -43,6 +44,7 @@ describe("BatchController (e2e)", () => {
         committedAt: isCommitted ? new Date("2022-11-10T14:44:06.000Z") : null,
         provenAt: isProven ? new Date("2022-11-10T14:44:07.000Z") : null,
         executedAt: isExecuted ? new Date("2022-11-10T14:44:08.000Z") : null,
+        teeProvenAt: isTeeProven ? new Date("2022-11-10T14:44:09.000Z") : null,
       });
     }
   });
@@ -75,6 +77,7 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: "2022-11-10T14:44:07.000Z",
             executedAt: "2022-11-10T14:44:08.000Z",
+            teeProvenAt: null,
           })
         );
     });
@@ -92,6 +95,7 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: "2022-11-10T14:44:07.000Z",
             executedAt: "2022-11-10T14:44:08.000Z",
+            teeProvenAt: null,
           })
         );
     });
@@ -109,6 +113,7 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: "2022-11-10T14:44:07.000Z",
             executedAt: null,
+            teeProvenAt: "2022-11-10T14:44:09.000Z",
           })
         );
     });
@@ -126,6 +131,7 @@ describe("BatchController (e2e)", () => {
             committedAt: "2022-11-10T14:44:06.000Z",
             provenAt: null,
             executedAt: null,
+            teeProvenAt: null,
           })
         );
     });
@@ -143,6 +149,7 @@ describe("BatchController (e2e)", () => {
             committedAt: null,
             provenAt: null,
             executedAt: null,
+            teeProvenAt: null,
           })
         );
     });

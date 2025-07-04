@@ -55,6 +55,7 @@ declare namespace Api {
       provenAt: string | null;
       l1GasPrice: string;
       l2FairGasPrice: string;
+      teeProvenAt?: string | null;
     };
 
     type Log = {

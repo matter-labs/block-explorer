@@ -260,6 +260,8 @@
         "executedAtTooltip": "The date and time at which L1 Batch is executed on Ethereum",
         "notYetExecuted": "Not yet executed",
         "notYetSealed": "This batch is not sealed yet",
+        "tee": "Verified by TEE",
+        "teeTooltip": "Verified by TEE",
         "transactionTable": {
             "title": "Batch Transactions",
             "error": "Something went wrong",

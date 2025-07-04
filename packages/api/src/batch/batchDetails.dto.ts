@@ -55,4 +55,12 @@ export class BatchDetailsDto extends BatchDto {
     example: "100000000",
   })
   public readonly l2FairGasPrice: string;
+
+  @ApiProperty({
+    type: Date,
+    description: "Date when the batch was TEE proven",
+    example: new Date("2022-09-15T15:13:57.035Z"),
+    examples: [new Date("2022-09-15T15:13:57.035Z"), null],
+  })
+  public readonly teeProvenAt?: Date;
 }
