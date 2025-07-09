@@ -616,4 +616,87 @@ describe("TokenService", () => {
       });
     });
   });
+
+  describe("addBaseToken", () => {
+    const baseTokenContract = {
+      address: utils.L2_BASE_TOKEN_ADDRESS,
+      createdInBlockNumber: 123,
+      creatorTxHash: "0xabc",
+      createdInLogIndex: 7,
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      (configServiceMock.get as jest.Mock)
+        .mockReset()
+        .mockReturnValueOnce("ETH")
+        .mockReturnValueOnce("Ether")
+        .mockReturnValueOnce(18)
+        .mockReturnValueOnce("https://icon.url")
+        .mockReturnValueOnce("ETH_L1");
+    });
+
+    it("adds base token if not present and contract exists", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(undefined);
+      (addressRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(baseTokenContract);
+
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.upsert).toHaveBeenCalledWith({
+        l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+        l1Address: "ETH_L1",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        iconURL: "https://icon.url",
+        blockNumber: 123,
+        transactionHash: "0xabc",
+        logIndex: 7,
+      });
+    });
+
+    it("does not add base token if contract is missing", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(undefined);
+      (addressRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(undefined);
+
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.upsert).not.toHaveBeenCalled();
+    });
+
+    it("updates base token if present and config values differ", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce({
+        l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+        symbol: "OLD",
+        name: "Old Ether",
+        decimals: 8,
+        iconURL: "oldurl",
+        l1Address: "OLD_L1",
+      });
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.update).toHaveBeenCalledWith(utils.L2_BASE_TOKEN_ADDRESS, {
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        iconURL: "https://icon.url",
+        l1Address: "ETH_L1",
+      });
+    });
+
+    it("does nothing if base token exists and config values are the same", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce({
+        l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        iconURL: "https://icon.url",
+        l1Address: "ETH_L1",
+      });
+
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.update).not.toHaveBeenCalled();
+    });
+  });
 });
