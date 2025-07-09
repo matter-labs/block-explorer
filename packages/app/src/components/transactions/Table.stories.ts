@@ -43,7 +43,19 @@ const Template = (args: Args) => ({
   `,
 });
 
-const transactions: TransactionItem[] = [ExecuteTx as TransactionItem];
+const transactions: TransactionItem[] = [
+  {
+    ...ExecuteTx,
+    // Add missing gateway properties for TypeScript compatibility
+    gatewayEthCommitTxHash: null,
+    gatewayEthExecuteTxHash: null,
+    gatewayEthProveTxHash: null,
+    gatewayEthCommitChainId: null,
+    gatewayEthProveChainId: null,
+    gatewayEthExecuteChainId: null,
+    gatewayStatus: null,
+  } as TransactionItem,
+];
 const columns: string[] = ["status", "transactionHash", "age", "from", "direction", "to", "nonce", "value", "fee"];
 const routes = vueRouter([
   { path: "/", name: "home", component: {} },

@@ -65,6 +65,15 @@ export type TransactionItem = {
   commitChainId: number | null;
   proveChainId: number | null;
   executeChainId: number | null;
+  // Gateway Ethereum transaction hashes (when Era -> Gateway -> Ethereum)
+  gatewayEthCommitTxHash: Hash | null;
+  gatewayEthExecuteTxHash: Hash | null;
+  gatewayEthProveTxHash: Hash | null;
+  gatewayEthCommitChainId: number | null;
+  gatewayEthProveChainId: number | null;
+  gatewayEthExecuteChainId: number | null;
+  // Gateway transaction status to determine Ethereum status correctly
+  gatewayStatus: TransactionStatus | null;
   fee: Hash;
   indexInBlock?: number;
   isL1Originated: boolean;
@@ -103,6 +112,83 @@ export default (context = useContext()) => {
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
 
+  // Helper function to check if current network supports Gateway and if transaction uses Gateway settlement
+  const shouldFetchEthereumData = (tx: TransactionItem): boolean => {
+    if (!context.currentNetwork.value.settlementChains?.length) {
+      return false;
+    }
+
+    // Find Gateway settlement chain
+    const gatewayChain = context.currentNetwork.value.settlementChains.find((chain) => chain.name === "Gateway");
+
+    if (!gatewayChain) {
+      return false;
+    }
+
+    // Check if transaction uses Gateway settlement (any of the chainIds match Gateway)
+    return (
+      tx.commitChainId === gatewayChain.chainId ||
+      tx.proveChainId === gatewayChain.chainId ||
+      tx.executeChainId === gatewayChain.chainId
+    );
+  };
+
+  // Helper function to get Gateway API URL from explorer URL
+  const getGatewayApiUrl = (gatewayExplorerUrl: string): string => {
+    // Convert explorer URL to API URL
+    // e.g., "https://sepolia.gateway.explorer.zksync.io" -> "https://block-explorer.era-gateway-testnet.zksync.dev"
+    if (gatewayExplorerUrl.includes("sepolia.gateway.explorer.zksync.io")) {
+      return "https://block-explorer.era-gateway-testnet.zksync.dev";
+    } else if (gatewayExplorerUrl.includes("gateway.explorer.zksync.io")) {
+      return "https://block-explorer-api.era-gateway-mainnet.zksync.dev";
+    }
+    // Fallback - try to construct API URL from explorer URL
+    return gatewayExplorerUrl.replace("explorer", "block-explorer-api");
+  };
+
+  // Function to fetch Ethereum transaction data from Gateway API
+  const fetchEthereumDataFromGateway = async (tx: TransactionItem): Promise<Partial<TransactionItem> | null> => {
+    try {
+      if (!context.currentNetwork.value.settlementChains?.length) {
+        return null;
+      }
+
+      const gatewayChain = context.currentNetwork.value.settlementChains.find((chain) => chain.name === "Gateway");
+
+      if (!gatewayChain || !tx.ethCommitTxHash) {
+        return null;
+      }
+
+      const gatewayApiUrl = getGatewayApiUrl(gatewayChain.explorerUrl);
+
+      // Fetch Gateway transaction data using the Era transaction's commit hash
+      const gatewayTxResponse = await $fetch<Api.Response.Transaction>(
+        `${gatewayApiUrl}/transactions/${tx.ethCommitTxHash}`
+      );
+
+      // Find Ethereum settlement chain from current network's settlementChains
+      const ethereumChain = context.currentNetwork.value.settlementChains.find((chain) => chain.name === "Ethereum");
+
+      if (!ethereumChain) {
+        return null;
+      }
+
+      return {
+        gatewayEthCommitTxHash: gatewayTxResponse.commitTxHash,
+        gatewayEthProveTxHash: gatewayTxResponse.proveTxHash,
+        gatewayEthExecuteTxHash: gatewayTxResponse.executeTxHash,
+        gatewayEthCommitChainId: ethereumChain.chainId,
+        gatewayEthProveChainId: ethereumChain.chainId,
+        gatewayEthExecuteChainId: ethereumChain.chainId,
+        // Include the Gateway transaction status to determine Ethereum status correctly
+        gatewayStatus: gatewayTxResponse.status,
+      };
+    } catch (error) {
+      console.warn("Failed to fetch Ethereum data from Gateway API:", error);
+      return null;
+    }
+  };
+
   const getFromBlockchainByHash = async (hash: string): Promise<TransactionItem | null> => {
     const provider = context.getL2Provider();
     try {
@@ -138,6 +224,14 @@ export default (context = useContext()) => {
         commitChainId: null,
         proveChainId: null,
         executeChainId: null,
+        // Gateway Ethereum transaction hashes (initially null, will be fetched separately)
+        gatewayEthCommitTxHash: null,
+        gatewayEthExecuteTxHash: null,
+        gatewayEthProveTxHash: null,
+        gatewayEthCommitChainId: null,
+        gatewayEthProveChainId: null,
+        gatewayEthExecuteChainId: null,
+        gatewayStatus: null,
         fee: transactionDetails.fee.toString(),
         feeData: {
           amountPaid: transactionDetails.fee.toString(),
@@ -207,6 +301,14 @@ export default (context = useContext()) => {
         all<Api.Response.Log>(new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/logs?limit=100`)),
       ]);
       transaction.value = mapTransaction(txResponse, txTransfers, txLogs);
+
+      // Fetch Ethereum data from Gateway if transaction uses Gateway settlement
+      if (transaction.value && shouldFetchEthereumData(transaction.value)) {
+        const ethereumData = await fetchEthereumDataFromGateway(transaction.value);
+        if (ethereumData) {
+          transaction.value = { ...transaction.value, ...ethereumData };
+        }
+      }
     } catch (error) {
       if (error instanceof FetchError && error.response?.status === 404) {
         transaction.value = await getFromBlockchainByHash(hash);
@@ -258,6 +360,14 @@ export function mapTransaction(
     commitChainId: transaction.commitChainId ?? null,
     proveChainId: transaction.proveChainId ?? null,
     executeChainId: transaction.executeChainId ?? null,
+    // Gateway Ethereum transaction hashes (not available from API yet, will be fetched separately)
+    gatewayEthCommitTxHash: null,
+    gatewayEthExecuteTxHash: null,
+    gatewayEthProveTxHash: null,
+    gatewayEthCommitChainId: null,
+    gatewayEthProveChainId: null,
+    gatewayEthExecuteChainId: null,
+    gatewayStatus: null,
     fee: transaction.fee,
     feeData: {
       amountPaid: transaction.fee!,
@@ -277,19 +387,16 @@ export function mapTransaction(
     isL1BatchSealed: transaction.isL1BatchSealed,
     error: transaction.error,
     revertReason: transaction.revertReason,
-
-    logs: logs.map((item) => ({
-      address: item.address,
-      blockNumber: item.blockNumber,
-      data: item.data,
-      logIndex: item.logIndex.toString(16),
-      topics: item.topics,
-      transactionHash: item.transactionHash!,
-      transactionIndex: item.transactionIndex.toString(16),
+    logs: logs.map((log) => ({
+      address: log.address,
+      blockNumber: log.blockNumber,
+      data: log.data,
+      logIndex: log.logIndex.toString(),
+      topics: log.topics as string[],
+      transactionHash: log.transactionHash || "",
+      transactionIndex: log.transactionIndex.toString(),
     })),
-
-    transfers: mapTransfers(filterTransfers(transfers)),
-
+    transfers: mapTransfers(transfers),
     gasPrice: transaction.gasPrice,
     gasLimit: transaction.gasLimit,
     gasUsed: transaction.gasUsed,

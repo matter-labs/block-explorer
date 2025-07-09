@@ -94,6 +94,12 @@ declare namespace Api {
       commitChainId: number | null;
       proveChainId: number | null;
       executeChainId: number | null;
+      gatewayEthCommitTxHash?: string | null;
+      gatewayEthProveTxHash?: string | null;
+      gatewayEthExecuteTxHash?: string | null;
+      gatewayEthCommitChainId?: number | null;
+      gatewayEthProveChainId?: number | null;
+      gatewayEthExecuteChainId?: number | null;
       isL1Originated: boolean;
       l1BatchNumber: number | null;
       isL1BatchSealed: boolean;

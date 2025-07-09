@@ -30,6 +30,13 @@
             :commit-chain-id="transaction!.commitChainId"
             :prove-chain-id="transaction!.proveChainId"
             :execute-chain-id="transaction!.executeChainId"
+            :gateway-eth-commit-tx-hash="transaction!.gatewayEthCommitTxHash"
+            :gateway-eth-prove-tx-hash="transaction!.gatewayEthProveTxHash"
+            :gateway-eth-execute-tx-hash="transaction!.gatewayEthExecuteTxHash"
+            :gateway-eth-commit-chain-id="transaction!.gatewayEthCommitChainId"
+            :gateway-eth-prove-chain-id="transaction!.gatewayEthProveChainId"
+            :gateway-eth-execute-chain-id="transaction!.gatewayEthExecuteChainId"
+            :gateway-status="transaction!.gatewayStatus"
           />
         </TableBodyColumn>
       </tr>
