@@ -8,6 +8,7 @@ import { BlockService } from "./block";
 import { BatchService } from "./batch";
 import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
+import { TokenService } from "./token/token.service";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
 import { SystemContractService } from "./contract/systemContract.service";
@@ -24,6 +25,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     private readonly blocksRevertService: BlocksRevertService,
     private readonly balancesCleanerService: BalancesCleanerService,
     private readonly tokenOffChainDataSaverService: TokenOffChainDataSaverService,
+    private readonly tokenService: TokenService,
     private readonly dataSource: DataSource,
     private readonly configService: ConfigService,
     private readonly systemContractService: SystemContractService
@@ -33,7 +35,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   public onModuleInit() {
     runMigrations(this.dataSource, this.logger).then(() => {
-      this.systemContractService.addSystemContracts();
+      this.systemContractService.addSystemContracts().then(() => {
+        this.tokenService.addBaseToken();
+      });
       this.startWorkers();
     });
   }
