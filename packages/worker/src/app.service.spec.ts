@@ -233,9 +233,10 @@ describe("AppService", () => {
 
     it("adds base token", async () => {
       let addingSystemContractsFinishedResolve: () => void;
-      let addingSystemContractsFinished: Promise<void>;
+      const addingSystemContractsFinished: Promise<void> = new Promise(
+        (resolve) => (addingSystemContractsFinishedResolve = resolve)
+      );
 
-      addingSystemContractsFinished = new Promise((resolve) => (addingSystemContractsFinishedResolve = resolve));
       (systemContractServiceMock.addSystemContracts as jest.Mock).mockImplementation(() => {
         addingSystemContractsFinishedResolve();
         return Promise.resolve();
