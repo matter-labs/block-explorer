@@ -5,8 +5,6 @@ import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { LogService, LogsData } from "../log/log.service";
-import { Token } from "../token/token.service";
-import { TransactionTracesService, ContractAddress } from "./transactionTraces.service";
 
 export interface TransactionInfo extends types.TransactionResponse {
   fee: string;
@@ -20,8 +18,6 @@ export interface TransactionInfo extends types.TransactionResponse {
 export interface TransactionData extends LogsData {
   transaction: TransactionInfo;
   transactionReceipt: types.TransactionReceipt;
-  contractAddresses: ContractAddress[];
-  tokens?: Token[];
 }
 
 @Injectable()
@@ -30,7 +26,6 @@ export class TransactionService {
 
   public constructor(
     private readonly blockchainService: BlockchainService,
-    private readonly transactionTracesService: TransactionTracesService,
     private readonly logService: LogService,
     @InjectMetric(TRANSACTION_PROCESSING_DURATION_METRIC_NAME)
     private readonly transactionProcessingDurationMetric: Histogram,
@@ -67,10 +62,14 @@ export class TransactionService {
       receiptStatus: transactionReceipt.status,
     } as unknown as TransactionInfo;
 
-    const transactionTraceData = await this.transactionTracesService.getData(transactionReceipt);
     if (transactionReceipt.status === 0) {
-      transactionInfo.error = transactionTraceData.error;
-      transactionInfo.revertReason = transactionTraceData.revertReason;
+      const debugTraceTransactionResult = await this.blockchainService.debugTraceTransaction(transactionHash, true);
+      if (debugTraceTransactionResult?.error) {
+        transactionInfo.error = debugTraceTransactionResult.error;
+      }
+      if (debugTraceTransactionResult?.revertReason) {
+        transactionInfo.revertReason = debugTraceTransactionResult.revertReason;
+      }
     }
 
     const logsData = await this.logService.getData(
@@ -86,8 +85,6 @@ export class TransactionService {
       ...logsData,
       transaction: transactionInfo,
       transactionReceipt,
-      contractAddresses: transactionTraceData.contractAddresses,
-      tokens: transactionTraceData.tokens,
     };
   }
 }
