@@ -22,6 +22,7 @@ export type Context = {
   identifyNetwork: () => void;
   getSettlementChainExplorerUrl: (chainId: number | null) => string | undefined;
   getSettlementChainName: (chainId: number | null, commitTxHash?: string | null) => string;
+  isGatewaySettlementChain: (chainId: number | null) => boolean;
 };
 
 let l2Provider: Provider | null;
@@ -97,6 +98,16 @@ export default (): Context => {
     );
   }
 
+  function isGatewaySettlementChain(chainId: number | null) {
+    if (!chainId || !currentNetwork.value.settlementChains?.length) {
+      return false;
+    }
+    return !!currentNetwork.value.settlementChains
+      .find((chain) => chain.chainId === chainId)
+      ?.name.toLocaleLowerCase()
+      .includes("gateway");
+  }
+
   return {
     isReady,
     currentNetwork,
@@ -105,5 +116,6 @@ export default (): Context => {
     getL2Provider,
     getSettlementChainExplorerUrl,
     getSettlementChainName,
+    isGatewaySettlementChain,
   };
 };

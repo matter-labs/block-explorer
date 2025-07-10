@@ -37,6 +37,7 @@ declare namespace Api {
       l1TxCount: number;
       l2TxCount: number;
       size: number;
+      commitChainId: number | null;
     };
 
     type BatchDetails = {

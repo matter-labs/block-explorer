@@ -11,15 +11,6 @@ export class BatchDetailsDto extends BatchDto {
   public readonly commitTxHash?: string;
 
   @ApiProperty({
-    type: Number,
-    nullable: true,
-    description: "Commit transaction chain id",
-    example: 1,
-    examples: [1, null],
-  })
-  public readonly commitChainId?: number;
-
-  @ApiProperty({
     type: String,
     description: "Prove transaction hash",
     example: "0x85f97229ef1e489d4a5c2f8c15eb275ee7a6adcdae57d02597221d202b0f421b",
