@@ -93,7 +93,7 @@ defineProps({
   },
 });
 
-function getBadgeIconByStatus(batch) {
+function getBadgeIconByStatus(batch: BatchListItem) {
   if (batch.status === "sealed") {
     return ZkSyncIcon;
   }
