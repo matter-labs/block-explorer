@@ -11,9 +11,6 @@ export class BatchDetails extends Batch {
   @Column({ type: "timestamp", nullable: true })
   public readonly committedAt?: Date;
 
-  @Column({ type: "int", nullable: true })
-  public readonly commitChainId?: number;
-
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly proveTxHash?: string;
 
