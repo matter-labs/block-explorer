@@ -9,19 +9,18 @@ import { ProviderEvent } from "ethers";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
-import { L2_NATIVE_TOKEN_VAULT_ADDRESS, L2_ACCOUNT_CODE_STORAGE_ADDRESS, CONTRACT_INTERFACES } from "../constants";
+import { L2_NATIVE_TOKEN_VAULT_ADDRESS, CONTRACT_INTERFACES } from "../constants";
 
 export interface BridgeAddresses {
   l2Erc20DefaultBridge?: string;
 }
 
-export interface TransactionTrace {
+export interface TraceTransactionResult {
   type: string;
   from: string;
   to: string;
   error: string | null;
   revertReason: string | null;
-  calls: TransactionTrace[];
 }
 
 @Injectable()
@@ -138,7 +137,7 @@ export class BlockchainService implements OnModuleInit {
     }, "getDefaultBridgeAddresses");
   }
 
-  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TransactionTrace> {
+  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TraceTransactionResult> {
     return await this.rpcCall(async () => {
       return await this.provider.send("debug_traceTransaction", [
         txHash,
@@ -169,23 +168,13 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async getTokenAddressByAssetId(assetId: string): Promise<string> {
-    const vaultContract = new RetryableContract(
+    const erc20Contract = new RetryableContract(
       L2_NATIVE_TOKEN_VAULT_ADDRESS,
       CONTRACT_INTERFACES.L2_NATIVE_TOKEN_VAULT.interface,
       this.provider
     );
-    const tokenAddress = await vaultContract.tokenAddress(assetId);
+    const tokenAddress = await erc20Contract.tokenAddress(assetId);
     return tokenAddress;
-  }
-
-  public async getRawCodeHash(address: string): Promise<string> {
-    const accountCodeStorageContract = new RetryableContract(
-      L2_ACCOUNT_CODE_STORAGE_ADDRESS,
-      CONTRACT_INTERFACES.L2_ACCOUNT_CODE_STORAGE.interface,
-      this.provider
-    );
-    const bytecodeHash = await accountCodeStorageContract.getRawCodeHash(address);
-    return bytecodeHash;
   }
 
   public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<bigint> {

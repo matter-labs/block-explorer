@@ -185,4 +185,56 @@ export class TokenService {
 
     return result;
   }
+
+  public async addBaseToken(): Promise<void> {
+    const symbol = this.configService.get<string>("tokens.baseToken.symbol");
+    const name = this.configService.get<string>("tokens.baseToken.name");
+    const decimals = this.configService.get<number>("tokens.baseToken.decimals");
+    const iconURL = this.configService.get<string>("tokens.baseToken.iconUrl");
+    const l1Address = this.configService.get<string>("tokens.baseToken.l1Address");
+
+    const baseToken = await this.tokenRepository.findOneBy({
+      l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+    });
+
+    if (!baseToken) {
+      const baseTokenContract = await this.addressRepository.findOneBy({
+        address: utils.L2_BASE_TOKEN_ADDRESS,
+      });
+
+      // Token entity requires blockNumber, transactionHash and logIndex to be set.
+      // If the base token contract is not found, we cannot add it to the DB.
+      if (baseTokenContract?.createdInBlockNumber) {
+        this.logger.debug("Adding base token to the DB");
+        await this.tokenRepository.upsert({
+          l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+          l1Address,
+          symbol,
+          name,
+          decimals,
+          iconURL,
+          blockNumber: baseTokenContract.createdInBlockNumber,
+          transactionHash: baseTokenContract.creatorTxHash,
+          logIndex: baseTokenContract.createdInLogIndex,
+        });
+      }
+    } else if (
+      baseToken.symbol != symbol ||
+      baseToken.name != name ||
+      baseToken.decimals != decimals ||
+      baseToken.iconURL != iconURL ||
+      baseToken.l1Address != l1Address
+    ) {
+      this.logger.debug("Updating base token in the DB");
+      // This is to update the base token if from the beginning it was added with default base token values
+      // before the base token config was updated.
+      await this.tokenRepository.update(utils.L2_BASE_TOKEN_ADDRESS, {
+        symbol,
+        name,
+        decimals,
+        iconURL,
+        l1Address,
+      });
+    }
+  }
 }

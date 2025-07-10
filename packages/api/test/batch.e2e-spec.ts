@@ -211,6 +211,7 @@ describe("BatchController (e2e)", () => {
                 size: 3,
                 status: "sealed",
                 timestamp: "2022-11-10T14:44:36.000Z",
+                commitChainId: null,
               },
               {
                 executedAt: null,
@@ -221,6 +222,7 @@ describe("BatchController (e2e)", () => {
                 size: 3,
                 status: "sealed",
                 timestamp: "2022-11-10T14:44:35.000Z",
+                commitChainId: null,
               },
             ],
             links: {
@@ -255,6 +257,7 @@ describe("BatchController (e2e)", () => {
               size: 3,
               status: BatchStatus.Sealed,
               executedAt: null,
+              commitChainId: null,
             },
             {
               number: 35,
@@ -265,6 +268,7 @@ describe("BatchController (e2e)", () => {
               size: 3,
               status: BatchStatus.Sealed,
               executedAt: null,
+              commitChainId: null,
             },
           ])
         );

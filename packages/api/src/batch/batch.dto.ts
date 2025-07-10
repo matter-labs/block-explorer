@@ -45,4 +45,13 @@ export class BatchDto {
 
   @ApiProperty({ type: Number, description: "Batch size (number of transaction in the batch)", example: 20 })
   public readonly size: number;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: "Commit transaction chain id",
+    example: 1,
+    examples: [1, null],
+  })
+  public readonly commitChainId?: number;
 }

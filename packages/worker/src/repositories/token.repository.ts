@@ -61,6 +61,11 @@ export class TokenRepository extends BaseRepository<Token> {
     return tokens;
   }
 
+  public async update(l2Address: string, fieldsToUpdate: QueryDeepPartialEntity<Token>): Promise<void> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    await transactionManager.update(this.entityTarget, { l2Address }, fieldsToUpdate);
+  }
+
   public async updateTokenOffChainData({
     l1Address,
     l2Address,

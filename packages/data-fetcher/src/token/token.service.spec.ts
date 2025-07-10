@@ -5,7 +5,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenService } from "./token.service";
-import { ContractAddress } from "../transaction/transactionTraces.service";
+import { ContractAddress } from "../address/interface/contractAddress.interface";
 
 describe("TokenService", () => {
   let tokenService: TokenService;

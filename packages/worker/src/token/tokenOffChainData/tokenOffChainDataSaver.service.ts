@@ -58,7 +58,8 @@ export class TokenOffChainDataSaverService extends Worker {
           }
         }
 
-        this.logger.log("Updated tokens offchain data", {
+        this.logger.log({
+          message: "Updated tokens offchain data",
           totalTokensUpdated: tokensToUpdate.length,
         });
 
