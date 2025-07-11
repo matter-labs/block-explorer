@@ -20,6 +20,7 @@ export type NetworkConfig = {
 
 export type SettlementChain = {
   explorerUrl: string;
+  apiUrl?: string; // Optional API URL for chains that need it (like Gateway)
   name: string;
   chainId: number;
 };

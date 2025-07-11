@@ -133,17 +133,35 @@ export default (context = useContext()) => {
     );
   };
 
-  // Helper function to get Gateway API URL from explorer URL
-  const getGatewayApiUrl = (gatewayExplorerUrl: string): string => {
-    // Convert explorer URL to API URL
-    // e.g., "https://sepolia.gateway.explorer.zksync.io" -> "https://block-explorer.era-gateway-testnet.zksync.dev"
-    if (gatewayExplorerUrl.includes("sepolia.gateway.explorer.zksync.io")) {
-      return "https://block-explorer.era-gateway-testnet.zksync.dev";
-    } else if (gatewayExplorerUrl.includes("gateway.explorer.zksync.io")) {
-      return "https://block-explorer-api.era-gateway-mainnet.zksync.dev";
+  // Helper function to get Gateway API URL from settlement chain configuration
+  const getGatewayApiUrl = (gatewayChain: any): string => {
+    // If apiUrl is configured, use it directly (preferred approach)
+    if (gatewayChain.apiUrl) {
+      return gatewayChain.apiUrl;
     }
-    // Fallback - try to construct API URL from explorer URL
-    return gatewayExplorerUrl.replace("explorer", "block-explorer-api");
+
+    // Fallback: derive from explorer URL for backward compatibility
+    const explorerUrl = gatewayChain.explorerUrl;
+    try {
+      const url = new URL(explorerUrl);
+
+      // Only allow zksync.io domains
+      if (!url.hostname.endsWith(".zksync.io")) {
+        throw new Error(`Unsupported domain: ${url.hostname}`);
+      }
+
+      // Known URL mappings for Gateway
+      if (url.hostname === "sepolia.gateway.explorer.zksync.io") {
+        return "https://block-explorer.era-gateway-testnet.zksync.dev";
+      } else if (url.hostname === "gateway.explorer.zksync.io") {
+        return "https://block-explorer-api.era-gateway-mainnet.zksync.dev";
+      }
+
+      throw new Error(`No API URL configured for Gateway chain: ${explorerUrl}`);
+    } catch (error) {
+      console.warn("Failed to get Gateway API URL:", error);
+      throw new Error(`Invalid Gateway configuration: ${explorerUrl}`);
+    }
   };
 
   // Function to fetch Ethereum transaction data from Gateway API
@@ -159,7 +177,13 @@ export default (context = useContext()) => {
         return null;
       }
 
-      const gatewayApiUrl = getGatewayApiUrl(gatewayChain.explorerUrl);
+      let gatewayApiUrl: string;
+      try {
+        gatewayApiUrl = getGatewayApiUrl(gatewayChain);
+      } catch (error) {
+        console.warn("Failed to get Gateway API URL:", error);
+        return null;
+      }
 
       // Fetch Gateway transaction data using the Era transaction's commit hash
       const gatewayTxResponse = await $fetch<Api.Response.Transaction>(
