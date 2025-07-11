@@ -38,6 +38,14 @@ const transaction: TransactionItem = {
   commitChainId: 1,
   proveChainId: 1,
   executeChainId: 1,
+  // Add missing gateway properties for TypeScript compatibility
+  gatewayEthCommitTxHash: null,
+  gatewayEthExecuteTxHash: null,
+  gatewayEthProveTxHash: null,
+  gatewayEthCommitChainId: null,
+  gatewayEthProveChainId: null,
+  gatewayEthExecuteChainId: null,
+  gatewayStatus: null,
   fee: "0x521f303519100",
   feeData: {
     amountPaid: "0x521f303519100",
