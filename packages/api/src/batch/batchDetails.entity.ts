@@ -18,8 +18,14 @@ export class BatchDetails extends Batch {
   @Column({ type: "timestamp", nullable: true })
   public readonly provenAt?: Date;
 
+  @Column({ type: "int", nullable: true })
+  public readonly proveChainId?: number;
+
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly executeTxHash?: string;
+
+  @Column({ type: "int", nullable: true })
+  public readonly executeChainId?: number;
 
   @Column({ type: "varchar", length: 128 })
   public readonly l1GasPrice: string;

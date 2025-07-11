@@ -18,6 +18,9 @@ const batchItem: BatchDetails = {
   provenAt: "2023-02-08T16:16:38.475210Z",
   executeTxHash: "0x57c44d7c183633f81bfa155bd30e68a94e3ff12c1e6265a4b5e06b6d4a7a1fa8",
   executedAt: "2023-02-08T16:17:00.484429Z",
+  commitChainId: 1,
+  proveChainId: 1,
+  executeChainId: 1,
   l1GasPrice: "39190145992",
   l2FairGasPrice: "500000000",
 };

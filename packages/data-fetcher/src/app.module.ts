@@ -5,8 +5,9 @@ import config from "./config";
 import { HealthModule } from "./health/health.module";
 import { BlockchainService } from "./blockchain";
 import { BlockService, BlockController } from "./block";
-import { TransactionService, TransactionTracesService } from "./transaction";
+import { TransactionService } from "./transaction";
 import { LogService } from "./log";
+import { AddressService } from "./address/address.service";
 import { BalanceService } from "./balance";
 import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
@@ -24,11 +25,11 @@ import { MetricsModule } from "./metrics";
   controllers: [BlockController],
   providers: [
     BlockchainService,
+    AddressService,
     BalanceService,
     TransferService,
     TokenService,
     TransactionService,
-    TransactionTracesService,
     LogService,
     BlockService,
     Logger,

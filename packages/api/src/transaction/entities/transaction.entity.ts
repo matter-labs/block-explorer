@@ -129,12 +129,24 @@ export class Transaction extends BaseEntity {
     return this.batch ? this.batch.commitTxHash : null;
   }
 
+  public get commitChainId(): number {
+    return this.batch ? this.batch.commitChainId : null;
+  }
+
   public get executeTxHash(): string {
     return this.batch ? this.batch.executeTxHash : null;
   }
 
+  public get executeChainId(): number {
+    return this.batch ? this.batch.executeChainId : null;
+  }
+
   public get proveTxHash(): string {
     return this.batch ? this.batch.proveTxHash : null;
+  }
+
+  public get proveChainId(): number {
+    return this.batch ? this.batch.proveChainId : null;
   }
 
   public get isL1BatchSealed(): boolean {
@@ -156,8 +168,11 @@ export class Transaction extends BaseEntity {
       ...restFields,
       status: this.status,
       commitTxHash: this.commitTxHash,
+      commitChainId: this.commitChainId,
       executeTxHash: this.executeTxHash,
+      executeChainId: this.executeChainId,
       proveTxHash: this.proveTxHash,
+      proveChainId: this.proveChainId,
       isL1BatchSealed: this.isL1BatchSealed,
       gasUsed: this.gasUsed,
       contractAddress: this.contractAddress,
