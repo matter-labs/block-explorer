@@ -75,6 +75,9 @@ describe("AddressController (e2e)", () => {
         committedAt: isExecuted ? new Date("2022-11-10T14:44:06.000Z") : null,
         provenAt: isExecuted ? new Date("2022-11-10T14:44:07.000Z") : null,
         executedAt: isExecuted ? new Date("2022-11-10T14:44:08.000Z") : null,
+        commitChainId: isExecuted ? 1 : null,
+        proveChainId: isExecuted ? 1 : null,
+        executeChainId: isExecuted ? 1 : null,
       });
     }
 

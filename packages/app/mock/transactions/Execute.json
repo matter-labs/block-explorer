@@ -25,6 +25,9 @@
   "ethCommitTxHash": "0xed3fd752a913fe1f9e374883f1dcac59dbd0e8623371af2e09267ae3dc507cd2",
   "ethExecuteTxHash": "0x2068ef172edb7618b8e19d3e43960beedc09dbd8c31e758c27bfb1cc8f33f7e8",
   "ethProveTxHash": "0xafadefbd407c3d2ac70bf1c7963992679333395554359d1636e1ce0622f23a85",
+  "commitChainId": 1,
+  "proveChainId": 1,
+  "executeChainId": 1,
   "erc20Transfers": [
     {
       "tokenInfo": {

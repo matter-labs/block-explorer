@@ -44,6 +44,9 @@ describe("Logs API (e2e)", () => {
       commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
       proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
       executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
+      commitChainId: 1,
+      proveChainId: 1,
+      executeChainId: 1,
     });
 
     await blockRepository.insert({

@@ -10,13 +10,19 @@ export type NetworkConfig = {
   l2NetworkName: string;
   l2ChainId: 270 | 300 | 324;
   l1ExplorerUrl?: string;
-  settlementChainExplorerUrl?: string;
+  settlementChains?: SettlementChain[];
   maintenance: boolean;
   published: boolean;
   hostnames: string[];
   tokensMinLiquidity?: number;
   zkTokenAddress?: string;
   baseTokenAddress: string;
+};
+
+export type SettlementChain = {
+  explorerUrl: string;
+  name: string;
+  chainId: number;
 };
 
 export type EnvironmentConfig = {

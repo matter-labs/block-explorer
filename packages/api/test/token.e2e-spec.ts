@@ -51,6 +51,9 @@ describe("TokenController (e2e)", () => {
       committedAt: new Date("2022-11-10T14:44:08.000Z"),
       executedAt: new Date("2022-11-10T14:44:08.000Z"),
       provenAt: new Date("2022-11-10T14:44:08.000Z"),
+      commitChainId: 1,
+      proveChainId: 1,
+      executeChainId: 1,
     });
 
     await blockRepository.insert({

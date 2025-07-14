@@ -21,6 +21,9 @@ export type Block = {
   committedAt: null | string;
   executedAt: null | string;
   provenAt: null | string;
+  commitChainId: number | null;
+  proveChainId: number | null;
+  executeChainId: number | null;
   l1TxCount: number;
   l2TxCount: number;
   timestamp: string;

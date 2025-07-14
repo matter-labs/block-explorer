@@ -25,6 +25,9 @@ export type Context = {
   networks: ComputedRef<NetworkConfig[]>;
   getL2Provider: () => Provider;
   identifyNetwork: () => void;
+  getSettlementChainExplorerUrl: (chainId: number | null) => string | undefined;
+  getSettlementChainName: (chainId: number | null, commitTxHash?: string | null) => string;
+  isGatewaySettlementChain: (chainId: number | null) => boolean;
 };
 
 let l2Provider: Provider | null;
@@ -80,6 +83,41 @@ export default (): Context => {
     return l2Provider;
   }
 
+  function getSettlementChainName(chainId: number | null, commitTxHash?: string | null) {
+    const defaultChainName = "Ethereum";
+    // If commitTxHash is not present yet - so is chainId and it's not possible to determine the settlement chain yet.
+    // In this case we take the last chain from the settlementChains instead of default, assuming the last one is the latest.
+    if (!chainId && !commitTxHash && currentNetwork.value.settlementChains?.length) {
+      return (
+        currentNetwork.value.settlementChains[currentNetwork.value.settlementChains.length - 1].name || defaultChainName
+      );
+    }
+    if (!chainId || !currentNetwork.value.settlementChains?.length) {
+      return defaultChainName;
+    }
+    return currentNetwork.value.settlementChains.find((chain) => chain.chainId === chainId)?.name || defaultChainName;
+  }
+
+  function getSettlementChainExplorerUrl(chainId: number | null) {
+    if (!chainId || !currentNetwork.value.settlementChains?.length) {
+      return currentNetwork.value.l1ExplorerUrl;
+    }
+    return (
+      currentNetwork.value.settlementChains.find((chain) => chain.chainId === chainId)?.explorerUrl ||
+      currentNetwork.value.l1ExplorerUrl
+    );
+  }
+
+  function isGatewaySettlementChain(chainId: number | null) {
+    if (!chainId || !currentNetwork.value.settlementChains?.length) {
+      return false;
+    }
+    return !!currentNetwork.value.settlementChains
+      .find((chain) => chain.chainId === chainId)
+      ?.name.toLocaleLowerCase()
+      .includes("gateway");
+  }
+
   return {
     isReady,
     user,
@@ -87,5 +125,8 @@ export default (): Context => {
     networks,
     identifyNetwork,
     getL2Provider,
+    getSettlementChainExplorerUrl,
+    getSettlementChainName,
+    isGatewaySettlementChain,
   };
 };

@@ -1,7 +1,6 @@
 {
     "general": {
-        "l2NetworkName": "ZKsync",
-        "l1NetworkName": "Ethereum"
+        "l2NetworkName": "ZKsync"
     },
     "copyButton": {
         "tooltip": "Copied!"

@@ -27,6 +27,9 @@
             :commit-tx-hash="transaction!.ethCommitTxHash"
             :prove-tx-hash="transaction!.ethProveTxHash"
             :execute-tx-hash="transaction!.ethExecuteTxHash"
+            :commit-chain-id="transaction!.commitChainId"
+            :prove-chain-id="transaction!.proveChainId"
+            :execute-chain-id="transaction!.executeChainId"
           />
         </TableBodyColumn>
       </tr>
