@@ -12,6 +12,18 @@
       "maintenance": false,
       "name": "Ethereum",
       "l1ExplorerUrl": "https://etherscan.io",
+      "settlementChains": [
+        {
+          "explorerUrl": "https://etherscan.io",
+          "name": "Ethereum",
+          "chainId": 1
+        },
+        {
+          "explorerUrl": "https://gateway.explorer.zksync.io",
+          "name": "Gateway",
+          "chainId": 9075
+        }
+      ],
       "published": true,
       "rpcUrl": "https://rpc.sophon.xyz",
       "excludeTokenAddresses": []
@@ -28,6 +40,18 @@
       "maintenance": false,
       "name": "Sepolia",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [
+        {
+          "explorerUrl": "https://sepolia.etherscan.io",
+          "name": "Ethereum",
+          "chainId": 11155111
+        },
+        {
+          "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+          "name": "Gateway",
+          "chainId": 32657
+        }
+      ],
       "published": true,
       "rpcUrl": "https://rpc.testnet.sophon.xyz",
       "excludeTokenAddresses": []
