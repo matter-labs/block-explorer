@@ -190,8 +190,11 @@ describe("TransactionService", () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
           "batch.commitTxHash",
+          "batch.commitChainId",
           "batch.executeTxHash",
+          "batch.executeChainId",
           "batch.proveTxHash",
+          "batch.proveChainId",
         ]);
       });
 
@@ -305,8 +308,11 @@ describe("TransactionService", () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
           "batch.commitTxHash",
+          "batch.commitChainId",
           "batch.executeTxHash",
+          "batch.executeChainId",
           "batch.proveTxHash",
+          "batch.proveChainId",
         ]);
       });
 
@@ -412,8 +418,11 @@ describe("TransactionService", () => {
       await service.findByAddress("address");
       expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
         "batch.commitTxHash",
+        "batch.commitChainId",
         "batch.executeTxHash",
+        "batch.executeChainId",
         "batch.proveTxHash",
+        "batch.proveChainId",
       ]);
     });
 

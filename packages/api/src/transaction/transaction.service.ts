@@ -60,7 +60,14 @@ export class TransactionService {
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
       queryBuilder.leftJoin("transaction.batch", "batch");
-      queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
+      queryBuilder.addSelect([
+        "batch.commitTxHash",
+        "batch.commitChainId",
+        "batch.executeTxHash",
+        "batch.executeChainId",
+        "batch.proveTxHash",
+        "batch.proveChainId",
+      ]);
       queryBuilder.where({
         address: filterOptions.address,
         ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
@@ -89,7 +96,14 @@ export class TransactionService {
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
       queryBuilder.leftJoin("transaction.batch", "batch");
-      queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
+      queryBuilder.addSelect([
+        "batch.commitTxHash",
+        "batch.commitChainId",
+        "batch.executeTxHash",
+        "batch.executeChainId",
+        "batch.proveTxHash",
+        "batch.proveChainId",
+      ]);
       queryBuilder.where(filterOptions);
       queryBuilder.orderBy("transaction.blockNumber", "DESC");
       queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
@@ -118,7 +132,14 @@ export class TransactionService {
       "transactionReceipt.contractAddress",
     ]);
     queryBuilder.leftJoin("transaction.batch", "batch");
-    queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
+    queryBuilder.addSelect([
+      "batch.commitTxHash",
+      "batch.commitChainId",
+      "batch.executeTxHash",
+      "batch.executeChainId",
+      "batch.proveTxHash",
+      "batch.proveChainId",
+    ]);
     queryBuilder.where({ address });
     if (startBlock !== undefined) {
       queryBuilder.andWhere({

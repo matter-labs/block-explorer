@@ -55,8 +55,11 @@ describe("Account API (e2e)", () => {
       l1GasPrice: "10000000",
       l2FairGasPrice: "20000000",
       commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
+      commitChainId: 1,
       proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
+      proveChainId: 1,
       executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
+      executeChainId: 1,
     });
 
     for (let i = 1; i <= 2; i++) {
@@ -231,10 +234,12 @@ describe("Account API (e2e)", () => {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
                 blockNumber: "1",
                 commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
+                commitChainId: "1",
                 confirmations: "1",
                 contractAddress: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
                 cumulativeGasUsed: "1100000",
                 executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
+                executeChainId: "1",
                 fee: "10000000000000000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 functionName: "",
@@ -249,6 +254,7 @@ describe("Account API (e2e)", () => {
                 methodId: "0x00000000",
                 nonce: "42",
                 proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
+                proveChainId: "1",
                 timeStamp: "1290363360",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: "1",

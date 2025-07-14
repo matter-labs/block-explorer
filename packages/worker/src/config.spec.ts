@@ -51,6 +51,8 @@ describe("config", () => {
         selectedTokenOffChainDataProvider: "coingecko",
         coingecko: {
           isProPlan: false,
+          apiKey: undefined,
+          platformId: "zksync",
         },
         baseToken: {
           symbol: "ETH",
@@ -124,6 +126,8 @@ describe("config", () => {
         selectedTokenOffChainDataProvider: "coingecko",
         coingecko: {
           isProPlan: false,
+          apiKey: undefined,
+          platformId: "zksync",
         },
         baseToken: {
           symbol: "ETH",

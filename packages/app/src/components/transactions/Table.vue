@@ -232,6 +232,7 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 import EthereumIcon from "@/components/icons/Ethereum.vue";
+import GatewayIcon from "@/components/icons/Gateway.vue";
 import SophonIcon from "@/components/icons/Sophon.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
@@ -249,7 +250,7 @@ import type { AbiFragment } from "@/composables/useAddress";
 import { type NetworkOrigin, TimeFormat } from "@/types";
 import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
-const { currentNetwork } = useContext();
+const { currentNetwork, isGatewaySettlementChain } = useContext();
 
 const { t, te } = useI18n();
 
@@ -360,7 +361,11 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
       fromNetwork: transaction.isL1Originated ? "L1" : "L2",
       toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
       statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-      statusIcon: ["failed", "included"].includes(transaction.status) ? SophonIcon : EthereumIcon,
+      statusIcon: ["failed", "included"].includes(transaction.status)
+        ? SophonIcon
+        : isGatewaySettlementChain(transaction.commitChainId)
+        ? GatewayIcon
+        : EthereumIcon,
       isContractDeploymentTx,
       displayedTxReceiver: isContractDeploymentTx ? transaction.contractAddress : transaction.to,
     };

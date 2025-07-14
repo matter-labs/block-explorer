@@ -64,6 +64,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -92,6 +93,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -126,6 +128,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -162,6 +165,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -196,6 +200,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -222,6 +227,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "123",
       ContractName: "Greeter",
@@ -250,6 +256,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -272,6 +279,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -294,6 +302,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -320,6 +329,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
@@ -351,6 +361,7 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
+      ZkSolcVersion: "v1.3.9",
       ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",

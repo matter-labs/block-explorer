@@ -43,6 +43,18 @@ export class BlockDetails extends Block {
     return this.batch ? this.batch.provenAt : null;
   }
 
+  public get commitChainId(): number {
+    return this.batch ? this.batch.commitChainId : null;
+  }
+
+  public get executeChainId(): number {
+    return this.batch ? this.batch.executeChainId : null;
+  }
+
+  public get proveChainId(): number {
+    return this.batch ? this.batch.proveChainId : null;
+  }
+
   toJSON(): any {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { batch, ...restFields } = this;
@@ -50,8 +62,11 @@ export class BlockDetails extends Block {
       ...super.toJSON(),
       ...restFields,
       commitTxHash: this.commitTxHash,
+      commitChainId: this.commitChainId,
       executeTxHash: this.executeTxHash,
+      executeChainId: this.executeChainId,
       proveTxHash: this.proveTxHash,
+      proveChainId: this.proveChainId,
       committedAt: this.committedAt,
       executedAt: this.executedAt,
       provenAt: this.provenAt,

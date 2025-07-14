@@ -190,6 +190,7 @@ export const useContextMock = (params: any = {}) => {
     isReady: computed(() => true),
     networks: computed(() => [TESTNET_NETWORK]),
     ...params,
+    isGatewaySettlementChain: () => false,
   });
 
   return mockContextConfig;

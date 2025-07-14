@@ -62,6 +62,9 @@ export type TransactionItem = {
   ethCommitTxHash: Hash | null;
   ethExecuteTxHash: Hash | null;
   ethProveTxHash: Hash | null;
+  commitChainId: number | null;
+  proveChainId: number | null;
+  executeChainId: number | null;
   fee: Hash;
   indexInBlock?: number;
   isL1Originated: boolean;
@@ -115,7 +118,7 @@ export default (context = useContext()) => {
         return null;
       }
       const gasPerPubdata = (<TransactionDetails>transactionDetails).gasPerPubdata;
-      return {
+      const tx = {
         hash: transactionData.hash,
         blockHash: transactionData.blockHash!,
         blockNumber: transactionData.blockNumber!,
@@ -131,6 +134,10 @@ export default (context = useContext()) => {
         ethCommitTxHash: transactionDetails.ethCommitTxHash ?? null,
         ethExecuteTxHash: transactionDetails.ethExecuteTxHash ?? null,
         ethProveTxHash: transactionDetails.ethProveTxHash ?? null,
+        // Setting chain ids to null initially as API doesn't return them for transaction.
+        commitChainId: null,
+        proveChainId: null,
+        executeChainId: null,
         fee: transactionDetails.fee.toString(),
         feeData: {
           amountPaid: transactionDetails.fee.toString(),
@@ -143,7 +150,7 @@ export default (context = useContext()) => {
         nonce: transactionData.nonce,
         receivedAt: new Date(transactionDetails.receivedAt).toJSON(),
 
-        status: "indexing",
+        status: "indexing" as TransactionStatus,
         l1BatchNumber: transactionData.l1BatchNumber,
         isL1BatchSealed: false,
 
@@ -167,6 +174,21 @@ export default (context = useContext()) => {
         isEvmLike: !transactionData.to,
         contractAddress: transactionReceipt.contractAddress,
       };
+
+      // Fetch batch to get commit/prove/execute chain ids if at least commit tx hash present
+      if (tx.ethCommitTxHash && tx.l1BatchNumber !== null) {
+        const batchDetails = (await provider.getL1BatchDetails(tx.l1BatchNumber)) as types.BatchDetails & {
+          commitChainId: null;
+          proveChainId: null;
+          executeChainId: null;
+        };
+        if (batchDetails) {
+          tx.commitChainId = batchDetails.commitChainId;
+          tx.proveChainId = batchDetails.proveChainId;
+          tx.executeChainId = batchDetails.executeChainId;
+        }
+      }
+      return tx;
     } catch (err) {
       return null;
     }
@@ -233,6 +255,9 @@ export function mapTransaction(
     ethCommitTxHash: transaction.commitTxHash ?? null,
     ethExecuteTxHash: transaction.executeTxHash ?? null,
     ethProveTxHash: transaction.proveTxHash ?? null,
+    commitChainId: transaction.commitChainId ?? null,
+    proveChainId: transaction.proveChainId ?? null,
+    executeChainId: transaction.executeChainId ?? null,
     fee: transaction.fee,
     feeData: {
       amountPaid: transaction.fee!,
