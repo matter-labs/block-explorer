@@ -1,8 +1,10 @@
 describe("featureFlags", () => {
-  let env: NodeJS.ProcessEnv;
+  const env = process.env;
 
   beforeEach(async () => {
-    env = process.env;
+    process.env = {
+      NODE_ENV: "test",
+    };
   });
 
   afterEach(() => {
@@ -10,9 +12,8 @@ describe("featureFlags", () => {
     jest.resetModules();
   });
 
-  describe("sets default values", () => {
+  describe("featureFlags", () => {
     it("sets default values", async () => {
-      process.env.PRIVIDIUM = "false";
       const featureFlags = await import("./featureFlags");
       expect(featureFlags).toEqual({
         prividium: false,
@@ -22,12 +23,6 @@ describe("featureFlags", () => {
           bffEnabled: true,
         },
       });
-    });
-
-    it("sets prividium as true when PRIVIDIUM is not set", async () => {
-      process.env.PRIVIDIUM = undefined;
-      const featureFlags = await import("./featureFlags");
-      expect(featureFlags.prividium).toBe(true);
     });
 
     it("sets prividium as false when PRIVIDIUM is set to false", async () => {
@@ -42,10 +37,10 @@ describe("featureFlags", () => {
       expect(featureFlags.prividium).toBe(true);
     });
 
-    it("sets prividium as true when PRIVIDIUM is set to any other value", async () => {
+    it("sets prividium as false when PRIVIDIUM is set to any other value", async () => {
       process.env.PRIVIDIUM = "other";
       const featureFlags = await import("./featureFlags");
-      expect(featureFlags.prividium).toBe(true);
+      expect(featureFlags.prividium).toBe(false);
     });
   });
 });
