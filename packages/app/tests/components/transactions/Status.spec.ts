@@ -22,6 +22,8 @@ vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
       currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
+      getSettlementChainExplorerUrl: () => l1ExplorerUrlMock(),
+      getSettlementChainName: () => "Ethereum",
     }),
   };
 });
@@ -48,6 +50,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -66,6 +71,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -86,7 +94,7 @@ describe("Status", () => {
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
     expect(l2StatusBadgeValue.props().color).toBe("dark-success");
 
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeTitle.props().color).toBe("neutral");
     expect(l1StatusBadgeTitle.props().textColor).toBe("neutral");
     expect(l1StatusBadgeValueDesktop.text()).toBe(
@@ -113,6 +121,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -132,7 +143,7 @@ describe("Status", () => {
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
     expect(l2StatusBadgeValue.props().color).toBe("dark-success");
 
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeTitle.props().color).toBe("neutral");
     expect(l1StatusBadgeTitle.props().textColor).toBe("neutral");
 
@@ -175,6 +186,9 @@ describe("Status", () => {
           commitTxHash: "commitTxHash",
           proveTxHash: "proveTxHash",
           executeTxHash: "executeTxHash",
+          commitChainId: 1,
+          proveChainId: 1,
+          executeChainId: 1,
         },
       });
       const badges = wrapper.findAllComponents(Badge);
@@ -191,6 +205,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -210,7 +227,7 @@ describe("Status", () => {
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
     expect(l2StatusBadgeValue.props().color).toBe("dark-success");
 
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeTitle.props().color).toBe("neutral");
     expect(l1StatusBadgeTitle.props().textColor).toBe("neutral");
 
@@ -256,6 +273,9 @@ describe("Status", () => {
           commitTxHash: "commitTxHash",
           proveTxHash: "proveTxHash",
           executeTxHash: "executeTxHash",
+          commitChainId: 1,
+          proveChainId: 1,
+          executeChainId: 1,
         },
       });
       const badges = wrapper.findAllComponents(Badge);
@@ -273,6 +293,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
     const badges = wrapper.findAllComponents(Badge);
@@ -292,7 +315,7 @@ describe("Status", () => {
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
     expect(l2StatusBadgeValue.props().color).toBe("dark-success");
 
-    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.l1NetworkName"));
+    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
     expect(l1StatusBadgeTitle.props().color).toBe("success");
     expect(l1StatusBadgeTitle.props().textColor).toBe("neutral");
 
@@ -337,6 +360,9 @@ describe("Status", () => {
           commitTxHash: "commitTxHash",
           proveTxHash: "proveTxHash",
           executeTxHash: "executeTxHash",
+          commitChainId: 1,
+          proveChainId: 1,
+          executeChainId: 1,
         },
       });
       const badges = wrapper.findAllComponents(Badge);
@@ -357,6 +383,9 @@ describe("Status", () => {
         commitTxHash: "commitTxHash",
         proveTxHash: "proveTxHash",
         executeTxHash: "executeTxHash",
+        commitChainId: 1,
+        proveChainId: 1,
+        executeChainId: 1,
       },
     });
 

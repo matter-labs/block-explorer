@@ -1,6 +1,7 @@
 {
   "networks": [
     {
+      "groupId": "sophon",
       "apiUrl": "https://api-explorer.sophon.xyz",
       "verificationApiUrl": "https://verification-explorer.sophon.xyz",
       "bridgeUrl": "https://portal.sophon.xyz/bridge",
@@ -11,11 +12,24 @@
       "maintenance": false,
       "name": "Ethereum",
       "l1ExplorerUrl": "https://etherscan.io",
+      "settlementChains": [
+        {
+          "explorerUrl": "https://etherscan.io",
+          "name": "Ethereum",
+          "chainId": 1
+        },
+        {
+          "explorerUrl": "https://gateway.explorer.zksync.io",
+          "name": "Gateway",
+          "chainId": 9075
+        }
+      ],
       "published": true,
       "rpcUrl": "https://rpc.sophon.xyz",
       "excludeTokenAddresses": []
     },
     {
+      "groupId": "sophon",
       "apiUrl": "https://block-explorer-api.testnet.sophon.xyz",
       "verificationApiUrl": "https://api-explorer-verify.testnet.sophon.xyz",
       "bridgeUrl": "https://portal.testnet.sophon.xyz/bridge",
@@ -26,9 +40,51 @@
       "maintenance": false,
       "name": "Sepolia",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [
+        {
+          "explorerUrl": "https://sepolia.etherscan.io",
+          "name": "Ethereum",
+          "chainId": 11155111
+        },
+        {
+          "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+          "name": "Gateway",
+          "chainId": 32657
+        }
+      ],
       "published": true,
       "rpcUrl": "https://rpc.testnet.sophon.xyz",
       "excludeTokenAddresses": []
+    },
+    {
+      "groupId": "gateway",
+      "apiUrl": "https://block-explorer.era-gateway-testnet.zksync.dev",
+      "verificationApiUrl": "https://rpc-explorer-verify.era-gateway-testnet.zksync.dev",
+      "bridgeUrl": "https://portal.era-gateway-testnet.zksync.dev/bridge",
+      "hostnames": ["https://sepolia.gateway.explorer.zksync.io"],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "l2ChainId": 32657,
+      "l2NetworkName": "ZKsync Gateway Testnet",
+      "maintenance": false,
+      "name": "gateway-testnet",
+      "published": true,
+      "rpcUrl": "https://rpc.era-gateway-testnet.zksync.dev"
+    },
+    {
+      "groupId": "gateway",
+      "apiUrl": "https://block-explorer-api.era-gateway-mainnet.zksync.dev",
+      "verificationApiUrl": "https://rpc-explorer-verify.era-gateway-mainnet.zksync.dev",
+      "bridgeUrl": "https://portal.era-gateway-mainnet.zksync.dev/bridge",
+      "hostnames": ["https://gateway.explorer.zksync.io"],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://etherscan.io",
+      "l2ChainId": 9075,
+      "l2NetworkName": "ZKsync Gateway Mainnet",
+      "maintenance": false,
+      "name": "gateway-mainnet",
+      "published": true,
+      "rpcUrl": "https://rpc.era-gateway-mainnet.zksync.dev"
     }
   ]
 }

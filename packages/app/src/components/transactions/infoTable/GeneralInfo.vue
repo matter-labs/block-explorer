@@ -27,10 +27,26 @@
             :commit-tx-hash="transaction!.ethCommitTxHash"
             :prove-tx-hash="transaction!.ethProveTxHash"
             :execute-tx-hash="transaction!.ethExecuteTxHash"
+            :commit-chain-id="transaction!.commitChainId"
+            :prove-chain-id="transaction!.proveChainId"
+            :execute-chain-id="transaction!.executeChainId"
           />
         </TableBodyColumn>
       </tr>
-      <tr v-if="transaction?.error || transaction?.revertReason" class="transaction-table-row">
+      <tr v-if="transaction?.error" class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label transaction-error-label">
+            {{ t("transactions.table.error") }}
+          </span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.errorTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value transaction-error-value">
+          {{ transaction.error }}
+        </TableBodyColumn>
+      </tr>
+      <tr v-if="transaction?.revertReason" class="transaction-table-row">
         <TableBodyColumn class="transaction-table-label">
           <span class="transaction-info-field-label transaction-reason-label">
             {{ t("transactions.table.reason") }}
@@ -39,8 +55,8 @@
             {{ t("transactions.table.reasonTooltip") }}
           </InfoTooltip>
         </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value transaction-reason-value">
-          {{ transaction.error || transaction.revertReason || "" }}
+        <TableBodyColumn class="transaction-table-value transaction-error-value">
+          {{ transaction.revertReason }}
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
@@ -353,7 +369,7 @@ const gasUsedPercent = computed(() => {
   .transaction-status-value {
     @apply py-2;
   }
-  .transaction-reason-value {
+  .transaction-error-value {
     @apply text-error-600 whitespace-normal break-all;
   }
 }

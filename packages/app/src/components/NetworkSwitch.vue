@@ -61,10 +61,13 @@ import type { NetworkConfig } from "@/configs";
 
 import { getWindowLocation } from "@/utils/helpers";
 
-const { networks, currentNetwork } = useContext();
+const { networks: allNetworks, currentNetwork } = useContext();
 const route = useRoute();
 const selected = computed(() => {
   return currentNetwork.value;
+});
+const networks = computed(() => {
+  return allNetworks.value.filter((n) => n.groupId === currentNetwork.value.groupId);
 });
 
 const getNetworkUrl = (network: NetworkConfig) => {

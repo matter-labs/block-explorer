@@ -90,13 +90,24 @@ export class VerifyContractRequestDto {
 
   @ApiProperty({
     name: "zkCompilerVersion",
+    description: "Deprecated: Zk compiler version. Use zksolcVersion instead.",
+    example: "v1.3.14",
+    required: false,
+    deprecated: true,
+  })
+  @IsString()
+  @IsOptional()
+  public zkCompilerVersion: string;
+
+  @ApiProperty({
+    name: "zksolcVersion",
     description: "Zk compiler version",
     example: "v1.3.14",
     required: false,
   })
   @IsString()
   @IsOptional()
-  public zkCompilerVersion: string;
+  public zksolcVersion: string;
 
   @ApiProperty({
     name: "evmVersion",

@@ -10,6 +10,7 @@ import { CounterService } from "./counter";
 import { BatchService } from "./batch";
 import { BlockService } from "./block";
 import { BlocksRevertService } from "./blocksRevert";
+import { TokenService } from "./token/token.service";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
@@ -40,7 +41,8 @@ describe("AppService", () => {
   let tokenOffChainDataSaverService: TokenOffChainDataSaverService;
   let dataSourceMock: DataSource;
   let configServiceMock: ConfigService;
-  let systemContractService: SystemContractService;
+  let systemContractServiceMock: SystemContractService;
+  let tokenServiceMock: TokenService;
 
   beforeEach(async () => {
     balancesCleanerService = mock<BalancesCleanerService>({
@@ -70,8 +72,11 @@ describe("AppService", () => {
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockReturnValue(false),
     });
-    systemContractService = mock<SystemContractService>({
+    systemContractServiceMock = mock<SystemContractService>({
       addSystemContracts: jest.fn().mockResolvedValue(null),
+    });
+    tokenServiceMock = mock<TokenService>({
+      addBaseToken: jest.fn().mockResolvedValue(null),
     });
 
     const module = await Test.createTestingModule({
@@ -104,6 +109,10 @@ describe("AppService", () => {
           useValue: tokenOffChainDataSaverService,
         },
         {
+          provide: TokenService,
+          useValue: tokenServiceMock,
+        },
+        {
           provide: DataSource,
           useValue: dataSourceMock,
         },
@@ -113,7 +122,7 @@ describe("AppService", () => {
         },
         {
           provide: SystemContractService,
-          useValue: systemContractService,
+          useValue: systemContractServiceMock,
         },
       ],
     }).compile();
@@ -218,7 +227,25 @@ describe("AppService", () => {
     it("adds system contracts", async () => {
       appService.onModuleInit();
       await migrationsRunFinished;
-      expect(systemContractService.addSystemContracts).toBeCalledTimes(1);
+      expect(systemContractServiceMock.addSystemContracts).toBeCalledTimes(1);
+      appService.onModuleDestroy();
+    });
+
+    it("adds base token", async () => {
+      let addingSystemContractsFinishedResolve: () => void;
+      const addingSystemContractsFinished: Promise<void> = new Promise(
+        (resolve) => (addingSystemContractsFinishedResolve = resolve)
+      );
+
+      (systemContractServiceMock.addSystemContracts as jest.Mock).mockImplementation(() => {
+        addingSystemContractsFinishedResolve();
+        return Promise.resolve();
+      });
+
+      appService.onModuleInit();
+      await addingSystemContractsFinished;
+      await migrationsRunFinished;
+      expect(tokenServiceMock.addBaseToken).toBeCalledTimes(1);
       appService.onModuleDestroy();
     });
   });

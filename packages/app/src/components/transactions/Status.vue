@@ -21,13 +21,13 @@
             <li>
               <a
                 :href="
-                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                  finishedStatus.explorerUrl ? `${finishedStatus.explorerUrl}/tx/${finishedStatus.url}` : undefined
                 "
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="finishedStatus.explorerUrl" class="badge-status-link-icon" />
               </a>
             </li>
           </ol>
@@ -38,12 +38,12 @@
         <template #default v-if="item.text">
           <a
             v-if="item.url"
-            :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
+            :href="item.explorerUrl ? `${item.explorerUrl}/tx/${item.url}` : undefined"
             class="badge-status-link"
             target="_blank"
           >
             <span class="badge-status-link-text"><CheckIcon />{{ item.text }}</span>
-            <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+            <ExternalLinkIcon v-if="item.explorerUrl" class="badge-status-link-icon" />
           </a>
           <span v-else>{{ item.text }}</span>
         </template>
@@ -106,24 +106,24 @@
             >
               <a
                 :href="
-                  currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${finishedStatus.url}` : undefined
+                  finishedStatus.explorerUrl ? `${finishedStatus.explorerUrl}/tx/${finishedStatus.url}` : undefined
                 "
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="finishedStatus.explorerUrl" class="badge-status-link-icon" />
               </a>
             </div>
 
             <div v-if="item.url" class="badge-status-popup-button status-active">
               <a
-                :href="currentNetwork.l1ExplorerUrl ? `${currentNetwork.l1ExplorerUrl}/tx/${item.url}` : undefined"
+                :href="item.explorerUrl ? `${item.explorerUrl}/tx/${item.url}` : undefined"
                 class="badge-status-link"
                 target="_blank"
               >
                 <span class="badge-status-link-text status-next"><CheckIcon />{{ item.text }}</span>
-                <ExternalLinkIcon v-if="currentNetwork.l1ExplorerUrl" class="badge-status-link-icon" />
+                <ExternalLinkIcon v-if="item.explorerUrl" class="badge-status-link-icon" />
               </a>
             </div>
             <div v-else class="badge-status-popup-button status-current">
@@ -160,7 +160,7 @@ import useContext from "@/composables/useContext";
 
 import type { TransactionStatus } from "@/composables/useTransaction";
 
-const { currentNetwork } = useContext();
+const { getSettlementChainExplorerUrl, getSettlementChainName } = useContext();
 
 const props = defineProps({
   status: {
@@ -177,6 +177,18 @@ const props = defineProps({
   },
   executeTxHash: {
     type: [String, null] as PropType<string | null>,
+    required: true,
+  },
+  commitChainId: {
+    type: [Number, null] as PropType<number | null>,
+    required: true,
+  },
+  proveChainId: {
+    type: [Number, null] as PropType<number | null>,
+    required: true,
+  },
+  executeChainId: {
+    type: [Number, null] as PropType<number | null>,
     required: true,
   },
 });
@@ -199,20 +211,24 @@ type RemainingStatus = {
 
 type FinishedStatus = RemainingStatus & {
   url: string | null;
+  explorerUrl?: string;
 };
 
 const finishedTxStatuses: FinishedStatus[] = [
   {
     text: t("transactions.statusComponent.sent"),
     url: props.commitTxHash,
+    explorerUrl: getSettlementChainExplorerUrl(props.commitChainId),
   },
   {
     text: t("transactions.statusComponent.validated"),
     url: props.proveTxHash,
+    explorerUrl: getSettlementChainExplorerUrl(props.proveChainId),
   },
   {
     text: t("transactions.statusComponent.executed"),
     url: props.executeTxHash,
+    explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
   },
 ];
 
@@ -238,6 +254,7 @@ const badges = computed(() => {
     finishedStatuses?: FinishedStatus[];
     remainingStatuses?: RemainingStatus[];
     url?: string | null;
+    explorerUrl?: string;
     withDetailedPopup?: boolean;
   }[] = [];
   if (props.status === "failed") {
@@ -276,7 +293,7 @@ const badges = computed(() => {
   badgesArr.push({
     testId: "l1-badge-title",
     color: props.status === "verified" ? "success" : "neutral",
-    text: t("general.l1NetworkName"),
+    text: getSettlementChainName(props.commitChainId, props.commitTxHash),
     textColor: "neutral",
   });
 
@@ -287,6 +304,7 @@ const badges = computed(() => {
       text: t("transactions.statusComponent.executed"),
       finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
       url: props.executeTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
       withDetailedPopup: true,
     });
   } else {

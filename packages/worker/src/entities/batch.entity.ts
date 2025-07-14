@@ -37,6 +37,9 @@ export class Batch extends BaseEntity {
   @Column({ type: "timestamp", nullable: true })
   public readonly committedAt?: Date;
 
+  @Column({ type: "int", nullable: true })
+  public readonly commitChainId?: number;
+
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly proveTxHash?: string;
 
@@ -44,11 +47,17 @@ export class Batch extends BaseEntity {
   @Column({ type: "timestamp", nullable: true })
   public readonly provenAt?: Date;
 
+  @Column({ type: "int", nullable: true })
+  public readonly proveChainId?: number;
+
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly executeTxHash?: string;
 
   @Column({ type: "timestamp", nullable: true })
   public readonly executedAt?: Date;
+
+  @Column({ type: "int", nullable: true })
+  public readonly executeChainId?: number;
 
   @Column({ type: "int" })
   public readonly l1TxCount: number;

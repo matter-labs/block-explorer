@@ -19,7 +19,7 @@
           <Badge color="dark-success" :data-testid="$testId.statusBadge">
             <template #default>
               {{ te(`batches.status.${item.status}`) ? t(`batches.status.${item.status}`) : item.status
-              }}<component :is="getBadgeIconByStatus(item.status)" />
+              }}<component :is="getBadgeIconByStatus(item)" />
             </template>
           </Badge>
         </div>
@@ -60,7 +60,10 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 import EthereumIcon from "@/components/icons/Ethereum.vue";
+import GatewayIcon from "@/components/icons/Gateway.vue";
 import SophonIcon from "@/components/icons/Sophon.vue";
+
+import useContext from "@/composables/useContext";
 
 import type { BatchListItem } from "@/composables/useBatches";
 import type { PropType } from "vue";
@@ -69,6 +72,7 @@ import { TimeFormat } from "@/types";
 import { utcStringFromISOString } from "@/utils/helpers";
 
 const { t, te } = useI18n();
+const { isGatewaySettlementChain } = useContext();
 
 defineProps({
   batches: {
@@ -89,11 +93,11 @@ defineProps({
   },
 });
 
-function getBadgeIconByStatus(status: BatchListItem["status"]) {
-  if (status === "sealed") {
+function getBadgeIconByStatus(batch: BatchListItem) {
+  if (batch.status === "sealed") {
     return SophonIcon;
   }
-  return EthereumIcon;
+  return isGatewaySettlementChain(batch.commitChainId) ? GatewayIcon : EthereumIcon;
 }
 </script>
 

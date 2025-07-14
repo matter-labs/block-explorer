@@ -275,4 +275,15 @@ describe("TokenRepository", () => {
       );
     });
   });
+
+  describe("update", () => {
+    it("updates token with provided criteria and values", async () => {
+      const l2Address = "0x123";
+      const partialEntity = { name: "Updated Token", symbol: "UPD" };
+
+      await repository.update(l2Address, partialEntity);
+
+      expect(entityManagerMock.update).toBeCalledWith(Token, { l2Address }, partialEntity);
+    });
+  });
 });
