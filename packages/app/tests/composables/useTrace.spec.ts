@@ -1,10 +1,46 @@
 import { computed, nextTick, ref } from "vue";
 
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import useTrace, { type TraceFile, useTraceNavigation } from "@/composables/useTrace";
 
 describe("useTrace:", () => {
+  beforeEach(() => {
+    // Mock FileReader for the test environment
+    global.FileReader = class MockFileReader {
+      result: string | null = null;
+      error: any = null;
+      readyState = 0;
+      private loadHandler: (() => void) | null = null;
+
+      addEventListener(event: string, handler: () => void) {
+        if (event === "load") {
+          this.loadHandler = handler;
+        }
+      }
+
+      readAsText(file: any) {
+        // Use setTimeout to simulate async behavior
+        setTimeout(() => {
+          // Check file size to determine test case type
+          if (file.size < 50) {
+            // Small file = invalid JSON (error case)
+            this.result = "Hello World";
+          } else {
+            // Large file = valid JSON (success case)
+            this.result =
+              '{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n","active_lines":[],"pc_line_mapping":{}}},"steps":[]}';
+          }
+
+          this.readyState = 2;
+          if (this.loadHandler) {
+            this.loadHandler();
+          }
+        }, 0);
+      }
+    } as any;
+  });
+
   it("creates useTrace composable", () => {
     const result = useTrace();
 
@@ -31,7 +67,9 @@ describe("useTrace:", () => {
 
       await upload([
         new File(
-          ['{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n"}}}'],
+          [
+            '{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n","active_lines":[],"pc_line_mapping":{}}},"steps":[]}',
+          ],
           "foo.json",
           {
             type: "application/json",
@@ -47,7 +85,9 @@ describe("useTrace:", () => {
 
       await upload([
         new File(
-          ['{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n"}}}'],
+          [
+            '{"sources":{"0x00":{"assembly_code":"\\t.text\\n\\t.file\\t\\"HelloWorld.sol\\"\\nHello\\nWorld\\n","active_lines":[],"pc_line_mapping":{}}},"steps":[]}',
+          ],
           "foo.json",
           {
             type: "application/json",
@@ -59,8 +99,11 @@ describe("useTrace:", () => {
         sources: {
           "0x00": {
             assembly_code: '\t.text\n\t.file\t"HelloWorld.sol"\nHello\nWorld\n',
+            active_lines: [],
+            pc_line_mapping: {},
           },
         },
+        steps: [],
       });
     });
   });
