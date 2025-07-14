@@ -40,7 +40,11 @@ const ZodWhitelistResponse = z.object({
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class AuthController {
-  constructor(private readonly configService: ConfigService) {}
+  private readonly logger: Logger;
+
+  constructor(private readonly configService: ConfigService) {
+    this.logger = new Logger(AuthController.name);
+  }
 
   @Post("message")
   @Header("Content-Type", "text/plain")
@@ -224,7 +228,7 @@ export class AuthController {
         },
       });
     } catch (error) {
-      Logger.error(`Error fetching whitelist for address ${address}: ${error.message}`, error.stack, "AuthController");
+      this.logger.error(`Error fetching whitelist for address ${address}: ${error.message}`, error.stack);
       throw new InternalServerErrorException("Failed to check whitelist status");
     }
 
@@ -242,20 +246,15 @@ export class AuthController {
     try {
       data = await response.json();
     } catch (error) {
-      Logger.error(
-        `Error parsing whitelist response for address ${address}: ${error.message}`,
-        error.stack,
-        "AuthController"
-      );
+      this.logger.error(`Error parsing whitelist response for address ${address}: ${error.message}`, error.stack);
       throw new InternalServerErrorException("Invalid response from whitelist service");
     }
 
     const validation = ZodWhitelistResponse.safeParse(data);
     if (!validation.success) {
-      Logger.error(
+      this.logger.error(
         `Whitelist response validation error for address ${address}: ${validation.error.message}`,
-        validation.error,
-        "AuthController"
+        validation.error
       );
       throw new InternalServerErrorException("Invalid response from whitelist service");
     }

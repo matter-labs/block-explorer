@@ -13,6 +13,13 @@ import { calculateSiwe } from "../../test/utils/siwe-message-tools";
 import { ConfigService } from "@nestjs/config";
 import { SiweMessage } from "siwe";
 
+jest.mock("@nestjs/common", () => ({
+  ...jest.requireActual("@nestjs/common"),
+  Logger: jest.fn().mockReturnValue({
+    error: jest.fn(),
+  }),
+}));
+
 describe("AuthController", () => {
   let controller: AuthController;
   let req: Request;
