@@ -3,11 +3,12 @@ import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
 import { z } from "zod";
 
-const INVALID_RPC_URL_MSG = "PRIVIDIUM_PRIVATE_RPC_URL has to be valid url";
+const INVALID_RPC_URL_MSG = "PRIVIDIUM_PRIVATE_RPC_URL has to be a valid url";
 const INVALID_RPC_SECRET_MSG = "PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string";
 const INVALID_CHAIN_ID_MSG = "PRIVIDIUM_CHAIN_ID has to be a positive integer";
 const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
 const PRIVIDIUM_SESSION_SECRET_MSG = "PRIVIDIUM_SESSION_SECRET has to be a non empty string";
+const PRIVIDIUM_SESSION_SAME_SITE_MSG = "PRIVIDIUM_SESSION_SAME_SITE has to be one of [none, strict, lax]";
 const PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG = "PRIVIDIUM_SIWE_EXPIRATION_TIME has to be a positive integer";
 const PRIVIDIUM_APP_URL_ERROR_MSG = "PRIVIDIUM_APP_URL has to be a valid url";
 
@@ -178,12 +179,20 @@ export default () => {
         sessionMaxAge: z.coerce
           .number({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
           .int({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
-          .positive(PRIVIDIUM_SESSION_MAX_AGE_MSG),
+          .positive(PRIVIDIUM_SESSION_MAX_AGE_MSG)
+          .default(86_400_000), // 1 day
+        sessionSameSite: z
+          .enum(["none", "strict", "lax"], { message: PRIVIDIUM_SESSION_SAME_SITE_MSG })
+          .default("none"),
         siweExpirationTime: z.coerce
           .number({ message: PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG })
           .int({ message: PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG })
-          .positive(PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG),
-        appUrl: z.string({ message: PRIVIDIUM_APP_URL_ERROR_MSG }).url(PRIVIDIUM_APP_URL_ERROR_MSG),
+          .positive(PRIVIDIUM_SIWE_EXPIRATION_TIME_MSG)
+          .default(600_000), // 10 minutes
+        appUrl: z
+          .string({ message: PRIVIDIUM_APP_URL_ERROR_MSG })
+          .url(PRIVIDIUM_APP_URL_ERROR_MSG)
+          .default("http://localhost:3010"),
       },
       { message: "Invalid prividium configuration" }
     );
