@@ -44,12 +44,10 @@ export function decodeDataWithABI(
     })!;
     return {
       name: decodedData.name,
-      inputs: decodedData.fragment.inputs.flatMap((input, index) => {
+      inputs: decodedData.fragment.inputs.flatMap((input, index) =>
         // Use index if name is empty (common with some ABIs)
-        const argName = input.name || `arg${index}`;
-        const args = decodedData.args[argName] || decodedData.args[index];
-        return decodeInputData(input, args);
-      }),
+        decodeInputData(input, decodedData.args[input.name || index])
+      ),
     };
   } catch {
     return undefined;
