@@ -54,8 +54,12 @@ export default (): Context => {
     const defaultNetwork = networks.value[0] ?? DEFAULT_NETWORK;
     if (networkFromQueryParam) {
       network.value = networkFromQueryParam;
+    } else if (
       // If the data from storage wasn't used or is the same
-    } else if (network.value === defaultNetwork.name) {
+      network.value === defaultNetwork.name ||
+      // If the network is not in the list of networks. May happen if the network was removed from the config or renamed.
+      !networks.value.some((e) => e.name === network.value)
+    ) {
       if (networkOnDomain) {
         network.value = networkOnDomain.name;
       } else {
