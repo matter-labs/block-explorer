@@ -362,12 +362,13 @@ describe("AddressController", () => {
         });
 
         it("does not include balances if logService throws an error", async () => {
-          logServiceMock.findManyByTopics.mockRejectedValueOnce(new Error("Database error"));
+          const err = new Error("Database error");
+          logServiceMock.findManyByTopics.mockRejectedValueOnce(err);
           const loggerSpy = jest.spyOn(controller["logger"], "error").mockImplementation();
 
           const result = await controller.getAddress(blockchainAddress, user);
 
-          expect(loggerSpy).toHaveBeenCalledWith(expect.any(Error));
+          expect(loggerSpy).toHaveBeenCalledWith("Failed to check if user is owner of contract", err.stack);
           expect(result.balances).toEqual({});
 
           loggerSpy.mockRestore();
