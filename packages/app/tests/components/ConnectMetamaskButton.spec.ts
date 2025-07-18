@@ -189,7 +189,7 @@ describe("ConnectMetaMaskButton:", () => {
       },
     });
 
-    expect(wrapper.find(".address-text").text()).toBe("0x0cc7...dc1b");
+    expect(wrapper.find(".address-text").text()).toBe("0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b");
     mock.mockRestore();
   });
   it("connects when button is clicked", async () => {
@@ -301,11 +301,10 @@ describe("ConnectMetaMaskButton:", () => {
         plugins: [i18n],
       },
     });
-    const modal = wrapper.getComponent(WalletInfoModal);
 
-    expect(modal.vm.opened).toBe(false);
-    await wrapper.find(".address-text").trigger("click");
-    expect(modal.vm.opened).toBe(true);
+    await wrapper.find(".dropdown-button").trigger("click");
+    await wrapper.find(".logout-button").trigger("click");
+    expect(mockDisconnect).toHaveBeenCalledOnce();
     mock.mockRestore();
   });
 });
