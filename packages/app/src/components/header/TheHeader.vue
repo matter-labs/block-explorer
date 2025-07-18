@@ -302,7 +302,7 @@ const hasContent = computed(() => {
     @apply hidden items-stretch justify-end md:flex-1 lg:flex lg:w-0 gap-x-4;
 
     .language-switch {
-      @apply mr-6;
+      @apply mr-2;
     }
 
     .socials-container {

@@ -1,15 +1,15 @@
 <template>
   <div class="flex items-center gap-2">
     <NetworkIndicator />
-    <ConnectMetamaskButton />
+    <WalletButton />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, watch } from "vue";
 
-import ConnectMetamaskButton from "@/components/ConnectMetamaskButton.vue";
 import NetworkIndicator from "@/components/prividium/NetworkIndicator.vue";
+import WalletButton from "@/components/prividium/WalletButton.vue";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
