@@ -8,7 +8,6 @@ import { mount } from "@vue/test-utils";
 import { useWalletMock } from "../mocks";
 
 import ConnectMetaMaskButton from "@/components/ConnectMetamaskButton.vue";
-import WalletInfoModal from "@/components/prividium/WalletInfoModal.vue";
 
 import useContext from "@/composables/useContext";
 
