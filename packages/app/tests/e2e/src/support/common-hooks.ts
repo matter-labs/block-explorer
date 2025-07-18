@@ -12,7 +12,7 @@ import type { Browser } from "@playwright/test";
 
 setDefaultTimeout(process.env.PWDEBUG ? -1 : 60 * 1000);
 
-let legacyBrowser: Browser | null = null;
+let browser: Browser | null = null;
 let prividiumBrowser: Browser | null = null;
 
 Before({ tags: "@ignore" }, async function () {
@@ -22,11 +22,11 @@ Before({ tags: "@ignore" }, async function () {
 Before({ tags: "not @prividium" }, async function (this: ICustomWorld, { pickle }: ITestCaseHookParameter) {
   this.testName = pickle.name.replace(/\W/g, "-");
 
-  if (!legacyBrowser) {
-    legacyBrowser = await chromium.launch({ slowMo: config.slowMo, headless: config.headless });
+  if (!browser) {
+    browser = await chromium.launch({ slowMo: config.slowMo, headless: config.headless });
   }
 
-  const context = await legacyBrowser.newContext({ viewport: config.mainWindowSize });
+  const context = await browser.newContext({ viewport: config.mainWindowSize });
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 
   this.context = context;
@@ -84,9 +84,9 @@ After({ tags: "@prividium" }, async function (this: ICustomWorld, { result }: IT
 });
 
 AfterAll(async () => {
-  if (legacyBrowser) {
-    await legacyBrowser.close();
-    legacyBrowser = null;
+  if (browser) {
+    await browser.close();
+    browser = null;
   }
   if (prividiumBrowser) {
     await prividiumBrowser.close();
