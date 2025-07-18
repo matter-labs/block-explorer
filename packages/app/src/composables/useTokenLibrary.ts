@@ -1,7 +1,8 @@
 import { ref } from "vue";
 
 import { useMemoize } from "@vueuse/core";
-import { $fetch } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext, { type Context } from "@/composables/useContext";
 
@@ -18,8 +19,8 @@ const retrieveTokens = useMemoize(
     let hasMore = true;
 
     while (hasMore) {
-      const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
-        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`
+      const tokensResponse = await FetchInstance.api(context)<Api.Response.Collection<Api.Response.Token>>(
+        `/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`
       );
       tokens.push(...tokensResponse.items);
       page++;
@@ -36,8 +37,8 @@ const retrieveTokens = useMemoize(
         tokens.unshift(fetchedZkToken);
       } else {
         try {
-          const zkTokenResponse = await $fetch<Api.Response.Token>(
-            `${context.currentNetwork.value.apiUrl}/tokens/${context.currentNetwork.value.zkTokenAddress}`
+          const zkTokenResponse = await FetchInstance.api(context)<Api.Response.Token>(
+            `/tokens/${context.currentNetwork.value.zkTokenAddress}`
           );
           tokens.unshift(zkTokenResponse);
         } catch (err) {

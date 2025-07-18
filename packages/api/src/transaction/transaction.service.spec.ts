@@ -10,6 +10,7 @@ import { TransactionService, FilterTransactionsOptions } from "./transaction.ser
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Batch } from "../batch/batch.entity";
+import { Log } from "../log/log.entity";
 
 jest.mock("../common/utils");
 
@@ -20,6 +21,7 @@ describe("TransactionService", () => {
   let addressTransactionRepositoryMock: typeorm.Repository<AddressTransaction>;
   let batchRepositoryMock: typeorm.Repository<Batch>;
   let counterServiceMock: CounterService;
+  let logRepositoryMock: typeorm.Repository<Log>;
   const transactionHash = "transactionHash";
 
   beforeEach(async () => {
@@ -27,6 +29,7 @@ describe("TransactionService", () => {
     repositoryMock = mock<typeorm.Repository<Transaction>>();
     addressTransactionRepositoryMock = mock<typeorm.Repository<AddressTransaction>>();
     batchRepositoryMock = mock<typeorm.Repository<Batch>>();
+    logRepositoryMock = mock<typeorm.Repository<Log>>();
     transaction = {
       hash: transactionHash,
     };
@@ -49,6 +52,10 @@ describe("TransactionService", () => {
         {
           provide: CounterService,
           useValue: counterServiceMock,
+        },
+        {
+          provide: getRepositoryToken(Log),
+          useValue: logRepositoryMock,
         },
       ],
     }).compile();

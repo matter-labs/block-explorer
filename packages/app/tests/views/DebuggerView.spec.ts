@@ -1,10 +1,9 @@
-import { nextTick, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render, waitFor } from "@testing-library/vue";
-import { computed } from "@vue/reactivity";
 
 import * as useTrace from "@/composables/useTrace";
 

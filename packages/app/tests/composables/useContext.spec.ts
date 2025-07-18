@@ -30,6 +30,7 @@ describe("useContext:", () => {
       it("returns environment networks", () => {
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
+          baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
         expect(context.networks.value).toEqual([TESTNET_NETWORK, TESTNET_BETA_NETWORK]);
@@ -53,6 +54,7 @@ describe("useContext:", () => {
 
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
+          baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
         context.identifyNetwork();
@@ -64,6 +66,7 @@ describe("useContext:", () => {
 
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
+          baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
         context.identifyNetwork();
@@ -76,6 +79,7 @@ describe("useContext:", () => {
 
         const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
           networks: computed(() => [TESTNET_NETWORK, TESTNET_BETA_NETWORK]),
+          baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
         });
         const context = useContext.default();
         context.identifyNetwork();

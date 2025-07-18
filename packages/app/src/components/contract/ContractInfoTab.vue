@@ -13,7 +13,7 @@
             <div class="function-dropdown-spacer">
               <div class="metamask-button-container">
                 <span class="function-type-title">{{ t("contract.abiInteraction.method.read.name") }}</span>
-                <ConnectMetamaskButton />
+                <ConnectMetamaskButton v-if="runtimeConfig.appEnvironment !== 'prividium'" />
               </div>
               <FunctionDropdown
                 v-for="(item, index) in readFunctions"
@@ -37,7 +37,7 @@
             <div class="function-dropdown-spacer">
               <div class="metamask-button-container">
                 <span class="function-type-title"> {{ t("contract.abiInteraction.method.write.name") }}</span>
-                <ConnectMetamaskButton />
+                <ConnectMetamaskButton v-if="runtimeConfig.appEnvironment !== 'prividium'" />
               </div>
               <FunctionDropdown
                 v-for="(item, index) in writeFunctions"
@@ -121,7 +121,7 @@
               <div class="function-dropdown-spacer">
                 <div class="metamask-button-container">
                   <span class="function-type-title"> {{ t("contract.abiInteraction.method.writeAsProxy.name") }}</span>
-                  <ConnectMetamaskButton />
+                  <ConnectMetamaskButton v-if="runtimeConfig.appEnvironment !== 'prividium'" />
                 </div>
                 <FunctionDropdown
                   v-for="(item, index) in writeProxyFunctions"
@@ -153,9 +153,12 @@ import Tabs from "@/components/common/Tabs.vue";
 import ContractBytecode from "@/components/contract/ContractBytecode.vue";
 import FunctionDropdown from "@/components/contract/interaction/FunctionDropdown.vue";
 
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
 import type { Contract } from "@/composables/useAddress";
 import type { PropType } from "vue";
 
+const runtimeConfig = useRuntimeConfig();
 const props = defineProps({
   contract: {
     type: Object as PropType<Contract>,

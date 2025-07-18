@@ -1,6 +1,7 @@
 import { computed, type ComputedRef, ref, type Ref } from "vue";
 
-import { $fetch } from "ohmyfetch";
+import useContext from "../useContext";
+import { FetchInstance } from "../useFetchInstance";
 
 export type UseFetchCollection<T> = {
   pending: ComputedRef<boolean>;
@@ -17,7 +18,8 @@ export type UseFetchCollection<T> = {
 
 export function useFetchCollection<T, TApiResponse = T>(
   resource: URL | ((...params: unknown[]) => URL),
-  itemMapper?: (apiResponse: TApiResponse) => T
+  itemMapper?: (apiResponse: TApiResponse) => T,
+  context = useContext()
 ): UseFetchCollection<T> {
   const data = ref<T[] | null>(null) as Ref<T[] | null>;
 
@@ -47,7 +49,9 @@ export function useFetchCollection<T, TApiResponse = T>(
         url.searchParams.set("toDate", toDate.toISOString());
       }
 
-      const response = await $fetch<Api.Response.Collection<TApiResponse>>(url.toString());
+      const response = await FetchInstance.withCredentials(context)<Api.Response.Collection<TApiResponse>>(
+        url.toString()
+      );
       data.value = itemMapper ? response.items?.map((item) => itemMapper(item)) : (response.items as unknown as T[]);
       total.value = response.meta.totalItems;
     } catch (error) {

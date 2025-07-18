@@ -7,35 +7,37 @@ import { useContextMock } from "./../mocks";
 import useContractEvents, { type EventsQueryParams } from "@/composables/useContractEvents";
 
 vi.mock("ohmyfetch", () => {
-  return {
-    $fetch: vi.fn(() =>
-      Promise.resolve({
-        items: [
-          {
-            address: "0x2E4805d59193E173C9C8125B4Fc8F7f9c7a3a3eD",
-            topics: [
-              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-              "0x0000000000000000000000000d32e1ed81cd918a1099fa9e9f2455e422fd8819",
-              "0x000000000000000000000000b54cde2bf3cb660f58a89114c701164bddcd0d3c",
-            ],
-            data: "0x00000000000000000000000000000000000000000000001043561a8829300000",
-            blockNumber: 1,
+  const fetchSpy = vi.fn(() =>
+    Promise.resolve({
+      items: [
+        {
+          address: "0x2E4805d59193E173C9C8125B4Fc8F7f9c7a3a3eD",
+          topics: [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x0000000000000000000000000d32e1ed81cd918a1099fa9e9f2455e422fd8819",
+            "0x000000000000000000000000b54cde2bf3cb660f58a89114c701164bddcd0d3c",
+          ],
+          data: "0x00000000000000000000000000000000000000000000001043561a8829300000",
+          blockNumber: 1,
 
-            transactionHash: "0x770a13d5d056d8d63ab6339265ca9bcf7bc73cb6475de438d79119c9cdc1d2de",
-            transactionIndex: 1,
-            logIndex: 3,
-          },
-        ],
-        meta: {
-          currentPage: 1,
-          itemCount: 1,
-          itemsPerPage: 1,
-          totalItems: 1000,
-          totalPages: 1000,
+          transactionHash: "0x770a13d5d056d8d63ab6339265ca9bcf7bc73cb6475de438d79119c9cdc1d2de",
+          transactionIndex: 1,
+          logIndex: 3,
         },
-        links: {},
-      })
-    ),
+      ],
+      meta: {
+        currentPage: 1,
+        itemCount: 1,
+        itemsPerPage: 1,
+        totalItems: 1000,
+        totalPages: 1000,
+      },
+      links: {},
+    })
+  );
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
+  return {
+    $fetch: fetchSpy,
     FetchError: function error() {
       return;
     },
@@ -118,8 +120,6 @@ describe("useContractEvents:", () => {
     const { getCollection } = useContractEvents();
     await getCollection(params);
 
-    expect($fetch).toHaveBeenCalledWith(
-      "https://block-explorer-api.testnets.zksync.dev/address/0x2E4805d59193E173C9C8125B4Fc8F7f9c7a3a3eD/logs?page=1&limit=1"
-    );
+    expect($fetch).toHaveBeenCalledWith("/address/0x2E4805d59193E173C9C8125B4Fc8F7f9c7a3a3eD/logs?page=1&limit=1");
   });
 });

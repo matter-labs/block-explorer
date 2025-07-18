@@ -1,0 +1,285 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Header,
+  Post,
+  Req,
+  HttpException,
+  UnprocessableEntityException,
+  BadRequestException,
+  InternalServerErrorException,
+  ForbiddenException,
+  Logger,
+} from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOkResponse,
+  ApiExcludeController,
+  ApiUnprocessableEntityResponse,
+  ApiResponse,
+  ApiBadRequestResponse,
+  ApiNoContentResponse,
+  ApiBody,
+} from "@nestjs/swagger";
+import { swagger } from "../config/featureFlags";
+import { generateNonce, SiweErrorType, SiweMessage } from "siwe";
+import { Request } from "express";
+import { VerifySignatureDto } from "./auth.dto";
+import { ConfigService } from "@nestjs/config";
+import { z } from "zod";
+import { getAddress } from "ethers";
+
+const entityName = "auth";
+
+const ZodWhitelistResponse = z.object({
+  authorized: z.boolean(),
+});
+
+@ApiTags("Auth BFF")
+@ApiExcludeController(!swagger.bffEnabled)
+@Controller(entityName)
+export class AuthController {
+  private readonly logger: Logger;
+
+  constructor(private readonly configService: ConfigService) {
+    this.logger = new Logger(AuthController.name);
+  }
+
+  @Post("message")
+  @Header("Content-Type", "text/plain")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        address: { type: "string", example: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" },
+      },
+      required: ["address"],
+    },
+  })
+  @ApiOkResponse({
+    description: "Message was returned successfully",
+    schema: { type: "string" },
+  })
+  public getMessage(@Req() req: Request, @Body() body: { address: string }): string {
+    this.clearSession(req);
+
+    let address: string;
+    try {
+      address = getAddress(body.address);
+    } catch (error) {
+      throw new BadRequestException({ message: "Invalid address" });
+    }
+
+    const message = new SiweMessage({
+      domain: new URL(this.configService.get<string>("prividium.appUrl")).hostname,
+      address,
+      statement: "Sign in to the Block Explorer",
+      uri: this.configService.get("prividium.appUrl"),
+      version: "1",
+      chainId: this.configService.get("prividium.chainId"),
+      nonce: generateNonce(),
+      scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
+      issuedAt: new Date().toISOString(),
+      expirationTime: new Date(Date.now() + this.configService.get("prividium.siweExpirationTime")).toISOString(),
+    });
+    req.session = { siwe: message };
+    return message.prepareMessage();
+  }
+
+  @Post("verify")
+  @Header("Content-Type", "application/json")
+  @ApiOkResponse({
+    description: "Signature was verified successfully",
+    schema: { type: "boolean" },
+  })
+  @ApiBadRequestResponse({
+    description: "Message must be requested first",
+    schema: { type: "object", properties: { message: { type: "string" } } },
+  })
+  @ApiBadRequestResponse({
+    description: "Failed to verify signature",
+    schema: { type: "object", properties: { message: { type: "string" } } },
+  })
+  @ApiResponse({
+    status: 440,
+    description: "Signature is expired",
+    schema: { type: "object", properties: { message: { type: "string" } } },
+  })
+  @ApiUnprocessableEntityResponse({
+    description: "Signature is invalid",
+    schema: { type: "object", properties: { message: { type: "string" } } },
+  })
+  public async verifySignature(@Body() body: VerifySignatureDto, @Req() req: Request): Promise<boolean> {
+    if (!req.session.siwe) {
+      this.clearSession(req);
+      throw new BadRequestException({ message: "Message must be requested first" });
+    }
+
+    const siweMessage = new SiweMessage(req.session.siwe);
+    if (siweMessage.chainId !== this.configService.get("prividium.chainId")) {
+      this.clearSession(req);
+      throw new BadRequestException({ message: "Failed to verify signature", reason: "Invalid chain ID" });
+    }
+
+    const { success, error } = await siweMessage.verify(
+      {
+        signature: body.signature,
+        nonce: siweMessage.nonce,
+        domain: this.configService.get<string>("prividium.appHostname"),
+        scheme: this.configService.get("NODE_ENV") === "production" ? "https" : "http",
+        time: new Date().toISOString(),
+      },
+      { suppressExceptions: true }
+    );
+
+    if (!success) {
+      this.clearSession(req);
+      switch (error.type) {
+        case SiweErrorType.EXPIRED_MESSAGE:
+          throw new HttpException({ message: error.type }, 440);
+        case SiweErrorType.INVALID_SIGNATURE:
+          throw new UnprocessableEntityException({ message: error.type });
+        default:
+          throw new BadRequestException({ message: "Failed to verify signature" });
+      }
+    }
+
+    try {
+      const isWhitelisted = await this.checkWhitelist(siweMessage.address);
+      if (!isWhitelisted) {
+        this.clearSession(req);
+        throw new ForbiddenException("Your wallet is not whitelisted for access.");
+      }
+    } catch (error) {
+      this.clearSession(req);
+      throw error;
+    }
+
+    req.session.verified = true;
+    return true;
+  }
+
+  @Post("logout")
+  @Header("Content-Type", "application/json")
+  @ApiNoContentResponse({
+    description: "User was logged out successfully",
+  })
+  public async logout(@Req() req: Request) {
+    this.clearSession(req);
+  }
+
+  @Post("token")
+  @Header("Content-Type", "application/json")
+  @ApiOkResponse({
+    description: "Token was returned successfully",
+    schema: {
+      type: "object",
+      properties: {
+        token: { type: "string" },
+        ok: { type: "boolean" },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 424,
+    description: "Error creating token",
+    schema: { type: "object", properties: { message: { type: "string" } } },
+  })
+  public async token(@Req() req: Request) {
+    const url = new URL("/users", this.configService.get("prividium.privateRpcUrl"));
+    const response = await fetch(url, {
+      method: "POST",
+      body: JSON.stringify({
+        address: req.session.siwe.address,
+        secret: this.configService.get("prividium.privateRpcSecret"),
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    if (!response.ok) {
+      throw new HttpException("Error creating token", 424);
+    }
+
+    const data = await response.json();
+    const validatedData = this.validatePrivateRpcResponse(data);
+    return validatedData;
+  }
+
+  @Get("me")
+  @Header("Content-Type", "application/json")
+  @ApiOkResponse({
+    description: "User was returned successfully",
+    schema: { type: "object", properties: { address: { type: "string" } } },
+  })
+  public async me(@Req() req: Request) {
+    return { address: req.session.siwe.address };
+  }
+
+  private async checkWhitelist(address: string): Promise<boolean> {
+    const url = new URL(`/users/${address}`, this.configService.get("prividium.privateRpcUrl"));
+
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-secret": this.configService.get("prividium.privateRpcSecret"),
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Error fetching whitelist for address ${address}: ${error.message}`, error.stack);
+      throw new InternalServerErrorException("Failed to check whitelist status");
+    }
+
+    if (response.status === 404) {
+      return false;
+    }
+
+    if (!response.ok) {
+      throw new InternalServerErrorException(
+        `Whitelist service returned an unexpected status code: ${response.status} ${response.statusText}`
+      );
+    }
+
+    let data: unknown;
+    try {
+      data = await response.json();
+    } catch (error) {
+      this.logger.error(`Error parsing whitelist response for address ${address}: ${error.message}`, error.stack);
+      throw new InternalServerErrorException("Invalid response from whitelist service");
+    }
+
+    const validation = ZodWhitelistResponse.safeParse(data);
+    if (!validation.success) {
+      this.logger.error(
+        `Whitelist response validation error for address ${address}: ${validation.error.message}`,
+        validation.error
+      );
+      throw new InternalServerErrorException("Invalid response from whitelist service");
+    }
+
+    return validation.data.authorized;
+  }
+
+  private validatePrivateRpcResponse(response: unknown) {
+    const schema = z.object({
+      ok: z.literal(true),
+      token: z.string().min(1),
+    });
+
+    const result = schema.safeParse(response);
+    if (!result.success) {
+      // Left as 500 since now everyone is able to generate RPC tokens.
+      // In the future, this must be changed to handle unauthorized responses, once the
+      // Private RPC is adapted.
+      throw new InternalServerErrorException({ message: "Error parsing private RPC response" });
+    }
+
+    return result.data;
+  }
+
+  private clearSession(req: Request) {
+    req.session = null;
+  }
+}
