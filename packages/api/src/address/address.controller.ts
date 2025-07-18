@@ -233,7 +233,7 @@ export class AddressController {
       const owner = `0x${ownerTopic.slice(2 + 12 * 2)}`;
       return isAddressEqual(owner, accountAddress);
     } catch (err) {
-      this.logger.error(err);
+      this.logger.error("Failed to check if user is owner of contract", err.stack);
       return false;
     }
   }
