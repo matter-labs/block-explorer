@@ -12,7 +12,7 @@ jobs:
   prividium-e2e:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.27.0-focal
+      image: mcr.microsoft.com/playwright:v1.54.1-noble
       options: --user 1001
     services:
       postgres:
@@ -42,6 +42,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Create reports directory
+        run: mkdir -p packages/app/tests/e2e/reports/
+
       - name: Start Mock Private RPC Service
         run: |
           # Create and start mock RPC service on port 3000
@@ -53,7 +56,7 @@ jobs:
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-            
+
             // Handle preflight requests
             if (req.method === 'OPTIONS') {
               res.writeHead(200);
@@ -143,7 +146,7 @@ jobs:
           EOF
 
           # Start API service
-          npm run dev &
+          npm run dev > ../app/tests/e2e/reports/api.log 2>&1 &
 
           # Wait for API to be ready
           echo "Waiting for API to be ready..."
@@ -191,7 +194,7 @@ jobs:
         run: |
           # Start the app in development mode with Prividium config
           cd packages/app
-          npm run dev -- --host 0.0.0.0 --port 3010 &
+          npm run dev -- --host 0.0.0.0 --port 3010 > ./tests/e2e/reports/app.log 2>&1 &
 
           # Wait for app to be ready with retries
           echo "Waiting for app to be ready..."
@@ -224,4 +227,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: prividium-e2e-results
-          path: packages/app/tests/e2e/artifacts/
+          path: packages/app/tests/e2e/reports/
