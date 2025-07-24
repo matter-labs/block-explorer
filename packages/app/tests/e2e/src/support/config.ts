@@ -12,7 +12,7 @@ const browserOptions: LaunchOptions = {
 export const config = {
   browser: process.env.BROWSER || "chromium",
   browserOptions,
-  BASE_URL: process.env.TARGET_ENV || "http://localhost:3010",
+  BASE_URL: process.env.TARGET_ENV || "http://127.0.0.1:3010",
   mainWindowSize: { width: 1920, height: 1080 },
   artifactsFolder: "tests/e2e/artifacts/",
   DAPP_NETWORK: process.env.E2ENETWORK || NetworkSwitcher.zkSyncEraMainnet,
