@@ -79,20 +79,8 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
 
 After({ tags: "@prividium" }, async function (this: ICustomWorld, { result }: ITestCaseHookParameter) {
   await new Helper(this).getScreenshotOnFail(result);
-
-  try {
-    // Close context with timeout for prividium tests
-    await Promise.race([this.context?.close(), new Promise((resolve) => setTimeout(resolve, 10000))]);
-  } catch (error) {
-    console.log("Prividium context close failed:", error);
-  }
-
-  try {
-    // Force close browser with timeout for prividium tests
-    await Promise.race([this.browser?.close(), new Promise((resolve) => setTimeout(resolve, 5000))]);
-  } catch (error) {
-    console.log("Prividium browser close failed:", error);
-  }
+  await this.context?.close();
+  await this.browser?.close();
 });
 
 AfterAll(async () => {
@@ -101,11 +89,7 @@ AfterAll(async () => {
     browser = null;
   }
   if (prividiumBrowser) {
-    try {
-      await Promise.race([prividiumBrowser.close(), new Promise((resolve) => setTimeout(resolve, 5000))]);
-    } catch (error) {
-      console.log("Prividium browser cleanup failed:", error);
-    }
+    await prividiumBrowser.close();
     prividiumBrowser = null;
   }
 });
