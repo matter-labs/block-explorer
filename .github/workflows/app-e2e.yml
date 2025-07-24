@@ -96,6 +96,9 @@ jobs:
           npm pkg delete scripts.prepare
           npm ci
 
+      - name: Create reports directory
+        run: mkdir -p packages/app/tests/e2e/reports/
+
       - name: Download allurectl
         run: wget https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_386 -O ./allurectl
 
