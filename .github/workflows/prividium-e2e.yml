@@ -3,10 +3,10 @@ name: Prividium E2E Tests
 on:
   pull_request:
     paths:
-      - 'packages/app/**'
-      - 'packages/api/**'
-      - '.github/workflows/prividium-e2e.yml'
-      - 'docker-compose-prividium.yaml'
+      - "packages/app/**"
+      - "packages/api/**"
+      - ".github/workflows/prividium-e2e.yml"
+      - "docker-compose-prividium.yaml"
 
 jobs:
   prividium-e2e:
