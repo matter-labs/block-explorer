@@ -143,7 +143,7 @@ jobs:
           EOF
 
           # Start API service
-          npm run dev &
+          npm run dev > ../app/tests/e2e/reports/api.log 2>&1 &
 
           # Wait for API to be ready
           echo "Waiting for API to be ready..."
@@ -191,7 +191,7 @@ jobs:
         run: |
           # Start the app in development mode with Prividium config
           cd packages/app
-          npm run dev -- --host 0.0.0.0 --port 3010 &
+          npm run dev -- --host 0.0.0.0 --port 3010 > ./tests/e2e/reports/app.log 2>&1 &
 
           # Wait for app to be ready with retries
           echo "Waiting for app to be ready..."
