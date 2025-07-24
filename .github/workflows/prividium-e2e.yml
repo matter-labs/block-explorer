@@ -3,10 +3,10 @@ name: Prividium E2E Tests
 on:
   pull_request:
     paths:
-      - "packages/app/**"
-      - "packages/api/**"
-      - ".github/workflows/prividium-e2e.yml"
-      - "docker-compose-prividium.yaml"
+      - 'packages/app/**'
+      - 'packages/api/**'
+      - '.github/workflows/prividium-e2e.yml'
+      - 'docker-compose-prividium.yaml'
 
 jobs:
   prividium-e2e:
@@ -41,6 +41,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Create reports directory
+        run: mkdir -p packages/app/tests/e2e/reports/
 
       - name: Start Mock Private RPC Service
         run: |
@@ -212,7 +215,6 @@ jobs:
         timeout-minutes: 5
         run: |
           cd packages/app
-          mkdir -p tests/e2e/reports/
           xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
             npx cucumber-js --tags "@prividium"
         env:
