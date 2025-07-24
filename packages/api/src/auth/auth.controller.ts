@@ -217,6 +217,7 @@ export class AuthController {
 
   private async checkWhitelist(address: string): Promise<boolean> {
     const url = new URL(`/users/${address}`, this.configService.get("prividium.privateRpcUrl"));
+    url.searchParams.set("secret", this.configService.get("prividium.privateRpcSecret"));
 
     let response: Response;
     try {
@@ -224,7 +225,6 @@ export class AuthController {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "x-secret": this.configService.get("prividium.privateRpcSecret"),
         },
       });
     } catch (error) {
