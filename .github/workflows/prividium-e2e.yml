@@ -12,7 +12,7 @@ jobs:
   prividium-e2e:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.54.1-focal
+      image: mcr.microsoft.com/playwright:v1.54.1-noble
       options: --user 1001
     services:
       postgres:
