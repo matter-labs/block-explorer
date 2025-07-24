@@ -11,8 +11,8 @@ export default {
   paths: ["tests/e2e/features/**/*.feature"],
   require: ["tests/e2e/src/**/*.ts"],
   format: [
-    "json:tests/e2e/reports/cucumber-report.json",
-    "html:tests/e2e/reports/report.html",
+    // "json:tests/e2e/reports/cucumber-report.json",
+    // "html:tests/e2e/reports/report.html",
     "summary",
     "progress-bar",
     "@cucumber/pretty-formatter",
