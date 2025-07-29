@@ -5,6 +5,7 @@ import { $fetch, FetchError } from "ohmyfetch";
 import useContext from "./useContext";
 
 import type { TransactionLogEntry } from "./useEventLog";
+import type { SettlementChain } from "@/configs";
 import type { Hash, NetworkOrigin } from "@/types";
 import type { types } from "zksync-ethers";
 
@@ -134,7 +135,7 @@ export default (context = useContext()) => {
   };
 
   // Helper function to get Gateway API URL from settlement chain configuration
-  const getGatewayApiUrl = (gatewayChain: any): string => {
+  const getGatewayApiUrl = (gatewayChain: SettlementChain): string => {
     // If apiUrl is configured, use it directly (preferred approach)
     if (gatewayChain.apiUrl) {
       return gatewayChain.apiUrl;
