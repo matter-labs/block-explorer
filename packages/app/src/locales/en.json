@@ -823,8 +823,7 @@
         "balanceUnavailable": "Balance unavailable",
         "loadingBalance": "Loading balance...",
         "noEthBalance": "ETH balance not found",
-        "wrongNetwork": "Your wallet activated an incorrect network",
-        "switchNetwork": "Switch to Prividium"
+        "wrongNetwork": "Your wallet activated an incorrect network"
     },
     "loginView": {
         "title": "Login",

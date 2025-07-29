@@ -36,12 +36,10 @@ import { FetchError } from "ohmyfetch";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
-import usePrividiumRpc from "@/composables/usePrividiumRpc";
 
 const { t } = useI18n();
 const context = useContext();
 const { login, isLoginPending, initializeLogin } = useLogin(context);
-const { initializePrividiumRpcUrl } = usePrividiumRpc();
 const router = useRouter();
 const route = useRoute();
 
@@ -54,12 +52,6 @@ const handleLogin = async () => {
     } else {
       console.error("Login failed:", error);
     }
-  }
-
-  try {
-    await initializePrividiumRpcUrl();
-  } catch (error) {
-    console.error("Login failed:", error);
   }
 };
 

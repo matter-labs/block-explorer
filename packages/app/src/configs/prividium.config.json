@@ -12,7 +12,8 @@
       "published": true,
       "rpcUrl": "http://localhost:4000",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A",
-      "prividium": true
+      "prividium": true,
+      "prividiumProxyUrl": "http://localhost:8001"
     }
   ]
 }

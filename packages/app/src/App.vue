@@ -30,7 +30,6 @@ import TheHeader from "@/components/header/TheHeader.vue";
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
 import useLogin from "@/composables/useLogin";
-import usePrividiumRpc from "@/composables/usePrividiumRpc";
 import useRouteTitle from "@/composables/useRouteTitle";
 
 import MaintenanceView from "@/views/MaintenanceView.vue";
@@ -42,7 +41,6 @@ const route = useRoute();
 const router = useRouter();
 const { isPublicRoute } = usePublicRoutes();
 const { initializeLogin } = useLogin(context);
-const { initializePrividiumRpcUrl } = usePrividiumRpc();
 const runtimeConfig = useRuntimeConfig();
 
 useTitle(title);
@@ -55,7 +53,6 @@ const isAuthCheckComplete = ref(false);
 onMounted(async () => {
   if (runtimeConfig.appEnvironment === "prividium") {
     await initializeLogin();
-    await initializePrividiumRpcUrl();
     isAuthCheckComplete.value = true;
   }
 });

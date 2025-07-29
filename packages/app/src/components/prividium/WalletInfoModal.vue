@@ -18,9 +18,6 @@
             <ExclamationCircleIcon class="h-6 w-6 mr-2 text-black" />
             <span class="text-lg text-black flex-1">{{ t("walletInfoModal.wrongNetwork") }}</span>
           </div>
-          <button class="switch-network-ui-btn" @click="switchNetwork">
-            {{ t("walletInfoModal.switchNetwork") }}
-          </button>
         </div>
 
         <div class="info-row">
@@ -52,7 +49,6 @@ import HashLabel from "@/components/common/HashLabel.vue";
 import Popup from "@/components/common/Popup.vue";
 
 import useContext from "@/composables/useContext";
-import usePrividiumRpc from "@/composables/usePrividiumRpc";
 import useWallet from "@/composables/useWallet";
 
 const props = defineProps({
@@ -84,7 +80,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { updatePrividiumRpcUrl, prividiumRpcUrl } = usePrividiumRpc();
 const context = useContext();
 const { addNetwork } = useWallet({
   ...context,
@@ -95,14 +90,6 @@ const { addNetwork } = useWallet({
     ...context.currentNetwork.value,
   })),
 });
-
-const switchNetwork = async () => {
-  await updatePrividiumRpcUrl();
-  if (prividiumRpcUrl.value) {
-    await addNetwork(prividiumRpcUrl.value);
-    emit("close");
-  }
-};
 
 const formattedAddress = computed(() => {
   if (props.address && props.address.length > 10) {

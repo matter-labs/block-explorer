@@ -2,8 +2,8 @@ import { IsNotEmpty, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class VerifySignatureDto {
-  @ApiProperty({ description: "SIWE message signature" })
+  @ApiProperty({ description: "JWT token" })
   @IsString()
   @IsNotEmpty()
-  signature: string;
+  token: string;
 }
