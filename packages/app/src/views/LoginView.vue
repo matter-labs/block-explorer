@@ -5,11 +5,13 @@
         <img src="/images/zksync-light.svg" class="w-[233px] h-[48px]" />
       </div>
       <h1 class="text-[30px] leading-[36px] font-bold tracking-[0%] mb-2 text-center text-white">
-        Private Explorer Access
+        {{ t("loginView.explorerTitle") }}
       </h1>
-      <p class="text-white font-normal text-xl leading-8 mb-10 text-center">Sign in with your crypto wallet</p>
+      <p class="text-white font-normal text-xl leading-8 mb-10 text-center">
+        {{ t("loginView.signInTitle") }}
+      </p>
       <p class="text-white font-normal text-base leading-7 mb-8 text-center px-0">
-        Connect with your authorized wallet to to access data on ZKsync's private chain.
+        {{ t("loginView.description") }}
       </p>
       <button
         @click="handleLogin"
@@ -19,7 +21,7 @@
         {{ isLoginPending ? "Connecting..." : "Connect wallet" }}
       </button>
       <p class="text-gray-500 mt-6 text-center text-[14px] leading-[20px] font-normal">
-        Only authorized addresses can continue.
+        {{ t("loginView.onlyAuthorizedAdvice") }}
       </p>
     </div>
   </div>
@@ -27,6 +29,7 @@
 
 <script setup lang="ts">
 import { onMounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { FetchError } from "ohmyfetch";
@@ -35,6 +38,7 @@ import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
 import usePrividiumRpc from "@/composables/usePrividiumRpc";
 
+const { t } = useI18n();
 const context = useContext();
 const { login, isLoginPending, initializeLogin } = useLogin(context);
 const { initializePrividiumRpcUrl } = usePrividiumRpc();

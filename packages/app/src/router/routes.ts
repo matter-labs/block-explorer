@@ -22,7 +22,7 @@ export default [
     name: "login",
     component: LoginView,
     meta: {
-      title: "Login",
+      title: "loginView.title",
       requiresAuth: false,
     },
   },
@@ -31,7 +31,7 @@ export default [
     name: "reviewing-permissions",
     component: ReviewingPermissionsView,
     meta: {
-      title: "Reviewing Permissions",
+      title: "reviewingPermissionsView.title",
       requiresAuth: false,
     },
   },
@@ -40,7 +40,7 @@ export default [
     name: "not-authorized",
     component: NotAuthorizedView,
     meta: {
-      title: "Not Authorized",
+      title: "notAuthorizedView.title",
       requiresAuth: false,
     },
   },

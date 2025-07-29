@@ -5,7 +5,9 @@
         <img src="/images/zksync-light.svg" class="w-[233px] h-[48px]" alt="ZKsync Logo" />
       </div>
 
-      <h1 class="text-[30px] leading-[36px] font-bold mb-12">Private Explorer Access</h1>
+      <h1 class="text-[30px] leading-[36px] font-bold mb-12">
+        {{ t("reviewingPermissionsView.explorerTitle") }}
+      </h1>
 
       <div class="flex items-center mb-10">
         <svg
@@ -21,12 +23,14 @@
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-        <span class="text-lg">Reviewing permissions...</span>
+        <span class="text-lg">{{ t("reviewingPermissionsView.reviewingPermissions") }}</span>
       </div>
 
       <p class="text-sm text-gray-400">
-        If the system is not responding, you can
-        <button @click="handleDisconnect" class="underline hover:text-gray-200 focus:outline-none">disconnect</button>.
+        {{ t("reviewingPermissionsView.notRespondingLabel") }}
+        <button @click="handleDisconnect" class="underline hover:text-gray-200 focus:outline-none">
+          {{ t("reviewingPermissionsView.notRespondingButton") }}
+        </button>
       </p>
     </div>
   </div>
@@ -34,8 +38,10 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
+const { t } = useI18n();
 const router = useRouter();
 
 const handleDisconnect = async () => {

@@ -7,24 +7,31 @@
       </div>
 
       <!-- Heading -->
-      <h1 class="text-[30px] leading-[36px] font-bold mb-2">You are not authorized</h1>
+      <h1 class="text-[30px] leading-[36px] font-bold mb-2">
+        {{ t("notAuthorizedView.notAuthorizedTitle") }}
+      </h1>
 
       <!-- Sub-heading -->
-      <p class="font-normal text-xl leading-8 mb-10">Contact your administrator to request access</p>
+      <p class="font-normal text-xl leading-8 mb-10">
+        {{ t("notAuthorizedView.description") }}
+      </p>
 
       <!-- Button -->
       <button
         @click="handleTryAnotherWallet"
         class="w-[200px] h-[56px] px-8 py-4 text-black bg-white rounded-[28px] hover:bg-gray-200 disabled:opacity-70 disabled:cursor-not-allowed font-semibold text-base flex items-center justify-center mx-auto"
       >
-        Try another wallet
+        {{ t("notAuthorizedView.tryAnotherWallet") }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+
+const { t } = useI18n();
 const router = useRouter();
 
 const handleTryAnotherWallet = async () => {
