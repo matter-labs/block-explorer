@@ -1,6 +1,8 @@
 import { computed, reactive, type ToRefs, toRefs } from "vue";
 
 import { BrowserProvider } from "ethers";
+import { SiweMessage } from "siwe";
+import z from "zod";
 
 import defaultLogger from "./../utils/logger";
 import { FetchInstance } from "./useFetchInstance";
@@ -63,26 +65,35 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
 
-      // Get SIWE message from server
-      const message = await FetchInstance.api(context)<string>(`/auth/message`, {
+      // Get SIWE message from Prividium Proxy
+      const message = await FetchInstance.prividiumProxy(context)<string>("/auth/siwe-msg", {
         method: "POST",
-        body: { address },
+        body: { address, domain: window.location.host },
       });
+
+      // Validate SIWE message
+      try {
+        new SiweMessage(message);
+      } catch (error) {
+        console.error("Invalid SIWE message returned by Prividium Proxy:", error);
+        throw new Error("Invalid SIWE message returned by Prividium Proxy");
+      }
 
       // Sign the message
       const signature = await signer.signMessage(message);
 
-      // Send signature to proxy
-      try {
-        await FetchInstance.api(context)(`/auth/verify`, {
-          method: "POST",
-          body: { signature, message },
-        });
-      } catch (error) {
-        console.error("Verify request failed:", error);
-        console.error("Request body:", { signature, message });
-        throw error;
+      // Verify signature with Prividium Proxy
+      const proxyResponse = await FetchInstance.prividiumProxy(context)("/auth/siwe-jwt", {
+        method: "POST",
+        body: { signature, message },
+      });
+      const { success, data: proxyResponseData } = z.object({ token: z.string() }).safeParse(proxyResponse);
+      if (!success) {
+        throw new Error("Invalid response from Prividium Proxy");
       }
+
+      // Exchange JWT for cookie in API
+      await FetchInstance.api(context)("/auth/login", { method: "POST", body: { token: proxyResponseData.token } });
 
       context.user.value = { address, loggedIn: true };
     } catch (error) {

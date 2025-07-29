@@ -4,6 +4,7 @@ import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constant
 import { z } from "zod";
 
 const INVALID_RPC_URL_MSG = "PRIVIDIUM_PRIVATE_RPC_URL has to be a valid url";
+const INVALID_PERMISSIONS_API_URL_MSG = "PRIVIDIUM_PERMISSIONS_API_URL has to be a valid url";
 const INVALID_RPC_SECRET_MSG = "PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string";
 const INVALID_CHAIN_ID_MSG = "PRIVIDIUM_CHAIN_ID has to be a positive integer";
 const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
@@ -105,6 +106,7 @@ export default () => {
     PRIVIDIUM_PRIVATE_RPC_URL,
     PRIVIDIUM_PRIVATE_RPC_SECRET,
     PRIVIDIUM_APP_URL,
+    PRIVIDIUM_PERMISSIONS_API_URL,
     PRIVIDIUM_CHAIN_ID,
     PRIVIDIUM_SESSION_MAX_AGE,
     PRIVIDIUM_SESSION_SAME_SITE,
@@ -170,6 +172,7 @@ export default () => {
     const prividiumSchema = z.object(
       {
         privateRpcUrl: z.string({ message: INVALID_RPC_URL_MSG }).url(INVALID_RPC_URL_MSG),
+        permissionsApiUrl: z.string({ message: INVALID_PERMISSIONS_API_URL_MSG }).url(INVALID_PERMISSIONS_API_URL_MSG),
         privateRpcSecret: z.string({ message: INVALID_RPC_SECRET_MSG }).nonempty(INVALID_RPC_SECRET_MSG),
         chainId: z.coerce
           .number({ message: INVALID_CHAIN_ID_MSG })
@@ -200,6 +203,7 @@ export default () => {
     const result = prividiumSchema.safeParse({
       privateRpcUrl: PRIVIDIUM_PRIVATE_RPC_URL,
       privateRpcSecret: PRIVIDIUM_PRIVATE_RPC_SECRET,
+      permissionsApiUrl: PRIVIDIUM_PERMISSIONS_API_URL,
       chainId: PRIVIDIUM_CHAIN_ID,
       sessionSecret: PRIVIDIUM_SESSION_SECRET,
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,

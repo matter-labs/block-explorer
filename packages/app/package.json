@@ -40,7 +40,8 @@
     "vue-prism-editor": "2.0.0-alpha.2",
     "vue-router": "4.0.14",
     "vue-tippy": "6.0.0",
-    "zksync-ethers": "6.14.0"
+    "zksync-ethers": "6.14.0",
+    "zod": "^4.0.10"
   },
   "devDependencies": {
     "@babel/core": "7.17.8",
