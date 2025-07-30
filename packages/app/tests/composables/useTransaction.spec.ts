@@ -299,7 +299,7 @@ describe("useTransaction:", () => {
       expect(result).toBe("L2");
     });
 
-    it("returns L1 when sender is 'form' and type is 'deposit'", () => {
+    it("returns L1 when sender is 'from' and type is 'deposit'", () => {
       const result = getTransferNetworkOrigin(
         {
           tokenInfo: {
@@ -322,7 +322,7 @@ describe("useTransaction:", () => {
       expect(result).toBe("L1");
     });
 
-    it("returns L2 when sender is 'form' and type is 'fee'", () => {
+    it("returns L2 when sender is 'from' and type is 'fee'", () => {
       const result = getTransferNetworkOrigin(
         {
           tokenInfo: {
