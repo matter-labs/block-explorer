@@ -400,7 +400,7 @@
             "txnHash": "txn hash",
             "method": "method",
             "logs": "logs",
-            "notFound": "Smart Contract doesn’t have any events at this moment",
+            "notFound": "Smart Contract doesn't have any events at this moment",
             "value": "value",
             "showMore": "Show More",
             "hide": "Hide"
