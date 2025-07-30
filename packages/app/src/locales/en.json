@@ -72,7 +72,7 @@
         "transactionTable": {
             "title": "Block Transactions",
             "showMore": "Show more transactions ->",
-            "noTransactions": "This Block doesn’t have any transactions",
+            "noTransactions": "This Block doesn't have any transactions",
             "blockNotFound": "This Block has not been created or sealed yet"
         }
     },
@@ -263,7 +263,7 @@
         "transactionTable": {
             "title": "Batch Transactions",
             "error": "Something went wrong",
-            "noTransactions": "This Batch doesn’t have any transactions",
+            "noTransactions": "This Batch doesn't have any transactions",
             "batchNotFound": "This Batch has not been created or sealed yet"
         },
         "table": {
