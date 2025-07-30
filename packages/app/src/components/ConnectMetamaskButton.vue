@@ -62,7 +62,7 @@ const buttonText = computed(() => {
 });
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .metamask-button {
   @apply relative flex w-max min-w-[200px] rounded-lg bg-neutral-200 p-1 pl-2 pr-5 text-neutral-900;
   &:not(.disabled) {

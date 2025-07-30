@@ -1,6 +1,8 @@
 import { ref } from "vue";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext from "@/composables/useContext";
 
@@ -56,7 +58,7 @@ export default (context = useContext()) => {
     const response: {
       status: ContractVerificationStatus;
       error?: string;
-    } = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/${id}`);
+    } = await FetchInstance.verificationApi(context)(`/contract_verification/${id}`);
     if (response.error) {
       throw new ContractVerificationError(response.error, response);
     }
@@ -135,7 +137,7 @@ export default (context = useContext()) => {
         };
       }
 
-      const response = await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification`, {
+      const response = await FetchInstance.verificationApi(context)("/contract_verification", {
         method: "POST",
         body: {
           ...payload,
@@ -169,17 +171,15 @@ export default (context = useContext()) => {
       let result;
 
       if (compiler === CompilerEnum.solc) {
-        const solcVersions = await $fetch(
-          `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
+        const solcVersions = await FetchInstance.verificationApi(context)(
+          `/contract_verification/${compiler}_versions`
         );
         result = [];
         for (const version of solcVersions) {
           result.push(await getSolcFullVersion(version));
         }
       } else {
-        result = await $fetch(
-          `${context.currentNetwork.value.verificationApiUrl}/contract_verification/${compiler}_versions`
-        );
+        result = await FetchInstance.verificationApi(context)(`/contract_verification/${compiler}_versions`);
       }
       compilerVersions.value[compiler].versions = result.sort((a: string, b: string) => {
         return b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" });

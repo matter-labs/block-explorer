@@ -42,5 +42,6 @@ export default () => {
         ? config.value.networks.filter((e) => e.published === true)
         : []
     ),
+    baseTokenAddress: computed(() => config.value?.networks?.[0]?.baseTokenAddress ?? BASE_TOKEN_L2_ADDRESS),
   };
 };

@@ -61,7 +61,7 @@ jobs:
 
     name: '${{ matrix.tags }}'
     container:
-      image: mcr.microsoft.com/playwright:v1.27.0-focal
+      image: mcr.microsoft.com/playwright:v1.54.1-noble
       options: --user 1001
     steps:
       - uses: actions/checkout@v3
@@ -95,6 +95,9 @@ jobs:
         run: |
           npm pkg delete scripts.prepare
           npm ci
+
+      - name: Create reports directory
+        run: mkdir -p packages/app/tests/e2e/reports/
 
       - name: Download allurectl
         run: wget https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_386 -O ./allurectl

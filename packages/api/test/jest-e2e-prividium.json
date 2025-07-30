@@ -1,0 +1,21 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": "prividium.*\\.e2e-spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "globalSetup": "./global/setup-prividium.ts",
+  "globalTeardown": "./global/clean.ts",
+  "reporters": [
+    "default",
+    [
+      "jest-junit",
+      {
+        "suiteName": "Prividium E2E tests",
+        "outputFile": "prividium-e2e-junit.xml"
+      }
+    ]
+  ]
+}

@@ -1,6 +1,8 @@
 import { ref } from "vue";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext from "@/composables/useContext";
 
@@ -51,7 +53,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      blockItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
+      blockItem.value = await FetchInstance.api(context)(`/blocks/${id}`);
     } catch (error: unknown) {
       blockItem.value = null;
       if (!(error instanceof FetchError) || error.response?.status !== 404) {
