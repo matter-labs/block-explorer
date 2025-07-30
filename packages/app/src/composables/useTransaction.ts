@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-import { FetchError } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 import { FetchInstance } from "./useFetchInstance";
