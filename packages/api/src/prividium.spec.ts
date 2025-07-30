@@ -6,6 +6,7 @@ import { mock } from "jest-mock-extended";
 import { MiddlewareConsumer } from "@nestjs/common";
 import { MiddlewareConfigProxy } from "@nestjs/common/interfaces/middleware/middleware-config-proxy.interface";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
+import { PrividiumFilteringMiddleware } from "./middlewares/prividium-filtering.middleware";
 
 describe("applyPrividiumExpressConfig", () => {
   it("allows to set cookies", async () => {
@@ -34,7 +35,8 @@ describe("applyPrividiumMiddlewares", () => {
     const middlewareConfig = mock<MiddlewareConfigProxy>();
     consumer.apply.mockReturnValue(middlewareConfig);
     applyPrividiumMiddlewares(consumer);
-    expect(consumer.apply).toHaveBeenCalledTimes(1);
+    expect(consumer.apply).toHaveBeenCalledTimes(2);
     expect(consumer.apply).toHaveBeenCalledWith(AuthMiddleware);
+    expect(consumer.apply).toHaveBeenCalledWith(PrividiumFilteringMiddleware);
   });
 });
