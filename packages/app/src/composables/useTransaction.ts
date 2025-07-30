@@ -1,9 +1,11 @@
 import { ref } from "vue";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
+import { FetchInstance } from "./useFetchInstance";
 
+import type { Context } from "./useContext";
 import type { TransactionLogEntry } from "./useEventLog";
 import type { SettlementChain } from "@/configs";
 import type { Hash, NetworkOrigin } from "@/types";
@@ -319,11 +321,9 @@ export default (context = useContext()) => {
 
     try {
       const [txResponse, txTransfers, txLogs] = await Promise.all([
-        $fetch<Api.Response.Transaction>(`${context.currentNetwork.value.apiUrl}/transactions/${hash}`),
-        all<Api.Response.Transfer>(
-          new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/transfers?limit=100`)
-        ),
-        all<Api.Response.Log>(new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/logs?limit=100`)),
+        FetchInstance.api(context)<Api.Response.Transaction>(`/transactions/${hash}`),
+        all<Api.Response.Transfer>(context, `/transactions/${hash}/transfers`, new URLSearchParams({ limit: "100" })),
+        all<Api.Response.Log>(context, `/transactions/${hash}/logs`, new URLSearchParams({ limit: "100" })),
       ]);
       transaction.value = mapTransaction(txResponse, txTransfers, txLogs);
 
@@ -472,14 +472,14 @@ export function filterTransfers(transfers: Api.Response.Transfer[]) {
   return transfers.filter((item) => item.type !== "fee" && item.type !== "refund");
 }
 
-async function all<T>(url: URL): Promise<T[]> {
+async function all<T>(context: Context, url: string, searchParams: URLSearchParams): Promise<T[]> {
   const collection: T[] = [];
   const limit = 100;
-  url.searchParams.set("page", "1");
-  url.searchParams.set("limit", limit.toString());
+  searchParams.set("page", "1");
+  searchParams.set("limit", limit.toString());
   for (let page = 1; page < 100; page++) {
-    url.searchParams.set("page", page.toString());
-    const response = await $fetch<Api.Response.Collection<T>>(url.toString());
+    searchParams.set("page", page.toString());
+    const response = await FetchInstance.api(context)<Api.Response.Collection<T>>(`${url}?${searchParams.toString()}`);
 
     if (!response.items.length) {
       break;

@@ -814,5 +814,37 @@
     },
     "pagination": {
         "records": "Records"
+    },
+    "walletInfoModal": {
+        "title": "Wallet",
+        "yourWalletTitle": "Your wallet",
+        "addressLabel": "Address",
+        "balanceLabel": "Balance",
+        "disconnectButton": "Disconnect",
+        "balanceUnavailable": "Balance unavailable",
+        "loadingBalance": "Loading balance...",
+        "noEthBalance": "ETH balance not found",
+        "wrongNetwork": "Your wallet activated an incorrect network",
+        "switchNetwork": "Switch to Prividium"
+    },
+    "loginView": {
+        "title": "Login",
+        "explorerTitle": "Private Explorer Access",
+        "signInTitle": "Sign in with your crypto wallet",
+        "description": "Connect with your authorized wallet to to access data on ZKsync's private chain.",
+        "onlyAuthorizedAdvice": "Only authorized addresses can continue."
+    },
+    "reviewingPermissionsView": {
+        "title": "Reviewing Permissions",
+        "explorerTitle": "Private Explorer Access",
+        "reviewingPermissions": "Reviewing permissions...",
+        "notRespondingLabel": "If the system is not responding, you can",
+        "notRespondingButton": "disconnect"
+    },
+    "notAuthorizedView": {
+        "title": "Not Authorized",
+        "notAuthorizedTitle": "You are not authorized",
+        "description": "Contact your administrator to request access",
+        "tryAnotherWallet": "Try another wallet"
     }
 }

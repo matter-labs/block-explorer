@@ -5,6 +5,7 @@ export type NetworkConfig = {
   verificationApiUrl?: string;
   apiUrl: string;
   rpcUrl: string;
+  prividium?: boolean;
   bridgeUrl?: string;
   l2NetworkName: string;
   l2ChainId: 270 | 300 | 324;
@@ -32,6 +33,6 @@ export type EnvironmentConfig = {
 export type RuntimeConfig = {
   version: string;
   sentryDSN: string;
-  appEnvironment: string;
+  appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
   environmentConfig?: EnvironmentConfig;
 };

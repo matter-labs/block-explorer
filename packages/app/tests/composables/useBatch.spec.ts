@@ -4,6 +4,8 @@ import { $fetch, FetchError } from "ohmyfetch";
 
 import useBatch, { type BatchDetails } from "@/composables/useBatch";
 
+import type { SpyInstance } from "vitest";
+
 const batchItem: BatchDetails = {
   number: "42",
   size: 1,
@@ -26,8 +28,10 @@ const batchItem: BatchDetails = {
 };
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => Promise.resolve(batchItem));
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => Promise.resolve(batchItem)),
+    $fetch: fetchSpy,
     FetchError: function error() {
       return;
     },
