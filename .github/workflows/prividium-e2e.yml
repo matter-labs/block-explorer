@@ -153,21 +153,6 @@ jobs:
             echo "Waiting for API to start... attempt $i"
             sleep 5
           done
-      - name: Build App (Prividium Mode)
-        run: |
-          cd packages/app
-          npm run build
-        env:
-          PRIVIDIUM: true
-          USE_DYNAMIC_CONFIG: true
-          API_URL: http://localhost:3020
-          BASE_URL: http://127.0.0.1:3010
-          L2_CHAIN_ID: 270
-          L2_NETWORK_NAME: Prividium
-          NETWORK_NAME: Prividium
-          RPC_URL: http://localhost:4000
-          PRIVIDIUM_MODE: true
-          BASE_TOKEN_ADDRESS: "0x000000000000000000000000000000000000800A"
 
       - name: Generate Prividium Config
         run: |
@@ -180,8 +165,8 @@ jobs:
                 {
                   name: "prividium",
                   l2NetworkName: "prividium",
-                  l2ChainId: 271,
-                  rpcUrl: "http://127.0.0.1:4041/rpc",
+                  l2ChainId: 270,
+                  rpcUrl: "http://127.0.0.1:4040",
                   apiUrl: "http://127.0.0.1:3020",
                   baseTokenAddress: "0x000000000000000000000000000000000000800A",
                   hostnames: [],
@@ -218,11 +203,11 @@ jobs:
         env:
           PRIVIDIUM: true
           USE_DYNAMIC_CONFIG: true
-          API_URL: http://localhost:3020
+          API_URL: http://127.0.0.1:3020
           L2_CHAIN_ID: 270
           L2_NETWORK_NAME: Prividium
           NETWORK_NAME: Prividium
-          RPC_URL: http://localhost:4000
+          RPC_URL: http://127.0.0.1:4000
           BASE_TOKEN_ADDRESS: "0x000000000000000000000000000000000000800A"
 
       - name: Run Prividium E2E Tests
