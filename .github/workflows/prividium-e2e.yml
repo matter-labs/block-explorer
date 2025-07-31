@@ -41,6 +41,54 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Start Mock Private RPC Service
+        run: |
+          # Create and start mock RPC service on port 3000
+          cat > mock-rpc-server.js << 'EOF'
+          const http = require('http');
+
+          const server = http.createServer((req, res) => {
+            // Set CORS headers
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+            // Handle preflight requests
+            if (req.method === 'OPTIONS') {
+              res.writeHead(200);
+              res.end();
+              return;
+            }
+
+            // Always return authorized: true for any route and method
+            res.setHeader('Content-Type', 'application/json');
+            res.writeHead(200);
+            res.end(JSON.stringify({ authorized: true }));
+          });
+
+          server.listen(3000, '0.0.0.0', () => {
+            console.log('Mock RPC service running on port 3000');
+          });
+          EOF
+
+          # Start the mock service in background
+          node mock-rpc-server.js &
+
+          # Wait for service to be ready
+          echo "Waiting for mock RPC service to be ready..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:3000 > /dev/null; then
+              echo "Mock RPC service is ready!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "Mock RPC service failed to start within timeout"
+              exit 1
+            fi
+            echo "Waiting for mock RPC service to start... attempt $i"
+            sleep 2
+          done
+
       - name: Start API Service
         run: |
           cd packages/api
@@ -87,10 +135,10 @@ jobs:
             PRIVIDIUM_SESSION_MAX_AGE=86400000 # 1 day
             PRIVIDIUM_SESSION_SAME_SITE=strict
           EOF
-          
+
           # Start API service
           npm run dev &
-          
+
           # Wait for API to be ready
           echo "Waiting for API to be ready..."
           for i in $(seq 1 30); do
@@ -131,7 +179,7 @@ jobs:
               networks: [
                 {
                   name: "prividium",
-                  l2NetworkName: "prividium", 
+                  l2NetworkName: "prividium",
                   l2ChainId: 271,
                   rpcUrl: "http://127.0.0.1:4041/rpc",
                   apiUrl: "http://127.0.0.1:3020",
@@ -152,7 +200,7 @@ jobs:
           # Start the app in development mode with Prividium config
           cd packages/app
           npm run dev -- --host 0.0.0.0 --port 3010 &
-          
+
           # Wait for app to be ready with retries
           echo "Waiting for app to be ready..."
           for i in $(seq 1 30); do

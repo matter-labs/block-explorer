@@ -5,15 +5,6 @@ import { config } from "../support/config";
 
 import type { ICustomWorld } from "../support/custom-world";
 
-Given("I am an authorized user", async function (this: ICustomWorld) {
-  await this.page?.route("**/auth/verify", (route) => {
-    route.fulfill({
-      status: 201,
-      body: "true",
-    });
-  });
-});
-
 Given("I am an unauthorized user", async function (this: ICustomWorld) {
   await this.page?.route("**/auth/verify", (route) => {
     route.fulfill({
