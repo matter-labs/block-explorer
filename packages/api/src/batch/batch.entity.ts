@@ -33,6 +33,12 @@ export class Batch extends BaseEntity {
   @Column({ type: "int", nullable: true })
   public readonly commitChainId?: number;
 
+  @Column({ type: "int", nullable: true })
+  public readonly proveChainId?: number;
+
+  @Column({ type: "int", nullable: true })
+  public readonly executeChainId?: number;
+
   public get size() {
     return this.l1TxCount + this.l2TxCount;
   }
