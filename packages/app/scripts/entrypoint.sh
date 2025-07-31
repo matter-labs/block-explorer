@@ -25,6 +25,7 @@ window["##runtimeConfig"] = {
         published: ${PUBLISHED},
         rpcUrl: "${RPC_URL}",
         baseTokenAddress: "${BASE_TOKEN_ADDRESS}",
+        verificationApiUrl: "${VERIFICATION_API_URL}",
       },
     ],
   },

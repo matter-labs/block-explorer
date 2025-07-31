@@ -20,6 +20,7 @@ services:
       - PUBLISHED=true
       - RPC_URL=http://localhost:4000
       - BASE_TOKEN_ADDRESS=0x000000000000000000000000000000000000800A
+      - VERIFICATION_API_URL=http://localhost:3070
     depends_on:
       - api
     restart: on-failure
