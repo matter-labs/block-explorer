@@ -60,7 +60,6 @@ Feature: Main Page
   Examples:
       | Value                       | Dropdown |
       | ZKsync Era Sepolia Testnet  | network  |
-      | Goerli (Stage2)             | network  |
 
   @id254:II @productionEnv
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify

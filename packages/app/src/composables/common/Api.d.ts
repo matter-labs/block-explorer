@@ -38,6 +38,8 @@ declare namespace Api {
       l2TxCount: number;
       size: number;
       commitChainId: number | null;
+      proveChainId: number | null;
+      executeChainId: number | null;
     };
 
     type BatchDetails = {

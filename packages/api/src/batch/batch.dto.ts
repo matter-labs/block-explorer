@@ -54,4 +54,22 @@ export class BatchDto {
     examples: [1, null],
   })
   public readonly commitChainId?: number;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: "Prove transaction chain id",
+    example: 1,
+    examples: [1, null],
+  })
+  public readonly proveChainId?: number;
+
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    description: "Execute transaction chain id",
+    example: 1,
+    examples: [1, null],
+  })
+  public readonly executeChainId?: number;
 }

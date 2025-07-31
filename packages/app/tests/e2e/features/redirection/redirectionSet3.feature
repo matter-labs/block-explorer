@@ -62,7 +62,6 @@ Feature: Redirection
 
     Examples: 
      | Initial page                                             | Network                   | url                                                                      |
-     | /address/0x000000000000000000000000000000000000800A      | Goerli (Stage2)           | /address/0x000000000000000000000000000000000000800A/?network=goerli-beta | 
      | /address/0x000000000000000000000000000000000000800A      | ZKsync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     |
      | /address/0x000000000000000000000000000000000000800A      | ZKsync Era Sepolia Testnet | /address/0x000000000000000000000000000000000000800A/?network=sepolia    |  
 
