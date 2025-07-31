@@ -74,6 +74,7 @@ services:
       - PRIVIDIUM_SESSION_SECRET=session_secret
       - PRIVIDIUM_PRIVATE_RPC_URL=http://private-rpc:3000
       - PRIVIDIUM_PRIVATE_RPC_SECRET=rpc_secret
+      - PRIVIDIUM_SESSION_SAME_SITE=none
       - PRIVIDIUM_CHAIN_ID=270
       - PRIVIDIUM_SESSION_MAX_AGE=86400000
       - NODE_ENV=development # FIXME: should change http in another way
