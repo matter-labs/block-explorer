@@ -72,7 +72,6 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
 
 After({ tags: "@prividium" }, async function (this: ICustomWorld, { result }: ITestCaseHookParameter) {
   await new Helper(this).getScreenshotOnFail(result);
-  await this.context?.close();
 });
 
 AfterAll(async () => {
