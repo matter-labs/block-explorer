@@ -27,7 +27,7 @@
       "rpcUrl": "https://sepolia.era.zksync.dev",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
-        {
+    {
       "groupId": "era",
       "apiUrl": "https://block-explorer-api.era-stage-proofs.zksync.dev",
       "verificationApiUrl": "https://dev-api-explorer.era-stage-proofs.zksync.dev",
