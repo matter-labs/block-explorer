@@ -51,7 +51,7 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
     wallet: "metamask",
     version: MetaMaskWallet.recommendedVersion,
     slowMo: config.slowMo,
-    headless: config.headless,
+    headless: false,
     viewport: config.mainWindowSize,
     seed: "test test test test test test test test test test test junk",
   });
