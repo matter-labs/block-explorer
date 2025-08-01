@@ -212,14 +212,10 @@ jobs:
 
       - name: Run Prividium E2E Tests
         timeout-minutes: 5
-        run: |
-          cd packages/app
-          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-            npx cucumber-js --tags "@prividium"
+        working-directory: packages/app
+        run: xvfb-run npx cucumber-js --tags "@prividium"
         env:
           TARGET_ENV: http://127.0.0.1:3010
-          PRIVIDIUM_MODE: true
-          METAMASK_SETUP_TIMEOUT: 120000
 
       - name: Upload test results
         if: always()
