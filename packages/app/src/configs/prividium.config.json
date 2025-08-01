@@ -1,16 +1,16 @@
 {
   "networks": [
     {
-      "apiUrl": "http://localhost:3020",
-      "bridgeUrl": "http://localhost:3000/bridge",
-      "hostnames": ["localhost"],
+      "apiUrl": "https://block-explorer-api.era-prividium.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": ["block-explorer.era-prividium.zksync.dev"],
       "icon": "/images/icons/zksync-arrows.svg",
       "l2ChainId": 270,
       "l2NetworkName": "Prividium",
       "maintenance": false,
       "name": "Prividium",
       "published": true,
-      "rpcUrl": "http://localhost:4000",
+      "rpcUrl": "https://sepolia.era.zksync.dev",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A",
       "prividium": true
     }
