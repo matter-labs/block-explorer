@@ -45,6 +45,8 @@ After({ tags: "not @prividium" }, async function (this: ICustomWorld, { result }
 Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: ITestCaseHookParameter) {
   this.testName = pickle.name.replace(/\W/g, "-");
 
+  process.env.TEST_PARALLEL_INDEX = "0";
+
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
     version: MetaMaskWallet.recommendedVersion,
