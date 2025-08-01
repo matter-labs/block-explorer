@@ -2,7 +2,7 @@
   "networks": [
     {
       "apiUrl": "https://block-explorer-api.era-prividium.zksync.dev",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=Prividium",
       "hostnames": ["block-explorer.era-prividium.zksync.dev"],
       "icon": "/images/icons/zksync-arrows.svg",
       "l2ChainId": 270,
