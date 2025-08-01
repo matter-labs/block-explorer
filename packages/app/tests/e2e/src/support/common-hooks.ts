@@ -12,7 +12,7 @@ import type { Browser } from "@playwright/test";
 
 setDefaultTimeout(process.env.PWDEBUG ? -1 : 60 * 1000);
 
-let legacyBrowser: Browser | null = null;
+let browser: Browser | null = null;
 let prividiumBrowser: Browser | null = null;
 
 Before({ tags: "@ignore" }, async function () {
@@ -22,11 +22,11 @@ Before({ tags: "@ignore" }, async function () {
 Before({ tags: "not @prividium" }, async function (this: ICustomWorld, { pickle }: ITestCaseHookParameter) {
   this.testName = pickle.name.replace(/\W/g, "-");
 
-  if (!legacyBrowser) {
-    legacyBrowser = await chromium.launch({ slowMo: config.slowMo, headless: config.headless });
+  if (!browser) {
+    browser = await chromium.launch({ slowMo: config.slowMo, headless: config.headless });
   }
 
-  const context = await legacyBrowser.newContext({ viewport: config.mainWindowSize });
+  const context = await browser.newContext({ viewport: config.mainWindowSize });
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
 
   this.context = context;
@@ -46,7 +46,6 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
   this.testName = pickle.name.replace(/\W/g, "-");
 
   process.env.TEST_PARALLEL_INDEX = "0";
-  process.env.TARGET_ENV = "http://127.0.0.1:3010";
 
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
@@ -54,10 +53,6 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
     slowMo: config.slowMo,
     headless: false,
     viewport: config.mainWindowSize,
-    use: {
-      trace: "on-first-retry",
-    },
-    recordVideo: { dir: config.artifactsFolder },
     seed: "test test test test test test test test test test test junk",
   });
 
@@ -71,25 +66,18 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
   this.page = await context.newPage();
   this.feature = pickle;
 
-  await context.tracing.start({ screenshots: true, snapshots: true });
-
   await this.page.goto(`${config.BASE_URL}/login`);
   await this.page.waitForLoadState();
 });
 
 After({ tags: "@prividium" }, async function (this: ICustomWorld, { result }: ITestCaseHookParameter) {
   await new Helper(this).getScreenshotOnFail(result);
-  await this.context?.close();
-  await this.browser?.close();
 });
 
 AfterAll(async () => {
-  if (legacyBrowser) {
-    await legacyBrowser.close();
-    legacyBrowser = null;
-  }
-  if (prividiumBrowser) {
-    await prividiumBrowser.close();
-    prividiumBrowser = null;
-  }
+  await browser?.close();
+  browser = null;
+
+  await prividiumBrowser?.close();
+  prividiumBrowser = null;
 });

@@ -33,7 +33,6 @@
     "@semantic-release/github": "^8.0.2",
     "@semantic-release/npm": "^9.0.0",
     "@semantic-release/release-notes-generator": "^10.0.3",
-    "@tenkeylabs/dappwright": "^2.11.0",
     "@types/node": "18.17.18",
     "dotenv": "16.1.4",
     "enquirer": "2.3.6",
