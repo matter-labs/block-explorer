@@ -226,4 +226,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: prividium-e2e-results
-          path: packages/app/tests/e2e/artifacts/
+          path: packages/app/allure-results
