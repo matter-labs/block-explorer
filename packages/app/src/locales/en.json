@@ -77,7 +77,7 @@
         }
     },
     "transfers": {
-        "notFound": "Address doesn't have any transfers at this moment",
+        "notFound": "Address doesn’t have any transfers at this moment",
         "table": {
             "transactionHash": "Txn hash",
             "age": "Age",
@@ -199,7 +199,8 @@
             "executing": "Executing",
             "executed": "Executed",
             "failed": "Failed",
-            "ethereumNetwork": "Ethereum network"
+            "ethereumNetwork": "Ethereum network",
+            "ethereum": "Ethereum"
         },
         "transaction": "Transaction",
         "transactionNumber": "Transaction #",
@@ -577,7 +578,7 @@
         },
         "verified": {
             "title": "Contract verified!",
-            "underline": "Anyone on {link} could check it’s code and interact with it",
+            "underline": "Anyone on {link} could check it's code and interact with it",
             "blockExplorer": "block explorer",
             "back": "Back to Contract"
         },
@@ -665,7 +666,7 @@
         }
     },
     "tokenHolders": {
-        "notFound": "Token doesn't have any holders at this moment",
+        "notFound": "Token doesn’t have any holders at this moment",
         "table": {
             "address": "Address",
             "balance": "Quantity",
@@ -720,7 +721,7 @@
             "title": "Latest Transactions",
             "notFound": {
                 "title": "This account doesn’t have any transactions",
-                "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
+                "subtitle": "We can’t find any transaction related to this account. It's your chance to be the first"
             },
             "error": "Something went wrong"
         },

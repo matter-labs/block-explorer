@@ -301,7 +301,7 @@ describe("useTransaction:", () => {
       expect(result).toBe("L2");
     });
 
-    it("returns L1 when sender is 'form' and type is 'deposit'", () => {
+    it("returns L1 when sender is 'from' and type is 'deposit'", () => {
       const result = getTransferNetworkOrigin(
         {
           tokenInfo: {
@@ -324,7 +324,7 @@ describe("useTransaction:", () => {
       expect(result).toBe("L1");
     });
 
-    it("returns L2 when sender is 'form' and type is 'fee'", () => {
+    it("returns L2 when sender is 'from' and type is 'fee'", () => {
       const result = getTransferNetworkOrigin(
         {
           tokenInfo: {
@@ -411,6 +411,13 @@ describe("useTransaction:", () => {
         commitChainId: 1,
         proveChainId: 1,
         executeChainId: 1,
+        gatewayEthCommitTxHash: null,
+        gatewayEthExecuteTxHash: null,
+        gatewayEthProveTxHash: null,
+        gatewayEthCommitChainId: null,
+        gatewayEthProveChainId: null,
+        gatewayEthExecuteChainId: null,
+        gatewayStatus: null,
         fee: "0x521f303519100",
         feeData: {
           amountPaid: "0x521f303519100",
@@ -524,6 +531,44 @@ describe("useTransaction:", () => {
         ],
         transfers: [
           {
+            amount: "1561368069251910",
+            from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x0000000000000000000000000000000000008001",
+            fromNetwork: "L2",
+            toNetwork: "L2",
+            type: "fee",
+            tokenInfo: {
+              address: "0x000000000000000000000000000000000000800A",
+              l1Address: "0x0000000000000000000000000000000000000000",
+              l2Address: "0x000000000000000000000000000000000000800A",
+              symbol: "ETH",
+              name: "Ether",
+              decimals: 18,
+              iconURL: null,
+              liquidity: 220000000000,
+              usdPrice: 1800,
+            },
+          },
+          {
+            amount: "116665569251910",
+            from: "0x0000000000000000000000000000000000008001",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            fromNetwork: "L2",
+            toNetwork: "L2",
+            type: "refund",
+            tokenInfo: {
+              address: "0x000000000000000000000000000000000000800A",
+              l1Address: "0x0000000000000000000000000000000000000000",
+              l2Address: "0x000000000000000000000000000000000000800A",
+              symbol: "ETH",
+              name: "Ether",
+              decimals: 18,
+              iconURL: null,
+              liquidity: 220000000000,
+              usdPrice: 1800,
+            },
+          },
+          {
             amount: "1",
             from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
             to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
@@ -559,6 +604,25 @@ describe("useTransaction:", () => {
               decimals: 18,
               name: "Your Token Name",
               symbol: "YourTokenSymbol",
+            },
+          },
+          {
+            amount: "867466250000000",
+            from: "0x0000000000000000000000000000000000008001",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            fromNetwork: "L2",
+            toNetwork: "L2",
+            type: "refund",
+            tokenInfo: {
+              address: "0x000000000000000000000000000000000000800A",
+              l1Address: "0x0000000000000000000000000000000000000000",
+              l2Address: "0x000000000000000000000000000000000000800A",
+              symbol: "ETH",
+              name: "Ether",
+              decimals: 18,
+              iconURL: null,
+              liquidity: 220000000000,
+              usdPrice: 1800,
             },
           },
         ],
@@ -686,6 +750,13 @@ describe("useTransaction:", () => {
           commitChainId: 1,
           proveChainId: 1,
           executeChainId: 1,
+          gatewayEthCommitTxHash: null,
+          gatewayEthExecuteTxHash: null,
+          gatewayEthProveTxHash: null,
+          gatewayEthCommitChainId: null,
+          gatewayEthProveChainId: null,
+          gatewayEthExecuteChainId: null,
+          gatewayStatus: null,
           fee: "0x521f303519100",
           feeData: {
             amountPaid: "0x521f303519100",
