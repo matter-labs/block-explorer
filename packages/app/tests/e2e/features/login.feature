@@ -2,8 +2,7 @@
 Feature: Prividium Auth Flow
 
   Scenario: Authorized user can log in successfully
-    Given I am an authorized user
-    And I am on the login page
+    Given I am on the login page
     When I click the connect wallet button
     And I sign the message to log in
     Then I should see the main page

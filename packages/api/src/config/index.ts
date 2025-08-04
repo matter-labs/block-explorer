@@ -8,6 +8,7 @@ const INVALID_RPC_URL_MSG = "PRIVIDIUM_PRIVATE_RPC_URL has to be valid url";
 const INVALID_RPC_SECRET_MSG = "PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string";
 const INVALID_CHAIN_ID_MSG = "PRIVIDIUM_CHAIN_ID has to be a positive integer";
 const PRIVIDIUM_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
+const PRIVIDIUM_SESSION_SAME_SITE_MSG = "PRIVIDIUM_SESSION_SAME_SITE has to be one of [none, strict, lax]";
 const APP_URL_ERROR_MSG = "APP_URL has to be a valid url";
 
 export type BaseToken = {
@@ -175,6 +176,9 @@ export default () => {
           .number({ message: PRIVIDIUM_MAX_AGE_MSG })
           .int({ message: PRIVIDIUM_MAX_AGE_MSG })
           .positive(PRIVIDIUM_MAX_AGE_MSG),
+        sessionSameSite: z
+          .enum(["none", "strict", "lax"], { message: PRIVIDIUM_SESSION_SAME_SITE_MSG })
+          .default("none"),
         appHostname: z
           .string({ message: APP_URL_ERROR_MSG })
           .url(APP_URL_ERROR_MSG)

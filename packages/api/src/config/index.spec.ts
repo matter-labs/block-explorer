@@ -75,6 +75,7 @@ describe("config", () => {
     process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
     process.env.APP_URL = "http://localhost:3020";
     process.env.APP_HOSTNAME = "localhost";
+    process.env.PRIVIDIUM_SESSION_SAME_SITE = "none";
 
     jest.resetModules();
     jest.doMock("./featureFlags", () => ({
@@ -137,6 +138,7 @@ describe("config", () => {
         chainId: 300,
         sessionMaxAge: 1000,
         appHostname: "localhost",
+        sessionSameSite: "none",
       },
       appUrl: "http://localhost:3020",
     });
