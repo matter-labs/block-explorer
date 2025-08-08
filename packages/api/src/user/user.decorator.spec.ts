@@ -16,15 +16,14 @@ describe("User Decorator", () => {
     });
   });
 
-  describe("when request session is verified and has siwe data", () => {
+  describe("when request session has address and token", () => {
     const mockAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    const mockToken = "jwt-token";
 
     beforeEach(() => {
       mockRequest.session = {
-        verified: true,
-        siwe: {
-          address: mockAddress,
-        },
+        address: mockAddress,
+        token: mockToken,
       } as any;
     });
 
@@ -37,13 +36,10 @@ describe("User Decorator", () => {
     });
   });
 
-  describe("when request session is not verified", () => {
+  describe("when request session has no address", () => {
     beforeEach(() => {
       mockRequest.session = {
-        verified: false,
-        siwe: {
-          address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        },
+        token: "jwt-token",
       } as any;
     });
 
@@ -54,26 +50,10 @@ describe("User Decorator", () => {
     });
   });
 
-  describe("when request session does not have siwe data", () => {
+  describe("when request session has no token", () => {
     beforeEach(() => {
       mockRequest.session = {
-        verified: true,
-        siwe: undefined,
-      } as any;
-    });
-
-    it("returns null", () => {
-      const result = userFactory(mockExecutionContext);
-
-      expect(result).toBeNull();
-    });
-  });
-
-  describe("when request session has null siwe data", () => {
-    beforeEach(() => {
-      mockRequest.session = {
-        verified: true,
-        siwe: null,
+        address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       } as any;
     });
 
@@ -108,32 +88,41 @@ describe("User Decorator", () => {
     });
   });
 
-  describe("when session is verified but siwe has no address", () => {
+  describe("when session has empty address", () => {
     beforeEach(() => {
       mockRequest.session = {
-        verified: true,
-        siwe: {
-          // missing address property
-        },
+        address: "",
+        token: "jwt-token",
       } as any;
     });
 
-    it("returns user object with undefined address", () => {
+    it("returns null", () => {
       const result = userFactory(mockExecutionContext);
 
-      expect(result).toEqual({
-        address: undefined,
-      });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("when session has empty token", () => {
+    beforeEach(() => {
+      mockRequest.session = {
+        address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        token: "",
+      } as any;
+    });
+
+    it("returns null", () => {
+      const result = userFactory(mockExecutionContext);
+
+      expect(result).toBeNull();
     });
   });
 
   describe("type checking", () => {
     it("should return UserParam type", () => {
       mockRequest.session = {
-        verified: true,
-        siwe: {
-          address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        },
+        address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        token: "jwt-token",
       } as any;
 
       const result = userFactory(mockExecutionContext);

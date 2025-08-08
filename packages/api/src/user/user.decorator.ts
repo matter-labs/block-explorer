@@ -12,11 +12,9 @@ export const User = createParamDecorator<any, any, UserParam>((data: unknown, ct
 
 export function userFactory(ctx: ExecutionContext): UserParam {
   const request: Request = ctx.switchToHttp().getRequest();
-  const siwe = request.session?.siwe;
-
-  if (!request.session?.verified || !siwe) {
+  if (!request.session.address || !request.session.token) {
     return null;
   }
 
-  return { address: siwe.address };
+  return { address: request.session.address };
 }
