@@ -3,6 +3,7 @@
     <button type="button" @click="opened = !opened" class="function-disclosure-btn" :class="{ opened: opened }">
       <span>
         <slot />
+        <span class="function-selector">({{ getFunctionSelector(abiFragment) }})</span>
       </span>
       <ChevronDownIcon class="function-arrow-icon" />
     </button>
@@ -64,6 +65,8 @@ import useContractInteraction from "@/composables/useContractInteraction";
 import type { AbiFragment } from "@/composables/useAddress";
 import type { PropType } from "vue";
 
+import { getFunctionSelector } from "@/utils/contracts";
+
 const props = defineProps({
   type: {
     type: String as PropType<"read" | "write">,
@@ -112,6 +115,9 @@ const submit = async (form: Record<string, string | string[] | boolean | boolean
   }
   .function-arrow-icon {
     @apply h-5 w-5 text-neutral-500;
+  }
+  .function-selector {
+    @apply ml-2 font-mono text-sm text-neutral-500;
   }
 }
 
