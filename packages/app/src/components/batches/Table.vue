@@ -97,7 +97,10 @@ function getBadgeIconByStatus(batch: BatchListItem) {
   if (batch.status === "sealed") {
     return ZkSyncIcon;
   }
-  return isGatewaySettlementChain(batch.commitChainId) ? GatewayIcon : EthereumIcon;
+  // Check chain IDs beginning with the most recent status and moving backward, in case transactions are processed
+  // by different settlement layers, for instance: https://explorer.zksync.io/batch/501263
+  // No need to check commitChainId here, as a batch that only has commitChainId is sealed and the ZKsync icon is shown.
+  return isGatewaySettlementChain(batch.executeChainId || batch.proveChainId) ? GatewayIcon : EthereumIcon;
 }
 </script>
 
