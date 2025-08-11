@@ -160,7 +160,8 @@ import useContext from "@/composables/useContext";
 
 import type { TransactionStatus } from "@/composables/useTransaction";
 
-const { getSettlementChainExplorerUrl, getSettlementChainName } = useContext();
+const context = useContext();
+const { getSettlementChainExplorerUrl, getSettlementChainName } = context;
 
 const props = defineProps({
   status: {
@@ -291,7 +292,15 @@ const remainingTxStatuses: RemainingStatus[] = [
 
 // Helper function to check if we should show Ethereum status
 const shouldShowEthereumStatus = (): boolean => {
-  return !!(props.gatewayEthCommitTxHash || props.gatewayEthProveTxHash || props.gatewayEthExecuteTxHash);
+  // Show Ethereum badge for all Gateway transactions to indicate the full three-stage process
+  return isGatewayTransaction();
+};
+
+// Helper function to check if transaction uses Gateway settlement
+const isGatewayTransaction = (): boolean => {
+  // If the current network has Gateway as a settlement chain, all transactions should show three-status view
+  const gatewayChain = context.currentNetwork.value.settlementChains?.find((chain) => chain.name === "Gateway");
+  return !!gatewayChain;
 };
 
 // Helper function to get Ethereum settlement status
@@ -376,13 +385,18 @@ const badges = computed(() => {
   });
 
   if (props.status === "verified") {
+    // If transaction has been executed on Ethereum via Gateway, show Ethereum icon and link
+    const isExecutedOnEthereum = isGatewayTransaction() && props.gatewayEthExecuteTxHash;
+
     badgesArr.push({
       testId: "verified",
       color: "dark-success",
       text: t("transactions.statusComponent.executed"),
       finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
-      url: props.executeTxHash,
-      explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
+      url: isExecutedOnEthereum ? props.gatewayEthExecuteTxHash : props.executeTxHash,
+      explorerUrl: isExecutedOnEthereum
+        ? getSettlementChainExplorerUrl(props.gatewayEthExecuteChainId)
+        : getSettlementChainExplorerUrl(props.executeChainId),
       withDetailedPopup: true,
     });
   } else {
