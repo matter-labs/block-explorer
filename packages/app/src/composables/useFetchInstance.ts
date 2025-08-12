@@ -12,14 +12,6 @@ export class FetchInstance {
     return this.withCredentials(context, context.currentNetwork.value.apiUrl);
   }
 
-  public static prividiumProxy(context = useContext()) {
-    const prividiumProxyUrl = context.currentNetwork.value.prividiumProxyUrl;
-    if (!prividiumProxyUrl) {
-      throw new Error("Prividium proxy URL is not set");
-    }
-    return this.withBaseUrl(prividiumProxyUrl);
-  }
-
   public static verificationApi(context = useContext()) {
     return this.withBaseUrl(context.currentNetwork.value.verificationApiUrl ?? "");
   }

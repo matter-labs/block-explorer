@@ -6,7 +6,6 @@ export type NetworkConfig = {
   apiUrl: string;
   rpcUrl: string;
   prividium?: boolean;
-  prividiumProxyUrl?: string;
   userPanelUrl?: string;
   bridgeUrl?: string;
   l2NetworkName: string;

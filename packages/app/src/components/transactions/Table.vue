@@ -363,7 +363,10 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
       statusColor: transaction.status === "failed" ? "danger" : "dark-success",
       statusIcon: ["failed", "included"].includes(transaction.status)
         ? ZkSyncIcon
-        : isGatewaySettlementChain(transaction.commitChainId)
+        : // Check chain IDs beginning with the most recent status and moving backward, in case transactions are processed
+        // by different settlement layers, for instance:
+        // https://explorer.zksync.io/tx/0x78a0baa79aa4ebdf719176427205865be6b42938d31fa88205c61bfb8f8494c2
+        isGatewaySettlementChain(transaction.executeChainId || transaction.proveChainId || transaction.commitChainId)
         ? GatewayIcon
         : EthereumIcon,
       isContractDeploymentTx,

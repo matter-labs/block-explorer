@@ -92,13 +92,9 @@ const accountBaseTokenInfo = computed(() => {
   return { accountBaseTokenBalance: balance, accountBaseTokenSymbol: symbol };
 });
 
-const openModal = () => {
-  isWalletInfoModalOpen.value = true;
-};
-
 const openModalConditionally = () => {
   if (displayAddress.value !== null) {
-    openModal();
+    isWalletInfoModalOpen.value = true;
   }
 };
 

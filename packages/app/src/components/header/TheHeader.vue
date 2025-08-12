@@ -151,6 +151,7 @@ import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 import ZkSync from "@/components/icons/ZkSync.vue";
 import ZkSyncArrowsLogo from "@/components/icons/ZkSyncArrowsLogo.vue";
 import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
+import WalletStatusBar from "@/components/prividium/WalletStatusBar.vue";
 
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";

@@ -107,7 +107,6 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     } catch (error) {
       _logger.error("Logout failed:", error);
     }
-
     context.user.value = { loggedIn: false };
   };
 
