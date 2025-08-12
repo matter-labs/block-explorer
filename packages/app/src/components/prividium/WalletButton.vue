@@ -1,19 +1,14 @@
 <template>
-  <div class="metamask-button" :class="{ disabled: buttonDisabled }">
-    <img src="/images/metamask.svg" class="metamask-image" @click="openModalConditionally" />
+  <div class="wallet-button" :class="{ disabled: buttonDisabled }" @click="openModalConditionally">
+    <img src="/images/metamask.svg" class="wallet-image" />
     <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="handleLogin">
       {{ buttonText }}
     </button>
-    <template v-else>
-      <HashLabel class="address-text" placement="left" :text="shortenedAddress" @click="openModal" />
-    </template>
+    <HashLabel v-else class="address-text" placement="left" :text="shortenedAddress" />
   </div>
   <WalletInfoModal
     :opened="isWalletInfoModalOpen"
     :address="displayAddress ?? ''"
-    :networkName="context.currentNetwork.value.l2NetworkName"
-    :networkChainId="context.currentNetwork.value.l2ChainId"
-    :isWrongNetwork="isWrongNetwork"
     @close="closeModal"
     @disconnect="handleLogoutAndCloseModal"
   >
@@ -53,7 +48,7 @@ const { networks } = useEnvironmentConfig();
 const { login, logout, isLoginPending } = useLogin(context);
 const router = useRouter();
 
-const { address, isConnectPending, isReady, isMetamaskInstalled, currentChainId } = useWallet({
+const { address, isConnectPending, isMetamaskInstalled } = useWallet({
   ...context,
   currentNetwork: computed(() => ({
     explorerUrl: context.currentNetwork.value.rpcUrl,
@@ -78,11 +73,6 @@ const displayAddress = computed(() => {
 const { item: accountData, getByAddress } = useAddress();
 const isAccountDataPendingLocally = ref(false);
 
-const isWrongNetwork = computed(() => {
-  if (currentChainId.value === null) return false;
-  return currentChainId.value !== `0x${context.currentNetwork.value.l2ChainId.toString(16)}`;
-});
-
 watch(isWalletInfoModalOpen, async (isOpen) => {
   if (isOpen && displayAddress.value) {
     isAccountDataPendingLocally.value = true;
@@ -103,9 +93,7 @@ const accountBaseTokenInfo = computed(() => {
 });
 
 const openModal = () => {
-  if (displayAddress.value !== null) {
-    isWalletInfoModalOpen.value = true;
-  }
+  isWalletInfoModalOpen.value = true;
 };
 
 const openModalConditionally = () => {
@@ -135,12 +123,13 @@ const handleLogoutAndCloseModal = async () => {
   closeModal();
 };
 
-const buttonDisabled = computed(
-  () => !isMetamaskInstalled.value || isConnectPending.value || !isReady.value || isLoginPending.value
-);
+const buttonDisabled = computed(() => {
+  return isLoginPending.value;
+});
+
 const buttonText = computed(() => {
   if (isLoginPending.value) {
-    return t("connectMetamaskButton.connecting");
+    return t("connectMetamaskButton.redirecting");
   }
   if (isConnectPending.value) {
     return t("connectMetamaskButton.connecting");
@@ -160,8 +149,8 @@ const shortenedAddress = computed(() => {
 </script>
 
 <style scoped lang="scss">
-.metamask-button {
-  @apply relative flex w-full min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
+.wallet-button {
+  @apply relative flex min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
   &:not(.disabled) {
     @apply hover:cursor-pointer;
     &:hover {
@@ -171,7 +160,7 @@ const shortenedAddress = computed(() => {
   &.disabled {
     @apply opacity-50;
   }
-  .metamask-image {
+  .wallet-image {
     @apply mr-2 h-5 w-5;
     &.clickable {
       @apply cursor-pointer;

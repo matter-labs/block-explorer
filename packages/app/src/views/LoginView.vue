@@ -1,26 +1,28 @@
 <template>
   <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B]">
-    <div class="p-8 rounded-lg max-w-xxl w-full flex flex-col items-center">
-      <div class="flex justify-center mb-10">
-        <img src="/images/zksync-light.svg" class="w-[233px] h-[48px]" />
+    <div class="max-w-xxl flex w-full flex-col items-center rounded-lg p-8">
+      <div class="mb-10 flex justify-center">
+        <img src="/images/zksync-light.svg" class="h-[48px] w-[233px]" />
       </div>
-      <h1 class="text-[30px] leading-[36px] font-bold tracking-[0%] mb-2 text-center text-white">
+      <h1 class="mb-2 text-center text-[30px] font-bold leading-[36px] tracking-[0%] text-white">
         {{ t("loginView.explorerTitle") }}
       </h1>
-      <p class="text-white font-normal text-xl leading-8 mb-10 text-center">
+      <p class="mb-10 text-center text-xl font-normal leading-8 text-white">
         {{ t("loginView.signInTitle") }}
       </p>
-      <p class="text-white font-normal text-base leading-7 mb-8 text-center px-0">
+      <p class="mb-8 px-0 text-center text-base font-normal leading-7 text-white">
         {{ t("loginView.description") }}
       </p>
-      <button
-        @click="handleLogin"
-        :disabled="isLoginPending"
-        class="w-[200px] h-[56px] px-8 py-4 text-black bg-white rounded-[28px] hover:bg-gray-200 disabled:opacity-70 disabled:cursor-not-allowed font-semibold text-base flex items-center justify-center mx-auto"
-      >
-        {{ isLoginPending ? "Connecting..." : "Connect wallet" }}
-      </button>
-      <p class="text-gray-500 mt-6 text-center text-[14px] leading-[20px] font-normal">
+      <div class="flex flex-col items-center gap-4">
+        <button
+          @click="handleLogin"
+          :disabled="isLoginPending"
+          class="flex h-[56px] w-[250px] items-center justify-center rounded-[28px] bg-white px-8 py-4 text-base font-semibold text-black hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-70"
+        >
+          {{ isLoginPending ? "Redirecting..." : "Login with Prividium" }}
+        </button>
+      </div>
+      <p class="mt-6 text-center text-[14px] font-normal leading-[20px] text-gray-500">
         {{ t("loginView.onlyAuthorizedAdvice") }}
       </p>
     </div>

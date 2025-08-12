@@ -1,14 +1,11 @@
-import { computed, reactive, type ToRefs, toRefs } from "vue";
-
-import { BrowserProvider } from "ethers";
-import { SiweMessage } from "siwe";
-import z from "zod";
+import { reactive, type ToRefs, toRefs } from "vue";
 
 import defaultLogger from "./../utils/logger";
 import { FetchInstance } from "./useFetchInstance";
-import useWallet, { isAuthenticated } from "./useWallet";
 
 import type { Context } from "./useContext";
+
+import { PrividiumAuth } from "@/lib/prividium-auth";
 
 type LoginState = {
   isLoginPending: boolean;
@@ -18,22 +15,31 @@ type UseLogin = ToRefs<LoginState> & {
   login: () => Promise<void>;
   logout: () => Promise<void>;
   initializeLogin: () => Promise<void>;
+  handlePrividiumCallback: () => Promise<void>;
 };
 
 const state = reactive<LoginState>({
   isLoginPending: false,
 });
 
+let prividiumAuth: PrividiumAuth | null = null;
+
 export default (context: Context, _logger = defaultLogger): UseLogin => {
-  const wallet = useWallet({
-    ...context,
-    currentNetwork: computed(() => ({
-      explorerUrl: context.currentNetwork.value.rpcUrl,
-      chainName: context.currentNetwork.value.l2NetworkName,
-      l1ChainId: 0,
-      ...context.currentNetwork.value,
-    })),
-  });
+  const getPrividiumAuth = () => {
+    if (!context.currentNetwork.value.prividium) {
+      return null;
+    }
+
+    if (!prividiumAuth) {
+      prividiumAuth = new PrividiumAuth({
+        clientId: "block-explorer",
+        redirectUri: `${window.location.origin}/auth/callback`,
+        userPanelUrl: context.currentNetwork.value.userPanelUrl,
+      });
+    }
+
+    return prividiumAuth;
+  };
 
   const initializeLogin = async () => {
     try {
@@ -47,58 +53,43 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
   };
 
   const login = async () => {
+    const auth = getPrividiumAuth();
+    if (!auth) {
+      throw new Error("Prividium authentication is not configured for this network");
+    }
+
+    state.isLoginPending = true;
+
     try {
-      context.user.value = { loggedIn: false };
-      state.isLoginPending = true;
-
-      const ethereum = await wallet.getEthereumProvider();
-      if (!ethereum) {
-        throw new Error("MetaMask not found");
-      }
-
-      await wallet.connect();
-      if (!isAuthenticated.value) {
-        return;
-      }
-
-      const provider = new BrowserProvider(ethereum);
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-
-      // Get SIWE message from Prividium Proxy
-      const message = await FetchInstance.prividiumProxy(context)<string>("/auth/siwe-msg", {
-        method: "POST",
-        body: { address, domain: window.location.host },
-      });
-
-      // Validate SIWE message
-      try {
-        new SiweMessage(message);
-      } catch (error) {
-        console.error("Invalid SIWE message returned by Prividium Proxy:", error);
-        throw new Error("Invalid SIWE message returned by Prividium Proxy");
-      }
-
-      // Sign the message
-      const signature = await signer.signMessage(message);
-
-      // Verify signature with Prividium Proxy
-      const proxyResponse = await FetchInstance.prividiumProxy(context)("/auth/siwe-jwt", {
-        method: "POST",
-        body: { signature, message },
-      });
-      const { success, data: proxyResponseData } = z.object({ token: z.string() }).safeParse(proxyResponse);
-      if (!success) {
-        throw new Error("Invalid response from Prividium Proxy");
-      }
-
-      // Exchange JWT for cookie in API
-      await FetchInstance.api(context)("/auth/login", { method: "POST", body: { token: proxyResponseData.token } });
-
-      context.user.value = { address, loggedIn: true };
+      auth.login();
     } catch (error) {
-      context.user.value = { loggedIn: false };
-      _logger.error("Login failed:", error);
+      state.isLoginPending = false;
+      _logger.error("Prividium login failed:", error);
+      throw error;
+    }
+  };
+
+  const handlePrividiumCallback = async () => {
+    const auth = getPrividiumAuth();
+    if (!auth) {
+      throw new Error("Prividium authentication is not configured");
+    }
+
+    try {
+      state.isLoginPending = true;
+      const result = auth.handleCallback();
+
+      if (result && result.token) {
+        // Exchange JWT for cookie session
+        const response = await FetchInstance.api(context)("/auth/login", {
+          method: "POST",
+          body: { token: result.token },
+        });
+
+        context.user.value = { address: response.address, loggedIn: true };
+      }
+    } catch (error) {
+      _logger.error("Prividium callback failed:", error);
       throw error;
     } finally {
       state.isLoginPending = false;
@@ -106,7 +97,9 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
   };
 
   const logout = async () => {
-    wallet.disconnect();
+    const auth = getPrividiumAuth();
+    auth?.clearToken();
+
     try {
       await FetchInstance.api(context)("/auth/logout", {
         method: "POST",
@@ -114,6 +107,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     } catch (error) {
       _logger.error("Logout failed:", error);
     }
+
     context.user.value = { loggedIn: false };
   };
 
@@ -122,5 +116,6 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     login,
     logout,
     initializeLogin,
+    handlePrividiumCallback,
   };
 };

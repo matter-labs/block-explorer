@@ -42,25 +42,37 @@ export class AuthController {
   @ApiForbiddenResponse({
     description: "User is not allowed to access the app",
   })
-  public async login(@Body() body: VerifySignatureDto, @Req() req: Request): Promise<boolean> {
-    const url = new URL("/api/check/jwt-address", this.configService.get("prividium.permissionsApiUrl"));
-    const response = await fetch(url, {
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${body.token}` },
-    });
+  public async login(@Body() body: VerifySignatureDto, @Req() req: Request): Promise<{ address: string }> {
+    try {
+      const response = await fetch(
+        new URL("/api/user-wallets", this.configService.get("prividium.permissionsApiUrl")),
+        {
+          headers: { Authorization: `Bearer ${body.token}` },
+        }
+      );
+      if (response.status === 403) {
+        throw new HttpException("Invalid or expired token", 400);
+      }
 
-    if (!response.ok) {
-      throw new HttpException("User is not allowed to access the app", 403);
+      const data = await response.json();
+      const validatedData = z.object({ wallets: z.array(z.string()).min(1) }).safeParse(data);
+      if (!validatedData.success) {
+        this.logger.error("Invalid response from permissions API", response);
+        throw new InternalServerErrorException();
+      }
+
+      // Use first address from the user to filter
+      const address = validatedData.data.wallets[0];
+      req.session.address = address;
+      req.session.token = body.token;
+      return { address };
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error("Login error:", error);
+      throw new InternalServerErrorException("Authentication failed");
     }
-
-    const data = await response.json();
-    const validatedData = z.object({ address: z.string() }).safeParse(data);
-    if (!validatedData.success) {
-      throw new InternalServerErrorException("Invalid response from permissions API");
-    }
-
-    req.session.address = validatedData.data.address;
-    req.session.token = body.token;
-    return null;
   }
 
   @Post("logout")

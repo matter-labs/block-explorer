@@ -8,6 +8,7 @@
     "connectMetamaskButton": {
         "label": "Connect MetaMask",
         "connecting": "Connecting...",
+        "redirecting": "Redirecting...",
         "metaMaskNotFound": "MetaMask not found",
         "logout": "Logout"
     },
@@ -819,7 +820,7 @@
         "yourWalletTitle": "Your wallet",
         "addressLabel": "Address",
         "balanceLabel": "Balance",
-        "disconnectButton": "Disconnect",
+        "logoutButton": "Logout",
         "balanceUnavailable": "Balance unavailable",
         "loadingBalance": "Loading balance...",
         "noEthBalance": "ETH balance not found",

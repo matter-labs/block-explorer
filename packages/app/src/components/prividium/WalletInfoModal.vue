@@ -13,25 +13,8 @@
           </span>
         </div>
 
-        <div v-if="props.isWrongNetwork" class="network-mismatch-banner-ui">
-          <div class="flex items-center w-full">
-            <ExclamationCircleIcon class="h-6 w-6 mr-2 text-black" />
-            <span class="text-lg text-black flex-1">{{ t("walletInfoModal.wrongNetwork") }}</span>
-          </div>
-        </div>
-
-        <div class="info-row">
-          <div class="balance-info">
-            <slot name="balance"></slot>
-          </div>
-          <div class="separator"></div>
-          <div class="network-info">
-            <span>{{ networkName }}</span>
-          </div>
-        </div>
-
-        <button type="button" class="disconnect-ui-btn" @click="$emit('disconnect')">
-          {{ t("walletInfoModal.disconnectButton") }}
+        <button type="button" class="disconnect-ui-btn" @click="logout()">
+          {{ t("walletInfoModal.logoutButton") }}
         </button>
       </div>
     </div>
@@ -42,14 +25,14 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { ExclamationCircleIcon, XIcon } from "@heroicons/vue/outline";
+import { XIcon } from "@heroicons/vue/outline";
 
 import CopyButton from "@/components/common/CopyButton.vue";
 import HashLabel from "@/components/common/HashLabel.vue";
 import Popup from "@/components/common/Popup.vue";
 
 import useContext from "@/composables/useContext";
-import useWallet from "@/composables/useWallet";
+import useLogin from "@/composables/useLogin";
 
 const props = defineProps({
   opened: {
@@ -60,36 +43,15 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  networkName: {
-    type: String,
-    required: true,
-  },
-  networkChainId: {
-    type: Number,
-    required: true,
-  },
-  isWrongNetwork: {
-    type: Boolean,
-    default: false,
-  },
 });
 
-const emit = defineEmits<{
+defineEmits<{
   (eventName: "close"): void;
-  (eventName: "disconnect"): void;
 }>();
 
 const { t } = useI18n();
 const context = useContext();
-const { addNetwork } = useWallet({
-  ...context,
-  currentNetwork: computed(() => ({
-    explorerUrl: context.currentNetwork.value.rpcUrl,
-    chainName: context.currentNetwork.value.l2NetworkName,
-    l1ChainId: 0,
-    ...context.currentNetwork.value,
-  })),
-});
+const { logout } = useLogin(context);
 
 const formattedAddress = computed(() => {
   if (props.address && props.address.length > 10) {
