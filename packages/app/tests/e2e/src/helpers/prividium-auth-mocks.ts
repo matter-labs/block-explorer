@@ -20,12 +20,14 @@ export async function setupAuthMocks(page: Page, options: AuthMockOptions) {
     async (route) => {
       if (isAuthorized) {
         isLoggedIn = true;
+        console.log("[Mock] /auth/login - Authorized, returning address:", userAddress);
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify({ address: userAddress }),
         });
       } else {
+        console.log("[Mock] /auth/login - Unauthorized, returning 403");
         await route.fulfill({
           status: 403,
           body: "Forbidden",
@@ -39,12 +41,14 @@ export async function setupAuthMocks(page: Page, options: AuthMockOptions) {
     (url) => url.pathname.endsWith("/auth/me"),
     async (route) => {
       if (isLoggedIn && isAuthorized) {
+        console.log("[Mock] /auth/me - User logged in, returning address:", userAddress);
         await route.fulfill({
           status: 200,
           contentType: "application/json",
           body: JSON.stringify({ address: userAddress }),
         });
       } else {
+        console.log("[Mock] /auth/me - User not logged in, returning 401");
         await route.fulfill({
           status: 401,
           body: "Unauthorized",

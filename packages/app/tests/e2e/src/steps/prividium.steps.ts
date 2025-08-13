@@ -27,9 +27,16 @@ Given("I am on the login page", async function (this: ICustomWorld) {
 When("I click the login button", async function (this: ICustomWorld) {
   const connectButton = this.page!.getByRole("button", { name: "Login with Prividium" });
   await connectButton.click();
+
+  // Wait for the OAuth flow to complete (navigation to callback)
+  await this.page!.waitForURL("**/auth/callback*", { timeout: 5000 });
 });
 
 Then("I should see the main page", async function (this: ICustomWorld) {
+  // Wait for navigation away from callback page
+  await this.page!.waitForURL((url) => !url.href.includes("/auth/callback"), { timeout: 10000 });
+
+  // Now check for the main page heading
   const mainHeading = this.page!.getByRole("heading", { name: "ZKsync Block Explorer" });
   await expect(mainHeading).toBeVisible({ timeout: 10000 });
 });
