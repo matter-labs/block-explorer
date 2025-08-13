@@ -24,6 +24,20 @@ describe("AuthMiddleware", () => {
     expect(next).not.toHaveBeenCalled();
   });
 
+  it("blocks traffic for protected route when invalid address", () => {
+    const middleware = new AuthMiddleware();
+    const req = mock<Request>();
+    req.originalUrl = "/protected";
+    req.session = {
+      address: "invalid-address",
+      token: "mock-token",
+    };
+    const res = mock<Response>();
+    const next = jest.fn();
+    expect(() => middleware.use(req, res, next)).toThrow(UnauthorizedException);
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it("allows traffic for protected route when cookie is set", () => {
     const middleware = new AuthMiddleware();
     const req = mock<Request>();
