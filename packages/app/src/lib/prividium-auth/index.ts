@@ -3,7 +3,7 @@ import { AUTH_ERRORS, PRIVIDIUM_AUTH_CONSTANTS } from "./constants";
 export interface PrividiumAuthConfig {
   clientId: string;
   redirectUri: string;
-  userPanelUrl?: string;
+  userPanelUrl: string;
 }
 
 export interface AuthResult {
@@ -20,7 +20,7 @@ export class PrividiumAuth {
   constructor(config: PrividiumAuthConfig) {
     this.clientId = config.clientId;
     this.redirectUri = config.redirectUri;
-    this.userPanelUrl = config.userPanelUrl || PRIVIDIUM_AUTH_CONSTANTS.DEFAULT_USER_PANEL_URL;
+    this.userPanelUrl = config.userPanelUrl;
   }
 
   /**
@@ -57,6 +57,7 @@ export class PrividiumAuth {
 
     // Validate state to prevent CSRF
     const savedState = sessionStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY);
+
     if (state !== savedState) {
       throw new Error(AUTH_ERRORS.INVALID_STATE);
     }
