@@ -42,38 +42,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate Prividium Config
-        run: |
-          # Create temporary Prividium config.js
-          cat > packages/app/public/config.js << 'EOF'
-          window["##runtimeConfig"] = {
-            appEnvironment: "prividium",
-            environmentConfig: {
-              networks: [
-                {
-                  name: "prividium",
-                  l2NetworkName: "prividium",
-                  l2ChainId: 270,
-                  rpcUrl: "http://127.0.0.1:4040",
-                  apiUrl: "http://127.0.0.1:3020",
-                  baseTokenAddress: "0x000000000000000000000000000000000000800A",
-                  hostnames: [],
-                  icon: "/images/icons/zksync-arrows.svg",
-                  maintenance: false,
-                  published: true,
-                  verificationApiUrl: "http://127.0.0.1:3070",
-                  prividium: true,
-                  userPanelUrl: "http://127.0.0.1:3001",
-                },
-              ],
-            },
-          };
-          EOF
-
       - name: Start Prividium App
+        env:
+          VITE_APP_ENVIRONMENT: prividium
+        working-directory: packages/app
         run: |
           # Start the app in development mode with Prividium config
-          cd packages/app
           npm run dev -- --host 0.0.0.0 --port 3010 > ./tests/e2e/app.log 2>&1 &
 
           # Wait for app to be ready with retries
@@ -93,14 +67,12 @@ jobs:
 
       - name: Run Prividium E2E Tests
         timeout-minutes: 5
+        working-directory: packages/app
         run: |
-          cd packages/app
           xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
             npx cucumber-js --tags "@prividium"
         env:
           TARGET_ENV: http://127.0.0.1:3010
-          PRIVIDIUM_MODE: true
-          METAMASK_SETUP_TIMEOUT: 120000
 
       - name: Upload allure results
         if: always()
