@@ -12,15 +12,15 @@ export interface AuthMockOptions {
  */
 export async function setupAuthMocks(page: Page, options: AuthMockOptions) {
   const { isAuthorized, userAddress = "0x1234567890123456789012345678901234567890" } = options;
-  let isLoggedIn = false;
+  const authState = { isLoggedIn: false };
 
   // Mock the /auth/login endpoint (called from callback page)
   await page.route(
     (url) => url.pathname.endsWith("/auth/login"),
     async (route) => {
       if (isAuthorized) {
-        isLoggedIn = true;
-        console.log("[Mock] /auth/login - Authorized, returning address:", userAddress);
+        authState.isLoggedIn = true;
+        console.log("[Mock] /auth/login - Authorized, setting logged in state and returning address:", userAddress);
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -40,7 +40,7 @@ export async function setupAuthMocks(page: Page, options: AuthMockOptions) {
   await page.route(
     (url) => url.pathname.endsWith("/auth/me"),
     async (route) => {
-      if (isLoggedIn && isAuthorized) {
+      if (authState.isLoggedIn && isAuthorized) {
         console.log("[Mock] /auth/me - User logged in, returning address:", userAddress);
         await route.fulfill({
           status: 200,
@@ -48,7 +48,7 @@ export async function setupAuthMocks(page: Page, options: AuthMockOptions) {
           body: JSON.stringify({ address: userAddress }),
         });
       } else {
-        console.log("[Mock] /auth/me - User not logged in, returning 401");
+        console.log("[Mock] /auth/me - User not logged in (isLoggedIn:", authState.isLoggedIn, "), returning 401");
         await route.fulfill({
           status: 401,
           body: "Unauthorized",
@@ -61,7 +61,7 @@ export async function setupAuthMocks(page: Page, options: AuthMockOptions) {
   await page.route(
     (url) => url.pathname.endsWith("/auth/logout"),
     async (route) => {
-      isLoggedIn = false;
+      authState.isLoggedIn = false;
       await route.fulfill({
         status: 204,
         body: "",
