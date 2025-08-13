@@ -1,4 +1,5 @@
 import { reactive, type ToRefs, toRefs } from "vue";
+import { useRouter } from "vue-router";
 
 import defaultLogger from "./../utils/logger";
 import { FetchInstance } from "./useFetchInstance";
@@ -25,6 +26,8 @@ const state = reactive<LoginState>({
 let prividiumAuth: PrividiumAuth | null = null;
 
 export default (context: Context, _logger = defaultLogger): UseLogin => {
+  const router = useRouter();
+
   const getPrividiumAuth = () => {
     if (!context.currentNetwork.value.prividium) {
       return null;
@@ -33,8 +36,8 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     if (!prividiumAuth) {
       prividiumAuth = new PrividiumAuth({
         clientId: "block-explorer",
-        redirectUri: `${window.location.origin}/auth/callback`,
-        userPanelUrl: context.currentNetwork.value.userPanelUrl,
+        redirectUri: new URL("auth/callback", window.location.origin).toString(),
+        userPanelUrl: context.currentNetwork.value.userPanelUrl!,
       });
     }
 
@@ -43,7 +46,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
   const initializeLogin = async () => {
     try {
-      const response = await FetchInstance.api(context)<{ address: string }>(`/auth/me`);
+      const response = await FetchInstance.api(context)<{ address: string }>("/auth/me");
       if (response.address) {
         context.user.value = { address: response.address, loggedIn: true };
       }
@@ -53,30 +56,30 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
   };
 
   const login = async () => {
-    const auth = getPrividiumAuth();
-    if (!auth) {
-      throw new Error("Prividium authentication is not configured for this network");
-    }
-
-    state.isLoginPending = true;
-
     try {
+      state.isLoginPending = true;
+      const auth = getPrividiumAuth();
+      if (!auth) {
+        throw new Error("Prividium authentication is not configured for this network");
+      }
+
       auth.login();
     } catch (error) {
-      state.isLoginPending = false;
       _logger.error("Prividium login failed:", error);
       throw error;
+    } finally {
+      state.isLoginPending = false;
     }
   };
 
   const handlePrividiumCallback = async () => {
-    const auth = getPrividiumAuth();
-    if (!auth) {
-      throw new Error("Prividium authentication is not configured");
-    }
-
     try {
       state.isLoginPending = true;
+      const auth = getPrividiumAuth();
+      if (!auth) {
+        throw new Error("Prividium authentication is not configured");
+      }
+
       const result = auth.handleCallback();
 
       if (result && result.token) {
@@ -85,12 +88,11 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
           method: "POST",
           body: { token: result.token },
         });
-
         context.user.value = { address: response.address, loggedIn: true };
       }
-    } catch (error) {
-      _logger.error("Prividium callback failed:", error);
-      throw error;
+    } catch (err) {
+      _logger.error("Prividium callback failed:", err);
+      throw err;
     } finally {
       state.isLoginPending = false;
     }
@@ -108,6 +110,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
       _logger.error("Logout failed:", error);
     }
     context.user.value = { loggedIn: false };
+    router.push("/login");
   };
 
   return {
