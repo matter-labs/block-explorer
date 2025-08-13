@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -41,7 +41,7 @@ import useLogin from "@/composables/useLogin";
 
 const { t } = useI18n();
 const context = useContext();
-const { login, isLoginPending, initializeLogin } = useLogin(context);
+const { login, isLoginPending } = useLogin(context);
 const router = useRouter();
 const route = useRoute();
 
@@ -51,9 +51,9 @@ const handleLogin = async () => {
   } catch (error: unknown) {
     if (error instanceof FetchError && error.response?.status === 403) {
       router.push({ name: "not-authorized" });
-    } else {
-      console.error("Login failed:", error);
+      return;
     }
+    console.error("Login failed:", error);
   }
 };
 
@@ -61,17 +61,10 @@ const isValidRedirectPath = (path: unknown): path is string => {
   return typeof path === "string" && path.length > 0;
 };
 
-watch(
-  () => context.user.value.loggedIn,
-  (isLoggedIn) => {
-    if (isLoggedIn) {
-      const redirectPath = route.query.redirect;
-      router.push(isValidRedirectPath(redirectPath) ? redirectPath : { name: "home" });
-    }
+watchEffect(() => {
+  if (context.user.value.loggedIn) {
+    const redirectPath = route.query.redirect;
+    router.push(isValidRedirectPath(redirectPath) ? redirectPath : "/");
   }
-);
-
-onMounted(async () => {
-  await initializeLogin();
 });
 </script>

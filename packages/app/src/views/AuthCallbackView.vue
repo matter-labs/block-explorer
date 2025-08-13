@@ -67,15 +67,13 @@ const redirectToLogin = () => {
 onMounted(async () => {
   try {
     await handlePrividiumCallback();
-
-    // Redirect to original destination or home
     const redirectPath = route.query.redirect;
-    router.push(isValidRedirectPath(redirectPath) ? redirectPath : { name: "home" });
+    await router.push(isValidRedirectPath(redirectPath) ? redirectPath : "/");
   } catch (err: unknown) {
     console.error("Auth callback failed:", err);
 
     if (err instanceof FetchError && err.response?.status === 403) {
-      router.push({ name: "not-authorized" });
+      router.push("/not-authorized");
     } else if (err instanceof Error) {
       error.value = err.message;
     } else {
