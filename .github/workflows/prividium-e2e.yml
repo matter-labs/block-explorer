@@ -3,10 +3,10 @@ name: Prividium E2E Tests
 on:
   pull_request:
     paths:
-      - "packages/app/**"
-      - "packages/api/**"
-      - ".github/workflows/prividium-e2e.yml"
-      - "docker-compose-prividium.yaml"
+      - 'packages/app/**'
+      - 'packages/api/**'
+      - '.github/workflows/prividium-e2e.yml'
+      - 'docker-compose-prividium.yaml'
 
 jobs:
   prividium-e2e:
@@ -45,124 +45,6 @@ jobs:
       - name: Create reports directory
         run: mkdir -p packages/app/tests/e2e/reports/
 
-      - name: Start Mock Private RPC Service
-        run: |
-          # Create and start mock RPC service on port 3000
-          cat > mock-rpc-server.js << 'EOF'
-          const http = require('http');
-
-          const server = http.createServer((req, res) => {
-            // Set CORS headers
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-
-            // Handle preflight requests
-            if (req.method === 'OPTIONS') {
-              res.writeHead(200);
-              res.end();
-              return;
-            }
-
-            // Always return authorized: true for any route and method
-            res.setHeader('Content-Type', 'application/json');
-            res.writeHead(200);
-            res.end(JSON.stringify({ authorized: true }));
-          });
-
-          server.listen(3000, '0.0.0.0', () => {
-            console.log('Mock RPC service running on port 3000');
-          });
-          EOF
-
-          # Start the mock service in background
-          node mock-rpc-server.js &
-
-          # Wait for service to be ready
-          echo "Waiting for mock RPC service to be ready..."
-          for i in $(seq 1 30); do
-            if curl -s http://localhost:3000 > /dev/null; then
-              echo "Mock RPC service is ready!"
-              break
-            fi
-            if [ $i -eq 30 ]; then
-              echo "Mock RPC service failed to start within timeout"
-              exit 1
-            fi
-            echo "Waiting for mock RPC service to start... attempt $i"
-            sleep 2
-          done
-
-      - name: Start API Service
-        run: |
-          cd packages/api
-          # Create .env file for Prividium mode
-          cat > .env << 'EOF'
-            GRACEFUL_SHUTDOWN_TIMEOUT_MS=0
-            DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
-            DATABASE_REPLICA_URL_0=
-            DATABASE_CONNECTION_POOL_SIZE=50
-            DATABASE_CONNECTION_IDLE_TIMEOUT_MS=12000
-            METRICS_PORT=3005
-            COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL=10000
-            PORT=3020
-            LOG_LEVEL=debug
-            LIMITED_PAGINATION_MAX_ITEMS=10000
-            API_LIMITED_PAGINATION_MAX_ITEMS=1000
-            DISABLE_API_SCHEMA_DOCS=false
-            DISABLE_BFF_API_SCHEMA_DOCS=false
-            DISABLE_EXTERNAL_API=false
-            DATABASE_STATEMENT_TIMEOUT_MS=90000
-            CONTRACT_VERIFICATION_API_URL=http://127.0.0.1:3070
-            NETWORK_NAME=testnet-sepolia
-
-            BASE_TOKEN_SYMBOL=ETH
-            BASE_TOKEN_DECIMALS=18
-            BASE_TOKEN_L1_ADDRESS=0x0000000000000000000000000000000000000000
-            BASE_TOKEN_ICON_URL=https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266
-            BASE_TOKEN_NAME=Ether
-            BASE_TOKEN_LIQUIDITY=220000000000
-            BASE_TOKEN_USDPRICE=1800
-
-            ETH_TOKEN_SYMBOL=ETH
-            ETH_TOKEN_DECIMALS=18
-            ETH_TOKEN_L2_ADDRESS=0x000000000000000000000000000000000000800A
-            ETH_TOKEN_ICON_URL=https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266
-            ETH_TOKEN_NAME=Ether
-            ETH_TOKEN_LIQUIDITY=220000000000
-            ETH_TOKEN_USDPRICE=1800
-
-            # Prividium
-            PRIVIDIUM=true
-            PRIVIDIUM_SESSION_SECRET=secret
-            PRIVIDIUM_PRIVATE_RPC_URL=http://127.0.0.1:3000
-            PRIVIDIUM_PRIVATE_RPC_SECRET=secret
-            PRIVIDIUM_CHAIN_ID=271
-            PRIVIDIUM_SESSION_MAX_AGE=86400000 # 1 day
-            PRIVIDIUM_SESSION_SAME_SITE=strict
-            PRIVIDIUM_APP_URL=http://127.0.0.1:3010
-            PRIVIDIUM_SIWE_EXPIRATION_TIME=600000
-
-          EOF
-
-          # Start API service
-          npm run dev > ../app/tests/e2e/reports/api.log 2>&1 &
-
-          # Wait for API to be ready
-          echo "Waiting for API to be ready..."
-          for i in $(seq 1 30); do
-            if curl -s http://localhost:3020/health > /dev/null; then
-              echo "API is ready!"
-              break
-            fi
-            if [ $i -eq 30 ]; then
-              echo "API failed to start within timeout"
-              exit 1
-            fi
-            echo "Waiting for API to start... attempt $i"
-            sleep 5
-          done
-
       - name: Generate Prividium Config
         run: |
           # Create temporary Prividium config.js
@@ -184,6 +66,7 @@ jobs:
                   published: true,
                   verificationApiUrl: "http://127.0.0.1:3070",
                   prividium: true,
+                  userPanelUrl: "http://127.0.0.1:3001",
                 },
               ],
             },

@@ -1,39 +1,32 @@
 import { Given, Then, When } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 
+import { setupAuthMocks, setupOAuthRedirectMock } from "../helpers/prividium-auth-mocks";
 import { config } from "../support/config";
 
 import type { ICustomWorld } from "../support/custom-world";
 
 Given("I am an authorized user", async function (this: ICustomWorld) {
-  await this.page?.route("**/auth/verify", (route) => {
-    route.fulfill({
-      status: 201,
-      body: "true",
-    });
-  });
+  // Set up all mocks before any navigation
+  await setupAuthMocks(this.page!, { isAuthorized: true });
+  await setupOAuthRedirectMock(this.page!);
 });
 
 Given("I am an unauthorized user", async function (this: ICustomWorld) {
-  await this.page?.route("**/auth/verify", (route) => {
-    route.fulfill({
-      status: 403,
-      body: "Forbidden",
-    });
-  });
+  // Set up all mocks before any navigation
+  await setupAuthMocks(this.page!, { isAuthorized: false });
+  await setupOAuthRedirectMock(this.page!);
 });
 
 Given("I am on the login page", async function (this: ICustomWorld) {
+  await this.page?.goto(config.BASE_URL + "/login");
+  await this.page?.waitForLoadState("networkidle");
   expect(this.page?.url()).toContain(config.BASE_URL + "/login");
 });
 
-When("I click the connect wallet button", async function (this: ICustomWorld) {
-  const connectButton = this.page!.getByRole("button", { name: "Connect wallet" });
+When("I click the login button", async function (this: ICustomWorld) {
+  const connectButton = this.page!.getByRole("button", { name: "Login with Prividium" });
   await connectButton.click();
-});
-
-When("I sign the message to log in", async function (this: ICustomWorld) {
-  await this.metamask!.signin();
 });
 
 Then("I should see the main page", async function (this: ICustomWorld) {
@@ -42,12 +35,12 @@ Then("I should see the main page", async function (this: ICustomWorld) {
 });
 
 Then("I should see the wallet status bar", async function (this: ICustomWorld) {
-  const statusBar = this.page!.locator(".metamask-button .address-text");
+  const statusBar = this.page!.locator(".wallet-button .address-text");
   await expect(statusBar).toBeVisible();
 });
 
 When("I click the wallet status bar", async function (this: ICustomWorld) {
-  const statusBar = this.page!.locator(".metamask-button .address-text");
+  const statusBar = this.page!.locator(".wallet-button .address-text");
   await statusBar.click();
 });
 
@@ -56,34 +49,14 @@ Then("I should see the wallet info modal", async function (this: ICustomWorld) {
   await expect(modalTitle).toBeVisible();
 });
 
-When("I click the disconnect button", async function (this: ICustomWorld) {
-  const disconnectButton = this.page!.getByRole("button", { name: "Disconnect" });
-  await disconnectButton.click();
+When("I click the logout button", async function (this: ICustomWorld) {
+  const logoutButton = this.page!.getByRole("button", { name: "Logout" });
+  await logoutButton.click();
 });
 
 Then("I should be logged out", async function (this: ICustomWorld) {
   const loginHeading = this.page!.getByRole("heading", { name: "Private Explorer Access" });
   await expect(loginHeading).toBeVisible();
-});
-
-Then("I should see the network switch", async function (this: ICustomWorld) {
-  const networkSwitch = this.page!.locator(".network-switch");
-  await expect(networkSwitch).toBeVisible();
-});
-
-When("I click the network switch", async function (this: ICustomWorld) {
-  const networkSwitch = this.page!.locator(".network-switch .toggle-button");
-  await networkSwitch.click();
-});
-
-Then("I should see a list of available networks", async function (this: ICustomWorld) {
-  const networkList = this.page!.locator(".network-list");
-  await expect(networkList).toBeVisible();
-});
-
-Then("I should see the wrong network indicator", async function (this: ICustomWorld) {
-  const wrongNetwork = this.page!.getByText("Wrong network", { exact: true });
-  await expect(wrongNetwork).toBeVisible();
 });
 
 Then("I should see the not authorized page", async function (this: ICustomWorld) {
