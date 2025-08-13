@@ -42,9 +42,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Create reports directory
-        run: mkdir -p packages/app/tests/e2e/reports/
-
       - name: Generate Prividium Config
         run: |
           # Create temporary Prividium config.js
@@ -77,7 +74,7 @@ jobs:
         run: |
           # Start the app in development mode with Prividium config
           cd packages/app
-          npm run dev -- --host 0.0.0.0 --port 3010 > ./tests/e2e/reports/app.log 2>&1 &
+          npm run dev -- --host 0.0.0.0 --port 3010 > ./tests/e2e/app.log 2>&1 &
 
           # Wait for app to be ready with retries
           echo "Waiting for app to be ready..."
@@ -105,9 +102,14 @@ jobs:
           PRIVIDIUM_MODE: true
           METAMASK_SETUP_TIMEOUT: 120000
 
-      - name: Upload test results
+      - name: Upload allure results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: prividium-e2e-results
-          path: packages/app/tests/e2e/reports/
+          path: packages/app/tests/e2e/allure-results/
+
+      - name: Print App logs
+        if: always()
+        run: |
+          cat packages/app/tests/e2e/app.log

@@ -18,7 +18,6 @@ export async function setupAuthMocks(page: Page, options: AuthMockOptions) {
   await page.route(
     (url) => url.pathname.endsWith("/auth/login"),
     async (route) => {
-      console.log("Mocking /auth/login endpoint");
       if (isAuthorized) {
         isLoggedIn = true;
         await route.fulfill({
