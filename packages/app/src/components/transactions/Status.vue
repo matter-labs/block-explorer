@@ -161,7 +161,7 @@ import useContext from "@/composables/useContext";
 import type { TransactionStatus } from "@/composables/useTransaction";
 
 const context = useContext();
-const { getSettlementChainExplorerUrl, getSettlementChainName } = context;
+const { getSettlementChainExplorerUrl, getSettlementChainName, isGatewaySettlementChain } = context;
 
 const props = defineProps({
   status: {
@@ -292,15 +292,30 @@ const remainingTxStatuses: RemainingStatus[] = [
 
 // Helper function to check if we should show Ethereum status
 const shouldShowEthereumStatus = (): boolean => {
-  // Show Ethereum badge for all Gateway transactions to indicate the full three-stage process
+  // Only show Ethereum badge if this transaction actually used Gateway as settlement
   return isGatewayTransaction();
 };
 
 // Helper function to check if transaction uses Gateway settlement
 const isGatewayTransaction = (): boolean => {
-  // If the current network has Gateway as a settlement chain, all transactions should show three-status view
-  const gatewayChain = context.currentNetwork.value.settlementChains?.find((chain) => chain.name === "Gateway");
-  return !!gatewayChain;
+  // If chain IDs are available, check them directly
+  if (props.commitChainId || props.proveChainId || props.executeChainId) {
+    return (
+      isGatewaySettlementChain(props.executeChainId) ||
+      isGatewaySettlementChain(props.proveChainId) ||
+      isGatewaySettlementChain(props.commitChainId)
+    );
+  }
+
+  // If chain IDs are null (transaction still processing), use the same logic as getSettlementChainName:
+  // Assume it uses the latest settlement chain (last in the array)
+  if (!props.commitChainId && !props.commitTxHash && context.currentNetwork.value.settlementChains?.length) {
+    const lastSettlementChain =
+      context.currentNetwork.value.settlementChains[context.currentNetwork.value.settlementChains.length - 1];
+    return lastSettlementChain.name.toLowerCase().includes("gateway");
+  }
+
+  return false;
 };
 
 // Helper function to get Ethereum settlement status
