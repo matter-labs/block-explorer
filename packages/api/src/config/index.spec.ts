@@ -386,6 +386,7 @@ describe("config", () => {
       process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
       process.env.PRIVIDIUM_SIWE_EXPIRATION_TIME = "1000";
       process.env.PRIVIDIUM_SESSION_SECRET = "secret";
+      process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
     });
 
     it("sets default when prividium is true and PRIVIDIUM_APP_URL is missing", async () => {
@@ -399,22 +400,6 @@ describe("config", () => {
       const { default: currentConfig } = await import("../config");
       expect(() => currentConfig()).toThrow(
         new Error("Invalid prividium config: PRIVIDIUM_APP_URL has to be a valid url")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVIDIUM_PRIVATE_RPC_SECRET is not present", async () => {
-      process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = undefined;
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVIDIUM_PRIVATE_RPC_SECRET is an empty string", async () => {
-      process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "";
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string")
       );
     });
 
