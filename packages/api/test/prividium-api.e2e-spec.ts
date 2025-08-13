@@ -27,7 +27,7 @@ describe("Prividium API (e2e)", () => {
   let batchRepository: Repository<BatchDetails>;
   let agent: request.SuperAgentTest;
 
-  const mockWalletAddress = "0x742d35Cc6634C0532925a3b8D09b2C1e3B3b7b67";
+  const mockWalletAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
   const mockToken = "mock-jwt-token";
 
   beforeAll(async () => {
