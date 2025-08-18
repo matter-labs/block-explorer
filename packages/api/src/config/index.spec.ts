@@ -302,7 +302,6 @@ describe("config", () => {
     process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
     process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
     process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
-    process.env.PRIVIDIUM_SIWE_EXPIRATION_TIME = "1000";
     process.env.PRIVIDIUM_SESSION_SECRET = "secret";
     process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
 
@@ -365,7 +364,6 @@ describe("config", () => {
         sessionMaxAge: 1000,
         appUrl: "http://localhost:3020",
         sessionSameSite: "strict",
-        siweExpirationTime: 1000,
         sessionSecret: "secret",
         permissionsApiUrl: "http://localhost:8000",
       },
@@ -384,7 +382,6 @@ describe("config", () => {
       process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
       process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
       process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
-      process.env.PRIVIDIUM_SIWE_EXPIRATION_TIME = "1000";
       process.env.PRIVIDIUM_SESSION_SECRET = "secret";
       process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
     });
