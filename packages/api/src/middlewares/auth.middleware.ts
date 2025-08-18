@@ -14,12 +14,7 @@ export class AuthMiddleware implements NestMiddleware {
       return;
     }
 
-    if (!req.session.address || !req.session.token) {
-      req.session = null;
-      throw new UnauthorizedException({ message: "Unauthorized request" });
-    }
-
-    if (!isAddress(req.session.address)) {
+    if (!req.session.address || !req.session.token || !isAddress(req.session.address)) {
       req.session = null;
       throw new UnauthorizedException({ message: "Unauthorized request" });
     }
