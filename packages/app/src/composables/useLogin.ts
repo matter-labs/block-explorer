@@ -30,7 +30,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
   const getPrividiumAuth = () => {
     if (!context.currentNetwork.value.prividium) {
-      return null;
+      throw new Error("Prividium authentication is not configured for this network");
     }
 
     if (!prividiumAuth) {
@@ -59,10 +59,6 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     try {
       state.isLoginPending = true;
       const auth = getPrividiumAuth();
-      if (!auth) {
-        throw new Error("Prividium authentication is not configured for this network");
-      }
-
       auth.login();
     } catch (error) {
       _logger.error("Prividium login failed:", error);
