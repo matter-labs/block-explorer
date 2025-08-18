@@ -106,7 +106,7 @@ describe("Prividium API (e2e)", () => {
       fetchSpy.mockRestore();
     });
 
-    it("should complete auth process with valid token", async () => {
+    it("completes auth process with valid token", async () => {
       // Mock successful permissions API response
       fetchSpy.mockResolvedValueOnce({
         status: 200,
@@ -133,7 +133,7 @@ describe("Prividium API (e2e)", () => {
       await agent.get("/auth/me").expect(401);
     });
 
-    it("should reject login with forbidden token", async () => {
+    it("rejects login with forbidden token", async () => {
       // Mock 403 response from permissions API
       fetchSpy.mockResolvedValueOnce({
         status: 403,
@@ -147,7 +147,7 @@ describe("Prividium API (e2e)", () => {
       });
     });
 
-    it("should handle invalid permissions API response", async () => {
+    it("handles invalid permissions API response", async () => {
       // Mock invalid response structure
       fetchSpy.mockResolvedValueOnce({
         status: 200,
@@ -157,7 +157,7 @@ describe("Prividium API (e2e)", () => {
       await agent.post("/auth/login").send({ token: mockToken }).expect(500);
     });
 
-    it("should handle permissions API network error", async () => {
+    it("handles permissions API network error", async () => {
       // Mock network error
       fetchSpy.mockRejectedValueOnce(new Error("Network error"));
 
