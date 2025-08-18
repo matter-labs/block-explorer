@@ -87,13 +87,15 @@ describe("AuthController", () => {
       );
     });
 
-    it("throws internal server error for empty wallets array", async () => {
+    it("throws 400 error for empty wallets array", async () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({ wallets: [] }),
       });
 
-      await expect(controller.login(body, req)).rejects.toThrow(InternalServerErrorException);
+      await expect(controller.login(body, req)).rejects.toThrow(
+        new HttpException("No wallets associated with the user", 400)
+      );
     });
   });
 
