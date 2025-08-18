@@ -55,10 +55,14 @@ export class AuthController {
       }
 
       const data = await response.json();
-      const validatedData = z.object({ wallets: z.array(z.string()).min(1) }).safeParse(data);
+      const validatedData = z.object({ wallets: z.array(z.string()) }).safeParse(data);
       if (!validatedData.success) {
         this.logger.error("Invalid response from permissions API", response);
         throw new InternalServerErrorException();
+      }
+
+      if (validatedData.data.wallets.length === 0) {
+        throw new HttpException("No wallets associated with the user", 400);
       }
 
       // Use first address from the user to filter
