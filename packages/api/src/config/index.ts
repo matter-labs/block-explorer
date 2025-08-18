@@ -4,7 +4,6 @@ import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constant
 import { z } from "zod";
 
 const INVALID_PERMISSIONS_API_URL_MSG = "PRIVIDIUM_PERMISSIONS_API_URL has to be a valid url";
-const INVALID_CHAIN_ID_MSG = "PRIVIDIUM_CHAIN_ID has to be a positive integer";
 const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
 const PRIVIDIUM_SESSION_SECRET_MSG = "PRIVIDIUM_SESSION_SECRET has to be a non empty string";
 const PRIVIDIUM_SESSION_SAME_SITE_MSG = "PRIVIDIUM_SESSION_SAME_SITE has to be one of [none, strict, lax]";
@@ -102,7 +101,6 @@ export default () => {
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
     PRIVIDIUM_APP_URL,
     PRIVIDIUM_PERMISSIONS_API_URL,
-    PRIVIDIUM_CHAIN_ID,
     PRIVIDIUM_SESSION_MAX_AGE,
     PRIVIDIUM_SESSION_SAME_SITE,
     PRIVIDIUM_SESSION_SECRET,
@@ -166,10 +164,6 @@ export default () => {
     const prividiumSchema = z.object(
       {
         permissionsApiUrl: z.string({ message: INVALID_PERMISSIONS_API_URL_MSG }).url(INVALID_PERMISSIONS_API_URL_MSG),
-        chainId: z.coerce
-          .number({ message: INVALID_CHAIN_ID_MSG })
-          .int({ message: INVALID_CHAIN_ID_MSG })
-          .positive(INVALID_CHAIN_ID_MSG),
         sessionSecret: z.string({ message: PRIVIDIUM_SESSION_SECRET_MSG }).nonempty(PRIVIDIUM_SESSION_SECRET_MSG),
         sessionMaxAge: z.coerce
           .number({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
@@ -189,7 +183,6 @@ export default () => {
 
     const result = prividiumSchema.safeParse({
       permissionsApiUrl: PRIVIDIUM_PERMISSIONS_API_URL,
-      chainId: PRIVIDIUM_CHAIN_ID,
       sessionSecret: PRIVIDIUM_SESSION_SECRET,
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
       sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
