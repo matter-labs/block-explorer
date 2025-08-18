@@ -43,7 +43,7 @@ describe("AuthController", () => {
       fetchSpy.mockRestore();
     });
 
-    it("should login successfully with valid token", async () => {
+    it("logins successfully with valid token", async () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({
@@ -61,7 +61,7 @@ describe("AuthController", () => {
       });
     });
 
-    it("should throw 400 error for 403 response from permissions API", async () => {
+    it("throws 400 error for 403 response from permissions API", async () => {
       fetchSpy.mockResolvedValueOnce({
         status: 403,
         json: jest.fn(),
@@ -70,7 +70,7 @@ describe("AuthController", () => {
       await expect(controller.login(body, req)).rejects.toThrow(new HttpException("Invalid or expired token", 400));
     });
 
-    it("should throw internal server error for invalid API response", async () => {
+    it("throws internal server error for invalid API response", async () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({ invalid: "response" }),
@@ -79,7 +79,7 @@ describe("AuthController", () => {
       await expect(controller.login(body, req)).rejects.toThrow(InternalServerErrorException);
     });
 
-    it("should throw internal server error for network errors", async () => {
+    it("throws internal server error for network errors", async () => {
       fetchSpy.mockRejectedValueOnce(new Error("Network error"));
 
       await expect(controller.login(body, req)).rejects.toThrow(
@@ -87,7 +87,7 @@ describe("AuthController", () => {
       );
     });
 
-    it("should throw internal server error for empty wallets array", async () => {
+    it("throws internal server error for empty wallets array", async () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({ wallets: [] }),
