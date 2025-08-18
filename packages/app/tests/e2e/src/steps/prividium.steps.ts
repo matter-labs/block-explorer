@@ -71,8 +71,3 @@ Then("I should see the not authorized page", async function (this: ICustomWorld)
   await expect(unauthorizedHeading).toBeVisible();
   expect(this.page?.url()).toContain("/not-authorized");
 });
-
-Then("I should see the switch network button in the wallet info modal", async function (this: ICustomWorld) {
-  const switchNetworkButton = this.page!.locator("button.switch-network-ui-btn", { hasText: "Switch to Prividium" });
-  await expect(switchNetworkButton).toBeVisible();
-});

@@ -115,16 +115,8 @@ const formattedAddress = computed(() => {
   @apply w-full flex flex-col items-center justify-center text-center rounded-2xl px-6 py-5 mb-0 mt-10;
   background: #ffc81a;
 }
-.switch-network-ui-btn,
+
 .disconnect-ui-btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.switch-network-ui-btn {
-  @apply w-full mt-4 bg-[#23234C] text-white text-lg rounded-xl py-3 transition hover:bg-[#1a1a3a];
-}
-.disconnect-ui-btn {
-  @apply w-full mt-4 bg-neutral-200 text-black text-lg rounded-xl py-3;
+  @apply flex justify-center items-center w-full mt-4 bg-neutral-200 text-black text-lg rounded-xl py-3;
 }
 </style>
