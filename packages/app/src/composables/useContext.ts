@@ -4,7 +4,6 @@ import { useStorage } from "@vueuse/core";
 import { Provider } from "zksync-ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
-import usePrividiumRpc from "./usePrividiumRpc";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";
 
 import type { NetworkConfig } from "@/configs";
@@ -76,13 +75,8 @@ export default (): Context => {
   });
 
   function getL2Provider() {
-    const { prividiumRpcUrl } = usePrividiumRpc();
     if (!l2Provider) {
-      if (currentNetwork.value.prividium) {
-        l2Provider = new Provider(prividiumRpcUrl.value ?? "");
-      } else {
-        l2Provider = new Provider(currentNetwork.value.rpcUrl);
-      }
+      l2Provider = new Provider(currentNetwork.value.rpcUrl);
     }
     return l2Provider;
   }
