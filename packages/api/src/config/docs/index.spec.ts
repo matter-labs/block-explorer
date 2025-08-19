@@ -34,12 +34,12 @@ describe("constants", () => {
     process.env = env;
   });
 
-  it("should return default constants", async () => {
+  it("returns default constants", async () => {
     const { constants } = await import("./");
     expect(constants).toEqual(defaultConstants);
   });
 
-  it("should return constants for the specified environment", async () => {
+  it("returns constants for the specified environment", async () => {
     process.env.NETWORK_NAME = "testnet";
     const testnetConfig = {
       verifiedContractAddress: "0x53E185A2FA7c9caF14A887E8E9a4862D4bd094ea",
@@ -62,7 +62,7 @@ describe("constants", () => {
     expect(constants).toEqual(testnetConfig);
   });
 
-  it("should return default constants if environment constants cannot be read", async () => {
+  it("returns default constants if environment constants cannot be read", async () => {
     process.env.NETWORK_NAME = "testnet";
 
     existsSyncMock.mockReturnValue(true);
