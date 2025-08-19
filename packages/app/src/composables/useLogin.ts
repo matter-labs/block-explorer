@@ -72,10 +72,6 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     try {
       state.isLoginPending = true;
       const auth = getPrividiumAuth();
-      if (!auth) {
-        throw new Error("Prividium authentication is not configured");
-      }
-
       const result = auth.handleCallback();
 
       if (result && result.token) {
@@ -96,7 +92,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
   const logout = async () => {
     const auth = getPrividiumAuth();
-    auth?.clearToken();
+    auth.clearToken();
 
     try {
       await FetchInstance.api(context)("/auth/logout", {

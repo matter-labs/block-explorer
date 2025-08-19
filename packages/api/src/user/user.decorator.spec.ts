@@ -74,7 +74,7 @@ describe("User Decorator", () => {
   });
 
   describe("type checking", () => {
-    it("should return UserParam type", () => {
+    it("returns UserParam type", () => {
       mockRequest.session = {
         address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         token: "jwt-token",
