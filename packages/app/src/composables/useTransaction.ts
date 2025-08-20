@@ -1,6 +1,6 @@
 import { ref } from "vue";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 import { FetchInstance } from "./useFetchInstance";
@@ -138,33 +138,14 @@ export default (context = useContext()) => {
 
   // Helper function to get Gateway API URL from settlement chain configuration
   const getGatewayApiUrl = (gatewayChain: SettlementChain): string => {
-    // If apiUrl is configured, use it directly (preferred approach)
+    // Use configured apiUrl directly - no fallback for security reasons
     if (gatewayChain.apiUrl) {
       return gatewayChain.apiUrl;
     }
 
-    // Fallback: derive from explorer URL for backward compatibility
-    const explorerUrl = gatewayChain.explorerUrl;
-    try {
-      const url = new URL(explorerUrl);
-
-      // Only allow zksync.io domains
-      if (!url.hostname.endsWith(".zksync.io")) {
-        throw new Error(`Unsupported domain: ${url.hostname}`);
-      }
-
-      // Known URL mappings for Gateway
-      if (url.hostname === "sepolia.gateway.explorer.zksync.io") {
-        return "https://block-explorer.era-gateway-testnet.zksync.dev";
-      } else if (url.hostname === "gateway.explorer.zksync.io") {
-        return "https://block-explorer-api.era-gateway-mainnet.zksync.dev";
-      }
-
-      throw new Error(`No API URL configured for Gateway chain: ${explorerUrl}`);
-    } catch (error) {
-      console.warn("Failed to get Gateway API URL:", error);
-      throw new Error(`Invalid Gateway configuration: ${explorerUrl}`);
-    }
+    // No API URL configured, return empty string and handle gracefully
+    console.warn("No API URL configured for Gateway chain:", gatewayChain.name);
+    return "";
   };
 
   // Function to fetch Ethereum transaction data from Gateway API
@@ -180,18 +161,16 @@ export default (context = useContext()) => {
         return null;
       }
 
-      let gatewayApiUrl: string;
-      try {
-        gatewayApiUrl = getGatewayApiUrl(gatewayChain);
-      } catch (error) {
-        console.warn("Failed to get Gateway API URL:", error);
+      const gatewayApiUrl = getGatewayApiUrl(gatewayChain);
+      if (!gatewayApiUrl) {
         return null;
       }
 
       // Fetch Gateway transaction data using the Era transaction's commit hash
-      const gatewayTxResponse = await $fetch<Api.Response.Transaction>(
-        `${gatewayApiUrl}/transactions/${tx.ethCommitTxHash}`
-      );
+      const gatewayTxResponse = await FetchInstance.gatewayApi(
+        context,
+        gatewayApiUrl
+      )<Api.Response.Transaction>(`/transactions/${tx.ethCommitTxHash}`);
 
       // Find Ethereum settlement chain from current network's settlementChains
       const ethereumChain = context.currentNetwork.value.settlementChains.find((chain) => chain.name === "Ethereum");
@@ -412,16 +391,16 @@ export function mapTransaction(
     isL1BatchSealed: transaction.isL1BatchSealed,
     error: transaction.error,
     revertReason: transaction.revertReason,
-    logs: logs.map((log) => ({
-      address: log.address,
-      blockNumber: log.blockNumber,
-      data: log.data,
-      logIndex: log.logIndex.toString(),
-      topics: log.topics as string[],
-      transactionHash: log.transactionHash || "",
-      transactionIndex: log.transactionIndex.toString(),
+    logs: logs.map((item) => ({
+      address: item.address,
+      blockNumber: item.blockNumber,
+      data: item.data,
+      logIndex: item.logIndex.toString(16),
+      topics: item.topics,
+      transactionHash: item.transactionHash!,
+      transactionIndex: item.transactionIndex.toString(16),
     })),
-    transfers: mapTransfers(transfers),
+    transfers: mapTransfers(filterTransfers(transfers)),
     gasPrice: transaction.gasPrice,
     gasLimit: transaction.gasLimit,
     gasUsed: transaction.gasUsed,

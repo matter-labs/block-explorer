@@ -161,7 +161,12 @@ import useContext from "@/composables/useContext";
 import type { TransactionStatus } from "@/composables/useTransaction";
 
 const context = useContext();
-const { getSettlementChainExplorerUrl, getSettlementChainName, isGatewaySettlementChain } = context;
+const {
+  getSettlementChainExplorerUrl,
+  getSettlementChainName,
+  isGatewaySettlementChain,
+  isDefaultSettlementChainGateway,
+} = context;
 
 const props = defineProps({
   status: {
@@ -244,42 +249,32 @@ type FinishedStatus = RemainingStatus & {
   explorerUrl?: string;
 };
 
-const finishedTxStatuses: FinishedStatus[] = [
-  {
-    text: t("transactions.statusComponent.sent"),
-    url: props.commitTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.commitChainId),
-  },
-  {
-    text: t("transactions.statusComponent.validated"),
-    url: props.proveTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.proveChainId),
-  },
-  {
-    text: t("transactions.statusComponent.executed"),
-    url: props.executeTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
-  },
-];
-
-// Ethereum statuses for Gateway settlement
-const ethereumTxStatuses: FinishedStatus[] = [
-  {
-    text: t("transactions.statusComponent.sent"),
-    url: props.gatewayEthCommitTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.gatewayEthCommitChainId),
-  },
-  {
-    text: t("transactions.statusComponent.validated"),
-    url: props.gatewayEthProveTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.gatewayEthProveChainId),
-  },
-  {
-    text: t("transactions.statusComponent.executed"),
-    url: props.gatewayEthExecuteTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.gatewayEthExecuteChainId),
-  },
-];
+function getTransactionStatuses(
+  commitTxHash: string | null,
+  proveTxHash: string | null,
+  executeTxHash: string | null,
+  commitChainId: number | null,
+  proveChainId: number | null,
+  executeChainId: number | null
+): FinishedStatus[] {
+  return [
+    {
+      text: t("transactions.statusComponent.sent"),
+      url: commitTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(commitChainId),
+    },
+    {
+      text: t("transactions.statusComponent.validated"),
+      url: proveTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(proveChainId),
+    },
+    {
+      text: t("transactions.statusComponent.executed"),
+      url: executeTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(executeChainId),
+    },
+  ];
+}
 
 const remainingTxStatuses: RemainingStatus[] = [
   {
@@ -290,16 +285,10 @@ const remainingTxStatuses: RemainingStatus[] = [
   },
 ];
 
-// Helper function to check if we should show Ethereum status
-const shouldShowEthereumStatus = (): boolean => {
-  // Only show Ethereum badge if this transaction actually used Gateway as settlement
-  return isGatewayTransaction();
-};
-
 // Helper function to check if transaction uses Gateway settlement
 const isGatewayTransaction = (): boolean => {
   // If chain IDs are available, check them directly
-  if (props.commitChainId || props.proveChainId || props.executeChainId) {
+  if (props.commitChainId) {
     return (
       isGatewaySettlementChain(props.executeChainId) ||
       isGatewaySettlementChain(props.proveChainId) ||
@@ -307,56 +296,100 @@ const isGatewayTransaction = (): boolean => {
     );
   }
 
-  // If chain IDs are null (transaction still processing), use the same logic as getSettlementChainName:
-  // Assume it uses the latest settlement chain (last in the array)
-  if (!props.commitChainId && !props.commitTxHash && context.currentNetwork.value.settlementChains?.length) {
-    const lastSettlementChain =
-      context.currentNetwork.value.settlementChains[context.currentNetwork.value.settlementChains.length - 1];
-    return lastSettlementChain.name.toLowerCase().includes("gateway");
-  }
-
-  return false;
+  // If chain IDs are null (transaction still processing), use the context helper
+  return isDefaultSettlementChainGateway();
 };
 
-// Helper function to get Ethereum settlement status
-const getEthereumStatus = (): TransactionStatus => {
-  // If we don't have a Gateway status, we can't determine Ethereum status
-  if (!props.gatewayStatus) {
-    return "included";
-  }
-
-  // The Ethereum status should only progress as far as the Gateway status allows
-  // and only if the corresponding hash exists
-  if (props.gatewayStatus === "verified" && props.gatewayEthExecuteTxHash) {
-    return "verified";
-  }
-  if (props.gatewayStatus === "proved" && props.gatewayEthProveTxHash) {
-    return "proved";
-  }
-  if (props.gatewayStatus === "committed" && props.gatewayEthCommitTxHash) {
-    return "committed";
-  }
-
-  // If Gateway hasn't reached the required status yet, Ethereum should be "included"
-  return "included";
+type BadgeItem = {
+  color: "neutral" | "dark-neutral" | "success" | "dark-success" | "danger" | "progress";
+  text?: string;
+  tooltip?: string;
+  infoTooltip?: string;
+  icon?: unknown;
+  testId: string;
+  textColor?: "neutral";
+  iconColor?: "dark-neutral";
+  finishedStatuses?: FinishedStatus[];
+  remainingStatuses?: RemainingStatus[];
+  url?: string | null;
+  explorerUrl?: string;
+  withDetailedPopup?: boolean;
 };
+
+function addBadges(
+  badgesArr: BadgeItem[],
+  status: string | null,
+  commitTxHash: string | null,
+  proveTxHash: string | null,
+  executeTxHash: string | null,
+  commitChainId: number | null,
+  proveChainId: number | null,
+  executeChainId: number | null,
+  testIdPrefix: string,
+  titleText: string
+) {
+  const finishedTxStatuses = getTransactionStatuses(
+    commitTxHash,
+    proveTxHash,
+    executeTxHash,
+    commitChainId,
+    proveChainId,
+    executeChainId
+  );
+
+  // Title badge
+  badgesArr.push({
+    testId: `${testIdPrefix}-badge-title`,
+    color: status === "verified" ? "success" : "neutral",
+    text: titleText,
+    textColor: "neutral",
+  });
+
+  if (status === "verified") {
+    badgesArr.push({
+      testId: `${testIdPrefix}-verified`,
+      color: "dark-success",
+      text: t("transactions.statusComponent.executed"),
+      finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
+      url: executeTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(executeChainId),
+      withDetailedPopup: true,
+    });
+  } else {
+    let textKey;
+    const finishedStatuses: FinishedStatus[] = [];
+    const remainingStatuses: RemainingStatus[] = [];
+
+    if (status === "committed") {
+      textKey = "validating";
+      finishedStatuses.push(finishedTxStatuses[0]);
+      remainingStatuses.push(remainingTxStatuses[1]);
+    } else if (status === "proved") {
+      textKey = "executing";
+      finishedStatuses.push(finishedTxStatuses[0]);
+      finishedStatuses.push(finishedTxStatuses[1]);
+    } else {
+      textKey = "sending";
+      remainingStatuses.push(remainingTxStatuses[0]);
+      remainingStatuses.push(remainingTxStatuses[1]);
+    }
+
+    badgesArr.push({
+      testId: `${testIdPrefix}-badge-value`,
+      color: "dark-neutral",
+      iconColor: "dark-neutral",
+      text: t(`transactions.statusComponent.${textKey}`),
+      icon: Spinner,
+      finishedStatuses,
+      remainingStatuses,
+      withDetailedPopup: true,
+    });
+  }
+}
 
 const badges = computed(() => {
-  const badgesArr: {
-    color: "neutral" | "dark-neutral" | "success" | "dark-success" | "danger" | "progress";
-    text?: string;
-    tooltip?: string;
-    infoTooltip?: string;
-    icon?: unknown;
-    testId: string;
-    textColor?: "neutral";
-    iconColor?: "dark-neutral";
-    finishedStatuses?: FinishedStatus[];
-    remainingStatuses?: RemainingStatus[];
-    url?: string | null;
-    explorerUrl?: string;
-    withDetailedPopup?: boolean;
-  }[] = [];
+  const badgesArr: BadgeItem[] = [];
+
   if (props.status === "failed") {
     badgesArr.push({
       testId: "failed",
@@ -391,111 +424,34 @@ const badges = computed(() => {
     return badgesArr;
   }
 
-  // Gateway badge - settlement chain (existing logic)
-  badgesArr.push({
-    testId: "l1-badge-title",
-    color: props.status === "verified" ? "success" : "neutral",
-    text: getSettlementChainName(props.commitChainId, props.commitTxHash),
-    textColor: "neutral",
-  });
+  // Settlement chain badges
+  addBadges(
+    badgesArr,
+    props.status,
+    props.commitTxHash,
+    props.proveTxHash,
+    props.executeTxHash,
+    props.commitChainId,
+    props.proveChainId,
+    props.executeChainId,
+    "l1",
+    getSettlementChainName(props.commitChainId, props.commitTxHash)
+  );
 
-  if (props.status === "verified") {
-    // If transaction has been executed on Ethereum via Gateway, show Ethereum icon and link
-    const isExecutedOnEthereum = isGatewayTransaction() && props.gatewayEthExecuteTxHash;
-
-    badgesArr.push({
-      testId: "verified",
-      color: "dark-success",
-      text: t("transactions.statusComponent.executed"),
-      finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
-      url: isExecutedOnEthereum ? props.gatewayEthExecuteTxHash : props.executeTxHash,
-      explorerUrl: isExecutedOnEthereum
-        ? getSettlementChainExplorerUrl(props.gatewayEthExecuteChainId)
-        : getSettlementChainExplorerUrl(props.executeChainId),
-      withDetailedPopup: true,
-    });
-  } else {
-    let textKey;
-    const finishedStatuses: FinishedStatus[] = [];
-    const remainingStatuses: RemainingStatus[] = [];
-
-    if (props.status === "committed") {
-      textKey = "validating";
-      finishedStatuses.push(finishedTxStatuses[0]);
-      remainingStatuses.push(remainingTxStatuses[1]);
-    } else if (props.status === "proved") {
-      textKey = "executing";
-      finishedStatuses.push(finishedTxStatuses[0]);
-      finishedStatuses.push(finishedTxStatuses[1]);
-    } else {
-      textKey = "sending";
-      remainingStatuses.push(remainingTxStatuses[0]);
-      remainingStatuses.push(remainingTxStatuses[1]);
-    }
-
-    badgesArr.push({
-      testId: "l1-badge-value",
-      color: "dark-neutral",
-      iconColor: "dark-neutral",
-      text: t(`transactions.statusComponent.${textKey}`),
-      icon: Spinner,
-      finishedStatuses,
-      remainingStatuses,
-      withDetailedPopup: true,
-    });
-  }
-
-  // Ethereum badge - only shown when Gateway Ethereum data is available
-  if (shouldShowEthereumStatus()) {
-    const ethereumStatus = getEthereumStatus();
-
-    badgesArr.push({
-      testId: "ethereum-badge-title",
-      color: ethereumStatus === "verified" ? "success" : "neutral",
-      text: t("transactions.statusComponent.ethereum"),
-      textColor: "neutral",
-    });
-
-    if (ethereumStatus === "verified") {
-      badgesArr.push({
-        testId: "ethereum-verified",
-        color: "dark-success",
-        text: t("transactions.statusComponent.executed"),
-        finishedStatuses: [ethereumTxStatuses[0], ethereumTxStatuses[1]],
-        url: props.gatewayEthExecuteTxHash,
-        explorerUrl: getSettlementChainExplorerUrl(props.gatewayEthExecuteChainId),
-        withDetailedPopup: true,
-      });
-    } else {
-      let ethereumTextKey;
-      const ethereumFinishedStatuses: FinishedStatus[] = [];
-      const ethereumRemainingStatuses: RemainingStatus[] = [];
-
-      if (ethereumStatus === "committed") {
-        ethereumTextKey = "validating";
-        ethereumFinishedStatuses.push(ethereumTxStatuses[0]);
-        ethereumRemainingStatuses.push(remainingTxStatuses[1]);
-      } else if (ethereumStatus === "proved") {
-        ethereumTextKey = "executing";
-        ethereumFinishedStatuses.push(ethereumTxStatuses[0]);
-        ethereumFinishedStatuses.push(ethereumTxStatuses[1]);
-      } else {
-        ethereumTextKey = "sending";
-        ethereumRemainingStatuses.push(remainingTxStatuses[0]);
-        ethereumRemainingStatuses.push(remainingTxStatuses[1]);
-      }
-
-      badgesArr.push({
-        testId: "ethereum-badge-value",
-        color: "dark-neutral",
-        iconColor: "dark-neutral",
-        text: t(`transactions.statusComponent.${ethereumTextKey}`),
-        icon: Spinner,
-        finishedStatuses: ethereumFinishedStatuses,
-        remainingStatuses: ethereumRemainingStatuses,
-        withDetailedPopup: true,
-      });
-    }
+  // Ethereum badges for Gateway transactions
+  if (isGatewayTransaction()) {
+    addBadges(
+      badgesArr,
+      props.gatewayStatus,
+      props.gatewayEthCommitTxHash,
+      props.gatewayEthProveTxHash,
+      props.gatewayEthExecuteTxHash,
+      props.gatewayEthCommitChainId,
+      props.gatewayEthProveChainId,
+      props.gatewayEthExecuteChainId,
+      "ethereum",
+      t("transactions.statusComponent.ethereum")
+    );
   }
 
   return badgesArr;
