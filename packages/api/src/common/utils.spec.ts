@@ -419,35 +419,35 @@ describe("utils", () => {
   });
 
   describe("parseReqPathname", () => {
-    it("should return the pathname for a simple path", () => {
+    it("returns the pathname for a simple path", () => {
       const req = {
         originalUrl: "/test",
       } as any;
       expect(parseReqPathname(req)).toBe("/test");
     });
 
-    it("should return the pathname when query parameters are present", () => {
+    it("returns the pathname when query parameters are present", () => {
       const req = {
         originalUrl: "/test?foo=bar&baz=qux",
       } as any;
       expect(parseReqPathname(req)).toBe("/test");
     });
 
-    it("should return the pathname for a complex path", () => {
+    it("returns the pathname for a complex path", () => {
       const req = {
         originalUrl: "/api/v1/items/123",
       } as any;
       expect(parseReqPathname(req)).toBe("/api/v1/items/123");
     });
 
-    it("should return '/' for the root path", () => {
+    it("returns '/' for the root path", () => {
       const req = {
         originalUrl: "/",
       } as any;
       expect(parseReqPathname(req)).toBe("/");
     });
 
-    it("should return '/' for an empty originalUrl (which URL constructor treats as base path)", () => {
+    it("returns '/' for an empty originalUrl (which URL constructor treats as base path)", () => {
       const req = {
         originalUrl: "",
       } as any;
@@ -455,7 +455,7 @@ describe("utils", () => {
       expect(parseReqPathname(req)).toBe("/");
     });
 
-    it("should handle full URLs in originalUrl and extract pathname", () => {
+    it("handles full URLs in originalUrl and extract pathname", () => {
       const req = {
         originalUrl: "http://example.com/path/to/resource?query=1",
       } as any;

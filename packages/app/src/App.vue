@@ -15,13 +15,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watchEffect } from "vue";
+import { onBeforeMount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { useTitle } from "@vueuse/core";
 
 import usePublicRoutes from "./composables/usePublicRoutes";
 import useRuntimeConfig from "./composables/useRuntimeConfig";
+import useSkipLoginCheckRoutes from "./composables/useSkipLoginCheckRoutes";
 
 import IndexerDelayAlert from "@/components/IndexerDelayAlert.vue";
 import TheFooter from "@/components/TheFooter.vue";
@@ -30,7 +31,6 @@ import TheHeader from "@/components/header/TheHeader.vue";
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
 import useLogin from "@/composables/useLogin";
-import usePrividiumRpc from "@/composables/usePrividiumRpc";
 import useRouteTitle from "@/composables/useRouteTitle";
 
 import MaintenanceView from "@/views/MaintenanceView.vue";
@@ -41,8 +41,8 @@ const context = useContext();
 const route = useRoute();
 const router = useRouter();
 const { isPublicRoute } = usePublicRoutes();
+const { isSkipLoginRoute } = useSkipLoginCheckRoutes();
 const { initializeLogin } = useLogin(context);
-const { initializePrividiumRpcUrl } = usePrividiumRpc();
 const runtimeConfig = useRuntimeConfig();
 
 useTitle(title);
@@ -50,24 +50,18 @@ const { isReady, currentNetwork } = useContext();
 
 setup();
 
-const isAuthCheckComplete = ref(false);
-
-onMounted(async () => {
-  if (runtimeConfig.appEnvironment === "prividium") {
-    await initializeLogin();
-    await initializePrividiumRpcUrl();
-    isAuthCheckComplete.value = true;
-  }
-});
-
-watchEffect(() => {
-  if (runtimeConfig.appEnvironment !== "prividium" || !isAuthCheckComplete.value) {
+onBeforeMount(async () => {
+  if (runtimeConfig.appEnvironment !== "prividium" || isSkipLoginRoute.value) {
     return;
   }
 
-  if (!context.user.value.loggedIn && !isPublicRoute.value) {
-    return router.push({ name: "login", query: { redirect: route.fullPath } });
+  await initializeLogin();
+
+  if (context.user.value.loggedIn || isPublicRoute.value) {
+    return;
   }
+
+  return router.push({ name: "login", query: { redirect: route.fullPath } });
 });
 </script>
 

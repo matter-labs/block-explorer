@@ -298,14 +298,11 @@ describe("config", () => {
   });
 
   it("sets prividium values", async () => {
-    process.env.PRIVIDIUM_PRIVATE_RPC_URL = "http://localhost:4000";
-    process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "secret";
-    process.env.PRIVIDIUM_CHAIN_ID = "300";
     process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
     process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
     process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
-    process.env.PRIVIDIUM_SIWE_EXPIRATION_TIME = "1000";
     process.env.PRIVIDIUM_SESSION_SECRET = "secret";
+    process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
 
     jest.doMock("./featureFlags", () => ({
       feature1Enabled: true,
@@ -362,14 +359,11 @@ describe("config", () => {
       }),
       gracefulShutdownTimeoutMs: 0,
       prividium: {
-        privateRpcUrl: "http://localhost:4000",
-        privateRpcSecret: "secret",
-        chainId: 300,
         sessionMaxAge: 1000,
         appUrl: "http://localhost:3020",
         sessionSameSite: "strict",
-        siweExpirationTime: 1000,
         sessionSecret: "secret",
+        permissionsApiUrl: "http://localhost:8000",
       },
     });
   });
@@ -382,14 +376,11 @@ describe("config", () => {
         prividium: true,
       }));
 
-      process.env.PRIVIDIUM_PRIVATE_RPC_URL = "http://localhost:4000";
-      process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "secret";
-      process.env.PRIVIDIUM_CHAIN_ID = "300";
       process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
       process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
       process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
-      process.env.PRIVIDIUM_SIWE_EXPIRATION_TIME = "1000";
       process.env.PRIVIDIUM_SESSION_SECRET = "secret";
+      process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
     });
 
     it("sets default when prividium is true and PRIVIDIUM_APP_URL is missing", async () => {
@@ -403,46 +394,6 @@ describe("config", () => {
       const { default: currentConfig } = await import("../config");
       expect(() => currentConfig()).toThrow(
         new Error("Invalid prividium config: PRIVIDIUM_APP_URL has to be a valid url")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVIDIUM_PRIVATE_RPC_SECRET is not present", async () => {
-      process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = undefined;
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVIDIUM_PRIVATE_RPC_SECRET is an empty string", async () => {
-      process.env.PRIVIDIUM_PRIVATE_RPC_SECRET = "";
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_PRIVATE_RPC_SECRET has to be a non empty string")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVIDIUM_CHAIN_ID is not present", async () => {
-      process.env.PRIVIDIUM_CHAIN_ID = undefined;
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_CHAIN_ID has to be a positive integer")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVIDIUM_CHAIN_ID is negative", async () => {
-      process.env.PRIVIDIUM_CHAIN_ID = "-10";
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_CHAIN_ID has to be a positive integer")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVIDIUM_CHAIN_ID is float", async () => {
-      process.env.PRIVIDIUM_CHAIN_ID = "1.10";
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_CHAIN_ID has to be a positive integer")
       );
     });
 
@@ -481,22 +432,6 @@ describe("config", () => {
       const { default: currentConfig } = await import("../config");
       expect(() => currentConfig()).toThrow(
         new Error("Invalid prividium config: PRIVIDIUM_SESSION_SECRET has to be a non empty string")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVATE_RPC_URL is absent", async () => {
-      process.env.PRIVIDIUM_PRIVATE_RPC_URL = undefined;
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_PRIVATE_RPC_URL has to be a valid url")
-      );
-    });
-
-    it("throws error when prividium is true and PRIVATE_RPC_URL is not a valid url", async () => {
-      process.env.PRIVIDIUM_PRIVATE_RPC_URL = "this is not a valid url";
-      const { default: currentConfig } = await import("../config");
-      expect(() => currentConfig()).toThrow(
-        new Error("Invalid prividium config: PRIVIDIUM_PRIVATE_RPC_URL has to be a valid url")
       );
     });
   });

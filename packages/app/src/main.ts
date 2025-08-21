@@ -54,8 +54,7 @@ if (runtimeConfig.sentryDSN?.length) {
   useSentry(app, runtimeConfig.sentryDSN, runtimeConfig.appEnvironment, runtimeConfig.version, router);
 }
 
-(process.env.NODE_ENV === "test" ? Promise.resolve() : loadEnvironmentConfig(runtimeConfig))
-  .catch(() => null)
-  .then(context.identifyNetwork);
+await loadEnvironmentConfig(runtimeConfig);
 
+context.identifyNetwork();
 app.mount("#app");

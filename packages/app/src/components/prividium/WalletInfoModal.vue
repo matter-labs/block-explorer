@@ -13,28 +13,8 @@
           </span>
         </div>
 
-        <div v-if="props.isWrongNetwork" class="network-mismatch-banner-ui">
-          <div class="flex items-center w-full">
-            <ExclamationCircleIcon class="h-6 w-6 mr-2 text-black" />
-            <span class="text-lg text-black flex-1">{{ t("walletInfoModal.wrongNetwork") }}</span>
-          </div>
-          <button class="switch-network-ui-btn" @click="switchNetwork">
-            {{ t("walletInfoModal.switchNetwork") }}
-          </button>
-        </div>
-
-        <div class="info-row">
-          <div class="balance-info">
-            <slot name="balance"></slot>
-          </div>
-          <div class="separator"></div>
-          <div class="network-info">
-            <span>{{ networkName }}</span>
-          </div>
-        </div>
-
-        <button type="button" class="disconnect-ui-btn" @click="$emit('disconnect')">
-          {{ t("walletInfoModal.disconnectButton") }}
+        <button type="button" class="disconnect-ui-btn" @click="logout()">
+          {{ t("walletInfoModal.logoutButton") }}
         </button>
       </div>
     </div>
@@ -45,15 +25,14 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { ExclamationCircleIcon, XIcon } from "@heroicons/vue/outline";
+import { XIcon } from "@heroicons/vue/outline";
 
 import CopyButton from "@/components/common/CopyButton.vue";
 import HashLabel from "@/components/common/HashLabel.vue";
 import Popup from "@/components/common/Popup.vue";
 
 import useContext from "@/composables/useContext";
-import usePrividiumRpc from "@/composables/usePrividiumRpc";
-import useWallet from "@/composables/useWallet";
+import useLogin from "@/composables/useLogin";
 
 const props = defineProps({
   opened: {
@@ -64,45 +43,15 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  networkName: {
-    type: String,
-    required: true,
-  },
-  networkChainId: {
-    type: Number,
-    required: true,
-  },
-  isWrongNetwork: {
-    type: Boolean,
-    default: false,
-  },
 });
 
-const emit = defineEmits<{
+defineEmits<{
   (eventName: "close"): void;
-  (eventName: "disconnect"): void;
 }>();
 
 const { t } = useI18n();
-const { updatePrividiumRpcUrl, prividiumRpcUrl } = usePrividiumRpc();
 const context = useContext();
-const { addNetwork } = useWallet({
-  ...context,
-  currentNetwork: computed(() => ({
-    explorerUrl: context.currentNetwork.value.rpcUrl,
-    chainName: context.currentNetwork.value.l2NetworkName,
-    l1ChainId: 0,
-    ...context.currentNetwork.value,
-  })),
-});
-
-const switchNetwork = async () => {
-  await updatePrividiumRpcUrl();
-  if (prividiumRpcUrl.value) {
-    await addNetwork(prividiumRpcUrl.value);
-    emit("close");
-  }
-};
+const { logout } = useLogin(context);
 
 const formattedAddress = computed(() => {
   if (props.address && props.address.length > 10) {
@@ -166,16 +115,8 @@ const formattedAddress = computed(() => {
   @apply w-full flex flex-col items-center justify-center text-center rounded-2xl px-6 py-5 mb-0 mt-10;
   background: #ffc81a;
 }
-.switch-network-ui-btn,
+
 .disconnect-ui-btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.switch-network-ui-btn {
-  @apply w-full mt-4 bg-[#23234C] text-white text-lg rounded-xl py-3 transition hover:bg-[#1a1a3a];
-}
-.disconnect-ui-btn {
-  @apply w-full mt-4 bg-neutral-200 text-black text-lg rounded-xl py-3;
+  @apply flex justify-center items-center w-full mt-4 bg-neutral-200 text-black text-lg rounded-xl py-3;
 }
 </style>

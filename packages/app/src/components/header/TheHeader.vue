@@ -30,7 +30,7 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
-          <WalletStatusBar v-if="runtimeConfig.appEnvironment === 'prividium'" class="metamask-button-container" />
+          <WalletButton v-if="runtimeConfig.appEnvironment === 'prividium'" />
           <NetworkSwitch v-else />
           <LocaleSwitch
             :value="(locale as string)"
@@ -106,7 +106,7 @@
               </nav>
             </div>
             <div class="mobile-network-switch-container">
-              <WalletStatusBar v-if="runtimeConfig.appEnvironment === 'prividium'" class="metamask-button-container" />
+              <WalletButton v-if="runtimeConfig.appEnvironment === 'prividium'" />
               <NetworkSwitch v-else />
               <LocaleSwitch
                 :value="(locale as string)"
@@ -141,6 +141,7 @@ import { MenuIcon, XIcon } from "@heroicons/vue/outline";
 
 import LinksMobilePopover from "./LinksMobilePopover.vue";
 import LinksPopover from "./LinksPopover.vue";
+import WalletButton from "../prividium/WalletButton.vue";
 
 import LocaleSwitch from "@/components/LocaleSwitch.vue";
 import NetworkSwitch from "@/components/NetworkSwitch.vue";
@@ -150,7 +151,6 @@ import TwitterIcon from "@/components/icons/TwitterIcon.vue";
 import ZkSync from "@/components/icons/ZkSync.vue";
 import ZkSyncArrowsLogo from "@/components/icons/ZkSyncArrowsLogo.vue";
 import ZkSyncEra from "@/components/icons/ZkSyncEra.vue";
-import WalletStatusBar from "@/components/prividium/WalletStatusBar.vue";
 
 import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";

@@ -16,8 +16,6 @@ import { AddressTransaction } from "../src/transaction/entities/addressTransacti
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
-import { SiweMessage } from "siwe";
-import { Wallet } from "zksync-ethers";
 import { applyPrividiumExpressConfig } from "../src/prividium";
 import { ConfigService } from "@nestjs/config";
 
@@ -29,7 +27,8 @@ describe("Prividium API (e2e)", () => {
   let batchRepository: Repository<BatchDetails>;
   let agent: request.SuperAgentTest;
 
-  const authorizedWallet = Wallet.createRandom();
+  const mockWalletAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const mockToken = "mock-jwt-token";
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -40,7 +39,7 @@ describe("Prividium API (e2e)", () => {
     configureApp(app);
     const configService = moduleFixture.get(ConfigService);
     applyPrividiumExpressConfig(app, {
-      sessionSecret: configService.get<string>("prividium.privateRpcSecret"),
+      sessionSecret: configService.get<string>("prividium.sessionSecret"),
       appUrl: configService.get<string>("appUrl"),
       sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
       sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
@@ -107,23 +106,26 @@ describe("Prividium API (e2e)", () => {
       fetchSpy.mockRestore();
     });
 
-    it("should complete auth process for a whitelisted user", async () => {
-      // Mock the whitelist check to succeed
-      fetchSpy.mockResolvedValue({
-        ok: true,
+    it("completes auth process with valid token", async () => {
+      // Mock successful permissions API response
+      fetchSpy.mockResolvedValueOnce({
         status: 200,
-        json: () => Promise.resolve({ authorized: true }),
-      } as Response);
+        json: jest.fn().mockResolvedValue({
+          wallets: [mockWalletAddress],
+        }),
+      });
 
-      // Verify user successfully logins
-      const response = await agent.post("/auth/message").send({ address: authorizedWallet.address }).expect(201);
-      const message = new SiweMessage(response.text);
-      expect(message.address).toBe(authorizedWallet.address);
-      const signature = await authorizedWallet.signMessage(message.prepareMessage());
+      // Login with token
+      const loginResponse = await agent.post("/auth/login").send({ token: mockToken }).expect(201);
 
-      await agent.post("/auth/verify").send({ signature }).expect(201, "true");
+      expect(loginResponse.body).toEqual({ address: mockWalletAddress });
+      expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
+        headers: { Authorization: `Bearer ${mockToken}` },
+      });
+
+      // Check authenticated user
       await agent.get("/auth/me").expect(200, {
-        address: authorizedWallet.address,
+        address: mockWalletAddress,
       });
 
       // Logout user
@@ -131,19 +133,35 @@ describe("Prividium API (e2e)", () => {
       await agent.get("/auth/me").expect(401);
     });
 
-    it("should reject a non-whitelisted user", async () => {
-      const unauthorizedWallet = Wallet.createRandom();
-      // Mock the whitelist check to fail
-      fetchSpy.mockResolvedValue({
-        ok: false,
-        status: 404,
-      } as Response);
+    it("rejects login with forbidden token", async () => {
+      // Mock 403 response from permissions API
+      fetchSpy.mockResolvedValueOnce({
+        status: 403,
+        json: jest.fn(),
+      });
 
-      const response = await agent.post("/auth/message").send({ address: unauthorizedWallet.address }).expect(201);
-      const message = new SiweMessage(response.text);
-      const signature = await unauthorizedWallet.signMessage(message.prepareMessage());
+      await agent.post("/auth/login").send({ token: "invalid-token" }).expect(400);
 
-      await agent.post("/auth/verify").send({ signature }).expect(403);
+      expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
+        headers: { Authorization: "Bearer invalid-token" },
+      });
+    });
+
+    it("handles invalid permissions API response", async () => {
+      // Mock invalid response structure
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({ invalid: "response" }),
+      });
+
+      await agent.post("/auth/login").send({ token: mockToken }).expect(500);
+    });
+
+    it("handles permissions API network error", async () => {
+      // Mock network error
+      fetchSpy.mockRejectedValueOnce(new Error("Network error"));
+
+      await agent.post("/auth/login").send({ token: mockToken }).expect(500);
     });
   });
 });
