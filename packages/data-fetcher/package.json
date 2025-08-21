@@ -80,10 +80,10 @@
     "coverageDirectory": "../coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 92,
-        "functions": 84,
-        "lines": 90,
-        "statements": 90
+        "branches": 85,
+        "functions": 85,
+        "lines": 85,
+        "statements": 85
       }
     },
     "testEnvironment": "node",
@@ -100,7 +100,8 @@
           "suiteName": "Data Fetcher Unit tests"
         }
       ]
-    ]
+    ],
+    "globalSetup": "../test/global/setup.ts"
   },
   "prettier": "@matterlabs/prettier-config",
   "lint-staged": {

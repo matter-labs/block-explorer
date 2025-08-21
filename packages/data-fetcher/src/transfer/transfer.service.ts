@@ -54,10 +54,12 @@ export class TransferService {
   public async getTransfers(
     logs: ReadonlyArray<types.Log>,
     blockDetails: types.BlockDetails,
+    ethTransfers: Transfer[] = [],
     transactionDetails?: types.TransactionDetails,
     transactionReceipt?: types.TransactionReceipt
   ): Promise<Transfer[]> {
-    const transfers: Transfer[] = [];
+    // Add ETH transfers to the list of all transfers so they are processed in the same way
+    const transfers: Transfer[] = [...ethTransfers];
     if (!logs) {
       return transfers;
     }
@@ -86,10 +88,24 @@ export class TransferService {
         continue;
       }
 
+      // Default ETH transfers are parsed from the traces, so no need to parse them again
+      // Exceptions are transfers that are not from the base token address
+      // Or logs from empty blocks where there is a transfer in the logs and it cannot be fetched from the traces
+      if (
+        handlerForLog === defaultTransferHandler &&
+        log.address.toLowerCase() === BASE_TOKEN_ADDRESS &&
+        !!transactionDetails
+      ) {
+        continue;
+      }
+
       try {
         const transfer = await handlerForLog.extract(log, this.blockchainService, blockDetails, transactionDetails);
         if (transfer) {
-          transfers.push(transfer);
+          // Eth transfers logIndex are no longer taken from the tx logs and just an incrementing index
+          // To avoid collision with token transfers logIndex, we override logIndex with an incrementing value
+          // Otherwise there might be multiple rows with the same logIndex and inconsistent data will be returned by the API
+          transfers.push({ ...transfer, logIndex: transfers.length + 1 });
         }
       } catch (error) {
         this.logger.error("Failed to parse transfer", {

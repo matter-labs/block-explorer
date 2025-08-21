@@ -1,0 +1,664 @@
+[
+    {
+        "inputs": [],
+        "name": "CallerMustBeEvmContract",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "EVMBytecodeHash",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "EVMBytecodeHashUnknown",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "EVMEmulationNotSupported",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "EmptyBytes32",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "name": "HashIsNonZero",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "InvalidNonceOrderingChange",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "Keccak256InvalidReturnData",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NonEmptyAccount",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NonEmptyMsgValue",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "NotAllowedToDeployInKernelSpace",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "Overflow",
+        "type": "error"
+    },
+    {
+        "inputs": [],
+        "name": "SystemCallFlagRequired",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "name": "Unauthorized",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "name": "UnknownCodeHash",
+        "type": "error"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "uint256",
+                "name": "expected",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "actual",
+                "type": "uint256"
+            }
+        ],
+        "name": "ValueMismatch",
+        "type": "error"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "accountAddress",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "enum IContractDeployer.AccountNonceOrdering",
+                "name": "nonceOrdering",
+                "type": "uint8"
+            }
+        ],
+        "name": "AccountNonceOrderingUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "accountAddress",
+                "type": "address"
+            },
+            {
+                "indexed": false,
+                "internalType": "enum IContractDeployer.AccountAbstractionVersion",
+                "name": "aaVersion",
+                "type": "uint8"
+            }
+        ],
+        "name": "AccountVersionUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": false,
+                "internalType": "enum IContractDeployer.AllowedBytecodeTypes",
+                "name": "mode",
+                "type": "uint8"
+            }
+        ],
+        "name": "AllowedBytecodeTypesModeUpdated",
+        "type": "event"
+    },
+    {
+        "anonymous": false,
+        "inputs": [
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "deployerAddress",
+                "type": "address"
+            },
+            {
+                "indexed": true,
+                "internalType": "bytes32",
+                "name": "bytecodeHash",
+                "type": "bytes32"
+            },
+            {
+                "indexed": true,
+                "internalType": "address",
+                "name": "contractAddress",
+                "type": "address"
+            }
+        ],
+        "name": "ContractDeployed",
+        "type": "event"
+    },
+    {
+        "inputs": [],
+        "name": "allowedBytecodeTypesToDeploy",
+        "outputs": [
+            {
+                "internalType": "enum IContractDeployer.AllowedBytecodeTypes",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_salt",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_bytecodeHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_input",
+                "type": "bytes"
+            }
+        ],
+        "name": "create",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_salt",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_bytecodeHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_input",
+                "type": "bytes"
+            }
+        ],
+        "name": "create2",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_salt",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_bytecodeHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_input",
+                "type": "bytes"
+            },
+            {
+                "internalType": "enum IContractDeployer.AccountAbstractionVersion",
+                "name": "_aaVersion",
+                "type": "uint8"
+            }
+        ],
+        "name": "create2Account",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_salt",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_initCode",
+                "type": "bytes"
+            }
+        ],
+        "name": "create2EVM",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_bytecodeHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_input",
+                "type": "bytes"
+            },
+            {
+                "internalType": "enum IContractDeployer.AccountAbstractionVersion",
+                "name": "_aaVersion",
+                "type": "uint8"
+            }
+        ],
+        "name": "createAccount",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes",
+                "name": "_initCode",
+                "type": "bytes"
+            }
+        ],
+        "name": "createEVM",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_newAddress",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_initCode",
+                "type": "bytes"
+            }
+        ],
+        "name": "createEvmFromEmulator",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            },
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_address",
+                "type": "address"
+            }
+        ],
+        "name": "extendedAccountVersion",
+        "outputs": [
+            {
+                "internalType": "enum IContractDeployer.AccountAbstractionVersion",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "bytecodeHash",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "newAddress",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "callConstructor",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "value",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "input",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct ForceDeployment",
+                "name": "_deployment",
+                "type": "tuple"
+            },
+            {
+                "internalType": "address",
+                "name": "_sender",
+                "type": "address"
+            }
+        ],
+        "name": "forceDeployOnAddress",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "bytecodeHash",
+                        "type": "bytes32"
+                    },
+                    {
+                        "internalType": "address",
+                        "name": "newAddress",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "bool",
+                        "name": "callConstructor",
+                        "type": "bool"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "value",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "bytes",
+                        "name": "input",
+                        "type": "bytes"
+                    }
+                ],
+                "internalType": "struct ForceDeployment[]",
+                "name": "_deployments",
+                "type": "tuple[]"
+            }
+        ],
+        "name": "forceDeployOnAddresses",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_address",
+                "type": "address"
+            }
+        ],
+        "name": "getAccountInfo",
+        "outputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "enum IContractDeployer.AccountAbstractionVersion",
+                        "name": "supportedAAVersion",
+                        "type": "uint8"
+                    },
+                    {
+                        "internalType": "enum IContractDeployer.AccountNonceOrdering",
+                        "name": "nonceOrdering",
+                        "type": "uint8"
+                    }
+                ],
+                "internalType": "struct IContractDeployer.AccountInfo",
+                "name": "",
+                "type": "tuple"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_sender",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "_senderNonce",
+                "type": "uint256"
+            }
+        ],
+        "name": "getNewAddressCreate",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "newAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "_sender",
+                "type": "address"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_bytecodeHash",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_salt",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes",
+                "name": "_input",
+                "type": "bytes"
+            }
+        ],
+        "name": "getNewAddressCreate2",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "newAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "_salt",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "_evmBytecodeHash",
+                "type": "bytes32"
+            }
+        ],
+        "name": "precreateEvmAccountFromEmulator",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "newAddress",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "enum IContractDeployer.AllowedBytecodeTypes",
+                "name": "newAllowedBytecodeTypes",
+                "type": "uint8"
+            }
+        ],
+        "name": "setAllowedBytecodeTypesToDeploy",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "enum IContractDeployer.AccountAbstractionVersion",
+                "name": "_version",
+                "type": "uint8"
+            }
+        ],
+        "name": "updateAccountVersion",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "enum IContractDeployer.AccountNonceOrdering",
+                "name": "",
+                "type": "uint8"
+            }
+        ],
+        "name": "updateNonceOrdering",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+]
