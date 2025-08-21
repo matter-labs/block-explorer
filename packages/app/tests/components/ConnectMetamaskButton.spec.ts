@@ -180,6 +180,8 @@ describe("ConnectMetaMaskButton:", () => {
       isGatewaySettlementChain: vi.fn(),
       getSettlementChainExplorerUrl: vi.fn(),
       getSettlementChainName: vi.fn(),
+      getDefaultSettlementChainName: vi.fn(),
+      isDefaultSettlementChainGateway: vi.fn(),
     });
 
     const wrapper = mount(ConnectMetaMaskButton, {
@@ -237,6 +239,8 @@ describe("ConnectMetaMaskButton:", () => {
       isGatewaySettlementChain: vi.fn(),
       getSettlementChainExplorerUrl: vi.fn(),
       getSettlementChainName: vi.fn(),
+      getDefaultSettlementChainName: vi.fn(),
+      isDefaultSettlementChainGateway: vi.fn(),
     });
 
     const wrapper = mount(ConnectMetaMaskButton, {
@@ -293,6 +297,8 @@ describe("ConnectMetaMaskButton:", () => {
       isGatewaySettlementChain: vi.fn(),
       getSettlementChainExplorerUrl: vi.fn(),
       getSettlementChainName: vi.fn(),
+      getDefaultSettlementChainName: vi.fn(),
+      isDefaultSettlementChainGateway: vi.fn(),
     });
 
     const wrapper = mount(ConnectMetaMaskButton, {
