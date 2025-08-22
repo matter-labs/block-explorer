@@ -4,15 +4,9 @@
       <div class="mb-10 flex justify-center">
         <img src="/images/zksync-light.svg" class="h-[48px] w-[233px]" />
       </div>
-      <h1 class="mb-2 text-center text-[30px] font-bold leading-[36px] tracking-[0%] text-white">
+      <h1 class="mb-10 text-center text-[30px] font-bold leading-[36px] tracking-[0%] text-white">
         {{ t("loginView.explorerTitle") }}
       </h1>
-      <p class="mb-10 text-center text-xl font-normal leading-8 text-white">
-        {{ t("loginView.signInTitle") }}
-      </p>
-      <p class="mb-8 px-0 text-center text-base font-normal leading-7 text-white">
-        {{ t("loginView.description") }}
-      </p>
       <div class="flex flex-col items-center gap-4">
         <button
           @click="handleLogin"
