@@ -65,7 +65,7 @@ export class BlockchainService implements OnModuleInit {
     return this.rpcCall(action, functionName);
   }
 
-  public async getL1BatchDetails(batchNumber: number): Promise<types.BatchDetails> {
+  public async getL1BatchDetails(_: number): Promise<types.BatchDetails> {
     // ZKsync OS doesn't have batches.
     // TODO: clean up all batch dependencies
     return null;

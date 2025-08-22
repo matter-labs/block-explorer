@@ -15,31 +15,6 @@
     </div>
     <div class="latest-blocks-transactions">
       <div>
-        <div class="batches-label-container">
-          <p>{{ t("blockExplorer.batches") }}</p>
-          <InfoTooltip class="batches-tooltip">{{ t("batches.tooltipInfo") }}</InfoTooltip>
-        </div>
-        <template v-if="(isBatchesPending || batches) && !isBatchesFailed">
-          <TableBatches
-            :data-testid="$testId.latestBatchesTable"
-            :loading="isBatchesPending"
-            :batches="displayedBatches"
-            :columns="['status', 'size', 'txnBatch', 'age']"
-          >
-            <template #not-found>
-              <p class="not-found">{{ t("batches.table.notFoundHomePage") }}</p>
-            </template>
-          </TableBatches>
-          <Button variant="outlined" color="primary" @click="router.push('batches')">
-            {{ t("batches.viewAll") }}
-            <ArrowRightIcon class="batches-view-all-arrow" />
-          </Button>
-        </template>
-        <span v-else-if="isBatchesFailed" class="error-message">
-          {{ t("failedRequest") }}
-        </span>
-      </div>
-      <div>
         <p>{{ t("blockExplorer.latestTransactions") }}</p>
         <TransactionsTable
           class="transactions-table"
