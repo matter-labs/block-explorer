@@ -3,7 +3,14 @@ import { utils, types } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Listener } from "ethers";
-import { ProviderEvent } from "ethers";
+import {
+  ProviderEvent,
+  type Block,
+  type TransactionReceipt,
+  type TransactionResponse,
+  type Log,
+  type BlockTag,
+} from "ethers";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
 import { JsonRpcProviderBase } from "../rpcProvider";
@@ -58,23 +65,13 @@ export class BlockchainService implements OnModuleInit {
     return this.rpcCall(action, functionName);
   }
 
-  public async getL1BatchNumber(): Promise<number> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getL1BatchNumber();
-    }, "getL1BatchNumber");
-  }
-
   public async getL1BatchDetails(batchNumber: number): Promise<types.BatchDetails> {
-    return await this.rpcCall(async () => {
-      const batchDetails = await this.provider.getL1BatchDetails(batchNumber);
-      if (batchDetails && batchNumber === 0) {
-        batchDetails.committedAt = batchDetails.provenAt = batchDetails.executedAt = new Date(0);
-      }
-      return batchDetails;
-    }, "getL1BatchDetails");
+    // ZKsync OS doesn't have batches.
+    // TODO: clean up all batch dependencies
+    return null;
   }
 
-  public async getBlock(blockHashOrBlockTag: types.BlockTag): Promise<types.Block> {
+  public async getBlock(blockHashOrBlockTag: BlockTag): Promise<Block> {
     return await this.rpcCall(async () => {
       return await this.provider.getBlock(blockHashOrBlockTag);
     }, "getBlock");
@@ -86,31 +83,19 @@ export class BlockchainService implements OnModuleInit {
     }, "getBlockNumber");
   }
 
-  public async getBlockDetails(blockNumber: number): Promise<types.BlockDetails> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getBlockDetails(blockNumber);
-    }, "getBlockDetails");
-  }
-
-  public async getTransaction(transactionHash: string): Promise<types.TransactionResponse> {
+  public async getTransaction(transactionHash: string): Promise<TransactionResponse> {
     return await this.rpcCall(async () => {
       return await this.provider.getTransaction(transactionHash);
     }, "getTransaction");
   }
 
-  public async getTransactionDetails(transactionHash: string): Promise<types.TransactionDetails> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getTransactionDetails(transactionHash);
-    }, "getTransactionDetails");
-  }
-
-  public async getTransactionReceipt(transactionHash: string): Promise<types.TransactionReceipt> {
+  public async getTransactionReceipt(transactionHash: string): Promise<TransactionReceipt> {
     return await this.rpcCall(async () => {
       return await this.provider.getTransactionReceipt(transactionHash);
     }, "getTransactionReceipt");
   }
 
-  public async getLogs(eventFilter: { fromBlock: number; toBlock: number }): Promise<types.Log[]> {
+  public async getLogs(eventFilter: { fromBlock: number; toBlock: number }): Promise<Log[]> {
     return await this.rpcCall(async () => {
       return await this.provider.getLogs(eventFilter);
     }, "getLogs");
@@ -120,12 +105,6 @@ export class BlockchainService implements OnModuleInit {
     return await this.rpcCall(async () => {
       return await this.provider.getCode(address);
     }, "getCode");
-  }
-
-  public async getDefaultBridgeAddresses(): Promise<{ erc20L1: string; erc20L2: string }> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getDefaultBridgeAddresses();
-    }, "getDefaultBridgeAddresses");
   }
 
   public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TransactionTrace> {
@@ -170,10 +149,10 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async onModuleInit(): Promise<void> {
-    const bridgeAddresses = await this.getDefaultBridgeAddresses();
-
+    //const bridgeAddresses = await this.getDefaultBridgeAddresses();
     this.bridgeAddresses = {
-      l2Erc20DefaultBridge: bridgeAddresses.erc20L2?.toLowerCase(),
+      // TODO: figure out how bridging works in ZKsync OS
+      l2Erc20DefaultBridge: "", //bridgeAddresses.erc20L2?.toLowerCase(),
     };
     this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
   }

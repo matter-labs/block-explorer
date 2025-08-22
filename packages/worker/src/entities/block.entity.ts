@@ -43,14 +43,17 @@ export class Block extends BaseEntity {
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly extraData: string;
 
+  // TODO: remove
   @ManyToOne(() => Batch, {
     createForeignKeyConstraints: false,
   })
   @JoinColumn({ name: "l1BatchNumber" })
   public batch: Batch;
 
+  // TODO: remove
+  // temporary added a default value
   @Index()
-  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
+  @Column({ type: "bigint", transformer: bigIntNumberTransformer, default: 0 })
   public readonly l1BatchNumber: number;
 
   @Column({ type: "int" })

@@ -10,9 +10,10 @@ import {
   LogRepository,
 } from "../repositories";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME } from "../metrics";
-import { TransactionData } from "../dataFetcher/types";
+import { TransactionData, BlockInfo } from "../dataFetcher/types";
 import { ConfigService } from "@nestjs/config";
 import { utils } from "zksync-ethers";
+import { unixTimeToDate } from "../utils/date";
 
 @Injectable()
 export class TransactionProcessor {
@@ -32,42 +33,53 @@ export class TransactionProcessor {
     this.logger = new Logger(TransactionProcessor.name);
   }
 
-  public async add(blockNumber: number, transactionData: TransactionData): Promise<void> {
+  public async add(block: BlockInfo, transactionData: TransactionData): Promise<void> {
     const stopTransactionProcessingMeasuring = this.transactionProcessingDurationMetric.startTimer();
 
     this.logger.debug({
       message: "Saving transactions data to the DB",
-      blockNumber: blockNumber,
+      blockNumber: block.number,
       transactionHash: transactionData.transaction.hash,
     });
 
     await this.transactionRepository.add({
       ...transactionData.transaction,
+      // TODO: rename transactionIndex to index to avoid unnecessary field mapping
       transactionIndex: transactionData.transaction.index,
+      receivedAt: unixTimeToDate(block.timestamp).toISOString(),
+      //255 is L1 priority tx, 254 is upgrade tx
+      isL1Originated: transactionData.transaction.type === 255,
+      fee: (
+        BigInt(transactionData.transactionReceipt.gasUsed) * BigInt(transactionData.transactionReceipt.gasPrice)
+      ).toString(),
+      receiptStatus: transactionData.transactionReceipt.status,
     });
 
     this.logger.debug({
       message: "Saving transaction receipts data to the DB",
-      blockNumber: blockNumber,
+      blockNumber: block.number,
       transactionHash: transactionData.transaction.hash,
     });
     await this.transactionReceiptRepository.add({
       ...transactionData.transactionReceipt,
+      // TODO: rename transactionIndex to index to avoid unnecessary field mapping
       transactionIndex: transactionData.transactionReceipt.index,
       transactionHash: transactionData.transactionReceipt.hash,
-      effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
-      type: transactionData.transaction.type,
+      effectiveGasPrice: transactionData.transactionReceipt.gasPrice.toString(),
+      gasUsed: transactionData.transactionReceipt.gasUsed.toString(),
+      cumulativeGasUsed: transactionData.transactionReceipt.cumulativeGasUsed.toString(),
     });
 
     this.logger.debug({
       message: "Saving transaction logs data to the DB",
-      blockNumber: blockNumber,
+      blockNumber: block.number,
       transactionHash: transactionData.transaction.hash,
     });
     await this.logRepository.addMany(
       transactionData.transactionReceipt.logs.map((log) => ({
         ...log,
-        timestamp: transactionData.transaction.receivedAt,
+        timestamp: unixTimeToDate(block.timestamp).toISOString(),
+        // TODO: rename logIndex to index to avoid unnecessary field mapping
         logIndex: log.index,
         topics: [...log.topics],
       }))
@@ -75,14 +87,14 @@ export class TransactionProcessor {
 
     this.logger.debug({
       message: "Saving transfers data to the DB",
-      blockNumber: blockNumber,
+      blockNumber: block.number,
       transactionHash: transactionData.transaction.hash,
     });
     await this.transferRepository.addMany(transactionData.transfers);
 
     this.logger.debug({
       message: "Saving contract addresses data to the DB",
-      blockNumber: blockNumber,
+      blockNumber: block.number,
       transactionHash: transactionData.transaction.hash,
     });
     await Promise.all(
@@ -101,7 +113,7 @@ export class TransactionProcessor {
 
     this.logger.debug({
       message: "Saving tokens to the DB",
-      blockNumber: blockNumber,
+      blockNumber: block.number,
       transactionHash: transactionData.transaction.hash,
     });
     await Promise.all(

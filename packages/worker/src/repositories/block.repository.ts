@@ -1,8 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { FindOptionsWhere, FindOptionsSelect, FindOptionsRelations } from "typeorm";
-import { types } from "zksync-ethers";
-import { Block as BlockDto } from "../dataFetcher/types";
-import { unixTimeToDate } from "../utils/date";
 import { Block } from "../entities";
 import { UnitOfWork } from "../unitOfWork";
 
@@ -50,13 +47,9 @@ export class BlockRepository {
     return Number(count);
   }
 
-  public async add(blockDto: BlockDto, blockDetailsDto: types.BlockDetails): Promise<void> {
+  public async add(block: Partial<Block>): Promise<void> {
     const transactionManager = this.unitOfWork.getTransactionManager();
-    await transactionManager.insert<Block>(Block, {
-      ...blockDto,
-      ...blockDetailsDto,
-      timestamp: unixTimeToDate(blockDetailsDto.timestamp),
-    });
+    await transactionManager.insert<Block>(Block, block);
   }
 
   public async delete(where: FindOptionsWhere<Block>): Promise<void> {

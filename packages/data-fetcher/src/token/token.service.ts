@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { TransactionReceipt } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
@@ -63,7 +63,7 @@ export class TokenService {
 
   public async getERC20Token(
     contractAddress: ContractAddress,
-    transactionReceipt?: types.TransactionReceipt
+    transactionReceipt?: TransactionReceipt
   ): Promise<Token | null> {
     let erc20Token: {
       symbol: string;

@@ -1,4 +1,5 @@
-import { types, utils } from "zksync-ethers";
+import { utils } from "zksync-ethers";
+import { type Log, type Block, type TransactionReceipt } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { LogType } from "../log/logType";
@@ -52,11 +53,10 @@ export class TransferService {
   }
 
   public async getTransfers(
-    logs: ReadonlyArray<types.Log>,
-    blockDetails: types.BlockDetails,
+    logs: ReadonlyArray<Log>,
+    block: Block,
     ethTransfers: Transfer[] = [],
-    transactionDetails?: types.TransactionDetails,
-    transactionReceipt?: types.TransactionReceipt
+    transactionReceipt?: TransactionReceipt
   ): Promise<Transfer[]> {
     // Add ETH transfers to the list of all transfers so they are processed in the same way
     const transfers: Transfer[] = [...ethTransfers];
@@ -91,16 +91,12 @@ export class TransferService {
       // Default ETH transfers are parsed from the traces, so no need to parse them again
       // Exceptions are transfers that are not from the base token address
       // Or logs from empty blocks where there is a transfer in the logs and it cannot be fetched from the traces
-      if (
-        handlerForLog === defaultTransferHandler &&
-        log.address.toLowerCase() === BASE_TOKEN_ADDRESS &&
-        !!transactionDetails
-      ) {
+      if (handlerForLog === defaultTransferHandler && log.address.toLowerCase() === BASE_TOKEN_ADDRESS) {
         continue;
       }
 
       try {
-        const transfer = await handlerForLog.extract(log, this.blockchainService, blockDetails, transactionDetails);
+        const transfer = await handlerForLog.extract(log, this.blockchainService, block);
         if (transfer) {
           // Eth transfers logIndex are no longer taken from the tx logs and just an incrementing index
           // To avoid collision with token transfers logIndex, we override logIndex with an incrementing value
@@ -110,7 +106,7 @@ export class TransferService {
       } catch (error) {
         this.logger.error("Failed to parse transfer", {
           stack: error.stack,
-          blockNumber: blockDetails.number,
+          blockNumber: block.number,
           logIndex: log.index,
           transactionHash: log.transactionHash,
         });
@@ -119,7 +115,7 @@ export class TransferService {
     }
 
     if (transfers.length) {
-      this.formatFeeAndRefundDeposits(transfers, transactionDetails);
+      this.formatFeeAndRefundDeposits(transfers, transactionReceipt);
       this.markInternalTransactions(transfers, transactionReceipt);
     }
 
@@ -127,8 +123,11 @@ export class TransferService {
   }
 
   // Identifies and formats fee and refund deposits for ETH and ERC20 deposits
-  private formatFeeAndRefundDeposits(transfers: Transfer[], transactionDetails?: types.TransactionDetails) {
-    if (!transactionDetails?.isL1Originated) {
+  private formatFeeAndRefundDeposits(transfers: Transfer[], transactionReceipt: TransactionReceipt) {
+    transactionReceipt.type;
+    // 255 is a L1 priority tx
+    // 254 is an upgrade tx
+    if (transactionReceipt.type === 255) {
       return;
     }
     const ethDeposits = transfers.filter(
@@ -144,7 +143,7 @@ export class TransferService {
     feeDeposit.isFeeOrRefund = true;
     // For ERC20 deposits initiatorAddress is set to bridge creator account, so we should use an address from deposit instead.
     // For ETH deposits both initiatorAddress and deposit.from are the same, so either one can be used.
-    feeDeposit.from = nonFeeDeposits.length ? nonFeeDeposits[0].from : transactionDetails.initiatorAddress;
+    feeDeposit.from = nonFeeDeposits.length ? nonFeeDeposits[0].from : transactionReceipt.from;
 
     const depositsAfterFee = nonFeeDeposits.filter((t) => t.logIndex > feeDeposit.logIndex);
     if (!depositsAfterFee.length) {
@@ -157,7 +156,7 @@ export class TransferService {
     refundDeposit.from = utils.BOOTLOADER_FORMAL_ADDRESS;
   }
 
-  private markInternalTransactions(transfers: Transfer[], transactionReceipt?: types.TransactionReceipt) {
+  private markInternalTransactions(transfers: Transfer[], transactionReceipt?: TransactionReceipt) {
     transfers.forEach((transfer) => {
       transfer.isInternal = isInternalTransaction(transfer, transactionReceipt);
     });

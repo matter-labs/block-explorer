@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { type Log, type Block } from "ethers";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
@@ -7,13 +7,8 @@ import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 export const ethMintFromL1Handler: ExtractTransferHandler = {
-  matches: (log: types.Log): boolean => log.address.toLowerCase() === BASE_TOKEN_ADDRESS,
-  extract: async (
-    log: types.Log,
-    _,
-    blockDetails: types.BlockDetails,
-    transactionDetails?: types.TransactionDetails
-  ): Promise<Transfer> => {
+  matches: (log: Log): boolean => log.address.toLowerCase() === BASE_TOKEN_ADDRESS,
+  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ETH_TOKEN, log);
 
     return {
@@ -28,7 +23,7 @@ export const ethMintFromL1Handler: ExtractTransferHandler = {
       isFeeOrRefund: false,
       logIndex: log.index,
       transactionIndex: log.transactionIndex,
-      timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
+      timestamp: unixTimeToDate(block.timestamp),
     };
   },
 };

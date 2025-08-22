@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { types } from "zksync-ethers";
+import { type Block, type Log, type TransactionReceipt } from "ethers";
 import { BalanceService } from "../balance/balance.service";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
@@ -16,19 +16,12 @@ export class LogService {
   ) {}
 
   public async getData(
-    logs: ReadonlyArray<types.Log>,
-    blockDetails: types.BlockDetails,
+    logs: ReadonlyArray<Log>,
+    block: Block,
     ethTransfers: Transfer[] = [],
-    transactionDetails?: types.TransactionDetails,
-    transactionReceipt?: types.TransactionReceipt
+    transactionReceipt?: TransactionReceipt
   ): Promise<LogsData> {
-    const transfers = await this.transferService.getTransfers(
-      logs,
-      blockDetails,
-      ethTransfers,
-      transactionDetails,
-      transactionReceipt
-    );
+    const transfers = await this.transferService.getTransfers(logs, block, ethTransfers, transactionReceipt);
 
     const logsData: LogsData = {
       transfers,
