@@ -829,9 +829,7 @@
     "loginView": {
         "title": "Login",
         "explorerTitle": "Private Explorer Access",
-        "signInTitle": "Sign in with your crypto wallet",
-        "description": "Connect with your authorized wallet to to access data on ZKsync's private chain.",
-        "onlyAuthorizedAdvice": "Only authorized addresses can continue."
+        "onlyAuthorizedAdvice": "Only authorized users can continue."
     },
     "reviewingPermissionsView": {
         "title": "Reviewing Permissions",
