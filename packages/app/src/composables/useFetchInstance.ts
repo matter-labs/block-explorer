@@ -16,6 +16,10 @@ export class FetchInstance {
     return this.withBaseUrl(context.currentNetwork.value.verificationApiUrl ?? "");
   }
 
+  public static gatewayApi(context = useContext(), gatewayApiUrl: string) {
+    return this.withCredentials(context, gatewayApiUrl);
+  }
+
   public static withCredentials(context: Context, baseUrl?: string) {
     const prividium = !!context.currentNetwork.value.prividium;
     if (prividium) {

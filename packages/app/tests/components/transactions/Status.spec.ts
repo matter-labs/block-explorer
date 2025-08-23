@@ -24,6 +24,7 @@ vi.mock("@/composables/useContext", () => {
       currentNetwork: computed(() => ({ l1ExplorerUrl: l1ExplorerUrlMock() })),
       getSettlementChainExplorerUrl: () => l1ExplorerUrlMock(),
       getSettlementChainName: () => "Ethereum",
+      isGatewaySettlementChain: () => false,
     }),
   };
 });

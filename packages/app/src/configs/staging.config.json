@@ -16,6 +16,7 @@
         "chainId": 11155111
       }, {
         "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+        "apiUrl": "https://block-explorer.era-gateway-testnet.zksync.dev",
         "name": "Gateway",
         "chainId": 32657
       }],
@@ -42,6 +43,7 @@
         "chainId": 11155111
       }, {
         "explorerUrl": "https://explorer.era-gateway-stage.zksync.dev",
+        "apiUrl": "https://block-explorer-api.era-gateway-stage.zksync.dev",
         "name": "Stage Gateway",
         "chainId": 123
       }],

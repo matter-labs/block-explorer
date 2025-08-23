@@ -160,7 +160,13 @@ import useContext from "@/composables/useContext";
 
 import type { TransactionStatus } from "@/composables/useTransaction";
 
-const { getSettlementChainExplorerUrl, getSettlementChainName } = useContext();
+const context = useContext();
+const {
+  getSettlementChainExplorerUrl,
+  getSettlementChainName,
+  isGatewaySettlementChain,
+  isDefaultSettlementChainGateway,
+} = context;
 
 const props = defineProps({
   status: {
@@ -191,6 +197,35 @@ const props = defineProps({
     type: [Number, null] as PropType<number | null>,
     required: true,
   },
+  // Gateway Ethereum transaction props
+  gatewayEthCommitTxHash: {
+    type: [String, null] as PropType<string | null>,
+    default: null,
+  },
+  gatewayEthProveTxHash: {
+    type: [String, null] as PropType<string | null>,
+    default: null,
+  },
+  gatewayEthExecuteTxHash: {
+    type: [String, null] as PropType<string | null>,
+    default: null,
+  },
+  gatewayEthCommitChainId: {
+    type: [Number, null] as PropType<number | null>,
+    default: null,
+  },
+  gatewayEthProveChainId: {
+    type: [Number, null] as PropType<number | null>,
+    default: null,
+  },
+  gatewayEthExecuteChainId: {
+    type: [Number, null] as PropType<number | null>,
+    default: null,
+  },
+  gatewayStatus: {
+    type: [String, null] as PropType<TransactionStatus | null>,
+    default: null,
+  },
 });
 
 const statusPopupOpened = ref(false);
@@ -214,23 +249,32 @@ type FinishedStatus = RemainingStatus & {
   explorerUrl?: string;
 };
 
-const finishedTxStatuses: FinishedStatus[] = [
-  {
-    text: t("transactions.statusComponent.sent"),
-    url: props.commitTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.commitChainId),
-  },
-  {
-    text: t("transactions.statusComponent.validated"),
-    url: props.proveTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.proveChainId),
-  },
-  {
-    text: t("transactions.statusComponent.executed"),
-    url: props.executeTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
-  },
-];
+function getTransactionStatuses(
+  commitTxHash: string | null,
+  proveTxHash: string | null,
+  executeTxHash: string | null,
+  commitChainId: number | null,
+  proveChainId: number | null,
+  executeChainId: number | null
+): FinishedStatus[] {
+  return [
+    {
+      text: t("transactions.statusComponent.sent"),
+      url: commitTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(commitChainId),
+    },
+    {
+      text: t("transactions.statusComponent.validated"),
+      url: proveTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(proveChainId),
+    },
+    {
+      text: t("transactions.statusComponent.executed"),
+      url: executeTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(executeChainId),
+    },
+  ];
+}
 
 const remainingTxStatuses: RemainingStatus[] = [
   {
@@ -241,22 +285,111 @@ const remainingTxStatuses: RemainingStatus[] = [
   },
 ];
 
+// Helper function to check if transaction uses Gateway settlement
+const isGatewayTransaction = (): boolean => {
+  // If chain IDs are available, check them directly
+  if (props.commitChainId) {
+    return (
+      isGatewaySettlementChain(props.executeChainId) ||
+      isGatewaySettlementChain(props.proveChainId) ||
+      isGatewaySettlementChain(props.commitChainId)
+    );
+  }
+
+  // If chain IDs are null (transaction still processing), use the context helper
+  return isDefaultSettlementChainGateway();
+};
+
+type BadgeItem = {
+  color: "neutral" | "dark-neutral" | "success" | "dark-success" | "danger" | "progress";
+  text?: string;
+  tooltip?: string;
+  infoTooltip?: string;
+  icon?: unknown;
+  testId: string;
+  textColor?: "neutral";
+  iconColor?: "dark-neutral";
+  finishedStatuses?: FinishedStatus[];
+  remainingStatuses?: RemainingStatus[];
+  url?: string | null;
+  explorerUrl?: string;
+  withDetailedPopup?: boolean;
+};
+
+function addBadges(
+  badgesArr: BadgeItem[],
+  status: string | null,
+  commitTxHash: string | null,
+  proveTxHash: string | null,
+  executeTxHash: string | null,
+  commitChainId: number | null,
+  proveChainId: number | null,
+  executeChainId: number | null,
+  testIdPrefix: string,
+  titleText: string
+) {
+  const finishedTxStatuses = getTransactionStatuses(
+    commitTxHash,
+    proveTxHash,
+    executeTxHash,
+    commitChainId,
+    proveChainId,
+    executeChainId
+  );
+
+  // Title badge
+  badgesArr.push({
+    testId: `${testIdPrefix}-badge-title`,
+    color: status === "verified" ? "success" : "neutral",
+    text: titleText,
+    textColor: "neutral",
+  });
+
+  if (status === "verified") {
+    badgesArr.push({
+      testId: `${testIdPrefix}-verified`,
+      color: "dark-success",
+      text: t("transactions.statusComponent.executed"),
+      finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
+      url: executeTxHash,
+      explorerUrl: getSettlementChainExplorerUrl(executeChainId),
+      withDetailedPopup: true,
+    });
+  } else {
+    let textKey;
+    const finishedStatuses: FinishedStatus[] = [];
+    const remainingStatuses: RemainingStatus[] = [];
+
+    if (status === "committed") {
+      textKey = "validating";
+      finishedStatuses.push(finishedTxStatuses[0]);
+      remainingStatuses.push(remainingTxStatuses[1]);
+    } else if (status === "proved") {
+      textKey = "executing";
+      finishedStatuses.push(finishedTxStatuses[0]);
+      finishedStatuses.push(finishedTxStatuses[1]);
+    } else {
+      textKey = "sending";
+      remainingStatuses.push(remainingTxStatuses[0]);
+      remainingStatuses.push(remainingTxStatuses[1]);
+    }
+
+    badgesArr.push({
+      testId: `${testIdPrefix}-badge-value`,
+      color: "dark-neutral",
+      iconColor: "dark-neutral",
+      text: t(`transactions.statusComponent.${textKey}`),
+      icon: Spinner,
+      finishedStatuses,
+      remainingStatuses,
+      withDetailedPopup: true,
+    });
+  }
+}
+
 const badges = computed(() => {
-  const badgesArr: {
-    color: "neutral" | "dark-neutral" | "success" | "dark-success" | "danger" | "progress";
-    text?: string;
-    tooltip?: string;
-    infoTooltip?: string;
-    icon?: unknown;
-    testId: string;
-    textColor?: "neutral";
-    iconColor?: "dark-neutral";
-    finishedStatuses?: FinishedStatus[];
-    remainingStatuses?: RemainingStatus[];
-    url?: string | null;
-    explorerUrl?: string;
-    withDetailedPopup?: boolean;
-  }[] = [];
+  const badgesArr: BadgeItem[] = [];
+
   if (props.status === "failed") {
     badgesArr.push({
       testId: "failed",
@@ -267,6 +400,7 @@ const badges = computed(() => {
     return badgesArr;
   }
 
+  // ZKsync (L2) badge - always shown
   badgesArr.push({
     testId: "l2-badge-title",
     color: "success",
@@ -290,53 +424,36 @@ const badges = computed(() => {
     return badgesArr;
   }
 
-  badgesArr.push({
-    testId: "l1-badge-title",
-    color: props.status === "verified" ? "success" : "neutral",
-    text: getSettlementChainName(props.commitChainId, props.commitTxHash),
-    textColor: "neutral",
-  });
+  // Settlement chain badges
+  addBadges(
+    badgesArr,
+    props.status,
+    props.commitTxHash,
+    props.proveTxHash,
+    props.executeTxHash,
+    props.commitChainId,
+    props.proveChainId,
+    props.executeChainId,
+    "l1",
+    getSettlementChainName(props.commitChainId, props.commitTxHash)
+  );
 
-  if (props.status === "verified") {
-    badgesArr.push({
-      testId: "verified",
-      color: "dark-success",
-      text: t("transactions.statusComponent.executed"),
-      finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
-      url: props.executeTxHash,
-      explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
-      withDetailedPopup: true,
-    });
-  } else {
-    let textKey;
-    const finishedStatuses: FinishedStatus[] = [];
-    const remainingStatuses: RemainingStatus[] = [];
-
-    if (props.status === "committed") {
-      textKey = "validating";
-      finishedStatuses.push(finishedTxStatuses[0]);
-      remainingStatuses.push(remainingTxStatuses[1]);
-    } else if (props.status === "proved") {
-      textKey = "executing";
-      finishedStatuses.push(finishedTxStatuses[0]);
-      finishedStatuses.push(finishedTxStatuses[1]);
-    } else {
-      textKey = "sending";
-      remainingStatuses.push(remainingTxStatuses[0]);
-      remainingStatuses.push(remainingTxStatuses[1]);
-    }
-
-    badgesArr.push({
-      testId: "l1-badge-value",
-      color: "dark-neutral",
-      iconColor: "dark-neutral",
-      text: t(`transactions.statusComponent.${textKey}`),
-      icon: Spinner,
-      finishedStatuses,
-      remainingStatuses,
-      withDetailedPopup: true,
-    });
+  // Ethereum badges for Gateway transactions
+  if (isGatewayTransaction()) {
+    addBadges(
+      badgesArr,
+      props.gatewayStatus,
+      props.gatewayEthCommitTxHash,
+      props.gatewayEthProveTxHash,
+      props.gatewayEthExecuteTxHash,
+      props.gatewayEthCommitChainId,
+      props.gatewayEthProveChainId,
+      props.gatewayEthExecuteChainId,
+      "ethereum",
+      t("transactions.statusComponent.ethereum")
+    );
   }
+
   return badgesArr;
 });
 </script>

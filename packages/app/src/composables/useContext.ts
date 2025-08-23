@@ -27,6 +27,8 @@ export type Context = {
   getSettlementChainExplorerUrl: (chainId: number | null) => string | undefined;
   getSettlementChainName: (chainId: number | null, commitTxHash?: string | null) => string;
   isGatewaySettlementChain: (chainId: number | null) => boolean;
+  getDefaultSettlementChainName: () => string;
+  isDefaultSettlementChainGateway: () => boolean;
 };
 
 let l2Provider: Provider | null;
@@ -116,6 +118,20 @@ export default (): Context => {
       .includes("gateway");
   }
 
+  function getDefaultSettlementChainName() {
+    const defaultChainName = "Ethereum";
+    if (!currentNetwork.value.settlementChains?.length) {
+      return defaultChainName;
+    }
+    return (
+      currentNetwork.value.settlementChains[currentNetwork.value.settlementChains.length - 1].name || defaultChainName
+    );
+  }
+
+  function isDefaultSettlementChainGateway() {
+    return getDefaultSettlementChainName().toLocaleLowerCase().includes("gateway");
+  }
+
   return {
     isReady,
     user,
@@ -126,5 +142,7 @@ export default (): Context => {
     getSettlementChainExplorerUrl,
     getSettlementChainName,
     isGatewaySettlementChain,
+    getDefaultSettlementChainName,
+    isDefaultSettlementChainGateway,
   };
 };
