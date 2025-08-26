@@ -18,6 +18,7 @@ import { BlockDetails } from "../src/block/blockDetails.entity";
 import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { applyPrividiumExpressConfig } from "../src/prividium";
 import { ConfigService } from "@nestjs/config";
+import { NestExpressApplication } from "@nestjs/platform-express";
 
 describe("Prividium API (e2e)", () => {
   let app: INestApplication;
@@ -38,7 +39,7 @@ describe("Prividium API (e2e)", () => {
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     const configService = moduleFixture.get(ConfigService);
-    applyPrividiumExpressConfig(app, {
+    applyPrividiumExpressConfig(app as NestExpressApplication, {
       sessionSecret: configService.get<string>("prividium.sessionSecret"),
       appUrl: configService.get<string>("appUrl"),
       sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
