@@ -122,7 +122,7 @@ function getTransactionTraceData(
       });
     }
 
-    transactionTrace.calls.forEach((subCall) => {
+    transactionTrace.calls?.forEach((subCall) => {
       getTransactionTraceData(block, transaction, subCall, extractedData);
     });
   }
