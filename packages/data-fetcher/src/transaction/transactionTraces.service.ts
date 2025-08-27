@@ -200,13 +200,9 @@ export class TransactionTracesService {
     transactionTraceData.contractAddresses = (
       await Promise.all(
         transactionTraceData.contractAddresses.map(async (contractAddress) => {
-          const [bytecode, bytecodeHash] = await Promise.all([
-            this.blockchainService.getCode(contractAddress.address),
-            this.blockchainService.getRawCodeHash(contractAddress.address),
-          ]);
-          contractAddress.bytecode = bytecode;
-          // If it's 0x02, it's an EVM contract. Otherwise, it's an EraVM contract.
-          contractAddress.isEvmLike = bytecodeHash?.startsWith("0x02");
+          contractAddress.bytecode = await this.blockchainService.getCode(contractAddress.address);
+          // Always an EVM-like contract for zksync-os
+          contractAddress.isEvmLike = true;
           return contractAddress;
         })
       )
