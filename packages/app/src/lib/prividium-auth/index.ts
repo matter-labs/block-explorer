@@ -35,6 +35,7 @@ export class PrividiumAuth {
     url.searchParams.set("redirect_uri", this.redirectUri);
     url.searchParams.set("state", this.state);
     url.searchParams.set("response_type", "token");
+    url.searchParams.set("scope", "wallet:required");
 
     window.location.href = url.toString();
   }
