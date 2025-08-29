@@ -9,6 +9,8 @@ import { processException, default as useWallet, type WalletError } from "@/comp
 import type { AbiFragment } from "./useAddress";
 import type { Signer } from "zksync-ethers";
 
+import { WHITELISTED_ACCOUNT_ADDRESSES } from "@/utils/constants";
+
 export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 
 export default (context = useContext()) => {
@@ -61,6 +63,9 @@ export default (context = useContext()) => {
       };
 
       let res;
+      if (WHITELISTED_ACCOUNT_ADDRESSES.includes(await signer.getAddress())) {
+        usePaymaster = false;
+      }
       if (usePaymaster) {
         const paymasterParams = utils.getPaymasterParams("0x98546B226dbbA8230cf620635a1e4ab01F6A99B2", {
           type: "General",
