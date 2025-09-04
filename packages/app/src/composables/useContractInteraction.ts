@@ -9,7 +9,7 @@ import { processException, default as useWallet, type WalletError } from "@/comp
 import type { AbiFragment } from "./useAddress";
 import type { Signer } from "zksync-ethers";
 
-import { WHITELISTED_ACCOUNT_ADDRESSES } from "@/utils/constants";
+import { checkIsPaymasterWhitelisted, PAYMASTER_ADDRESS } from "@/utils/checkIsPaymasterWhitelisted";
 
 export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 
@@ -63,24 +63,31 @@ export default (context = useContext()) => {
       };
 
       let res;
-      if (WHITELISTED_ACCOUNT_ADDRESSES.includes(await signer.getAddress())) {
-        usePaymaster = false;
-      }
+      const signerAddress = await signer.getAddress();
+      
+      // Check if the contract is whitelisted for paymaster sponsorship
       if (usePaymaster) {
-        const paymasterParams = utils.getPaymasterParams("0x98546B226dbbA8230cf620635a1e4ab01F6A99B2", {
-          type: "General",
-          innerInput: new Uint8Array(),
-        });
-
+        const provider = new Provider(context.currentNetwork.value.rpcUrl);
+        const isContractWhitelisted = await checkIsPaymasterWhitelisted(address, provider);
+        
+        if (!isContractWhitelisted) {
+          usePaymaster = false;
+        }
+      }
+      
+      if (usePaymaster) {
         res = await method(
           ...[
             ...(methodArguments.length ? methodArguments : []),
             {
-              ...{ from: await signer.getAddress(), type: 0 },
+              ...{ from: signerAddress, type: 0 },
               ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
               customData: {
-                paymasterParams,
                 gasPerPubdata: utils.DEFAULT_GAS_PER_PUBDATA_LIMIT,
+                paymasterParams: utils.getPaymasterParams(PAYMASTER_ADDRESS, {
+                  type: "General",
+                  innerInput: new Uint8Array(),
+                }),
               },
             },
           ].filter((e) => e !== undefined)
@@ -93,7 +100,7 @@ export default (context = useContext()) => {
           ...[
             ...(methodArguments.length ? methodArguments : []),
             {
-              ...{ from: await signer.getAddress(), type: 0 },
+              ...{ from: signerAddress, type: 0 },
               ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
             },
           ].filter((e) => e !== undefined)

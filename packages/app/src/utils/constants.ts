@@ -47,5 +47,3 @@ export const EVM_VERSION_TO_TARGET = [
   "shanghai",
   "cancun",
 ];
-
-export const WHITELISTED_ACCOUNT_ADDRESSES = ["0xAb8F5806b9e13F06e824C4a41B0Ef5156EcDEE1b"];
