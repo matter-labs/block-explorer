@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
 import { utils } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { Listener } from "ethers";
+import { Listener, toBeHex } from "ethers";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
 import {
@@ -31,6 +31,12 @@ export interface TransactionTrace {
   calls: TransactionTrace[] | null;
   value: string;
   input: string;
+}
+
+export interface TraceResult {
+  txHash: string;
+  result: TransactionTrace | null;
+  error: string | null;
 }
 
 @Injectable()
@@ -123,6 +129,18 @@ export class BlockchainService implements OnModuleInit {
         },
       ]);
     }, "debugTraceTransaction");
+  }
+
+  public async debugTraceBlock(blockNumber: number, onlyTopCall = false): Promise<TraceResult[]> {
+    return await this.rpcCall(async () => {
+      return await this.provider.send("debug_traceBlockByNumber", [
+        toBeHex(blockNumber),
+        {
+          tracer: "callTracer",
+          tracerConfig: { onlyTopCall },
+        },
+      ]);
+    }, "debugTraceBlock");
   }
 
   public async on(eventName: ProviderEvent, listener: Listener): Promise<void> {

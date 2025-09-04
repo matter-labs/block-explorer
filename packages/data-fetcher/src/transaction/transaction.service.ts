@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
 import { type Block, type TransactionReceipt, type TransactionResponse } from "ethers";
-import { BlockchainService } from "../blockchain/blockchain.service";
+import { BlockchainService, TransactionTrace } from "../blockchain/blockchain.service";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { LogService, LogsData } from "../log/log.service";
 import { Token } from "../token/token.service";
@@ -36,7 +36,11 @@ export class TransactionService {
     this.logger = new Logger(TransactionService.name);
   }
 
-  public async getData(transactionHash: string, block: Block): Promise<TransactionData> {
+  public async getData(
+    transactionHash: string,
+    transactionTrace: TransactionTrace | null,
+    block: Block
+  ): Promise<TransactionData> {
     const stopTransactionProcessingMeasuring = this.transactionProcessingDurationMetric.startTimer();
 
     this.logger.debug({
@@ -60,7 +64,12 @@ export class TransactionService {
       receiptStatus: transactionReceipt.status,
     } as unknown as TransactionInfo;
 
-    const transactionTraceData = await this.transactionTracesService.getData(block, transaction, transactionReceipt);
+    const transactionTraceData = await this.transactionTracesService.getData(
+      block,
+      transaction,
+      transactionReceipt,
+      transactionTrace
+    );
     if (transactionReceipt.status === 0) {
       transactionInfo.error = transactionTraceData.error;
       transactionInfo.revertReason = transactionTraceData.revertReason;

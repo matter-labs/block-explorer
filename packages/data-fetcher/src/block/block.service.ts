@@ -42,7 +42,10 @@ export class BlockService {
 
     this.logger.debug({ message: "Getting block data from the blockchain", blockNumber });
     const stopGetBlockInfoDurationMetric = this.getBlockInfoDurationMetric.startTimer();
-    const [block] = await Promise.all([this.blockchainService.getBlock(blockNumber)]);
+    const [block, blockTraces] = await Promise.all([
+      this.blockchainService.getBlock(blockNumber),
+      this.blockchainService.debugTraceBlock(blockNumber),
+    ]);
     stopGetBlockInfoDurationMetric();
 
     if (!block) {
@@ -55,7 +58,7 @@ export class BlockService {
 
     try {
       transactions = await Promise.all(
-        block.transactions.map((transactionHash) => this.transactionService.getData(transactionHash, block))
+        blockTraces.map((trace) => this.transactionService.getData(trace.txHash, trace.result, block))
       );
 
       const stopBalancesDurationMeasuring = this.balancesProcessingDurationMetric.startTimer();

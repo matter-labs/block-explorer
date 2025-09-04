@@ -141,22 +141,15 @@ export class TransactionTracesService {
   public async getData(
     block: Block,
     transaction: TransactionResponse,
-    transactionReceipt: TransactionReceipt
+    transactionReceipt: TransactionReceipt,
+    transactionTrace: TransactionTrace | null
   ): Promise<TransactionTraceData> {
     this.logger.debug({
       message: "Fetching traces and extracting trace data",
       blockNumber: transaction.blockNumber,
       transactionHash: transaction.hash,
     });
-    let traces;
-    // TODO: debug_traceTransaction is being implemented and throws `Method not found` on ZKsync OS
-    // Remove try / catch once it's implemented
-    try {
-      traces = await this.blockchainService.debugTraceTransaction(transaction.hash, false);
-    } catch (error) {
-      traces = null;
-    }
-    const extractedTraceData = getTransactionTraceData(block, transaction, traces);
+    const extractedTraceData = getTransactionTraceData(block, transaction, transactionTrace);
     const transactionTraceData: TransactionTraceData = {
       contractAddresses: extractedTraceData.contractAddresses,
       error: extractedTraceData.error,
