@@ -30,6 +30,22 @@ Currently there are 3 different environments for the project: `local`, `staging`
 ### Adding a new network to the config
 In order to change the configuration for the environment, you need to change its configuration file. By default, there are 4 networks configured for the `local` environment: `local`, `stage`, `testnet` and `mainnet`. Your local network might be different from what is configured in `local.config.json` in such case you should edit the config and set correct values for your setup. You can also add new items to the `networks` array and they will automatically appear in the networks dropdown on UI. 
 
+#### Settlement Chains Configuration
+Each network can include a `settlementChains` array that defines the settlement
+chains available for that network. This configuration allows users to view
+transactions and data across different connected chains. When configuring
+settlement chains:
+
+- **Order matters**: The currently used settlement chain should be placed
+  **last** in the array, as the explorer will default to the last item in the
+  list
+- Each settlement chain object should include:
+  - `explorerUrl`: The URL of the explorer for that chain
+  - `name`: Display name for the chain
+  - `chainId`: The chain ID of the settlement chain
+- If this is not set,
+then it will default to Ethereum
+
 Example of `local.config.json` extended with the new network:
 
 ```
@@ -53,19 +69,34 @@ const config: EnvironmentConfig = {
     },
     // next network has been just added
     {
-      apiUrl: "http://localhost:3030",
-      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
-      hostnames: ["localhost"],
-      icon: "/images/icons/zksync-arrows.svg",
-      l2ChainId: 270,
-      l2NetworkName: "Local Hyperchain",
-      maintenance: false,
-      name: "local-hyperchain",
-      published: true,
-      rpcUrl: "http://localhost:3070",
+      "groupId": "era",
+      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://sepolia.staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }, {
+        "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+        "name": "Gateway",
+        "chainId": 32657
+      }],
+      "l2ChainId": 300,
+      "l2NetworkName": "ZKsync Era Sepolia Testnet",
+      "maintenance": false,
+      "name": "sepolia",
+      "published": true,
+      "rpcUrl": "https://sepolia.era.zksync.dev",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     ...stagingConfig.networks,
-  ],
+  ]
 };
 
 export default config;
