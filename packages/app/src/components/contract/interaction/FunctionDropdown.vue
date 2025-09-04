@@ -32,7 +32,10 @@
         </Button>
       </FunctionForm>
       <div v-if="response?.message !== undefined" class="response-message">
-        {{ response.message }}
+        <AddressLink v-if="isAddress(response.message)" :address="response.message">
+          {{ checksumAddress(response.message) }}
+        </AddressLink>
+        <span v-else>{{ response.message }}</span>
       </div>
       <div v-else-if="response?.transactionHash" class="response-message">
         <i18n-t scope="global" keypath="contract.abiInteraction.transactionHash">
@@ -56,6 +59,7 @@ import { useI18n } from "vue-i18n";
 
 import { ChevronDownIcon } from "@heroicons/vue/outline";
 
+import AddressLink from "@/components/AddressLink.vue";
 import Alert from "@/components/common/Alert.vue";
 import Button from "@/components/common/Button.vue";
 import FunctionForm from "@/components/contract/interaction/FunctionForm.vue";
@@ -66,6 +70,8 @@ import type { AbiFragment } from "@/composables/useAddress";
 import type { PropType } from "vue";
 
 import { getFunctionSelector } from "@/utils/contracts";
+import { checksumAddress } from "@/utils/formatters";
+import { isAddress } from "@/utils/validators";
 
 const props = defineProps({
   type: {
