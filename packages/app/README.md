@@ -43,64 +43,9 @@ settlement chains:
   - `explorerUrl`: The URL of the explorer for that chain
   - `name`: Display name for the chain
   - `chainId`: The chain ID of the settlement chain
-- If this is not set,
-then it will default to Ethereum
+- If this is not set, then it will default to Ethereum
 
-Example of `local.config.json` extended with the new network:
-
-```
-import stagingConfig from "./staging.config";
-
-import type { EnvironmentConfig } from ".";
-
-const config: EnvironmentConfig = {
-  networks: [
-    {
-      apiUrl: "http://localhost:3020",
-      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
-      hostnames: ["localhost"],
-      icon: "/images/icons/zksync-arrows.svg",
-      l2ChainId: 270,
-      l2NetworkName: "Local",
-      maintenance: false,
-      name: "local",
-      published: true,
-      rpcUrl: "http://localhost:3050",
-    },
-    // next network has been just added
-    {
-      "groupId": "era",
-      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
-      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
-      "hostnames": [
-        "https://sepolia.staging-scan-v2.zksync.dev"
-      ],
-      "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }, {
-        "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
-        "name": "Gateway",
-        "chainId": 32657
-      }],
-      "l2ChainId": 300,
-      "l2NetworkName": "ZKsync Era Sepolia Testnet",
-      "maintenance": false,
-      "name": "sepolia",
-      "published": true,
-      "rpcUrl": "https://sepolia.era.zksync.dev",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
-    },
-    ...stagingConfig.networks,
-  ]
-};
-
-export default config;
-```
+For a complete example of network configuration including settlement chains, refer to [`production.config.json`](./src/configs/production.config.json).
 
 ### Compile and Hot-Reload for Development
 
