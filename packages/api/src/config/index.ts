@@ -2,6 +2,7 @@ import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
 import { z } from "zod";
+import { getDatabaseConnectionOptions } from "./database.config";
 
 const INVALID_PERMISSIONS_API_URL_MSG = "PRIVIDIUM_PERMISSIONS_API_URL has to be a valid url";
 const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
@@ -93,7 +94,6 @@ export default () => {
     PORT,
     METRICS_PORT,
     COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL,
-    DATABASE_URL,
     DATABASE_CONNECTION_POOL_SIZE,
     DATABASE_CONNECTION_IDLE_TIMEOUT_MS,
     DATABASE_STATEMENT_TIMEOUT_MS,
@@ -123,7 +123,8 @@ export default () => {
   };
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
-    const master = { url: DATABASE_URL || "postgres://postgres:postgres@127.0.0.1:5432/block-explorer" };
+    const dbOptions = getDatabaseConnectionOptions();
+    const master = { url: dbOptions.url };
     const replicaSet = getDatabaseReplicaSet();
 
     return {
@@ -142,6 +143,7 @@ export default () => {
           slaves: replicaSet,
         },
       }),
+      ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
       poolSize: parseInt(DATABASE_CONNECTION_POOL_SIZE, 10) || 300,
       extra: {
         idleTimeoutMillis: parseInt(DATABASE_CONNECTION_IDLE_TIMEOUT_MS, 10) || 60000,
