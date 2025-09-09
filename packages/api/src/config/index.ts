@@ -2,7 +2,7 @@ import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
 import { z } from "zod";
-import { getDatabaseConnectionOptions } from "./database.config";
+import { getDatabaseConnectionOptions, getDatabaseConfig } from "./database.config";
 
 const INVALID_PERMISSIONS_API_URL_MSG = "PRIVIDIUM_PERMISSIONS_API_URL has to be a valid url";
 const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
@@ -124,13 +124,26 @@ export default () => {
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
     const dbOptions = getDatabaseConnectionOptions();
-    const master = { url: dbOptions.url };
+    const dbConfig = getDatabaseConfig();
+
+    // When SSL is enabled, use individual connection params instead of URL
+    // because TypeORM doesn't properly apply SSL config with URL
+    const connectionConfig = dbOptions.ssl
+      ? {
+          host: dbConfig.host,
+          port: dbConfig.port,
+          username: dbConfig.username,
+          password: dbConfig.password,
+          database: dbConfig.database,
+        }
+      : { url: dbOptions.url };
+
     const replicaSet = getDatabaseReplicaSet();
 
     return {
       type: "postgres",
       ...(!replicaSet.length && {
-        ...master,
+        ...connectionConfig,
       }),
       ...(replicaSet.length && {
         replication: {
@@ -148,6 +161,7 @@ export default () => {
       extra: {
         idleTimeoutMillis: parseInt(DATABASE_CONNECTION_IDLE_TIMEOUT_MS, 10) || 60000,
         statement_timeout: parseInt(DATABASE_STATEMENT_TIMEOUT_MS, 10) || 90_000,
+        ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
       },
       synchronize: NODE_ENV === "test",
       logging: false,
