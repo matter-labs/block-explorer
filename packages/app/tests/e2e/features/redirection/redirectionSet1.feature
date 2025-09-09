@@ -13,7 +13,7 @@ Feature: Redirection
 
     Examples:
       | Extra button name | url                                     |
-      | Docs              | https://docs.zksync.io/zksync-era/tooling/block-explorers         |
+      | Docs              | https://docs.zksync.io/zksync-network/tooling/block-explorers         |
       | Terms             | https://www.zksync.io/terms                 |
       | Contact           | https://www.zksync.io/contact      |
 
@@ -32,7 +32,7 @@ Feature: Redirection
   @id251
   Scenario: Verify redirection for Documentation link
     Given I click by text "Documentation"
-    Then New page have "https://docs.zksync.io/zksync-era/tooling/block-explorers" address
+    Then New page have "https://docs.zksync.io/zksync-network/tooling/block-explorers" address
 
   @id252
   Scenario Outline: Verify redirection for "<Sub-Section>" in BE menu
