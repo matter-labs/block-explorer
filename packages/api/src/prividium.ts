@@ -1,10 +1,13 @@
-import { INestApplication, MiddlewareConsumer } from "@nestjs/common";
+import { MiddlewareConsumer } from "@nestjs/common";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { AuthModule } from "./auth/auth.module";
+import { AuthController } from "./auth/auth.controller";
+import { NoCacheMiddleware } from "./middlewares/no-cache.middleware";
 import cookieSession from "cookie-session";
+import { NestExpressApplication } from "@nestjs/platform-express";
 
 export function applyPrividiumExpressConfig(
-  app: INestApplication,
+  app: NestExpressApplication,
   {
     sessionSecret,
     appUrl,
@@ -12,6 +15,7 @@ export function applyPrividiumExpressConfig(
     sessionSameSite,
   }: { sessionSecret: string; appUrl: string; sessionMaxAge: number; sessionSameSite: "none" | "strict" | "lax" }
 ) {
+  app.set("trust proxy", 1);
   app.use(
     cookieSession({
       name: "_auth",
@@ -30,6 +34,7 @@ export function applyPrividiumExpressConfig(
 }
 
 export function applyPrividiumMiddlewares(consumer: MiddlewareConsumer) {
+  consumer.apply(NoCacheMiddleware).forRoutes(AuthController);
   consumer.apply(AuthMiddleware).forRoutes("*");
 }
 

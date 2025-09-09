@@ -6,7 +6,6 @@ import AuthCallbackView from "@/views/AuthCallbackView.vue";
 import HomeView from "@/views/HomeView.vue";
 import LoginView from "@/views/LoginView.vue";
 import NotAuthorizedView from "@/views/NotAuthorizedView.vue";
-import ReviewingPermissionsView from "@/views/ReviewingPermissionsView.vue";
 const { getSearchRoute } = useSearch();
 
 export default [
@@ -33,15 +32,6 @@ export default [
     component: AuthCallbackView,
     meta: {
       title: "loginView.title",
-      requiresAuth: false,
-    },
-  },
-  {
-    path: "/reviewing-permissions",
-    name: "reviewing-permissions",
-    component: ReviewingPermissionsView,
-    meta: {
-      title: "reviewingPermissionsView.title",
       requiresAuth: false,
     },
   },
