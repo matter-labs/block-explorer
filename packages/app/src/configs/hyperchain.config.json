@@ -14,14 +14,14 @@
       "l1ExplorerUrl": "https://etherscan.io",
       "settlementChains": [
         {
-          "explorerUrl": "https://etherscan.io",
-          "name": "Ethereum",
-          "chainId": 1
-        },
-        {
           "explorerUrl": "https://gateway.explorer.zksync.io",
           "name": "Gateway",
           "chainId": 9075
+        },
+        {
+          "explorerUrl": "https://etherscan.io",
+          "name": "Ethereum",
+          "chainId": 1
         }
       ],
       "published": true,
