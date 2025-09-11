@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { AddressController } from "./address.controller";
 import { AddressService } from "./address.service";
@@ -10,9 +10,13 @@ import { TransactionService } from "../transaction/transaction.service";
 import { Log } from "../log/log.entity";
 import { Token } from "../token/token.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { AddressType } from "./dtos/baseAddress.dto";
+import { AddressType } from "./dtos";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer, TransferType } from "../transfer/transfer.entity";
+import { UserParam } from "../user/user.decorator";
+import { Address } from "./address.entity";
+import { ForbiddenException } from "@nestjs/common";
+import { Wallet, zeroPadValue } from "ethers";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -21,9 +25,9 @@ jest.mock("../common/utils", () => ({
 
 describe("AddressController", () => {
   let controller: AddressController;
-  let serviceMock: AddressService;
+  let serviceMock: MockProxy<AddressService>;
   let blockServiceMock: BlockService;
-  let logServiceMock: LogService;
+  let logServiceMock: MockProxy<LogService>;
   let balanceServiceMock: BalanceService;
   let transactionServiceMock: TransactionService;
   let transferServiceMock: TransferService;
@@ -73,7 +77,7 @@ describe("AddressController", () => {
   });
 
   describe("getAddress", () => {
-    let addressRecord;
+    let addressRecord: Address;
 
     beforeEach(() => {
       (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue({
@@ -83,13 +87,13 @@ describe("AddressController", () => {
     });
 
     it("queries addresses by specified address", async () => {
-      await controller.getAddress(blockchainAddress);
+      await controller.getAddress(blockchainAddress, null);
       expect(serviceMock.findOne).toHaveBeenCalledTimes(1);
       expect(serviceMock.findOne).toHaveBeenCalledWith(blockchainAddress);
     });
 
     it("queries address balances", async () => {
-      await controller.getAddress(blockchainAddress);
+      await controller.getAddress(blockchainAddress, null);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
       expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
     });
@@ -115,19 +119,21 @@ describe("AddressController", () => {
       beforeEach(() => {
         addressRecord = {
           address: "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
-          blockNumber: 20,
           bytecode: "0x123",
           createdInBlockNumber: 30,
           creatorTxHash: transactionHash,
           creatorAddress,
+          isEvmLike: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         };
-        (serviceMock.findOne as jest.Mock).mockResolvedValue(addressRecord);
+        serviceMock.findOne.mockResolvedValue(addressRecord);
         (transactionServiceMock.count as jest.Mock).mockResolvedValue(totalTxCount);
         (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue(addressBalances);
       });
 
       it("queries totalTransactions value from transaction receipt repo with formatted contractAddress", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, null);
         expect(transactionServiceMock.count).toHaveBeenCalledTimes(1);
         expect(transactionServiceMock.count).toHaveBeenCalledWith({
           "from|to": "0xffffffffffffffffffffffffffffffffffffffff",
@@ -135,7 +141,7 @@ describe("AddressController", () => {
       });
 
       it("returns the contract address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, null);
         expect(result).toStrictEqual({
           type: AddressType.Contract,
           ...addressRecord,
@@ -157,7 +163,7 @@ describe("AddressController", () => {
         });
 
         it("returns the contract address record with empty balances and block number from the address record", async () => {
-          const result = await controller.getAddress(blockchainAddress);
+          const result = await controller.getAddress(blockchainAddress, null);
           expect(result).toStrictEqual({
             type: AddressType.Contract,
             ...addressRecord,
@@ -195,7 +201,7 @@ describe("AddressController", () => {
       });
 
       it("queries account sealed and verified nonce", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, null);
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledTimes(2);
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({ accountAddress: blockchainAddress });
         expect(transactionServiceMock.getAccountNonce).toHaveBeenCalledWith({
@@ -205,13 +211,13 @@ describe("AddressController", () => {
       });
 
       it("queries account balances", async () => {
-        await controller.getAddress(blockchainAddress);
+        await controller.getAddress(blockchainAddress, null);
         expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
         expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
       });
 
       it("returns the account address record", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, null);
         expect(result).toStrictEqual({
           type: AddressType.Account,
           address: normalizedAddress,
@@ -235,7 +241,7 @@ describe("AddressController", () => {
       });
 
       it("returns the default account address response", async () => {
-        const result = await controller.getAddress(blockchainAddress);
+        const result = await controller.getAddress(blockchainAddress, null);
         expect(result).toStrictEqual({
           type: AddressType.Account,
           address: normalizedAddress,
@@ -244,6 +250,135 @@ describe("AddressController", () => {
           sealedNonce: 0,
           verifiedNonce: 0,
         });
+      });
+    });
+
+    describe("when user is provided", () => {
+      let user: MockProxy<UserParam>;
+      const mockUser = "0xc0ffee254729296a45a3885639AC7E10F9d54979";
+      beforeEach(() => {
+        user = mock<UserParam>({ address: mockUser });
+      });
+
+      it("throws if address is an account and is not own address", async () => {
+        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: mockUser, bytecode: "0x" }));
+        await expect(controller.getAddress(blockchainAddress, user)).rejects.toThrow(ForbiddenException);
+      });
+
+      describe("when address is a contract", () => {
+        beforeEach(() => {
+          serviceMock.findOne.mockResolvedValue(mock<Address>({ address: blockchainAddress, bytecode: "0x123" }));
+          (transactionServiceMock.count as jest.Mock).mockResolvedValue(0);
+          (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue({
+            blockNumber: 30,
+            balances: {},
+          });
+        });
+
+        it("does not include balances if user is not owner (no logs found)", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(logServiceMock.findManyByTopics).toHaveBeenCalledWith({
+            address: blockchainAddress,
+            topics: {
+              topic0: "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+            },
+            page: 1,
+            offset: 1,
+          });
+          expect(result.balances).toEqual({});
+        });
+
+        it("does not include balances if user is not owner (ownerTopic is undefined)", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+            {
+              topics: ["0x", "0x"], // topics[2] is undefined
+              address: blockchainAddress,
+              blockNumber: 10,
+              logIndex: 0,
+              transactionHash: "0x",
+              transactionIndex: 0,
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              number: 0,
+              data: "0x",
+              toJSON: jest.fn(),
+            },
+          ]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(result.balances).toEqual({});
+        });
+
+        it("does not include balances if user is not owner (different owner)", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+            {
+              topics: ["0x", "0x", zeroPadValue(Wallet.createRandom().address, 32)],
+              address: blockchainAddress,
+              blockNumber: 10,
+              logIndex: 0,
+              transactionHash: "0x",
+              transactionIndex: 0,
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              number: 0,
+              data: "0x",
+              toJSON: jest.fn(),
+            },
+          ]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(result.balances).toEqual({});
+        });
+
+        it("includes balances if user is owner", async () => {
+          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+            {
+              topics: ["0x", "0x", zeroPadValue(mockUser, 32)],
+              address: blockchainAddress,
+              blockNumber: 10,
+              logIndex: 0,
+              transactionHash: "0x",
+              transactionIndex: 0,
+              timestamp: new Date(),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              number: 0,
+              data: "0x",
+              toJSON: jest.fn(),
+            },
+          ]);
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
+          expect(result.balances).toBeDefined();
+        });
+
+        it("does not include balances if logService throws an error", async () => {
+          const err = new Error("Database error");
+          logServiceMock.findManyByTopics.mockRejectedValueOnce(err);
+          const loggerSpy = jest.spyOn(controller["logger"], "error").mockImplementation();
+
+          const result = await controller.getAddress(blockchainAddress, user);
+
+          expect(loggerSpy).toHaveBeenCalledWith("Failed to check if user is owner of contract", err.stack);
+          expect(result.balances).toEqual({});
+
+          loggerSpy.mockRestore();
+        });
+      });
+
+      it("includes balances if address is an account and is self", async () => {
+        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: mockUser, bytecode: "0x" }));
+        await controller.getAddress(mockUser, user);
+        expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -257,7 +392,7 @@ describe("AddressController", () => {
       });
 
       it("queries addresses with the specified options", async () => {
-        await controller.getAddressLogs(address, pagingOptions);
+        await controller.getAddressLogs(address, pagingOptions, null);
         expect(logServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(logServiceMock.findAll).toHaveBeenCalledWith(
           { address },
@@ -269,8 +404,23 @@ describe("AddressController", () => {
       });
 
       it("returns address logs", async () => {
-        const result = await controller.getAddressLogs(address, pagingOptions);
+        const result = await controller.getAddressLogs(address, pagingOptions, null);
         expect(result).toBe(transactionLogs);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserParam>;
+        beforeEach(() => {
+          user = mock<UserParam>({ address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" });
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getAddressLogs(address, pagingOptions, user);
+          expect(logServiceMock.findAll).toHaveBeenCalledWith(
+            expect.objectContaining({ visibleBy: user.address }),
+            expect.anything()
+          );
+        });
       });
     });
   });
@@ -289,7 +439,7 @@ describe("AddressController", () => {
     });
 
     it("queries transfers with the specified options when no filters provided", async () => {
-      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
+      await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, null);
       expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
       expect(transferServiceMock.findAll).toHaveBeenCalledWith(
         {
@@ -306,7 +456,13 @@ describe("AddressController", () => {
     });
 
     it("queries transfers with the specified options when filters are provided", async () => {
-      await controller.getAddressTransfers(address, { type: TransferType.Transfer }, listFilterOptions, pagingOptions);
+      await controller.getAddressTransfers(
+        address,
+        { type: TransferType.Transfer },
+        listFilterOptions,
+        pagingOptions,
+        null
+      );
       expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
       expect(transferServiceMock.findAll).toHaveBeenCalledWith(
         {
@@ -323,8 +479,23 @@ describe("AddressController", () => {
     });
 
     it("returns the transfers", async () => {
-      const result = await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions);
+      const result = await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, null);
       expect(result).toBe(transfers);
+    });
+
+    describe("when user is provided", () => {
+      let user: MockProxy<UserParam>;
+      beforeEach(() => {
+        user = mock<UserParam>({ address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" });
+      });
+
+      it("includes visibleBy filter", async () => {
+        await controller.getAddressTransfers(address, {}, listFilterOptions, pagingOptions, user);
+        expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+          expect.objectContaining({ visibleBy: user.address }),
+          expect.anything()
+        );
+      });
     });
   });
 });

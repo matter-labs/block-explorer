@@ -363,7 +363,7 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
       statusColor: transaction.status === "failed" ? "danger" : "dark-success",
       statusIcon: ["failed", "included"].includes(transaction.status)
         ? SophonIcon
-        : isGatewaySettlementChain(transaction.commitChainId)
+        : isGatewaySettlementChain(transaction.executeChainId || transaction.proveChainId || transaction.commitChainId)
         ? GatewayIcon
         : EthereumIcon,
       isContractDeploymentTx,

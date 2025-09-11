@@ -29,19 +29,28 @@
     },
     {
       "groupId": "era",
-      "apiUrl": "https://block-explorer-api.stage.zksync.dev",
-      "verificationApiUrl": "https://z2-dev-api-explorer.zksync.dev",
+      "apiUrl": "https://block-explorer-api.era-stage-proofs.zksync.dev",
+      "verificationApiUrl": "https://dev-api-explorer.era-stage-proofs.zksync.dev",
       "hostnames": [
-        "https://goerli-beta.staging-scan-v2.zksync.dev"
+        "https://stage-proofs.staging-scan-v2.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://goerli.etherscan.io",
-      "l2ChainId": 270,
-      "l2NetworkName": "Goerli (Stage2)",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io/",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }, {
+        "explorerUrl": "https://explorer.era-gateway-stage.zksync.dev",
+        "name": "Stage Gateway",
+        "chainId": 123
+      }],
+      "l2ChainId": 499,
+      "l2NetworkName": "ZKsync Era Stage Proofs",
       "maintenance": false,
-      "name": "goerli-beta",
+      "name": "stage-proofs",
       "published": true,
-      "rpcUrl": "https://z2-dev-api.zksync.dev",
+      "rpcUrl": "https://dev-api.era-stage-proofs.zksync.dev",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {

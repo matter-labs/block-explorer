@@ -1,0 +1,87 @@
+name: Prividium E2E Tests
+
+on:
+  pull_request:
+    paths:
+      - 'packages/app/**'
+      - 'packages/api/**'
+      - '.github/workflows/prividium-e2e.yml'
+      - 'docker-compose-prividium.yaml'
+
+jobs:
+  prividium-e2e:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.54.1-noble
+      options: --user 1001
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: block-explorer
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Start Prividium App
+        env:
+          VITE_APP_ENVIRONMENT: prividium
+        working-directory: packages/app
+        run: |
+          # Start the app in development mode with Prividium config
+          npm run dev -- --host 0.0.0.0 --port 3010 > ./tests/e2e/app.log 2>&1 &
+
+          # Wait for app to be ready with retries
+          echo "Waiting for app to be ready..."
+          for i in $(seq 1 30); do
+            if curl -sL http://127.0.0.1:3010 > /dev/null; then
+              echo "App is ready!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "App failed to start within timeout"
+              exit 1
+            fi
+            echo "Waiting for app to start... attempt $i"
+            sleep 5
+          done
+
+      - name: Run Prividium E2E Tests
+        timeout-minutes: 5
+        working-directory: packages/app
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
+            npx cucumber-js --tags "@prividium"
+        env:
+          TARGET_ENV: http://127.0.0.1:3010
+
+      - name: Upload allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prividium-e2e-results
+          path: packages/app/allure-results/
+
+      - name: Print App logs
+        if: always()
+        run: |
+          cat packages/app/tests/e2e/app.log

@@ -3,6 +3,7 @@
     <button type="button" @click="opened = !opened" class="function-disclosure-btn" :class="{ opened: opened }">
       <span>
         <slot />
+        <span class="function-selector">({{ getFunctionSelector(abiFragment) }})</span>
       </span>
       <ChevronDownIcon class="function-arrow-icon" />
     </button>
@@ -32,7 +33,10 @@
         <div v-if="props.type === 'write'">Using Sophon Global Paymaster</div>
       </FunctionForm>
       <div v-if="response?.message !== undefined" class="response-message">
-        {{ response.message }}
+        <AddressLink v-if="isAddress(response.message)" :address="response.message">
+          {{ checksumAddress(response.message) }}
+        </AddressLink>
+        <span v-else>{{ response.message }}</span>
       </div>
       <div v-else-if="response?.transactionHash" class="response-message">
         <i18n-t scope="global" keypath="contract.abiInteraction.transactionHash">
@@ -56,6 +60,7 @@ import { useI18n } from "vue-i18n";
 
 import { ChevronDownIcon } from "@heroicons/vue/outline";
 
+import AddressLink from "@/components/AddressLink.vue";
 import Alert from "@/components/common/Alert.vue";
 import Button from "@/components/common/Button.vue";
 import FunctionForm from "@/components/contract/interaction/FunctionForm.vue";
@@ -64,6 +69,10 @@ import useContractInteraction from "@/composables/useContractInteraction";
 
 import type { AbiFragment } from "@/composables/useAddress";
 import type { PropType } from "vue";
+
+import { getFunctionSelector } from "@/utils/contracts";
+import { checksumAddress } from "@/utils/formatters";
+import { isAddress } from "@/utils/validators";
 
 const props = defineProps({
   type: {
@@ -113,6 +122,9 @@ const submit = async (form: Record<string, string | string[] | boolean | boolean
   }
   .function-arrow-icon {
     @apply h-5 w-5 text-neutral-500;
+  }
+  .function-selector {
+    @apply ml-2 font-mono text-sm text-neutral-500;
   }
 }
 

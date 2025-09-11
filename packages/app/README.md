@@ -34,46 +34,22 @@ Currently there are 3 different environments for the project: `local`, `staging`
 
 In order to change the configuration for the environment, you need to change its configuration file. By default, there are 4 networks configured for the `local` environment: `local`, `stage`, `testnet` and `mainnet`. Your local network might be different from what is configured in `local.config.json` in such case you should edit the config and set correct values for your setup. You can also add new items to the `networks` array and they will automatically appear in the networks dropdown on UI.
 
-Example of `local.config.json` extended with the new network:
+#### Settlement Chains Configuration
+Each network can include a `settlementChains` array that defines the settlement
+chains available for that network. This configuration allows users to view
+transactions and data across different connected chains. When configuring
+settlement chains:
 
-```
-import stagingConfig from "./staging.config";
+- **Order matters**: The currently used settlement chain should be placed
+  **last** in the array, as the explorer will default to the last item in the
+  list
+- Each settlement chain object should include:
+  - `explorerUrl`: The URL of the explorer for that chain
+  - `name`: Display name for the chain
+  - `chainId`: The chain ID of the settlement chain
+- If this is not set, then it will default to Ethereum
 
-import type { EnvironmentConfig } from ".";
-
-const config: EnvironmentConfig = {
-  networks: [
-    {
-      apiUrl: "http://localhost:3020",
-      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
-      hostnames: ["localhost"],
-      icon: "/images/icons/zksync-arrows.svg",
-      l2ChainId: 270,
-      l2NetworkName: "Local",
-      maintenance: false,
-      name: "local",
-      published: true,
-      rpcUrl: "http://localhost:3050",
-    },
-    // next network has been just added
-    {
-      apiUrl: "http://localhost:3030",
-      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
-      hostnames: ["localhost"],
-      icon: "/images/icons/zksync-arrows.svg",
-      l2ChainId: 270,
-      l2NetworkName: "Local Hyperchain",
-      maintenance: false,
-      name: "local-hyperchain",
-      published: true,
-      rpcUrl: "http://localhost:3070",
-    },
-    ...stagingConfig.networks,
-  ],
-};
-
-export default config;
-```
+For a complete example of network configuration including settlement chains, refer to [`production.config.json`](./src/configs/production.config.json).
 
 ### Compile and Hot-Reload for Development
 

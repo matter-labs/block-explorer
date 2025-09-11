@@ -1,6 +1,7 @@
 import config from "../config";
 
 jest.mock("./featureFlags", () => ({
+  __esModule: true,
   feature1Enabled: true,
   feature2Enabled: false,
 }));
@@ -8,14 +9,15 @@ jest.mock("./featureFlags", () => ({
 describe("config", () => {
   const env = process.env;
 
-  beforeAll(() => {
+  beforeEach(() => {
     process.env = {
       NODE_ENV: "test",
     };
   });
 
-  afterAll(() => {
+  afterEach(() => {
     process.env = env;
+    jest.resetModules();
   });
 
   it("sets default values", () => {
@@ -59,11 +61,12 @@ describe("config", () => {
         applicationName: "block-explorer-api",
       },
       contractVerificationApiUrl: "http://127.0.0.1:3070",
-      featureFlags: {
+      featureFlags: expect.objectContaining({
         feature1Enabled: true,
         feature2Enabled: false,
-      },
+      }),
       gracefulShutdownTimeoutMs: 0,
+      prividium: {},
     });
   });
 
@@ -131,11 +134,12 @@ describe("config", () => {
           applicationName: "block-explorer-api",
         },
         contractVerificationApiUrl: "http://127.0.0.1:3070",
-        featureFlags: {
+        featureFlags: expect.objectContaining({
           feature1Enabled: true,
           feature2Enabled: false,
-        },
+        }),
         gracefulShutdownTimeoutMs: 0,
+        prividium: {},
       });
     });
 
@@ -195,11 +199,12 @@ describe("config", () => {
             applicationName: "block-explorer-api",
           },
           contractVerificationApiUrl: "http://127.0.0.1:3070",
-          featureFlags: {
+          featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
-          },
+          }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });
@@ -258,11 +263,12 @@ describe("config", () => {
             applicationName: "block-explorer-api",
           },
           contractVerificationApiUrl: "http://127.0.0.1:3070",
-          featureFlags: {
+          featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
-          },
+          }),
           gracefulShutdownTimeoutMs: 0,
+          prividium: {},
         });
       });
     });
@@ -288,6 +294,145 @@ describe("config", () => {
           ],
         },
       },
+    });
+  });
+
+  it("sets prividium values", async () => {
+    process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
+    process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
+    process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
+    process.env.PRIVIDIUM_SESSION_SECRET = "secret";
+    process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
+
+    jest.doMock("./featureFlags", () => ({
+      feature1Enabled: true,
+      feature2Enabled: false,
+      prividium: true,
+    }));
+
+    const { default: currentConfig } = await import("../config");
+
+    expect(currentConfig()).toEqual({
+      baseToken: {
+        l2Address: "0x000000000000000000000000000000000000800A",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        // Fallback data incase ETH token is not in the DB
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+      },
+      ethToken: {
+        decimals: 18,
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        l2Address: "0x000000000000000000000000000000000000800A",
+        name: "Ether",
+        symbol: "ETH",
+      },
+      NODE_ENV: "test",
+      port: 3020,
+      metrics: {
+        port: 3005,
+        collectDbConnectionPoolMetricsInterval: 10000,
+      },
+      typeORM: {
+        type: "postgres",
+        url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
+        poolSize: 300,
+        extra: {
+          idleTimeoutMillis: 60000,
+          statement_timeout: 90000,
+        },
+        synchronize: true,
+        logging: false,
+        autoLoadEntities: true,
+        retryAttempts: 10,
+        retryDelay: 3000,
+        applicationName: "block-explorer-api",
+      },
+      contractVerificationApiUrl: "http://127.0.0.1:3070",
+      featureFlags: expect.objectContaining({
+        feature1Enabled: true,
+        feature2Enabled: false,
+        prividium: true,
+      }),
+      gracefulShutdownTimeoutMs: 0,
+      prividium: {
+        sessionMaxAge: 1000,
+        appUrl: "http://localhost:3020",
+        sessionSameSite: "strict",
+        sessionSecret: "secret",
+        permissionsApiUrl: "http://localhost:8000",
+      },
+    });
+  });
+
+  describe("prividium validations", () => {
+    beforeEach(() => {
+      jest.doMock("./featureFlags", () => ({
+        feature1Enabled: true,
+        feature2Enabled: false,
+        prividium: true,
+      }));
+
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
+      process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
+      process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
+      process.env.PRIVIDIUM_SESSION_SECRET = "secret";
+      process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
+    });
+
+    it("sets default when prividium is true and PRIVIDIUM_APP_URL is missing", async () => {
+      process.env.PRIVIDIUM_APP_URL = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.appUrl).toBe("http://localhost:3010");
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_APP_URL is not a valid url", async () => {
+      process.env.PRIVIDIUM_APP_URL = "thisisnotavalidurl";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_APP_URL has to be a valid url")
+      );
+    });
+
+    it("sets default when prividium is true and PRIVIDIUM_SESSION_MAX_AGE is absent", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.sessionMaxAge).toBe(86_400_000);
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_MAX_AGE negative", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "-10";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer")
+      );
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_MAX_AGE is non integer", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "1.10";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer")
+      );
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_MAX_AGE is non integer", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "1.10";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer")
+      );
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_SECRET is absent", async () => {
+      process.env.PRIVIDIUM_SESSION_SECRET = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_SECRET has to be a non empty string")
+      );
     });
   });
 });

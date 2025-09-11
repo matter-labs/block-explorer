@@ -2,7 +2,10 @@ import useSearch from "@/composables/useSearch";
 
 import type { RouteLocation, RouteRecordRaw } from "vue-router";
 
+import AuthCallbackView from "@/views/AuthCallbackView.vue";
 import HomeView from "@/views/HomeView.vue";
+import LoginView from "@/views/LoginView.vue";
+import NotAuthorizedView from "@/views/NotAuthorizedView.vue";
 const { getSearchRoute } = useSearch();
 
 export default [
@@ -12,6 +15,33 @@ export default [
     component: HomeView,
     meta: {
       title: "document.home",
+    },
+  },
+  {
+    path: "/login",
+    name: "login",
+    component: LoginView,
+    meta: {
+      title: "loginView.title",
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/auth/callback",
+    name: "auth-callback",
+    component: AuthCallbackView,
+    meta: {
+      title: "loginView.title",
+      requiresAuth: false,
+    },
+  },
+  {
+    path: "/not-authorized",
+    name: "not-authorized",
+    component: NotAuthorizedView,
+    meta: {
+      title: "notAuthorizedView.title",
+      requiresAuth: false,
     },
   },
   {

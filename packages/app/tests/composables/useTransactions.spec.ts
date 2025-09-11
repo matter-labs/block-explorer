@@ -42,19 +42,21 @@ const transaction: TransactionListItem = {
 };
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() =>
+    Promise.resolve({
+      items: new Array(3).fill(transaction),
+      meta: {
+        totalItems: 3,
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+        itemCount: 1,
+      },
+    })
+  );
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() =>
-      Promise.resolve({
-        items: new Array(3).fill(transaction),
-        meta: {
-          totalItems: 3,
-          page: 1,
-          pageSize: 10,
-          totalPages: 1,
-          itemCount: 1,
-        },
-      })
-    ),
+    $fetch: fetchSpy,
   };
 });
 

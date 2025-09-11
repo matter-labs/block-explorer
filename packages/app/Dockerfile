@@ -19,6 +19,8 @@ RUN npm ci
 RUN rm -f .npmrc
 
 FROM development-stage AS build-stage
+ARG VITE_APP_ENVIRONMENT=default
+ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
 RUN npm run build
 
 FROM base-stage AS production-stage

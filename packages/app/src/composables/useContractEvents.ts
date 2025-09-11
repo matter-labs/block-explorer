@@ -1,6 +1,8 @@
 import { ref } from "vue";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext from "@/composables/useContext";
 
@@ -40,18 +42,20 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const url = new URL(`/address/${params.contractAddress}/logs`, context.currentNetwork.value.apiUrl);
+      const searchParams = new URLSearchParams();
       if (params.toDate && +new Date(params.toDate) > 0) {
-        url.searchParams.set("toDate", params.toDate.toISOString());
+        searchParams.set("toDate", params.toDate.toISOString());
       }
       if (params.page > 0) {
-        url.searchParams.set("page", params.page.toString());
+        searchParams.set("page", params.page.toString());
       }
       if (params.pageSize > 0) {
-        url.searchParams.set("limit", params.pageSize.toString());
+        searchParams.set("limit", params.pageSize.toString());
       }
 
-      const response = await $fetch<Api.Response.Collection<Log>>(url.toString());
+      const response = await FetchInstance.api(context)<Api.Response.Collection<Log>>(
+        `/address/${params.contractAddress}/logs?${searchParams.toString()}`
+      );
 
       collection.value = response.items.map((e) => {
         const item: TransactionLogEntry = {

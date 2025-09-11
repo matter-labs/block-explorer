@@ -24,8 +24,10 @@ const contractVerificationInfo = {
 };
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => Promise.resolve(contractVerificationInfo));
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => Promise.resolve(contractVerificationInfo)),
+    $fetch: fetchSpy,
     FetchError: function error() {
       return;
     },

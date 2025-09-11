@@ -6,23 +6,27 @@ import { $fetch } from "ohmyfetch";
 
 import useAddress from "@/composables/useAddress";
 
+import type { SpyInstance } from "vitest";
+
 vi.mock("ohmyfetch", () => {
-  return {
-    $fetch: vi.fn(async (url: string) => {
-      if (url.includes("contract_verification")) {
-        return {
-          artifacts: { abi: "abi" },
-          request: {
-            compilerSolcVersion: "0.8.0",
-          },
-        };
-      }
+  const fetchSpy = vi.fn(async (url: string) => {
+    if (url.includes("contract_verification")) {
       return {
-        address: url.split("/").pop(),
-        balances: {},
-        type: url.endsWith("a") ? "account" : "contract",
+        artifacts: { abi: "abi" },
+        request: {
+          compilerSolcVersion: "0.8.0",
+        },
       };
-    }),
+    }
+    return {
+      address: url.split("/").pop(),
+      balances: {},
+      type: url.endsWith("a") ? "account" : "contract",
+    };
+  });
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
+  return {
+    $fetch: fetchSpy,
   };
 });
 
@@ -98,12 +102,8 @@ describe("useAddresses", () => {
     it("loads contract verification info and proxy info", async () => {
       const { item, getByAddress } = useAddress();
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
-      expect($fetch).toBeCalledWith(
-        "http://verification.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c"
-      );
-      expect($fetch).toBeCalledWith(
-        "http://verification.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10"
-      );
+      expect($fetch).toBeCalledWith("/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+      expect($fetch).toBeCalledWith("/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10");
       expect(item.value).toEqual({
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
@@ -134,7 +134,7 @@ describe("useAddresses", () => {
       const { item, getByAddress } = useAddress({ currentNetwork } as any);
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
       expect($fetch).toHaveBeenCalledOnce();
-      expect($fetch).toHaveBeenCalledWith("http://api.url/address/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+      expect($fetch).toHaveBeenCalledWith("/address/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
       expect(item.value).toEqual({
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
