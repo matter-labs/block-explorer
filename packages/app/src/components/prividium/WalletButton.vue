@@ -146,11 +146,11 @@ const shortenedAddress = computed(() => {
 
 <style scoped lang="scss">
 .wallet-button {
-  @apply relative flex min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
+  @apply relative flex min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-white bg-white p-2 text-black;
   &:not(.disabled) {
     @apply hover:cursor-pointer;
     &:hover {
-      @apply bg-primary-700;
+      @apply bg-blue;
     }
   }
   &.disabled {
