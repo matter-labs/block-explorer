@@ -1,7 +1,7 @@
 import { $fetch } from "ohmyfetch";
 
 // Hardcoded solc full versions to be used as a fallback
-const SOLC_FULL_VERSIONS: Record<string, string> = {
+export const SOLC_FULL_VERSIONS: Record<string, string> = {
   "0.4.10": "v0.4.10+commit.f0d539ae",
   "0.4.11": "v0.4.11+commit.68ef5810",
   "0.4.12": "v0.4.12+commit.194ff033",

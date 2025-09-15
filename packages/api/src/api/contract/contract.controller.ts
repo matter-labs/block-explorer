@@ -15,22 +15,18 @@ import { HttpService } from "@nestjs/axios";
 import { ApiTags, ApiExcludeController } from "@nestjs/swagger";
 import { ConfigService } from "@nestjs/config";
 import { AxiosError } from "axios";
-import { catchError, firstValueFrom, of } from "rxjs";
+import { catchError, firstValueFrom } from "rxjs";
 import { AddressService } from "../../address/address.service";
 import { ParseAddressPipe } from "../../common/pipes/parseAddress.pipe";
 import { ResponseStatus, ResponseMessage, ResponseResultMessage } from "../dtos/common/responseBase.dto";
 import { ContractAbiResponseDto } from "../dtos/contract/contractAbiResponse.dto";
-import { ContractSourceCodeResponseDto } from "../dtos/contract/contractSourceCodeResponse.dto";
+import { ContractSourceCodeResponseDto, VerifiedSource } from "../dtos/contract/contractSourceCodeResponse.dto";
 import { ContractCreationResponseDto } from "../dtos/contract/contractCreationResponse.dto";
 import { VerifyContractRequestDto } from "../dtos/contract/verifyContractRequest.dto";
 import { ContractVerificationStatusResponseDto } from "../dtos/contract/contractVerificationStatusResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
-import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
-import {
-  ContractVerificationInfo,
-  ContractVerificationCodeFormatEnum,
-  ContractVerificationStatusResponse,
-} from "../types";
+import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCodeV2 } from "../mappers/sourceCodeMapper";
+import { ContractVerificationCodeFormatEnum, ContractVerificationStatusResponse } from "../types";
 import { VerifyContractResponseDto } from "../dtos/contract/verifyContractResponse.dto";
 
 const entityName = "contract";
@@ -44,6 +40,8 @@ export const parseAddressListPipeExceptionFactory = () => new BadRequestExceptio
 export class ContractController {
   private readonly contractVerificationApiUrl: string;
   private readonly logger: Logger;
+  // todo: temporary in-memory storage, should be persisted in DB
+  private readonly storage: { [key: string]: VerifiedSource } = {};
 
   constructor(
     private readonly addressService: AddressService,
@@ -58,28 +56,17 @@ export class ContractController {
   public async getContractAbi(
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<ContractAbiResponseDto> {
-    const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
-      this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
-        catchError((error: AxiosError) => {
-          if (error.response?.status === 404) {
-            throw new BadRequestException("Contract source code not verified");
-          }
-          this.logger.error({
-            message: "Error fetching contract verification info",
-            stack: error.stack,
-            response: error.response?.data,
-          });
-          throw new InternalServerErrorException("Failed to get contract ABI");
-        })
-      )
-    );
-    if (!data.artifacts?.abi) {
+    const contract = await this.storage[address];
+    if (!contract) {
       throw new BadRequestException("Contract source code not verified");
+    }
+    if (!contract.abi) {
+      throw new InternalServerErrorException("Verified contract ABI is missing");
     }
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: JSON.stringify(data.artifacts.abi),
+      result: contract.abi,
     };
   }
 
@@ -87,23 +74,8 @@ export class ContractController {
   public async getContractSourceCode(
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<ContractSourceCodeResponseDto> {
-    const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
-      this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
-        catchError((error: AxiosError) => {
-          this.logger.error({
-            message: "Error fetching contract verification info",
-            stack: error.stack,
-            response: error.response?.data,
-          });
-          if (error.response?.status >= 500) {
-            throw new InternalServerErrorException("Failed to get contract source code");
-          }
-          return of({ data: null });
-        })
-      )
-    );
-
-    if (!data?.artifacts?.abi) {
+    const contract = await this.storage[address];
+    if (!contract || !contract.abi) {
       return {
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
@@ -114,7 +86,7 @@ export class ContractController {
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: [mapContractSourceCode(data)],
+      result: [mapContractSourceCodeV2(contract)],
     };
   }
 
@@ -136,21 +108,13 @@ export class ContractController {
       ContractVerificationCodeFormatEnum.solidityJsonInput,
     ].includes(request.codeformat);
 
-    // zkCompilerVersion is an old field name, but we keep it for backward compatibility
-    const zkCompilerVersion = request.zksolcVersion || request.zkCompilerVersion;
-    const isEVMContract = !zkCompilerVersion;
-    if (isEVMContract) {
-      request.compilerversion = request.compilerversion.replace("v", "").split("+")[0];
-      if (request.codeformat.includes("json")) {
-        request.sourceCode = JSON.parse(request.sourceCode);
-      }
+    if (!isSolidityContract) {
+      throw new BadRequestException("Only solidity contracts are supported");
     }
 
-    if (request.constructorArguements != null && !request.constructorArguements.startsWith("0x")) {
-      request.constructorArguements = `0x${request.constructorArguements}`;
-    }
+    const contract = await this.addressService.findOne(contractAddress);
 
-    if (isSolidityContract && request.sourceCode instanceof Object) {
+    if (request.sourceCode instanceof Object) {
       const libraries: { [key: string]: Record<string, string> } = {};
       for (let i = 1; i <= 10; i++) {
         const libName: string = request[`libraryname${i}`];
@@ -178,37 +142,23 @@ export class ContractController {
         }
         request.sourceCode.settings.optimizer.runs = request.runs;
       }
+    } else {
+      request.sourceCode = {
+        language: "Solidity",
+        sources: request.sourceCode,
+        settings: {},
+      };
     }
 
-    const { data } = await firstValueFrom<{ data: number }>(
+    const input = JSON.stringify(request.sourceCode);
+
+    const { data } = await firstValueFrom<{ data: any }>(
       this.httpService
-        .post(`${this.contractVerificationApiUrl}/contract_verification`, {
-          codeFormat: request.codeformat,
-          contractAddress,
-          contractName: request.contractname,
-          sourceCode: request.sourceCode,
-          constructorArguments: request.constructorArguements,
-          optimizationUsed: request.optimizationUsed === "1",
-          ...(isSolidityContract &&
-            !isEVMContract && {
-              compilerZksolcVersion: zkCompilerVersion,
-              compilerSolcVersion: request.compilerversion,
-            }),
-          ...(isSolidityContract &&
-            isEVMContract && {
-              evmVersion: request.evmVersion,
-              compilerSolcVersion: request.compilerversion,
-            }),
-          ...(!isSolidityContract &&
-            !isEVMContract && {
-              compilerZkvyperVersion: zkCompilerVersion,
-              compilerVyperVersion: request.compilerversion,
-            }),
-          ...(!isSolidityContract &&
-            isEVMContract && {
-              evmVersion: request.evmVersion,
-              compilerVyperVersion: request.compilerversion,
-            }),
+        .post(`${this.contractVerificationApiUrl}/api/v2/verifier/solidity/sources:verify-standard-json`, {
+          bytecodeType: "DEPLOYED_BYTECODE",
+          bytecode: contract.bytecode,
+          compilerVersion: request.compilerversion,
+          input,
         })
         .pipe(
           catchError((error: AxiosError) => {
@@ -227,10 +177,14 @@ export class ContractController {
         )
     );
 
+    if (data.message === "OK" && data.status === "SUCCESS") {
+      this.storage[contractAddress] = data.source;
+    }
+
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: data.toString(),
+      result: data.source,
     };
   }
 

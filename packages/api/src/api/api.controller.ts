@@ -73,10 +73,14 @@ export class ApiController {
   public async apiPostHandler(
     @Req() request: Request,
     @Next() next: NextFunction,
-    @Body(new ParseActionPipe()) action: string,
-    @Body("module", new ParseModulePipe()) module: ApiModule
+    @Query(new ParseActionPipe()) action: string,
+    @Query("module", new ParseModulePipe()) module: ApiModule,
+    @Query() query: ApiRequestQuery
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { module: queryModule, action: queryAction, ...queryParams } = query;
     request.url = `/api/${module}/${action}`;
+    request.query = queryParams;
     next();
   }
 
@@ -138,7 +142,7 @@ export class ApiController {
   }
 
   @ApiTags("Contract API")
-  @Post("api")
+  @Post("api?module=contract&action=verifysourcecode")
   @ApiOperation({ summary: "Submits a contract source code for verification" })
   @ApiBody({ type: VerifyContractRequestDto })
   @ApiOkResponse({

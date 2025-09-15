@@ -179,6 +179,12 @@ export class ContractSourceCodeDto {
     example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
   })
   public readonly Implementation: string;
+
+  @ApiProperty({
+    description: "Contract compiler settings.",
+    example: "{}",
+  })
+  public readonly CompilerSettings: string;
 }
 
 export class ContractSourceCodeResponseDto extends ResponseBaseDto {
@@ -188,4 +194,20 @@ export class ContractSourceCodeResponseDto extends ResponseBaseDto {
     isArray: true,
   })
   public readonly result: ContractSourceCodeDto[];
+}
+
+export interface VerifiedSource {
+  fileName: string;
+  contractName: string;
+  compilerVersion: string;
+  compilerSettings: string;
+  sourceType: string;
+  sourceFiles: { [key: string]: string };
+  abi: string;
+  constructorArguments: string;
+  matchType: string;
+  compilationArtifacts: string;
+  deployedBytecodeArtifacts: string;
+  isBlueprint: boolean;
+  libraries: { [key: string]: string };
 }

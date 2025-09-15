@@ -95,6 +95,17 @@ services:
     ports:
       - 127.0.0.1:8545:8545
 
+  smart-contract-verifier:
+    container_name: smart-contract-verifier
+    restart: always
+    image: "ghcr.io/blockscout/smart-contract-verifier:v1.10.0"
+    environment:
+      - RUST_LOG=debug
+      - SMART_CONTRACT_VERIFIER__VYPER__ENABLED=false
+      - SMART_CONTRACT_VERIFIER__SOURCIFY__ENABLED=false
+    ports:
+      - "127.0.0.1:8050:8050"
+
   zksync:
     stdin_open: true
     tty: true
