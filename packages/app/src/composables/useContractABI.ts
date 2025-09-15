@@ -7,17 +7,24 @@ import { FetchInstance } from "./useFetchInstance";
 
 import useContext, { type Context } from "@/composables/useContext";
 
-import type { AbiFragment, ContractVerificationInfo } from "./useAddress";
+import type { AbiFragment, ContractVerificationInfoV2 } from "./useAddress";
 import type { Address } from "@/types";
 
 import { checksumAddress } from "@/utils/formatters";
 
 const retrieveAddressInfo = useMemoize(
   async (address: Address, context: Context = useContext()) => {
-    if (!context.currentNetwork.value.verificationApiUrl) {
+    const { status, message, result } = await FetchInstance.api(context)<{
+      status: string;
+      message: string;
+      result: ContractVerificationInfoV2[];
+    }>(`/api/contract/getsourcecode?address=${address}`);
+    if (status !== "1") {
+      console.log("failed to load contract verification info", status, message);
       return null;
     }
-    return await FetchInstance.verificationApi(context)(`/contract_verification/info/${address}`);
+    result[0].contractAddress = address;
+    return result[0];
   },
   {
     getKey(address: Address, context: Context = useContext()) {
@@ -45,11 +52,11 @@ export default (context = useContext()) => {
           })
         )
       )
-    ).filter((contract) => contract !== null) as ContractVerificationInfo[];
+    ).filter((contract) => contract !== null) as ContractVerificationInfoV2[];
     collection.value = Object.fromEntries(
       verifiedContracts.map((verificationInfo) => [
-        checksumAddress(verificationInfo.request.contractAddress),
-        verificationInfo.artifacts.abi,
+        checksumAddress(verificationInfo.contractAddress),
+        verificationInfo.ABI,
       ])
     );
     isRequestPending.value = false;

@@ -9,7 +9,6 @@ import { FetchInstance } from "@/composables/useFetchInstance";
 
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
 import { numberToHexString } from "@/utils/formatters";
-import { getSolcFullVersion } from "@/utils/solcFullVersions";
 
 const oneBigInt = BigInt(1);
 const EIP1967_PROXY_IMPLEMENTATION_SLOT = numberToHexString(
@@ -82,16 +81,54 @@ export type ContractVerificationInfo = {
   verificationProblems?: string[];
 };
 
+export type ContractVerificationResponseV2 = {
+  ABI: string;
+  SourceCode: string;
+  ConstructorArguments: string;
+  ContractName: string;
+  EVMVersion: string;
+  OptimizationUsed: string;
+  Library: string;
+  LicenseType: string;
+  CompilerVersion: string;
+  Runs: string;
+  SwarmSource: string;
+  Proxy: string;
+  Implementation: string;
+
+  CompilerSettings: string;
+};
+
+export type ContractVerificationInfoV2 = {
+  contractAddress: string;
+
+  ABI: AbiFragment[];
+  SourceCode: { [key: string]: string };
+  ConstructorArguments: string;
+  ContractName: string;
+  EVMVersion: string;
+  OptimizationUsed: string;
+  Library: string;
+  LicenseType: string;
+  CompilerVersion: string;
+  Runs: string;
+  SwarmSource: string;
+  Proxy: string;
+  Implementation: string;
+
+  CompilerSettings: { [key: string]: any };
+};
+
 export type Balance = Api.Response.TokenAddress;
 export type Balances = Api.Response.Balances;
 export type Account = Api.Response.Account;
 export type Contract = Api.Response.Contract & {
-  verificationInfo: null | ContractVerificationInfo;
+  verificationInfo: null | ContractVerificationInfoV2;
   isEvmLike: boolean;
   proxyInfo: null | {
     implementation: {
       address: string;
-      verificationInfo: null | ContractVerificationInfo;
+      verificationInfo: null | ContractVerificationInfoV2;
     };
   };
 };
@@ -102,20 +139,36 @@ export default (context = useContext()) => {
   const isRequestFailed = ref(false);
   const item = ref(<null | AddressItem>null);
 
-  const getContractVerificationInfo = async (address: string): Promise<ContractVerificationInfo | null> => {
-    if (!context.currentNetwork.value.verificationApiUrl) {
-      return null;
-    }
+  const getContractVerificationInfo = async (address: string): Promise<ContractVerificationInfoV2 | null> => {
     try {
-      const verificationInfo = await FetchInstance.verificationApi()<ContractVerificationInfo>(
-        `/contract_verification/info/${address}`
-      );
-      if (verificationInfo?.request?.compilerSolcVersion) {
-        verificationInfo.request.compilerSolcVersion = await getSolcFullVersion(
-          verificationInfo.request.compilerSolcVersion
-        );
+      const { status, message, result } = await FetchInstance.api(context)<{
+        status: string;
+        message: string;
+        result: ContractVerificationResponseV2[];
+      }>(`/api/contract/getsourcecode?address=${address}`);
+      if (status !== "1") {
+        console.log("failed to load contract verification info", status, message);
+        return null;
       }
-      return verificationInfo;
+      const info: ContractVerificationInfoV2 = {
+        contractAddress: address,
+        ABI: JSON.parse(result[0].ABI),
+        CompilerVersion: result[0].CompilerVersion,
+        ConstructorArguments: result[0].ConstructorArguments,
+        ContractName: result[0].ContractName,
+        EVMVersion: result[0].EVMVersion,
+        Implementation: result[0].Implementation,
+        Library: result[0].Library,
+        LicenseType: result[0].LicenseType,
+        OptimizationUsed: result[0].OptimizationUsed,
+        Proxy: result[0].Proxy,
+        Runs: result[0].Runs,
+        SourceCode: JSON.parse(result[0].SourceCode),
+        SwarmSource: result[0].SwarmSource,
+        CompilerSettings: JSON.parse(result[0].CompilerSettings),
+      };
+      console.log(result[0]);
+      return info;
     } catch (e) {
       if (!(e instanceof FetchError) || e.response?.status !== 404) {
         throw e;

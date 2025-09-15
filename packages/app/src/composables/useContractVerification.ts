@@ -13,7 +13,7 @@ import {
   type ContractVerificationData,
   type ContractVerificationStatus,
 } from "@/types";
-import { getSolcFullVersion, getSolcShortVersion } from "@/utils/solcFullVersions";
+import { SOLC_FULL_VERSIONS } from "@/utils/solcFullVersions";
 
 type CompilerState = {
   name: Compiler;
@@ -89,16 +89,7 @@ export default (context = useContext()) => {
         ContractVerificationCodeFormatEnum.soliditySingleFile,
         ContractVerificationCodeFormatEnum.solidityMultiPart,
       ].includes(data.codeFormat);
-      const {
-        sourceCode,
-        zkCompilerVersion,
-        evmVersion,
-        compilerVersion,
-        optimizerRuns,
-        isEVM,
-        optimizationUsed,
-        ...payload
-      } = data;
+      const { sourceCode, ...payload } = data;
 
       let sourceCodeVal;
 
@@ -115,37 +106,16 @@ export default (context = useContext()) => {
         sourceCodeVal = sourceCode;
       }
 
-      let compilerVersionsVal;
-      if (isEVM) {
-        compilerVersionsVal = {
-          evmVersion,
-          ...(isSolidityContract
-            ? { compilerSolcVersion: getSolcShortVersion(compilerVersion) }
-            : { compilerVyperVersion: compilerVersion }),
-        };
-      } else {
-        compilerVersionsVal = {
-          ...(isSolidityContract
-            ? {
-                compilerZksolcVersion: zkCompilerVersion,
-                compilerSolcVersion: getSolcShortVersion(compilerVersion),
-              }
-            : {
-                compilerZkvyperVersion: zkCompilerVersion,
-                compilerVyperVersion: compilerVersion,
-              }),
-        };
-      }
-
-      const response = await FetchInstance.verificationApi(context)("/contract_verification", {
+      const response = await FetchInstance.api(context)("/api?module=contract&action=verifysourcecode", {
         method: "POST",
         body: {
-          ...payload,
+          // chainId
+          codeformat: payload.codeFormat,
           sourceCode: sourceCodeVal,
-          ...compilerVersionsVal,
-          ...(isEVM && optimizationUsed ? { optimizerRuns } : {}),
           constructorArguments: data.constructorArguments ? data.constructorArguments : undefined,
-          optimizationUsed,
+          contractaddress: payload.contractAddress,
+          contractname: payload.contractName,
+          compilerversion: payload.compilerVersion,
         },
       });
       if (typeof response === "number") {
@@ -168,18 +138,15 @@ export default (context = useContext()) => {
     compilerVersions.value[compiler].isRequestPending = true;
     compilerVersions.value[compiler].isRequestFailed = false;
     try {
-      let result;
+      let result: string[];
 
       if (compiler === CompilerEnum.solc) {
-        const solcVersions = await FetchInstance.verificationApi(context)(
-          `/contract_verification/${compiler}_versions`
-        );
         result = [];
-        for (const version of solcVersions) {
-          result.push(await getSolcFullVersion(version));
-        }
+        Object.values(SOLC_FULL_VERSIONS).forEach((version) => {
+          result.push(version);
+        });
       } else {
-        result = await FetchInstance.verificationApi(context)(`/contract_verification/${compiler}_versions`);
+        result = ["dummy"];
       }
       compilerVersions.value[compiler].versions = result.sort((a: string, b: string) => {
         return b.localeCompare(a, undefined, { numeric: true, sensitivity: "base" });

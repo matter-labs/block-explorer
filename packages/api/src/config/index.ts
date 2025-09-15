@@ -221,7 +221,7 @@ export default () => {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
     },
     typeORM: getTypeOrmModuleOptions(),
-    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
+    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:8050",
     featureFlags,
     baseToken: getBaseToken(),
     ethToken: getEthToken(),

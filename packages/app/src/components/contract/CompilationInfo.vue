@@ -26,14 +26,14 @@
     </div>
     <div>
       <p class="label">{{ t("contractVerification.compilationInfo.compilerVersion") }}</p>
-      <p class="text">{{ verificationRequest?.compilerSolcVersion || verificationRequest?.compilerVyperVersion }}</p>
+      <p class="text">{{ compilerVersion }}</p>
     </div>
     <div v-if="contract.isEvmLike">
       <p class="label">
         {{ t("contractVerification.compilationInfo.evmVersion") }}
       </p>
       <p class="text">
-        {{ verificationRequest?.evmVersion }}
+        {{ evmVersion }}
       </p>
     </div>
     <div v-else>
@@ -99,27 +99,14 @@ const props = defineProps({
     required: true,
   },
 });
-const verificationRequest = computed(() => props.contract.verificationInfo?.request);
+const compilerVersion = computed(() => props.contract.verificationInfo?.CompilerVersion);
+const evmVersion = computed(() => props.contract.verificationInfo?.EVMVersion);
 const optimizationInfo = computed(() => {
   let optimizationInfo: OptimizationInfo = {
     enabled: false,
   };
-  if (typeof props.contract.verificationInfo?.request?.sourceCode === "string") {
-    const {
-      optimizationUsed: enabled,
-      optimizerRuns: runs,
-      optimizerMode: mode,
-    } = props.contract.verificationInfo.request;
-    optimizationInfo = {
-      enabled,
-      runs,
-      mode,
-    };
-  } else if (
-    typeof props.contract.verificationInfo?.request?.sourceCode?.settings === "object" &&
-    props.contract.verificationInfo?.request?.sourceCode?.settings?.optimizer
-  ) {
-    const { enabled, runs, mode } = props.contract.verificationInfo.request.sourceCode.settings.optimizer;
+  if (props.contract.verificationInfo?.CompilerSettings.optimizer) {
+    const { enabled, runs, mode } = props.contract.verificationInfo.CompilerSettings.optimizer;
     optimizationInfo = {
       enabled,
       runs,
@@ -128,15 +115,15 @@ const optimizationInfo = computed(() => {
   }
   return optimizationInfo;
 });
-const contractName = computed(() => props.contract.verificationInfo?.request.contractName.replace(/.*\.(sol|vy):/, ""));
+const contractName = computed(() => props.contract.verificationInfo?.ContractName.replace(/.*\.(sol|vy):/, ""));
 // If address of the contract doesn't match address in the request, the contract was verified "automatically".
 const autoVerified = computed(
-  () => props.contract.address.toLowerCase() !== props.contract.verificationInfo?.request.contractAddress.toLowerCase()
+  () => props.contract.address.toLowerCase() !== props.contract.verificationInfo?.contractAddress.toLowerCase()
 );
 // If there are any problems with the verification, the contract is only partially verified.
 const partialVerification = computed(() => {
-  const problems = props.contract.verificationInfo?.verificationProblems;
-  return problems ? problems.length > 0 : false;
+  // todo: no partial errors propagated anymore?
+  return false;
 });
 
 const PARTIAL_VERIFICATION_DETAILS_URL =

@@ -1,5 +1,5 @@
 import { ContractVerificationInfo, SourceCodeData } from "../types";
-import { ContractSourceCodeDto } from "../dtos/contract/contractSourceCodeResponse.dto";
+import { ContractSourceCodeDto, VerifiedSource } from "../dtos/contract/contractSourceCodeResponse.dto";
 
 export const SOURCE_CODE_EMPTY_INFO: ContractSourceCodeDto = {
   ABI: "Contract source code not verified",
@@ -15,6 +15,7 @@ export const SOURCE_CODE_EMPTY_INFO: ContractSourceCodeDto = {
   Runs: "",
   SourceCode: "",
   SwarmSource: "",
+  CompilerSettings: "",
 };
 
 export const mapContractSourceCode = (data: ContractVerificationInfo): ContractSourceCodeDto => {
@@ -82,5 +83,31 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
     ZkSolcVersion: zkCompilerVersion,
     // Deprecated fields, kept for backward compatibility
     ZkCompilerVersion: zkCompilerVersion,
+
+    CompilerSettings: "",
+  };
+};
+
+export const mapContractSourceCodeV2 = (data: VerifiedSource): ContractSourceCodeDto => {
+  const sourceCode: string = JSON.stringify(data.sourceFiles);
+  return {
+    ABI: data.abi,
+    SourceCode: sourceCode,
+    // remove leading 0x as Etherscan does
+    ConstructorArguments: data.constructorArguments?.startsWith("0x")
+      ? data.constructorArguments.substring(2)
+      : data.constructorArguments,
+    ContractName: data.contractName,
+    EVMVersion: "Default",
+    OptimizationUsed: "0",
+    Library: "",
+    LicenseType: "",
+    CompilerVersion: data.compilerVersion,
+    Runs: "",
+    SwarmSource: "",
+    Proxy: "0",
+    Implementation: "",
+
+    CompilerSettings: data.compilerSettings,
   };
 };

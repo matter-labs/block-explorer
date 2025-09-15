@@ -63,56 +63,35 @@ const props = defineProps({
 const { t } = useI18n();
 
 const settings = computed(() => {
-  const sourceCode = props.contract?.verificationInfo?.request?.sourceCode;
-  if (typeof sourceCode === "object" && typeof sourceCode.settings === "object" && sourceCode.settings) {
-    return JSON.stringify(sourceCode.settings, null, 4);
-  }
-  return undefined;
-});
-const sourceCode = computed<undefined | { code: string; label: string }[]>(() => {
   if (!props.contract?.verificationInfo) {
     return undefined;
   }
-  const request = props.contract.verificationInfo.request;
-  if (request.compilerZkvyperVersion) {
-    const sourceCode = request.sourceCode as Record<string, string>;
-    const contractNames = Object.keys(sourceCode);
-    if (contractNames.length === 1) {
-      return [{ code: sourceCode[contractNames[0]], label: t("contract.sourceCode.singleFileContract") }];
-    }
-    return Object.entries(sourceCode).map(([key, value], index, arr) => {
-      return {
-        code: value,
-        label: t("contract.sourceCode.fileLabel", {
-          index: index + 1,
-          total: arr.length,
-          fileName: key.split("/").pop(),
-        }),
-      };
-    });
+  return JSON.stringify(props.contract.verificationInfo.CompilerSettings, null, 4);
+});
+const sourceCode = computed<undefined | { code: string; label: string }[]>(() => {
+  console.log(props.contract);
+  if (!props.contract?.verificationInfo) {
+    return undefined;
   }
-  if (typeof request.sourceCode === "string") {
-    return [{ code: request.sourceCode, label: t("contract.sourceCode.singleFileContract") }];
-  } else {
-    return Object.entries(request.sourceCode.sources).map(([key, value], index, arr) => {
-      return {
-        code: value.content,
-        label: t("contract.sourceCode.fileLabel", {
-          index: index + 1,
-          total: arr.length,
-          fileName: key.split("/").pop(),
-        }),
-      };
-    });
-  }
+  return Object.entries(props.contract.verificationInfo.SourceCode).map(([key, value], index, arr) => {
+    return {
+      code: value,
+      label: t("contract.sourceCode.fileLabel", {
+        index: index + 1,
+        total: arr.length,
+        fileName: key.split("/").pop(),
+      }),
+    };
+  });
 });
 
 const abiJson = computed<undefined | string>(() => {
-  if (!props.contract?.verificationInfo?.artifacts?.abi) {
+  console.log(props.contract);
+  if (!props.contract?.verificationInfo?.ABI) {
     return undefined;
   }
 
-  return JSON.stringify(props.contract.verificationInfo.artifacts.abi);
+  return JSON.stringify(props.contract.verificationInfo.ABI);
 });
 </script>
 
