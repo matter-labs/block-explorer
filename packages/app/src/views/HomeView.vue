@@ -14,7 +14,7 @@
       />
     </div>
     <div class="latest-blocks-transactions">
-      <div>
+      <div v-if="!currentNetwork.isZKsyncOS">
         <div class="batches-label-container">
           <p>{{ t("blockExplorer.batches") }}</p>
           <InfoTooltip class="batches-tooltip">{{ t("batches.tooltipInfo") }}</InfoTooltip>
@@ -76,11 +76,13 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 
 import useBatches from "@/composables/useBatches";
+import useContext from "@/composables/useContext";
 import useNetworkStats from "@/composables/useNetworkStats";
 
 import router from "@/router";
 
 const { t } = useI18n();
+const { currentNetwork } = useContext();
 const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
 const { load: getBatches, pending: isBatchesPending, failed: isBatchesFailed, data: batches } = useBatches();
 
@@ -90,7 +92,9 @@ const displayedBatches = computed(() => {
 
 fetchNetworkStats();
 
-getBatches(1, new Date());
+if (!currentNetwork.value.isZKsyncOS) {
+  getBatches(1, new Date());
+}
 </script>
 
 <style lang="scss" scoped>
