@@ -7,6 +7,7 @@ import * as timersPromises from "timers/promises";
 import { BlockchainService, BridgeAddresses } from "./blockchain.service";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { RetryableContract } from "./retryableContract";
+import { L2_NATIVE_TOKEN_VAULT_ADDRESS, L2_ACCOUNT_CODE_STORAGE_ADDRESS, CONTRACT_INTERFACES } from "../constants";
 
 jest.mock("./retryableContract");
 const metricProviderKey = "PROM_METRIC_BLOCKCHAIN_RPC_CALL_DURATION_SECONDS";
@@ -2133,6 +2134,118 @@ describe("BlockchainService", () => {
           const balance = await blockchainService.getBalance(address, blockNumber, tokenAddress);
           expect(balance).toStrictEqual(BigInt(20));
         });
+      });
+    });
+  });
+
+  describe("getRawCodeHash", () => {
+    const address = "address";
+
+    describe("when AccountCodeStorage contract function throws an exception", () => {
+      const error = new Error("Ethers Contract error");
+
+      beforeEach(() => {
+        (RetryableContract as any as jest.Mock).mockReturnValueOnce(
+          mock<RetryableContract>({
+            getRawCodeHash: jest.fn().mockImplementationOnce(() => {
+              throw error;
+            }) as any,
+          })
+        );
+      });
+
+      it("throws an error", async () => {
+        await expect(blockchainService.getRawCodeHash(address)).rejects.toThrowError(error);
+      });
+    });
+
+    describe("when AccountCodeStorage contract returns bytecode hash", () => {
+      let getRawCodeHashMock: jest.Mock;
+
+      beforeEach(() => {
+        getRawCodeHashMock = jest.fn().mockResolvedValueOnce("0x123");
+        (RetryableContract as any as jest.Mock).mockReturnValueOnce(
+          mock<RetryableContract>({
+            getRawCodeHash: getRawCodeHashMock as any,
+          })
+        );
+      });
+
+      it("uses the proper account code storage contract", async () => {
+        await blockchainService.getRawCodeHash(address);
+        expect(RetryableContract).toHaveBeenCalledTimes(1);
+        expect(RetryableContract).toBeCalledWith(
+          L2_ACCOUNT_CODE_STORAGE_ADDRESS,
+          CONTRACT_INTERFACES.L2_ACCOUNT_CODE_STORAGE.interface,
+          provider
+        );
+      });
+
+      it("gets the raw code hash for the specified address", async () => {
+        await blockchainService.getRawCodeHash(address);
+        expect(getRawCodeHashMock).toHaveBeenCalledTimes(1);
+        expect(getRawCodeHashMock).toHaveBeenCalledWith(address);
+      });
+
+      it("returns the raw code hash of the address", async () => {
+        const rawCodeHash = await blockchainService.getRawCodeHash(address);
+        expect(rawCodeHash).toStrictEqual("0x123");
+      });
+    });
+  });
+
+  describe("getTokenAddressByAssetId", () => {
+    const assetId = "assetId";
+
+    describe("when TokenVault contract function throws an exception", () => {
+      const error = new Error("Ethers Contract error");
+
+      beforeEach(() => {
+        (RetryableContract as any as jest.Mock).mockReturnValueOnce(
+          mock<RetryableContract>({
+            tokenAddress: jest.fn().mockImplementationOnce(() => {
+              throw error;
+            }) as any,
+          })
+        );
+      });
+
+      it("throws an error", async () => {
+        await expect(blockchainService.getTokenAddressByAssetId(assetId)).rejects.toThrowError(error);
+      });
+    });
+
+    describe("when TokenVault returns token address", () => {
+      let getTokenAddressMock: jest.Mock;
+
+      beforeEach(() => {
+        getTokenAddressMock = jest.fn().mockResolvedValueOnce("0x123");
+        (RetryableContract as any as jest.Mock).mockReturnValueOnce(
+          mock<RetryableContract>({
+            tokenAddress: getTokenAddressMock as any,
+          })
+        );
+      });
+
+      it("uses the proper token vault contract", async () => {
+        await blockchainService.getTokenAddressByAssetId(assetId);
+        expect(RetryableContract).toHaveBeenCalledTimes(1);
+        expect(RetryableContract).toBeCalledWith(
+          L2_NATIVE_TOKEN_VAULT_ADDRESS,
+          CONTRACT_INTERFACES.L2_NATIVE_TOKEN_VAULT.interface,
+          provider
+        );
+      });
+
+      it("gets the token address for the specified asset ID", async () => {
+        await blockchainService.getTokenAddressByAssetId(assetId);
+        expect(getTokenAddressMock).toHaveBeenCalledTimes(1);
+        expect(getTokenAddressMock).toHaveBeenCalledWith(assetId);
+      });
+
+      it("returns the token address of the asset ID", async () => {
+        const tokenAddress = await blockchainService.getTokenAddressByAssetId(assetId);
+        expect(tokenAddress).toStrictEqual("0x123");
       });
     });
   });

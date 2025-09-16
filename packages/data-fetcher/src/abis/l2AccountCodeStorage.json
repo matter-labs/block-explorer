@@ -1,0 +1,149 @@
+[
+    {
+        "type": "function",
+        "name": "getCodeHash",
+        "inputs": [
+            {
+                "name": "_input",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getCodeSize",
+        "inputs": [
+            {
+                "name": "_input",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "codeSize",
+                "type": "uint256",
+                "internalType": "uint256"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "getRawCodeHash",
+        "inputs": [
+            {
+                "name": "_address",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "codeHash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "isAccountEVM",
+        "inputs": [
+            {
+                "name": "_addr",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [
+            {
+                "name": "",
+                "type": "bool",
+                "internalType": "bool"
+            }
+        ],
+        "stateMutability": "view"
+    },
+    {
+        "type": "function",
+        "name": "markAccountCodeHashAsConstructed",
+        "inputs": [
+            {
+                "name": "_address",
+                "type": "address",
+                "internalType": "address"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "storeAccountConstructedCodeHash",
+        "inputs": [
+            {
+                "name": "_address",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_hash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "function",
+        "name": "storeAccountConstructingCodeHash",
+        "inputs": [
+            {
+                "name": "_address",
+                "type": "address",
+                "internalType": "address"
+            },
+            {
+                "name": "_hash",
+                "type": "bytes32",
+                "internalType": "bytes32"
+            }
+        ],
+        "outputs": [],
+        "stateMutability": "nonpayable"
+    },
+    {
+        "type": "error",
+        "name": "InvalidCodeHash",
+        "inputs": [
+            {
+                "name": "",
+                "type": "uint8",
+                "internalType": "enum CodeHashReason"
+            }
+        ]
+    },
+    {
+        "type": "error",
+        "name": "Unauthorized",
+        "inputs": [
+            {
+                "name": "",
+                "type": "address",
+                "internalType": "address"
+            }
+        ]
+    }
+]

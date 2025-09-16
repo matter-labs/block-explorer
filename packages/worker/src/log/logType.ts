@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { type Log } from "ethers";
 
 export enum LogType {
   // ERC20
@@ -61,6 +61,6 @@ export enum LogType {
   DepositFinalizedAssetRouter = "0x44eb9a840094a49b3cd0a5205042598a1c08c4e87bafb5760bc2d8efa170c541",
 }
 
-export const isLogOfType = (log: types.Log, types: LogType[]): boolean => {
+export const isLogOfType = (log: Log, types: LogType[]): boolean => {
   return types.some((type) => log.topics[0] === type);
 };

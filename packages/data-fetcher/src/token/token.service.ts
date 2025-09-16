@@ -1,11 +1,11 @@
-import { types } from "zksync-ethers";
+import { TransactionReceipt } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
 import { LogType, isLogOfType } from "../log/logType";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
-import { ContractAddress } from "../address/interface/contractAddress.interface";
+import { ContractAddress } from "../transaction/transactionTraces.service";
 import parseLog from "../utils/parseLog";
 import { CONTRACT_INTERFACES, BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
 
@@ -63,7 +63,7 @@ export class TokenService {
 
   public async getERC20Token(
     contractAddress: ContractAddress,
-    transactionReceipt?: types.TransactionReceipt
+    transactionReceipt?: TransactionReceipt
   ): Promise<Token | null> {
     let erc20Token: {
       symbol: string;

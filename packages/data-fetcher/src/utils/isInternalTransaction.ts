@@ -1,9 +1,9 @@
-import { types } from "zksync-ethers";
+import { type TransactionReceipt } from "ethers";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { TransferType } from "../transfer/transfer.service";
 import { BASE_TOKEN_ADDRESS } from "../constants";
 
-export default function isInternalTransaction(transfer: Transfer, transactionReceipt?: types.TransactionReceipt) {
+export default function isInternalTransaction(transfer: Transfer, transactionReceipt: TransactionReceipt) {
   if (transfer.type !== TransferType.Transfer) {
     return false;
   }

@@ -49,9 +49,6 @@ export class Transaction extends CountableEntity {
   @Column({ type: "varchar", length: 128 })
   public readonly value: string;
 
-  @Column({ type: "int" })
-  public readonly chainId: bigint;
-
   @ManyToOne(() => Block, { onDelete: "CASCADE" })
   @JoinColumn({ name: "blockNumber" })
   private readonly _block: never;
@@ -72,7 +69,7 @@ export class Transaction extends CountableEntity {
     createForeignKeyConstraints: false,
   })
   @JoinColumn({ name: "l1BatchNumber" })
-  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
+  @Column({ type: "bigint", transformer: bigIntNumberTransformer, default: 0 })
   public readonly l1BatchNumber: number;
 
   @Column({ type: "varchar" })

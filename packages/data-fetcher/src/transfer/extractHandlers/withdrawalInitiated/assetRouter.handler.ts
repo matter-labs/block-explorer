@@ -1,4 +1,5 @@
-import { types, utils } from "zksync-ethers";
+import { utils } from "zksync-ethers";
+import { type Log, type Block } from "ethers";
 import { AbiCoder } from "ethers";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { Transfer } from "../../interfaces/transfer.interface";
@@ -12,12 +13,7 @@ import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 
 export const assetRouterWithdrawalInitiatedHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
-  extract: async (
-    log: types.Log,
-    blockchainService: BlockchainService,
-    blockDetails: types.BlockDetails,
-    transactionDetails?: types.TransactionDetails
-  ): Promise<Transfer> => {
+  extract: async (log: Log, blockchainService: BlockchainService, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_ASSET_ROUTER, log);
     const assetId = parsedLog.args.assetId;
     let tokenAddress = (await blockchainService.getTokenAddressByAssetId(assetId)).toLowerCase();
@@ -40,7 +36,7 @@ export const assetRouterWithdrawalInitiatedHandler: ExtractTransferHandler = {
       isFeeOrRefund: false,
       logIndex: log.index,
       transactionIndex: log.transactionIndex,
-      timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
+      timestamp: unixTimeToDate(block.timestamp),
     };
   },
 };

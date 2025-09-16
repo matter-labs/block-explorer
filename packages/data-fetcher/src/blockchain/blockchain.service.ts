@@ -1,26 +1,42 @@
 import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
-import { utils, types } from "zksync-ethers";
+import { utils } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { Listener } from "ethers";
+import { Listener, toBeHex } from "ethers";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
-import { ProviderEvent } from "ethers";
+import {
+  ProviderEvent,
+  type Block,
+  type BlockTag,
+  type TransactionReceipt,
+  type TransactionResponse,
+  type Log,
+} from "ethers";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
-import { L2_NATIVE_TOKEN_VAULT_ADDRESS, CONTRACT_INTERFACES } from "../constants";
+import { L2_NATIVE_TOKEN_VAULT_ADDRESS, L2_ACCOUNT_CODE_STORAGE_ADDRESS, CONTRACT_INTERFACES } from "../constants";
 
 export interface BridgeAddresses {
   l2Erc20DefaultBridge?: string;
 }
 
-export interface TraceTransactionResult {
+export interface TransactionTrace {
   type: string;
   from: string;
   to: string;
   error: string | null;
   revertReason: string | null;
+  calls: TransactionTrace[] | null;
+  value: string;
+  input: string;
+}
+
+export interface TraceResult {
+  txHash: string;
+  result: TransactionTrace | null;
+  error: string | null;
 }
 
 @Injectable()
@@ -67,23 +83,7 @@ export class BlockchainService implements OnModuleInit {
     }
   }
 
-  public async getL1BatchNumber(): Promise<number> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getL1BatchNumber();
-    }, "getL1BatchNumber");
-  }
-
-  public async getL1BatchDetails(batchNumber: number): Promise<types.BatchDetails> {
-    return await this.rpcCall(async () => {
-      const batchDetails = await this.provider.getL1BatchDetails(batchNumber);
-      if (batchDetails && batchNumber === 0) {
-        batchDetails.committedAt = batchDetails.provenAt = batchDetails.executedAt = new Date(0);
-      }
-      return batchDetails;
-    }, "getL1BatchDetails");
-  }
-
-  public async getBlock(blockHashOrBlockTag: types.BlockTag): Promise<types.Block> {
+  public async getBlock(blockHashOrBlockTag: BlockTag): Promise<Block> {
     return await this.rpcCall(async () => {
       return await this.provider.getBlock(blockHashOrBlockTag);
     }, "getBlock");
@@ -95,31 +95,19 @@ export class BlockchainService implements OnModuleInit {
     }, "getBlockNumber");
   }
 
-  public async getBlockDetails(blockNumber: number): Promise<types.BlockDetails> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getBlockDetails(blockNumber);
-    }, "getBlockDetails");
-  }
-
-  public async getTransaction(transactionHash: string): Promise<types.TransactionResponse> {
+  public async getTransaction(transactionHash: string): Promise<TransactionResponse> {
     return await this.rpcCall(async () => {
       return await this.provider.getTransaction(transactionHash);
     }, "getTransaction");
   }
 
-  public async getTransactionDetails(transactionHash: string): Promise<types.TransactionDetails> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getTransactionDetails(transactionHash);
-    }, "getTransactionDetails");
-  }
-
-  public async getTransactionReceipt(transactionHash: string): Promise<types.TransactionReceipt> {
+  public async getTransactionReceipt(transactionHash: string): Promise<TransactionReceipt> {
     return await this.rpcCall(async () => {
       return await this.provider.getTransactionReceipt(transactionHash);
     }, "getTransactionReceipt");
   }
 
-  public async getLogs(eventFilter: { fromBlock: number; toBlock: number }): Promise<types.Log[]> {
+  public async getLogs(eventFilter: { fromBlock: number; toBlock: number }): Promise<Log[]> {
     return await this.rpcCall(async () => {
       return await this.provider.getLogs(eventFilter);
     }, "getLogs");
@@ -131,13 +119,7 @@ export class BlockchainService implements OnModuleInit {
     }, "getCode");
   }
 
-  public async getDefaultBridgeAddresses(): Promise<{ erc20L1: string; erc20L2: string }> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getDefaultBridgeAddresses();
-    }, "getDefaultBridgeAddresses");
-  }
-
-  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TraceTransactionResult> {
+  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TransactionTrace> {
     return await this.rpcCall(async () => {
       return await this.provider.send("debug_traceTransaction", [
         txHash,
@@ -147,6 +129,18 @@ export class BlockchainService implements OnModuleInit {
         },
       ]);
     }, "debugTraceTransaction");
+  }
+
+  public async debugTraceBlock(blockNumber: number, onlyTopCall = false): Promise<TraceResult[]> {
+    return await this.rpcCall(async () => {
+      return await this.provider.send("debug_traceBlockByNumber", [
+        toBeHex(blockNumber),
+        {
+          tracer: "callTracer",
+          tracerConfig: { onlyTopCall },
+        },
+      ]);
+    }, "debugTraceBlock");
   }
 
   public async on(eventName: ProviderEvent, listener: Listener): Promise<void> {
@@ -168,13 +162,23 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async getTokenAddressByAssetId(assetId: string): Promise<string> {
-    const erc20Contract = new RetryableContract(
+    const vaultContract = new RetryableContract(
       L2_NATIVE_TOKEN_VAULT_ADDRESS,
       CONTRACT_INTERFACES.L2_NATIVE_TOKEN_VAULT.interface,
       this.provider
     );
-    const tokenAddress = await erc20Contract.tokenAddress(assetId);
+    const tokenAddress = await vaultContract.tokenAddress(assetId);
     return tokenAddress;
+  }
+
+  public async getRawCodeHash(address: string): Promise<string> {
+    const accountCodeStorageContract = new RetryableContract(
+      L2_ACCOUNT_CODE_STORAGE_ADDRESS,
+      CONTRACT_INTERFACES.L2_ACCOUNT_CODE_STORAGE.interface,
+      this.provider
+    );
+    const bytecodeHash = await accountCodeStorageContract.getRawCodeHash(address);
+    return bytecodeHash;
   }
 
   public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<bigint> {
@@ -189,10 +193,9 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async onModuleInit(): Promise<void> {
-    const bridgeAddresses = await this.getDefaultBridgeAddresses();
-
     this.bridgeAddresses = {
-      l2Erc20DefaultBridge: bridgeAddresses.erc20L2?.toLowerCase(),
+      // TODO: figure out how bridging works in ZKsync OS
+      l2Erc20DefaultBridge: "", //bridgeAddresses.erc20L2?.toLowerCase(),
     };
     this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
   }

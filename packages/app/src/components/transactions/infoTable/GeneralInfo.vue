@@ -192,7 +192,7 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <FeeData :fee-data="transaction?.feeData" :show-details="transaction?.status !== 'indexing'" />
+          <FeeData :fee-data="transaction?.feeData" :show-details="showFeeDetails" />
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">
@@ -287,6 +287,15 @@ const props = defineProps({
   decodingDataError: {
     type: String,
   },
+});
+
+const showFeeDetails = computed(() => {
+  if (props.transaction) {
+    const tx = props.transaction;
+    // Transaction is being indexed or doesn't have fee details to show
+    return tx.status !== "indexing" && (tx.feeData.refunds.length > 0 || tx.feeData.isPaidByPaymaster);
+  }
+  return false;
 });
 
 const isContractDeploymentTx = computed(() => {

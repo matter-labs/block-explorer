@@ -1,24 +1,32 @@
 import { DataSource, DataSourceOptions } from "typeorm";
 import { config } from "dotenv";
+import { getDatabaseConnectionOptions, getDatabaseConfig } from "./database.config";
 
 config();
 
-let dbUrl = process.env.DATABASE_URL;
-if (!dbUrl) {
-  const host = process.env.DATABASE_HOST || "localhost";
-  const port = parseInt(process.env.DATABASE_PORT) || 5432;
-  const username = process.env.DATABASE_USER || "postgres";
-  const password = process.env.DATABASE_PASSWORD || "postgres";
-  const database = process.env.DATABASE_NAME || "block-explorer";
-  dbUrl = `postgres://${username}:${password}@${host}:${port}/${database}`;
-}
+const dbOptions = getDatabaseConnectionOptions();
+const dbConfig = getDatabaseConfig();
+
+// When SSL is enabled, use individual connection params instead of URL
+// because TypeORM doesn't properly apply SSL config with URL
+const connectionConfig = dbOptions.ssl
+  ? {
+      host: dbConfig.host,
+      port: dbConfig.port,
+      username: dbConfig.username,
+      password: dbConfig.password,
+      database: dbConfig.database,
+    }
+  : { url: dbOptions.url };
 
 export const typeOrmModuleOptions: DataSourceOptions = {
   type: "postgres",
-  url: dbUrl,
+  ...connectionConfig,
+  ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
   poolSize: parseInt(process.env.DATABASE_CONNECTION_POOL_SIZE, 10) || 100,
   extra: {
     idleTimeoutMillis: parseInt(process.env.DATABASE_CONNECTION_IDLE_TIMEOUT_MS, 10) || 12000,
+    ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
   },
   applicationName: "block-explorer-worker",
   migrationsRun: false,

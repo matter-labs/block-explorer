@@ -1,4 +1,5 @@
-import { utils, types } from "zksync-ethers";
+import { utils } from "zksync-ethers";
+import { type Log, type Block } from "ethers";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
@@ -9,23 +10,13 @@ import { isBaseToken } from "../../../utils/token";
 import { CONTRACT_INTERFACES } from "../../../constants";
 
 export const defaultTransferHandler: ExtractTransferHandler = {
-  matches: (log: types.Log): boolean => log.topics.length === 3,
-  extract: async (
-    log: types.Log,
-    _,
-    blockDetails: types.BlockDetails,
-    transactionDetails?: types.TransactionDetails
-  ): Promise<Transfer> => {
+  matches: (log: Log): boolean => log.topics.length === 3,
+  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC20, log);
 
     let transferType: TransferType = TransferType.Transfer;
     if (parsedLog.args.to === utils.BOOTLOADER_FORMAL_ADDRESS) {
       transferType = TransferType.Fee;
-    }
-    // if transactionDetails is null it means that this transfer comes from a block with
-    // no transactions and it is a reward to an operator address, so it's a transfer and not a refund
-    else if (parsedLog.args.from === utils.BOOTLOADER_FORMAL_ADDRESS && transactionDetails) {
-      transferType = TransferType.Refund;
     }
 
     const tokenAddress = log.address.toLowerCase();
@@ -42,7 +33,7 @@ export const defaultTransferHandler: ExtractTransferHandler = {
       isFeeOrRefund: [TransferType.Fee, TransferType.Refund].includes(transferType),
       logIndex: log.index,
       transactionIndex: log.transactionIndex,
-      timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
+      timestamp: unixTimeToDate(block.timestamp),
     };
   },
 };

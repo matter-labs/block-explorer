@@ -1,4 +1,5 @@
-import { utils, types } from "zksync-ethers";
+import { utils } from "zksync-ethers";
+import { type Log, type Block } from "ethers";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
@@ -8,13 +9,8 @@ import parseLog from "../../../utils/parseLog";
 import { CONTRACT_INTERFACES } from "../../../constants";
 
 export const erc721TransferHandler: ExtractTransferHandler = {
-  matches: (log: types.Log): boolean => log.topics.length === 4,
-  extract: async (
-    log: types.Log,
-    _,
-    blockDetails: types.BlockDetails,
-    transactionDetails?: types.TransactionDetails
-  ): Promise<Transfer> => {
+  matches: (log: Log): boolean => log.topics.length === 4,
+  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC721, log);
 
     let type = TransferType.Transfer;
@@ -40,7 +36,7 @@ export const erc721TransferHandler: ExtractTransferHandler = {
       isFeeOrRefund: false,
       logIndex: log.index,
       transactionIndex: log.transactionIndex,
-      timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
+      timestamp: unixTimeToDate(block.timestamp),
     };
   },
 };
