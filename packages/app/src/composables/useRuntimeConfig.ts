@@ -3,6 +3,7 @@ import type { NetworkConfig, RuntimeConfig } from "@/configs";
 import { checksumAddress } from "@/utils/formatters";
 export const DEFAULT_NETWORK: NetworkConfig = {
   groupId: "era",
+  isZKsyncOS: false,
   apiUrl: "https://block-explorer-api.sepolia.zksync.dev",
   verificationApiUrl: "https://explorer.sepolia.era.zksync.dev",
   bridgeUrl: "https://portal.zksync.io/bridge/?network=sepolia",
