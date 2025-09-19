@@ -85,30 +85,6 @@
       "name": "gateway-mainnet",
       "published": true,
       "rpcUrl": "https://rpc.era-gateway-mainnet.zksync.dev"
-    },
-    {
-      "groupId": "zksync-os",
-      "isZKsyncOS": true,
-      "apiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev",
-      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
-      "hostnames": [
-        "https://zksync-os-stage.explorer.zksync.io"
-      ],
-      "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }],
-      "l2ChainId": 270,
-      "l2NetworkName": "ZKsync OS Stage",
-      "maintenance": false,
-      "name": "zksync-os-stage",
-      "published": true,
-      "rpcUrl": "https://zksync-os-stage-api.zksync-nodes.com",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     }
   ]
 }
