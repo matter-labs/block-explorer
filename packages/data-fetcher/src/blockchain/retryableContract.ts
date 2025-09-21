@@ -26,7 +26,12 @@ const shouldRetry = (error: EthersError): boolean => {
     // example block mainnet 47752810
     !(error.code === 3 && error.shortMessage?.startsWith("execution reverted")) &&
     // example block mainnet 47819836
-    !(error.code === "BAD_DATA" && error.shortMessage?.startsWith("could not decode result data"))
+    !(
+      error.code === "BAD_DATA" &&
+      ["could not decode result data", "invalid length for result data"].find((message) =>
+        error.shortMessage?.startsWith(message)
+      )
+    )
   );
 };
 
