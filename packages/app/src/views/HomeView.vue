@@ -14,6 +14,31 @@
       />
     </div>
     <div class="latest-blocks-transactions">
+      <div v-if="!currentNetwork.isZKsyncOS">
+        <div class="batches-label-container">
+          <p>{{ t("blockExplorer.batches") }}</p>
+          <InfoTooltip class="batches-tooltip">{{ t("batches.tooltipInfo") }}</InfoTooltip>
+        </div>
+        <template v-if="(isBatchesPending || batches) && !isBatchesFailed">
+          <TableBatches
+            :data-testid="$testId.latestBatchesTable"
+            :loading="isBatchesPending"
+            :batches="displayedBatches"
+            :columns="['status', 'size', 'txnBatch', 'age']"
+          >
+            <template #not-found>
+              <p class="not-found">{{ t("batches.table.notFoundHomePage") }}</p>
+            </template>
+          </TableBatches>
+          <Button variant="outlined" color="primary" @click="router.push('batches')">
+            {{ t("batches.viewAll") }}
+            <ArrowRightIcon class="batches-view-all-arrow" />
+          </Button>
+        </template>
+        <span v-else-if="isBatchesFailed" class="error-message">
+          {{ t("failedRequest") }}
+        </span>
+      </div>
       <div>
         <p>{{ t("blockExplorer.latestTransactions") }}</p>
         <TransactionsTable
@@ -51,11 +76,13 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 
 import useBatches from "@/composables/useBatches";
+import useContext from "@/composables/useContext";
 import useNetworkStats from "@/composables/useNetworkStats";
 
 import router from "@/router";
 
 const { t } = useI18n();
+const { currentNetwork } = useContext();
 const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
 const { load: getBatches, pending: isBatchesPending, failed: isBatchesFailed, data: batches } = useBatches();
 
@@ -65,7 +92,9 @@ const displayedBatches = computed(() => {
 
 fetchNetworkStats();
 
-getBatches(1, new Date());
+if (!currentNetwork.value.isZKsyncOS) {
+  getBatches(1, new Date());
+}
 </script>
 
 <style lang="scss" scoped>

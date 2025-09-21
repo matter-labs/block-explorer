@@ -55,6 +55,54 @@
     },
     {
       "groupId": "era",
+      "isZKsyncOS": true,
+      "apiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://zksync-os-stage.staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }],
+      "l2ChainId": 270,
+      "l2NetworkName": "ZKsync OS Stage",
+      "maintenance": false,
+      "name": "zksync-os-stage",
+      "published": true,
+      "rpcUrl": "https://zksync-os-stage-api.zksync-nodes.com",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "era",
+      "isZKsyncOS": true,
+      "apiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://zksync-os-testnet-alpha.staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }],
+      "l2ChainId": 8022833,
+      "l2NetworkName": "ZKsync OS Testnet",
+      "maintenance": false,
+      "name": "zksync-os-testnet-alpha",
+      "published": true,
+      "rpcUrl": "https://zksync-os-testnet-alpha.zksync.dev",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "era",
       "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
       "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
