@@ -60,7 +60,7 @@ function getTransactionTraceData(
 
   if (transactionTrace) {
     const traceType = transactionTrace.type.toLowerCase();
-    if (["create", "create2"].includes(traceType)) {
+    if (["create", "create2"].includes(traceType) && !transactionTrace.error) {
       extractedData.contractAddresses.push({
         address: transactionTrace.to,
         blockNumber: transaction.blockNumber,
