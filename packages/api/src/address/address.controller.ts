@@ -70,6 +70,9 @@ export class AddressController {
       ? AddressType.Contract
       : AddressType.Account;
     let includeBalances = true;
+    let includeBytecode = true;
+    let includeCreatorAddress = true;
+    let includeCreatorTxHash = true;
 
     if (user) {
       // If address is an account and is not own address, forbid access
@@ -77,9 +80,12 @@ export class AddressController {
         throw new ForbiddenException();
       }
 
-      // If address is a contract and user is not owner, don't include balances
+      // If address is a contract and user is not owner, don't include additional information
       if (addressType === AddressType.Contract && !(await this.isUserOwnerOfContract(address, user.address))) {
         includeBalances = false;
+        includeBytecode = false;
+        includeCreatorAddress = false;
+        includeCreatorTxHash = false;
       }
     }
 
@@ -95,10 +101,11 @@ export class AddressController {
         blockNumber: addressBalance.blockNumber || addressRecord.createdInBlockNumber,
         balances: addressBalance.balances,
         createdInBlockNumber: addressRecord.createdInBlockNumber,
-        creatorTxHash: addressRecord.creatorTxHash,
+        creatorTxHash: includeCreatorTxHash ? addressRecord.creatorTxHash : "",
         totalTransactions,
-        creatorAddress: addressRecord.creatorAddress,
+        creatorAddress: includeCreatorAddress ? addressRecord.creatorAddress : "",
         isEvmLike: addressRecord.isEvmLike,
+        bytecode: includeBytecode ? addressRecord.bytecode : "",
       };
     }
 
