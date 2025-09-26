@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
+import { L1_ORIGINATED_TX_TYPES } from "../constants";
 import {
   TransactionRepository,
   TransactionReceiptRepository,
@@ -47,8 +48,7 @@ export class TransactionProcessor {
       // TODO: rename transactionIndex to index to avoid unnecessary field mapping
       transactionIndex: transactionData.transaction.index,
       receivedAt: unixTimeToDate(block.timestamp).toISOString(),
-      //255 is L1 priority tx, 254 is upgrade tx
-      isL1Originated: transactionData.transaction.type === 255,
+      isL1Originated: L1_ORIGINATED_TX_TYPES.includes(transactionData.transaction.type),
       fee: (
         BigInt(transactionData.transactionReceipt.gasUsed) * BigInt(transactionData.transactionReceipt.gasPrice)
       ).toString(),

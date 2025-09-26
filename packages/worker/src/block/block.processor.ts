@@ -21,7 +21,7 @@ import {
   BlocksBatchProcessingMetricLabels,
   BlockProcessingMetricLabels,
 } from "../metrics";
-import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
+import { BLOCKS_REVERT_DETECTED_EVENT, L1_ORIGINATED_TX_TYPES } from "../constants";
 import { unixTimeToDate } from "../utils/date";
 
 @Injectable()
@@ -57,7 +57,7 @@ export class BlockProcessor {
   }
 
   public async processNextBlocksRange(): Promise<boolean> {
-    const lastDbBlock = await this.blockRepository.getLastBlock({
+    const lastDbBlock = await this.blockRepository.getBlock({
       where: this.buildBlockRangeCondition(),
       select: { number: true, hash: true },
     });
@@ -155,12 +155,14 @@ export class BlockProcessor {
 
     const stopDurationMeasuring = this.processingDurationMetric.startTimer();
     try {
-      const l1TxCount = blockData.transactions.filter((tx) => tx.transaction.type === 255).length;
+      const l1TxCount = blockData.transactions.filter((tx) =>
+        L1_ORIGINATED_TX_TYPES.includes(tx.transaction.type)
+      ).length;
       await this.blockRepository.add({
         ...block,
         l1TxCount: l1TxCount,
         l2TxCount: blockData.transactions.length - l1TxCount,
-        // TODO: think about changing the DB schema so we can save this fields as is with no type casting
+        // TODO: think about changing the DB schema so we can save this field as is with no type casting
         timestamp: unixTimeToDate(block.timestamp),
       });
 

@@ -6,7 +6,7 @@ import { paginate } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
-import { Batch } from "../batch/batch.entity";
+import { Block, BlockStatus } from "../block/block.entity";
 import { CounterService } from "../counter/counter.service";
 import { Log } from "../log/log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
@@ -16,7 +16,6 @@ import { zeroPadValue } from "ethers";
 export interface FilterTransactionsOptions {
   blockNumber?: number;
   address?: string;
-  l1BatchNumber?: number;
   receivedAt?: FindOperator<Date>;
   filterAddressInLogTopics?: boolean;
   visibleBy?: string;
@@ -37,8 +36,8 @@ export class TransactionService {
     private readonly transactionRepository: Repository<Transaction>,
     @InjectRepository(AddressTransaction)
     private readonly addressTransactionRepository: Repository<AddressTransaction>,
-    @InjectRepository(Batch)
-    private readonly batchRepository: Repository<Batch>,
+    @InjectRepository(Block)
+    private readonly blockRepository: Repository<Block>,
     private readonly counterService: CounterService,
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>
@@ -46,7 +45,7 @@ export class TransactionService {
 
   public async findOne(hash: string): Promise<Transaction> {
     const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
-    queryBuilder.leftJoinAndSelect("transaction.batch", "batch");
+    queryBuilder.leftJoinAndSelect("transaction.block", "block");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
     queryBuilder.where({ hash });
@@ -70,7 +69,6 @@ export class TransactionService {
         const commonParams: Record<string, string | number | Date> = {
           address: hexTransformer.to(filterOptions.address),
           ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
-          ...(filterOptions.l1BatchNumber !== undefined && { l1BatchNumber: filterOptions.l1BatchNumber }),
           ...(filterOptions.visibleBy !== undefined && { visibleBy: hexTransformer.to(filterOptions.visibleBy) }),
         };
 
@@ -104,9 +102,6 @@ export class TransactionService {
 
         if (filterOptions.blockNumber !== undefined) {
           addressTransactionSubQuery.andWhere("sub1_transaction.blockNumber = :blockNumber");
-        }
-        if (filterOptions.l1BatchNumber !== undefined) {
-          addressTransactionSubQuery.andWhere("sub1_transaction.l1BatchNumber = :l1BatchNumber");
         }
         if (filterOptions.receivedAt !== undefined) {
           addressTransactionSubQuery.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
@@ -150,9 +145,6 @@ export class TransactionService {
           if (filterOptions.blockNumber !== undefined) {
             logSubQuery.andWhere("sub2_transaction.blockNumber = :blockNumber");
           }
-          if (filterOptions.l1BatchNumber !== undefined) {
-            logSubQuery.andWhere("sub2_transaction.l1BatchNumber = :l1BatchNumber");
-          }
           if (filterOptions.receivedAt !== undefined) {
             logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
           }
@@ -179,8 +171,8 @@ export class TransactionService {
 
         queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
         queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-        queryBuilder.leftJoin("transaction.batch", "batch");
-        queryBuilder.addSelect(["batch.commitTxHash", "batch.executeTxHash", "batch.proveTxHash"]);
+        queryBuilder.leftJoin("transaction.block", "block");
+        queryBuilder.addSelect(["block.status"]);
 
         queryBuilder.orderBy("transaction.blockNumber", "DESC");
         queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
@@ -194,15 +186,8 @@ export class TransactionService {
       queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-      queryBuilder.leftJoin("transaction.batch", "batch");
-      queryBuilder.addSelect([
-        "batch.commitTxHash",
-        "batch.commitChainId",
-        "batch.executeTxHash",
-        "batch.executeChainId",
-        "batch.proveTxHash",
-        "batch.proveChainId",
-      ]);
+      queryBuilder.leftJoin("transaction.block", "block");
+      queryBuilder.addSelect(["block.status"]);
       queryBuilder.where({
         address: filterOptions.address,
         ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
@@ -211,12 +196,6 @@ export class TransactionService {
       if (filterOptions.blockNumber !== undefined) {
         // can't use filters on transaction as object here due to typeOrm issue with filters on joined tables
         queryBuilder.andWhere("transaction.blockNumber = :blockNumber", { blockNumber: filterOptions.blockNumber });
-      }
-      if (filterOptions.l1BatchNumber !== undefined) {
-        // can't use filters on transaction as object here due to typeOrm issue with filters on joined tables
-        queryBuilder.andWhere("transaction.l1BatchNumber = :l1BatchNumber", {
-          l1BatchNumber: filterOptions.l1BatchNumber,
-        });
       }
       queryBuilder.orderBy("addressTransaction.blockNumber", "DESC");
       queryBuilder.addOrderBy("addressTransaction.receivedAt", "DESC");
@@ -230,15 +209,8 @@ export class TransactionService {
       const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-      queryBuilder.leftJoin("transaction.batch", "batch");
-      queryBuilder.addSelect([
-        "batch.commitTxHash",
-        "batch.commitChainId",
-        "batch.executeTxHash",
-        "batch.executeChainId",
-        "batch.proveTxHash",
-        "batch.proveChainId",
-      ]);
+      queryBuilder.leftJoin("transaction.block", "block");
+      queryBuilder.addSelect(["block.status"]);
       queryBuilder.where(filterOptions);
       queryBuilder.orderBy("transaction.blockNumber", "DESC");
       queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
@@ -266,15 +238,8 @@ export class TransactionService {
       "transactionReceipt.cumulativeGasUsed",
       "transactionReceipt.contractAddress",
     ]);
-    queryBuilder.leftJoin("transaction.batch", "batch");
-    queryBuilder.addSelect([
-      "batch.commitTxHash",
-      "batch.commitChainId",
-      "batch.executeTxHash",
-      "batch.executeChainId",
-      "batch.proveTxHash",
-      "batch.proveChainId",
-    ]);
+    queryBuilder.leftJoin("transaction.block", "block");
+    queryBuilder.addSelect(["block.status"]);
     queryBuilder.where({ address });
     if (startBlock !== undefined) {
       queryBuilder.andWhere({
@@ -301,16 +266,16 @@ export class TransactionService {
     queryBuilder.select("nonce");
     queryBuilder.where({ from: accountAddress, isL1Originated: false });
     if (isVerified) {
-      const lastVerifiedBatchQuery = this.batchRepository.createQueryBuilder("batch");
-      lastVerifiedBatchQuery.select("number");
-      lastVerifiedBatchQuery.where("batch.executedAt IS NOT NULL");
-      lastVerifiedBatchQuery.orderBy("batch.executedAt", "DESC");
-      lastVerifiedBatchQuery.addOrderBy("batch.number", "DESC");
-      lastVerifiedBatchQuery.limit(1);
+      const lastVerifiedBlockQuery = this.blockRepository.createQueryBuilder("block");
+      lastVerifiedBlockQuery.select("number");
+      lastVerifiedBlockQuery.where("block.status = :status", { status: BlockStatus.Executed });
+      lastVerifiedBlockQuery.orderBy("block.status", "DESC");
+      lastVerifiedBlockQuery.addOrderBy("block.number", "DESC");
+      lastVerifiedBlockQuery.limit(1);
 
-      queryBuilder.andWhere(`transaction.l1BatchNumber <= (${lastVerifiedBatchQuery.getQuery()})`);
+      queryBuilder.andWhere(`transaction.blockNumber <= (${lastVerifiedBlockQuery.getQuery()})`);
     }
-    queryBuilder.orderBy("transaction.l1BatchNumber", "DESC");
+    queryBuilder.orderBy("transaction.blockNumber", "DESC");
     queryBuilder.addOrderBy("transaction.nonce", "DESC");
     queryBuilder.limit(1);
     return queryBuilder;

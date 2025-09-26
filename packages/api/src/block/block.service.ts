@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";
 import { IPaginationOptions } from "../common/types";
-import { Block } from "./block.entity";
+import { Block, BlockStatus } from "./block.entity";
 import { BlockDetails } from "./blockDetails.entity";
 
 export interface FindManyOptions {
@@ -39,8 +39,7 @@ export class BlockService {
   public async getLastVerifiedBlockNumber(): Promise<number> {
     const queryBuilder = this.blocksRepository.createQueryBuilder("block");
     queryBuilder.select("block.number");
-    queryBuilder.innerJoin("block.batch", "batches");
-    queryBuilder.where("batches.executedAt IS NOT NULL");
+    queryBuilder.where("block.status = :status", { status: BlockStatus.Executed });
     queryBuilder.orderBy("block.number", "DESC");
     queryBuilder.limit(1);
 
@@ -48,14 +47,9 @@ export class BlockService {
     return lastBlock?.number || 0;
   }
 
-  public async findOne(
-    number: number,
-    selectFields?: (keyof BlockDetails)[],
-    relations: FindOptionsRelations<BlockDetails> = { batch: true }
-  ): Promise<BlockDetails> {
+  public async findOne(number: number, selectFields?: (keyof BlockDetails)[]): Promise<BlockDetails> {
     return await this.blockDetailsRepository.findOne({
       where: { number },
-      relations: relations,
       select: selectFields,
     });
   }
@@ -82,8 +76,6 @@ export class BlockService {
   ): Promise<Pagination<Block>> {
     const queryBuilder = this.blocksRepository
       .createQueryBuilder("block")
-      .leftJoin("block.batch", "batches")
-      .addSelect("batches.executedAt")
       .where(filterOptions)
       .orderBy("block.number", "DESC");
 

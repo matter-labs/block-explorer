@@ -65,13 +65,6 @@ export class BlockchainService implements OnModuleInit {
     return this.rpcCall(action, functionName);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public async getL1BatchDetails(_: number): Promise<types.BatchDetails> {
-    // ZKsync OS doesn't have batches.
-    // TODO: clean up all batch dependencies
-    return null;
-  }
-
   public async getBlock(blockHashOrBlockTag: BlockTag): Promise<Block> {
     return await this.rpcCall(async () => {
       return await this.provider.getBlock(blockHashOrBlockTag);

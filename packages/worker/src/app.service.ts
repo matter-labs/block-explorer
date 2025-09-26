@@ -4,8 +4,8 @@ import { OnEvent } from "@nestjs/event-emitter";
 import { DataSource } from "typeorm";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
 import { BlocksRevertService } from "./blocksRevert";
+import { BlockStatusService } from "./blockStatus";
 import { BlockService } from "./block";
-import { BatchService } from "./batch";
 import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
 import { TokenService } from "./token/token.service";
@@ -20,9 +20,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   public constructor(
     private readonly counterService: CounterService,
-    private readonly batchService: BatchService,
     private readonly blockService: BlockService,
     private readonly blocksRevertService: BlocksRevertService,
+    private readonly blockStatusService: BlockStatusService,
     private readonly balancesCleanerService: BalancesCleanerService,
     private readonly tokenOffChainDataSaverService: TokenOffChainDataSaverService,
     private readonly tokenService: TokenService,
@@ -67,13 +67,13 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   }
 
   private startWorkers() {
-    const disableBatchesProcessing = this.configService.get<boolean>("batches.disableBatchesProcessing");
+    const disableBlockStatusProcessing = this.configService.get<boolean>("blocks.disableBlockStatusProcessing");
     const disableCountersProcessing = this.configService.get<boolean>("counters.disableCountersProcessing");
     const disableOldBalancesCleaner = this.configService.get<boolean>("balances.disableOldBalancesCleaner");
     const enableTokenOffChainDataSaver = this.configService.get<boolean>("tokens.enableTokenOffChainDataSaver");
     const tasks = [this.blockService.start()];
-    if (!disableBatchesProcessing) {
-      tasks.push(this.batchService.start());
+    if (!disableBlockStatusProcessing) {
+      tasks.push(this.blockStatusService.start());
     }
     if (!disableCountersProcessing) {
       tasks.push(this.counterService.start());
@@ -90,7 +90,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   private stopWorkers() {
     return Promise.all([
       this.blockService.stop(),
-      this.batchService.stop(),
+      this.blockStatusService.stop(),
       this.counterService.stop(),
       this.balancesCleanerService.stop(),
       this.tokenOffChainDataSaverService.stop(),

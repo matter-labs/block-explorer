@@ -31,10 +31,6 @@ describe("config", () => {
         disableBlocksRevert: false,
         numberOfBlocksPerDbTransaction: 50,
       },
-      batches: {
-        batchesProcessingPollingInterval: 60000,
-        disableBatchesProcessing: false,
-      },
       balances: {
         deleteBalancesInterval: 300000,
         disableOldBalancesCleaner: false,
@@ -105,10 +101,6 @@ describe("config", () => {
         toBlock: null,
         disableBlocksRevert: false,
         numberOfBlocksPerDbTransaction: 50,
-      },
-      batches: {
-        batchesProcessingPollingInterval: 60000,
-        disableBatchesProcessing: false,
       },
       balances: {
         deleteBalancesInterval: 300000,

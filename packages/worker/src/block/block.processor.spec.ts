@@ -153,7 +153,7 @@ describe("BlockProcessor", () => {
   describe("processNextBlockRange", () => {
     it("fetches the last block from the DB", async () => {
       await blockProcessor.processNextBlocksRange();
-      expect(blockRepositoryMock.getLastBlock).toHaveBeenCalledWith({
+      expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
         where: {},
         select: { number: true, hash: true },
       });
@@ -168,7 +168,7 @@ describe("BlockProcessor", () => {
 
         blockProcessor = await getBlockProcessor();
         await blockProcessor.processNextBlocksRange();
-        expect(blockRepositoryMock.getLastBlock).toHaveBeenCalledWith({
+        expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
           where: {
             number: Between(100, 1000),
           },
@@ -186,7 +186,7 @@ describe("BlockProcessor", () => {
 
         const blockProcessor = await getBlockProcessor();
         await blockProcessor.processNextBlocksRange();
-        expect(blockRepositoryMock.getLastBlock).toHaveBeenCalledWith({
+        expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
           where: {
             number: MoreThanOrEqual(100),
           },
@@ -204,7 +204,7 @@ describe("BlockProcessor", () => {
 
         const blockProcessor = await getBlockProcessor();
         await blockProcessor.processNextBlocksRange();
-        expect(blockRepositoryMock.getLastBlock).toHaveBeenCalledWith({
+        expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
           where: {
             number: LessThanOrEqual(1000),
           },
@@ -224,7 +224,7 @@ describe("BlockProcessor", () => {
         number: 100,
         hash: "hash",
       });
-      jest.spyOn(blockRepositoryMock, "getLastBlock").mockResolvedValue(lastDbBlock);
+      jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue(lastDbBlock);
 
       await blockProcessor.processNextBlocksRange();
       expect(blockWatcherMock.getNextBlocksToProcess).toHaveBeenCalledWith(lastDbBlock.number);
@@ -245,7 +245,7 @@ describe("BlockProcessor", () => {
               number: 100,
               hash: "another-hash",
             });
-            jest.spyOn(blockRepositoryMock, "getLastBlock").mockResolvedValue(lastDbBlock);
+            jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue(lastDbBlock);
           });
 
           it("triggers blocks revert event and returns false", async () => {
@@ -276,7 +276,7 @@ describe("BlockProcessor", () => {
               number: 100,
               hash: "hash",
             });
-            jest.spyOn(blockRepositoryMock, "getLastBlock").mockResolvedValue(lastDbBlock);
+            jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue(lastDbBlock);
 
             const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
             expect(eventEmitterMock.emit).not.toBeCalled();
@@ -290,7 +290,7 @@ describe("BlockProcessor", () => {
               number: 100,
               hash: "hash",
             });
-            jest.spyOn(blockRepositoryMock, "getLastBlock").mockResolvedValue(lastDbBlock);
+            jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue(lastDbBlock);
             jest.spyOn(blockchainServiceMock, "getBlock").mockResolvedValue(null);
           });
 
@@ -335,7 +335,7 @@ describe("BlockProcessor", () => {
 
       describe("and there are blocks in DB", () => {
         beforeEach(() => {
-          jest.spyOn(blockRepositoryMock, "getLastBlock").mockResolvedValue({
+          jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue({
             number: 100,
             hash: "hash",
           } as Block);
@@ -471,7 +471,6 @@ describe("BlockProcessor", () => {
                   },
                   blockDetails: {
                     number: 10,
-                    l1BatchNumber: 3,
                     timestamp: 1703845168,
                   },
                   transactions: [

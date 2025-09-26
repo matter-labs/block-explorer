@@ -1,6 +1,7 @@
 import { utils } from "zksync-ethers";
 import { type Log, type Block, type TransactionReceipt } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
+import { L1_ORIGINATED_TX_TYPES } from "../constants";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { LogType } from "../log/logType";
 import isInternalTransaction from "../utils/isInternalTransaction";
@@ -124,10 +125,7 @@ export class TransferService {
 
   // Identifies and formats fee and refund deposits for ETH and ERC20 deposits
   private formatFeeAndRefundDeposits(transfers: Transfer[], transactionReceipt: TransactionReceipt) {
-    transactionReceipt.type;
-    // 255 is a L1 priority tx
-    // 254 is an upgrade tx
-    if (transactionReceipt.type === 255) {
+    if (L1_ORIGINATED_TX_TYPES.includes(transactionReceipt.type)) {
       return;
     }
     const ethDeposits = transfers.filter(

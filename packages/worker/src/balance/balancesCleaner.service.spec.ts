@@ -18,7 +18,7 @@ describe("BalancesCleanerService", () => {
       getDeleteBalancesFromBlockNumber: jest.fn().mockResolvedValue(5),
     });
     blockRepositoryMock = mock<BlockRepository>({
-      getLastExecutedBlockNumber: jest.fn().mockResolvedValue(lastVerifiedBlockNumber),
+      getBlock: jest.fn().mockResolvedValue({ number: lastVerifiedBlockNumber }),
     });
 
     balancesCleanerService = new BalancesCleanerService(
@@ -78,10 +78,10 @@ describe("BalancesCleanerService", () => {
         })
         .mockResolvedValueOnce(null);
 
-      (blockRepositoryMock.getLastExecutedBlockNumber as jest.Mock)
-        .mockResolvedValueOnce(10)
-        .mockResolvedValueOnce(10)
-        .mockResolvedValueOnce(15);
+      (blockRepositoryMock.getBlock as jest.Mock)
+        .mockResolvedValueOnce({ number: 10 })
+        .mockResolvedValueOnce({ number: 10 })
+        .mockResolvedValueOnce({ number: 15 });
 
       (balanceServiceMock.getDeleteBalancesFromBlockNumber as jest.Mock)
         .mockResolvedValueOnce(2)

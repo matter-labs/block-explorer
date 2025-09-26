@@ -9,7 +9,6 @@ import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { baseToken } from "../src/config";
 
 describe("TokenController (e2e)", () => {
@@ -19,7 +18,6 @@ describe("TokenController (e2e)", () => {
   let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let transferRepository: Repository<Transfer>;
-  let batchRepository: Repository<BatchDetails>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -36,25 +34,6 @@ describe("TokenController (e2e)", () => {
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
-
-    await batchRepository.insert({
-      number: 1,
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      l1TxCount: 10,
-      l2TxCount: 20,
-      l1GasPrice: "10000000",
-      l2FairGasPrice: "20000000",
-      commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
-      executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
-      proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
-      committedAt: new Date("2022-11-10T14:44:08.000Z"),
-      executedAt: new Date("2022-11-10T14:44:08.000Z"),
-      provenAt: new Date("2022-11-10T14:44:08.000Z"),
-      commitChainId: 1,
-      proveChainId: 1,
-      executeChainId: 1,
-    });
 
     await blockRepository.insert({
       number: 1,
@@ -64,7 +43,6 @@ describe("TokenController (e2e)", () => {
       gasUsed: "0",
       baseFeePerGas: "100000000",
       extraData: "0x",
-      l1BatchNumber: 1,
       l1TxCount: 10,
       l2TxCount: 20,
       miner: "0x0000000000000000000000000000000000000000",
@@ -83,7 +61,6 @@ describe("TokenController (e2e)", () => {
       blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
       receivedAt: "2022-11-21T18:16:51.000Z",
       isL1Originated: true,
-      l1BatchNumber: 1,
       receiptStatus: 1,
       gasLimit: "1000000",
       gasPrice: "100",
@@ -252,7 +229,6 @@ describe("TokenController (e2e)", () => {
     await tokenRepository.delete({});
     await transactionRepository.delete({});
     await blockRepository.delete({});
-    await batchRepository.delete({});
 
     await app.close();
   });

@@ -1,16 +1,14 @@
 import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne, Index } from "typeorm";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
-import { Batch } from "./batch.entity";
 import { Block } from "./block.entity";
 import { CountableEntity } from "./countable.entity";
 import { stringTransformer } from "../transformers/string.transformer";
 
 @Entity({ name: "transactions" })
 @Index(["receivedAt", "transactionIndex"])
-@Index(["l1BatchNumber", "receivedAt", "transactionIndex"])
 @Index(["blockNumber", "receivedAt", "transactionIndex"])
-@Index(["from", "isL1Originated", "l1BatchNumber", "nonce"])
+@Index(["from", "isL1Originated", "blockNumber", "nonce"])
 export class Transaction extends CountableEntity {
   @PrimaryColumn({ type: "bytea", transformer: hexTransformer })
   public readonly hash: string;
@@ -64,13 +62,6 @@ export class Transaction extends CountableEntity {
 
   @Column({ type: "jsonb", nullable: true })
   public readonly accessList?: any;
-
-  @ManyToOne(() => Batch, {
-    createForeignKeyConstraints: false,
-  })
-  @JoinColumn({ name: "l1BatchNumber" })
-  @Column({ type: "bigint", transformer: bigIntNumberTransformer, default: 0 })
-  public readonly l1BatchNumber: number;
 
   @Column({ type: "varchar" })
   public readonly fee: string;

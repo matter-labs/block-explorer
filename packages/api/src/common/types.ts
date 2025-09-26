@@ -6,7 +6,6 @@ interface IPaginationFilterOptions {
   toDate?: string;
   blockNumber?: number;
   address?: string;
-  l1BatchNumber?: number;
   minLiquidity?: number;
   type?: TransferType;
 }

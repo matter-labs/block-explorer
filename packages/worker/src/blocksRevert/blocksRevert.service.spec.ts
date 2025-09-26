@@ -6,14 +6,13 @@ import { types } from "zksync-ethers";
 import { UnitOfWork } from "../unitOfWork";
 import { BlockchainService } from "../blockchain";
 import { CounterService } from "../counter";
-import { Block } from "../entities";
-import { BlockRepository, BatchRepository } from "../repositories";
+import { Block, BlockStatus } from "../entities";
+import { BlockRepository } from "../repositories";
 import { BlocksRevertService } from "./index";
 
 describe("BlocksRevertService", () => {
   let blocksRevertService: BlocksRevertService;
   let blockchainServiceMock: BlockchainService;
-  let batchRepositoryMock: BatchRepository;
   let blockRepositoryMock: BlockRepository;
   let counterServiceMock: CounterService;
   let unitOfWorkMock: UnitOfWork;
@@ -34,7 +33,6 @@ describe("BlocksRevertService", () => {
       })),
     });
     blockchainServiceMock = mock<BlockchainService>({
-      getL1BatchDetails: jest.fn().mockResolvedValue(null),
       getBlock: jest.fn().mockImplementation((number: number) =>
         Promise.resolve({
           number,
@@ -42,18 +40,19 @@ describe("BlocksRevertService", () => {
         })
       ),
     });
-    batchRepositoryMock = mock<BatchRepository>({
-      delete: jest.fn().mockResolvedValue(null),
-    });
     blockRepositoryMock = mock<BlockRepository>({
-      getLastExecutedBlockNumber: jest.fn().mockResolvedValue(100),
-      getLastBlock: jest.fn().mockImplementation(({ where: { number } }: { where: { number: number } }) =>
-        Promise.resolve({
-          number,
-          hash: `hash${number}`,
-          l1BatchNumber: Math.floor(number / 3),
-        })
-      ),
+      getBlock: jest
+        .fn()
+        .mockImplementation(({ where: { number, status } }: { where: { number?: number; status?: BlockStatus } }) =>
+          status === BlockStatus.Executed
+            ? Promise.resolve({
+                number: 100,
+              })
+            : Promise.resolve({
+                number,
+                hash: `hash${number}`,
+              })
+        ),
       delete: jest.fn().mockResolvedValue(null),
     });
     counterServiceMock = mock<CounterService>({
@@ -80,10 +79,6 @@ describe("BlocksRevertService", () => {
         {
           provide: CounterService,
           useValue: counterServiceMock,
-        },
-        {
-          provide: BatchRepository,
-          useValue: batchRepositoryMock,
         },
         {
           provide: BlockRepository,
@@ -121,12 +116,11 @@ describe("BlocksRevertService", () => {
       describe("and the last correct block is the last executed block in DB", () => {
         it("reverts all the blocks after the last executed block", async () => {
           jest
-            .spyOn(blockRepositoryMock, "getLastBlock")
+            .spyOn(blockRepositoryMock, "getBlock")
             .mockImplementation(({ where: { number } }: { where: { number: number } }) => {
               return Promise.resolve({
                 number,
                 hash: number > 100 ? "different-hash" : `hash${number}`,
-                l1BatchNumber: Math.floor(number / 3),
               } as Block);
             });
 
@@ -139,12 +133,11 @@ describe("BlocksRevertService", () => {
         describe("and the last correct DB block exists in blockchain", () => {
           it("reverts all the blocks after the last correct block", async () => {
             jest
-              .spyOn(blockRepositoryMock, "getLastBlock")
+              .spyOn(blockRepositoryMock, "getBlock")
               .mockImplementation(({ where: { number } }: { where: { number: number } }) => {
                 return Promise.resolve({
                   number,
                   hash: number > 102 ? "different-hash" : `hash${number}`,
-                  l1BatchNumber: Math.floor(number / 3),
                 } as Block);
               });
 
@@ -173,66 +166,21 @@ describe("BlocksRevertService", () => {
       });
     });
 
-    describe("when batch of the last correct block does not exist in DB yet", () => {
-      it("reverts all the batches starting from next batch after the batch of the last correct block", async () => {
-        await blocksRevertService.handleRevert(101);
-        expect(batchRepositoryMock.delete).toBeCalledWith({ number: MoreThan(33) });
-      });
-    });
-
-    describe("when batch of the last correct block exist in DB", () => {
-      beforeEach(() => {
+    describe("when there are no executed blocks in DB", () => {
+      it("uses the first block instead for binary search", async () => {
         jest
-          .spyOn(blockRepositoryMock, "getLastBlock")
-          .mockImplementation(({ where: { number } }: { where: { number: number } }) => {
-            const l1BatchNumber = Math.floor(number / 3);
-            return Promise.resolve({
-              number,
-              hash: number > 102 ? "different-hash" : `hash${number}`,
-              l1BatchNumber,
-              batch: {
-                number: l1BatchNumber,
-                rootHash: `rootHash${l1BatchNumber}`,
-              },
-            } as Block);
+          .spyOn(blockRepositoryMock, "getBlock")
+          .mockImplementation(({ where: { number, status } }: { where: { number?: number; status?: BlockStatus } }) => {
+            return status === BlockStatus.Executed
+              ? Promise.resolve(null)
+              : Promise.resolve({
+                  number,
+                  hash: `hash${number}`,
+                } as Block);
           });
-      });
 
-      describe("and batch of the last correct block does not exist in blockchain", () => {
-        it("reverts all the batches starting from the batch of the last correct block", async () => {
-          await blocksRevertService.handleRevert(101);
-          expect(batchRepositoryMock.delete).toBeCalledWith({ number: MoreThan(32) });
-        });
-      });
-
-      describe("and batch of the last correct block exists in blockchain", () => {
-        describe("and it has the same rootHash as the batch in DB", () => {
-          it("reverts all the batches starting from next batch after the batch of the last correct block", async () => {
-            jest.spyOn(blockchainServiceMock, "getL1BatchDetails").mockImplementation((number: number) => {
-              return Promise.resolve({
-                number,
-                rootHash: `rootHash${number}`,
-              } as types.BatchDetails);
-            });
-
-            await blocksRevertService.handleRevert(101);
-            expect(batchRepositoryMock.delete).toBeCalledWith({ number: MoreThan(33) });
-          });
-        });
-
-        describe("and it has a different rootHash compared to the batch in DB", () => {
-          it("reverts all the batches starting from the batch of the last correct block", async () => {
-            jest.spyOn(blockchainServiceMock, "getL1BatchDetails").mockImplementation((number: number) => {
-              return Promise.resolve({
-                number,
-                rootHash: `different-root-hash`,
-              } as types.BatchDetails);
-            });
-
-            await blocksRevertService.handleRevert(101);
-            expect(batchRepositoryMock.delete).toBeCalledWith({ number: MoreThan(32) });
-          });
-        });
+        await blocksRevertService.handleRevert(101);
+        expect(blockRepositoryMock.delete).toBeCalledWith({ number: MoreThan(100) });
       });
     });
 

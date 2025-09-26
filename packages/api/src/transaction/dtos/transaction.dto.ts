@@ -186,23 +186,6 @@ export class TransactionDto {
 
   @ApiProperty({
     type: Number,
-    description: "L1 batch number",
-    example: 3233097,
-    examples: [3233097, null],
-    nullable: true,
-  })
-  public readonly l1BatchNumber?: number;
-
-  @ApiProperty({
-    type: Boolean,
-    description: "Property that shows whether the transaction's L1 batch is already sealed",
-    example: true,
-    examples: [true, false],
-  })
-  public readonly isL1BatchSealed: boolean;
-
-  @ApiProperty({
-    type: Number,
     description: "The type of the transaction",
     example: 255,
   })

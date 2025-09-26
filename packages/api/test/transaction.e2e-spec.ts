@@ -12,7 +12,6 @@ import { TransactionReceipt } from "../src/transaction/entities/transactionRecei
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { baseToken } from "../src/config";
 import { numberToHex } from "../src/common/utils";
 
@@ -26,7 +25,6 @@ describe("TransactionController (e2e)", () => {
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transferRepository: Repository<Transfer>;
   let logRepository: Repository<Log>;
-  let batchRepository: Repository<BatchDetails>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -46,30 +44,6 @@ describe("TransactionController (e2e)", () => {
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
-
-    for (let i = 0; i < 10; i++) {
-      const isCommitted = i > 2 && i < 9;
-      const isProved = i > 4 && i < 9;
-      const isExecuted = i > 6 && i < 9;
-      await batchRepository.insert({
-        number: i,
-        timestamp: new Date("2022-11-10T14:44:08.000Z"),
-        l1TxCount: i * 10,
-        l2TxCount: i * 20,
-        l1GasPrice: "10000000",
-        l2FairGasPrice: "20000000",
-        commitTxHash: isCommitted ? `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa${i}` : null,
-        committedAt: isCommitted ? new Date("2022-11-10T14:44:08.000Z") : null,
-        commitChainId: isCommitted ? 1 : null,
-        proveTxHash: isProved ? `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac${i}` : null,
-        provenAt: isProved ? new Date("2022-11-10T14:44:08.000Z") : null,
-        proveChainId: isProved ? 1 : null,
-        executeTxHash: isExecuted ? `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab${i}` : null,
-        executedAt: isExecuted ? new Date("2022-11-10T14:44:08.000Z") : null,
-        executeChainId: isExecuted ? 1 : null,
-      });
-    }
 
     for (let i = 0; i <= 9; i++) {
       await blockRepository.insert({
@@ -82,7 +56,6 @@ describe("TransactionController (e2e)", () => {
         extraData: "0x",
         l1TxCount: 1,
         l2TxCount: 1,
-        l1BatchNumber: i,
         miner: "0x0000000000000000000000000000000000000000",
       });
     }
@@ -108,7 +81,6 @@ describe("TransactionController (e2e)", () => {
         transactionIndex: 3233070 + i,
         blockNumber: 0,
         receivedAt: `2010-11-21T18:16:0${i}.000Z`,
-        l1BatchNumber: 0,
         receiptStatus: 0,
       };
       await transactionRepository.insert(transactionSpec);
@@ -131,7 +103,6 @@ describe("TransactionController (e2e)", () => {
         transactionIndex: 3233097 + i,
         blockNumber: i < 3 ? 1 : i,
         receivedAt: `2022-11-21T18:16:0${i}.000Z`,
-        l1BatchNumber: i < 3 ? 1 : i,
         receiptStatus: i < 9 ? 1 : 0,
         gasPrice: BigInt(1000 + i).toString(),
         gasLimit: BigInt(2000 + i).toString(),
@@ -231,7 +202,6 @@ describe("TransactionController (e2e)", () => {
     await transactionRepository.delete({});
     await transactionReceiptRepository.delete({});
     await blockRepository.delete({});
-    await batchRepository.delete({});
 
     await app.close();
   });
@@ -275,9 +245,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4009",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e19",
               contractAddress: null,
-              isL1BatchSealed: false,
               isL1Originated: true,
-              l1BatchNumber: 9,
               nonce: 42,
               proveTxHash: null,
               proveChainId: null,
@@ -308,9 +276,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4008",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 8,
               nonce: 42,
               proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac8",
               proveChainId: 1,
@@ -341,9 +307,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4007",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 7,
               nonce: 42,
               proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac7",
               proveChainId: 1,
@@ -374,9 +338,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4006",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 6,
               nonce: 42,
               proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac6",
               proveChainId: 1,
@@ -407,9 +369,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4005",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 5,
               nonce: 42,
               proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac5",
               proveChainId: 1,
@@ -440,9 +400,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4004",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e14",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 4,
               nonce: 42,
               proveTxHash: null,
               proveChainId: null,
@@ -473,9 +431,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4003",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e13",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 3,
               nonce: 42,
               proveTxHash: null,
               proveChainId: null,
@@ -506,9 +462,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4002",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e12",
               contractAddress: null,
-              isL1BatchSealed: false,
               isL1Originated: true,
-              l1BatchNumber: 1,
               nonce: 42,
               proveTxHash: null,
               proveChainId: null,
@@ -539,9 +493,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4001",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
               contractAddress: null,
-              isL1BatchSealed: false,
               isL1Originated: true,
-              l1BatchNumber: 1,
               nonce: 42,
               proveTxHash: null,
               proveChainId: null,
@@ -572,9 +524,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4000",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               contractAddress: null,
-              isL1BatchSealed: false,
               isL1Originated: true,
-              l1BatchNumber: 1,
               nonce: 42,
               proveTxHash: null,
               proveChainId: null,
@@ -615,9 +565,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4008",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 8,
               nonce: 42,
               proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac8",
               proveChainId: 1,
@@ -648,9 +596,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4007",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 7,
               nonce: 42,
               proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac7",
               proveChainId: 1,
@@ -681,9 +627,7 @@ describe("TransactionController (e2e)", () => {
               maxPriorityFeePerGas: "4006",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
               contractAddress: null,
-              isL1BatchSealed: true,
               isL1Originated: true,
-              l1BatchNumber: 6,
               nonce: 42,
               proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac6",
               proveChainId: 1,
@@ -743,64 +687,6 @@ describe("TransactionController (e2e)", () => {
         );
     });
 
-    it("returns HTTP 200 and transactions for the specified L1 batch number", () => {
-      return request(app.getHttpServer())
-        .get("/transactions?l1BatchNumber=1&page=2&limit=1")
-        .expect(200)
-        .expect((res) =>
-          expect(res.body).toStrictEqual({
-            items: [
-              {
-                blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
-                blockNumber: 1,
-                commitTxHash: null,
-                commitChainId: null,
-                data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                error: null,
-                revertReason: null,
-                executeTxHash: null,
-                executeChainId: null,
-                fee: "0x2386f26fc10000",
-                from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                gasLimit: "2001",
-                gasPrice: "1001",
-                gasUsed: "7001",
-                gasPerPubdata: "5001",
-                maxFeePerGas: "3001",
-                maxPriorityFeePerGas: "4001",
-                hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-                contractAddress: null,
-                isL1BatchSealed: false,
-                isL1Originated: true,
-                l1BatchNumber: 1,
-                nonce: 42,
-                proveTxHash: null,
-                proveChainId: null,
-                receivedAt: "2022-11-21T18:16:01.000Z",
-                status: "included",
-                to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                transactionIndex: 3233098,
-                type: 255,
-                value: "0x2386f26fc10000",
-              },
-            ],
-            links: {
-              first: "transactions?limit=1&l1BatchNumber=1",
-              last: "transactions?page=3&limit=1&l1BatchNumber=1",
-              next: "transactions?page=3&limit=1&l1BatchNumber=1",
-              previous: "transactions?page=1&limit=1&l1BatchNumber=1",
-            },
-            meta: {
-              currentPage: 2,
-              itemCount: 1,
-              itemsPerPage: 1,
-              totalItems: 3,
-              totalPages: 3,
-            },
-          })
-        );
-    });
-
     it("returns HTTP 200 and transactions for the specified block number", () => {
       return request(app.getHttpServer())
         .get("/transactions?blockNumber=1&page=2&limit=1")
@@ -828,9 +714,7 @@ describe("TransactionController (e2e)", () => {
                 maxPriorityFeePerGas: "4001",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
                 contractAddress: null,
-                isL1BatchSealed: false,
                 isL1Originated: true,
-                l1BatchNumber: 1,
                 nonce: 42,
                 proveTxHash: null,
                 proveChainId: null,
@@ -886,9 +770,7 @@ describe("TransactionController (e2e)", () => {
                 maxPriorityFeePerGas: "4007",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
                 contractAddress: null,
-                isL1BatchSealed: true,
                 isL1Originated: true,
-                l1BatchNumber: 7,
                 nonce: 42,
                 proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac7",
                 proveChainId: 1,
@@ -919,9 +801,7 @@ describe("TransactionController (e2e)", () => {
                 maxPriorityFeePerGas: "4006",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
                 contractAddress: null,
-                isL1BatchSealed: true,
                 isL1Originated: true,
-                l1BatchNumber: 6,
                 nonce: 42,
                 proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac6",
                 proveChainId: 1,
@@ -970,10 +850,6 @@ describe("TransactionController (e2e)", () => {
       return request(app.getHttpServer()).get("/transactions?blockNumber=abc").expect(400);
     });
 
-    it("returns HTTP 400 if specified l1 batch number is not valid", () => {
-      return request(app.getHttpServer()).get("/transactions?l1BatchNumber=abc").expect(400);
-    });
-
     it("returns HTTP 400 if specified address is not valid", () => {
       return request(app.getHttpServer()).get("/transactions?address=abc").expect(400);
     });
@@ -1013,9 +889,7 @@ describe("TransactionController (e2e)", () => {
             maxPriorityFeePerGas: "4008",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
             contractAddress: null,
-            isL1BatchSealed: true,
             isL1Originated: true,
-            l1BatchNumber: 8,
             nonce: 42,
             proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac8",
             proveChainId: 1,
@@ -1054,9 +928,7 @@ describe("TransactionController (e2e)", () => {
             maxPriorityFeePerGas: "4005",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
             contractAddress: null,
-            isL1BatchSealed: true,
             isL1Originated: true,
-            l1BatchNumber: 5,
             nonce: 42,
             proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac5",
             proveChainId: 1,
@@ -1095,9 +967,7 @@ describe("TransactionController (e2e)", () => {
             maxPriorityFeePerGas: "4003",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e13",
             contractAddress: null,
-            isL1BatchSealed: true,
             isL1Originated: true,
-            l1BatchNumber: 3,
             nonce: 42,
             proveTxHash: null,
             proveChainId: null,
@@ -1136,9 +1006,7 @@ describe("TransactionController (e2e)", () => {
             maxPriorityFeePerGas: "4000",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
             contractAddress: null,
-            isL1BatchSealed: true,
             isL1Originated: true,
-            l1BatchNumber: 1,
             nonce: 42,
             proveTxHash: null,
             proveChainId: null,
@@ -1177,9 +1045,7 @@ describe("TransactionController (e2e)", () => {
             maxPriorityFeePerGas: "4009",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e19",
             contractAddress: null,
-            isL1BatchSealed: true,
             isL1Originated: true,
-            l1BatchNumber: 9,
             nonce: 42,
             proveTxHash: null,
             proveChainId: null,
@@ -1218,9 +1084,7 @@ describe("TransactionController (e2e)", () => {
             maxPriorityFeePerGas: "4000",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
             contractAddress: null,
-            isL1BatchSealed: true,
             isL1Originated: true,
-            l1BatchNumber: 1,
             nonce: 42,
             proveTxHash: null,
             proveChainId: null,

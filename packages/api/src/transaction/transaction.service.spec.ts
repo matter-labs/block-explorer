@@ -9,7 +9,7 @@ import { CounterService } from "../counter/counter.service";
 import { TransactionService, FilterTransactionsOptions } from "./transaction.service";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
-import { Batch } from "../batch/batch.entity";
+import { Block, BlockStatus } from "../block/block.entity";
 import { Log } from "../log/log.entity";
 
 jest.mock("../common/utils");
@@ -19,7 +19,7 @@ describe("TransactionService", () => {
   let service: TransactionService;
   let repositoryMock: typeorm.Repository<Transaction>;
   let addressTransactionRepositoryMock: typeorm.Repository<AddressTransaction>;
-  let batchRepositoryMock: typeorm.Repository<Batch>;
+  let blockRepositoryMock: typeorm.Repository<Block>;
   let counterServiceMock: CounterService;
   let logRepositoryMock: typeorm.Repository<Log>;
   const transactionHash = "transactionHash";
@@ -28,7 +28,7 @@ describe("TransactionService", () => {
     counterServiceMock = mock<CounterService>();
     repositoryMock = mock<typeorm.Repository<Transaction>>();
     addressTransactionRepositoryMock = mock<typeorm.Repository<AddressTransaction>>();
-    batchRepositoryMock = mock<typeorm.Repository<Batch>>();
+    blockRepositoryMock = mock<typeorm.Repository<Block>>();
     logRepositoryMock = mock<typeorm.Repository<Log>>();
     transaction = {
       hash: transactionHash,
@@ -46,8 +46,8 @@ describe("TransactionService", () => {
           useValue: addressTransactionRepositoryMock,
         },
         {
-          provide: getRepositoryToken(Batch),
-          useValue: batchRepositoryMock,
+          provide: getRepositoryToken(Block),
+          useValue: blockRepositoryMock,
         },
         {
           provide: CounterService,
@@ -87,9 +87,9 @@ describe("TransactionService", () => {
       expect(queryBuilderMock.where).toHaveBeenCalledWith({ hash });
     });
 
-    it("joins batch record to get batch specific fields", async () => {
+    it("joins block record to get block specific fields", async () => {
       await service.findOne(hash);
-      expect(queryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith("transaction.batch", "batch");
+      expect(queryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith("transaction.block", "block");
     });
 
     it("joins transactionReceipt record to get transactionReceipt specific fields", async () => {
@@ -188,21 +188,14 @@ describe("TransactionService", () => {
         ]);
       });
 
-      it("joins batch record to get batch specific fields", async () => {
+      it("joins block record to get block specific fields", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.batch", "batch");
+        expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
       });
 
-      it("selects only needed batch fields", async () => {
+      it("selects only needed block fields", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
-          "batch.commitTxHash",
-          "batch.commitChainId",
-          "batch.executeTxHash",
-          "batch.executeChainId",
-          "batch.proveTxHash",
-          "batch.proveChainId",
-        ]);
+        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
       });
 
       it("orders transactions by blockNumber, receivedAt and transactionIndex DESC", async () => {
@@ -278,10 +271,10 @@ describe("TransactionService", () => {
         ]);
       });
 
-      it("joins batch records", async () => {
+      it("joins block records", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
-        expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.batch", "batch");
+        expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
       });
 
       it("filters transactions by the specified options when only address is defined", async () => {
@@ -293,7 +286,6 @@ describe("TransactionService", () => {
         const filterOptions = {
           address: "address",
           blockNumber: 100,
-          l1BatchNumber: 10,
           receivedAt: new typeorm.FindOperator("lessThanOrEqual", new Date()),
         };
         await service.findAll(filterOptions, pagingOptions);
@@ -305,22 +297,11 @@ describe("TransactionService", () => {
           "transaction.blockNumber = :blockNumber",
           { blockNumber: filterOptions.blockNumber }
         );
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "transaction.l1BatchNumber = :l1BatchNumber",
-          { l1BatchNumber: filterOptions.l1BatchNumber }
-        );
       });
 
-      it("selects only needed batch fields", async () => {
+      it("selects only needed block fields", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
-          "batch.commitTxHash",
-          "batch.commitChainId",
-          "batch.executeTxHash",
-          "batch.executeChainId",
-          "batch.proveTxHash",
-          "batch.proveChainId",
-        ]);
+        expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
       });
 
       it("orders transactions by blockNumber, receivedAt and transactionIndex DESC", async () => {
@@ -396,10 +377,10 @@ describe("TransactionService", () => {
       ]);
     });
 
-    it("joins batch records", async () => {
+    it("joins block records", async () => {
       await service.findByAddress("address");
       expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.batch", "batch");
+      expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
     });
 
     it("filters transactions by the specified address", async () => {
@@ -421,16 +402,9 @@ describe("TransactionService", () => {
       });
     });
 
-    it("selects only needed batch fields", async () => {
+    it("selects only needed block fields", async () => {
       await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
-        "batch.commitTxHash",
-        "batch.commitChainId",
-        "batch.executeTxHash",
-        "batch.executeChainId",
-        "batch.proveTxHash",
-        "batch.proveChainId",
-      ]);
+      expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
     });
 
     it("orders transactions by blockNumber, receivedAt and transactionIndex", async () => {
@@ -472,7 +446,7 @@ describe("TransactionService", () => {
 
   describe("getAccountNonce", () => {
     let queryBuilderMock;
-    let batchQueryBuilderMock;
+    let blockQueryBuilderMock;
     const address = "address";
     const transaction = {
       nonce: "10",
@@ -502,9 +476,9 @@ describe("TransactionService", () => {
         expect(queryBuilderMock.where).toHaveBeenCalledWith({ from: address, isL1Originated: false });
       });
 
-      it("orders by batch number then by nonce", async () => {
+      it("orders by block number then by nonce", async () => {
         await service.getAccountNonce({ accountAddress: address });
-        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.l1BatchNumber", "DESC");
+        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.nonce", "DESC");
       });
 
@@ -549,20 +523,20 @@ describe("TransactionService", () => {
     describe("when isVerified is truthy", () => {
       beforeEach(() => {
         queryBuilderMock = mock<typeorm.SelectQueryBuilder<Transaction>>();
-        batchQueryBuilderMock = mock<typeorm.SelectQueryBuilder<Batch>>();
+        blockQueryBuilderMock = mock<typeorm.SelectQueryBuilder<Block>>();
 
         (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
-        (batchRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(batchQueryBuilderMock);
+        (blockQueryBuilderMock.createQueryBuilder as jest.Mock).mockReturnValue(blockQueryBuilderMock);
         (queryBuilderMock.getRawOne as jest.Mock).mockResolvedValue(transaction);
-        (batchQueryBuilderMock.getQuery as jest.Mock).mockReturnValue("executed batch query");
+        (blockQueryBuilderMock.getQuery as jest.Mock).mockReturnValue("executed block query");
       });
 
       it("creates query builders with proper params", async () => {
         await service.getAccountNonce({ accountAddress: address, isVerified: true });
         expect(repositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
         expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
-        expect(batchRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
-        expect(batchRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("batch");
+        expect(blockQueryBuilderMock.createQueryBuilder).toHaveBeenCalledTimes(1);
+        expect(blockQueryBuilderMock.createQueryBuilder).toHaveBeenCalledWith("block");
       });
 
       it("selects transaction nonce", async () => {
@@ -575,19 +549,21 @@ describe("TransactionService", () => {
         expect(queryBuilderMock.where).toHaveBeenCalledWith({ from: address, isL1Originated: false });
       });
 
-      it("filters transactions by batch number <= last executed batch", async () => {
+      it("filters transactions by block number <= last executed block", async () => {
         await service.getAccountNonce({ accountAddress: address, isVerified: true });
-        expect(batchQueryBuilderMock.select).toHaveBeenCalledWith("number");
-        expect(batchQueryBuilderMock.where).toHaveBeenCalledWith("batch.executedAt IS NOT NULL");
-        expect(batchQueryBuilderMock.orderBy).toHaveBeenCalledWith("batch.executedAt", "DESC");
-        expect(batchQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("batch.number", "DESC");
-        expect(batchQueryBuilderMock.limit).toHaveBeenCalledWith(1);
-        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("transaction.l1BatchNumber <= (executed batch query)");
+        expect(blockQueryBuilderMock.select).toHaveBeenCalledWith("number");
+        expect(blockQueryBuilderMock.where).toHaveBeenCalledWith("block.status = :status", {
+          status: BlockStatus.Executed,
+        });
+        expect(blockQueryBuilderMock.orderBy).toHaveBeenCalledWith("block.status", "DESC");
+        expect(blockQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("block.number", "DESC");
+        expect(blockQueryBuilderMock.limit).toHaveBeenCalledWith(1);
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("transaction.blockNumber <= (executed block query)");
       });
 
-      it("orders by batch number then by nonce", async () => {
+      it("orders by block number then by nonce", async () => {
         await service.getAccountNonce({ accountAddress: address, isVerified: true });
-        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.l1BatchNumber", "DESC");
+        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.nonce", "DESC");
       });
 

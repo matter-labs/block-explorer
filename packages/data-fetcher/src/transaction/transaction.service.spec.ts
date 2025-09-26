@@ -69,7 +69,6 @@ describe("TransactionService", () => {
   describe("getData", () => {
     const blockDetails = mock<types.BlockDetails>({
       number: 1,
-      l1BatchNumber: 3,
     });
     const transaction = mock<types.TransactionResponse>({ hash: "0" });
     const transactionReceipt = mock<types.TransactionReceipt>({
@@ -202,7 +201,6 @@ describe("TransactionService", () => {
       expect(txData.transaction).toEqual({
         ...transaction,
         ...transactionDetails,
-        l1BatchNumber: blockDetails.l1BatchNumber,
         receiptStatus: transactionReceipt.status,
         to: undefined,
       });
@@ -248,7 +246,6 @@ describe("TransactionService", () => {
           expect(txData.transaction).toEqual({
             ...transaction,
             ...transactionDetails,
-            l1BatchNumber: blockDetails.l1BatchNumber,
             receiptStatus: 0,
             error: transactionTraceData.error,
             revertReason: transactionTraceData.revertReason,
@@ -269,7 +266,6 @@ describe("TransactionService", () => {
           expect(txData.transaction).toEqual({
             ...transaction,
             ...transactionDetails,
-            l1BatchNumber: blockDetails.l1BatchNumber,
             receiptStatus: 0,
             error: null,
             revertReason: null,

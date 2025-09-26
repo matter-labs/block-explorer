@@ -11,7 +11,6 @@
   "fee": "0x384126cd04c00",
   "nonce": 24,
   "blockNumber": 2373686,
-  "l1BatchNumber": 589602,
   "blockHash": "0xf8550f7f36b041c82480751bf909e94f766f525683da1c5b419c83ef3d501b01",
   "indexInBlock": 0,
   "initiatorAddress": "0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3",

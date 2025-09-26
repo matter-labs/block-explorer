@@ -11,3 +11,7 @@ export const CONTRACT_INTERFACES = {
     abi: l2StandardERC20Abi,
   },
 };
+
+// 255 is a L1 priority tx
+// 254 is an upgrade tx
+export const L1_ORIGINATED_TX_TYPES = [254, 255];

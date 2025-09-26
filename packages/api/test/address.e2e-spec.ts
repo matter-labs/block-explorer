@@ -13,7 +13,6 @@ import { AddressTransaction } from "../src/transaction/entities/addressTransacti
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { Log } from "../src/log/log.entity";
 import { Token, TokenType } from "../src/token/token.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
@@ -30,7 +29,6 @@ describe("AddressController (e2e)", () => {
   let logRepository: Repository<Log>;
   let tokenRepository: Repository<Token>;
   let balanceRepository: Repository<Balance>;
-  let batchRepository: Repository<BatchDetails>;
   let counterRepository: Repository<Counter>;
   let transferRepository: Repository<Transfer>;
   let addressTransferRepository: Repository<AddressTransfer>;
@@ -54,32 +52,9 @@ describe("AddressController (e2e)", () => {
     logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     balanceRepository = app.get<Repository<Balance>>(getRepositoryToken(Balance));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
     counterRepository = app.get<Repository<Counter>>(getRepositoryToken(Counter));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     addressTransferRepository = app.get<Repository<AddressTransfer>>(getRepositoryToken(AddressTransfer));
-
-    for (let i = 0; i < 6; i++) {
-      const isExecuted = i < 3;
-      await batchRepository.insert({
-        number: i,
-        rootHash: `0x1915069f839c80d8bf1df2ba08dc41fbca1fcae62ecf3a148dda013d520a360${i}`,
-        timestamp: new Date("2022-11-10T14:44:05.000Z"),
-        l1GasPrice: "10000000",
-        l2FairGasPrice: "20000000",
-        l1TxCount: 1,
-        l2TxCount: 2,
-        commitTxHash: isExecuted ? "0x546b26df0927cd01611e41b136b35317a991597ed7a01843b5f47460a3549a2b" : null,
-        proveTxHash: isExecuted ? "0x253d496e6dc5a019f12a2b560798a222657f37f4da29dafcd100ba97c79baddc" : null,
-        executeTxHash: isExecuted ? "0xebbe54f44eb960094264315bbddf468871e489abbd4d9af9e3bd96e38f08ddab" : null,
-        committedAt: isExecuted ? new Date("2022-11-10T14:44:06.000Z") : null,
-        provenAt: isExecuted ? new Date("2022-11-10T14:44:07.000Z") : null,
-        executedAt: isExecuted ? new Date("2022-11-10T14:44:08.000Z") : null,
-        commitChainId: isExecuted ? 1 : null,
-        proveChainId: isExecuted ? 1 : null,
-        executeChainId: isExecuted ? 1 : null,
-      });
-    }
 
     for (let i = 1; i <= 5; i++) {
       await blockRepository.insert({
@@ -90,7 +65,6 @@ describe("AddressController (e2e)", () => {
         gasUsed: "0",
         baseFeePerGas: "0",
         extraData: "0x",
-        l1BatchNumber: i < 4 ? 4 : 2,
         l1TxCount: 1,
         l2TxCount: 1,
         miner: "0x0000000000000000000000000000000000000000",
@@ -111,7 +85,6 @@ describe("AddressController (e2e)", () => {
         blockHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
         receivedAt: "2022-11-21T18:16:51.000Z",
         isL1Originated: i > 4,
-        l1BatchNumber: i < 3 ? 2 : 5,
         receiptStatus: 1,
         gasLimit: "1000000",
         gasPrice: "100",
@@ -368,7 +341,6 @@ describe("AddressController (e2e)", () => {
     await addressTransactionRepository.delete({});
     await transactionRepository.delete({});
     await blockRepository.delete({});
-    await batchRepository.delete({});
 
     await app.close();
   });

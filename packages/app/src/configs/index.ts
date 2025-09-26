@@ -34,6 +34,6 @@ export type EnvironmentConfig = {
 export type RuntimeConfig = {
   version: string;
   sentryDSN: string;
-  appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging" | "zksync-os-stage";
+  appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
   environmentConfig?: EnvironmentConfig;
 };

@@ -1,5 +1,13 @@
 import { Injectable } from "@nestjs/common";
-import { FindOptionsWhere, FindOptionsSelect, FindOptionsRelations } from "typeorm";
+import {
+  FindOptionsWhere,
+  FindOptionsSelect,
+  FindOptionsRelations,
+  FindOptionsOrder,
+  Between,
+  UpdateResult,
+} from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
 import { Block } from "../entities";
 import { UnitOfWork } from "../unitOfWork";
 
@@ -7,35 +15,24 @@ import { UnitOfWork } from "../unitOfWork";
 export class BlockRepository {
   public constructor(private readonly unitOfWork: UnitOfWork) {}
 
-  public async getLastBlock({
+  public async getBlock({
     where = {},
     select,
     relations,
+    order = { number: "DESC" },
   }: {
     where?: FindOptionsWhere<Block>;
     select?: FindOptionsSelect<Block>;
     relations?: FindOptionsRelations<Block>;
+    order?: FindOptionsOrder<Block>;
   } = {}): Promise<Block> {
     const transactionManager = this.unitOfWork.getTransactionManager();
     return await transactionManager.findOne<Block>(Block, {
       where,
       select,
-      order: { number: "DESC" },
+      order,
       relations,
     });
-  }
-
-  public async getLastExecutedBlockNumber(): Promise<number> {
-    const transactionManager = this.unitOfWork.getTransactionManager();
-    const lastExecutedBlock = await transactionManager
-      .createQueryBuilder(Block, "block")
-      .select("block.number")
-      .innerJoin("block.batch", "batch")
-      .where("batch.executedAt IS NOT NULL")
-      .orderBy("block.number", "DESC")
-      .limit(1)
-      .getOne();
-    return lastExecutedBlock?.number || 0;
   }
 
   public async getMissingBlocksCount(): Promise<number> {
@@ -55,5 +52,16 @@ export class BlockRepository {
   public async delete(where: FindOptionsWhere<Block>): Promise<void> {
     const transactionManager = this.unitOfWork.getTransactionManager();
     await transactionManager.delete<Block>(Block, where);
+  }
+
+  public updateByRange(from: number, to: number, fieldsToUpdate: QueryDeepPartialEntity<Block>): Promise<UpdateResult> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    return transactionManager.update<Block>(
+      Block,
+      {
+        number: Between(from, to),
+      },
+      fieldsToUpdate
+    );
   }
 }

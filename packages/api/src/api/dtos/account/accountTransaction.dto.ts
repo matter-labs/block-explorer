@@ -179,13 +179,6 @@ export class AccountTransactionDto {
 
   @ApiProperty({
     type: String,
-    description: "L1 batch number",
-    example: "3233097",
-  })
-  public readonly l1BatchNumber: string;
-
-  @ApiProperty({
-    type: String,
     description: "Contract address",
     example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
     nullable: true,

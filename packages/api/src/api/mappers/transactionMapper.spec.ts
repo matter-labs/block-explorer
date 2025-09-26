@@ -27,7 +27,6 @@ describe("transactionMapper", () => {
       executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
       executeChainId: 3,
       isL1Originated: true,
-      l1BatchNumber: 3,
       transactionReceipt: {
         contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
         cumulativeGasUsed: "1200000",
@@ -59,7 +58,6 @@ describe("transactionMapper", () => {
         input: "0x",
         isError: "1",
         isL1Originated: "1",
-        l1BatchNumber: "3",
         methodId: "0x",
         nonce: "1",
         proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",

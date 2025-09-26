@@ -36,7 +36,6 @@ describe("transferMapper", () => {
       proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",
       executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
       isL1Originated: true,
-      l1BatchNumber: 3,
       type: 255,
       transactionReceipt: {
         contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
@@ -61,7 +60,6 @@ describe("transferMapper", () => {
         gasUsed: "900000",
         hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
         input: "0x",
-        l1BatchNumber: "3",
         nonce: "1",
         timeStamp: "1672531200",
         to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
@@ -149,7 +147,6 @@ describe("transferMapper", () => {
           gasUsed: "900000",
           hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
           input: "0x",
-          l1BatchNumber: "3",
           nonce: "1",
           timeStamp: "1672531200",
           to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
