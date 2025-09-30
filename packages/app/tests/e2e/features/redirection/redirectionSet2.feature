@@ -67,8 +67,6 @@ Feature: Redirection
 
     Examples:
       | Artifact type     | url             |
-      | batch number      | /batch/         |
-      | batch size        | /batch/         |
       | tx hash           | /tx/            |
       | committed blocks  | /blocks/        |
       | verified blocks   | /blocks/        |

@@ -22,15 +22,7 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value transaction-status-value">
-          <TransactionStatus
-            :status="transaction!.status"
-            :commit-tx-hash="transaction!.ethCommitTxHash"
-            :prove-tx-hash="transaction!.ethProveTxHash"
-            :execute-tx-hash="transaction!.ethExecuteTxHash"
-            :commit-chain-id="transaction!.commitChainId"
-            :prove-chain-id="transaction!.proveChainId"
-            :execute-chain-id="transaction!.executeChainId"
-          />
+          <TransactionStatus :status="transaction!.status" />
         </TableBodyColumn>
       </tr>
       <tr v-if="transaction?.error" class="transaction-table-row">
@@ -81,29 +73,6 @@
             </router-link>
           </span>
           <span v-else>{{ t("transactions.table.notYetSentOnTheChain") }}</span>
-        </TableBodyColumn>
-      </tr>
-      <tr class="transaction-table-row">
-        <TableBodyColumn class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.batch") }}</span>
-          <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.batchTooltip") }}
-          </InfoTooltip>
-        </TableBodyColumn>
-        <TableBodyColumn class="transaction-table-value">
-          <span v-if="transaction?.l1BatchNumber">
-            <router-link
-              v-if="transaction?.isL1BatchSealed"
-              :to="{ name: 'batch', params: { id: transaction.l1BatchNumber } }"
-            >
-              #{{ transaction.l1BatchNumber }}
-            </router-link>
-            <Tooltip v-else>
-              <span>#{{ transaction.l1BatchNumber }}</span>
-              <template #content>{{ t("batches.notYetSealed") }}</template>
-            </Tooltip>
-          </span>
-          <span v-else>{{ t("transactions.table.unknown") }}</span>
         </TableBodyColumn>
       </tr>
       <tr class="transaction-table-row">

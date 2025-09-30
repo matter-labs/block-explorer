@@ -4,7 +4,6 @@ import { computed, ref } from "vue";
 
 import { vi } from "vitest";
 
-import * as useBatches from "@/composables/useBatches";
 import * as useBlocks from "@/composables/useBlocks";
 import * as useContext from "@/composables/useContext";
 import * as useContractEvents from "@/composables/useContractEvents";
@@ -130,22 +129,9 @@ export const useBlocksMock = (params: any = {}) => {
   });
   return mockBlocks;
 };
-export const useBatchesMock = (params: any = {}) => {
-  const mockBatches = vi.spyOn(useBatches, "default").mockReturnValue({
-    data: ref([]),
-    total: ref(0),
-    load: () => vi.fn(),
-    pending: ref(false),
-    failed: ref(false),
-    page: ref(1),
-    pageSize: ref(10),
-    ...params,
-  });
-  return mockBatches;
-};
 
 export const useTransfersMock = (params: any = {}) => {
-  const mockBatches = vi.spyOn(useTransfers, "default").mockReturnValue({
+  const mockTransfers = vi.spyOn(useTransfers, "default").mockReturnValue({
     data: ref([]),
     load: () => vi.fn(),
     pending: ref(false),
@@ -153,7 +139,7 @@ export const useTransfersMock = (params: any = {}) => {
     pageSize: computed(() => 10),
     ...params,
   });
-  return mockBatches;
+  return mockTransfers;
 };
 
 export const useTransactionsMock = (params: any = {}) => {

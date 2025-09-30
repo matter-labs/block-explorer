@@ -79,7 +79,7 @@ Feature: Main Page
 
     Examples:
       | Table               | Number of rows |
-      | Latest Batches      | 10             |
+      | Latest Blocks      | 10             |
       | Latest Transactions | 10             |
 
   @id101:II @id274:II @testnetSmokeSuite
@@ -91,10 +91,9 @@ Feature: Main Page
       | Latest Transactions | Status           |
       | Latest Transactions | Transaction Hash |
       | Latest Transactions | Age              |
-      | Latest Batches      | Status           |
-      | Latest Batches      | Batch            |
-      | Latest Batches      | Size             |
-      | Latest Batches      | Age              |
+      | Latest blocks       | Block            |
+      | Latest Blocks       | Status           |
+      | Latest Blocks       | Age              |
 
   #  @id127 #should be fixed on the ci
   #  Scenario Outline: Verify "<Title name>" Tab title
@@ -139,7 +138,6 @@ Feature: Main Page
       | Row                | Value                                                              |
       | Input data         | 0xa9059cbb00000000000000000000000                                  |
       | Block              | 45751                                                              |
-      | Batch              | #661                                                               |
       | Received            | 2023-02-10                                                         |
       | Tokens Transferred | 0x8f0F33583a5                                                      |
       | Tokens Transferred | From                                                               |
@@ -171,7 +169,6 @@ Feature: Main Page
       | Row                | Value                                                              |
       | Input data         | Function: transfer                                                 |
       | Block              | 3491940                                                            |
-      | Batch              | #28739                                                             |
       | Received            | 2023-05-14                                                         |
 
 

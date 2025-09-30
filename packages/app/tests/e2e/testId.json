@@ -25,7 +25,7 @@
   "timestamp": "timestamp",
   "transactionsTable": "transactions-table",
   "latestTransactionsTable": "latest-transaction-table",
-  "latestBatchesTable": "latest-batches-table",
+  "latestBlocksTable": "latest-blocks-table",
   "tokensTable": "tokens-table",
   "toAddress": "to-address",
   "transferType": "transfer-type",

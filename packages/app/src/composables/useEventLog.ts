@@ -23,7 +23,6 @@ export type TransactionLogEntry = {
   blockHash?: Hash;
   blockNumber: Hash | BigNumberish;
   data: Hash;
-  l1BatchNumber?: Hash | null;
   logIndex: Hash;
   logType?: Hash | null;
   removed?: boolean;

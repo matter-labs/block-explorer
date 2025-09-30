@@ -61,12 +61,6 @@ export type TransactionItem = {
   };
   from: string;
   to: string | null;
-  ethCommitTxHash: Hash | null;
-  ethExecuteTxHash: Hash | null;
-  ethProveTxHash: Hash | null;
-  commitChainId: number | null;
-  proveChainId: number | null;
-  executeChainId: number | null;
   fee: Hash;
   indexInBlock?: number;
   isL1Originated: boolean;
@@ -80,8 +74,6 @@ export type TransactionItem = {
   maxFeePerGas: string | null;
   maxPriorityFeePerGas: string | null;
   status: TransactionStatus;
-  l1BatchNumber: number | null;
-  isL1BatchSealed: boolean;
   error?: string | null;
   revertReason?: string | null;
   logs: TransactionLogEntry[];
@@ -108,18 +100,14 @@ export default (context = useContext()) => {
   const getFromBlockchainByHash = async (hash: string): Promise<TransactionItem | null> => {
     const provider = context.getL2Provider();
     try {
-      const [transactionData, transactionDetails, transactionReceipt] = await Promise.all([
+      const [transactionData, transactionReceipt] = await Promise.all([
         provider.getTransaction(hash),
-        provider.getTransactionDetails(hash),
         provider.getTransactionReceipt(hash),
       ]);
-      if (!transactionData || !transactionDetails || !transactionReceipt) {
+      if (!transactionData || !transactionReceipt) {
         return null;
       }
-      if (transactionDetails.status === "pending") {
-        return null;
-      }
-      const gasPerPubdata = (<TransactionDetails>transactionDetails).gasPerPubdata;
+      const gasPerPubdata = (transactionData as any).gasPerPubdata;
       const tx = {
         hash: transactionData.hash,
         blockHash: transactionData.blockHash!,
@@ -133,28 +121,19 @@ export default (context = useContext()) => {
         value: transactionData.value.toString(),
         from: transactionData.from,
         to: transactionData.to,
-        ethCommitTxHash: transactionDetails.ethCommitTxHash ?? null,
-        ethExecuteTxHash: transactionDetails.ethExecuteTxHash ?? null,
-        ethProveTxHash: transactionDetails.ethProveTxHash ?? null,
-        // Setting chain ids to null initially as API doesn't return them for transaction.
-        commitChainId: null,
-        proveChainId: null,
-        executeChainId: null,
-        fee: transactionDetails.fee.toString(),
+        fee: (transactionReceipt.gasUsed * transactionReceipt.gasPrice).toString(),
         feeData: {
-          amountPaid: transactionDetails.fee.toString(),
+          amountPaid: (transactionReceipt.gasUsed * transactionReceipt.gasPrice).toString(),
           isPaidByPaymaster: false,
           refunds: [],
           amountRefunded: numberToHexString(0),
         },
         indexInBlock: transactionReceipt.index,
-        isL1Originated: transactionDetails.isL1Originated,
+        isL1Originated: [254, 255].includes(transactionData.type),
         nonce: transactionData.nonce,
-        receivedAt: new Date(transactionDetails.receivedAt).toJSON(),
+        receivedAt: "", // TODO: replace with block timestamp
 
         status: "indexing" as TransactionStatus,
-        l1BatchNumber: transactionData.l1BatchNumber,
-        isL1BatchSealed: false,
 
         logs: transactionReceipt.logs.map((item) => ({
           address: item.address,
@@ -176,20 +155,6 @@ export default (context = useContext()) => {
         isEvmLike: !transactionData.to,
         contractAddress: transactionReceipt.contractAddress,
       };
-
-      // Fetch batch to get commit/prove/execute chain ids if at least commit tx hash present
-      if (tx.ethCommitTxHash && tx.l1BatchNumber !== null) {
-        const batchDetails = (await provider.getL1BatchDetails(tx.l1BatchNumber)) as types.BatchDetails & {
-          commitChainId: null;
-          proveChainId: null;
-          executeChainId: null;
-        };
-        if (batchDetails) {
-          tx.commitChainId = batchDetails.commitChainId;
-          tx.proveChainId = batchDetails.proveChainId;
-          tx.executeChainId = batchDetails.executeChainId;
-        }
-      }
       return tx;
     } catch (err) {
       return null;
@@ -252,12 +217,6 @@ export function mapTransaction(
     value: transaction.value,
     from: transaction.from,
     to: transaction.to,
-    ethCommitTxHash: transaction.commitTxHash ?? null,
-    ethExecuteTxHash: transaction.executeTxHash ?? null,
-    ethProveTxHash: transaction.proveTxHash ?? null,
-    commitChainId: transaction.commitChainId ?? null,
-    proveChainId: transaction.proveChainId ?? null,
-    executeChainId: transaction.executeChainId ?? null,
     fee: transaction.fee,
     feeData: {
       amountPaid: transaction.fee!,
@@ -273,8 +232,6 @@ export function mapTransaction(
     receivedAt: transaction.receivedAt,
 
     status: transaction.status,
-    l1BatchNumber: transaction.l1BatchNumber,
-    isL1BatchSealed: transaction.isL1BatchSealed,
     error: transaction.error,
     revertReason: transaction.revertReason,
 

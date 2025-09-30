@@ -126,23 +126,6 @@ export default [
     },
   },
   {
-    path: "/batches/",
-    name: "batches",
-    component: () => import("@/views/BatchesView.vue"),
-    meta: {
-      title: "batches.title",
-    },
-  },
-  {
-    path: "/batch/:id",
-    name: "batch",
-    component: () => import("@/views/BatchView.vue"),
-    props: true,
-    meta: {
-      title: "batches.batch",
-    },
-  },
-  {
     path: "/search",
     name: "search",
     redirect: (to: RouteLocation) => {

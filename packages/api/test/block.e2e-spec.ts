@@ -66,15 +66,6 @@ describe("BlockController (e2e)", () => {
             l1TxCount: 100,
             l2TxCount: 200,
             size: 300,
-            commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
-            executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac1",
-            proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac1",
-            committedAt: "2022-11-10T14:44:08.000Z",
-            executedAt: "2022-11-10T14:44:08.000Z",
-            provenAt: "2022-11-10T14:44:08.000Z",
-            commitChainId: 1,
-            proveChainId: 1,
-            executeChainId: 1,
           })
         );
     });

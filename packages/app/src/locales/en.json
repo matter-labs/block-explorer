@@ -1,6 +1,8 @@
 {
     "general": {
-        "l2NetworkName": "ZKsync"
+        "l2NetworkName": "ZKsync",
+        "execution": "Execution",
+        "finality": "Finality"
     },
     "copyButton": {
         "tooltip": "Copied!"
@@ -62,8 +64,10 @@
             "notFoundHomePage": "We haven't had any blocks yet. Please, check again later."
         },
         "status": {
-            "verified": "Verified",
-            "sealed": "Sealed"
+            "sealed": "Sealed",
+            "committed": "Committed",
+            "proven": "Proven",
+            "executed": "Executed"
         },
         "blocks": "Blocks",
         "blockNumber": "Block #",
@@ -75,7 +79,9 @@
             "showMore": "Show more transactions ->",
             "noTransactions": "This Block doesn't have any transactions",
             "blockNotFound": "This Block has not been created or sealed yet"
-        }
+        },
+        "tooltipInfo": "Latest blocks produced by the network",
+        "viewAll": "View All Blocks"
     },
     "transfers": {
         "notFound": "Address doesn't have any transfers at this moment",
@@ -306,7 +312,7 @@
         }
     },
     "searchForm": {
-        "placeholder": "Search by address, batch number, contract, or tx hash",
+        "placeholder": "Search by address, block number, contract, or tx hash",
         "errorMessage": "Please, enter a correct query"
     },
     "estimatedCost": {
@@ -317,8 +323,7 @@
         "title": "ZKsync Block Explorer",
         "subtitle": "ZKsync Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync and explore the network.",
         "latestBlocks": "Latest Blocks",
-        "latestTransactions": "Latest Transactions",
-        "batches": "Latest Batches"
+        "latestTransactions": "Latest Transactions"
     },
     "failedRequest": "Failed to show .... Please, try to refresh the page.",
     "addressView": {

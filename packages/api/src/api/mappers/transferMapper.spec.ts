@@ -32,9 +32,6 @@ describe("transferMapper", () => {
       receiptStatus: 1,
       data: "0x",
       fee: "0x0",
-      commitTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b1",
-      proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",
-      executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
       isL1Originated: true,
       type: 255,
       transactionReceipt: {

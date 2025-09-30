@@ -32,12 +32,6 @@ const transaction: TransactionItem = {
   value: "0",
   from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
   to: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-  ethCommitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
-  ethExecuteTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
-  ethProveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
-  commitChainId: 1,
-  proveChainId: 1,
-  executeChainId: 1,
   fee: "0x521f303519100",
   feeData: {
     amountPaid: "0x521f303519100",
@@ -83,8 +77,6 @@ const transaction: TransactionItem = {
   nonce: 24,
   receivedAt: "2023-02-28T08:42:08.198Z",
   status: "verified",
-  l1BatchNumber: 11014,
-  isL1BatchSealed: true,
   logs: [
     {
       address: "0x000000000000000000000000000000000000800A",
@@ -221,7 +213,6 @@ describe("Transaction info table", () => {
       txHash,
       status,
       block,
-      batch,
       from,
       to,
       tokensTransferred,
@@ -254,7 +245,6 @@ describe("Transaction info table", () => {
     );
     expect(l1StatusBadgeValueMobile.text()).toBe(i18n.global.t("transactions.statusComponent.executed"));
     expect(block.findComponent(RouterLinkStub).text()).toBe("#1162235");
-    expect(batch.findComponent(RouterLinkStub).text()).toBe("#11014");
 
     expect(from.text()).toBe("0x08d211E22dB19741FF25838A22e4e696FeE7eD36");
     expect(to.text()).toBe("0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C");
@@ -283,7 +273,6 @@ describe("Transaction info table", () => {
       txHashTooltip,
       statusTooltip,
       blockTooltip,
-      batchTooltip,
       fromTooltip,
       toTooltip,
       tokensTransferredTooltip,
@@ -298,7 +287,6 @@ describe("Transaction info table", () => {
     expect(txHashTooltip).toBe(i18n.global.t("transactions.table.transactionHashTooltip"));
     expect(statusTooltip).toBe(i18n.global.t("transactions.table.statusTooltip"));
     expect(blockTooltip).toBe(i18n.global.t("transactions.table.blockTooltip"));
-    expect(batchTooltip).toBe(i18n.global.t("transactions.table.batchTooltip"));
     expect(fromTooltip).toBe(i18n.global.t("transactions.table.fromTooltip"));
     expect(toTooltip).toBe(i18n.global.t("transactions.table.toTooltip"));
     expect(tokensTransferredTooltip).toBe(i18n.global.t("transactions.table.tokensTransferredTooltip"));
@@ -459,28 +447,6 @@ describe("Transaction info table", () => {
         i18n.global.t("transactions.statusComponent.executing")
     );
     expect(l1StatusBadgeValueMobile.text()).toBe(i18n.global.t("transactions.statusComponent.executing"));
-  });
-  it("renders batch number as text with tooltip when batch is not sealed yet", () => {
-    const wrapper = mount(Table, {
-      global: {
-        stubs: {
-          RouterLink: RouterLinkStub,
-          Tooltip: { template: "<div><slot /></div>" },
-        },
-        plugins: [i18n, $testId],
-      },
-      props: {
-        transaction: {
-          ...transaction,
-          isL1BatchSealed: false,
-        },
-        loading: false,
-      },
-    });
-    const rowArray = wrapper.findAll("tr");
-    const batch = rowArray[3].findAll("td");
-    expect(batch[1].findComponent(Tooltip).find("span").text()).toBe("#11014");
-    expect(batch[1].findComponent(RouterLinkStub).exists()).toBeFalsy();
   });
   it("renders loading state", () => {
     const wrapper = mount(Table, {

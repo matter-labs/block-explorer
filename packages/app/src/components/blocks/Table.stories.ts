@@ -43,9 +43,7 @@ const blocks: BlockListItem[] = [
     status: "sealed",
     timestamp: "1645606702",
     gasUsed: "1000",
-    l1BatchNumber: 10,
     size: 20,
-    isL1BatchSealed: true,
   },
   {
     number: 9004,
@@ -55,9 +53,7 @@ const blocks: BlockListItem[] = [
     status: "verified",
     timestamp: "1645606702",
     gasUsed: "1000",
-    l1BatchNumber: 15,
     size: 30,
-    isL1BatchSealed: true,
   },
   {
     number: 9003,
@@ -67,9 +63,7 @@ const blocks: BlockListItem[] = [
     status: "verified",
     timestamp: "1645606701",
     gasUsed: "1000",
-    l1BatchNumber: 20,
     size: 40,
-    isL1BatchSealed: true,
   },
   {
     number: 9002,
@@ -79,9 +73,7 @@ const blocks: BlockListItem[] = [
     status: "verified",
     timestamp: "1645606701",
     gasUsed: "1000",
-    l1BatchNumber: 25,
     size: 50,
-    isL1BatchSealed: false,
   },
   {
     number: 9001,
@@ -91,9 +83,7 @@ const blocks: BlockListItem[] = [
     status: "verified",
     timestamp: "1645606700",
     gasUsed: "1000",
-    l1BatchNumber: 30,
     size: 60,
-    isL1BatchSealed: false,
   },
 ];
 

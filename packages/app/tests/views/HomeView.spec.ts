@@ -7,7 +7,7 @@ import { render } from "@testing-library/vue";
 import { useTimeAgo } from "@vueuse/core";
 import { $fetch } from "ohmyfetch";
 
-import { ETH_TOKEN_MOCK, useBatchesMock } from "../mocks";
+import { ETH_TOKEN_MOCK, useBlocksMock } from "../mocks";
 import { useTransactionsMock } from "../mocks";
 
 import ExecuteTx from "../../mock/transactions/Execute.json";
@@ -17,11 +17,9 @@ import $testId from "@/plugins/testId";
 import routes from "@/router/routes";
 import HomeView from "@/views/HomeView.vue";
 
-const getBatchesMockCollection = (length: number) =>
+const getBlocksMockCollection = (length: number) =>
   Array.from({ length }).map((_, index) => ({
-    rootHash: "0x5a606c1c09d5be2f73c413f27758459a959a642fd3dca2af05d153aac29e229b",
-    l1TxCount: 0,
-    l2TxCount: 1,
+    hash: "0x5a606c1c09d5be2f73c413f27758459a959a642fd3dca2af05d153aac29e229b",
     number: index + 105205,
     status: "sealed",
     timestamp: "2022-04-13T13:09:31.000Z",
@@ -73,30 +71,29 @@ describe("HomeView:", () => {
     );
   });
 
-  describe("Batches:", () => {
-    it("renders batches properly", () => {
-      const mockBatches = useBatchesMock({
-        data: ref(getBatchesMockCollection(1)),
+  describe("Blocks:", () => {
+    it("renders blocks properly", () => {
+      const mockBlocks = useBlocksMock({
+        data: ref(getBlocksMockCollection(1)),
       });
 
       const { container, unmount } = render(HomeView, {
         global,
       });
 
-      const tableHead = container.querySelectorAll(".batches-table .table-head-col");
+      const tableHead = container.querySelectorAll(".blocks-table .table-head-col");
       expect(tableHead).toHaveLength(4);
-      expect(tableHead[0].textContent).toBe("Status");
-      expect(tableHead[1].textContent).toBe("Batch");
-      expect(tableHead[2].textContent).toBe("Size");
-      expect(tableHead[3].textContent).toBe("Age");
+      expect(tableHead[0].textContent).toBe("Block");
+      expect(tableHead[1].textContent).toBe("Status");
+      expect(tableHead[2].textContent).toBe("Age");
       expect(container.querySelector(".time-ago")?.textContent).toBe(useTimeAgo("2022-04-13 16:09").value);
       expect(container.querySelector(".badge-content")?.textContent).toBe("Processed on");
 
-      mockBatches.mockRestore();
+      mockBlocks.mockRestore();
       unmount();
     });
-    it("renders empty state when batches list is empty", async () => {
-      const mockBatches = useBatchesMock({
+    it("renders empty state when block list is empty", async () => {
+      const mockBlocks = useBlocksMock({
         data: ref([]),
       });
 
@@ -105,16 +102,16 @@ describe("HomeView:", () => {
       });
 
       expect(container.querySelector(".not-found")?.textContent).toBe(
-        "We haven't had any batches yet. Please, check again later."
+        "We haven't had any blocks yet. Please, check again later."
       );
-      mockBatches.mockRestore();
+      mockBlocks.mockRestore();
       unmount();
     });
     it("renders failed state when request is failed", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mockResponse = ($fetch as any).mockRejectedValue(new Error());
 
-      const mockBatches = useBatchesMock({
+      const mockBlocks = useBlocksMock({
         data: ref([]),
         failed: ref(true),
       });
@@ -126,7 +123,7 @@ describe("HomeView:", () => {
       expect(container.querySelector(".error-message")?.textContent).toBe(
         "Failed to show .... Please, try to refresh the page."
       );
-      mockBatches.mockRestore();
+      mockBlocks.mockRestore();
       mockResponse.mockRestore();
       unmount();
     });
@@ -134,7 +131,7 @@ describe("HomeView:", () => {
 
   describe("Transactions:", () => {
     it("renders transactions properly", async () => {
-      const mockBatches = useBatchesMock({
+      const mockBlocks = useBlocksMock({
         data: ref([]),
       });
       const mockTransactions = useTransactionsMock({
@@ -147,13 +144,13 @@ describe("HomeView:", () => {
 
       expect(container.querySelector(".transactions-table")).toBeTruthy();
 
-      mockBatches.mockRestore();
+      mockBlocks.mockRestore();
       mockTransactions.mockRestore();
       unmount();
     });
     it("renders empty state when transactions list is empty", async () => {
-      const mockBatches = useBatchesMock({
-        data: ref(getBatchesMockCollection(1)),
+      const mockBlocks = useBlocksMock({
+        data: ref(getBlocksMockCollection(1)),
       });
       const mockTransactions = useTransactionsMock({
         collection: ref([]),
@@ -167,7 +164,7 @@ describe("HomeView:", () => {
         "We haven't had any transactions yet. Please, check again later."
       );
 
-      mockBatches.mockRestore();
+      mockBlocks.mockRestore();
       mockTransactions.mockRestore();
       unmount();
     });

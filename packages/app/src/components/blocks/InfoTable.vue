@@ -74,23 +74,6 @@ const tableInfoItems = computed(() => {
       value: t(`blocks.status.${props.block.status}`),
     },
     {
-      label: t("blocks.table.batch"),
-      tooltip: t("blocks.table.batchTooltip"),
-      value: props.block.l1BatchNumber ?? undefined,
-      ...(props.block.l1BatchNumber
-        ? {
-            route: {
-              name: "batch",
-              params: {
-                id: props.block.l1BatchNumber.toString(),
-              },
-              disabled: !props.block.isL1BatchSealed,
-              disabledTooltip: t("batches.notYetSealed"),
-            },
-          }
-        : {}),
-    },
-    {
       label: t("blocks.table.blockHash"),
       tooltip: t("blocks.table.blockHashTooltip"),
       value: props.block.hash ? { value: props.block.hash } : t("blocks.table.noBlockHashYet"),
@@ -103,30 +86,6 @@ const tableInfoItems = computed(() => {
       component: TimeField,
     }
   );
-  for (const [key, timeKey, chainIdKey] of [
-    ["commitTxHash", "committedAt", "commitChainId", "notYetCommitted"],
-    ["proveTxHash", "provenAt", "proveChainId", "notYetProven"],
-    ["executeTxHash", "executedAt", "executeChainId", "notYetExecuted"],
-  ] as [keyof Block, keyof Block, keyof Block, string][]) {
-    if (props.block[key]) {
-      const settlementChainExplorerUrl = getSettlementChainExplorerUrl(props.block[chainIdKey] as number | null);
-      tableItems.push(
-        {
-          label: t(`blocks.table.${key}`),
-          tooltip: t(`blocks.table.${key}Tooltip`),
-          value: { value: props.block[key] },
-          component: CopyContent,
-          url: settlementChainExplorerUrl ? `${settlementChainExplorerUrl}/tx/${props.block[key]}` : undefined,
-        },
-        {
-          label: t(`blocks.table.${timeKey}`),
-          tooltip: t(`blocks.table.${timeKey}Tooltip`),
-          value: { value: props.block[timeKey] },
-          component: TimeField,
-        }
-      );
-    }
-  }
 
   if (screenWidth.value < 1024) {
     return [tableItems];

@@ -23,7 +23,6 @@ const item: TransactionLogEntry = {
   data: "0x0000000000000000000000000000000000000000000000000000000005ed2d99",
   blockHash: "0xa9eccec9d479f22760f46b10572d2a7144e31f454703b30983256b666646110f",
   blockNumber: "0x2beec2",
-  l1BatchNumber: "0x92260",
   transactionHash: "0xdcf4932c1f33ce1c8831eb7c0f1ba2cf0344829d5ce6ab34cf6adf214f8a2be2",
   transactionIndex: "0x2",
   logIndex: "0xa",
