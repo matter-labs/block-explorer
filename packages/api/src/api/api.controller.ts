@@ -73,8 +73,8 @@ export class ApiController {
   public async apiPostHandler(
     @Req() request: Request,
     @Next() next: NextFunction,
-    @Body(new ParseActionPipe()) action: string,
-    @Body("module", new ParseModulePipe()) module: ApiModule
+    @Query(new ParseActionPipe()) action: string,
+    @Query("module", new ParseModulePipe()) module: ApiModule
   ) {
     request.url = `/api/${module}/${action}`;
     next();

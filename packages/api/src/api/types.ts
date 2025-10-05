@@ -87,56 +87,47 @@ export type AbiFragment = {
   type: string;
 };
 
-export type SourceCodeData = {
-  language: string;
-  settings: {
-    optimizer?: {
-      enabled: boolean;
-      runs?: number;
-    };
-    libraries?: {
-      [file: string]: {
-        [library: string]: string;
-      };
-    };
-  };
+export type ContractVerificationInfo = {
+  abi: AbiFragment[];
   sources: {
     [key: string]: {
       content: string;
     };
   };
-};
-
-type ContractVerificationRequest = {
-  id: number;
-  codeFormat: string;
-  contractName: string;
-  contractAddress: string;
-  compilerSolcVersion?: string;
-  compilerZksolcVersion?: string;
-  compilerVyperVersion?: string;
-  compilerZkvyperVersion?: string;
-  constructorArguments: string;
-  sourceCode: string | SourceCodeData | Record<string, string>;
-  optimizationUsed: boolean;
-};
-
-export type ContractVerificationInfo = {
-  artifacts: {
-    abi: AbiFragment[];
-    bytecode: number[];
+  compilation: {
+    language: string;
+    compilerSettings: {
+      evmVersion?: string;
+      libraries?: {
+        [file: string]: {
+          [library: string]: string;
+        };
+      };
+      optimizer?: {
+        enabled: boolean;
+        runs?: number;
+      };
+      [key: string]: unknown;
+    };
+    compilerVersion: string;
+    fullyQualifiedName: string;
   };
-  request: ContractVerificationRequest;
-  verifiedAt: string;
+  proxyResolution?: {
+    isProxy: boolean;
+    proxyType: string | null;
+    implementations: { name: string; address: string }[];
+  };
 };
 
 export enum ContractVerificationCodeFormatEnum {
   soliditySingleFile = "solidity-single-file",
   solidityJsonInput = "solidity-standard-json-input",
-  vyperMultiFile = "vyper-multi-file",
+  vyperJson = "vyper-json",
 }
 
 export type ContractVerificationStatusResponse = {
-  status: "successful" | "failed" | "in_progress" | "queued";
-  error?: string;
+  isJobCompleted: boolean;
+  error?: {
+    message: string;
+  };
 };

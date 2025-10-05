@@ -7,20 +7,6 @@ const fullLibraryNameRegexp = new RegExp("^(.)+:(.)+$");
 
 export class VerifyContractRequestDto {
   @ApiProperty({
-    description: "Module is always 'contract' for this endpoint",
-    example: "contract",
-    required: true,
-  })
-  private module: string;
-
-  @ApiProperty({
-    description: "Action is always 'verifysourcecode' for this endpoint",
-    example: "verifysourcecode",
-    required: true,
-  })
-  private action: string;
-
-  @ApiProperty({
     name: "contractaddress",
     description: "Contract address to verify, starts with 0x",
     example: "0x0faF6df7054946141266420b43783387A78d82A9",
@@ -87,27 +73,6 @@ export class VerifyContractRequestDto {
   @IsString()
   @IsNotEmpty({ message: "Missing Or invalid compilerversion." })
   public compilerversion: string;
-
-  @ApiProperty({
-    name: "zkCompilerVersion",
-    description: "Deprecated: Zk compiler version. Use zksolcVersion instead.",
-    example: "v1.3.14",
-    required: false,
-    deprecated: true,
-  })
-  @IsString()
-  @IsOptional()
-  public zkCompilerVersion: string;
-
-  @ApiProperty({
-    name: "zksolcVersion",
-    description: "Zk compiler version",
-    example: "v1.3.14",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  public zksolcVersion: string;
 
   @ApiProperty({
     name: "evmVersion",

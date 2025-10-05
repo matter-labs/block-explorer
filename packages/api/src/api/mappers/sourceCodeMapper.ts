@@ -1,4 +1,4 @@
-import { ContractVerificationInfo, SourceCodeData } from "../types";
+import { ContractVerificationInfo } from "../types";
 import { ContractSourceCodeDto } from "../dtos/contract/contractSourceCodeResponse.dto";
 
 export const SOURCE_CODE_EMPTY_INFO: ContractSourceCodeDto = {
@@ -18,69 +18,37 @@ export const SOURCE_CODE_EMPTY_INFO: ContractSourceCodeDto = {
 };
 
 export const mapContractSourceCode = (data: ContractVerificationInfo): ContractSourceCodeDto => {
-  let sourceCode: string;
-  if (data.request.codeFormat.startsWith("vyper-multi-file") && typeof data.request.sourceCode !== "string") {
-    const vyperFileNames = Object.keys(data.request.sourceCode);
-    if (vyperFileNames.length === 1) {
-      sourceCode = data.request.sourceCode[vyperFileNames[0]];
-    } else {
-      const mappedSourceCode = {
-        language: "Vyper",
-        settings: {
-          optimizer: {
-            enabled: data.request.optimizationUsed,
-          },
-        },
-        sources: vyperFileNames.reduce<Record<string, { content: string }>>((sources, fileName) => {
-          return { ...sources, ...{ [fileName]: { content: data.request.sourceCode[fileName] } } };
-        }, {}),
-      };
-      sourceCode = `{${JSON.stringify(mappedSourceCode)}}`;
-    }
-  } else {
-    sourceCode =
-      typeof data.request.sourceCode === "string"
-        ? data.request.sourceCode
-        : `{${JSON.stringify(data.request.sourceCode)}}`;
-  }
-
   let libraryString = "";
-  let runs = "";
-
-  const sourceCodeSettings = (data.request.sourceCode as SourceCodeData).settings;
-  if (sourceCodeSettings) {
-    runs = sourceCodeSettings.optimizer?.runs?.toString() || "";
-    if (sourceCodeSettings.libraries) {
-      const librariesMapping: string[] = [];
-      for (const [fileName, contracts] of Object.entries(sourceCodeSettings.libraries)) {
-        for (const [contractName, contractAddress] of Object.entries(contracts)) {
-          librariesMapping.push(`${fileName}:${contractName}:${contractAddress}`);
-        }
+  const librariesMapping: string[] = [];
+  if (data.compilation.compilerSettings.libraries) {
+    for (const [fileName, contracts] of Object.entries(data.compilation.compilerSettings.libraries)) {
+      for (const [contractName, contractAddress] of Object.entries(contracts)) {
+        librariesMapping.push(`${fileName}:${contractName}:${contractAddress}`);
       }
-      libraryString = librariesMapping.join(";");
     }
+    libraryString = librariesMapping.join(";");
   }
 
-  const zkCompilerVersion = data.request.compilerZksolcVersion || data.request.compilerZkvyperVersion;
   return {
-    ABI: JSON.stringify(data.artifacts.abi),
-    SourceCode: sourceCode,
-    // remove leading 0x as Etherscan does
-    ConstructorArguments: data.request.constructorArguments.startsWith("0x")
-      ? data.request.constructorArguments.substring(2)
-      : data.request.constructorArguments,
-    ContractName: data.request.contractName,
-    EVMVersion: "Default",
-    OptimizationUsed: data.request.optimizationUsed ? "1" : "0",
+    ABI: JSON.stringify(data.abi),
+    SourceCode: JSON.stringify({
+      language: data.compilation.language,
+      settings: data.compilation.compilerSettings,
+      sources: data.sources,
+    }),
+    // TODO: manually extract constructor args as sourcify doesn't have them
+    ConstructorArguments: "",
+    ContractName: data.compilation.fullyQualifiedName,
+    EVMVersion: data.compilation.compilerSettings.evmVersion || "Default",
+    OptimizationUsed: data.compilation.compilerSettings.optimizer?.enabled ? "1" : "0",
     Library: libraryString,
     LicenseType: "",
-    CompilerVersion: data.request.compilerSolcVersion || data.request.compilerVyperVersion,
-    Runs: runs,
+    CompilerVersion: data.compilation.compilerVersion,
+    Runs: data.compilation.compilerSettings.optimizer?.runs?.toString() || "",
     SwarmSource: "",
-    Proxy: "0",
-    Implementation: "",
-    ZkSolcVersion: zkCompilerVersion,
-    // Deprecated fields, kept for backward compatibility
-    ZkCompilerVersion: zkCompilerVersion,
+    Proxy: data.proxyResolution?.isProxy ? "1" : "0",
+    Implementation: data.proxyResolution?.implementations.length
+      ? data.proxyResolution.implementations[data.proxyResolution.implementations.length - 1].address
+      : "",
   };
 };

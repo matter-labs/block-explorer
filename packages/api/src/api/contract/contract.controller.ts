@@ -27,6 +27,7 @@ import { ContractVerificationStatusResponseDto } from "../dtos/contract/contract
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
 import {
+  AbiFragment,
   ContractVerificationInfo,
   ContractVerificationCodeFormatEnum,
   ContractVerificationStatusResponse,
@@ -43,6 +44,7 @@ export const parseAddressListPipeExceptionFactory = () => new BadRequestExceptio
 @UseFilters(ApiExceptionFilter)
 export class ContractController {
   private readonly contractVerificationApiUrl: string;
+  private readonly chainId: number;
   private readonly logger: Logger;
 
   constructor(
@@ -51,6 +53,7 @@ export class ContractController {
     configService: ConfigService
   ) {
     this.contractVerificationApiUrl = configService.get<string>("contractVerificationApiUrl");
+    this.chainId = configService.get<number>("chainId");
     this.logger = new Logger(ContractController.name);
   }
 
@@ -58,8 +61,8 @@ export class ContractController {
   public async getContractAbi(
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<ContractAbiResponseDto> {
-    const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
-      this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
+    const { data } = await firstValueFrom<{ data: { abi: AbiFragment[] } }>(
+      this.httpService.get(`${this.contractVerificationApiUrl}/v2/contract/${this.chainId}/${address}?fields=abi`).pipe(
         catchError((error: AxiosError) => {
           if (error.response?.status === 404) {
             throw new BadRequestException("Contract source code not verified");
@@ -68,18 +71,19 @@ export class ContractController {
             message: "Error fetching contract verification info",
             stack: error.stack,
             response: error.response?.data,
+            contractAddress: address,
           });
           throw new InternalServerErrorException("Failed to get contract ABI");
         })
       )
     );
-    if (!data.artifacts?.abi) {
+    if (!data?.abi) {
       throw new BadRequestException("Contract source code not verified");
     }
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: JSON.stringify(data.artifacts.abi),
+      result: JSON.stringify(data.abi),
     };
   }
 
@@ -88,22 +92,29 @@ export class ContractController {
     @Query("address", new ParseAddressPipe()) address: string
   ): Promise<ContractSourceCodeResponseDto> {
     const { data } = await firstValueFrom<{ data: ContractVerificationInfo }>(
-      this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/info/${address}`).pipe(
-        catchError((error: AxiosError) => {
-          this.logger.error({
-            message: "Error fetching contract verification info",
-            stack: error.stack,
-            response: error.response?.data,
-          });
-          if (error.response?.status >= 500) {
-            throw new InternalServerErrorException("Failed to get contract source code");
-          }
-          return of({ data: null });
-        })
-      )
+      this.httpService
+        .get(
+          `${this.contractVerificationApiUrl}/v2/contract/${this.chainId}/${address}?fields=abi,sources,compilation,proxyResolution`
+        )
+        .pipe(
+          catchError((error: AxiosError) => {
+            if (error.response?.status !== 404) {
+              this.logger.error({
+                message: "Error fetching contract verification info",
+                stack: error.stack,
+                response: error.response?.data,
+                contractAddress: address,
+              });
+            }
+            if (error.response?.status >= 500) {
+              throw new InternalServerErrorException("Failed to get contract source code");
+            }
+            return of({ data: null });
+          })
+        )
     );
 
-    if (!data?.artifacts?.abi) {
+    if (!data?.abi) {
       return {
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
@@ -136,21 +147,28 @@ export class ContractController {
       ContractVerificationCodeFormatEnum.solidityJsonInput,
     ].includes(request.codeformat);
 
-    // zkCompilerVersion is an old field name, but we keep it for backward compatibility
-    const zkCompilerVersion = request.zksolcVersion || request.zkCompilerVersion;
-    const isEVMContract = !zkCompilerVersion;
-    if (isEVMContract) {
-      request.compilerversion = request.compilerversion.replace("v", "").split("+")[0];
-      if (request.codeformat.includes("json")) {
-        request.sourceCode = JSON.parse(request.sourceCode);
-      }
+    const compilerVersion = request.compilerversion.replace(/^v/, "");
+    if (request.codeformat.includes("json")) {
+      request.sourceCode = JSON.parse(request.sourceCode);
+    } else {
+      request.sourceCode = {
+        sources: {
+          [request.contractname]: {
+            content: request.sourceCode,
+          },
+        },
+      };
     }
 
-    if (request.constructorArguements != null && !request.constructorArguements.startsWith("0x")) {
-      request.constructorArguements = `0x${request.constructorArguements}`;
+    if (!request.sourceCode.settings) {
+      request.sourceCode.settings = {};
     }
 
-    if (isSolidityContract && request.sourceCode instanceof Object) {
+    if (request.evmVersion) {
+      request.sourceCode.settings.evmVersion = request.evmVersion;
+    }
+
+    if (isSolidityContract) {
       const libraries: { [key: string]: Record<string, string> } = {};
       for (let i = 1; i <= 10; i++) {
         const libName: string = request[`libraryname${i}`];
@@ -164,51 +182,35 @@ export class ContractController {
         }
       }
 
-      if (!request.sourceCode.settings) {
-        request.sourceCode.settings = {};
-      }
-
       request.sourceCode.settings.libraries = { ...request.sourceCode.settings.libraries, ...libraries };
 
+      if (!request.sourceCode.settings.optimizer) {
+        request.sourceCode.settings.optimizer = {
+          enabled: request.optimizationUsed === "1",
+        };
+      }
+      if (request.optimizationUsed) {
+        request.sourceCode.settings.optimizer.enabled = request.optimizationUsed === "1";
+      }
       if (request.runs) {
-        if (!request.sourceCode.settings.optimizer) {
-          request.sourceCode.settings.optimizer = {
-            enabled: true,
-          };
-        }
         request.sourceCode.settings.optimizer.runs = request.runs;
+      }
+    } else {
+      if (request.optimizationUsed) {
+        request.sourceCode.settings.optimize = request.optimizationUsed === "1";
       }
     }
 
-    const { data } = await firstValueFrom<{ data: number }>(
+    const { data } = await firstValueFrom<{ data: { verificationId: string } }>(
       this.httpService
-        .post(`${this.contractVerificationApiUrl}/contract_verification`, {
-          codeFormat: request.codeformat,
-          contractAddress,
-          contractName: request.contractname,
-          sourceCode: request.sourceCode,
-          constructorArguments: request.constructorArguements,
-          optimizationUsed: request.optimizationUsed === "1",
-          ...(isSolidityContract &&
-            !isEVMContract && {
-              compilerZksolcVersion: zkCompilerVersion,
-              compilerSolcVersion: request.compilerversion,
-            }),
-          ...(isSolidityContract &&
-            isEVMContract && {
-              evmVersion: request.evmVersion,
-              compilerSolcVersion: request.compilerversion,
-            }),
-          ...(!isSolidityContract &&
-            !isEVMContract && {
-              compilerZkvyperVersion: zkCompilerVersion,
-              compilerVyperVersion: request.compilerversion,
-            }),
-          ...(!isSolidityContract &&
-            isEVMContract && {
-              evmVersion: request.evmVersion,
-              compilerVyperVersion: request.compilerversion,
-            }),
+        .post(`${this.contractVerificationApiUrl}/v2/verify/${this.chainId}/${contractAddress}`, {
+          stdJsonInput: {
+            language: isSolidityContract ? "Solidity" : "Vyper",
+            sources: request.sourceCode.sources,
+            settings: request.sourceCode.settings || {},
+          },
+          compilerVersion,
+          contractIdentifier: request.contractname,
         })
         .pipe(
           catchError((error: AxiosError) => {
@@ -218,11 +220,11 @@ export class ContractController {
               response: error.response?.data,
             });
 
-            if (error.response?.status === 400) {
-              throw new BadRequestException(error.response.data);
+            if (error.response?.status >= 500) {
+              throw new InternalServerErrorException("Failed to send verification request");
             }
 
-            throw new InternalServerErrorException("Failed to send verification request");
+            throw new BadRequestException(error.response?.data);
           })
         )
     );
@@ -230,7 +232,7 @@ export class ContractController {
     return {
       status: ResponseStatus.OK,
       message: ResponseMessage.OK,
-      result: data.toString(),
+      result: data.verificationId.toString(),
     };
   }
 
@@ -282,7 +284,7 @@ export class ContractController {
     }
 
     const { data } = await firstValueFrom<{ data: ContractVerificationStatusResponse }>(
-      this.httpService.get(`${this.contractVerificationApiUrl}/contract_verification/${verificationId}`).pipe(
+      this.httpService.get(`${this.contractVerificationApiUrl}/v2/verify/${verificationId}`).pipe(
         catchError((error: AxiosError) => {
           if (error.response?.status === 404) {
             throw new BadRequestException("Contract verification submission not found");
@@ -297,15 +299,7 @@ export class ContractController {
       )
     );
 
-    if (data.status === "successful") {
-      return {
-        status: ResponseStatus.OK,
-        message: ResponseMessage.OK,
-        result: ResponseResultMessage.VERIFICATION_SUCCESSFUL,
-      };
-    }
-
-    if (data.status === "queued") {
+    if (!data.isJobCompleted) {
       return {
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
@@ -313,18 +307,18 @@ export class ContractController {
       };
     }
 
-    if (data.status === "in_progress") {
+    if (data.error) {
       return {
-        status: ResponseStatus.OK,
-        message: ResponseMessage.OK,
-        result: ResponseResultMessage.VERIFICATION_IN_PROGRESS,
+        status: ResponseStatus.NOTOK,
+        message: ResponseMessage.NOTOK,
+        result: data.error.message || "Fail - Unable to verify",
       };
     }
 
     return {
-      status: ResponseStatus.NOTOK,
-      message: ResponseMessage.NOTOK,
-      result: data.error,
+      status: ResponseStatus.OK,
+      message: ResponseMessage.OK,
+      result: ResponseResultMessage.VERIFICATION_SUCCESSFUL,
     };
   }
 }
