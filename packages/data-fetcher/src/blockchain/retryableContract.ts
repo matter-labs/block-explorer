@@ -9,6 +9,11 @@ interface EthersError {
   code: ErrorCode | number;
   shortMessage: string;
 }
+export class ExceededRetriesTotalTimeoutError extends Error {
+  constructor(message?: string) {
+    super(message);
+  }
+}
 
 const MAX_RETRY_INTERVAL = 60000;
 
@@ -60,14 +65,14 @@ const retryableFunctionCall = async (
     const exceededRetriesTotalTimeout =
       retriesTotalTimeAwaited + retryTimeout > blockchain.rpcCallRetriesMaxTotalTimeout;
     const failedStatus = exceededRetriesTotalTimeout ? "exceeded total retries timeout" : "retrying...";
-    logger.warn({
+    logger[exceededRetriesTotalTimeout ? "error" : "warn"]({
       message: `Requested contract function ${functionName} failed to execute, ${failedStatus}`,
       contractAddress: addressOrName,
       error,
     });
 
     if (exceededRetriesTotalTimeout) {
-      throw error;
+      throw new ExceededRetriesTotalTimeoutError(error);
     }
   }
   await setTimeout(retryTimeout);

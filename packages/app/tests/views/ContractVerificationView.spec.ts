@@ -15,7 +15,6 @@ import enUS from "@/locales/en.json";
 
 import $testId from "@/plugins/testId";
 import routes from "@/router/routes";
-import { CompilerEnum } from "@/types";
 import ContractVerificationView from "@/views/ContractVerificationView.vue";
 
 vi.mock("vue-router", () => ({

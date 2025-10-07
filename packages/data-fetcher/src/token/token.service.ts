@@ -6,6 +6,7 @@ import { LogType, isLogOfType } from "../log/logType";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { ContractAddress } from "../transaction/transactionTraces.service";
+import { ExceededRetriesTotalTimeoutError } from "../blockchain/retryableContract";
 import parseLog from "../utils/parseLog";
 import { CONTRACT_INTERFACES, BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
 
@@ -45,7 +46,12 @@ export class TokenService {
   }> {
     try {
       return await this.blockchainService.getERC20TokenData(contractAddress);
-    } catch {
+    } catch (error) {
+      if (error instanceof ExceededRetriesTotalTimeoutError) {
+        throw new Error(
+          `Failed to call potential ERC20 contract at ${contractAddress}, exceeded total retries timeout`
+        );
+      }
       this.logger.log({
         message: "Cannot parse ERC20 contract. Might be a token of a different type.",
         contractAddress,
