@@ -107,6 +107,7 @@ export default (context = useContext()) => {
       if (!transactionData || !transactionReceipt) {
         return null;
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gasPerPubdata = (transactionData as any).gasPerPubdata;
       const tx = {
         hash: transactionData.hash,

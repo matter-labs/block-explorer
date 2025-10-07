@@ -227,7 +227,6 @@ import FeeData from "@/components/FeeData.vue";
 import Badge from "@/components/common/Badge.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import InfoTooltip from "@/components/common/InfoTooltip.vue";
-import Tooltip from "@/components/common/Tooltip.vue";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";

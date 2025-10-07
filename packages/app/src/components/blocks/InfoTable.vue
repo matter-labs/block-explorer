@@ -15,8 +15,6 @@ import InfoTableBlock from "@/components/blocks/InfoTableBlock.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 
-import useContext from "@/composables/useContext";
-
 import type { Block } from "@/composables/useBlock";
 import type { Params } from "react-router";
 import type { Component, PropType } from "vue";
@@ -25,7 +23,6 @@ import { arrayHalfDivider } from "@/utils/helpers";
 
 const { t } = useI18n();
 const { width: screenWidth } = useWindowSize();
-const { getSettlementChainExplorerUrl } = useContext();
 
 const props = defineProps({
   block: {

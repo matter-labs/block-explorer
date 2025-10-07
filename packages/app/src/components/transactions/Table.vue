@@ -248,7 +248,7 @@ import type { AbiFragment } from "@/composables/useAddress";
 import { type NetworkOrigin, TimeFormat } from "@/types";
 import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
-const { currentNetwork, isGatewaySettlementChain } = useContext();
+const { currentNetwork } = useContext();
 
 const { t, te } = useI18n();
 

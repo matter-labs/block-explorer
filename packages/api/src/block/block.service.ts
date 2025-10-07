@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { Repository, FindOptionsWhere, FindOptionsOrder, FindOptionsRelations } from "typeorm";
+import { Repository, FindOptionsWhere, FindOptionsOrder } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { paginate } from "../common/utils";

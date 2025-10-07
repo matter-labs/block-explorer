@@ -6,7 +6,6 @@ import { mount, RouterLinkStub } from "@vue/test-utils";
 
 import InfoTable from "@/components/blocks/InfoTable.vue";
 import InfoTooltip from "@/components/common/InfoTooltip.vue";
-import Tooltip from "@/components/common/Tooltip.vue";
 
 import enUS from "@/locales/en.json";
 

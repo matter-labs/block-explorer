@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
-import { utils, types } from "zksync-ethers";
+import { utils } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Listener } from "ethers";

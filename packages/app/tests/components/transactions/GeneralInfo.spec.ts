@@ -8,7 +8,6 @@ import { mount, RouterLinkStub } from "@vue/test-utils";
 import { ETH_TOKEN_MOCK } from "../../mocks";
 
 import Badge from "@/components/common/Badge.vue";
-import Tooltip from "@/components/common/Tooltip.vue";
 import Table from "@/components/transactions/infoTable/GeneralInfo.vue";
 import TransactionData from "@/components/transactions/infoTable/TransactionData.vue";
 
