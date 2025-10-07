@@ -57,12 +57,6 @@ vi.mock("@/composables/useContext", () => {
   };
 });
 
-vi.mock("@/utils/solcFullVersions", () => {
-  return {
-    getSolcFullVersion: vi.fn().mockImplementation(async (v) => `full-${v}`),
-  };
-});
-
 describe("useAddresses", () => {
   afterEach(() => {
     vi.clearAllMocks();

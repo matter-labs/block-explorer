@@ -60,7 +60,7 @@ describe("config", () => {
         retryDelay: 3000,
         applicationName: "block-explorer-api",
       },
-      contractVerificationApiUrl: "http://127.0.0.1:3070",
+      contractVerificationApiUrl: "http://localhost:5555",
       featureFlags: expect.objectContaining({
         feature1Enabled: true,
         feature2Enabled: false,
@@ -133,7 +133,7 @@ describe("config", () => {
           retryDelay: 3000,
           applicationName: "block-explorer-api",
         },
-        contractVerificationApiUrl: "http://127.0.0.1:3070",
+        contractVerificationApiUrl: "http://localhost:5555",
         featureFlags: expect.objectContaining({
           feature1Enabled: true,
           feature2Enabled: false,
@@ -198,7 +198,7 @@ describe("config", () => {
             retryDelay: 3000,
             applicationName: "block-explorer-api",
           },
-          contractVerificationApiUrl: "http://127.0.0.1:3070",
+          contractVerificationApiUrl: "http://localhost:5555",
           featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
@@ -262,7 +262,7 @@ describe("config", () => {
             retryDelay: 3000,
             applicationName: "block-explorer-api",
           },
-          contractVerificationApiUrl: "http://127.0.0.1:3070",
+          contractVerificationApiUrl: "http://localhost:5555",
           featureFlags: expect.objectContaining({
             feature1Enabled: true,
             feature2Enabled: false,
@@ -351,7 +351,7 @@ describe("config", () => {
         retryDelay: 3000,
         applicationName: "block-explorer-api",
       },
-      contractVerificationApiUrl: "http://127.0.0.1:3070",
+      contractVerificationApiUrl: "http://localhost:5555",
       featureFlags: expect.objectContaining({
         feature1Enabled: true,
         feature2Enabled: false,

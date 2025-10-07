@@ -166,6 +166,21 @@ export class ContractSourceCodeDto {
     example: "0x8A63F953e19aA4Ce3ED90621EeF61E17A95c6594",
   })
   public readonly Implementation: string;
+
+  // Custom field, needed for front-end
+  @ApiProperty({
+    description: "Contract verification date",
+    example: new Date().toJSON(),
+  })
+  public readonly VerifiedAt: string;
+
+  // Custom field, needed for front-end
+  @ApiProperty({
+    description: "Contract match type",
+    example: "exact_match",
+    examples: ["match", "exact_match", ""],
+  })
+  public readonly Match: string;
 }
 
 export class ContractSourceCodeResponseDto extends ResponseBaseDto {

@@ -62,39 +62,21 @@ const props = defineProps({
 
 const { t } = useI18n();
 
-const settings = computed(() => {
-  const sourceCode = props.contract?.verificationInfo?.request?.sourceCode;
-  if (typeof sourceCode === "object" && typeof sourceCode.settings === "object" && sourceCode.settings) {
-    return JSON.stringify(sourceCode.settings, null, 4);
-  }
-  return undefined;
-});
+const settings = computed(() =>
+  JSON.stringify(props.contract?.verificationInfo?.compilation.compilerSettings, null, 2)
+);
 const sourceCode = computed<undefined | { code: string; label: string }[]>(() => {
   if (!props.contract?.verificationInfo) {
     return undefined;
   }
-  const request = props.contract.verificationInfo.request;
-  if (request.compilerZkvyperVersion) {
-    const sourceCode = request.sourceCode as Record<string, string>;
-    const contractNames = Object.keys(sourceCode);
-    if (contractNames.length === 1) {
-      return [{ code: sourceCode[contractNames[0]], label: t("contract.sourceCode.singleFileContract") }];
-    }
-    return Object.entries(sourceCode).map(([key, value], index, arr) => {
-      return {
-        code: value,
-        label: t("contract.sourceCode.fileLabel", {
-          index: index + 1,
-          total: arr.length,
-          fileName: key.split("/").pop(),
-        }),
-      };
-    });
-  }
-  if (typeof request.sourceCode === "string") {
-    return [{ code: request.sourceCode, label: t("contract.sourceCode.singleFileContract") }];
+  const verificationInfo = props.contract.verificationInfo;
+  const contractNames = Object.keys(verificationInfo.sources);
+  if (contractNames.length === 1 && verificationInfo.compilation.language === "Solidity") {
+    return [
+      { code: verificationInfo.sources[contractNames[0]].content, label: t("contract.sourceCode.singleFileContract") },
+    ];
   } else {
-    return Object.entries(request.sourceCode.sources).map(([key, value], index, arr) => {
+    return Object.entries(verificationInfo.sources).map(([key, value], index, arr) => {
       return {
         code: value.content,
         label: t("contract.sourceCode.fileLabel", {
@@ -108,11 +90,11 @@ const sourceCode = computed<undefined | { code: string; label: string }[]>(() =>
 });
 
 const abiJson = computed<undefined | string>(() => {
-  if (!props.contract?.verificationInfo?.artifacts?.abi) {
+  if (!props.contract?.verificationInfo?.abi) {
     return undefined;
   }
 
-  return JSON.stringify(props.contract.verificationInfo.artifacts.abi);
+  return JSON.stringify(props.contract.verificationInfo.abi);
 });
 </script>
 

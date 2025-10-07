@@ -279,7 +279,7 @@ describe("ContractController", () => {
         compilerversion: "0.8.17",
         optimizationUsed: "1",
         zksolcVersion: "v1.3.14",
-        constructorArguements: "0x94869207468657265210000000000000000000000000000000000000000000000",
+        constructorArguments: "0x94869207468657265210000000000000000000000000000000000000000000000",
         runs: 700,
         libraryname1: "contracts/MiniMath.sol:MiniMath",
         libraryaddress1: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
@@ -356,7 +356,7 @@ describe("ContractController", () => {
         ...request,
         sourceCode: "// SPDX-License-Identifier: UNLICENSED",
         codeformat: ContractVerificationCodeFormatEnum.soliditySingleFile,
-        constructorArguements: undefined,
+        constructorArguments: undefined,
       } as unknown as VerifyContractRequestDto;
 
       pipeMock.mockReturnValue(
@@ -385,7 +385,7 @@ describe("ContractController", () => {
         ...request,
         sourceCode: "// SPDX-License-Identifier: UNLICENSED",
         codeformat: ContractVerificationCodeFormatEnum.soliditySingleFile,
-        constructorArguements: "123",
+        constructorArguments: "123",
       } as unknown as VerifyContractRequestDto;
 
       pipeMock.mockReturnValue(

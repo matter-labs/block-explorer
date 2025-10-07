@@ -497,6 +497,14 @@
                 },
                 "underline": "If you enabled optimization during compilation, select yes."
             },
+            "evmVersion": {
+                "label": "EVM Version",
+                "custom": "Custom",
+                "inputPlaceholder": "Custom version...",
+                "validation": {
+                    "required": "EVM Version is required"
+                }
+            },
             "solcVersion": {
                 "label": "Solc Version",
                 "placeholder": "Choose version",
@@ -552,8 +560,7 @@
                 "underline": "Contract verification method",
                 "soliditySingleFile": "Solidity (Single file)",
                 "solidityMultiPart": "Solidity (Multi-part contract)",
-                "vyperSingleFile": "Vyper (Single file)",
-                "vyperMultiPart": "Vyper (Multi-part contract)"
+                "vyperJson": "Vyper JSON"
             },
             "sourceCode": {
                 "solcLabel": "Enter the Solidity Contract Code",
@@ -592,6 +599,8 @@
             "compilerVersion": "Compiler Version",
             "zksolcVersion": "Zksolc Version",
             "zkvyperVersion": "Zkvyper Version",
+            "solcVersion": "Solc Version",
+            "vyperVersion": "Vyper Version",
             "evmVersion": "EVM Version",
             "optimization": {
                 "title": "Optimization",

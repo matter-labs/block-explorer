@@ -15,6 +15,8 @@ export const SOURCE_CODE_EMPTY_INFO: ContractSourceCodeDto = {
   Runs: "",
   SourceCode: "",
   SwarmSource: "",
+  VerifiedAt: "",
+  Match: "",
 };
 
 export const mapContractSourceCode = (data: ContractVerificationInfo): ContractSourceCodeDto => {
@@ -40,7 +42,8 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
     ConstructorArguments: "",
     ContractName: data.compilation.fullyQualifiedName,
     EVMVersion: data.compilation.compilerSettings.evmVersion || "Default",
-    OptimizationUsed: data.compilation.compilerSettings.optimizer?.enabled ? "1" : "0",
+    OptimizationUsed:
+      data.compilation.compilerSettings.optimizer?.enabled || data.compilation.compilerSettings.optimize ? "1" : "0",
     Library: libraryString,
     LicenseType: "",
     CompilerVersion: data.compilation.compilerVersion,
@@ -50,5 +53,7 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
     Implementation: data.proxyResolution?.implementations.length
       ? data.proxyResolution.implementations[data.proxyResolution.implementations.length - 1].address
       : "",
+    VerifiedAt: data.verifiedAt,
+    Match: data.match,
   };
 };

@@ -9,7 +9,6 @@ import { FetchInstance } from "@/composables/useFetchInstance";
 
 import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
 import { numberToHexString } from "@/utils/formatters";
-import { getSolcFullVersion } from "@/utils/solcFullVersions";
 
 const oneBigInt = BigInt(1);
 const EIP1967_PROXY_IMPLEMENTATION_SLOT = numberToHexString(
@@ -37,49 +36,42 @@ export type AbiFragment = {
   type: string;
 };
 
-type ContractVerificationRequest = {
-  id: number;
-  contractName: string;
-  contractAddress: string;
-  compilerSolcVersion?: string;
-  compilerZksolcVersion?: string;
-  compilerVyperVersion?: string;
-  compilerZkvyperVersion?: string;
-  constructorArguments: string;
-  sourceCode:
-    | string
-    | {
-        language: string;
-        settings: {
-          optimizer: {
-            enabled: boolean;
-            runs?: number;
-            mode?: string;
-          };
-        };
-        sources: {
-          [key: string]: {
-            content: string;
-          };
-        };
-      }
-    | Record<string, string>;
-  optimizationUsed: boolean;
-  evmVersion?: string;
-  optimizerRuns?: number;
-  optimizerMode?: string;
+export type GetSourceCodeResponseData = {
+  ABI: string;
+  SourceCode: string;
+  ConstructorArguments: string;
+  ContractName: string;
+  EVMVersion: string;
+  OptimizationUsed: string;
+  Library: string;
+  LicenseType: string;
+  CompilerVersion: string;
+  Runs: string;
+  VerifiedAt: string;
+  Match: string;
 };
 
-export const VERIFICATION_PROBLEM_INCORRECT_METADATA = "incorrectMetadata";
-
 export type ContractVerificationInfo = {
-  artifacts: {
-    abi: AbiFragment[];
-    bytecode: number[];
+  abi: AbiFragment[];
+  compilation: {
+    language: string;
+    fullyQualifiedName: string;
+    compilerVersion: string;
+    compilerSettings: {
+      evmVersion?: string;
+      optimizer?: {
+        enabled: boolean;
+        runs?: number;
+      };
+    };
   };
-  request: ContractVerificationRequest;
+  sources: {
+    [key: string]: {
+      content: string;
+    };
+  };
   verifiedAt: string;
-  verificationProblems?: string[];
+  match: string;
 };
 
 export type Balance = Api.Response.TokenAddress;
@@ -107,15 +99,14 @@ export default (context = useContext()) => {
       return null;
     }
     try {
-      const verificationInfo = await FetchInstance.verificationApi()<ContractVerificationInfo>(
-        `/contract_verification/info/${address}`
-      );
-      if (verificationInfo?.request?.compilerSolcVersion) {
-        verificationInfo.request.compilerSolcVersion = await getSolcFullVersion(
-          verificationInfo.request.compilerSolcVersion
-        );
+      const { result: sourceCodeData, status } = await FetchInstance.verificationApi()<{
+        status: string;
+        result: GetSourceCodeResponseData[];
+      }>(`?module=contract&action=getsourcecode&address=${address}`);
+      if (status === "0" || !sourceCodeData[0].SourceCode) {
+        return null;
       }
-      return verificationInfo;
+      return mapSourceCodeDataToVerificationInfo(sourceCodeData[0]);
     } catch (e) {
       if (!(e instanceof FetchError) || e.response?.status !== 404) {
         throw e;
@@ -214,3 +205,25 @@ export default (context = useContext()) => {
     isRequestFailed,
   };
 };
+
+function mapSourceCodeDataToVerificationInfo(sourceCodeData: GetSourceCodeResponseData): ContractVerificationInfo {
+  const sourceCode = JSON.parse(sourceCodeData.SourceCode);
+  return {
+    abi: JSON.parse(sourceCodeData.ABI),
+    compilation: {
+      language: sourceCode.language,
+      fullyQualifiedName: sourceCodeData.ContractName,
+      compilerVersion: sourceCodeData.CompilerVersion,
+      compilerSettings: sourceCode.settings || {
+        evmVersion: sourceCodeData.EVMVersion,
+        optimizer: {
+          enabled: sourceCodeData.OptimizationUsed === "1",
+          ...(sourceCodeData.Runs && { runs: parseInt(sourceCodeData.Runs, 10) }),
+        },
+      },
+    },
+    sources: sourceCode.sources,
+    verifiedAt: sourceCodeData.VerifiedAt,
+    match: sourceCodeData.Match,
+  };
+}

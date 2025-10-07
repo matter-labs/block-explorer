@@ -55,9 +55,8 @@
     },
     {
       "groupId": "era",
-      "isZKsyncOS": true,
       "apiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev",
-      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "verificationApiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev/api",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
       "hostnames": [
         "https://zksync-os-stage.staging-scan-v2.zksync.dev"
@@ -79,9 +78,8 @@
     },
     {
       "groupId": "era",
-      "isZKsyncOS": true,
       "apiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev",
-      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "verificationApiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev/api",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
       "hostnames": [
         "https://zksync-os-testnet-alpha.staging-scan-v2.zksync.dev"

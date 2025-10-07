@@ -125,7 +125,7 @@ describe("ContractBytecode", () => {
         contract,
       },
     });
-    expect(wrapper.find(".abi-json").text()).toBe(JSON.stringify(contract.verificationInfo?.artifacts.abi));
+    expect(wrapper.find(".abi-json").text()).toBe(JSON.stringify(contract.verificationInfo?.abi));
   });
 
   it("renders contract code when vyper single-file contract is verified", () => {

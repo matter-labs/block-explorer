@@ -107,6 +107,7 @@ export type ContractVerificationInfo = {
         enabled: boolean;
         runs?: number;
       };
+      optimize?: string | boolean;
       [key: string]: unknown;
     };
     compilerVersion: string;
@@ -117,6 +118,8 @@ export type ContractVerificationInfo = {
     proxyType: string | null;
     implementations: { name: string; address: string }[];
   };
+  verifiedAt: string;
+  match: string;
 };
 
 export enum ContractVerificationCodeFormatEnum {

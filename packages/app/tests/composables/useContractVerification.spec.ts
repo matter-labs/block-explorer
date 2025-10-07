@@ -20,13 +20,6 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
-vi.mock("@/utils/solcFullVersions", () => {
-  return {
-    getSolcFullVersion: vi.fn().mockImplementation(async (v) => `full-${v}`),
-    getSolcShortVersion: vi.fn().mockImplementation((v) => v),
-  };
-});
-
 describe("useContractVerification:", () => {
   it("creates useContractVerification composable", () => {
     const result = useContractVerification();

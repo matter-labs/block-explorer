@@ -7,17 +7,23 @@ import { FetchInstance } from "./useFetchInstance";
 
 import useContext, { type Context } from "@/composables/useContext";
 
-import type { AbiFragment, ContractVerificationInfo } from "./useAddress";
+import type { AbiFragment } from "./useAddress";
 import type { Address } from "@/types";
 
 import { checksumAddress } from "@/utils/formatters";
 
-const retrieveAddressInfo = useMemoize(
-  async (address: Address, context: Context = useContext()) => {
+const getABI = useMemoize(
+  async (address: Address, context: Context = useContext()): Promise<AbiFragment[] | null> => {
     if (!context.currentNetwork.value.verificationApiUrl) {
       return null;
     }
-    return await FetchInstance.verificationApi(context)(`/contract_verification/info/${address}`);
+    const { result, status } = await FetchInstance.verificationApi(context)(
+      `?module=contract&action=getabi&address=${address}`
+    );
+    if (status === "0") {
+      return null;
+    }
+    return JSON.parse(result);
   },
   {
     getKey(address: Address, context: Context = useContext()) {
@@ -34,24 +40,32 @@ export default (context = useContext()) => {
   const getCollection = async (addresses: Address[]) => {
     isRequestPending.value = true;
     isRequestFailed.value = false;
-    const verifiedContracts = (
-      await Promise.all(
-        addresses.map((address) =>
-          retrieveAddressInfo(address, context).catch((error) => {
-            if (!(error instanceof FetchError) || error.response?.status !== 404) {
-              isRequestFailed.value = true;
-            }
-            return null;
-          })
-        )
-      )
-    ).filter((contract) => contract !== null) as ContractVerificationInfo[];
-    collection.value = Object.fromEntries(
-      verifiedContracts.map((verificationInfo) => [
-        checksumAddress(verificationInfo.request.contractAddress),
-        verificationInfo.artifacts.abi,
-      ])
+    const contractAbis = await Promise.all(
+      addresses.map(async (address) => {
+        try {
+          const abi = await getABI(address, context);
+          return {
+            address,
+            abi,
+          };
+        } catch (error) {
+          if (!(error instanceof FetchError) || error.response?.status !== 404) {
+            isRequestFailed.value = true;
+          }
+          return {
+            address,
+            abi: null,
+          };
+        }
+      })
     );
+
+    collection.value = contractAbis.reduce((acc: { [contractAddress: string]: AbiFragment[] }, val) => {
+      if (val.abi) {
+        acc[checksumAddress(val.address)] = val.abi;
+      }
+      return acc;
+    }, {});
     isRequestPending.value = false;
   };
 

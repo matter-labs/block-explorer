@@ -148,12 +148,13 @@ export class ContractController {
     ].includes(request.codeformat);
 
     const compilerVersion = request.compilerversion.replace(/^v/, "");
+    const [contractPath] = request.contractname.split(":");
     if (request.codeformat.includes("json")) {
       request.sourceCode = JSON.parse(request.sourceCode);
     } else {
       request.sourceCode = {
         sources: {
-          [request.contractname]: {
+          [contractPath]: {
             content: request.sourceCode,
           },
         },

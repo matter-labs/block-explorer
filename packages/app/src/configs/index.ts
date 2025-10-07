@@ -1,6 +1,5 @@
 export type NetworkConfig = {
   groupId?: string;
-  isZKsyncOS?: boolean;
   name: string;
   icon: string;
   verificationApiUrl?: string;
