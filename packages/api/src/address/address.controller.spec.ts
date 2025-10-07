@@ -275,7 +275,7 @@ describe("AddressController", () => {
           });
         });
 
-        it("does not include balances if user is not owner (no logs found)", async () => {
+        it("does not include additional information if user is not owner (no logs found)", async () => {
           logServiceMock.findManyByTopics.mockResolvedValueOnce([]);
 
           const result = await controller.getAddress(blockchainAddress, user);
@@ -289,9 +289,12 @@ describe("AddressController", () => {
             offset: 1,
           });
           expect(result.balances).toEqual({});
+          expect(result["bytecode"]).toEqual("");
+          expect(result["creatorAddress"]).toEqual("");
+          expect(result["creatorTxHash"]).toEqual("");
         });
 
-        it("does not include balances if user is not owner (ownerTopic is undefined)", async () => {
+        it("does not include additional information if user is not owner (ownerTopic is undefined)", async () => {
           logServiceMock.findManyByTopics.mockResolvedValueOnce([
             {
               topics: ["0x", "0x"], // topics[2] is undefined
@@ -312,9 +315,12 @@ describe("AddressController", () => {
           const result = await controller.getAddress(blockchainAddress, user);
 
           expect(result.balances).toEqual({});
+          expect(result["bytecode"]).toEqual("");
+          expect(result["creatorAddress"]).toEqual("");
+          expect(result["creatorTxHash"]).toEqual("");
         });
 
-        it("does not include balances if user is not owner (different owner)", async () => {
+        it("does not include additional information if user is not owner (different owner)", async () => {
           logServiceMock.findManyByTopics.mockResolvedValueOnce([
             {
               topics: ["0x", "0x", zeroPadValue(Wallet.createRandom().address, 32)],
@@ -335,9 +341,12 @@ describe("AddressController", () => {
           const result = await controller.getAddress(blockchainAddress, user);
 
           expect(result.balances).toEqual({});
+          expect(result["bytecode"]).toEqual("");
+          expect(result["creatorAddress"]).toEqual("");
+          expect(result["creatorTxHash"]).toEqual("");
         });
 
-        it("includes balances if user is owner", async () => {
+        it("includes additional information if user is owner", async () => {
           logServiceMock.findManyByTopics.mockResolvedValueOnce([
             {
               topics: ["0x", "0x", zeroPadValue(mockUser, 32)],
@@ -359,9 +368,12 @@ describe("AddressController", () => {
 
           expect(balanceServiceMock.getBalances).toHaveBeenCalledWith(blockchainAddress);
           expect(result.balances).toBeDefined();
+          expect(result["bytecode"]).not.toEqual("");
+          expect(result["creatorAddress"]).not.toEqual("");
+          expect(result["creatorTxHash"]).not.toEqual("");
         });
 
-        it("does not include balances if logService throws an error", async () => {
+        it("does not include additional information if logService throws an error", async () => {
           const err = new Error("Database error");
           logServiceMock.findManyByTopics.mockRejectedValueOnce(err);
           const loggerSpy = jest.spyOn(controller["logger"], "error").mockImplementation();
@@ -370,6 +382,9 @@ describe("AddressController", () => {
 
           expect(loggerSpy).toHaveBeenCalledWith("Failed to check if user is owner of contract", err.stack);
           expect(result.balances).toEqual({});
+          expect(result["bytecode"]).toEqual("");
+          expect(result["creatorAddress"]).toEqual("");
+          expect(result["creatorTxHash"]).toEqual("");
 
           loggerSpy.mockRestore();
         });
