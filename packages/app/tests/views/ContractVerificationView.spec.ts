@@ -204,50 +204,6 @@ describe("ContractVerificationView:", () => {
     expect(wrapper.find(".compilation-error-log pre").text()).toBe("Some compilation error");
     mock.mockRestore();
   });
-  it("doesn't show contract path input when zkSolc version lower than v1.3.6 selected", async () => {
-    const mock = vi.spyOn(useContractVerification, "default").mockReturnValue({
-      ...useContractVerification.default(),
-      compilerVersions: ref({
-        solc: {
-          name: CompilerEnum.solc,
-          isRequestPending: false,
-          isRequestFailed: false,
-          versions: ["0.8.18"],
-        },
-        zksolc: {
-          name: CompilerEnum.zksolc,
-          isRequestPending: false,
-          isRequestFailed: false,
-          versions: ["v1.3.5", "v1.3.7"],
-        },
-        vyper: {
-          name: CompilerEnum.vyper,
-          isRequestPending: false,
-          isRequestFailed: false,
-          versions: ["0.3.3"],
-        },
-        zkvyper: {
-          name: CompilerEnum.zkvyper,
-          isRequestPending: false,
-          isRequestFailed: false,
-          versions: ["v1.3.9"],
-        },
-      }),
-      requestCompilerVersions: vi.fn(),
-    });
-    const wrapper = mount(ContractVerificationView, {
-      global: {
-        stubs: ["router-link"],
-        plugins: [i18n, $testId],
-      },
-    });
-
-    expect(wrapper.find("#contractPath").exists()).toBe(true);
-    await wrapper.find("#zkCompilerVersion").trigger("click");
-    await wrapper.find(`[aria-labelledby="zkCompilerVersion"] > li:nth-child(1)`).trigger("click");
-    expect(wrapper.find("#contractPath").exists()).toBe(false);
-    mock.mockRestore();
-  });
   it("doesn't show contract path input when Vyper is selected", async () => {
     const mock = vi.spyOn(useContractVerification, "default").mockReturnValue({
       ...useContractVerification.default(),

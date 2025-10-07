@@ -103,7 +103,7 @@ export default (context = useContext()) => {
 
         // Try with proxy implementation if available
         if (proxyInfo?.implementation.verificationInfo) {
-          method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi);
+          method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.abi);
         }
       }
 

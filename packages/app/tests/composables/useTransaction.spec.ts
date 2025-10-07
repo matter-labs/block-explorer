@@ -625,9 +625,6 @@ describe("useTransaction:", () => {
         expect(provider.getTransaction).toBeCalledWith(
           "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf"
         );
-        expect(provider.getTransactionDetails).toBeCalledWith(
-          "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf"
-        );
         expect(provider.getTransactionReceipt).toBeCalledWith(
           "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf"
         );

@@ -38,7 +38,6 @@ describe("useContractVerification:", () => {
       contractName: "",
       optimizationUsed: false,
       sourceCode: "",
-      zkCompilerVersion: "",
       compilerVersion: "",
       constructorArguments: "",
     } as ContractVerificationData;
@@ -95,40 +94,40 @@ describe("useContractVerification:", () => {
   describe("requestCompilerVersions:", () => {
     it("sets compiler isRequestPending to true when request is pending", async () => {
       const { compilerVersions, requestCompilerVersions } = useContractVerification();
-      const promise = requestCompilerVersions(CompilerEnum.zksolc);
-      expect(compilerVersions.value.zksolc.isRequestPending).toEqual(true);
+      const promise = requestCompilerVersions(CompilerEnum.solc);
+      expect(compilerVersions.value.solc.isRequestPending).toEqual(true);
       await promise;
     });
     it("sets compiler isRequestPending to false when request is finished", async () => {
       const { compilerVersions, requestCompilerVersions } = useContractVerification();
-      await requestCompilerVersions(CompilerEnum.zksolc);
-      expect(compilerVersions.value.zksolc.isRequestPending).toEqual(false);
+      await requestCompilerVersions(CompilerEnum.solc);
+      expect(compilerVersions.value.solc.isRequestPending).toEqual(false);
     });
     it("sets compiler isRequestFailed to true when request failed", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mock = ($fetch as any).mockRejectedValue(new Error());
       const { compilerVersions, requestCompilerVersions } = useContractVerification();
-      await requestCompilerVersions(CompilerEnum.zksolc);
+      await requestCompilerVersions(CompilerEnum.solc);
 
-      expect(compilerVersions.value.zksolc.isRequestFailed).toEqual(true);
+      expect(compilerVersions.value.solc.isRequestFailed).toEqual(true);
       mock.mockRestore();
     });
     it("sets compiler isRequestFailed to false when request success", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mock = ($fetch as any).mockResolvedValue(["v1.1.0", "v1.1.2", "v1.1.3", "v1.1.4"]);
       const { compilerVersions, requestCompilerVersions } = useContractVerification();
-      await requestCompilerVersions(CompilerEnum.zksolc);
+      await requestCompilerVersions(CompilerEnum.solc);
 
-      expect(compilerVersions.value.zksolc.isRequestFailed).toEqual(false);
+      expect(compilerVersions.value.solc.isRequestFailed).toEqual(false);
       mock.mockRestore();
     });
     it("sets compiler versions value correctly", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mock = ($fetch as any).mockResolvedValue(["v1.1.0", "v1.1.2", "v1.1.3", "v1.1.4"]);
       const { compilerVersions, requestCompilerVersions } = useContractVerification();
-      await requestCompilerVersions(CompilerEnum.zksolc);
+      await requestCompilerVersions(CompilerEnum.solc);
 
-      expect(compilerVersions.value.zksolc.versions).toEqual(["v1.1.4", "v1.1.3", "v1.1.2", "v1.1.0"]);
+      expect(compilerVersions.value.solc.versions).toEqual(["v1.1.4", "v1.1.3", "v1.1.2", "v1.1.0"]);
       mock.mockRestore();
     });
     it("sets compiler versions to full compiler versions for solc compiler", async () => {
@@ -160,9 +159,9 @@ describe("useContractVerification:", () => {
         "v1.1.2",
       ]);
       const { compilerVersions, requestCompilerVersions } = useContractVerification();
-      await requestCompilerVersions(CompilerEnum.zksolc);
+      await requestCompilerVersions(CompilerEnum.solc);
 
-      expect(compilerVersions.value.zksolc.versions).toEqual([
+      expect(compilerVersions.value.solc.versions).toEqual([
         "v1.1.111",
         "v1.1.100",
         "v1.1.11",
