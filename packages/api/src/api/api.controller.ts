@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Next, UseFilters, Post, Body } from "@nestjs/common";
+import { Controller, Get, Query, Req, Next, UseFilters, Post } from "@nestjs/common";
 import {
   ApiTags,
   ApiOkResponse,
@@ -60,6 +60,7 @@ export class ApiController {
     @Query("module", new ParseModulePipe()) module: ApiModule,
     @Query() query: ApiRequestQuery
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { module: queryModule, action: queryAction, ...queryParams } = query;
     request.url = `/api/${module}/${action}`;
     request.query = queryParams;
@@ -76,6 +77,7 @@ export class ApiController {
     @Query("module", new ParseModulePipe()) module: ApiModule,
     @Query() query: ApiRequestQuery
   ) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { module: queryModule, action: queryAction, ...queryParams } = query;
     request.url = `/api/${module}/${action}`;
     request.query = queryParams;
