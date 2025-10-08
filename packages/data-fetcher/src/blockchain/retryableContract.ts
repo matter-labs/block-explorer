@@ -8,6 +8,7 @@ const { blockchain } = config();
 interface EthersError {
   code: ErrorCode | number;
   shortMessage: string;
+  message: string;
 }
 export class ExceededRetriesTotalTimeoutError extends Error {
   constructor(message?: string) {
@@ -29,7 +30,7 @@ const shouldRetry = (error: EthersError): boolean => {
   return (
     !isPermanentErrorCode &&
     // example block mainnet 47752810
-    !(error.code === 3 && error.shortMessage?.startsWith("execution reverted")) &&
+    !(error.code === 3 && [error.shortMessage, error.message].find((msg) => msg?.startsWith("execution reverted"))) &&
     // example block mainnet 47819836
     !(
       error.code === "BAD_DATA" &&
