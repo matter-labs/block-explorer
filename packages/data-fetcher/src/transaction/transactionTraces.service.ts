@@ -105,7 +105,11 @@ function getTransactionTraceData(
 
     // EVM-like way to extract base token transfers. Relevant for ZK OS.
     // DELEGATECALL and STATICCALL cannot transfer ETH.
-    if (transactionTrace.value !== "0x0" && !["delegatecall", "staticcall"].includes(traceType)) {
+    if (
+      transactionTrace.value !== "0x0" &&
+      !transactionTrace.error &&
+      !["delegatecall", "staticcall"].includes(traceType)
+    ) {
       extractedData.transfersWithValue.push({
         from: transactionTrace.from.toLowerCase(),
         to: transactionTrace.to.toLowerCase(),
