@@ -9,6 +9,11 @@ interface EthersError {
   code: ErrorCode | number;
   shortMessage: string;
   message: string;
+  info?: {
+    error?: {
+      message: string;
+    };
+  };
 }
 export class ExceededRetriesTotalTimeoutError extends Error {
   constructor(message?: string) {
@@ -30,7 +35,12 @@ const shouldRetry = (error: EthersError): boolean => {
   return (
     !isPermanentErrorCode &&
     // example block mainnet 47752810
-    !(error.code === 3 && [error.shortMessage, error.message].find((msg) => msg?.startsWith("execution reverted"))) &&
+    !(
+      ["CALL_EXCEPTION", 3].includes(error.code) &&
+      [error.shortMessage, error.message, error.info?.error?.message].find((msg) =>
+        msg?.startsWith("execution reverted")
+      )
+    ) &&
     // example block mainnet 47819836
     !(
       error.code === "BAD_DATA" &&
