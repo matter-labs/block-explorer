@@ -142,6 +142,8 @@ export class ContractController {
     contractAddress,
     @Body() request: VerifyContractRequestDto
   ): Promise<VerifyContractResponseDto> {
+    const contract = await this.addressService.findOne(contractAddress);
+
     const isSolidityContract = [
       ContractVerificationCodeFormatEnum.soliditySingleFile,
       ContractVerificationCodeFormatEnum.solidityJsonInput,
@@ -212,6 +214,11 @@ export class ContractController {
           },
           compilerVersion,
           contractIdentifier: request.contractname,
+          // If creationTransactionHash is not provided sourcify performs expensive binary search
+          // unless fetchContractCreationTxUsing is configured.
+          // fetchContractCreationTxUsing config supports etherscan api but custom api url is not possible.
+          // Contract might not be indexed yet if verification happens instantly after deployment.
+          ...(contract?.creatorTxHash && { creationTransactionHash: contract.creatorTxHash }),
         })
         .pipe(
           catchError((error: AxiosError) => {
