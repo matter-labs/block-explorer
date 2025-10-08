@@ -63,7 +63,7 @@
       "maintenance": false,
       "name": "zksync-os-stage",
       "published": true,
-      "rpcUrl": "https://zksync-os-stage-api.zksync-nodes.com",
+      "rpcUrl": "https://zksync-os-stage.zksync.dev",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
