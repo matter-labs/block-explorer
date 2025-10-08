@@ -268,7 +268,7 @@ export class TransactionService {
     if (isVerified) {
       const lastVerifiedBlockQuery = this.blockRepository.createQueryBuilder("block");
       lastVerifiedBlockQuery.select("number");
-      lastVerifiedBlockQuery.where("block.status = :status", { status: BlockStatus.Executed });
+      lastVerifiedBlockQuery.where("block.status = :status");
       lastVerifiedBlockQuery.orderBy("block.status", "DESC");
       lastVerifiedBlockQuery.addOrderBy("block.number", "DESC");
       lastVerifiedBlockQuery.limit(1);
@@ -278,6 +278,7 @@ export class TransactionService {
     queryBuilder.orderBy("transaction.blockNumber", "DESC");
     queryBuilder.addOrderBy("transaction.nonce", "DESC");
     queryBuilder.limit(1);
+    queryBuilder.setParameter("status", BlockStatus.Executed);
     return queryBuilder;
   }
 
