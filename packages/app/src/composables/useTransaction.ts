@@ -130,7 +130,7 @@ export default (context = useContext()) => {
           amountRefunded: numberToHexString(0),
         },
         indexInBlock: transactionReceipt.index,
-        isL1Originated: [254, 255].includes(transactionData.type),
+        isL1Originated: [126, 127].includes(transactionData.type),
         nonce: transactionData.nonce,
         receivedAt: "", // TODO: replace with block timestamp
 
