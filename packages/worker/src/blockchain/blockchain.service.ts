@@ -142,6 +142,20 @@ export class BlockchainService implements OnModuleInit {
     return await erc20Contract.balanceOf(address, { blockTag: blockNumber });
   }
 
+  public async getGenesisContracts(): Promise<Array<{ address: string; code: string }>> {
+    const result = await this.rpcCall(async () => {
+      return await this.provider.send("zks_getGenesis", []);
+    }, "getGenesisContracts");
+    return (
+      result?.initial_contracts
+        ?.filter((contract: [string, string]) => contract[0] && contract[1])
+        .map((contract: [string, string]) => ({
+          address: contract[0],
+          code: contract[1],
+        })) || []
+    );
+  }
+
   public async onModuleInit(): Promise<void> {
     //const bridgeAddresses = await this.getDefaultBridgeAddresses();
     this.bridgeAddresses = {
