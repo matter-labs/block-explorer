@@ -35,10 +35,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   public onModuleInit() {
     runMigrations(this.dataSource, this.logger).then(() => {
-      // TODO: adapt for ZKsync OS
-      //this.systemContractService.addSystemContracts().then(() => {
-      this.tokenService.addBaseToken();
-      //});
+      this.systemContractService.addSystemContracts().then(() => {
+        this.tokenService.addBaseToken();
+      });
       this.startWorkers();
     });
   }
