@@ -172,13 +172,13 @@ describe("TransactionController", () => {
       });
 
       it("queries transactions by specified transaction hash", async () => {
-        await controller.getTransaction(transactionHash);
+        await controller.getTransaction(transactionHash, null);
         expect(serviceMock.findOne).toHaveBeenCalledTimes(1);
         expect(serviceMock.findOne).toHaveBeenCalledWith(transactionHash);
       });
 
       it("returns the transaction", async () => {
-        const result = await controller.getTransaction(transactionHash);
+        const result = await controller.getTransaction(transactionHash, null);
         expect(result).toBe(transaction);
       });
     });
@@ -192,7 +192,7 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransaction(transactionHash);
+          await controller.getTransaction(transactionHash, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
