@@ -74,7 +74,7 @@ export class AddressController {
     let includeCreatorAddress = true;
     let includeCreatorTxHash = true;
 
-    if (user) {
+    if (user && !user.isAdmin) {
       // If address is an account and is not own address, forbid access
       if (addressType === AddressType.Account && !isAddressEqual(user.address, address)) {
         throw new ForbiddenException();
@@ -152,7 +152,7 @@ export class AddressController {
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @User() user: UserParam
   ): Promise<Pagination<LogDto>> {
-    const userFilters = user ? { visibleBy: user.address } : {};
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
     return await this.logService.findAll(
       { address, ...userFilters },
       {
@@ -181,7 +181,7 @@ export class AddressController {
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @User() user: UserParam
   ): Promise<Pagination<TransferDto>> {
-    const userFilters = user ? { visibleBy: user.address } : {};
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
 

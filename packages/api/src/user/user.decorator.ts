@@ -3,6 +3,7 @@ import { Request } from "express";
 
 export type UserParam = {
   address: string;
+  isAdmin: boolean;
 } | null;
 
 /* istanbul ignore next */
@@ -16,5 +17,5 @@ export function userFactory(ctx: ExecutionContext): UserParam {
     return null;
   }
 
-  return { address: request.session.address };
+  return { address: request.session.address, isAdmin: !!request.session.isAdmin };
 }

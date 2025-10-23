@@ -46,7 +46,7 @@ export class TransactionController {
   ): Promise<Pagination<TransactionDto>> {
     const userFilters: FilterTransactionsOptions = {};
 
-    if (user) {
+    if (user && !user.isAdmin) {
       // In all cases we filter by log topics where the address is mentioned
       userFilters.filterAddressInLogTopics = true;
 
