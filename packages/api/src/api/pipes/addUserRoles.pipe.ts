@@ -1,4 +1,10 @@
-import { PipeTransform, ArgumentMetadata, BadRequestException, Injectable } from "@nestjs/common";
+import {
+  PipeTransform,
+  ArgumentMetadata,
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from "@nestjs/common";
 import { UserParam } from "../../user/user.decorator";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
@@ -6,6 +12,10 @@ import { z } from "zod";
 export interface UserWithRoles extends UserParam {
   roles: string[];
   isAdmin: boolean;
+}
+
+function throwError(): never {
+  throw new InternalServerErrorException("Authentication failed");
 }
 
 @Injectable()
@@ -17,12 +27,21 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
 
     const response = await fetch(new URL("/api/profiles/me", this.config.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${value.token}` },
-    });
+    }).catch(throwError);
+
+    if (response.status !== 200) {
+      throw new InternalServerErrorException("Authentication failed");
+    }
+
     const validatedData = z
       .object({
         roles: z.array(z.object({ roleName: z.string() })),
       })
-      .safeParse(await response.json());
+      .safeParse(await response.json().catch(throwError));
+
+    if (validatedData.success === false) {
+      throwError();
+    }
 
     const roles = validatedData.data.roles.map((r) => r.roleName);
 
