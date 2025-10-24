@@ -11,7 +11,8 @@ import { Transfer } from "../transfer/transfer.entity";
 import { Log } from "../log/log.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
-import { UserParam } from "../user/user.decorator";
+import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { ConfigService } from "@nestjs/config";
 
 jest.mock("../common/utils", () => ({
   buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
@@ -36,9 +37,21 @@ describe("TransactionController", () => {
       hash: transactionHash,
     };
 
+    const configServiceValues = {
+      "prividium.permissionsApiUrl": "https://permissions-api.example.com",
+    };
+
+    const configServiceMock = mock<ConfigService>({
+      get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
+    });
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionController],
       providers: [
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
         {
           provide: TransactionService,
           useValue: serviceMock,
@@ -100,10 +113,10 @@ describe("TransactionController", () => {
     });
 
     describe("when user is provided", () => {
-      let user: MockProxy<UserParam>;
+      let user: MockProxy<UserWithRoles>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
       beforeEach(() => {
-        user = mock<UserParam>({ address: mockUser });
+        user = mock<UserWithRoles>({ address: mockUser, roles: [], isAdmin: false, token: "token1" });
       });
 
       it("filters by own address when no address is provided", async () => {
