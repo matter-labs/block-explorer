@@ -10,8 +10,8 @@ import { Block, BlockStatus } from "../block/block.entity";
 import { CounterService } from "../counter/counter.service";
 import { Log } from "../log/log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { prividium } from "../config/featureFlags";
 import { zeroPadValue } from "ethers";
+import { ConfigService } from "@nestjs/config";
 
 export interface FilterTransactionsOptions {
   blockNumber?: number;
@@ -31,6 +31,8 @@ export interface FindByAddressFilterTransactionsOptions {
 
 @Injectable()
 export class TransactionService {
+  private isPrividium: boolean;
+
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
@@ -40,8 +42,11 @@ export class TransactionService {
     private readonly blockRepository: Repository<Block>,
     private readonly counterService: CounterService,
     @InjectRepository(Log)
-    private readonly logRepository: Repository<Log>
-  ) {}
+    private readonly logRepository: Repository<Log>,
+    readonly configService: ConfigService
+  ) {
+    this.isPrividium = configService.get("featureFlags.prividium");
+  }
 
   public async findOne(hash: string): Promise<Transaction> {
     const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
@@ -63,7 +68,7 @@ export class TransactionService {
     if (filterOptions.address) {
       // TODO: fix the query performance for prividium case and add tests
       /* istanbul ignore if */ // this comment is to exclude the next block from code cov
-      if (prividium) {
+      if (this.isPrividium) {
         const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
 
         const commonParams: Record<string, string | number | Date> = {

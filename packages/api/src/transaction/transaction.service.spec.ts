@@ -11,6 +11,7 @@ import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { Block, BlockStatus } from "../block/block.entity";
 import { Log } from "../log/log.entity";
+import { ConfigService } from "@nestjs/config";
 
 jest.mock("../common/utils");
 
@@ -23,6 +24,14 @@ describe("TransactionService", () => {
   let counterServiceMock: CounterService;
   let logRepositoryMock: typeorm.Repository<Log>;
   const transactionHash = "transactionHash";
+
+  const configServiceValues = {
+    "featureFlags.prividium": false,
+  };
+
+  const configServiceMock = mock<ConfigService>({
+    get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
+  });
 
   beforeEach(async () => {
     counterServiceMock = mock<CounterService>();
@@ -48,6 +57,10 @@ describe("TransactionService", () => {
         {
           provide: getRepositoryToken(Block),
           useValue: blockRepositoryMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
         {
           provide: CounterService,
