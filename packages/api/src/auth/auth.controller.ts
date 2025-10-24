@@ -44,21 +44,18 @@ export class AuthController {
   })
   public async login(@Body() body: VerifySignatureDto, @Req() req: Request): Promise<{ address: string }> {
     try {
-      const response = await fetch(new URL("/api/profiles/me", this.configService.get("prividium.permissionsApiUrl")), {
-        headers: { Authorization: `Bearer ${body.token}` },
-      });
+      const response = await fetch(
+        new URL("/api/user-wallets", this.configService.get("prividium.permissionsApiUrl")),
+        {
+          headers: { Authorization: `Bearer ${body.token}` },
+        }
+      );
       if (response.status === 403) {
         throw new HttpException("Invalid or expired token", 400);
       }
 
       const data = await response.json();
-      const validatedData = z
-        .object({
-          wallets: z.array(z.object({ walletAddress: z.string() })),
-          roles: z.array(z.object({ roleName: z.string() })),
-        })
-        .safeParse(data);
-
+      const validatedData = z.object({ wallets: z.array(z.string()) }).safeParse(data);
       if (!validatedData.success) {
         this.logger.error("Invalid response from permissions API", response);
         throw new InternalServerErrorException();
@@ -68,14 +65,9 @@ export class AuthController {
         throw new HttpException("No wallets associated with the user", 400);
       }
 
-      const isAdmin = validatedData.data.roles.some(
-        (role) => role.roleName === this.configService.get("prividium.adminRoleName")
-      );
-
       // Use first address from the user to filter
-      const address = validatedData.data.wallets[0].walletAddress;
+      const address = validatedData.data.wallets[0];
       req.session.address = address;
-      req.session.isAdmin = isAdmin;
       req.session.token = body.token;
       return { address };
     } catch (error) {

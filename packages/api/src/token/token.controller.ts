@@ -20,6 +20,7 @@ import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAd
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User, UserParam } from "../user/user.decorator";
+import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "tokens";
 
@@ -90,7 +91,7 @@ export class TokenController {
   public async getTokenTransfers(
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User() user: UserParam
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<TransferDto>> {
     if (!(await this.tokenService.exists(address))) {
       throw new NotFoundException();
