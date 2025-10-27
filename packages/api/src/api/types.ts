@@ -4,6 +4,12 @@ export type ApiRequestQuery = {
   [key: string]: string;
 };
 
+export type ApiRequestBody = {
+  module: ApiModule;
+  action: string;
+  [key: string]: unknown;
+};
+
 export enum ApiModule {
   Account = "account",
   Contract = "contract",

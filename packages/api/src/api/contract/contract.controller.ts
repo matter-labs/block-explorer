@@ -226,9 +226,10 @@ export class ContractController {
               message: "Error posting contract for verification",
               stack: error.stack,
               response: error.response?.data,
+              code: error.code,
             });
 
-            if (error.response?.status >= 500) {
+            if (!error.response || error.response?.status >= 500) {
               throw new InternalServerErrorException("Failed to send verification request");
             }
 

@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Next, UseFilters, Post } from "@nestjs/common";
+import { Controller, Get, Query, Body, Req, Next, UseFilters, Post } from "@nestjs/common";
 import {
   ApiTags,
   ApiOkResponse,
@@ -38,7 +38,7 @@ import { AccountMinedBlocksResponseDto } from "./dtos/account/accountMinedBlocks
 import { BlockNumberResponseDto } from "./dtos/block/blockNumberResponse.dto";
 import { BlockCountdownResponseDto } from "./dtos/block/blockCountdownResponse.dto";
 import { BlockRewardResponseDto } from "./dtos/block/blockRewardResponse.dto";
-import { ApiRequestQuery, ApiModule } from "./types";
+import { ApiRequestQuery, ApiRequestBody, ApiModule } from "./types";
 import { ParseModulePipe } from "./pipes/parseModule.pipe";
 import { ParseActionPipe } from "./pipes/parseAction.pipe";
 import { ApiExceptionFilter } from "./exceptionFilter";
@@ -73,14 +73,25 @@ export class ApiController {
   public async apiPostHandler(
     @Req() request: Request,
     @Next() next: NextFunction,
-    @Query(new ParseActionPipe()) action: string,
-    @Query("module", new ParseModulePipe()) module: ApiModule,
-    @Query() query: ApiRequestQuery
+    @Query() query: ApiRequestQuery,
+    @Body() body: ApiRequestBody
   ) {
+    const parseModulePipe = new ParseModulePipe();
+    const parseActionPipe = new ParseActionPipe();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { module: queryModule, action: queryAction, ...queryParams } = query;
-    request.url = `/api/${module}/${action}`;
+    const { module: bodyModule, action: bodyAction, ...bodyParams } = body;
+    if (queryModule && queryAction) {
+      parseModulePipe.transform(queryModule);
+      parseActionPipe.transform(query);
+      request.url = `/api/${queryModule}/${queryAction}`;
+    } else {
+      parseModulePipe.transform(bodyModule);
+      parseActionPipe.transform(body);
+      request.url = `/api/${bodyModule}/${bodyAction}`;
+    }
     request.query = queryParams;
+    request.body = bodyParams;
     next();
   }
 
