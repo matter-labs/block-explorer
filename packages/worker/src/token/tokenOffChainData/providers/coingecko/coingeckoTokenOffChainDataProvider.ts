@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { AxiosError } from "axios";
 import { setTimeout } from "timers/promises";
 import { catchError, firstValueFrom } from "rxjs";
-import { utils } from "zksync-ethers";
+import { ZERO_ADDRESS } from "../../../../constants";
 import { TokenOffChainDataProvider, ITokenOffChainData } from "../../tokenOffChainDataProvider.abstract";
 
 const API_NUMBER_OF_TOKENS_PER_REQUEST = 250;
@@ -69,7 +69,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
           ...tokensMarkedData.map((tokenMarketData) => {
             const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
             return {
-              l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
+              l1Address: token.id === "ethereum" ? ZERO_ADDRESS : token.platforms.ethereum,
               l2Address: token.platforms[this.platformId],
               liquidity: tokenMarketData.market_cap,
               usdPrice: tokenMarketData.current_price,

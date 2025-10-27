@@ -1,16 +1,13 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { EntityManager, SelectQueryBuilder } from "typeorm";
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-ethers";
-import { Block as BlockDto } from "../dataFetcher/types";
 import { BlockRepository } from "./block.repository";
 import { UnitOfWork } from "../unitOfWork";
 import { Block } from "../entities";
 
 describe("BlockRepository", () => {
   let repository: BlockRepository;
-  let blockDto: BlockDto;
-  let blockDetailsDto: types.BlockDetails;
+  let blockDto: Block;
   let unitOfWorkMock: UnitOfWork;
   let entityManagerMock: EntityManager;
 
@@ -21,13 +18,9 @@ describe("BlockRepository", () => {
       getTransactionManager: jest.fn().mockReturnValue(entityManagerMock),
     });
 
-    blockDto = mock<BlockDto>({
+    blockDto = mock<Block>({
       number: 1,
-    });
-
-    blockDetailsDto = mock<types.BlockDetails>({
-      number: 1,
-      timestamp: new Date().getTime() / 1000,
+      timestamp: new Date(),
     });
 
     const app: TestingModule = await Test.createTestingModule({
@@ -121,12 +114,8 @@ describe("BlockRepository", () => {
 
   describe("add", () => {
     it("adds the block", async () => {
-      await repository.add(blockDto, blockDetailsDto);
-      expect(entityManagerMock.insert).toHaveBeenCalledWith(Block, {
-        ...blockDto,
-        ...blockDetailsDto,
-        timestamp: new Date(blockDetailsDto.timestamp * 1000),
-      });
+      await repository.add(blockDto);
+      expect(entityManagerMock.insert).toHaveBeenCalledWith(Block, blockDto);
     });
   });
 

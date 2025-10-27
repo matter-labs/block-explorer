@@ -58,7 +58,7 @@
         "name": "Ethereum",
         "chainId": 11155111
       }],
-      "l2ChainId": 270,
+      "l2ChainId": 2702,
       "l2NetworkName": "ZKsync OS Stage",
       "maintenance": false,
       "name": "zksync-os-stage",

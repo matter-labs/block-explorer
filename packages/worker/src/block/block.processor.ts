@@ -10,7 +10,7 @@ import { BlockWatcher } from "./block.watcher";
 import { BlockData } from "../dataFetcher/types";
 import { BalanceService } from "../balance/balance.service";
 import { TokenService } from "../token/token.service";
-import { BlockRepository, LogRepository, TransferRepository } from "../repositories";
+import { BlockRepository } from "../repositories";
 import { Block } from "../entities";
 import { TransactionProcessor } from "../transaction";
 import { validateBlocksLinking } from "./block.utils";
@@ -40,8 +40,6 @@ export class BlockProcessor {
     private readonly tokenService: TokenService,
     private readonly blockWatcher: BlockWatcher,
     private readonly blockRepository: BlockRepository,
-    private readonly logRepository: LogRepository,
-    private readonly transferRepository: TransferRepository,
     private readonly eventEmitter: EventEmitter2,
     @InjectMetric(BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME)
     private readonly blocksBatchProcessingDurationMetric: Histogram<BlocksBatchProcessingMetricLabels>,

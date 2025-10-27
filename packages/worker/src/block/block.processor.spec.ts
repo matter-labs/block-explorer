@@ -2,7 +2,6 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { ConfigService } from "@nestjs/config";
-import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { MoreThanOrEqual, LessThanOrEqual, Between } from "typeorm";
 import { UnitOfWork } from "../unitOfWork";
@@ -16,8 +15,7 @@ import { Block } from "../entities";
 import { BlockRepository, LogRepository, TransferRepository } from "../repositories";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 import { BlockProcessor } from "./block.processor";
-import { unixTimeToDateString } from "../utils/date";
-import { Transfer, Balance } from "../dataFetcher/types";
+import { Balance } from "../dataFetcher/types";
 
 describe("BlockProcessor", () => {
   let blockProcessor: BlockProcessor;
@@ -324,7 +322,8 @@ describe("BlockProcessor", () => {
           jest.spyOn(blockWatcherMock, "getNextBlocksToProcess").mockResolvedValue([
             {
               block: { number: 101, parentHash: "another-hash" },
-              blockDetails: null,
+              transactions: [],
+              changedBalances: [],
             } as BlockData,
           ]);
 
@@ -346,7 +345,6 @@ describe("BlockProcessor", () => {
             jest.spyOn(blockWatcherMock, "getNextBlocksToProcess").mockResolvedValue([
               {
                 block: { number: 101, parentHash: "another-hash" },
-                blockDetails: {},
               } as BlockData,
             ]);
           });
@@ -378,7 +376,6 @@ describe("BlockProcessor", () => {
             jest.spyOn(blockWatcherMock, "getNextBlocksToProcess").mockResolvedValue([
               {
                 block: null,
-                blockDetails: null,
               } as BlockData,
             ]);
           });
@@ -414,11 +411,9 @@ describe("BlockProcessor", () => {
                     number: 101,
                     parentHash: "hash",
                   },
-                  blockDetails: {},
                 } as BlockData,
                 {
                   block: null,
-                  blockDetails: null,
                 } as BlockData,
               ]);
 
@@ -438,7 +433,6 @@ describe("BlockProcessor", () => {
                     hash: "hash2",
                     parentHash: "hash",
                   },
-                  blockDetails: {},
                 } as BlockData,
                 {
                   block: {
@@ -446,7 +440,6 @@ describe("BlockProcessor", () => {
                     hash: "hash3",
                     parentHash: "wrong-parent-hash",
                   },
-                  blockDetails: {},
                 } as BlockData,
               ]);
 
@@ -468,10 +461,7 @@ describe("BlockProcessor", () => {
                     hash: "hash2",
                     parentHash: "hash",
                     transactions: ["0", "1"],
-                  },
-                  blockDetails: {
-                    number: 10,
-                    timestamp: 1703845168,
+                    timestamp: Math.floor(new Date().getTime() / 1000),
                   },
                   transactions: [
                     {
@@ -507,58 +497,31 @@ describe("BlockProcessor", () => {
             });
 
             it("adds blocks to the DB", async () => {
+              const block = blocksToProcess[0].block;
               await blockProcessor.processNextBlocksRange();
               expect(blockRepositoryMock.add).toHaveBeenCalledTimes(1);
-              expect(blockRepositoryMock.add).toHaveBeenCalledWith(
-                blocksToProcess[0].block,
-                blocksToProcess[0].blockDetails
-              );
+              expect(blockRepositoryMock.add).toHaveBeenCalledWith({
+                hash: block.hash,
+                l1TxCount: 0,
+                l2TxCount: 2,
+                number: block.number,
+                parentHash: block.parentHash,
+                timestamp: new Date(block.timestamp * 1000),
+                transactions: block.transactions,
+              });
             });
 
             it("adds blocks transactions data", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(transactionProcessorMock.add).toHaveBeenCalledTimes(2);
               expect(transactionProcessorMock.add).toHaveBeenCalledWith(
-                blocksToProcess[0].block.number,
+                blocksToProcess[0].block,
                 blocksToProcess[0].transactions[0]
               );
               expect(transactionProcessorMock.add).toHaveBeenCalledWith(
-                blocksToProcess[0].block.number,
+                blocksToProcess[0].block,
                 blocksToProcess[0].transactions[1]
               );
-            });
-
-            describe("when block data contains block logs", () => {
-              beforeEach(() => {
-                blocksToProcess[0].blockLogs = [
-                  { index: 0, topics: [] } as unknown as types.Log,
-                  { index: 1, topics: [] } as unknown as types.Log,
-                ];
-              });
-
-              it("saves block logs to the DB", async () => {
-                await blockProcessor.processNextBlocksRange();
-                expect(logRepositoryMock.addMany).toHaveBeenCalledTimes(1);
-                expect(logRepositoryMock.addMany).toHaveBeenCalledWith(
-                  blocksToProcess[0].blockLogs.map((log) => ({
-                    ...log,
-                    timestamp: unixTimeToDateString(blocksToProcess[0].blockDetails.timestamp),
-                    logIndex: log.index,
-                  }))
-                );
-              });
-            });
-
-            describe("when block data contains block transfers", () => {
-              beforeEach(() => {
-                blocksToProcess[0].blockTransfers = [{ logIndex: 2 } as Transfer, { logIndex: 3 } as Transfer];
-              });
-
-              it("saves block transfers to the DB", async () => {
-                await blockProcessor.processNextBlocksRange();
-                expect(transferRepositoryMock.addMany).toHaveBeenCalledTimes(1);
-                expect(transferRepositoryMock.addMany).toHaveBeenCalledWith(blocksToProcess[0].blockTransfers);
-              });
             });
 
             describe("when block data contains changed balances", () => {

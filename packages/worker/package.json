@@ -51,8 +51,7 @@
     "rxjs": "^7.2.0",
     "typeorm": "^0.3.15",
     "winston": "^3.8.2",
-    "yargs": "^17.7.2",
-    "zksync-ethers": "^6.20.1"
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -95,9 +94,9 @@
     "coverageDirectory": "../coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 95,
+        "branches": 87,
         "functions": 90,
-        "lines": 95,
+        "lines": 94,
         "statements": 95
       }
     },

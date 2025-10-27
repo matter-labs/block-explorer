@@ -1,7 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
-import { L1_ORIGINATED_TX_TYPES } from "../constants";
+import { L1_ORIGINATED_TX_TYPES, BASE_TOKEN_L2_ADDRESS } from "../constants";
 import {
   TransactionRepository,
   TransactionReceiptRepository,
@@ -13,7 +13,6 @@ import {
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME } from "../metrics";
 import { TransactionData, BlockInfo } from "../dataFetcher/types";
 import { ConfigService } from "@nestjs/config";
-import { utils } from "zksync-ethers";
 import { unixTimeToDate } from "../utils/date";
 
 @Injectable()
@@ -118,12 +117,12 @@ export class TransactionProcessor {
     });
     await Promise.all(
       transactionData.tokens.map((token) => {
-        if (token.l2Address.toLowerCase() === utils.L2_BASE_TOKEN_ADDRESS.toLowerCase()) {
+        if (token.l2Address.toLowerCase() === BASE_TOKEN_L2_ADDRESS.toLowerCase()) {
           return this.tokenRepository.upsert({
             blockNumber: token.blockNumber,
             transactionHash: token.transactionHash,
             logIndex: token.logIndex,
-            l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+            l2Address: BASE_TOKEN_L2_ADDRESS,
             l1Address: this.configService.get<string>("tokens.baseToken.l1Address"),
             symbol: this.configService.get<string>("tokens.baseToken.symbol"),
             name: this.configService.get<string>("tokens.baseToken.name"),

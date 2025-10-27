@@ -1,6 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { Interface, LogDescription, Result } from "ethers";
-import { types } from "zksync-ethers";
+import { Interface, LogDescription, Result, Log } from "ethers";
 import parseLog from "./parseLog";
 
 jest.mock("../logger", () => ({
@@ -15,7 +14,7 @@ describe("parseLog", () => {
   });
 
   it("parses log", () => {
-    const log = mock<types.Log>({
+    const log = mock<Log>({
       topics: [],
     });
     const parsedLog = mock<LogDescription>({ args: mock<Result>() });
@@ -60,7 +59,7 @@ describe("parseLog", () => {
 
     describe("and parsed log does not have eventFragment", () => {
       it("returns parsed log as it is", () => {
-        const log = mock<types.Log>({ topics: [] });
+        const log = mock<Log>({ topics: [] });
         const result = parseLog(
           {
             interface: contractInterface,
@@ -77,7 +76,7 @@ describe("parseLog", () => {
         parsedLog.fragment = {
           type: "function",
         };
-        const log = mock<types.Log>({ topics: [] });
+        const log = mock<Log>({ topics: [] });
         const result = parseLog(
           {
             interface: contractInterface,
@@ -94,7 +93,7 @@ describe("parseLog", () => {
         parsedLog.fragment = {
           type: "event",
         };
-        const log = mock<types.Log>({ topics: [] });
+        const log = mock<Log>({ topics: [] });
         const result = parseLog(
           {
             interface: contractInterface,
@@ -112,7 +111,7 @@ describe("parseLog", () => {
           type: "event",
           inputs: [],
         };
-        const log = mock<types.Log>({ topics: [] });
+        const log = mock<Log>({ topics: [] });
         const result = parseLog(
           {
             interface: contractInterface,
@@ -135,7 +134,7 @@ describe("parseLog", () => {
               },
             ],
           };
-          const log = mock<types.Log>({ topics: [] });
+          const log = mock<Log>({ topics: [] });
           const result = parseLog(
             {
               interface: contractInterface,
@@ -167,7 +166,7 @@ describe("parseLog", () => {
               };
             },
           };
-          const log = mock<types.Log>({ topics: [] });
+          const log = mock<Log>({ topics: [] });
           const result = parseLog(
             {
               interface: contractInterface,
@@ -199,7 +198,7 @@ describe("parseLog", () => {
               };
             },
           };
-          const log = mock<types.Log>({ topics: [] });
+          const log = mock<Log>({ topics: [] });
           const result = parseLog(
             {
               interface: contractInterface,
@@ -232,7 +231,7 @@ describe("parseLog", () => {
               };
             },
           };
-          const log = mock<types.Log>({ topics: [] });
+          const log = mock<Log>({ topics: [] });
           const result = parseLog(
             {
               interface: contractInterface,
@@ -266,7 +265,7 @@ describe("parseLog", () => {
               };
             },
           };
-          const log = mock<types.Log>({ topics: [] });
+          const log = mock<Log>({ topics: [] });
           const result = parseLog(
             {
               interface: contractInterface,
@@ -305,7 +304,7 @@ describe("parseLog", () => {
               };
             },
           };
-          const log = mock<types.Log>({ topics: ["topic0", "topic1"] });
+          const log = mock<Log>({ topics: ["topic0", "topic1"] });
           const result = parseLog(
             {
               interface: contractInterface,
@@ -369,7 +368,7 @@ describe("parseLog", () => {
               "topic2",
               "0x00000000000000000000001548686aa0f4e8fc2fd2910272671b26ff9c53c73a",
             ],
-          } as unknown as types.Log;
+          } as unknown as Log;
           const result = parseLog(
             {
               interface: contractInterface,
