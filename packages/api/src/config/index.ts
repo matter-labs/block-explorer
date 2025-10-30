@@ -100,6 +100,7 @@ export default () => {
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
     CHAIN_ID,
+    PRIVIDIUM_ADMIN_ROLE_NAME,
     PRIVIDIUM_APP_URL,
     PRIVIDIUM_PERMISSIONS_API_URL,
     PRIVIDIUM_SESSION_MAX_AGE,
@@ -182,6 +183,7 @@ export default () => {
       {
         permissionsApiUrl: z.string({ message: INVALID_PERMISSIONS_API_URL_MSG }).url(INVALID_PERMISSIONS_API_URL_MSG),
         sessionSecret: z.string({ message: PRIVIDIUM_SESSION_SECRET_MSG }).nonempty(PRIVIDIUM_SESSION_SECRET_MSG),
+        adminRoleName: z.string().default("admin"),
         sessionMaxAge: z.coerce
           .number({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
           .int({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
@@ -199,6 +201,7 @@ export default () => {
     );
 
     const result = prividiumSchema.safeParse({
+      adminRoleName: PRIVIDIUM_ADMIN_ROLE_NAME,
       permissionsApiUrl: PRIVIDIUM_PERMISSIONS_API_URL,
       sessionSecret: PRIVIDIUM_SESSION_SECRET,
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
