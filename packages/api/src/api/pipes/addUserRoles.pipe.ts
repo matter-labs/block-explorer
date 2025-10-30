@@ -1,10 +1,4 @@
-import {
-  PipeTransform,
-  ArgumentMetadata,
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from "@nestjs/common";
+import { PipeTransform, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { UserParam } from "../../user/user.decorator";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
@@ -22,7 +16,7 @@ function throwError(): never {
 export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise<UserWithRoles | null>> {
   constructor(private config: ConfigService) {}
 
-  async transform(value: UserParam | null, _metadata: ArgumentMetadata): Promise<UserWithRoles | null> {
+  async transform(value: UserParam | null): Promise<UserWithRoles | null> {
     if (value === null) return null;
 
     const response = await fetch(new URL("/api/profiles/me", this.config.get("prividium.permissionsApiUrl")), {
