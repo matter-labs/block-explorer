@@ -339,14 +339,14 @@ export class TransactionService {
     // - user is the sender
     // - user is the receiver
     // - user is included as part of the logs topics
+    const topicUserAddress = padAddressToTransactionLogTopic(user.address).toLowerCase();
     return (
       isAddressEqual(transaction.from, user.address) ||
       isAddressEqual(transaction.to, user.address) ||
-      transactionLogs.some((log) =>
-        // NOTE: `toLowerCase` is used as both log topics and user.address are plain strings
-        // and we cannot guarantee either of them don't have uppercase characters
-        log.topics.map((l) => l.toLowerCase()).includes(padAddressToTransactionLogTopic(user.address).toLowerCase())
-      )
+      transactionLogs.some((log) => {
+        const topics = log.topics.map((l) => l.toLowerCase());
+        return topics.includes(topicUserAddress);
+      })
     );
   }
 }
