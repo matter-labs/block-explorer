@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { Log, Block } from "ethers";
 import { mock } from "jest-mock-extended";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { ZERO_HASH_64 } from "../../../constants";
@@ -8,11 +8,11 @@ import { defaultFinalizeDepositHandler } from "./default.handler";
 import { BASE_TOKEN_ADDRESS } from "../../../../src/constants";
 
 describe("defaultFinalizeDepositHandler", () => {
-  let log: types.Log;
-  let blockDetails: types.BlockDetails;
+  let log: Log;
+  let blockDetails: Block;
   let blockchainService: BlockchainService;
   beforeEach(() => {
-    log = mock<types.Log>({
+    log = mock<Log>({
       transactionIndex: 1,
       blockNumber: 3233097,
       transactionHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
@@ -27,7 +27,7 @@ describe("defaultFinalizeDepositHandler", () => {
       index: 13,
       blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
     });
-    blockDetails = mock<types.BlockDetails>({
+    blockDetails = mock<Block>({
       timestamp: new Date().getTime() / 1000,
     });
     blockchainService = mock<BlockchainService>();
@@ -35,7 +35,7 @@ describe("defaultFinalizeDepositHandler", () => {
 
   describe("matches", () => {
     it("returns true", () => {
-      const result = defaultFinalizeDepositHandler.matches(null);
+      const result = defaultFinalizeDepositHandler.matches(null, null);
       expect(result).toBe(true);
     });
   });
@@ -67,7 +67,7 @@ describe("defaultFinalizeDepositHandler", () => {
     });
 
     it("extracts transfer with L2_ETH_TOKEN_ADDRESS as a tokenAddress if l2Token is 0x0000000000000000000000000000000000000000", async () => {
-      log = mock<types.Log>({
+      log = mock<Log>({
         ...log,
         topics: log.topics.map((val, index) => (index === 3 ? ZERO_HASH_64 : val)),
       });
@@ -105,22 +105,6 @@ describe("defaultFinalizeDepositHandler", () => {
     it("extracts transfer with block timestamp", async () => {
       const result = await defaultFinalizeDepositHandler.extract(log, blockchainService, blockDetails);
       expect(result.timestamp).toEqual(new Date(blockDetails.timestamp * 1000));
-    });
-
-    describe("when transaction details are specified", () => {
-      const receivedAt = new Date();
-      const transactionDetails = mock<types.TransactionDetails>();
-      transactionDetails.receivedAt = receivedAt;
-
-      it("extracts transfer with timestamp equals to transaction receivedAt", async () => {
-        const result = await defaultFinalizeDepositHandler.extract(
-          log,
-          blockchainService,
-          blockDetails,
-          transactionDetails
-        );
-        expect(result.timestamp).toBe(receivedAt);
-      });
     });
   });
 });

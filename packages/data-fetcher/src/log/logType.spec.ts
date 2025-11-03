@@ -1,11 +1,11 @@
-import { types } from "zksync-ethers";
+import { Log } from "ethers";
 import { mock } from "jest-mock-extended";
 import { isLogOfType, LogType } from "./logType";
 
 describe("isLogOfType", () => {
-  let log: types.Log;
+  let log: Log;
   beforeEach(() => {
-    log = mock<types.Log>({
+    log = mock<Log>({
       topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef", "arg1"],
     });
   });

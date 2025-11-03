@@ -1,8 +1,7 @@
 import { format } from "date-fns";
 import { AbiCoder, Interface } from "ethers";
-import { utils } from "zksync-ethers";
 
-import { DEPLOYER_CONTRACT_ADDRESS } from "./constants";
+import { BOOTLOADER_FORMAL_ADDRESS, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
 
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
@@ -10,8 +9,6 @@ import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composa
 import type { TokenTransfer } from "@/composables/useTransaction";
 import type { InputData } from "@/composables/useTransactionData";
 import type { ParamType, Result } from "ethers";
-
-const { BOOTLOADER_FORMAL_ADDRESS } = utils;
 
 export const DefaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 

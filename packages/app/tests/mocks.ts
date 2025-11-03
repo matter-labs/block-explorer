@@ -16,7 +16,7 @@ import * as useTransfers from "@/composables/useTransfers";
 import * as useWallet from "@/composables/useWallet";
 
 import type { NetworkConfig } from "@/configs";
-import type { Provider } from "zksync-ethers";
+import type { JsonRpcProvider } from "ethers";
 
 import { checksumAddress } from "@/utils/formatters";
 
@@ -83,7 +83,7 @@ export const useWalletMock = (params: any = {}) => {
         l2ChainId: TESTNET_NETWORK.l2ChainId,
         rpcUrl: TESTNET_NETWORK.rpcUrl,
       })),
-      getL2Provider: () => undefined as unknown as Provider,
+      getL2Provider: () => undefined as unknown as JsonRpcProvider,
     }),
     getL2Signer: vi.fn(async () => ({ getAddress: async () => "0x000000000000000000000000000000000000800A" })),
     ...params,

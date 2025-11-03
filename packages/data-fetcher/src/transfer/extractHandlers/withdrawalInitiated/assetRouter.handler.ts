@@ -1,4 +1,3 @@
-import { utils } from "zksync-ethers";
 import { type Log, type Block } from "ethers";
 import { AbiCoder } from "ethers";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
@@ -9,7 +8,7 @@ import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { isBaseToken } from "../../../utils/token";
-import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
+import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES, ETH_L1_ADDRESS } from "../../../constants";
 
 export const assetRouterWithdrawalInitiatedHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
@@ -17,7 +16,7 @@ export const assetRouterWithdrawalInitiatedHandler: ExtractTransferHandler = {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_ASSET_ROUTER, log);
     const assetId = parsedLog.args.assetId;
     let tokenAddress = (await blockchainService.getTokenAddressByAssetId(assetId)).toLowerCase();
-    if (tokenAddress === utils.ETH_ADDRESS.toLowerCase()) {
+    if (tokenAddress === ETH_L1_ADDRESS) {
       tokenAddress = BASE_TOKEN_ADDRESS;
     }
 

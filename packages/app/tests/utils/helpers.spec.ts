@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import { format } from "date-fns";
 import { ParamType } from "ethers";
-import { utils } from "zksync-ethers";
 
 import ExecuteTx from "@/../mock/transactions/Execute.json";
 
@@ -10,6 +9,7 @@ import type { InputType } from "@/composables/useEventLog";
 import type { TokenTransfer } from "@/composables/useTransaction";
 import type { Result } from "ethers";
 
+import { BASE_TOKEN_L1_ADDRESS, BOOTLOADER_FORMAL_ADDRESS } from "@/utils/constants";
 import {
   arrayHalfDivider,
   camelCaseFromSnakeCase,
@@ -29,7 +29,6 @@ import {
   utcStringFromUnixTimestamp,
 } from "@/utils/helpers";
 
-const { BOOTLOADER_FORMAL_ADDRESS, ETH_ADDRESS } = utils;
 const event = {
   name: "Deposit",
   inputs: [
@@ -155,15 +154,15 @@ describe("helpers:", () => {
   describe("sortTokenTransfers:", () => {
     it("prioritizes actual token transfers through sorting", () => {
       const transfers = [
-        { ...ExecuteTx.transfers[0], from: BOOTLOADER_FORMAL_ADDRESS, to: ETH_ADDRESS },
-        { ...ExecuteTx.transfers[0], from: ETH_ADDRESS, to: BOOTLOADER_FORMAL_ADDRESS },
+        { ...ExecuteTx.transfers[0], from: BOOTLOADER_FORMAL_ADDRESS, to: BASE_TOKEN_L1_ADDRESS },
+        { ...ExecuteTx.transfers[0], from: BASE_TOKEN_L1_ADDRESS, to: BOOTLOADER_FORMAL_ADDRESS },
         { ...ExecuteTx.transfers[0] },
       ] as TokenTransfer[];
 
       expect(sortTokenTransfers(transfers)).toEqual([
         { ...ExecuteTx.transfers[0] },
-        { ...ExecuteTx.transfers[0], from: ETH_ADDRESS, to: BOOTLOADER_FORMAL_ADDRESS },
-        { ...ExecuteTx.transfers[0], from: BOOTLOADER_FORMAL_ADDRESS, to: ETH_ADDRESS },
+        { ...ExecuteTx.transfers[0], from: BASE_TOKEN_L1_ADDRESS, to: BOOTLOADER_FORMAL_ADDRESS },
+        { ...ExecuteTx.transfers[0], from: BOOTLOADER_FORMAL_ADDRESS, to: BASE_TOKEN_L1_ADDRESS },
       ]);
     });
   });

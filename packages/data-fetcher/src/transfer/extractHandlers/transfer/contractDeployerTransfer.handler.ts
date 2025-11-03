@@ -1,4 +1,3 @@
-import { utils } from "zksync-ethers";
 import { type Log, type Block, type TransactionReceipt } from "ethers";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { Transfer } from "../../interfaces/transfer.interface";
@@ -7,11 +6,11 @@ import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { CONTRACT_INTERFACES, L2_CONTRACT_DEPLOYER_ADDRESS } from "../../../constants";
 
 export const contractDeployerTransferHandler: ExtractTransferHandler = {
   matches: (log: Log, transactionReceipt: TransactionReceipt): boolean =>
-    transactionReceipt.to === utils.CONTRACT_DEPLOYER_ADDRESS &&
+    transactionReceipt.to === L2_CONTRACT_DEPLOYER_ADDRESS &&
     (log.topics.length === 1 || log.topics[1] === ZERO_HASH_64),
   extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog =

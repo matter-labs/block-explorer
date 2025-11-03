@@ -1,4 +1,3 @@
-import { utils } from "zksync-ethers";
 import { type Log, type Block, type TransactionReceipt } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { L1_ORIGINATED_TX_TYPES } from "../constants";
@@ -18,7 +17,7 @@ import {
   ethMintFromL1Handler,
   ethWithdrawalToL1Handler,
 } from "./extractHandlers";
-import { BASE_TOKEN_ADDRESS } from "../constants";
+import { BASE_TOKEN_ADDRESS, BOOTLOADER_FORMAL_ADDRESS } from "../constants";
 export enum TransferType {
   Deposit = "deposit",
   Transfer = "transfer",
@@ -131,12 +130,12 @@ export class TransferService {
     const ethDeposits = transfers.filter(
       (t) => t.type === TransferType.Deposit && t.tokenAddress === BASE_TOKEN_ADDRESS
     );
-    const feeDeposit = ethDeposits.find((t) => t.to === utils.BOOTLOADER_FORMAL_ADDRESS);
+    const feeDeposit = ethDeposits.find((t) => t.to === BOOTLOADER_FORMAL_ADDRESS);
     if (!feeDeposit) {
       return;
     }
 
-    const nonFeeDeposits = ethDeposits.filter((t) => t.to !== utils.BOOTLOADER_FORMAL_ADDRESS);
+    const nonFeeDeposits = ethDeposits.filter((t) => t.to !== BOOTLOADER_FORMAL_ADDRESS);
     feeDeposit.type = TransferType.Fee;
     feeDeposit.isFeeOrRefund = true;
     // For ERC20 deposits initiatorAddress is set to bridge creator account, so we should use an address from deposit instead.
@@ -151,7 +150,7 @@ export class TransferService {
     const refundDeposit = depositsAfterFee[depositsAfterFee.length - 1];
     refundDeposit.type = TransferType.Refund;
     refundDeposit.isFeeOrRefund = true;
-    refundDeposit.from = utils.BOOTLOADER_FORMAL_ADDRESS;
+    refundDeposit.from = BOOTLOADER_FORMAL_ADDRESS;
   }
 
   private markInternalTransactions(transfers: Transfer[], transactionReceipt?: TransactionReceipt) {

@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-ethers";
+import { TransactionReceipt, Log } from "ethers";
 import { BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
@@ -46,7 +46,7 @@ describe("TokenService", () => {
 
   describe("getERC20Token", () => {
     let deployedContractAddress: ContractAddress;
-    let transactionReceipt: types.TransactionReceipt;
+    let transactionReceipt: TransactionReceipt;
     let tokenData;
 
     beforeEach(() => {
@@ -56,7 +56,7 @@ describe("TokenService", () => {
         name: "name",
       };
 
-      transactionReceipt = mock<types.TransactionReceipt>({
+      transactionReceipt = mock<TransactionReceipt>({
         logs: [],
         to: "0x0000000000000000000000000000000000001111",
       });
@@ -73,7 +73,7 @@ describe("TokenService", () => {
 
     describe("when there is neither bridge initialization nor bridge initialize log for the current token address", () => {
       beforeEach(() => {
-        transactionReceipt = mock<types.TransactionReceipt>({
+        transactionReceipt = mock<TransactionReceipt>({
           ...transactionReceipt,
           logs: [],
         });
@@ -154,7 +154,7 @@ describe("TokenService", () => {
 
     describe("when transaction receipt does not contain logs", () => {
       beforeEach(() => {
-        transactionReceipt = mock<types.TransactionReceipt>({
+        transactionReceipt = mock<TransactionReceipt>({
           ...transactionReceipt,
           logs: null,
         });
@@ -210,10 +210,10 @@ describe("TokenService", () => {
       let bridgedToken;
 
       beforeEach(() => {
-        transactionReceipt = mock<types.TransactionReceipt>({
+        transactionReceipt = mock<TransactionReceipt>({
           ...transactionReceipt,
           logs: [
-            mock<types.Log>({
+            mock<Log>({
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
                 "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
@@ -221,7 +221,7 @@ describe("TokenService", () => {
                 "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
               ],
             }),
-            mock<types.Log>({
+            mock<Log>({
               address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
               topics: [
                 "0xe6b2ac4004ee4493db8844da5db69722d2128345671818c3c41928655a83fb2c",
@@ -259,11 +259,11 @@ describe("TokenService", () => {
 
     describe("when there is a bridge initialization log in transaction receipt which is not produced by the bridge contract", () => {
       beforeEach(() => {
-        transactionReceipt = mock<types.TransactionReceipt>({
+        transactionReceipt = mock<TransactionReceipt>({
           ...transactionReceipt,
           to: "0x0000000000000000000000000000000000001112",
           logs: [
-            mock<types.Log>({
+            mock<Log>({
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
                 "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
@@ -271,7 +271,7 @@ describe("TokenService", () => {
                 "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
               ],
             }),
-            mock<types.Log>({
+            mock<Log>({
               address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
               topics: [
                 "0xe6b2ac4004ee4493db8844da5db69722d2128345671818c3c41928655a83fb2c",
@@ -310,10 +310,10 @@ describe("TokenService", () => {
       let bridgedToken;
 
       beforeEach(() => {
-        transactionReceipt = mock<types.TransactionReceipt>({
+        transactionReceipt = mock<TransactionReceipt>({
           ...transactionReceipt,
           logs: [
-            mock<types.Log>({
+            mock<Log>({
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
                 "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
@@ -321,7 +321,7 @@ describe("TokenService", () => {
                 "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
               ],
             }),
-            mock<types.Log>({
+            mock<Log>({
               address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
               topics: [
                 "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
@@ -366,11 +366,11 @@ describe("TokenService", () => {
 
     describe("when there is a bridge initialize log in transaction receipt which is not produced by the bridge contract", () => {
       beforeEach(() => {
-        transactionReceipt = mock<types.TransactionReceipt>({
+        transactionReceipt = mock<TransactionReceipt>({
           ...transactionReceipt,
           to: "0x0000000000000000000000000000000000001112",
           logs: [
-            mock<types.Log>({
+            mock<Log>({
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
                 "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
@@ -378,7 +378,7 @@ describe("TokenService", () => {
                 "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
               ],
             }),
-            mock<types.Log>({
+            mock<Log>({
               address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
               topics: [
                 "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
@@ -423,11 +423,11 @@ describe("TokenService", () => {
     describe("when there is a bridge initialize log in transaction receipt but the default bridge contract is not defined", () => {
       beforeEach(() => {
         blockchainServiceMock.bridgeAddresses.l2Erc20DefaultBridge = undefined;
-        transactionReceipt = mock<types.TransactionReceipt>({
+        transactionReceipt = mock<TransactionReceipt>({
           ...transactionReceipt,
           to: "0x0000000000000000000000000000000000001112",
           logs: [
-            mock<types.Log>({
+            mock<Log>({
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
                 "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
@@ -435,7 +435,7 @@ describe("TokenService", () => {
                 "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
               ],
             }),
-            mock<types.Log>({
+            mock<Log>({
               address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
               topics: [
                 "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",

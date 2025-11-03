@@ -8,7 +8,6 @@ import { FetchInstance } from "./useFetchInstance";
 import type { Context } from "./useContext";
 import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
-import type { types } from "zksync-ethers";
 
 import { numberToHexString } from "@/utils/formatters";
 
@@ -33,10 +32,6 @@ export type TokenTransfer = {
   fromNetwork: NetworkOrigin;
   toNetwork: NetworkOrigin;
   tokenInfo?: TokenInfo;
-};
-
-export type TransactionDetails = types.TransactionDetails & {
-  gasPerPubdata: string | null;
 };
 
 export type FeeData = {

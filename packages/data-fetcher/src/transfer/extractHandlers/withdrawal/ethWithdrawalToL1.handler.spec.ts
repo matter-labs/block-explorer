@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { Block, Log } from "ethers";
 import { mock } from "jest-mock-extended";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { TransferType } from "../../transfer.service";
@@ -7,11 +7,11 @@ import { ethWithdrawalToL1Handler } from "./ethWithdrawalToL1.handler";
 import { BASE_TOKEN_ADDRESS } from "../../../constants";
 
 describe("ethWithdrawalToL1Handler", () => {
-  let log: types.Log;
-  let blockDetails: types.BlockDetails;
+  let log: Log;
+  let blockDetails: Block;
   let blockchainService: BlockchainService;
   beforeEach(() => {
-    log = mock<types.Log>({
+    log = mock<Log>({
       transactionIndex: 7,
       blockNumber: 258521,
       transactionHash: "0x33bfd18a0aea94ba39742a9a1df595462322ecbbb25c0f767a0bf6acb41dfb2f",
@@ -25,7 +25,7 @@ describe("ethWithdrawalToL1Handler", () => {
       index: 43,
       blockHash: "0x15543afe64eaa6f26beca9cac8dd5c3465e532bd55f3402365a67eac8f62fa6b",
     });
-    blockDetails = mock<types.BlockDetails>({
+    blockDetails = mock<Block>({
       timestamp: new Date().getTime() / 1000,
     });
     blockchainService = mock<BlockchainService>();
@@ -33,16 +33,16 @@ describe("ethWithdrawalToL1Handler", () => {
 
   describe("matches", () => {
     it("returns true if log address is ETH token address", () => {
-      const result = ethWithdrawalToL1Handler.matches(log);
+      const result = ethWithdrawalToL1Handler.matches(log, null);
       expect(result).toBe(true);
     });
 
     it("returns false is log address is not ETH token address", () => {
-      log = mock<types.Log>({
+      log = mock<Log>({
         ...log,
         address: "0x000000000000000000000000000000000000800B",
       });
-      const result = ethWithdrawalToL1Handler.matches(log);
+      const result = ethWithdrawalToL1Handler.matches(log, null);
       expect(result).toBe(false);
     });
   });
@@ -106,17 +106,6 @@ describe("ethWithdrawalToL1Handler", () => {
     it("extracts transfer with block timestamp", async () => {
       const result = await ethWithdrawalToL1Handler.extract(log, blockchainService, blockDetails);
       expect(result.timestamp).toEqual(new Date(blockDetails.timestamp * 1000));
-    });
-
-    describe("when transaction details are specified", () => {
-      const receivedAt = new Date();
-      const transactionDetails = mock<types.TransactionDetails>();
-      transactionDetails.receivedAt = receivedAt;
-
-      it("extracts transfer with timestamp equals to transaction receivedAt", async () => {
-        const result = await ethWithdrawalToL1Handler.extract(log, blockchainService, blockDetails, transactionDetails);
-        expect(result.timestamp).toBe(receivedAt);
-      });
     });
   });
 });

@@ -1,5 +1,4 @@
 import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
-import { utils } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Listener, toBeHex } from "ethers";
@@ -17,6 +16,7 @@ import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
 import { L2_NATIVE_TOKEN_VAULT_ADDRESS, L2_ACCOUNT_CODE_STORAGE_ADDRESS, CONTRACT_INTERFACES } from "../constants";
+import isBaseToken from "../utils/isBaseToken";
 
 export interface BridgeAddresses {
   l2Erc20DefaultBridge?: string;
@@ -148,7 +148,7 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async getERC20TokenData(contractAddress: string): Promise<{ symbol: string; decimals: number; name: string }> {
-    const erc20Contract = new RetryableContract(contractAddress, utils.IERC20, this.provider);
+    const erc20Contract = new RetryableContract(contractAddress, CONTRACT_INTERFACES.ERC20.interface, this.provider);
     const [symbol, decimals, name] = await Promise.all([
       erc20Contract.symbol(),
       erc20Contract.decimals(),
@@ -182,13 +182,13 @@ export class BlockchainService implements OnModuleInit {
   }
 
   public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<bigint> {
-    if (utils.isETH(tokenAddress)) {
+    if (isBaseToken(tokenAddress)) {
       return await this.rpcCall(async () => {
         return await this.provider.getBalance(address, blockNumber);
       }, "getBalance");
     }
 
-    const erc20Contract = new RetryableContract(tokenAddress, utils.IERC20, this.provider);
+    const erc20Contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, this.provider);
     return await erc20Contract.balanceOf(address, { blockTag: blockNumber });
   }
 

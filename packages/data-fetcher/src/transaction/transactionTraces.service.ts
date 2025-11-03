@@ -1,5 +1,4 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { utils } from "zksync-ethers";
 import { BlockchainService, TransactionTrace } from "../blockchain/blockchain.service";
 import { type Block, type TransactionResponse, type TransactionReceipt } from "ethers";
 import { TokenService, Token, TokenType } from "../token/token.service";
@@ -12,9 +11,6 @@ import {
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { TransferType } from "../transfer/transfer.service";
 import { unixTimeToDate } from "../utils/date";
-
-const baseTokenInterface = CONTRACT_INTERFACES.L2_BASE_TOKEN.interface;
-const baseTokenTransferFn = baseTokenInterface.getFunction("transferFromTo");
 
 export interface ContractAddress {
   address: string;
@@ -36,7 +32,6 @@ export interface TransactionTraceData {
 
 interface ExtractedTraceData {
   contractAddresses: ContractAddress[];
-  baseTokenTransfers: Transfer[];
   transfersWithValue: Transfer[];
   error?: string;
   revertReason?: string;
@@ -51,7 +46,6 @@ function getTransactionTraceData(
   if (!extractedData) {
     extractedData = {
       contractAddresses: [],
-      baseTokenTransfers: [],
       transfersWithValue: [],
       error: transactionTrace?.error,
       revertReason: transactionTrace?.revertReason,
@@ -70,40 +64,6 @@ function getTransactionTraceData(
       });
     }
 
-    // ZK chain specific
-    // TODO: remove
-    // Calls to the L2BaseToken contract which is an entry point for the base token transfers
-    // Used instead of the Transfer events. Relevant for ZK chains.
-    if (
-      transactionTrace.to === BASE_TOKEN_ADDRESS &&
-      transactionTrace.error == null &&
-      transactionTrace.input.startsWith(baseTokenTransferFn.selector)
-    ) {
-      const decodedData = baseTokenInterface.decodeFunctionData(baseTokenTransferFn, transactionTrace.input);
-      const transferType =
-        decodedData._to === utils.BOOTLOADER_FORMAL_ADDRESS
-          ? TransferType.Fee
-          : decodedData._from === utils.BOOTLOADER_FORMAL_ADDRESS
-          ? TransferType.Refund
-          : TransferType.Transfer;
-
-      extractedData.baseTokenTransfers.push({
-        from: decodedData._from.toLowerCase(),
-        to: decodedData._to.toLowerCase(),
-        transactionHash: transaction.hash,
-        blockNumber: transaction.blockNumber,
-        amount: BigInt(decodedData._amount),
-        tokenAddress: BASE_TOKEN_ADDRESS,
-        type: transferType,
-        tokenType: TokenType.BaseToken,
-        isFeeOrRefund: [TransferType.Fee, TransferType.Refund].includes(transferType),
-        logIndex: extractedData.baseTokenTransfers.length + 1,
-        transactionIndex: transaction.index,
-        timestamp: unixTimeToDate(block.timestamp),
-      });
-    }
-
-    // EVM-like way to extract base token transfers. Relevant for ZK OS.
     // DELEGATECALL and STATICCALL cannot transfer ETH.
     if (
       transactionTrace.value !== "0x0" &&
@@ -158,14 +118,7 @@ export class TransactionTracesService {
       contractAddresses: extractedTraceData.contractAddresses,
       error: extractedTraceData.error,
       revertReason: extractedTraceData.revertReason,
-      // ZK chain specific
-      // TODO: remove the check, rename transfersWithValue to transfers and use just it
-      transfers:
-        extractedTraceData.baseTokenTransfers.length > 0
-          ? // ZK chains transfers
-            extractedTraceData.baseTokenTransfers
-          : // ZK OS transfers
-            extractedTraceData.transfersWithValue,
+      transfers: extractedTraceData.transfersWithValue,
       tokens: [],
     };
 

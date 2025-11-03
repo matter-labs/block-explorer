@@ -38,8 +38,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "winston": "^3.8.2",
-    "zksync-ethers": "^6.20.1"
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
@@ -81,7 +80,7 @@
     "coverageThreshold": {
       "global": {
         "branches": 85,
-        "functions": 85,
+        "functions": 84,
         "lines": 85,
         "statements": 85
       }

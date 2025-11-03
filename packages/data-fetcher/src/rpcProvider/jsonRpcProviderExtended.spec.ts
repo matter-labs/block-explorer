@@ -7,8 +7,9 @@ class JsonRpcProviderBaseMock {
 }
 jest.mock("../logger");
 jest.useFakeTimers();
-jest.mock("zksync-ethers", () => ({
-  Provider: JsonRpcProviderBaseMock,
+jest.mock("ethers", () => ({
+  ...jest.requireActual("ethers"),
+  JsonRpcProvider: JsonRpcProviderBaseMock,
 }));
 import { JsonRpcProviderExtended } from "./jsonRpcProviderExtended";
 

@@ -1,4 +1,3 @@
-import { utils } from "zksync-ethers";
 import { type Log, type Block } from "ethers";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
@@ -7,7 +6,7 @@ import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { isBaseToken } from "../../../utils/token";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { CONTRACT_INTERFACES, BOOTLOADER_FORMAL_ADDRESS } from "../../../constants";
 
 export const defaultTransferHandler: ExtractTransferHandler = {
   matches: (log: Log): boolean => log.topics.length === 3,
@@ -15,7 +14,7 @@ export const defaultTransferHandler: ExtractTransferHandler = {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC20, log);
 
     let transferType: TransferType = TransferType.Transfer;
-    if (parsedLog.args.to === utils.BOOTLOADER_FORMAL_ADDRESS) {
+    if (parsedLog.args.to === BOOTLOADER_FORMAL_ADDRESS) {
       transferType = TransferType.Fee;
     }
 

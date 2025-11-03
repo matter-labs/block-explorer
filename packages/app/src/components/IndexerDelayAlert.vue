@@ -17,7 +17,7 @@ import SystemAlert from "@/components/common/SystemAlert.vue";
 import useBlocks from "@/composables/useBlocks";
 import useContext from "@/composables/useContext";
 
-import type { types } from "zksync-ethers";
+import type { Block } from "ethers";
 
 const { t } = useI18n();
 const context = useContext();
@@ -26,7 +26,7 @@ const MIN_DELAY_TO_SHOW_ALERT = 900_000; // 15 mins
 const MIN_TPS_TO_SHOW_HEAVY_LOAD_ALERT = 70;
 
 const provider = context.getL2Provider();
-const latestBlock = ref<types.Block | null>(null);
+const latestBlock = ref<Block | null>(null);
 (async () => {
   const block = await provider.getBlock("latest");
   latestBlock.value = block;

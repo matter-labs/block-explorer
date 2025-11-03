@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { Log, Block, TransactionReceipt } from "ethers";
 import { mock } from "jest-mock-extended";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { TransferType } from "../../transfer.service";
@@ -6,16 +6,16 @@ import { TokenType } from "../../../token/token.service";
 import { contractDeployerTransferHandler } from "./contractDeployerTransfer.handler";
 
 describe("contractDeployerTransferHandler", () => {
-  let log: types.Log;
-  let txReceipt: types.TransactionReceipt;
-  let blockDetails: types.BlockDetails;
+  let log: Log;
+  let txReceipt: TransactionReceipt;
+  let blockDetails: Block;
   let blockchainService: BlockchainService;
   beforeEach(() => {
-    txReceipt = mock<types.TransactionReceipt>({
+    txReceipt = mock<TransactionReceipt>({
       to: "0x0000000000000000000000000000000000008006",
     });
 
-    log = mock<types.Log>({
+    log = mock<Log>({
       transactionIndex: 1,
       blockNumber: 3233097,
       transactionHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
@@ -30,7 +30,7 @@ describe("contractDeployerTransferHandler", () => {
       blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
     });
 
-    blockDetails = mock<types.BlockDetails>({
+    blockDetails = mock<Block>({
       timestamp: new Date().getTime() / 1000,
     });
     blockchainService = mock<BlockchainService>();
@@ -43,7 +43,7 @@ describe("contractDeployerTransferHandler", () => {
     });
 
     it("returns true if txReceipt.to is a contract deployer address and transfer log does not have indexed values", () => {
-      log = mock<types.Log>({
+      log = mock<Log>({
         ...log,
         topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
       });
@@ -52,7 +52,7 @@ describe("contractDeployerTransferHandler", () => {
     });
 
     it("returns false if txReceipt.to is not a contract deployer address", () => {
-      txReceipt = mock<types.TransactionReceipt>({
+      txReceipt = mock<TransactionReceipt>({
         ...txReceipt,
         to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
       });
@@ -61,7 +61,7 @@ describe("contractDeployerTransferHandler", () => {
     });
 
     it("returns false if log from is not a zero address", () => {
-      log = mock<types.Log>({
+      log = mock<Log>({
         ...log,
         topics: log.topics.map((val, index) =>
           index === 1 ? "0x000000000000000000000000c7e0220d02d549c4846A6EC31D89C3B670Ebe35C" : val
@@ -70,17 +70,12 @@ describe("contractDeployerTransferHandler", () => {
       const result = contractDeployerTransferHandler.matches(log, txReceipt);
       expect(result).toBe(false);
     });
-
-    it("returns false if txReceipt is null", () => {
-      const result = contractDeployerTransferHandler.matches(log, null);
-      expect(result).toBe(false);
-    });
   });
 
   describe("extract", () => {
     describe("when there are no indexed values in the transfer", () => {
       beforeEach(() => {
-        log = mock<types.Log>({
+        log = mock<Log>({
           ...log,
           topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
           data: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000934f351e49800ff7d72b63d11d12ea0027e5730200000000000000000000000000000000000000000000152d02c7e14af6800000",
@@ -156,22 +151,6 @@ describe("contractDeployerTransferHandler", () => {
     it("extracts transfer with block timestamp", async () => {
       const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.timestamp).toEqual(new Date(blockDetails.timestamp * 1000));
-    });
-
-    describe("when transaction details are specified", () => {
-      const receivedAt = new Date();
-      const transactionDetails = mock<types.TransactionDetails>();
-      transactionDetails.receivedAt = receivedAt;
-
-      it("extracts transfer with timestamp equals to transaction receivedAt", async () => {
-        const result = await contractDeployerTransferHandler.extract(
-          log,
-          blockchainService,
-          blockDetails,
-          transactionDetails
-        );
-        expect(result.timestamp).toBe(receivedAt);
-      });
     });
   });
 });
