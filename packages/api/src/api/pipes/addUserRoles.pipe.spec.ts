@@ -34,7 +34,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" }, {} as never);
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
     expect(user.isAdmin).toBe(false);
   });
 
@@ -46,7 +46,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" }, {} as never);
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
     expect(user.isAdmin).toBe(false);
   });
 
@@ -58,7 +58,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" }, {} as never);
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
     expect(user.isAdmin).toBe(true);
   });
 
@@ -70,7 +70,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" }, {} as never);
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
     expect(user.roles).toEqual(["role1", "another", "trader"]);
   });
 
@@ -82,7 +82,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" }, {} as never);
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
     expect(user.address).toEqual("0x01");
     expect(user.token).toEqual("token1");
   });
@@ -97,9 +97,7 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" }, {} as never)).rejects.toThrow(
-      InternalServerErrorException
-    );
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
   });
 
   it("throws if server returns non 200 status", async () => {
@@ -112,9 +110,7 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" }, {} as never)).rejects.toThrow(
-      InternalServerErrorException
-    );
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
   });
 
   it("throws if server returns non parseable json", async () => {
@@ -125,9 +121,7 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" }, {} as never)).rejects.toThrow(
-      InternalServerErrorException
-    );
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
   });
 
   it("throws if server do not complete request", async () => {
@@ -135,8 +129,6 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" }, {} as never)).rejects.toThrow(
-      InternalServerErrorException
-    );
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
   });
 });

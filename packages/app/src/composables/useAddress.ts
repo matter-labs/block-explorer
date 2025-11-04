@@ -207,7 +207,11 @@ export default (context = useContext()) => {
 };
 
 function mapSourceCodeDataToVerificationInfo(sourceCodeData: GetSourceCodeResponseData): ContractVerificationInfo {
-  const sourceCode = JSON.parse(sourceCodeData.SourceCode);
+  const isSourceCodeDoubleBracesFormat =
+    sourceCodeData.SourceCode.startsWith("{{") && sourceCodeData.SourceCode.endsWith("}}");
+  const sourceCode = JSON.parse(
+    isSourceCodeDoubleBracesFormat ? sourceCodeData.SourceCode.slice(1, -1) : sourceCodeData.SourceCode
+  );
   return {
     abi: JSON.parse(sourceCodeData.ABI),
     compilation: {

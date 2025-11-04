@@ -60,6 +60,7 @@ describe("config", () => {
         retryDelay: 3000,
         applicationName: "block-explorer-api",
       },
+      chainId: 1,
       contractVerificationApiUrl: "http://localhost:5555",
       featureFlags: expect.objectContaining({
         feature1Enabled: true,
@@ -133,6 +134,7 @@ describe("config", () => {
           retryDelay: 3000,
           applicationName: "block-explorer-api",
         },
+        chainId: 1,
         contractVerificationApiUrl: "http://localhost:5555",
         featureFlags: expect.objectContaining({
           feature1Enabled: true,
@@ -198,6 +200,7 @@ describe("config", () => {
             retryDelay: 3000,
             applicationName: "block-explorer-api",
           },
+          chainId: 1,
           contractVerificationApiUrl: "http://localhost:5555",
           featureFlags: expect.objectContaining({
             feature1Enabled: true,
@@ -262,6 +265,7 @@ describe("config", () => {
             retryDelay: 3000,
             applicationName: "block-explorer-api",
           },
+          chainId: 1,
           contractVerificationApiUrl: "http://localhost:5555",
           featureFlags: expect.objectContaining({
             feature1Enabled: true,
@@ -351,6 +355,7 @@ describe("config", () => {
         retryDelay: 3000,
         applicationName: "block-explorer-api",
       },
+      chainId: 1,
       contractVerificationApiUrl: "http://localhost:5555",
       featureFlags: expect.objectContaining({
         feature1Enabled: true,
@@ -359,6 +364,7 @@ describe("config", () => {
       }),
       gracefulShutdownTimeoutMs: 0,
       prividium: {
+        adminRoleName: "admin",
         sessionMaxAge: 1000,
         appUrl: "http://localhost:3020",
         sessionSameSite: "strict",

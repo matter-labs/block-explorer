@@ -539,7 +539,7 @@ describe("TransactionService", () => {
         blockQueryBuilderMock = mock<typeorm.SelectQueryBuilder<Block>>();
 
         (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
-        (blockQueryBuilderMock.createQueryBuilder as jest.Mock).mockReturnValue(blockQueryBuilderMock);
+        (blockRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(blockQueryBuilderMock);
         (queryBuilderMock.getRawOne as jest.Mock).mockResolvedValue(transaction);
         (blockQueryBuilderMock.getQuery as jest.Mock).mockReturnValue("executed block query");
       });
@@ -548,8 +548,8 @@ describe("TransactionService", () => {
         await service.getAccountNonce({ accountAddress: address, isVerified: true });
         expect(repositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
         expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
-        expect(blockQueryBuilderMock.createQueryBuilder).toHaveBeenCalledTimes(1);
-        expect(blockQueryBuilderMock.createQueryBuilder).toHaveBeenCalledWith("block");
+        expect(blockRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
+        expect(blockRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("block");
       });
 
       it("selects transaction nonce", async () => {
@@ -565,9 +565,7 @@ describe("TransactionService", () => {
       it("filters transactions by block number <= last executed block", async () => {
         await service.getAccountNonce({ accountAddress: address, isVerified: true });
         expect(blockQueryBuilderMock.select).toHaveBeenCalledWith("number");
-        expect(blockQueryBuilderMock.where).toHaveBeenCalledWith("block.status = :status", {
-          status: BlockStatus.Executed,
-        });
+        expect(blockQueryBuilderMock.where).toHaveBeenCalledWith("block.status = :status");
         expect(blockQueryBuilderMock.orderBy).toHaveBeenCalledWith("block.status", "DESC");
         expect(blockQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("block.number", "DESC");
         expect(blockQueryBuilderMock.limit).toHaveBeenCalledWith(1);

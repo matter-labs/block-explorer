@@ -308,19 +308,19 @@ export class ContractController {
       )
     );
 
-    if (!data.isJobCompleted) {
-      return {
-        status: ResponseStatus.OK,
-        message: ResponseMessage.OK,
-        result: ResponseResultMessage.VERIFICATION_QUEUED,
-      };
-    }
-
     if (data.error) {
       return {
         status: ResponseStatus.NOTOK,
         message: ResponseMessage.NOTOK,
         result: data.error.message || "Fail - Unable to verify",
+      };
+    }
+
+    if (!data.isJobCompleted) {
+      return {
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: ResponseResultMessage.VERIFICATION_QUEUED,
       };
     }
 

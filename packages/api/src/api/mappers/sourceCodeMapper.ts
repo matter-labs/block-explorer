@@ -33,11 +33,11 @@ export const mapContractSourceCode = (data: ContractVerificationInfo): ContractS
 
   return {
     ABI: JSON.stringify(data.abi),
-    SourceCode: JSON.stringify({
+    SourceCode: `{${JSON.stringify({
       language: data.compilation.language,
       settings: data.compilation.compilerSettings,
       sources: data.sources,
-    }),
+    })}}`,
     // TODO: manually extract constructor args as sourcify doesn't have them
     ConstructorArguments: "",
     ContractName: data.compilation.fullyQualifiedName,
