@@ -1,7 +1,6 @@
 import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 import { parseReqPathname } from "../common/utils";
-import { isAddress } from "ethers";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
 
 @Injectable()
@@ -14,7 +13,7 @@ export class AuthMiddleware implements NestMiddleware {
       return;
     }
 
-    if (!req.session.address || !req.session.token || !isAddress(req.session.address)) {
+    if (!req.session.address || !req.session.token || !req.session.wallets) {
       req.session = null;
       throw new UnauthorizedException({ message: "Unauthorized request" });
     }

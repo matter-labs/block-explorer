@@ -146,7 +146,11 @@ describe("ConnectMetaMaskButton:", () => {
     // Mock user as logged in
     vi.mocked(useContext).mockReturnValue({
       isReady: computed(() => true),
-      user: computed(() => ({ loggedIn: true, address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b" })),
+      user: computed(() => ({
+        loggedIn: true,
+        address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
+        wallets: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
+      })),
       currentNetwork: computed(() => ({
         name: "test",
         icon: "test",
@@ -259,7 +263,11 @@ describe("ConnectMetaMaskButton:", () => {
     // Mock user as logged in
     vi.mocked(useContext).mockReturnValue({
       isReady: computed(() => true),
-      user: computed(() => ({ loggedIn: true, address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b" })),
+      user: computed(() => ({
+        loggedIn: true,
+        address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
+        wallets: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
+      })),
       currentNetwork: computed(() => ({
         name: "test",
         icon: "test",

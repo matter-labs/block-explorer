@@ -119,7 +119,7 @@ describe("Prividium API (e2e)", () => {
       // Login with token
       const loginResponse = await agent.post("/auth/login").send({ token: mockToken }).expect(201);
 
-      expect(loginResponse.body).toEqual({ address: mockWalletAddress });
+      expect(loginResponse.body).toEqual({ address: mockWalletAddress, wallets: [mockWalletAddress] });
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
       });
@@ -127,6 +127,7 @@ describe("Prividium API (e2e)", () => {
       // Check authenticated user
       await agent.get("/auth/me").expect(200, {
         address: mockWalletAddress,
+        wallets: [mockWalletAddress],
       });
 
       // Logout user
@@ -141,7 +142,7 @@ describe("Prividium API (e2e)", () => {
         json: jest.fn(),
       });
 
-      await agent.post("/auth/login").send({ token: "invalid-token" }).expect(400);
+      await agent.post("/auth/login").send({ token: "invalid-token" }).expect(403);
 
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: "Bearer invalid-token" },
