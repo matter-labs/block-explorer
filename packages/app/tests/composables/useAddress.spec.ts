@@ -10,16 +10,33 @@ import type { SpyInstance } from "vitest";
 
 vi.mock("ohmyfetch", () => {
   const fetchSpy = vi.fn(async (url: string) => {
-    if (url.includes("contract_verification")) {
+    if (url.includes("action=getsourcecode")) {
       return {
-        artifacts: { abi: "abi" },
-        request: {
-          compilerSolcVersion: "0.8.0",
-        },
+        status: "1",
+        result: [
+          {
+            ABI: "[]",
+            SourceCode:
+              '{{"language":"Solidity","settings":{"optimizer":{"enabled":true,"runs":200},"evmVersion":"istanbul","libraries":{}},"sources":{"DARA2.sol":{"content":"\\n}"}}}}',
+            CompilerVersion: "v0.8.16+commit.07a7930e",
+            ContractName: "DARA2",
+            OptimizationUsed: "1",
+            Runs: "200",
+            ConstructorArguments: "",
+            EVMVersion: "istanbul",
+            Implementation: "",
+            Proxy: "0",
+            Library: "",
+            LicenseType: "Unknown",
+            SwarmSource: "",
+            VerifiedAt: "2022-09-23T11:36:07.988424532Z",
+            Match: "match",
+          },
+        ],
       };
     }
     return {
-      address: url.split("/").pop(),
+      address: url.slice(url.length - 42),
       balances: {},
       type: url.endsWith("a") ? "account" : "contract",
     };
@@ -56,6 +73,26 @@ vi.mock("@/composables/useContext", () => {
     }),
   };
 });
+
+const mappedVerificationInfo = {
+  abi: [],
+  compilation: {
+    compilerSettings: {
+      evmVersion: "istanbul",
+      libraries: {},
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+    compilerVersion: "v0.8.16+commit.07a7930e",
+    fullyQualifiedName: "DARA2",
+    language: "Solidity",
+  },
+  sources: { "DARA2.sol": { content: "\n}" } },
+  match: "match",
+  verifiedAt: "2022-09-23T11:36:07.988424532Z",
+};
 
 describe("useAddresses", () => {
   afterEach(() => {
@@ -96,27 +133,21 @@ describe("useAddresses", () => {
     it("loads contract verification info and proxy info", async () => {
       const { item, getByAddress } = useAddress();
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
-      expect($fetch).toBeCalledWith("/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
-      expect($fetch).toBeCalledWith("/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10");
+      expect($fetch).toBeCalledWith(
+        "?module=contract&action=getsourcecode&address=0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c"
+      );
+      expect($fetch).toBeCalledWith(
+        "?module=contract&action=getsourcecode&address=0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10"
+      );
       expect(item.value).toEqual({
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
         type: "contract",
-        verificationInfo: {
-          artifacts: { abi: "abi" },
-          request: {
-            compilerSolcVersion: "full-0.8.0",
-          },
-        },
+        verificationInfo: mappedVerificationInfo,
         proxyInfo: {
           implementation: {
             address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10",
-            verificationInfo: {
-              artifacts: { abi: "abi" },
-              request: {
-                compilerSolcVersion: "full-0.8.0",
-              },
-            },
+            verificationInfo: mappedVerificationInfo,
           },
         },
       });
@@ -147,21 +178,11 @@ describe("useAddresses", () => {
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
         type: "contract",
-        verificationInfo: {
-          artifacts: { abi: "abi" },
-          request: {
-            compilerSolcVersion: "full-0.8.0",
-          },
-        },
+        verificationInfo: mappedVerificationInfo,
         proxyInfo: {
           implementation: {
             address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10",
-            verificationInfo: {
-              artifacts: { abi: "abi" },
-              request: {
-                compilerSolcVersion: "full-0.8.0",
-              },
-            },
+            verificationInfo: mappedVerificationInfo,
           },
         },
       });
@@ -183,21 +204,11 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-            request: {
-              compilerSolcVersion: "full-0.8.0",
-            },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a12",
-              verificationInfo: {
-                artifacts: { abi: "abi" },
-                request: {
-                  compilerSolcVersion: "full-0.8.0",
-                },
-              },
+              verificationInfo: mappedVerificationInfo,
             },
           },
         });
@@ -218,21 +229,11 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-            request: {
-              compilerSolcVersion: "full-0.8.0",
-            },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a13",
-              verificationInfo: {
-                artifacts: { abi: "abi" },
-                request: {
-                  compilerSolcVersion: "full-0.8.0",
-                },
-              },
+              verificationInfo: mappedVerificationInfo,
             },
           },
         });
@@ -254,21 +255,11 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-            request: {
-              compilerSolcVersion: "full-0.8.0",
-            },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a14",
-              verificationInfo: {
-                artifacts: { abi: "abi" },
-                request: {
-                  compilerSolcVersion: "full-0.8.0",
-                },
-              },
+              verificationInfo: mappedVerificationInfo,
             },
           },
         });
@@ -289,12 +280,7 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-            request: {
-              compilerSolcVersion: "full-0.8.0",
-            },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: null,
         });
       });

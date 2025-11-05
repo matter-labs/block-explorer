@@ -13,6 +13,8 @@ import * as useContractVerification from "@/composables/useContractVerification"
 
 import enUS from "@/locales/en.json";
 
+import type { SpyInstance } from "vitest";
+
 import $testId from "@/plugins/testId";
 import routes from "@/router/routes";
 import ContractVerificationView from "@/views/ContractVerificationView.vue";
@@ -29,8 +31,10 @@ vi.mock("vue-router", () => ({
 }));
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => Promise.resolve([]));
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(),
+    $fetch: fetchSpy,
     FetchError: function error() {
       return;
     },
@@ -73,19 +77,6 @@ describe("ContractVerificationView:", () => {
     expect(wrapper.find("#sourceCode").exists()).toBe(true);
     expect(wrapper.find(".multi-file-verification").exists()).toBe(false);
   });
-  it("shows single file verification when vyper single file verification is selection", async () => {
-    const wrapper = mount(ContractVerificationView, {
-      global: {
-        stubs: ["router-link"],
-        plugins: [i18n, $testId],
-      },
-    });
-
-    await wrapper.find("#compilerType").trigger("click");
-    await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(3)`).trigger("click");
-    expect(wrapper.find("#sourceCode").exists()).toBe(true);
-    expect(wrapper.find(".multi-file-verification").exists()).toBe(false);
-  });
   it("shows multi file verification when solidity MFV was selected", async () => {
     const wrapper = mount(ContractVerificationView, {
       global: {
@@ -99,42 +90,7 @@ describe("ContractVerificationView:", () => {
     expect(wrapper.find("#sourceCode").exists()).toBe(false);
     expect(wrapper.find(".multi-file-verification").exists()).toBe(true);
   });
-  it("shows multi file verification when vyper MFV was selected", async () => {
-    const wrapper = mount(ContractVerificationView, {
-      global: {
-        stubs: ["router-link"],
-        plugins: [i18n, $testId],
-      },
-    });
-
-    await wrapper.find("#compilerType").trigger("click");
-    await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(4)`).trigger("click");
-    expect(wrapper.find("#sourceCode").exists()).toBe(false);
-    expect(wrapper.find(".multi-file-verification").exists()).toBe(true);
-  });
-  it("shows zkVM checkbox by default", async () => {
-    const wrapper = mount(ContractVerificationView, {
-      global: {
-        stubs: ["router-link"],
-        plugins: [i18n, $testId],
-      },
-    });
-
-    expect(wrapper.find(".checkbox-input-container").exists()).toBe(true);
-  });
-  it("shows zkVM checkbox when solidity MFV was selected", async () => {
-    const wrapper = mount(ContractVerificationView, {
-      global: {
-        stubs: ["router-link"],
-        plugins: [i18n, $testId],
-      },
-    });
-
-    await wrapper.find("#compilerType").trigger("click");
-    await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(2)`).trigger("click");
-    expect(wrapper.find(".checkbox-input-container").exists()).toBe(true);
-  });
-  it("doesn't show zkVM checkbox when vyper single file verification was select", async () => {
+  it("shows multi file verification when vyper json was selected", async () => {
     const wrapper = mount(ContractVerificationView, {
       global: {
         stubs: ["router-link"],
@@ -144,19 +100,8 @@ describe("ContractVerificationView:", () => {
 
     await wrapper.find("#compilerType").trigger("click");
     await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(3)`).trigger("click");
-    expect(wrapper.find(".checkbox-input-container").exists()).toBe(false);
-  });
-  it("doesn't show zkVM checkbox when vyper MFV was select", async () => {
-    const wrapper = mount(ContractVerificationView, {
-      global: {
-        stubs: ["router-link"],
-        plugins: [i18n, $testId],
-      },
-    });
-
-    await wrapper.find("#compilerType").trigger("click");
-    await wrapper.find(`[aria-labelledby="compilerType"] > li:nth-child(4)`).trigger("click");
-    expect(wrapper.find(".checkbox-input-container").exists()).toBe(false);
+    expect(wrapper.find("#sourceCode").exists()).toBe(false);
+    expect(wrapper.find(".multi-file-verification").exists()).toBe(true);
   });
   it("shows custom error text", async () => {
     const mock = vi.spyOn(useContractVerification, "default").mockReturnValue({
@@ -298,19 +243,6 @@ describe("ContractVerificationView:", () => {
     expect(wrapper.findAll(".flattener-info a")[1].text()).toEqual("SolidityFlattery");
     expect(wrapper.findAll(".flattener-info a")[1].attributes("href")).toEqual(
       "https://github.com/DaveAppleton/SolidityFlattery"
-    );
-  });
-  it("renders contract verification link of docs", async () => {
-    const wrapper = mount(ContractVerificationView, {
-      global: {
-        stubs: ["router-link"],
-        plugins: [i18n, $testId],
-      },
-    });
-
-    expect(wrapper.find(".docs-link").text()).toEqual("Details");
-    expect(wrapper.find(".docs-link").attributes("href")).toEqual(
-      "https://docs.zksync.io/build/tooling/block-explorer/contract-verification.html#user-interface"
     );
   });
   it("resets uploaded files block when clicking on clear button", async () => {

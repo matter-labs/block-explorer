@@ -140,8 +140,8 @@ export default (context = useContext()) => {
 
 async function getSolcVersions() {
   try {
-    const response = await (await fetch(`https://binaries.soliditylang.org/linux-amd64/list.json`)).json();
-    return (Object.values(response.releases) as string[])
+    const response = await FetchInstance.withBaseUrl(`https://binaries.soliditylang.org/linux-amd64`)("/list.json");
+    return (Object.values(response.releases || {}) as string[])
       .map((str) => `v${str.split("-v")[1]}`) // e.g. soljson-v0.8.26+commit.8a97fa7a.js or solc-linux-amd64-v0.8.26+commit.8a97fa7a
       .map(
         (str) => (str.endsWith(".js") ? str.slice(0, -3) : str) // remove .js extension
@@ -154,7 +154,7 @@ async function getSolcVersions() {
 
 async function getVyperVersions() {
   try {
-    const response = await (await fetch(`https://vyper-releases-mirror.hardhat.org/list.json`)).json();
+    const response = await FetchInstance.withBaseUrl(`https://vyper-releases-mirror.hardhat.org`)("/list.json");
     return response
       .filter(({ assets }: { assets: unknown[] }) => assets.length)
       .map(({ tag_name }: { tag_name: string }) => tag_name.replace(/^v/, "")); // e.g. v0.1.0-beta.16 or v0.4.3

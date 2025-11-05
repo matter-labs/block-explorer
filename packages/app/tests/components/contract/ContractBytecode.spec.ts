@@ -111,7 +111,7 @@ describe("ContractBytecode", () => {
       },
     });
     const codeBlocks = wrapper.findAllComponents(CodeBlock);
-    expect(codeBlocks.length).toBe(1);
+    expect(codeBlocks.length).toBe(2);
     expect(codeBlocks[0].props().label).toBe("Single file contract");
     expect(codeBlocks[0].props().code).toBe(contract.verificationInfo?.sources["Counter.sol:Counter"].content);
   });
@@ -169,10 +169,11 @@ describe("ContractBytecode", () => {
         {
           optimizer: {
             enabled: true,
+            runs: 200,
           },
         },
         null,
-        4
+        2
       )
     );
   });

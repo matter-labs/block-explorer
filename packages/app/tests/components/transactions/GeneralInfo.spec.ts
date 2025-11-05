@@ -234,9 +234,9 @@ describe("Transaction info table", () => {
       l1StatusBadgeValueDesktop,
       l1StatusBadgeValueMobile,
     ] = badges;
-    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.execution"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
+    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.finality"));
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sent") +
         i18n.global.t("transactions.statusComponent.validated") +
@@ -316,7 +316,7 @@ describe("Transaction info table", () => {
     const badges = status.findAllComponents(Badge);
 
     const [l2StatusBadgeTitle, l2StatusBadgeValue, indexingBadge] = badges;
-    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.execution"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
     expect(indexingBadge.text()).toBe(i18n.global.t("transactions.statusComponent.indexing"));
   });
@@ -367,9 +367,9 @@ describe("Transaction info table", () => {
       l1StatusBadgeValueDesktop,
       l1StatusBadgeValueMobile,
     ] = badges;
-    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.execution"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
+    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.finality"));
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sending") +
         i18n.global.t("transactions.statusComponent.validating") +
@@ -402,9 +402,9 @@ describe("Transaction info table", () => {
       l1StatusBadgeValueDesktop,
       l1StatusBadgeValueMobile,
     ] = badges;
-    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.execution"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
+    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.finality"));
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sent") +
         i18n.global.t("transactions.statusComponent.validating") +
@@ -437,9 +437,9 @@ describe("Transaction info table", () => {
       l1StatusBadgeValueDesktop,
       l1StatusBadgeValueMobile,
     ] = badges;
-    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.l2NetworkName"));
+    expect(l2StatusBadgeTitle.text()).toBe(i18n.global.t("general.execution"));
     expect(l2StatusBadgeValue.text()).toBe(i18n.global.t("transactions.statusComponent.processed"));
-    expect(l1StatusBadgeTitle.text()).toBe("Ethereum");
+    expect(l1StatusBadgeTitle.text()).toBe(i18n.global.t("general.finality"));
     expect(l1StatusBadgeValueDesktop.text()).toBe(
       i18n.global.t("transactions.statusComponent.sent") +
         i18n.global.t("transactions.statusComponent.validated") +

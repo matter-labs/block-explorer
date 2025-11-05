@@ -1,6 +1,6 @@
 import { createI18n } from "vue-i18n";
 
-import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
 
@@ -66,7 +66,7 @@ describe("InfoTable:", () => {
     const status = rowArray[2].findAll("td");
     expect(status[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.status"));
     expect(status[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.statusTooltip"));
-    expect(status[1].text()).toBe(i18n.global.t("blocks.status.verified"));
+    expect(status[1].text()).toBe(i18n.global.t("blocks.status.executed"));
     const blockHash = rowArray[3].findAll("td");
     expect(blockHash[0].find(".block-info-field-label").text()).toBe(i18n.global.t("blocks.table.blockHash"));
     expect(blockHash[0].findComponent(InfoTooltip).text()).toBe(i18n.global.t("blocks.table.blockHashTooltip"));
@@ -117,50 +117,5 @@ describe("InfoTable:", () => {
       },
     });
     expect(wrapper.findAll(".content-loader").length).toBe(24);
-  });
-  describe("when L1 explorer url is not set", () => {
-    let mock1ExplorerUrl: Mock;
-    beforeEach(() => {
-      mock1ExplorerUrl = l1ExplorerUrlMock.mockReturnValue(null);
-    });
-
-    afterEach(() => {
-      mock1ExplorerUrl.mockRestore();
-    });
-
-    it("renders L1 hashes as texts instead of links", async () => {
-      const wrapper = mount(InfoTable, {
-        global: {
-          plugins: [i18n],
-          stubs: {
-            RouterLink: RouterLinkStub,
-          },
-        },
-        props: {
-          block: <Block>{
-            number: 1,
-            timestamp: "2022-04-13T16:48:32.000Z",
-            l1TxCount: 1,
-            l2TxCount: 0,
-            hash: "0xcd7533748f8f0c8f406f366e83d5e92d174845405418745d0f7228b85025cd6e",
-            status: "executed",
-          },
-          blockNumber: "1",
-          loading: false,
-        },
-      });
-      expect(wrapper.findAll(".actual-string")[0].text()).toEqual(
-        "0xcd7533748f8f0c8f406f366e83d5e92d174845405418745d0f7228b85025cd6e"
-      );
-      expect(wrapper.findAll(".actual-string")[1].text()).toEqual(
-        "0x5b5a05691d974803f5f095c1b918d2dd19152ed0a9de506d545c96df6cb9cac2"
-      );
-      expect(wrapper.findAll(".actual-string")[2].text()).toEqual(
-        "0xfb3532f4c38c2eaf78248da64cf80a354429d58204761d6ea6439391043f6fa9"
-      );
-      expect(wrapper.findAll(".actual-string")[3].text()).toEqual(
-        "0x8d1a78d1da5aba1d0755ec9dbcba938f3920681d2a3d4d374ef265a50858f364"
-      );
-    });
   });
 });

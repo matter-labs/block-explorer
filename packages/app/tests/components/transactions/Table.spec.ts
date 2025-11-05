@@ -151,8 +151,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders sent status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Sent on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 
@@ -176,8 +176,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders validated status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Validated on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 
@@ -201,8 +201,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders executed status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Executed on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 

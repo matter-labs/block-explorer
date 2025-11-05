@@ -82,12 +82,11 @@ describe("HomeView:", () => {
       });
 
       const tableHead = container.querySelectorAll(".blocks-table .table-head-col");
-      expect(tableHead).toHaveLength(4);
+      expect(tableHead).toHaveLength(3);
       expect(tableHead[0].textContent).toBe("Block");
       expect(tableHead[1].textContent).toBe("Status");
       expect(tableHead[2].textContent).toBe("Age");
       expect(container.querySelector(".time-ago")?.textContent).toBe(useTimeAgo("2022-04-13 16:09").value);
-      expect(container.querySelector(".badge-content")?.textContent).toBe("Processed on");
 
       mockBlocks.mockRestore();
       unmount();

@@ -172,36 +172,34 @@ describe("Contract Info Tab", () => {
                 implementation: {
                   address: "0x9c85ac2d94a722e56027db3db728005b29059fc8",
                   verificationInfo: {
-                    artifacts: {
-                      abi: [
-                        {
-                          inputs: [],
-                          name: "get2",
-                          outputs: [
-                            {
-                              internalType: "uint256",
-                              name: "",
-                              type: "uint256",
-                            },
-                          ],
-                          stateMutability: "view",
-                          type: "function",
-                        },
-                        {
-                          inputs: [
-                            {
-                              internalType: "uint256",
-                              name: "x",
-                              type: "uint256",
-                            },
-                          ],
-                          name: "increment2",
-                          outputs: [],
-                          stateMutability: "nonpayable",
-                          type: "function",
-                        },
-                      ],
-                    },
+                    abi: [
+                      {
+                        inputs: [],
+                        name: "get2",
+                        outputs: [
+                          {
+                            internalType: "uint256",
+                            name: "",
+                            type: "uint256",
+                          },
+                        ],
+                        stateMutability: "view",
+                        type: "function",
+                      },
+                      {
+                        inputs: [
+                          {
+                            internalType: "uint256",
+                            name: "x",
+                            type: "uint256",
+                          },
+                        ],
+                        name: "increment2",
+                        outputs: [],
+                        stateMutability: "nonpayable",
+                        type: "function",
+                      },
+                    ],
                   } as unknown as ContractVerificationInfo,
                 },
               },

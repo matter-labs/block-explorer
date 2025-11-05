@@ -608,6 +608,7 @@ describe("useTransaction:", () => {
             index: 0,
             logs: logs.map((log) => ({ ...log, index: log.logIndex })),
             gasUsed: "3000",
+            gasPrice: "4000",
             contractAddress: null,
           }),
         };
@@ -645,9 +646,9 @@ describe("useTransaction:", () => {
           value: "0",
           from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
           to: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-          fee: "0x521f303519100",
+          fee: "12000000",
           feeData: {
-            amountPaid: "0x521f303519100",
+            amountPaid: "12000000",
             isPaidByPaymaster: false,
             refunds: [],
             amountRefunded: "0x0",
@@ -656,7 +657,7 @@ describe("useTransaction:", () => {
           isEvmLike: false,
           isL1Originated: false,
           nonce: 24,
-          receivedAt: "2023-02-28T08:42:08.198Z",
+          receivedAt: "",
           status: "indexing",
           logs: [
             {
@@ -716,7 +717,7 @@ describe("useTransaction:", () => {
           gasPrice: "4000",
           gasLimit: "5000",
           gasUsed: "3000",
-          gasPerPubdata: "800",
+          gasPerPubdata: null,
           maxFeePerGas: "7000",
           maxPriorityFeePerGas: "8000",
         });

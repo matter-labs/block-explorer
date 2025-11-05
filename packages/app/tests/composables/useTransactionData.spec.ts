@@ -8,34 +8,30 @@ import type { AbiFragment } from "@/composables/useAddress";
 import type { Address } from "@/types";
 
 const ERC20VerificationInfo = {
-  artifacts: {
-    abi: [
-      {
-        inputs: [
-          {
-            internalType: "address",
-            name: "recipient",
-            type: "address",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        name: "transfer",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-    ],
-  },
+  abi: [
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "recipient",
+          type: "address",
+        },
+        {
+          internalType: "uint256",
+          name: "amount",
+          type: "uint256",
+        },
+      ],
+      name: "transfer",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ],
 };
 
 const ERC20ProxyVerificationInfo = {
-  artifacts: {
-    abi: ERC20VerificationInfo.artifacts.abi,
-  },
+  abi: ERC20VerificationInfo.abi,
 };
 
 vi.mock("ohmyfetch", () => {
@@ -58,7 +54,7 @@ const getContractProxyInfoMock = vi.fn(() => {
         implementation: {
           address: "0x1234567890123456789012345678901234567890",
           verificationInfo: {
-            artifacts: ERC20VerificationInfo.artifacts,
+            abi: ERC20VerificationInfo.abi,
           },
         },
       }
@@ -125,7 +121,7 @@ describe("useTransactionData:", () => {
       implementation: {
         address: "0x1234567890123456789012345678901234567890",
         verificationInfo: {
-          artifacts: ERC20VerificationInfo.artifacts,
+          abi: ERC20VerificationInfo.abi,
         },
       },
     });
@@ -181,7 +177,7 @@ describe("useTransactionData:", () => {
     // Set up ABI but make it return undefined method (decode failure)
     const mockAddress = "0x0cC725E6Ba24E7dB79f62f22a7994a8ee33aDc1b";
     mockABICollection.mockReturnValue({
-      value: { [mockAddress]: ERC20VerificationInfo.artifacts.abi },
+      value: { [mockAddress]: ERC20VerificationInfo.abi },
     });
 
     const { data, isDecodePending, decodingError, decodeTransactionData } = useTransactionData();
@@ -196,7 +192,7 @@ describe("useTransactionData:", () => {
   it("decodes data successfully", async () => {
     const mockAddress = "0x0cC725E6Ba24E7dB79f62f22a7994a8ee33aDc1b";
     mockABICollection.mockReturnValue({
-      value: { [mockAddress]: ERC20VerificationInfo.artifacts.abi },
+      value: { [mockAddress]: ERC20VerificationInfo.abi },
     });
 
     const { data, isDecodePending, decodingError, decodeTransactionData } = useTransactionData();
@@ -211,7 +207,7 @@ describe("useTransactionData:", () => {
       implementation: {
         address: "0x1234567890123456789012345678901234567890",
         verificationInfo: {
-          artifacts: ERC20VerificationInfo.artifacts,
+          abi: ERC20VerificationInfo.abi,
         },
       },
     });
@@ -254,7 +250,7 @@ describe("useTransactionData:", () => {
   });
   describe("decodeDataWithABI", () => {
     it("decodes data", () => {
-      const result = decodeDataWithABI(transactionData, ERC20VerificationInfo.artifacts.abi as AbiFragment[]);
+      const result = decodeDataWithABI(transactionData, ERC20VerificationInfo.abi as AbiFragment[]);
       expect(result).toEqual({
         name: "transfer",
         inputs: [
@@ -281,7 +277,7 @@ describe("useTransactionData:", () => {
           ...transactionData,
           calldata: "0x",
         },
-        ERC20VerificationInfo.artifacts.abi as AbiFragment[]
+        ERC20VerificationInfo.abi as AbiFragment[]
       );
       expect(result).toBe(undefined);
     });
