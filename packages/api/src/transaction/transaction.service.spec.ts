@@ -9,7 +9,7 @@ import { CounterService } from "../counter/counter.service";
 import { TransactionService, FilterTransactionsOptions } from "./transaction.service";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
-import { Block, BlockStatus } from "../block/block.entity";
+import { Block } from "../block/block.entity";
 import { Log } from "../log/log.entity";
 import { ConfigService } from "@nestjs/config";
 
