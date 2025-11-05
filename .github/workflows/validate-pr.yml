@@ -54,23 +54,22 @@ jobs:
         run: |
           npm run typecheck
 
-      # TODO: Uncomment once tests are fixed
-      # - name: Test
-        # run: |
-          # npm run test:ci
+      - name: Test
+        run: |
+          npm run test:ci
 
-      # - name: Publish Test Results
-        # uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        # if: always()
-        # with:
-          # files: |
-            # packages/app/junit.xml
-            # packages/api/junit.xml
-            # packages/worker/junit.xml
-            # packages/data-fetcher/junit.xml
-          # check_run_annotations: all tests, skipped tests
-          # report_individual_runs: "true"
-          # check_name: Unit Test Results
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+          files: |
+            packages/app/junit.xml
+            packages/api/junit.xml
+            packages/worker/junit.xml
+            packages/data-fetcher/junit.xml
+          check_run_annotations: all tests, skipped tests
+          report_individual_runs: "true"
+          check_name: Unit Test Results
 
       - name: Build
         run: |

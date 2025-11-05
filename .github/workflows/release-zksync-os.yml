@@ -29,14 +29,14 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci
-# TODO: Uncomment once lint errors are fixed
-      # - name: Lint
-      #   run: |
-      #     npm run lint -- -- --no-fix --max-warnings 0
-# TODO: Uncomment once tests are fixed
-      # - name: Test
-      #   run: |
-      #     npm run test:ci
+
+      - name: Lint
+        run: |
+          npm run lint -- -- --no-fix --max-warnings 0
+
+      - name: Test
+        run: |
+          npm run test:ci
 
       - name: App type check
         working-directory: ./packages/app
