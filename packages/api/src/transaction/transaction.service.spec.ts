@@ -644,7 +644,7 @@ describe("TransactionService", () => {
 
   describe("isTransactionVisibleByUser", () => {
     const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-    const user = { address: userAddress };
+    const user = { address: userAddress, token: "token" };
 
     describe("when user is the sender", () => {
       it("returns true", () => {
