@@ -6,6 +6,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { BlockDetails } from "../src/block/blockDetails.entity";
+import { BlockStatus } from "../src/block/block.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Counter } from "../src/counter/counter.entity";
 
@@ -42,6 +43,7 @@ describe("StatsController (e2e)", () => {
         l1TxCount: 1,
         l2TxCount: 1,
         miner: "0x0000000000000000000000000000000000000000",
+        status: i > 4 ? BlockStatus.Sealed : BlockStatus.Executed,
       });
     }
 

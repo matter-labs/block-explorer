@@ -8,6 +8,7 @@ import { configureApp } from "../src/configureApp";
 import { Address } from "../src/address/address.entity";
 import { Balance } from "../src/balance/balance.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
+import { BlockStatus } from "../src/block/block.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
@@ -68,6 +69,7 @@ describe("AddressController (e2e)", () => {
         l1TxCount: 1,
         l2TxCount: 1,
         miner: "0x0000000000000000000000000000000000000000",
+        status: BlockStatus.Executed,
       });
     }
 
@@ -427,7 +429,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });
@@ -496,7 +498,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });
@@ -565,7 +567,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });
@@ -634,7 +636,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });

@@ -6,6 +6,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { BlockDetails } from "../src/block/blockDetails.entity";
+import { BlockStatus } from "../src/block/block.entity";
 
 describe("BlockController (e2e)", () => {
   let app: INestApplication;
@@ -37,6 +38,7 @@ describe("BlockController (e2e)", () => {
         l1TxCount: i * 10,
         l2TxCount: i * 20,
         miner: "0x0000000000000000000000000000000000000000",
+        status: BlockStatus.Executed,
       });
     }
   });
@@ -62,7 +64,7 @@ describe("BlockController (e2e)", () => {
             gasUsed: "0",
             baseFeePerGas: "100000000",
             extraData: "0x1231",
-            status: "verified",
+            status: "executed",
             l1TxCount: 100,
             l2TxCount: 200,
             size: 300,
@@ -114,7 +116,7 @@ describe("BlockController (e2e)", () => {
                 l2TxCount: 720,
                 number: 36,
                 size: 1080,
-                status: "verified",
+                status: "executed",
                 timestamp: "2022-11-10T14:44:36.000Z",
               },
               {
@@ -124,7 +126,7 @@ describe("BlockController (e2e)", () => {
                 l2TxCount: 700,
                 number: 35,
                 size: 1050,
-                status: "verified",
+                status: "executed",
                 timestamp: "2022-11-10T14:44:35.000Z",
               },
             ],
@@ -159,7 +161,7 @@ describe("BlockController (e2e)", () => {
               l1TxCount: 360,
               l2TxCount: 720,
               size: 1080,
-              status: "verified",
+              status: "executed",
             },
             {
               number: 35,
@@ -169,7 +171,7 @@ describe("BlockController (e2e)", () => {
               l1TxCount: 350,
               l2TxCount: 700,
               size: 1050,
-              status: "verified",
+              status: "executed",
             },
           ])
         );

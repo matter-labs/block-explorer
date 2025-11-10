@@ -7,6 +7,7 @@ import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
+import { BlockStatus } from "../src/block/block.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
@@ -46,6 +47,13 @@ describe("TransactionController (e2e)", () => {
     logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
 
     for (let i = 0; i <= 9; i++) {
+      let status = BlockStatus.Sealed;
+      if (i > 2 && i <= 5) {
+        status = BlockStatus.Committed;
+      }
+      if (i > 5) {
+        status = BlockStatus.Executed;
+      }
       await blockRepository.insert({
         number: i,
         hash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -57,6 +65,7 @@ describe("TransactionController (e2e)", () => {
         l1TxCount: 1,
         l2TxCount: 1,
         miner: "0x0000000000000000000000000000000000000000",
+        status,
       });
     }
 
@@ -319,7 +328,7 @@ describe("TransactionController (e2e)", () => {
               isL1Originated: true,
               nonce: 42,
               receivedAt: "2022-11-21T18:16:06.000Z",
-              status: "proved",
+              status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
               type: 255,
@@ -344,7 +353,7 @@ describe("TransactionController (e2e)", () => {
               isL1Originated: true,
               nonce: 42,
               receivedAt: "2022-11-21T18:16:05.000Z",
-              status: "proved",
+              status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233102,
               type: 255,
@@ -554,7 +563,7 @@ describe("TransactionController (e2e)", () => {
               isL1Originated: true,
               nonce: 42,
               receivedAt: "2022-11-21T18:16:06.000Z",
-              status: "proved",
+              status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
               type: 255,
@@ -710,7 +719,7 @@ describe("TransactionController (e2e)", () => {
                 isL1Originated: true,
                 nonce: 42,
                 receivedAt: "2022-11-21T18:16:06.000Z",
-                status: "proved",
+                status: "verified",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233103,
                 type: 255,
@@ -825,7 +834,7 @@ describe("TransactionController (e2e)", () => {
             isL1Originated: true,
             nonce: 42,
             receivedAt: "2022-11-21T18:16:05.000Z",
-            status: "proved",
+            status: "committed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233102,
             type: 255,

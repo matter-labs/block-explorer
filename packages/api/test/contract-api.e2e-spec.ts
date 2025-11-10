@@ -43,11 +43,9 @@ describe("Contract API (e2e)", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
       nock(CONTRACT_VERIFICATION_API_URL)
-        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .get(`/v2/contract/1/0xffffffffffffffffffffffffffffffffffffffff?fields=abi`)
         .reply(200, {
-          artifacts: {
-            abi: [],
-          },
+          abi: [],
         });
 
       return request(app.getHttpServer())
@@ -66,7 +64,7 @@ describe("Contract API (e2e)", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
       nock(CONTRACT_VERIFICATION_API_URL)
-        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .get(`/v2/contract/1/0xffffffffffffffffffffffffffffffffffffffff?fields=abi`)
         .reply(200, {});
 
       return request(app.getHttpServer())
@@ -87,19 +85,24 @@ describe("Contract API (e2e)", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
       nock(CONTRACT_VERIFICATION_API_URL)
-        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .get(`/v2/contract/1/0xffffffffffffffffffffffffffffffffffffffff?fields=abi,sources,compilation,proxyResolution`)
         .reply(200, {
-          artifacts: {
-            abi: [],
+          abi: [],
+          compilation: {
+            compilerSettings: {
+              optimizer: {
+                enabled: true,
+                runs: 200,
+              },
+            },
+            language: "Solidity",
+            fullyQualifiedName: "contractName",
+            compilerVersion: "8.10.0",
           },
-          request: {
-            codeFormat: "solidity-single-file",
-            sourceCode: "sourceCode",
-            constructorArguments: "0x0001",
-            contractName: "contractName",
-            optimizationUsed: true,
-            compilerSolcVersion: "8.10.0",
-            compilerZksolcVersion: "10.0.0",
+          sources: {
+            "contracts/HelloWorld.sol": {
+              content: "// SPDX-License-Identifier: UNLICENSED",
+            },
           },
         });
 
@@ -113,9 +116,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "8.10.0",
-                ZkSolcVersion: "10.0.0",
-                ZkCompilerVersion: "10.0.0",
-                ConstructorArguments: "0001",
+                ConstructorArguments: "",
                 ContractName: "contractName",
                 EVMVersion: "Default",
                 Implementation: "",
@@ -123,8 +124,9 @@ describe("Contract API (e2e)", () => {
                 LicenseType: "",
                 OptimizationUsed: "1",
                 Proxy: "0",
-                Runs: "",
-                SourceCode: "sourceCode",
+                Runs: "200",
+                SourceCode:
+                  '{{"language":"Solidity","settings":{"optimizer":{"enabled":true,"runs":200}},"sources":{"contracts/HelloWorld.sol":{"content":"// SPDX-License-Identifier: UNLICENSED"}}}}',
                 SwarmSource: "",
               },
             ],
@@ -137,42 +139,35 @@ describe("Contract API (e2e)", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
       nock(CONTRACT_VERIFICATION_API_URL)
-        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .get(`/v2/contract/1/0xffffffffffffffffffffffffffffffffffffffff?fields=abi,sources,compilation,proxyResolution`)
         .reply(200, {
-          artifacts: {
-            abi: [],
-          },
-          request: {
-            codeFormat: "solidity-standard-json-input",
-            sourceCode: {
-              language: "Solidity",
-              settings: {
-                optimizer: {
-                  enabled: true,
-                },
-                libraries: {
-                  "contracts/MiniMath.sol": {
-                    MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
-                  },
-                  "contracts/MiniMath2.sol": {
-                    MiniMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914",
-                  },
-                },
+          abi: [],
+          compilation: {
+            compilerSettings: {
+              optimizer: {
+                enabled: true,
+                runs: 200,
               },
-              sources: {
-                "@openzeppelin/contracts/access/Ownable.sol": {
-                  content: "Ownable.sol content",
+              libraries: {
+                "contracts/MiniMath.sol": {
+                  MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
                 },
-                "faucet.sol": {
-                  content: "faucet.sol content",
+                "contracts/MiniMath2.sol": {
+                  MiniMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914",
                 },
               },
             },
-            constructorArguments: "0x0001",
-            contractName: "contractName",
-            optimizationUsed: true,
-            compilerSolcVersion: "8.10.0",
-            compilerZksolcVersion: "10.0.0",
+            language: "Solidity",
+            fullyQualifiedName: "contractName",
+            compilerVersion: "8.10.0",
+          },
+          sources: {
+            "@openzeppelin/contracts/access/Ownable.sol": {
+              content: "Ownable.sol content",
+            },
+            "faucet.sol": {
+              content: "faucet.sol content",
+            },
           },
         });
 
@@ -186,9 +181,7 @@ describe("Contract API (e2e)", () => {
               {
                 ABI: "[]",
                 CompilerVersion: "8.10.0",
-                ZkSolcVersion: "10.0.0",
-                ZkCompilerVersion: "10.0.0",
-                ConstructorArguments: "0001",
+                ConstructorArguments: "",
                 ContractName: "contractName",
                 EVMVersion: "Default",
                 Implementation: "",
@@ -197,9 +190,9 @@ describe("Contract API (e2e)", () => {
                 LicenseType: "",
                 OptimizationUsed: "1",
                 Proxy: "0",
-                Runs: "",
+                Runs: "200",
                 SourceCode:
-                  '{{"language":"Solidity","settings":{"optimizer":{"enabled":true},"libraries":{"contracts/MiniMath.sol":{"MiniMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913"},"contracts/MiniMath2.sol":{"MiniMath2":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914"}}},"sources":{"@openzeppelin/contracts/access/Ownable.sol":{"content":"Ownable.sol content"},"faucet.sol":{"content":"faucet.sol content"}}}}',
+                  '{{"language":"Solidity","settings":{"optimizer":{"enabled":true,"runs":200},"libraries":{"contracts/MiniMath.sol":{"MiniMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913"},"contracts/MiniMath2.sol":{"MiniMath2":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914"}}},"sources":{"@openzeppelin/contracts/access/Ownable.sol":{"content":"Ownable.sol content"},"faucet.sol":{"content":"faucet.sol content"}}}}',
                 SwarmSource: "",
               },
             ],
@@ -212,21 +205,21 @@ describe("Contract API (e2e)", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
       nock(CONTRACT_VERIFICATION_API_URL)
-        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .get(`/v2/contract/1/0xffffffffffffffffffffffffffffffffffffffff?fields=abi,sources,compilation,proxyResolution`)
         .reply(200, {
-          artifacts: {
-            abi: [],
-          },
-          request: {
-            codeFormat: "vyper-multi-file",
-            sourceCode: {
-              "Base.vy": "Base.vy content",
+          abi: [],
+          compilation: {
+            compilerSettings: {
+              optimize: true,
             },
-            constructorArguments: "0x0001",
-            contractName: "contractName",
-            optimizationUsed: true,
-            compilerVyperVersion: "9.10.0",
-            compilerZkvyperVersion: "11.0.0",
+            language: "Vyper",
+            fullyQualifiedName: "contractName",
+            compilerVersion: "v1.0.0",
+          },
+          sources: {
+            "contracts/Greeter.vy": {
+              content: "# @version ^0.3.3\n# vim: ft=python\n\ndef __init__():\n    pass",
+            },
           },
         });
 
@@ -239,10 +232,8 @@ describe("Contract API (e2e)", () => {
             result: [
               {
                 ABI: "[]",
-                CompilerVersion: "9.10.0",
-                ZkSolcVersion: "11.0.0",
-                ZkCompilerVersion: "11.0.0",
-                ConstructorArguments: "0001",
+                CompilerVersion: "v1.0.0",
+                ConstructorArguments: "",
                 ContractName: "contractName",
                 EVMVersion: "Default",
                 Implementation: "",
@@ -251,7 +242,8 @@ describe("Contract API (e2e)", () => {
                 OptimizationUsed: "1",
                 Proxy: "0",
                 Runs: "",
-                SourceCode: "Base.vy content",
+                SourceCode:
+                  '{{"language":"Vyper","settings":{"optimize":true},"sources":{"contracts/Greeter.vy":{"content":"# @version ^0.3.3\\n# vim: ft=python\\n\\ndef __init__():\\n    pass"}}}}',
                 SwarmSource: "",
               },
             ],
@@ -264,22 +256,24 @@ describe("Contract API (e2e)", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
       nock(CONTRACT_VERIFICATION_API_URL)
-        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .get(`/v2/contract/1/0xffffffffffffffffffffffffffffffffffffffff?fields=abi,sources,compilation,proxyResolution`)
         .reply(200, {
-          artifacts: {
-            abi: [],
-          },
-          request: {
-            codeFormat: "vyper-multi-file",
-            sourceCode: {
-              "Base.vy": "Base.vy content",
-              "faucet.vy": "faucet.vy content",
+          abi: [],
+          compilation: {
+            compilerSettings: {
+              optimize: true,
             },
-            constructorArguments: "0x0001",
-            contractName: "contractName",
-            optimizationUsed: true,
-            compilerVyperVersion: "9.10.0",
-            compilerZkvyperVersion: "11.0.0",
+            language: "Vyper",
+            fullyQualifiedName: "contractName",
+            compilerVersion: "v1.0.0",
+          },
+          sources: {
+            contractName1: {
+              content: "Content 1",
+            },
+            contractName2: {
+              content: "Content 2",
+            },
           },
         });
 
@@ -292,10 +286,8 @@ describe("Contract API (e2e)", () => {
             result: [
               {
                 ABI: "[]",
-                CompilerVersion: "9.10.0",
-                ZkSolcVersion: "11.0.0",
-                ZkCompilerVersion: "11.0.0",
-                ConstructorArguments: "0001",
+                CompilerVersion: "v1.0.0",
+                ConstructorArguments: "",
                 ContractName: "contractName",
                 EVMVersion: "Default",
                 Implementation: "",
@@ -305,7 +297,7 @@ describe("Contract API (e2e)", () => {
                 Proxy: "0",
                 Runs: "",
                 SourceCode:
-                  '{{"language":"Vyper","settings":{"optimizer":{"enabled":true}},"sources":{"Base.vy":{"content":"Base.vy content"},"faucet.vy":{"content":"faucet.vy content"}}}}',
+                  '{{"language":"Vyper","settings":{"optimize":true},"sources":{"contractName1":{"content":"Content 1"},"contractName2":{"content":"Content 2"}}}}',
                 SwarmSource: "",
               },
             ],
@@ -318,7 +310,7 @@ describe("Contract API (e2e)", () => {
       const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 
       nock(CONTRACT_VERIFICATION_API_URL)
-        .get(`/contract_verification/info/0xffffffffffffffffffffffffffffffffffffffff`)
+        .get(`/v2/contract/1/0xffffffffffffffffffffffffffffffffffffffff?fields=abi,sources,compilation,proxyResolution`)
         .reply(404, {});
 
       return request(app.getHttpServer())
@@ -337,11 +329,13 @@ describe("Contract API (e2e)", () => {
                 Implementation: "",
                 Library: "",
                 LicenseType: "Unknown",
+                Match: "",
                 OptimizationUsed: "",
                 Proxy: "0",
                 Runs: "",
                 SourceCode: "",
                 SwarmSource: "",
+                VerifiedAt: "",
               },
             ],
             status: "1",
@@ -351,53 +345,22 @@ describe("Contract API (e2e)", () => {
   });
 
   describe("/api POST", () => {
-    describe("when deprecated zkCompilerVersion is used in the request", () => {
-      it("returns HTTP 200 and contract verification id for single file Solidity contract", () => {
-        nock(CONTRACT_VERIFICATION_API_URL)
-          .post("/contract_verification")
-          .reply(200, 123 as unknown as nock.Body);
-
-        return request(app.getHttpServer())
-          .post("/api")
-          .send({
-            module: "contract",
-            action: "verifysourcecode",
-            contractaddress: "0x79efF59e5ae65D9876F1020b3cCAb4027B49c2a2",
-            sourceCode: "// SPDX-License-Identifier: UNLICENSED",
-            codeformat: "solidity-single-file",
-            contractname: "contracts/HelloWorld.sol:HelloWorld",
-            compilerversion: "0.8.17",
-            optimizationUsed: "1",
-            zkCompilerVersion: "v1.3.14",
-          })
-          .expect(200)
-          .expect((res) =>
-            expect(res.body).toStrictEqual({
-              message: "OK",
-              result: "123",
-              status: "1",
-            })
-          );
-      });
-    });
-
     it("returns HTTP 200 and contract verification id for single file Solidity contract", () => {
       nock(CONTRACT_VERIFICATION_API_URL)
-        .post("/contract_verification")
-        .reply(200, 123 as unknown as nock.Body);
+        .post("/v2/verify/1/0x79eff59e5ae65d9876f1020b3ccab4027b49c2a2")
+        .reply(200, { verificationId: 123 } as nock.Body);
 
       return request(app.getHttpServer())
         .post("/api")
         .send({
           module: "contract",
           action: "verifysourcecode",
-          contractaddress: "0x79efF59e5ae65D9876F1020b3cCAb4027B49c2a2",
+          contractaddress: "0x79eff59e5ae65d9876f1020b3ccab4027b49c2a2",
           sourceCode: "// SPDX-License-Identifier: UNLICENSED",
           codeformat: "solidity-single-file",
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>
@@ -411,8 +374,8 @@ describe("Contract API (e2e)", () => {
 
     it("returns HTTP 200 and contract verification id for multi file Solidity contract", () => {
       nock(CONTRACT_VERIFICATION_API_URL)
-        .post("/contract_verification")
-        .reply(200, 123 as unknown as nock.Body);
+        .post("/v2/verify/1/0x14174c76e073f8efef5c1fe0dd0f8c2ca9f21e62")
+        .reply(200, { verificationId: 123 } as nock.Body);
 
       return request(app.getHttpServer())
         .post("/api")
@@ -420,7 +383,7 @@ describe("Contract API (e2e)", () => {
           module: "contract",
           action: "verifysourcecode",
           contractaddress: "0x14174c76E073f8efEf5C1FE0dd0f8c2Ca9F21e62",
-          sourceCode: {
+          sourceCode: JSON.stringify({
             language: "Solidity",
             settings: {
               optimizer: {
@@ -432,12 +395,11 @@ describe("Contract API (e2e)", () => {
                 content: "// SPDX-License-Identifier: UNLICENSED",
               },
             },
-          },
+          }),
           codeformat: "solidity-standard-json-input",
           contractname: "contracts/HelloWorldCtor.sol:HelloWorldCtor",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zksolcVersion: "v1.3.14",
           constructorArguments: "0x94869207468657265210000000000000000000000000000000000000000000000",
           runs: 700,
         })
@@ -453,8 +415,8 @@ describe("Contract API (e2e)", () => {
 
     it("returns HTTP 200 and contract verification id for multi file Vyper contract", () => {
       nock(CONTRACT_VERIFICATION_API_URL)
-        .post("/contract_verification")
-        .reply(200, 123 as unknown as nock.Body);
+        .post("/v2/verify/1/0xd60f82cf24eef908026b1920323ff586f328b3fe")
+        .reply(200, { verificationId: 123 } as nock.Body);
 
       return request(app.getHttpServer())
         .post("/api")
@@ -462,36 +424,28 @@ describe("Contract API (e2e)", () => {
           module: "contract",
           action: "verifysourcecode",
           contractaddress: "0xD60F82CF24eEF908026B1920323FF586F328B3fe",
-          sourceCode: {
-            language: "Solidity",
+          sourceCode: JSON.stringify({
+            language: "Vyper",
             settings: {
-              optimizer: {
-                enabled: true,
-              },
+              optimize: true,
             },
             sources: {
-              "contracts/Main.sol": {
-                content: "// SPDX-License-Identifier 1",
+              "contracts/Main.vy": {
+                content: "// 1",
               },
-              "contracts/MiniMath.sol": {
-                content: "// SPDX-License-Identifier 2",
+              "contracts/MiniMath.vy": {
+                content: "// 2",
               },
-              "contracts/MiniMath2.sol": {
-                content: "// SPDX-License-Identifier 3",
+              "contracts/MiniMath2.vy": {
+                content: "// 3",
               },
             },
-          },
-          codeformat: "solidity-standard-json-input",
-          contractname: "contracts/Main.sol:Main",
-          compilerversion: "0.8.17",
+          }),
+          codeformat: "vyper-json",
+          contractname: "contracts/Main.vy:Main",
+          compilerversion: "0.1.0",
           optimizationUsed: "1",
-          zksolcVersion: "v1.3.14",
           constructorArguments: "0x94869207468657265210000000000000000000000000000000000000000000000",
-          runs: 600,
-          libraryname1: "contracts/MiniMath.sol:MiniMath",
-          libraryaddress1: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
-          libraryname2: "contracts/MiniMath2.sol:MiniMath2",
-          libraryaddress2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
         })
         .expect(200)
         .expect((res) =>
@@ -505,7 +459,7 @@ describe("Contract API (e2e)", () => {
 
     it("returns HTTP 200 with NOTOK result and validation message for 400 verification response", () => {
       nock(CONTRACT_VERIFICATION_API_URL)
-        .post("/contract_verification")
+        .post("/v2/verify/1/0x79eff59e5ae65d9876f1020b3ccab4027b49c2a2")
         .reply(400, "Contract has been already verified");
 
       return request(app.getHttpServer())
@@ -532,7 +486,9 @@ describe("Contract API (e2e)", () => {
     });
 
     it("returns HTTP 200 with NOTOK and a generic error message for non 400 verification response", () => {
-      nock(CONTRACT_VERIFICATION_API_URL).post("/contract_verification").reply(500, "Error");
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .post("/v2/verify/1/0x79eff59e5ae65d9876f1020b3ccab4027b49c2a2")
+        .reply(500, "Error");
 
       return request(app.getHttpServer())
         .post("/api")
@@ -562,8 +518,8 @@ describe("Contract API (e2e)", () => {
     it("returns HTTP 200 and successful verification status", () => {
       const verificationId = "1234";
 
-      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
-        status: "successful",
+      nock(CONTRACT_VERIFICATION_API_URL).get(`/v2/verify/${verificationId}`).reply(200, {
+        isJobCompleted: true,
       });
 
       return request(app.getHttpServer())
@@ -581,8 +537,8 @@ describe("Contract API (e2e)", () => {
     it("returns HTTP 200 and queued verification status", () => {
       const verificationId = "1234";
 
-      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
-        status: "queued",
+      nock(CONTRACT_VERIFICATION_API_URL).get(`/v2/verify/${verificationId}`).reply(200, {
+        isJobCompleted: false,
       });
 
       return request(app.getHttpServer())
@@ -597,32 +553,14 @@ describe("Contract API (e2e)", () => {
         );
     });
 
-    it("returns HTTP 200 and in progress verification status", () => {
-      const verificationId = "1234";
-
-      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
-        status: "in_progress",
-      });
-
-      return request(app.getHttpServer())
-        .get(`/api?module=contract&action=checkverifystatus&guid=${verificationId}`)
-        .expect(200)
-        .expect((res) =>
-          expect(res.body).toStrictEqual({
-            message: "OK",
-            result: "In progress",
-            status: "1",
-          })
-        );
-    });
-
     it("returns HTTP 200 and in progress failed status", () => {
       const verificationId = "1234";
 
-      nock(CONTRACT_VERIFICATION_API_URL).get(`/contract_verification/${verificationId}`).reply(200, {
-        status: "failed",
-        error: "ERROR! Compilation error.",
-      });
+      nock(CONTRACT_VERIFICATION_API_URL)
+        .get(`/v2/verify/${verificationId}`)
+        .reply(200, {
+          error: { message: "ERROR! Compilation error." },
+        });
 
       return request(app.getHttpServer())
         .get(`/api?module=contract&action=checkverifystatus&guid=${verificationId}`)
