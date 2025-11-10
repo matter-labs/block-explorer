@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Brackets, FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { paginate } from "../common/utils";
+import { isAddressEqual, padAddressToTransactionLogTopic, paginate } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
@@ -10,7 +10,7 @@ import { Block, BlockStatus } from "../block/block.entity";
 import { CounterService } from "../counter/counter.service";
 import { Log } from "../log/log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { zeroPadValue } from "ethers";
+import { UserParam } from "../user/user.decorator";
 import { ConfigService } from "@nestjs/config";
 
 export interface FilterTransactionsOptions {
@@ -157,7 +157,9 @@ export class TransactionService {
           // If `visibleBy` is provided, we use it to filter log topics given we want to see transactions
           // from `visibleBy` perspective
           const logAddressParam = {
-            paddedAddressBytes: hexTransformer.to(zeroPadValue(filterOptions.visibleBy || filterOptions.address, 32)),
+            paddedAddressBytes: hexTransformer.to(
+              padAddressToTransactionLogTopic(filterOptions.visibleBy || filterOptions.address)
+            ),
           };
 
           queryBuilder.where(`transaction.hash IN (
@@ -301,5 +303,21 @@ export class TransactionService {
 
   public count(criteria: CounterCriteria<Transaction> = {}): Promise<number> {
     return this.counterService.count(Transaction, criteria);
+  }
+
+  public isTransactionVisibleByUser(transaction: Transaction, transactionLogs: Log[], user: UserParam): boolean {
+    // A transaction is visible by a user if:
+    // - user is the sender
+    // - user is the receiver
+    // - user is included as part of the logs topics
+    const topicUserAddress = padAddressToTransactionLogTopic(user.address).toLowerCase();
+    return (
+      isAddressEqual(transaction.from, user.address) ||
+      isAddressEqual(transaction.to, user.address) ||
+      transactionLogs.some((log) => {
+        const topics = log.topics.map((l) => l.toLowerCase());
+        return topics.includes(topicUserAddress);
+      })
+    );
   }
 }

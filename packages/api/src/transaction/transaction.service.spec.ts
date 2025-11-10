@@ -13,7 +13,10 @@ import { Block } from "../block/block.entity";
 import { Log } from "../log/log.entity";
 import { ConfigService } from "@nestjs/config";
 
-jest.mock("../common/utils");
+jest.mock("../common/utils", () => ({
+  ...jest.requireActual("../common/utils"),
+  paginate: jest.fn(),
+}));
 
 describe("TransactionService", () => {
   let transaction;
@@ -635,6 +638,124 @@ describe("TransactionService", () => {
         await service.count({ from: "addr1" });
         expect(counterServiceMock.count).toHaveBeenCalledTimes(1);
         expect(counterServiceMock.count).toHaveBeenCalledWith(Transaction, { from: "addr1" });
+      });
+    });
+  });
+
+  describe("isTransactionVisibleByUser", () => {
+    const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    const user = { address: userAddress };
+
+    describe("when user is the sender", () => {
+      it("returns true", () => {
+        const transaction = {
+          from: userAddress,
+          to: "0x0987654321098765432109876543210987654321",
+        } as Transaction;
+        const result = service.isTransactionVisibleByUser(transaction, [], user);
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("when user is the receiver", () => {
+      it("returns true", () => {
+        const transaction = {
+          from: "0x1234567890123456789012345678901234567890",
+          to: userAddress,
+        } as Transaction;
+        const result = service.isTransactionVisibleByUser(transaction, [], user);
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("when user address is in log topics", () => {
+      const paddedAddress = "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
+      let transaction: Transaction;
+
+      beforeEach(() => {
+        transaction = {
+          from: "0x1234567890123456789012345678901234567890",
+          to: "0x0987654321098765432109876543210987654321",
+        } as Transaction;
+      });
+
+      it("returns true when user address is in topic[1]", () => {
+        const logs = [
+          {
+            topics: ["0xtopic0", paddedAddress, "0xtopic2"],
+          } as Log,
+        ];
+        const result = service.isTransactionVisibleByUser(transaction, logs, user);
+        expect(result).toBe(true);
+      });
+
+      it("returns true when user address is in topic[2]", () => {
+        const logs = [
+          {
+            topics: ["0xtopic0", "0xtopic1", paddedAddress],
+          } as Log,
+        ];
+        const result = service.isTransactionVisibleByUser(transaction, logs, user);
+        expect(result).toBe(true);
+      });
+
+      it("returns true when user address is in topic[3]", () => {
+        const logs = [
+          {
+            topics: ["0xtopic0", "0xtopic1", "0xtopic2", paddedAddress],
+          } as Log,
+        ];
+        const result = service.isTransactionVisibleByUser(transaction, logs, user);
+        expect(result).toBe(true);
+      });
+
+      it("returns true with case-insensitive address matching", () => {
+        const logs = [
+          {
+            topics: ["0xtopic0", paddedAddress.toUpperCase()],
+          } as Log,
+        ];
+        const result = service.isTransactionVisibleByUser(transaction, logs, user);
+        expect(result).toBe(true);
+      });
+
+      it("returns true when user address is in multiple logs", () => {
+        const logs = [
+          {
+            topics: ["0xtopic0", "0xtopic1"],
+          } as Log,
+          {
+            topics: ["0xtopic0", paddedAddress],
+          } as Log,
+        ];
+        const result = service.isTransactionVisibleByUser(transaction, logs, user);
+        expect(result).toBe(true);
+      });
+    });
+
+    describe("when user is not related to the transaction", () => {
+      let transaction: Transaction;
+
+      beforeEach(() => {
+        transaction = {
+          from: "0x1234567890123456789012345678901234567890",
+          to: "0x0987654321098765432109876543210987654321",
+        } as Transaction;
+      });
+
+      it("returns false when user is not sender, receiver, or in logs", () => {
+        const logs = [
+          {
+            topics: ["0xtopic0", "0xothertopic1", "0xothertopic2"],
+          } as Log,
+        ];
+        const result = service.isTransactionVisibleByUser(transaction, logs, user);
+        expect(result).toBe(false);
+      });
+
+      it("returns false when there are no logs", () => {
+        const result = service.isTransactionVisibleByUser(transaction, [], user);
+        expect(result).toBe(false);
       });
     });
   });

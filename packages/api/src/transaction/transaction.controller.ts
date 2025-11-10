@@ -93,12 +93,28 @@ export class TransactionController {
   @ApiBadRequestResponse({ description: "Transaction hash is invalid" })
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
-    @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
+    @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
+    @User() user: UserParam
   ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();
     }
+
+    if (user) {
+      const transactionLogs = await this.logService.findAll(
+        { transactionHash },
+        {
+          page: 1,
+          limit: 10_000, // default max limit used in pagination-enabled endpoints
+        }
+      );
+      if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
+        throw new NotFoundException();
+      }
+      return transactionDetail;
+    }
+
     return transactionDetail;
   }
 
