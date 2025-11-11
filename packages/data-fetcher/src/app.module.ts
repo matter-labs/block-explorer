@@ -13,6 +13,7 @@ import { TransferService } from "./transfer/transfer.service";
 import { TokenService } from "./token/token.service";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
 import { MetricsModule } from "./metrics";
+import { UpgradableService } from "./upgradable/upgradable.service";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { MetricsModule } from "./metrics";
   providers: [
     BlockchainService,
     AddressService,
+    UpgradableService,
     BalanceService,
     TransferService,
     TokenService,
