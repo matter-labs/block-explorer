@@ -88,23 +88,6 @@ Feature: Main Page
       | L2 Token address  |
       | L1 Token address  |
 
-  @id381 @testnet @testnetSmokeSuite
-  Scenario Outline: Verify label "out" for Account info on Account page
-    When I go to page "/address/0xed7175341f123f7718aBaCF1702d6980CFc08784"
-    Then Element with "text" "out" should be "visible"
-
-  @id380 @testnet @testnetSmokeSuite
-  Scenario: Verify label "in" for Account info on Account page
-    Given I go to page "/address/0xed7175341f123f7718aBaCF1702d6980CFc08784"
-    # When I click by text "Show more transactions ->"
-    Then Element with "text" "in" should be "visible"
-
-  @id382 @testnet @testnetSmokeSuite
-  Scenario: Verify label "self" for Account info on Account page
-    Given I go to page "/address/0xed7175341f123f7718aBaCF1702d6980CFc08784"
-    # When I click by text "Show more transactions ->"
-    Then Element with "text" "self" should be "visible"
-
   @id381 @mainnet
   Scenario Outline: Verify label "out" for Account info on Account page
     When I go to page "/address/0x9CE4Feb41669BbD3FAA50EbbB6ffF85FC5Dec16C"
@@ -142,7 +125,7 @@ Feature: Main Page
 
   @id258 @testnet @testnetSmokeSuite
   Scenario Outline: Check data type dropdown for "<Row>" and select "<Value>"
-    Given I go to page "/tx/0x4dca9c536124e5e2b29af17d075c3e55d15f119acf5f3327c9fdb1a3ffeab427"
+    Given I go to page "/tx/0x784153820d71c4a25db5004cb5d7c34814f66c596ce72ff941643c0b09934571"
     When I select "Logs" tab on "Transaction" page
     When I click on datatype dropdown of "<Row>" row
     When I click by text "<Value>"
@@ -178,18 +161,9 @@ Feature: Main Page
       | Data   | Text    |
       | Data   | Address |
 
-  @id587 @testnetSmokeSuite
-  Scenario: Check Processed status component for Transaction page
-    Given I go to the first Processed transaction link
-    Then Verify the badge with "Processed" status is visible
-    Then Verify the badge with "Sending" status is visible
-    Then Sending spinner should be visible
-    Then Element with "text" "Sending" should be "visible"
-    # Then Status component color with "Sending" status should be "grey"
-
   @id588 @testnet @testnetSmokeSuite
   Scenario: Check Processed status component for Transaction page
-    Given I go to page "/tx/0x4dca9c536124e5e2b29af17d075c3e55d15f119acf5f3327c9fdb1a3ffeab427"
+    Given I go to page "/tx/0x784153820d71c4a25db5004cb5d7c34814f66c596ce72ff941643c0b09934571"
     Then Verify the badge with "Processed" status is visible
     Then Verify the badge with "Executed" status is visible
     Then Element with "text" "Executed" should be "visible"
@@ -197,7 +171,7 @@ Feature: Main Page
 
   @id589 @testnet @testnetSmokeSuite
   Scenario: Check Failed status component for Transaction page
-    Given I go to page "/tx/0xd5f436a8f6785ae6d4d21375c5f497e4d0350407582a584a867cd7e01efbbc15"
+    Given I go to page "/tx/0x4ca73e0bd9218eee881377dc75a88803f6c3333b15003a1371266c63d585b5de"
     Then Verify the badge with "Failed" status is visible
     Then Element with "text" "Failed" should be "visible"
     # Then Status component color with "failed" status should be "red"

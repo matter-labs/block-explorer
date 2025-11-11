@@ -89,16 +89,16 @@ Feature: Redirection
   #Transaction page 241 - navigation, 553 - redirection
   @id241 @id553 @id339 @id340 @testnet @testnetSmokeSuite
   Scenario Outline: Verify redirection from Transaction page after "<Artifact type>" click
-    Given I go to page "/tx/0x095ba0e946b09767085c7ddfb0f9ff36fab230fc819b56d41185a3033de27bea"
+    Given I go to page "/tx/0x822f9eeb3c6e03ecd0d3027baafa187e0b96e0cd5e6efd959e2cb73e6322f7f1"
     When I click on the first "<Artifact type>" link
     Given Page with part address "<url>" includes ID result
 
     Examples:
-      | Artifact type     | url        |
-      | block number      | /block/    |
-      | To                | /address/  |
-      | Fee               | /token/  |
-      | Tokens Transferred | /address/ |
+      | Artifact type      | url        |
+      | block number       | /block/    |
+      | To                 | /address/  |
+      | Fee                | /token/    |
+      | Tokens Transferred | /address/  |
 
   @id241 @id553 @id339 @id340 @mainnet 
   Scenario Outline: Verify redirection from Transaction page after "<Artifact type>" click

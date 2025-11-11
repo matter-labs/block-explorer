@@ -15,7 +15,7 @@ export const config = {
   BASE_URL: process.env.TARGET_ENV || "http://localhost:3010",
   mainWindowSize: { width: 1920, height: 1080 },
   artifactsFolder: "tests/e2e/artifacts/",
-  DAPP_NETWORK: process.env.E2ENETWORK || NetworkSwitcher.zkSyncEraMainnet,
+  DAPP_NETWORK: process.env.E2ENETWORK || NetworkSwitcher.zkSyncOSMainnet,
   headless: true,
   slowMo: 10,
   defaultTimeout: { timeout: 5000 },

@@ -79,7 +79,7 @@ Feature: Main Page
 
     Examples:
       | Table               | Number of rows |
-      | Latest Blocks      | 10             |
+      | Latest Blocks       | 10             |
       | Latest Transactions | 10             |
 
   @id101:II @id274:II @testnetSmokeSuite
@@ -91,7 +91,7 @@ Feature: Main Page
       | Latest Transactions | Status           |
       | Latest Transactions | Transaction Hash |
       | Latest Transactions | Age              |
-      | Latest blocks       | Block            |
+      | Latest Blocks       | Block            |
       | Latest Blocks       | Status           |
       | Latest Blocks       | Age              |
 
