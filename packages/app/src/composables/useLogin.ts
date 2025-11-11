@@ -17,6 +17,7 @@ type UseLogin = ToRefs<LoginState> & {
   logout: () => Promise<void>;
   initializeLogin: () => Promise<void>;
   handlePrividiumCallback: () => Promise<void>;
+  switchWallet: (address: string) => Promise<void>;
 };
 
 const state = reactive<LoginState>({
@@ -46,11 +47,10 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
   const initializeLogin = async () => {
     try {
-      const response = await FetchInstance.api(context)<{ address: string }>("/auth/me");
-      if (response.address) {
-        context.user.value = { address: response.address, loggedIn: true };
-      }
-    } catch {
+      const response = await FetchInstance.api(context)<{ address: string; wallets: string[] }>("/auth/me");
+      context.user.value = { address: response.address, wallets: response.wallets, loggedIn: true };
+    } catch (err) {
+      _logger.error("Failed to initialize login:", err);
       await logout();
     }
   };
@@ -76,17 +76,37 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
       if (result && result.token) {
         // Exchange JWT for cookie session
-        const response = await FetchInstance.api(context)("/auth/login", {
+        const response = await FetchInstance.api(context)<{ address: string; wallets: string[] }>("/auth/login", {
           method: "POST",
           body: { token: result.token },
         });
-        context.user.value = { address: response.address, loggedIn: true };
+        context.user.value = { address: response.address, wallets: response.wallets, loggedIn: true };
       }
     } catch (err) {
       _logger.error("Prividium callback failed:", err);
       throw err;
     } finally {
       state.isLoginPending = false;
+    }
+  };
+
+  const switchWallet = async (address: string) => {
+    try {
+      const response = await FetchInstance.api(context)<{ address: string }>("/auth/switch-wallet", {
+        method: "POST",
+        body: { address },
+      });
+
+      // Update the user context with the new address, keeping the wallets array
+      if (context.user.value.loggedIn) {
+        context.user.value = {
+          ...context.user.value,
+          address: response.address,
+        };
+      }
+    } catch (error) {
+      _logger.error("Wallet switch failed:", error);
+      throw error;
     }
   };
 
@@ -111,5 +131,6 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     logout,
     initializeLogin,
     handlePrividiumCallback,
+    switchWallet,
   };
 };

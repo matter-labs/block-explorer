@@ -5,6 +5,7 @@ declare global {
     interface CookieSessionObject {
       token?: string;
       address?: string;
+      wallets?: string[];
     }
   }
 }
