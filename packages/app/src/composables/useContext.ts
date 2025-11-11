@@ -11,7 +11,7 @@ import type { NetworkConfig } from "@/configs";
 import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
 
-export type UserContext = { address: string; loggedIn: true } | { loggedIn: false };
+export type UserContext = { address: string; wallets: string[]; loggedIn: true } | { loggedIn: false };
 
 const network = useStorage("selectedNetwork_v2", DEFAULT_NETWORK.name);
 const isReady = ref(false);

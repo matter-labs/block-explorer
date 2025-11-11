@@ -838,7 +838,8 @@
         "balanceUnavailable": "Balance unavailable",
         "loadingBalance": "Loading balance...",
         "noEthBalance": "ETH balance not found",
-        "wrongNetwork": "Your wallet activated an incorrect network"
+        "wrongNetwork": "Your wallet activated an incorrect network",
+        "switchWallet": "Switch Wallet"
     },
     "loginView": {
         "title": "Login",

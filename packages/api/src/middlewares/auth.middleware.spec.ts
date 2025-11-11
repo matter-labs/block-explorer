@@ -44,6 +44,7 @@ describe("AuthMiddleware", () => {
     req.originalUrl = "/protected";
     req.session = {
       address: "0x36Ea1B6673eA6269014D6cA0AdCca6598f618319",
+      wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
       token: "mock-token",
     };
     const res = mock<Response>();

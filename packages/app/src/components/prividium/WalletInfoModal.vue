@@ -13,6 +13,26 @@
           </span>
         </div>
 
+        <!-- Wallet switcher - only show when multiple wallets are available -->
+        <div v-if="hasMultipleWallets" class="wallet-switcher">
+          <div class="wallet-switcher-title">{{ t("walletInfoModal.switchWallet") }}</div>
+          <div class="wallet-list">
+            <button
+              v-for="wallet in availableWallets"
+              :key="wallet"
+              @click="handleWalletSwitch(wallet)"
+              :disabled="wallet === address || isSwitching"
+              class="wallet-item"
+              :class="{ 'wallet-item-active': wallet === address, 'wallet-item-disabled': isSwitching }"
+            >
+              <span class="wallet-address">
+                {{ `${wallet.substring(0, 6)}...${wallet.substring(wallet.length - 4)}` }}
+              </span>
+              <span v-if="wallet === address" class="active-badge">Active</span>
+            </button>
+          </div>
+        </div>
+
         <button type="button" class="disconnect-ui-btn" @click="logout()">
           {{ t("walletInfoModal.logoutButton") }}
         </button>
@@ -22,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { XIcon } from "@heroicons/vue/outline";
@@ -45,13 +65,41 @@ const props = defineProps({
   },
 });
 
-defineEmits<{
+const emit = defineEmits<{
   (eventName: "close"): void;
 }>();
 
 const { t } = useI18n();
 const context = useContext();
-const { logout } = useLogin(context);
+const { logout, switchWallet } = useLogin(context);
+
+const isSwitching = ref(false);
+
+const availableWallets = computed(() => {
+  if (context.user.value.loggedIn) {
+    return context.user.value.wallets || [];
+  }
+  return [];
+});
+
+const hasMultipleWallets = computed(() => {
+  return availableWallets.value.length > 1;
+});
+
+const handleWalletSwitch = async (newAddress: string) => {
+  if (newAddress === props.address || isSwitching.value) return;
+
+  try {
+    isSwitching.value = true;
+    await switchWallet(newAddress);
+    window.location.href = "/"; // Triggers full reload of the page
+    emit("close");
+  } catch (error) {
+    console.error("Failed to switch wallet:", error);
+  } finally {
+    isSwitching.value = false;
+  }
+};
 
 const formattedAddress = computed(() => {
   if (props.address && props.address.length > 10) {
@@ -118,5 +166,41 @@ const formattedAddress = computed(() => {
 
 .disconnect-ui-btn {
   @apply flex justify-center items-center w-full mt-4 bg-neutral-200 text-black text-lg rounded-xl py-3;
+}
+
+.wallet-switcher {
+  @apply w-full mt-6 mb-2;
+
+  .wallet-switcher-title {
+    @apply font-sans font-medium text-sm leading-5 text-neutral-500 mb-3;
+  }
+
+  .wallet-list {
+    @apply flex flex-col gap-2;
+
+    .wallet-item {
+      @apply flex items-center justify-between px-4 py-3 bg-neutral-50 rounded-lg border border-neutral-200 hover:bg-neutral-100 transition-colors;
+
+      &.wallet-item-active {
+        @apply bg-blue-50 border-blue-300;
+      }
+
+      &.wallet-item-disabled {
+        @apply opacity-50 cursor-not-allowed;
+      }
+
+      &:disabled:not(.wallet-item-active) {
+        @apply hover:bg-neutral-50;
+      }
+
+      .wallet-address {
+        @apply font-mono text-sm text-neutral-700;
+      }
+
+      .active-badge {
+        @apply text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded;
+      }
+    }
+  }
 }
 </style>
