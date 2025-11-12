@@ -1,5 +1,6 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 import { Request } from "express";
+import { AddUserRolesPipe } from "../api/pipes/addUserRoles.pipe";
 
 export type UserParam = {
   address: string;
@@ -7,9 +8,11 @@ export type UserParam = {
 } | null;
 
 /* istanbul ignore next */
-export const User = createParamDecorator<any, any, UserParam>((data: unknown, ctx: ExecutionContext) => {
+const BaseUser = createParamDecorator<any, any, UserParam>((data: unknown, ctx: ExecutionContext) => {
   return userFactory(ctx);
 });
+
+export const User = () => BaseUser(AddUserRolesPipe);
 
 export function userFactory(ctx: ExecutionContext): UserParam {
   const request: Request = ctx.switchToHttp().getRequest();
