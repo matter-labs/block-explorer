@@ -22,7 +22,7 @@ import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
-import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "transactions";
 
@@ -43,7 +43,7 @@ export class TransactionController {
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @User() user: UserWithRoles
   ): Promise<Pagination<TransactionDto>> {
     const userFilters: FilterTransactionsOptions = {};
 
@@ -101,7 +101,7 @@ export class TransactionController {
       throw new NotFoundException();
     }
 
-    if (user) {
+    if (user && !user.isAdmin) {
       const transactionLogs = await this.logService.findAll(
         { transactionHash },
         {
