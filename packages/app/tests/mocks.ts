@@ -4,7 +4,6 @@ import { computed, ref } from "vue";
 
 import { vi } from "vitest";
 
-import * as useBatches from "@/composables/useBatches";
 import * as useBlocks from "@/composables/useBlocks";
 import * as useContext from "@/composables/useContext";
 import * as useContractEvents from "@/composables/useContractEvents";
@@ -17,7 +16,7 @@ import * as useTransfers from "@/composables/useTransfers";
 import * as useWallet from "@/composables/useWallet";
 
 import type { NetworkConfig } from "@/configs";
-import type { Provider } from "zksync-ethers";
+import type { JsonRpcProvider } from "ethers";
 
 import { checksumAddress } from "@/utils/formatters";
 
@@ -84,7 +83,7 @@ export const useWalletMock = (params: any = {}) => {
         l2ChainId: TESTNET_NETWORK.l2ChainId,
         rpcUrl: TESTNET_NETWORK.rpcUrl,
       })),
-      getL2Provider: () => undefined as unknown as Provider,
+      getL2Provider: () => undefined as unknown as JsonRpcProvider,
     }),
     getL2Signer: vi.fn(async () => ({ getAddress: async () => "0x000000000000000000000000000000000000800A" })),
     ...params,
@@ -130,22 +129,9 @@ export const useBlocksMock = (params: any = {}) => {
   });
   return mockBlocks;
 };
-export const useBatchesMock = (params: any = {}) => {
-  const mockBatches = vi.spyOn(useBatches, "default").mockReturnValue({
-    data: ref([]),
-    total: ref(0),
-    load: () => vi.fn(),
-    pending: ref(false),
-    failed: ref(false),
-    page: ref(1),
-    pageSize: ref(10),
-    ...params,
-  });
-  return mockBatches;
-};
 
 export const useTransfersMock = (params: any = {}) => {
-  const mockBatches = vi.spyOn(useTransfers, "default").mockReturnValue({
+  const mockTransfers = vi.spyOn(useTransfers, "default").mockReturnValue({
     data: ref([]),
     load: () => vi.fn(),
     pending: ref(false),
@@ -153,7 +139,7 @@ export const useTransfersMock = (params: any = {}) => {
     pageSize: computed(() => 10),
     ...params,
   });
-  return mockBatches;
+  return mockTransfers;
 };
 
 export const useTransactionsMock = (params: any = {}) => {

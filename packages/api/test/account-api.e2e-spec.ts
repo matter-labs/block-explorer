@@ -3,7 +3,6 @@ import { INestApplication } from "@nestjs/common";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import request from "supertest";
 import { Repository } from "typeorm";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
@@ -24,7 +23,6 @@ describe("Account API (e2e)", () => {
   let transferRepository: Repository<Transfer>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
   let blockRepository: Repository<BlockDetails>;
-  let batchRepository: Repository<BatchDetails>;
   let tokenRepository: Repository<Token>;
   let balanceRepository: Repository<Balance>;
 
@@ -43,24 +41,8 @@ describe("Account API (e2e)", () => {
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     balanceRepository = app.get<Repository<Balance>>(getRepositoryToken(Balance));
-
-    await batchRepository.insert({
-      number: 0,
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      l1TxCount: 10,
-      l2TxCount: 20,
-      l1GasPrice: "10000000",
-      l2FairGasPrice: "20000000",
-      commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
-      commitChainId: 1,
-      proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
-      proveChainId: 1,
-      executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
-      executeChainId: 1,
-    });
 
     for (let i = 1; i <= 2; i++) {
       await blockRepository.insert({
@@ -73,7 +55,6 @@ describe("Account API (e2e)", () => {
         extraData: "0x",
         l1TxCount: 1,
         l2TxCount: 1,
-        l1BatchNumber: 0,
         miner: "0x0000000000000000000000000000000000000000",
       });
     }
@@ -91,7 +72,6 @@ describe("Account API (e2e)", () => {
       transactionIndex: 1,
       blockNumber: 1,
       receivedAt: "2010-11-21T18:16:00.000Z",
-      l1BatchNumber: 0,
       receiptStatus: 0,
       gasLimit: "1000000",
       gasPrice: "100",
@@ -203,7 +183,6 @@ describe("Account API (e2e)", () => {
     await balanceRepository.delete({});
     await tokenRepository.delete({});
     await blockRepository.delete({});
-    await batchRepository.delete({});
     await app.close();
   });
 
@@ -233,13 +212,9 @@ describe("Account API (e2e)", () => {
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
                 blockNumber: "1",
-                commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
-                commitChainId: "1",
                 confirmations: "1",
                 contractAddress: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
                 cumulativeGasUsed: "1100000",
-                executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
-                executeChainId: "1",
                 fee: "10000000000000000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 functionName: "",
@@ -250,11 +225,8 @@ describe("Account API (e2e)", () => {
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
                 isError: "1",
                 isL1Originated: "1",
-                l1BatchNumber: "0",
                 methodId: "0x00000000",
                 nonce: "42",
-                proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
-                proveChainId: "1",
                 timeStamp: "1290363360",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: "1",
@@ -303,7 +275,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -327,7 +298,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -351,7 +321,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -391,7 +360,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -415,7 +383,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -439,7 +406,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -477,7 +443,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -501,7 +466,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -539,7 +503,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",

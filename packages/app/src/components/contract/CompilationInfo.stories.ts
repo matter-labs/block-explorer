@@ -21,11 +21,15 @@ const Template = (args: Args) => ({
 
 const contract: Contract = {
   verificationInfo: {
-    request: {
-      compilerSolcVersion: "0.8.17",
-      compilerZksolcVersion: "v1.3.5",
-      contractName: "SwapRouter",
-      optimizationUsed: true,
+    compilation: {
+      compilerVersion: "0.8.17",
+      fullyQualifiedName: "SwapRouter.sol:SwapRouter",
+      compilerSettings: {
+        optimizer: {
+          enabled: true,
+          runs: 200,
+        },
+      },
     },
   },
 } as Contract;

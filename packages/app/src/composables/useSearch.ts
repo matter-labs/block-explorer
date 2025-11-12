@@ -25,9 +25,9 @@ export default (context = useContext()) => {
         },
         {
           routeParam: { id: param },
-          apiRoute: "batches",
+          apiRoute: "blocks",
           isValid: () => isBlockNumber(param),
-          routeName: "batch",
+          routeName: "block",
           prefetch: true,
         },
         {

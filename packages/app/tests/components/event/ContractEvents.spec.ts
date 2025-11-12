@@ -18,7 +18,6 @@ const contractEvent = {
   address: "0x000000000000000000000000000000000000800a",
   blockHash: "0x58b1af00d17caee971b3d72fb95d769331105d1a54cae586b955639ce6419bc1",
   blockNumber: 12,
-  l1BatchNumber: "0x91982",
   transactionHash: "0x7ca934c36aec488cdfacaf660a9257f471d5207a73467849f677e6d0502696e7",
   transactionIndex: "0x2",
   logIndex: "0x18",

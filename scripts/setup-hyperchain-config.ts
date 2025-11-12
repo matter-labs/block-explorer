@@ -7,7 +7,7 @@ import { parse as parseConnectionString } from "pg-connection-string";
 const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
   networks: [{
     apiUrl: "http://localhost:3020",
-    verificationApiUrl: zkSyncEnvs.API_CONTRACT_VERIFICATION_URL || "",
+    verificationApiUrl: "http://localhost:3020/api",
     hostnames: ["localhost"],
     icon: "/images/icons/zksync-arrows.svg",
     l2ChainId: parseInt(zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK_ID, 10) || "",
@@ -43,7 +43,7 @@ const buildApiConfig = (zkSyncEnvs: { [key: string]: string }) => {
   const dbConfig = parseConnectionString(zkSyncEnvs.DATABASE_URL);
   return {
     DATABASE_URL: `postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/block-explorer`,
-    CONTRACT_VERIFICATION_API_URL: zkSyncEnvs.API_CONTRACT_VERIFICATION_URL || "",
+    CONTRACT_VERIFICATION_API_URL: "http://localhost:3020/api",
   }
 };
 

@@ -1,12 +1,10 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
-import { types } from "zksync-ethers";
+import { type Block } from "ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { BalanceService, Balance } from "../balance/balance.service";
 import { TransactionService, TransactionData } from "../transaction";
-import { Transfer } from "../transfer/interfaces/transfer.interface";
-import { LogService, LogsData } from "../log";
 import {
   BLOCK_PROCESSING_DURATION_METRIC_NAME,
   BALANCES_PROCESSING_DURATION_METRIC_NAME,
@@ -16,11 +14,8 @@ import {
 } from "../metrics";
 
 export interface BlockData {
-  block: types.Block;
-  blockDetails: types.BlockDetails;
+  block: Block;
   transactions: TransactionData[];
-  blockLogs: types.Log[];
-  blockTransfers: Transfer[];
   changedBalances: Balance[];
 }
 
@@ -31,7 +26,6 @@ export class BlockService {
   public constructor(
     private readonly blockchainService: BlockchainService,
     private readonly transactionService: TransactionService,
-    private readonly logService: LogService,
     private readonly balanceService: BalanceService,
     @InjectMetric(BLOCK_PROCESSING_DURATION_METRIC_NAME)
     private readonly processingDurationMetric: Histogram<BlockProcessingMetricLabels>,
@@ -48,35 +42,24 @@ export class BlockService {
 
     this.logger.debug({ message: "Getting block data from the blockchain", blockNumber });
     const stopGetBlockInfoDurationMetric = this.getBlockInfoDurationMetric.startTimer();
-    const [block, blockDetails] = await Promise.all([
+    const [block, blockTraces] = await Promise.all([
       this.blockchainService.getBlock(blockNumber),
-      this.blockchainService.getBlockDetails(blockNumber),
+      this.blockchainService.debugTraceBlock(blockNumber),
     ]);
     stopGetBlockInfoDurationMetric();
 
-    if (!block || !blockDetails) {
+    if (!block) {
       return null;
     }
 
     let blockProcessingStatus = "success";
     let transactions: TransactionData[] = [];
-    let blockLogData: LogsData;
     let changedBalances: Balance[];
-    let blockLogs: types.Log[];
 
     try {
       transactions = await Promise.all(
-        block.transactions.map((transactionHash) => this.transactionService.getData(transactionHash, blockDetails))
+        blockTraces.map((trace) => this.transactionService.getData(trace.txHash, trace.result, block))
       );
-
-      if (block.transactions.length === 0) {
-        blockLogs = await this.blockchainService.getLogs({
-          fromBlock: blockNumber,
-          toBlock: blockNumber,
-        });
-
-        blockLogData = await this.logService.getData(blockLogs, blockDetails);
-      }
 
       const stopBalancesDurationMeasuring = this.balancesProcessingDurationMetric.startTimer();
       this.logger.debug({ message: "Getting balances", blockNumber });
@@ -93,9 +76,6 @@ export class BlockService {
     this.logger.debug({ message: "Successfully generated block data", blockNumber });
     return {
       block,
-      blockDetails,
-      blockLogs: blockLogs || [],
-      blockTransfers: blockLogData?.transfers || [],
       transactions,
       changedBalances: changedBalances || [],
     };

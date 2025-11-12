@@ -11,7 +11,6 @@ import { ApiLogModule } from "./api/log/log.module";
 import { ApiTokenModule } from "./api/token/token.module";
 import { ApiStatsModule } from "./api/stats/stats.module";
 import { TokenModule } from "./token/token.module";
-import { BatchModule } from "./batch/batch.module";
 import { BlockModule } from "./block/block.module";
 import { AddressModule } from "./address/address.module";
 import { BalanceModule } from "./balance/balance.module";
@@ -43,7 +42,6 @@ interface AppModuleConfig {
     TokenModule,
     AddressModule,
     BalanceModule,
-    BatchModule,
     BlockModule,
     TransferModule,
     TransactionModule,

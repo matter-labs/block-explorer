@@ -34,8 +34,6 @@ describe("UseNetworkStats:", () => {
     lastSealedBlock: 15,
     lastVerifiedBlock: 15,
     totalTransactions: 15,
-    lastSealedBatch: 15,
-    lastVerifiedBatch: 15,
   };
 
   it("creates useNetworkStats composable", () => {

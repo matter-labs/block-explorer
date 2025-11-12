@@ -38,43 +38,6 @@ scenarios:
           name: "/stats"
           url: "/stats"
 
-      # BATCHES
-      - get:
-          name: "/batches"
-          url: "/batches"
-          qs:
-            limit: 5
-          capture:
-            json: "$.items"
-            as: "batchItems"
-
-      - loop:
-          - get:
-              name: "/batches with toDate"
-              url: "/batches"
-              qs:
-                toDate: "{{ toDate }}"
-                limit: "{{ limit }}"
-                page: "{{ $randomNumber(1, 100) }}"
-        count: 5
-
-      # - loop:
-      #     - get:
-      #         name: "/batches with toDate and fromDate"
-      #         url: "/batches"
-      #         qs:
-      #           toDate: "{{ toDate }}"
-      #           fromDate: "{{ fromDate }}"
-      #           limit: "{{ limit }}"
-      #           page: "{{ $randomNumber(1, 100) }}"
-      #   count: 5
-
-      - loop:
-          - get:
-              name: "/batches/{batchNumber}"
-              url: "/batches/{{ $loopElement.number }}"
-        over: batchItems
-
       # BLOCKS
       - get:
           name: "/blocks"

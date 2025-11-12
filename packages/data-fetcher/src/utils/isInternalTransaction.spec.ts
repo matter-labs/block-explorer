@@ -1,8 +1,8 @@
-import { types, utils } from "zksync-ethers";
+import { TransactionReceipt } from "ethers";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { TransferType } from "../transfer/transfer.service";
 import isInternalTransaction from "./isInternalTransaction";
-import { BASE_TOKEN_ADDRESS } from "../../src/constants";
+import { BASE_TOKEN_ADDRESS, BOOTLOADER_FORMAL_ADDRESS } from "../../src/constants";
 describe("isInternalTransaction", () => {
   it("returns false when transfer type is not transfer", () => {
     expect(isInternalTransaction({ type: TransferType.Deposit } as Transfer)).toBeFalsy();
@@ -10,7 +10,7 @@ describe("isInternalTransaction", () => {
 
   it("returns false when token is not ETH", () => {
     expect(
-      isInternalTransaction({ type: TransferType.Transfer, tokenAddress: utils.BOOTLOADER_FORMAL_ADDRESS } as Transfer)
+      isInternalTransaction({ type: TransferType.Transfer, tokenAddress: BOOTLOADER_FORMAL_ADDRESS } as Transfer)
     ).toBeFalsy();
   });
 
@@ -26,7 +26,7 @@ describe("isInternalTransaction", () => {
         {
           from: "from",
           to: "TO",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeFalsy();
   });
@@ -43,7 +43,7 @@ describe("isInternalTransaction", () => {
         {
           from: "from2",
           to: "to",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeTruthy();
   });
@@ -60,7 +60,7 @@ describe("isInternalTransaction", () => {
         {
           from: "from",
           to: "to2",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeTruthy();
   });
@@ -77,7 +77,7 @@ describe("isInternalTransaction", () => {
         {
           from: "from2",
           to: "to2",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeTruthy();
   });
@@ -105,7 +105,7 @@ describe("isInternalTransaction", () => {
         {
           from: "from",
           to: null,
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeTruthy();
   });

@@ -11,14 +11,10 @@
   "fee": "0x384126cd04c00",
   "nonce": 24,
   "blockNumber": 2373686,
-  "l1BatchNumber": 589602,
   "blockHash": "0xf8550f7f36b041c82480751bf909e94f766f525683da1c5b419c83ef3d501b01",
   "indexInBlock": 0,
   "initiatorAddress": "0xc2675AE7F35b7d85Ed1E828CCf6D0376B01ADea3",
   "receivedAt": "2022-11-18T10:14:47.358Z",
-  "ethCommitTxHash": "0xf018386cee9c509d79078e3069ad2443eaaee67f4bbbdcaa68ab1abe749b9283",
-  "ethProveTxHash": "0xd697f3e9c8b951786b8f04a4d220dd0dfb49812a642f6a3724721a2d2840b756",
-  "ethExecuteTxHash": "0x3bb60afbcf95702f9ecdc5170d32e24be185c91b94b596c2a888c4a08ffe7e21",
   "erc20Transfers": [
     {
       "tokenInfo": {

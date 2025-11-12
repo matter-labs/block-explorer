@@ -20,14 +20,7 @@ describe("transactionMapper", () => {
       receiptStatus: 1,
       data: "0x",
       fee: "0x0",
-      commitTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b1",
-      commitChainId: 1,
-      proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",
-      proveChainId: 2,
-      executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
-      executeChainId: 3,
       isL1Originated: true,
-      l1BatchNumber: 3,
       transactionReceipt: {
         contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
         cumulativeGasUsed: "1200000",
@@ -42,13 +35,9 @@ describe("transactionMapper", () => {
       expect(mapTransactionListItem(addressTransaction, 100)).toEqual({
         blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
         blockNumber: "20",
-        commitTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b1",
-        commitChainId: "1",
         confirmations: "80",
         contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
         cumulativeGasUsed: "1200000",
-        executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
-        executeChainId: "3",
         fee: "0",
         from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
         functionName: "",
@@ -59,11 +48,8 @@ describe("transactionMapper", () => {
         input: "0x",
         isError: "1",
         isL1Originated: "1",
-        l1BatchNumber: "3",
         methodId: "0x",
         nonce: "1",
-        proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",
-        proveChainId: "2",
         timeStamp: "1672531200",
         to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
         transactionIndex: "10",
@@ -131,24 +117,6 @@ describe("transactionMapper", () => {
           100
         ).isL1Originated
       ).toBe("0");
-    });
-
-    it("handles null values in commit/prove/execute chain id", () => {
-      const result = mapTransactionListItem(
-        {
-          ...addressTransaction,
-          transaction: {
-            ...addressTransaction.transaction,
-            commitChainId: null,
-            proveChainId: null,
-            executeChainId: null,
-          } as Transaction,
-        },
-        100
-      );
-      expect(result.commitChainId).toBeUndefined();
-      expect(result.proveChainId).toBeUndefined();
-      expect(result.executeChainId).toBeUndefined();
     });
   });
 });

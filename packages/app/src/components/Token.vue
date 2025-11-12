@@ -137,8 +137,10 @@ const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   return [];
 });
 
-const contractName = computed(() => props.contract?.verificationInfo?.request.contractName.replace(/.*\.sol:/, ""));
-const contractABI = computed(() => props.contract?.verificationInfo?.artifacts.abi);
+const contractName = computed(() =>
+  props.contract?.verificationInfo?.compilation.fullyQualifiedName.replace(/.*\.sol:/, "")
+);
+const contractABI = computed(() => props.contract?.verificationInfo?.abi);
 
 const transactionsSearchParams = computed(() => ({
   address: props.contract?.address,

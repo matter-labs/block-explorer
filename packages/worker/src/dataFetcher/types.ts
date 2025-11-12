@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { type Block, type TransactionResponse, type TransactionReceipt } from "ethers";
 import { TokenType } from "../entities/token.entity";
 import { TransferType } from "../entities/transfer.entity";
 
@@ -62,7 +62,7 @@ export interface LogsData {
 
 export interface TransactionInfo
   extends Modify<
-    types.TransactionResponse,
+    TransactionResponse,
     {
       gasPrice: string;
       maxPriorityFeePerGas: string;
@@ -71,31 +71,28 @@ export interface TransactionInfo
       value: string;
     }
   > {
-  // TransactionDetails fields
-  fee: string;
-  receiptStatus: number;
-  isL1Originated: boolean;
-  receivedAt: string;
   error?: string;
   revertReason?: string;
 }
 
-export type TransactionReceipt = Modify<
-  types.TransactionReceipt,
+export type TransactionReceiptInfo = Modify<
+  TransactionReceipt,
   {
     gasUsed: string;
-    cumulativeGasUsed: string;
     gasPrice: string;
   }
 >;
 
-export interface TransactionData extends LogsData {
+export interface TransactionData {
   transaction: TransactionInfo;
-  transactionReceipt: TransactionReceipt;
+  transactionReceipt: TransactionReceiptInfo;
+  contractAddresses: ContractAddress[];
+  tokens?: Token[];
+  transfers: Transfer[];
 }
 
-export type Block = Modify<
-  types.Block,
+export type BlockInfo = Modify<
+  Block,
   {
     gasLimit: string;
     gasUsed: string;
@@ -104,10 +101,7 @@ export type Block = Modify<
 >;
 
 export interface BlockData {
-  block: Block;
-  blockDetails: types.BlockDetails;
+  block: BlockInfo;
   transactions: TransactionData[];
-  blockLogs: types.Log[];
-  blockTransfers: Transfer[];
   changedBalances: Balance[];
 }

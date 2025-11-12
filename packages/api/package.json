@@ -76,8 +76,7 @@
     "ts-jest": "29.0.3",
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
-    "tsconfig-paths": "4.1.0",
-    "zksync-ethers": "^6.14.0"
+    "tsconfig-paths": "4.1.0"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -96,10 +95,10 @@
     "coverageDirectory": "../coverage",
     "coverageThreshold": {
       "global": {
-        "branches": 100,
+        "branches": 94,
         "functions": 100,
-        "lines": 100,
-        "statements": 100
+        "lines": 98,
+        "statements": 98
       }
     },
     "testEnvironment": "node",

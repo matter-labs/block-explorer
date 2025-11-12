@@ -56,18 +56,10 @@ const transaction: TransactionListItem = {
   fee: "0x3b9329f2a880",
   nonce: 69,
   blockNumber: 6539779,
-  l1BatchNumber: 74373,
   blockHash: "0x5ad6b0475a6bdff6007e62adec0ceed0796fb427fe8f4de310432a52e118800b",
   transactionIndex: 5,
   receivedAt: "2023-06-20T12:10:44.187Z",
   status: "included",
-  commitTxHash: null,
-  executeTxHash: null,
-  proveTxHash: null,
-  commitChainId: null,
-  proveChainId: null,
-  executeChainId: null,
-  isL1BatchSealed: false,
   gasPrice: "4000",
   gasLimit: "5000",
   gasUsed: "3000",
@@ -159,8 +151,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders sent status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Sent on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 
@@ -184,8 +176,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders validated status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Validated on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 
@@ -209,8 +201,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders executed status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Executed on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 

@@ -1,4 +1,3 @@
-export * from "./batch.repository";
 export * from "./block.repository";
 export * from "./transaction.repository";
 export * from "./addressTransaction.repository";

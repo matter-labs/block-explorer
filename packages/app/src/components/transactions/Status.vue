@@ -19,16 +19,9 @@
         <template #precontent v-if="item.finishedStatuses?.length">
           <ol v-for="(finishedStatus, index) in item.finishedStatuses" :key="index">
             <li>
-              <a
-                :href="
-                  finishedStatus.explorerUrl ? `${finishedStatus.explorerUrl}/tx/${finishedStatus.url}` : undefined
-                "
-                class="badge-status-link"
-                target="_blank"
-              >
+              <span class="badge-status-link">
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="finishedStatus.explorerUrl" class="badge-status-link-icon" />
-              </a>
+              </span>
             </li>
           </ol>
         </template>
@@ -36,16 +29,7 @@
           <component :is="item.icon" size="xs" :color="item.iconColor" />
         </template>
         <template #default v-if="item.text">
-          <a
-            v-if="item.url"
-            :href="item.explorerUrl ? `${item.explorerUrl}/tx/${item.url}` : undefined"
-            class="badge-status-link"
-            target="_blank"
-          >
-            <span class="badge-status-link-text"><CheckIcon />{{ item.text }}</span>
-            <ExternalLinkIcon v-if="item.explorerUrl" class="badge-status-link-icon" />
-          </a>
-          <span v-else>{{ item.text }}</span>
+          <span>{{ item.text }}</span>
         </template>
         <template #postcontent v-if="item.remainingStatuses?.length">
           <ol v-for="(remainingStatus, index) in item.remainingStatuses" :key="index">
@@ -79,10 +63,7 @@
           <component :is="item.icon" size="xs" :color="item.iconColor" />
         </template>
         <template #default v-if="item.text">
-          <span v-if="item.url" class="badge-status-link">
-            <span class="badge-status-link-text"><CheckIcon />{{ item.text }}</span>
-          </span>
-          <span v-else>{{ item.text }}</span>
+          <span>{{ item.text }}</span>
         </template>
       </Badge>
       <InfoTooltip v-if="item.infoTooltip" class="info-tooltip">
@@ -104,29 +85,12 @@
               v-for="(finishedStatus, index) in item.finishedStatuses"
               :key="index"
             >
-              <a
-                :href="
-                  finishedStatus.explorerUrl ? `${finishedStatus.explorerUrl}/tx/${finishedStatus.url}` : undefined
-                "
-                class="badge-status-link"
-                target="_blank"
-              >
+              <span class="badge-status-link">
                 <span class="badge-status-link-text"><CheckIcon />{{ finishedStatus.text }}</span>
-                <ExternalLinkIcon v-if="finishedStatus.explorerUrl" class="badge-status-link-icon" />
-              </a>
+              </span>
             </div>
 
-            <div v-if="item.url" class="badge-status-popup-button status-active">
-              <a
-                :href="item.explorerUrl ? `${item.explorerUrl}/tx/${item.url}` : undefined"
-                class="badge-status-link"
-                target="_blank"
-              >
-                <span class="badge-status-link-text status-next"><CheckIcon />{{ item.text }}</span>
-                <ExternalLinkIcon v-if="item.explorerUrl" class="badge-status-link-icon" />
-              </a>
-            </div>
-            <div v-else class="badge-status-popup-button status-current">
+            <div class="badge-status-popup-button status-current">
               <span class="badge-status-link-text"><Spinner></Spinner>{{ item.text }}</span>
             </div>
 
@@ -148,7 +112,7 @@
 import { computed, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { CheckIcon, ExclamationCircleIcon, ExternalLinkIcon, XIcon } from "@heroicons/vue/outline";
+import { CheckIcon, ExclamationCircleIcon, XIcon } from "@heroicons/vue/outline";
 import { OnClickOutside } from "@vueuse/components";
 
 import Badge from "@/components/common/Badge.vue";
@@ -156,39 +120,11 @@ import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import Popup from "@/components/common/Popup.vue";
 import Spinner from "@/components/common/Spinner.vue";
 
-import useContext from "@/composables/useContext";
-
 import type { TransactionStatus } from "@/composables/useTransaction";
-
-const { getSettlementChainExplorerUrl, getSettlementChainName } = useContext();
 
 const props = defineProps({
   status: {
     type: String as PropType<TransactionStatus>,
-    required: true,
-  },
-  commitTxHash: {
-    type: [String, null] as PropType<string | null>,
-    required: true,
-  },
-  proveTxHash: {
-    type: [String, null] as PropType<string | null>,
-    required: true,
-  },
-  executeTxHash: {
-    type: [String, null] as PropType<string | null>,
-    required: true,
-  },
-  commitChainId: {
-    type: [Number, null] as PropType<number | null>,
-    required: true,
-  },
-  proveChainId: {
-    type: [Number, null] as PropType<number | null>,
-    required: true,
-  },
-  executeChainId: {
-    type: [Number, null] as PropType<number | null>,
     required: true,
   },
 });
@@ -205,34 +141,23 @@ function showStatusPopup() {
 
 const { t } = useI18n();
 
-type RemainingStatus = {
+type TxStatus = {
   text: string;
 };
 
-type FinishedStatus = RemainingStatus & {
-  url: string | null;
-  explorerUrl?: string;
-};
-
-const finishedTxStatuses: FinishedStatus[] = [
+const finishedTxStatuses: TxStatus[] = [
   {
     text: t("transactions.statusComponent.sent"),
-    url: props.commitTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.commitChainId),
   },
   {
     text: t("transactions.statusComponent.validated"),
-    url: props.proveTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.proveChainId),
   },
   {
     text: t("transactions.statusComponent.executed"),
-    url: props.executeTxHash,
-    explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
   },
 ];
 
-const remainingTxStatuses: RemainingStatus[] = [
+const remainingTxStatuses: TxStatus[] = [
   {
     text: t("transactions.statusComponent.validating"),
   },
@@ -251,10 +176,8 @@ const badges = computed(() => {
     testId: string;
     textColor?: "neutral";
     iconColor?: "dark-neutral";
-    finishedStatuses?: FinishedStatus[];
-    remainingStatuses?: RemainingStatus[];
-    url?: string | null;
-    explorerUrl?: string;
+    finishedStatuses?: TxStatus[];
+    remainingStatuses?: TxStatus[];
     withDetailedPopup?: boolean;
   }[] = [];
   if (props.status === "failed") {
@@ -270,7 +193,7 @@ const badges = computed(() => {
   badgesArr.push({
     testId: "l2-badge-title",
     color: "success",
-    text: t("general.l2NetworkName"),
+    text: t("general.execution"),
     textColor: "neutral",
   });
   badgesArr.push({
@@ -293,24 +216,22 @@ const badges = computed(() => {
   badgesArr.push({
     testId: "l1-badge-title",
     color: props.status === "verified" ? "success" : "neutral",
-    text: getSettlementChainName(props.commitChainId, props.commitTxHash),
+    text: t("general.finality"),
     textColor: "neutral",
   });
-
   if (props.status === "verified") {
     badgesArr.push({
       testId: "verified",
       color: "dark-success",
       text: t("transactions.statusComponent.executed"),
       finishedStatuses: [finishedTxStatuses[0], finishedTxStatuses[1]],
-      url: props.executeTxHash,
-      explorerUrl: getSettlementChainExplorerUrl(props.executeChainId),
       withDetailedPopup: true,
+      icon: CheckIcon,
     });
   } else {
     let textKey;
-    const finishedStatuses: FinishedStatus[] = [];
-    const remainingStatuses: RemainingStatus[] = [];
+    const finishedStatuses: TxStatus[] = [];
+    const remainingStatuses: TxStatus[] = [];
 
     if (props.status === "committed") {
       textKey = "validating";

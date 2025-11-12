@@ -9,7 +9,7 @@ import { HealthModule } from "./health/health.module";
 import { AppService } from "./app.service";
 import { BlockchainService } from "./blockchain";
 import { BlocksRevertService } from "./blocksRevert";
-import { BatchService } from "./batch";
+import { BlockStatusService } from "./blockStatus";
 import { BlockProcessor, BlockWatcher, BlockService } from "./block";
 import { TransactionProcessor } from "./transaction";
 import { BalanceService, BalancesCleanerService } from "./balance";
@@ -20,7 +20,6 @@ import { PortalsFiTokenOffChainDataProvider } from "./token/tokenOffChainData/pr
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import { CounterModule } from "./counter/counter.module";
 import {
-  BatchRepository,
   BlockRepository,
   TransactionRepository,
   AddressTransactionRepository,
@@ -33,7 +32,6 @@ import {
   BalanceRepository,
 } from "./repositories";
 import {
-  Batch,
   Block,
   Transaction,
   AddressTransaction,
@@ -70,7 +68,6 @@ import { SystemContractService } from "./contract/systemContract.service";
       },
     }),
     TypeOrmModule.forFeature([
-      Batch,
       Block,
       Transaction,
       AddressTransaction,
@@ -111,7 +108,6 @@ import { SystemContractService } from "./contract/systemContract.service";
       inject: [ConfigService, HttpService],
     },
     TokenOffChainDataSaverService,
-    BatchRepository,
     BlockRepository,
     TransactionRepository,
     AddressTransactionRepository,
@@ -123,7 +119,7 @@ import { SystemContractService } from "./contract/systemContract.service";
     BalanceRepository,
     LogRepository,
     BlocksRevertService,
-    BatchService,
+    BlockStatusService,
     BlockProcessor,
     TransactionProcessor,
     BlockWatcher,

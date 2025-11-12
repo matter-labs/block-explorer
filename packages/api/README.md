@@ -25,6 +25,7 @@ You need to have a running Worker database, for instructions on how to run the w
   - `DATABASE_CONNECTION_IDLE_TIMEOUT_MS`
   - `DATABASE_CONNECTION_POOL_SIZE`
 - Set `CONTRACT_VERIFICATION_API_URL` to your verification API URL. For ZKsync Era testnet use `https://zksync2-testnet-explorer.zksync.dev`. For ZKsync Era mainnet - `https://zksync2-mainnet-explorer.zksync.io`.
+- Set `CHAIN_ID` to your chain id.
 
 ## Custom base token configuration
 For networks with a custom base token, there are a number of environment variables used to configure custom base and ETH tokens:

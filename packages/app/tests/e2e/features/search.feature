@@ -30,14 +30,14 @@ Feature: Search field
 
   #Block Numbers
   @id218
-  Scenario: Search correct batch number
+  Scenario: Search correct block number
     Given I fill the search field by "1"
     When I press search button
-    Then Current page have "/batch/1" address
-    Then Title contains text "Batch # 1 "
+    Then Current page have "/block/1" address
+    Then Title contains text "Block # 1 "
 
   @id217
-  Scenario Outline: Search incorrect batch number with "<Value>"
+  Scenario Outline: Search incorrect block number with "<Value>"
     Given I fill the search field by "<Value>"
     When I press search button
     Then Search field color should be red
@@ -49,7 +49,7 @@ Feature: Search field
       | 341$44  |
 
   @id227
-  Scenario: Search random batch number/inexistent
+  Scenario: Search random block number/inexistent
     Given I fill the search field by "341844341844"
     When I press search button
     Then Element with "text" "Oops, we can’t find anything" should be "visible"

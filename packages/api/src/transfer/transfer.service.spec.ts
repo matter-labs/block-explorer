@@ -289,7 +289,6 @@ describe("TransferService", () => {
           "transaction.gasPrice",
           "transaction.data",
           "transaction.fee",
-          "transaction.l1BatchNumber",
           "transaction.type",
         ]);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
@@ -454,7 +453,6 @@ describe("TransferService", () => {
           "transaction.gasPrice",
           "transaction.data",
           "transaction.fee",
-          "transaction.l1BatchNumber",
           "transaction.type",
         ]);
         expect(addressTransfersQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
@@ -586,7 +584,6 @@ describe("TransferService", () => {
           "transaction.receiptStatus",
           "transaction.gasLimit",
           "transaction.fee",
-          "transaction.l1BatchNumber",
           "transaction.type",
         ]);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
@@ -702,7 +699,6 @@ describe("TransferService", () => {
           "transaction.receiptStatus",
           "transaction.gasLimit",
           "transaction.fee",
-          "transaction.l1BatchNumber",
           "transaction.type",
         ]);
         expect(addressTransfersQueryBuilderMock.leftJoin).toHaveBeenCalledWith(

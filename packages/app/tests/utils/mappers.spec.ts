@@ -20,7 +20,6 @@ describe("mappers:", () => {
         data: "0x00000000000000000000000000000000000000000000000000000033ef3c4feb",
         blockHash: "0xd2a12062d1ebb1dedad2fd378ba91c90c59a061a1938657e3ab6c508130d0124",
         blockNumber: "0x2e3099",
-        l1BatchNumber: "0x92bab",
         transactionHash: "0x34c62716d99068c6a7742cc74fe9c0020d7a600a67ea2d8a216ab93182995a90",
         transactionIndex: "0x0",
         logIndex: "0x4",

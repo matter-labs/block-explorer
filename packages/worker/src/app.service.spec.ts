@@ -7,9 +7,9 @@ import { DataSource } from "typeorm";
 import { AppService } from "./app.service";
 import { BalancesCleanerService } from "./balance";
 import { CounterService } from "./counter";
-import { BatchService } from "./batch";
 import { BlockService } from "./block";
 import { BlocksRevertService } from "./blocksRevert";
+import { BlockStatusService } from "./blockStatus";
 import { TokenService } from "./token/token.service";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
@@ -35,9 +35,9 @@ describe("AppService", () => {
   let appService: AppService;
   let balancesCleanerService: BalancesCleanerService;
   let counterService: CounterService;
-  let batchService: BatchService;
   let blockService: BlockService;
   let blocksRevertService: BlocksRevertService;
+  let blockStatusService: BlockStatusService;
   let tokenOffChainDataSaverService: TokenOffChainDataSaverService;
   let dataSourceMock: DataSource;
   let configServiceMock: ConfigService;
@@ -53,16 +53,16 @@ describe("AppService", () => {
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
-    batchService = mock<BatchService>({
-      start: jest.fn().mockResolvedValue(null),
-      stop: jest.fn().mockResolvedValue(null),
-    });
     blockService = mock<BlockService>({
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
     blocksRevertService = mock<BlocksRevertService>({
       handleRevert: jest.fn().mockResolvedValue(null),
+    });
+    blockStatusService = mock<BlockStatusService>({
+      start: jest.fn().mockResolvedValue(null),
+      stop: jest.fn().mockResolvedValue(null),
     });
     tokenOffChainDataSaverService = mock<TokenOffChainDataSaverService>({
       start: jest.fn().mockResolvedValue(null),
@@ -93,16 +93,16 @@ describe("AppService", () => {
           useValue: counterService,
         },
         {
-          provide: BatchService,
-          useValue: batchService,
-        },
-        {
           provide: BlockService,
           useValue: blockService,
         },
         {
           provide: BlocksRevertService,
           useValue: blocksRevertService,
+        },
+        {
+          provide: BlockStatusService,
+          useValue: blockStatusService,
         },
         {
           provide: TokenOffChainDataSaverService,
@@ -160,14 +160,6 @@ describe("AppService", () => {
       expect(counterService.stop).toBeCalledTimes(1);
     });
 
-    it("starts batch service", async () => {
-      appService.onModuleInit();
-      await migrationsRunFinished;
-      expect(batchService.start).toBeCalledTimes(1);
-      appService.onModuleDestroy();
-      expect(batchService.stop).toBeCalledTimes(1);
-    });
-
     it("starts block service", async () => {
       appService.onModuleInit();
       await migrationsRunFinished;
@@ -188,14 +180,6 @@ describe("AppService", () => {
       appService.onModuleInit();
       await migrationsRunFinished;
       expect(tokenOffChainDataSaverService.start).not.toBeCalled();
-      appService.onModuleDestroy();
-    });
-
-    it("does not start batches service when disableBatchesProcessing is true", async () => {
-      (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
-      await migrationsRunFinished;
-      expect(batchService.start).not.toBeCalled();
       appService.onModuleDestroy();
     });
 
@@ -256,11 +240,6 @@ describe("AppService", () => {
       expect(counterService.stop).toBeCalledTimes(1);
     });
 
-    it("stops batch service", async () => {
-      appService.onModuleDestroy();
-      expect(batchService.stop).toBeCalledTimes(1);
-    });
-
     it("stops block service", async () => {
       appService.onModuleDestroy();
       expect(blockService.stop).toBeCalledTimes(1);
@@ -286,7 +265,6 @@ describe("AppService", () => {
       await app.init();
 
       expect(blockService.stop).toBeCalledTimes(1);
-      expect(batchService.stop).toBeCalledTimes(1);
       expect(counterService.stop).toBeCalledTimes(1);
       expect(balancesCleanerService.stop).toBeCalledTimes(1);
       expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
@@ -294,7 +272,6 @@ describe("AppService", () => {
       expect(blocksRevertService.handleRevert).toBeCalledWith(blockNumber);
 
       expect(blockService.start).toBeCalledTimes(2);
-      expect(batchService.start).toBeCalledTimes(2);
       expect(counterService.start).toBeCalledTimes(2);
       expect(balancesCleanerService.start).toBeCalledTimes(2);
       expect(tokenOffChainDataSaverService.start).toBeCalledTimes(2);

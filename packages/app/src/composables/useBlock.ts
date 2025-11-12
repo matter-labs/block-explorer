@@ -8,26 +8,14 @@ import useContext from "@/composables/useContext";
 
 import type { Hash } from "@/types";
 
-export type BlockStatus = "sealed" | "verified";
+export type BlockStatus = "sealed" | "committed" | "proven" | "executed";
 export type Block = {
   number: number;
   status: BlockStatus;
   hash: Hash;
-  commitTxHash: null | Hash;
-  l1BatchNumber: number;
-  isL1BatchSealed: boolean;
-  executeTxHash: null | Hash;
-  proveTxHash: null | Hash;
-  committedAt: null | string;
-  executedAt: null | string;
-  provenAt: null | string;
-  commitChainId: number | null;
-  proveChainId: number | null;
-  executeChainId: number | null;
   l1TxCount: number;
   l2TxCount: number;
   timestamp: string;
-  isProvenByNewProver?: boolean;
 };
 
 export type BlockListItem = {
@@ -35,12 +23,10 @@ export type BlockListItem = {
   hash: Hash;
   timestamp: string;
   gasUsed: string;
-  l1BatchNumber: number;
   l1TxCount: number;
   l2TxCount: number;
   size: number;
   status: BlockStatus;
-  isL1BatchSealed: boolean;
 };
 
 export default (context = useContext()) => {

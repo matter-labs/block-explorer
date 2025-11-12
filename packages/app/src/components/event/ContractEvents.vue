@@ -115,7 +115,7 @@ watch(
         pageSize: pageSize.value,
         toDate: toDate,
       },
-      props.contract.verificationInfo?.artifacts.abi
+      props.contract.verificationInfo?.abi
     );
   },
   { immediate: true }

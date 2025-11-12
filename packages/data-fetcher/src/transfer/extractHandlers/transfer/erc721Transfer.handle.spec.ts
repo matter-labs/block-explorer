@@ -1,4 +1,4 @@
-import { types } from "zksync-ethers";
+import { Block, Log } from "ethers";
 import { mock } from "jest-mock-extended";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { ZERO_HASH_64 } from "../../../constants";
@@ -7,11 +7,11 @@ import { TokenType } from "../../../token/token.service";
 import { erc721TransferHandler } from "./erc721Transfer.handler";
 
 describe("erc721TransferHandler", () => {
-  let log: types.Log;
-  let blockDetails: types.BlockDetails;
+  let log: Log;
+  let blockDetails: Block;
   let blockchainService: BlockchainService;
   beforeEach(() => {
-    log = mock<types.Log>({
+    log = mock<Log>({
       transactionIndex: 0,
       blockNumber: 3459471,
       transactionHash: "0x6bedb809e97f58d987aea7aad4fcfa8a3f5ecc3cde9a97093b2f3a1a170692a0",
@@ -26,7 +26,7 @@ describe("erc721TransferHandler", () => {
       index: 1,
       blockHash: "0xfe02bd556b7abf14d1c92e823ed5b3b8d5067f94115531301f6ac5ebb7488a7e",
     });
-    blockDetails = mock<types.BlockDetails>({
+    blockDetails = mock<Block>({
       timestamp: new Date().getTime() / 1000,
     });
     blockchainService = mock<BlockchainService>();
@@ -34,12 +34,12 @@ describe("erc721TransferHandler", () => {
 
   describe("matches", () => {
     it("returns true if transfer event is a ERC721 transfer event", () => {
-      const result = erc721TransferHandler.matches(log);
+      const result = erc721TransferHandler.matches(log, null);
       expect(result).toBe(true);
     });
 
     it("returns false if transfer event is a ERC20 transfer event", () => {
-      log = mock<types.Log>({
+      log = mock<Log>({
         ...log,
         topics: [
           "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
@@ -47,7 +47,7 @@ describe("erc721TransferHandler", () => {
           "0x000000000000000000000000d754ff5e8a6f257e162f72578a4bb0493c0681d8",
         ],
       });
-      const result = erc721TransferHandler.matches(log);
+      const result = erc721TransferHandler.matches(log, null);
       expect(result).toBe(false);
     });
   });
@@ -59,7 +59,7 @@ describe("erc721TransferHandler", () => {
     });
 
     it("extracts transfer with from equals to `to` address if from log address is a zero address", async () => {
-      log = mock<types.Log>({
+      log = mock<Log>({
         ...log,
         topics: log.topics.map((val, index) => (index === 1 ? ZERO_HASH_64 : val)),
       });
@@ -114,7 +114,7 @@ describe("erc721TransferHandler", () => {
     });
 
     it("extracts transfer of mint type if from address is a zero address", async () => {
-      log = mock<types.Log>({
+      log = mock<Log>({
         ...log,
         topics: log.topics.map((val, index) => (index === 1 ? ZERO_HASH_64 : val)),
       });
@@ -135,17 +135,6 @@ describe("erc721TransferHandler", () => {
     it("extracts transfer with block timestamp", async () => {
       const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.timestamp).toEqual(new Date(blockDetails.timestamp * 1000));
-    });
-
-    describe("when transaction details are specified", () => {
-      const receivedAt = new Date();
-      const transactionDetails = mock<types.TransactionDetails>();
-      transactionDetails.receivedAt = receivedAt;
-
-      it("extracts transfer with timestamp equals to transaction receivedAt", async () => {
-        const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails, transactionDetails);
-        expect(result.timestamp).toBe(receivedAt);
-      });
     });
   });
 });

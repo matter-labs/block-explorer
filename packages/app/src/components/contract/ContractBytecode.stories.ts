@@ -29,51 +29,53 @@ const contract: Contract = {
   createdInBlockNumber: 142622,
   isEvmLike: false,
   verificationInfo: {
-    artifacts: {
-      abi: [
-        {
-          inputs: [],
-          name: "get",
-          outputs: [
-            {
-              internalType: "uint256",
-              name: "",
-              type: "uint256",
-            },
-          ],
-          stateMutability: "view",
-          type: "function",
+    abi: [
+      {
+        inputs: [],
+        name: "get",
+        outputs: [
+          {
+            internalType: "uint256",
+            name: "",
+            type: "uint256",
+          },
+        ],
+        stateMutability: "view",
+        type: "function",
+      },
+      {
+        inputs: [
+          {
+            internalType: "uint256",
+            name: "x",
+            type: "uint256",
+          },
+        ],
+        name: "increment",
+        outputs: [],
+        stateMutability: "nonpayable",
+        type: "function",
+      },
+    ],
+    compilation: {
+      language: "Solidity",
+      compilerVersion: "0.8.17",
+      fullyQualifiedName: "Counter.sol:Counter",
+      compilerSettings: {
+        optimizer: {
+          enabled: true,
+          runs: 200,
         },
-        {
-          inputs: [
-            {
-              internalType: "uint256",
-              name: "x",
-              type: "uint256",
-            },
-          ],
-          name: "increment",
-          outputs: [],
-          stateMutability: "nonpayable",
-          type: "function",
-        },
-      ],
-      bytecode: [
-        0, 0, 0, 46, 4, 0, 0, 65, 0, 0, 0, 0, 1, 65, 1, 111, 0, 0, 0, 47, 4, 0, 0, 65, 0, 0, 0, 0, 0, 20, 3, 118, 0, 0,
-        0, 48, 1, 0, 0, 65, 0, 0, 0, 0, 0, 33, 3, 118, 0, 0, 0, 1, 1, 48, 1, 143, 0, 0, 0, 0, 1, 1, 0, 75, 0, 0, 0, 17,
-      ],
+      },
     },
-    request: {
-      compilerSolcVersion: "v1.1.0",
-      constructorArguments: "0x",
-      contractAddress: "0x9c85ac2d94a722e56027db3db728005b29059fc9",
-      contractName: "Counter",
-      id: 10,
-      optimizationUsed: true,
-      sourceCode:
-        "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity ^0.8.0;\n\ncontract Counter {\n    uint256 value;\n\n    function increment(uint256 x) public {\n        value += x;\n    }\n\n    function get() public view returns (uint256) {\n        return value;\n    }\n}\n",
+    sources: {
+      "Counter.sol:Counter": {
+        content:
+          "// SPDX-License-Identifier: UNLICENSED\n\npragma solidity ^0.8.0;\n\ncontract Counter {\n    uint256 value;\n\n    function increment(uint256 x) public {\n        value += x;\n    }\n\n    function get() public view returns (uint256) {\n        return value;\n    }\n}\n",
+      },
     },
     verifiedAt: "2022-06-13T14:15:24.492984Z",
+    match: "exact_match",
   },
   balances: {},
   totalTransactions: 0,

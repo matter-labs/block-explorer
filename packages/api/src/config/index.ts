@@ -2,6 +2,7 @@ import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
 import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
 import { z } from "zod";
+import { getDatabaseConnectionOptions, getDatabaseConfig } from "./database.config";
 
 const INVALID_PERMISSIONS_API_URL_MSG = "PRIVIDIUM_PERMISSIONS_API_URL has to be a valid url";
 const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
@@ -93,12 +94,13 @@ export default () => {
     PORT,
     METRICS_PORT,
     COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL,
-    DATABASE_URL,
     DATABASE_CONNECTION_POOL_SIZE,
     DATABASE_CONNECTION_IDLE_TIMEOUT_MS,
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
+    CHAIN_ID,
+    PRIVIDIUM_ADMIN_ROLE_NAME,
     PRIVIDIUM_APP_URL,
     PRIVIDIUM_PERMISSIONS_API_URL,
     PRIVIDIUM_SESSION_MAX_AGE,
@@ -123,13 +125,27 @@ export default () => {
   };
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
-    const master = { url: DATABASE_URL || "postgres://postgres:postgres@127.0.0.1:5432/block-explorer" };
+    const dbOptions = getDatabaseConnectionOptions();
+    const dbConfig = getDatabaseConfig();
+
+    // When SSL is enabled, use individual connection params instead of URL
+    // because TypeORM doesn't properly apply SSL config with URL
+    const connectionConfig = dbOptions.ssl
+      ? {
+          host: dbConfig.host,
+          port: dbConfig.port,
+          username: dbConfig.username,
+          password: dbConfig.password,
+          database: dbConfig.database,
+        }
+      : { url: dbOptions.url };
+
     const replicaSet = getDatabaseReplicaSet();
 
     return {
       type: "postgres",
       ...(!replicaSet.length && {
-        ...master,
+        ...connectionConfig,
       }),
       ...(replicaSet.length && {
         replication: {
@@ -142,10 +158,12 @@ export default () => {
           slaves: replicaSet,
         },
       }),
+      ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
       poolSize: parseInt(DATABASE_CONNECTION_POOL_SIZE, 10) || 300,
       extra: {
         idleTimeoutMillis: parseInt(DATABASE_CONNECTION_IDLE_TIMEOUT_MS, 10) || 60000,
         statement_timeout: parseInt(DATABASE_STATEMENT_TIMEOUT_MS, 10) || 90_000,
+        ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
       },
       synchronize: NODE_ENV === "test",
       logging: false,
@@ -165,6 +183,7 @@ export default () => {
       {
         permissionsApiUrl: z.string({ message: INVALID_PERMISSIONS_API_URL_MSG }).url(INVALID_PERMISSIONS_API_URL_MSG),
         sessionSecret: z.string({ message: PRIVIDIUM_SESSION_SECRET_MSG }).nonempty(PRIVIDIUM_SESSION_SECRET_MSG),
+        adminRoleName: z.string().default("admin"),
         sessionMaxAge: z.coerce
           .number({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
           .int({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
@@ -182,6 +201,7 @@ export default () => {
     );
 
     const result = prividiumSchema.safeParse({
+      adminRoleName: PRIVIDIUM_ADMIN_ROLE_NAME,
       permissionsApiUrl: PRIVIDIUM_PERMISSIONS_API_URL,
       sessionSecret: PRIVIDIUM_SESSION_SECRET,
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
@@ -205,8 +225,9 @@ export default () => {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
     },
     typeORM: getTypeOrmModuleOptions(),
-    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
+    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://localhost:5555",
     featureFlags,
+    chainId: parseInt(CHAIN_ID, 10) || 1,
     baseToken: getBaseToken(),
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,

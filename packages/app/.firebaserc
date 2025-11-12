@@ -16,10 +16,10 @@
     "staging-scan-v2": {
       "hosting": {
         "web": [
-          "staging-scan-v2"
+          "staging-scan-v2-zksyncos"
         ],
         "storybook": [
-          "staging-storybook-scan-v2"
+          "staging-storybook-scan-v2-zksyncos"
         ]
       }
     }

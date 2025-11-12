@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { utils } from "zksync-ethers";
+import { ETH_L1_ADDRESS } from "../constants";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
@@ -40,7 +40,7 @@ export class BalanceService {
     for (const transfer of transfers) {
       const changedBalancesAddresses = new Set([transfer.from, transfer.to]);
       for (const changedBalanceAddress of changedBalancesAddresses) {
-        if (changedBalanceAddress === utils.ETH_ADDRESS) {
+        if (changedBalanceAddress === ETH_L1_ADDRESS) {
           continue;
         }
 

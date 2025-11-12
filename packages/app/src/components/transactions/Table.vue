@@ -231,8 +231,6 @@ import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
-import EthereumIcon from "@/components/icons/Ethereum.vue";
-import GatewayIcon from "@/components/icons/Gateway.vue";
 import ZkSyncIcon from "@/components/icons/ZkSync.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
@@ -250,7 +248,7 @@ import type { AbiFragment } from "@/composables/useAddress";
 import { type NetworkOrigin, TimeFormat } from "@/types";
 import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
-const { currentNetwork, isGatewaySettlementChain } = useContext();
+const { currentNetwork } = useContext();
 
 const { t, te } = useI18n();
 
@@ -361,14 +359,9 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
       fromNetwork: transaction.isL1Originated ? "L1" : "L2",
       toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
       statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-      statusIcon: ["failed", "included"].includes(transaction.status)
-        ? ZkSyncIcon
-        : // Check chain IDs beginning with the most recent status and moving backward, in case transactions are processed
-        // by different settlement layers, for instance:
-        // https://explorer.zksync.io/tx/0x78a0baa79aa4ebdf719176427205865be6b42938d31fa88205c61bfb8f8494c2
-        isGatewaySettlementChain(transaction.executeChainId || transaction.proveChainId || transaction.commitChainId)
-        ? GatewayIcon
-        : EthereumIcon,
+      // replace finality status with execution status here
+      status: ["verified", "proved", "committed"].includes(transaction.status) ? "included" : transaction.status,
+      statusIcon: ZkSyncIcon,
       isContractDeploymentTx,
       displayedTxReceiver: isContractDeploymentTx ? transaction.contractAddress : transaction.to,
     };

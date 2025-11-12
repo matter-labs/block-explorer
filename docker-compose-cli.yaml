@@ -21,7 +21,6 @@ services:
       - DATABASE_NAME=block-explorer
       - BLOCKCHAIN_RPC_URL=http://host.docker.internal:${RPC_PORT}
       - DATA_FETCHER_URL=http://data-fetcher:3040
-      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"

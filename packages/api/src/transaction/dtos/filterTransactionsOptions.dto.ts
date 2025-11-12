@@ -7,18 +7,6 @@ export class FilterTransactionsOptionsDto {
   @ApiPropertyOptional({
     minimum: 0,
     default: null,
-    description: "L1 batch number to filter transactions by",
-    example: null,
-  })
-  @Type(() => Number)
-  @IsInt()
-  @Min(0)
-  @IsOptional()
-  public readonly l1BatchNumber?: number;
-
-  @ApiPropertyOptional({
-    minimum: 0,
-    default: null,
     description: "Block number to filter transactions by",
     example: null,
   })

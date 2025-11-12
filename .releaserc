@@ -15,6 +15,10 @@
     {
       "name": "prividium",
       "prerelease": true
+    },
+        {
+      "name": "zksync-os",
+      "prerelease": true
     }
   ],
   "plugins": [

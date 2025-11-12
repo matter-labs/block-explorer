@@ -36,18 +36,16 @@ describe("Table", () => {
             hash: "0x01ee8af7626f87e046f212c59e4505ef64d3fa5746db26bec7b46566420321f3",
             timestamp: "2022-02-23T08:58:20.000Z",
             gasUsed: "0x0",
-            l1BatchNumber: 10,
             l1TxCount: 1,
             l2TxCount: 58,
             size: 10,
-            status: "verified",
-            isL1BatchSealed: false,
+            status: "executed",
           },
         ],
       },
     });
     expect(wrapper.find(".block-data-txns-amount").text()).toContain("59");
-    expect(wrapper.find(".block-data-status").text()).toBe("Verified");
+    expect(wrapper.find(".block-data-status").text()).toBe("Executed");
     expect(wrapper.find(".time-ago").text()).toBe(useTimeAgo(localDateFromISOString("2022-02-23T08:58:20.000Z")).value);
   });
 

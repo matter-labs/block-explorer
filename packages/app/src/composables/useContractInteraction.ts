@@ -1,13 +1,12 @@
 import { computed, ref } from "vue";
 
-import { Contract, parseEther } from "ethers";
-import { Provider } from "zksync-ethers";
+import { Contract, JsonRpcProvider, parseEther } from "ethers";
 
 import useContext from "@/composables/useContext";
 import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
 
 import type { AbiFragment } from "./useAddress";
-import type { Signer } from "zksync-ethers";
+import type { AbstractSigner } from "ethers";
 
 export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 
@@ -113,9 +112,9 @@ export default (context = useContext()) => {
       response.value = undefined;
       errorMessage.value = null;
 
-      let signer: Provider | Signer;
+      let signer: JsonRpcProvider | AbstractSigner;
       if (walletAddress.value === null) {
-        signer = new Provider(context.currentNetwork.value.rpcUrl);
+        signer = new JsonRpcProvider(context.currentNetwork.value.rpcUrl);
       } else {
         signer = await getL2Signer();
       }

@@ -22,6 +22,5 @@ export const mapTransferListItem = (transfer: Transfer, lastBlockNumber: number)
   gasUsed: transfer.transaction?.transactionReceipt.gasUsed,
   confirmations: (lastBlockNumber - transfer.blockNumber).toString(),
   fee: transfer.transaction?.fee ? BigInt(transfer.transaction.fee).toString() : undefined,
-  l1BatchNumber: transfer.transaction?.l1BatchNumber.toString(),
   transactionType: transfer.transaction?.type.toString(),
 });

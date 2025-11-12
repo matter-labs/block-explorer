@@ -22,7 +22,6 @@ services:
       - DATABASE_NAME=block-explorer
       - BLOCKCHAIN_RPC_URL=http://zksync:3050
       - DATA_FETCHER_URL=http://data-fetcher:3040
-      - BATCHES_PROCESSING_POLLING_INTERVAL=1000
     ports:
       - '3001:3001'
     depends_on:
@@ -53,7 +52,10 @@ services:
       - PORT=3020
       - METRICS_PORT=3005
       - LOG_LEVEL=verbose
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/block-explorer
+      - DATABASE_HOST=postgres
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=block-explorer
     ports:
       - '3020:3020'
       - '3005:3005'
@@ -64,7 +66,7 @@ services:
   postgres:
     image: "postgres:14"
     logging:
-      driver: none 
+      driver: none
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:
@@ -112,7 +114,7 @@ services:
     environment:
       - DATABASE_PROVER_URL=postgres://postgres:postgres@postgres/prover_local
       - DATABASE_URL=postgres://postgres:postgres@postgres/zksync_local
-      - ETH_CLIENT_WEB3_URL=http://reth:8545 
+      - ETH_CLIENT_WEB3_URL=http://reth:8545
     healthcheck:
       test: curl --fail http://localhost:3071/health || exit 1
       interval: 10s

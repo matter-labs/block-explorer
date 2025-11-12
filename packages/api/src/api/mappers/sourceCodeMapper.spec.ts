@@ -1,5 +1,5 @@
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "./sourceCodeMapper";
-import { ContractVerificationInfo, SourceCodeData } from "../types";
+import { ContractVerificationInfo } from "../types";
 
 describe("SOURCE_CODE_EMPTY_INFO", () => {
   it("returns ContractSourceCodeDto with empty or default values", () => {
@@ -17,6 +17,8 @@ describe("SOURCE_CODE_EMPTY_INFO", () => {
       Runs: "",
       SourceCode: "",
       SwarmSource: "",
+      Match: "",
+      VerifiedAt: "",
     });
   });
 });
@@ -26,46 +28,34 @@ describe("mapContractSourceCode", () => {
 
   beforeEach(() => {
     verificationInfo = {
-      artifacts: {
-        abi: [],
-        bytecode: [0, 2, 0],
+      abi: [],
+      sources: {
+        fileName1: {
+          content: "fileName1 content",
+        },
+        fileName2: {
+          content: "fileName2 content",
+        },
       },
-      request: {
-        id: 33877,
-        contractAddress: "0x000000000000000000000000000000000000800a",
-        codeFormat: "solidity-multi-file",
-        compilerSolcVersion: "0.8.17",
-        compilerZksolcVersion: "v1.3.9",
-        constructorArguments: "0x",
-        contractName: "Greeter",
-        optimizationUsed: true,
-        sourceCode: {
-          language: "Solidity",
-          settings: {
-            optimizer: {
-              enabled: true,
-            },
-          },
-          sources: {
-            fileName1: {
-              content: "fileName1 content",
-            },
-            fileName2: {
-              content: "fileName2 content",
-            },
+      compilation: {
+        language: "Solidity",
+        compilerSettings: {
+          optimizer: {
+            enabled: true,
           },
         },
+        compilerVersion: "0.8.17",
+        fullyQualifiedName: "Greeter",
       },
       verifiedAt: "2023-07-24T10:36:11.121447608Z",
+      match: "match",
     };
   });
 
-  it("returns mapped source code for Solidity multi file verification info", () => {
+  it("returns mapped source code for Solidity verification info", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -78,49 +68,19 @@ describe("mapContractSourceCode", () => {
       SourceCode:
         '{{"language":"Solidity","settings":{"optimizer":{"enabled":true}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
     });
   });
 
-  it("returns mapped source code for Solidity single file verification info", () => {
-    verificationInfo.request = {
-      ...verificationInfo.request,
+  it("returns proper optimizer for Vyper json verification info with multiple files", () => {
+    verificationInfo.compilation = {
+      ...verificationInfo.compilation,
       ...{
-        codeFormat: "solidity-single-file",
-        sourceCode: "// source code",
-      },
-    };
-
-    expect(mapContractSourceCode(verificationInfo)).toEqual({
-      ABI: "[]",
-      CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
-      ConstructorArguments: "",
-      ContractName: "Greeter",
-      EVMVersion: "Default",
-      Implementation: "",
-      Library: "",
-      LicenseType: "",
-      OptimizationUsed: "1",
-      Proxy: "0",
-      Runs: "",
-      SourceCode: "// source code",
-      SwarmSource: "",
-    });
-  });
-
-  it("returns mapped source code for Vyper multi file verification info with multiple files", () => {
-    verificationInfo.request = {
-      ...verificationInfo.request,
-      ...{
-        codeFormat: "vyper-multi-file",
-        compilerSolcVersion: undefined,
-        compilerZksolcVersion: undefined,
-        compilerVyperVersion: "0.3.3",
-        compilerZkvyperVersion: "v1.3.9",
-        sourceCode: {
-          fileName1: "fileName1 content",
-          fileName2: "fileName2 content",
+        language: "Vyper",
+        compilerVersion: "0.3.3",
+        compilerSettings: {
+          optimize: true,
         },
       },
     };
@@ -128,8 +88,6 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -140,59 +98,21 @@ describe("mapContractSourceCode", () => {
       Proxy: "0",
       Runs: "",
       SourceCode:
-        '{{"language":"Vyper","settings":{"optimizer":{"enabled":true}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
+        '{{"language":"Vyper","settings":{"optimize":true},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
     });
   });
 
-  it("returns proper optimizer for Vyper multi file verification info with multiple files", () => {
-    verificationInfo.request = {
-      ...verificationInfo.request,
+  it("returns mapped source code for Vyper verification info", () => {
+    verificationInfo.compilation = {
+      ...verificationInfo.compilation,
       ...{
-        codeFormat: "vyper-multi-file",
-        compilerSolcVersion: undefined,
-        compilerZksolcVersion: undefined,
-        compilerVyperVersion: "0.3.3",
-        compilerZkvyperVersion: "v1.3.9",
-        sourceCode: {
-          fileName1: "fileName1 content",
-          fileName2: "fileName2 content",
-        },
-        optimizationUsed: false,
-      },
-    };
-
-    expect(mapContractSourceCode(verificationInfo)).toEqual({
-      ABI: "[]",
-      CompilerVersion: "0.3.3",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
-      ConstructorArguments: "",
-      ContractName: "Greeter",
-      EVMVersion: "Default",
-      Implementation: "",
-      Library: "",
-      LicenseType: "",
-      OptimizationUsed: "0",
-      Proxy: "0",
-      Runs: "",
-      SourceCode:
-        '{{"language":"Vyper","settings":{"optimizer":{"enabled":false}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
-      SwarmSource: "",
-    });
-  });
-
-  it("returns mapped source code for Vyper multi file verification info with single file", () => {
-    verificationInfo.request = {
-      ...verificationInfo.request,
-      ...{
-        codeFormat: "vyper-multi-file",
-        compilerSolcVersion: undefined,
-        compilerZksolcVersion: undefined,
-        compilerVyperVersion: "0.3.3",
-        compilerZkvyperVersion: "v1.3.9",
-        sourceCode: {
-          fileName1: "fileName1 content",
+        language: "Vyper",
+        compilerVersion: "0.3.3",
+        compilerSettings: {
+          optimize: true,
         },
       },
     };
@@ -200,8 +120,6 @@ describe("mapContractSourceCode", () => {
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.3.3",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -211,53 +129,29 @@ describe("mapContractSourceCode", () => {
       OptimizationUsed: "1",
       Proxy: "0",
       Runs: "",
-      SourceCode: "fileName1 content",
-      SwarmSource: "",
-    });
-  });
-
-  it("returns contructor arguments without 0x", () => {
-    verificationInfo.request = {
-      ...verificationInfo.request,
-      ...{
-        constructorArguments: "123",
-      },
-    };
-
-    expect(mapContractSourceCode(verificationInfo)).toEqual({
-      ABI: "[]",
-      CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
-      ConstructorArguments: "123",
-      ContractName: "Greeter",
-      EVMVersion: "Default",
-      Implementation: "",
-      Library: "",
-      LicenseType: "",
-      OptimizationUsed: "1",
-      Proxy: "0",
-      Runs: "",
       SourceCode:
-        '{{"language":"Solidity","settings":{"optimizer":{"enabled":true}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
+        '{{"language":"Vyper","settings":{"optimize":true},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
     });
   });
 
   it("returns OptimizationUsed depending on verification info", () => {
-    verificationInfo.request = {
-      ...verificationInfo.request,
+    verificationInfo.compilation = {
+      ...verificationInfo.compilation,
       ...{
-        optimizationUsed: false,
+        compilerSettings: {
+          optimizer: {
+            enabled: false,
+          },
+        },
       },
     };
-    (verificationInfo.request.sourceCode as SourceCodeData).settings.optimizer.enabled = false;
 
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -270,17 +164,27 @@ describe("mapContractSourceCode", () => {
       SourceCode:
         '{{"language":"Solidity","settings":{"optimizer":{"enabled":false}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
     });
   });
 
   it("returns Runs if specified", () => {
-    (verificationInfo.request.sourceCode as SourceCodeData).settings.optimizer.runs = 500;
+    verificationInfo.compilation = {
+      ...verificationInfo.compilation,
+      ...{
+        compilerSettings: {
+          optimizer: {
+            enabled: true,
+            runs: 500,
+          },
+        },
+      },
+    };
 
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -293,44 +197,57 @@ describe("mapContractSourceCode", () => {
       SourceCode:
         '{{"language":"Solidity","settings":{"optimizer":{"enabled":true,"runs":500}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
     });
   });
 
   it("returns empty Runs if there are no optimizer settings specified", () => {
-    (verificationInfo.request.sourceCode as SourceCodeData).settings.optimizer = undefined;
-
-    expect(mapContractSourceCode(verificationInfo)).toEqual({
-      ABI: "[]",
-      CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
-      ConstructorArguments: "",
-      ContractName: "Greeter",
-      EVMVersion: "Default",
-      Implementation: "",
-      Library: "",
-      LicenseType: "",
-      OptimizationUsed: "1",
-      Proxy: "0",
-      Runs: "",
-      SourceCode:
-        '{{"language":"Solidity","settings":{},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
-      SwarmSource: "",
-    });
-  });
-
-  it("returns Library for single library specified", () => {
-    (verificationInfo.request.sourceCode as SourceCodeData).settings.libraries = {
-      "contracts/MiniMath.sol": {
-        MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+    verificationInfo.compilation = {
+      ...verificationInfo.compilation,
+      ...{
+        compilerSettings: {},
       },
     };
 
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
+      ConstructorArguments: "",
+      ContractName: "Greeter",
+      EVMVersion: "Default",
+      Implementation: "",
+      Library: "",
+      LicenseType: "",
+      OptimizationUsed: "0",
+      Proxy: "0",
+      Runs: "",
+      SourceCode:
+        '{{"language":"Solidity","settings":{},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
+      SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
+    });
+  });
+
+  it("returns Library for single library specified", () => {
+    verificationInfo.compilation = {
+      ...verificationInfo.compilation,
+      ...{
+        compilerSettings: {
+          ...verificationInfo.compilation.compilerSettings,
+          libraries: {
+            "contracts/MiniMath.sol": {
+              MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+            },
+          },
+        },
+      },
+    };
+
+    expect(mapContractSourceCode(verificationInfo)).toEqual({
+      ABI: "[]",
+      CompilerVersion: "0.8.17",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -343,26 +260,34 @@ describe("mapContractSourceCode", () => {
       SourceCode:
         '{{"language":"Solidity","settings":{"optimizer":{"enabled":true},"libraries":{"contracts/MiniMath.sol":{"MiniMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913"}}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
     });
   });
 
   it("returns Library for multiple libraries specified", () => {
-    (verificationInfo.request.sourceCode as SourceCodeData).settings.libraries = {
-      "contracts/MiniMath.sol": {
-        MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
-        MiniMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914",
-      },
-      "contracts/MaxiMath.sol": {
-        MaxiMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5915",
-        MaxiMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5916",
+    verificationInfo.compilation = {
+      ...verificationInfo.compilation,
+      ...{
+        compilerSettings: {
+          ...verificationInfo.compilation.compilerSettings,
+          libraries: {
+            "contracts/MiniMath.sol": {
+              MiniMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913",
+              MiniMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914",
+            },
+            "contracts/MaxiMath.sol": {
+              MaxiMath: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5915",
+              MaxiMath2: "0x1c1cEFA394748048BE6b04Ea6081fE44B26a5916",
+            },
+          },
+        },
       },
     };
 
     expect(mapContractSourceCode(verificationInfo)).toEqual({
       ABI: "[]",
       CompilerVersion: "0.8.17",
-      ZkSolcVersion: "v1.3.9",
-      ZkCompilerVersion: "v1.3.9",
       ConstructorArguments: "",
       ContractName: "Greeter",
       EVMVersion: "Default",
@@ -376,6 +301,8 @@ describe("mapContractSourceCode", () => {
       SourceCode:
         '{{"language":"Solidity","settings":{"optimizer":{"enabled":true},"libraries":{"contracts/MiniMath.sol":{"MiniMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5913","MiniMath2":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5914"},"contracts/MaxiMath.sol":{"MaxiMath":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5915","MaxiMath2":"0x1c1cEFA394748048BE6b04Ea6081fE44B26a5916"}}},"sources":{"fileName1":{"content":"fileName1 content"},"fileName2":{"content":"fileName2 content"}}}}',
       SwarmSource: "",
+      Match: "match",
+      VerifiedAt: "2023-07-24T10:36:11.121447608Z",
     });
   });
 });

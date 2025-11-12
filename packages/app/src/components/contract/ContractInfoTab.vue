@@ -201,7 +201,7 @@ const missingWriteProxyFunctionsMessage = computed(() => {
 
 const writeFunctions = computed(() => {
   return (
-    props.contract?.verificationInfo?.artifacts.abi.filter(
+    props.contract?.verificationInfo?.abi.filter(
       (item) =>
         item.name &&
         item.type !== "constructor" &&
@@ -212,7 +212,7 @@ const writeFunctions = computed(() => {
 
 const readFunctions = computed(() => {
   return (
-    props.contract?.verificationInfo?.artifacts.abi.filter(
+    props.contract?.verificationInfo?.abi.filter(
       (item) => (item.type !== "constructor" && item.stateMutability === "view") || item.stateMutability === "pure"
     ) || []
   );
@@ -220,7 +220,7 @@ const readFunctions = computed(() => {
 
 const writeProxyFunctions = computed(() => {
   return (
-    props.contract?.proxyInfo?.implementation.verificationInfo?.artifacts.abi.filter(
+    props.contract?.proxyInfo?.implementation.verificationInfo?.abi.filter(
       (item) =>
         item.name &&
         item.type !== "constructor" &&
@@ -231,7 +231,7 @@ const writeProxyFunctions = computed(() => {
 
 const readProxyFunctions = computed(() => {
   return (
-    props.contract?.proxyInfo?.implementation.verificationInfo?.artifacts.abi.filter(
+    props.contract?.proxyInfo?.implementation.verificationInfo?.abi.filter(
       (item) => (item.type !== "constructor" && item.stateMutability === "view") || item.stateMutability === "pure"
     ) || []
   );

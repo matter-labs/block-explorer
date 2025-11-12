@@ -25,7 +25,8 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
-import { User, UserParam } from "../user/user.decorator";
+import { User } from "../user/user.decorator";
+import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "address";
 
@@ -63,7 +64,7 @@ export class AddressController {
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
     @Param("address", new ParseAddressPipe()) address: string,
-    @User() user: UserParam
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<AccountDto | ContractDto> {
     const addressRecord = await this.addressService.findOne(address);
     const addressType = !!(addressRecord && addressRecord.bytecode.length > 2)
@@ -74,7 +75,7 @@ export class AddressController {
     let includeCreatorAddress = true;
     let includeCreatorTxHash = true;
 
-    if (user) {
+    if (user && !user.isAdmin) {
       // If address is an account and is not own address, forbid access
       if (addressType === AddressType.Account && !isAddressEqual(user.address, address)) {
         throw new ForbiddenException();
@@ -150,9 +151,9 @@ export class AddressController {
   public async getAddressLogs(
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User() user: UserParam
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<LogDto>> {
-    const userFilters = user ? { visibleBy: user.address } : {};
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
     return await this.logService.findAll(
       { address, ...userFilters },
       {
@@ -179,9 +180,9 @@ export class AddressController {
     @Query() filterAddressTransferOptions: FilterAddressTransfersOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User() user: UserParam
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<TransferDto>> {
-    const userFilters = user ? { visibleBy: user.address } : {};
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
 

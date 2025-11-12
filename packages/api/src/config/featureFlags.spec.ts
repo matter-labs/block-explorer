@@ -14,6 +14,7 @@ describe("featureFlags", () => {
 
   describe("featureFlags", () => {
     it("sets default values", async () => {
+      process.env.PRIVIDIUM = undefined;
       const featureFlags = await import("./featureFlags");
       expect(featureFlags).toEqual({
         prividium: false,

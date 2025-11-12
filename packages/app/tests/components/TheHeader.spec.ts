@@ -51,9 +51,8 @@ describe("TheHeader:", () => {
     await fireEvent.click(dropdown[0].find("button")!.element);
     const blockExplorerLinks = dropdown[0].findAllComponents(RouterLinkStub);
     expect(blockExplorerLinks[0].props().to.name).toBe("blocks");
-    expect(blockExplorerLinks[1].props().to.name).toBe("batches");
-    expect(blockExplorerLinks[2].props().to.name).toBe("transactions");
-    expect(blockExplorerLinks[3].props().to.name).toBe("tokens");
+    expect(blockExplorerLinks[1].props().to.name).toBe("transactions");
+    expect(blockExplorerLinks[2].props().to.name).toBe("tokens");
 
     await fireEvent.click(dropdown[1].find("button")!.element);
     const toolsLinksRouter = dropdown[1].findAllComponents(RouterLinkStub);

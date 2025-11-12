@@ -6,12 +6,10 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { BlockDetails } from "../src/block/blockDetails.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 
 describe("Block API (e2e)", () => {
   let app: INestApplication;
   let blockRepository: Repository<BlockDetails>;
-  let batchRepository: Repository<BatchDetails>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -25,27 +23,6 @@ describe("Block API (e2e)", () => {
     await app.init();
 
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
-
-    for (let i = 0; i < 9; i++) {
-      await batchRepository.insert({
-        number: i,
-        timestamp: new Date("2022-11-10T14:44:08.000Z"),
-        l1TxCount: i * 10,
-        l2TxCount: i * 20,
-        l1GasPrice: "10000000",
-        l2FairGasPrice: "20000000",
-        commitTxHash: `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace${i}`,
-        executeTxHash: `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac${i}`,
-        proveTxHash: `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac${i}`,
-        committedAt: new Date("2022-11-10T14:44:08.000Z"),
-        executedAt: new Date("2022-11-10T14:44:08.000Z"),
-        provenAt: new Date("2022-11-10T14:44:08.000Z"),
-        commitChainId: 1,
-        proveChainId: 1,
-        executeChainId: 1,
-      });
-    }
 
     for (let i = 10; i < 40; i++) {
       await blockRepository.insert({
@@ -59,7 +36,6 @@ describe("Block API (e2e)", () => {
         extraData: `0x123${i}`,
         l1TxCount: i * 10,
         l2TxCount: i * 20,
-        l1BatchNumber: (i / 10) | 0,
         miner: "0x0000000000000000000000000000000000000000",
       });
     }
@@ -67,7 +43,6 @@ describe("Block API (e2e)", () => {
 
   afterAll(async () => {
     await blockRepository.delete({});
-    await batchRepository.delete({});
 
     await app.close();
   });

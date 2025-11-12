@@ -14,7 +14,6 @@ export const mapInternalTransactionListItem = (transfer: Transfer) => ({
   contractAddress: transfer.transaction?.transactionReceipt.contractAddress,
   gasUsed: transfer.transaction?.transactionReceipt.gasUsed,
   fee: transfer.transaction?.fee ? BigInt(transfer.transaction.fee).toString() : undefined,
-  l1BatchNumber: transfer.transaction?.l1BatchNumber.toString(),
   traceId: "0",
   transactionType: transfer.transaction?.type.toString(),
   isError: transfer.transaction?.status === TransactionStatus.Failed ? "1" : "0",

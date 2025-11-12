@@ -2,7 +2,7 @@ import { computed } from "vue";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Provider } from "zksync-ethers";
+import { JsonRpcProvider } from "ethers";
 
 import useWallet, { isAuthenticated, WalletError } from "@/composables/useWallet";
 
@@ -51,11 +51,11 @@ vi.mock("@metamask/detect-provider", () => ({
 
 const defaultContext: {
   currentNetwork: ComputedRef<NetworkConfiguration>;
-  getL2Provider: () => Provider;
+  getL2Provider: () => JsonRpcProvider;
 } = {
   currentNetwork: computed(() => currentNetwork),
   getL2Provider() {
-    return new Provider(currentNetwork.rpcUrl);
+    return new JsonRpcProvider(currentNetwork.rpcUrl);
   },
 };
 

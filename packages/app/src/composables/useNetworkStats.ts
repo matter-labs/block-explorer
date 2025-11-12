@@ -2,8 +2,6 @@ import useFetch from "./common/useFetch";
 import useContext from "./useContext";
 
 export interface NetworkStats {
-  lastSealedBatch: number;
-  lastVerifiedBatch: number;
   lastSealedBlock: number;
   lastVerifiedBlock: number;
   totalTransactions: number;

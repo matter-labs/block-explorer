@@ -54,11 +54,11 @@ describe("UseSearch:", () => {
       });
     });
 
-    it("returns search route for batch number param", () => {
+    it("returns search route for block number param", () => {
       const { getSearchRoute } = useSearch();
       const searchRoute = getSearchRoute("123");
-      expect(searchRoute!.apiRoute).toBe("batches");
-      expect(searchRoute!.routeName).toBe("batch");
+      expect(searchRoute!.apiRoute).toBe("blocks");
+      expect(searchRoute!.routeName).toBe("block");
       expect(searchRoute!.routeParam).toEqual({
         id: "123",
       });
@@ -95,11 +95,11 @@ describe("UseSearch:", () => {
       });
       mock.mockRestore();
     });
-    it("sets routerName and param to router push function when param is batch id", async () => {
+    it("sets routerName and param to router push function when param is block id", async () => {
       const result = useSearch();
       await result.search("4123");
       expect(router.push).toHaveBeenCalledWith({
-        name: "batch",
+        name: "block",
         params: { id: "4123" },
       });
     });

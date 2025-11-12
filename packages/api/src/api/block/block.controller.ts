@@ -92,7 +92,7 @@ export class BlockController {
     @Query("blockno", new ParseLimitedIntPipe())
     blockNumber: number
   ): Promise<BlockRewardResponseDto> {
-    const block = await this.blockService.findOne(blockNumber, ["number", "timestamp", "miner"], { batch: false });
+    const block = await this.blockService.findOne(blockNumber, ["number", "timestamp", "miner"]);
     if (!block) {
       return {
         status: ResponseStatus.NOTOK,

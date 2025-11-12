@@ -7,20 +7,6 @@ const fullLibraryNameRegexp = new RegExp("^(.)+:(.)+$");
 
 export class VerifyContractRequestDto {
   @ApiProperty({
-    description: "Module is always 'contract' for this endpoint",
-    example: "contract",
-    required: true,
-  })
-  private module: string;
-
-  @ApiProperty({
-    description: "Action is always 'verifysourcecode' for this endpoint",
-    example: "verifysourcecode",
-    required: true,
-  })
-  private action: string;
-
-  @ApiProperty({
     name: "contractaddress",
     description: "Contract address to verify, starts with 0x",
     example: "0x0faF6df7054946141266420b43783387A78d82A9",
@@ -32,7 +18,7 @@ export class VerifyContractRequestDto {
     name: "sourceCode",
     description:
       "Contract source code (Flattened if necessary) for single file or json input for standard json input format",
-    example: {
+    example: JSON.stringify({
       language: "Solidity",
       settings: {
         optimizer: {
@@ -45,7 +31,7 @@ export class VerifyContractRequestDto {
             "// SPDX-License-Identifier: UNLICENSED\n// Specifies the version of Solidity, using semantic versioning.\n// Learn more: https://solidity.readthedocs.io/en/v0.5.10/layout-of-source-files.html#pragma\npragma solidity >=0.7.3;\n\n// Defines a contract named `HelloWorld`.\n// A contract is a collection of functions and data (its state). Once deployed, a contract resides at a specific address on the Ethereum blockchain. Learn more: https://solidity.readthedocs.io/en/v0.5.10/structure-of-a-contract.html\ncontract HelloWorld {\n\n   //Emitted when update function is called\n   //Smart contract events are a way for your contract to communicate that something happened on the blockchain to your app front-end, which can be 'listening' for certain events and take action when they happen.\n   event UpdatedMessages(string oldStr, string newStr);\n\n   // Declares a state variable `message` of type `string`.\n   // State variables are variables whose values are permanently stored in contract storage. The keyword `public` makes variables accessible from outside a contract and creates a function that other contracts or clients can call to access the value.\n   string public message;\n\n   // Similar to many class-based object-oriented languages, a constructor is a special function that is only executed upon contract creation.\n   // Constructors are used to initialize the contract's data. Learn more:https://solidity.readthedocs.io/en/v0.5.10/contracts.html#constructors\n   constructor(string memory initMessage) {\n\n      // Accepts a string argument `initMessage` and sets the value into the contract's `message` storage variable).\n      message = initMessage;\n   }\n\n   // A public function that accepts a string argument and updates the `message` storage variable.\n   function update(string memory newMessage) public {\n      string memory oldMsg = message;\n      message = newMessage;\n      emit UpdatedMessages(oldMsg, newMessage);\n   }\n}",
         },
       },
-    },
+    }),
     required: true,
   })
   @IsNotEmpty({ message: "Missing sourceCode" })
@@ -89,27 +75,6 @@ export class VerifyContractRequestDto {
   public compilerversion: string;
 
   @ApiProperty({
-    name: "zkCompilerVersion",
-    description: "Deprecated: Zk compiler version. Use zksolcVersion instead.",
-    example: "v1.3.14",
-    required: false,
-    deprecated: true,
-  })
-  @IsString()
-  @IsOptional()
-  public zkCompilerVersion: string;
-
-  @ApiProperty({
-    name: "zksolcVersion",
-    description: "Zk compiler version",
-    example: "v1.3.14",
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  public zksolcVersion: string;
-
-  @ApiProperty({
     name: "evmVersion",
     description: "EVM version",
     example: "cancun",
@@ -146,7 +111,7 @@ export class VerifyContractRequestDto {
   public optimizationUsed: string;
 
   @ApiProperty({
-    name: "constructorArguements",
+    name: "constructorArguments",
     description: "Contract constructor arguments",
     example:
       "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000094869207468657265210000000000000000000000000000000000000000000000",
@@ -154,7 +119,7 @@ export class VerifyContractRequestDto {
   })
   @IsOptional()
   @IsString()
-  public constructorArguements?: string;
+  public constructorArguments?: string;
 
   @ApiProperty({
     name: "libraryname1",
