@@ -64,11 +64,8 @@ jobs:
         working-directory: ./packages/app
         id: check_channel
         run: |
-          
-          CHANNEL_URL=$(firebase --project staging-scan-v2 hosting:channel:list --json | jq --arg channel_name "${CHANNEL_NAME}" -r '.result.channels[]|select(.name|contains($channel_name)) | .url')
+          CHANNEL_URL=$(curl -s -H "Authorization: Bearer $(gcloud auth print-access-token)" "https://firebasehosting.googleapis.com/v1beta1/sites/staging-scan-v2-zksyncos/channels" | jq --arg channel_name "${CHANNEL_NAME}" -r '.result.channels[]|select(.name|contains($channel_name)) | .url')
           echo $CHANNEL_URL
-          AUTH_ACCESS_TOKEN=$(gcloud auth print-access-token)
-          curl -s -H "Authorization: Bearer $AUTH_ACCESS_TOKEN" "https://firebasehosting.googleapis.com/v1beta1/sites/staging-scan-v2/channels" | jq
           if [ -z "$CHANNEL_URL" ]; then
             echo "New channel"
             firebase --project staging-scan-v2 hosting:channel:create $CHANNEL_NAME
