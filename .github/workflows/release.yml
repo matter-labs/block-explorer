@@ -3,8 +3,7 @@ name: Create Release
 on:
   push:
     branches:
-      - main
-      - '[0-9]+.*'
+      - era
 
 jobs:
   createReleaseVersion:
@@ -59,7 +58,7 @@ jobs:
     permissions:
       contents: read
     needs: createReleaseVersion
-    if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
+    if: ${{ github.ref == 'refs/heads/era' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
       - uses: actions/checkout@v3
 
@@ -88,10 +87,8 @@ jobs:
         with:
           push: true
           tags: |
-              "matterlabs/block-explorer-api:latest"
               "matterlabs/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
           file: packages/api/Dockerfile
@@ -102,10 +99,8 @@ jobs:
         with:
           push: true
           tags: |
-              "matterlabs/block-explorer-worker:latest"
               "matterlabs/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
           file: packages/worker/Dockerfile
@@ -116,10 +111,8 @@ jobs:
         with:
           push: true
           tags: |
-              "matterlabs/block-explorer-data-fetcher:latest"
               "matterlabs/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
           file: packages/data-fetcher/Dockerfile
@@ -130,10 +123,8 @@ jobs:
         with:
           push: true
           tags: |
-              "matterlabs/block-explorer-app:latest"
               "matterlabs/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
           file: packages/app/Dockerfile
@@ -145,7 +136,7 @@ jobs:
     permissions:
       contents: read
     needs: createReleaseVersion
-    if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
+    if: ${{ github.ref == 'refs/heads/era' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
