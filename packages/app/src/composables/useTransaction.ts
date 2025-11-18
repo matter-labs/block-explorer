@@ -229,7 +229,7 @@ export function mapTransaction(
     nonce: transaction.nonce,
     receivedAt: transaction.receivedAt,
     blockTimestamp: transaction.blockTimestamp ?? transaction.receivedAt,
-    
+
     status: transaction.status,
     error: transaction.error,
     revertReason: transaction.revertReason,
