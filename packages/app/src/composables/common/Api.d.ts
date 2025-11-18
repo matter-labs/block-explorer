@@ -49,6 +49,7 @@ declare namespace Api {
       nonce: number;
       blockNumber: number;
       blockHash: string;
+      blockTimestamp?: string;
       gasPrice: string;
       gasLimit: string;
       gasUsed: string;

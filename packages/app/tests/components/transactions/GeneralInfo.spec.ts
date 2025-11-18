@@ -16,6 +16,7 @@ import enUS from "@/locales/en.json";
 import type { TransactionItem } from "@/composables/useTransaction";
 
 import $testId from "@/plugins/testId";
+import { localDateFromISOString } from "@/utils/helpers";
 
 const transaction: TransactionItem = {
   hash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
@@ -266,7 +267,7 @@ describe("Transaction info table", () => {
     expect(gasLimitAndUsed.text()).toBe("5000 | 3000 (60%)");
     expect(gasPerPubdata.text()).toBe("800");
     expect(nonce.text()).toBe("24");
-    expect(createdAt.find(".full-date").text()).toBe("2023-02-28 11:42");
+    expect(createdAt.find(".full-date").text()).toBe("2023-02-28 11:42:08");
 
     const [
       txHashTooltip,
@@ -296,6 +297,25 @@ describe("Transaction info table", () => {
     expect(gasPerPubdataTooltip).toBe(i18n.global.t("transactions.table.gasPerPubdataTooltip"));
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
     expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.receivedAtTooltip"));
+  });
+  it("prefers the block timestamp when provided", async () => {
+    const blockTimestamp = "2023-02-28T09:00:08.198Z";
+    const wrapper = mount(Table, {
+      global: {
+        stubs: {
+          RouterLink: RouterLinkStub,
+          InfoTooltip: { template: "<div><slot /></div>" },
+        },
+        plugins: [i18n, $testId],
+      },
+      props: {
+        transaction: { ...transaction, blockTimestamp },
+        loading: false,
+      },
+    });
+    await nextTick();
+    const createdAt = wrapper.findAll("tbody tr td:nth-child(2)").at(-1)!;
+    expect(createdAt.find(".full-date").text()).toBe(localDateFromISOString(blockTimestamp));
   });
   it("renders indexing transaction status", async () => {
     const wrapper = mount(Table, {

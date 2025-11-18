@@ -22,11 +22,11 @@ export function utcStringFromISOString(ISOString: string) {
 }
 
 export function localDateFromISOString(ISOString: string) {
-  return format(new Date(ISOString), "yyyy-MM-dd HH:mm");
+  return format(new Date(ISOString), "yyyy-MM-dd HH:mm:ss");
 }
 
 export function localDateFromUnixTimestamp(timestamp: number) {
-  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm");
+  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm:ss");
 }
 
 export function ISOStringFromUnixTimestamp(timestamp: number) {

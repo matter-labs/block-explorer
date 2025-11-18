@@ -68,12 +68,12 @@ describe("helpers:", () => {
   });
 
   it("returns local date from ISO string", () => {
-    const result = format(new Date("2022-04-08T18:21:14.362648Z"), "yyyy-MM-dd HH:mm");
+    const result = format(new Date("2022-04-08T18:21:14.362648Z"), "yyyy-MM-dd HH:mm:ss");
     expect(localDateFromISOString("2022-04-08T18:21:14.362648Z")).toBe(result);
   });
 
   it("returns local date from unix timestamp", () => {
-    const result = format(new Date(1645606700 * 1000), "yyyy-MM-dd HH:mm");
+    const result = format(new Date(1645606700 * 1000), "yyyy-MM-dd HH:mm:ss");
     expect(localDateFromUnixTimestamp(1645606700)).toBe(result);
   });
 

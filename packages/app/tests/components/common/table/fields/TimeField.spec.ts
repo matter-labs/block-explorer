@@ -41,7 +41,7 @@ describe("TimeField", () => {
       },
     });
 
-    expect(container.querySelector(".full-date")?.textContent).toBe("2022-12-02 12:26");
+    expect(container.querySelector(".full-date")?.textContent).toBe("2022-12-02 12:2:06");
     unmount();
   });
   it("doesn't render full date when time format is TIME_AGO", () => {

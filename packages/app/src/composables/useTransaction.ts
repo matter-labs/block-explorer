@@ -10,6 +10,7 @@ import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
 
 import { numberToHexString } from "@/utils/formatters";
+import { ISOStringFromUnixTimestamp } from "@/utils/helpers";
 
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
@@ -61,6 +62,7 @@ export type TransactionItem = {
   isL1Originated: boolean;
   nonce: null | number;
   receivedAt: string;
+  blockTimestamp?: string | null;
   feeData: FeeData;
   gasPrice: string;
   gasLimit: string;
@@ -95,13 +97,13 @@ export default (context = useContext()) => {
   const getFromBlockchainByHash = async (hash: string): Promise<TransactionItem | null> => {
     const provider = context.getL2Provider();
     try {
-      const [transactionData, transactionReceipt] = await Promise.all([
-        provider.getTransaction(hash),
-        provider.getTransactionReceipt(hash),
-      ]);
+      const transactionData = await provider.getTransaction(hash);
+      const transactionReceipt = await provider.getTransactionReceipt(hash);
+      const block = transactionData?.blockNumber != null ? await provider.getBlock(transactionData.blockNumber) : null;
       if (!transactionData || !transactionReceipt) {
         return null;
       }
+      const blockTimestamp = block ? ISOStringFromUnixTimestamp(block.timestamp) : null;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gasPerPubdata = (transactionData as any).gasPerPubdata;
       const tx = {
@@ -127,8 +129,8 @@ export default (context = useContext()) => {
         indexInBlock: transactionReceipt.index,
         isL1Originated: [126, 127].includes(transactionData.type),
         nonce: transactionData.nonce,
-        receivedAt: "", // TODO: replace with block timestamp
-
+        receivedAt: blockTimestamp ?? "",
+        blockTimestamp,
         status: "indexing" as TransactionStatus,
 
         logs: transactionReceipt.logs.map((item) => ({
@@ -226,7 +228,8 @@ export function mapTransaction(
     isL1Originated: transaction.isL1Originated,
     nonce: transaction.nonce,
     receivedAt: transaction.receivedAt,
-
+    blockTimestamp: transaction.blockTimestamp ?? transaction.receivedAt,
+    
     status: transaction.status,
     error: transaction.error,
     revertReason: transaction.revertReason,
