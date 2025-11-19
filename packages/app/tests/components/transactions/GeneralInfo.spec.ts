@@ -16,7 +16,6 @@ import enUS from "@/locales/en.json";
 import type { TransactionItem } from "@/composables/useTransaction";
 
 import $testId from "@/plugins/testId";
-import { localDateFromISOString } from "@/utils/helpers";
 
 const transaction: TransactionItem = {
   hash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
