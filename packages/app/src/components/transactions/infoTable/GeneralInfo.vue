@@ -195,9 +195,9 @@
       </tr>
       <tr class="transaction-table-row">
         <table-body-column class="transaction-table-label">
-          <span class="transaction-info-field-label">{{ t("transactions.table.receivedAt") }}</span>
+          <span class="transaction-info-field-label">{{ t("transactions.table.timestamp") }}</span>
           <InfoTooltip class="transaction-info-field-tooltip">
-            {{ t("transactions.table.receivedAtTooltip") }}
+            {{ t("transactions.table.timestampTooltip") }}
           </InfoTooltip>
         </table-body-column>
         <table-body-column class="transaction-table-value">
