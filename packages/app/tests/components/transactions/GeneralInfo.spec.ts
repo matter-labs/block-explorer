@@ -296,7 +296,7 @@ describe("Transaction info table", () => {
     expect(gasLimitAndUsedTooltip).toBe(i18n.global.t("transactions.table.gasLimitAndUsedTooltip"));
     expect(gasPerPubdataTooltip).toBe(i18n.global.t("transactions.table.gasPerPubdataTooltip"));
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
-    expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.receivedAtTooltip"));
+    expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.timestampTooltip"));
   });
   it("prefers the block timestamp when provided", async () => {
     const blockTimestamp = "2023-02-28T09:00:08.198Z";
