@@ -615,6 +615,7 @@ describe("useTransaction:", () => {
             gasPrice: "4000",
             contractAddress: null,
           }),
+          getBlock: vi.fn().mockResolvedValue({ timestamp: blockTimestampSeconds }),
         };
         const { transaction, isRequestFailed, getByHash } = useTransaction({
           currentNetwork: {
