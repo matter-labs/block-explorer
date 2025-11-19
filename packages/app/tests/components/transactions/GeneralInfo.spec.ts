@@ -298,25 +298,6 @@ describe("Transaction info table", () => {
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
     expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.timestampTooltip"));
   });
-  it("prefers the block timestamp when provided", async () => {
-    const blockTimestamp = "2023-02-28T09:00:08.198Z";
-    const wrapper = mount(Table, {
-      global: {
-        stubs: {
-          RouterLink: RouterLinkStub,
-          InfoTooltip: { template: "<div><slot /></div>" },
-        },
-        plugins: [i18n, $testId],
-      },
-      props: {
-        transaction: { ...transaction, blockTimestamp },
-        loading: false,
-      },
-    });
-    await nextTick();
-    const createdAt = wrapper.findAll("tbody tr td:nth-child(2)").at(-1)!;
-    expect(createdAt.find(".full-date").text()).toBe(localDateFromISOString(blockTimestamp));
-  });
   it("renders indexing transaction status", async () => {
     const wrapper = mount(Table, {
       global: {

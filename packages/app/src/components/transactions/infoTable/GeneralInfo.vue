@@ -201,8 +201,7 @@
           </InfoTooltip>
         </table-body-column>
         <table-body-column class="transaction-table-value">
-          <TimeField v-if="transactionTimestamp" :value="transactionTimestamp" />
-          <span v-else>-</span>
+          <TimeField :value="transaction?.receivedAt" />
         </table-body-column>
       </tr>
     </template>
@@ -287,9 +286,6 @@ const gasUsedPercent = computed(() => {
     return parseFloat(((gasUsed / gasLimit) * 100).toFixed(2));
   }
   return null;
-});
-const transactionTimestamp = computed(() => {
-  return props.transaction?.blockTimestamp ?? props.transaction?.receivedAt ?? "";
 });
 </script>
 

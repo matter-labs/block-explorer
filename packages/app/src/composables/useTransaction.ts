@@ -62,7 +62,6 @@ export type TransactionItem = {
   isL1Originated: boolean;
   nonce: null | number;
   receivedAt: string;
-  blockTimestamp?: string | null;
   feeData: FeeData;
   gasPrice: string;
   gasLimit: string;
@@ -97,8 +96,10 @@ export default (context = useContext()) => {
   const getFromBlockchainByHash = async (hash: string): Promise<TransactionItem | null> => {
     const provider = context.getL2Provider();
     try {
-      const transactionData = await provider.getTransaction(hash);
-      const transactionReceipt = await provider.getTransactionReceipt(hash);
+      const [transactionData, transactionReceipt] = await Promise.all([
+        provider.getTransaction(hash),
+        provider.getTransactionReceipt(hash),
+      ]);
       const block = transactionData?.blockNumber != null ? await provider.getBlock(transactionData.blockNumber) : null;
       if (!transactionData || !transactionReceipt) {
         return null;
@@ -130,7 +131,6 @@ export default (context = useContext()) => {
         isL1Originated: [126, 127].includes(transactionData.type),
         nonce: transactionData.nonce,
         receivedAt: blockTimestamp ?? "",
-        blockTimestamp,
         status: "indexing" as TransactionStatus,
 
         logs: transactionReceipt.logs.map((item) => ({
@@ -228,7 +228,6 @@ export function mapTransaction(
     isL1Originated: transaction.isL1Originated,
     nonce: transaction.nonce,
     receivedAt: transaction.receivedAt,
-    blockTimestamp: transaction.blockTimestamp ?? transaction.receivedAt,
 
     status: transaction.status,
     error: transaction.error,

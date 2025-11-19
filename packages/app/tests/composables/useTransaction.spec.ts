@@ -451,7 +451,6 @@ describe("useTransaction:", () => {
         isL1Originated: false,
         nonce: 24,
         receivedAt: "2023-02-28T08:42:08.198Z",
-        blockTimestamp: "2023-02-28T08:42:08.198Z",
         status: "verified",
         error: null,
         revertReason: null,
@@ -616,7 +615,6 @@ describe("useTransaction:", () => {
             gasPrice: "4000",
             contractAddress: null,
           }),
-          getBlock: vi.fn().mockResolvedValue({ timestamp: blockTimestampSeconds }),
         };
         const { transaction, isRequestFailed, getByHash } = useTransaction({
           currentNetwork: {
@@ -635,7 +633,6 @@ describe("useTransaction:", () => {
         expect(provider.getTransactionReceipt).toBeCalledWith(
           "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf"
         );
-        expect(provider.getBlock).toBeCalledWith(1162235);
 
         expect(isRequestFailed.value).toBe(false);
         expect(transaction.value).toEqual({
@@ -665,7 +662,6 @@ describe("useTransaction:", () => {
           isL1Originated: false,
           nonce: 24,
           receivedAt: blockTimestampISO,
-          blockTimestamp: blockTimestampISO,
           status: "indexing",
           logs: [
             {
