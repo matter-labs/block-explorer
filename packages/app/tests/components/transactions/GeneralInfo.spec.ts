@@ -266,7 +266,7 @@ describe("Transaction info table", () => {
     expect(gasLimitAndUsed.text()).toBe("5000 | 3000 (60%)");
     expect(gasPerPubdata.text()).toBe("800");
     expect(nonce.text()).toBe("24");
-    expect(createdAt.find(".full-date").text()).toBe("2023-02-28 11:42");
+    expect(createdAt.find(".full-date").text()).toBe("2023-02-28 11:42:08 AM UTC");
 
     const [
       txHashTooltip,
@@ -295,7 +295,7 @@ describe("Transaction info table", () => {
     expect(gasLimitAndUsedTooltip).toBe(i18n.global.t("transactions.table.gasLimitAndUsedTooltip"));
     expect(gasPerPubdataTooltip).toBe(i18n.global.t("transactions.table.gasPerPubdataTooltip"));
     expect(nonceTooltip).toBe(i18n.global.t("transactions.table.nonceTooltip"));
-    expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.receivedAtTooltip"));
+    expect(createdAtTooltip).toBe(i18n.global.t("transactions.table.timestampTooltip"));
   });
   it("renders indexing transaction status", async () => {
     const wrapper = mount(Table, {

@@ -10,6 +10,7 @@ import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
 
 import { numberToHexString } from "@/utils/formatters";
+import { ISOStringFromUnixTimestamp } from "@/utils/helpers";
 
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
@@ -99,9 +100,11 @@ export default (context = useContext()) => {
         provider.getTransaction(hash),
         provider.getTransactionReceipt(hash),
       ]);
+      const block = transactionData?.blockNumber != null ? await provider.getBlock(transactionData.blockNumber) : null;
       if (!transactionData || !transactionReceipt) {
         return null;
       }
+      const blockTimestamp = block ? ISOStringFromUnixTimestamp(block.timestamp) : "";
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const gasPerPubdata = (transactionData as any).gasPerPubdata;
       const tx = {
@@ -127,8 +130,7 @@ export default (context = useContext()) => {
         indexInBlock: transactionReceipt.index,
         isL1Originated: [126, 127].includes(transactionData.type),
         nonce: transactionData.nonce,
-        receivedAt: "", // TODO: replace with block timestamp
-
+        receivedAt: blockTimestamp,
         status: "indexing" as TransactionStatus,
 
         logs: transactionReceipt.logs.map((item) => ({

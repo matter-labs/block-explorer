@@ -52,11 +52,11 @@ const event = {
 
 describe("helpers:", () => {
   it("returns utc string from unix timestamp", () => {
-    expect(utcStringFromUnixTimestamp(1645606700)).toBe("2022-02-23 08:58 UTC");
+    expect(utcStringFromUnixTimestamp(1645606700)).toBe("2022-02-23 08:58:20 AM UTC");
   });
 
   it("returns utc string from ISO string", () => {
-    expect(utcStringFromISOString("2022-04-08T18:21:14.362648Z")).toBe("2022-04-08 18:21:14 UTC");
+    expect(utcStringFromISOString("2022-04-08T18:21:14.362648Z")).toBe("2022-04-08 18:21:14 PM UTC");
   });
 
   it("returns ISO string from unix timestamp", () => {
@@ -68,12 +68,12 @@ describe("helpers:", () => {
   });
 
   it("returns local date from ISO string", () => {
-    const result = format(new Date("2022-04-08T18:21:14.362648Z"), "yyyy-MM-dd HH:mm");
+    const result = format(new Date("2022-04-08T18:21:14.362648Z"), "yyyy-MM-dd HH:mm:ss a 'UTC'");
     expect(localDateFromISOString("2022-04-08T18:21:14.362648Z")).toBe(result);
   });
 
   it("returns local date from unix timestamp", () => {
-    const result = format(new Date(1645606700 * 1000), "yyyy-MM-dd HH:mm");
+    const result = format(new Date(1645606700 * 1000), "yyyy-MM-dd HH:mm:ss a 'UTC'");
     expect(localDateFromUnixTimestamp(1645606700)).toBe(result);
   });
 

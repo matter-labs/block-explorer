@@ -14,19 +14,19 @@ export const DefaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export function utcStringFromUnixTimestamp(timestamp: number) {
   const isoDate = new Date(+`${timestamp}000`).toISOString();
-  return format(new Date(isoDate.slice(0, -1)), "yyyy-MM-dd HH:mm 'UTC'");
+  return format(new Date(isoDate.slice(0, -1)), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function utcStringFromISOString(ISOString: string) {
-  return format(new Date(ISOString.slice(0, -1)), "yyyy-MM-dd HH:mm:ss 'UTC'");
+  return format(new Date(ISOString.slice(0, -1)), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function localDateFromISOString(ISOString: string) {
-  return format(new Date(ISOString), "yyyy-MM-dd HH:mm");
+  return format(new Date(ISOString), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function localDateFromUnixTimestamp(timestamp: number) {
-  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm");
+  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function ISOStringFromUnixTimestamp(timestamp: number) {
