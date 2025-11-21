@@ -76,7 +76,7 @@ jobs:
         run: |
           sha=$(git rev-parse --short HEAD)
           ts=$(date +%s%N | cut -b1-13)
-          echo "::set-output name=imageTag::${sha}-${ts}"
+          echo "::set-output name=imageTag::${sha}-${ts}-era"
 
       - name: Auth to google artifact registry
         run: |
