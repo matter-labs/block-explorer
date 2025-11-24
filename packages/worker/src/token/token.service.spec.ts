@@ -7,7 +7,7 @@ import { TokenRepository } from "../repositories/token.repository";
 import { AddressRepository } from "../repositories/address.repository";
 import { TokenService } from "./token.service";
 import { ContractAddress } from "../dataFetcher/types";
-import { BASE_TOKEN_L2_ADDRESS, ZERO_ADDRESS } from "../constants";
+import { BASE_TOKEN_L2_ADDRESS, ZERO_ADDRESS, L2_ASSET_ROUTER_ADDRESS } from "../constants";
 import { Token } from "../entities";
 import { ConfigService } from "@nestjs/config";
 
@@ -20,11 +20,7 @@ describe("TokenService", () => {
   let stopGetTokenInfoDurationMetricMock: jest.Mock;
   let configServiceMock: ConfigService;
   beforeEach(async () => {
-    blockchainServiceMock = mock<BlockchainService>({
-      bridgeAddresses: {
-        l2Erc20DefaultBridge: "0x0000000000000000000000000000000000001111",
-      },
-    });
+    blockchainServiceMock = mock<BlockchainService>({});
     tokenRepositoryMock = mock<TokenRepository>();
     addressRepositoryMock = mock<AddressRepository>();
 
@@ -88,7 +84,7 @@ describe("TokenService", () => {
 
       transactionReceipt = mock<TransactionReceipt>({
         logs: [],
-        to: "0x0000000000000000000000000000000000001111",
+        to: L2_ASSET_ROUTER_ADDRESS,
       });
 
       deployedContractAddress = mock<ContractAddress>({
@@ -350,7 +346,7 @@ describe("TokenService", () => {
 
       beforeEach(() => {
         transactionReceipt = mock<TransactionReceipt>({
-          to: "0x0000000000000000000000000000000000001111",
+          to: L2_ASSET_ROUTER_ADDRESS,
           logs: [
             mock<Log>({
               topics: [
@@ -407,65 +403,6 @@ describe("TokenService", () => {
     describe("when there is a bridge initialize log in transaction receipt which is not produced by the bridge contract", () => {
       beforeEach(() => {
         transactionReceipt = mock<TransactionReceipt>({
-          to: "0x0000000000000000000000000000000000001112",
-          logs: [
-            mock<Log>({
-              topics: [
-                "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
-                "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
-                "0x01000125c745537b5254be2ca086aee7fbd5d91789ed15790a942f9422d36447",
-                "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
-              ],
-            }),
-            mock<Log>({
-              address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
-              topics: [
-                "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
-                "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
-              ],
-              data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000134c313131206465706c6f79656420746f204c310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044c31313100000000000000000000000000000000000000000000000000000000",
-            }),
-          ],
-        });
-
-        deployedContractAddress = mock<ContractAddress>({
-          address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
-          blockNumber: 10,
-          transactionHash: "transactionHash",
-          logIndex: 20,
-        });
-      });
-
-      it("starts the get token info duration metric", async () => {
-        await tokenService.saveERC20Token(deployedContractAddress, transactionReceipt);
-        expect(startGetTokenInfoDurationMetricMock).toHaveBeenCalledTimes(1);
-      });
-
-      it("gets token data by the contract address", async () => {
-        await tokenService.saveERC20Token(deployedContractAddress, transactionReceipt);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
-      });
-
-      it("upserts the token without l1Address", async () => {
-        await tokenService.saveERC20Token(deployedContractAddress, transactionReceipt);
-        expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(1);
-        expect(tokenRepositoryMock.upsert).toHaveBeenCalledWith({
-          ...tokenData,
-          blockNumber: deployedContractAddress.blockNumber,
-          transactionHash: deployedContractAddress.transactionHash,
-          l2Address: deployedContractAddress.address,
-          l1Address: undefined,
-          logIndex: deployedContractAddress.logIndex,
-        });
-      });
-    });
-
-    describe("when there is a bridge initialize log in transaction receipt but the default bridge contract is not defined", () => {
-      beforeEach(() => {
-        blockchainServiceMock.bridgeAddresses.l2Erc20DefaultBridge = undefined;
-        transactionReceipt = mock<TransactionReceipt>({
-          ...transactionReceipt,
           to: "0x0000000000000000000000000000000000001112",
           logs: [
             mock<Log>({

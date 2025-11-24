@@ -10,7 +10,7 @@ import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { ContractAddress } from "../dataFetcher/types";
 import parseLog from "../utils/parseLog";
 import { stringTransformer } from "../transformers/string.transformer";
-import { CONTRACT_INTERFACES, BASE_TOKEN_L2_ADDRESS } from "../constants";
+import { CONTRACT_INTERFACES, BASE_TOKEN_L2_ADDRESS, L2_ASSET_ROUTER_ADDRESS } from "../constants";
 import { ConfigService } from "@nestjs/config";
 
 export interface Token {
@@ -68,7 +68,7 @@ export class TokenService {
 
     const bridgeLog =
       transactionReceipt &&
-      transactionReceipt.to?.toLowerCase() === this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge &&
+      transactionReceipt.to?.toLowerCase() === L2_ASSET_ROUTER_ADDRESS &&
       transactionReceipt.logs?.find(
         (log) =>
           isLogOfType(log, [LogType.BridgeInitialization, LogType.BridgeInitialize]) &&

@@ -8,7 +8,7 @@ import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { ContractAddress } from "../transaction/transactionTraces.service";
 import { ExceededRetriesTotalTimeoutError } from "../blockchain/retryableContract";
 import parseLog from "../utils/parseLog";
-import { CONTRACT_INTERFACES, BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
+import { CONTRACT_INTERFACES, BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS, L2_ASSET_ROUTER_ADDRESS } from "../constants";
 
 export interface Token {
   l2Address: string;
@@ -81,7 +81,7 @@ export class TokenService {
     const bridgeLog =
       transactionReceipt &&
       transactionReceipt.to &&
-      transactionReceipt.to.toLowerCase() === this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge &&
+      transactionReceipt.to.toLowerCase() === L2_ASSET_ROUTER_ADDRESS &&
       transactionReceipt.logs?.find(
         (log) =>
           isLogOfType(log, [LogType.BridgeInitialization, LogType.BridgeInitialize]) &&

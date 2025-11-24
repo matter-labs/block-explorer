@@ -4,7 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as timersPromises from "timers/promises";
-import { BlockchainService, BridgeAddresses } from "./blockchain.service";
+import { BlockchainService } from "./blockchain.service";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { RetryableContract } from "./retryableContract";
 import {
@@ -19,7 +19,6 @@ const metricProviderKey = "PROM_METRIC_BLOCKCHAIN_RPC_CALL_DURATION_SECONDS";
 
 describe("BlockchainService", () => {
   let app: TestingModule;
-  const l2Erc20Bridge = "l2Erc20Bridge";
   let blockchainService: BlockchainService;
   let provider: JsonRpcProviderBase;
   let configServiceMock: ConfigService;
@@ -70,10 +69,6 @@ describe("BlockchainService", () => {
     app.useLogger(mock<Logger>());
 
     blockchainService = app.get<BlockchainService>(BlockchainService);
-
-    blockchainService.bridgeAddresses = mock<BridgeAddresses>({
-      l2Erc20DefaultBridge: l2Erc20Bridge.toLowerCase(),
-    });
   });
 
   afterEach(() => {

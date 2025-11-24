@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Listener, Interface } from "ethers";
@@ -18,10 +18,6 @@ import { RetryableContract } from "./retryableContract";
 import isBaseToken from "../utils/isBaseToken";
 import * as erc20Abi from "../abis/erc20.json";
 
-export interface BridgeAddresses {
-  l2Erc20DefaultBridge?: string;
-}
-
 export interface TransactionTrace {
   type: string;
   from: string;
@@ -31,12 +27,11 @@ export interface TransactionTrace {
 }
 
 @Injectable()
-export class BlockchainService implements OnModuleInit {
+export class BlockchainService {
   private readonly logger: Logger;
   private readonly rpcCallsDefaultRetryTimeout: number;
   private readonly rpcCallsQuickRetryTimeout: number;
   private readonly errorCodesForQuickRetry: string[] = ["NETWORK_ERROR", "ECONNRESET", "ECONNREFUSED", "TIMEOUT"];
-  public bridgeAddresses: BridgeAddresses;
 
   public constructor(
     configService: ConfigService,
@@ -155,14 +150,5 @@ export class BlockchainService implements OnModuleInit {
           code: contract[1],
         })) || []
     );
-  }
-
-  public async onModuleInit(): Promise<void> {
-    //const bridgeAddresses = await this.getDefaultBridgeAddresses();
-    this.bridgeAddresses = {
-      // TODO: figure out how bridging works in ZKsync OS
-      l2Erc20DefaultBridge: "", //bridgeAddresses.erc20L2?.toLowerCase(),
-    };
-    this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
   }
 }
