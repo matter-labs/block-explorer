@@ -7,6 +7,7 @@ import {
   L2_CONTRACT_DEPLOYER_ADDRESS,
   CONTRACT_INTERFACES,
   BASE_TOKEN_ADDRESS,
+  L1_TO_L2_TX_TYPE,
 } from "../constants";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { TransferType } from "../transfer/transfer.service";
@@ -121,6 +122,24 @@ export class TransactionTracesService {
       transfers: extractedTraceData.transfersWithValue,
       tokens: [],
     };
+
+    // Check if transaction is a deposit
+    if (transaction.type === L1_TO_L2_TX_TYPE && transaction.value > 0) {
+      transactionTraceData.transfers.push({
+        from: transaction.from.toLowerCase(),
+        to: transaction.to.toLowerCase(),
+        transactionHash: transaction.hash,
+        blockNumber: transaction.blockNumber,
+        amount: BigInt(transaction.value),
+        tokenAddress: BASE_TOKEN_ADDRESS,
+        type: TransferType.Deposit,
+        tokenType: TokenType.BaseToken,
+        isFeeOrRefund: false,
+        logIndex: transactionTraceData.transfers.length + 1,
+        transactionIndex: transaction.index,
+        timestamp: unixTimeToDate(block.timestamp),
+      });
+    }
 
     // TODO: check how system upgrades are performed in ZKsync OS
     // Process such txs properly, remove the code below if not relevant

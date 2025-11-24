@@ -72,11 +72,21 @@ export class BlockProcessor {
       if (lastDbBlock.hash === lastBlockFromBlockchain?.hash) {
         return false;
       }
+      this.logger.warn(
+        `Last DB block's hash (${lastDbBlock.hash}) doesn't match the hash from rpc (${
+          lastBlockFromBlockchain?.hash || null
+        })`
+      );
       this.triggerBlocksRevertEvent(lastDbBlockNumber);
       return false;
     }
 
     if (lastDbBlock && lastDbBlock.hash !== blocksToProcess[0]?.block?.parentHash) {
+      this.logger.warn(
+        `Last DB block's hash (${lastDbBlock.hash}) doesn't match the next block's parent hash from rpc (${
+          blocksToProcess[0]?.block?.parentHash || null
+        })`
+      );
       this.triggerBlocksRevertEvent(lastDbBlockNumber);
       return false;
     }

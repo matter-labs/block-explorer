@@ -1,10 +1,15 @@
 import { ConfigService } from "@nestjs/config";
+import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import waitFor from "../utils/waitFor";
 import { BalancesCleanerService, BalanceService } from ".";
 import { BlockRepository } from "../repositories/block.repository";
 
 jest.mock("../utils/waitFor");
+jest.mock("@nestjs/common", () => ({
+  ...jest.requireActual("@nestjs/common"),
+  Logger: jest.fn(),
+}));
 
 describe("BalancesCleanerService", () => {
   const lastVerifiedBlockNumber = 10;
@@ -13,7 +18,10 @@ describe("BalancesCleanerService", () => {
   let balancesCleanerService: BalancesCleanerService;
 
   beforeEach(() => {
-    (waitFor as jest.Mock).mockResolvedValue(null);
+    (Logger as unknown as jest.Mock).mockReturnValue({
+      log: jest.fn(),
+    }),
+      (waitFor as jest.Mock).mockResolvedValue(null);
     balanceServiceMock = mock<BalanceService>({
       getDeleteBalancesFromBlockNumber: jest.fn().mockResolvedValue(5),
     });

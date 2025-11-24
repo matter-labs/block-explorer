@@ -69,6 +69,6 @@ export const CONTRACT_INTERFACES = {
   },
 };
 
-// 127 is a L1 priority tx
-// 126 is an upgrade tx
-export const L1_ORIGINATED_TX_TYPES = [126, 127];
+export const L1_TO_L2_TX_TYPE = 127;
+export const UPGRADE_TX_TYPE = 126;
+export const L1_ORIGINATED_TX_TYPES = [UPGRADE_TX_TYPE, L1_TO_L2_TX_TYPE];
