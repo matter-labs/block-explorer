@@ -1,11 +1,11 @@
 import { Test, TestingModuleBuilder } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
-import { utils } from "zksync-ethers";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
 import { BalanceService } from "./";
+import { ETH_L1_ADDRESS } from "../constants";
 
 describe("BalanceService", () => {
   let testingModuleBuilder: TestingModuleBuilder;
@@ -401,9 +401,9 @@ describe("BalanceService", () => {
     beforeEach(() => {
       const blockBalances = new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
       blockBalances.set(
-        utils.ETH_ADDRESS,
+        ETH_L1_ADDRESS,
         new Map<string, { balance: bigint; tokenType: TokenType }>([
-          [utils.ETH_ADDRESS, { balance: undefined, tokenType: TokenType.BaseToken }],
+          [ETH_L1_ADDRESS, { balance: undefined, tokenType: TokenType.BaseToken }],
         ])
       );
       blockBalances.set(
@@ -437,7 +437,7 @@ describe("BalanceService", () => {
     it("requests balances from the blockchain service", async () => {
       await balanceService.getChangedBalances(blockNumber);
       expect(blockchainServiceMock.getBalance).toHaveBeenCalledTimes(5);
-      expect(blockchainServiceMock.getBalance).toHaveBeenCalledWith(utils.ETH_ADDRESS, blockNumber, utils.ETH_ADDRESS);
+      expect(blockchainServiceMock.getBalance).toHaveBeenCalledWith(ETH_L1_ADDRESS, blockNumber, ETH_L1_ADDRESS);
       expect(blockchainServiceMock.getBalance).toHaveBeenCalledWith(addresses[0], blockNumber, tokenAddresses[0][0]);
       expect(blockchainServiceMock.getBalance).toHaveBeenCalledWith(addresses[0], blockNumber, tokenAddresses[0][1]);
       expect(blockchainServiceMock.getBalance).toHaveBeenCalledWith(addresses[1], blockNumber, tokenAddresses[1][0]);

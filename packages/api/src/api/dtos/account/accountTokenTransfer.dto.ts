@@ -108,13 +108,6 @@ export class AccountTokenTransferDto {
 
   @ApiProperty({
     type: String,
-    description: "L1 batch number",
-    example: "3233097",
-  })
-  public readonly l1BatchNumber: string;
-
-  @ApiProperty({
-    type: String,
     description: "The timestamp when the parent transaction was received",
     example: "1679988122",
   })

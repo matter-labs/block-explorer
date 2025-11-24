@@ -1,15 +1,11 @@
 import { Injectable } from "@nestjs/common";
-import { types } from "zksync-ethers";
+import { type TransactionResponse } from "ethers";
 import { Transaction } from "../entities";
 import { UnitOfWork } from "../unitOfWork";
 import { BaseRepository } from "./base.repository";
 import { AddressTransactionRepository } from "./addressTransaction.repository";
 
-export interface TransactionDto extends types.TransactionResponse {
-  fee: string;
-  receiptStatus: number;
-  isL1Originated: boolean;
-  receivedAt: Date;
+export interface TransactionDto extends TransactionResponse {
   error?: string;
   revertReason?: string;
 }

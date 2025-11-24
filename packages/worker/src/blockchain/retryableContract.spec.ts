@@ -1,8 +1,9 @@
 import * as ethers from "ethers";
 import { mock } from "jest-mock-extended";
-import { utils } from "zksync-ethers";
+import { Interface } from "ethers";
 import { setTimeout } from "timers/promises";
 import { RetryableContract } from "./retryableContract";
+import * as erc20ABI from "../abis/erc20.json";
 
 jest.mock("ethers", () => ({
   ...jest.requireActual("ethers"),
@@ -31,9 +32,9 @@ describe("RetryableContract", () => {
 
   describe("constructor", () => {
     it("inits Contract instance with specified ctor params", async () => {
-      new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
       expect(ethers.Contract).toHaveBeenCalledTimes(1);
-      expect(ethers.Contract).toBeCalledWith(tokenAddress, utils.IERC20, providerMock);
+      expect(ethers.Contract).toBeCalledWith(tokenAddress, new Interface(erc20ABI), providerMock);
     });
   });
 
@@ -46,7 +47,7 @@ describe("RetryableContract", () => {
         contractField: fieldValue,
       });
 
-      contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
     });
 
     it("returns field value", () => {
@@ -64,7 +65,7 @@ describe("RetryableContract", () => {
         contractFn: () => functionResult,
       });
 
-      contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
     });
 
     it("returns function call result", () => {
@@ -82,7 +83,7 @@ describe("RetryableContract", () => {
         contractFn: async () => functionResult,
       });
 
-      contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
     });
 
     it("returns function call async result", async () => {
@@ -103,7 +104,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+        contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
       });
 
       it("throws an error", async () => {
@@ -130,7 +131,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+        contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
       });
 
       it("throws an error", async () => {
@@ -156,7 +157,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+        contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
       });
 
       it("throws an error", async () => {
@@ -189,7 +190,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+        contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock, 20000);
       });
 
       it("retries and returns the result when it's available", async () => {
@@ -228,7 +229,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+        contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock, 20000);
       });
 
       it("retries and returns the result when it's available", async () => {

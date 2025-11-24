@@ -5,7 +5,7 @@ import { Repository, SelectQueryBuilder, FindOptionsOrder } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { BlockService, FindManyOptions } from "./block.service";
-import { Block } from "./block.entity";
+import { Block, BlockStatus } from "./block.entity";
 import { BlockDetails } from "./blockDetails.entity";
 
 jest.mock("../common/utils");
@@ -99,14 +99,9 @@ describe("BlockService", () => {
       expect(queryBuilderMock.select).toHaveBeenCalledWith("block.number");
     });
 
-    it("joins batch record to get batch specific fields", async () => {
+    it("filters block record by status", async () => {
       await service.getLastVerifiedBlockNumber();
-      expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith("block.batch", "batches");
-    });
-
-    it("filters batch record by executedAt", async () => {
-      await service.getLastVerifiedBlockNumber();
-      expect(queryBuilderMock.where).toHaveBeenCalledWith("batches.executedAt IS NOT NULL");
+      expect(queryBuilderMock.where).toHaveBeenCalledWith("block.status = :status", { status: BlockStatus.Executed });
     });
 
     it("orders blocks by number DESC", async () => {
@@ -146,7 +141,6 @@ describe("BlockService", () => {
       expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledTimes(1);
       expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { number: blockRecord.number },
-        relations: { batch: true },
       });
     });
 
@@ -156,17 +150,6 @@ describe("BlockService", () => {
       expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { number: blockRecord.number },
         select: ["number", "timestamp"],
-        relations: { batch: true },
-      });
-    });
-
-    it("overrides default relations setting if custom value is specified", async () => {
-      await service.findOne(blockRecord.number, ["number", "timestamp"], { batch: false });
-      expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledTimes(1);
-      expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledWith({
-        where: { number: blockRecord.number },
-        select: ["number", "timestamp"],
-        relations: { batch: false },
       });
     });
 
@@ -215,16 +198,6 @@ describe("BlockService", () => {
       await service.findAll(filterOptions, pagingOptions);
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("block");
-    });
-
-    it("joins batch record to get batch specific fields", async () => {
-      await service.findAll(filterOptions, pagingOptions);
-      expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("block.batch", "batches");
-    });
-
-    it("selects only needed batch fields", async () => {
-      await service.findAll(filterOptions, pagingOptions);
-      expect(queryBuilderMock.addSelect).toHaveBeenCalledWith("batches.executedAt");
     });
 
     it("applies filters", async () => {

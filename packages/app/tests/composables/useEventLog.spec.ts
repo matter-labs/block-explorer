@@ -9,7 +9,12 @@ import ERC20VerificationInfo from "@/../mock/contracts/ERC20VerificationInfo.jso
 import type { Address } from "@/types";
 
 vi.mock("ohmyfetch", () => {
-  const fetchSpy = vi.fn(() => Promise.resolve(ERC20VerificationInfo));
+  const fetchSpy = vi.fn(() =>
+    Promise.resolve({
+      status: "1",
+      result: ERC20VerificationInfo.ABI,
+    })
+  );
   (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
     $fetch: fetchSpy,

@@ -1,4 +1,4 @@
-import { Batch } from "../batch/batch.entity";
+import { Balance } from "../balance/balance.entity";
 import { Transaction } from "../transaction/entities/transaction.entity";
 import { getQueryString, isCounterSupported } from "./counter.utils";
 
@@ -17,7 +17,7 @@ describe("Counter utils", () => {
 
   describe("isCounterSupported", () => {
     it("returns false when table is not supported", () => {
-      expect(isCounterSupported<Batch>("batches", {})).toBe(false);
+      expect(isCounterSupported<Balance>("balances", {})).toBe(false);
     });
 
     it("returns false when counter criteria is not supported", () => {

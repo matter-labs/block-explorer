@@ -18,18 +18,10 @@ const transaction: TransactionListItem = {
   fee: "0x3b9329f2a880",
   nonce: 69,
   blockNumber: 6539779,
-  l1BatchNumber: 74373,
   blockHash: "0x5ad6b0475a6bdff6007e62adec0ceed0796fb427fe8f4de310432a52e118800b",
   transactionIndex: 5,
   receivedAt: "2023-06-20T12:10:44.187Z",
   status: "included",
-  commitTxHash: null,
-  executeTxHash: null,
-  proveTxHash: null,
-  commitChainId: null,
-  proveChainId: null,
-  executeChainId: null,
-  isL1BatchSealed: false,
   gasPrice: "4000",
   gasLimit: "5000",
   gasUsed: "3000",
@@ -91,12 +83,11 @@ describe("useTransactions:", () => {
       fromDate: undefined,
       toDate: undefined,
       blockNumber: 0,
-      l1BatchNumber: 0,
     }));
     const composable = useTransactions(searchParams);
     await composable.load(1);
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "https://block-explorer-api.testnets.zksync.dev/transactions?blockNumber=0&l1BatchNumber=0&limit=10&page=1"
+      "https://block-explorer-api.testnets.zksync.dev/transactions?blockNumber=0&limit=10&page=1"
     );
   });
 

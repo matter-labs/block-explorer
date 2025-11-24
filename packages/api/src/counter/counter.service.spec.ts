@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Transaction } from "../transaction/entities/transaction.entity";
-import { Batch } from "../batch/batch.entity";
+import { Balance } from "../balance/balance.entity";
 import { Counter } from "./counter.entity";
 import { CounterService } from "./counter.service";
 
@@ -28,13 +28,13 @@ describe("CounterService", () => {
 
   describe("count", () => {
     it("throws an error when table is not supported", async () => {
-      const expectedError = new Error('Counter for table batches and criteria "" is not supported');
-      await expect(service.count(Batch)).rejects.toThrowError(expectedError);
+      const expectedError = new Error('Counter for table balances and criteria "" is not supported');
+      await expect(service.count(Balance)).rejects.toThrowError(expectedError);
     });
 
     it("throws an error when specified criteria is not supported", async () => {
-      const expectedError = new Error('Counter for table transactions and criteria "l1BatchNumber=1" is not supported');
-      await expect(service.count(Transaction, { l1BatchNumber: 1 })).rejects.toThrowError(expectedError);
+      const expectedError = new Error('Counter for table transactions and criteria "blockNumber=1" is not supported');
+      await expect(service.count(Transaction, { blockNumber: 1 })).rejects.toThrowError(expectedError);
     });
 
     it("returns 0 if there is no counter found in the DB", async () => {

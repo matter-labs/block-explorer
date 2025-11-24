@@ -24,8 +24,7 @@
             ],
             "data": "0x000000000000000000000000000000000000000000000000000134b578f8b200",
             "index": 2,
-            "blockHash": "0xe4b10f05a8e730bb58bbdd87bf8f9a39d751919d0248353b06c0c5981e5e1e85",
-            "l1BatchNumber": 604128
+            "blockHash": "0xe4b10f05a8e730bb58bbdd87bf8f9a39d751919d0248353b06c0c5981e5e1e85"
         }
     ],
     "blockNumber": 3230534,
@@ -40,8 +39,6 @@
     },
     "status": 1,
     "type": 0,
-    "l1BatchNumber": 604128,
-    "l1BatchTxIndex": 14,
     "l2ToL1Logs": [],
     "byzantium": true
 }

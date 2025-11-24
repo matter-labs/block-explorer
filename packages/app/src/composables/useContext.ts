@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
 
 import { useStorage } from "@vueuse/core";
-import { Provider } from "zksync-ethers";
+import { JsonRpcProvider } from "ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";
@@ -22,14 +22,14 @@ export type Context = {
   user: Ref<UserContext>;
   currentNetwork: ComputedRef<NetworkConfig>;
   networks: ComputedRef<NetworkConfig[]>;
-  getL2Provider: () => Provider;
+  getL2Provider: () => JsonRpcProvider;
   identifyNetwork: () => void;
   getSettlementChainExplorerUrl: (chainId: number | null) => string | undefined;
   getSettlementChainName: (chainId: number | null, commitTxHash?: string | null) => string;
   isGatewaySettlementChain: (chainId: number | null) => boolean;
 };
 
-let l2Provider: Provider | null;
+let l2Provider: JsonRpcProvider | null;
 export default (): Context => {
   const environmentConfig = useEnvironmentConfig();
 
@@ -76,7 +76,7 @@ export default (): Context => {
 
   function getL2Provider() {
     if (!l2Provider) {
-      l2Provider = new Provider(currentNetwork.value.rpcUrl);
+      l2Provider = new JsonRpcProvider(currentNetwork.value.rpcUrl);
     }
     return l2Provider;
   }

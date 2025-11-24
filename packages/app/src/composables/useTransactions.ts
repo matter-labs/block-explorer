@@ -5,7 +5,6 @@ import type { ComputedRef } from "vue";
 
 export type TransactionListItem = Api.Response.Transaction;
 export type TransactionSearchParams = {
-  l1BatchNumber?: number;
   blockNumber?: number;
   address?: string;
   fromDate?: string;

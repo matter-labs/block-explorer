@@ -1,6 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { TokenController } from "./token.controller";
 import { TokenService } from "./token.service";
@@ -8,7 +9,7 @@ import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
 import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { UserParam } from "../user/user.decorator";
+import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
@@ -17,11 +18,13 @@ describe("TokenController", () => {
   let controller: TokenController;
   let serviceMock: TokenService;
   let transferServiceMock: TransferService;
+  let configServiceMock: ConfigService;
   let token;
 
   beforeEach(async () => {
     serviceMock = mock<TokenService>();
     transferServiceMock = mock<TransferService>();
+    configServiceMock = mock<ConfigService>();
 
     token = {
       l2Address: "tokenAddress",
@@ -37,6 +40,10 @@ describe("TokenController", () => {
         {
           provide: TransferService,
           useValue: transferServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
       ],
     }).compile();
@@ -129,10 +136,10 @@ describe("TokenController", () => {
       });
 
       describe("when user is provided", () => {
-        let user: MockProxy<UserParam>;
+        let user: MockProxy<UserWithRoles>;
         const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
         beforeEach(() => {
-          user = mock<UserParam>({ address: mockUser });
+          user = mock<UserWithRoles>({ address: mockUser, token: "token", isAdmin: false });
         });
 
         it("includes visibleBy filter", async () => {

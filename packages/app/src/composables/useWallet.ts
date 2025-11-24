@@ -3,12 +3,11 @@ import { type ComputedRef, reactive, toRefs, type ToRefs, unref } from "vue";
 import detectEthereumProvider from "@metamask/detect-provider";
 import { type RemovableRef, useStorage } from "@vueuse/core";
 import { BrowserProvider } from "ethers";
-import { L1Signer, BrowserProvider as L2BrowserProvider, Signer } from "zksync-ethers";
 
 import defaultLogger from "./../utils/logger";
 
 import type { BaseProvider } from "@metamask/providers";
-import type { Provider } from "zksync-ethers";
+import type { AbstractSigner, JsonRpcProvider } from "ethers";
 
 import { numberToHexString } from "@/utils/formatters";
 
@@ -32,8 +31,8 @@ type UseWallet = ToRefs<WalletState> & {
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
 
-  getL1Signer: () => Promise<L1Signer>;
-  getL2Signer: () => Promise<Signer>;
+  getL1Signer: () => Promise<AbstractSigner>;
+  getL2Signer: () => Promise<AbstractSigner>;
   getEthereumProvider: () => Promise<BaseProvider | null>;
   addNetwork: (rpcUrl: string) => Promise<void>;
 };
@@ -76,7 +75,7 @@ export const isAuthenticated: RemovableRef<boolean> = useStorage<boolean>("useWa
 export default (
   context: {
     currentNetwork: ComputedRef<NetworkConfiguration>;
-    getL2Provider: () => Provider;
+    getL2Provider: () => JsonRpcProvider;
   },
   logger = defaultLogger
 ): UseWallet => {
@@ -247,7 +246,7 @@ export default (
     }
 
     const provider = new BrowserProvider(ethereum);
-    return L1Signer.from(await provider.getSigner(), context.getL2Provider()!);
+    return provider.getSigner();
   };
 
   const getL2Signer = async () => {
@@ -257,8 +256,8 @@ export default (
       throw WalletError.NetworkChangeRejected();
     }
 
-    const provider = new L2BrowserProvider(ethereum);
-    return Signer.from(await provider.getSigner(), context.currentNetwork.value.l2ChainId, context.getL2Provider()!);
+    const provider = new BrowserProvider(ethereum);
+    return provider.getSigner();
   };
 
   const addNetwork = async (rpcUrl: string) => {

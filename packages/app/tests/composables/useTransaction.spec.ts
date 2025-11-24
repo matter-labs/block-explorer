@@ -8,6 +8,8 @@ import useTransaction, { getTransferNetworkOrigin } from "@/composables/useTrans
 
 import type { Context } from "@/composables/useContext";
 
+import { ISOStringFromUnixTimestamp } from "@/utils/helpers";
+
 const hash = "0x011b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
 const hashPaidByPaymaster = "0x111b4d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bce";
 
@@ -79,18 +81,10 @@ vi.mock("ohmyfetch", async () => {
     fee: "0x521f303519100",
     nonce: 24,
     blockNumber: 1162235,
-    l1BatchNumber: 11014,
-    isL1BatchSealed: true,
     blockHash: "0x1fc6a30903866bf91cede9f831e71f2c7ba0dd023ffc044fe469c51b215d950b",
     transactionIndex: 0,
     receivedAt: "2023-02-28T08:42:08.198Z",
     status: "verified",
-    commitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
-    executeTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
-    proveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
-    commitChainId: 1,
-    proveChainId: 1,
-    executeChainId: 1,
     gasPrice: "4000",
     gasLimit: "5000",
     gasUsed: "3000",
@@ -405,12 +399,6 @@ describe("useTransaction:", () => {
         value: "0",
         from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
         to: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-        ethCommitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
-        ethExecuteTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
-        ethProveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
-        commitChainId: 1,
-        proveChainId: 1,
-        executeChainId: 1,
         fee: "0x521f303519100",
         feeData: {
           amountPaid: "0x521f303519100",
@@ -466,8 +454,6 @@ describe("useTransaction:", () => {
         status: "verified",
         error: null,
         revertReason: null,
-        l1BatchNumber: 11014,
-        isL1BatchSealed: true,
         logs: [
           {
             address: "0x000000000000000000000000000000000000800A",
@@ -605,6 +591,8 @@ describe("useTransaction:", () => {
     });
     describe("when transaction request fails with not found error", () => {
       it("fetches transaction data directly from blockchain", async () => {
+        const blockTimestampSeconds = 1677574808;
+        const blockTimestampISO = ISOStringFromUnixTimestamp(blockTimestampSeconds);
         const provider = {
           getTransaction: vi.fn().mockResolvedValue({
             hash: "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf",
@@ -615,33 +603,19 @@ describe("useTransaction:", () => {
             data: "0xa9059cbb00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36000000000000000000000000000000000000000000000000000000000000000c",
             value: "0",
             nonce: 24,
-            l1BatchNumber: 11014,
             gasPrice: "4000",
             gasLimit: "5000",
             maxFeePerGas: "7000",
             maxPriorityFeePerGas: "8000",
           }),
-          getTransactionDetails: vi.fn().mockResolvedValue({
-            status: "verified",
-            ethCommitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
-            ethExecuteTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
-            ethProveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
-            fee: "0x521f303519100",
-            isL1Originated: false,
-            receivedAt: "2023-02-28T08:42:08.198Z",
-            gasPerPubdata: "0x320",
-          }),
           getTransactionReceipt: vi.fn().mockResolvedValue({
             index: 0,
             logs: logs.map((log) => ({ ...log, index: log.logIndex })),
             gasUsed: "3000",
+            gasPrice: "4000",
             contractAddress: null,
           }),
-          getL1BatchDetails: vi.fn().mockResolvedValue({
-            commitChainId: 1,
-            proveChainId: 1,
-            executeChainId: 1,
-          }),
+          getBlock: vi.fn().mockResolvedValue({ timestamp: blockTimestampSeconds }),
         };
         const { transaction, isRequestFailed, getByHash } = useTransaction({
           currentNetwork: {
@@ -655,9 +629,6 @@ describe("useTransaction:", () => {
         await getByHash("0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf");
 
         expect(provider.getTransaction).toBeCalledWith(
-          "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf"
-        );
-        expect(provider.getTransactionDetails).toBeCalledWith(
           "0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf"
         );
         expect(provider.getTransactionReceipt).toBeCalledWith(
@@ -680,15 +651,9 @@ describe("useTransaction:", () => {
           value: "0",
           from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
           to: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-          ethCommitTxHash: "0xe6a7ed0b6bf1c49f27feae3a71e5ba2aa4abaa6e372524369529946eb61a6936",
-          ethExecuteTxHash: "0xdd70c8c2f59d88b9970c3b48a1230320f051d4502d0277124db481a42ada5c33",
-          ethProveTxHash: "0x688c20e2106984bb0ccdadecf01e7bf12088b0ba671d888eca8e577ceac0d790",
-          commitChainId: 1,
-          proveChainId: 1,
-          executeChainId: 1,
-          fee: "0x521f303519100",
+          fee: "12000000",
           feeData: {
-            amountPaid: "0x521f303519100",
+            amountPaid: "12000000",
             isPaidByPaymaster: false,
             refunds: [],
             amountRefunded: "0x0",
@@ -697,10 +662,8 @@ describe("useTransaction:", () => {
           isEvmLike: false,
           isL1Originated: false,
           nonce: 24,
-          receivedAt: "2023-02-28T08:42:08.198Z",
+          receivedAt: blockTimestampISO,
           status: "indexing",
-          l1BatchNumber: 11014,
-          isL1BatchSealed: false,
           logs: [
             {
               address: "0x000000000000000000000000000000000000800A",
@@ -759,7 +722,7 @@ describe("useTransaction:", () => {
           gasPrice: "4000",
           gasLimit: "5000",
           gasUsed: "3000",
-          gasPerPubdata: "800",
+          gasPerPubdata: null,
           maxFeePerGas: "7000",
           maxPriorityFeePerGas: "8000",
         });

@@ -1,18 +1,26 @@
 import { Interface } from "ethers";
-import * as ethTokenAbi from "zksync-ethers/abi/IEthToken.json";
-import * as erc20Abi from "zksync-ethers/abi/IERC20.json";
-import * as l2SharedBridgeAbi from "zksync-ethers/abi/IL2SharedBridge.json";
+import * as ethTokenAbi from "./abis/ethToken.json";
+import * as erc20Abi from "./abis/erc20.json";
+import * as l2SharedBridgeAbi from "./abis/l2SharedBridge.json";
 import * as erc721Abi from "./abis/erc721.json";
 import * as transferEventWithNoIndexesAbi from "./abis/transferEventWithNoIndexes.json";
 import * as l2StandardERC20Abi from "./abis/l2StandardERC20.json";
 import * as l2AssetRouterAbi from "./abis/l2AssetRouter.json";
 import * as l2NativeTokenVaultAbi from "./abis/l2NativeTokenVault.json";
+import * as l2AccountCodeStorageAbi from "./abis/l2AccountCodeStorage.json";
+import * as l2ContractDeployerAbi from "./abis/l2ContractDeployer.json";
+import * as l2BaseTokenAbi from "./abis/l2BaseToken.json";
 
 export const ZERO_HASH_64 = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const BASE_TOKEN_ADDRESS = "0x000000000000000000000000000000000000800a";
 export const ETH_L1_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const ETH_ADDRESS_IN_CONTRACTS = "0x0000000000000000000000000000000000000001";
 export const L2_ASSET_ROUTER_ADDRESS = "0x0000000000000000000000000000000000010003";
 export const L2_NATIVE_TOKEN_VAULT_ADDRESS = "0x0000000000000000000000000000000000010004";
+export const L2_ACCOUNT_CODE_STORAGE_ADDRESS = "0x0000000000000000000000000000000000008002";
+export const L2_CONTRACT_DEPLOYER_ADDRESS = "0x0000000000000000000000000000000000008006";
+export const L2_PROTOCOL_UPGRADES_CALLER_ADDRESS = "0x0000000000000000000000000000000000008007";
+export const BOOTLOADER_FORMAL_ADDRESS = "0x0000000000000000000000000000000000008001";
 
 export const CONTRACT_INTERFACES = {
   ERC20: {
@@ -47,4 +55,20 @@ export const CONTRACT_INTERFACES = {
     interface: new Interface(l2NativeTokenVaultAbi),
     abi: l2NativeTokenVaultAbi,
   },
+  L2_ACCOUNT_CODE_STORAGE: {
+    interface: new Interface(l2AccountCodeStorageAbi),
+    abi: l2AccountCodeStorageAbi,
+  },
+  L2_CONTRACT_DEPLOYER: {
+    interface: new Interface(l2ContractDeployerAbi),
+    abi: l2ContractDeployerAbi,
+  },
+  L2_BASE_TOKEN: {
+    interface: new Interface(l2BaseTokenAbi),
+    abi: l2BaseTokenAbi,
+  },
 };
+
+export const L1_TO_L2_TX_TYPE = 127;
+export const UPGRADE_TX_TYPE = 126;
+export const L1_ORIGINATED_TX_TYPES = [UPGRADE_TX_TYPE, L1_TO_L2_TX_TYPE];

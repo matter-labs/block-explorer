@@ -13,10 +13,11 @@ import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { AddressType } from "./dtos";
 import { TransferService } from "../transfer/transfer.service";
 import { Transfer, TransferType } from "../transfer/transfer.entity";
-import { UserParam } from "../user/user.decorator";
 import { Address } from "./address.entity";
 import { ForbiddenException } from "@nestjs/common";
 import { Wallet, zeroPadValue } from "ethers";
+import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { ConfigService } from "@nestjs/config";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -43,6 +44,14 @@ describe("AddressController", () => {
     balanceServiceMock = mock<BalanceService>();
     transferServiceMock = mock<TransferService>();
 
+    const configServiceValues = {
+      "prividium.permissionsApiUrl": "https://permissions-api.example.com",
+    };
+
+    const configServiceMock = mock<ConfigService>({
+      get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
+    });
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AddressController],
       providers: [
@@ -53,6 +62,10 @@ describe("AddressController", () => {
         {
           provide: BlockService,
           useValue: blockServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
         },
         {
           provide: TransactionService,
@@ -254,10 +267,10 @@ describe("AddressController", () => {
     });
 
     describe("when user is provided", () => {
-      let user: MockProxy<UserParam>;
+      let user: MockProxy<UserWithRoles>;
       const mockUser = "0xc0ffee254729296a45a3885639AC7E10F9d54979";
       beforeEach(() => {
-        user = mock<UserParam>({ address: mockUser });
+        user = mock<UserWithRoles>({ address: mockUser, isAdmin: false, roles: [] });
       });
 
       it("throws if address is an account and is not own address", async () => {
@@ -424,9 +437,14 @@ describe("AddressController", () => {
       });
 
       describe("when user is provided", () => {
-        let user: MockProxy<UserParam>;
+        let user: MockProxy<UserWithRoles>;
         beforeEach(() => {
-          user = mock<UserParam>({ address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" });
+          user = mock<UserWithRoles>({
+            address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            isAdmin: false,
+            roles: [],
+            token: "token1",
+          });
         });
 
         it("includes visibleBy filter", async () => {
@@ -499,9 +517,14 @@ describe("AddressController", () => {
     });
 
     describe("when user is provided", () => {
-      let user: MockProxy<UserParam>;
+      let user: MockProxy<UserWithRoles>;
       beforeEach(() => {
-        user = mock<UserParam>({ address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" });
+        user = mock<UserWithRoles>({
+          address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+          isAdmin: false,
+          roles: [],
+          token: "token",
+        });
       });
 
       it("includes visibleBy filter", async () => {

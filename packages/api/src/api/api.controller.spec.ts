@@ -38,7 +38,12 @@ describe("ApiController", () => {
     it("delegates request handling to a different controller based on module and action from body string", async () => {
       const request = mock<Request>();
       const next = jest.fn();
-      await controller.apiPostHandler(request, next, ApiContractAction.VerifySourceCode, ApiModule.Contract);
+      await controller.apiPostHandler(
+        request,
+        next,
+        { module: ApiModule.Contract, action: ApiContractAction.VerifySourceCode },
+        { module: ApiModule.Contract, action: ApiContractAction.VerifySourceCode }
+      );
 
       expect(request.url).toBe(`/api/${ApiModule.Contract}/${ApiContractAction.VerifySourceCode}`);
       expect(next).toBeCalledTimes(1);

@@ -15,7 +15,6 @@ import { configureApp } from "../src/configureApp";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { applyPrividiumExpressConfig } from "../src/prividium";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
@@ -25,7 +24,6 @@ describe("Prividium API (e2e)", () => {
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transactionRepository: Repository<Transaction>;
   let blockRepository: Repository<BlockDetails>;
-  let batchRepository: Repository<BatchDetails>;
   let agent: request.SuperAgentTest;
 
   const mockWalletAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
@@ -52,21 +50,8 @@ describe("Prividium API (e2e)", () => {
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
 
     // Set up minimal test data
-    await batchRepository.insert({
-      number: 0,
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      l1TxCount: 10,
-      l2TxCount: 20,
-      l1GasPrice: "10000000",
-      l2FairGasPrice: "20000000",
-      commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
-      proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
-      executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
-    });
-
     await blockRepository.insert({
       number: 1,
       hash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -77,7 +62,6 @@ describe("Prividium API (e2e)", () => {
       extraData: "0x",
       l1TxCount: 1,
       l2TxCount: 1,
-      l1BatchNumber: 0,
       miner: "0x0000000000000000000000000000000000000000",
     });
   });
@@ -91,7 +75,6 @@ describe("Prividium API (e2e)", () => {
     await addressTransactionRepository.delete({});
     await transactionRepository.delete({});
     await blockRepository.delete({});
-    await batchRepository.delete({});
 
     await app.close();
   });

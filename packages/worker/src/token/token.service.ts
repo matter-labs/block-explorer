@@ -1,4 +1,4 @@
-import { types, utils } from "zksync-ethers";
+import { type TransactionReceipt } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { In } from "typeorm";
@@ -10,7 +10,7 @@ import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { ContractAddress } from "../dataFetcher/types";
 import parseLog from "../utils/parseLog";
 import { stringTransformer } from "../transformers/string.transformer";
-import { CONTRACT_INTERFACES } from "../constants";
+import { CONTRACT_INTERFACES, BASE_TOKEN_L2_ADDRESS, L2_ASSET_ROUTER_ADDRESS } from "../constants";
 import { ConfigService } from "@nestjs/config";
 
 export interface Token {
@@ -57,7 +57,7 @@ export class TokenService {
 
   public async saveERC20Token(
     contractAddress: ContractAddress,
-    transactionReceipt?: types.TransactionReceipt
+    transactionReceipt?: TransactionReceipt
   ): Promise<void> {
     let erc20Token: {
       symbol: string;
@@ -68,7 +68,7 @@ export class TokenService {
 
     const bridgeLog =
       transactionReceipt &&
-      transactionReceipt.to?.toLowerCase() === this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge &&
+      transactionReceipt.to?.toLowerCase() === L2_ASSET_ROUTER_ADDRESS &&
       transactionReceipt.logs?.find(
         (log) =>
           isLogOfType(log, [LogType.BridgeInitialization, LogType.BridgeInitialize]) &&
@@ -99,12 +99,12 @@ export class TokenService {
         tokenAddress: contractAddress.address,
       });
 
-      if (contractAddress.address.toLowerCase() === utils.L2_BASE_TOKEN_ADDRESS.toLowerCase()) {
+      if (contractAddress.address.toLowerCase() === BASE_TOKEN_L2_ADDRESS.toLowerCase()) {
         await this.tokenRepository.upsert({
           blockNumber: contractAddress.blockNumber,
           transactionHash: contractAddress.transactionHash,
           logIndex: contractAddress.logIndex,
-          l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+          l2Address: BASE_TOKEN_L2_ADDRESS,
           l1Address: this.configService.get<string>("tokens.baseToken.l1Address"),
           symbol: this.configService.get<string>("tokens.baseToken.symbol"),
           name: this.configService.get<string>("tokens.baseToken.name"),
@@ -194,12 +194,12 @@ export class TokenService {
     const l1Address = this.configService.get<string>("tokens.baseToken.l1Address");
 
     const baseToken = await this.tokenRepository.findOneBy({
-      l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+      l2Address: BASE_TOKEN_L2_ADDRESS,
     });
 
     if (!baseToken) {
       const baseTokenContract = await this.addressRepository.findOneBy({
-        address: utils.L2_BASE_TOKEN_ADDRESS,
+        address: BASE_TOKEN_L2_ADDRESS,
       });
 
       // Token entity requires blockNumber, transactionHash and logIndex to be set.
@@ -207,7 +207,7 @@ export class TokenService {
       if (baseTokenContract?.createdInBlockNumber) {
         this.logger.debug("Adding base token to the DB");
         await this.tokenRepository.upsert({
-          l2Address: utils.L2_BASE_TOKEN_ADDRESS,
+          l2Address: BASE_TOKEN_L2_ADDRESS,
           l1Address,
           symbol,
           name,
@@ -228,7 +228,7 @@ export class TokenService {
       this.logger.debug("Updating base token in the DB");
       // This is to update the base token if from the beginning it was added with default base token values
       // before the base token config was updated.
-      await this.tokenRepository.update(utils.L2_BASE_TOKEN_ADDRESS, {
+      await this.tokenRepository.update(BASE_TOKEN_L2_ADDRESS, {
         symbol,
         name,
         decimals,

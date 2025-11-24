@@ -24,6 +24,7 @@ describe("User Decorator", () => {
     const result = userFactory(mockExecutionContext);
     expect(result).toEqual({
       address: mockRequest.session.address,
+      token: "jwt-token",
     });
   });
 

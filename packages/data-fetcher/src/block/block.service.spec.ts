@@ -1,9 +1,7 @@
 import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
-import { types } from "zksync-ethers";
 import { mock } from "jest-mock-extended";
 import { TransactionService } from "../transaction";
-import { LogService } from "../log";
 import { BlockchainService } from "../blockchain";
 import { BalanceService } from "../balance";
 import { BlockService } from "./";
@@ -13,7 +11,6 @@ describe("BlockService", () => {
   let blockService: BlockService;
   let blockchainServiceMock: BlockchainService;
   let transactionServiceMock: TransactionService;
-  let logServiceMock: LogService;
   let balanceServiceMock: BalanceService;
 
   let startGetBlockInfoDurationMetricMock: jest.Mock;
@@ -36,10 +33,6 @@ describe("BlockService", () => {
         {
           provide: TransactionService,
           useValue: transactionServiceMock,
-        },
-        {
-          provide: LogService,
-          useValue: logServiceMock,
         },
         {
           provide: BalanceService,
@@ -77,26 +70,20 @@ describe("BlockService", () => {
         hash: "transactionHash1",
       },
     },
-    {
-      transaction: {
-        hash: "transactionHash2",
-      },
-    },
   ];
-
-  const blockLogData = {
-    logs: [{ index: 0 }, { index: 1 }],
-    transfers: [{ logIndex: 0 }, { logIndex: 1 }],
-  };
 
   const blockInfoData = {
     hash: "hash",
-    transactions: ["transactionHash1", "transactionHash2"],
   };
 
-  const blockDetailsData = {
-    blockHash: "blockHash",
-  };
+  const blockTraceData = [
+    {
+      txHash: "transactionHash1",
+      result: {
+        type: "mock",
+      },
+    },
+  ];
 
   const blockChangedBalances = [
     {
@@ -111,14 +98,11 @@ describe("BlockService", () => {
   beforeEach(async () => {
     blockchainServiceMock = mock<BlockchainService>({
       getBlock: jest.fn().mockResolvedValue(blockInfoData),
-      getBlockDetails: jest.fn().mockResolvedValue(blockDetailsData),
+      debugTraceBlock: jest.fn().mockResolvedValue(blockTraceData),
       getLogs: jest.fn().mockResolvedValue([]),
     });
     transactionServiceMock = mock<TransactionService>({
       getData: jest.fn().mockResolvedValueOnce(transactionData[0]).mockResolvedValueOnce(transactionData[1]),
-    });
-    logServiceMock = mock<LogService>({
-      getData: jest.fn().mockResolvedValue(blockLogData),
     });
     balanceServiceMock = mock<BalanceService>({
       getChangedBalances: jest.fn().mockResolvedValueOnce(blockChangedBalances),
@@ -149,10 +133,7 @@ describe("BlockService", () => {
       const blockData = await blockService.getData(blockNumber);
       expect(blockchainServiceMock.getBlock).toHaveBeenCalledTimes(1);
       expect(blockchainServiceMock.getBlock).toHaveBeenCalledWith(blockNumber);
-      expect(blockchainServiceMock.getBlockDetails).toHaveBeenCalledTimes(1);
-      expect(blockchainServiceMock.getBlockDetails).toHaveBeenCalledWith(blockNumber);
       expect(blockData.block).toEqual(blockInfoData);
-      expect(blockData.blockDetails).toEqual(blockDetailsData);
     });
 
     it("stops the get block info metric", async () => {
@@ -168,7 +149,6 @@ describe("BlockService", () => {
     it("returns data with block info", async () => {
       const blockData = await blockService.getData(blockNumber);
       expect(blockData.block).toEqual(blockInfoData);
-      expect(blockData.blockDetails).toEqual(blockDetailsData);
     });
 
     it("returns null if block does not exist in blockchain", async () => {
@@ -177,17 +157,14 @@ describe("BlockService", () => {
       expect(blockData).toBeNull();
     });
 
-    it("returns null if block details does not exist in blockchain", async () => {
-      (blockchainServiceMock.getBlockDetails as jest.Mock).mockResolvedValue(null);
-      const blockData = await blockService.getData(blockNumber);
-      expect(blockData).toBeNull();
-    });
-
     it("returns block transactions data", async () => {
       const blockData = await blockService.getData(blockNumber);
-      expect(transactionServiceMock.getData).toHaveBeenCalledTimes(2);
-      expect(transactionServiceMock.getData).toHaveBeenCalledWith(blockInfoData.transactions[0], blockDetailsData);
-      expect(transactionServiceMock.getData).toHaveBeenCalledWith(blockInfoData.transactions[1], blockDetailsData);
+      expect(transactionServiceMock.getData).toHaveBeenCalledTimes(1);
+      expect(transactionServiceMock.getData).toHaveBeenCalledWith(
+        blockTraceData[0].txHash,
+        blockTraceData[0].result,
+        blockInfoData
+      );
       expect(blockData.transactions).toEqual(transactionData);
     });
 
@@ -222,37 +199,6 @@ describe("BlockService", () => {
           expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledTimes(1);
           expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledWith(blockNumber);
         }
-      });
-    });
-
-    describe("when block does not contain transactions", () => {
-      let logs: types.Log[];
-      beforeEach(() => {
-        const blockData = mock<types.Block>({
-          ...blockInfoData,
-          transactions: [],
-        });
-        jest.spyOn(blockchainServiceMock, "getBlock").mockReset();
-        jest.spyOn(blockchainServiceMock, "getBlock").mockResolvedValueOnce(blockData);
-        logs = [{ index: 0 } as types.Log, { index: 1 } as types.Log];
-        jest.spyOn(blockchainServiceMock, "getLogs").mockResolvedValueOnce(logs);
-      });
-
-      it("reads logs for block from the blockchain", async () => {
-        await blockService.getData(blockNumber);
-        expect(blockchainServiceMock.getLogs).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.getLogs).toHaveBeenCalledWith({
-          fromBlock: blockNumber,
-          toBlock: blockNumber,
-        });
-      });
-
-      it("gets and returns block data", async () => {
-        const blockData = await blockService.getData(blockNumber);
-        expect(logServiceMock.getData).toHaveBeenCalledTimes(1);
-        expect(logServiceMock.getData).toHaveBeenCalledWith(logs, blockDetailsData);
-        expect(blockData.blockLogs).toEqual(blockLogData.logs);
-        expect(blockData.blockTransfers).toEqual(blockLogData.transfers);
       });
     });
 
@@ -299,16 +245,6 @@ describe("BlockService", () => {
       await blockService.getData(blockNumber);
       expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledTimes(1);
       expect(balanceServiceMock.clearTrackedState).toHaveBeenCalledWith(blockNumber);
-    });
-
-    it("returns empty block logs array", async () => {
-      const blockData = await blockService.getData(blockNumber);
-      expect(blockData.blockLogs).toEqual([]);
-    });
-
-    it("returns empty block transfers array", async () => {
-      const blockData = await blockService.getData(blockNumber);
-      expect(blockData.blockTransfers).toEqual([]);
     });
   });
 });

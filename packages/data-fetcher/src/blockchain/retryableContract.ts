@@ -8,6 +8,17 @@ const { blockchain } = config();
 interface EthersError {
   code: ErrorCode | number;
   shortMessage: string;
+  message: string;
+  info?: {
+    error?: {
+      message: string;
+    };
+  };
+}
+export class ExceededRetriesTotalTimeoutError extends Error {
+  constructor(message?: string) {
+    super(message);
+  }
 }
 
 const MAX_RETRY_INTERVAL = 60000;
@@ -24,9 +35,19 @@ const shouldRetry = (error: EthersError): boolean => {
   return (
     !isPermanentErrorCode &&
     // example block mainnet 47752810
-    !(error.code === 3 && error.shortMessage?.startsWith("execution reverted")) &&
+    !(
+      ["CALL_EXCEPTION", 3].includes(error.code) &&
+      [error.shortMessage, error.message, error.info?.error?.message].find((msg) =>
+        msg?.startsWith("execution reverted")
+      )
+    ) &&
     // example block mainnet 47819836
-    !(error.code === "BAD_DATA" && error.shortMessage?.startsWith("could not decode result data"))
+    !(
+      error.code === "BAD_DATA" &&
+      ["could not decode result data", "invalid length for result data"].find((message) =>
+        error.shortMessage?.startsWith(message)
+      )
+    )
   );
 };
 
@@ -55,14 +76,14 @@ const retryableFunctionCall = async (
     const exceededRetriesTotalTimeout =
       retriesTotalTimeAwaited + retryTimeout > blockchain.rpcCallRetriesMaxTotalTimeout;
     const failedStatus = exceededRetriesTotalTimeout ? "exceeded total retries timeout" : "retrying...";
-    logger.warn({
+    logger[exceededRetriesTotalTimeout ? "error" : "warn"]({
       message: `Requested contract function ${functionName} failed to execute, ${failedStatus}`,
       contractAddress: addressOrName,
       error,
     });
 
     if (exceededRetriesTotalTimeout) {
-      throw error;
+      throw new ExceededRetriesTotalTimeoutError(error);
     }
   }
   await setTimeout(retryTimeout);

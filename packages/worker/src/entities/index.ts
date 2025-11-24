@@ -1,7 +1,6 @@
 export * from "./base.entity";
 export * from "./countable.entity";
 export * from "./token.entity";
-export * from "./batch.entity";
 export * from "./block.entity";
 export * from "./transaction.entity";
 export * from "./addressTransaction.entity";

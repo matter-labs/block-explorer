@@ -1,8 +1,7 @@
 import { format } from "date-fns";
 import { AbiCoder, Interface } from "ethers";
-import { utils } from "zksync-ethers";
 
-import { DEPLOYER_CONTRACT_ADDRESS } from "./constants";
+import { BOOTLOADER_FORMAL_ADDRESS, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
 
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
@@ -11,25 +10,23 @@ import type { TokenTransfer } from "@/composables/useTransaction";
 import type { InputData } from "@/composables/useTransactionData";
 import type { ParamType, Result } from "ethers";
 
-const { BOOTLOADER_FORMAL_ADDRESS } = utils;
-
 export const DefaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export function utcStringFromUnixTimestamp(timestamp: number) {
   const isoDate = new Date(+`${timestamp}000`).toISOString();
-  return format(new Date(isoDate.slice(0, -1)), "yyyy-MM-dd HH:mm 'UTC'");
+  return format(new Date(isoDate.slice(0, -1)), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function utcStringFromISOString(ISOString: string) {
-  return format(new Date(ISOString.slice(0, -1)), "yyyy-MM-dd HH:mm:ss 'UTC'");
+  return format(new Date(ISOString.slice(0, -1)), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function localDateFromISOString(ISOString: string) {
-  return format(new Date(ISOString), "yyyy-MM-dd HH:mm");
+  return format(new Date(ISOString), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function localDateFromUnixTimestamp(timestamp: number) {
-  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm");
+  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function ISOStringFromUnixTimestamp(timestamp: number) {

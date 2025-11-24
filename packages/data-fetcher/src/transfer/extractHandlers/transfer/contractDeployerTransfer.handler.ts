@@ -1,4 +1,4 @@
-import { utils, types } from "zksync-ethers";
+import { type Log, type Block, type TransactionReceipt } from "ethers";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ZERO_HASH_64 } from "../../../constants";
@@ -6,18 +6,13 @@ import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { CONTRACT_INTERFACES, L2_CONTRACT_DEPLOYER_ADDRESS } from "../../../constants";
 
 export const contractDeployerTransferHandler: ExtractTransferHandler = {
-  matches: (log: types.Log, transactionReceipt: types.TransactionReceipt): boolean =>
-    transactionReceipt?.to === utils.CONTRACT_DEPLOYER_ADDRESS &&
+  matches: (log: Log, transactionReceipt: TransactionReceipt): boolean =>
+    transactionReceipt.to === L2_CONTRACT_DEPLOYER_ADDRESS &&
     (log.topics.length === 1 || log.topics[1] === ZERO_HASH_64),
-  extract: async (
-    log: types.Log,
-    _,
-    blockDetails: types.BlockDetails,
-    transactionDetails?: types.TransactionDetails
-  ): Promise<Transfer> => {
+  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog =
       log.topics.length === 1
         ? parseLog(CONTRACT_INTERFACES.TRANSFER_WITH_NO_INDEXES, log)
@@ -34,7 +29,7 @@ export const contractDeployerTransferHandler: ExtractTransferHandler = {
       isFeeOrRefund: false,
       logIndex: log.index,
       transactionIndex: log.transactionIndex,
-      timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
+      timestamp: unixTimeToDate(block.timestamp),
     };
   },
 };

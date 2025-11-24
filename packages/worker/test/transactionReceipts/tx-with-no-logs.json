@@ -24,13 +24,10 @@
     },
     "status": 1,
     "type": 0,
-    "l1BatchNumber": 615958,
-    "l1BatchTxIndex": 201,
     "l2ToL1Logs": [
         {
             "blockNumber": 4318388,
             "blockHash": "0xdd0d8320c9b12c31c4c6697d6c38fe6431a4fb899bf6eb755fd21fc6a05af34b",
-            "l1BatchNumber": 615958,
             "transactionIndex": 2,
             "shardId": 0,
             "isService": true,

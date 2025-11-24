@@ -2,9 +2,7 @@
   <div class="verification-alert-container" v-if="autoVerified">
     <Alert type="notification">
       {{ t("contractVerification.compilationInfo.autoVerified") }}
-      <AddressLink :address="verificationRequest!.contractAddress">{{
-        shortValue(verificationRequest!.contractAddress)
-      }}</AddressLink>
+      <AddressLink :address="contract.address">{{ shortValue(contract.address) }}</AddressLink>
     </Alert>
   </div>
   <div class="verification-alert-container" v-if="partialVerification">
@@ -25,27 +23,21 @@
       <p class="text">{{ contractName }}</p>
     </div>
     <div>
-      <p class="label">{{ t("contractVerification.compilationInfo.compilerVersion") }}</p>
-      <p class="text">{{ verificationRequest?.compilerSolcVersion || verificationRequest?.compilerVyperVersion }}</p>
+      <p class="label">
+        {{
+          verificationInfo?.compilation.language === "Vyper"
+            ? t("contractVerification.compilationInfo.vyperVersion")
+            : t("contractVerification.compilationInfo.solcVersion")
+        }}
+      </p>
+      <p class="text">{{ verificationInfo?.compilation.compilerVersion }}</p>
     </div>
-    <div v-if="contract.isEvmLike">
+    <div>
       <p class="label">
         {{ t("contractVerification.compilationInfo.evmVersion") }}
       </p>
       <p class="text">
-        {{ verificationRequest?.evmVersion }}
-      </p>
-    </div>
-    <div v-else>
-      <p class="label">
-        {{
-          verificationRequest?.compilerVyperVersion
-            ? t("contractVerification.compilationInfo.zkvyperVersion")
-            : t("contractVerification.compilationInfo.zksolcVersion")
-        }}
-      </p>
-      <p class="text">
-        {{ verificationRequest?.compilerZksolcVersion || verificationRequest?.compilerZkvyperVersion }}
+        {{ verificationInfo?.compilation.compilerSettings.evmVersion }}
       </p>
     </div>
     <div>
@@ -56,13 +48,6 @@
           {{
             t("contractVerification.compilationInfo.optimization.runsTemplate", {
               runs: optimizationInfo.runs,
-            })
-          }}
-        </span>
-        <span v-if="optimizationInfo.mode">
-          {{
-            t("contractVerification.compilationInfo.optimization.modeTemplate", {
-              mode: optimizationInfo.mode,
             })
           }}
         </span>
@@ -87,11 +72,6 @@ import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();
 
-type OptimizationInfo = {
-  enabled: boolean;
-  runs?: number;
-  mode?: string;
-};
 const props = defineProps({
   contract: {
     type: Object as PropType<Contract>,
@@ -99,44 +79,22 @@ const props = defineProps({
     required: true,
   },
 });
-const verificationRequest = computed(() => props.contract.verificationInfo?.request);
+const verificationInfo = computed(() => props.contract.verificationInfo);
 const optimizationInfo = computed(() => {
-  let optimizationInfo: OptimizationInfo = {
-    enabled: false,
-  };
-  if (typeof props.contract.verificationInfo?.request?.sourceCode === "string") {
-    const {
-      optimizationUsed: enabled,
-      optimizerRuns: runs,
-      optimizerMode: mode,
-    } = props.contract.verificationInfo.request;
-    optimizationInfo = {
-      enabled,
-      runs,
-      mode,
-    };
-  } else if (
-    typeof props.contract.verificationInfo?.request?.sourceCode?.settings === "object" &&
-    props.contract.verificationInfo?.request?.sourceCode?.settings?.optimizer
-  ) {
-    const { enabled, runs, mode } = props.contract.verificationInfo.request.sourceCode.settings.optimizer;
-    optimizationInfo = {
-      enabled,
-      runs,
-      mode,
-    };
-  }
-  return optimizationInfo;
+  const optimizer = props.contract.verificationInfo?.compilation.compilerSettings.optimizer;
+  return (
+    optimizer || {
+      enabled: false,
+    }
+  );
 });
-const contractName = computed(() => props.contract.verificationInfo?.request.contractName.replace(/.*\.(sol|vy):/, ""));
-// If address of the contract doesn't match address in the request, the contract was verified "automatically".
-const autoVerified = computed(
-  () => props.contract.address.toLowerCase() !== props.contract.verificationInfo?.request.contractAddress.toLowerCase()
+const contractName = computed(() =>
+  props.contract.verificationInfo?.compilation.fullyQualifiedName.replace(/.*\.(sol|vy):/, "")
 );
-// If there are any problems with the verification, the contract is only partially verified.
+// TODO: implement auto-verification
+const autoVerified = computed(() => false);
 const partialVerification = computed(() => {
-  const problems = props.contract.verificationInfo?.verificationProblems;
-  return problems ? problems.length > 0 : false;
+  return props.contract.verificationInfo?.match && props.contract.verificationInfo.match !== "exact_match";
 });
 
 const PARTIAL_VERIFICATION_DETAILS_URL =

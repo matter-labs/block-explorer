@@ -1,13 +1,20 @@
-import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, Index } from "typeorm";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
-import { Batch } from "./batch.entity";
 import { BaseEntity } from "./base.entity";
+
+export enum BlockStatus {
+  Sealed = "sealed",
+  Committed = "committed",
+  Proven = "proven",
+  Executed = "executed",
+}
 
 @Entity({ name: "blocks" })
 @Index(["timestamp", "number"])
 @Index(["miner", "number"])
+@Index(["status", "number"])
 export class Block extends BaseEntity {
   @PrimaryColumn({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly number: number;
@@ -43,15 +50,8 @@ export class Block extends BaseEntity {
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly extraData: string;
 
-  @ManyToOne(() => Batch, {
-    createForeignKeyConstraints: false,
-  })
-  @JoinColumn({ name: "l1BatchNumber" })
-  public batch: Batch;
-
-  @Index()
-  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
-  public readonly l1BatchNumber: number;
+  @Column({ type: "enum", enum: BlockStatus, default: BlockStatus.Sealed })
+  public readonly status: BlockStatus;
 
   @Column({ type: "int" })
   public readonly l1TxCount: number;

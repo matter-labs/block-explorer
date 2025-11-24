@@ -65,7 +65,7 @@ describe("Contract:", () => {
       },
     });
     expect(container.querySelector(".breadcrumb-item-active")?.textContent).toBe("Contract 0x0cc7...dc1b");
-    expect(container.querySelector(".title-container")?.textContent?.replace(/\u00a0/g, " ")).toBe(
+    expect(container.querySelector(".title-container")?.textContent?.replace(/\u00a0/g, " ")).toContain(
       "Contract  0x0cc7...dc1b"
     );
     expect(container.querySelector(".contract-info-table")).toBeDefined();
