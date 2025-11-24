@@ -473,7 +473,6 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>
@@ -501,7 +500,6 @@ describe("Contract API (e2e)", () => {
           contractname: "contracts/HelloWorld.sol:HelloWorld",
           compilerversion: "0.8.17",
           optimizationUsed: "1",
-          zksolcVersion: "v1.3.14",
         })
         .expect(200)
         .expect((res) =>

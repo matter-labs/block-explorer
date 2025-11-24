@@ -539,7 +539,6 @@ describe("ContractController", () => {
         contractname: "contracts/Greeter.vy:Greeter",
         compilerversion: "0.3.3",
         optimizationUsed: "1",
-        zksolcVersion: "v1.3.11",
       } as unknown as VerifyContractRequestDto;
 
       pipeMock.mockReturnValue(
