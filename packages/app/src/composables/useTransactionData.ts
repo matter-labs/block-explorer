@@ -5,12 +5,14 @@ import { Interface } from "ethers";
 import useAddress from "./useAddress";
 import useContext from "./useContext";
 import useContractABI from "./useContractABI";
+import { fetchMethodNames } from "./useOpenChain";
 
 import type { AbiFragment } from "./useAddress";
 import type { InputType } from "./useEventLog";
 import type { Address } from "@/types";
 
 import { decodeInputData } from "@/utils/helpers";
+import { formatSignature, parseSignature } from "@/utils/parseSignature";
 
 export type MethodData = {
   name: string;
@@ -30,6 +32,8 @@ export type TransactionData = {
   value: string;
   sighash: string;
   method?: MethodData;
+  signature?: string; // Raw signature from OpenChain e.g. "transfer(address,uint256)"
+  isPartialDecoding?: boolean; // Flag indicating signature-only decoding (no parameter values)
 };
 
 export function decodeDataWithABI(
@@ -107,8 +111,35 @@ export default (context = useContext()) => {
         }
       }
 
-      // If we still couldn't decode, it's a decoding failure
+      // If we still couldn't decode, try to get signature from OpenChain
       if (!method) {
+        const signatureMap = await fetchMethodNames([transactionData.sighash]);
+        const signature = signatureMap[transactionData.sighash];
+
+        if (signature) {
+          // We found a signature, but can't decode parameter values without ABI
+          const parsedSig = parseSignature(signature);
+          if (parsedSig) {
+            data.value = {
+              ...transactionData,
+              signature,
+              isPartialDecoding: true,
+              method: {
+                name: parsedSig.name,
+                inputs: parsedSig.inputs.map((input) => ({
+                  ...input,
+                  value: "Unable to decode without ABI",
+                  inputs: [],
+                  encodedValue: "",
+                })),
+              },
+            };
+            decodingError.value = "signature_decode_limited";
+            return;
+          }
+        }
+
+        // No signature found or parsing failed
         throw new Error("data_decode_failed");
       }
 

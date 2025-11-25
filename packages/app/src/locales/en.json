@@ -232,6 +232,9 @@
             "unableToDecode": "Unable to decode input data ({error})",
             "contract_not_verified": "Contract not verified",
             "contract_request_failed": "Contract request failed",
+            "signature_decode_limited": "Contract not verified - showing method signature only (parameter values unavailable)",
+            "signature_not_found": "Signature not found in database",
+            "data_decode_failed": "Unable to decode transaction data",
             "unknown_error": "Unknown error"
         }
     },

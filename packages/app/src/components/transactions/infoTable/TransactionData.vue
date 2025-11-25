@@ -3,6 +3,13 @@
     <button v-if="!error && !emptyCalldata" class="toggle-decode-button" @click="showDecoded = !showDecoded">
       {{ displayedButtonText }}
     </button>
+    <button
+      v-else-if="error === 'signature_decode_limited' && !emptyCalldata"
+      class="toggle-decode-button"
+      @click="showDecoded = !showDecoded"
+    >
+      {{ displayedButtonText }}
+    </button>
     <ByteData v-if="!showDecoded" class="transaction-byte-data" :value="data?.calldata" />
     <div v-else-if="loading" class="decoding-loading">
       <Spinner size="sm" outline />
@@ -11,12 +18,15 @@
     <div v-else-if="data?.method">
       <div class="method-interface">Function: {{ methodInterface }}</div>
     </div>
-    <div v-if="error" class="decoding-data-error">
+    <div v-if="error && error !== 'signature_decode_limited'" class="decoding-data-error">
       {{
         t("transactionData.errors.unableToDecode", {
           error: te(`transactionData.errors.${error}`) ? t(`transactionData.errors.${error}`) : error,
         })
       }}
+    </div>
+    <div v-else-if="error === 'signature_decode_limited'" class="decoding-data-warning">
+      {{ te(`transactionData.errors.${error}`) ? t(`transactionData.errors.${error}`) : error }}
     </div>
     <template v-if="showDecoded && hasInputs">
       <div>
@@ -136,6 +146,9 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
   }
   .decoding-data-error {
     @apply self-center whitespace-pre-line leading-tight;
+  }
+  .decoding-data-warning {
+    @apply self-center whitespace-pre-line leading-tight text-yellow-700 bg-yellow-50 border border-yellow-200 rounded px-3 py-2;
   }
   .encoded-data-container,
   .method-interface {
