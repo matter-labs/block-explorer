@@ -6,20 +6,16 @@
       <span class="decoding-loading-label">{{ t("transactionData.decodingInProgress") }}</span>
     </div>
     <div v-else-if="data?.method || error" class="decoded-data-box">
-      <!-- Function signature -->
-      <div v-if="data?.method" class="data-line">Function: {{ methodInterfaceWithStars }}</div>
+      <div v-if="data?.method" class="data-line mb-6">Function: {{ methodInterfaceWithStars }}</div>
 
-      <!-- MethodID -->
       <div v-if="data?.sighash" class="data-line">MethodID: {{ data.sighash }}</div>
 
-      <!-- Parameters - show raw hex values -->
       <div v-if="hasInputs && data?.calldata" class="parameters-section">
         <div v-for="(item, index) in getParameterHexValues()" :key="index" class="data-line">
           [{{ index }}]: {{ item }}
         </div>
       </div>
 
-      <!-- Error messages (shown inline if no method data) -->
       <div v-if="error && error !== 'signature_decode_limited' && !data?.method" class="decoding-data-error">
         {{
           t("transactionData.errors.unableToDecode", {
@@ -29,7 +25,6 @@
       </div>
     </div>
 
-    <!-- Toggle buttons below the box -->
     <div v-if="(!error || error === 'signature_decode_limited') && !emptyCalldata" class="button-group">
       <button class="toggle-decode-button" @click="showDecoded = !showDecoded">
         {{ displayedButtonText }}
@@ -158,7 +153,9 @@ const toggleDataView = () => {
     }
 
     .parameters-section {
-      @apply mt-2 space-y-1;
+      /* CHANGE 2: Changed mt-2 to mt-0 and space-y-1 to space-y-0 */
+      /* This removes the top gap and tightens the lines */
+      @apply mt-0 space-y-0;
     }
   }
 
