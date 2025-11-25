@@ -100,11 +100,6 @@ export default (context = useContext()) => {
       if (!method) {
         const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
 
-        // Check for contract verification if we don't have contractAbi
-        if (!contractAbi && !proxyInfo?.implementation.verificationInfo) {
-          throw new Error("contract_not_verified");
-        }
-
         // Try with proxy implementation if available
         if (proxyInfo?.implementation.verificationInfo) {
           method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.abi);
