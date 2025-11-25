@@ -57,6 +57,9 @@
       <template #tab-2-content>
         <TransfersTable :address="account.address" />
       </template>
+      <template #tab-3-content>
+        <InternalTransactionsTable :address="account.address" />
+      </template>
     </Tabs>
   </div>
 </template>
@@ -73,6 +76,7 @@ import EmptyState from "@/components/common/EmptyState.vue";
 import Spinner from "@/components/common/Spinner.vue";
 import Tabs from "@/components/common/Tabs.vue";
 import Title from "@/components/common/Title.vue";
+import InternalTransactionsTable from "@/components/internal-transactions/Table.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
 
@@ -102,6 +106,7 @@ const { t } = useI18n();
 const tabs = computed(() => [
   { title: t("tabs.transactions"), hash: "#transactions" },
   { title: t("tabs.transfers"), hash: "#transfers" },
+  { title: t("tabs.internalTransactions"), hash: "#internal-transactions" },
 ]);
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   if (props.account?.address) {
