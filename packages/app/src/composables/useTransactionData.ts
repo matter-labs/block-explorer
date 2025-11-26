@@ -32,8 +32,8 @@ export type TransactionData = {
   value: string;
   sighash: string;
   method?: MethodData;
-  signature?: string; // Raw signature from OpenChain e.g. "transfer(address,uint256)"
-  isPartialDecoding?: boolean; // Flag indicating signature-only decoding (no parameter values)
+  signature?: string;
+  isPartialDecoding?: boolean;
 };
 
 export function decodeDataWithABI(

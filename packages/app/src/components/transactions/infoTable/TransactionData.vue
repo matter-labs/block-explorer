@@ -23,9 +23,9 @@
       <span class="decoding-loading-label">{{ t("transactionData.decodingInProgress") }}</span>
     </div>
 
-    <!-- NEW: Signature view for unverified contracts only -->
+    <!-- signature view for unverified contracts -->
     <div v-else-if="data?.isPartialDecoding && data?.method" class="decoded-data-box">
-      <div class="data-line mb-6">Function: {{ methodInterfaceWithStars }}</div>
+      <div class="data-line mb-6">Function: {{ methodInterface }}</div>
       <div v-if="data?.sighash" class="data-line">MethodID: {{ data.sighash }}</div>
       <div v-if="hasInputs && data?.calldata" class="parameters-section">
         <div v-for="(item, index) in getParameterHexValues()" :key="index" class="data-line">
@@ -34,7 +34,6 @@
       </div>
     </div>
 
-    <!-- RESTORED: Original table view for verified contracts -->
     <div v-else-if="data?.method">
       <div class="method-interface">Function: {{ methodInterface }}</div>
     </div>
@@ -47,7 +46,6 @@
       }}
     </div>
 
-    <!-- RESTORED: Parameter table for verified contracts -->
     <template v-if="showDecoded && hasInputs && !data?.isPartialDecoding">
       <div>
         <Dropdown
@@ -142,17 +140,6 @@ const methodInterface = computed(() => {
   return `${props.data.method.name}(${inputs})`;
 });
 
-const methodInterfaceWithStars = computed(() => {
-  if (!props.data?.method) {
-    return "";
-  }
-
-  // Replace parameter names with *** for Etherscan-style display
-  const inputs = props.data.method.inputs.map((input) => `${input.type} ***`).join(", ");
-
-  return `${props.data.method.name}(${inputs})`;
-});
-
 const hasInputs = computed(() => !!props.data?.method?.inputs.length);
 
 const getParameterHexValues = () => {
@@ -172,10 +159,6 @@ const getParameterHexValues = () => {
   }
 
   return params;
-};
-
-const toggleDataView = () => {
-  showDataAs.value = showDataAs.value === "decoded" ? "original" : "decoded";
 };
 </script>
 
@@ -207,7 +190,7 @@ const toggleDataView = () => {
     @apply self-center whitespace-pre-line leading-tight text-red-600;
   }
 
-  // NEW: Styles for unverified contract signature view
+  // signature view for unverified contracts
   .decoded-data-box {
     @apply rounded-md border bg-neutral-100 px-4 py-3 font-mono text-sm leading-relaxed;
 
@@ -221,7 +204,6 @@ const toggleDataView = () => {
     }
   }
 
-  // RESTORED: Styles for verified contract table view
   .method-interface {
     @apply flex h-max flex-col justify-center rounded-md border bg-neutral-100 px-4 py-[0.56rem] font-mono text-neutral-700;
     @apply whitespace-pre-line text-black;
