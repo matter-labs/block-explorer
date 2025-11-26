@@ -134,8 +134,8 @@ export default (context = useContext()) => {
           }
         }
 
-        // No signature found or parsing failed
-        throw new Error("data_decode_failed");
+        // No signature found or parsing failed - contract not verified
+        throw new Error("contract_not_verified");
       }
 
       data.value = {
