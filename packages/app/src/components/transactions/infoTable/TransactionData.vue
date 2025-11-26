@@ -37,7 +37,6 @@
     <div v-else-if="data?.method">
       <div class="method-interface">Function: {{ methodInterface }}</div>
     </div>
-
     <div v-if="error && error !== 'signature_decode_limited'" class="decoding-data-error">
       {{
         t("transactionData.errors.unableToDecode", {
@@ -45,7 +44,6 @@
         })
       }}
     </div>
-
     <template v-if="showDecoded && hasInputs && !data?.isPartialDecoding">
       <div>
         <Dropdown
@@ -139,9 +137,7 @@ const methodInterface = computed(() => {
 
   return `${props.data.method.name}(${inputs})`;
 });
-
 const hasInputs = computed(() => !!props.data?.method?.inputs.length);
-
 const getParameterHexValues = () => {
   if (!props.data?.calldata || !props.data?.method?.inputs) {
     return [];
@@ -185,34 +181,27 @@ const getParameterHexValues = () => {
       @apply ml-2;
     }
   }
-
   .decoding-data-error {
     @apply self-center whitespace-pre-line leading-tight text-red-600;
   }
-
   // signature view for unverified contracts
   .decoded-data-box {
     @apply rounded-md border bg-neutral-100 px-4 py-3 font-mono text-sm leading-relaxed;
-
     .data-line {
       @apply text-neutral-700;
       font-weight: 400;
     }
-
     .parameters-section {
       @apply mt-0 space-y-0;
     }
   }
-
   .method-interface {
     @apply flex h-max flex-col justify-center rounded-md border bg-neutral-100 px-4 py-[0.56rem] font-mono text-neutral-700;
     @apply whitespace-pre-line text-black;
   }
-
   .encoded-data-container {
     @apply min-h-[40px] overflow-auto whitespace-nowrap rounded-md border bg-neutral-100 px-4 py-3 font-mono text-xs text-neutral-700;
   }
-
   .transaction-data-inputs {
     @apply overflow-auto;
 
