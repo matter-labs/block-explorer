@@ -84,13 +84,3 @@ function parseParameterTypes(paramsString: string): string[] {
 
   return params;
 }
-
-/**
- * Format a parsed signature back into a human-readable string
- * @param parsed - Parsed signature object
- * @returns Formatted signature string like "transfer(address param0, uint256 param1)"
- */
-export function formatSignature(parsed: ParsedSignature): string {
-  const params = parsed.inputs.map((input) => `${input.type} ${input.name}`).join(", ");
-  return `${parsed.name}(${params})`;
-}

@@ -12,7 +12,7 @@ import type { InputType } from "./useEventLog";
 import type { Address } from "@/types";
 
 import { decodeInputData } from "@/utils/helpers";
-import { formatSignature, parseSignature } from "@/utils/parseSignature";
+import { parseSignature } from "@/utils/parseSignature";
 
 export type MethodData = {
   name: string;
