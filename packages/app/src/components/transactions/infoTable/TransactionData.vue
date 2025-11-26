@@ -184,7 +184,6 @@ const getParameterHexValues = () => {
   .decoding-data-error {
     @apply self-center whitespace-pre-line leading-tight text-red-600;
   }
-  // signature view for unverified contracts
   .decoded-data-box {
     @apply rounded-md border bg-neutral-100 px-4 py-3 font-mono text-sm leading-relaxed;
     .data-line {
@@ -244,7 +243,6 @@ const getParameterHexValues = () => {
 .no-error {
   @apply sm:grid-cols-[max-content_1fr];
 }
-// Override grid layout for signature view (unverified contracts)
 .signature-view {
   @apply flex flex-col gap-3;
 }
