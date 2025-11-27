@@ -1,6 +1,20 @@
 <template>
-  <div class="transaction-input-data" :class="{ 'no-error': !error && !emptyCalldata }">
-    <button v-if="!error && !emptyCalldata" class="toggle-decode-button" @click="showDecoded = !showDecoded">
+  <div
+    class="transaction-input-data"
+    :class="{ 'no-error': !error && !emptyCalldata, 'signature-view': data?.isPartialDecoding }"
+  >
+    <button
+      v-if="!error && !emptyCalldata && !data?.isPartialDecoding"
+      class="toggle-decode-button"
+      @click="showDecoded = !showDecoded"
+    >
+      {{ displayedButtonText }}
+    </button>
+    <button
+      v-else-if="error === 'signature_decode_limited' && !emptyCalldata"
+      class="toggle-decode-button-compact"
+      @click="showDecoded = !showDecoded"
+    >
       {{ displayedButtonText }}
     </button>
     <ByteData v-if="!showDecoded" class="transaction-byte-data" :value="data?.calldata" />
@@ -8,17 +22,29 @@
       <Spinner size="sm" outline />
       <span class="decoding-loading-label">{{ t("transactionData.decodingInProgress") }}</span>
     </div>
+
+    <!-- signature view for unverified contracts -->
+    <div v-else-if="data?.isPartialDecoding && data?.method" class="decoded-data-box">
+      <div class="data-line mb-6">Function: {{ methodInterface }}</div>
+      <div v-if="data?.sighash" class="data-line">MethodID: {{ data.sighash }}</div>
+      <div v-if="hasInputs && data?.calldata" class="parameters-section">
+        <div v-for="(item, index) in getParameterHexValues()" :key="index" class="data-line">
+          [{{ index }}]: {{ item }}
+        </div>
+      </div>
+    </div>
+
     <div v-else-if="data?.method">
       <div class="method-interface">Function: {{ methodInterface }}</div>
     </div>
-    <div v-if="error" class="decoding-data-error">
+    <div v-if="error && error !== 'signature_decode_limited'" class="decoding-data-error">
       {{
         t("transactionData.errors.unableToDecode", {
           error: te(`transactionData.errors.${error}`) ? t(`transactionData.errors.${error}`) : error,
         })
       }}
     </div>
-    <template v-if="showDecoded && hasInputs">
+    <template v-if="showDecoded && hasInputs && !data?.isPartialDecoding">
       <div>
         <Dropdown
           class="show-as-dropdown"
@@ -112,6 +138,24 @@ const methodInterface = computed(() => {
   return `${props.data.method.name}(${inputs})`;
 });
 const hasInputs = computed(() => !!props.data?.method?.inputs.length);
+const getParameterHexValues = () => {
+  if (!props.data?.calldata || !props.data?.method?.inputs) {
+    return [];
+  }
+
+  // Remove 0x and method signature (first 4 bytes = 8 hex chars)
+  const paramData = props.data.calldata.slice(10);
+
+  // Each parameter is 32 bytes (64 hex chars)
+  const params: string[] = [];
+  for (let i = 0; i < props.data.method.inputs.length; i++) {
+    const start = i * 64;
+    const param = paramData.slice(start, start + 64);
+    params.push(param);
+  }
+
+  return params;
+};
 </script>
 
 <style lang="scss">
@@ -120,6 +164,9 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
 
   .toggle-decode-button {
     @apply block h-10 w-fit rounded-md bg-primary-600 bg-opacity-[15%] px-4 py-2 text-primary-600 transition-colors hover:bg-opacity-10 sm:w-full;
+  }
+  .toggle-decode-button-compact {
+    @apply block h-10 w-fit rounded-md bg-primary-600 bg-opacity-[15%] px-4 py-2 text-primary-600 transition-colors hover:bg-opacity-10;
   }
   .transaction-byte-data {
     @apply overflow-auto;
@@ -135,17 +182,24 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
     }
   }
   .decoding-data-error {
-    @apply self-center whitespace-pre-line leading-tight;
+    @apply self-center whitespace-pre-line leading-tight text-red-600;
   }
-  .encoded-data-container,
+  .decoded-data-box {
+    @apply rounded-md border bg-neutral-100 px-4 py-3 font-mono text-sm leading-relaxed;
+    .data-line {
+      @apply text-neutral-700;
+      font-weight: 400;
+    }
+    .parameters-section {
+      @apply mt-0 space-y-0;
+    }
+  }
   .method-interface {
     @apply flex h-max flex-col justify-center rounded-md border bg-neutral-100 px-4 py-[0.56rem] font-mono text-neutral-700;
-  }
-  .method-interface {
     @apply whitespace-pre-line text-black;
   }
   .encoded-data-container {
-    @apply min-h-[40px] overflow-auto whitespace-nowrap text-xs text-neutral-700;
+    @apply min-h-[40px] overflow-auto whitespace-nowrap rounded-md border bg-neutral-100 px-4 py-3 font-mono text-xs text-neutral-700;
   }
   .transaction-data-inputs {
     @apply overflow-auto;
@@ -188,5 +242,8 @@ const hasInputs = computed(() => !!props.data?.method?.inputs.length);
 }
 .no-error {
   @apply sm:grid-cols-[max-content_1fr];
+}
+.signature-view {
+  @apply flex flex-col gap-3;
 }
 </style>

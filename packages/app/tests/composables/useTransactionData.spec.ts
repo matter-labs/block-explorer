@@ -170,7 +170,7 @@ describe("useTransactionData:", () => {
     };
     await decodeTransactionData(dataWithNewAddress);
     expect(isDecodePending.value).toEqual(false);
-    expect(decodingError.value).toEqual("contract_not_verified");
+    expect(decodingError.value).toEqual("data_decode_failed");
     expect(data.value).toEqual(dataWithNewAddress);
   });
   it("sets error message when decoding failed", async () => {
