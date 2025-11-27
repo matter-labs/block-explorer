@@ -26,13 +26,14 @@ export async function fetchMethodNames(sighashes: string[]): Promise<Record<stri
     const methodNames: Record<string, string> = {};
     Object.entries(result).forEach(([sighash, methods]) => {
       // Ensure methods is an array of the expected shape
-      if (Array.isArray(methods) && methods.length > 0) {
-        const method = methods[0];
-        if (typeof method === "object" && method.name) {
-          // Store the full signature, not just the method name
-          // e.g. "transfer(address,uint256)" instead of "transfer"
-          methodNames[sighash] = method.name;
-        }
+      if (Array.isArray(methods)) {
+        methods.forEach((method) => {
+          if (typeof method === "object" && method.name && method.name.split("(").length > 1) {
+            // Store the full signature, not just the method name
+            // e.g. "transfer(address,uint256)" instead of "transfer"
+            methodNames[sighash] = method.name;
+          }
+        });
       }
     });
     return methodNames;
