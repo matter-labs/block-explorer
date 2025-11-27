@@ -4,6 +4,7 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
 import { MoreThanOrEqual, LessThanOrEqual, Between } from "typeorm";
+import { type Block as BlockchainBlock } from "ethers";
 import { UnitOfWork } from "../unitOfWork";
 import { BlockWatcher } from "./block.watcher";
 import { BlockData } from "../dataFetcher/types";
@@ -292,25 +293,32 @@ describe("BlockProcessor", () => {
             jest.spyOn(blockchainServiceMock, "getBlock").mockResolvedValue(null);
           });
 
+          it("doesn't trigger blocks revert event and returns false", async () => {
+            const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
+            expect(eventEmitterMock.emit).not.toBeCalled();
+            expect(isNextBlockRangeProcessed).toBeFalsy();
+          });
+        });
+
+        describe("and the last db block hash doesn't match the same block hash from blockchain", () => {
+          beforeEach(() => {
+            const lastDbBlock = mock<Block>({
+              number: 100,
+              hash: "hash",
+            });
+            jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue(lastDbBlock);
+            jest.spyOn(blockchainServiceMock, "getBlock").mockResolvedValue({
+              number: 100,
+              hash: "another-hash",
+            } as BlockchainBlock);
+          });
+
           it("triggers blocks revert event and returns false", async () => {
             const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
             expect(eventEmitterMock.emit).toBeCalledWith(BLOCKS_REVERT_DETECTED_EVENT, {
               detectedIncorrectBlockNumber: 100,
             });
             expect(isNextBlockRangeProcessed).toBeFalsy();
-          });
-
-          describe("when blocks revert is disabled", () => {
-            it("does not trigger the revert event", async () => {
-              (configServiceMock.get as jest.Mock)
-                .mockReturnValueOnce(null)
-                .mockReturnValueOnce(null)
-                .mockReturnValueOnce(true);
-              blockProcessor = await getBlockProcessor();
-              const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
-              expect(eventEmitterMock.emit).not.toBeCalled();
-              expect(isNextBlockRangeProcessed).toBeFalsy();
-            });
           });
         });
       });
@@ -380,25 +388,37 @@ describe("BlockProcessor", () => {
             ]);
           });
 
+          it("doesn't trigger blocks revert event and returns false", async () => {
+            const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
+            expect(eventEmitterMock.emit).not.toBeCalled();
+            expect(isNextBlockRangeProcessed).toBeFalsy();
+          });
+        });
+
+        describe("and parent hash of the first block to process is different to hash of the last block in DB", () => {
+          beforeEach(() => {
+            const lastDbBlock = mock<Block>({
+              number: 100,
+              hash: "hash",
+            });
+            jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue(lastDbBlock);
+            jest.spyOn(blockWatcherMock, "getNextBlocksToProcess").mockResolvedValue([
+              {
+                block: {
+                  number: 101,
+                  hash: "hash2",
+                  parentHash: "another-hash",
+                },
+              } as BlockData,
+            ]);
+          });
+
           it("triggers blocks revert event and returns false", async () => {
             const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
             expect(eventEmitterMock.emit).toBeCalledWith(BLOCKS_REVERT_DETECTED_EVENT, {
               detectedIncorrectBlockNumber: 100,
             });
             expect(isNextBlockRangeProcessed).toBeFalsy();
-          });
-
-          describe("when blocks revert is disabled", () => {
-            it("does not trigger the revert event", async () => {
-              (configServiceMock.get as jest.Mock)
-                .mockReturnValueOnce(null)
-                .mockReturnValueOnce(null)
-                .mockReturnValueOnce(true);
-              blockProcessor = await getBlockProcessor();
-              const isNextBlockRangeProcessed = await blockProcessor.processNextBlocksRange();
-              expect(eventEmitterMock.emit).not.toBeCalled();
-              expect(isNextBlockRangeProcessed).toBeFalsy();
-            });
           });
         });
 
