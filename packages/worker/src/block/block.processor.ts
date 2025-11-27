@@ -69,23 +69,25 @@ export class BlockProcessor {
         return false;
       }
       const lastBlockFromBlockchain = await this.blockchainService.getBlock(lastDbBlockNumber);
-      if (lastDbBlock.hash === lastBlockFromBlockchain?.hash) {
+      if (!lastBlockFromBlockchain) {
+        return false;
+      }
+      if (lastDbBlock.hash === lastBlockFromBlockchain.hash) {
         return false;
       }
       this.logger.warn(
-        `Last DB block's hash (${lastDbBlock.hash}) doesn't match the hash from rpc (${
-          lastBlockFromBlockchain?.hash || null
-        })`
+        `Last DB block's hash (${lastDbBlock.hash}) doesn't match the hash from rpc (${lastBlockFromBlockchain.hash})`
       );
       this.triggerBlocksRevertEvent(lastDbBlockNumber);
       return false;
     }
 
-    if (lastDbBlock && lastDbBlock.hash !== blocksToProcess[0]?.block?.parentHash) {
+    if (!blocksToProcess[0]?.block?.parentHash) {
+      return false;
+    }
+    if (lastDbBlock && lastDbBlock.hash !== blocksToProcess[0].block.parentHash) {
       this.logger.warn(
-        `Last DB block's hash (${lastDbBlock.hash}) doesn't match the next block's parent hash from rpc (${
-          blocksToProcess[0]?.block?.parentHash || null
-        })`
+        `Last DB block's hash (${lastDbBlock.hash}) doesn't match the next block's parent hash from rpc (${blocksToProcess[0].block.parentHash})`
       );
       this.triggerBlocksRevertEvent(lastDbBlockNumber);
       return false;
