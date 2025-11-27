@@ -7,20 +7,21 @@
   >
     <template #table-head v-if="data?.length">
       <TableHeadColumn>
+        {{ t("internalTransactions.table.parentTxHash") }}
+      </TableHeadColumn>
+      <TableHeadColumn>
+        {{ t("internalTransactions.table.method") }}
+      </TableHeadColumn>
+      <TableHeadColumn>
         {{ t("internalTransactions.table.block") }}
       </TableHeadColumn>
       <TableHeadColumn>
         {{ t("internalTransactions.table.age") }}
       </TableHeadColumn>
       <TableHeadColumn>
-        {{ t("internalTransactions.table.transactionHash") }}
-      </TableHeadColumn>
-      <TableHeadColumn>
-        {{ t("internalTransactions.table.type") }}
-      </TableHeadColumn>
-      <TableHeadColumn>
         {{ t("internalTransactions.table.from") }}
       </TableHeadColumn>
+      <TableHeadColumn />
       <TableHeadColumn>
         {{ t("internalTransactions.table.to") }}
       </TableHeadColumn>
@@ -30,6 +31,16 @@
     </template>
 
     <template #table-row="{ item }: { item: InternalTransaction }">
+      <TableBodyColumn :data-heading="t('internalTransactions.table.parentTxHash')">
+        <router-link :to="{ name: 'transaction', params: { hash: item.hash } }">
+          {{ shortenFitText(item.hash, "left") }}
+        </router-link>
+      </TableBodyColumn>
+
+      <TableBodyColumn :data-heading="t('internalTransactions.table.method')">
+        <span class="method-badge">{{ item.type }}</span>
+      </TableBodyColumn>
+
       <TableBodyColumn :data-heading="t('internalTransactions.table.block')">
         <router-link :to="{ name: 'block', params: { id: item.blockNumber } }">
           {{ item.blockNumber }}
@@ -40,20 +51,14 @@
         <TimeField :value="new Date(parseInt(item.timeStamp) * 1000).toISOString()" :format="TimeFormat.TIME_AGO" />
       </TableBodyColumn>
 
-      <TableBodyColumn :data-heading="t('internalTransactions.table.transactionHash')">
-        <router-link :to="{ name: 'transaction', params: { hash: item.hash } }">
-          {{ shortenFitText(item.hash, "left") }}
-        </router-link>
-      </TableBodyColumn>
-
-      <TableBodyColumn :data-heading="t('internalTransactions.table.type')">
-        {{ item.type }}
-      </TableBodyColumn>
-
       <TableBodyColumn :data-heading="t('internalTransactions.table.from')">
         <AddressLink :address="item.from">
           {{ shortenFitText(item.from, "left") }}
         </AddressLink>
+      </TableBodyColumn>
+
+      <TableBodyColumn :data-heading="t('transfers.table.direction')">
+        <TransactionDirectionTableCell class="internal-tx-direction" :text="getDirection(item)" />
       </TableBodyColumn>
 
       <TableBodyColumn :data-heading="t('internalTransactions.table.to')">
@@ -78,18 +83,22 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch } from "vue";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
+import EmptyState from "./EmptyState.vue";
+import LoadingState from "./LoadingState.vue";
+
 import AddressLink from "@/components/AddressLink.vue";
-import EmptyState from "@/components/common/EmptyState.vue";
 import { shortenFitText } from "@/components/common/HashLabel.vue";
-import LoadingState from "@/components/common/LoadingState.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
+import TransactionDirectionTableCell, {
+  type Direction,
+} from "@/components/transactions/TransactionDirectionTableCell.vue";
 
 import useInternalTransactions, { type InternalTransaction } from "@/composables/useInternalTransactions";
 
@@ -108,10 +117,14 @@ const props = defineProps({
 const { data, load, pending, pageSize } = useInternalTransactions(computed(() => props.address));
 
 const ethToken = {
-  l2Address: "0x0000000000000000000000000000000000000000", // Placeholder or import constant
+  l2Address: "0x0000000000000000000000000000000000000000",
   symbol: "ETH",
   decimals: 18,
 };
+
+function getDirection(item: InternalTransaction): Direction {
+  return item.from === item.to ? "self" : item.to !== props.address ? "out" : "in";
+}
 
 watch(
   () => props.address,
@@ -129,6 +142,14 @@ watch(
     &:before {
       @apply absolute left-4 top-3 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;
     }
+  }
+
+  .method-badge {
+    @apply inline-block rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700;
+  }
+
+  .internal-tx-direction {
+    @apply md:m-auto;
   }
 }
 </style>

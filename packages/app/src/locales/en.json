@@ -96,6 +96,20 @@
             "value": "Value"
         }
     },
+    "internalTransactions": {
+        "notFound": "Address doesn't have any internal transactions at this moment",
+        "table": {
+            "block": "Block",
+            "age": "Age",
+            "parentTxHash": "Parent Txn Hash",
+            "transactionHash": "Txn Hash",
+            "type": "Type",
+            "method": "Method",
+            "from": "From",
+            "to": "To",
+            "value": "Value"
+        }
+    },
     "transactions": {
         "tabs": {
             "generalInfo": "General Info",
@@ -785,6 +799,7 @@
         "contract": "Contract",
         "events": "Events",
         "transfers": "Transfers",
+        "internalTransactions": "Internal Transactions",
         "holders": "Holders"
     },
     "contractInfoTabs": {
