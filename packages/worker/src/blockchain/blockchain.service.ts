@@ -61,7 +61,7 @@ export class BlockchainService {
     return this.rpcCall(action, functionName);
   }
 
-  public async getBlock(blockHashOrBlockTag: BlockTag): Promise<Block> {
+  public async getBlock(blockHashOrBlockTag: BlockTag): Promise<Block | null> {
     return await this.rpcCall(async () => {
       return await this.provider.getBlock(blockHashOrBlockTag);
     }, "getBlock");
