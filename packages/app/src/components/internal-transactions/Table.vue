@@ -100,11 +100,14 @@ import TransactionDirectionTableCell, {
   type Direction,
 } from "@/components/transactions/TransactionDirectionTableCell.vue";
 
+import useContext from "@/composables/useContext";
 import useInternalTransactions, { type InternalTransaction } from "@/composables/useInternalTransactions";
+import useToken, { type Token } from "@/composables/useToken";
 
 import { TimeFormat } from "@/types";
 
 const { t } = useI18n();
+const { currentNetwork } = useContext();
 
 const props = defineProps({
   address: {
@@ -116,11 +119,13 @@ const props = defineProps({
 
 const { data, load, pending, pageSize } = useInternalTransactions(computed(() => props.address));
 
-const ethToken = {
-  l2Address: "0x0000000000000000000000000000000000000000",
-  symbol: "ETH",
-  decimals: 18,
-};
+// Fetch base token info dynamically (same as transactions Table.vue)
+const { getTokenInfo, tokenInfo, isRequestPending: isLoadingTokenInfo } = useToken();
+getTokenInfo(currentNetwork.value.baseTokenAddress);
+
+const ethToken = computed<Token | null>(() => {
+  return tokenInfo.value;
+});
 
 function getDirection(item: InternalTransaction): Direction {
   return item.from === item.to ? "self" : item.to !== props.address ? "out" : "in";
