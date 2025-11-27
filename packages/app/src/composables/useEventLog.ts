@@ -50,7 +50,7 @@ export default (context = useContext()) => {
     const uniqueAddresses = Array.from(new Set(logs.map((log) => log.address)));
     await getABICollection(uniqueAddresses);
 
-    // First pass: try to decode with ABIs
+    // decode with ABI (verified contracts) first
     const logsWithDecoding = logs.map((log) => {
       try {
         const abi = ABICollection.value[log.address];
@@ -63,22 +63,17 @@ export default (context = useContext()) => {
       }
     });
 
-    // Second pass: for logs without events, try OpenChain
+    // For logs that couldn't be decoded with ABI (unverified contracts), try OpenChain
     const logsWithoutEvents = logsWithDecoding.filter((log) => !log.event && log.topics.length > 0);
 
     if (logsWithoutEvents.length > 0) {
-      // Extract unique topic hashes (topics[0] is the event signature hash)
       const topicHashes = Array.from(new Set(logsWithoutEvents.map((log) => log.topics[0])));
       const signatureMap = await fetchEventNames(topicHashes);
 
-      // Update logs with OpenChain signatures
       collection.value = logsWithDecoding.map((log) => {
-        // If already has an event, keep it
         if (log.event) {
           return log;
         }
-
-        // If no topics, return as-is
         if (!log.topics || log.topics.length === 0) {
           return log;
         }

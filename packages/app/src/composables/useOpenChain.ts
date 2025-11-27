@@ -4,80 +4,67 @@ interface OpenChainMethod {
   name: string;
   filtered: boolean;
 }
-interface OpenChainResponse {
+
+interface OpenChainLookupResponse {
   ok: boolean;
   result: {
-    function: Record<string, OpenChainMethod[]>;
+    function?: Record<string, OpenChainMethod[]>;
+    event?: Record<string, OpenChainMethod[]>;
   };
 }
+
+// Parses the OpenChain API response to extract method/event names
+function parseOpenChainResult(data: Record<string, OpenChainMethod[]> | undefined): Record<string, string> {
+  const names: Record<string, string> = {};
+  if (!data) return names;
+
+  Object.entries(data).forEach(([hash, items]) => {
+    if (Array.isArray(items)) {
+      items.forEach((item) => {
+        if (item?.name && item.name.includes("(")) {
+          names[hash] = item.name;
+        }
+      });
+    }
+  });
+
+  return names;
+}
+
 export async function fetchMethodNames(sighashes: string[]): Promise<Record<string, string>> {
+  if (sighashes.length === 0) return {};
+
   try {
-    const response = await $fetch<OpenChainResponse>("https://api.4byte.sourcify.dev/signature-database/v1/lookup", {
-      method: "GET",
-      params: {
-        function: sighashes.join(","),
-        filter: true,
-      },
-      headers: {
-        accept: "application/json",
-      },
-    });
-    const result = response?.result?.function ?? {};
-    const methodNames: Record<string, string> = {};
-    Object.entries(result).forEach(([sighash, methods]) => {
-      // Ensure methods is an array of the expected shape
-      if (Array.isArray(methods)) {
-        methods.forEach((method) => {
-          if (typeof method === "object" && method.name && method.name.split("(").length > 1) {
-            // Store the full signature, not just the method name
-            // e.g. "transfer(address,uint256)" instead of "transfer"
-            methodNames[sighash] = method.name;
-          }
-        });
+    const response = await $fetch<OpenChainLookupResponse>(
+      "https://api.4byte.sourcify.dev/signature-database/v1/lookup",
+      {
+        method: "GET",
+        params: { function: sighashes.join(","), filter: true },
+        headers: { accept: "application/json" },
       }
-    });
-    return methodNames;
+    );
+    // only care about functions here
+    return parseOpenChainResult(response?.result?.function);
   } catch (error) {
     console.error("Error fetching method names:", error);
     return {};
   }
 }
 
-interface OpenChainEventResponse {
-  ok: boolean;
-  result: {
-    event: Record<string, OpenChainMethod[]>;
-  };
-}
-
 export async function fetchEventNames(topicHashes: string[]): Promise<Record<string, string>> {
+  if (topicHashes.length === 0) return {};
+
   try {
-    const response = await $fetch<OpenChainEventResponse>(
+    const response = await $fetch<OpenChainLookupResponse>(
       "https://api.4byte.sourcify.dev/signature-database/v1/lookup",
       {
         method: "GET",
-        params: {
-          event: topicHashes.join(","),
-          filter: true,
-        },
-        headers: {
-          accept: "application/json",
-        },
+        params: { event: topicHashes.join(","), filter: true },
+        headers: { accept: "application/json" },
       }
     );
-    const result = response?.result?.event ?? {};
-    const eventNames: Record<string, string> = {};
-    Object.entries(result).forEach(([topicHash, events]) => {
-      // Ensure events is an array of the expected shape
-      if (Array.isArray(events) && events.length > 0) {
-        const event = events[0];
-        if (typeof event === "object" && event.name) {
-          // Store the full signature, e.g. "Transfer(address,address,uint256)"
-          eventNames[topicHash] = event.name;
-        }
-      }
-    });
-    return eventNames;
+    // only care about events here
+    return parseOpenChainResult(response?.result?.event);
   } catch (error) {
     console.error("Error fetching event names:", error);
     return {};
