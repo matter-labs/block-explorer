@@ -8,7 +8,7 @@ import type { Address, Hash } from "@/types";
 import type { BigNumberish } from "ethers";
 
 import { decodeLogWithABI } from "@/utils/helpers";
-import { parseSignature } from "@/utils/parseSignature";
+import { parseEventSignature } from "@/utils/parseSignature";
 
 export type InputType = "string" | "address" | "bool" | "bytes" | "bytes32" | "uint256" | "uint8";
 export type TransactionEvent = {
@@ -86,7 +86,7 @@ export default (context = useContext()) => {
         // Try to get signature from OpenChain
         const signature = signatureMap[log.topics[0]];
         if (signature) {
-          const parsedSig = parseSignature(signature);
+          const parsedSig = parseEventSignature(signature);
           if (parsedSig) {
             return {
               ...log,
