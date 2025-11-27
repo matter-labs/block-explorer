@@ -42,10 +42,8 @@ export class BlockService {
 
     this.logger.debug({ message: "Getting block data from the blockchain", blockNumber });
     const stopGetBlockInfoDurationMetric = this.getBlockInfoDurationMetric.startTimer();
-    const [block, blockTraces] = await Promise.all([
-      this.blockchainService.getBlock(blockNumber),
-      this.blockchainService.debugTraceBlock(blockNumber),
-    ]);
+    const block = await this.blockchainService.getBlock(blockNumber);
+    const blockTraces = block && (await this.blockchainService.debugTraceBlock(blockNumber));
     stopGetBlockInfoDurationMetric();
 
     if (!block) {

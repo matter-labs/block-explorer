@@ -5,12 +5,14 @@ import { Interface } from "ethers";
 import useAddress from "./useAddress";
 import useContext from "./useContext";
 import useContractABI from "./useContractABI";
+import { fetchMethodNames } from "./useOpenChain";
 
 import type { AbiFragment } from "./useAddress";
 import type { InputType } from "./useEventLog";
 import type { Address } from "@/types";
 
 import { decodeInputData } from "@/utils/helpers";
+import { parseFunctionSignature } from "@/utils/parseSignature";
 
 export type MethodData = {
   name: string;
@@ -30,6 +32,8 @@ export type TransactionData = {
   value: string;
   sighash: string;
   method?: MethodData;
+  signature?: string;
+  isPartialDecoding?: boolean;
 };
 
 export function decodeDataWithABI(
@@ -96,19 +100,41 @@ export default (context = useContext()) => {
       if (!method) {
         const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
 
-        // Check for contract verification if we don't have contractAbi
-        if (!contractAbi && !proxyInfo?.implementation.verificationInfo) {
-          throw new Error("contract_not_verified");
-        }
-
         // Try with proxy implementation if available
         if (proxyInfo?.implementation.verificationInfo) {
           method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.abi);
         }
       }
 
-      // If we still couldn't decode, it's a decoding failure
+      // If we still couldn't decode, try to get signature from OpenChain
       if (!method) {
+        const signatureMap = await fetchMethodNames([transactionData.sighash]);
+        const signature = signatureMap[transactionData.sighash];
+
+        if (signature) {
+          // We found a signature, but can't decode parameter values without ABI
+          const parsedSig = parseFunctionSignature(signature);
+          if (parsedSig) {
+            data.value = {
+              ...transactionData,
+              signature,
+              isPartialDecoding: true,
+              method: {
+                name: parsedSig.name,
+                inputs: parsedSig.inputs.map((input) => ({
+                  ...input,
+                  value: "Unable to decode without ABI",
+                  inputs: [],
+                  encodedValue: "",
+                })),
+              },
+            };
+            decodingError.value = "signature_decode_limited";
+            return;
+          }
+        }
+
+        // No signature found or parsing failed - contract not verified
         throw new Error("data_decode_failed");
       }
 

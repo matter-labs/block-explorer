@@ -12,7 +12,7 @@ interface OpenChainResponse {
 }
 export async function fetchMethodNames(sighashes: string[]): Promise<Record<string, string>> {
   try {
-    const response = await $fetch<OpenChainResponse>("https://api.openchain.xyz/signature-database/v1/lookup", {
+    const response = await $fetch<OpenChainResponse>("https://api.4byte.sourcify.dev/signature-database/v1/lookup", {
       method: "GET",
       params: {
         function: sighashes.join(","),
@@ -29,7 +29,9 @@ export async function fetchMethodNames(sighashes: string[]): Promise<Record<stri
       if (Array.isArray(methods)) {
         methods.forEach((method) => {
           if (typeof method === "object" && method.name && method.name.split("(").length > 1) {
-            methodNames[sighash] = method.name.split("(")[0];
+            // Store the full signature, not just the method name
+            // e.g. "transfer(address,uint256)" instead of "transfer"
+            methodNames[sighash] = method.name;
           }
         });
       }

@@ -127,6 +127,29 @@
       "tokensMinLiquidity": 0,
       "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E",
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "zksync-os-mainnet",
+      "apiUrl": "https://block-explorer-api.zksync-os-mainnet-dawn.zksync.io",
+      "verificationApiUrl": "https://block-explorer-api.zksync-os-mainnet-dawn.zksync.io/api",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
+      "hostnames": [
+        "https://zksync-os-mainnet-dawn.staging-scan-v2.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://etherscan.io",
+        "name": "Ethereum",
+        "chainId": 1
+      }],
+      "l2ChainId": 30715,
+      "l2NetworkName": "ZKsync OS Mainnet",
+      "maintenance": false,
+      "name": "zksync-os-mainnet-dawn",
+      "published": true,
+      "rpcUrl": "https://zksync-os-mainnet-dawn.zksync.io",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     }
   ]
 }

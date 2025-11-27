@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { EntityManager, SelectQueryBuilder } from "typeorm";
+import { EntityManager, SelectQueryBuilder, Between } from "typeorm";
 import { mock } from "jest-mock-extended";
 import { BlockRepository } from "./block.repository";
 import { UnitOfWork } from "../unitOfWork";
@@ -123,6 +123,13 @@ describe("BlockRepository", () => {
     it("deletes all blocks matching the provided criteria", async () => {
       await repository.delete({ number: 10 });
       expect(entityManagerMock.delete).toHaveBeenCalledWith(Block, { number: 10 });
+    });
+  });
+
+  describe("updateByRange", () => {
+    it("updates all blocks using from - to numbers with specified changes", async () => {
+      await repository.updateByRange(10, 20, { hash: "new-hash" });
+      expect(entityManagerMock.update).toHaveBeenCalledWith(Block, { number: Between(10, 20) }, { hash: "new-hash" });
     });
   });
 });
