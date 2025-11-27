@@ -12,7 +12,7 @@ import type { InputType } from "./useEventLog";
 import type { Address } from "@/types";
 
 import { decodeInputData } from "@/utils/helpers";
-import { parseSignature } from "@/utils/parseSignature";
+import { parseFunctionSignature } from "@/utils/parseSignature";
 
 export type MethodData = {
   name: string;
@@ -113,7 +113,7 @@ export default (context = useContext()) => {
 
         if (signature) {
           // We found a signature, but can't decode parameter values without ABI
-          const parsedSig = parseSignature(signature);
+          const parsedSig = parseFunctionSignature(signature);
           if (parsedSig) {
             data.value = {
               ...transactionData,
