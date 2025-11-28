@@ -1,4 +1,4 @@
-import { FunctionFragment } from "ethers";
+import { EventFragment, FunctionFragment } from "ethers";
 
 /**
  * Parse a function signature string from OpenChain/Sourcify into structured format
@@ -25,6 +25,30 @@ export function parseFunctionSignature(signature: string): ParsedSignature | nul
 
   try {
     const fragment = FunctionFragment.from(signature);
+    return {
+      name: fragment.name,
+      inputs: fragment.inputs.map((input, index) => ({
+        type: input.type,
+        name: input.name || `param${index}`,
+      })),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Parse an event signature string into a structured format
+ * @param signature - Event signature like "Transfer(address,address,uint256)"
+ * @returns Parsed signature object or null if invalid
+ */
+export function parseEventSignature(signature: string): ParsedSignature | null {
+  if (!signature || typeof signature !== "string") {
+    return null;
+  }
+
+  try {
+    const fragment = EventFragment.from(signature);
     return {
       name: fragment.name,
       inputs: fragment.inputs.map((input, index) => ({
