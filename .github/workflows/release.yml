@@ -58,6 +58,7 @@ jobs:
     runs-on: [matterlabs-ci-runner]
     permissions:
       contents: read
+      packages: write
     needs: createReleaseVersion
     if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
@@ -98,9 +99,9 @@ jobs:
               "matterlabs/block-explorer-api:latest"
               "matterlabs/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-api:latest"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
+              "ghcr.io/matter-labs/block-explorer-api:latest"
+              "ghcr.io/matter-labs/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "ghcr.io/matter-labs/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-api:${{ steps.setVersionForFlux.outputs.imageTag }}"
@@ -115,9 +116,9 @@ jobs:
               "matterlabs/block-explorer-worker:latest"
               "matterlabs/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-worker:latest"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
+              "ghcr.io/matter-labs/block-explorer-worker:latest"
+              "ghcr.io/matter-labs/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "ghcr.io/matter-labs/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-worker:${{ steps.setVersionForFlux.outputs.imageTag }}"
@@ -132,9 +133,9 @@ jobs:
               "matterlabs/block-explorer-data-fetcher:latest"
               "matterlabs/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-data-fetcher:latest"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
+              "ghcr.io/matter-labs/block-explorer-data-fetcher:latest"
+              "ghcr.io/matter-labs/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "ghcr.io/matter-labs/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-data-fetcher:${{ steps.setVersionForFlux.outputs.imageTag }}"
@@ -149,9 +150,9 @@ jobs:
               "matterlabs/block-explorer-app:latest"
               "matterlabs/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "matterlabs/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-app:latest"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
-              "ghcr.io/matter-labs/block-explorer/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
+              "ghcr.io/matter-labs/block-explorer-app:latest"
+              "ghcr.io/matter-labs/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
+              "ghcr.io/matter-labs/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:latest"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
               "us-docker.pkg.dev/matterlabs-infra/matterlabs-docker/block-explorer-app:${{ steps.setVersionForFlux.outputs.imageTag }}"
