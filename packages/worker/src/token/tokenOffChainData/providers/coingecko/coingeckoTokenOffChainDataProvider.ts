@@ -160,7 +160,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     }
   }
 
-  private async makeApiRequest<T>(path: string, query?: Record<string, string>, attempt = 0): Promise<T> {
+  private async makeApiRequest<T>(path: string, query?: Record<string, string>, attempt?: number): Promise<T> {
     const queryString = new URLSearchParams({
       ...query,
       ...(this.isProPlan
