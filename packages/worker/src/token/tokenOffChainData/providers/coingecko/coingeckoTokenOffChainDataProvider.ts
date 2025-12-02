@@ -130,7 +130,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     retryTimeout?: number;
   }): Promise<T> {
     try {
-      return await this.makeApiRequest<T>(path, query);
+      return await this.makeApiRequest<T>(path, query, retryAttempt);
     } catch (err) {
       if (err.status === 404) {
         return null;
@@ -160,7 +160,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     }
   }
 
-  private async makeApiRequest<T>(path: string, query?: Record<string, string>): Promise<T> {
+  private async makeApiRequest<T>(path: string, query?: Record<string, string>, attempt = 0): Promise<T> {
     const queryString = new URLSearchParams({
       ...query,
       ...(this.isProPlan
@@ -181,12 +181,13 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
             const rateLimitResetDate = rateLimitReset
               ? new Date(rateLimitReset)
               : new Date(new Date().getTime() + 60000);
-            this.logger.debug({
+            this.logger.error({
               message: `Reached coingecko rate limit, reset at ${rateLimitResetDate}`,
               stack: error.stack,
               status: error.response.status,
               response: error.response.data,
               provider: CoingeckoTokenOffChainDataProvider.name,
+              attempt,
             });
             throw new ProviderResponseError(error.message, error.response.status, rateLimitResetDate);
           }
@@ -196,6 +197,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
             status: error.response?.status,
             response: error.response?.data,
             provider: CoingeckoTokenOffChainDataProvider.name,
+            attempt,
           });
           throw new ProviderResponseError(error.message, error.response?.status);
         })
