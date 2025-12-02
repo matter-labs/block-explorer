@@ -187,6 +187,8 @@ export class TokenService {
   }
 
   public async addBaseToken(): Promise<void> {
+    // TODO: This won't work as there is no contract at 0x0...800a for ZKsync OS.
+    // Consider not having base token in the tokens DB.
     const symbol = this.configService.get<string>("tokens.baseToken.symbol");
     const name = this.configService.get<string>("tokens.baseToken.name");
     const decimals = this.configService.get<number>("tokens.baseToken.decimals");
