@@ -39,7 +39,7 @@
     "lerna": "^7.2.0",
     "prettier": "2.8.4",
     "semantic-release": "^21.1.1",
-    "typescript": "5.9.3",
+    "typescript": "4.9.5",
     "enquirer": "2.3.6",
     "dotenv": "16.1.4",
     "pg-connection-string": "2.6.2"
