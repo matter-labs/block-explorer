@@ -148,5 +148,26 @@ describe("Prividium API (e2e)", () => {
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(500);
     });
+
+    it("depth is enforced for application/x-www-form-urlencoded", async () => {
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+      } as any);
+
+      const deepKey = "a" + "[a]".repeat(40); // a[a][a]...[a]
+      const formBody = `${deepKey}=1`;
+
+      const res = await agent
+        .post("/auth/login")
+        .set("Content-Type", "application/x-www-form-urlencoded")
+        .send(formBody);
+
+      expect(res.status).toBe(400);
+      expect(res.body).toEqual({
+        statusCode: 400,
+        message: "The input exceeded the depth",
+      });
+    });
   });
 });
