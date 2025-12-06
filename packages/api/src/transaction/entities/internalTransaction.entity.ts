@@ -5,7 +5,7 @@ import { bigIntNumberTransformer } from "../../common/transformers/bigIntNumber.
 import { Block } from "../../block/block.entity";
 import { Transaction } from "./transaction.entity";
 
-@Entity({ name: "internal_transactions" })
+@Entity({ name: "internalTransactions" })
 @Index(["transactionHash"])
 @Index(["blockNumber"])
 @Index(["from"])
@@ -45,10 +45,10 @@ export class InternalTransaction extends BaseEntity {
   @Column({ type: "bigint", nullable: true })
   public readonly gasUsed?: number;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly input?: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly output?: string;
 
   @Column({ type: "varchar" })

@@ -12,8 +12,8 @@ export interface Transfer {
   blockNumber: number;
   amount: bigint;
   tokenAddress: string;
-  type: string;
-  tokenType: string;
+  type: TransferType;
+  tokenType: TokenType;
   isFeeOrRefund: boolean;
   logIndex: number;
   transactionIndex: number;

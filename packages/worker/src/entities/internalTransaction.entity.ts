@@ -2,11 +2,11 @@ import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index } from "typ
 import { BaseEntity } from "./base.entity";
 import { Block } from "./block.entity";
 import { Transaction } from "./transaction.entity";
-import { hexTransformer } from "../transformers/hex.transformer";
 import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
+import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 
-@Entity({ name: "internal_transactions" })
+@Entity({ name: "internalTransactions" })
 @Index(["transactionHash"])
 @Index(["blockNumber"])
 @Index(["from"])
@@ -47,10 +47,10 @@ export class InternalTransaction extends BaseEntity {
   @Column({ type: "bigint", nullable: true })
   public readonly gasUsed?: number;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly input?: string;
 
-  @Column({ type: "text", nullable: true })
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly output?: string;
 
   @Column({ type: "varchar" })
