@@ -9,7 +9,7 @@ import {
   BASE_TOKEN_ADDRESS,
   L1_TO_L2_TX_TYPE,
 } from "../constants";
-import { Transfer } from "../transfer/interfaces/transfer.interface";
+import { Transfer, InternalTransaction } from "../transfer/interfaces/transfer.interface";
 import { TransferType } from "../transfer/transfer.service";
 import { unixTimeToDate } from "../utils/date";
 
@@ -26,6 +26,7 @@ export interface ContractAddress {
 export interface TransactionTraceData {
   contractAddresses: ContractAddress[];
   transfers: Transfer[];
+  internalTransactions: InternalTransaction[];
   error?: string;
   revertReason?: string;
   tokens?: Token[];
@@ -34,27 +35,57 @@ export interface TransactionTraceData {
 interface ExtractedTraceData {
   contractAddresses: ContractAddress[];
   transfersWithValue: Transfer[];
+  internalTransactions: InternalTransaction[];
   error?: string;
   revertReason?: string;
+  traceIndex: number;
 }
 
 function getTransactionTraceData(
   block: Block,
   transaction: TransactionResponse,
   transactionTrace: TransactionTrace,
-  extractedData: ExtractedTraceData = undefined
+  extractedData: ExtractedTraceData = undefined,
+  traceAddress = ""
 ): ExtractedTraceData {
   if (!extractedData) {
     extractedData = {
       contractAddresses: [],
       transfersWithValue: [],
+      internalTransactions: [],
       error: transactionTrace?.error,
       revertReason: transactionTrace?.revertReason,
+      traceIndex: 0,
     };
   }
 
   if (transactionTrace) {
     const traceType = transactionTrace.type.toLowerCase();
+    const currentTraceAddress = traceAddress || "0";
+    const currentTraceIndex = extractedData.traceIndex++;
+
+    // Add this trace as an internal transaction
+    const internalTx: InternalTransaction = {
+      transactionHash: transaction.hash,
+      blockNumber: transaction.blockNumber,
+      from: transactionTrace.from.toLowerCase(),
+      to: transactionTrace.to?.toLowerCase(),
+      value: BigInt(transactionTrace.value || "0x0").toString(),
+      gas: transactionTrace.gas ? parseInt(transactionTrace.gas, 16) : undefined,
+      gasUsed: transactionTrace.gasUsed ? parseInt(transactionTrace.gasUsed, 16) : undefined,
+      input: transactionTrace.input || "0x",
+      output: transactionTrace.output || "0x",
+      type: traceType.toUpperCase(),
+      callType: traceType,
+      traceAddress: currentTraceAddress,
+      traceIndex: currentTraceIndex,
+      error: transactionTrace.error || undefined,
+      timestamp: unixTimeToDate(block.timestamp).toISOString(),
+    };
+
+    extractedData.internalTransactions.push(internalTx);
+
+    // Extract contract addresses for CREATE/CREATE2
     if (["create", "create2"].includes(traceType) && !transactionTrace.error) {
       extractedData.contractAddresses.push({
         address: transactionTrace.to,
@@ -65,7 +96,7 @@ function getTransactionTraceData(
       });
     }
 
-    // DELEGATECALL and STATICCALL cannot transfer ETH.
+    // Extract value transfers (DELEGATECALL and STATICCALL cannot transfer ETH)
     if (
       transactionTrace.value !== "0x0" &&
       !transactionTrace.error &&
@@ -84,11 +115,14 @@ function getTransactionTraceData(
         logIndex: extractedData.transfersWithValue.length + 1,
         transactionIndex: transaction.index,
         timestamp: unixTimeToDate(block.timestamp),
+        isInternal: true,
       });
     }
 
-    transactionTrace.calls?.forEach((subCall) => {
-      getTransactionTraceData(block, transaction, subCall, extractedData);
+    // Recursively process sub-calls
+    transactionTrace.calls?.forEach((subCall, index) => {
+      const subTraceAddress = traceAddress ? `${traceAddress},${index}` : `0,${index}`;
+      getTransactionTraceData(block, transaction, subCall, extractedData, subTraceAddress);
     });
   }
 
@@ -120,6 +154,7 @@ export class TransactionTracesService {
       error: extractedTraceData.error,
       revertReason: extractedTraceData.revertReason,
       transfers: extractedTraceData.transfersWithValue,
+      internalTransactions: extractedTraceData.internalTransactions,
       tokens: [],
     };
 

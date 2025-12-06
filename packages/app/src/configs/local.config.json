@@ -13,7 +13,7 @@
       "maintenance": false,
       "name": "local",
       "published": true,
-      "rpcUrl": "http://localhost:3050",
+      "rpcUrl": "https://zksync-os-testnet-alpha.zksync.dev/",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     }
   ]

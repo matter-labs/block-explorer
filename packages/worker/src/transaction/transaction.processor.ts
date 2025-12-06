@@ -9,11 +9,13 @@ import {
   AddressRepository,
   TokenRepository,
   LogRepository,
+  InternalTransactionRepository,
 } from "../repositories";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME } from "../metrics";
 import { TransactionData, BlockInfo } from "../dataFetcher/types";
 import { ConfigService } from "@nestjs/config";
 import { unixTimeToDate } from "../utils/date";
+import { InternalTransactionService } from "./internalTransaction.service";
 
 @Injectable()
 export class TransactionProcessor {
@@ -26,6 +28,7 @@ export class TransactionProcessor {
     private readonly transferRepository: TransferRepository,
     private readonly addressRepository: AddressRepository,
     private readonly tokenRepository: TokenRepository,
+    private readonly internalTransactionService: InternalTransactionService,
     private readonly configService: ConfigService,
     @InjectMetric(TRANSACTION_PROCESSING_DURATION_METRIC_NAME)
     private readonly transactionProcessingDurationMetric: Histogram
@@ -90,6 +93,16 @@ export class TransactionProcessor {
       transactionHash: transactionData.transaction.hash,
     });
     await this.transferRepository.addMany(transactionData.transfers);
+
+    this.logger.debug({
+      message: "Saving internal transactions data to the DB",
+      blockNumber: block.number,
+      transactionHash: transactionData.transaction.hash,
+    });
+    await this.internalTransactionService.addInternalTransactions(
+      transactionData.transaction.hash,
+      transactionData.internalTransactions
+    );
 
     this.logger.debug({
       message: "Saving contract addresses data to the DB",

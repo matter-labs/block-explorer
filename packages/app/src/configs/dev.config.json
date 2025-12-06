@@ -14,7 +14,7 @@
       "maintenance": false,
       "name": "local",
       "published": true,
-      "rpcUrl": "http://localhost:3050",
+      "rpcUrl": "https://zksync-os-testnet-alpha.zksync.dev/",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A"
     },
     {
@@ -26,15 +26,18 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io/",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }, {
-        "explorerUrl": "https://explorer.era-gateway-stage.zksync.dev",
-        "name": "Stage Gateway",
-        "chainId": 123
-      }],
+      "settlementChains": [
+        {
+          "explorerUrl": "https://sepolia.etherscan.io",
+          "name": "Ethereum",
+          "chainId": 11155111
+        },
+        {
+          "explorerUrl": "https://explorer.era-gateway-stage.zksync.dev",
+          "name": "Stage Gateway",
+          "chainId": 123
+        }
+      ],
       "l2ChainId": 499,
       "l2NetworkName": "ZKsync Era Stage Proofs",
       "maintenance": false,
@@ -53,11 +56,13 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }],
+      "settlementChains": [
+        {
+          "explorerUrl": "https://sepolia.etherscan.io",
+          "name": "Ethereum",
+          "chainId": 11155111
+        }
+      ],
       "l2ChainId": 2702,
       "l2NetworkName": "ZKsync OS Stage",
       "maintenance": false,
@@ -68,7 +73,7 @@
     },
     {
       "groupId": "era",
-      "apiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev",
+      "apiUrl": "http://localhost:3020",
       "verificationApiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev/api",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
       "hostnames": [
@@ -76,11 +81,13 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }],
+      "settlementChains": [
+        {
+          "explorerUrl": "https://sepolia.etherscan.io",
+          "name": "Ethereum",
+          "chainId": 11155111
+        }
+      ],
       "l2ChainId": 8022833,
       "l2NetworkName": "ZKsync OS Testnet",
       "maintenance": false,
@@ -99,11 +106,13 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://etherscan.io",
-        "name": "Ethereum",
-        "chainId": 1
-      }],
+      "settlementChains": [
+        {
+          "explorerUrl": "https://etherscan.io",
+          "name": "Ethereum",
+          "chainId": 1
+        }
+      ],
       "l2ChainId": 30715,
       "l2NetworkName": "ZKsync OS Mainnet",
       "maintenance": false,
@@ -120,15 +129,18 @@
       "hostnames": [],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }, {
-        "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
-        "name": "Gateway",
-        "chainId": 32657
-      }],
+      "settlementChains": [
+        {
+          "explorerUrl": "https://sepolia.etherscan.io",
+          "name": "Ethereum",
+          "chainId": 11155111
+        },
+        {
+          "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+          "name": "Gateway",
+          "chainId": 32657
+        }
+      ],
       "l2ChainId": 300,
       "l2NetworkName": "ZKsync Era Sepolia Testnet",
       "maintenance": false,
@@ -147,15 +159,18 @@
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://etherscan.io",
-        "name": "Ethereum",
-        "chainId": 1
-      }, {
-        "explorerUrl": "https://gateway.explorer.zksync.io",
-        "name": "Gateway",
-        "chainId": 9075
-      }],
+      "settlementChains": [
+        {
+          "explorerUrl": "https://etherscan.io",
+          "name": "Ethereum",
+          "chainId": 1
+        },
+        {
+          "explorerUrl": "https://gateway.explorer.zksync.io",
+          "name": "Gateway",
+          "chainId": 9075
+        }
+      ],
       "l2ChainId": 324,
       "l2NetworkName": "ZKsync Era Mainnet",
       "maintenance": false,
@@ -171,7 +186,9 @@
       "apiUrl": "https://block-explorer.era-gateway-testnet.zksync.dev",
       "verificationApiUrl": "https://rpc-explorer-verify.era-gateway-testnet.zksync.dev",
       "bridgeUrl": "https://portal.era-gateway-testnet.zksync.dev/bridge",
-      "hostnames": ["https://sepolia.gateway.explorer.zksync.io"],
+      "hostnames": [
+        "https://sepolia.gateway.explorer.zksync.io"
+      ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "l2ChainId": 32657,
@@ -186,7 +203,9 @@
       "apiUrl": "https://block-explorer-api.era-gateway-mainnet.zksync.dev",
       "verificationApiUrl": "https://rpc-explorer-verify.era-gateway-mainnet.zksync.dev",
       "bridgeUrl": "https://portal.era-gateway-mainnet.zksync.dev/bridge",
-      "hostnames": ["https://gateway.explorer.zksync.io"],
+      "hostnames": [
+        "https://gateway.explorer.zksync.io"
+      ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https:/etherscan.io",
       "l2ChainId": 9075,

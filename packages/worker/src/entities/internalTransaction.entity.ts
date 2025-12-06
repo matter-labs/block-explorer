@@ -1,0 +1,73 @@
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index } from "typeorm";
+import { BaseEntity } from "./base.entity";
+import { Block } from "./block.entity";
+import { Transaction } from "./transaction.entity";
+import { hexTransformer } from "../transformers/hex.transformer";
+import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
+import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
+
+@Entity({ name: "internal_transactions" })
+@Index(["transactionHash"])
+@Index(["blockNumber"])
+@Index(["from"])
+@Index(["to"])
+@Index(["traceIndex"])
+@Index(["blockNumber", "traceIndex"])
+@Index(["transactionHash", "traceAddress"], { unique: true })
+export class InternalTransaction extends BaseEntity {
+  @PrimaryColumn({ generated: true, type: "bigint" })
+  public readonly id: number;
+
+  @ManyToOne(() => Transaction, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "transactionHash" })
+  private readonly _transaction: never;
+
+  @Column({ type: "bytea", transformer: hash64HexTransformer })
+  public readonly transactionHash: string;
+
+  @ManyToOne(() => Block, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "blockNumber" })
+  private readonly _block: never;
+
+  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
+  public readonly blockNumber: number;
+
+  @Column({ type: "bytea", transformer: hexTransformer })
+  public readonly from: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly to?: string;
+
+  @Column({ type: "numeric", precision: 78, scale: 0, default: "0" })
+  public readonly value: string;
+
+  @Column({ type: "bigint", nullable: true })
+  public readonly gas?: number;
+
+  @Column({ type: "bigint", nullable: true })
+  public readonly gasUsed?: number;
+
+  @Column({ type: "text", nullable: true })
+  public readonly input?: string;
+
+  @Column({ type: "text", nullable: true })
+  public readonly output?: string;
+
+  @Column({ type: "varchar" })
+  public readonly type: string;
+
+  @Column({ type: "varchar", nullable: true })
+  public readonly callType?: string;
+
+  @Column({ type: "varchar" })
+  public readonly traceAddress: string;
+
+  @Column({ type: "int" })
+  public readonly traceIndex: number;
+
+  @Column({ type: "varchar", nullable: true })
+  public readonly error?: string;
+
+  @Column({ type: "timestamp" })
+  public readonly timestamp: string;
+}
