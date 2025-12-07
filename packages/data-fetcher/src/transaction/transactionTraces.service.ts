@@ -9,7 +9,8 @@ import {
   BASE_TOKEN_ADDRESS,
   L1_TO_L2_TX_TYPE,
 } from "../constants";
-import { Transfer, InternalTransaction } from "../transfer/interfaces/transfer.interface";
+import { Transfer } from "../transfer/interfaces/transfer.interface";
+import { InternalTransaction } from "./interfaces/internalTransaction.interface";
 import { TransferType } from "../transfer/transfer.service";
 import { unixTimeToDate } from "../utils/date";
 

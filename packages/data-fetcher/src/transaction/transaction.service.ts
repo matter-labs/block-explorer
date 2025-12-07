@@ -7,7 +7,7 @@ import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURAT
 import { LogService, LogsData } from "../log/log.service";
 import { Token } from "../token/token.service";
 import { TransactionTracesService, ContractAddress } from "./transactionTraces.service";
-import { Transfer, InternalTransaction } from "../transfer/interfaces/transfer.interface";
+import { InternalTransaction } from "./interfaces/internalTransaction.interface";
 
 export interface TransactionInfo extends TransactionResponse {
   error?: string;
