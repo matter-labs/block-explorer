@@ -14,6 +14,7 @@ import { TransferService } from "../../transfer/transfer.service";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { SortingOrder } from "../../common/types";
 import { AccountController, parseAddressListPipeExceptionFactory } from "./account.controller";
+import { InternalTransactionService } from "../../transaction/internalTransaction.service";
 
 describe("AccountController", () => {
   let controller: AccountController;
@@ -21,6 +22,7 @@ describe("AccountController", () => {
   let transactionServiceMock: TransactionService;
   let transferServiceMock: TransferService;
   let balanceServiceMock: BalanceService;
+  let internalTransactionServiceMock: InternalTransactionService;
 
   const address = "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C";
   const addressTransaction = {
@@ -89,6 +91,48 @@ describe("AccountController", () => {
     },
   } as Transfer;
 
+  const internalTransaction = {
+    id: 1,
+    blockNumber: 20,
+    timestamp: "2023-01-01T00:00:00.000Z",
+    transactionHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
+    from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
+    value: "1000000",
+    gas: 1100000,
+    gasUsed: 900000,
+    input: "",
+    type: "CALL",
+    callType: "call",
+    traceAddress: "0",
+    traceIndex: 0,
+    error: "Execution error",
+    transaction: {
+      blockNumber: 20,
+      receivedAt: new Date("2023-01-01"),
+      hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
+      nonce: 1,
+      blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
+      transactionIndex: 10,
+      from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+      to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
+      value: "1000000",
+      gasLimit: "1100000",
+      gasPrice: "100",
+      status: TransactionStatus.Failed,
+      receiptStatus: 1,
+      data: "0x",
+      fee: "0x0",
+      isL1Originated: true,
+      transactionReceipt: {
+        contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+        cumulativeGasUsed: "1200000",
+        gasUsed: "900000",
+      },
+      type: 255,
+    },
+  };
+
   const erc721Transfer = {
     ...ecr20Transfer,
     fields: {
@@ -133,6 +177,9 @@ describe("AccountController", () => {
         },
       ]),
     });
+    internalTransactionServiceMock = mock<InternalTransactionService>({
+      findByAddress: jest.fn().mockResolvedValue([]),
+    });
     const module = await Test.createTestingModule({
       controllers: [AccountController],
       providers: [
@@ -151,6 +198,10 @@ describe("AccountController", () => {
         {
           provide: BalanceService,
           useValue: balanceServiceMock,
+        },
+        {
+          provide: InternalTransactionService,
+          useValue: internalTransactionServiceMock,
         },
       ],
     }).compile();
@@ -260,7 +311,7 @@ describe("AccountController", () => {
   });
 
   describe("getAccountInternalTransactions", () => {
-    it("calls transfer service to get internal transfers", async () => {
+    it("calls internal transaction service to get internal transactions", async () => {
       await controller.getAccountInternalTransactions(
         address,
         "",
@@ -273,7 +324,7 @@ describe("AccountController", () => {
         11,
         12
       );
-      expect(transferServiceMock.findInternalTransfers).toBeCalledWith({
+      expect(internalTransactionServiceMock.findByAddress).toBeCalledWith({
         address,
         transactionHash: "",
         startBlock: 11,
@@ -283,7 +334,7 @@ describe("AccountController", () => {
         sort: SortingOrder.Asc,
         maxLimit: 10000,
       });
-      expect(transferServiceMock.findInternalTransfers).toBeCalledTimes(1);
+      expect(internalTransactionServiceMock.findByAddress).toBeCalledTimes(1);
     });
 
     it("returns not ok response when no transactions found", async () => {
@@ -305,7 +356,7 @@ describe("AccountController", () => {
     });
 
     it("returns internal transactions list when transactions are found", async () => {
-      jest.spyOn(transferServiceMock, "findInternalTransfers").mockResolvedValue([ecr20Transfer as Transfer]);
+      jest.spyOn(internalTransactionServiceMock, "findByAddress").mockResolvedValue([internalTransaction as any]);
 
       const response = await controller.getAccountInternalTransactions(
         address,
@@ -323,8 +374,8 @@ describe("AccountController", () => {
         result: [
           {
             blockNumber: "20",
-            contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
-            errCode: "",
+            contractAddress: undefined,
+            errCode: "Execution error",
             fee: "0",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gas: "1100000",

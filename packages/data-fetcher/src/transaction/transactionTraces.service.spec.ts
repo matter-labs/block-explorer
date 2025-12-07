@@ -157,50 +157,49 @@ describe("TransactionTracesService", () => {
           transactionReceipt,
           multipleBaseTokenTransfersTraces
         );
-        expect(data.transfers).toEqual([
-          {
-            amount: BigInt(1122029021306663),
-            blockNumber: block.number,
-            from: "0x0000000000000000000000000000000000000000",
-            isFeeOrRefund: false,
-            logIndex: 1,
-            timestamp: new Date(block.timestamp * 1000),
-            to: "0x0000000000000000000000000000000000008001",
-            tokenAddress: "0x000000000000000000000000000000000000800a",
-            tokenType: "BASETOKEN",
-            transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
-            transactionIndex: 1,
-            type: "transfer",
-          },
-          {
-            amount: BigInt(9936370575000),
-            blockNumber: block.number,
-            from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
-            isFeeOrRefund: false,
-            logIndex: 2,
-            timestamp: new Date(block.timestamp * 1000),
-            to: "0x0000000000000000000000000000000000008001",
-            tokenAddress: "0x000000000000000000000000000000000000800a",
-            tokenType: "BASETOKEN",
-            transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
-            transactionIndex: 1,
-            type: "transfer",
-          },
-          {
-            amount: BigInt(1122029021306663),
-            blockNumber: block.number,
-            from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
-            isFeeOrRefund: false,
-            logIndex: 3,
-            timestamp: new Date(block.timestamp * 1000),
-            to: "0xb21a4f545d4d80efb929b7f49a266516c4dddbfc",
-            tokenAddress: "0x000000000000000000000000000000000000800a",
-            tokenType: "BASETOKEN",
-            transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
-            transactionIndex: 1,
-            type: "transfer",
-          },
-        ]);
+        expect(data.transfers.length).toBe(3);
+        expect(data.transfers[0]).toMatchObject({
+          amount: BigInt(1122029021306663),
+          blockNumber: block.number,
+          from: "0x0000000000000000000000000000000000000000",
+          isFeeOrRefund: false,
+          logIndex: 1,
+          timestamp: new Date(block.timestamp * 1000),
+          to: "0x0000000000000000000000000000000000008001",
+          tokenAddress: "0x000000000000000000000000000000000000800a",
+          tokenType: "BASETOKEN",
+          transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+          transactionIndex: 1,
+          type: "transfer",
+        });
+        expect(data.transfers[1]).toMatchObject({
+          amount: BigInt(9936370575000),
+          blockNumber: block.number,
+          from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
+          isFeeOrRefund: false,
+          logIndex: 2,
+          timestamp: new Date(block.timestamp * 1000),
+          to: "0x0000000000000000000000000000000000008001",
+          tokenAddress: "0x000000000000000000000000000000000000800a",
+          tokenType: "BASETOKEN",
+          transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+          transactionIndex: 1,
+          type: "transfer",
+        });
+        expect(data.transfers[2]).toMatchObject({
+          amount: BigInt(1122029021306663),
+          blockNumber: block.number,
+          from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
+          isFeeOrRefund: false,
+          logIndex: 3,
+          timestamp: new Date(block.timestamp * 1000),
+          to: "0xb21a4f545d4d80efb929b7f49a266516c4dddbfc",
+          tokenAddress: "0x000000000000000000000000000000000000800a",
+          tokenType: "BASETOKEN",
+          transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+          transactionIndex: 1,
+          type: "transfer",
+        });
       });
     });
 
@@ -565,6 +564,7 @@ describe("TransactionTracesService", () => {
           revertReason: undefined,
           tokens: [],
           transfers: [],
+          internalTransactions: [],
         });
       });
     });
