@@ -38,14 +38,14 @@ export class InternalTransaction extends BaseEntity {
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly to?: string;
 
-  @Column({ type: "numeric", precision: 78, scale: 0, default: "0" })
+  @Column({ type: "varchar", length: 128 })
   public readonly value: string;
 
-  @Column({ type: "bigint", nullable: true })
-  public readonly gas?: number;
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly gas?: string;
 
-  @Column({ type: "bigint", nullable: true })
-  public readonly gasUsed?: number;
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly gasUsed?: string;
 
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly input?: string;

@@ -4,8 +4,8 @@ export interface InternalTransaction {
   from: string;
   to?: string;
   value: string;
-  gas?: number;
-  gasUsed?: number;
+  gas?: string;
+  gasUsed?: string;
   input?: string;
   output?: string;
   type: string;
