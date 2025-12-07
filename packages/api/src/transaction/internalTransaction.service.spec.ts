@@ -70,7 +70,7 @@ describe("InternalTransactionService", () => {
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("internalTransaction");
       expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
         "(internalTransaction.from = :address OR internalTransaction.to = :address)",
-        { address: normalizeAddressTransformer.to(options.address!) }
+        { address: normalizeAddressTransformer.to(options.address || "") }
       );
       expect(result).toEqual([internalTransaction]);
     });
