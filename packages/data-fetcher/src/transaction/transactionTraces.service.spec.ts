@@ -10,6 +10,9 @@ import * as revertedTxTraces from "../../test/traces/reverted-tx.json";
 import * as multipleBaseTokenTransfersTraces from "../../test/traces/multiple-base-token-transfers.json";
 import * as systemContractsUpgradeTxReceipt from "../../test/transactionReceipts/system-contracts-upgrade.json";
 import * as systemContractsUpgradeTxResponse from "../../test/transactionResponses/system-contracts-upgrade.json";
+import { L1_TO_L2_TX_TYPE, BASE_TOKEN_ADDRESS } from "../constants";
+import { TransferType } from "../transfer/transfer.service";
+import { TokenType } from "../token/token.service";
 
 describe("TransactionTracesService", () => {
   let transactionTracesService: TransactionTracesService;
@@ -637,6 +640,79 @@ describe("TransactionTracesService", () => {
           contractDeployedTraces
         );
         expect(data.tokens).toEqual([]);
+      });
+    });
+
+    describe("when transaction is L1 to L2 deposit", () => {
+      it("returns deposit transfer", async () => {
+        const l1ToL2Tx = {
+          ...transactionResponse,
+          type: L1_TO_L2_TX_TYPE,
+          value: BigInt("1000000000"),
+          from: "0xsender",
+          to: "0xreceiver",
+          hash: "0xhash",
+          blockNumber: 123456,
+          index: 1,
+        } as any;
+
+        const data = await transactionTracesService.getData(block, l1ToL2Tx, transactionReceipt, null);
+
+        expect(data.transfers).toHaveLength(1);
+        expect(data.transfers[0]).toMatchObject({
+          from: "0xsender",
+          to: "0xreceiver",
+          amount: BigInt("1000000000"),
+          tokenAddress: BASE_TOKEN_ADDRESS,
+          type: TransferType.Deposit,
+          tokenType: TokenType.BaseToken,
+        });
+      });
+    });
+
+    describe("when transaction has delegatecall/staticcall traces", () => {
+      it("ignores delegatecall and staticcall for transfers", async () => {
+        const trace: any = {
+          type: "call",
+          from: "0xfrom",
+          to: "0xto",
+          value: "0x01",
+          calls: [
+            {
+              type: "delegatecall",
+              from: "0xfrom",
+              to: "0xdelegate",
+              value: "0x01", // Has value but should be ignored
+              gas: "0x0",
+              gasUsed: "0x0",
+            },
+            {
+              type: "staticcall",
+              from: "0xfrom",
+              to: "0xstatic",
+              value: "0x01", // Has value but should be ignored
+              gas: "0x0",
+              gasUsed: "0x0",
+            },
+          ],
+          gas: "0x0",
+          gasUsed: "0x0",
+        };
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        // Should have 0 transfers because main call calls don't match simple transfer criteria logic (or we didn't set it up perfect to match),
+        // but specifically delegate/static are ignored.
+        // Let's verify no transfers are created from the subcalls.
+        // The main call has value "0x01", so it MIGHT create a transfer if we don't mock error.
+        // In the code: transactionTrace.value !== "0x0" && !transactionTrace.error && !["delegatecall", "staticcall"].includes(traceType)
+        // The main trace is "call", value "0x01", no error -> adds transfer.
+        // Delegatecall -> ignored.
+        // Staticcall -> ignored.
+        // So we expect exactly 1 transfer (from the main trace).
+
+        expect(data.transfers).toHaveLength(1);
+        expect(data.transfers[0].to).toBe("0xto");
       });
     });
   });
