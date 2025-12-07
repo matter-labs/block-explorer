@@ -682,7 +682,7 @@ describe("TransactionTracesService", () => {
               type: "delegatecall",
               from: "0xfrom",
               to: "0xdelegate",
-              value: "0x01", // Has value but should be ignored
+              value: "0x01",
               gas: "0x0",
               gasUsed: "0x0",
             },
@@ -690,7 +690,7 @@ describe("TransactionTracesService", () => {
               type: "staticcall",
               from: "0xfrom",
               to: "0xstatic",
-              value: "0x01", // Has value but should be ignored
+              value: "0x01",
               gas: "0x0",
               gasUsed: "0x0",
             },
@@ -701,16 +701,7 @@ describe("TransactionTracesService", () => {
 
         const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
 
-        // Should have 0 transfers because main call calls don't match simple transfer criteria logic (or we didn't set it up perfect to match),
-        // but specifically delegate/static are ignored.
-        // Let's verify no transfers are created from the subcalls.
-        // The main call has value "0x01", so it MIGHT create a transfer if we don't mock error.
-        // In the code: transactionTrace.value !== "0x0" && !transactionTrace.error && !["delegatecall", "staticcall"].includes(traceType)
-        // The main trace is "call", value "0x01", no error -> adds transfer.
-        // Delegatecall -> ignored.
-        // Staticcall -> ignored.
-        // So we expect exactly 1 transfer (from the main trace).
-
+        // expect exactly 1 transfer
         expect(data.transfers).toHaveLength(1);
         expect(data.transfers[0].to).toBe("0xto");
       });

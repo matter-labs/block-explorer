@@ -33,8 +33,6 @@ describe("InternalTransactionRepository", () => {
     let addManySpy: jest.SpyInstance;
 
     beforeEach(() => {
-      // Mock the inherited methods from BaseRepository
-      // We cast to any because delete/addMany might be protected/public but we want to ensure we mock implementation to do nothing
       deleteSpy = jest.spyOn(repository, "delete").mockResolvedValue(undefined);
       addManySpy = jest.spyOn(repository, "addMany").mockResolvedValue(undefined);
     });

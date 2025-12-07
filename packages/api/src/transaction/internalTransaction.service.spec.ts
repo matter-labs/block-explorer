@@ -76,9 +76,6 @@ describe("InternalTransactionService", () => {
     });
 
     it("should handle non-contract addresses (filter by value > 0)", async () => {
-      // Mock non-contract (no bytecode or explicit empty response from DB query logic inside service)
-      // Default mock is empty array which means !isContract -> true
-
       await service.findByAddress({ address: "0x123" });
 
       expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("internalTransaction.value > :zero", { zero: "0" });
@@ -89,18 +86,14 @@ describe("InternalTransactionService", () => {
 
       await service.findByAddress({ address: "0x123" });
 
-      // verify value filter is NOT called
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith("internalTransaction.value > :zero", { zero: "0" });
     });
 
     it("should handle error when checking if address is contract (log warning, treat as contract/no filter)", async () => {
       managerMock.query.mockRejectedValue(new Error("DB Error"));
-      // We need to spy on logger to verify warning, but Logger is private/protected often.
-      // Service handles exception gracefully and continues.
 
       await service.findByAddress({ address: "0x123" });
 
-      // Should proceed without value filter on error
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith("internalTransaction.value > :zero", { zero: "0" });
     });
 
