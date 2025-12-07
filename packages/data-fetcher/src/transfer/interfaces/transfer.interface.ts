@@ -9,6 +9,8 @@ export interface Transfer {
   from: string;
   to: string;
   transactionHash: string;
+  transactionIndex: number;
+  timestamp: Date;
   blockNumber: number;
   amount: bigint;
   tokenAddress: string;
@@ -16,8 +18,6 @@ export interface Transfer {
   tokenType: TokenType;
   isFeeOrRefund: boolean;
   logIndex: number;
-  transactionIndex: number;
-  timestamp: Date;
   fields?: TransferFields;
   isInternal?: boolean;
 }
