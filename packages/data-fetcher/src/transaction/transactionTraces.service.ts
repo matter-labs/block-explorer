@@ -63,8 +63,6 @@ function getTransactionTraceData(
     const traceType = transactionTrace.type.toLowerCase();
     const currentTraceAddress = traceAddress || "0";
     const currentTraceIndex = extractedData.traceIndex++;
-
-    // Add this trace as an internal transaction
     const internalTx: InternalTransaction = {
       transactionHash: transaction.hash,
       blockNumber: transaction.blockNumber,
@@ -85,7 +83,6 @@ function getTransactionTraceData(
 
     extractedData.internalTransactions.push(internalTx);
 
-    // Extract contract addresses for CREATE/CREATE2
     if (["create", "create2"].includes(traceType) && !transactionTrace.error) {
       extractedData.contractAddresses.push({
         address: transactionTrace.to,
@@ -96,7 +93,6 @@ function getTransactionTraceData(
       });
     }
 
-    // Extract value transfers (DELEGATECALL and STATICCALL cannot transfer ETH)
     if (
       transactionTrace.value !== "0x0" &&
       !transactionTrace.error &&
@@ -119,7 +115,6 @@ function getTransactionTraceData(
       });
     }
 
-    // Recursively process sub-calls
     transactionTrace.calls?.forEach((subCall, index) => {
       const subTraceAddress = traceAddress ? `${traceAddress},${index}` : `0,${index}`;
       getTransactionTraceData(block, transaction, subCall, extractedData, subTraceAddress);
