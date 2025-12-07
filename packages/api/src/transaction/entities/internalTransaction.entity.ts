@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, ViewColumn, ViewEntity, ManyToOne, JoinColumn, Index } from "typeorm";
+import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index } from "typeorm";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../../common/transformers/bigIntNumber.transformer";
