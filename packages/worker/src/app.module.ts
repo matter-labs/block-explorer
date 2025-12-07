@@ -53,7 +53,6 @@ import { DbMetricsService } from "./dbMetrics.service";
 import { UnitOfWorkModule } from "./unitOfWork";
 import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
 import { SystemContractService } from "./contract/systemContract.service";
-import { InternalTransactionService } from "./transaction/internalTransaction.service";
 
 @Module({
   imports: [
@@ -123,7 +122,6 @@ import { InternalTransactionService } from "./transaction/internalTransaction.se
     BalanceRepository,
     LogRepository,
     InternalTransactionRepository,
-    InternalTransactionService,
     BlocksRevertService,
     BlockStatusService,
     BlockProcessor,
