@@ -1,6 +1,5 @@
 import { InternalTransaction } from "../../transaction/entities/internalTransaction.entity";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { BASE_TOKEN_L2_ADDRESS } from "../../common/constants";
 import { mapInternalTransactionListItem } from "./internalTransactionMapper";
 
 describe("internalTransactionMapper", () => {
