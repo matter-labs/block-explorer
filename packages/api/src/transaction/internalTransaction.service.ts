@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { InternalTransaction } from "./entities/internalTransaction.entity";
+import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 
 export interface FindInternalTransactionsOptions {
   address?: string;
@@ -36,17 +37,16 @@ export class InternalTransactionService {
 
     // Filter by address (from OR to)
     if (address) {
+      const normalizedAddress = normalizeAddressTransformer.to(address);
       queryBuilder.andWhere("(internalTransaction.from = :address OR internalTransaction.to = :address)", {
-        address: address.toLowerCase(),
+        address: normalizedAddress,
       });
 
       // Determine if address is a contract by checking if it has bytecode
-      // Simple heuristic: EOA addresses will have minimal or no bytecode entry
-      // We can use a raw query to check the address table for bytecode
       try {
         const addressRecord = await this.internalTransactionRepository.manager.query(
           `SELECT bytecode FROM addresses WHERE address = $1 LIMIT 1`,
-          [address.toLowerCase()]
+          [normalizedAddress]
         );
         const isContract =
           addressRecord && addressRecord.length > 0 && addressRecord[0].bytecode && addressRecord[0].bytecode !== "0x";
@@ -66,8 +66,9 @@ export class InternalTransactionService {
 
     // Filter by transaction hash
     if (transactionHash) {
+      const normalizedHash = normalizeAddressTransformer.to(transactionHash);
       queryBuilder.andWhere("internalTransaction.transactionHash = :transactionHash", {
-        transactionHash: transactionHash.toLowerCase(),
+        transactionHash: normalizedHash,
       });
     }
 
