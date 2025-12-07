@@ -24,10 +24,12 @@ export class CreateInternalTransactions1760990000000 implements MigrationInterfa
         "timestamp" TIMESTAMP NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
         "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-        CONSTRAINT "PK_internal_transactions_id" PRIMARY KEY ("id")
+        CONSTRAINT "PK_internal_transactions_id" PRIMARY KEY ("id"),
+        CONSTRAINT "UQ_internalTransactions_transactionHash_traceAddress" UNIQUE ("transactionHash", "traceAddress"),
+        CONSTRAINT "FK_internalTransactions_blockNumber" FOREIGN KEY ("blockNumber") REFERENCES "blocks"("number") ON DELETE CASCADE ON UPDATE NO ACTION,
+        CONSTRAINT "FK_internalTransactions_transactionHash" FOREIGN KEY ("transactionHash") REFERENCES "transactions"("hash") ON DELETE CASCADE ON UPDATE NO ACTION
       )`
     );
-
     await queryRunner.query(
       `CREATE INDEX "IDX_internalTransactions_transactionHash" ON "internalTransactions" ("transactionHash")`
     );
@@ -42,31 +44,8 @@ export class CreateInternalTransactions1760990000000 implements MigrationInterfa
     await queryRunner.query(
       `CREATE INDEX "IDX_internalTransactions_blockNumber_traceIndex" ON "internalTransactions" ("blockNumber", "traceIndex")`
     );
-
-    await queryRunner.query(
-      `CREATE UNIQUE INDEX "UQ_internalTransactions_transactionHash_traceAddress" ON "internalTransactions" ("transactionHash", "traceAddress")`
-    );
-
-    await queryRunner.query(
-      `ALTER TABLE "internalTransactions" ADD CONSTRAINT "FK_internalTransactions_blockNumber" FOREIGN KEY ("blockNumber") REFERENCES "blocks"("number") ON DELETE CASCADE ON UPDATE NO ACTION`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "internalTransactions" ADD CONSTRAINT "FK_internalTransactions_transactionHash" FOREIGN KEY ("transactionHash") REFERENCES "transactions"("hash") ON DELETE CASCADE ON UPDATE NO ACTION`
-    );
   }
-
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "internalTransactions" DROP CONSTRAINT "FK_internalTransactions_transactionHash"`
-    );
-    await queryRunner.query(`ALTER TABLE "internalTransactions" DROP CONSTRAINT "FK_internalTransactions_blockNumber"`);
-    await queryRunner.query(`DROP INDEX "public"."UQ_internalTransactions_transactionHash_traceAddress"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_internalTransactions_blockNumber_traceIndex"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_internalTransactions_traceIndex"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_internalTransactions_to"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_internalTransactions_from"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_internalTransactions_blockNumber"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_internalTransactions_transactionHash"`);
     await queryRunner.query(`DROP TABLE "internalTransactions"`);
   }
 }
