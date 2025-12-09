@@ -11,15 +11,16 @@ import { Transaction } from "./transaction.entity";
 @Index(["from", "blockNumber", "traceIndex"])
 @Index(["to", "blockNumber", "traceIndex"])
 @Index(["from", "callType", "blockNumber", "traceIndex"])
+@Index(["timestamp", "traceIndex"])
+@Index(["transactionHash", "traceAddress"], { unique: true })
 export class InternalTransaction extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
-  public readonly id: number;
+  public readonly number: number;
 
   @ManyToOne(() => Transaction)
   @JoinColumn({ name: "transactionHash" })
   public readonly transaction?: Transaction;
 
-  @Index()
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly transactionHash: string;
 
@@ -30,11 +31,9 @@ export class InternalTransaction extends BaseEntity {
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
 
-  @Index()
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly from: string;
 
-  @Index()
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly to?: string;
 

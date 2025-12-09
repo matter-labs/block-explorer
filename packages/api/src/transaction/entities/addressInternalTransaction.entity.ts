@@ -3,6 +3,7 @@ import { BaseEntity } from "../../common/entities/base.entity";
 import { InternalTransaction } from "./internalTransaction.entity";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../../common/transformers/bigIntNumber.transformer";
+import { normalizeAddressTransformer } from "../../common/transformers/normalizeAddress.transformer";
 
 @Entity({ name: "addressInternalTransactions" })
 @Index(["address", "blockNumber", "traceIndex"])
@@ -26,7 +27,7 @@ export class AddressInternalTransaction extends BaseEntity {
   @Column({ type: "varchar" })
   public readonly traceAddress: string;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly address: string;
 
   @Index()
