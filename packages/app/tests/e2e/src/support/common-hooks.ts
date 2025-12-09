@@ -1,7 +1,7 @@
 import { After, AfterAll, Before, setDefaultTimeout } from "@cucumber/cucumber";
 import { Status } from "@cucumber/cucumber";
 import { chromium } from "@playwright/test";
-import dappwright, { MetaMaskWallet } from "@tenkeylabs/dappwright";
+import dappwright from "@tenkeylabs/dappwright";
 
 import { Helper } from "../helpers/helper";
 import { config } from "../support/config";
