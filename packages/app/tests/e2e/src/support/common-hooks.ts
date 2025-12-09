@@ -47,10 +47,12 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
 
   process.env.TEST_PARALLEL_INDEX = "0";
   process.env.TARGET_ENV = "http://127.0.0.1:3010";
+  process.env.METAMASK_VERSION = "13.11.2";
+  const metamaskVersion = process.env.METAMASK_VERSION ?? MetaMaskWallet.recommendedVersion;
 
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
-    version: MetaMaskWallet.recommendedVersion,
+    version: metamaskVersion,
     slowMo: config.slowMo,
     headless: false,
     viewport: config.mainWindowSize,
