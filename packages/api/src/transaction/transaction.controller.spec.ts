@@ -221,7 +221,7 @@ describe("TransactionController", () => {
       });
 
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser });
+        user = mock<UserWithRoles>({ address: mockUser, isAdmin: false });
         (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
         (logServiceMock.findAll as jest.Mock).mockResolvedValue(transactionLogs);
       });
@@ -241,6 +241,21 @@ describe("TransactionController", () => {
           }
         );
         expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, transactionLogs.items, user);
+        expect(result).toBe(transaction);
+      });
+
+      it("returns the transaction when user is admin", async () => {
+        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(false);
+
+        const result = await controller.getTransaction(
+          transactionHash,
+          mock<UserWithRoles>({
+            address: mockUser,
+            isAdmin: true,
+          })
+        );
+        expect(logServiceMock.findAll).not.toHaveBeenCalled();
+        expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
         expect(result).toBe(transaction);
       });
 
