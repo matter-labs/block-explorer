@@ -2,7 +2,6 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { InternalTransactionRepository } from "./internalTransaction.repository";
 import { UnitOfWork } from "../unitOfWork";
-import { InternalTransaction } from "../entities";
 import { AddressInternalTransactionRepository } from "./addressInternalTransaction.repository";
 
 describe("InternalTransactionRepository", () => {
