@@ -7,16 +7,16 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 import { CountableEntity } from "./countable.entity";
 
 @Entity({ name: "internalTransactions" })
-@Index(["transactionHash"])
-@Index(["blockNumber"])
-@Index(["from"])
-@Index(["to"])
-@Index(["traceIndex"])
+@Index(["transactionHash", "traceIndex"])
+@Index(["timestamp", "traceIndex"])
 @Index(["blockNumber", "traceIndex"])
 @Index(["transactionHash", "traceAddress"], { unique: true })
+@Index(["type", "blockNumber", "traceIndex"])
+@Index(["from"])
+@Index(["to"])
 export class InternalTransaction extends CountableEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
-  public readonly id: number;
+  public readonly number: number;
 
   @ManyToOne(() => Transaction, { onDelete: "CASCADE" })
   @JoinColumn({ name: "transactionHash" })

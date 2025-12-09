@@ -7,6 +7,8 @@ import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
 
 @Entity({ name: "addressInternalTransactions" })
 @Index(["address", "blockNumber", "traceIndex"])
+@Index(["address", "timestamp", "blockNumber", "traceIndex"])
+@Index(["transactionHash", "traceAddress"])
 export class AddressInternalTransaction extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;
