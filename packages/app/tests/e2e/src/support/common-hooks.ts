@@ -50,8 +50,10 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
 
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
-    version: MetaMaskWallet.recommendedVersion,
-    slowMo: config.slowMo,
+    // Recommended version is no longer available, pinning to specific version.
+    // See details: https://github.com/TenKeyLabs/dappwright/issues/506
+    version: "12.23.1",
+    // slowMo: config.slowMo,
     headless: false,
     viewport: config.mainWindowSize,
     use: {
@@ -64,6 +66,7 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
   this.context = context;
   this.metamask = metamask;
   this.browser = context.browser();
+
   prividiumBrowser = this.browser;
 
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
