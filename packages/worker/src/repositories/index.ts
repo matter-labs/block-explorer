@@ -12,3 +12,4 @@ export * from "./balance.repository";
 export * from "./counter.repository";
 export * from "./counterState.repository";
 export * from "./internalTransaction.repository";
+export * from "./addressInternalTransaction.repository";

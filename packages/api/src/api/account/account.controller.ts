@@ -91,16 +91,22 @@ export class AccountController {
     @Query("startblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) startBlock?: number,
     @Query("endblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) endBlock?: number
   ): Promise<AccountInternalTransactionsResponseDto> {
-    const internalTransactions = await this.internalTransactionService.findByAddress({
-      address,
-      transactionHash,
-      startBlock,
-      endBlock,
-      ...pagingOptions,
-      ...sortingOptions,
-    });
+    const internalTransactions = await this.internalTransactionService.findAll(
+      {
+        address,
+        transactionHash,
+        startBlock,
+        endBlock,
+        ...sortingOptions,
+      },
+      {
+        ...pagingOptions,
+        limit: pagingOptions.offset,
+        route: "account/txlistinternal",
+      }
+    );
 
-    const internalTransactionsList = internalTransactions.map((internalTx) =>
+    const internalTransactionsList = internalTransactions.items.map((internalTx) =>
       mapInternalTransactionListItem(internalTx)
     );
 

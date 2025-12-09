@@ -1,10 +1,10 @@
 import { Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, Index } from "typeorm";
-import { BaseEntity } from "./base.entity";
 import { Block } from "./block.entity";
 import { Transaction } from "./transaction.entity";
 import { hash64HexTransformer } from "../transformers/hash64Hex.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
+import { CountableEntity } from "./countable.entity";
 
 @Entity({ name: "internalTransactions" })
 @Index(["transactionHash"])
@@ -14,7 +14,7 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 @Index(["traceIndex"])
 @Index(["blockNumber", "traceIndex"])
 @Index(["transactionHash", "traceAddress"], { unique: true })
-export class InternalTransaction extends BaseEntity {
+export class InternalTransaction extends CountableEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly id: number;
 

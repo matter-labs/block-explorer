@@ -6,12 +6,11 @@ import { Block } from "../../block/block.entity";
 import { Transaction } from "./transaction.entity";
 
 @Entity({ name: "internalTransactions" })
-@Index(["transactionHash"])
-@Index(["blockNumber"])
-@Index(["from"])
-@Index(["to"])
-@Index(["traceIndex"])
 @Index(["blockNumber", "traceIndex"])
+@Index(["transactionHash", "traceIndex"])
+@Index(["from", "blockNumber", "traceIndex"])
+@Index(["to", "blockNumber", "traceIndex"])
+@Index(["from", "callType", "blockNumber", "traceIndex"])
 export class InternalTransaction extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly id: number;
@@ -20,6 +19,7 @@ export class InternalTransaction extends BaseEntity {
   @JoinColumn({ name: "transactionHash" })
   public readonly transaction?: Transaction;
 
+  @Index()
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly transactionHash: string;
 
@@ -30,9 +30,11 @@ export class InternalTransaction extends BaseEntity {
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
 
+  @Index()
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly from: string;
 
+  @Index()
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly to?: string;
 

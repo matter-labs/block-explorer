@@ -98,10 +98,7 @@ export class TransactionProcessor {
       blockNumber: block.number,
       transactionHash: transactionData.transaction.hash,
     });
-    await this.internalTransactionRepository.replaceForTransaction(
-      transactionData.transaction.hash,
-      transactionData.internalTransactions
-    );
+    await this.internalTransactionRepository.addMany(transactionData.internalTransactions);
 
     this.logger.debug({
       message: "Saving contract addresses data to the DB",

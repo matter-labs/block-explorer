@@ -178,7 +178,16 @@ describe("AccountController", () => {
       ]),
     });
     internalTransactionServiceMock = mock<InternalTransactionService>({
-      findByAddress: jest.fn().mockResolvedValue([]),
+      findAll: jest.fn().mockResolvedValue({
+        items: [],
+        meta: {
+          itemCount: 0,
+          totalItems: 0,
+          itemsPerPage: 10,
+          totalPages: 0,
+          currentPage: 1,
+        },
+      }),
     });
     const module = await Test.createTestingModule({
       controllers: [AccountController],
@@ -324,17 +333,23 @@ describe("AccountController", () => {
         11,
         12
       );
-      expect(internalTransactionServiceMock.findByAddress).toBeCalledWith({
-        address,
-        transactionHash: "",
-        startBlock: 11,
-        endBlock: 12,
-        page: 2,
-        offset: 20,
-        sort: SortingOrder.Asc,
-        maxLimit: 10000,
-      });
-      expect(internalTransactionServiceMock.findByAddress).toBeCalledTimes(1);
+      expect(internalTransactionServiceMock.findAll).toBeCalledWith(
+        {
+          address,
+          transactionHash: "",
+          startBlock: 11,
+          endBlock: 12,
+          sort: SortingOrder.Asc,
+        },
+        {
+          page: 2,
+          offset: 20,
+          limit: 20,
+          maxLimit: 10000,
+          route: "account/txlistinternal",
+        }
+      );
+      expect(internalTransactionServiceMock.findAll).toBeCalledTimes(1);
     });
 
     it("returns not ok response when no transactions found", async () => {
@@ -356,7 +371,16 @@ describe("AccountController", () => {
     });
 
     it("returns internal transactions list when transactions are found", async () => {
-      jest.spyOn(internalTransactionServiceMock, "findByAddress").mockResolvedValue([internalTransaction as any]);
+      jest.spyOn(internalTransactionServiceMock, "findAll").mockResolvedValue({
+        items: [internalTransaction as any],
+        meta: {
+          itemCount: 1,
+          totalItems: 1,
+          itemsPerPage: 10,
+          totalPages: 1,
+          currentPage: 1,
+        },
+      });
 
       const response = await controller.getAccountInternalTransactions(
         address,
