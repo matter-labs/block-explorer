@@ -108,5 +108,54 @@ describe("internalTransactionMapper", () => {
         } as InternalTransaction).isError
       ).toBe("0");
     });
+
+    it("falls back to defaults when optional fields are missing", () => {
+      const result = mapInternalTransactionListItem({
+        ...internalTransaction,
+        to: undefined,
+        gas: undefined,
+        gasUsed: undefined,
+        input: undefined,
+        callType: undefined,
+        type: "DELEGATECALL",
+      } as InternalTransaction);
+
+      expect(result).toMatchObject({
+        to: "",
+        gas: "",
+        gasUsed: "",
+        input: "",
+        type: "delegatecall",
+        contractAddress: undefined,
+      });
+    });
+
+    it("sets contractAddress for CREATE and CREATE2 transactions", () => {
+      const createResult = mapInternalTransactionListItem({
+        ...internalTransaction,
+        type: "CREATE",
+        callType: undefined,
+      } as InternalTransaction);
+      const create2Result = mapInternalTransactionListItem({
+        ...internalTransaction,
+        type: "CREATE2",
+        callType: undefined,
+      } as InternalTransaction);
+
+      expect(createResult.contractAddress).toBe(internalTransaction.to);
+      expect(createResult.type).toBe("create");
+      expect(create2Result.contractAddress).toBe(internalTransaction.to);
+      expect(create2Result.type).toBe("create2");
+    });
+
+    it("returns error code when present", () => {
+      const result = mapInternalTransactionListItem({
+        ...internalTransaction,
+        error: "Execution reverted",
+      } as InternalTransaction);
+
+      expect(result.isError).toBe("1");
+      expect(result.errCode).toBe("Execution reverted");
+    });
   });
 });
