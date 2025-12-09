@@ -53,7 +53,7 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
     // Recommended version is no longer available, pinning to specific version.
     // See details: https://github.com/TenKeyLabs/dappwright/issues/506
     version: "12.23.1",
-    // slowMo: config.slowMo,
+    slowMo: config.slowMo,
     headless: false,
     viewport: config.mainWindowSize,
     use: {
