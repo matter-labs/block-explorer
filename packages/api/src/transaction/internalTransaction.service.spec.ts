@@ -1,10 +1,11 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
 import { mock } from "jest-mock-extended";
 import { InternalTransactionService, FilterInternalTransactionsOptions } from "./internalTransaction.service";
 import { InternalTransaction } from "./entities/internalTransaction.entity";
 import { Address } from "../address/address.entity";
+import { AddressInternalTransaction } from "./entities/addressInternalTransaction.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import * as utils from "../common/utils";
 
@@ -13,8 +14,10 @@ jest.mock("../common/utils");
 describe("InternalTransactionService", () => {
   let service: InternalTransactionService;
   let repositoryMock: Repository<InternalTransaction>;
+  let addressInternalTransactionRepositoryMock: Repository<AddressInternalTransaction>;
   let addressRepositoryMock: Repository<Address>;
   let queryBuilderMock: SelectQueryBuilder<InternalTransaction>;
+  let addressInternalTransactionQueryBuilderMock: SelectQueryBuilder<AddressInternalTransaction>;
 
   const internalTransaction = {
     blockNumber: 10,
@@ -26,15 +29,26 @@ describe("InternalTransactionService", () => {
 
   beforeEach(async () => {
     repositoryMock = mock<Repository<InternalTransaction>>();
+    addressInternalTransactionRepositoryMock = mock<Repository<AddressInternalTransaction>>();
     addressRepositoryMock = mock<Repository<Address>>();
     queryBuilderMock = mock<SelectQueryBuilder<InternalTransaction>>();
+    addressInternalTransactionQueryBuilderMock = mock<SelectQueryBuilder<AddressInternalTransaction>>();
 
     // Setup QueryBuilder mock chain
     jest.spyOn(repositoryMock, "createQueryBuilder").mockReturnValue(queryBuilderMock);
+    jest
+      .spyOn(addressInternalTransactionRepositoryMock, "createQueryBuilder")
+      .mockReturnValue(addressInternalTransactionQueryBuilderMock);
     jest.spyOn(queryBuilderMock, "leftJoinAndSelect").mockReturnThis();
     jest.spyOn(queryBuilderMock, "andWhere").mockReturnThis();
     jest.spyOn(queryBuilderMock, "orderBy").mockReturnThis();
     jest.spyOn(queryBuilderMock, "addOrderBy").mockReturnThis();
+    jest.spyOn(addressInternalTransactionQueryBuilderMock, "select").mockReturnThis();
+    jest.spyOn(addressInternalTransactionQueryBuilderMock, "leftJoinAndSelect").mockReturnThis();
+    jest.spyOn(addressInternalTransactionQueryBuilderMock, "where").mockReturnThis();
+    jest.spyOn(addressInternalTransactionQueryBuilderMock, "andWhere").mockReturnThis();
+    jest.spyOn(addressInternalTransactionQueryBuilderMock, "orderBy").mockReturnThis();
+    jest.spyOn(addressInternalTransactionQueryBuilderMock, "addOrderBy").mockReturnThis();
 
     // Default mock response for address repository
     (addressRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
@@ -45,6 +59,10 @@ describe("InternalTransactionService", () => {
         {
           provide: getRepositoryToken(InternalTransaction),
           useValue: repositoryMock,
+        },
+        {
+          provide: getRepositoryToken(AddressInternalTransaction),
+          useValue: addressInternalTransactionRepositoryMock,
         },
         {
           provide: getRepositoryToken(Address),
@@ -67,17 +85,22 @@ describe("InternalTransactionService", () => {
 
   describe("findAll", () => {
     it("should return internal transactions filtered by address", async () => {
+      const addressInternalTransaction = { internalTransaction } as AddressInternalTransaction;
+      (utils.paginate as jest.Mock).mockResolvedValue({ items: [addressInternalTransaction] });
+
       const options: FilterInternalTransactionsOptions = {
         address: "0x123",
       };
 
       const result = await service.findAll(options, { page: 1, limit: 10 });
 
-      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("internalTransaction");
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
-        "(internalTransaction.from = :address OR internalTransaction.to = :address)",
-        { address: normalizeAddressTransformer.to(options.address || "") }
+      expect(addressInternalTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith(
+        "addressInternalTransaction"
       );
+      expect(addressInternalTransactionQueryBuilderMock.where).toHaveBeenCalledWith({
+        address: normalizeAddressTransformer.to(options.address || ""),
+      });
+      expect(utils.paginate).toHaveBeenCalledWith(addressInternalTransactionQueryBuilderMock, { page: 1, limit: 10 });
       expect(result).toEqual({ items: [internalTransaction] });
     });
 
@@ -85,7 +108,12 @@ describe("InternalTransactionService", () => {
       (addressRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
       await service.findAll({ address: "0x123" }, { page: 1, limit: 10 });
 
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("internalTransaction.value > :zero", { zero: "0" });
+      expect(addressInternalTransactionQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+        "internalTransaction.value > :zero",
+        {
+          zero: "0",
+        }
+      );
     });
 
     it("should handle contract addresses (no value filter)", async () => {
@@ -93,7 +121,12 @@ describe("InternalTransactionService", () => {
 
       await service.findAll({ address: "0x123" }, { page: 1, limit: 10 });
 
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith("internalTransaction.value > :zero", { zero: "0" });
+      expect(addressInternalTransactionQueryBuilderMock.andWhere).not.toHaveBeenCalledWith(
+        "internalTransaction.value > :zero",
+        {
+          zero: "0",
+        }
+      );
     });
 
     it("should handle error when checking if address is contract (log warning, treat as contract/no filter)", async () => {
@@ -101,7 +134,35 @@ describe("InternalTransactionService", () => {
 
       await service.findAll({ address: "0x123" }, { page: 1, limit: 10 });
 
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith("internalTransaction.value > :zero", { zero: "0" });
+      expect(addressInternalTransactionQueryBuilderMock.andWhere).not.toHaveBeenCalledWith(
+        "internalTransaction.value > :zero",
+        {
+          zero: "0",
+        }
+      );
+    });
+
+    it("should filter address queries by transaction hash and block range", async () => {
+      (utils.paginate as jest.Mock).mockResolvedValue({ items: [{ internalTransaction }] });
+      const txHash = "0xtxhash";
+
+      await service.findAll(
+        { address: "0x123", transactionHash: txHash, startBlock: 5, endBlock: 15 },
+        { page: 1, limit: 10 }
+      );
+
+      expect(addressInternalTransactionQueryBuilderMock.andWhere).toHaveBeenCalledWith(
+        "addressInternalTransaction.transactionHash = :transactionHash",
+        {
+          transactionHash: normalizeAddressTransformer.to(txHash),
+        }
+      );
+      expect(addressInternalTransactionQueryBuilderMock.andWhere).toHaveBeenCalledWith({
+        blockNumber: MoreThanOrEqual(5),
+      });
+      expect(addressInternalTransactionQueryBuilderMock.andWhere).toHaveBeenCalledWith({
+        blockNumber: LessThanOrEqual(15),
+      });
     });
 
     it("should filter by transaction hash", async () => {
@@ -135,7 +196,7 @@ describe("InternalTransactionService", () => {
     });
 
     it("should apply pagination", async () => {
-      await service.findAll({ address: "0x123" }, { page: 2, limit: 50 });
+      await service.findAll({}, { page: 2, limit: 50 });
       expect(utils.paginate).toHaveBeenCalledWith(queryBuilderMock, {
         limit: 50,
         page: 2,
@@ -143,7 +204,7 @@ describe("InternalTransactionService", () => {
     });
 
     it("should pass through maxLimit when provided", async () => {
-      await service.findAll({ address: "0x123" }, { limit: 20, page: 1, maxLimit: 5000 });
+      await service.findAll({}, { limit: 20, page: 1, maxLimit: 5000 });
       expect(utils.paginate).toHaveBeenCalledWith(queryBuilderMock, {
         limit: 20,
         maxLimit: 5000,

@@ -92,7 +92,7 @@ describe("AccountController", () => {
   } as Transfer;
 
   const internalTransaction = {
-    id: 1,
+    number: 1,
     blockNumber: 20,
     timestamp: "2023-01-01T00:00:00.000Z",
     transactionHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
