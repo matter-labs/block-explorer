@@ -1,7 +1,7 @@
 import { After, AfterAll, Before, setDefaultTimeout } from "@cucumber/cucumber";
 import { Status } from "@cucumber/cucumber";
 import { chromium } from "@playwright/test";
-import dappwright, { MetaMaskWallet } from "@tenkeylabs/dappwright";
+import dappwright from "@tenkeylabs/dappwright";
 
 import { Helper } from "../helpers/helper";
 import { config } from "../support/config";
@@ -48,11 +48,12 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
   process.env.TEST_PARALLEL_INDEX = "0";
   process.env.TARGET_ENV = "http://127.0.0.1:3010";
   process.env.METAMASK_VERSION = "13.11.2";
-  const metamaskVersion = process.env.METAMASK_VERSION ?? MetaMaskWallet.recommendedVersion;
 
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
-    version: metamaskVersion,
+    // Recommended version is no longer available, pinning to specific version.
+    // See details: https://github.com/TenKeyLabs/dappwright/issues/506
+    version: "12.23.1",
     slowMo: config.slowMo,
     headless: false,
     viewport: config.mainWindowSize,
@@ -66,6 +67,7 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
   this.context = context;
   this.metamask = metamask;
   this.browser = context.browser();
+
   prividiumBrowser = this.browser;
 
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);

@@ -94,14 +94,14 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @User() user: UserWithRoles
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();
     }
 
-    if (user) {
+    if (user && !user.isAdmin) {
       const transactionLogs = await this.logService.findAll(
         { transactionHash },
         {
