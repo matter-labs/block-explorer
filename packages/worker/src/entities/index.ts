@@ -12,3 +12,5 @@ export * from "./addressTransfer.entity";
 export * from "./balance.entity";
 export * from "./counter.entity";
 export * from "./counterState.entity";
+export * from "./internalTransaction.entity";
+export * from "./addressInternalTransaction.entity";
