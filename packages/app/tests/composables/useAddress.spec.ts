@@ -3,12 +3,14 @@ import { computed } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
+import { FetchError as ActualFetchError } from "ohmyfetch";
 
 import useAddress from "@/composables/useAddress";
 
 import type { SpyInstance } from "vitest";
 
-vi.mock("ohmyfetch", () => {
+vi.mock("ohmyfetch", async () => {
+  const actual = await vi.importActual<typeof import("ohmyfetch")>("ohmyfetch");
   const fetchSpy = vi.fn(async (url: string) => {
     if (url.includes("action=getsourcecode")) {
       return {
@@ -43,9 +45,44 @@ vi.mock("ohmyfetch", () => {
   });
   (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
+    ...actual,
     $fetch: fetchSpy,
   };
 });
+
+// Helper to get the default implementation for restoring in afterEach
+const getDefaultFetchImplementation = () => async (url: string) => {
+  if (url.includes("action=getsourcecode")) {
+    return {
+      status: "1",
+      result: [
+        {
+          ABI: "[]",
+          SourceCode:
+            '{{"language":"Solidity","settings":{"optimizer":{"enabled":true,"runs":200},"evmVersion":"istanbul","libraries":{}},"sources":{"DARA2.sol":{"content":"\\n}"}}}}',
+          CompilerVersion: "v0.8.16+commit.07a7930e",
+          ContractName: "DARA2",
+          OptimizationUsed: "1",
+          Runs: "200",
+          ConstructorArguments: "",
+          EVMVersion: "istanbul",
+          Implementation: "",
+          Proxy: "0",
+          Library: "",
+          LicenseType: "Unknown",
+          SwarmSource: "",
+          VerifiedAt: "2022-09-23T11:36:07.988424532Z",
+          Match: "match",
+        },
+      ],
+    };
+  }
+  return {
+    address: url.slice(url.length - 42),
+    balances: {},
+    type: url.endsWith("a") ? "account" : "contract",
+  };
+};
 
 const mockContractImplementation = vi.fn().mockResolvedValue("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10");
 
@@ -97,6 +134,9 @@ const mappedVerificationInfo = {
 describe("useAddresses", () => {
   afterEach(() => {
     vi.clearAllMocks();
+    // Restore the default fetch implementation after each test
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ($fetch as any).mockImplementation(getDefaultFetchImplementation());
   });
 
   describe("when called on account", () => {
@@ -166,6 +206,39 @@ describe("useAddresses", () => {
         type: "contract",
         verificationInfo: null,
         proxyInfo: null,
+      });
+    });
+
+    it("returns verificationInfo as null when verification API returns 401 (Prividium auth)", async () => {
+      const fetchError = new ActualFetchError("Unauthorized");
+      fetchError.response = { status: 401 } as Response;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ($fetch as any).mockImplementation(async (url: string) => {
+        if (url.includes("action=getsourcecode")) {
+          throw fetchError;
+        }
+        return {
+          address: url.slice(url.length - 42),
+          balances: {},
+          type: "contract",
+        };
+      });
+
+      const { item, getByAddress, isRequestFailed } = useAddress();
+      await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+
+      expect(isRequestFailed.value).toEqual(false);
+      expect(item.value).toEqual({
+        address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
+        balances: {},
+        type: "contract",
+        verificationInfo: null,
+        proxyInfo: {
+          implementation: {
+            address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10",
+            verificationInfo: null,
+          },
+        },
       });
     });
 
