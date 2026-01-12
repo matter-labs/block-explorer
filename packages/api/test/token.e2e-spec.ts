@@ -364,29 +364,29 @@ describe("TokenController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging metadata", () => {
       return request(app.getHttpServer())
-        .get("/tokens?page=2&limit=10")
+        .get("/tokens?page=2&limit=5")
         .expect(200)
         .expect((res) =>
           expect(res.body.meta).toStrictEqual({
             currentPage: 2,
-            itemCount: 10,
-            itemsPerPage: 10,
-            totalItems: 31,
-            totalPages: 4,
+            itemCount: 5,
+            itemsPerPage: 5,
+            totalItems: 15,
+            totalPages: 3,
           })
         );
     });
 
     it("returns HTTP 200 and populated paging links", () => {
       return request(app.getHttpServer())
-        .get("/tokens?page=2&limit=10")
+        .get("/tokens?page=2&limit=5")
         .expect(200)
         .expect((res) =>
           expect(res.body.links).toStrictEqual({
-            first: "tokens?limit=10",
-            last: "tokens?page=4&limit=10",
-            next: "tokens?page=3&limit=10",
-            previous: "tokens?page=1&limit=10",
+            first: "tokens?limit=5",
+            last: "tokens?page=3&limit=5",
+            next: "tokens?page=3&limit=5",
+            previous: "tokens?page=1&limit=5",
           })
         );
     });
