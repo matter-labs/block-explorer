@@ -8,13 +8,12 @@ import { TokenService } from "./token.service";
 import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
-import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
+import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
-  const pagingOptions: PagingOptionsDto = { limit: 10, page: 2 };
-  const pagingOptionsWithLimit: PagingOptionsWithMaxItemsLimitDto = { ...pagingOptions, maxLimit: 10000 };
+  const pagingOptionsWithLimit: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
   let controller: TokenController;
   let serviceMock: TokenService;
   let transferServiceMock: TransferService;
@@ -58,16 +57,16 @@ describe("TokenController", () => {
     });
 
     it("queries tokens with the specified options", async () => {
-      await controller.getTokens(pagingOptions, 1000);
+      await controller.getTokens(pagingOptionsWithLimit, 1000);
       expect(serviceMock.findAll).toHaveBeenCalledTimes(1);
       expect(serviceMock.findAll).toHaveBeenCalledWith(
         { minLiquidity: 1000 },
-        { ...pagingOptions, filterOptions: { minLiquidity: 1000 }, route: "tokens" }
+        { ...pagingOptionsWithLimit, filterOptions: { minLiquidity: 1000 }, route: "tokens" }
       );
     });
 
     it("returns the tokens", async () => {
-      const result = await controller.getTokens(pagingOptions);
+      const result = await controller.getTokens(pagingOptionsWithLimit);
       expect(result).toBe(tokens);
     });
   });
