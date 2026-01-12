@@ -50,9 +50,7 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
 
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
-    // Recommended version is no longer available, pinning to specific version.
-    // See details: https://github.com/TenKeyLabs/dappwright/issues/506
-    version: "12.23.1",
+    version: "13.13.1",
     slowMo: config.slowMo,
     headless: false,
     viewport: config.mainWindowSize,
