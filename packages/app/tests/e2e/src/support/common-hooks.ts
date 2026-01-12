@@ -1,7 +1,7 @@
 import { After, AfterAll, Before, setDefaultTimeout } from "@cucumber/cucumber";
 import { Status } from "@cucumber/cucumber";
 import { chromium } from "@playwright/test";
-import dappwright from "@tenkeylabs/dappwright";
+import dappwright, { MetaMaskWallet } from "@tenkeylabs/dappwright";
 
 import { Helper } from "../helpers/helper";
 import { config } from "../support/config";
@@ -50,9 +50,7 @@ Before({ tags: "@prividium" }, async function (this: ICustomWorld, { pickle }: I
 
   const [metamask, , context] = await dappwright.bootstrap("", {
     wallet: "metamask",
-    // Recommended version is no longer available, pinning to specific version.
-    // See details: https://github.com/TenKeyLabs/dappwright/issues/506
-    version: "12.23.1",
+    version: MetaMaskWallet.recommendedVersion,
     slowMo: config.slowMo,
     headless: false,
     viewport: config.mainWindowSize,

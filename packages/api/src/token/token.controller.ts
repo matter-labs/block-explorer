@@ -9,7 +9,7 @@ import {
   ApiQuery,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
+import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { TokenService } from "./token.service";
 import { FilterTransfersOptions, TransferService } from "../transfer/transfer.service";
@@ -41,7 +41,7 @@ export class TokenController {
     required: false,
   })
   public async getTokens(
-    @Query() pagingOptions: PagingOptionsDto,
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number
   ): Promise<Pagination<TokenDto>> {
     return await this.tokenService.findAll(

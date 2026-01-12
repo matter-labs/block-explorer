@@ -114,10 +114,10 @@ jobs:
           echo "Run tests"
             if [ "${{ matrix.tags }}" = "@testnetSmokeSuite" ]; then
                 echo "Run in testnetSmokeSuite only"
-                E2ENETWORK='${{ inputs.testnet_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @mainnet"
+                E2ENETWORK='${{ inputs.testnet_network_value_for_e2e }}' npx cucumber-js -f progress --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @mainnet"
             else
                 echo "Run in mainnet"
-                E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
+                E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js -f progress --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
             fi
 
       - name: Save artifacts to Git
