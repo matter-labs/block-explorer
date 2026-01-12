@@ -13,7 +13,7 @@
     "start": "vite preview --port 3010",
     "test": "TZ=UTC-3 vitest --environment jsdom",
     "test:ci": "TZ=UTC-3 vitest --environment jsdom --run --reporter=verbose --reporter=junit --outputFile.junit=./junit.xml",
-    "test:e2e": "cucumber-js -t \"not @testnet\"",
+    "test:e2e": "cucumber-js -t \"not @testnet\" -f progress",
     "typecheck": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
     "storybook": "start-storybook -s ./public -p 6006",
@@ -27,7 +27,7 @@
   "dependencies": {
     "@metamask/detect-provider": "^2.0.0",
     "@metamask/providers": "^10.2.1",
-    "@tenkeylabs/dappwright": "2.11.2",
+    "@tenkeylabs/dappwright": "2.13.1",
     "@vueuse/components": "8.9.2",
     "@vueuse/core": "8.9.2",
     "date-fns": "2.28.0",
