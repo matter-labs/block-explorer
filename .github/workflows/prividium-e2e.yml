@@ -70,7 +70,7 @@ jobs:
         working-directory: packages/app
         run: |
           xvfb-run --auto-servernum --server-args="-screen 0 1920x1080x24" \
-            npx cucumber-js --tags "@prividium"
+            npx cucumber-js -f progress --tags "@prividium"
         env:
           TARGET_ENV: http://127.0.0.1:3010
 
