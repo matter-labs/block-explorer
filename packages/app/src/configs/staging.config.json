@@ -2,6 +2,62 @@
   "networks": [
     {
       "groupId": "zksync",
+      "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
+      "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://sepolia.explorer.zksync.io"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }, {
+        "explorerUrl": "https://sepolia.gateway.explorer.zksync.io",
+        "name": "Gateway",
+        "chainId": 32657
+      }],
+      "l2ChainId": 300,
+      "l2NetworkName": "ZKsync Era Sepolia Testnet",
+      "maintenance": false,
+      "name": "sepolia",
+      "published": true,
+      "rpcUrl": "https://sepolia.era.zksync.dev",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "zksync",
+      "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
+      "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
+      "hostnames": [
+        "https://explorer.zksync.io"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://etherscan.io",
+        "name": "Ethereum",
+        "chainId": 1
+      }, {
+        "explorerUrl": "https://gateway.explorer.zksync.io",
+        "name": "Gateway",
+        "chainId": 9075
+      }],
+      "l2ChainId": 324,
+      "l2NetworkName": "ZKsync Era Mainnet",
+      "maintenance": false,
+      "name": "mainnet",
+      "published": true,
+      "rpcUrl": "https://mainnet.era.zksync.io",
+      "tokensMinLiquidity": 0,
+      "zkTokenAddress": "0x5A7d6b2F92C77FAD6CCaBd7EE0624E64907Eaf3E",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "zksync",
       "apiUrl": "https://block-explorer-api.era-stage-proofs.zksync.dev",
       "verificationApiUrl": "https://dev-api-explorer.era-stage-proofs.zksync.dev",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
