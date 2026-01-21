@@ -18,7 +18,7 @@ vi.mock("vue-router", () => ({
 }));
 
 const location = {
-  hostname: "https://staging-scan-v2.zksync.dev",
+  hostname: "https://explorer.zksync.io",
   search: "",
 };
 
@@ -50,7 +50,7 @@ describe("NetworkSwitch:", () => {
     expect(options[0].textContent).toBe("Testnet");
     expect(options[0].tagName).toBe("LABEL");
     expect(options[0].querySelector("img")?.getAttribute("alt")).toBe("Testnet logo");
-    expect(options[1].getAttribute("href")).toBe("https://testnet-beta.staging-scan-v2.zksync.dev/");
+    expect(options[1].getAttribute("href")).toBe("https://testnet.explorer.zksync.dev");
     expect(options[1].textContent).toBe("Testnet Beta");
     expect(options[1].tagName).toBe("A");
     expect(options[1].querySelector("img")?.getAttribute("alt")).toBe("Testnet Beta logo");

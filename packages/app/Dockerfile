@@ -21,19 +21,13 @@ RUN rm -f .npmrc
 FROM development-stage AS build-stage
 ARG VITE_APP_ENVIRONMENT=default
 ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
-RUN npm run build
-
-FROM base-stage AS production-stage
-COPY --chown=node:node --from=build-stage /usr/src/app/packages/app/dist ./packages/app/dist
-RUN npm i -g http-server
-
-ARG NODE_ENV=production
-ENV NODE_ENV $NODE_ENV
-
 ARG PORT=3010
 ENV PORT $PORT
+RUN npm run build
+RUN sed "s/\${PORT}/$PORT/g" /usr/src/app/packages/app/nginx.conf.template > /usr/src/app/packages/app/nginx.conf
 
-USER node
-WORKDIR /usr/src/app/packages/app/dist
+FROM nginx:alpine AS production-stage
+COPY --from=build-stage /usr/src/app/packages/app/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build-stage /usr/src/app/packages/app/dist /usr/share/nginx/html
 
-CMD http-server -p $PORT -c-1 --proxy="http://127.0.0.1:$PORT/index.html?"
+CMD ["nginx", "-g", "daemon off;"]
