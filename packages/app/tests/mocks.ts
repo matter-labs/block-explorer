@@ -59,7 +59,7 @@ export const TESTNET_BETA_NETWORK: NetworkConfig = {
   maintenance: false,
   published: true,
   baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
-  hostnames: ["https://testnet-beta.staging-scan-v2.zksync.dev/"],
+  hostnames: ["https://testnet.explorer.zksync.dev"],
 };
 
 export const useContractEventsMock = (params: any = {}) => {

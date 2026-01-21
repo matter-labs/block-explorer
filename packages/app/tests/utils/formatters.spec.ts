@@ -110,10 +110,8 @@ describe("formatters:", () => {
       );
     });
 
-    it("throw error for invalid hash", () => {
-      expect(() =>
-        formatAddressFromHash("0x000000000000000000000000085b8b6407f150d62adb1ef926f7f304600ec7141")
-      ).toThrow();
+    it("returns null for invalid hash", () => {
+      expect(formatAddressFromHash("0x000000000000000000000000085b8b6407f150d62adb1ef926f7f304600ec7141")).toBe("");
     });
   });
 });
