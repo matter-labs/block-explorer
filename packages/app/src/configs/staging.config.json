@@ -1,12 +1,12 @@
 {
   "networks": [
     {
-      "groupId": "era",
+      "groupId": "zksync",
       "apiUrl": "https://block-explorer-api.sepolia.zksync.dev",
       "verificationApiUrl": "https://explorer.sepolia.era.zksync.dev",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
       "hostnames": [
-        "https://sepolia.staging-scan-v2.zksync.dev"
+        "https://sepolia.explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
@@ -28,84 +28,12 @@
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
-      "groupId": "era",
-      "apiUrl": "https://block-explorer-api.era-stage-proofs.zksync.dev",
-      "verificationApiUrl": "https://dev-api-explorer.era-stage-proofs.zksync.dev",
-      "hostnames": [
-        "https://stage-proofs.staging-scan-v2.zksync.dev"
-      ],
-      "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io/",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }, {
-        "explorerUrl": "https://explorer.era-gateway-stage.zksync.dev",
-        "name": "Stage Gateway",
-        "chainId": 123
-      }],
-      "l2ChainId": 499,
-      "l2NetworkName": "ZKsync Era Stage Proofs",
-      "maintenance": false,
-      "name": "stage-proofs",
-      "published": true,
-      "rpcUrl": "https://dev-api.era-stage-proofs.zksync.dev",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
-    },
-    {
-      "groupId": "era",
-      "apiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev",
-      "verificationApiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev/api",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
-      "hostnames": [
-        "https://zksync-os-stage.staging-scan-v2.zksync.dev"
-      ],
-      "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }],
-      "l2ChainId": 2702,
-      "l2NetworkName": "ZKsync OS Stage",
-      "maintenance": false,
-      "name": "zksync-os-stage",
-      "published": true,
-      "rpcUrl": "https://zksync-os-stage.zksync.dev",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
-    },
-    {
-      "groupId": "era",
-      "apiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev",
-      "verificationApiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev/api",
-      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
-      "hostnames": [
-        "https://zksync-os-testnet-alpha.staging-scan-v2.zksync.dev"
-      ],
-      "icon": "/images/icons/zksync-arrows.svg",
-      "l1ExplorerUrl": "https://sepolia.etherscan.io",
-      "settlementChains": [{
-        "explorerUrl": "https://sepolia.etherscan.io",
-        "name": "Ethereum",
-        "chainId": 11155111
-      }],
-      "l2ChainId": 8022833,
-      "l2NetworkName": "ZKsync OS Testnet",
-      "maintenance": false,
-      "name": "zksync-os-testnet-alpha",
-      "published": true,
-      "rpcUrl": "https://zksync-os-testnet-alpha.zksync.dev",
-      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
-    },
-    {
-      "groupId": "era",
+      "groupId": "zksync",
       "apiUrl": "https://block-explorer-api.mainnet.zksync.io",
       "verificationApiUrl": "https://zksync2-mainnet-explorer.zksync.io",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
       "hostnames": [
-        "https://staging-scan-v2.zksync.dev"
+        "https://explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://etherscan.io",
@@ -129,12 +57,116 @@
       "baseTokenAddress": "0x000000000000000000000000000000000000800a"
     },
     {
+      "groupId": "zksync",
+      "apiUrl": "https://block-explorer-api.era-stage-proofs.zksync.dev",
+      "verificationApiUrl": "https://dev-api-explorer.era-stage-proofs.zksync.dev",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://era-stage-proofs.explorer.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io/",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }, {
+        "explorerUrl": "https://era-gateway-stage.explorer.zksync.dev",
+        "name": "Stage Gateway",
+        "chainId": 123
+      }],
+      "l2ChainId": 499,
+      "l2NetworkName": "ZKsync Era Stage Proofs",
+      "maintenance": false,
+      "name": "stage-proofs",
+      "published": true,
+      "rpcUrl": "https://dev-api.era-stage-proofs.zksync.dev",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "zksync",
+      "apiUrl": "https://block-explorer-api.era-stage-validium.zksync.dev",
+      "verificationApiUrl": "https://dev-api-explorer.era-stage-validium.zksync.dev",
+      "bridgeUrl": "https://portal.era-stage-validium.zksync.dev/bridge",
+      "hostnames": [
+        "https://era-stage-validium.explorer.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l2ChainId": 6474,
+      "l2NetworkName": "ZKsync Era Stage Validium",
+      "maintenance": false,
+      "name": "stage-validium",
+      "published": true,
+      "rpcUrl": "https://dev-api.era-stage-validium.zksync.dev",
+      "baseTokenAddress": "0xc8bb0d293050238d9bd623ae5e31917366a5b384"
+    },
+    {
+      "groupId": "zksync",
+      "apiUrl": "https://block-explorer.era-gateway-stage.zksync.dev",
+      "verificationApiUrl": "https://rpc-explorer-verify.era-gateway-stage.zksync.dev",
+      "bridgeUrl": "https://portal.era-gateway-stage.zksync.dev/bridge",
+      "hostnames": ["https://era-gateway-stage.explorer.zksync.dev"],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l2ChainId": 9075,
+      "l2NetworkName": "ZKsync Gateway Stage",
+      "maintenance": false,
+      "name": "gateway-stage",
+      "published": true,
+      "rpcUrl": "https://rpc.era-gateway-stage.zksync.dev"
+    },
+    {
+      "groupId": "zksync",
+      "apiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev",
+      "verificationApiUrl": "https://block-explorer-api.zksync-os-stage.zksync.dev/api",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://zksync-os-stage.explorer.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }],
+      "l2ChainId": 2702,
+      "l2NetworkName": "ZKsync OS Stage",
+      "maintenance": false,
+      "name": "zksync-os-stage",
+      "published": true,
+      "rpcUrl": "https://zksync-os-stage.zksync.dev",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
+      "groupId": "zksync",
+      "apiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev",
+      "verificationApiUrl": "https://block-explorer-api.zksync-os-testnet-alpha.zksync.dev/api",
+      "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
+      "hostnames": [
+        "https://zksync-os-testnet-alpha.explorer.zksync.dev"
+      ],
+      "icon": "/images/icons/zksync-arrows.svg",
+      "l1ExplorerUrl": "https://sepolia.etherscan.io",
+      "settlementChains": [{
+        "explorerUrl": "https://sepolia.etherscan.io",
+        "name": "Ethereum",
+        "chainId": 11155111
+      }],
+      "l2ChainId": 8022833,
+      "l2NetworkName": "ZKsync OS Testnet",
+      "maintenance": false,
+      "name": "zksync-os-testnet-alpha",
+      "published": true,
+      "rpcUrl": "https://zksync-os-testnet-alpha.zksync.dev",
+      "baseTokenAddress": "0x000000000000000000000000000000000000800a"
+    },
+    {
       "groupId": "zksync-os-mainnet",
       "apiUrl": "https://block-explorer-api.zksync-os-mainnet-dawn.zksync.io",
       "verificationApiUrl": "https://block-explorer-api.zksync-os-mainnet-dawn.zksync.io/api",
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=mainnet",
       "hostnames": [
-        "https://zksync-os-mainnet-dawn.staging-scan-v2.zksync.dev"
+        "https://zksync-os-mainnet-dawn.explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
       "l1ExplorerUrl": "https://etherscan.io",
