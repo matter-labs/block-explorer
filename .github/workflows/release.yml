@@ -146,6 +146,8 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           push: true
+          build-args: |
+              VITE_VERSION=${{ needs.createReleaseVersion.outputs.releaseVersion }}
           tags: |
               "matterlabs/block-explorer-app:latest"
               "matterlabs/block-explorer-app:v${{ needs.createReleaseVersion.outputs.releaseVersion }}"
