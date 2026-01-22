@@ -10,7 +10,7 @@ export type NetworkConfig = {
   userPanelUrl?: string;
   bridgeUrl?: string;
   l2NetworkName: string;
-  l2ChainId: 270 | 300 | 324;
+  l2ChainId: number;
   l1ExplorerUrl?: string;
   settlementChains?: SettlementChain[];
   maintenance: boolean;

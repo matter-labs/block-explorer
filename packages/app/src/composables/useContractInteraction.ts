@@ -115,7 +115,9 @@ export default (context = useContext()) => {
 
       let signer: Provider | Signer;
       if (walletAddress.value === null) {
-        signer = new Provider(context.currentNetwork.value.rpcUrl);
+        signer = new Provider(context.currentNetwork.value.rpcUrl, context.currentNetwork.value.l2ChainId, {
+          staticNetwork: true,
+        });
       } else {
         signer = await getL2Signer();
       }
