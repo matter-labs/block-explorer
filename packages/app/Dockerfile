@@ -23,13 +23,14 @@ ARG VITE_VERSION=
 ENV VITE_VERSION=$VITE_VERSION
 ARG VITE_APP_ENVIRONMENT=default
 ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
-ARG PORT=3010
-ENV PORT $PORT
 RUN npm run build
-RUN sed "s/\${PORT}/$PORT/g" /usr/src/app/packages/app/nginx.conf.template > /usr/src/app/packages/app/nginx.conf
 
 FROM nginx:alpine AS production-stage
-COPY --from=build-stage /usr/src/app/packages/app/nginx.conf /etc/nginx/conf.d/default.conf
+ENV PORT=3010
+ENV CSP_REPORT_ONLY="default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src https://*.ingest.sentry.io https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
+COPY --from=build-stage /usr/src/app/packages/app/nginx.conf.template /etc/nginx/conf.d/default.conf.template
 COPY --from=build-stage /usr/src/app/packages/app/dist /usr/share/nginx/html
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD envsubst '$PORT $CSP_REPORT_ONLY' \
+    < /etc/nginx/conf.d/default.conf.template \
+    > /etc/nginx/conf.d/default.conf \
+  && exec nginx -g 'daemon off;'
