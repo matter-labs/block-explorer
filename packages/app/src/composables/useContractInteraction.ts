@@ -114,7 +114,9 @@ export default (context = useContext()) => {
 
       let signer: JsonRpcProvider | AbstractSigner;
       if (walletAddress.value === null) {
-        signer = new JsonRpcProvider(context.currentNetwork.value.rpcUrl);
+        signer = new JsonRpcProvider(context.currentNetwork.value.rpcUrl, context.currentNetwork.value.l2ChainId, {
+          staticNetwork: true,
+        });
       } else {
         signer = await getL2Signer();
       }
