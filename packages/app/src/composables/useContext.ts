@@ -76,7 +76,9 @@ export default (): Context => {
 
   function getL2Provider() {
     if (!l2Provider) {
-      l2Provider = new JsonRpcProvider(currentNetwork.value.rpcUrl);
+      l2Provider = new JsonRpcProvider(currentNetwork.value.rpcUrl, currentNetwork.value.l2ChainId, {
+        staticNetwork: true,
+      });
     }
     return l2Provider;
   }
