@@ -108,10 +108,11 @@ export default (context = useContext()) => {
       }
       return mapSourceCodeDataToVerificationInfo(sourceCodeData[0]);
     } catch (e) {
-      if (!(e instanceof FetchError) || e.response?.status !== 404) {
-        throw e;
+      // Treat 401 (Prividium auth) and 404 (not found) as "verification not available"
+      if (e instanceof FetchError && (e.response?.status === 404 || e.response?.status === 401)) {
+        return null;
       }
-      return null;
+      throw e;
     }
   };
 
