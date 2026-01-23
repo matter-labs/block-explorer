@@ -27,6 +27,9 @@ export interface TransactionTrace {
   calls: TransactionTrace[] | null;
   value: string;
   input: string;
+  gas?: string;
+  gasUsed?: string;
+  output?: string;
 }
 
 export interface TraceResult {
