@@ -844,11 +844,16 @@
     },
     "loginView": {
         "title": "Login",
-        "explorerTitle": "Private Explorer",
-        "subtitle": "Secure blockchain data access",
-        "signIn": "Sign in with Prividium",
-        "redirecting": "Redirecting...",
-        "onlyAuthorizedAdvice": "Only authorized users can access this explorer."
+        "explorerTitle": "Block Explorer",
+        "subtitle": "Prividium™ private and access-controlled blockchain explorer",
+        "welcome": "Welcome",
+        "signIn": "Sign in",
+        "redirecting": "Redirecting..."
+    },
+    "authCallbackView": {
+        "completing": "Completing authentication...",
+        "failed": "Authentication failed",
+        "tryAgain": "Try again"
     },
     "reviewingPermissionsView": {
         "title": "Reviewing Permissions",

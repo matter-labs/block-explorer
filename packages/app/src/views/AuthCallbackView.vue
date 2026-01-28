@@ -1,35 +1,25 @@
 <template>
-  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B]">
-    <div class="p-8 rounded-lg max-w-xl w-full flex flex-col items-center">
-      <div class="flex justify-center mb-10">
-        <img src="/images/zksync-light.svg" class="w-[233px] h-[48px]" />
-      </div>
-      <div v-if="!error" class="text-center">
-        <h1 class="text-[30px] leading-[36px] font-bold tracking-[0%] mb-4 text-white">Completing authentication...</h1>
-        <div class="flex justify-center">
-          <svg
-            class="animate-spin h-8 w-8 text-white"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-        </div>
-      </div>
-      <div v-else class="text-center">
-        <h1 class="text-[30px] leading-[36px] font-bold tracking-[0%] mb-4 text-red-500">Authentication failed</h1>
-        <p class="text-white mb-6">{{ error }}</p>
+  <div
+    class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-50 flex flex-col items-center justify-center py-12 px-4"
+  >
+    <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="h-16 w-auto mb-6" />
+
+    <!-- Loading state (no card) -->
+    <div v-if="!error" class="text-center">
+      <h1 class="text-2xl font-semibold text-gray-900 mb-4">{{ t("authCallbackView.completing") }}</h1>
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+    </div>
+
+    <!-- Error state (with card) -->
+    <div v-else class="sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="bg-white py-10 px-6 shadow-xl rounded-2xl sm:px-12 border border-gray-200 text-center">
+        <h1 class="text-2xl font-semibold text-red-600 mb-4">{{ t("authCallbackView.failed") }}</h1>
+        <p class="text-gray-600 mb-6">{{ error }}</p>
         <button
           @click="redirectToLogin"
-          class="w-[200px] h-[56px] px-8 py-4 text-black bg-white rounded-[28px] hover:bg-gray-200 font-semibold text-base"
+          class="w-full py-3 px-4 rounded-lg bg-primary-700 hover:bg-primary-800 text-white font-medium transition-colors"
         >
-          Try again
+          {{ t("authCallbackView.tryAgain") }}
         </button>
       </div>
     </div>
@@ -38,12 +28,15 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { FetchError } from "ohmyfetch";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
+
+const { t } = useI18n();
 
 const router = useRouter();
 const route = useRoute();

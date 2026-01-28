@@ -14,6 +14,9 @@
 
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-10 px-6 shadow-xl rounded-2xl sm:px-12 border border-gray-200">
+        <h2 class="text-2xl font-semibold text-gray-900 text-center mb-6">
+          {{ t("loginView.welcome") }}
+        </h2>
         <button
           @click="handleLogin"
           :disabled="isLoginPending"
@@ -21,9 +24,6 @@
         >
           {{ isLoginPending ? t("loginView.redirecting") : t("loginView.signIn") }}
         </button>
-        <p class="mt-6 text-center text-sm text-gray-500">
-          {{ t("loginView.onlyAuthorizedAdvice") }}
-        </p>
       </div>
     </div>
   </div>
