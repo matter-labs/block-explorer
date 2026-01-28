@@ -25,7 +25,7 @@ describe("TransactionEmptyState", () => {
         blockExists: true,
       },
     });
-    getByText("This Block doesn't have any transactions");
+    getByText("No transactions are visible to you in this block");
   });
   it("renders component properly for nonexisting block", async () => {
     const { getByText } = render(TransactionEmptyState, {

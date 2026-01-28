@@ -155,7 +155,7 @@ describe("ContractEvents", () => {
 
     expect(container.querySelectorAll(".table-head-col")).toHaveLength(0);
     expect(container.querySelector(".empty-state")?.textContent).toBe(
-      "Smart Contract doesn't have any events at this moment"
+      "No events are visible to you for this smart contract"
     );
 
     mockContractEvents.mockRestore();

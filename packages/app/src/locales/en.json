@@ -77,14 +77,14 @@
         "transactionTable": {
             "title": "Block Transactions",
             "showMore": "Show more transactions ->",
-            "noTransactions": "This Block doesn't have any transactions",
+            "noTransactions": "No transactions are visible to you in this block",
             "blockNotFound": "This Block has not been created or sealed yet"
         },
         "tooltipInfo": "Latest blocks produced by the network",
         "viewAll": "View All Blocks"
     },
     "transfers": {
-        "notFound": "Address doesn't have any transfers at this moment",
+        "notFound": "No transfers are visible to you for this address",
         "table": {
             "transactionHash": "Txn hash",
             "age": "Age",
@@ -270,7 +270,7 @@
         "transactionTable": {
             "title": "Batch Transactions",
             "error": "Something went wrong",
-            "noTransactions": "This Batch doesn't have any transactions",
+            "noTransactions": "No transactions are visible to you in this batch",
             "batchNotFound": "This Batch has not been created or sealed yet"
         },
         "table": {
@@ -406,7 +406,7 @@
             "txnHash": "txn hash",
             "method": "method",
             "logs": "logs",
-            "notFound": "Smart Contract doesn't have any events at this moment",
+            "notFound": "No events are visible to you for this smart contract",
             "value": "value",
             "showMore": "Show More",
             "hide": "Hide"
@@ -681,7 +681,7 @@
         }
     },
     "tokenHolders": {
-        "notFound": "Token doesn't have any holders at this moment",
+        "notFound": "No holders are visible to you for this token",
         "table": {
             "address": "Address",
             "balance": "Quantity",
