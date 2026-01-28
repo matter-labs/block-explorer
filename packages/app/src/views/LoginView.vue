@@ -1,26 +1,24 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8"
+    class="flex min-h-screen flex-col justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
   >
-    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
-      <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="h-16 w-auto mx-auto mb-4" />
-      <h1
-        class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent mb-2"
-      >
+    <div class="mb-6 text-center sm:mx-auto sm:w-full sm:max-w-md">
+      <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="mx-auto mb-4 h-16 w-auto" />
+      <h1 class="mb-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-4xl font-bold text-transparent">
         {{ t("loginView.explorerTitle") }}
       </h1>
       <p class="text-gray-600">{{ t("loginView.subtitle") }}</p>
     </div>
 
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-10 px-6 shadow-xl rounded-2xl sm:px-12 border border-gray-200">
-        <h2 class="text-2xl font-semibold text-gray-900 text-center mb-6">
+      <div class="rounded-2xl border border-gray-200 bg-white px-6 py-10 shadow-xl sm:px-12">
+        <h2 class="mb-6 text-center text-2xl font-semibold text-gray-900">
           {{ t("loginView.welcome") }}
         </h2>
         <button
           @click="handleLogin"
           :disabled="isLoginPending"
-          class="w-full py-3 px-4 rounded-lg bg-primary-700 hover:bg-primary-800 text-white font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+          class="w-full rounded-lg bg-blue-700 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {{ isLoginPending ? t("loginView.redirecting") : t("loginView.signIn") }}
         </button>

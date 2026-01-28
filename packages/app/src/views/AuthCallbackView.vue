@@ -1,23 +1,23 @@
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-50 flex flex-col items-center justify-center py-12 px-4"
+    class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
   >
-    <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="h-16 w-auto mb-6" />
+    <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="mb-6 h-16 w-auto" />
 
     <!-- Loading state (no card) -->
     <div v-if="!error" class="text-center">
-      <h1 class="text-2xl font-semibold text-gray-900 mb-4">{{ t("authCallbackView.completing") }}</h1>
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+      <h1 class="mb-4 text-2xl font-semibold text-gray-900">{{ t("authCallbackView.completing") }}</h1>
+      <div class="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
     </div>
 
     <!-- Error state (with card) -->
     <div v-else class="sm:mx-auto sm:w-full sm:max-w-md">
-      <div class="bg-white py-10 px-6 shadow-xl rounded-2xl sm:px-12 border border-gray-200 text-center">
-        <h1 class="text-2xl font-semibold text-red-600 mb-4">{{ t("authCallbackView.failed") }}</h1>
-        <p class="text-gray-600 mb-6">{{ error }}</p>
+      <div class="rounded-2xl border border-gray-200 bg-white px-6 py-10 text-center shadow-xl sm:px-12">
+        <h1 class="mb-4 text-2xl font-semibold text-red-600">{{ t("authCallbackView.failed") }}</h1>
+        <p class="mb-6 text-gray-600">{{ error }}</p>
         <button
           @click="redirectToLogin"
-          class="w-full py-3 px-4 rounded-lg bg-primary-700 hover:bg-primary-800 text-white font-medium transition-colors"
+          class="w-full rounded-lg bg-blue-700 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-800"
         >
           {{ t("authCallbackView.tryAgain") }}
         </button>
