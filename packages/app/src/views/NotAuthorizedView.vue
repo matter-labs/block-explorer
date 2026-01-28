@@ -6,6 +6,7 @@
 
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-10 px-6 shadow-xl rounded-2xl sm:px-12 border border-gray-200 text-center">
+        <LockClosedIcon class="h-12 w-12 text-gray-400 mx-auto mb-4" />
         <h1 class="text-2xl font-semibold text-gray-900 mb-2">
           {{ t("notAuthorizedView.notAuthorizedTitle") }}
         </h1>
@@ -26,6 +27,8 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+
+import { LockClosedIcon } from "@heroicons/vue/outline";
 
 const { t } = useI18n();
 const router = useRouter();
