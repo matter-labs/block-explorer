@@ -4,8 +4,14 @@
       <div class="header-container">
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
-            <span class="sr-only">ZKsync</span>
-            <zk-sync-era v-if="currentNetwork.groupId === 'era'" />
+            <span class="sr-only">{{ runtimeConfig.appEnvironment === "prividium" ? "Prividium" : "ZKsync" }}</span>
+            <img
+              v-if="runtimeConfig.appEnvironment === 'prividium'"
+              src="/images/prividium_logo.svg"
+              alt="Prividium Logo"
+              class="h-7"
+            />
+            <zk-sync-era v-else-if="currentNetwork.groupId === 'era'" />
             <zk-sync-arrows-logo v-else />
           </router-link>
         </div>
@@ -70,7 +76,13 @@
           <div class="mobile-header-container">
             <div class="mobile-popover-navigation">
               <div class="popover-zksync-logo">
-                <zk-sync class="logo" />
+                <img
+                  v-if="runtimeConfig.appEnvironment === 'prividium'"
+                  src="/images/prividium_logo.svg"
+                  alt="Prividium Logo"
+                  class="h-[42px] w-auto"
+                />
+                <zk-sync v-else class="logo" />
               </div>
               <div class="-mr-2">
                 <PopoverButton class="close-popover-button">

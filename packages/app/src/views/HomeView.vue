@@ -1,7 +1,15 @@
 <template>
   <div class="home">
-    <h1 class="title">{{ t("blockExplorer.title") }}</h1>
-    <div class="subtitle">{{ t("blockExplorer.subtitle") }}</div>
+    <h1 class="title">
+      {{ runtimeConfig.appEnvironment === "prividium" ? t("blockExplorer.prividiumTitle") : t("blockExplorer.title") }}
+    </h1>
+    <div class="subtitle">
+      {{
+        runtimeConfig.appEnvironment === "prividium"
+          ? t("blockExplorer.prividiumSubtitle")
+          : t("blockExplorer.subtitle")
+      }}
+    </div>
     <SearchForm class="search-form" />
     <div class="section">
       <NetworkStats
@@ -72,10 +80,12 @@ import TransactionsTable from "@/components/transactions/Table.vue";
 
 import useBlocks from "@/composables/useBlocks";
 import useNetworkStats from "@/composables/useNetworkStats";
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 import router from "@/router";
 
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
 const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
 const { load: getBlocks, pending: isBlocksPending, failed: isBlocksFailed, data: blocks } = useBlocks();
 

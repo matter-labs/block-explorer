@@ -322,7 +322,9 @@
     },
     "blockExplorer": {
         "title": "ZKsync Block Explorer",
+        "prividiumTitle": "Prividium™ Block Explorer",
         "subtitle": "ZKsync Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ZKsync and explore the network.",
+        "prividiumSubtitle": "Prividium™ private and access-controlled blockchain explorer provides all the information to deep dive into transactions, blocks, contracts, and much more.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions"
     },
