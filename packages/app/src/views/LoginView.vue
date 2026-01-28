@@ -1,24 +1,30 @@
 <template>
-  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B]">
-    <div class="max-w-xxl flex w-full flex-col items-center rounded-lg p-8">
-      <div class="mb-10 flex justify-center">
-        <img src="/images/zksync-light.svg" class="h-[48px] w-[233px]" />
-      </div>
-      <h1 class="mb-10 text-center text-[30px] font-bold leading-[36px] tracking-[0%] text-white">
+  <div
+    class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-primary-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8"
+  >
+    <div class="sm:mx-auto sm:w-full sm:max-w-md text-center mb-6">
+      <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="h-16 w-auto mx-auto mb-4" />
+      <h1
+        class="text-4xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent mb-2"
+      >
         {{ t("loginView.explorerTitle") }}
       </h1>
-      <div class="flex flex-col items-center gap-4">
+      <p class="text-gray-600">{{ t("loginView.subtitle") }}</p>
+    </div>
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="bg-white py-10 px-6 shadow-xl rounded-2xl sm:px-12 border border-gray-200">
         <button
           @click="handleLogin"
           :disabled="isLoginPending"
-          class="flex h-[56px] w-[250px] items-center justify-center rounded-[28px] bg-white px-8 py-4 text-base font-semibold text-black hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-70"
+          class="w-full py-3 px-4 rounded-lg bg-primary-700 hover:bg-primary-800 text-white font-medium transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          {{ isLoginPending ? "Redirecting..." : "Login with Prividium" }}
+          {{ isLoginPending ? t("loginView.redirecting") : t("loginView.signIn") }}
         </button>
+        <p class="mt-6 text-center text-sm text-gray-500">
+          {{ t("loginView.onlyAuthorizedAdvice") }}
+        </p>
       </div>
-      <p class="mt-6 text-center text-[14px] font-normal leading-[20px] text-gray-500">
-        {{ t("loginView.onlyAuthorizedAdvice") }}
-      </p>
     </div>
   </div>
 </template>

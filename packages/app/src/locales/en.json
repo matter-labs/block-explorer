@@ -844,8 +844,11 @@
     },
     "loginView": {
         "title": "Login",
-        "explorerTitle": "Private Explorer Access",
-        "onlyAuthorizedAdvice": "Only authorized users can continue."
+        "explorerTitle": "Private Explorer",
+        "subtitle": "Secure blockchain data access",
+        "signIn": "Sign in with Prividium",
+        "redirecting": "Redirecting...",
+        "onlyAuthorizedAdvice": "Only authorized users can access this explorer."
     },
     "reviewingPermissionsView": {
         "title": "Reviewing Permissions",
