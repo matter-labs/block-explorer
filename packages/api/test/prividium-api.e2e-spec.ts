@@ -92,12 +92,20 @@ describe("Prividium API (e2e)", () => {
 
     it("completes auth process with valid token", async () => {
       // Mock successful permissions API response
-      fetchSpy.mockResolvedValueOnce({
-        status: 200,
-        json: jest.fn().mockResolvedValue({
-          wallets: [mockWalletAddress],
-        }),
-      });
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            wallets: [mockWalletAddress],
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date(2100, 0, 0).toISOString(),
+          }),
+        });
 
       // Login with token
       const loginResponse = await agent.post("/auth/login").send({ token: mockToken }).expect(201);
