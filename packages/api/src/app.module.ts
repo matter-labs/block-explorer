@@ -83,12 +83,18 @@ export class AppModule implements NestModule {
       imports: [
         /// Only enable prividium modules for prividium chains
         ...(prividium ? PRIVIDIUM_MODULES : []),
-        // TMP: disable API modules in Prividium mode until defined how to handle API authentication
-        ...(prividium ? [] : [ApiModule, ApiContractModule]),
-        /// TMP: disable external API until release
-        ...(disableExternalAPI || prividium
+        ...(disableExternalAPI
           ? []
-          : [ApiBlockModule, ApiAccountModule, ApiTransactionModule, ApiLogModule, ApiTokenModule, ApiStatsModule]),
+          : [
+              ApiModule,
+              ApiContractModule,
+              ApiBlockModule,
+              ApiAccountModule,
+              ApiTransactionModule,
+              ApiLogModule,
+              ApiTokenModule,
+              ApiStatsModule,
+            ]),
       ],
     };
   }
