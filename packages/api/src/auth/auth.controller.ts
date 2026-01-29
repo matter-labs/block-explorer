@@ -23,6 +23,11 @@ import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
 
 const entityName = "auth";
+const USER_WALLETS_SCHEMA = z.object({ wallets: z.array(z.string()) });
+const CURRENT_SESSION_SCHEMA = z.object({
+  type: z.string(),
+  expiresAt: z.string().datetime(),
+});
 
 @ApiTags("Auth BFF")
 @ApiExcludeController(!swagger.bffEnabled)
@@ -48,15 +53,19 @@ export class AuthController {
   ): Promise<{ address: string; wallets: string[] }> {
     try {
       const wallets = await this.fetchUserWallets(body.token);
+
       if (wallets.length === 0) {
         throw new HttpException("No wallets associated with the user", 400);
       }
+
+      const sessionExpiration = await this.fetchExpirationTime(body.token);
 
       // Store all wallets and use first address as default
       const address = wallets[0];
       req.session.wallets = wallets;
       req.session.address = address;
       req.session.token = body.token;
+      req.session.expiresAt = sessionExpiration.toISOString();
       return { address, wallets };
     } catch (error) {
       if (error instanceof HttpException) {
@@ -122,11 +131,32 @@ export class AuthController {
     }
 
     const data = await response.json();
-    const validatedData = z.object({ wallets: z.array(z.string()) }).safeParse(data);
+    const validatedData = USER_WALLETS_SCHEMA.safeParse(data);
     if (!validatedData.success) {
       throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
     }
 
     return validatedData.data.wallets;
+  }
+
+  private async fetchExpirationTime(token: string): Promise<Date> {
+    const response = await fetch(
+      new URL("/api/auth/current-session", this.configService.get("prividium.permissionsApiUrl")),
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response.status === 403) {
+      throw new HttpException("Invalid or expired token", 403);
+    }
+
+    const data = await response.json();
+    const validatedData = CURRENT_SESSION_SCHEMA.safeParse(data);
+    if (!validatedData.success) {
+      throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
+    }
+
+    return new Date(validatedData.data.expiresAt);
   }
 }

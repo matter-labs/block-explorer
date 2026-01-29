@@ -1,4 +1,11 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, BadRequestException } from "@nestjs/common";
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  BadRequestException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { Response } from "express";
 import { ResponseStatus, ResponseMessage } from "./dtos/common/responseBase.dto";
 
@@ -13,6 +20,11 @@ export class ApiExceptionFilter implements ExceptionFilter {
     if (exception instanceof BadRequestException) {
       const response: { message: string[] } = <{ message: string[] }>(<BadRequestException>exception).getResponse();
       validationErrorMessage = response.message instanceof Array ? response.message.at(0) : response.message;
+    }
+
+    if (exception instanceof UnauthorizedException) {
+      const req = ctx.getRequest();
+      req.session = null;
     }
 
     response.status(200).json({

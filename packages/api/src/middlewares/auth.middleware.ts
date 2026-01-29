@@ -1,6 +1,7 @@
-import { Injectable, NestMiddleware, UnauthorizedException } from "@nestjs/common";
+import { Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response, NextFunction } from "express";
 import { parseReqPathname } from "../common/utils";
+import { PrividiumApiError } from "../errors/prividium-api-error";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
 
 @Injectable()
@@ -15,7 +16,12 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (!req.session.address || !req.session.token || !req.session.wallets) {
       req.session = null;
-      throw new UnauthorizedException({ message: "Unauthorized request" });
+      throw new PrividiumApiError({ message: "Unauthorized request" }, 401);
+    }
+
+    if (!req.session.expiresAt || new Date(req.session.expiresAt) < new Date()) {
+      req.session = null;
+      throw new PrividiumApiError({ message: "Session expired" }, 401);
     }
 
     // Update a value in the session to reset the expiration time.
