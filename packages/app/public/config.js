@@ -1,0 +1,21 @@
+window["##runtimeConfig"] = {
+  appEnvironment: "prividium",
+  environmentConfig: {
+    networks: [
+      {
+        apiUrl: "http://localhost:3002",
+        hostnames: ["localhost:3010"],
+        icon: "/images/icons/zksync-arrows.svg",
+        l2ChainId: 6565,
+        l2NetworkName: "Local Prividium",
+        maintenance: false,
+        name: "Local Prividium",
+        published: true,
+        rpcUrl: "http://localhost:8000/rpc",
+        baseTokenAddress: "0x000000000000000000000000000000000000800A",
+        prividium: true,
+        userPanelUrl: "http://localhost:3001",
+      },
+    ],
+  },
+};

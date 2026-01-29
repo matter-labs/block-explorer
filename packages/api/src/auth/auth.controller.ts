@@ -23,8 +23,8 @@ import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
 
 const entityName = "auth";
-const USER_WALLETS_SCHEMA = z.object({ wallets: z.array(z.string()) });
-const CURRENT_SESSION_SCHEMA = z.object({
+const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
+const currentSessionSchema = z.object({
   type: z.string(),
   expiresAt: z.string().datetime(),
 });
@@ -131,7 +131,7 @@ export class AuthController {
     }
 
     const data = await response.json();
-    const validatedData = USER_WALLETS_SCHEMA.safeParse(data);
+    const validatedData = userWalletsSchema.safeParse(data);
     if (!validatedData.success) {
       throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
     }
@@ -152,7 +152,7 @@ export class AuthController {
     }
 
     const data = await response.json();
-    const validatedData = CURRENT_SESSION_SCHEMA.safeParse(data);
+    const validatedData = currentSessionSchema.safeParse(data);
     if (!validatedData.success) {
       throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
     }
