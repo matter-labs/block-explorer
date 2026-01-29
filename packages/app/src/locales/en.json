@@ -77,14 +77,16 @@
         "transactionTable": {
             "title": "Block Transactions",
             "showMore": "Show more transactions ->",
-            "noTransactions": "No transactions are visible to you in this block",
+            "noTransactions": "This Block doesn't have any transactions",
+            "prividiumNoTransactions": "No transactions are visible to you in this block",
             "blockNotFound": "This Block has not been created or sealed yet"
         },
         "tooltipInfo": "Latest blocks produced by the network",
         "viewAll": "View All Blocks"
     },
     "transfers": {
-        "notFound": "No transfers are visible to you for this address",
+        "notFound": "Address doesn't have any transfers at this moment",
+        "prividiumNotFound": "No transfers are visible to you for this address",
         "table": {
             "transactionHash": "Txn hash",
             "age": "Age",
@@ -270,7 +272,8 @@
         "transactionTable": {
             "title": "Batch Transactions",
             "error": "Something went wrong",
-            "noTransactions": "No transactions are visible to you in this batch",
+            "noTransactions": "This Batch doesn't have any transactions",
+            "prividiumNoTransactions": "No transactions are visible to you in this batch",
             "batchNotFound": "This Batch has not been created or sealed yet"
         },
         "table": {
@@ -408,7 +411,8 @@
             "txnHash": "txn hash",
             "method": "method",
             "logs": "logs",
-            "notFound": "No events are visible to you for this smart contract",
+            "notFound": "Smart Contract doesn't have any events at this moment",
+            "prividiumNotFound": "No events are visible to you for this smart contract",
             "value": "value",
             "showMore": "Show More",
             "hide": "Hide"
@@ -683,7 +687,8 @@
         }
     },
     "tokenHolders": {
-        "notFound": "No holders are visible to you for this token",
+        "notFound": "Token doesn't have any holders at this moment",
+        "prividiumNotFound": "No holders are visible to you for this token",
         "table": {
             "address": "Address",
             "balance": "Quantity",
