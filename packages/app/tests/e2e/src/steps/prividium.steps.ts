@@ -37,7 +37,7 @@ Then("I should see the main page", async function (this: ICustomWorld) {
   await this.page!.waitForURL((url) => !url.href.includes("/auth/callback"), { timeout: 10000 });
 
   // Now check for the main page heading
-  const mainHeading = this.page!.getByRole("heading", { name: "ZKsync Block Explorer" });
+  const mainHeading = this.page!.getByRole("heading", { name: "Prividium™ Block Explorer" });
   await expect(mainHeading).toBeVisible({ timeout: 10000 });
 });
 
