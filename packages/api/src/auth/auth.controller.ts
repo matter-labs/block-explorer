@@ -58,14 +58,14 @@ export class AuthController {
         throw new HttpException("No wallets associated with the user", 400);
       }
 
-      const sessionExpiration = await this.fetchExpirationTime(body.token);
+      const sessionExpirationIso = await this.fetchExpirationTimeIso(body.token);
 
       // Store all wallets and use first address as default
       const address = wallets[0];
       req.session.wallets = wallets;
       req.session.address = address;
       req.session.token = body.token;
-      req.session.expiresAt = sessionExpiration.toISOString();
+      req.session.expiresAt = sessionExpirationIso;
       return { address, wallets };
     } catch (error) {
       if (error instanceof HttpException) {
@@ -139,7 +139,7 @@ export class AuthController {
     return validatedData.data.wallets;
   }
 
-  private async fetchExpirationTime(token: string): Promise<Date> {
+  private async fetchExpirationTimeIso(token: string): Promise<string> {
     const response = await fetch(
       new URL("/api/auth/current-session", this.configService.get("prividium.permissionsApiUrl")),
       {
@@ -157,6 +157,6 @@ export class AuthController {
       throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
     }
 
-    return new Date(validatedData.data.expiresAt);
+    return validatedData.data.expiresAt;
   }
 }
