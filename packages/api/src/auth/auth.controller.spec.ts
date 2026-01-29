@@ -46,20 +46,6 @@ describe("AuthController", () => {
 
     it("logins successfully with valid token", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
-      // fetchSpy.mockImplementation((url: string) => {
-      //   if (url.endsWith("user-walllets")) {
-      //     return Promise.resolve({
-      //       status: 200,
-      //       json: jest.fn().mockResolvedValue({
-      //         wallets: mockWallets,
-      //       }),
-      //     });
-      //   }
-      //   if (url.endsWith("current-session")) {
-      //     return Promise.resolve();
-      //   }
-      // });
-
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
