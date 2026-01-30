@@ -130,7 +130,7 @@ export class AuthController {
 
     // If user wallets cannot be fetched, that user cannot log in to the system
     if (response.status === 403 || response.status === 401) {
-      throw new PrividiumApiError("Invalid or expired token", 401);
+      throw new PrividiumApiError("Invalid or expired token", 403);
     }
 
     const data = await response.json();
@@ -152,7 +152,7 @@ export class AuthController {
 
     // If user token expiration cannot be fetch user cannot log in to the system.
     if (response.status !== 200) {
-      throw new PrividiumApiError("Invalid or expired token", 401);
+      throw new PrividiumApiError("Invalid or expired token", 403);
     }
 
     const data = await response.json();
