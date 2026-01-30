@@ -16,7 +16,7 @@ export class FetchInstance {
       // the user. To avoid complex state management, we force
       // refresh preserving the current url as redirect url after login
       if (context.currentNetwork.value.prividium && context.user.value.loggedIn && response.status === 401) {
-        window.location.href = `/?redirect=${encodeURIComponent(window.location.pathname)}`;
+        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
       }
     });
   }
