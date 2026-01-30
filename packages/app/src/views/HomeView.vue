@@ -30,7 +30,13 @@
         <template v-if="(isBlocksPending || blocks) && !isBlocksFailed">
           <TableBlocks :data-testid="$testId.latestBlocksTable" :loading="isBlocksPending" :blocks="displayedBlocks">
             <template #not-found>
-              <p class="not-found">{{ t("blocks.table.notFoundHomePage") }}</p>
+              <p class="not-found">
+                {{
+                  runtimeConfig.appEnvironment === "prividium"
+                    ? t("blocks.table.prividiumNotFoundHomePage")
+                    : t("blocks.table.notFoundHomePage")
+                }}
+              </p>
             </template>
           </TableBlocks>
           <Button variant="outlined" color="primary" @click="router.push('blocks')">
@@ -52,7 +58,13 @@
         >
           <template #not-found>
             <TableBodyColumn>
-              <p class="not-found">{{ t("transactions.table.notFoundHomePage") }}</p>
+              <p class="not-found">
+                {{
+                  runtimeConfig.appEnvironment === "prividium"
+                    ? t("transactions.table.prividiumNotFoundHomePage")
+                    : t("transactions.table.notFoundHomePage")
+                }}
+              </p>
             </TableBodyColumn>
           </template>
         </TransactionsTable>

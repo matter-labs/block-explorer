@@ -35,7 +35,10 @@
             "notYetProven": "Ще не підтверджений",
             "executeTxHash": "Виконання хешу",
             "executedAt": "Виконаний",
-            "notYetExecuted": "Ще не виконано"
+            "notYetExecuted": "Ще не виконано",
+            "notFound": "Не знайдено",
+            "notFoundHomePage": "У нас ще немає жодних блоків. Будь ласка, перевірте пізніше.",
+            "prividiumNotFoundHomePage": "Для вас немає видимих блоків на даний момент"
         },
         "status": {
             "verified": "Перевірено",
@@ -102,6 +105,8 @@
             "inputData": "Дані",
             "contractHash": "Хеш Контракту",
             "notFound": "Не знайдено",
+            "notFoundHomePage": "У нас ще немає жодних транзакцій. Будь ласка, перевірте пізніше.",
+            "prividiumNotFoundHomePage": "Для вас немає видимих транзакцій на даний момент",
             "footer": {
                 "showMore": "Показати більше транзакцій ->",
                 "unableToLoadMore": "Неможливо завантажити більше",
