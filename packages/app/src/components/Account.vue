@@ -20,10 +20,20 @@
                 </div>
               </template>
               <template #title>
-                {{ t("accountView.balances.notFound.title") }}
+                {{
+                  runtimeConfig.appEnvironment === "prividium"
+                    ? t("accountView.balances.prividiumNotFound.title")
+                    : t("accountView.balances.notFound.title")
+                }}
               </template>
               <template #description>
-                <div class="balances-empty-description">{{ t("accountView.balances.notFound.subtitle") }}</div>
+                <div class="balances-empty-description">
+                  {{
+                    runtimeConfig.appEnvironment === "prividium"
+                      ? t("accountView.balances.prividiumNotFound.subtitle")
+                      : t("accountView.balances.notFound.subtitle")
+                  }}
+                </div>
               </template>
             </EmptyState>
           </template>
@@ -76,10 +86,14 @@ import Title from "@/components/common/Title.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
 
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Account } from "@/composables/useAddress";
 
 import { shortValue } from "@/utils/formatters";
+
+const runtimeConfig = useRuntimeConfig();
 
 const props = defineProps({
   account: {
