@@ -111,7 +111,6 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
 
-
 import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();

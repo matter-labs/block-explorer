@@ -91,7 +91,6 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Account } from "@/composables/useAddress";
 
-
 import { shortValue } from "@/utils/formatters";
 
 const runtimeConfig = useRuntimeConfig();
