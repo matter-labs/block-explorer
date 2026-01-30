@@ -133,14 +133,16 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransactionTransfers(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<TransferDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     const transfers = await this.transferService.findAll(
-      { transactionHash },
+      { transactionHash, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/transfers`,
@@ -164,14 +166,16 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransactionLogs(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<LogDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     return await this.logService.findAll(
-      { transactionHash },
+      { transactionHash, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,

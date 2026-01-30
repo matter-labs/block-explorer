@@ -281,7 +281,7 @@ describe("TransactionController", () => {
       });
 
       it("queries transfers with the specified options", async () => {
-        await controller.getTransactionTransfers(transactionHash, pagingOptions);
+        await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(transferServiceMock.findAll).toHaveBeenCalledWith(
           { transactionHash },
@@ -293,8 +293,28 @@ describe("TransactionController", () => {
       });
 
       it("returns transaction transfers", async () => {
-        const result = await controller.getTransactionTransfers(transactionHash, pagingOptions);
+        const result = await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         expect(result).toBe(transactionTransfers);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserWithRoles>;
+        beforeEach(() => {
+          user = mock<UserWithRoles>({
+            address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            isAdmin: false,
+            roles: [],
+            token: "token1",
+          });
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTransactionTransfers(transactionHash, pagingOptions, user);
+          expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+            expect.objectContaining({ visibleBy: user.address }),
+            expect.anything()
+          );
+        });
       });
     });
 
@@ -307,7 +327,7 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransactionTransfers(transactionHash, pagingOptions);
+          await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
@@ -324,7 +344,7 @@ describe("TransactionController", () => {
       });
 
       it("queries logs with the specified options", async () => {
-        await controller.getTransactionLogs(transactionHash, pagingOptions);
+        await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         expect(logServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(logServiceMock.findAll).toHaveBeenCalledWith(
           { transactionHash },
@@ -336,8 +356,28 @@ describe("TransactionController", () => {
       });
 
       it("returns transaction logs", async () => {
-        const result = await controller.getTransactionLogs(transactionHash, pagingOptions);
+        const result = await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         expect(result).toBe(transactionLogs);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserWithRoles>;
+        beforeEach(() => {
+          user = mock<UserWithRoles>({
+            address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            isAdmin: false,
+            roles: [],
+            token: "token1",
+          });
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTransactionLogs(transactionHash, pagingOptions, user);
+          expect(logServiceMock.findAll).toHaveBeenCalledWith(
+            expect.objectContaining({ visibleBy: user.address }),
+            expect.anything()
+          );
+        });
       });
     });
 
@@ -350,7 +390,7 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransactionLogs(transactionHash, pagingOptions);
+          await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
