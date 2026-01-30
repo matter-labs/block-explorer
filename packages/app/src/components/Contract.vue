@@ -26,10 +26,20 @@
                 </div>
               </template>
               <template #title>
-                {{ t("contract.balances.notFound.title") }}
+                {{
+                  runtimeConfig.appEnvironment === "prividium"
+                    ? t("contract.balances.prividiumNotFound.title")
+                    : t("contract.balances.notFound.title")
+                }}
               </template>
               <template #description>
-                <div class="balances-empty-description">{{ t("contract.balances.notFound.subtitle") }}</div>
+                <div class="balances-empty-description">
+                  {{
+                    runtimeConfig.appEnvironment === "prividium"
+                      ? t("contract.balances.prividiumNotFound.subtitle")
+                      : t("contract.balances.notFound.subtitle")
+                  }}
+                </div>
               </template>
             </EmptyState>
           </template>
@@ -96,12 +106,16 @@ import ContractEvents from "@/components/event/ContractEvents.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
 
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
+
 
 import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
 
 const props = defineProps({
   contract: {
