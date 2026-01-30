@@ -2,6 +2,7 @@ import { AddUserRolesPipe } from "./addUserRoles.pipe";
 import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
 import { InternalServerErrorException } from "@nestjs/common";
+import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 describe("AddUserRolesPipe", () => {
   let fetchSpy: jest.SpyInstance;
@@ -110,7 +111,7 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(PrividiumApiError);
   });
 
   it("throws if server returns non parseable json", async () => {

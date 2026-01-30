@@ -6,6 +6,7 @@ declare global {
       token?: string;
       address?: string;
       wallets?: string[];
+      expiresAt?: string;
     }
   }
 }
