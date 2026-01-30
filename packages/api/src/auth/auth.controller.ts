@@ -21,6 +21,7 @@ import { Request } from "express";
 import { VerifySignatureDto, SwitchWalletDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
+import { PrividiumApiError } from "../errors/prividium-api-error";
 
 const entityName = "auth";
 const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
@@ -126,8 +127,10 @@ export class AuthController {
     const response = await fetch(new URL("/api/user-wallets", this.configService.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (response.status === 403) {
-      throw new HttpException("Invalid or expired token", 403);
+
+    // If user wallets cannot be fetched, that user cannot log in to the system
+    if (response.status === 403 || response.status === 401) {
+      throw new PrividiumApiError("Invalid or expired token", 401);
     }
 
     const data = await response.json();
@@ -147,8 +150,9 @@ export class AuthController {
       }
     );
 
-    if (response.status === 403) {
-      throw new HttpException("Invalid or expired token", 403);
+    // If user token expiration cannot be fetch user cannot log in to the system.
+    if (response.status !== 200) {
+      throw new PrividiumApiError("Invalid or expired token", 401);
     }
 
     const data = await response.json();

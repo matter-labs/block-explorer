@@ -4,6 +4,7 @@ import { mock } from "jest-mock-extended";
 import { Request, Response } from "express";
 import { UnauthorizedException, ForbiddenException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { PrividiumApiError } from "../errors/prividium-api-error";
 
 jest.mock("../api/pipes/addUserRoles.pipe", () => {
   return {
@@ -76,7 +77,9 @@ describe("AuthMiddleware", () => {
     };
     const res = mock<Response>();
     const next = jest.fn();
-    await expect(middleware.use(req, res, next)).rejects.toThrow(UnauthorizedException);
+    await expect(middleware.use(req, res, next)).rejects.toThrow(
+      new PrividiumApiError({ message: "Session expired" }, 401)
+    );
     expect(next).not.toHaveBeenCalled();
   });
 

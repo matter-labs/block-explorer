@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { Request, Response, NextFunction } from "express";
 import { parseReqPathname } from "../common/utils";
 import { AddUserRolesPipe } from "../api/pipes/addUserRoles.pipe";
+import { PrividiumApiError } from "../errors/prividium-api-error";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
 
 const API_ROUTES_ROOT_PATH = "/api";
@@ -41,7 +42,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (!req.session.expiresAt || new Date(req.session.expiresAt) < new Date()) {
       req.session = null;
-      throw new UnauthorizedException({ message: "Session expired" });
+      throw new PrividiumApiError({ message: "Session expired" }, 401);
     }
 
     // Update a value in the session to reset the expiration time.
