@@ -2,21 +2,7 @@
   <!-- Loading screen during Prividium auth check (matches Prividium design) -->
   <div
     v-if="isPrividiumAuthChecking"
-    class="
-      flex
-      min-h-screen
-      flex-col
-      items-center
-      justify-center
-      bg-gradient-to-br
-      from-slate-50
-      via-white
-      to-blue-50
-      px-4
-      py-12
-      sm:px-6
-      lg:px-8
-    "
+    class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
   >
     <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="mb-6 h-16 w-auto" />
     <div class="text-center">
