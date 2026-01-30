@@ -1,13 +1,7 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpException,
-  BadRequestException,
-  UnauthorizedException,
-} from "@nestjs/common";
+import { ExceptionFilter, Catch, ArgumentsHost, HttpException, BadRequestException } from "@nestjs/common";
 import { Response } from "express";
 import { ResponseStatus, ResponseMessage } from "./dtos/common/responseBase.dto";
+import { PrividiumApiError } from "../errors/prividium-api-error";
 
 @Catch(HttpException)
 export class ApiExceptionFilter implements ExceptionFilter {
@@ -22,7 +16,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
       validationErrorMessage = response.message instanceof Array ? response.message.at(0) : response.message;
     }
 
-    if (exception instanceof UnauthorizedException) {
+    if (exception instanceof PrividiumApiError) {
       const req = ctx.getRequest();
       req.session = null;
     }
