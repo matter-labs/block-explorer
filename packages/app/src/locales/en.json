@@ -61,7 +61,8 @@
             "executedAtTooltip": "Time when block was executed",
             "notYetExecuted": "Not yet executed",
             "notFound": "Not Found",
-            "notFoundHomePage": "We haven't had any blocks yet. Please, check again later."
+            "notFoundHomePage": "We haven't had any blocks yet. Please, check again later.",
+            "prividiumNotFoundHomePage": "No blocks are visible to you at this time"
         },
         "status": {
             "sealed": "Sealed",
@@ -165,6 +166,7 @@
             "notYetSentOnTheChain": "Not yet sent on the chain",
             "notFound": "Not Found",
             "notFoundHomePage": "We haven't had any transactions yet. Please, check again later.",
+            "prividiumNotFoundHomePage": "No transactions are visible to you at this time",
             "footer": {
                 "showMore": "Show more transactions ->",
                 "unableToLoadMore": "Unable to load more",
@@ -283,6 +285,7 @@
             "age": "Age",
             "notFound": "Not Found",
             "notFoundHomePage": "We haven't had any batches yet. Please, check again later.",
+            "prividiumNotFoundHomePage": "No batches are visible to you at this time",
             "transactionsShort": "txns"
         },
         "tooltipInfo": "Latest batches submitted to Ethereum Network",
@@ -372,6 +375,10 @@
             "notFound": {
                 "title": "This smart contract doesn’t have any transactions",
                 "subtitle": "We can’t find any transaction related to this smart-contract. It's your chance to be the first"
+            },
+            "prividiumNotFound": {
+                "title": "No transactions found",
+                "subtitle": "You may not have permission to view transactions for this smart contract, or none exist yet."
             }
         },
         "balances": {
@@ -382,6 +389,10 @@
             "notFound": {
                 "title": "This smart contract doesn’t have any balances",
                 "subtitle": "We can’t find any balances related to this smart-contract."
+            },
+            "prividiumNotFound": {
+                "title": "No balances found",
+                "subtitle": "You may not have permission to view balances for this smart contract, or no token balances exist"
             }
         },
         "table": {
@@ -745,7 +756,11 @@
                 "title": "This account doesn’t have any transactions",
                 "subtitle": "We can’t find any transaction related to this account. It’s your chance to be the first"
             },
-            "error": "Something went wrong"
+            "error": "Something went wrong",
+            "prividiumNotFound": {
+                "title": "No transactions found",
+                "subtitle": "You may not have permission to view transactions for this account, or none exist yet."
+            }
         },
         "balanceTableTitle": "Balances",
         "balances": {
@@ -756,6 +771,10 @@
             "notFound": {
                 "title": "This account doesn’t have any balances",
                 "subtitle": "We can’t find any balances related to this account."
+            },
+            "prividiumNotFound": {
+                "title": "No balances found",
+                "subtitle": "You may not have permission to view balances for this account, or no token balances exist"
             }
         }
     },
