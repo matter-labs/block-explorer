@@ -2,15 +2,14 @@
   "networks": [
     {
       "apiUrl": "http://localhost:3020",
-      "bridgeUrl": "http://localhost:3000/bridge",
       "hostnames": ["localhost"],
       "icon": "/images/icons/zksync-arrows.svg",
-      "l2ChainId": 270,
-      "l2NetworkName": "Prividium",
+      "l2ChainId": 6565,
+      "l2NetworkName": "Local Prividium",
       "maintenance": false,
-      "name": "Prividium",
+      "name": "Local Prividium",
       "published": true,
-      "rpcUrl": "http://localhost:4000",
+      "rpcUrl": "http://localhost:8000/rpc",
       "baseTokenAddress": "0x000000000000000000000000000000000000800A",
       "prividium": true,
       "userPanelUrl": "http://localhost:3001"
