@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { Request, Response, NextFunction } from "express";
 import { parseReqPathname } from "../common/utils";
 import { AddUserRolesPipe } from "../api/pipes/addUserRoles.pipe";
-import { PrividiumApiError } from "../errors/prividium-api-error";
+import { PrividiumApiError } from "../errors/prividiumApiError";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
 
 const API_ROUTES_ROOT_PATH = "/api";

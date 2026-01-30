@@ -21,7 +21,7 @@ import { Request } from "express";
 import { VerifySignatureDto, SwitchWalletDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
-import { PrividiumApiError } from "../errors/prividium-api-error";
+import { PrividiumApiError } from "../errors/prividiumApiError";
 
 const entityName = "auth";
 const userWalletsSchema = z.object({ wallets: z.array(z.string()) });

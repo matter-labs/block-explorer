@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, BadRequestException } from "@nestjs/common";
 import { Response } from "express";
 import { ResponseStatus, ResponseMessage } from "./dtos/common/responseBase.dto";
-import { PrividiumApiError } from "../errors/prividium-api-error";
+import { PrividiumApiError } from "../errors/prividiumApiError";
 
 @Catch(HttpException)
 export class ApiExceptionFilter implements ExceptionFilter {

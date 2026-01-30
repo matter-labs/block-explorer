@@ -2,7 +2,7 @@ import { PipeTransform, Injectable, InternalServerErrorException } from "@nestjs
 import { UserParam } from "../../user/user.decorator";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
-import { PrividiumApiError } from "../../errors/prividium-api-error";
+import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 export interface UserWithRoles extends UserParam {
   roles: string[];

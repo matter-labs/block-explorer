@@ -2,7 +2,7 @@ import { AddUserRolesPipe } from "./addUserRoles.pipe";
 import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
 import { InternalServerErrorException } from "@nestjs/common";
-import { PrividiumApiError } from "../../errors/prividium-api-error";
+import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 describe("AddUserRolesPipe", () => {
   let fetchSpy: jest.SpyInstance;

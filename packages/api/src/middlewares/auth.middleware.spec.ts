@@ -4,7 +4,7 @@ import { mock } from "jest-mock-extended";
 import { Request, Response } from "express";
 import { UnauthorizedException, ForbiddenException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { PrividiumApiError } from "../errors/prividium-api-error";
+import { PrividiumApiError } from "../errors/prividiumApiError";
 
 jest.mock("../api/pipes/addUserRoles.pipe", () => {
   return {
