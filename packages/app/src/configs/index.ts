@@ -2,6 +2,9 @@ export type NetworkConfig = {
   groupId?: string;
   name: string;
   icon: string;
+  logoUrl?: string;
+  logoInverseUrl?: string;
+  heroBannerImageUrl?: string;
   verificationApiUrl?: string;
   apiUrl: string;
   rpcUrl: string;
@@ -30,9 +33,34 @@ export type EnvironmentConfig = {
   networks: NetworkConfig[];
 };
 
+export type ColorShades = {
+  50: string;
+  100: string;
+  200: string;
+  300: string;
+  400: string;
+  500: string;
+  600: string;
+  700: string;
+  800: string;
+  900: string;
+};
+
+export type ColorsConfig = {
+  primary?: string | ColorShades;
+  secondary?: string | ColorShades;
+  neutral?: string | ColorShades;
+  success?: string | ColorShades;
+  error?: string | ColorShades;
+  warning?: string | ColorShades;
+};
+
 export type RuntimeConfig = {
   version: string;
   sentryDSN: string;
   appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
   environmentConfig?: EnvironmentConfig;
+  theme?: {
+    colors?: ColorsConfig;
+  };
 };
