@@ -28,6 +28,6 @@ export default (): RuntimeConfig => {
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
     appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default",
     environmentConfig: runtimeConfig?.environmentConfig,
-    theme: runtimeConfig?.theme,
+    theme: runtimeConfig?.theme || JSON.parse(import.meta.env?.VITE_THEME_CONFIG || "{}"),
   };
 };
