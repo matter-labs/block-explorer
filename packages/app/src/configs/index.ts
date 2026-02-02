@@ -58,6 +58,7 @@ export type ColorsConfig = {
 export type RuntimeConfig = {
   version: string;
   sentryDSN: string;
+  brandName: string;
   appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
   environmentConfig?: EnvironmentConfig;
   theme?: {

@@ -1,6 +1,7 @@
 {
     "general": {
-        "l2NetworkName": "ZKsync"
+        "execution": "Виконання",
+        "finality": "Фінальність"
     },
     "copyButton": {
         "tooltip": "Скопійовано!"
@@ -178,7 +179,7 @@
         "subtitle": "zkRollups значно дешевше, ніж L1 або Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "ZKsync Провідник",
+        "title": "{brandName} Провідник",
         "subtitle": "Переглядайте в режимі реального часу інформацію про блоки, транзакції, контракти та іншу активність у мережі.",
         "latestBlocks": "Останні Блоки",
         "latestTransactions": "Останні транзакції"
@@ -357,11 +358,11 @@
             "tokenAddress": "Адреса Токена",
             "bridged": {
                 "title": "Бридж",
-                "tooltip": "Цей токен перенесений з L1 до ZKsync"
+                "tooltip": "Цей токен перенесений з L1 до {brandName}"
             },
             "native": {
                 "title": "L2-нативний",
-                "tooltip": "Цей токен є нативним для ZKsync"
+                "tooltip": "Цей токен є нативним для {brandName}"
             },
             "tokenAddressL2": "L2 Адреса Токена",
             "tokenAddressL1": "L1 Адреса Токена"
@@ -459,7 +460,7 @@
         }
     },
     "document": {
-        "title": "ZKsync Провідник",
+        "title": "{brandName} Провідник",
         "home": "Транзакції, Блоки, Контракти та інше"
     },
     "notFound": {

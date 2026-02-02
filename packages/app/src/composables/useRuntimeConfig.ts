@@ -26,6 +26,7 @@ export default (): RuntimeConfig => {
   return {
     version: import.meta.env?.VITE_VERSION || "localhost",
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
+    brandName: runtimeConfig?.brandName || import.meta.env?.VITE_BRAND_NAME || "ZKsync",
     appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default",
     environmentConfig: runtimeConfig?.environmentConfig,
     theme: runtimeConfig?.theme || JSON.parse(import.meta.env?.VITE_THEME_CONFIG || "{}"),

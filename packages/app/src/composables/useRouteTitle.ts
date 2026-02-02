@@ -2,11 +2,14 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
 import { shortValue } from "@/utils/formatters";
 
 export default () => {
   const route = useRoute();
   const { t } = useI18n();
+  const { brandName } = useRuntimeConfig();
 
   const title = computed(() => {
     let param = "";
@@ -21,7 +24,7 @@ export default () => {
       param = shortValue(`${route.params.address}`);
     }
 
-    return `${t(route.meta.title as string)} ${param ? `${param} ` : ""}| ${t("document.title")}`;
+    return `${t(route.meta.title as string)} ${param ? `${param} ` : ""}| ${t("document.title", { brandName })}`;
   });
 
   return {
