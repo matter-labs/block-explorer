@@ -243,6 +243,11 @@ const hasContent = computed(() => {
 
   .logo-container {
     @apply flex justify-start;
+
+    img,
+    svg {
+      @apply h-10;
+    }
   }
 
   .burger-button-container {
