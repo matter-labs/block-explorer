@@ -35,6 +35,8 @@ RUN apk add --no-cache gomplate
 COPY --from=build-stage /usr/src/app/packages/app/nginx.conf.template /etc/nginx/conf.d/default.conf.template
 COPY --from=build-stage /usr/src/app/packages/app/dist /usr/share/nginx/html
 
+RUN cp /usr/share/nginx/html/index.html /usr/share/nginx/html/index.html.tpl
+
 CMD envsubst '$PORT $CSP_REPORT_ONLY' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf \
-  && gomplate -f /usr/share/nginx/html/index.html -o /usr/share/nginx/html/index.html \
+  && gomplate -f /usr/share/nginx/html/index.html.tpl -o /usr/share/nginx/html/index.html \
   && exec nginx -g 'daemon off;'
