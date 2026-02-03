@@ -4,7 +4,7 @@
     <div class="subtitle">
       {{
         runtimeConfig.appEnvironment === "prividium"
-          ? t("blockExplorer.prividiumSubtitle")
+          ? t("blockExplorer.prividiumSubtitle", { brandName })
           : t("blockExplorer.subtitle", { brandName })
       }}
     </div>

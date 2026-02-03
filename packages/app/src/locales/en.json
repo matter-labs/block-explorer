@@ -328,7 +328,7 @@
     "blockExplorer": {
         "title": "{brandName} Block Explorer",
         "subtitle": "{brandName} Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into {brandName} and explore the network.",
-        "prividiumSubtitle": "Prividium™ private and access-controlled blockchain explorer provides all the information to deep dive into transactions, blocks, contracts, and much more.",
+        "prividiumSubtitle": "{brandName} private and access-controlled blockchain explorer provides all the information to deep dive into transactions, blocks, contracts, and much more.",
         "latestBlocks": "Latest Blocks",
         "latestTransactions": "Latest Transactions"
     },
@@ -869,7 +869,7 @@
     "loginView": {
         "title": "Login",
         "explorerTitle": "Block Explorer",
-        "subtitle": "Prividium™ private and access-controlled blockchain explorer",
+        "subtitle": "{brandName} private and access-controlled blockchain explorer",
         "welcome": "Welcome",
         "signIn": "Sign in",
         "redirecting": "Redirecting..."

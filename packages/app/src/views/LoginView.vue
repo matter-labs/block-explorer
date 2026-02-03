@@ -1,13 +1,26 @@
 <template>
   <div
-    class="flex min-h-screen flex-col justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
+    class="
+      flex
+      min-h-screen
+      flex-col
+      justify-center
+      bg-gradient-to-br
+      from-slate-50
+      via-white
+      to-blue-50
+      px-4
+      py-12
+      sm:px-6
+      lg:px-8
+    "
   >
     <div class="mb-6 text-center sm:mx-auto sm:w-full sm:max-w-md">
       <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="mx-auto mb-4 h-16 w-auto" />
       <h1 class="mb-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-4xl font-bold text-transparent">
         {{ t("loginView.explorerTitle") }}
       </h1>
-      <p class="text-gray-600">{{ t("loginView.subtitle") }}</p>
+      <p class="text-gray-600">{{ t("loginView.subtitle", { brandName }) }}</p>
     </div>
 
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
@@ -18,7 +31,19 @@
         <button
           @click="handleLogin"
           :disabled="isLoginPending"
-          class="w-full rounded-lg bg-blue-700 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
+          class="
+            w-full
+            rounded-lg
+            bg-blue-700
+            px-4
+            py-3
+            font-medium
+            text-white
+            transition-colors
+            hover:bg-blue-800
+            disabled:cursor-not-allowed
+            disabled:opacity-70
+          "
         >
           {{ isLoginPending ? t("loginView.redirecting") : t("loginView.signIn") }}
         </button>
@@ -36,8 +61,10 @@ import { FetchError } from "ohmyfetch";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 const { t } = useI18n();
+const { brandName } = useRuntimeConfig();
 const context = useContext();
 const { login, isLoginPending } = useLogin(context);
 const router = useRouter();
