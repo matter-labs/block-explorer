@@ -81,7 +81,7 @@
         <ContractInfoTab :contract="contract" />
       </template>
       <template #tab-4-content>
-        <ContractEvents :contract="contract" />
+        <ContractEvents v-if="showEventsTab" :contract="contract" />
       </template>
     </Tabs>
   </div>
