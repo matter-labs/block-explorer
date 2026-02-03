@@ -5,7 +5,8 @@
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
             <span class="sr-only">ZKsync</span>
-            <zk-sync-era v-if="currentNetwork.groupId === 'era'" />
+            <img v-if="currentNetwork.logoUrl" :src="currentNetwork.logoUrl" />
+            <zk-sync-era v-else-if="currentNetwork.groupId === 'era'" />
             <zk-sync-arrows-logo v-else />
           </router-link>
         </div>
@@ -55,7 +56,8 @@
       class="hero-banner-container"
       :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
     >
-      <hero-arrows class="hero-image" />
+      <img v-if="currentNetwork.heroBannerImageUrl" class="hero-image" :src="currentNetwork.heroBannerImageUrl" />
+      <hero-arrows v-else class="hero-image" />
     </div>
     <transition
       enter-active-class="duration-200 ease-out"
@@ -70,7 +72,8 @@
           <div class="mobile-header-container">
             <div class="mobile-popover-navigation">
               <div class="popover-zksync-logo">
-                <zk-sync class="logo" />
+                <img v-if="currentNetwork.logoInverseUrl" :src="currentNetwork.logoInverseUrl" />
+                <zk-sync v-else class="logo" />
               </div>
               <div class="-mr-2">
                 <PopoverButton class="close-popover-button">
@@ -165,7 +168,7 @@ const runtimeConfig = useRuntimeConfig();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/zksync-era/tooling/block-explorers",
+    url: runtimeConfig.links.docsUrl,
   },
 ]);
 
@@ -205,8 +208,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://x.com/zksync", component: TwitterIcon },
+  { url: runtimeConfig.links.discordUrl, component: DiscordIcon },
+  { url: runtimeConfig.links.xUrl, component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
@@ -240,6 +243,11 @@ const hasContent = computed(() => {
 
   .logo-container {
     @apply flex justify-start;
+
+    img,
+    svg {
+      @apply h-10;
+    }
   }
 
   .burger-button-container {
@@ -335,7 +343,8 @@ const hasContent = computed(() => {
       .mobile-popover-navigation {
         @apply flex items-center justify-between;
 
-        .popover-zksync-logo svg {
+        .popover-zksync-logo svg,
+        .popover-zksync-logo img {
           @apply h-[42px] w-[42px] text-black;
         }
 

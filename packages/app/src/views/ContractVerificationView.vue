@@ -16,7 +16,7 @@
       <Alert type="notification" class="full-grid-width">
         <i18n-t scope="global" keypath="contractVerification.resources.title" tag="span">
           <template #hardhat>
-            <a href="https://docs.zksync.io/build/tooling/hardhat/hardhat-zksync-verify.html" target="_blank">
+            <a href="https://hardhat.org/docs/guides/smart-contract-verification" target="_blank">
               {{ t("contractVerification.resources.links.hardhat") }}
             </a>
           </template>

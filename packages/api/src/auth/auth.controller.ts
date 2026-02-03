@@ -21,8 +21,14 @@ import { Request } from "express";
 import { VerifySignatureDto, SwitchWalletDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
+import { PrividiumApiError } from "../errors/prividiumApiError";
 
 const entityName = "auth";
+const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
+const currentSessionSchema = z.object({
+  type: z.string(),
+  expiresAt: z.string().datetime(),
+});
 
 @ApiTags("Auth BFF")
 @ApiExcludeController(!swagger.bffEnabled)
@@ -48,15 +54,19 @@ export class AuthController {
   ): Promise<{ address: string; wallets: string[] }> {
     try {
       const wallets = await this.fetchUserWallets(body.token);
+
       if (wallets.length === 0) {
         throw new HttpException("No wallets associated with the user", 400);
       }
+
+      const sessionExpirationIso = await this.fetchExpirationTimeIso(body.token);
 
       // Store all wallets and use first address as default
       const address = wallets[0];
       req.session.wallets = wallets;
       req.session.address = address;
       req.session.token = body.token;
+      req.session.expiresAt = sessionExpirationIso;
       return { address, wallets };
     } catch (error) {
       if (error instanceof HttpException) {
@@ -117,16 +127,40 @@ export class AuthController {
     const response = await fetch(new URL("/api/user-wallets", this.configService.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${token}` },
     });
-    if (response.status === 403) {
-      throw new HttpException("Invalid or expired token", 403);
+
+    // If user wallets cannot be fetched, that user cannot log in to the system
+    if (response.status === 403 || response.status === 401) {
+      throw new PrividiumApiError("Invalid or expired token", 403);
     }
 
     const data = await response.json();
-    const validatedData = z.object({ wallets: z.array(z.string()) }).safeParse(data);
+    const validatedData = userWalletsSchema.safeParse(data);
     if (!validatedData.success) {
       throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
     }
 
     return validatedData.data.wallets;
+  }
+
+  private async fetchExpirationTimeIso(token: string): Promise<string> {
+    const response = await fetch(
+      new URL("/api/auth/current-session", this.configService.get("prividium.permissionsApiUrl")),
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    // If user token expiration cannot be fetch user cannot log in to the system.
+    if (response.status !== 200) {
+      throw new PrividiumApiError("Invalid or expired token", 403);
+    }
+
+    const data = await response.json();
+    const validatedData = currentSessionSchema.safeParse(data);
+    if (!validatedData.success) {
+      throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
+    }
+
+    return validatedData.data.expiresAt;
   }
 }

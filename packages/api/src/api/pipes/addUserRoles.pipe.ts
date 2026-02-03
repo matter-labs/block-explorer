@@ -2,6 +2,7 @@ import { PipeTransform, Injectable, InternalServerErrorException } from "@nestjs
 import { UserParam } from "../../user/user.decorator";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
+import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 export interface UserWithRoles extends UserParam {
   roles: string[];
@@ -24,7 +25,7 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
     }).catch(throwError);
 
     if (response.status !== 200) {
-      throw new InternalServerErrorException("Authentication failed");
+      throw new PrividiumApiError("Authentication failed", 401);
     }
 
     const validatedData = z
