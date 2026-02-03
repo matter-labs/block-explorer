@@ -29,6 +29,9 @@ const currentSessionSchema = z.object({
   type: z.string(),
   expiresAt: z.string().datetime(),
 });
+const userProfileSchema = z.object({
+  roles: z.array(z.object({ roleName: z.string() })),
+});
 
 @ApiTags("Auth BFF")
 @ApiExcludeController(!swagger.bffEnabled)
@@ -51,7 +54,7 @@ export class AuthController {
   public async login(
     @Body() body: VerifySignatureDto,
     @Req() req: Request
-  ): Promise<{ address: string; wallets: string[] }> {
+  ): Promise<{ address: string; wallets: string[]; roles: string[] }> {
     try {
       const wallets = await this.fetchUserWallets(body.token);
 
@@ -60,14 +63,16 @@ export class AuthController {
       }
 
       const sessionExpirationIso = await this.fetchExpirationTimeIso(body.token);
+      const roles = await this.fetchUserRoles(body.token);
 
       // Store all wallets and use first address as default
       const address = wallets[0];
       req.session.wallets = wallets;
       req.session.address = address;
       req.session.token = body.token;
+      req.session.roles = roles;
       req.session.expiresAt = sessionExpirationIso;
-      return { address, wallets };
+      return { address, wallets, roles };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -112,11 +117,15 @@ export class AuthController {
     description: "User was returned successfully",
     schema: {
       type: "object",
-      properties: { address: { type: "string" }, wallets: { type: "array", items: { type: "string" } } },
+      properties: {
+        address: { type: "string" },
+        wallets: { type: "array", items: { type: "string" } },
+        roles: { type: "array", items: { type: "string" } },
+      },
     },
   })
   public async me(@Req() req: Request) {
-    return { address: req.session.address, wallets: req.session.wallets };
+    return { address: req.session.address, wallets: req.session.wallets, roles: req.session.roles ?? [] };
   }
 
   private clearSession(req: Request) {
@@ -140,6 +149,26 @@ export class AuthController {
     }
 
     return validatedData.data.wallets;
+  }
+
+  private async fetchUserRoles(token: string): Promise<string[]> {
+    const response = await fetch(new URL("/api/profiles/me", this.configService.get("prividium.permissionsApiUrl")), {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response.status !== 200) {
+      this.logger.warn("Failed to fetch user roles, defaulting to empty");
+      return [];
+    }
+
+    const data = await response.json();
+    const validatedData = userProfileSchema.safeParse(data);
+    if (!validatedData.success) {
+      this.logger.warn("Invalid roles response from permissions API, defaulting to empty");
+      return [];
+    }
+
+    return validatedData.data.roles.map((r) => r.roleName);
   }
 
   private async fetchExpirationTimeIso(token: string): Promise<string> {
