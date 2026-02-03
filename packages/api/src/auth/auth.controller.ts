@@ -62,8 +62,10 @@ export class AuthController {
         throw new HttpException("No wallets associated with the user", 400);
       }
 
-      const sessionExpirationIso = await this.fetchExpirationTimeIso(body.token);
-      const roles = await this.fetchUserRoles(body.token);
+      const [sessionExpirationIso, roles] = await Promise.all([
+        this.fetchExpirationTimeIso(body.token),
+        this.fetchUserRoles(body.token),
+      ]);
 
       // Store all wallets and use first address as default
       const address = wallets[0];
