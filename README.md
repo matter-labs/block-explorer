@@ -66,15 +66,6 @@ Make sure you have set up all the necessary env variables. Follow setting up env
 ### Configure custom base token
 For networks with a custom base token, make sure to configure the base token for both Worker and API services by following the corresponding instructions [here](./packages/worker/README.md#custom-base-token-configuration) and [here](./packages/api/README.md#custom-base-token-configuration).
 
-### Build env variables based on your [zksync-era](https://github.com/matter-labs/zksync-era) local repo setup
-Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo set up locally. You must have your environment variables files present in the [zksync-era](https://github.com/matter-labs/zksync-era) repo at `/etc/env/*.env` for the build envs script to work.
-
-The following script sets `.env` files for [Worker](./packages/worker), [Data Fetcher](./packages/data-fetcher) and [API](./packages/api) packages as well as environment configuration file for [App](./packages/app) package based on your local [zksync-era](https://github.com/matter-labs/zksync-era) repo setup.
-```bash
-npm run hyperchain:configure
-```
-You can review and edit generated files if you need to change any settings.
-
 ## 👨‍💻 Running locally
 
 Before running the solution, make sure you have a database server up and running, you have created a database and set up all the required environment variables.
@@ -103,12 +94,46 @@ docker compose up
 ```
 It will run local Ethereum node, ZkSync, Postgres DB and all Block Explorer services.
 
-## ⛓️ Connection to your Hyperchain
-To get block-explorer connected to your ZK Stack Hyperchain you need to set up all the the necessary environment and configuration files with your Hyperchain settings. You can use a script to build them. See [Setting up env variables](#%EF%B8%8F-setting-up-env-variables).
-
 ## 🔍 Verify Block Explorer is up and running
 
 To verify front-end `App` is running open http://localhost:3010 in your browser. `API` should be available at http://localhost:3020, `Worker` at http://localhost:3001 and `Data Fetcher` at http://localhost:3040.
+
+## 🎨 Customizing branding and color scheme
+
+The front end supports customization of branding, links, and the color scheme via environment variables or `config.js`. See the [Branding, links, and color scheme](./packages/app/.env.example) section in `.env.example`.
+
+The color scheme configuration can be set either via the `VITE_THEME_CONFIG` environment variable (as a JSON string) or directly in the `config.js` file.
+
+There are 3 ways to define colors:
+1) Use standard Tailwind colors (e.g., blue, yellow, green). Shades are defined by Tailwind.
+2) Use a single hex color, and all shades will be calculated automatically.
+3) Define all shades manually for full control.
+Example config:
+```
+{
+  "colors": {
+    "primary": {
+      "50": "#F3F5FF",
+      "100": "#D9D9F9",
+      "200": "#CBCBFF",
+      "300": "#8C8DFC",
+      "400": "#5D65B9",
+      "500": "#53579f",
+      "600": "#4E529A",
+      "700": "#32325D",
+      "800": "#27274E",
+      "900": "#11142B"
+    },
+    "secondary": "#FEFCE8",
+    "neutral": "gray",
+    "success": "green",
+    "error": "red",
+    "warning": "yellow"
+  }
+}
+```
+
+Some branding configuration (e.g., icon and logo) is network-specific and can be set in the [environment config](./packages/app#environment-configs). See [the interface](./packages/app/src/configs/index.ts) for reference.
 
 ## 🕵️‍♂️ Testing
 Run unit tests for all packages:
