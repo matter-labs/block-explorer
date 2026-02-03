@@ -7,7 +7,9 @@ import {
   ApiOkResponse,
   ApiExcludeController,
 } from "@nestjs/swagger";
+import { ConfigService } from "@nestjs/config";
 import { Pagination } from "nestjs-typeorm-paginate";
+import { z } from "zod";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { buildDateFilter, isAddressEqual } from "../common/utils";
@@ -16,6 +18,7 @@ import { TransferDto } from "../transfer/transfer.dto";
 import { TransactionDto } from "./dtos/transaction.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { LogDto } from "../log/log.dto";
+import { Log } from "../log/log.entity";
 import { LogService } from "../log/log.service";
 import { FilterTransactionsOptions, TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
@@ -23,6 +26,7 @@ import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { PrividiumApiError } from "../errors/prividiumApiError";
 
 const entityName = "transactions";
 
@@ -33,8 +37,46 @@ export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
     private readonly transferService: TransferService,
-    private readonly logService: LogService
+    private readonly logService: LogService,
+    private readonly configService: ConfigService
   ) {}
+
+  private async checkBatchEventPermission(token: string, logs: Log[]): Promise<boolean[]> {
+    const permissionsApiUrl = this.configService.get<string>("prividium.permissionsApiUrl");
+    const body = logs.map((log) => ({
+      contractAddress: log.address,
+      topic0: log.topics[0],
+      topic1: log.topics[1],
+      topic2: log.topics[2],
+      topic3: log.topics[3],
+    }));
+
+    let response: Response;
+    try {
+      response = await fetch(new URL("/api/check/batch-event-permission", permissionsApiUrl), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+    } catch {
+      throw new PrividiumApiError("Permission check failed", 500);
+    }
+
+    if (!response.ok) {
+      throw new PrividiumApiError("Permission check failed", response.status);
+    }
+
+    const parsed = z.object({ authorized: z.array(z.boolean()) }).safeParse(await response.json());
+
+    if (!parsed.success) {
+      throw new PrividiumApiError("Invalid permission check response", 500);
+    }
+
+    return parsed.data.authorized;
+  }
 
   @Get("")
   @ApiListPageOkResponse(TransactionDto, { description: "Successfully returned transactions list" })
@@ -172,10 +214,39 @@ export class TransactionController {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
-    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
+
+    if (user && !user.isAdmin) {
+      const allLogs = await this.logService.findAll({ transactionHash }, { page: 1, limit: 10_000 });
+
+      const authorized = await this.checkBatchEventPermission(user.token, allLogs.items);
+      const filteredLogs = allLogs.items.filter((_, index) => authorized[index]);
+
+      const page = pagingOptions.page || 1;
+      const limit = pagingOptions.limit || 10;
+      const startIndex = (page - 1) * limit;
+      const paginatedItems = filteredLogs.slice(startIndex, startIndex + limit);
+      const totalPages = Math.ceil(filteredLogs.length / limit);
+
+      return {
+        items: paginatedItems,
+        meta: {
+          totalItems: filteredLogs.length,
+          itemCount: paginatedItems.length,
+          itemsPerPage: limit,
+          totalPages,
+          currentPage: page,
+        },
+        links: {
+          first: `${entityName}/${transactionHash}/logs?limit=${limit}`,
+          previous: page > 1 ? `${entityName}/${transactionHash}/logs?page=${page - 1}&limit=${limit}` : "",
+          next: page < totalPages ? `${entityName}/${transactionHash}/logs?page=${page + 1}&limit=${limit}` : "",
+          last: totalPages > 0 ? `${entityName}/${transactionHash}/logs?page=${totalPages}&limit=${limit}` : "",
+        },
+      };
+    }
 
     return await this.logService.findAll(
-      { transactionHash, ...userFilters },
+      { transactionHash },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,
