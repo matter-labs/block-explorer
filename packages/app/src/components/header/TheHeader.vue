@@ -168,7 +168,7 @@ const runtimeConfig = useRuntimeConfig();
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
-    url: "https://docs.zksync.io/zksync-era/tooling/block-explorers",
+    url: runtimeConfig.links.docsUrl,
   },
 ]);
 
@@ -208,8 +208,8 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
-  { url: "https://x.com/zksync", component: TwitterIcon },
+  { url: runtimeConfig.links.discordUrl, component: DiscordIcon },
+  { url: runtimeConfig.links.xUrl, component: TwitterIcon },
 ];
 
 const hasContent = computed(() => {
