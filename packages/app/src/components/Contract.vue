@@ -108,6 +108,8 @@ import TransfersTable from "@/components/transfers/Table.vue";
 
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
+import useContext from "@/composables/useContext";
+
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
 
@@ -115,6 +117,11 @@ import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();
 const runtimeConfig = useRuntimeConfig();
+const context = useContext();
+
+const isPrividium = computed(() => !!context.currentNetwork.value.prividium);
+const isAdmin = computed(() => context.user.value.loggedIn && context.user.value.roles.includes("admin"));
+const showEventsTab = computed(() => !isPrividium.value || isAdmin.value);
 
 const props = defineProps({
   contract: {
@@ -140,7 +147,7 @@ const tabs = computed(() => [
     hash: "#contract",
     icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
   },
-  { title: t("tabs.events"), hash: "#events" },
+  { title: t("tabs.events"), hash: showEventsTab.value ? "#events" : null },
 ]);
 
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {

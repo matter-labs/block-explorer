@@ -174,6 +174,8 @@ export const useContextMock = (params: any = {}) => {
     currentNetwork: computed(() => TESTNET_NETWORK),
     user: computed(() => ({
       address: "0x000000000000000000000000000000000000800A",
+      wallets: ["0x000000000000000000000000000000000000800A"],
+      roles: [],
       loggedIn: true,
     })),
     identifyNetwork: () => undefined,

@@ -47,8 +47,15 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
   const initializeLogin = async () => {
     try {
-      const response = await FetchInstance.api(context)<{ address: string; wallets: string[] }>("/auth/me");
-      context.user.value = { address: response.address, wallets: response.wallets, loggedIn: true };
+      const response = await FetchInstance.api(context)<{ address: string; wallets: string[]; roles: string[] }>(
+        "/auth/me"
+      );
+      context.user.value = {
+        address: response.address,
+        wallets: response.wallets,
+        roles: response.roles,
+        loggedIn: true,
+      };
     } catch (err) {
       _logger.error("Failed to initialize login:", err);
       await logout();
@@ -76,11 +83,19 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
       if (result && result.token) {
         // Exchange JWT for cookie session
-        const response = await FetchInstance.api(context)<{ address: string; wallets: string[] }>("/auth/login", {
-          method: "POST",
-          body: { token: result.token },
-        });
-        context.user.value = { address: response.address, wallets: response.wallets, loggedIn: true };
+        const response = await FetchInstance.api(context)<{ address: string; wallets: string[]; roles: string[] }>(
+          "/auth/login",
+          {
+            method: "POST",
+            body: { token: result.token },
+          }
+        );
+        context.user.value = {
+          address: response.address,
+          wallets: response.wallets,
+          roles: response.roles,
+          loggedIn: true,
+        };
       }
     } catch (err) {
       _logger.error("Prividium callback failed:", err);
