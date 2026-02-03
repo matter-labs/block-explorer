@@ -3,7 +3,7 @@
     class="flex min-h-screen flex-col justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
   >
     <div class="mb-6 text-center sm:mx-auto sm:w-full sm:max-w-md">
-      <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="mx-auto mb-4 h-16 w-auto" />
+      <img :src="currentNetwork.logoUrl || '/images/prividium_logo.svg'" alt="Logo" class="mx-auto mb-4 h-16 w-auto" />
       <h1 class="mb-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-4xl font-bold text-transparent">
         {{ t("loginView.explorerTitle") }}
       </h1>
@@ -41,6 +41,7 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 const { t } = useI18n();
 const { brandName } = useRuntimeConfig();
 const context = useContext();
+const { currentNetwork } = context;
 const { login, isLoginPending } = useLogin(context);
 const router = useRouter();
 const route = useRoute();

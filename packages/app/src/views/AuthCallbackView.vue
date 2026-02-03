@@ -2,7 +2,7 @@
   <div
     class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
   >
-    <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="mb-6 h-16 w-auto" />
+    <img :src="currentNetwork.logoUrl || '/images/prividium_logo.svg'" alt="Logo" class="mb-6 h-16 w-auto" />
 
     <!-- Loading state (no card) -->
     <div v-if="!error" class="text-center">
@@ -41,6 +41,7 @@ const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
 const context = useContext();
+const { currentNetwork } = context;
 const { handlePrividiumCallback } = useLogin(context);
 
 const error = ref<string | null>(null);
