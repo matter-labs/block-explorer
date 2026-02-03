@@ -5,6 +5,8 @@
       "bridgeUrl": "http://localhost:3001/bridge",
       "hostnames": ["localhost"],
       "icon": "/images/icons/zksync-arrows.svg",
+      "logoUrl": "/images/prividium_logo.svg",
+      "logoInverseUrl": "/images/prividium_logo.svg",
       "l2ChainId": 6565,
       "l2NetworkName": "Local Prividium",
       "maintenance": false,

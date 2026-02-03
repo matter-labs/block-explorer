@@ -47,7 +47,18 @@ export default defineConfig({
       target: "esnext",
     },
   },
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    {
+      name: "html-transform",
+      transformIndexHtml(html) {
+        if (process.env.DOCKER_BUILD === "true") {
+          return html;
+        }
+        return replaceEnvVariables(html);
+      },
+    },
+  ],
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -69,3 +80,14 @@ export default defineConfig({
     __INTLIFY_PROD_DEVTOOLS__: false,
   },
 });
+
+function replaceEnvVariables(template: string): string {
+  // Regex matches either:
+  // {{ getenv "VAR" | default "fallback" }}  OR  {{ getenv "VAR" }}
+  const regex = /\{\{\s*getenv\s*"([^"]+)"(?:\s*\|\s*default\s*"([^"]*)")?\s*\}\}/g;
+
+  return template.replace(regex, (_, varName, fallback) => {
+    // If env var exists, use it; else fallback if provided; else empty string
+    return process.env[varName] ?? fallback ?? "";
+  });
+}

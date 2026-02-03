@@ -1,13 +1,11 @@
 <template>
   <div class="home">
-    <h1 class="title">
-      {{ runtimeConfig.appEnvironment === "prividium" ? t("blockExplorer.prividiumTitle") : t("blockExplorer.title") }}
-    </h1>
+    <h1 class="title">{{ t("blockExplorer.title", { brandName }) }}</h1>
     <div class="subtitle">
       {{
         runtimeConfig.appEnvironment === "prividium"
           ? t("blockExplorer.prividiumSubtitle")
-          : t("blockExplorer.subtitle")
+          : t("blockExplorer.subtitle", { brandName })
       }}
     </div>
     <SearchForm class="search-form" />
@@ -98,6 +96,7 @@ import router from "@/router";
 
 const { t } = useI18n();
 const runtimeConfig = useRuntimeConfig();
+const { brandName } = runtimeConfig;
 const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
 const { load: getBlocks, pending: isBlocksPending, failed: isBlocksFailed, data: blocks } = useBlocks();
 
