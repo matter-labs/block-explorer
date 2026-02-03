@@ -116,6 +116,48 @@ describe("AuthController", () => {
         new HttpException("No wallets associated with the user", 400)
       );
     });
+
+    it("throws 403 error when roles API returns 403", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 403,
+          json: jest.fn(),
+        });
+
+      await expect(controller.login(body, req)).rejects.toThrow(new HttpException("Invalid or expired token", 403));
+    });
+
+    it("throws internal server error when roles API returns invalid data", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ invalid: "response" }),
+        });
+
+      await expect(controller.login(body, req)).rejects.toThrow(InternalServerErrorException);
+    });
   });
 
   describe("logout", () => {

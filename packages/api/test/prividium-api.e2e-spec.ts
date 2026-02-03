@@ -163,5 +163,47 @@ describe("Prividium API (e2e)", () => {
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(500);
     });
+
+    it("rejects login when roles API returns 403", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date(2100, 0, 0).toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 403,
+          json: jest.fn(),
+        });
+
+      await agent.post("/auth/login").send({ token: mockToken }).expect(403);
+    });
+
+    it("rejects login when roles API returns invalid data", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date(2100, 0, 0).toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ invalid: "response" }),
+        });
+
+      await agent.post("/auth/login").send({ token: mockToken }).expect(500);
+    });
   });
 });

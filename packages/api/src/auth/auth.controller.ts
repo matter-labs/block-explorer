@@ -158,16 +158,14 @@ export class AuthController {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    if (response.status !== 200) {
-      this.logger.warn("Failed to fetch user roles, defaulting to empty");
-      return [];
+    if (response.status === 403 || response.status === 401) {
+      throw new PrividiumApiError("Invalid or expired token", 403);
     }
 
     const data = await response.json();
     const validatedData = userProfileSchema.safeParse(data);
     if (!validatedData.success) {
-      this.logger.warn("Invalid roles response from permissions API, defaulting to empty");
-      return [];
+      throw new Error(`Invalid response from Prividium API: ${JSON.stringify(validatedData.error)}`);
     }
 
     return validatedData.data.roles.map((r) => r.roleName);
