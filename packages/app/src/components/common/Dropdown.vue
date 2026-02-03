@@ -17,7 +17,7 @@
         <ChevronDownIcon class="toggle-button-icon" :class="{ 'toggle-button-opened': open }" />
       </span>
     </ListboxButton>
-    <ListboxOptions class="options-list-container" :class="showAbove ? 'mb-1 bottom-full' : 'top-full'">
+    <ListboxOptions class="options-list-container" :class="showAbove ? 'bottom-full mb-1' : 'top-full'">
       <ListboxOption
         as="template"
         v-for="option in options"

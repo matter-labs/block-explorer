@@ -44,7 +44,7 @@ describe("BlockController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await blockRepository.delete({});
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });

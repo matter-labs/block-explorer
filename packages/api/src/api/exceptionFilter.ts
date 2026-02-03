@@ -13,7 +13,7 @@ export class ApiExceptionFilter implements ExceptionFilter {
     // support of DTO validation error messages
     if (exception instanceof BadRequestException) {
       const response: { message: string[] } = <{ message: string[] }>(<BadRequestException>exception).getResponse();
-      validationErrorMessage = response.message instanceof Array ? response.message.at(0) : response.message;
+      validationErrorMessage = response.message instanceof Array ? response.message[0] : response.message;
     }
 
     if (exception instanceof PrividiumApiError) {

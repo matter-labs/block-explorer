@@ -303,7 +303,7 @@ const hasContent = computed(() => {
   }
 
   .header-right-side {
-    @apply hidden items-stretch justify-end md:flex-1 lg:flex lg:w-0 gap-x-4;
+    @apply hidden items-stretch justify-end gap-x-4 md:flex-1 lg:flex lg:w-0;
 
     .language-switch {
       @apply mr-2;

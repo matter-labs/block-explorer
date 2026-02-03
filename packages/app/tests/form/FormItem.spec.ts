@@ -11,6 +11,7 @@ describe("FormItem", () => {
         default: {
           template: "FormItem",
         },
+        underline: "",
       },
     });
     expect(wrapper.text()).toBe("FormItem");
@@ -60,6 +61,7 @@ describe("FormItem", () => {
   it("renders underline if underline prop was passed", async () => {
     const wrapper = mount(FormItem, {
       slots: {
+        default: "",
         underline: "Underline text",
       },
     });

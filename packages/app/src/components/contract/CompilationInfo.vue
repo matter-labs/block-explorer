@@ -111,6 +111,6 @@ const PARTIAL_VERIFICATION_DETAILS_URL =
   @apply max-w-[16rem] break-all;
 }
 .verification-alert-container {
-  @apply w-full mb-2;
+  @apply mb-2 w-full;
 }
 </style>

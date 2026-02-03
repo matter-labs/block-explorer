@@ -11,7 +11,7 @@
       <TableHeadColumn
         v-if="columns.includes('age')"
         @click="toggleAgeTimestamp()"
-        class="hover:cursor-pointer text-blue-700"
+        class="text-blue-700 hover:cursor-pointer"
       >
         {{ isTimeAgeView ? t("transactions.table.age") : t("transactions.table.dateTimeUTC") }}
       </TableHeadColumn>
@@ -497,7 +497,7 @@ const toggleAgeTimestamp = () => {
     }
   }
   .transactions-data-method {
-    @apply w-36 truncate border-slate-200 rounded border py-0.5 px-2 text-center bg-slate-400/10 text-xs text-slate-600 sm:w-28;
+    @apply w-36 truncate rounded border border-slate-200 bg-slate-400/10 px-2 py-0.5 text-center text-xs text-slate-600 sm:w-28;
   }
   .transactions-data-transaction-amount,
   .transactions-data-age {

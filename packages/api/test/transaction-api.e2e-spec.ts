@@ -97,9 +97,9 @@ describe("Transaction API (e2e)", () => {
   });
 
   afterAll(async () => {
-    await transactionReceiptRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
     await app.close();
   });
 

@@ -333,16 +333,16 @@ describe("AddressController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await balanceRepository.delete({});
-    await logRepository.delete({});
-    await addressTransferRepository.delete({});
-    await transferRepository.delete({});
-    await addressRepository.delete({});
-    await tokenRepository.delete({});
-    await transactionReceiptRepository.delete({});
-    await addressTransactionRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
+    await balanceRepository.createQueryBuilder().delete().execute();
+    await logRepository.createQueryBuilder().delete().execute();
+    await addressTransferRepository.createQueryBuilder().delete().execute();
+    await transferRepository.createQueryBuilder().delete().execute();
+    await addressRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });
