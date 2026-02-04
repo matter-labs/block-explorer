@@ -166,7 +166,7 @@ const route = useRoute();
 const { currentNetwork } = useContext();
 const runtimeConfig = useRuntimeConfig();
 
-const isPrividium = computed(() => runtimeConfig.appEnvironment === "prividium");
+const isPrividium = runtimeConfig.appEnvironment === "prividium";
 
 const navigation = reactive([
   {

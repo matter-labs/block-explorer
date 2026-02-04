@@ -21,7 +21,7 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 const { t } = useI18n();
 const config = useRuntimeConfig();
 
-const isPrividium = computed(() => config.appEnvironment === "prividium");
+const isPrividium = config.appEnvironment === "prividium";
 
 const navigation = computed(() => {
   const items = [
@@ -29,7 +29,7 @@ const navigation = computed(() => {
     { label: t("footer.nav.terms"), url: config.links.termsOfServiceUrl },
   ];
 
-  if (!isPrividium.value) {
+  if (!isPrividium) {
     items.push({ label: t("footer.nav.contact"), url: config.links.contactUsUrl });
   }
 
