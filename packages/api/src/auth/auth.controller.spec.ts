@@ -46,6 +46,7 @@ describe("AuthController", () => {
 
     it("logins successfully with valid token", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
+      const mockRoles = [{ roleName: "admin" }, { roleName: "user" }];
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
@@ -59,13 +60,20 @@ describe("AuthController", () => {
             type: "user",
             expiresAt: new Date().toISOString(),
           }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            roles: mockRoles,
+          }),
         });
 
       const result = await controller.login(body, req);
 
-      expect(result).toEqual({ address: mockWalletAddress, wallets: mockWallets });
+      expect(result).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: ["admin", "user"] });
       expect(req.session.address).toBe(mockWalletAddress);
       expect(req.session.wallets).toEqual(mockWallets);
+      expect(req.session.roles).toEqual(["admin", "user"]);
       expect(req.session.token).toBe(mockToken);
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
@@ -107,6 +115,48 @@ describe("AuthController", () => {
       await expect(controller.login(body, req)).rejects.toThrow(
         new HttpException("No wallets associated with the user", 400)
       );
+    });
+
+    it("throws 403 error when roles API returns 403", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 403,
+          json: jest.fn(),
+        });
+
+      await expect(controller.login(body, req)).rejects.toThrow(new HttpException("Invalid or expired token", 403));
+    });
+
+    it("throws internal server error when roles API returns invalid data", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ invalid: "response" }),
+        });
+
+      await expect(controller.login(body, req)).rejects.toThrow(InternalServerErrorException);
     });
   });
 
@@ -167,11 +217,19 @@ describe("AuthController", () => {
   });
 
   describe("GET /me", () => {
-    it("returns address and wallets stored in session", async () => {
+    it("returns address, wallets and roles stored in session", async () => {
+      const mockWallets = [mockWalletAddress, mockWalletAddress2];
+      const mockRoles = ["admin", "user"];
+      req.session = { address: mockWalletAddress, wallets: mockWallets, roles: mockRoles };
+      const res = await controller.me(req);
+      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: mockRoles });
+    });
+
+    it("returns empty roles array when session has no roles", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       req.session = { address: mockWalletAddress, wallets: mockWallets };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets });
+      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: [] });
     });
   });
 });
