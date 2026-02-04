@@ -27,15 +27,13 @@
               </template>
               <template #title>
                 {{
-                  runtimeConfig.appEnvironment === "prividium"
-                    ? t("contract.balances.prividiumNotFound.title")
-                    : t("contract.balances.notFound.title")
+                  isPrividium ? t("contract.balances.prividiumNotFound.title") : t("contract.balances.notFound.title")
                 }}
               </template>
               <template #description>
                 <div class="balances-empty-description">
                   {{
-                    runtimeConfig.appEnvironment === "prividium"
+                    isPrividium
                       ? t("contract.balances.prividiumNotFound.subtitle")
                       : t("contract.balances.notFound.subtitle")
                   }}
@@ -106,9 +104,8 @@ import ContractEvents from "@/components/event/ContractEvents.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 import TransfersTable from "@/components/transfers/Table.vue";
 
-import useRuntimeConfig from "@/composables/useRuntimeConfig";
-
 import useContext from "@/composables/useContext";
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
@@ -119,7 +116,7 @@ const { t } = useI18n();
 const runtimeConfig = useRuntimeConfig();
 const context = useContext();
 
-const isPrividium = computed(() => !!context.currentNetwork.value.prividium);
+const isPrividium = computed(() => runtimeConfig.appEnvironment === "prividium");
 const isAdmin = computed(() => context.user.value.loggedIn && context.user.value.roles.includes("admin"));
 const showEventsTab = computed(() => !isPrividium.value || isAdmin.value);
 
