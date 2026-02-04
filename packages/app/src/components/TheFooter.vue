@@ -14,27 +14,27 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
 const { t } = useI18n();
 const config = useRuntimeConfig();
 
-const navigation = reactive([
-  {
-    label: computed(() => t("footer.nav.docs")),
-    url: config.links.docsUrl,
-  },
-  {
-    label: computed(() => t("footer.nav.terms")),
-    url: config.links.termsOfServiceUrl,
-  },
-  {
-    label: computed(() => t("footer.nav.contact")),
-    url: config.links.contactUsUrl,
-  },
-]);
+const isPrividium = computed(() => config.appEnvironment === "prividium");
+
+const navigation = computed(() => {
+  const items = [
+    { label: t("footer.nav.docs"), url: config.links.docsUrl },
+    { label: t("footer.nav.terms"), url: config.links.termsOfServiceUrl },
+  ];
+
+  if (!isPrividium.value) {
+    items.push({ label: t("footer.nav.contact"), url: config.links.contactUsUrl });
+  }
+
+  return items;
+});
 </script>
 
 <style scoped lang="scss">
