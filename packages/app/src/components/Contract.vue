@@ -116,9 +116,9 @@ const { t } = useI18n();
 const runtimeConfig = useRuntimeConfig();
 const context = useContext();
 
-const isPrividium = computed(() => runtimeConfig.appEnvironment === "prividium");
+const isPrividium = runtimeConfig.appEnvironment === "prividium";
 const isAdmin = computed(() => context.user.value.loggedIn && context.user.value.roles.includes("admin"));
-const showEventsTab = computed(() => !isPrividium.value || isAdmin.value);
+const showEventsTab = computed(() => !isPrividium || isAdmin.value);
 
 const props = defineProps({
   contract: {
