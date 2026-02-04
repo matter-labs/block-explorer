@@ -45,6 +45,7 @@ jobs:
       - name: Start Prividium App
         env:
           VITE_APP_ENVIRONMENT: prividium
+          VITE_BRAND_NAME: "Prividium™"
         working-directory: packages/app
         run: |
           # Start the app in development mode with Prividium config

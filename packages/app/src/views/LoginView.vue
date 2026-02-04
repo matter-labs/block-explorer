@@ -1,30 +1,34 @@
 <template>
-  <div class="fixed inset-0 flex flex-col items-center justify-center bg-[#11142B]">
-    <div class="max-w-xxl flex w-full flex-col items-center rounded-lg p-8">
-      <div class="mb-10 flex justify-center">
-        <img src="/images/zksync-light.svg" class="h-[48px] w-[233px]" />
-      </div>
-      <h1 class="mb-10 text-center text-[30px] font-bold leading-[36px] tracking-[0%] text-white">
+  <div
+    class="flex min-h-screen flex-col justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
+  >
+    <div class="mb-6 text-center sm:mx-auto sm:w-full sm:max-w-md">
+      <img :src="currentNetwork.logoUrl || '/images/prividium_logo.svg'" alt="Logo" class="mx-auto mb-4 h-16 w-auto" />
+      <h1 class="mb-2 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-4xl font-bold text-transparent">
         {{ t("loginView.explorerTitle") }}
       </h1>
-      <div class="flex flex-col items-center gap-4">
+      <p class="text-gray-600">{{ t("loginView.subtitle", { brandName }) }}</p>
+    </div>
+
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+      <div class="rounded-2xl border border-gray-200 bg-white px-6 py-10 shadow-xl sm:px-12">
+        <h2 class="mb-6 text-center text-2xl font-semibold text-gray-900">
+          {{ t("loginView.welcome") }}
+        </h2>
         <button
           @click="handleLogin"
           :disabled="isLoginPending"
-          class="flex h-[56px] w-[250px] items-center justify-center rounded-[28px] bg-white px-8 py-4 text-base font-semibold text-black hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-70"
+          class="w-full rounded-lg bg-blue-700 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {{ isLoginPending ? "Redirecting..." : "Login with Prividium" }}
+          {{ isLoginPending ? t("loginView.redirecting") : t("loginView.signIn") }}
         </button>
       </div>
-      <p class="mt-6 text-center text-[14px] font-normal leading-[20px] text-gray-500">
-        {{ t("loginView.onlyAuthorizedAdvice") }}
-      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { watchEffect } from "vue";
+import { onMounted, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -32,12 +36,22 @@ import { FetchError } from "ohmyfetch";
 
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 const { t } = useI18n();
+const { brandName } = useRuntimeConfig();
 const context = useContext();
+const { currentNetwork } = context;
 const { login, isLoginPending } = useLogin(context);
 const router = useRouter();
 const route = useRoute();
+
+// Auto-trigger sign-in if ?autosignin=true is present (for cross-app navigation)
+onMounted(() => {
+  if (route.query.autosignin === "true") {
+    handleLogin();
+  }
+});
 
 const handleLogin = async () => {
   try {
