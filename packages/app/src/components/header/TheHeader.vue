@@ -31,7 +31,7 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
-          <WalletButton v-if="runtimeConfig.appEnvironment === 'prividium'" />
+          <WalletButton v-if="isPrividium" />
           <NetworkSwitch v-else />
           <LocaleSwitch
             :value="(locale as string)"
@@ -43,7 +43,7 @@
               }))
             "
           />
-          <div class="socials-container">
+          <div v-if="!isPrividium" class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
             </a>
@@ -109,7 +109,7 @@
               </nav>
             </div>
             <div class="mobile-network-switch-container">
-              <WalletButton v-if="runtimeConfig.appEnvironment === 'prividium'" />
+              <WalletButton v-if="isPrividium" />
               <NetworkSwitch v-else />
               <LocaleSwitch
                 :value="(locale as string)"
@@ -122,7 +122,7 @@
                 "
               />
             </div>
-            <div class="mobile-socials-container">
+            <div v-if="!isPrividium" class="mobile-socials-container">
               <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
                 <component :is="social.component" />
               </a>
@@ -165,6 +165,9 @@ const { t, locale } = useI18n({ useScope: "global" });
 const route = useRoute();
 const { currentNetwork } = useContext();
 const runtimeConfig = useRuntimeConfig();
+
+const isPrividium = computed(() => runtimeConfig.appEnvironment === "prividium");
+
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
