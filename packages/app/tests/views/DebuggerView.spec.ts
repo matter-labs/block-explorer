@@ -74,7 +74,7 @@ describe("DebuggerView:", () => {
     useRouter: () => vi.fn(),
     useRoute: () => vi.fn(),
     createWebHistory: () => vi.fn(),
-    createRouter: () => vi.fn(),
+    createRouter: () => ({ beforeEach: vi.fn() }),
   }));
 
   it("has correct title", async () => {

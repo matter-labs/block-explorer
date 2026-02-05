@@ -18,6 +18,7 @@ const router = {
   currentRoute: {
     value: {},
   },
+  beforeEach: vi.fn(),
 };
 const routeQueryMock = vi.fn(() => ({}));
 
@@ -35,7 +36,7 @@ vi.mock("vue-router", () => ({
     query: routeQueryMock(),
   }),
   createWebHistory: () => vi.fn(),
-  createRouter: () => vi.fn(),
+  createRouter: () => ({ beforeEach: vi.fn() }),
 }));
 
 vi.mock("ohmyfetch", () => {
