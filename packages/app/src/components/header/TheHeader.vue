@@ -163,10 +163,12 @@ import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators"
 const { changeLanguage } = useLocalization();
 const { t, locale } = useI18n({ useScope: "global" });
 const route = useRoute();
-const { currentNetwork } = useContext();
+const { currentNetwork, user } = useContext();
 const runtimeConfig = useRuntimeConfig();
 
 const isPrividium = runtimeConfig.appEnvironment === "prividium";
+const isAdmin = computed(() => !user.value.loggedIn && user.value.roles.includes("admin"));
+const showAdminLinks = computed(() => !isPrividium || isAdmin.value);
 
 const navigation = reactive([
   {
@@ -190,25 +192,29 @@ const blockExplorerLinks = reactive([
   },
 ]);
 
-const links = [
-  {
-    label: computed(() => t("header.nav.apiDocs")),
-    url: computed(() => `${currentNetwork.value.apiUrl}/docs`),
-  },
-  {
-    label: computed(() => t("header.nav.contractVerification")),
-    to: { name: "contract-verification" },
-  },
-];
+const toolsLinks = computed(() => {
+  const links = [];
 
-if (currentNetwork.value.bridgeUrl) {
-  links.push({
-    label: computed(() => t("header.nav.bridge")),
-    url: computed(() => currentNetwork.value.bridgeUrl!),
-  });
-}
+  if (showAdminLinks.value) {
+    links.push({
+      label: t("header.nav.apiDocs"),
+      url: `${currentNetwork.value.apiUrl}/docs`,
+    });
+    links.push({
+      label: t("header.nav.contractVerification"),
+      to: { name: "contract-verification" },
+    });
+  }
 
-const toolsLinks = reactive(links);
+  if (currentNetwork.value.bridgeUrl) {
+    links.push({
+      label: t("header.nav.bridge"),
+      url: currentNetwork.value.bridgeUrl!,
+    });
+  }
+
+  return links;
+});
 
 const socials = [
   { url: runtimeConfig.links.discordUrl, component: DiscordIcon },
@@ -306,7 +312,7 @@ const hasContent = computed(() => {
   }
 
   .header-right-side {
-    @apply hidden items-stretch justify-end md:flex-1 lg:flex lg:w-0 gap-x-4;
+    @apply hidden items-stretch justify-end gap-x-4 md:flex-1 lg:flex lg:w-0;
 
     .language-switch {
       @apply mr-2;
