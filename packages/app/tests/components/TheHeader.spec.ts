@@ -27,6 +27,7 @@ vi.mock("@/composables/useContext", () => {
         apiUrl: "https://api-url",
       })),
       networks: computed(() => []),
+      user: computed(() => ({ loggedIn: false })),
     }),
   };
 });
