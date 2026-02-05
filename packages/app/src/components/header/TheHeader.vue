@@ -167,7 +167,7 @@ const { currentNetwork, user } = useContext();
 const runtimeConfig = useRuntimeConfig();
 
 const isPrividium = runtimeConfig.appEnvironment === "prividium";
-const isAdmin = computed(() => !user.value.loggedIn && user.value.roles.includes("admin"));
+const isAdmin = computed(() => user.value.loggedIn && user.value.roles.includes("admin"));
 const showAdminLinks = computed(() => !isPrividium || isAdmin.value);
 
 const navigation = reactive([
