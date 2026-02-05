@@ -3,7 +3,7 @@
     <Breadcrumbs :items="breadcrumbItems" />
     <SearchForm class="search-form" />
   </div>
-  <div class="flex gap-2 items-center justify-start">
+  <div class="flex items-center justify-start gap-2">
     <div class="token-icon-container">
       <img
         v-if="contract?.address && !pending && tokenInfo"
@@ -57,7 +57,7 @@
         <ContractInfoTab :contract="contract" />
       </template>
       <template #tab-3-content>
-        <ContractEvents :contract="contract" />
+        <ContractEvents v-if="showEventsTab" :contract="contract" />
       </template>
     </Tabs>
   </div>
@@ -80,6 +80,8 @@ import MarketTokenInfoTable from "@/components/token/MarketTokenInfoTable.vue";
 import OverviewTokenInfoTable from "@/components/token/OverviewTokenInfoTable.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 
+import useContext from "@/composables/useContext";
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
 import useToken from "@/composables/useToken";
 import useTokenOverview from "@/composables/useTokenOverview";
 
@@ -89,6 +91,12 @@ import type { Contract } from "@/composables/useAddress";
 import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
+const context = useContext();
+
+const isPrividium = runtimeConfig.appEnvironment === "prividium";
+const isAdmin = computed(() => context.user.value.loggedIn && context.user.value.roles.includes("admin"));
+const showEventsTab = computed(() => !isPrividium || isAdmin.value);
 
 const props = defineProps({
   contract: {
@@ -123,8 +131,9 @@ const tabs = computed(() => [
     hash: "#contract",
     icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
   },
-  { title: t("tabs.events"), hash: "#events" },
+  { title: t("tabs.events"), hash: showEventsTab.value ? "#events" : null },
 ]);
+
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {
   if (props.contract?.address) {
     return [
@@ -182,7 +191,7 @@ const transactionsSearchParams = computed(() => ({
 }
 
 .token-icon-container {
-  @apply relative overflow-hidden rounded-full h-8 w-8;
+  @apply relative h-8 w-8 overflow-hidden rounded-full;
 
   .token-img-loader,
   .token-img {

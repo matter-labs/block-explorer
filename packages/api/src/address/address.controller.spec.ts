@@ -447,11 +447,20 @@ describe("AddressController", () => {
           });
         });
 
-        it("includes visibleBy filter", async () => {
-          await controller.getAddressLogs(address, pagingOptions, user);
+        it("throws ForbiddenException for non-admin user", async () => {
+          await expect(controller.getAddressLogs(address, pagingOptions, user)).rejects.toThrow(ForbiddenException);
+        });
+
+        it("returns logs for admin user", async () => {
+          user.isAdmin = true;
+          const result = await controller.getAddressLogs(address, pagingOptions, user);
+          expect(result).toBe(transactionLogs);
           expect(logServiceMock.findAll).toHaveBeenCalledWith(
-            expect.objectContaining({ visibleBy: user.address }),
-            expect.anything()
+            { address },
+            {
+              ...pagingOptions,
+              route: `address/${address}/logs`,
+            }
           );
         });
       });
