@@ -15,9 +15,10 @@ import { configureApp } from "../src/configureApp";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
-import { applyPrividiumExpressConfig } from "../src/prividium";
+import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "../src/prividium";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 
 describe("Prividium API (e2e)", () => {
   let app: INestApplication;
@@ -43,6 +44,19 @@ describe("Prividium API (e2e)", () => {
       sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
       sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
     });
+
+    // Set up Swagger auth middleware before Swagger setup
+    applySwaggerAuthMiddleware(app as NestExpressApplication, configService);
+
+    // Set up Swagger docs
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle("Block explorer API")
+      .setDescription("ZkSync Block Explorer API")
+      .setVersion("1.0")
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup("docs", app, document);
+
     app.enableShutdownHooks();
 
     await app.init();
@@ -204,6 +218,85 @@ describe("Prividium API (e2e)", () => {
         });
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(500);
+    });
+  });
+
+  describe("Swagger Docs Access Control", () => {
+    let fetchSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      fetchSpy = jest.spyOn(global, "fetch");
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
+    });
+
+    it("returns 401 for unauthenticated users accessing /docs", async () => {
+      await agent.get("/docs").expect(401);
+    });
+
+    it("returns 403 for authenticated non-admin users accessing /docs", async () => {
+      // Login as non-admin user
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date(2100, 0, 0).toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        });
+
+      await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+
+      // Mock the roles check for /docs access (non-admin)
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+      });
+
+      await agent.get("/docs").expect(403);
+    });
+
+    it("allows admin users to access /docs", async () => {
+      // Login as admin user
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date(2100, 0, 0).toISOString(),
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin" }] }),
+        });
+
+      await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+
+      // Mock the roles check for /docs access (admin)
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin" }] }),
+      });
+
+      const response = await agent.get("/docs");
+      // Swagger returns 200 with HTML content
+      expect(response.status).toBe(200);
+      expect(response.text).toContain("swagger");
     });
   });
 });
