@@ -41,7 +41,7 @@
     "semantic-release": "^21.1.1",
     "typescript": "4.9.5",
     "enquirer": "2.3.6",
-    "dotenv": "16.1.4",
+    "dotenv": "^17.2.4",
     "pg-connection-string": "2.6.2"
   },
   "engines": {
