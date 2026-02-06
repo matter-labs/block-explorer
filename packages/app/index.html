@@ -13,8 +13,8 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content='{{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} Block Explorer' />
 
-    <link rel="alternate icon" type="image/x-icon" href='{{ getenv "VITE_ALT_FAVICON_IMAGE_URL" | default "/favicon.ico" }}' />
-    <link rel="icon" type="image/svg+xml" href='{{ getenv "VITE_FAVICON_IMAGE_URL" | default "/favicon.svg" }}' />
+    <link rel="alternate icon" type='{{ getenv "VITE_ALT_FAVICON_IMAGE_TYPE" | default "image/x-icon" }}' href='{{ getenv "VITE_ALT_FAVICON_IMAGE_URL" | default "/favicon.ico" }}' />
+    <link rel="icon" type='{{ getenv "VITE_FAVICON_IMAGE_TYPE" | default "image/svg+xml" }}' href='{{ getenv "VITE_FAVICON_IMAGE_URL" | default "/favicon.svg" }}' />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
