@@ -105,10 +105,10 @@ describe("Logs API (e2e)", () => {
   });
 
   afterAll(async () => {
-    await logRepository.delete({});
-    await transactionReceiptRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
+    await logRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
     await app.close();
   });
 

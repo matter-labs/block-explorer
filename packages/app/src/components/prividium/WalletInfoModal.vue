@@ -127,11 +127,11 @@ const formattedAddress = computed(() => {
   text-align: center;
 
   .close-button-icon {
-    @apply absolute top-6 right-6 text-neutral-700 hover:text-neutral-900;
+    @apply absolute right-6 top-6 text-neutral-700 hover:text-neutral-900;
   }
 
   .your-wallet-title {
-    @apply font-sans font-medium text-lg leading-6 tracking-tight text-neutral-500 text-center;
+    @apply text-center font-sans text-lg font-medium leading-6 tracking-tight text-neutral-500;
     margin-bottom: 0.5rem;
   }
 
@@ -149,7 +149,7 @@ const formattedAddress = computed(() => {
         }
       }
       .address-copy-button {
-        @apply w-6 h-6 text-neutral-500 hover:text-neutral-700;
+        @apply h-6 w-6 text-neutral-500 hover:text-neutral-700;
       }
     }
   }
@@ -160,33 +160,33 @@ const formattedAddress = computed(() => {
 }
 
 .network-mismatch-banner-ui {
-  @apply w-full flex flex-col items-center justify-center text-center rounded-2xl px-6 py-5 mb-0 mt-10;
+  @apply mb-0 mt-10 flex w-full flex-col items-center justify-center rounded-2xl px-6 py-5 text-center;
   background: #ffc81a;
 }
 
 .disconnect-ui-btn {
-  @apply flex justify-center items-center w-full mt-4 bg-neutral-200 text-black text-lg rounded-xl py-3;
+  @apply mt-4 flex w-full items-center justify-center rounded-xl bg-neutral-200 py-3 text-lg text-black;
 }
 
 .wallet-switcher {
-  @apply w-full mt-6 mb-2;
+  @apply mb-2 mt-6 w-full;
 
   .wallet-switcher-title {
-    @apply font-sans font-medium text-sm leading-5 text-neutral-500 mb-3;
+    @apply mb-3 font-sans text-sm font-medium leading-5 text-neutral-500;
   }
 
   .wallet-list {
     @apply flex flex-col gap-2;
 
     .wallet-item {
-      @apply flex items-center justify-between px-4 py-3 bg-neutral-50 rounded-lg border border-neutral-200 hover:bg-neutral-100 transition-colors;
+      @apply flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 transition-colors hover:bg-neutral-100;
 
       &.wallet-item-active {
-        @apply bg-blue-50 border-blue-300;
+        @apply border-blue-300 bg-blue-50;
       }
 
       &.wallet-item-disabled {
-        @apply opacity-50 cursor-not-allowed;
+        @apply cursor-not-allowed opacity-50;
       }
 
       &:disabled:not(.wallet-item-active) {
@@ -198,7 +198,7 @@ const formattedAddress = computed(() => {
       }
 
       .active-badge {
-        @apply text-xs font-medium text-blue-600 bg-blue-100 px-2 py-1 rounded;
+        @apply rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-600;
       }
     }
   }

@@ -146,7 +146,7 @@ const shortenedAddress = computed(() => {
 
 <style scoped lang="scss">
 .wallet-button {
-  @apply relative flex min-w-[150px] min-h-[42px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
+  @apply relative flex min-h-[42px] min-w-[150px] items-center justify-center rounded-md border border-[#27274E] bg-[#27274E] p-2 text-white;
   &:not(.disabled) {
     @apply hover:cursor-pointer;
     &:hover {
@@ -163,13 +163,13 @@ const shortenedAddress = computed(() => {
     }
   }
   .address-text {
-    @apply flex font-sans font-medium text-sm leading-5 cursor-pointer items-center justify-center w-full;
+    @apply flex w-full cursor-pointer items-center justify-center font-sans text-sm font-medium leading-5;
   }
   .clickable-icon-area {
-    @apply absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-md hover:bg-primary-700 cursor-pointer;
+    @apply absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md hover:bg-primary-700;
   }
   .login-button {
-    @apply font-sans font-medium text-sm leading-5 text-white;
+    @apply font-sans text-sm font-medium leading-5 text-white;
     &:disabled {
       @apply cursor-not-allowed;
     }

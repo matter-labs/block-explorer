@@ -67,8 +67,8 @@ describe("Token API (e2e)", () => {
   });
 
   afterAll(async () => {
-    await tokenRepository.delete({});
-    await blockRepository.delete({});
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
     await app.close();
   });
 

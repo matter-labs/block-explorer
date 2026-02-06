@@ -225,10 +225,10 @@ describe("TokenController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await transferRepository.delete({});
-    await tokenRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
+    await transferRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });

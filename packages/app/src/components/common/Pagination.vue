@@ -180,9 +180,9 @@ const nextButtonQuery = computed(() => ({
 
 <style lang="scss">
 .pagination-container {
-  @apply flex flex-col-reverse items-center justify-center relative sm:flex-row;
+  @apply relative flex flex-col-reverse items-center justify-center sm:flex-row;
   .page-numbers-container {
-    @apply flex space-x-1 transition-opacity justify-center p-3;
+    @apply flex justify-center space-x-1 p-3 transition-opacity;
     &.disabled {
       @apply pointer-events-none opacity-50;
     }
@@ -211,14 +211,14 @@ const nextButtonQuery = computed(() => ({
     }
   }
   .page-size-container {
-    @apply relative left-0 flex items-center justify-center pb-2 sm:absolute sm:pb-0 sm:left-6;
+    @apply relative left-0 flex items-center justify-center pb-2 sm:absolute sm:left-6 sm:pb-0;
     .page-size-text {
-      @apply text-gray-500 pl-2;
+      @apply pl-2 text-gray-500;
     }
     .page-size-dropdown {
       @apply w-16;
       .toggle-button {
-        @apply py-0 px-2 leading-8 h-8;
+        @apply h-8 px-2 py-0 leading-8;
       }
     }
   }

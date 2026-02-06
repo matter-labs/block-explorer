@@ -204,13 +204,13 @@ describe("TransactionController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await logRepository.delete({});
-    await transferRepository.delete({});
-    await tokenRepository.delete({});
-    await addressTransactionRepository.delete({});
-    await transactionRepository.delete({});
-    await transactionReceiptRepository.delete({});
-    await blockRepository.delete({});
+    await logRepository.createQueryBuilder().delete().execute();
+    await transferRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });

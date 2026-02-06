@@ -86,9 +86,9 @@ describe("Prividium API (e2e)", () => {
 
   afterAll(async () => {
     // Clean up test data
-    await addressTransactionRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
+    await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });

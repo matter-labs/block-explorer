@@ -174,15 +174,15 @@ describe("Account API (e2e)", () => {
   });
 
   afterAll(async () => {
-    await addressTransferRepository.delete({});
-    await transferRepository.delete({});
-    await addressTransactionRepository.delete({});
-    await transactionReceiptRepository.delete({});
-    await transactionRepository.delete({});
-    await transactionRepository.delete({});
-    await balanceRepository.delete({});
-    await tokenRepository.delete({});
-    await blockRepository.delete({});
+    await addressTransferRepository.createQueryBuilder().delete().execute();
+    await transferRepository.createQueryBuilder().delete().execute();
+    await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await balanceRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
     await app.close();
   });
 

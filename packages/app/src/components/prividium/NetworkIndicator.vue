@@ -36,7 +36,7 @@ const { isConnectedWrongNetwork } = useWallet({
 
 <style scoped lang="scss">
 .network-status {
-  @apply flex items-center justify-center gap-1 px-4 py-0.5 rounded-md border border-neutral-300 bg-white font-sans text-sm text-neutral-700;
+  @apply flex items-center justify-center gap-1 rounded-md border border-neutral-300 bg-white px-4 py-0.5 font-sans text-sm text-neutral-700;
   min-width: 120px;
   white-space: nowrap;
   height: 42px;
