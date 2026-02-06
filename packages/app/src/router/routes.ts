@@ -103,6 +103,7 @@ export default [
     component: () => import("@/views/ContractVerificationView.vue"),
     meta: {
       title: "contractVerification.title",
+      requiresAdmin: true,
     },
   },
   {

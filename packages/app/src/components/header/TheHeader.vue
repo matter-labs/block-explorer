@@ -31,7 +31,7 @@
           </a>
         </PopoverGroup>
         <div class="header-right-side">
-          <WalletButton v-if="runtimeConfig.appEnvironment === 'prividium'" />
+          <WalletButton v-if="isPrividium" />
           <NetworkSwitch v-else />
           <LocaleSwitch
             :value="(locale as string)"
@@ -43,7 +43,7 @@
               }))
             "
           />
-          <div class="socials-container">
+          <div v-if="!isPrividium" class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
             </a>
@@ -109,7 +109,7 @@
               </nav>
             </div>
             <div class="mobile-network-switch-container">
-              <WalletButton v-if="runtimeConfig.appEnvironment === 'prividium'" />
+              <WalletButton v-if="isPrividium" />
               <NetworkSwitch v-else />
               <LocaleSwitch
                 :value="(locale as string)"
@@ -122,7 +122,7 @@
                 "
               />
             </div>
-            <div class="mobile-socials-container">
+            <div v-if="!isPrividium" class="mobile-socials-container">
               <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
                 <component :is="social.component" />
               </a>
@@ -163,8 +163,13 @@ import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators"
 const { changeLanguage } = useLocalization();
 const { t, locale } = useI18n({ useScope: "global" });
 const route = useRoute();
-const { currentNetwork } = useContext();
+const { currentNetwork, user } = useContext();
 const runtimeConfig = useRuntimeConfig();
+
+const isPrividium = runtimeConfig.appEnvironment === "prividium";
+const isAdmin = computed(() => user.value.loggedIn && user.value.roles.includes("admin"));
+const showAdminLinks = computed(() => !isPrividium || isAdmin.value);
+
 const navigation = reactive([
   {
     label: computed(() => t("header.nav.documentation")),
@@ -187,25 +192,29 @@ const blockExplorerLinks = reactive([
   },
 ]);
 
-const links = [
-  {
-    label: computed(() => t("header.nav.apiDocs")),
-    url: computed(() => `${currentNetwork.value.apiUrl}/docs`),
-  },
-  {
-    label: computed(() => t("header.nav.contractVerification")),
-    to: { name: "contract-verification" },
-  },
-];
+const toolsLinks = computed(() => {
+  const links = [];
 
-if (currentNetwork.value.bridgeUrl) {
-  links.push({
-    label: computed(() => t("header.nav.bridge")),
-    url: computed(() => currentNetwork.value.bridgeUrl!),
-  });
-}
+  if (showAdminLinks.value) {
+    links.push({
+      label: t("header.nav.apiDocs"),
+      url: `${currentNetwork.value.apiUrl}/docs`,
+    });
+    links.push({
+      label: t("header.nav.contractVerification"),
+      to: { name: "contract-verification" },
+    });
+  }
 
-const toolsLinks = reactive(links);
+  if (currentNetwork.value.bridgeUrl) {
+    links.push({
+      label: t("header.nav.bridge"),
+      url: currentNetwork.value.bridgeUrl!,
+    });
+  }
+
+  return links;
+});
 
 const socials = [
   { url: runtimeConfig.links.discordUrl, component: DiscordIcon },

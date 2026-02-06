@@ -29,6 +29,7 @@ const router = {
   currentRoute: {
     value: {},
   },
+  beforeEach: vi.fn(),
 };
 
 vi.mock("@/composables/useSearch", () => {
@@ -47,7 +48,7 @@ vi.mock("vue-router", () => ({
     },
   }),
   createWebHistory: () => vi.fn(),
-  createRouter: () => vi.fn(),
+  createRouter: () => ({ beforeEach: vi.fn() }),
 }));
 
 vi.mock("ohmyfetch", () => {

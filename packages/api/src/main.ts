@@ -8,7 +8,7 @@ import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
 import { prividium } from "./config/featureFlags";
-import { applyPrividiumExpressConfig } from "./prividium";
+import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "./prividium";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -33,6 +33,20 @@ async function bootstrap() {
   const metricsApp = await NestFactory.create(AppMetricsModule);
   metricsApp.enableShutdownHooks();
 
+  if (prividium) {
+    // Prividium config includes strict CORS configuration
+    // Must be applied before Swagger setup so session is available for auth check
+    applyPrividiumExpressConfig(app, {
+      sessionSecret: configService.get<string>("prividium.sessionSecret"),
+      appUrl: configService.get<string>("prividium.appUrl"),
+      sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
+      sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
+    });
+    applySwaggerAuthMiddleware(app, configService);
+  } else {
+    app.enableCors();
+  }
+
   if (configService.get<boolean>("featureFlags.swagger.enabled")) {
     const swaggerConfig = new DocumentBuilder()
       .setTitle("Block explorer API")
@@ -41,18 +55,6 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup("docs", app, document);
-  }
-
-  if (prividium) {
-    // Prividium config includes strict CORS configuration
-    applyPrividiumExpressConfig(app, {
-      sessionSecret: configService.get<string>("prividium.sessionSecret"),
-      appUrl: configService.get<string>("prividium.appUrl"),
-      sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
-      sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
-    });
-  } else {
-    app.enableCors();
   }
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
