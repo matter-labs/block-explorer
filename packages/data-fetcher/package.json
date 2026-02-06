@@ -32,6 +32,7 @@
     "@nestjs/terminus": "^10.0.0",
     "@willsoto/nestjs-prometheus": "^5.5.1",
     "axios": "^1.12.0",
+    "dotenv": "^17.2.4",
     "ethers": "^6.15.0",
     "nest-winston": "^1.7.0",
     "prom-client": "^14.1.0",
