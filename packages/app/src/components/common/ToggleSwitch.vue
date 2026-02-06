@@ -59,11 +59,11 @@ const toggle = () => {
   }
 
   .toggle-switch {
-    @apply flex items-center w-10 h-5 border border-neutral-300 bg-neutral-50 rounded-full relative cursor-pointer transition-colors duration-300 ease-in-out;
+    @apply relative flex h-5 w-10 cursor-pointer items-center rounded-full border border-neutral-300 bg-neutral-50 transition-colors duration-300 ease-in-out;
   }
 
   .toggle-handle {
-    @apply bg-primary-600 border-2 border-neutral-50 rounded-full absolute w-4 h-4 transition-transform duration-300;
+    @apply absolute h-4 w-4 rounded-full border-2 border-neutral-50 bg-primary-600 transition-transform duration-300;
   }
 
   .toggle-switch.checked .toggle-handle {

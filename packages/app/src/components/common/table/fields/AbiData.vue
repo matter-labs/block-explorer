@@ -47,7 +47,7 @@ const truncatedAbi = computed<string>(() => {
 <style lang="scss">
 .info-field-abi-data {
   .abi-data-disclosure-btn {
-    @apply flex w-full items-center justify-between bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none [word-break:break-word];
+    @apply flex w-full items-center justify-between bg-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900 [word-break:break-word] hover:bg-gray-200 focus:outline-none;
   }
   .abi-data-disclosure-icons {
     @apply flex items-center;

@@ -7,12 +7,12 @@ declare interface ParseLimitedIntPipeOptions extends ParseIntPipeOptions {
 }
 
 export class ParseLimitedIntPipe extends ParseIntPipe {
-  constructor(private readonly options?: ParseLimitedIntPipeOptions) {
+  constructor(protected readonly options?: ParseLimitedIntPipeOptions) {
     super(options);
   }
 
   public override async transform(value: string | number, metadata?: ArgumentMetadata): Promise<number> {
-    if (!value && value !== 0 && this.options.isOptional) {
+    if (!value && value !== 0 && this.options?.isOptional) {
       return undefined;
     }
     const parsedInt = await super.transform(value as string, metadata);

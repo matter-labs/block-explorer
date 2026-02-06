@@ -34,7 +34,7 @@ describe("Contract API (e2e)", () => {
   });
 
   afterAll(async () => {
-    await addressRepository.delete({});
+    await addressRepository.createQueryBuilder().delete().execute();
     await app.close();
   });
 

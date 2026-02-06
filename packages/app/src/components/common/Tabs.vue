@@ -101,7 +101,7 @@ watchEffect(() => {
     @apply flex border-b md:flex-row;
   }
   .tab-btn {
-    @apply px-4 py-3.5 text-sm text-gray-400 outline-0 sm:text-base flex;
+    @apply flex px-4 py-3.5 text-sm text-gray-400 outline-0 sm:text-base;
   }
   .tab-content {
     @apply rounded-b-lg;

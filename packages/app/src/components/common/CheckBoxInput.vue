@@ -1,6 +1,6 @@
 <template>
   <label class="checkbox-input-container" :class="{ checked: inputted, disabled }">
-    <input type="checkbox" :checked="inputted" v-model="inputted" v-bind="$attrs" :disabled="disabled" />
+    <input type="checkbox" v-model="inputted" v-bind="$attrs" :disabled="disabled" />
     <slot />
   </label>
 </template>
@@ -37,18 +37,18 @@ const inputted = computed({
 
 <style lang="scss" scoped>
 .checkbox-input-container {
-  @apply flex items-center mb-1 cursor-pointer float-right leading-snug;
+  @apply float-right mb-1 flex cursor-pointer items-center leading-snug;
 
   &.disabled {
-    @apply opacity-50 cursor-default;
+    @apply cursor-default opacity-50;
 
     input {
-      @apply hover:border-neutral-200 cursor-default;
+      @apply cursor-default hover:border-neutral-200;
     }
   }
 
   input {
-    @apply rounded me-1 text-primary-600 cursor-pointer border-neutral-200 checked:border-primary-600 disabled:opacity-50 hover:border-primary-600 ring-transparent;
+    @apply me-1 cursor-pointer rounded border-neutral-200 text-primary-600 ring-transparent checked:border-primary-600 hover:border-primary-600 disabled:opacity-50;
   }
 }
 </style>

@@ -46,7 +46,7 @@ const { t } = useI18n();
 </script>
 <style lang="scss">
 .title-container {
-  @apply flex flex-wrap break-all text-3xl sm:text-4xl items-end;
+  @apply flex flex-wrap items-end break-all text-3xl sm:text-4xl;
   .title-block {
     @apply flex gap-4 self-center font-bold;
     .title-copy-button {
@@ -59,7 +59,7 @@ const { t } = useI18n();
     }
   }
   .badge-container {
-    @apply flex flex-wrap break-all items-end gap-0 mb-1 ml-2;
+    @apply mb-1 ml-2 flex flex-wrap items-end gap-0 break-all;
   }
 }
 </style>

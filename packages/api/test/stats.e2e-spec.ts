@@ -76,8 +76,8 @@ describe("StatsController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });

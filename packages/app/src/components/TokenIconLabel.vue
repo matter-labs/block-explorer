@@ -157,7 +157,7 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
       @apply text-xs text-neutral-400;
     }
     .token-badge {
-      @apply flex items-center justify-end md:justify-start gap-x-1;
+      @apply flex items-center justify-end gap-x-1 md:justify-start;
     }
   }
 }
