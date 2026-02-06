@@ -33,9 +33,9 @@ export default (): RuntimeConfig => {
         runtimeConfig?.branding?.ogImageUrl ||
         import.meta.env?.VITE_OG_IMAGE_URL ||
         "https://explorer.zksync.io/preview.png",
-      faviconUrl: runtimeConfig?.branding?.faviconUrl || import.meta.env?.VITE_FAVICON_IMAGE_URL || "/favicon.ico",
+      faviconUrl: runtimeConfig?.branding?.faviconUrl || import.meta.env?.VITE_FAVICON_IMAGE_URL || "/favicon.svg",
       altFaviconUrl:
-        runtimeConfig?.branding?.altFaviconUrl || import.meta.env?.VITE_ALT_FAVICON_IMAGE_URL || "/favicon.svg",
+        runtimeConfig?.branding?.altFaviconUrl || import.meta.env?.VITE_ALT_FAVICON_IMAGE_URL || "/favicon.png",
     },
     links: {
       discordUrl: runtimeConfig?.links?.discordUrl || import.meta.env?.VITE_DISCORD_URL || "https://join.zksync.dev",

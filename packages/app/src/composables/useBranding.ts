@@ -1,5 +1,6 @@
-import { useFavicon } from "@vueuse/core";
+import { useTitle } from "@vueuse/core";
 
+import useRouteTitle from "@/composables/useRouteTitle";
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 function updateMetaTag(selector: string, attribute: string, value: string): void {
@@ -10,28 +11,21 @@ function updateMetaTag(selector: string, attribute: string, value: string): void
 }
 
 export default () => {
+  const { title } = useRouteTitle();
   const { brandName, branding } = useRuntimeConfig();
 
-  const applyBranding = () => {
-    const title = `${brandName} Block Explorer`;
-    const description = `${brandName} Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ${brandName} and explore the network.`;
+  useTitle(title);
 
-    document.title = title;
+  const description = `${brandName} Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into ${brandName} and explore the network.`;
 
-    updateMetaTag('meta[name="description"]', "content", description);
-    updateMetaTag('meta[property="og:title"]', "content", title);
-    updateMetaTag('meta[property="og:description"]', "content", description);
-    updateMetaTag('meta[property="og:image"]', "content", branding.ogImageUrl);
-    updateMetaTag('meta[property="og:image:alt"]', "content", title);
+  updateMetaTag('meta[name="description"]', "content", description);
+  if (title.value) {
+    updateMetaTag('meta[property="og:title"]', "content", title.value);
+    updateMetaTag('meta[property="og:image:alt"]', "content", title.value);
+  }
+  updateMetaTag('meta[property="og:description"]', "content", description);
+  updateMetaTag('meta[property="og:image"]', "content", branding.ogImageUrl);
 
-    updateMetaTag('link[rel="alternate icon"]', "href", branding.faviconUrl);
-
-    useFavicon(branding.altFaviconUrl);
-  };
-
-  return {
-    applyBranding,
-    brandName,
-    branding,
-  };
+  updateMetaTag('link[rel="icon"][type="image/svg+xml"]', "href", branding.faviconUrl);
+  updateMetaTag('link[rel="icon"][type="image/png"]', "href", branding.altFaviconUrl);
 };

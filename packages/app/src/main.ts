@@ -41,9 +41,6 @@ const runtimeConfig = useRuntimeConfig();
 
 setColorScheme(runtimeConfig.theme?.colors);
 
-const { applyBranding } = useBranding();
-applyBranding();
-
 const context = useContext();
 
 const { initialize: initializeWallet } = useWallet({
