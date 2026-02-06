@@ -5,7 +5,6 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";
 
 import App from "./App.vue";
-import useBranding from "./composables/useBranding";
 import useContext from "./composables/useContext";
 import { loadEnvironmentConfig } from "./composables/useEnvironmentConfig";
 import { default as useWallet } from "./composables/useWallet";
