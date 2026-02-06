@@ -4,7 +4,7 @@
       "apiUrl": "http://localhost:3020",
       "bridgeUrl": "http://localhost:3001/bridge",
       "hostnames": ["localhost"],
-      "icon": "/images/icons/zksync-arrows.svg",
+      "icon": "/images/prividium_logo.svg",
       "logoUrl": "/images/prividium_logo.svg",
       "logoInverseUrl": "/images/prividium_logo.svg",
       "l2ChainId": 6565,

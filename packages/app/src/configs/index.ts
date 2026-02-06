@@ -60,6 +60,11 @@ export type RuntimeConfig = {
   sentryDSN: string;
   brandName: string;
   appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
+  branding: {
+    ogImageUrl: string;
+    faviconUrl: string;
+    altFaviconUrl: string;
+  };
   links: {
     discordUrl: string;
     xUrl: string;

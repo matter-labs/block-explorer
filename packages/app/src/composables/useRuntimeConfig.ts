@@ -28,6 +28,15 @@ export default (): RuntimeConfig => {
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
     brandName: runtimeConfig?.brandName || import.meta.env?.VITE_BRAND_NAME || "ZKsync",
     appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default",
+    branding: {
+      ogImageUrl:
+        runtimeConfig?.branding?.ogImageUrl ||
+        import.meta.env?.VITE_OG_IMAGE_URL ||
+        "https://explorer.zksync.io/preview.png",
+      faviconUrl: runtimeConfig?.branding?.faviconUrl || import.meta.env?.VITE_FAVICON_IMAGE_URL || "/favicon.ico",
+      altFaviconUrl:
+        runtimeConfig?.branding?.altFaviconUrl || import.meta.env?.VITE_ALT_FAVICON_IMAGE_URL || "/favicon.svg",
+    },
     links: {
       discordUrl: runtimeConfig?.links?.discordUrl || import.meta.env?.VITE_DISCORD_URL || "https://join.zksync.dev",
       xUrl: runtimeConfig?.links?.xUrl || import.meta.env?.VITE_X_URL || "https://x.com/zksync",
