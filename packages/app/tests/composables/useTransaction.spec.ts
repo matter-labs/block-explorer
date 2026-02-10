@@ -220,21 +220,21 @@ vi.mock("ohmyfetch", async () => {
         },
       });
     }
-    if (url.includes("/logs?limit=100&page=1")) {
+    if (url.includes("/logs?page=1&limit=1")) {
       return Promise.resolve({
-        items: logs,
+        items: logs.slice(0, 1),
         meta: {
           totalItems: 4,
-          itemCount: 4,
-          itemsPerPage: 100,
-          totalPages: 1,
+          itemCount: 1,
+          itemsPerPage: 1,
+          totalPages: 4,
           currentPage: 1,
         },
         links: {
-          first: `transactions/${hash}/logs?limit=100`,
+          first: `transactions/${hash}/logs?limit=1`,
           previous: "",
           next: "",
-          last: `transactions/${hash}/logs?page=1&limit=100`,
+          last: `transactions/${hash}/logs?page=4&limit=1`,
         },
       });
     }
@@ -454,60 +454,7 @@ describe("useTransaction:", () => {
         status: "verified",
         error: null,
         revertReason: null,
-        logs: [
-          {
-            address: "0x000000000000000000000000000000000000800A",
-            blockNumber: 1162235,
-            data: "0x000000000000000000000000000000000000000000000000000314f4b9af9680",
-            logIndex: "3",
-            topics: [
-              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-              "0x0000000000000000000000000000000000000000000000000000000000008001",
-              "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-            ],
-            transactionHash: hash,
-            transactionIndex: "0",
-          },
-          {
-            address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-            blockNumber: 1162235,
-            data: "0x000000000000000000000000000000000000000000000000000000000000000c",
-            logIndex: "2",
-            topics: [
-              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-              "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-              "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-            ],
-            transactionHash: hash,
-            transactionIndex: "0",
-          },
-          {
-            address: "0x000000000000000000000000000000000000800A",
-            blockNumber: 1162235,
-            data: "0x00000000000000000000000000000000000000000000000000006a1b51d01246",
-            logIndex: "1",
-            topics: [
-              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-              "0x0000000000000000000000000000000000000000000000000000000000008001",
-              "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-            ],
-            transactionHash: hash,
-            transactionIndex: "0",
-          },
-          {
-            address: "0x000000000000000000000000000000000000800A",
-            blockNumber: 1162235,
-            data: "0x00000000000000000000000000000000000000000000000000058c0e5521a346",
-            logIndex: "0",
-            topics: [
-              "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-              "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-              "0x0000000000000000000000000000000000000000000000000000000000008001",
-            ],
-            transactionHash: hash,
-            transactionIndex: "0",
-          },
-        ],
+        logCount: 4,
         transfers: [
           {
             amount: "1",
@@ -664,60 +611,7 @@ describe("useTransaction:", () => {
           nonce: 24,
           receivedAt: blockTimestampISO,
           status: "indexing",
-          logs: [
-            {
-              address: "0x000000000000000000000000000000000000800A",
-              blockNumber: 1162235,
-              data: "0x000000000000000000000000000000000000000000000000000314f4b9af9680",
-              logIndex: "3",
-              topics: [
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "0x0000000000000000000000000000000000000000000000000000000000008001",
-                "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-              ],
-              transactionHash: hash,
-              transactionIndex: "0",
-            },
-            {
-              address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47C",
-              blockNumber: 1162235,
-              data: "0x000000000000000000000000000000000000000000000000000000000000000c",
-              logIndex: "2",
-              topics: [
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-                "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-              ],
-              transactionHash: hash,
-              transactionIndex: "0",
-            },
-            {
-              address: "0x000000000000000000000000000000000000800A",
-              blockNumber: 1162235,
-              data: "0x00000000000000000000000000000000000000000000000000006a1b51d01246",
-              logIndex: "1",
-              topics: [
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "0x0000000000000000000000000000000000000000000000000000000000008001",
-                "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-              ],
-              transactionHash: hash,
-              transactionIndex: "0",
-            },
-            {
-              address: "0x000000000000000000000000000000000000800A",
-              blockNumber: 1162235,
-              data: "0x00000000000000000000000000000000000000000000000000058c0e5521a346",
-              logIndex: "0",
-              topics: [
-                "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-                "0x00000000000000000000000008d211e22db19741ff25838a22e4e696fee7ed36",
-                "0x0000000000000000000000000000000000000000000000000000000000008001",
-              ],
-              transactionHash: hash,
-              transactionIndex: "0",
-            },
-          ],
+          logCount: 4,
           transfers: [],
           gasPrice: "4000",
           gasLimit: "5000",

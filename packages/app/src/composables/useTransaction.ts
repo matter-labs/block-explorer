@@ -6,7 +6,6 @@ import useContext from "./useContext";
 import { FetchInstance } from "./useFetchInstance";
 
 import type { Context } from "./useContext";
-import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
 
 import { numberToHexString } from "@/utils/formatters";
@@ -72,7 +71,7 @@ export type TransactionItem = {
   status: TransactionStatus;
   error?: string | null;
   revertReason?: string | null;
-  logs: TransactionLogEntry[];
+  logCount: number;
   transfers: TokenTransfer[];
   // If transaction is EVM-like (destination address is not present)
   isEvmLike: boolean;
@@ -133,15 +132,7 @@ export default (context = useContext()) => {
         receivedAt: blockTimestamp,
         status: "indexing" as TransactionStatus,
 
-        logs: transactionReceipt.logs.map((item) => ({
-          address: item.address,
-          blockNumber: item.blockNumber,
-          data: item.data,
-          logIndex: item.index.toString(16),
-          topics: item.topics as string[],
-          transactionHash: item.transactionHash,
-          transactionIndex: item.transactionIndex.toString(16),
-        })),
+        logCount: transactionReceipt.logs.length,
         transfers: [],
 
         gasPrice: transactionData.gasPrice!.toString(),
@@ -164,12 +155,14 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const [txResponse, txTransfers, txLogs] = await Promise.all([
+      const [txResponse, txTransfers, txLogCount] = await Promise.all([
         FetchInstance.api(context)<Api.Response.Transaction>(`/transactions/${hash}`),
         all<Api.Response.Transfer>(context, `/transactions/${hash}/transfers`, new URLSearchParams({ limit: "100" })),
-        all<Api.Response.Log>(context, `/transactions/${hash}/logs`, new URLSearchParams({ limit: "100" })),
+        FetchInstance.api(context)<Api.Response.Collection<Api.Response.Log>>(
+          `/transactions/${hash}/logs?page=1&limit=1`
+        ),
       ]);
-      transaction.value = mapTransaction(txResponse, txTransfers, txLogs);
+      transaction.value = mapTransaction(txResponse, txTransfers, txLogCount.meta.totalItems);
     } catch (error) {
       if (error instanceof FetchError && error.response?.status === 404) {
         transaction.value = await getFromBlockchainByHash(hash);
@@ -195,7 +188,7 @@ export default (context = useContext()) => {
 export function mapTransaction(
   transaction: Api.Response.Transaction,
   transfers: Api.Response.Transfer[],
-  logs: Api.Response.Log[]
+  logCount: number
 ): TransactionItem {
   const fees = mapTransfers(filterFees(transfers));
   const refunds = mapTransfers(filterRefunds(transfers));
@@ -233,15 +226,7 @@ export function mapTransaction(
     error: transaction.error,
     revertReason: transaction.revertReason,
 
-    logs: logs.map((item) => ({
-      address: item.address,
-      blockNumber: item.blockNumber,
-      data: item.data,
-      logIndex: item.logIndex.toString(16),
-      topics: item.topics,
-      transactionHash: item.transactionHash!,
-      transactionIndex: item.transactionIndex.toString(16),
-    })),
+    logCount,
 
     transfers: mapTransfers(filterTransfers(transfers)),
 
