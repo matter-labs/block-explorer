@@ -48,7 +48,7 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
-vi.mock("@/composables/useTransactionEventLogs", () => ({
+vi.mock("@/composables/useTransactionEvents", () => ({
   default: () => ({
     collection: ref([]),
     total: ref(0),

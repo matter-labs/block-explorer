@@ -2,17 +2,14 @@ import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
 
-import useEventLog, { type TransactionLogEntry } from "@/composables/useEventLog";
-
-import ERC20VerificationInfo from "@/../mock/contracts/ERC20VerificationInfo.json";
-
-import type { Address } from "@/types";
+import useTransactionEvents from "@/composables/useEventLog";
 
 vi.mock("ohmyfetch", () => {
   const fetchSpy = vi.fn(() =>
     Promise.resolve({
-      status: "1",
-      result: ERC20VerificationInfo.ABI,
+      items: [],
+      meta: { totalItems: 0, currentPage: 1, itemCount: 0, itemsPerPage: 10, totalPages: 0 },
+      links: { first: "", last: "", next: "", previous: "" },
     })
   );
   (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
@@ -24,58 +21,85 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
-const eventLogs = [
-  {
-    address: "0x4732c03b2cf6ede46500e799de79a15df44929eb",
-    data: "0x000000000000000000000000000000000000000000000000000002279f530c00",
-    event: undefined,
-    topics: [
-      "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-      "0x000000000000000000000000cfa3dd0cba60484d1c8d0cdd22c5432013368875",
-      "0x000000000000000000000000de03a0b5963f75f1c8485b355ff6d30f3093bde7",
-    ],
-  },
-] as unknown as TransactionLogEntry[];
+const logItem = {
+  address: "0x4732c03b2cf6ede46500e799de79a15df44929eb",
+  data: "0x000000000000000000000000000000000000000000000000000002279f530c00",
+  topics: [
+    "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+    "0x000000000000000000000000cfa3dd0cba60484d1c8d0cdd22c5432013368875",
+    "0x000000000000000000000000de03a0b5963f75f1c8485b355ff6d30f3093bde7",
+  ],
+  blockNumber: 100,
+  transactionHash: "0xabc123",
+  transactionIndex: 0,
+  logIndex: 1,
+};
 
-describe("useEventLog:", () => {
-  it("creates useEventLog composable", () => {
-    const result = useEventLog();
-    expect(result.collection).toBeDefined();
-    expect(result.isDecodePending).toBeDefined();
-    expect(result.isDecodeFailed).toBeDefined();
-    expect(result.decodeEventLog).toBeDefined();
+describe("useTransactionEvents:", () => {
+  it("creates composable with correct initial values", () => {
+    const result = useTransactionEvents();
+    expect(result.collection.value).toEqual([]);
+    expect(result.total.value).toBe(0);
+    expect(result.isRequestPending.value).toBe(false);
+    expect(result.isRequestFailed.value).toBe(false);
+    expect(result.isDecodePending.value).toBe(false);
+    expect(result.getCollection).toBeDefined();
   });
-  it("sets isDecodePending to true when decode event log is pending", async () => {
-    const { isDecodePending, decodeEventLog } = useEventLog();
-    const promise = decodeEventLog(eventLogs);
-    expect(isDecodePending.value).toEqual(true);
+
+  it("fetches logs and sets total from API response", async () => {
+    const mock = ($fetch as unknown as SpyInstance).mockResolvedValueOnce({
+      items: [logItem],
+      meta: { totalItems: 42, currentPage: 1, itemCount: 1, itemsPerPage: 10, totalPages: 5 },
+      links: { first: "", last: "", next: "", previous: "" },
+    });
+    // Mock the verification API call for ABI fetch
+    mock.mockResolvedValueOnce({ status: "0", result: "[]" });
+
+    const { collection, total, isRequestPending, getCollection } = useTransactionEvents();
+
+    const promise = getCollection("0xhash123", 1, 10);
+    expect(isRequestPending.value).toBe(true);
+
     await promise;
-  });
-  it("sets isDecodePending to false when decode event log is completed", async () => {
-    const { isDecodePending, decodeEventLog } = useEventLog();
-    await decodeEventLog(eventLogs);
-    expect(isDecodePending.value).toEqual(false);
-  });
-  it("returns raw logs in case account request failed", async () => {
-    const mock = ($fetch as unknown as SpyInstance).mockRejectedValue(new Error("An error occurred"));
-    const { collection, isDecodePending, isDecodeFailed, decodeEventLog } = useEventLog();
-    const logWithNewAddress = [
-      {
-        ...eventLogs[0],
-        address: "0x1232c03b2cf6ede46500e799de79a15df44929eb" as Address,
-      },
-    ];
-    await decodeEventLog(logWithNewAddress);
-    expect(isDecodePending.value).toEqual(false);
-    expect(isDecodeFailed.value).toEqual(true);
-    expect(collection.value).toEqual(logWithNewAddress);
+    expect(isRequestPending.value).toBe(false);
+    expect(total.value).toBe(42);
+    expect(collection.value.length).toBe(1);
+    expect(collection.value[0].address).toBeDefined();
     mock.mockRestore();
   });
-  it("decodes logs successfully", async () => {
-    const { collection, isDecodePending, isDecodeFailed, decodeEventLog } = useEventLog();
-    await decodeEventLog(eventLogs);
-    expect(isDecodePending.value).toEqual(false);
-    expect(isDecodeFailed.value).toEqual(false);
-    expect(collection.value).toEqual(eventLogs);
+
+  it("sets isRequestFailed on error", async () => {
+    const mock = ($fetch as unknown as SpyInstance).mockRejectedValueOnce(new Error("Network error"));
+
+    const { isRequestFailed, getCollection } = useTransactionEvents();
+    await getCollection("0xhash123", 1, 10);
+
+    expect(isRequestFailed.value).toBe(true);
+    mock.mockRestore();
+  });
+
+  it("resets collection on error", async () => {
+    const mock = ($fetch as unknown as SpyInstance).mockRejectedValueOnce(new Error("Network error"));
+
+    const { collection, total, getCollection } = useTransactionEvents();
+    await getCollection("0xhash123", 1, 10);
+
+    expect(collection.value).toEqual([]);
+    expect(total.value).toBe(0);
+    mock.mockRestore();
+  });
+
+  it("passes page and limit as search params", async () => {
+    const mock = ($fetch as unknown as SpyInstance).mockResolvedValueOnce({
+      items: [],
+      meta: { totalItems: 0, currentPage: 2, itemCount: 0, itemsPerPage: 50, totalPages: 0 },
+      links: { first: "", last: "", next: "", previous: "" },
+    });
+
+    const { getCollection } = useTransactionEvents();
+    await getCollection("0xhash123", 2, 50);
+
+    expect(mock).toHaveBeenCalledWith(expect.stringContaining("/transactions/0xhash123/logs?page=2&limit=50"));
+    mock.mockRestore();
   });
 });

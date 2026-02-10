@@ -50,7 +50,7 @@ const mockIsRequestPending = ref(false);
 const mockIsDecodePending = ref(false);
 const mockGetCollection = vi.fn();
 
-vi.mock("@/composables/useTransactionEventLogs", () => ({
+vi.mock("@/composables/useTransactionEvents", () => ({
   default: () => ({
     collection: mockCollection,
     total: mockTotal,

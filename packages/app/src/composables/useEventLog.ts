@@ -1,12 +1,16 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
+
+import { FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 import useContractABI from "./useContractABI";
+import { FetchInstance } from "./useFetchInstance";
 import { fetchEventNames } from "./useOpenChain";
 
 import type { Address, Hash } from "@/types";
 import type { BigNumberish } from "ethers";
 
+import { checksumAddress } from "@/utils/formatters";
 import { decodeLogWithABI } from "@/utils/helpers";
 import { parseEventSignature } from "@/utils/parseSignature";
 
@@ -38,19 +42,68 @@ export type TransactionLogEntry = {
 };
 
 export default (context = useContext()) => {
+  const collection = ref<TransactionLogEntry[]>([]);
+  const total = ref(0);
+  const isRequestPending = ref(false);
+  const isRequestFailed = ref(false);
+
   const {
     collection: ABICollection,
     isRequestPending: isABIRequestPending,
-    isRequestFailed: isABIRequestFailed,
     getCollection: getABICollection,
   } = useContractABI(context);
-  const collection = ref<TransactionLogEntry[]>([]);
 
-  const decodeEventLog = async (logs: TransactionLogEntry[]) => {
+  const isDecodePending = ref(false);
+
+  const getCollection = async (hash: string, page: number, pageSize: number) => {
+    isRequestPending.value = true;
+    isRequestFailed.value = false;
+
+    try {
+      const searchParams = new URLSearchParams();
+      searchParams.set("page", page.toString());
+      searchParams.set("limit", pageSize.toString());
+
+      const response = await FetchInstance.api(context)<Api.Response.Collection<Api.Response.Log>>(
+        `/transactions/${hash}/logs?${searchParams.toString()}`
+      );
+
+      total.value = response.meta.totalItems;
+
+      const logs: TransactionLogEntry[] = response.items.map((item) => ({
+        address: checksumAddress(item.address),
+        topics: item.topics,
+        data: item.data as Address,
+        blockNumber: BigInt(item.blockNumber),
+        transactionHash: item.transactionHash as Address,
+        transactionIndex: item.transactionIndex.toString(16) as Address,
+        logIndex: item.logIndex.toString(16) as Address,
+        event: undefined,
+      }));
+
+      // Decode logs
+      isDecodePending.value = true;
+      try {
+        collection.value = await decodeLogs(logs);
+      } finally {
+        isDecodePending.value = false;
+      }
+    } catch (error: unknown) {
+      if (!(error instanceof FetchError) || error.response?.status !== 404) {
+        isRequestFailed.value = true;
+      }
+      collection.value = [];
+      total.value = 0;
+    } finally {
+      isRequestPending.value = false;
+    }
+  };
+
+  const decodeLogs = async (logs: TransactionLogEntry[]): Promise<TransactionLogEntry[]> => {
     const uniqueAddresses = Array.from(new Set(logs.map((log) => log.address)));
     await getABICollection(uniqueAddresses);
 
-    // decode with ABI (verified contracts) first
+    // Decode with ABI (verified contracts) first
     const logsWithDecoding = logs.map((log) => {
       try {
         const abi = ABICollection.value[log.address];
@@ -63,22 +116,17 @@ export default (context = useContext()) => {
       }
     });
 
-    // For logs that couldn't be decoded with ABI (unverified contracts), try OpenChain
+    // For logs that couldn't be decoded with ABI, try OpenChain
     const logsWithoutEvents = logsWithDecoding.filter((log) => !log.event && log.topics.length > 0);
 
     if (logsWithoutEvents.length > 0) {
       const topicHashes = Array.from(new Set(logsWithoutEvents.map((log) => log.topics[0])));
       const signatureMap = await fetchEventNames(topicHashes);
 
-      collection.value = logsWithDecoding.map((log) => {
-        if (log.event) {
-          return log;
-        }
-        if (!log.topics || log.topics.length === 0) {
-          return log;
-        }
+      return logsWithDecoding.map((log) => {
+        if (log.event) return log;
+        if (!log.topics || log.topics.length === 0) return log;
 
-        // Try to get signature from OpenChain
         const signature = signatureMap[log.topics[0]];
         if (signature) {
           const parsedSig = parseEventSignature(signature);
@@ -98,18 +146,19 @@ export default (context = useContext()) => {
             };
           }
         }
-
         return log;
       });
-    } else {
-      collection.value = logsWithDecoding;
     }
+
+    return logsWithDecoding;
   };
 
   return {
     collection,
-    isDecodePending: computed(() => isABIRequestPending.value),
-    isDecodeFailed: computed(() => isABIRequestFailed.value),
-    decodeEventLog,
+    total,
+    isRequestPending,
+    isRequestFailed,
+    isDecodePending,
+    getCollection,
   };
 };
