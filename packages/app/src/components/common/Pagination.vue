@@ -82,10 +82,10 @@ const computedPageSize = computed({
     const parsedValue = parseInt(newValue, 10);
     if (parsedValue !== currentPageSize.value) {
       currentPageSize.value = parsedValue;
+      currentPage.value = 1;
 
       router.push({
         query: {
-          page: currentPage.value,
           pageSize: parsedValue,
         },
         hash: currentHash.value,
