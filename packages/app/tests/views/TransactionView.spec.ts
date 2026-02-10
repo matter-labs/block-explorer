@@ -48,6 +48,17 @@ vi.mock("ohmyfetch", () => {
   };
 });
 
+vi.mock("@/composables/useTransactionEventLogs", () => ({
+  default: () => ({
+    collection: ref([]),
+    total: ref(0),
+    isRequestPending: ref(false),
+    isRequestFailed: ref(false),
+    isDecodePending: ref(false),
+    getCollection: vi.fn(),
+  }),
+}));
+
 describe("TransactionView:", () => {
   const i18n = createI18n({
     locale: "en",

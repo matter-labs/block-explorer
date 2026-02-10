@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { describe, expect, it, vi } from "vitest";
@@ -9,8 +10,6 @@ import Pagination from "@/components/common/Pagination.vue";
 import Logs from "@/components/transactions/infoTable/Logs.vue";
 
 import enUS from "@/locales/en.json";
-
-import type { TransactionLogEntry } from "@/composables/useEventLog";
 
 import $testId from "@/plugins/testId";
 
@@ -45,6 +44,23 @@ const log = {
   },
 };
 
+const mockCollection = ref([log]);
+const mockTotal = ref(1);
+const mockIsRequestPending = ref(false);
+const mockIsDecodePending = ref(false);
+const mockGetCollection = vi.fn();
+
+vi.mock("@/composables/useTransactionEventLogs", () => ({
+  default: () => ({
+    collection: mockCollection,
+    total: mockTotal,
+    isRequestPending: mockIsRequestPending,
+    isRequestFailed: ref(false),
+    isDecodePending: mockIsDecodePending,
+    getCollection: mockGetCollection,
+  }),
+}));
+
 const router = {
   push: vi.fn(),
 };
@@ -68,8 +84,7 @@ describe("Logs", () => {
   it("render components based on input", () => {
     const { container } = render(Logs, {
       props: {
-        logs: [log],
-        loading: false,
+        transactionHash: "0x1234567890abcdef",
         initiatorAddress: "0x46848fa6e189b5e94c7b71566b3617e30a714403",
       },
       global: {
@@ -98,15 +113,15 @@ describe("Logs", () => {
     expect(container.querySelector(".hash-label-component")?.textContent).toBe("1");
   });
   it("doesn't render interface row if log is not decoded", () => {
+    mockCollection.value = [
+      {
+        ...log,
+        event: undefined,
+      },
+    ] as typeof mockCollection.value;
     const { container } = render(Logs, {
       props: {
-        logs: [
-          {
-            ...log,
-            event: undefined,
-          },
-        ],
-        loading: false,
+        transactionHash: "0x1234567890abcdef",
         initiatorAddress: "0x46848fa6e189b5e94c7b71566b3617e30a714403",
       },
       global: {
@@ -117,8 +132,11 @@ describe("Logs", () => {
       },
     });
     expect(container.querySelector(".log-interface")).toBe(null);
+    mockCollection.value = [log];
   });
   it("renders loading state", () => {
+    mockIsRequestPending.value = true;
+    mockCollection.value = [];
     const wrapper = mount(Logs, {
       global: {
         stubs: {
@@ -127,25 +145,37 @@ describe("Logs", () => {
         plugins: [i18n, $testId],
       },
       props: {
-        loading: true,
+        transactionHash: "0x1234567890abcdef",
       },
     });
     expect(wrapper.findAll(".content-loader").length).toBe(6);
+    mockIsRequestPending.value = false;
+    mockCollection.value = [log];
+  });
+
+  it("calls getCollection with transaction hash", () => {
+    mockGetCollection.mockClear();
+    render(Logs, {
+      props: {
+        transactionHash: "0xabc123",
+        initiatorAddress: "0x46848fa6e189b5e94c7b71566b3617e30a714403",
+      },
+      global: {
+        stubs: {
+          RouterLink: RouterLinkStub,
+        },
+        plugins: [i18n, $testId],
+      },
+    });
+    expect(mockGetCollection).toHaveBeenCalledWith("0xabc123", 1, 10);
   });
 
   describe("Pagination", () => {
-    it("doesn't render pagination if amount of logs is 25 or less", () => {
+    it("doesn't render pagination if total is within page size", () => {
+      mockTotal.value = 10;
       const wrapper = mount(Logs, {
         props: {
-          logs: Array.from(
-            { length: 25 },
-            (_, i) =>
-              ({
-                ...log,
-                logIndex: i.toString(),
-              } as TransactionLogEntry)
-          ),
-          loading: false,
+          transactionHash: "0x1234567890abcdef",
           initiatorAddress: "0x46848fa6e189b5e94c7b71566b3617e30a714403",
         },
         global: {
@@ -156,23 +186,13 @@ describe("Logs", () => {
         },
       });
       expect(wrapper.findComponent(Pagination).exists()).toBe(false);
+      mockTotal.value = 1;
     });
-    it("renders page according to route page query param", () => {
-      const mock = routeQueryMock.mockReturnValue({ page: 2 });
-      const { container } = render(Logs, {
+    it("renders pagination when total exceeds page size", () => {
+      mockTotal.value = 50;
+      const wrapper = mount(Logs, {
         props: {
-          logs: [
-            ...Array.from({ length: 25 }, (_, i) => ({
-              ...log,
-              logIndex: i,
-            })),
-            {
-              ...log,
-              logIndex: 26,
-              address: "0xF44095b5f84c560011B901e0DeE5EB7DdF96fE8D",
-            },
-          ],
-          loading: false,
+          transactionHash: "0x1234567890abcdef",
           initiatorAddress: "0x46848fa6e189b5e94c7b71566b3617e30a714403",
         },
         global: {
@@ -182,10 +202,25 @@ describe("Logs", () => {
           plugins: [i18n, $testId],
         },
       });
-      expect(container.querySelector(".address-value-container")?.textContent).toBe(
-        "0xF44095b5f84c560011B901e0DeE5EB7DdF96fE8D"
-      );
-
+      expect(wrapper.findComponent(Pagination).exists()).toBe(true);
+      mockTotal.value = 1;
+    });
+    it("reads pageSize from route query", () => {
+      mockGetCollection.mockClear();
+      const mock = routeQueryMock.mockReturnValue({ pageSize: "50" });
+      render(Logs, {
+        props: {
+          transactionHash: "0xabc123",
+          initiatorAddress: "0x46848fa6e189b5e94c7b71566b3617e30a714403",
+        },
+        global: {
+          stubs: {
+            RouterLink: RouterLinkStub,
+          },
+          plugins: [i18n, $testId],
+        },
+      });
+      expect(mockGetCollection).toHaveBeenCalledWith("0xabc123", 1, 50);
       mock.mockRestore();
     });
   });

@@ -1,7 +1,7 @@
 <template>
   <Table class="transaction-logs-table has-head" :loading="loading">
     <template #default>
-      <template v-for="(log, logIndex) in displayedLogs" :key="log.logIndex">
+      <template v-for="(log, logIndex) in collection" :key="log.logIndex">
         <tr>
           <TableBodyColumn>
             {{ t("transactions.logs.address") }}
@@ -70,12 +70,13 @@
         </tr>
       </template>
     </template>
-    <template v-if="!loading && logs?.length > pageSize" #footer>
+    <template v-if="!loading && total > pageSize" #footer>
       <div class="pagination">
         <Pagination
           :active-page="activePage"
-          :total-items="logs?.length"
+          :total-items="total"
           :page-size="pageSize"
+          :disabled="isRequestPending"
           @on-page-change="scrollPageToTop"
         />
       </div>
@@ -94,7 +95,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, type PropType } from "vue";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
@@ -109,22 +110,18 @@ import ByteData from "@/components/common/table/fields/ByteData.vue";
 import EventTopics from "@/components/event/EventTopics.vue";
 import HashViewer from "@/components/transactions/infoTable/HashViewer.vue";
 
-import type { TransactionLogEntry } from "@/composables/useEventLog";
+import useTransactionEventLogs from "@/composables/useTransactionEventLogs";
 
 import { getTypeFromEvent } from "@/utils/helpers";
 
 const props = defineProps({
-  logs: {
-    type: Array as PropType<TransactionLogEntry[]>,
-    default: () => [],
+  transactionHash: {
+    type: String,
+    required: true,
   },
   initiatorAddress: {
     type: String,
     default: "",
-  },
-  loading: {
-    type: Boolean,
-    default: true,
   },
 });
 
@@ -132,15 +129,24 @@ const { t } = useI18n();
 
 const route = useRoute();
 const activePage = computed(() => (route.query.page ? parseInt(route.query.page as string) : 1));
-const pageSize = 25;
-const displayedLogs = computed(() => {
-  const start = (activePage.value - 1) * pageSize;
-  const end = start + pageSize;
-  return props.logs.slice(start, end);
-});
+const pageSize = computed(() => (route.query.pageSize ? parseInt(route.query.pageSize as string) : 10));
+
+const { collection, total, isRequestPending, isDecodePending, getCollection } = useTransactionEventLogs();
+
+const loading = computed(() => isRequestPending.value || isDecodePending.value);
+
+watch(
+  [() => props.transactionHash, activePage, pageSize],
+  ([hash, page, size]) => {
+    if (hash) {
+      getCollection(hash, page, size);
+    }
+  },
+  { immediate: true }
+);
 
 function setPopoverPlacement(logIndex: number) {
-  return props.logs.length === 1 ? "right" : logIndex === props.logs.length - 1 ? "top" : "bottom";
+  return collection.value.length === 1 ? "right" : logIndex === collection.value.length - 1 ? "top" : "bottom";
 }
 
 function scrollPageToTop() {

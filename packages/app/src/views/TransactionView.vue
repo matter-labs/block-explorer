@@ -22,11 +22,7 @@
         />
       </template>
       <template #tab-2-content>
-        <Logs
-          :logs="transactionEventLogs"
-          :initiator-address="transaction?.from"
-          :loading="isRequestPending || isDecodeEventLogsPending"
-        />
+        <Logs :transaction-hash="hash" :initiator-address="transaction?.from" />
       </template>
     </Tabs>
   </div>
@@ -44,7 +40,6 @@ import Title from "@/components/common/Title.vue";
 import GeneralInfo from "@/components/transactions/infoTable/GeneralInfo.vue";
 import Logs from "@/components/transactions/infoTable/Logs.vue";
 
-import useEventLog from "@/composables/useEventLog";
 import useNotFound from "@/composables/useNotFound";
 import useTransaction, { type TransactionItem } from "@/composables/useTransaction";
 import useTransactionData from "@/composables/useTransactionData";
@@ -62,7 +57,6 @@ const props = defineProps({
 const { t } = useI18n();
 const { useNotFoundView, setNotFoundView } = useNotFound();
 const { transaction, isRequestPending, isRequestFailed, getByHash } = useTransaction();
-const { collection: transactionEventLogs, isDecodePending: isDecodeEventLogsPending, decodeEventLog } = useEventLog();
 const {
   data: transactionData,
   isDecodePending: isDecodeTransactionDataPending,
@@ -102,7 +96,7 @@ const tabs = computed(() => [
     hash: "#overview",
   },
   {
-    title: t("transactions.tabs.logs") + (transaction.value ? ` (${transaction.value?.logs.length})` : ""),
+    title: t("transactions.tabs.logs") + (transaction.value ? ` (${transaction.value?.logCount})` : ""),
     hash: "#eventlog",
   },
 ]);
@@ -115,10 +109,8 @@ watchEffect(() => {
   }
   getByHash(props.hash).then(() => {
     if (!transaction.value) {
-      transactionEventLogs.value = [];
       return;
     }
-    decodeEventLog(transaction.value.logs);
     decodeTransactionData(transaction.value.data);
   });
 });
