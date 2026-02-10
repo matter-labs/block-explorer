@@ -8,10 +8,22 @@ import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { zeroPadValue } from "ethers";
 
+export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
+
+export interface EventPermissionRule {
+  contractAddress: string;
+  topic0: string | null;
+  topic1: TopicCondition | null;
+  topic2: TopicCondition | null;
+  topic3: TopicCondition | null;
+}
+
 export interface FilterLogsOptions {
   transactionHash?: string;
   address?: string;
   visibleBy?: string;
+  eventPermissionRules?: EventPermissionRule[];
+  eventPermissionUserAddress?: string;
 }
 
 export interface FilterLogsByAddressOptions {
@@ -47,7 +59,7 @@ export class LogService {
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
-    const { visibleBy, ...basicFilters } = filterOptions;
+    const { visibleBy, eventPermissionRules, eventPermissionUserAddress, ...basicFilters } = filterOptions;
     const queryBuilder = this.logRepository.createQueryBuilder("log");
     queryBuilder.where(basicFilters);
 
@@ -63,6 +75,56 @@ export class LogService {
         })
       );
       queryBuilder.setParameters({ visibleByTopic: hexTransformer.to(topic), visibleBy: hexTransformer.to(visibleBy) });
+    }
+
+    if (eventPermissionRules !== undefined) {
+      if (eventPermissionRules.length === 0) {
+        queryBuilder.andWhere("FALSE");
+      } else {
+        queryBuilder.andWhere(
+          new Brackets((outer) => {
+            eventPermissionRules.forEach((rule, idx) => {
+              const ruleBrackets = new Brackets((inner) => {
+                const addrParam = `rule_${idx}_addr`;
+                inner.where(`log.address = :${addrParam}`, {
+                  [addrParam]: hexTransformer.to(rule.contractAddress),
+                });
+
+                if (rule.topic0 !== null) {
+                  const t0Param = `rule_${idx}_t0`;
+                  inner.andWhere(`log.topics[1] = :${t0Param}`, {
+                    [t0Param]: hexTransformer.to(rule.topic0),
+                  });
+                }
+
+                const topicEntries: [TopicCondition | null, number][] = [
+                  [rule.topic1, 2],
+                  [rule.topic2, 3],
+                  [rule.topic3, 4],
+                ];
+                for (const [condition, pgIndex] of topicEntries) {
+                  if (condition === null) continue;
+                  const paramName = `rule_${idx}_t${pgIndex - 1}`;
+                  if (condition.type === "equalTo") {
+                    inner.andWhere(`log.topics[${pgIndex}] = :${paramName}`, {
+                      [paramName]: hexTransformer.to(condition.value),
+                    });
+                  } else if (condition.type === "userAddress") {
+                    inner.andWhere(`log.topics[${pgIndex}] = :${paramName}`, {
+                      [paramName]: hexTransformer.to(zeroPadValue(eventPermissionUserAddress, 32)),
+                    });
+                  }
+                }
+              });
+              if (idx === 0) {
+                outer.where(ruleBrackets);
+              } else {
+                outer.orWhere(ruleBrackets);
+              }
+            });
+          })
+        );
+      }
     }
 
     queryBuilder.orderBy("log.timestamp", "DESC");

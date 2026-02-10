@@ -18,8 +18,7 @@ import { TransferDto } from "../transfer/transfer.dto";
 import { TransactionDto } from "./dtos/transaction.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { LogDto } from "../log/log.dto";
-import { Log } from "../log/log.entity";
-import { LogService } from "../log/log.service";
+import { LogService, EventPermissionRule, TopicCondition } from "../log/log.service";
 import { FilterTransactionsOptions, TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
 import { swagger } from "../config/featureFlags";
@@ -28,12 +27,37 @@ import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 
+const topicConditionSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("equalTo"), value: z.string() }),
+  z.object({ type: z.literal("userAddress") }),
+]);
+
+const eventPermissionRuleSchema = z.object({
+  contractAddress: z.string(),
+  topic0: z.string().nullable(),
+  topic1: topicConditionSchema.nullable(),
+  topic2: topicConditionSchema.nullable(),
+  topic3: topicConditionSchema.nullable(),
+});
+
+const eventPermissionRulesResponseSchema = z.object({
+  rules: z.array(eventPermissionRuleSchema),
+});
+
+interface CachedRules {
+  rules: EventPermissionRule[];
+  fetchedAt: number;
+}
+
 const entityName = "transactions";
 
 @ApiTags("Transaction BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class TransactionController {
+  private rulesCache = new Map<string, CachedRules>();
+  private readonly RULES_CACHE_TTL_MS = 5 * 60 * 1000;
+
   constructor(
     private readonly transactionService: TransactionService,
     private readonly transferService: TransferService,
@@ -41,41 +65,40 @@ export class TransactionController {
     private readonly configService: ConfigService
   ) {}
 
-  private async checkBatchEventPermission(token: string, logs: Log[]): Promise<boolean[]> {
+  private async fetchEventPermissionRules(token: string): Promise<EventPermissionRule[]> {
+    const cached = this.rulesCache.get(token);
+    if (cached && Date.now() - cached.fetchedAt < this.RULES_CACHE_TTL_MS) {
+      return cached.rules;
+    }
+
     const permissionsApiUrl = this.configService.get<string>("prividium.permissionsApiUrl");
-    const body = logs.map((log) => ({
-      contractAddress: log.address,
-      topic0: log.topics[0],
-      topic1: log.topics[1],
-      topic2: log.topics[2],
-      topic3: log.topics[3],
-    }));
 
     let response: Response;
     try {
-      response = await fetch(new URL("/api/check/batch-event-permission", permissionsApiUrl), {
-        method: "POST",
+      response = await fetch(new URL("/api/check/event-permission-rules", permissionsApiUrl), {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
         },
-        body: JSON.stringify(body),
       });
     } catch {
-      throw new PrividiumApiError("Permission check failed", 500);
+      throw new PrividiumApiError("Permission rules fetch failed", 500);
     }
 
     if (!response.ok) {
-      throw new PrividiumApiError("Permission check failed", response.status);
+      throw new PrividiumApiError("Permission rules fetch failed", response.status);
     }
 
-    const parsed = z.object({ authorized: z.array(z.boolean()) }).safeParse(await response.json());
+    const data = await response.json();
+    const parsed = eventPermissionRulesResponseSchema.safeParse(data);
 
     if (!parsed.success) {
-      throw new PrividiumApiError("Invalid permission check response", 500);
+      throw new PrividiumApiError("Invalid permission rules response", 500);
     }
 
-    return parsed.data.authorized;
+    const rules = parsed.data.rules as EventPermissionRule[];
+    this.rulesCache.set(token, { rules, fetchedAt: Date.now() });
+    return rules;
   }
 
   @Get("")
@@ -216,33 +239,14 @@ export class TransactionController {
     }
 
     if (user && !user.isAdmin) {
-      const allLogs = await this.logService.findAll({ transactionHash }, { page: 1, limit: 10_000 });
-
-      const authorized = await this.checkBatchEventPermission(user.token, allLogs.items);
-      const filteredLogs = allLogs.items.filter((_, index) => authorized[index]);
-
-      const page = pagingOptions.page || 1;
-      const limit = pagingOptions.limit || 10;
-      const startIndex = (page - 1) * limit;
-      const paginatedItems = filteredLogs.slice(startIndex, startIndex + limit);
-      const totalPages = Math.ceil(filteredLogs.length / limit);
-
-      return {
-        items: paginatedItems,
-        meta: {
-          totalItems: filteredLogs.length,
-          itemCount: paginatedItems.length,
-          itemsPerPage: limit,
-          totalPages,
-          currentPage: page,
-        },
-        links: {
-          first: `${entityName}/${transactionHash}/logs?limit=${limit}`,
-          previous: page > 1 ? `${entityName}/${transactionHash}/logs?page=${page - 1}&limit=${limit}` : "",
-          next: page < totalPages ? `${entityName}/${transactionHash}/logs?page=${page + 1}&limit=${limit}` : "",
-          last: totalPages > 0 ? `${entityName}/${transactionHash}/logs?page=${totalPages}&limit=${limit}` : "",
-        },
-      };
+      const rules = await this.fetchEventPermissionRules(user.token);
+      return await this.logService.findAll(
+        { transactionHash, eventPermissionRules: rules, eventPermissionUserAddress: user.address },
+        {
+          ...pagingOptions,
+          route: `${entityName}/${transactionHash}/logs`,
+        }
+      );
     }
 
     return await this.logService.findAll(

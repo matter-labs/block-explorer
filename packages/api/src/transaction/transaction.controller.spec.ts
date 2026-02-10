@@ -391,6 +391,16 @@ describe("TransactionController", () => {
 
       describe("when user is non-admin", () => {
         let user: MockProxy<UserWithRoles>;
+        const mockRules = [
+          {
+            contractAddress: "0xAddr1",
+            topic0: "0xSig1",
+            topic1: { type: "equalTo" as const, value: "0xVal" },
+            topic2: null,
+            topic3: null,
+          },
+        ];
+
         beforeEach(() => {
           user = mock<UserWithRoles>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
@@ -400,78 +410,58 @@ describe("TransactionController", () => {
           });
         });
 
-        it("filters logs by batch-event-permission response", async () => {
+        it("fetches rules and passes them to logService.findAll", async () => {
           (global.fetch as jest.Mock) = jest.fn().mockResolvedValueOnce({
             ok: true,
-            json: jest.fn().mockResolvedValue({ authorized: [true, false, true] }),
+            json: jest.fn().mockResolvedValue({ rules: mockRules }),
           });
 
-          const result = await controller.getTransactionLogs(
-            transactionHash,
-            { limit: 10, page: 1, maxLimit: 10000 },
-            user
-          );
+          await controller.getTransactionLogs(transactionHash, { limit: 10, page: 1, maxLimit: 10000 }, user);
 
           expect(global.fetch).toHaveBeenCalledWith(
-            new URL("/api/check/batch-event-permission", "https://permissions-api.example.com"),
+            new URL("/api/check/event-permission-rules", "https://permissions-api.example.com"),
             expect.objectContaining({
-              method: "POST",
+              method: "GET",
               headers: {
                 Authorization: "Bearer user-token",
-                "Content-Type": "application/json",
               },
-              body: JSON.stringify([
-                {
-                  contractAddress: "0xaddr1",
-                  topic0: "0xtopic0a",
-                  topic1: "0xtopic1a",
-                  topic2: "0xtopic2a",
-                  topic3: "0xtopic3a",
-                },
-                {
-                  contractAddress: "0xaddr2",
-                  topic0: "0xtopic0b",
-                  topic1: "0xtopic1b",
-                  topic2: undefined,
-                  topic3: undefined,
-                },
-                {
-                  contractAddress: "0xaddr3",
-                  topic0: "0xtopic0c",
-                  topic1: undefined,
-                  topic2: undefined,
-                  topic3: undefined,
-                },
-              ]),
             })
           );
 
-          expect(result.items).toHaveLength(2);
-          expect(result.items[0]).toBe(mockLogs[0]);
-          expect(result.items[1]).toBe(mockLogs[2]);
-          expect(result.meta.totalItems).toBe(2);
+          expect(logServiceMock.findAll).toHaveBeenCalledWith(
+            {
+              transactionHash,
+              eventPermissionRules: mockRules,
+              eventPermissionUserAddress: user.address,
+            },
+            {
+              limit: 10,
+              page: 1,
+              maxLimit: 10000,
+              route: `transactions/${transactionHash}/logs`,
+            }
+          );
         });
 
-        it("paginates filtered logs correctly", async () => {
-          (global.fetch as jest.Mock) = jest.fn().mockResolvedValueOnce({
+        it("caches rules across multiple calls with same token", async () => {
+          (global.fetch as jest.Mock) = jest.fn().mockResolvedValue({
             ok: true,
-            json: jest.fn().mockResolvedValue({ authorized: [true, true, true] }),
+            json: jest.fn().mockResolvedValue({ rules: mockRules }),
           });
 
-          const result = await controller.getTransactionLogs(
-            transactionHash,
-            { limit: 2, page: 1, maxLimit: 10000 },
-            user
-          );
+          await controller.getTransactionLogs(transactionHash, { limit: 10, page: 1, maxLimit: 10000 }, user);
 
-          expect(result.items).toHaveLength(2);
-          expect(result.meta.totalItems).toBe(3);
-          expect(result.meta.totalPages).toBe(2);
-          expect(result.meta.currentPage).toBe(1);
-          expect(result.meta.itemsPerPage).toBe(2);
+          // Reset exists mock for second call
+          (serviceMock.exists as jest.Mock).mockResolvedValueOnce(true);
+          (logServiceMock.findAll as jest.Mock).mockResolvedValueOnce(transactionLogs);
+
+          await controller.getTransactionLogs(transactionHash, { limit: 10, page: 1, maxLimit: 10000 }, user);
+
+          // fetch should only be called once due to caching
+          expect(global.fetch).toHaveBeenCalledTimes(1);
         });
 
-        it("throws error when permission API fails with non-ok response", async () => {
+        it("throws error when rules API fails with non-ok response", async () => {
           (global.fetch as jest.Mock) = jest.fn().mockResolvedValueOnce({
             ok: false,
             status: 500,
@@ -479,15 +469,26 @@ describe("TransactionController", () => {
 
           await expect(
             controller.getTransactionLogs(transactionHash, { limit: 10, page: 1, maxLimit: 10000 }, user)
-          ).rejects.toThrow("Permission check failed");
+          ).rejects.toThrow("Permission rules fetch failed");
         });
 
-        it("throws error when permission API network request fails", async () => {
+        it("throws error when rules API network request fails", async () => {
           (global.fetch as jest.Mock) = jest.fn().mockRejectedValueOnce(new Error("Network error"));
 
           await expect(
             controller.getTransactionLogs(transactionHash, { limit: 10, page: 1, maxLimit: 10000 }, user)
-          ).rejects.toThrow("Permission check failed");
+          ).rejects.toThrow("Permission rules fetch failed");
+        });
+
+        it("throws error when response has invalid shape", async () => {
+          (global.fetch as jest.Mock) = jest.fn().mockResolvedValueOnce({
+            ok: true,
+            json: jest.fn().mockResolvedValue({ wrongField: [] }),
+          });
+
+          await expect(
+            controller.getTransactionLogs(transactionHash, { limit: 10, page: 1, maxLimit: 10000 }, user)
+          ).rejects.toThrow("Invalid permission rules response");
         });
       });
     });

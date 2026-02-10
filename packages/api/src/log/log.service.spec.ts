@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
-import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
+import { LogService, FilterLogsOptions, FilterLogsByAddressOptions, EventPermissionRule } from "./log.service";
 import { Log } from "./log.entity";
 
 jest.mock("../common/utils");
@@ -122,6 +122,83 @@ describe("LogService", () => {
       expect(qb.orWhere).toHaveBeenCalledWith("log.topics[2] = :visibleByTopic");
       expect(qb.orWhere).toHaveBeenCalledWith("log.topics[3] = :visibleByTopic");
       expect(qb.orWhere).toHaveBeenCalledWith("transactions.from = :visibleBy");
+    });
+
+    describe("eventPermissionRules filtering", () => {
+      it("adds FALSE when rules array is empty", async () => {
+        const opts = { eventPermissionRules: [] as EventPermissionRule[] };
+        await service.findAll(opts, pagingOptions);
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("FALSE");
+      });
+
+      it("builds Brackets for a single rule with all condition types", async () => {
+        const rules: EventPermissionRule[] = [
+          {
+            contractAddress: "0xContractAddr",
+            topic0: "0xEventSig",
+            topic1: { type: "equalTo", value: "0xExactVal" },
+            topic2: { type: "userAddress" },
+            topic3: null,
+          },
+        ];
+        const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+        await service.findAll({ eventPermissionRules: rules, eventPermissionUserAddress: userAddress }, pagingOptions);
+
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
+        const outerBrackets = queryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
+
+        // Execute the outer brackets factory
+        const outerQb = mock<WhereExpressionBuilder>();
+        outerBrackets.whereFactory(outerQb);
+
+        // First rule should use .where (not .orWhere)
+        expect(outerQb.where).toHaveBeenCalledTimes(1);
+        expect(outerQb.where).toHaveBeenCalledWith(expect.any(Brackets));
+        expect(outerQb.orWhere).not.toHaveBeenCalled();
+
+        // Execute the inner brackets factory for the rule
+        const innerBrackets = outerQb.where.mock.calls[0][0] as unknown as Brackets;
+        const innerQb = mock<WhereExpressionBuilder>();
+        innerBrackets.whereFactory(innerQb);
+
+        // Should have: address WHERE + topic0 AND + topic1 exact AND + topic2 userAddress AND
+        expect(innerQb.where).toHaveBeenCalledTimes(1);
+        expect(innerQb.where).toHaveBeenCalledWith(
+          "log.address = :rule_0_addr",
+          expect.objectContaining({ rule_0_addr: expect.any(Buffer) })
+        );
+        expect(innerQb.andWhere).toHaveBeenCalledWith(
+          "log.topics[1] = :rule_0_t0",
+          expect.objectContaining({ rule_0_t0: expect.any(Buffer) })
+        );
+        expect(innerQb.andWhere).toHaveBeenCalledWith(
+          "log.topics[2] = :rule_0_t1",
+          expect.objectContaining({ rule_0_t1: expect.any(Buffer) })
+        );
+        expect(innerQb.andWhere).toHaveBeenCalledWith(
+          "log.topics[3] = :rule_0_t2",
+          expect.objectContaining({ rule_0_t2: expect.any(Buffer) })
+        );
+        // topic3 is null, so no topics[4] condition
+        expect(innerQb.andWhere).not.toHaveBeenCalledWith(expect.stringContaining("log.topics[4]"), expect.anything());
+      });
+
+      it("OR's multiple rules together", async () => {
+        const rules: EventPermissionRule[] = [
+          { contractAddress: "0xAddr1", topic0: "0xSig1", topic1: null, topic2: null, topic3: null },
+          { contractAddress: "0xAddr2", topic0: null, topic1: null, topic2: null, topic3: null },
+        ];
+        await service.findAll({ eventPermissionRules: rules }, pagingOptions);
+
+        const outerBrackets = queryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
+        const outerQb = mock<WhereExpressionBuilder>();
+        outerBrackets.whereFactory(outerQb);
+
+        expect(outerQb.where).toHaveBeenCalledTimes(1);
+        expect(outerQb.where).toHaveBeenCalledWith(expect.any(Brackets));
+        expect(outerQb.orWhere).toHaveBeenCalledTimes(1);
+        expect(outerQb.orWhere).toHaveBeenCalledWith(expect.any(Brackets));
+      });
     });
   });
 
