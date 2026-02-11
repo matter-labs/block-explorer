@@ -47,11 +47,7 @@ export default (context = useContext()) => {
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
 
-  const {
-    collection: ABICollection,
-    isRequestPending: isABIRequestPending,
-    getCollection: getABICollection,
-  } = useContractABI(context);
+  const { collection: ABICollection, getCollection: getABICollection } = useContractABI(context);
 
   const isDecodePending = ref(false);
 
