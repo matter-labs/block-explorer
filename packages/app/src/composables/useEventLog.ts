@@ -112,7 +112,7 @@ export default (context = useContext()) => {
       }
     });
 
-    // For logs that couldn't be decoded with ABI, try OpenChain
+    // For logs that couldn't be decoded with ABI (unverified contracts), try OpenChain
     const logsWithoutEvents = logsWithDecoding.filter((log) => !log.event && log.topics.length > 0);
 
     if (logsWithoutEvents.length > 0) {
@@ -120,9 +120,14 @@ export default (context = useContext()) => {
       const signatureMap = await fetchEventNames(topicHashes);
 
       return logsWithDecoding.map((log) => {
-        if (log.event) return log;
-        if (!log.topics || log.topics.length === 0) return log;
+        if (log.event) {
+          return log;
+        }
+        if (!log.topics || log.topics.length === 0) {
+          return log;
+        }
 
+        // Try to get signature from OpenChain
         const signature = signatureMap[log.topics[0]];
         if (signature) {
           const parsedSig = parseEventSignature(signature);
