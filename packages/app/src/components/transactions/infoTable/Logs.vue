@@ -128,8 +128,12 @@ const props = defineProps({
 const { t } = useI18n();
 
 const route = useRoute();
-const activePage = computed(() => (route.query.page ? parseInt(route.query.page as string) : 1));
-const pageSize = computed(() => (route.query.pageSize ? parseInt(route.query.pageSize as string) : 10));
+const parseQueryNumber = (value: unknown, fallback: number) => {
+  const parsed = typeof value === "string" ? parseInt(value, 10) : NaN;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+const activePage = computed(() => parseQueryNumber(route.query.page, 1));
+const pageSize = computed(() => parseQueryNumber(route.query.pageSize, 10));
 
 const { collection, total, isRequestPending, isDecodePending, getCollection } = useEventLog();
 
