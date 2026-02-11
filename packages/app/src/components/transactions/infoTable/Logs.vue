@@ -110,7 +110,7 @@ import ByteData from "@/components/common/table/fields/ByteData.vue";
 import EventTopics from "@/components/event/EventTopics.vue";
 import HashViewer from "@/components/transactions/infoTable/HashViewer.vue";
 
-import useTransactionEvents from "@/composables/useEventLog";
+import useEventLog from "@/composables/useEventLog";
 
 import { getTypeFromEvent } from "@/utils/helpers";
 
@@ -131,7 +131,7 @@ const route = useRoute();
 const activePage = computed(() => (route.query.page ? parseInt(route.query.page as string) : 1));
 const pageSize = computed(() => (route.query.pageSize ? parseInt(route.query.pageSize as string) : 10));
 
-const { collection, total, isRequestPending, isDecodePending, getCollection } = useTransactionEvents();
+const { collection, total, isRequestPending, isDecodePending, getCollection } = useEventLog();
 
 const loading = computed(() => isRequestPending.value || isDecodePending.value);
 

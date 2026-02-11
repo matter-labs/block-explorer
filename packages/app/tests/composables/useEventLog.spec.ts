@@ -2,7 +2,7 @@ import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
 
-import useTransactionEvents from "@/composables/useEventLog";
+import useEventLog from "@/composables/useEventLog";
 
 vi.mock("ohmyfetch", () => {
   const fetchSpy = vi.fn(() =>
@@ -35,9 +35,9 @@ const logItem = {
   logIndex: 1,
 };
 
-describe("useTransactionEvents:", () => {
+describe("useEventLog:", () => {
   it("creates composable with correct initial values", () => {
-    const result = useTransactionEvents();
+    const result = useEventLog();
     expect(result.collection.value).toEqual([]);
     expect(result.total.value).toBe(0);
     expect(result.isRequestPending.value).toBe(false);
@@ -55,7 +55,7 @@ describe("useTransactionEvents:", () => {
     // Mock the verification API call for ABI fetch
     mock.mockResolvedValueOnce({ status: "0", result: "[]" });
 
-    const { collection, total, isRequestPending, getCollection } = useTransactionEvents();
+    const { collection, total, isRequestPending, getCollection } = useEventLog();
 
     const promise = getCollection("0xhash123", 1, 10);
     expect(isRequestPending.value).toBe(true);
@@ -71,7 +71,7 @@ describe("useTransactionEvents:", () => {
   it("sets isRequestFailed on error", async () => {
     const mock = ($fetch as unknown as SpyInstance).mockRejectedValueOnce(new Error("Network error"));
 
-    const { isRequestFailed, getCollection } = useTransactionEvents();
+    const { isRequestFailed, getCollection } = useEventLog();
     await getCollection("0xhash123", 1, 10);
 
     expect(isRequestFailed.value).toBe(true);
@@ -81,7 +81,7 @@ describe("useTransactionEvents:", () => {
   it("resets collection on error", async () => {
     const mock = ($fetch as unknown as SpyInstance).mockRejectedValueOnce(new Error("Network error"));
 
-    const { collection, total, getCollection } = useTransactionEvents();
+    const { collection, total, getCollection } = useEventLog();
     await getCollection("0xhash123", 1, 10);
 
     expect(collection.value).toEqual([]);
@@ -96,7 +96,7 @@ describe("useTransactionEvents:", () => {
       links: { first: "", last: "", next: "", previous: "" },
     });
 
-    const { getCollection } = useTransactionEvents();
+    const { getCollection } = useEventLog();
     await getCollection("0xhash123", 2, 50);
 
     expect(mock).toHaveBeenCalledWith(expect.stringContaining("/transactions/0xhash123/logs?page=2&limit=50"));

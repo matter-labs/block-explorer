@@ -50,7 +50,7 @@ const mockIsRequestPending = ref(false);
 const mockIsDecodePending = ref(false);
 const mockGetCollection = vi.fn();
 
-vi.mock("@/composables/useTransactionEvents", () => ({
+vi.mock("@/composables/useEventLog", () => ({
   default: () => ({
     collection: mockCollection,
     total: mockTotal,
@@ -152,7 +152,6 @@ describe("Logs", () => {
     mockIsRequestPending.value = false;
     mockCollection.value = [log];
   });
-
   it("calls getCollection with transaction hash", () => {
     mockGetCollection.mockClear();
     render(Logs, {
@@ -168,6 +167,23 @@ describe("Logs", () => {
       },
     });
     expect(mockGetCollection).toHaveBeenCalledWith("0xabc123", 1, 10);
+  });
+  it("falls back to defaults when query params are invalid", () => {
+    mockGetCollection.mockClear();
+    const mock = routeQueryMock.mockReturnValue({ page: "abc", pageSize: "xyz" });
+    render(Logs, {
+      props: {
+        transactionHash: "0xabc123",
+      },
+      global: {
+        stubs: {
+          RouterLink: RouterLinkStub,
+        },
+        plugins: [i18n, $testId],
+      },
+    });
+    expect(mockGetCollection).toHaveBeenCalledWith("0xabc123", 1, 10);
+    mock.mockRestore();
   });
 
   describe("Pagination", () => {
