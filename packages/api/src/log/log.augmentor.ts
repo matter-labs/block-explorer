@@ -5,9 +5,16 @@ import { zeroPadValue } from "ethers";
 import { Log } from "./log.entity";
 import { FilterLogsOptions, TopicCondition, EventPermissionRule } from "./log.service";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { VisibilityContext } from "../prividium/visibility/visibility.context";
+import { PrividiumRulesService } from "../prividium/prividium-rules.service";
 
 export interface LogQueryAugmentor {
-  apply(qb: SelectQueryBuilder<Log>, options: FilterLogsOptions): void;
+  apply(qb: SelectQueryBuilder<Log>, ctx: LogAugmentorContext): Promise<void> | void;
+}
+
+export interface LogAugmentorContext {
+  filter: FilterLogsOptions;
+  visibility?: VisibilityContext;
 }
 
 @Injectable()
@@ -19,15 +26,27 @@ export class StandardLogAugmentor implements LogQueryAugmentor {
 
 @Injectable()
 export class PrividiumLogAugmentor implements LogQueryAugmentor {
-  apply(qb: SelectQueryBuilder<Log>, options: FilterLogsOptions): void {
-    const { visibleBy, eventPermissionRules, eventPermissionUserAddress } = options;
+  constructor(private readonly rulesService: PrividiumRulesService) {}
 
-    if (visibleBy !== undefined) {
-      this.applyVisibleBy(qb, visibleBy);
+  async apply(qb: SelectQueryBuilder<Log>, ctx: LogAugmentorContext): Promise<void> {
+    const { filter, visibility } = ctx;
+    if (visibility?.isAdmin) return;
+
+    const effectiveVisibleBy = filter.visibleBy ?? visibility?.userAddress;
+    if (effectiveVisibleBy) {
+      this.applyVisibleBy(qb, effectiveVisibleBy);
     }
 
-    if (eventPermissionRules !== undefined) {
-      this.applyEventPermissionRules(qb, eventPermissionRules, eventPermissionUserAddress);
+    const explicitRules = filter.eventPermissionRules;
+    const userAddress = filter.eventPermissionUserAddress ?? visibility?.userAddress;
+
+    let rulesToApply: EventPermissionRule[] | undefined = explicitRules;
+    if (!rulesToApply && visibility?.token) {
+      rulesToApply = await this.rulesService.fetchEventPermissionRules(visibility.token);
+    }
+
+    if (rulesToApply) {
+      this.applyEventPermissionRules(qb, rulesToApply, userAddress);
     }
   }
 

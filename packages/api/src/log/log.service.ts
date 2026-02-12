@@ -10,6 +10,7 @@ import { zeroPadValue } from "ethers";
 import { Inject } from "@nestjs/common";
 import { LOG_AUGMENTOR } from "./log.tokens";
 import { LogQueryAugmentor } from "./log.augmentor";
+import { VisibilityContext } from "../prividium/visibility/visibility.context";
 
 export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
 
@@ -63,11 +64,27 @@ export class LogService {
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
+    return this.findAllWithVisibility(filterOptions, paginationOptions);
+  }
+
+  public async findAllWithVisibility(
+    filterOptions: FilterLogsOptions = {},
+    paginationOptions: IPaginationOptions,
+    visibility?: VisibilityContext
+  ): Promise<Pagination<Log>> {
     const { visibleBy, eventPermissionRules, eventPermissionUserAddress, ...basicFilters } = filterOptions;
     const queryBuilder = this.logRepository.createQueryBuilder("log");
     queryBuilder.where(basicFilters);
 
-    this.augmentor.apply(queryBuilder, { visibleBy, eventPermissionRules, eventPermissionUserAddress });
+    await this.augmentor.apply(queryBuilder, {
+      filter: {
+        ...basicFilters,
+        visibleBy,
+        eventPermissionRules,
+        eventPermissionUserAddress,
+      },
+      visibility,
+    });
 
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");

@@ -1,24 +1,19 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import {
-  Repository,
-  SelectQueryBuilder,
-  MoreThanOrEqual,
-  LessThanOrEqual,
-  Brackets,
-  WhereExpressionBuilder,
-} from "typeorm";
+import { Repository, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions, EventPermissionRule } from "./log.service";
 import { Log } from "./log.entity";
+import { LOG_AUGMENTOR } from "./log.tokens";
 
 jest.mock("../common/utils");
 
 describe("LogService", () => {
   let service: LogService;
   let repositoryMock: MockProxy<Repository<Log>>;
+  let augmentorMock: { apply: jest.Mock };
 
   const pagingOptions = {
     limit: 10,
@@ -27,6 +22,7 @@ describe("LogService", () => {
 
   beforeEach(async () => {
     repositoryMock = mock<Repository<Log>>();
+    augmentorMock = { apply: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +30,10 @@ describe("LogService", () => {
         {
           provide: getRepositoryToken(Log),
           useValue: repositoryMock,
+        },
+        {
+          provide: LOG_AUGMENTOR,
+          useValue: augmentorMock,
         },
       ],
     }).compile();
@@ -92,6 +92,10 @@ describe("LogService", () => {
 
     it("returns logs ordered by timestamp DESC and logIndex ASC", async () => {
       await service.findAll(filterOptions, pagingOptions);
+      expect(augmentorMock.apply).toHaveBeenCalledWith(queryBuilderMock, {
+        filter: expect.any(Object),
+        visibility: undefined,
+      });
       expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
       expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.timestamp", "DESC");
       expect(queryBuilderMock.addOrderBy).toBeCalledTimes(1);
@@ -107,97 +111,17 @@ describe("LogService", () => {
       expect(result).toBe(paginationResult);
     });
 
-    it("does special query when visibleBy is defined", async () => {
-      const address1 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-      const address2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
-      const filterOptions = { address: address1, visibleBy: address2 };
+    it("passes filter options to augmentor", async () => {
+      const filterOptions = {
+        address: "address",
+        visibleBy: "0x1",
+        eventPermissionRules: [] as EventPermissionRule[],
+        eventPermissionUserAddress: "0x2",
+      };
       await service.findAll(filterOptions, pagingOptions);
-      expect(queryBuilderMock.innerJoin).toBeCalledWith("log.transaction", "transactions");
-      expect(queryBuilderMock.andWhere).toBeCalledWith(expect.any(Brackets));
-      const brackets = queryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
-      expect(brackets).toBeInstanceOf(Brackets);
-      const qb = mock<WhereExpressionBuilder>();
-      brackets.whereFactory(qb);
-      expect(qb.where).toHaveBeenCalledWith(`log.topics[1] = :visibleByTopic`);
-      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[2] = :visibleByTopic");
-      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[3] = :visibleByTopic");
-      expect(qb.orWhere).toHaveBeenCalledWith("transactions.from = :visibleBy");
-    });
-
-    describe("eventPermissionRules filtering", () => {
-      it("adds FALSE when rules array is empty", async () => {
-        const opts = { eventPermissionRules: [] as EventPermissionRule[] };
-        await service.findAll(opts, pagingOptions);
-        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("FALSE");
-      });
-
-      it("builds Brackets for a single rule with all condition types", async () => {
-        const rules: EventPermissionRule[] = [
-          {
-            contractAddress: "0xContractAddr",
-            topic0: "0xEventSig",
-            topic1: { type: "equalTo", value: "0xExactVal" },
-            topic2: { type: "userAddress" },
-            topic3: null,
-          },
-        ];
-        const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-        await service.findAll({ eventPermissionRules: rules, eventPermissionUserAddress: userAddress }, pagingOptions);
-
-        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
-        const outerBrackets = queryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
-
-        // Execute the outer brackets factory
-        const outerQb = mock<WhereExpressionBuilder>();
-        outerBrackets.whereFactory(outerQb);
-
-        // First rule should use .where (not .orWhere)
-        expect(outerQb.where).toHaveBeenCalledTimes(1);
-        expect(outerQb.where).toHaveBeenCalledWith(expect.any(Brackets));
-        expect(outerQb.orWhere).not.toHaveBeenCalled();
-
-        // Execute the inner brackets factory for the rule
-        const innerBrackets = outerQb.where.mock.calls[0][0] as unknown as Brackets;
-        const innerQb = mock<WhereExpressionBuilder>();
-        innerBrackets.whereFactory(innerQb);
-
-        // Should have: address WHERE + topic0 AND + topic1 exact AND + topic2 userAddress AND
-        expect(innerQb.where).toHaveBeenCalledTimes(1);
-        expect(innerQb.where).toHaveBeenCalledWith(
-          "log.address = :rule_0_addr",
-          expect.objectContaining({ rule_0_addr: expect.any(Buffer) })
-        );
-        expect(innerQb.andWhere).toHaveBeenCalledWith(
-          "log.topics[1] = :rule_0_t0",
-          expect.objectContaining({ rule_0_t0: expect.any(Buffer) })
-        );
-        expect(innerQb.andWhere).toHaveBeenCalledWith(
-          "log.topics[2] = :rule_0_t1",
-          expect.objectContaining({ rule_0_t1: expect.any(Buffer) })
-        );
-        expect(innerQb.andWhere).toHaveBeenCalledWith(
-          "log.topics[3] = :rule_0_t2",
-          expect.objectContaining({ rule_0_t2: expect.any(Buffer) })
-        );
-        // topic3 is null, so no topics[4] condition
-        expect(innerQb.andWhere).not.toHaveBeenCalledWith(expect.stringContaining("log.topics[4]"), expect.anything());
-      });
-
-      it("OR's multiple rules together", async () => {
-        const rules: EventPermissionRule[] = [
-          { contractAddress: "0xAddr1", topic0: "0xSig1", topic1: null, topic2: null, topic3: null },
-          { contractAddress: "0xAddr2", topic0: null, topic1: null, topic2: null, topic3: null },
-        ];
-        await service.findAll({ eventPermissionRules: rules }, pagingOptions);
-
-        const outerBrackets = queryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
-        const outerQb = mock<WhereExpressionBuilder>();
-        outerBrackets.whereFactory(outerQb);
-
-        expect(outerQb.where).toHaveBeenCalledTimes(1);
-        expect(outerQb.where).toHaveBeenCalledWith(expect.any(Brackets));
-        expect(outerQb.orWhere).toHaveBeenCalledTimes(1);
-        expect(outerQb.orWhere).toHaveBeenCalledWith(expect.any(Brackets));
+      expect(augmentorMock.apply).toHaveBeenCalledWith(queryBuilderMock, {
+        filter: filterOptions,
+        visibility: undefined,
       });
     });
   });
