@@ -1,3 +1,8 @@
-export const LOG_AUGMENTOR = Symbol("LOG_AUGMENTOR");
+export const LOG_VISIBILITY_POLICY = Symbol("LOG_VISIBILITY_POLICY");
 
-export { StandardLogAugmentor, PrividiumLogAugmentor, LogQueryAugmentor, LogAugmentorContext } from "./log.augmentor";
+export {
+  NoopLogVisibilityPolicy,
+  RuleBasedLogVisibilityPolicy,
+  LogVisibilityPolicy,
+  LogVisibilityPolicyContext,
+} from "./log.visibility-policy";

@@ -8,27 +8,27 @@ import { hexTransformer } from "../common/transformers/hex.transformer";
 import { VisibilityContext } from "../prividium/visibility/visibility.context";
 import { PrividiumRulesService } from "../prividium/prividium-rules.service";
 
-export interface LogQueryAugmentor {
-  apply(qb: SelectQueryBuilder<Log>, ctx: LogAugmentorContext): Promise<void> | void;
+export interface LogVisibilityPolicy {
+  apply(qb: SelectQueryBuilder<Log>, ctx: LogVisibilityPolicyContext): Promise<void> | void;
 }
 
-export interface LogAugmentorContext {
+export interface LogVisibilityPolicyContext {
   filter: FilterLogsOptions;
   visibility?: VisibilityContext;
 }
 
 @Injectable()
-export class StandardLogAugmentor implements LogQueryAugmentor {
+export class NoopLogVisibilityPolicy implements LogVisibilityPolicy {
   apply(): void {
-    // no-op for standard mode
+    // intentionally no-op
   }
 }
 
 @Injectable()
-export class PrividiumLogAugmentor implements LogQueryAugmentor {
+export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   constructor(private readonly rulesService: PrividiumRulesService) {}
 
-  async apply(qb: SelectQueryBuilder<Log>, ctx: LogAugmentorContext): Promise<void> {
+  async apply(qb: SelectQueryBuilder<Log>, ctx: LogVisibilityPolicyContext): Promise<void> {
     const { filter, visibility } = ctx;
     if (visibility?.isAdmin) return;
 

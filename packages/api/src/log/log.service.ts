@@ -8,8 +8,8 @@ import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { zeroPadValue } from "ethers";
 import { Inject } from "@nestjs/common";
-import { LOG_AUGMENTOR } from "./log.tokens";
-import { LogQueryAugmentor } from "./log.augmentor";
+import { LOG_VISIBILITY_POLICY } from "./log.tokens";
+import { LogVisibilityPolicy } from "./log.visibility-policy";
 import { VisibilityContext } from "../prividium/visibility/visibility.context";
 
 export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
@@ -57,7 +57,7 @@ export class LogService {
   constructor(
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>,
-    @Inject(LOG_AUGMENTOR) private readonly augmentor: LogQueryAugmentor
+    @Inject(LOG_VISIBILITY_POLICY) private readonly visibilityPolicy: LogVisibilityPolicy
   ) {}
 
   public async findAll(
@@ -76,7 +76,7 @@ export class LogService {
     const queryBuilder = this.logRepository.createQueryBuilder("log");
     queryBuilder.where(basicFilters);
 
-    await this.augmentor.apply(queryBuilder, {
+    await this.visibilityPolicy.apply(queryBuilder, {
       filter: {
         ...basicFilters,
         visibleBy,

@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { LogService } from "./log.service";
 import { Log } from "./log.entity";
-import { LOG_AUGMENTOR, PrividiumLogAugmentor, StandardLogAugmentor } from "./log.tokens";
+import { LOG_VISIBILITY_POLICY, RuleBasedLogVisibilityPolicy, NoopLogVisibilityPolicy } from "./log.tokens";
 import { makePrividiumToggleProvider } from "../prividium/prividium-provider.factory";
 import { PrividiumRulesService } from "../prividium/prividium-rules.service";
 
@@ -11,9 +11,9 @@ import { PrividiumRulesService } from "../prividium/prividium-rules.service";
   providers: [
     LogService,
     PrividiumRulesService,
-    StandardLogAugmentor,
-    PrividiumLogAugmentor,
-    makePrividiumToggleProvider(LOG_AUGMENTOR, StandardLogAugmentor, PrividiumLogAugmentor),
+    NoopLogVisibilityPolicy,
+    RuleBasedLogVisibilityPolicy,
+    makePrividiumToggleProvider(LOG_VISIBILITY_POLICY, NoopLogVisibilityPolicy, RuleBasedLogVisibilityPolicy),
   ],
   exports: [LogService],
 })

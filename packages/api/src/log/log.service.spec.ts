@@ -6,7 +6,7 @@ import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions, EventPermissionRule } from "./log.service";
 import { Log } from "./log.entity";
-import { LOG_AUGMENTOR } from "./log.tokens";
+import { LOG_VISIBILITY_POLICY } from "./log.tokens";
 
 jest.mock("../common/utils");
 
@@ -32,7 +32,7 @@ describe("LogService", () => {
           useValue: repositoryMock,
         },
         {
-          provide: LOG_AUGMENTOR,
+          provide: LOG_VISIBILITY_POLICY,
           useValue: augmentorMock,
         },
       ],
