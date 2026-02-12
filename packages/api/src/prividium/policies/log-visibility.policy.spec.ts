@@ -3,7 +3,8 @@ import { mock } from "jest-mock-extended";
 
 import { Log } from "../../log/log.entity";
 import { RuleBasedLogVisibilityPolicy, NoopLogVisibilityPolicy } from "./log-visibility.policy";
-import { PrividiumRulesService } from "../prividium-rules.service";
+import { PrividiumRulesService, EventPermissionRule } from "../prividium-rules.service";
+import { zeroPadValue } from "ethers";
 
 describe("LogVisibilityPolicy", () => {
   describe("NoopLogVisibilityPolicy", () => {
@@ -18,10 +19,12 @@ describe("LogVisibilityPolicy", () => {
 
   describe("RuleBasedLogVisibilityPolicy", () => {
     const visibleUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    const contractAddr = "0xabc";
+    const selectorFoo = "0xdead";
     const mockRules = [
       {
-        contractAddress: "0xabc",
-        topic0: "0xdead",
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
         topic1: null,
         topic2: null,
         topic3: null,
@@ -63,6 +66,21 @@ describe("LogVisibilityPolicy", () => {
       rulesService.fetchEventPermissionRules.mockResolvedValue([]);
       await policy.apply(qb, { isAdmin: false, token: "token1", userAddress: visibleUser });
       expect(qb.andWhere).toHaveBeenCalledWith("FALSE");
+    });
+
+    it("pads userAddress for userAddress rule", async () => {
+      const rule: EventPermissionRule = {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: { type: "userAddress" },
+        topic2: null,
+        topic3: null,
+      };
+      rulesService.fetchEventPermissionRules.mockResolvedValue([rule]);
+      const spy = jest.spyOn(require("ethers"), "zeroPadValue");
+      await policy.apply(qb, { isAdmin: false, token: "tok", userAddress: visibleUser });
+      expect(spy).toHaveBeenCalledWith(visibleUser, 32);
+      spy.mockRestore();
     });
   });
 });
