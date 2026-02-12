@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
 
 import { PrividiumApiError } from "../errors/prividiumApiError";
+import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 
 export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
 
@@ -12,6 +13,10 @@ export interface EventPermissionRule {
   topic1: TopicCondition | null;
   topic2: TopicCondition | null;
   topic3: TopicCondition | null;
+}
+
+export interface VisibilityContext {
+  user?: UserWithRoles | null;
 }
 
 const topicConditionSchema = z.discriminatedUnion("type", [

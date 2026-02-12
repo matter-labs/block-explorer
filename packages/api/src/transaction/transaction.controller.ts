@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Query, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -23,14 +23,12 @@ import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
-import { VisibilityInterceptor } from "../prividium/visibility/visibility.interceptor";
 
 const entityName = "transactions";
 
 @ApiTags("Transaction BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-@UseInterceptors(VisibilityInterceptor)
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
@@ -112,13 +110,7 @@ export class TransactionController {
         },
         { user }
       );
-      const visibilityUser = {
-        token: user.token,
-        address: user.address,
-      };
-      if (
-        !this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, visibilityUser)
-      ) {
+      if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
         throw new NotFoundException();
       }
       return transactionDetail;

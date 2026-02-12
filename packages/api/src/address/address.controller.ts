@@ -1,4 +1,4 @@
-import { Controller, ForbiddenException, Get, Logger, Param, Query, UseInterceptors } from "@nestjs/common";
+import { Controller, ForbiddenException, Get, Logger, Param, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -27,14 +27,12 @@ import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
-import { VisibilityInterceptor } from "../prividium/visibility/visibility.interceptor";
 
 const entityName = "address";
 
 @ApiTags("Address BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-@UseInterceptors(VisibilityInterceptor)
 export class AddressController {
   private readonly logger: Logger;
 

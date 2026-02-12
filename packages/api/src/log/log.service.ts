@@ -9,7 +9,7 @@ import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Inject } from "@nestjs/common";
 import { LOG_VISIBILITY_POLICY } from "./log.tokens";
 import { LogVisibilityPolicy } from "../prividium/policies/log-visibility.policy";
-import { VisibilityContext } from "../prividium/visibility/visibility.context";
+import { VisibilityContext } from "../prividium/prividium-rules.service";
 
 export interface FilterLogsOptions {
   transactionHash?: string;

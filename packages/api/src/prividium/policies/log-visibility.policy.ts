@@ -4,8 +4,12 @@ import { zeroPadValue } from "ethers";
 
 import { Log } from "../../log/log.entity";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
-import { VisibilityContext } from "../visibility/visibility.context";
-import { PrividiumRulesService, EventPermissionRule, TopicCondition } from "../prividium-rules.service";
+import {
+  PrividiumRulesService,
+  EventPermissionRule,
+  TopicCondition,
+  VisibilityContext,
+} from "../prividium-rules.service";
 
 export interface LogVisibilityPolicy {
   apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void;
