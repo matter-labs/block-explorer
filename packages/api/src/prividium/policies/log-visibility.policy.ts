@@ -25,14 +25,14 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   async apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> {
     if (visibility?.isAdmin) return;
 
-    const effectiveVisibleBy = visibility?.userAddress;
-    if (effectiveVisibleBy) {
-      this.applyVisibleBy(qb, effectiveVisibleBy);
-    }
-
     if (visibility?.token) {
       const rules = await this.rulesService.fetchEventPermissionRules(visibility.token);
       this.applyEventPermissionRules(qb, rules, visibility.userAddress);
+      return;
+    }
+
+    if (visibility?.userAddress && !visibility?.token) {
+      this.applyVisibleBy(qb, visibility.userAddress);
     }
   }
 

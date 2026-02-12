@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException, Query, UseInterceptors } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -23,12 +23,16 @@ import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { Visibility } from "../prividium/visibility/visibility.decorator";
+import { VisibilityContext } from "../prividium/visibility/visibility.context";
+import { VisibilityInterceptor } from "../prividium/visibility/visibility.interceptor";
 
 const entityName = "transactions";
 
 @ApiTags("Transaction BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
+@UseInterceptors(VisibilityInterceptor)
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
@@ -94,21 +98,26 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @Visibility() visibility: VisibilityContext
   ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();
     }
 
-    if (user && !user.isAdmin) {
+    if (visibility && !visibility.isAdmin) {
       const transactionLogs = await this.logService.findAll(
         { transactionHash },
         {
           page: 1,
           limit: 10_000, // default max limit used in pagination-enabled endpoints
-        }
+        },
+        visibility
       );
+      const user = {
+        token: visibility.token,
+        address: visibility.userAddress,
+      };
       if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
         throw new NotFoundException();
       }
@@ -167,19 +176,19 @@ export class TransactionController {
   public async getTransactionLogs(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @Visibility() visibility: VisibilityContext
   ): Promise<Pagination<LogDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
-    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     return await this.logService.findAll(
-      { transactionHash, ...userFilters },
+      { transactionHash },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,
-      }
+      },
+      visibility
     );
   }
 }

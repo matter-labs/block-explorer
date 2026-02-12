@@ -58,6 +58,7 @@ export class LogService {
 
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
+
     return await paginate<Log>(queryBuilder, paginationOptions);
   }
 

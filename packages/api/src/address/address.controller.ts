@@ -27,6 +27,8 @@ import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { Visibility } from "../prividium/visibility/visibility.decorator";
+import { VisibilityContext } from "../prividium/visibility/visibility.context";
 
 const entityName = "address";
 
@@ -151,18 +153,15 @@ export class AddressController {
   public async getAddressLogs(
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @Visibility() visibility: VisibilityContext
   ): Promise<Pagination<LogDto>> {
-    if (user && !user.isAdmin) {
-      throw new ForbiddenException();
-    }
-
     return await this.logService.findAll(
       { address },
       {
         ...pagingOptions,
         route: `${entityName}/${address}/logs`,
-      }
+      },
+      visibility
     );
   }
 
