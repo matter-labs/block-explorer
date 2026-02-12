@@ -3,18 +3,13 @@ import { Brackets, SelectQueryBuilder } from "typeorm";
 import { zeroPadValue } from "ethers";
 
 import { Log } from "./log.entity";
-import { FilterLogsOptions, TopicCondition, EventPermissionRule } from "./log.service";
+import { TopicCondition, EventPermissionRule } from "./log.service";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { VisibilityContext } from "../prividium/visibility/visibility.context";
 import { PrividiumRulesService } from "../prividium/prividium-rules.service";
 
 export interface LogVisibilityPolicy {
-  apply(qb: SelectQueryBuilder<Log>, ctx: LogVisibilityPolicyContext): Promise<void> | void;
-}
-
-export interface LogVisibilityPolicyContext {
-  filter: FilterLogsOptions;
-  visibility?: VisibilityContext;
+  apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void;
 }
 
 @Injectable()
@@ -28,25 +23,17 @@ export class NoopLogVisibilityPolicy implements LogVisibilityPolicy {
 export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   constructor(private readonly rulesService: PrividiumRulesService) {}
 
-  async apply(qb: SelectQueryBuilder<Log>, ctx: LogVisibilityPolicyContext): Promise<void> {
-    const { filter, visibility } = ctx;
+  async apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> {
     if (visibility?.isAdmin) return;
 
-    const effectiveVisibleBy = filter.visibleBy ?? visibility?.userAddress;
+    const effectiveVisibleBy = visibility?.userAddress;
     if (effectiveVisibleBy) {
       this.applyVisibleBy(qb, effectiveVisibleBy);
     }
 
-    const explicitRules = filter.eventPermissionRules;
-    const userAddress = filter.eventPermissionUserAddress ?? visibility?.userAddress;
-
-    let rulesToApply: EventPermissionRule[] | undefined = explicitRules;
-    if (!rulesToApply && visibility?.token) {
-      rulesToApply = await this.rulesService.fetchEventPermissionRules(visibility.token);
-    }
-
-    if (rulesToApply) {
-      this.applyEventPermissionRules(qb, rulesToApply, userAddress);
+    if (visibility?.token) {
+      const rules = await this.rulesService.fetchEventPermissionRules(visibility.token);
+      this.applyEventPermissionRules(qb, rules, visibility.userAddress);
     }
   }
 

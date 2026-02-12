@@ -156,7 +156,7 @@ export class TransactionController {
       throw new NotFoundException();
     }
 
-    return await this.logService.findAllWithVisibility(
+    return await this.logService.findAll(
       { transactionHash },
       {
         ...pagingOptions,

@@ -25,9 +25,6 @@ export interface EventPermissionRule {
 export interface FilterLogsOptions {
   transactionHash?: string;
   address?: string;
-  visibleBy?: string;
-  eventPermissionRules?: EventPermissionRule[];
-  eventPermissionUserAddress?: string;
 }
 
 export interface FilterLogsByAddressOptions {
@@ -62,29 +59,13 @@ export class LogService {
 
   public async findAll(
     filterOptions: FilterLogsOptions = {},
-    paginationOptions: IPaginationOptions
-  ): Promise<Pagination<Log>> {
-    return this.findAllWithVisibility(filterOptions, paginationOptions);
-  }
-
-  public async findAllWithVisibility(
-    filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions,
     visibility?: VisibilityContext
   ): Promise<Pagination<Log>> {
-    const { visibleBy, eventPermissionRules, eventPermissionUserAddress, ...basicFilters } = filterOptions;
     const queryBuilder = this.logRepository.createQueryBuilder("log");
-    queryBuilder.where(basicFilters);
+    queryBuilder.where(filterOptions);
 
-    await this.visibilityPolicy.apply(queryBuilder, {
-      filter: {
-        ...basicFilters,
-        visibleBy,
-        eventPermissionRules,
-        eventPermissionUserAddress,
-      },
-      visibility,
-    });
+    await this.visibilityPolicy.apply(queryBuilder, visibility);
 
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
