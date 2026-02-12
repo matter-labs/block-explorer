@@ -23,16 +23,16 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   constructor(private readonly rulesService: PrividiumRulesService) {}
 
   async apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> {
-    if (visibility?.isAdmin) return;
+    if (visibility?.user?.isAdmin) return;
 
-    if (visibility?.token) {
-      const rules = await this.rulesService.fetchEventPermissionRules(visibility.token);
-      this.applyEventPermissionRules(qb, rules, visibility.userAddress);
+    if (visibility?.user?.token) {
+      const rules = await this.rulesService.fetchEventPermissionRules(visibility.user.token);
+      this.applyEventPermissionRules(qb, rules, visibility.user.address);
       return;
     }
 
-    if (visibility?.userAddress && !visibility?.token) {
-      this.applyVisibleBy(qb, visibility.userAddress);
+    if (visibility?.user?.address && !visibility?.user?.token) {
+      this.applyVisibleBy(qb, visibility.user.address);
     }
   }
 

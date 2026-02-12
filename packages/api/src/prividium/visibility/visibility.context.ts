@@ -1,5 +1,5 @@
+import { UserWithRoles } from "../../api/pipes/addUserRoles.pipe";
+
 export interface VisibilityContext {
-  isAdmin: boolean;
-  userAddress?: string;
-  token?: string;
+  user?: UserWithRoles | null;
 }

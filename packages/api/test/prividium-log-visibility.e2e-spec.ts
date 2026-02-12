@@ -11,6 +11,7 @@ import { TransactionReceipt } from "../src/transaction/entities/transactionRecei
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { PrividiumRulesService, EventPermissionRule } from "../src/prividium/prividium-rules.service";
 import { LogService } from "../src/log/log.service";
+import { UserWithRoles } from "../src/api/pipes/addUserRoles.pipe";
 
 const userAddr = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 const otherAddr = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
@@ -20,6 +21,13 @@ const topicOther = `0x${"0".repeat(24)}${otherAddr.slice(2)}`;
 const selectorFoo = "0xdeadbeef";
 const selectorBar = "0xfeedface";
 const topicExact = "0x" + "bb".repeat(32);
+const makeUser = (overrides: Partial<UserWithRoles> = {}): UserWithRoles => ({
+  address: userAddr,
+  token: "tok",
+  roles: [],
+  isAdmin: false,
+  ...overrides,
+});
 
 describe("Prividium Log Visibility (e2e)", () => {
   let app: INestApplication;
@@ -206,7 +214,7 @@ describe("Prividium Log Visibility (e2e)", () => {
     const res = await logService.findAll(
       { transactionHash: "0x" + "aa".repeat(32) },
       { page: 1, limit, route: "transactions/tx/logs" },
-      { isAdmin: false, token: "tok", userAddress: userAddr }
+      { user: makeUser() }
     );
     return res.items.map((l) => l.logIndex);
   };
@@ -337,7 +345,7 @@ describe("Prividium Log Visibility (e2e)", () => {
     const res = await logService.findAll(
       { transactionHash: "0x" + "aa".repeat(32) },
       { page: 1, limit: 10, route: "transactions/tx/logs" },
-      { isAdmin: true }
+      { user: makeUser({ isAdmin: true }) }
     );
     expect(res.items).toHaveLength(8);
   });

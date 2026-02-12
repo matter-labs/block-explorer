@@ -23,8 +23,6 @@ import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
-import { Visibility } from "../prividium/visibility/visibility.decorator";
-import { VisibilityContext } from "../prividium/visibility/visibility.context";
 import { VisibilityInterceptor } from "../prividium/visibility/visibility.interceptor";
 
 const entityName = "transactions";
@@ -98,27 +96,29 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Visibility() visibility: VisibilityContext
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();
     }
 
-    if (visibility && !visibility.isAdmin) {
+    if (user && !user.isAdmin) {
       const transactionLogs = await this.logService.findAll(
         { transactionHash },
         {
           page: 1,
           limit: 10_000, // default max limit used in pagination-enabled endpoints
         },
-        visibility
+        { user }
       );
-      const user = {
-        token: visibility.token,
-        address: visibility.userAddress,
+      const visibilityUser = {
+        token: user.token,
+        address: user.address,
       };
-      if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
+      if (
+        !this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, visibilityUser)
+      ) {
         throw new NotFoundException();
       }
       return transactionDetail;
@@ -176,7 +176,7 @@ export class TransactionController {
   public async getTransactionLogs(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Visibility() visibility: VisibilityContext
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<LogDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
@@ -188,7 +188,7 @@ export class TransactionController {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,
       },
-      visibility
+      { user }
     );
   }
 }

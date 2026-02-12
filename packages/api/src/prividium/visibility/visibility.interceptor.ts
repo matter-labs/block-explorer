@@ -33,9 +33,7 @@ export class VisibilityInterceptor implements NestInterceptor {
     return from(userPromise).pipe(
       switchMap((user) => {
         const visibilityContext: VisibilityContext = {
-          isAdmin: !!user?.isAdmin,
-          userAddress: user?.address,
-          token: user?.token,
+          user,
         };
         request.visibilityContext = visibilityContext;
         return next.handle();
