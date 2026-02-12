@@ -18,6 +18,8 @@ const contractAddr = "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC";
 const topicUser = `0x${"0".repeat(24)}${userAddr.slice(2)}`;
 const topicOther = `0x${"0".repeat(24)}${otherAddr.slice(2)}`;
 const selectorFoo = "0xdeadbeef";
+const selectorBar = "0xfeedface";
+const topicExact = "0x" + "bb".repeat(32);
 
 describe("Prividium Log Visibility (e2e)", () => {
   let app: INestApplication;
@@ -26,6 +28,7 @@ describe("Prividium Log Visibility (e2e)", () => {
   let receiptRepo: Repository<TransactionReceipt>;
   let blockRepo: Repository<BlockDetails>;
   let logService: LogService;
+  const fetchEventPermissionRules = jest.fn<Promise<EventPermissionRule[]>, [string]>();
 
   const seed = async () => {
     await blockRepo.insert({
@@ -85,7 +88,7 @@ describe("Prividium Log Visibility (e2e)", () => {
     // matches visibleBy only (topic has user), different selector
     await logRepo.insert({
       address: contractAddr,
-      topics: ["0xfeedface", topicUser],
+      topics: [selectorBar, topicUser],
       data: "0x",
       blockNumber: 1,
       transactionHash: "0x" + "aa".repeat(32),
@@ -117,6 +120,54 @@ describe("Prividium Log Visibility (e2e)", () => {
       logIndex: 3,
       timestamp: new Date("2024-01-01T00:00:03Z"),
     });
+
+    // topic2 equalTo match
+    await logRepo.insert({
+      address: contractAddr,
+      topics: [selectorFoo, topicUser, topicExact],
+      data: "0x",
+      blockNumber: 1,
+      transactionHash: "0x" + "aa".repeat(32),
+      transactionIndex: 0,
+      logIndex: 4,
+      timestamp: new Date("2024-01-01T00:00:04Z"),
+    });
+
+    // topic2 userAddress match
+    await logRepo.insert({
+      address: contractAddr,
+      topics: [selectorFoo, topicUser, topicUser],
+      data: "0x",
+      blockNumber: 1,
+      transactionHash: "0x" + "aa".repeat(32),
+      transactionIndex: 0,
+      logIndex: 5,
+      timestamp: new Date("2024-01-01T00:00:05Z"),
+    });
+
+    // topic3 userAddress match
+    await logRepo.insert({
+      address: contractAddr,
+      topics: [selectorFoo, topicUser, topicExact, topicUser],
+      data: "0x",
+      blockNumber: 1,
+      transactionHash: "0x" + "aa".repeat(32),
+      transactionIndex: 0,
+      logIndex: 6,
+      timestamp: new Date("2024-01-01T00:00:06Z"),
+    });
+
+    // topic3 equalTo match
+    await logRepo.insert({
+      address: contractAddr,
+      topics: [selectorFoo, topicUser, topicExact, topicOther],
+      data: "0x",
+      blockNumber: 1,
+      transactionHash: "0x" + "aa".repeat(32),
+      transactionIndex: 0,
+      logIndex: 7,
+      timestamp: new Date("2024-01-01T00:00:07Z"),
+    });
   };
 
   beforeAll(async () => {
@@ -125,15 +176,7 @@ describe("Prividium Log Visibility (e2e)", () => {
     })
       .overrideProvider(PrividiumRulesService)
       .useValue({
-        fetchEventPermissionRules: async (): Promise<EventPermissionRule[]> => [
-          {
-            contractAddress: contractAddr,
-            topic0: selectorFoo,
-            topic1: { type: "equalTo", value: topicOther },
-            topic2: null,
-            topic3: null,
-          },
-        ],
+        fetchEventPermissionRules,
       })
       .compile();
 
@@ -158,14 +201,136 @@ describe("Prividium Log Visibility (e2e)", () => {
     await app.close();
   });
 
-  it("returns logs matching permission rules via LogService", async () => {
+  const findIndexes = async (rules: EventPermissionRule[], limit = 20) => {
+    fetchEventPermissionRules.mockResolvedValue(rules);
     const res = await logService.findAll(
       { transactionHash: "0x" + "aa".repeat(32) },
-      { page: 1, limit: 10, route: "transactions/tx/logs" },
-      { isAdmin: false, token: "tok" }
+      { page: 1, limit, route: "transactions/tx/logs" },
+      { isAdmin: false, token: "tok", userAddress: userAddr }
     );
-    const indexes = res.items.map((l) => l.logIndex);
+    return res.items.map((l) => l.logIndex);
+  };
+
+  it("matches topic0 + topic1 equalTo", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: { type: "equalTo", value: topicOther },
+        topic2: null,
+        topic3: null,
+      },
+    ]);
     expect(indexes).toEqual([2]);
+  });
+
+  it("allows any selector when topic0 is null", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: null,
+        topic1: { type: "userAddress" },
+        topic2: null,
+        topic3: null,
+      },
+    ]);
+    expect(indexes).toEqual([7, 6, 5, 4, 1, 0]);
+  });
+
+  it("ignores topic1 when it is null", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: null,
+        topic2: null,
+        topic3: null,
+      },
+    ]);
+    expect(indexes).toEqual([7, 6, 5, 4, 2, 0]);
+  });
+
+  it("matches topic1 equalTo", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: { type: "equalTo", value: topicUser },
+        topic2: null,
+        topic3: null,
+      },
+    ]);
+    expect(indexes).toEqual([7, 6, 5, 4, 0]);
+  });
+
+  it("matches topic1 userAddress", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: { type: "userAddress" },
+        topic2: null,
+        topic3: null,
+      },
+    ]);
+    expect(indexes).toEqual([7, 6, 5, 4, 0]);
+  });
+
+  it("matches topic2 equalTo", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: null,
+        topic2: { type: "equalTo", value: topicExact },
+        topic3: null,
+      },
+    ]);
+    expect(indexes).toEqual([7, 6, 4]);
+  });
+
+  it("matches topic2 userAddress", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: null,
+        topic2: { type: "userAddress" },
+        topic3: null,
+      },
+    ]);
+    expect(indexes).toEqual([5]);
+  });
+
+  it("matches topic3 equalTo", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: null,
+        topic2: { type: "equalTo", value: topicExact },
+        topic3: { type: "equalTo", value: topicOther },
+      },
+    ]);
+    expect(indexes).toEqual([7]);
+  });
+
+  it("matches topic3 userAddress", async () => {
+    const indexes = await findIndexes([
+      {
+        contractAddress: contractAddr,
+        topic0: selectorFoo,
+        topic1: null,
+        topic2: { type: "equalTo", value: topicExact },
+        topic3: { type: "userAddress" },
+      },
+    ]);
+    expect(indexes).toEqual([6]);
+  });
+
+  it("returns no logs when permission rules empty", async () => {
+    const indexes = await findIndexes([]);
+    expect(indexes).toEqual([]);
   });
 
   it("returns all logs when admin", async () => {
@@ -174,6 +339,6 @@ describe("Prividium Log Visibility (e2e)", () => {
       { page: 1, limit: 10, route: "transactions/tx/logs" },
       { isAdmin: true }
     );
-    expect(res.items).toHaveLength(4);
+    expect(res.items).toHaveLength(8);
   });
 });
