@@ -2,8 +2,17 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
 
-import { EventPermissionRule } from "../log/log.service";
 import { PrividiumApiError } from "../errors/prividiumApiError";
+
+export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
+
+export interface EventPermissionRule {
+  contractAddress: string;
+  topic0: string | null;
+  topic1: TopicCondition | null;
+  topic2: TopicCondition | null;
+  topic3: TopicCondition | null;
+}
 
 const topicConditionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("equalTo"), value: z.string() }),

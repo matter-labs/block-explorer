@@ -5,16 +5,7 @@ import { zeroPadValue } from "ethers";
 import { Log } from "../../log/log.entity";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 import { VisibilityContext } from "../visibility/visibility.context";
-import { PrividiumRulesService } from "../prividium-rules.service";
-export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
-
-export interface EventPermissionRule {
-  contractAddress: string;
-  topic0: string | null;
-  topic1: TopicCondition | null;
-  topic2: TopicCondition | null;
-  topic3: TopicCondition | null;
-}
+import { PrividiumRulesService, EventPermissionRule, TopicCondition } from "../prividium-rules.service";
 
 export interface LogVisibilityPolicy {
   apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void;
@@ -22,7 +13,7 @@ export interface LogVisibilityPolicy {
 
 @Injectable()
 export class NoopLogVisibilityPolicy implements LogVisibilityPolicy {
-  apply(): void {
+  apply(_qb: SelectQueryBuilder<Log>, _visibility?: VisibilityContext): void {
     // intentionally no-op
   }
 }
