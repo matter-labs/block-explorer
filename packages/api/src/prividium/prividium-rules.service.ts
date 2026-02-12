@@ -19,6 +19,8 @@ export interface VisibilityContext {
   user?: UserWithRoles | null;
 }
 
+export const EVENT_PERMISSION_RULES_VERSION = "1" as const;
+
 const topicConditionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("equalTo"), value: z.string() }),
   z.object({ type: z.literal("userAddress") }),
@@ -33,6 +35,7 @@ const eventPermissionRuleSchema = z.object({
 });
 
 const eventPermissionRulesResponseSchema = z.object({
+  version: z.literal(EVENT_PERMISSION_RULES_VERSION),
   rules: z.array(eventPermissionRuleSchema),
 });
 

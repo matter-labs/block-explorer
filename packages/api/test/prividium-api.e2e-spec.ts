@@ -445,7 +445,7 @@ describe("Prividium API (e2e)", () => {
         json: jest.fn().mockResolvedValue(data),
       } as any);
 
-    const setupFetch = (roles: string[], rules: any[]) =>
+    const setupFetch = (roles: string[], rules: any[], version = "1") =>
       jest.spyOn(global, "fetch").mockImplementation((input: any) => {
         const url = input instanceof URL ? input : new URL(input as string);
         switch (url.pathname) {
@@ -458,7 +458,7 @@ describe("Prividium API (e2e)", () => {
           case "/api/profiles/me":
             return Promise.resolve(makeResponse({ roles: roles.map((r) => ({ roleName: r })) }));
           case "/api/check/event-permission-rules":
-            return Promise.resolve(makeResponse({ rules }));
+            return Promise.resolve(makeResponse({ version, rules }));
           default:
             return Promise.reject(new Error(`Unhandled fetch request to ${url.pathname}`));
         }
@@ -475,7 +475,8 @@ describe("Prividium API (e2e)", () => {
             topic2: null,
             topic3: null,
           },
-        ]
+        ],
+        "1"
       );
 
       try {
@@ -493,7 +494,7 @@ describe("Prividium API (e2e)", () => {
     });
 
     it("returns no logs when permission rules are empty", async () => {
-      const fetchSpy = setupFetch(["user"], []);
+      const fetchSpy = setupFetch(["user"], [], "1");
 
       try {
         await agent
@@ -510,7 +511,7 @@ describe("Prividium API (e2e)", () => {
     });
 
     it("returns all logs for admin", async () => {
-      const fetchSpy = setupFetch(["admin"], []);
+      const fetchSpy = setupFetch(["admin"], [], "1");
 
       try {
         await agent
