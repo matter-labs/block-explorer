@@ -40,7 +40,8 @@ describe("Prividium API (e2e)", () => {
   const selectorBar = "0xfeedface";
   const topicExact = "0x" + "bb".repeat(32);
   const txHash = "0x" + "aa".repeat(32);
-  const mockToken = "mock-jwt-token";
+  const mockTokenBase = "mock-jwt-token";
+  const mockToken = mockTokenBase;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -220,10 +221,10 @@ describe("Prividium API (e2e)", () => {
 
   afterAll(async () => {
     // Clean up test data
+    await logRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
     await addressTransactionRepository.createQueryBuilder().delete().execute();
     await transactionRepository.createQueryBuilder().delete().execute();
-    await transactionReceiptRepository.createQueryBuilder().delete().execute();
-    await logRepository.createQueryBuilder().delete().execute();
     await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
@@ -478,9 +479,12 @@ describe("Prividium API (e2e)", () => {
       );
 
       try {
-        await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+        await agent
+          .post("/auth/login")
+          .send({ token: `${mockTokenBase}-rules` })
+          .expect(201);
 
-        const res = await agent.get(`/transactions/${txHash}/logs?limit=20`).expect(200);
+        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
         expect(res.body.items.map((l) => l.logIndex)).toEqual([2]);
         expect(res.body.meta.totalItems).toBe(1);
       } finally {
@@ -492,9 +496,12 @@ describe("Prividium API (e2e)", () => {
       const fetchSpy = setupFetch(["user"], []);
 
       try {
-        await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+        await agent
+          .post("/auth/login")
+          .send({ token: `${mockTokenBase}-empty` })
+          .expect(201);
 
-        const res = await agent.get(`/transactions/${txHash}/logs?limit=20`).expect(200);
+        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
         expect(res.body.items).toHaveLength(0);
         expect(res.body.meta.totalItems).toBe(0);
       } finally {
@@ -506,9 +513,12 @@ describe("Prividium API (e2e)", () => {
       const fetchSpy = setupFetch(["admin"], []);
 
       try {
-        await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+        await agent
+          .post("/auth/login")
+          .send({ token: `${mockTokenBase}-admin` })
+          .expect(201);
 
-        const res = await agent.get(`/transactions/${txHash}/logs?limit=20`).expect(200);
+        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
         expect(res.body.items.map((l) => l.logIndex)).toEqual([7, 6, 5, 4, 3, 2, 1, 0]);
         expect(res.body.meta.totalItems).toBe(8);
       } finally {

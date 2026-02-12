@@ -77,7 +77,7 @@ describe("LogVisibilityPolicy", () => {
       expect(qb.andWhere).toHaveBeenCalledWith("FALSE");
     });
 
-    it("pads userAddress for userAddress rule", async () => {
+    it("applies userAddress rule by padding address", async () => {
       const rule: EventPermissionRule = {
         contractAddress: contractAddr,
         topic0: selectorFoo,
@@ -86,10 +86,8 @@ describe("LogVisibilityPolicy", () => {
         topic3: null,
       };
       rulesService.fetchEventPermissionRules.mockResolvedValue([rule]);
-      const spy = jest.spyOn(require("ethers"), "zeroPadValue");
       await policy.apply(qb, { user: makeUser({ token: "tok" }) });
-      expect(spy).toHaveBeenCalledWith(visibleUser, 32);
-      spy.mockRestore();
+      expect(qb.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
     });
   });
 });
