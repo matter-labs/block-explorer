@@ -3,10 +3,18 @@ import { Brackets, SelectQueryBuilder } from "typeorm";
 import { zeroPadValue } from "ethers";
 
 import { Log } from "../../log/log.entity";
-import { TopicCondition, EventPermissionRule } from "../../log/log.service";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 import { VisibilityContext } from "../visibility/visibility.context";
 import { PrividiumRulesService } from "../prividium-rules.service";
+export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
+
+export interface EventPermissionRule {
+  contractAddress: string;
+  topic0: string | null;
+  topic1: TopicCondition | null;
+  topic2: TopicCondition | null;
+  topic3: TopicCondition | null;
+}
 
 export interface LogVisibilityPolicy {
   apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void;

@@ -4,7 +4,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
-import { LogService, FilterLogsOptions, FilterLogsByAddressOptions, EventPermissionRule } from "./log.service";
+import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
 import { Log } from "./log.entity";
 import { LOG_VISIBILITY_POLICY } from "./log.tokens";
 
@@ -13,7 +13,7 @@ jest.mock("../common/utils");
 describe("LogService", () => {
   let service: LogService;
   let repositoryMock: MockProxy<Repository<Log>>;
-  let augmentorMock: { apply: jest.Mock };
+  let policyMock: { apply: jest.Mock };
 
   const pagingOptions = {
     limit: 10,
@@ -22,7 +22,7 @@ describe("LogService", () => {
 
   beforeEach(async () => {
     repositoryMock = mock<Repository<Log>>();
-    augmentorMock = { apply: jest.fn() };
+    policyMock = { apply: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -33,7 +33,7 @@ describe("LogService", () => {
         },
         {
           provide: LOG_VISIBILITY_POLICY,
-          useValue: augmentorMock,
+          useValue: policyMock,
         },
       ],
     }).compile();
@@ -92,10 +92,7 @@ describe("LogService", () => {
 
     it("returns logs ordered by timestamp DESC and logIndex ASC", async () => {
       await service.findAll(filterOptions, pagingOptions);
-      expect(augmentorMock.apply).toHaveBeenCalledWith(queryBuilderMock, {
-        filter: expect.any(Object),
-        visibility: undefined,
-      });
+      expect(policyMock.apply).toHaveBeenCalledWith(queryBuilderMock, undefined);
       expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
       expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.timestamp", "DESC");
       expect(queryBuilderMock.addOrderBy).toBeCalledTimes(1);
@@ -111,18 +108,10 @@ describe("LogService", () => {
       expect(result).toBe(paginationResult);
     });
 
-    it("passes filter options to augmentor", async () => {
-      const filterOptions = {
-        address: "address",
-        visibleBy: "0x1",
-        eventPermissionRules: [] as EventPermissionRule[],
-        eventPermissionUserAddress: "0x2",
-      };
-      await service.findAll(filterOptions, pagingOptions);
-      expect(augmentorMock.apply).toHaveBeenCalledWith(queryBuilderMock, {
-        filter: filterOptions,
-        visibility: undefined,
-      });
+    it("passes visibility to policy", async () => {
+      const visibility = { isAdmin: false, userAddress: "0x1" };
+      await service.findAll({}, pagingOptions, visibility as any);
+      expect(policyMock.apply).toHaveBeenCalledWith(queryBuilderMock, visibility);
     });
   });
 

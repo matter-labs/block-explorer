@@ -11,16 +11,6 @@ import { LOG_VISIBILITY_POLICY } from "./log.tokens";
 import { LogVisibilityPolicy } from "../prividium/policies/log-visibility.policy";
 import { VisibilityContext } from "../prividium/visibility/visibility.context";
 
-export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
-
-export interface EventPermissionRule {
-  contractAddress: string;
-  topic0: string | null;
-  topic1: TopicCondition | null;
-  topic2: TopicCondition | null;
-  topic3: TopicCondition | null;
-}
-
 export interface FilterLogsOptions {
   transactionHash?: string;
   address?: string;
