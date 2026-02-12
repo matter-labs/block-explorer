@@ -1,15 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
+import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { zeroPadValue } from "ethers";
 import { Inject } from "@nestjs/common";
 import { LOG_VISIBILITY_POLICY } from "./log.tokens";
-import { LogVisibilityPolicy } from "./log.visibility-policy";
+import { LogVisibilityPolicy } from "../prividium/policies/log-visibility.policy";
 import { VisibilityContext } from "../prividium/visibility/visibility.context";
 
 export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };

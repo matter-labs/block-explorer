@@ -2,11 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { Brackets, SelectQueryBuilder } from "typeorm";
 import { zeroPadValue } from "ethers";
 
-import { Log } from "./log.entity";
-import { TopicCondition, EventPermissionRule } from "./log.service";
-import { hexTransformer } from "../common/transformers/hex.transformer";
-import { VisibilityContext } from "../prividium/visibility/visibility.context";
-import { PrividiumRulesService } from "../prividium/prividium-rules.service";
+import { Log } from "../../log/log.entity";
+import { TopicCondition, EventPermissionRule } from "../../log/log.service";
+import { hexTransformer } from "../../common/transformers/hex.transformer";
+import { VisibilityContext } from "../visibility/visibility.context";
+import { PrividiumRulesService } from "../prividium-rules.service";
 
 export interface LogVisibilityPolicy {
   apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void;
