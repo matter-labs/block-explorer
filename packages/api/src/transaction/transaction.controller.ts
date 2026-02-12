@@ -1,4 +1,4 @@
-import { Controller, Get, Param, NotFoundException, Query, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Param, NotFoundException, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -10,35 +10,30 @@ import {
 import { Pagination } from "nestjs-typeorm-paginate";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
+import { buildDateFilter, isAddressEqual } from "../common/utils";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { TransactionDto } from "./dtos/transaction.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
-import { TransactionService } from "./transaction.service";
+import { FilterTransactionsOptions, TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
-import { Visibility } from "../prividium/visibility/visibility.decorator";
-import { VisibilityContext } from "../prividium/visibility/visibility.context";
-import { VisibilityInterceptor } from "../prividium/visibility/visibility.interceptor";
-import { TransactionFilterBuilder } from "./transaction-filter.builder";
 
 const entityName = "transactions";
 
 @ApiTags("Transaction BFF")
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
-@UseInterceptors(VisibilityInterceptor)
 export class TransactionController {
   constructor(
     private readonly transactionService: TransactionService,
     private readonly transferService: TransferService,
-    private readonly logService: LogService,
-    private readonly transactionFilterBuilder: TransactionFilterBuilder
+    private readonly logService: LogService
   ) {}
 
   @Get("")
@@ -48,14 +43,42 @@ export class TransactionController {
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Visibility() visibility: VisibilityContext
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<TransactionDto>> {
-    const userFilters = this.transactionFilterBuilder.build(filterTransactionsOptions, listFilterOptions, visibility);
-    return await this.transactionService.findAll(userFilters, {
-      filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
-      ...pagingOptions,
-      route: entityName,
-    });
+    const userFilters: FilterTransactionsOptions = {};
+
+    if (user && !user.isAdmin) {
+      // In all cases we filter by log topics where the address is mentioned
+      userFilters.filterAddressInLogTopics = true;
+
+      // If target address is not provided, we filter by own address
+      if (!filterTransactionsOptions.address) {
+        userFilters.address = user.address;
+      }
+
+      // If target address is provided and it's not own, we filter transactions between own and target address
+      if (filterTransactionsOptions.address && !isAddressEqual(filterTransactionsOptions.address, user.address)) {
+        userFilters.visibleBy = user.address;
+      }
+    }
+
+    const filterTransactionsListOptions = buildDateFilter(
+      listFilterOptions.fromDate,
+      listFilterOptions.toDate,
+      "receivedAt"
+    );
+    return await this.transactionService.findAll(
+      {
+        ...filterTransactionsOptions,
+        ...filterTransactionsListOptions,
+        ...userFilters,
+      },
+      {
+        filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
+        ...pagingOptions,
+        route: entityName,
+      }
+    );
   }
 
   @Get(":transactionHash")
@@ -71,14 +94,14 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Visibility() visibility: VisibilityContext
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();
     }
 
-    if (!visibility.isAdmin && visibility.userAddress) {
+    if (user && !user.isAdmin) {
       const transactionLogs = await this.logService.findAll(
         { transactionHash },
         {
@@ -86,13 +109,7 @@ export class TransactionController {
           limit: 10_000, // default max limit used in pagination-enabled endpoints
         }
       );
-      if (
-        !this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, {
-          address: visibility.userAddress,
-          isAdmin: visibility.isAdmin,
-          token: visibility.token,
-        } as UserWithRoles)
-      ) {
+      if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
         throw new NotFoundException();
       }
       return transactionDetail;
@@ -117,12 +134,12 @@ export class TransactionController {
   public async getTransactionTransfers(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Visibility() visibility: VisibilityContext
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<TransferDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
-    const userFilters = !visibility.isAdmin && visibility.userAddress ? { visibleBy: visibility.userAddress } : {};
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     const transfers = await this.transferService.findAll(
       { transactionHash, ...userFilters },
@@ -150,19 +167,19 @@ export class TransactionController {
   public async getTransactionLogs(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @Visibility() visibility: VisibilityContext
+    @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<LogDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
+    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     return await this.logService.findAll(
-      { transactionHash },
+      { transactionHash, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,
-      },
-      visibility
+      }
     );
   }
 }
