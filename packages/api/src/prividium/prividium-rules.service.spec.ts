@@ -1,4 +1,5 @@
-import { PrividiumRulesService, EVENT_PERMISSION_RULES_FINGERPRINT } from "./prividium-rules.service";
+import { PrividiumRulesService } from "./prividium-rules.service";
+import { EVENT_PERMISSION_RULES_FINGERPRINT } from "./constants";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 
 describe("PrividiumRulesService", () => {

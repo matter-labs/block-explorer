@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { PrividiumApiError } from "../errors/prividiumApiError";
 import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { EVENT_PERMISSION_RULES_FINGERPRINT } from "./constants";
 
 export type TopicCondition = { type: "equalTo"; value: string } | { type: "userAddress" };
 
@@ -18,10 +19,6 @@ export interface EventPermissionRule {
 export interface VisibilityContext {
   user?: UserWithRoles | null;
 }
-
-// TODO: Move to const/config
-export const EVENT_PERMISSION_RULES_FINGERPRINT =
-  "ffad968c66c9f519c2fe7b775b721e466bbf3c451194992c3c202f4b189b87c5" as const;
 
 const topicConditionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("equalTo"), value: z.string() }),

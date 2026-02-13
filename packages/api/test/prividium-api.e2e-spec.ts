@@ -17,7 +17,7 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "../src/prividium";
-import { EVENT_PERMISSION_RULES_FINGERPRINT } from "../src/prividium/prividium-rules.service";
+import { EVENT_PERMISSION_RULES_FINGERPRINT } from "../src/prividium/constants";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
