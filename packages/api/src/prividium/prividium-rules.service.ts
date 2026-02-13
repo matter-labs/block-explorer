@@ -49,6 +49,7 @@ interface CachedRules {
 @Injectable()
 export class PrividiumRulesService {
   private readonly cacheTtlMs = 5 * 60 * 1000;
+  private readonly maxCacheEntries = 1000;
   private cache = new Map<string, CachedRules>();
 
   constructor(private readonly configService: ConfigService) {}
@@ -81,7 +82,19 @@ export class PrividiumRulesService {
     }
 
     const rules = parsed.data.rules as EventPermissionRule[];
-    this.cache.set(token, { rules, fetchedAt: Date.now() });
+    this.upsertCache(token, { rules, fetchedAt: Date.now() });
     return rules;
+  }
+
+  private upsertCache(token: string, entry: CachedRules): void {
+    this.cache.set(token, entry);
+
+    if (this.cache.size <= this.maxCacheEntries) return;
+
+    // Evict least-recently inserted entry (Map preserves insertion order).
+    const oldestKey = this.cache.keys().next().value;
+    if (oldestKey !== undefined) {
+      this.cache.delete(oldestKey);
+    }
   }
 }
