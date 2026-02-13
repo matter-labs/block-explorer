@@ -88,5 +88,48 @@ describe("LogVisibilityPolicy", () => {
       await policy.apply(qb, { user: makeUser({ token: "tok" }) });
       expect(qb.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
     });
+
+    it("builds correct brackets for multiple rules and topics", async () => {
+      const rules: EventPermissionRule[] = [
+        {
+          contractAddress: contractAddr,
+          topic0: selectorFoo,
+          topic1: { type: "equalTo", value: "0x1111" },
+          topic2: null,
+          topic3: null,
+        },
+        {
+          contractAddress: "0xdef",
+          topic0: null,
+          topic1: null,
+          topic2: { type: "userAddress" },
+          topic3: { type: "equalTo", value: "0x2222" },
+        },
+      ];
+      rulesService.fetchEventPermissionRules.mockResolvedValue(rules);
+
+      await policy.apply(qb, { user: makeUser({ token: "tok" }) });
+      const outer = qb.andWhere.mock.calls[0][0] as Brackets;
+
+      const outerWhere = jest.fn();
+      const outerOrWhere = jest.fn();
+      outer.whereFactory({ where: outerWhere, orWhere: outerOrWhere } as any);
+
+      const firstRule = outerWhere.mock.calls[0][0] as Brackets;
+      const secondRule = outerOrWhere.mock.calls[0][0] as Brackets;
+
+      const innerWhere = jest.fn();
+      const innerAndWhere = jest.fn();
+      firstRule.whereFactory({ where: innerWhere, andWhere: innerAndWhere } as any);
+
+      const innerWhere2 = jest.fn();
+      const innerAndWhere2 = jest.fn();
+      secondRule.whereFactory({ where: innerWhere2, andWhere: innerAndWhere2 } as any);
+
+      expect(innerWhere).toHaveBeenCalledTimes(1);
+      expect(innerAndWhere).toHaveBeenCalled();
+      expect(innerWhere2).toHaveBeenCalledTimes(1);
+      expect(innerAndWhere2).toHaveBeenCalled();
+    });
   });
 });

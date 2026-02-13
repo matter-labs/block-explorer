@@ -59,4 +59,22 @@ describe("PrividiumRulesService", () => {
     await expect(service.fetchEventPermissionRules(token)).rejects.toBeInstanceOf(PrividiumApiError);
     await expect(service.fetchEventPermissionRules(token)).rejects.toThrow("Invalid permission rules response");
   });
+
+  it("throws when response is not ok", async () => {
+    (global.fetch as jest.Mock).mockResolvedValue(
+      makeResponse({ fingerprint: EVENT_PERMISSION_RULES_FINGERPRINT }, 403)
+    );
+    const service = new PrividiumRulesService(mockConfigService);
+
+    await expect(service.fetchEventPermissionRules(token)).rejects.toBeInstanceOf(PrividiumApiError);
+    await expect(service.fetchEventPermissionRules(token)).rejects.toThrow("Permission rules fetch failed");
+  });
+
+  it("throws when fetch fails", async () => {
+    (global.fetch as jest.Mock).mockRejectedValue(new Error("network"));
+    const service = new PrividiumRulesService(mockConfigService);
+
+    await expect(service.fetchEventPermissionRules(token)).rejects.toBeInstanceOf(PrividiumApiError);
+    await expect(service.fetchEventPermissionRules(token)).rejects.toThrow("Permission rules fetch failed");
+  });
 });
