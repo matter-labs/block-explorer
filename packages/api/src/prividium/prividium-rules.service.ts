@@ -41,25 +41,11 @@ const eventPermissionRulesResponseSchema = z.object({
   rules: z.array(eventPermissionRuleSchema),
 });
 
-interface CachedRules {
-  rules: EventPermissionRule[];
-  fetchedAt: number;
-}
-
 @Injectable()
 export class PrividiumRulesService {
-  private readonly cacheTtlMs = 5 * 60 * 1000;
-  private readonly maxCacheEntries = 1000;
-  private cache = new Map<string, CachedRules>();
-
   constructor(private readonly configService: ConfigService) {}
 
   async fetchEventPermissionRules(token: string): Promise<EventPermissionRule[]> {
-    const cached = this.cache.get(token);
-    if (cached && Date.now() - cached.fetchedAt < this.cacheTtlMs) {
-      return cached.rules;
-    }
-
     const permissionsApiUrl = this.configService.get<string>("prividium.permissionsApiUrl");
 
     let response: Response;
@@ -81,20 +67,6 @@ export class PrividiumRulesService {
       throw new PrividiumApiError("Invalid permission rules response", 500);
     }
 
-    const rules = parsed.data.rules as EventPermissionRule[];
-    this.upsertCache(token, { rules, fetchedAt: Date.now() });
-    return rules;
-  }
-
-  private upsertCache(token: string, entry: CachedRules): void {
-    this.cache.set(token, entry);
-
-    if (this.cache.size <= this.maxCacheEntries) return;
-
-    // Evict least-recently inserted entry (Map preserves insertion order).
-    const oldestKey = this.cache.keys().next().value;
-    if (oldestKey !== undefined) {
-      this.cache.delete(oldestKey);
-    }
+    return parsed.data.rules as EventPermissionRule[];
   }
 }
