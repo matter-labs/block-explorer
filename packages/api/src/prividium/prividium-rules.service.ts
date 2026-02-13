@@ -19,7 +19,9 @@ export interface VisibilityContext {
   user?: UserWithRoles | null;
 }
 
-export const EVENT_PERMISSION_RULES_VERSION = "1" as const;
+// TODO: Move to const/config
+export const EVENT_PERMISSION_RULES_FINGERPRINT =
+  "ffad968c66c9f519c2fe7b775b721e466bbf3c451194992c3c202f4b189b87c5" as const;
 
 const topicConditionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("equalTo"), value: z.string() }),
@@ -35,7 +37,7 @@ const eventPermissionRuleSchema = z.object({
 });
 
 const eventPermissionRulesResponseSchema = z.object({
-  version: z.literal(EVENT_PERMISSION_RULES_VERSION),
+  fingerprint: z.literal(EVENT_PERMISSION_RULES_FINGERPRINT),
   rules: z.array(eventPermissionRuleSchema),
 });
 
@@ -73,8 +75,7 @@ export class PrividiumRulesService {
       throw new PrividiumApiError("Permission rules fetch failed", response.status);
     }
 
-    const data = await response.json();
-    const parsed = eventPermissionRulesResponseSchema.safeParse(data);
+    const parsed = eventPermissionRulesResponseSchema.safeParse(await response.json());
     if (!parsed.success) {
       throw new PrividiumApiError("Invalid permission rules response", 500);
     }

@@ -1,4 +1,4 @@
-import { PrividiumRulesService, EVENT_PERMISSION_RULES_VERSION } from "./prividium-rules.service";
+import { PrividiumRulesService, EVENT_PERMISSION_RULES_FINGERPRINT } from "./prividium-rules.service";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 
 describe("PrividiumRulesService", () => {
@@ -26,7 +26,7 @@ describe("PrividiumRulesService", () => {
   beforeEach(() => {
     jest
       .spyOn(global, "fetch")
-      .mockResolvedValue(makeResponse({ version: EVENT_PERMISSION_RULES_VERSION, rules: sampleRules }));
+      .mockResolvedValue(makeResponse({ fingerprint: EVENT_PERMISSION_RULES_FINGERPRINT, rules: sampleRules }));
   });
 
   afterEach(() => {
@@ -44,7 +44,7 @@ describe("PrividiumRulesService", () => {
   });
 
   it("throws when response version does not match", async () => {
-    (global.fetch as jest.Mock).mockResolvedValue(makeResponse({ version: "2", rules: sampleRules }));
+    (global.fetch as jest.Mock).mockResolvedValue(makeResponse({ fingerprint: "any-other", rules: sampleRules }));
     const service = new PrividiumRulesService(mockConfigService);
 
     await expect(service.fetchEventPermissionRules(token)).rejects.toBeInstanceOf(PrividiumApiError);
