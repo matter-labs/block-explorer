@@ -14,21 +14,35 @@ import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
+import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "../src/prividium";
+import { EVENT_PERMISSION_RULES_FINGERPRINT } from "../src/prividium/constants";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { Log } from "../src/log/log.entity";
 
 describe("Prividium API (e2e)", () => {
   let app: INestApplication;
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transactionRepository: Repository<Transaction>;
+  let transactionReceiptRepository: Repository<TransactionReceipt>;
   let blockRepository: Repository<BlockDetails>;
+  let logRepository: Repository<Log>;
   let agent: request.SuperAgentTest;
 
   const mockWalletAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-  const mockToken = "mock-jwt-token";
+  const otherAddr = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+  const contractAddr = "0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC";
+  const topicUser = `0x${"0".repeat(24)}${mockWalletAddress.slice(2)}`;
+  const topicOther = `0x${"0".repeat(24)}${otherAddr.slice(2)}`;
+  const selectorFoo = "0xdeadbeef";
+  const selectorBar = "0xfeedface";
+  const topicExact = "0x" + "bb".repeat(32);
+  const txHash = "0x" + "aa".repeat(32);
+  const mockTokenBase = "mock-jwt-token";
+  const mockToken = mockTokenBase;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -63,7 +77,9 @@ describe("Prividium API (e2e)", () => {
 
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
+    transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
+    logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
 
     // Set up minimal test data
     await blockRepository.insert({
@@ -78,6 +94,126 @@ describe("Prividium API (e2e)", () => {
       l2TxCount: 1,
       miner: "0x0000000000000000000000000000000000000000",
     });
+
+    await transactionRepository.insert({
+      hash: txHash,
+      nonce: 0,
+      blockNumber: 1,
+      blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
+      transactionIndex: 0,
+      from: mockWalletAddress,
+      to: contractAddr,
+      value: "0",
+      gasPrice: "1",
+      gasLimit: "21000",
+      data: "0x",
+      receiptStatus: 1,
+      fee: "1",
+      isL1Originated: false,
+      type: 0,
+      receivedAt: new Date("2024-01-01T00:00:00Z"),
+    });
+
+    await transactionReceiptRepository.insert({
+      transactionHash: txHash,
+      from: mockWalletAddress,
+      to: contractAddr,
+      cumulativeGasUsed: "0",
+      gasUsed: "0",
+      contractAddress: null,
+      status: 1,
+    });
+
+    await logRepository.insert([
+      // matching both visibleBy and permission rule
+      {
+        address: contractAddr,
+        topics: [selectorFoo, topicUser],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 0,
+        timestamp: new Date("2024-01-01T00:00:00Z"),
+      },
+      // matches visibleBy only (topic has user), different selector
+      {
+        address: contractAddr,
+        topics: [selectorBar, topicUser],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 1,
+        timestamp: new Date("2024-01-01T00:00:01Z"),
+      },
+      // matches permission rule only (topic1 equals other)
+      {
+        address: contractAddr,
+        topics: [selectorFoo, topicOther],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 2,
+        timestamp: new Date("2024-01-01T00:00:02Z"),
+      },
+      // different contract, should be excluded
+      {
+        address: otherAddr,
+        topics: [selectorFoo, topicUser],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 3,
+        timestamp: new Date("2024-01-01T00:00:03Z"),
+      },
+      // topic2 equalTo match
+      {
+        address: contractAddr,
+        topics: [selectorFoo, topicUser, topicExact],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 4,
+        timestamp: new Date("2024-01-01T00:00:04Z"),
+      },
+      // topic2 userAddress match
+      {
+        address: contractAddr,
+        topics: [selectorFoo, topicUser, topicUser],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 5,
+        timestamp: new Date("2024-01-01T00:00:05Z"),
+      },
+      // topic3 userAddress match
+      {
+        address: contractAddr,
+        topics: [selectorFoo, topicUser, topicExact, topicUser],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 6,
+        timestamp: new Date("2024-01-01T00:00:06Z"),
+      },
+      // topic3 equalTo match
+      {
+        address: contractAddr,
+        topics: [selectorFoo, topicUser, topicExact, topicOther],
+        data: "0x",
+        blockNumber: 1,
+        transactionHash: txHash,
+        transactionIndex: 0,
+        logIndex: 7,
+        timestamp: new Date("2024-01-01T00:00:07Z"),
+      },
+    ]);
   });
 
   beforeEach(() => {
@@ -86,6 +222,8 @@ describe("Prividium API (e2e)", () => {
 
   afterAll(async () => {
     // Clean up test data
+    await logRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
     await addressTransactionRepository.createQueryBuilder().delete().execute();
     await transactionRepository.createQueryBuilder().delete().execute();
     await blockRepository.createQueryBuilder().delete().execute();
@@ -297,6 +435,96 @@ describe("Prividium API (e2e)", () => {
       // Swagger returns 200 with HTML content
       expect(response.status).toBe(200);
       expect(response.text).toContain("swagger");
+    });
+  });
+
+  describe("Transactions logs visibility", () => {
+    const makeResponse = (data: any, status = 200) =>
+      ({
+        status,
+        ok: status >= 200 && status < 300,
+        json: jest.fn().mockResolvedValue(data),
+      } as any);
+
+    const setupFetch = (roles: string[], rules: any[], fingerprint = EVENT_PERMISSION_RULES_FINGERPRINT) =>
+      jest.spyOn(global, "fetch").mockImplementation((input: any) => {
+        const url = input instanceof URL ? input : new URL(input as string);
+        switch (url.pathname) {
+          case "/api/user-wallets":
+            return Promise.resolve(makeResponse({ wallets: [mockWalletAddress] }));
+          case "/api/auth/current-session":
+            return Promise.resolve(
+              makeResponse({ type: "user", expiresAt: new Date("2100-01-01T00:00:00.000Z").toISOString() })
+            );
+          case "/api/profiles/me":
+            return Promise.resolve(makeResponse({ roles: roles.map((r) => ({ roleName: r })) }));
+          case "/api/check/event-permission-rules":
+            return Promise.resolve(makeResponse({ fingerprint, rules }));
+          default:
+            return Promise.reject(new Error(`Unhandled fetch request to ${url.pathname}`));
+        }
+      });
+
+    it("filters logs using permission rules", async () => {
+      const fetchSpy = setupFetch(
+        ["user"],
+        [
+          {
+            contractAddress: contractAddr,
+            topic0: selectorFoo,
+            topic1: { type: "equalTo", value: topicOther },
+            topic2: null,
+            topic3: null,
+          },
+        ]
+      );
+
+      try {
+        await agent
+          .post("/auth/login")
+          .send({ token: `${mockTokenBase}-rules` })
+          .expect(201);
+
+        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
+        expect(res.body.items.map((l) => l.logIndex)).toEqual([2]);
+        expect(res.body.meta.totalItems).toBe(1);
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+
+    it("returns no logs when permission rules are empty", async () => {
+      const fetchSpy = setupFetch(["user"], []);
+
+      try {
+        await agent
+          .post("/auth/login")
+          .send({ token: `${mockTokenBase}-empty` })
+          .expect(201);
+
+        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
+        expect(res.body.items).toHaveLength(0);
+        expect(res.body.meta.totalItems).toBe(0);
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+
+    it("returns all logs for admin", async () => {
+      const fetchSpy = setupFetch(["admin"], []);
+
+      try {
+        await agent
+          .post("/auth/login")
+          .send({ token: `${mockTokenBase}-admin` })
+          .expect(201);
+
+        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
+        expect(res.body.items.map((l) => l.logIndex)).toEqual([7, 6, 5, 4, 3, 2, 1, 0]);
+        expect(res.body.meta.totalItems).toBe(8);
+      } finally {
+        fetchSpy.mockRestore();
+      }
     });
   });
 });

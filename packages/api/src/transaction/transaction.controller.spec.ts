@@ -238,7 +238,8 @@ describe("TransactionController", () => {
           {
             page: 1,
             limit: 10_000,
-          }
+          },
+          { user }
         );
         expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, transactionLogs.items, user);
         expect(result).toBe(transaction);
@@ -351,7 +352,8 @@ describe("TransactionController", () => {
           {
             ...pagingOptions,
             route: `transactions/${transactionHash}/logs`,
-          }
+          },
+          { user: null }
         );
       });
 
@@ -373,10 +375,7 @@ describe("TransactionController", () => {
 
         it("includes visibleBy filter", async () => {
           await controller.getTransactionLogs(transactionHash, pagingOptions, user);
-          expect(logServiceMock.findAll).toHaveBeenCalledWith(
-            expect.objectContaining({ visibleBy: user.address }),
-            expect.anything()
-          );
+          expect(logServiceMock.findAll).toHaveBeenCalledWith({ transactionHash }, expect.anything(), { user });
         });
       });
     });
