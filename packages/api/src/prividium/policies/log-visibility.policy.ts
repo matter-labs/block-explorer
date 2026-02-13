@@ -17,6 +17,7 @@ export interface LogVisibilityPolicy {
 
 @Injectable()
 export class NoopLogVisibilityPolicy implements LogVisibilityPolicy {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   apply(_qb: SelectQueryBuilder<Log>, _visibility?: VisibilityContext): void {
     // intentionally no-op
   }
