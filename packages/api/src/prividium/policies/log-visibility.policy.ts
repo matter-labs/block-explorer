@@ -27,31 +27,20 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   constructor(private readonly rulesService: PrividiumRulesService) {}
 
   async apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> {
-    if (visibility?.user?.isAdmin) return;
-
-    if (visibility?.user?.token) {
-      const rules = await this.rulesService.fetchEventPermissionRules(visibility.user.token);
-      this.applyEventPermissionRules(qb, rules, visibility.user.address);
+    const user = visibility?.user;
+    // Deny if no user or missing token
+    if (!user || !user.token) {
+      qb.andWhere("FALSE");
       return;
     }
 
-    if (visibility?.user?.address && !visibility?.user?.token) {
-      this.applyVisibleBy(qb, visibility.user.address);
+    // Admin can view all events
+    if (user.isAdmin) {
+      return;
     }
-  }
 
-  private applyVisibleBy(qb: SelectQueryBuilder<Log>, visibleBy: string) {
-    qb.innerJoin("log.transaction", "transactions");
-    const topic = zeroPadValue(visibleBy, 32);
-    qb.andWhere(
-      new Brackets((inner) => {
-        inner.where(`log.topics[1] = :visibleByTopic`);
-        inner.orWhere("log.topics[2] = :visibleByTopic");
-        inner.orWhere("log.topics[3] = :visibleByTopic");
-        inner.orWhere("transactions.from = :visibleBy");
-      })
-    );
-    qb.setParameters({ visibleByTopic: hexTransformer.to(topic), visibleBy: hexTransformer.to(visibleBy) });
+    const rules = await this.rulesService.fetchEventPermissionRules(user.token);
+    this.applyEventPermissionRules(qb, rules, user.address);
   }
 
   private applyEventPermissionRules(

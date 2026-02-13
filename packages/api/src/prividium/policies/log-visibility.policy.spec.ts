@@ -4,7 +4,6 @@ import { mock } from "jest-mock-extended";
 import { Log } from "../../log/log.entity";
 import { RuleBasedLogVisibilityPolicy, NoopLogVisibilityPolicy } from "./log-visibility.policy";
 import { PrividiumRulesService, EventPermissionRule } from "../prividium-rules.service";
-import { zeroPadValue } from "ethers";
 import { UserWithRoles } from "../../api/pipes/addUserRoles.pipe";
 
 describe("LogVisibilityPolicy", () => {
@@ -59,10 +58,10 @@ describe("LogVisibilityPolicy", () => {
       expect(rulesService.fetchEventPermissionRules).not.toHaveBeenCalled();
     });
 
-    it("applies visibleBy when userAddress present", async () => {
+    it("denies visibility when token is missing", async () => {
       await policy.apply(qb, { user: makeUser({ token: "" }) });
-      expect(qb.innerJoin).toHaveBeenCalledWith("log.transaction", "transactions");
-      expect(qb.andWhere).toHaveBeenCalledWith(expect.any(Brackets));
+      expect(qb.andWhere).toHaveBeenCalledWith("FALSE");
+      expect(rulesService.fetchEventPermissionRules).not.toHaveBeenCalled();
     });
 
     it("fetches and applies permission rules when token present", async () => {
