@@ -6,23 +6,31 @@ import { FetchError } from "ohmyfetch";
 import useContext from "./useContext";
 import { FetchInstance } from "./useFetchInstance";
 
-import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
+import { isAddress, isAddressEqual, isBlockNumber, isTransactionHash } from "@/utils/validators";
 
 export default (context = useContext()) => {
   const router = useRouter();
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
 
+  const isPrividiumBaseTokenAddress = (address: string) =>
+    !!context.currentNetwork.value.prividium && isAddressEqual(address, context.currentNetwork.value.baseTokenAddress);
+
   const getSearchRoute = (param: string) => {
     try {
-      const searchRoutes = [
-        {
+      if (isAddress(param)) {
+        const isBaseTokenAddress = isPrividiumBaseTokenAddress(param);
+        const apiRoute = isBaseTokenAddress ? "tokens" : "address";
+        return {
           routeParam: { address: param },
-          apiRoute: "address",
-          isValid: () => isAddress(param),
-          routeName: "address",
+          apiRoute: apiRoute,
+          isValid: () => true,
+          routeName: apiRoute,
           prefetch: true,
-        },
+        };
+      }
+
+      const searchRoutes = [
         {
           routeParam: { id: param },
           apiRoute: "blocks",
