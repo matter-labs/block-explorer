@@ -157,4 +157,13 @@ describe("useTransfers:", () => {
     expect(composable.data.value).toEqual(null);
     mock.mockRestore();
   });
+
+  it("requests token transfers endpoint when token mode is enabled", async () => {
+    const composable = useTransfers(address, { forToken: true });
+    await composable.load(1);
+
+    expect($fetch).toHaveBeenCalledWith(
+      "https://block-explorer-api.testnets.zksync.dev/tokens/address/transfers?limit=10&page=1"
+    );
+  });
 });
