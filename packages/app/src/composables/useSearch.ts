@@ -20,12 +20,11 @@ export default (context = useContext()) => {
     try {
       if (isAddress(param)) {
         const isBaseTokenAddress = isPrividiumBaseTokenAddress(param);
-        const apiRoute = isBaseTokenAddress ? "tokens" : "address";
         return {
           routeParam: { address: param },
-          apiRoute: apiRoute,
+          apiRoute: "address",
           isValid: () => true,
-          routeName: apiRoute,
+          routeName: isBaseTokenAddress ? "token" : "address",
           prefetch: true,
         };
       }

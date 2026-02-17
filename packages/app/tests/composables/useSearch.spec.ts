@@ -86,7 +86,7 @@ describe("UseSearch:", () => {
       } as never);
 
       const searchRoute = getSearchRoute("0x000000000000000000000000000000000000800A");
-      expect(searchRoute!.apiRoute).toBe("tokens");
+      expect(searchRoute!.apiRoute).toBe("address");
       expect(searchRoute!.routeName).toBe("token");
       expect(searchRoute!.routeParam).toEqual({
         address: "0x000000000000000000000000000000000000800A",
