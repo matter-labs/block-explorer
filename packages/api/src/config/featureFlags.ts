@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-config();
+config({ quiet: true });
 
 const { DISABLE_API_SCHEMA_DOCS, DISABLE_BFF_API_SCHEMA_DOCS, DISABLE_EXTERNAL_API, PRIVIDIUM } = process.env;
 
