@@ -130,6 +130,11 @@ describe("utils", () => {
       expect(countSubQueryBuilder.take).toHaveBeenCalledWith(undefined);
     });
 
+    it("resets count sub query orderBy setting", async () => {
+      await paginate(queryBuilder, options);
+      expect(countSubQueryBuilder.orderBy).toHaveBeenCalledWith(undefined);
+    });
+
     it("sets count main query select statement", async () => {
       await paginate(queryBuilder, options);
       expect(countMainQueryBuilder.select).toHaveBeenCalledWith("COUNT(*)", "value");
