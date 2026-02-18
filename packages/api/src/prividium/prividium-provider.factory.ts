@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 
 export function createPrividiumToggleProvider<T>(
   token: Abstract<T>,
-  prividiumClass: new (...args: any[]) => T
+  prividiumClass: new (...args: any[]) => T | null
 ): FactoryProvider<T> {
   return {
     provide: token,

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Optional } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
@@ -42,7 +42,7 @@ export class LogService {
   constructor(
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>,
-    @Inject(LogVisibilityPolicy) private readonly visibilityPolicy: LogVisibilityPolicy | null
+    @Optional() @Inject(LogVisibilityPolicy) private readonly visibilityPolicy: LogVisibilityPolicy | null
   ) {}
 
   public async findAll(
