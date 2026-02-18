@@ -107,7 +107,8 @@ export class TransactionController {
         {
           page: 1,
           limit: 10_000, // default max limit used in pagination-enabled endpoints
-        }
+        },
+        { user }
       );
       if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
         throw new NotFoundException();
@@ -172,14 +173,14 @@ export class TransactionController {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
-    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
     return await this.logService.findAll(
-      { transactionHash, ...userFilters },
+      { transactionHash },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,
-      }
+      },
+      { user }
     );
   }
 }

@@ -153,16 +153,13 @@ export class AddressController {
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<LogDto>> {
-    if (user && !user.isAdmin) {
-      throw new ForbiddenException();
-    }
-
     return await this.logService.findAll(
       { address },
       {
         ...pagingOptions,
         route: `${entityName}/${address}/logs`,
-      }
+      },
+      { user }
     );
   }
 

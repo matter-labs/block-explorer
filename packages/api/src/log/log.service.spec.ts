@@ -1,24 +1,19 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import {
-  Repository,
-  SelectQueryBuilder,
-  MoreThanOrEqual,
-  LessThanOrEqual,
-  Brackets,
-  WhereExpressionBuilder,
-} from "typeorm";
+import { Repository, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
 import { Log } from "./log.entity";
+import { LOG_VISIBILITY_POLICY } from "./log.tokens";
 
 jest.mock("../common/utils");
 
 describe("LogService", () => {
   let service: LogService;
   let repositoryMock: MockProxy<Repository<Log>>;
+  let policyMock: { apply: jest.Mock };
 
   const pagingOptions = {
     limit: 10,
@@ -27,6 +22,7 @@ describe("LogService", () => {
 
   beforeEach(async () => {
     repositoryMock = mock<Repository<Log>>();
+    policyMock = { apply: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,6 +30,10 @@ describe("LogService", () => {
         {
           provide: getRepositoryToken(Log),
           useValue: repositoryMock,
+        },
+        {
+          provide: LOG_VISIBILITY_POLICY,
+          useValue: policyMock,
         },
       ],
     }).compile();
@@ -92,6 +92,7 @@ describe("LogService", () => {
 
     it("returns logs ordered by timestamp DESC and logIndex ASC", async () => {
       await service.findAll(filterOptions, pagingOptions);
+      expect(policyMock.apply).toHaveBeenCalledWith(queryBuilderMock, undefined);
       expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
       expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.timestamp", "DESC");
       expect(queryBuilderMock.addOrderBy).toBeCalledTimes(1);
@@ -107,21 +108,10 @@ describe("LogService", () => {
       expect(result).toBe(paginationResult);
     });
 
-    it("does special query when visibleBy is defined", async () => {
-      const address1 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-      const address2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
-      const filterOptions = { address: address1, visibleBy: address2 };
-      await service.findAll(filterOptions, pagingOptions);
-      expect(queryBuilderMock.innerJoin).toBeCalledWith("log.transaction", "transactions");
-      expect(queryBuilderMock.andWhere).toBeCalledWith(expect.any(Brackets));
-      const brackets = queryBuilderMock.andWhere.mock.calls[0][0] as Brackets;
-      expect(brackets).toBeInstanceOf(Brackets);
-      const qb = mock<WhereExpressionBuilder>();
-      brackets.whereFactory(qb);
-      expect(qb.where).toHaveBeenCalledWith(`log.topics[1] = :visibleByTopic`);
-      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[2] = :visibleByTopic");
-      expect(qb.orWhere).toHaveBeenCalledWith("log.topics[3] = :visibleByTopic");
-      expect(qb.orWhere).toHaveBeenCalledWith("transactions.from = :visibleBy");
+    it("passes visibility to policy", async () => {
+      const visibility = { isAdmin: false, userAddress: "0x1" };
+      await service.findAll({}, pagingOptions, visibility as any);
+      expect(policyMock.apply).toHaveBeenCalledWith(queryBuilderMock, visibility);
     });
   });
 

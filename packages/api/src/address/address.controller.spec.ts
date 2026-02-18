@@ -427,7 +427,8 @@ describe("AddressController", () => {
           {
             ...pagingOptions,
             route: `address/${address}/logs`,
-          }
+          },
+          { user: null }
         );
       });
 
@@ -447,12 +448,7 @@ describe("AddressController", () => {
           });
         });
 
-        it("throws ForbiddenException for non-admin user", async () => {
-          await expect(controller.getAddressLogs(address, pagingOptions, user)).rejects.toThrow(ForbiddenException);
-        });
-
-        it("returns logs for admin user", async () => {
-          user.isAdmin = true;
+        it("returns logs for any user", async () => {
           const result = await controller.getAddressLogs(address, pagingOptions, user);
           expect(result).toBe(transactionLogs);
           expect(logServiceMock.findAll).toHaveBeenCalledWith(
@@ -460,7 +456,8 @@ describe("AddressController", () => {
             {
               ...pagingOptions,
               route: `address/${address}/logs`,
-            }
+            },
+            { user }
           );
         });
       });
