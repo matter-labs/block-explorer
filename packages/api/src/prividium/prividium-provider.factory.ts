@@ -1,15 +1,14 @@
-import { FactoryProvider } from "@nestjs/common";
+import { Abstract, FactoryProvider } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
-export function makePrividiumToggleProvider<T>(
-  token: symbol | string,
-  standardClass: new (...args: any[]) => T,
+export function createPrividiumToggleProvider<T>(
+  token: Abstract<T>,
   prividiumClass: new (...args: any[]) => T
 ): FactoryProvider<T> {
   return {
     provide: token,
-    inject: [ConfigService, standardClass, prividiumClass],
-    useFactory: (configService: ConfigService, standard: T, prividium: T) =>
-      configService.get<boolean>("featureFlags.prividium") ? prividium : standard,
+    inject: [ConfigService, prividiumClass],
+    useFactory: (configService: ConfigService, prividium: T) =>
+      configService.get<boolean>("featureFlags.prividium") ? prividium : null,
   };
 }

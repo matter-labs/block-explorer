@@ -2,21 +2,11 @@ import { Brackets, SelectQueryBuilder } from "typeorm";
 import { mock } from "jest-mock-extended";
 
 import { Log } from "../../log/log.entity";
-import { RuleBasedLogVisibilityPolicy, NoopLogVisibilityPolicy } from "./log-visibility.policy";
+import { RuleBasedLogVisibilityPolicy } from "./log-visibility.policy";
 import { PrividiumRulesService, EventPermissionRule } from "../prividium-rules.service";
 import { UserWithRoles } from "../../api/pipes/addUserRoles.pipe";
 
 describe("LogVisibilityPolicy", () => {
-  describe("NoopLogVisibilityPolicy", () => {
-    it("does nothing", async () => {
-      const qb = mock<SelectQueryBuilder<Log>>();
-      const policy = new NoopLogVisibilityPolicy();
-      await policy.apply(qb as any);
-      expect(qb.innerJoin).not.toHaveBeenCalled();
-      expect(qb.andWhere).not.toHaveBeenCalled();
-    });
-  });
-
   describe("RuleBasedLogVisibilityPolicy", () => {
     const visibleUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     const contractAddr = "0xabc";

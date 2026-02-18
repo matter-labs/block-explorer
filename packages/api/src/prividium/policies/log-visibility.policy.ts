@@ -11,15 +11,10 @@ import {
   VisibilityContext,
 } from "../prividium-rules.service";
 
-export interface LogVisibilityPolicy {
-  apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void;
-}
-
-@Injectable()
-export class NoopLogVisibilityPolicy implements LogVisibilityPolicy {
+export abstract class LogVisibilityPolicy {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  apply(_qb: SelectQueryBuilder<Log>, _visibility?: VisibilityContext): void {
-    // intentionally no-op
+  apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void {
+    return;
   }
 }
 
@@ -28,6 +23,10 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   constructor(private readonly rulesService: PrividiumRulesService) {}
 
   async apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> {
+    if (!visibility) {
+      return;
+    }
+
     const user = visibility?.user;
     // Deny if no user or missing token
     if (!user || !user.token) {

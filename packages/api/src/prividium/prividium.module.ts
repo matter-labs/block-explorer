@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { PrividiumRulesService } from "./prividium-rules.service";
-import { NoopLogVisibilityPolicy, RuleBasedLogVisibilityPolicy } from "./policies/log-visibility.policy";
+import { RuleBasedLogVisibilityPolicy } from "./policies/log-visibility.policy";
 
 @Module({
-  providers: [PrividiumRulesService, NoopLogVisibilityPolicy, RuleBasedLogVisibilityPolicy],
-  exports: [PrividiumRulesService, NoopLogVisibilityPolicy, RuleBasedLogVisibilityPolicy],
+  providers: [PrividiumRulesService, RuleBasedLogVisibilityPolicy],
+  exports: [PrividiumRulesService, RuleBasedLogVisibilityPolicy],
 })
 export class PrividiumModule {}
