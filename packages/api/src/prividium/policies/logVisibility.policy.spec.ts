@@ -2,7 +2,7 @@ import { Brackets, SelectQueryBuilder } from "typeorm";
 import { mock } from "jest-mock-extended";
 
 import { Log } from "../../log/log.entity";
-import { RuleBasedLogVisibilityPolicy } from "./log-visibility.policy";
+import { RuleBasedLogVisibilityPolicy } from "./logVisibility.policy";
 import { PrividiumRulesService, EventPermissionRule } from "../prividium-rules.service";
 import { UserWithRoles } from "../../api/pipes/addUserRoles.pipe";
 

@@ -4,7 +4,7 @@ import { LogService } from "./log.service";
 import { Log } from "./log.entity";
 
 import { createPrividiumToggleProvider } from "../prividium/prividium-provider.factory";
-import { LogVisibilityPolicy, RuleBasedLogVisibilityPolicy } from "../prividium/policies/log-visibility.policy";
+import { LogVisibilityPolicy, RuleBasedLogVisibilityPolicy } from "../prividium/policies/logVisibility.policy";
 import { PrividiumModule } from "../prividium/prividium.module";
 
 @Module({

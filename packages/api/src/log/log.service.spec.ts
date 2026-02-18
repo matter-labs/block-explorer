@@ -6,7 +6,7 @@ import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
 import { Log } from "./log.entity";
-import { LogVisibilityPolicy } from "../prividium/policies/log-visibility.policy";
+import { LogVisibilityPolicy } from "../prividium/policies/logVisibility.policy";
 
 jest.mock("../common/utils");
 

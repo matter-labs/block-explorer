@@ -1,7 +1,7 @@
 import { ConfigService } from "@nestjs/config";
 
 import { createPrividiumToggleProvider } from "./prividium-provider.factory";
-import { LogVisibilityPolicy } from "./policies/log-visibility.policy";
+import { LogVisibilityPolicy } from "./policies/logVisibility.policy";
 
 describe("createPrividiumToggleProvider", () => {
   it("returns prividium implementation when feature flag enabled", () => {

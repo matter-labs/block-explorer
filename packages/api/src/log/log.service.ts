@@ -7,7 +7,7 @@ import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Inject } from "@nestjs/common";
-import { LogVisibilityPolicy } from "../prividium/policies/log-visibility.policy";
+import { LogVisibilityPolicy } from "../prividium/policies/logVisibility.policy";
 import { VisibilityContext } from "../prividium/prividium-rules.service";
 
 export interface FilterLogsOptions {
