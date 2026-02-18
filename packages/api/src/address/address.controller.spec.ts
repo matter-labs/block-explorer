@@ -18,6 +18,7 @@ import { ForbiddenException } from "@nestjs/common";
 import { Wallet, zeroPadValue } from "ethers";
 import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 import { ConfigService } from "@nestjs/config";
+import { BASE_TOKEN_L2_ADDRESS } from "../common/constants";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -276,6 +277,11 @@ describe("AddressController", () => {
       it("throws if address is an account and is not own address", async () => {
         serviceMock.findOne.mockResolvedValue(mock<Address>({ address: mockUser, bytecode: "0x" }));
         await expect(controller.getAddress(blockchainAddress, user)).rejects.toThrow(ForbiddenException);
+      });
+
+      it("does not throw if address is the base token address", async () => {
+        serviceMock.findOne.mockResolvedValue(null);
+        await expect(controller.getAddress(BASE_TOKEN_L2_ADDRESS, user)).resolves.toBeDefined();
       });
 
       describe("when address is a contract", () => {

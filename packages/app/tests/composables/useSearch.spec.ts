@@ -1,3 +1,5 @@
+import { computed, ref } from "vue";
+
 import { describe, expect, it, vi } from "vitest";
 
 import { $fetch } from "ohmyfetch";
@@ -71,6 +73,24 @@ describe("UseSearch:", () => {
       const { getSearchRoute } = useSearch();
       const searchRoute = getSearchRoute("123");
       expect(searchRoute).toBeNull();
+    });
+
+    it("routes base token address to token page in prividium mode", () => {
+      const { getSearchRoute } = useSearch({
+        currentNetwork: computed(() => ({
+          prividium: true,
+          baseTokenAddress: "0x000000000000000000000000000000000000800A",
+          apiUrl: "http://localhost:3020",
+        })),
+        user: ref({ loggedIn: false }),
+      } as never);
+
+      const searchRoute = getSearchRoute("0x000000000000000000000000000000000000800A");
+      expect(searchRoute!.apiRoute).toBe("address");
+      expect(searchRoute!.routeName).toBe("token");
+      expect(searchRoute!.routeParam).toEqual({
+        address: "0x000000000000000000000000000000000000800A",
+      });
     });
   });
 
