@@ -5,8 +5,8 @@ import { zeroPadValue } from "ethers";
 import { Log } from "../../log/log.entity";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 import {
-  PrividiumRulesService,
   EventPermissionRule,
+  PrividiumRulesService,
   TopicCondition,
   VisibilityContext,
 } from "../prividium-rules.service";
@@ -40,24 +40,23 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
     }
 
     const rules = await this.rulesService.fetchEventPermissionRules(user.token);
-    this.applyEventPermissionRules(qb, rules, user.address);
-  }
+    const filteredRules = this.filterByContract(rules, visibility?.logFilterAddress);
 
-  private applyEventPermissionRules(
-    qb: SelectQueryBuilder<Log>,
-    eventPermissionRules: EventPermissionRule[],
-    eventPermissionUserAddress?: string
-  ) {
-    if (eventPermissionRules.length === 0) {
+    if (filteredRules.length === 0) {
       qb.andWhere("FALSE");
       return;
     }
 
+    this.applyEventPermissionRules(qb, rules, user.address);
+  }
+
+  private applyEventPermissionRules(qb: SelectQueryBuilder<Log>, rules: EventPermissionRule[], userAddress: string) {
     qb.andWhere(
       new Brackets((outer) => {
-        eventPermissionRules.forEach((rule, idx) => {
+        rules.forEach((rule, idx) => {
           const ruleBrackets = new Brackets((inner) => {
             const addrParam = `rule_${idx}_addr`;
+
             inner.where(`log.address = :${addrParam}`, {
               [addrParam]: hexTransformer.to(rule.contractAddress),
             });
@@ -77,14 +76,16 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
 
             for (const [condition, pgIndex] of topicEntries) {
               if (condition === null) continue;
+
               const paramName = `rule_${idx}_t${pgIndex - 1}`;
+
               if (condition.type === "equalTo") {
                 inner.andWhere(`log.topics[${pgIndex}] = :${paramName}`, {
                   [paramName]: hexTransformer.to(condition.value),
                 });
               } else if (condition.type === "userAddress") {
                 inner.andWhere(`log.topics[${pgIndex}] = :${paramName}`, {
-                  [paramName]: hexTransformer.to(zeroPadValue(eventPermissionUserAddress, 32)),
+                  [paramName]: hexTransformer.to(zeroPadValue(userAddress, 32)),
                 });
               }
             }
@@ -98,5 +99,13 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
         });
       })
     );
+  }
+
+  private filterByContract(rules: EventPermissionRule[], contractAddress: string) {
+    if (!contractAddress) {
+      return rules;
+    }
+
+    return rules.filter((r) => r.contractAddress.toLowerCase() === contractAddress.toLowerCase());
   }
 }

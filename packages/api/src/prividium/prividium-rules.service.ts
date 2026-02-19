@@ -18,6 +18,7 @@ export interface EventPermissionRule {
 
 export interface VisibilityContext {
   user?: UserWithRoles | null;
+  logFilterAddress?: string;
 }
 
 const topicConditionSchema = z.discriminatedUnion("type", [

@@ -53,7 +53,10 @@ export class LogService {
     const queryBuilder = this.logRepository.createQueryBuilder("log");
     queryBuilder.where(filterOptions);
 
-    await this.visibilityPolicy?.apply(queryBuilder, visibility);
+    const effectiveVisibility =
+      visibility && filterOptions.address ? { ...visibility, logFilterAddress: filterOptions.address } : visibility;
+
+    await this.visibilityPolicy?.apply(queryBuilder, effectiveVisibility);
 
     queryBuilder.orderBy("log.timestamp", "DESC");
     queryBuilder.addOrderBy("log.logIndex", "ASC");
