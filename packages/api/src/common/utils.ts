@@ -31,6 +31,7 @@ async function countQueryWithLimit<T, CustomMetaType = IPaginationMeta>(
   totalQueryBuilder.limit(options.maxLimit);
   totalQueryBuilder.offset(undefined);
   totalQueryBuilder.take(undefined);
+  totalQueryBuilder.orderBy(undefined);
 
   const countQueryBuilder = queryBuilder.connection.createQueryBuilder();
   countQueryBuilder.select("COUNT(*)", "value");
