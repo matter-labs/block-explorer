@@ -18,6 +18,7 @@ import { TransactionReceipt } from "../src/transaction/entities/transactionRecei
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "../src/prividium";
 import { EVENT_PERMISSION_RULES_FINGERPRINT } from "../src/prividium/constants";
+import { EventPermissionRule } from "../src/prividium/prividium-rules.service";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
@@ -439,6 +440,14 @@ describe("Prividium API (e2e)", () => {
   });
 
   describe("Transactions logs visibility", () => {
+    type PermissionRulesResponseBody = {
+      fingerprint: string;
+      rules: EventPermissionRule[];
+    };
+
+    let fetchSpy: jest.SpyInstance | undefined;
+    let calls: string[] = [];
+
     const makeResponse = (data: any, status = 200) =>
       ({
         status,
@@ -446,9 +455,21 @@ describe("Prividium API (e2e)", () => {
         json: jest.fn().mockResolvedValue(data),
       } as any);
 
-    const setupFetch = (roles: string[], rules: any[], fingerprint = EVENT_PERMISSION_RULES_FINGERPRINT) =>
-      jest.spyOn(global, "fetch").mockImplementation((input: any) => {
+    const setupFetch = ({
+      roles,
+      rules = [],
+      fingerprint = EVENT_PERMISSION_RULES_FINGERPRINT,
+      permissionRulesBody,
+    }: {
+      roles: string[];
+      rules?: EventPermissionRule[];
+      fingerprint?: string;
+      permissionRulesBody?: PermissionRulesResponseBody | Record<string, unknown>;
+    }) => {
+      calls = [];
+      fetchSpy = jest.spyOn(global, "fetch").mockImplementation((input: string | URL) => {
         const url = input instanceof URL ? input : new URL(input as string);
+        calls.push(url.pathname);
         switch (url.pathname) {
           case "/api/user-wallets":
             return Promise.resolve(makeResponse({ wallets: [mockWalletAddress] }));
@@ -459,16 +480,34 @@ describe("Prividium API (e2e)", () => {
           case "/api/profiles/me":
             return Promise.resolve(makeResponse({ roles: roles.map((r) => ({ roleName: r })) }));
           case "/api/check/event-permission-rules":
-            return Promise.resolve(makeResponse({ fingerprint, rules }));
+            return Promise.resolve(makeResponse(permissionRulesBody ?? { fingerprint, rules }));
           default:
             return Promise.reject(new Error(`Unhandled fetch request to ${url.pathname}`));
         }
       });
+    };
 
-    it("filters logs using permission rules", async () => {
-      const fetchSpy = setupFetch(
-        ["user"],
-        [
+    const login = async (tokenSuffix: string) => {
+      await agent
+        .post("/auth/login")
+        .send({ token: `${mockTokenBase}-${tokenSuffix}` })
+        .expect(201);
+    };
+
+    const getLogsIndexes = async () => {
+      const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
+      return { indexes: res.body.items.map((l) => l.logIndex), total: res.body.meta.totalItems };
+    };
+
+    afterEach(() => {
+      fetchSpy?.mockRestore();
+      fetchSpy = undefined;
+    });
+
+    it("filters logs for authenticated user and fetches rules endpoint", async () => {
+      setupFetch({
+        roles: ["user"],
+        rules: [
           {
             contractAddress: contractAddr,
             topic0: selectorFoo,
@@ -476,55 +515,48 @@ describe("Prividium API (e2e)", () => {
             topic2: null,
             topic3: null,
           },
-        ]
-      );
-
-      try {
-        await agent
-          .post("/auth/login")
-          .send({ token: `${mockTokenBase}-rules` })
-          .expect(201);
-
-        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
-        expect(res.body.items.map((l) => l.logIndex)).toEqual([2]);
-        expect(res.body.meta.totalItems).toBe(1);
-      } finally {
-        fetchSpy.mockRestore();
-      }
+        ],
+      });
+      await login("rules-basic");
+      const { indexes, total } = await getLogsIndexes();
+      expect(indexes).toEqual([2]);
+      expect(total).toBe(1);
+      expect(calls).toContain("/api/check/event-permission-rules");
     });
 
-    it("returns no logs when permission rules are empty", async () => {
-      const fetchSpy = setupFetch(["user"], []);
-
-      try {
-        await agent
-          .post("/auth/login")
-          .send({ token: `${mockTokenBase}-empty` })
-          .expect(201);
-
-        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
-        expect(res.body.items).toHaveLength(0);
-        expect(res.body.meta.totalItems).toBe(0);
-      } finally {
-        fetchSpy.mockRestore();
-      }
+    it("returns 500 when permission rules fingerprint mismatches", async () => {
+      setupFetch({
+        roles: ["user"],
+        rules: [],
+        fingerprint: "wrong-fingerprint",
+      });
+      await login("bad-fingerprint");
+      await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(500);
     });
 
-    it("returns all logs for admin", async () => {
-      const fetchSpy = setupFetch(["admin"], []);
+    it("returns 500 when permission rules response shape is invalid", async () => {
+      setupFetch({
+        roles: ["user"],
+        permissionRulesBody: { invalid: true },
+      });
+      await login("bad-shape");
+      await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(500);
+    });
 
-      try {
-        await agent
-          .post("/auth/login")
-          .send({ token: `${mockTokenBase}-admin` })
-          .expect(201);
+    it("returns all logs for admin and does not query permission rules endpoint", async () => {
+      setupFetch({
+        roles: ["admin"],
+        rules: [],
+      });
+      await login("admin");
+      const { indexes, total } = await getLogsIndexes();
+      expect(indexes).toEqual([7, 6, 5, 4, 3, 2, 1, 0]);
+      expect(total).toBe(8);
+      expect(calls).not.toContain("/api/check/event-permission-rules");
+    });
 
-        const res = await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(200);
-        expect(res.body.items.map((l) => l.logIndex)).toEqual([7, 6, 5, 4, 3, 2, 1, 0]);
-        expect(res.body.meta.totalItems).toBe(8);
-      } finally {
-        fetchSpy.mockRestore();
-      }
+    it("returns 401 for unauthenticated user in prividium mode", async () => {
+      await agent.get(`/transactions/${txHash}/logs?limit=10`).expect(401);
     });
   });
 });
