@@ -57,11 +57,13 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
       new Brackets((outer) => {
         rules.forEach((rule, idx) => {
           const ruleBrackets = new Brackets((inner) => {
-            const addrParam = `rule_${idx}_addr`;
-
-            inner.where(`log.address = :${addrParam}`, {
-              [addrParam]: hexTransformer.to(rule.contractAddress),
-            });
+            // When contract is null when rules are applied per-contract
+            if (rule.contractAddress !== null) {
+              const addrParam = `rule_${idx}_addr`;
+              inner.where(`log.address = :${addrParam}`, {
+                [addrParam]: hexTransformer.to(rule.contractAddress),
+              });
+            }
 
             if (rule.topic0 !== null) {
               const t0Param = `rule_${idx}_t0`;
@@ -108,6 +110,8 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
       return rules;
     }
 
-    return rules.filter((r) => r.contractAddress.toLowerCase() === contractAddress.toLowerCase());
+    return rules
+      .filter((r) => r.contractAddress.toLowerCase() === contractAddress.toLowerCase())
+      .map((rule) => ({ ...rule, contractAddress: null }));
   }
 }
