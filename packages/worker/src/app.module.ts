@@ -30,6 +30,8 @@ import {
   AddressTransferRepository,
   LogRepository,
   BalanceRepository,
+  InternalTransactionRepository,
+  AddressInternalTransactionRepository,
 } from "./repositories";
 import {
   Block,
@@ -42,6 +44,8 @@ import {
   Transfer,
   AddressTransfer,
   Balance,
+  InternalTransaction,
+  AddressInternalTransaction,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -78,6 +82,8 @@ import { SystemContractService } from "./contract/systemContract.service";
       AddressTransfer,
       Transfer,
       Balance,
+      InternalTransaction,
+      AddressInternalTransaction,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -118,6 +124,8 @@ import { SystemContractService } from "./contract/systemContract.service";
     AddressTransferRepository,
     BalanceRepository,
     LogRepository,
+    InternalTransactionRepository,
+    AddressInternalTransactionRepository,
     BlocksRevertService,
     BlockStatusService,
     BlockProcessor,

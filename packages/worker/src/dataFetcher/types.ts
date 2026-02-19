@@ -33,6 +33,24 @@ export interface Transfer {
   isInternal: boolean;
 }
 
+export interface InternalTransaction {
+  transactionHash: string;
+  blockNumber: number;
+  from: string;
+  to?: string;
+  value: string;
+  gas?: string;
+  gasUsed?: string;
+  input?: string;
+  output?: string;
+  type: string;
+  callType?: string;
+  traceAddress: string;
+  traceIndex: number;
+  error?: string;
+  timestamp: string;
+}
+
 export interface Token {
   l2Address: string;
   l1Address?: string;
@@ -89,6 +107,7 @@ export interface TransactionData {
   contractAddresses: ContractAddress[];
   tokens?: Token[];
   transfers: Transfer[];
+  internalTransactions: InternalTransaction[];
 }
 
 export type BlockInfo = Modify<

@@ -1,17 +1,24 @@
-import { Transfer } from "../../transfer/transfer.entity";
+import { InternalTransaction } from "../../transaction/entities/internalTransaction.entity";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { BASE_TOKEN_L2_ADDRESS } from "../../common/constants";
 import { mapInternalTransactionListItem } from "./internalTransactionMapper";
 
 describe("internalTransactionMapper", () => {
-  const transfer = {
+  const internalTransaction = {
+    number: 1,
     blockNumber: 20,
-    timestamp: new Date("2023-01-01"),
+    timestamp: "2023-01-01T00:00:00.000Z",
     transactionHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
     from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
     to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
-    amount: "1000000",
-    tokenAddress: BASE_TOKEN_L2_ADDRESS,
+    value: "1000000",
+    gas: 1100000,
+    gasUsed: 900000,
+    input: "0x",
+    type: "CALL",
+    callType: "call",
+    traceAddress: "0",
+    traceIndex: 0,
+    error: undefined,
     transaction: {
       blockNumber: 20,
       receivedAt: new Date("2023-01-01"),
@@ -30,27 +37,26 @@ describe("internalTransactionMapper", () => {
       fee: "0x0",
       isL1Originated: true,
       transactionReceipt: {
-        contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
         cumulativeGasUsed: "1200000",
         gasUsed: "900000",
       },
       type: 255,
     },
-  } as Transfer;
+  } as InternalTransaction;
 
   describe("mapInternalTransactionListItem", () => {
-    it("transforms transfer into internal transaction list item format", () => {
-      expect(mapInternalTransactionListItem(transfer)).toEqual({
+    it("transforms internal transaction into internal transaction list item format", () => {
+      expect(mapInternalTransactionListItem(internalTransaction)).toEqual({
         blockNumber: "20",
-        contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+        contractAddress: undefined,
         errCode: "",
         fee: "0",
         from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
         gas: "1100000",
         gasUsed: "900000",
         hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
-        input: "",
-        isError: "1",
+        input: "0x",
+        isError: "0",
         timeStamp: "1672531200",
         to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
         traceId: "0",
@@ -60,19 +66,21 @@ describe("internalTransactionMapper", () => {
       });
     });
 
-    describe("when transfer does not have a corresponding transaction", () => {
+    describe("when internal transaction does not have a corresponding transaction", () => {
       it("excludes fields depending on transaction", () => {
         expect(
           mapInternalTransactionListItem({
-            ...transfer,
+            ...internalTransaction,
             transaction: undefined,
-          } as Transfer)
+          } as InternalTransaction)
         ).toEqual({
           blockNumber: "20",
           errCode: "",
           from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+          gas: "1100000",
+          gasUsed: "900000",
           hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
-          input: "",
+          input: "0x",
           isError: "0",
           timeStamp: "1672531200",
           to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
@@ -83,28 +91,71 @@ describe("internalTransactionMapper", () => {
       });
     });
 
-    it("sets isError as 1 when transaction is failed", () => {
+    it("sets isError as 1 when internal transaction has error", () => {
       expect(
         mapInternalTransactionListItem({
-          ...transfer,
-          transaction: {
-            ...transfer.transaction,
-            status: TransactionStatus.Failed,
-          },
-        } as Transfer).isError
+          ...internalTransaction,
+          error: "Execution reverted",
+        } as InternalTransaction).isError
       ).toBe("1");
     });
 
-    it("sets isError as 0 when transaction is included", () => {
+    it("sets isError as 0 when internal transaction has no error", () => {
       expect(
         mapInternalTransactionListItem({
-          ...transfer,
-          transaction: {
-            ...transfer.transaction,
-            status: TransactionStatus.Included,
-          },
-        } as Transfer).isError
+          ...internalTransaction,
+          error: undefined,
+        } as InternalTransaction).isError
       ).toBe("0");
+    });
+
+    it("falls back to defaults when optional fields are missing", () => {
+      const result = mapInternalTransactionListItem({
+        ...internalTransaction,
+        to: undefined,
+        gas: undefined,
+        gasUsed: undefined,
+        input: undefined,
+        callType: undefined,
+        type: "DELEGATECALL",
+      } as InternalTransaction);
+
+      expect(result).toMatchObject({
+        to: "",
+        gas: "",
+        gasUsed: "",
+        input: "",
+        type: "delegatecall",
+        contractAddress: undefined,
+      });
+    });
+
+    it("sets contractAddress for CREATE and CREATE2 transactions", () => {
+      const createResult = mapInternalTransactionListItem({
+        ...internalTransaction,
+        type: "CREATE",
+        callType: undefined,
+      } as InternalTransaction);
+      const create2Result = mapInternalTransactionListItem({
+        ...internalTransaction,
+        type: "CREATE2",
+        callType: undefined,
+      } as InternalTransaction);
+
+      expect(createResult.contractAddress).toBe(internalTransaction.to);
+      expect(createResult.type).toBe("create");
+      expect(create2Result.contractAddress).toBe(internalTransaction.to);
+      expect(create2Result.type).toBe("create2");
+    });
+
+    it("returns error code when present", () => {
+      const result = mapInternalTransactionListItem({
+        ...internalTransaction,
+        error: "Execution reverted",
+      } as InternalTransaction);
+
+      expect(result.isError).toBe("1");
+      expect(result.errCode).toBe("Execution reverted");
     });
   });
 });

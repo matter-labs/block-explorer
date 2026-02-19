@@ -10,6 +10,9 @@ import * as revertedTxTraces from "../../test/traces/reverted-tx.json";
 import * as multipleBaseTokenTransfersTraces from "../../test/traces/multiple-base-token-transfers.json";
 import * as systemContractsUpgradeTxReceipt from "../../test/transactionReceipts/system-contracts-upgrade.json";
 import * as systemContractsUpgradeTxResponse from "../../test/transactionResponses/system-contracts-upgrade.json";
+import { L1_TO_L2_TX_TYPE, BASE_TOKEN_ADDRESS } from "../constants";
+import { TransferType } from "../transfer/transfer.service";
+import { TokenType } from "../token/token.service";
 
 describe("TransactionTracesService", () => {
   let transactionTracesService: TransactionTracesService;
@@ -157,50 +160,49 @@ describe("TransactionTracesService", () => {
           transactionReceipt,
           multipleBaseTokenTransfersTraces
         );
-        expect(data.transfers).toEqual([
-          {
-            amount: BigInt(1122029021306663),
-            blockNumber: block.number,
-            from: "0x0000000000000000000000000000000000000000",
-            isFeeOrRefund: false,
-            logIndex: 1,
-            timestamp: new Date(block.timestamp * 1000),
-            to: "0x0000000000000000000000000000000000008001",
-            tokenAddress: "0x000000000000000000000000000000000000800a",
-            tokenType: "BASETOKEN",
-            transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
-            transactionIndex: 1,
-            type: "transfer",
-          },
-          {
-            amount: BigInt(9936370575000),
-            blockNumber: block.number,
-            from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
-            isFeeOrRefund: false,
-            logIndex: 2,
-            timestamp: new Date(block.timestamp * 1000),
-            to: "0x0000000000000000000000000000000000008001",
-            tokenAddress: "0x000000000000000000000000000000000000800a",
-            tokenType: "BASETOKEN",
-            transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
-            transactionIndex: 1,
-            type: "transfer",
-          },
-          {
-            amount: BigInt(1122029021306663),
-            blockNumber: block.number,
-            from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
-            isFeeOrRefund: false,
-            logIndex: 3,
-            timestamp: new Date(block.timestamp * 1000),
-            to: "0xb21a4f545d4d80efb929b7f49a266516c4dddbfc",
-            tokenAddress: "0x000000000000000000000000000000000000800a",
-            tokenType: "BASETOKEN",
-            transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
-            transactionIndex: 1,
-            type: "transfer",
-          },
-        ]);
+        expect(data.transfers.length).toBe(3);
+        expect(data.transfers[0]).toMatchObject({
+          amount: BigInt(1122029021306663),
+          blockNumber: block.number,
+          from: "0x0000000000000000000000000000000000000000",
+          isFeeOrRefund: false,
+          logIndex: 1,
+          timestamp: new Date(block.timestamp * 1000),
+          to: "0x0000000000000000000000000000000000008001",
+          tokenAddress: "0x000000000000000000000000000000000000800a",
+          tokenType: "BASETOKEN",
+          transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+          transactionIndex: 1,
+          type: "transfer",
+        });
+        expect(data.transfers[1]).toMatchObject({
+          amount: BigInt(9936370575000),
+          blockNumber: block.number,
+          from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
+          isFeeOrRefund: false,
+          logIndex: 2,
+          timestamp: new Date(block.timestamp * 1000),
+          to: "0x0000000000000000000000000000000000008001",
+          tokenAddress: "0x000000000000000000000000000000000000800a",
+          tokenType: "BASETOKEN",
+          transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+          transactionIndex: 1,
+          type: "transfer",
+        });
+        expect(data.transfers[2]).toMatchObject({
+          amount: BigInt(1122029021306663),
+          blockNumber: block.number,
+          from: "0x0401340cd4cbd08a651e65c66eaa871086ffb9d5",
+          isFeeOrRefund: false,
+          logIndex: 3,
+          timestamp: new Date(block.timestamp * 1000),
+          to: "0xb21a4f545d4d80efb929b7f49a266516c4dddbfc",
+          tokenAddress: "0x000000000000000000000000000000000000800a",
+          tokenType: "BASETOKEN",
+          transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+          transactionIndex: 1,
+          type: "transfer",
+        });
       });
     });
 
@@ -565,6 +567,7 @@ describe("TransactionTracesService", () => {
           revertReason: undefined,
           tokens: [],
           transfers: [],
+          internalTransactions: [],
         });
       });
     });
@@ -637,6 +640,70 @@ describe("TransactionTracesService", () => {
           contractDeployedTraces
         );
         expect(data.tokens).toEqual([]);
+      });
+    });
+
+    describe("when transaction is L1 to L2 deposit", () => {
+      it("returns deposit transfer", async () => {
+        const l1ToL2Tx = {
+          ...transactionResponse,
+          type: L1_TO_L2_TX_TYPE,
+          value: BigInt("1000000000"),
+          from: "0xsender",
+          to: "0xreceiver",
+          hash: "0xhash",
+          blockNumber: 123456,
+          index: 1,
+        } as any;
+
+        const data = await transactionTracesService.getData(block, l1ToL2Tx, transactionReceipt, null);
+
+        expect(data.transfers).toHaveLength(1);
+        expect(data.transfers[0]).toMatchObject({
+          from: "0xsender",
+          to: "0xreceiver",
+          amount: BigInt("1000000000"),
+          tokenAddress: BASE_TOKEN_ADDRESS,
+          type: TransferType.Deposit,
+          tokenType: TokenType.BaseToken,
+        });
+      });
+    });
+
+    describe("when transaction has delegatecall/staticcall traces", () => {
+      it("ignores delegatecall and staticcall for transfers", async () => {
+        const trace: any = {
+          type: "call",
+          from: "0xfrom",
+          to: "0xto",
+          value: "0x01",
+          calls: [
+            {
+              type: "delegatecall",
+              from: "0xfrom",
+              to: "0xdelegate",
+              value: "0x01",
+              gas: "0x0",
+              gasUsed: "0x0",
+            },
+            {
+              type: "staticcall",
+              from: "0xfrom",
+              to: "0xstatic",
+              value: "0x01",
+              gas: "0x0",
+              gasUsed: "0x0",
+            },
+          ],
+          gas: "0x0",
+          gasUsed: "0x0",
+        };
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        // expect exactly 1 transfer
+        expect(data.transfers).toHaveLength(1);
+        expect(data.transfers[0].to).toBe("0xto");
       });
     });
   });

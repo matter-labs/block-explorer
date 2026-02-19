@@ -7,6 +7,7 @@ import { BlockService } from "../../block/block.service";
 import { TransactionService } from "../../transaction/transaction.service";
 import { TransferService } from "../../transfer/transfer.service";
 import { BalanceService } from "../../balance/balance.service";
+import { InternalTransactionService } from "../../transaction/internalTransaction.service";
 import { PagingOptionsWithMaxItemsLimitDto } from "../dtos/common/pagingOptionsWithMaxItemsLimit.dto";
 import { SortingOptionsDto } from "../dtos/common/sortingOptions.dto";
 import { ParseLimitedIntPipe } from "../../common/pipes/parseLimitedInt.pipe";
@@ -45,7 +46,8 @@ export class AccountController {
     private readonly blockService: BlockService,
     private readonly transactionService: TransactionService,
     private readonly transferService: TransferService,
-    private readonly balanceService: BalanceService
+    private readonly balanceService: BalanceService,
+    private readonly internalTransactionService: InternalTransactionService
   ) {
     this.logger = new Logger(AccountController.name);
   }
@@ -89,15 +91,25 @@ export class AccountController {
     @Query("startblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) startBlock?: number,
     @Query("endblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) endBlock?: number
   ): Promise<AccountInternalTransactionsResponseDto> {
-    const transfers = await this.transferService.findInternalTransfers({
-      address,
-      transactionHash,
-      startBlock,
-      endBlock,
-      ...pagingOptions,
-      ...sortingOptions,
-    });
-    const internalTransactionsList = transfers.map((transfer) => mapInternalTransactionListItem(transfer));
+    const internalTransactions = await this.internalTransactionService.findAll(
+      {
+        address,
+        transactionHash,
+        startBlock,
+        endBlock,
+        ...sortingOptions,
+      },
+      {
+        ...pagingOptions,
+        limit: pagingOptions.offset,
+        route: "account/txlistinternal",
+      }
+    );
+
+    const internalTransactionsList = internalTransactions.items.map((internalTx) =>
+      mapInternalTransactionListItem(internalTx)
+    );
+
     return {
       status: internalTransactionsList.length ? ResponseStatus.OK : ResponseStatus.NOTOK,
       message: internalTransactionsList.length ? ResponseMessage.OK : ResponseMessage.NO_TRANSACTIONS_FOUND,

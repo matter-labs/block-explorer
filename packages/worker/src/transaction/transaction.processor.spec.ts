@@ -8,6 +8,7 @@ import {
   AddressRepository,
   TokenRepository,
   LogRepository,
+  InternalTransactionRepository,
 } from "../repositories";
 import { TransactionProcessor } from "./transaction.processor";
 import { TransactionData, BlockInfo } from "../dataFetcher/types";
@@ -21,6 +22,7 @@ describe("TransactionProcessor", () => {
   let addressRepositoryMock: AddressRepository;
   let tokenRepositoryMock: TokenRepository;
   let logRepositoryMock: LogRepository;
+  let internalTransactionRepositoryMock: InternalTransactionRepository;
   let configServiceMock: ConfigService;
 
   let startTxProcessingDurationMetricMock: jest.Mock;
@@ -33,6 +35,7 @@ describe("TransactionProcessor", () => {
     addressRepositoryMock = mock<AddressRepository>();
     tokenRepositoryMock = mock<TokenRepository>();
     logRepositoryMock = mock<LogRepository>();
+    internalTransactionRepositoryMock = mock<InternalTransactionRepository>();
 
     stopTxProcessingDurationMetricMock = jest.fn();
     startTxProcessingDurationMetricMock = jest.fn().mockReturnValue(stopTxProcessingDurationMetricMock);
@@ -76,6 +79,10 @@ describe("TransactionProcessor", () => {
         {
           provide: TokenRepository,
           useValue: tokenRepositoryMock,
+        },
+        {
+          provide: InternalTransactionRepository,
+          useValue: internalTransactionRepositoryMock,
         },
         {
           provide: ConfigService,
