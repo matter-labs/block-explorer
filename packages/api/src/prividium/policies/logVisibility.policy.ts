@@ -13,7 +13,7 @@ import {
 
 export abstract class LogVisibilityPolicy {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> | void {
+  apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext, byContract?: string): Promise<void> | void {
     return;
   }
 }
@@ -22,7 +22,7 @@ export abstract class LogVisibilityPolicy {
 export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   constructor(private readonly rulesService: PrividiumRulesService) {}
 
-  async apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext): Promise<void> {
+  async apply(qb: SelectQueryBuilder<Log>, visibility?: VisibilityContext, byContract?: string): Promise<void> {
     if (!visibility) {
       return;
     }
@@ -40,7 +40,7 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
     }
 
     const rules = await this.rulesService.fetchEventPermissionRules(user.token);
-    const filteredRules = this.filterByContract(rules, visibility?.logFilterAddress);
+    const filteredRules = this.filterByContract(rules, byContract);
 
     if (filteredRules.length === 0) {
       qb.andWhere("FALSE");
@@ -51,6 +51,8 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
   }
 
   private applyEventPermissionRules(qb: SelectQueryBuilder<Log>, rules: EventPermissionRule[], userAddress: string) {
+    const userAddressTopic = hexTransformer.to(zeroPadValue(userAddress, 32));
+
     qb.andWhere(
       new Brackets((outer) => {
         rules.forEach((rule, idx) => {
@@ -85,7 +87,7 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
                 });
               } else if (condition.type === "userAddress") {
                 inner.andWhere(`log.topics[${pgIndex}] = :${paramName}`, {
-                  [paramName]: hexTransformer.to(zeroPadValue(userAddress, 32)),
+                  [paramName]: userAddressTopic,
                 });
               }
             }
