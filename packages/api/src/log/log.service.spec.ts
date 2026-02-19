@@ -113,6 +113,15 @@ describe("LogService", () => {
       await service.findAll({}, pagingOptions, visibility as any);
       expect(policyMock.apply).toHaveBeenCalledWith(queryBuilderMock, visibility);
     });
+
+    it("passes address filter to policy visibility context", async () => {
+      const visibility = { isAdmin: false, userAddress: "0x1" };
+      await service.findAll({ address: "0xabc" }, pagingOptions, visibility as any);
+      expect(policyMock.apply).toHaveBeenCalledWith(queryBuilderMock, {
+        ...visibility,
+        logFilterAddress: "0xabc",
+      });
+    });
   });
 
   describe("findMany", () => {

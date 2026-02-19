@@ -150,7 +150,7 @@ describe("Prividium Log Visibility (e2e)", () => {
     await logRepo.createQueryBuilder().delete().execute();
   });
 
-  const assertRules = async (rules: EventPermissionRule[], expectedLOgs: TestLog[]) => {
+  const assertRules = async (rules: EventPermissionRule[], expectedLogs: TestLog[]) => {
     fetchEventPermissionRules.mockResolvedValue(rules);
 
     const res = await logService.findAll(
@@ -159,9 +159,10 @@ describe("Prividium Log Visibility (e2e)", () => {
       { user: makeUser() }
     );
 
-    expect(res.items.length).toBeGreaterThanOrEqual(expectedLOgs.length);
-    expect(res.items).toMatchObject(expectedLOgs);
+    expect(res.items).toHaveLength(expectedLogs.length);
+    expect(res.items).toMatchObject(expectedLogs);
     expect(fetchEventPermissionRules).toHaveBeenCalledWith("tok");
+    expect(fetchEventPermissionRules).toHaveBeenCalledTimes(1);
   };
 
   it("matches topic0 + topic1 equalTo", async () => {
@@ -540,6 +541,62 @@ describe("Prividium Log Visibility (e2e)", () => {
 
     expect(res.items).toEqual([]);
     expect(fetchEventPermissionRules).toHaveBeenCalledWith("tok");
+  });
+
+  it("returns all logs when visibility is not provided", async () => {
+    const logA = { address: contractMatching, topics: [selectorMatchingA, topicUser] };
+    const logB = { address: contractOther, topics: [selectorOtherA, topicOtherA] };
+    await seedLogs([logA, logB]);
+
+    const res = await logService.findAll(
+      { transactionHash: TX_HASH },
+      { page: 1, limit: 1000, route: "transactions/tx/logs" }
+    );
+
+    expect(res.items).toMatchObject([logA, logB]);
+    expect(fetchEventPermissionRules).not.toHaveBeenCalled();
+  });
+
+  it("returns no logs when user is missing in visibility", async () => {
+    await seedLogs([{ address: contractMatching, topics: [selectorMatchingA, topicUser] }]);
+
+    const res = await logService.findAll(
+      { transactionHash: TX_HASH },
+      { page: 1, limit: 1000, route: "transactions/tx/logs" },
+      { user: undefined }
+    );
+
+    expect(res.items).toEqual([]);
+    expect(fetchEventPermissionRules).not.toHaveBeenCalled();
+  });
+
+  it("returns no logs when user token is missing", async () => {
+    await seedLogs([{ address: contractMatching, topics: [selectorMatchingA, topicUser] }]);
+
+    const res = await logService.findAll(
+      { transactionHash: TX_HASH },
+      { page: 1, limit: 1000, route: "transactions/tx/logs" },
+      { user: makeUser({ token: "" }) }
+    );
+
+    expect(res.items).toEqual([]);
+    expect(fetchEventPermissionRules).not.toHaveBeenCalled();
+  });
+
+  it("propagates error when rules service fails", async () => {
+    await seedLogs([{ address: contractMatching, topics: [selectorMatchingA, topicUser] }]);
+    fetchEventPermissionRules.mockRejectedValueOnce(new Error("rules fetch failed"));
+
+    await expect(
+      logService.findAll(
+        { transactionHash: TX_HASH },
+        { page: 1, limit: 1000, route: "transactions/tx/logs" },
+        { user: makeUser() }
+      )
+    ).rejects.toThrow("rules fetch failed");
+
+    expect(fetchEventPermissionRules).toHaveBeenCalledWith("tok");
+    expect(fetchEventPermissionRules).toHaveBeenCalledTimes(1);
   });
 
   it("returns all logs when admin", async () => {
