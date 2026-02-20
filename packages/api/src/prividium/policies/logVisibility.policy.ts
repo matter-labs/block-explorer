@@ -4,6 +4,7 @@ import { zeroPadValue } from "ethers";
 
 import { Log } from "../../log/log.entity";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
+import { logQueryForDebug } from "./logVisibility.utils";
 import {
   EventPermissionRule,
   PrividiumRulesService,
@@ -105,13 +106,11 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
     );
   }
 
-  private filterByContract(rules: EventPermissionRule[], contractAddress: string) {
+  private filterByContract(rules: EventPermissionRule[], contractAddress?: string) {
     if (!contractAddress) {
       return rules;
     }
 
-    return rules
-      .filter((r) => r.contractAddress.toLowerCase() === contractAddress.toLowerCase())
-      .map((rule) => ({ ...rule, contractAddress: null }));
+    return rules.filter((r) => r.contractAddress.toLowerCase() === contractAddress.toLowerCase());
   }
 }
