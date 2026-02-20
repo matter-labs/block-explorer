@@ -48,18 +48,24 @@ export class RuleBasedLogVisibilityPolicy implements LogVisibilityPolicy {
       return;
     }
 
-    this.applyEventPermissionRules(qb, rules, user.address);
+    this.applyEventPermissionRules(qb, filteredRules, user.address, byContract);
+
+    logQueryForDebug(qb);
   }
 
-  private applyEventPermissionRules(qb: SelectQueryBuilder<Log>, rules: EventPermissionRule[], userAddress: string) {
+  private applyEventPermissionRules(
+    qb: SelectQueryBuilder<Log>,
+    rules: EventPermissionRule[],
+    userAddress: string,
+    byContract?: string
+  ) {
     const userAddressTopic = hexTransformer.to(zeroPadValue(userAddress, 32));
 
     qb.andWhere(
       new Brackets((outer) => {
         rules.forEach((rule, idx) => {
           const ruleBrackets = new Brackets((inner) => {
-            // When contract is null when rules are applied per-contract
-            if (rule.contractAddress !== null) {
+            if (!byContract) {
               const addrParam = `rule_${idx}_addr`;
               inner.where(`log.address = :${addrParam}`, {
                 [addrParam]: hexTransformer.to(rule.contractAddress),
