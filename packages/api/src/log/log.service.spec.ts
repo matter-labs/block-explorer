@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
-import { LogService, FilterLogsOptions, FilterLogsByAddressAndTopicsOptions } from "./log.service";
+import { LogService, FilterLogsOptions } from "./log.service";
 import { Log } from "./log.entity";
 
 jest.mock("../common/utils");
