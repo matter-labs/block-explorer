@@ -626,7 +626,9 @@ export class ApiController {
 
   @ApiTags("Logs API")
   @Get("api?module=logs&action=getLogs")
-  @ApiOperation({ summary: "Retrieve the event logs for an address, with optional filtering by block range" })
+  @ApiOperation({
+    summary: "Retrieve the event logs for an address, with optional filtering by block range and topics",
+  })
   @ApiQuery({
     name: "address",
     type: String,
@@ -646,6 +648,13 @@ export class ApiController {
     type: "integer",
     description: "The integer block number to stop searching for logs ",
     example: 99999999,
+    required: false,
+  })
+  @ApiQuery({
+    name: "topic0",
+    type: String,
+    description: "The topic0 filter for logs",
+    example: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
     required: false,
   })
   @ApiExtraModels(LogApiDto)

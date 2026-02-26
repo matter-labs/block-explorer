@@ -14,17 +14,9 @@ export interface FilterLogsOptions {
   visibleBy?: string;
 }
 
-export interface FilterLogsByAddressOptions {
-  address: string;
-  fromBlock?: number;
-  toBlock?: number;
-  page?: number;
-  offset?: number;
-}
-
-export interface FilterLogsByTopicsOptions {
+export interface FilterLogsByAddressAndTopicsOptions {
   address?: string;
-  topics: {
+  topics?: {
     topic0?: string;
     topic1?: string;
     topic2?: string;
@@ -34,6 +26,7 @@ export interface FilterLogsByTopicsOptions {
   toBlock?: number;
   page?: number;
   offset?: number;
+  order?: "ASC" | "DESC";
 }
 
 @Injectable()
@@ -72,42 +65,13 @@ export class LogService {
 
   public async findMany({
     address,
+    topics = {},
     fromBlock,
     toBlock,
     page = 1,
     offset = 10,
-  }: FilterLogsByAddressOptions): Promise<Log[]> {
-    const queryBuilder = this.logRepository.createQueryBuilder("log");
-    queryBuilder.leftJoin("log.transaction", "transaction");
-    queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
-    queryBuilder.addSelect(["transaction.gasPrice", "transactionReceipt.gasUsed"]);
-    queryBuilder.where({ address });
-    if (fromBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: MoreThanOrEqual(fromBlock),
-      });
-    }
-    if (toBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: LessThanOrEqual(toBlock),
-      });
-    }
-
-    queryBuilder.offset((page - 1) * offset);
-    queryBuilder.limit(offset);
-    queryBuilder.orderBy("log.blockNumber", "ASC");
-    queryBuilder.addOrderBy("log.logIndex", "ASC");
-    return await queryBuilder.getMany();
-  }
-
-  public async findManyByTopics({
-    address,
-    topics,
-    fromBlock,
-    toBlock,
-    page = 1,
-    offset = 10,
-  }: FilterLogsByTopicsOptions): Promise<Log[]> {
+    order = "DESC",
+  }: FilterLogsByAddressAndTopicsOptions): Promise<Log[]> {
     const queryBuilder = this.logRepository.createQueryBuilder("log");
     queryBuilder.leftJoin("log.transaction", "transaction");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
@@ -141,8 +105,8 @@ export class LogService {
 
     queryBuilder.offset((page - 1) * offset);
     queryBuilder.limit(offset);
-    queryBuilder.orderBy("log.blockNumber", "DESC");
-    queryBuilder.addOrderBy("log.logIndex", "DESC");
+    queryBuilder.orderBy("log.blockNumber", order);
+    queryBuilder.addOrderBy("log.logIndex", order);
     return await queryBuilder.getMany();
   }
 }
