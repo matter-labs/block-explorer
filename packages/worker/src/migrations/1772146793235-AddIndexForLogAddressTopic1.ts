@@ -5,7 +5,7 @@ export class AddIndexForLogAddressTopic11772146793235 implements MigrationInterf
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE INDEX LogsAddressTopic1BlockNumberLogIndex ON public.logs ("address", "topics[1]", "blockNumber", "logIndex") `
+      `CREATE INDEX "LogsAddressTopic1BlockNumberLogIndex" ON "logs" ("address", (topics[1]), "blockNumber", "logIndex")`
     );
   }
 
