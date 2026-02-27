@@ -222,7 +222,7 @@ export class AddressController {
   private async isUserOwnerOfContract(contractAddress: string, accountAddress: string): Promise<boolean> {
     try {
       const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
-      const logs = await this.logService.findManyByTopics({
+      const logs = await this.logService.findMany({
         address: contractAddress,
         topics: {
           topic0: OWNERSHIP_TRANSFERRED_TOPIC,

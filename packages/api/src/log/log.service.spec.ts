@@ -11,7 +11,7 @@ import {
 } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
-import { LogService, FilterLogsOptions, FilterLogsByAddressOptions } from "./log.service";
+import { LogService, FilterLogsOptions } from "./log.service";
 import { Log } from "./log.entity";
 
 jest.mock("../common/utils");
@@ -126,119 +126,6 @@ describe("LogService", () => {
   });
 
   describe("findMany", () => {
-    let queryBuilderMock;
-    let filterOptions: FilterLogsByAddressOptions;
-
-    beforeEach(() => {
-      queryBuilderMock = mock<SelectQueryBuilder<Log>>();
-      (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
-
-      filterOptions = {
-        address: "address",
-      };
-    });
-
-    describe("when address filter options is specified", () => {
-      beforeEach(() => {
-        jest.spyOn(queryBuilderMock, "getMany").mockResolvedValue([
-          {
-            logIndex: 1,
-          },
-          {
-            logIndex: 2,
-          },
-        ]);
-      });
-
-      it("creates query builder with proper params", async () => {
-        await service.findMany(filterOptions);
-        expect(repositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
-        expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("log");
-      });
-
-      it("joins transaction and transactionReceipt records to the logs", async () => {
-        await service.findMany(filterOptions);
-        expect(queryBuilderMock.leftJoin).toBeCalledTimes(2);
-        expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("log.transaction", "transaction");
-        expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
-      });
-
-      it("selects only needed fields from joined records", async () => {
-        await service.findMany(filterOptions);
-        expect(queryBuilderMock.addSelect).toBeCalledTimes(1);
-        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith(["transaction.gasPrice", "transactionReceipt.gasUsed"]);
-      });
-
-      it("filters logs by address", async () => {
-        await service.findMany(filterOptions);
-        expect(queryBuilderMock.where).toBeCalledTimes(1);
-        expect(queryBuilderMock.where).toHaveBeenCalledWith({
-          address: filterOptions.address,
-        });
-      });
-
-      describe("when fromBlock filter is specified", () => {
-        it("adds blockNumber filter", async () => {
-          await service.findMany({
-            ...filterOptions,
-            fromBlock: 10,
-          });
-          expect(queryBuilderMock.andWhere).toBeCalledTimes(1);
-          expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({
-            blockNumber: MoreThanOrEqual(10),
-          });
-        });
-      });
-
-      describe("when toBlock filter is specified", () => {
-        it("adds toBlock filter", async () => {
-          await service.findMany({
-            ...filterOptions,
-            toBlock: 10,
-          });
-          expect(queryBuilderMock.andWhere).toBeCalledTimes(1);
-          expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({
-            blockNumber: LessThanOrEqual(10),
-          });
-        });
-      });
-
-      it("sets offset and limit", async () => {
-        await service.findMany({
-          ...filterOptions,
-          page: 2,
-          offset: 100,
-        });
-        expect(queryBuilderMock.offset).toBeCalledTimes(1);
-        expect(queryBuilderMock.offset).toHaveBeenCalledWith(100);
-        expect(queryBuilderMock.limit).toBeCalledTimes(1);
-        expect(queryBuilderMock.limit).toHaveBeenCalledWith(100);
-      });
-
-      it("sorts by blockNumber asc and logIndex asc", async () => {
-        await service.findMany(filterOptions);
-        expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
-        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.blockNumber", "ASC");
-        expect(queryBuilderMock.addOrderBy).toBeCalledTimes(1);
-        expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("log.logIndex", "ASC");
-      });
-
-      it("executes query and returns transfers list", async () => {
-        const result = await service.findMany(filterOptions);
-        expect(result).toEqual([
-          {
-            logIndex: 1,
-          },
-          {
-            logIndex: 2,
-          },
-        ]);
-        expect(queryBuilderMock.getMany).toBeCalledTimes(1);
-      });
-    });
-  });
-
-  describe("findManyByTopics", () => {
     const someAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     let queryBuilderMock;
 
@@ -248,7 +135,7 @@ describe("LogService", () => {
     });
 
     it("filters by address when address is defined", async () => {
-      await service.findManyByTopics({
+      await service.findMany({
         address: someAddress,
         topics: {},
       });
@@ -256,14 +143,14 @@ describe("LogService", () => {
     });
 
     it("does not filter by address when address is not defined", async () => {
-      await service.findManyByTopics({
+      await service.findMany({
         topics: {},
       });
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith({ address: expect.anything() });
     });
 
     it("filters by fromBlock when address is defined", async () => {
-      await service.findManyByTopics({
+      await service.findMany({
         fromBlock: 10,
         topics: {},
       });
@@ -271,7 +158,7 @@ describe("LogService", () => {
     });
 
     it("filters by toBlock when address is defined", async () => {
-      await service.findManyByTopics({
+      await service.findMany({
         toBlock: 10,
         topics: {},
       });
@@ -279,7 +166,7 @@ describe("LogService", () => {
     });
 
     it("does not restrict by block when no block conditions are sent", async () => {
-      await service.findManyByTopics({
+      await service.findMany({
         topics: {},
       });
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith({ blockNumber: expect.anything() });
@@ -291,7 +178,7 @@ describe("LogService", () => {
 
     it("filters by first topic when topic0 is defined", async () => {
       const topic = "0xabab";
-      await service.findManyByTopics({
+      await service.findMany({
         topics: {
           topic0: topic,
         },
@@ -306,7 +193,7 @@ describe("LogService", () => {
 
     it("filters by second topic when topic1 is defined", async () => {
       const topic = "0xabab";
-      await service.findManyByTopics({
+      await service.findMany({
         topics: {
           topic1: topic,
         },
@@ -321,7 +208,7 @@ describe("LogService", () => {
 
     it("filters by third topic when topic2 is defined", async () => {
       const topic = "0xabab";
-      await service.findManyByTopics({
+      await service.findMany({
         topics: {
           topic2: topic,
         },
@@ -336,7 +223,7 @@ describe("LogService", () => {
 
     it("filters by fourth topic when topic3 is defined", async () => {
       const topic = "0xabab";
-      await service.findManyByTopics({
+      await service.findMany({
         topics: {
           topic3: topic,
         },
@@ -347,6 +234,15 @@ describe("LogService", () => {
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[1\]/, expect.anything());
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[2\]/, expect.anything());
       expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
+    });
+
+    it("applies order when provided", async () => {
+      await service.findMany({
+        order: "ASC",
+        topics: {},
+      });
+      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.blockNumber", "ASC");
+      expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("log.logIndex", "ASC");
     });
   });
 });

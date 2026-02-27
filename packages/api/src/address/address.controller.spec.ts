@@ -289,11 +289,11 @@ describe("AddressController", () => {
         });
 
         it("does not include additional information if user is not owner (no logs found)", async () => {
-          logServiceMock.findManyByTopics.mockResolvedValueOnce([]);
+          logServiceMock.findMany.mockResolvedValueOnce([]);
 
           const result = await controller.getAddress(blockchainAddress, user);
 
-          expect(logServiceMock.findManyByTopics).toHaveBeenCalledWith({
+          expect(logServiceMock.findMany).toHaveBeenCalledWith({
             address: blockchainAddress,
             topics: {
               topic0: "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
@@ -308,7 +308,7 @@ describe("AddressController", () => {
         });
 
         it("does not include additional information if user is not owner (ownerTopic is undefined)", async () => {
-          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+          logServiceMock.findMany.mockResolvedValueOnce([
             {
               topics: ["0x", "0x"], // topics[2] is undefined
               address: blockchainAddress,
@@ -334,7 +334,7 @@ describe("AddressController", () => {
         });
 
         it("does not include additional information if user is not owner (different owner)", async () => {
-          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+          logServiceMock.findMany.mockResolvedValueOnce([
             {
               topics: ["0x", "0x", zeroPadValue(Wallet.createRandom().address, 32)],
               address: blockchainAddress,
@@ -360,7 +360,7 @@ describe("AddressController", () => {
         });
 
         it("includes additional information if user is owner", async () => {
-          logServiceMock.findManyByTopics.mockResolvedValueOnce([
+          logServiceMock.findMany.mockResolvedValueOnce([
             {
               topics: ["0x", "0x", zeroPadValue(mockUser, 32)],
               address: blockchainAddress,
@@ -388,7 +388,7 @@ describe("AddressController", () => {
 
         it("does not include additional information if logService throws an error", async () => {
           const err = new Error("Database error");
-          logServiceMock.findManyByTopics.mockRejectedValueOnce(err);
+          logServiceMock.findMany.mockRejectedValueOnce(err);
           const loggerSpy = jest.spyOn(controller["logger"], "error").mockImplementation();
 
           const result = await controller.getAddress(blockchainAddress, user);
