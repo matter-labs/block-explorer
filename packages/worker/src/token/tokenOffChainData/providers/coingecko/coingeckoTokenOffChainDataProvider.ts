@@ -135,20 +135,22 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       if (err.status === 404) {
         return null;
       }
-      if (err.status === 429) {
-        const rateLimitResetIn = err.rateLimitResetDate.getTime() - new Date().getTime();
-        await setTimeout(rateLimitResetIn >= 0 ? rateLimitResetIn + 1000 : 0);
-        return this.makeApiRequestRetryable<T>({
-          path,
-          query,
-        });
-      }
       if (retryAttempt >= API_RETRY_ATTEMPTS) {
         this.logger.error({
           message: `Failed to fetch data at ${path} from coingecko after ${retryAttempt} retries`,
           provider: CoingeckoTokenOffChainDataProvider.name,
         });
         return null;
+      }
+      if (err.status === 429) {
+        const rateLimitResetIn = err.rateLimitResetDate.getTime() - new Date().getTime();
+        await setTimeout(rateLimitResetIn >= 0 ? rateLimitResetIn + 1000 : 0);
+        return this.makeApiRequestRetryable<T>({
+          path,
+          query,
+          retryAttempt: API_RETRY_ATTEMPTS, // disable retries after rate limit reset
+          retryTimeout,
+        });
       }
       await setTimeout(retryTimeout);
       return this.makeApiRequestRetryable<T>({
