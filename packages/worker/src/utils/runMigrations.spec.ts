@@ -73,4 +73,53 @@ describe("runMigrations", () => {
     expect(queryRunner.query).toBeCalledWith("SELECT pg_advisory_unlock($1)", [ADVISORY_LOCK_KEY]);
     expect(queryRunner.release).toBeCalledTimes(1);
   });
+
+  it("retries creating queryRunner if connect fails", async () => {
+    const failingQueryRunner = mock<QueryRunner>({
+      connect: jest.fn().mockRejectedValueOnce(new Error("connection refused")),
+      release: jest.fn().mockResolvedValue(null),
+    });
+    const successQueryRunner = mock<QueryRunner>({
+      connect: jest.fn().mockResolvedValue(null),
+      release: jest.fn().mockResolvedValue(null),
+      query: jest
+        .fn()
+        .mockResolvedValueOnce([{ pg_try_advisory_lock: true }])
+        .mockResolvedValueOnce(null), // pg_advisory_unlock
+    });
+    connection.createQueryRunner = jest
+      .fn()
+      .mockReturnValueOnce(failingQueryRunner)
+      .mockReturnValueOnce(successQueryRunner);
+
+    await runMigrations(connection, mock<Logger>({ warn: jest.fn(), log: jest.fn() }));
+
+    expect(connection.createQueryRunner).toBeCalledTimes(2);
+    expect(connection.runMigrations).toBeCalledTimes(1);
+  });
+
+  it("retries with a new queryRunner if lock query throws", async () => {
+    const failingQueryRunner = mock<QueryRunner>({
+      connect: jest.fn().mockResolvedValue(null),
+      release: jest.fn().mockResolvedValue(null),
+      query: jest.fn().mockRejectedValueOnce(new Error("query failed")),
+    });
+    const successQueryRunner = mock<QueryRunner>({
+      connect: jest.fn().mockResolvedValue(null),
+      release: jest.fn().mockResolvedValue(null),
+      query: jest
+        .fn()
+        .mockResolvedValueOnce([{ pg_try_advisory_lock: true }])
+        .mockResolvedValueOnce(null), // pg_advisory_unlock
+    });
+    connection.createQueryRunner = jest
+      .fn()
+      .mockReturnValueOnce(failingQueryRunner)
+      .mockReturnValueOnce(successQueryRunner);
+
+    await runMigrations(connection, mock<Logger>({ warn: jest.fn(), log: jest.fn() }));
+
+    expect(connection.createQueryRunner).toBeCalledTimes(2);
+    expect(connection.runMigrations).toBeCalledTimes(1);
+  });
 });

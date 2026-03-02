@@ -6,11 +6,22 @@ const MIGRATIONS_LOCK_CHECK_INTERVAL = 10000;
 const ADVISORY_LOCK_KEY = 1234567; // arbitrary fixed key for migration lock
 
 export default async (connection: DataSource, logger: Logger) => {
-  const queryRunner = connection.createQueryRunner();
-  await queryRunner.connect();
+  let queryRunner = null;
 
-  try {
-    while (true) {
+  while (true) {
+    try {
+      if (!queryRunner) {
+        queryRunner = connection.createQueryRunner();
+        await queryRunner.connect();
+      }
+    } catch (err) {
+      logger.warn("Failed to connect to database, retrying...", err);
+      queryRunner = null;
+      await setTimeout(MIGRATIONS_LOCK_CHECK_INTERVAL);
+      continue;
+    }
+
+    try {
       const [{ pg_try_advisory_lock: acquired }] = await queryRunner.query("SELECT pg_try_advisory_lock($1)", [
         ADVISORY_LOCK_KEY,
       ]);
@@ -21,9 +32,15 @@ export default async (connection: DataSource, logger: Logger) => {
 
       logger.warn("Database is locked for migrations. Waiting for release...");
       await setTimeout(MIGRATIONS_LOCK_CHECK_INTERVAL);
+    } catch (err) {
+      logger.warn("Failed to acquire migration lock, retrying...", err);
+      queryRunner = null;
+      await setTimeout(MIGRATIONS_LOCK_CHECK_INTERVAL);
     }
+  }
 
-    logger.log("Lock acquired, running migrations if there are any to run");
+  logger.log("Lock acquired, running migrations if there are any to run");
+  try {
     await connection.runMigrations();
   } finally {
     await queryRunner.query("SELECT pg_advisory_unlock($1)", [ADVISORY_LOCK_KEY]);
