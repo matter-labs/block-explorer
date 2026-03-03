@@ -244,6 +244,22 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           expect(setTimeout).toBeCalledWith(61000);
         });
       });
+
+      it("disables retries after 429", async () => {
+        pipeMock.mockImplementation((callback) => {
+          callback({
+            stack: "error stack",
+            response: {
+              headers: {},
+              status: 429,
+            },
+          } as AxiosError);
+        });
+
+        const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
+        expect(tokens).toEqual([]);
+        expect(httpServiceMock.get).toBeCalledTimes(2);
+      });
     });
 
     it("fetches offchain tokens data and returns filtered tokens list", async () => {
