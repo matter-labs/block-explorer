@@ -44,6 +44,25 @@ export class BlockStatusService extends Worker {
     if (!latestBlockByStatus) {
       return;
     }
+
+    const lastDbBlock = await this.blockRepository.getBlock({
+      select: {
+        number: true,
+        hash: true,
+      },
+    });
+    if (!lastDbBlock) {
+      return;
+    }
+    const lastBlockFromBlockchain = await this.blockchainService.getBlock(lastDbBlock.number);
+    if (!lastBlockFromBlockchain) {
+      return;
+    }
+    if (lastDbBlock.hash !== lastBlockFromBlockchain.hash) {
+      this.logger.warn(`Skipping block status update: latest DB block hash mismatch (reorg detected)`);
+      return;
+    }
+
     const blockStatus = status === "safe" ? BlockStatus.Committed : BlockStatus.Executed;
     const firstDbBlockWithSmallerStatus = await this.blockRepository.getBlock({
       where: {
