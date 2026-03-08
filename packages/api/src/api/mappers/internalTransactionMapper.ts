@@ -1,21 +1,23 @@
-import { Transfer } from "../../transfer/transfer.entity";
-import { TransactionStatus } from "../../transaction/entities/transaction.entity";
+import { InternalTransaction } from "../../transaction/entities/internalTransaction.entity";
 
-export const mapInternalTransactionListItem = (transfer: Transfer) => ({
-  blockNumber: transfer.blockNumber.toString(),
-  timeStamp: Math.floor(new Date(transfer.timestamp).getTime() / 1000).toString(),
-  hash: transfer.transactionHash,
-  from: transfer.from,
-  to: transfer.to,
-  value: transfer.amount,
-  gas: transfer.transaction?.gasLimit,
-  input: "",
-  type: "call",
-  contractAddress: transfer.transaction?.transactionReceipt.contractAddress,
-  gasUsed: transfer.transaction?.transactionReceipt.gasUsed,
-  fee: transfer.transaction?.fee ? BigInt(transfer.transaction.fee).toString() : undefined,
-  traceId: "0",
-  transactionType: transfer.transaction?.type.toString(),
-  isError: transfer.transaction?.status === TransactionStatus.Failed ? "1" : "0",
-  errCode: "",
+export const mapInternalTransactionListItem = (internalTx: InternalTransaction) => ({
+  blockNumber: internalTx.blockNumber.toString(),
+  timeStamp: Math.floor(new Date(internalTx.timestamp).getTime() / 1000).toString(),
+  hash: internalTx.transactionHash,
+  from: internalTx.from,
+  to: internalTx.to || "",
+  value: internalTx.value,
+  gas: internalTx.gas?.toString() || "",
+  input: internalTx.input || "",
+  type: internalTx.callType || internalTx.type.toLowerCase(),
+  contractAddress:
+    internalTx.type.toUpperCase() === "CREATE" || internalTx.type.toUpperCase() === "CREATE2"
+      ? internalTx.to
+      : undefined,
+  gasUsed: internalTx.gasUsed?.toString() || "",
+  fee: internalTx.transaction?.fee ? BigInt(internalTx.transaction.fee).toString() : undefined,
+  traceId: internalTx.traceAddress,
+  transactionType: internalTx.transaction?.type.toString(),
+  isError: internalTx.error ? "1" : "0",
+  errCode: internalTx.error || "",
 });
