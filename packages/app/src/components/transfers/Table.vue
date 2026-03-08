@@ -90,6 +90,7 @@
 
       <TableBodyColumn :data-heading="t('transfers.table.direction')">
         <TransactionDirectionTableCell
+          v-if="!forToken"
           :data-testid="$testId.direction"
           class="transfers-in-out"
           :text="getTransferDirection(item)"
@@ -167,12 +168,17 @@ const props = defineProps({
     required: true,
     default: () => null,
   },
+  forToken: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const { data, load, total, pending, pageSize } = useTransfers(
   computed(() => {
     return props.address;
-  })
+  }),
+  { forToken: props.forToken }
 );
 
 function getTransferDirection(item: Transfer): Direction {
@@ -185,7 +191,7 @@ const toDate = new Date();
 watch(
   [activePage, () => props.address],
   ([page]) => {
-    load(page, toDate);
+    load(page, props.forToken ? undefined : toDate);
   },
   { immediate: true }
 );

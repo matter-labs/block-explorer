@@ -1,9 +1,21 @@
-import { AbiCoder, isAddress as ethersIsAddress } from "ethers";
+import { AbiCoder, isAddress as ethersIsAddress, getAddress } from "ethers";
 
 const defaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export function isAddress(address: string): boolean {
   return ethersIsAddress(address?.toLowerCase());
+}
+
+export function isAddressEqual(address1?: string | null, address2?: string | null): boolean {
+  if (!address1 || !address2) {
+    return false;
+  }
+
+  try {
+    return getAddress(address1) === getAddress(address2);
+  } catch {
+    return false;
+  }
 }
 
 export const isTransactionHash = (s: string) => {

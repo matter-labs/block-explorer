@@ -25,6 +25,7 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { BASE_TOKEN_L2_ADDRESS } from "../common/constants";
 import { User } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
 
@@ -70,6 +71,9 @@ export class AddressController {
     const addressType = !!(addressRecord && addressRecord.bytecode.length > 2)
       ? AddressType.Contract
       : AddressType.Account;
+
+    const isPublicBaseTokenAddress = isAddressEqual(address, BASE_TOKEN_L2_ADDRESS);
+
     let includeBalances = true;
     let includeBytecode = true;
     let includeCreatorAddress = true;
@@ -77,7 +81,7 @@ export class AddressController {
 
     if (user && !user.isAdmin) {
       // If address is an account and is not own address, forbid access
-      if (addressType === AddressType.Account && !isAddressEqual(user.address, address)) {
+      if (addressType === AddressType.Account && !isAddressEqual(user.address, address) && !isPublicBaseTokenAddress) {
         throw new ForbiddenException();
       }
 
