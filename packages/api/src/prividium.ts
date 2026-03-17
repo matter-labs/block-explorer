@@ -16,7 +16,14 @@ export function applyPrividiumExpressConfig(
     appUrl,
     sessionMaxAge,
     sessionSameSite,
-  }: { sessionSecret: string; appUrl: string; sessionMaxAge: number; sessionSameSite: "none" | "strict" | "lax" }
+    corsOrigins,
+  }: {
+    sessionSecret: string;
+    appUrl: string;
+    sessionMaxAge: number;
+    sessionSameSite: "none" | "strict" | "lax";
+    corsOrigins?: string[];
+  }
 ) {
   app.set("trust proxy", 1);
   app.use(
@@ -31,7 +38,7 @@ export function applyPrividiumExpressConfig(
     })
   );
   app.enableCors({
-    origin: appUrl,
+    origin: corsOrigins ?? appUrl,
     credentials: true,
   });
 }

@@ -440,5 +440,17 @@ describe("config", () => {
         new Error("Invalid prividium config: PRIVIDIUM_SESSION_SECRET has to be a non empty string")
       );
     });
+
+    it("parses PRIVIDIUM_CORS_ORIGINS as comma-separated list", async () => {
+      process.env.PRIVIDIUM_CORS_ORIGINS = "https://a.example.com,https://b.example.com";
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.corsOrigins).toEqual(["https://a.example.com", "https://b.example.com"]);
+    });
+
+    it("returns undefined corsOrigins when PRIVIDIUM_CORS_ORIGINS is not set", async () => {
+      process.env.PRIVIDIUM_CORS_ORIGINS = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.corsOrigins).toBeUndefined();
+    });
   });
 });
