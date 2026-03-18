@@ -17,7 +17,6 @@ export interface FilterTransactionsOptions {
   blockNumber?: number;
   address?: string;
   receivedAt?: FindOperator<Date>;
-  filterAddressInLogTopics?: boolean;
   visibleBy?: string;
 }
 
@@ -122,59 +121,52 @@ export class TransactionService {
           );
         }
 
-        // If `filterAddressInLogTopics` is provided, we filter by log topics where
-        // the address is mentioned
-        if (filterOptions.filterAddressInLogTopics) {
-          const logSubQuery = this.logRepository.createQueryBuilder("sub2_log");
-          logSubQuery.select("sub2_log.transactionHash");
-          logSubQuery.innerJoin("sub2_log.transaction", "sub2_transaction");
+        const logSubQuery = this.logRepository.createQueryBuilder("sub2_log");
+        logSubQuery.select("sub2_log.transactionHash");
+        logSubQuery.innerJoin("sub2_log.transaction", "sub2_transaction");
 
-          logSubQuery.where(
+        logSubQuery.where(
+          new Brackets((qb) => {
+            qb.where("sub2_log.topics[1] = :paddedAddressBytes");
+            qb.orWhere("sub2_log.topics[2] = :paddedAddressBytes");
+            qb.orWhere("sub2_log.topics[3] = :paddedAddressBytes");
+          })
+        );
+        // If `visibleBy` is provided, in addition to filtering by log topics,
+        // we filter by transactions that were from or to `address`
+        if (filterOptions.visibleBy !== undefined) {
+          logSubQuery.andWhere(
             new Brackets((qb) => {
-              qb.where("sub2_log.topics[1] = :paddedAddressBytes");
-              qb.orWhere("sub2_log.topics[2] = :paddedAddressBytes");
-              qb.orWhere("sub2_log.topics[3] = :paddedAddressBytes");
+              qb.where("sub2_transaction.from = :address");
+              qb.orWhere("sub2_transaction.to = :address");
             })
           );
-          // If `visibleBy` is provided, in addition to filtering by log topics,
-          // we filter by transactions that were from or to `address`
-          if (filterOptions.visibleBy !== undefined) {
-            logSubQuery.andWhere(
-              new Brackets((qb) => {
-                qb.where("sub2_transaction.from = :address");
-                qb.orWhere("sub2_transaction.to = :address");
-              })
-            );
-          }
-
-          if (filterOptions.blockNumber !== undefined) {
-            logSubQuery.andWhere("sub2_transaction.blockNumber = :blockNumber");
-          }
-          if (filterOptions.receivedAt !== undefined) {
-            logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
-          }
-
-          // If `visibleBy` is provided, we use it to filter log topics given we want to see transactions
-          // from `visibleBy` perspective
-          const logAddressParam = {
-            paddedAddressBytes: hexTransformer.to(
-              padAddressToTransactionLogTopic(filterOptions.visibleBy || filterOptions.address)
-            ),
-          };
-
-          queryBuilder.where(`transaction.hash IN (
-            (${addressTransactionSubQuery.getQuery()})
-            UNION
-            (${logSubQuery.getQuery()})
-          )`);
-          queryBuilder.setParameters({
-            ...commonParams,
-            ...logAddressParam,
-          });
-        } else {
-          queryBuilder.where(`transaction.hash IN (${addressTransactionSubQuery.getQuery()})`);
-          queryBuilder.setParameters(commonParams);
         }
+
+        if (filterOptions.blockNumber !== undefined) {
+          logSubQuery.andWhere("sub2_transaction.blockNumber = :blockNumber");
+        }
+        if (filterOptions.receivedAt !== undefined) {
+          logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
+        }
+
+        // If `visibleBy` is provided, we use it to filter log topics given we want to see transactions
+        // from `visibleBy` perspective
+        const logAddressParam = {
+          paddedAddressBytes: hexTransformer.to(
+            padAddressToTransactionLogTopic(filterOptions.visibleBy || filterOptions.address)
+          ),
+        };
+
+        queryBuilder.where(`transaction.hash IN (
+          (${addressTransactionSubQuery.getQuery()})
+          UNION
+          (${logSubQuery.getQuery()})
+        )`);
+        queryBuilder.setParameters({
+          ...commonParams,
+          ...logAddressParam,
+        });
 
         queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
         queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);

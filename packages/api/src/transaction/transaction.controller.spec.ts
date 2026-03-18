@@ -127,7 +127,6 @@ describe("TransactionController", () => {
           {
             ...filterOptionsWithoutAddress,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
             address: mockUser,
           },
           {
@@ -147,7 +146,6 @@ describe("TransactionController", () => {
           {
             ...filterTransactionsOptions,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
             visibleBy: mockUser,
           },
           {
@@ -167,7 +165,6 @@ describe("TransactionController", () => {
           {
             ...filterTransactionsOptions,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
           },
           {
             filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },

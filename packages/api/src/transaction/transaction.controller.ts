@@ -48,9 +48,6 @@ export class TransactionController {
     const userFilters: FilterTransactionsOptions = {};
 
     if (user && !user.isAdmin) {
-      // In all cases we filter by log topics where the address is mentioned
-      userFilters.filterAddressInLogTopics = true;
-
       // If target address is not provided, we filter by own address
       if (!filterTransactionsOptions.address) {
         userFilters.address = user.address;
