@@ -106,6 +106,7 @@ export default () => {
     PRIVIDIUM_SESSION_MAX_AGE,
     PRIVIDIUM_SESSION_SAME_SITE,
     PRIVIDIUM_SESSION_SECRET,
+    PRIVIDIUM_CORS_ORIGINS,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -196,6 +197,10 @@ export default () => {
           .string({ message: PRIVIDIUM_APP_URL_ERROR_MSG })
           .url(PRIVIDIUM_APP_URL_ERROR_MSG)
           .default("http://localhost:3010"),
+        corsOrigins: z
+          .string()
+          .optional()
+          .transform((val) => (val ? val.split(",").map((s) => s.trim()) : undefined)),
       },
       { message: "Invalid prividium configuration" }
     );
@@ -207,6 +212,7 @@ export default () => {
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
       sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
       appUrl: PRIVIDIUM_APP_URL,
+      corsOrigins: PRIVIDIUM_CORS_ORIGINS,
     });
 
     if (!result.success) {
