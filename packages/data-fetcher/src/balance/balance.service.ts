@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { ETH_L1_ADDRESS } from "../constants";
+import { ETH_L1_ADDRESS, BASE_TOKEN_ADDRESS } from "../constants";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
@@ -26,6 +26,19 @@ export class BalanceService {
 
   public clearTrackedState(blockNumber: number): void {
     this.changedBalances.delete(blockNumber);
+  }
+
+  public trackSenderBalance(address: string, blockNumber: number): void {
+    const blockChangedBalances =
+      this.changedBalances.get(blockNumber) ||
+      new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
+
+    if (!blockChangedBalances.has(address)) {
+      blockChangedBalances.set(address, new Map<string, { balance: bigint; tokenType: TokenType }>());
+    }
+    blockChangedBalances.get(address).set(BASE_TOKEN_ADDRESS, { balance: undefined, tokenType: TokenType.BaseToken });
+
+    this.changedBalances.set(blockNumber, blockChangedBalances);
   }
 
   public trackChangedBalances(transfers: Transfer[]): void {
