@@ -7,6 +7,7 @@ import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURAT
 import { LogService, LogsData } from "../log/log.service";
 import { Token } from "../token/token.service";
 import { TransactionTracesService, ContractAddress } from "./transactionTraces.service";
+import { BalanceService } from "../balance/balance.service";
 
 export interface TransactionInfo extends TransactionResponse {
   error?: string;
@@ -28,6 +29,7 @@ export class TransactionService {
     private readonly blockchainService: BlockchainService,
     private readonly transactionTracesService: TransactionTracesService,
     private readonly logService: LogService,
+    private readonly balanceService: BalanceService,
     @InjectMetric(TRANSACTION_PROCESSING_DURATION_METRIC_NAME)
     private readonly transactionProcessingDurationMetric: Histogram,
     @InjectMetric(GET_TRANSACTION_INFO_DURATION_METRIC_NAME)
@@ -58,6 +60,8 @@ export class TransactionService {
     if (!transaction || !transactionReceipt) {
       throw new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transactionHash}`);
     }
+
+    this.balanceService.trackSenderBalance(transaction.from.toLowerCase(), block.number);
 
     const transactionInfo = {
       ...transaction,
