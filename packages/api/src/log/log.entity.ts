@@ -48,7 +48,7 @@ export class Log extends BaseEntity {
 
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, ...restFields } = this;
+    const { number, transactionFrom, transactionTo, ...restFields } = this;
     return restFields;
   }
 }

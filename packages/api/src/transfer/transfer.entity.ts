@@ -88,7 +88,7 @@ export class Transfer extends BaseEntity {
 
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, ...restFields } = this;
+    const { number, fromToMin, fromToMax, ...restFields } = this;
     return restFields;
   }
 

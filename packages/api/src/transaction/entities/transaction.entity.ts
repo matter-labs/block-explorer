@@ -132,7 +132,7 @@ export class Transaction extends BaseEntity {
 
   toJSON(): any {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, receiptStatus, transactionReceipt, block, ...restFields } = this;
+    const { number, receiptStatus, transactionReceipt, block, fromToMin, fromToMax, ...restFields } = this;
     return {
       ...restFields,
       status: this.status,

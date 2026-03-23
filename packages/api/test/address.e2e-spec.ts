@@ -18,6 +18,7 @@ import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 import { baseToken } from "../src/config";
+import { computeFromToMinMax } from "../src/common/utils";
 
 describe("AddressController (e2e)", () => {
   const ETH_TOKEN = baseToken;
@@ -313,7 +314,10 @@ describe("AddressController (e2e)", () => {
         isInternal: false,
       };
 
-      const insertResult = await transferRepository.insert(transferSpec);
+      const insertResult = await transferRepository.insert({
+        ...transferSpec,
+        ...computeFromToMinMax(transferSpec.from, transferSpec.to),
+      });
 
       for (const address of new Set([transferSpec.from, transferSpec.to])) {
         await addressTransferRepository.insert({
