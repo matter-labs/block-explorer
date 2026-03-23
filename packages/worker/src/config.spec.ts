@@ -72,6 +72,10 @@ describe("config", () => {
         rpcHealthCheckTimeoutMs: 20_000,
         dbHealthCheckTimeoutMs: 20_000,
       },
+      prividium: {
+        enabled: false,
+        disableTxVisibilityByTopics: false,
+      },
     };
   });
 
@@ -145,6 +149,10 @@ describe("config", () => {
         rpcHealthCheckTimeoutMs: 20_000,
         dbHealthCheckTimeoutMs: 20_000,
       },
+      prividium: {
+        enabled: false,
+        disableTxVisibilityByTopics: false,
+      },
     });
   });
 
@@ -198,6 +206,32 @@ describe("config", () => {
           ...defaultConfig.blockchain,
           rpcBatchStallTimeMs: 7,
         },
+      });
+    });
+  });
+
+  describe("when PRIVIDIUM is set to true", () => {
+    beforeEach(() => {
+      process.env = { PRIVIDIUM: "true" };
+    });
+
+    it("sets prividium.enabled to true", () => {
+      expect(config()).toEqual({
+        ...defaultConfig,
+        prividium: { enabled: true, disableTxVisibilityByTopics: false },
+      });
+    });
+  });
+
+  describe("when PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS is set to true", () => {
+    beforeEach(() => {
+      process.env = { PRIVIDIUM: "true", PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS: "true" };
+    });
+
+    it("sets prividium.disableTxVisibilityByTopics to true", () => {
+      expect(config()).toEqual({
+        ...defaultConfig,
+        prividium: { enabled: true, disableTxVisibilityByTopics: true },
       });
     });
   });

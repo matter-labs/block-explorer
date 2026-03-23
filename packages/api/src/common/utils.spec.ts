@@ -14,6 +14,7 @@ import {
   parseReqPathname,
   isAddressEqual,
   padAddressToTransactionLogTopic,
+  computeFromToMinMax,
 } from "./utils";
 import { IPaginationOptions } from "./types";
 
@@ -587,6 +588,44 @@ describe("utils", () => {
       // zeroPadValue returns lowercase
       expect(result).toBe("0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff");
       expect(result.length).toBe(66);
+    });
+  });
+
+  describe("computeFromToMinMax", () => {
+    it("returns fromToMin=from and fromToMax=to when from < to lexicographically", () => {
+      const from = "0xaaa";
+      const to = "0xbbb";
+      expect(computeFromToMinMax(from, to)).toEqual({ fromToMin: from, fromToMax: to });
+    });
+
+    it("returns fromToMin=to and fromToMax=from when from > to lexicographically", () => {
+      const from = "0xbbb";
+      const to = "0xaaa";
+      expect(computeFromToMinMax(from, to)).toEqual({ fromToMin: to, fromToMax: from });
+    });
+
+    it("returns fromToMin=from and fromToMax=to when from equals to", () => {
+      const addr = "0xaaa";
+      expect(computeFromToMinMax(addr, addr)).toEqual({ fromToMin: addr, fromToMax: addr });
+    });
+
+    it("compares addresses case-insensitively", () => {
+      const from = "0xAAA";
+      const to = "0xbbb";
+      // "0xaaa" <= "0xbbb" → fromToMin=from, fromToMax=to
+      expect(computeFromToMinMax(from, to)).toEqual({ fromToMin: from, fromToMax: to });
+    });
+
+    it("returns nulls when from is falsy", () => {
+      expect(computeFromToMinMax(null, "0xbbb")).toEqual({ fromToMin: null, fromToMax: null });
+    });
+
+    it("returns nulls when to is undefined", () => {
+      expect(computeFromToMinMax("0xaaa", undefined)).toEqual({ fromToMin: null, fromToMax: null });
+    });
+
+    it("returns nulls when both are falsy", () => {
+      expect(computeFromToMinMax(null, null)).toEqual({ fromToMin: null, fromToMax: null });
     });
   });
 });
