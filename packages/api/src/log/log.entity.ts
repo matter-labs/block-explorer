@@ -31,6 +31,12 @@ export class Log extends BaseEntity {
   @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
   public readonly transactionHash?: string;
 
+  @Column({ type: "bytea", nullable: true, transformer: normalizeAddressTransformer })
+  public readonly transactionFrom?: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: normalizeAddressTransformer })
+  public readonly transactionTo?: string;
+
   @Column({ type: "int" })
   public readonly transactionIndex: number;
 

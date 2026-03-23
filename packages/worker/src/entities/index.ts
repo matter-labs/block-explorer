@@ -10,5 +10,8 @@ export * from "./address.entity";
 export * from "./transfer.entity";
 export * from "./addressTransfer.entity";
 export * from "./balance.entity";
+export * from "./visibleTransaction.entity";
+export * from "./addressVisibleTransaction.entity";
+export * from "./visibleLog.entity";
 export * from "./counter.entity";
 export * from "./counterState.entity";

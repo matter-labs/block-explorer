@@ -102,6 +102,7 @@ export default () => {
     CHAIN_ID,
     PRIVIDIUM_ADMIN_ROLE_NAME,
     PRIVIDIUM_APP_URL,
+    PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS,
     PRIVIDIUM_PERMISSIONS_API_URL,
     PRIVIDIUM_SESSION_MAX_AGE,
     PRIVIDIUM_SESSION_SAME_SITE,
@@ -196,6 +197,7 @@ export default () => {
           .string({ message: PRIVIDIUM_APP_URL_ERROR_MSG })
           .url(PRIVIDIUM_APP_URL_ERROR_MSG)
           .default("http://localhost:3010"),
+        disableTxVisibilityByTopics: z.preprocess((v) => v === "true", z.boolean()).default(false),
       },
       { message: "Invalid prividium configuration" }
     );
@@ -207,6 +209,7 @@ export default () => {
       sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
       sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
       appUrl: PRIVIDIUM_APP_URL,
+      disableTxVisibilityByTopics: PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS,
     });
 
     if (!result.success) {

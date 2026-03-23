@@ -33,6 +33,12 @@ export class Transfer extends BaseEntity {
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly to: string;
 
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
+  public readonly fromToMin: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
+  public readonly fromToMax: string;
+
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
 

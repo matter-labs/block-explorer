@@ -307,6 +307,7 @@ describe("config", () => {
     process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
     process.env.PRIVIDIUM_SESSION_SECRET = "secret";
     process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
+    process.env.PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS = "true";
 
     jest.doMock("./featureFlags", () => ({
       feature1Enabled: true,
@@ -370,6 +371,7 @@ describe("config", () => {
         sessionSameSite: "strict",
         sessionSecret: "secret",
         permissionsApiUrl: "http://localhost:8000",
+        disableTxVisibilityByTopics: true,
       },
     });
   });

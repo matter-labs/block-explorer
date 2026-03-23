@@ -41,6 +41,8 @@ export default () => {
     BASE_TOKEN_L1_ADDRESS,
     BASE_TOKEN_ICON_URL,
     BASE_TOKEN_NAME,
+    PRIVIDIUM,
+    PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS,
   } = process.env;
 
   return {
@@ -114,6 +116,10 @@ export default () => {
     healthChecks: {
       rpcHealthCheckTimeoutMs: parseInt(RPC_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
       dbHealthCheckTimeoutMs: parseInt(DB_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
+    },
+    prividium: {
+      enabled: PRIVIDIUM === "true",
+      disableTxVisibilityByTopics: PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS === "true",
     },
   };
 };

@@ -42,17 +42,20 @@ export class TransactionProcessor {
       transactionHash: transactionData.transaction.hash,
     });
 
-    await this.transactionRepository.add({
-      ...transactionData.transaction,
-      // TODO: rename transactionIndex to index to avoid unnecessary field mapping
-      transactionIndex: transactionData.transaction.index,
-      receivedAt: unixTimeToDate(block.timestamp).toISOString(),
-      isL1Originated: L1_ORIGINATED_TX_TYPES.includes(transactionData.transaction.type),
-      fee: (
-        BigInt(transactionData.transactionReceipt.gasUsed) * BigInt(transactionData.transactionReceipt.gasPrice)
-      ).toString(),
-      receiptStatus: transactionData.transactionReceipt.status,
-    });
+    await this.transactionRepository.add(
+      {
+        ...transactionData.transaction,
+        // TODO: rename transactionIndex to index to avoid unnecessary field mapping
+        transactionIndex: transactionData.transaction.index,
+        receivedAt: unixTimeToDate(block.timestamp).toISOString(),
+        isL1Originated: L1_ORIGINATED_TX_TYPES.includes(transactionData.transaction.type),
+        fee: (
+          BigInt(transactionData.transactionReceipt.gasUsed) * BigInt(transactionData.transactionReceipt.gasPrice)
+        ).toString(),
+        receiptStatus: transactionData.transactionReceipt.status,
+      },
+      transactionData.transactionReceipt.logs
+    );
 
     this.logger.debug({
       message: "Saving transaction receipts data to the DB",
@@ -81,6 +84,8 @@ export class TransactionProcessor {
         // TODO: rename logIndex to index to avoid unnecessary field mapping
         logIndex: log.index,
         topics: [...log.topics],
+        transactionFrom: transactionData.transaction.from,
+        transactionTo: transactionData.transaction.to,
       }))
     );
 

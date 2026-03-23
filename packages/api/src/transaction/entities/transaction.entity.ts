@@ -37,6 +37,12 @@ export class Transaction extends BaseEntity {
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly from: string;
 
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
+  public readonly fromToMin?: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
+  public readonly fromToMax?: string;
+
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly data: string;
 
