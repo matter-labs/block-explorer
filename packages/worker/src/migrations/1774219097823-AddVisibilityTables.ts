@@ -138,9 +138,6 @@ export class AddVisibilityTables1774219097823 implements MigrationInterface {
       `CREATE INDEX "IDX_9228143efe55cf142e861bc502" ON "transactions" ("fromToMin", "fromToMax", "blockNumber", "receivedAt", "transactionIndex") `
     );
     await queryRunner.query(
-      `CREATE INDEX "IDX_c45d488f03a4724a1b8490068c" ON "tokens" ("liquidity", "blockNumber", "logIndex") `
-    );
-    await queryRunner.query(
       `CREATE INDEX "IDX_ae784f6b1cd5d7e46d57abb426" ON "transfers" ("fromToMin", "fromToMax", "type", "timestamp", "logIndex" DESC) `
     );
     await queryRunner.query(
@@ -212,7 +209,6 @@ export class AddVisibilityTables1774219097823 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX "public"."IDX_382f446361db1f82055eae989a"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_17cd4abaff93f9d170eecee24f"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_ae784f6b1cd5d7e46d57abb426"`);
-    await queryRunner.query(`DROP INDEX "public"."IDX_c45d488f03a4724a1b8490068c"`);
     await queryRunner.query(`DROP INDEX "public"."IDX_9228143efe55cf142e861bc502"`);
     await queryRunner.query(`ALTER TABLE "logs" DROP COLUMN "transactionTo"`);
     await queryRunner.query(`ALTER TABLE "logs" DROP COLUMN "transactionFrom"`);
