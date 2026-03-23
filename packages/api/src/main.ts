@@ -41,6 +41,7 @@ async function bootstrap() {
       appUrl: configService.get<string>("prividium.appUrl"),
       sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
       sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
+      corsOrigins: configService.get<string[]>("prividium.corsOrigins"),
     });
     applySwaggerAuthMiddleware(app, configService);
   } else {

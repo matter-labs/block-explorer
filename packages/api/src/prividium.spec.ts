@@ -30,6 +30,39 @@ describe("applyPrividiumExpressConfig", () => {
     const cookies = res.get("set-cookie");
     expect(cookies.length).toEqual(2);
   });
+
+  it("uses corsOrigins array when provided", () => {
+    const app = express();
+    const enableCorsMock = jest.fn();
+    (app as any).enableCors = enableCorsMock;
+    applyPrividiumExpressConfig(app as unknown as NestExpressApplication, {
+      sessionSecret: "secretvalue",
+      appUrl: "https://blockexplorer.com",
+      sessionMaxAge: 1000,
+      sessionSameSite: "strict",
+      corsOrigins: ["https://blockexplorer.com", "https://sso.example.com"],
+    });
+    expect(enableCorsMock).toHaveBeenCalledWith({
+      origin: ["https://blockexplorer.com", "https://sso.example.com"],
+      credentials: true,
+    });
+  });
+
+  it("falls back to appUrl when corsOrigins is not provided", () => {
+    const app = express();
+    const enableCorsMock = jest.fn();
+    (app as any).enableCors = enableCorsMock;
+    applyPrividiumExpressConfig(app as unknown as NestExpressApplication, {
+      sessionSecret: "secretvalue",
+      appUrl: "https://blockexplorer.com",
+      sessionMaxAge: 1000,
+      sessionSameSite: "strict",
+    });
+    expect(enableCorsMock).toHaveBeenCalledWith({
+      origin: "https://blockexplorer.com",
+      credentials: true,
+    });
+  });
 });
 
 describe("applyPrividiumMiddlewares", () => {

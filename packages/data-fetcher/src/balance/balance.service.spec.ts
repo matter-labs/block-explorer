@@ -5,7 +5,7 @@ import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
 import { BalanceService } from "./";
-import { ETH_L1_ADDRESS } from "../constants";
+import { ETH_L1_ADDRESS, BASE_TOKEN_ADDRESS } from "../constants";
 
 describe("BalanceService", () => {
   let testingModuleBuilder: TestingModuleBuilder;
@@ -383,6 +383,50 @@ describe("BalanceService", () => {
           .get("0xd206eaf6819007535e893410cfa01885ce40e99a")
           .get("0x000000000000000000000000000000000000800a")
       ).toEqual({
+        balance: undefined,
+        tokenType: TokenType.BaseToken,
+      });
+    });
+  });
+
+  describe("trackSenderBalance", () => {
+    const address = "0x36615cf349d7f6344891b1e7ca7c72883f5dc049";
+    const blockNumber = 10;
+
+    it("adds sender address with base token to changedBalances", () => {
+      balanceService.trackSenderBalance(address, blockNumber);
+      const blockChangedBalances = balanceService.changedBalances.get(blockNumber);
+      expect(blockChangedBalances.get(address).get(BASE_TOKEN_ADDRESS)).toEqual({
+        balance: undefined,
+        tokenType: TokenType.BaseToken,
+      });
+    });
+
+    it("merges with existing tracked balances for the block", () => {
+      const existingBlockBalances = new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
+      existingBlockBalances.set(
+        "0xd206eaf6819007535e893410cfa01885ce40e99a",
+        new Map([["0x2392e98fb47cf05773144db3ce8002fac4f39c84", { balance: undefined, tokenType: TokenType.ERC20 }]])
+      );
+      balanceService.changedBalances.set(blockNumber, existingBlockBalances);
+
+      balanceService.trackSenderBalance(address, blockNumber);
+      const blockChangedBalances = balanceService.changedBalances.get(blockNumber);
+      expect(blockChangedBalances.size).toBe(2);
+      expect(blockChangedBalances.has("0xd206eaf6819007535e893410cfa01885ce40e99a")).toBe(true);
+      expect(blockChangedBalances.has(address)).toBe(true);
+    });
+
+    it("overwrites existing base token entry for the same address", () => {
+      const existingBlockBalances = new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
+      existingBlockBalances.set(
+        address,
+        new Map([[BASE_TOKEN_ADDRESS, { balance: BigInt(999), tokenType: TokenType.BaseToken }]])
+      );
+      balanceService.changedBalances.set(blockNumber, existingBlockBalances);
+
+      balanceService.trackSenderBalance(address, blockNumber);
+      expect(balanceService.changedBalances.get(blockNumber).get(address).get(BASE_TOKEN_ADDRESS)).toEqual({
         balance: undefined,
         tokenType: TokenType.BaseToken,
       });
