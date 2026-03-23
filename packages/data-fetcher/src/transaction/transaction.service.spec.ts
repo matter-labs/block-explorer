@@ -7,12 +7,14 @@ import { TransactionService, TransactionTracesService, ContractAddress, Transact
 import { LogService } from "../log";
 import { Token } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
+import { BalanceService } from "../balance/balance.service";
 
 describe("TransactionService", () => {
   let transactionService: TransactionService;
   let blockchainServiceMock: BlockchainService;
   let transactionTracesServiceMock: TransactionTracesService;
   let logServiceMock: LogService;
+  let balanceServiceMock: BalanceService;
 
   let startTxProcessingDurationMetricMock: jest.Mock;
   let stopTxProcessingDurationMetricMock: jest.Mock;
@@ -24,6 +26,7 @@ describe("TransactionService", () => {
     blockchainServiceMock = mock<BlockchainService>();
     logServiceMock = mock<LogService>();
     transactionTracesServiceMock = mock<TransactionTracesService>();
+    balanceServiceMock = mock<BalanceService>();
 
     stopTxProcessingDurationMetricMock = jest.fn();
     startTxProcessingDurationMetricMock = jest.fn().mockReturnValue(stopTxProcessingDurationMetricMock);
@@ -45,6 +48,10 @@ describe("TransactionService", () => {
         {
           provide: LogService,
           useValue: logServiceMock,
+        },
+        {
+          provide: BalanceService,
+          useValue: balanceServiceMock,
         },
         {
           provide: "PROM_METRIC_TRANSACTION_PROCESSING_DURATION_SECONDS",
@@ -71,7 +78,7 @@ describe("TransactionService", () => {
     const blockDetails = mock<Block>({
       number: 1,
     });
-    const transaction = mock<TransactionResponse>({ hash: "0" });
+    const transaction = mock<TransactionResponse>({ hash: "0", from: "0x36615cf349d7f6344891b1e7ca7c72883f5dc049" });
     const transactionReceipt = mock<TransactionReceipt>({
       index: 0,
       logs: [mock<Log>(), mock<Log>()],
@@ -167,6 +174,15 @@ describe("TransactionService", () => {
       jest.spyOn(blockchainServiceMock, "getTransactionReceipt").mockResolvedValue(null);
       await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
         new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transaction.hash}`)
+      );
+    });
+
+    it("tracks sender balance for the transaction", async () => {
+      await transactionService.getData(transaction.hash, trace, blockDetails);
+      expect(balanceServiceMock.trackSenderBalance).toHaveBeenCalledTimes(1);
+      expect(balanceServiceMock.trackSenderBalance).toHaveBeenCalledWith(
+        transaction.from.toLowerCase(),
+        blockDetails.number
       );
     });
 
