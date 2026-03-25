@@ -194,7 +194,7 @@ describe("TransferService", () => {
       });
     });
 
-    it("searchs for specific transfers when visibleBy is defined", async () => {
+    it("searches for specific transfers when visibleBy is defined", async () => {
       const filterOptions = {
         address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         visibleBy: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",

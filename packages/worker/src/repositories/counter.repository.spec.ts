@@ -55,7 +55,7 @@ describe("CounterRepository", () => {
   });
 
   describe("incrementCounters", () => {
-    it("executes insert or increment query on on each record", async () => {
+    it("executes insert or increment query on each record", async () => {
       const records = [
         {
           tableName: "transactions",
