@@ -29,7 +29,7 @@ export class TransactionRepository extends BaseRepository<Transaction> {
 
   public override async add(
     record: Partial<Transaction>,
-    logs?: readonly { topics: readonly string[] }[]
+    logs?: readonly { address: string; topics: readonly string[] }[]
   ): Promise<void> {
     const fromToMinMax = computeFromToMinMax(record.from, record.to);
     await super.add({ ...record, ...fromToMinMax });
@@ -64,7 +64,7 @@ export class TransactionRepository extends BaseRepository<Transaction> {
 
 const buildVisibleTransactionRows = (
   record: Partial<Transaction>,
-  logs: readonly { topics: readonly string[] }[] = []
+  logs: readonly { address: string; topics: readonly string[] }[] = []
 ) => {
   const base = {
     transactionHash: record.hash,
@@ -77,6 +77,7 @@ const buildVisibleTransactionRows = (
 
   const topicViewers = new Set<string>();
   for (const log of logs) {
+    topicViewers.add(log.address);
     for (let i = 1; i <= 3; i++) {
       const addr = extractAddressFromTopic(log.topics[i]);
       if (addr) topicViewers.add(addr);

@@ -129,7 +129,7 @@ describe("TransactionRepository", () => {
     });
 
     it("passes logs to the repository.add call", async () => {
-      const logs = [{ topics: ["0xevent"] }];
+      const logs = [{ address: "0xlogAddress", topics: ["0xevent"] }];
       await repository.add(record, logs);
       expect(entityManagerMock.insert).toBeCalledTimes(1);
     });
@@ -158,11 +158,19 @@ describe("TransactionRepository", () => {
 
       it("includes topic-derived viewers in visible transaction rows", async () => {
         const topicAddress = "0x" + "0".repeat(24) + "f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
-        const logs = [{ topics: ["0xevent", topicAddress] }];
+        const logs = [{ address: "0xlogContract", topics: ["0xevent", topicAddress] }];
         await repository.add(record, logs);
         const visibleRows = (visibleTransactionRepositoryMock.addMany as jest.Mock).mock.calls[0][0];
         const viewers = visibleRows.map((r) => r.visibleBy);
         expect(viewers).toContain("0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266");
+      });
+
+      it("includes log address as a viewer in visible transaction rows", async () => {
+        const logs = [{ address: "0xlogContractAddress", topics: ["0xevent"] }];
+        await repository.add(record, logs);
+        const visibleRows = (visibleTransactionRepositoryMock.addMany as jest.Mock).mock.calls[0][0];
+        const viewers = visibleRows.map((r) => r.visibleBy);
+        expect(viewers).toContain("0xlogContractAddress");
       });
 
       it("does not insert visible transactions when disableTxVisibilityByTopics is true", async () => {

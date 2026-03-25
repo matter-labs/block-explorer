@@ -70,7 +70,11 @@ export class TransactionService {
     };
 
     // Case 1: viewing transactions for an arbitrary address as an authorized viewer (prividium)
-    if (filterOptions.visibleBy && filterOptions.address && filterOptions.address !== filterOptions.visibleBy) {
+    if (
+      filterOptions.visibleBy &&
+      filterOptions.address &&
+      !isAddressEqual(filterOptions.address, filterOptions.visibleBy)
+    ) {
       if (disableTxVisibilityByTopics) {
         // query transactions strictly between address and visibleBy
         const { fromToMin, fromToMax } = computeFromToMinMax(filterOptions.address, filterOptions.visibleBy);
