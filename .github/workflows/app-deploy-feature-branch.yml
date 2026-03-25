@@ -77,7 +77,7 @@ jobs:
       - name: Deploy
         working-directory: ./packages/app
         run: |
-          firebase --project staging-scan-v2 hosting:channel:deploy ${{ env.CHANNEL_NAME }}
+          firebase --project staging-scan-v2 hosting:channel:deploy ${{ env.CHANNEL_NAME }} --expires 7d
 
       - name: Publish preview url
         if: github.event.pull_request.head.repo.full_name == github.repository
