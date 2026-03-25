@@ -170,7 +170,18 @@ describe("TransactionRepository", () => {
         await repository.add(record, logs);
         const visibleRows = (visibleTransactionRepositoryMock.addMany as jest.Mock).mock.calls[0][0];
         const viewers = visibleRows.map((r) => r.visibleBy);
-        expect(viewers).toContain("0xlogContractAddress");
+        expect(viewers).toContain("0xlogcontractaddress");
+      });
+
+      it("deduplicates viewers with different case", async () => {
+        const mixedCaseRecord = { ...record, from: "0xAAA", to: "0xBBB" };
+        const topicAddress = "0x" + "0".repeat(24) + "0000000000000000000000000000000000000AAA";
+        const logs = [{ address: "0xaaa", topics: ["0xevent", topicAddress] }];
+        await repository.add(mixedCaseRecord, logs);
+        const visibleRows = (visibleTransactionRepositoryMock.addMany as jest.Mock).mock.calls[0][0];
+        const viewers = visibleRows.map((r) => r.visibleBy);
+        // "0xAAA" from record.from and "0xaaa" from log.address should deduplicate to one entry
+        expect(viewers.filter((v) => v === "0xaaa").length).toBe(1);
       });
 
       it("does not insert visible transactions when disableTxVisibilityByTopics is true", async () => {

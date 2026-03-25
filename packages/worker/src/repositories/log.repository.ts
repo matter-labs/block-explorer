@@ -32,12 +32,12 @@ const buildVisibleLogRows = (records: Partial<Log>[]) => {
   const rows = [];
   for (const log of records) {
     const viewers = new Set<string>();
-    if (log.transactionFrom) viewers.add(log.transactionFrom);
-    if (log.transactionTo) viewers.add(log.transactionTo);
-    if (log.address) viewers.add(log.address);
+    if (log.transactionFrom) viewers.add(log.transactionFrom.toLowerCase());
+    if (log.transactionTo) viewers.add(log.transactionTo.toLowerCase());
+    if (log.address) viewers.add(log.address.toLowerCase());
     for (let t = 1; t <= 3; t++) {
       const addr = extractAddressFromTopic(log.topics?.[t]);
-      if (addr) viewers.add(addr);
+      if (addr) viewers.add(addr.toLowerCase());
     }
     for (const visibleBy of viewers) {
       rows.push({

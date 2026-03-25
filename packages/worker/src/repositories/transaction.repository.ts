@@ -73,17 +73,17 @@ const buildVisibleTransactionRows = (
     transactionIndex: record.transactionIndex,
   };
 
-  const owners = [...new Set([record.from, record.to].filter(Boolean))];
+  const owners = [...new Set([record.from, record.to].filter(Boolean).map((a) => a.toLowerCase()))];
 
   const topicViewers = new Set<string>();
   for (const log of logs) {
-    topicViewers.add(log.address);
+    topicViewers.add(log.address.toLowerCase());
     for (let i = 1; i <= 3; i++) {
       const addr = extractAddressFromTopic(log.topics[i]);
-      if (addr) topicViewers.add(addr);
+      if (addr) topicViewers.add(addr.toLowerCase());
     }
   }
-  const viewers = [...new Set([record.from, record.to, ...topicViewers].filter(Boolean))];
+  const viewers = [...new Set([...owners, ...topicViewers])];
 
   const visibleRows = viewers.map((visibleBy) => ({ ...base, visibleBy }));
 
