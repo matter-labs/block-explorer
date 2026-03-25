@@ -9,6 +9,7 @@ import { TransferFields } from "../dataFetcher/types";
 
 @Entity({ name: "addressTransfers" })
 @Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
+@Index(["address", "tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
 @Index(["address", "type", "timestamp", "logIndex"])
 @Index(["address", "tokenAddress", "blockNumber", "logIndex"])
 @Index(["address", "tokenType", "blockNumber", "logIndex"])

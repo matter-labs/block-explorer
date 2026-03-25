@@ -37,6 +37,12 @@ export class Transaction extends BaseEntity {
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly from: string;
 
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
+  public readonly fromToMin?: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
+  public readonly fromToMax?: string;
+
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly data: string;
 
@@ -126,7 +132,7 @@ export class Transaction extends BaseEntity {
 
   toJSON(): any {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, receiptStatus, transactionReceipt, block, ...restFields } = this;
+    const { number, receiptStatus, transactionReceipt, block, fromToMin, fromToMax, ...restFields } = this;
     return {
       ...restFields,
       status: this.status,

@@ -14,7 +14,7 @@ import { AddressTransaction } from "../src/transaction/entities/addressTransacti
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
 import { baseToken } from "../src/config";
-import { numberToHex } from "../src/common/utils";
+import { numberToHex, computeFromToMinMax } from "../src/common/utils";
 
 describe("TransactionController (e2e)", () => {
   let ETH_TOKEN;
@@ -187,6 +187,10 @@ describe("TransactionController (e2e)", () => {
       await transferRepository.insert({
         from: "0x0000000000000000000000000000000000008007",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fd",
+        ...computeFromToMinMax(
+          "0x0000000000000000000000000000000000008007",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fd"
+        ),
         blockNumber: 0,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress:

@@ -4,6 +4,7 @@ import { BadRequestException } from "@nestjs/common";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as typeorm from "typeorm";
+import { Brackets } from "typeorm";
 import { SortingOrder } from "../common/types";
 import {
   TransferService,
@@ -17,7 +18,10 @@ import { AddressTransfer } from "./addressTransfer.entity";
 import * as utils from "../common/utils";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 
-jest.mock("../common/utils");
+jest.mock("../common/utils", () => ({
+  ...jest.requireActual("../common/utils"),
+  paginate: jest.fn(),
+}));
 
 describe("TransferService", () => {
   let service: TransferService;
@@ -194,25 +198,61 @@ describe("TransferService", () => {
       });
     });
 
-    it("searchs for specific transfers when visibleBy is defined", async () => {
-      const filterOptions = {
-        address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        visibleBy: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
-        tokenAddress: "0x976EA74026E726554dB657fA54763abd0C3a0aa9",
-      };
-      await service.findAll(filterOptions, pagingOptions);
-      expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
-      expect(queryBuilderMock.where).toHaveBeenCalledWith({ tokenAddress: filterOptions.tokenAddress });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith([
-        {
-          from: filterOptions.address,
-          to: filterOptions.visibleBy,
-        },
-        {
-          from: filterOptions.visibleBy,
-          to: filterOptions.address,
-        },
-      ]);
+    describe("when visibleBy and address are both set (two-party)", () => {
+      const address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+      const tokenAddress = "0x976EA74026E726554dB657fA54763abd0C3a0aa9";
+
+      it("uses transferRepository with fromToMin/fromToMax", async () => {
+        await service.findAll({ address, visibleBy, tokenAddress }, pagingOptions);
+        expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
+        // address > visibleBy lexicographically, so fromToMin=visibleBy, fromToMax=address
+        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({
+          fromToMin: visibleBy,
+          fromToMax: address,
+        });
+      });
+
+      it("preserves extra filter options", async () => {
+        await service.findAll({ address, visibleBy, tokenAddress }, pagingOptions);
+        expect(queryBuilderMock.where).toHaveBeenCalledWith({ tokenAddress });
+      });
+    });
+
+    describe("when visibleBy is set without address (own transfers)", () => {
+      const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
+      beforeEach(() => {
+        (utils.paginate as jest.Mock).mockResolvedValue({ items: [] });
+      });
+
+      it("falls back to addressTransferRepository", async () => {
+        await service.findAll({ visibleBy }, pagingOptions);
+        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransfer");
+      });
+
+      it("filters by visibleBy as address", async () => {
+        await service.findAll({ visibleBy }, pagingOptions);
+        expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({ address: visibleBy });
+      });
+    });
+
+    describe("when visibleBy is set with transactionHash", () => {
+      const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+      const transactionHash = "0xabc123";
+
+      it("uses transferRepository with from/to Brackets", async () => {
+        await service.findAll({ visibleBy, transactionHash }, pagingOptions);
+        expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
+        expect(queryBuilderMock.where).toHaveBeenCalledWith({ transactionHash });
+        const brackets = (queryBuilderMock.andWhere as jest.Mock).mock.calls[0][0] as Brackets;
+        expect(brackets).toBeInstanceOf(Brackets);
+        const innerQb = mock<typeorm.WhereExpressionBuilder>();
+        (innerQb.where as jest.Mock).mockReturnValue(innerQb);
+        brackets.whereFactory(innerQb as any);
+        expect(innerQb.where).toHaveBeenCalledWith({ from: visibleBy });
+        expect(innerQb.orWhere).toHaveBeenCalledWith({ to: visibleBy });
+      });
     });
   });
 

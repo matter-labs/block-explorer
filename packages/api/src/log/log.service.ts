@@ -1,12 +1,13 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, LessThanOrEqual, Brackets } from "typeorm";
+import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
 import { paginate } from "../common/utils";
 import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { zeroPadValue } from "ethers";
+import { VisibleLog } from "./visibleLog.entity";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
@@ -33,29 +34,35 @@ export interface FilterLogsByAddressAndTopicsOptions {
 export class LogService {
   constructor(
     @InjectRepository(Log)
-    private readonly logRepository: Repository<Log>
+    private readonly logRepository: Repository<Log>,
+    @InjectRepository(VisibleLog)
+    private readonly visibleLogRepository: Repository<VisibleLog>,
+    private readonly configService: ConfigService
   ) {}
 
   public async findAll(
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
+    const disableTxVisibilityByTopics = this.configService.get<boolean>("prividium.disableTxVisibilityByTopics");
     const { visibleBy, ...basicFilters } = filterOptions;
+
+    if (visibleBy && !disableTxVisibilityByTopics) {
+      const qb = this.visibleLogRepository.createQueryBuilder("visibleLog");
+      qb.select("visibleLog.number");
+      qb.leftJoinAndSelect("visibleLog.log", "log");
+      qb.where({ visibleBy, ...basicFilters });
+      qb.orderBy("visibleLog.timestamp", "DESC");
+      qb.addOrderBy("visibleLog.logIndex", "ASC");
+      const result = await paginate<VisibleLog>(qb, paginationOptions);
+      return { ...result, items: result.items.map((vl) => vl.log) };
+    }
+
     const queryBuilder = this.logRepository.createQueryBuilder("log");
     queryBuilder.where(basicFilters);
 
-    if (visibleBy !== undefined) {
-      queryBuilder.innerJoin("log.transaction", "transactions");
-      const topic = zeroPadValue(visibleBy, 32);
-      queryBuilder.andWhere(
-        new Brackets((qb) => {
-          qb.where(`log.topics[1] = :visibleByTopic`);
-          qb.orWhere("log.topics[2] = :visibleByTopic");
-          qb.orWhere("log.topics[3] = :visibleByTopic");
-          qb.orWhere("transactions.from = :visibleBy");
-        })
-      );
-      queryBuilder.setParameters({ visibleByTopic: hexTransformer.to(topic), visibleBy: hexTransformer.to(visibleBy) });
+    if (visibleBy) {
+      queryBuilder.andWhere({ transactionFrom: visibleBy });
     }
 
     queryBuilder.orderBy("log.timestamp", "DESC");

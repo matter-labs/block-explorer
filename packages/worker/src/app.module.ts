@@ -30,6 +30,9 @@ import {
   AddressTransferRepository,
   LogRepository,
   BalanceRepository,
+  VisibleTransactionRepository,
+  AddressVisibleTransactionRepository,
+  VisibleLogRepository,
 } from "./repositories";
 import {
   Block,
@@ -42,6 +45,9 @@ import {
   Transfer,
   AddressTransfer,
   Balance,
+  VisibleTransaction,
+  AddressVisibleTransaction,
+  VisibleLog,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -78,6 +84,9 @@ import { SystemContractService } from "./contract/systemContract.service";
       AddressTransfer,
       Transfer,
       Balance,
+      VisibleTransaction,
+      AddressVisibleTransaction,
+      VisibleLog,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -118,6 +127,9 @@ import { SystemContractService } from "./contract/systemContract.service";
     AddressTransferRepository,
     BalanceRepository,
     LogRepository,
+    VisibleTransactionRepository,
+    AddressVisibleTransactionRepository,
+    VisibleLogRepository,
     BlocksRevertService,
     BlockStatusService,
     BlockProcessor,

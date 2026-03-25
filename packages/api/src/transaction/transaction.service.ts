@@ -1,23 +1,23 @@
 import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Brackets, FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
+import { FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { isAddressEqual, padAddressToTransactionLogTopic, paginate } from "../common/utils";
+import { isAddressEqual, padAddressToTransactionLogTopic, paginate, computeFromToMinMax } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
+import { VisibleTransaction } from "./entities/visibleTransaction.entity";
+import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block, BlockStatus } from "../block/block.entity";
 import { CounterService } from "../counter/counter.service";
 import { Log } from "../log/log.entity";
-import { hexTransformer } from "../common/transformers/hex.transformer";
 import { UserParam } from "../user/user.decorator";
-import { ConfigService } from "@nestjs/config";
 
 export interface FilterTransactionsOptions {
   blockNumber?: number;
   address?: string;
   receivedAt?: FindOperator<Date>;
-  filterAddressInLogTopics?: boolean;
   visibleBy?: string;
 }
 
@@ -31,22 +31,20 @@ export interface FindByAddressFilterTransactionsOptions {
 
 @Injectable()
 export class TransactionService {
-  private isPrividium: boolean;
-
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
     @InjectRepository(AddressTransaction)
     private readonly addressTransactionRepository: Repository<AddressTransaction>,
+    @InjectRepository(VisibleTransaction)
+    private readonly visibleTransactionRepository: Repository<VisibleTransaction>,
+    @InjectRepository(AddressVisibleTransaction)
+    private readonly addressVisibleTransactionRepository: Repository<AddressVisibleTransaction>,
     @InjectRepository(Block)
     private readonly blockRepository: Repository<Block>,
     private readonly counterService: CounterService,
-    @InjectRepository(Log)
-    private readonly logRepository: Repository<Log>,
-    readonly configService: ConfigService
-  ) {
-    this.isPrividium = configService.get("featureFlags.prividium");
-  }
+    private readonly configService: ConfigService
+  ) {}
 
   public async findOne(hash: string): Promise<Transaction> {
     const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
@@ -65,165 +63,114 @@ export class TransactionService {
     filterOptions: FilterTransactionsOptions,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
-    if (filterOptions.address) {
-      // TODO: fix the query performance for prividium case and add tests
-      /* istanbul ignore if */ // this comment is to exclude the next block from code cov
-      if (this.isPrividium) {
-        const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
+    const disableTxVisibilityByTopics = this.configService.get<boolean>("prividium.disableTxVisibilityByTopics");
+    const commonFilters = {
+      ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
+      ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
+    };
 
-        const commonParams: Record<string, string | number | Date> = {
-          address: hexTransformer.to(filterOptions.address),
-          ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
-          ...(filterOptions.visibleBy !== undefined && { visibleBy: hexTransformer.to(filterOptions.visibleBy) }),
-        };
-
-        // FindOperator doesn't work with this query, so we need to build the filter manually
-        let receivedAtFilter: string | undefined = undefined;
-        if (filterOptions.receivedAt !== undefined) {
-          switch (filterOptions.receivedAt.type) {
-            case "between":
-              receivedAtFilter = `BETWEEN :receivedAtStart AND :receivedAtEnd`;
-              commonParams.receivedAtStart = filterOptions.receivedAt.value[0];
-              commonParams.receivedAtEnd = filterOptions.receivedAt.value[1];
-              break;
-            case "moreThanOrEqual":
-              receivedAtFilter = `>= :receivedAt`;
-              commonParams.receivedAt = filterOptions.receivedAt.value;
-              break;
-            case "lessThanOrEqual":
-              receivedAtFilter = `<= :receivedAt`;
-              commonParams.receivedAt = filterOptions.receivedAt.value;
-              break;
-            default:
-              throw new Error(`Unsupported FindOperator type: ${filterOptions.receivedAt.type}`);
-          }
-        }
-
-        const addressTransactionSubQuery =
-          this.addressTransactionRepository.createQueryBuilder("sub1_addressTransaction");
-        addressTransactionSubQuery.select("sub1_addressTransaction.transactionHash");
-        addressTransactionSubQuery.innerJoin("sub1_addressTransaction.transaction", "sub1_transaction");
-        addressTransactionSubQuery.where("sub1_addressTransaction.address = :address");
-
-        if (filterOptions.blockNumber !== undefined) {
-          addressTransactionSubQuery.andWhere("sub1_transaction.blockNumber = :blockNumber");
-        }
-        if (filterOptions.receivedAt !== undefined) {
-          addressTransactionSubQuery.andWhere(`sub1_transaction.receivedAt ${receivedAtFilter}`);
-        }
-        // If `visibleBy` is provided, we filter by transactions that are
-        // from or to `visibleBy` address in addition to being from or to `address`
-        if (filterOptions.visibleBy !== undefined) {
-          addressTransactionSubQuery.andWhere(
-            new Brackets((qb) => {
-              qb.where("sub1_transaction.from = :visibleBy");
-              qb.orWhere("sub1_transaction.to = :visibleBy");
-            })
-          );
-        }
-
-        // If `filterAddressInLogTopics` is provided, we filter by log topics where
-        // the address is mentioned
-        if (filterOptions.filterAddressInLogTopics) {
-          const logSubQuery = this.logRepository.createQueryBuilder("sub2_log");
-          logSubQuery.select("sub2_log.transactionHash");
-          logSubQuery.innerJoin("sub2_log.transaction", "sub2_transaction");
-
-          logSubQuery.where(
-            new Brackets((qb) => {
-              qb.where("sub2_log.topics[1] = :paddedAddressBytes");
-              qb.orWhere("sub2_log.topics[2] = :paddedAddressBytes");
-              qb.orWhere("sub2_log.topics[3] = :paddedAddressBytes");
-            })
-          );
-          // If `visibleBy` is provided, in addition to filtering by log topics,
-          // we filter by transactions that were from or to `address`
-          if (filterOptions.visibleBy !== undefined) {
-            logSubQuery.andWhere(
-              new Brackets((qb) => {
-                qb.where("sub2_transaction.from = :address");
-                qb.orWhere("sub2_transaction.to = :address");
-              })
-            );
-          }
-
-          if (filterOptions.blockNumber !== undefined) {
-            logSubQuery.andWhere("sub2_transaction.blockNumber = :blockNumber");
-          }
-          if (filterOptions.receivedAt !== undefined) {
-            logSubQuery.andWhere(`sub2_transaction.receivedAt ${receivedAtFilter}`);
-          }
-
-          // If `visibleBy` is provided, we use it to filter log topics given we want to see transactions
-          // from `visibleBy` perspective
-          const logAddressParam = {
-            paddedAddressBytes: hexTransformer.to(
-              padAddressToTransactionLogTopic(filterOptions.visibleBy || filterOptions.address)
-            ),
-          };
-
-          queryBuilder.where(`transaction.hash IN (
-            (${addressTransactionSubQuery.getQuery()})
-            UNION
-            (${logSubQuery.getQuery()})
-          )`);
-          queryBuilder.setParameters({
-            ...commonParams,
-            ...logAddressParam,
-          });
-        } else {
-          queryBuilder.where(`transaction.hash IN (${addressTransactionSubQuery.getQuery()})`);
-          queryBuilder.setParameters(commonParams);
-        }
-
-        queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
-        queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-        queryBuilder.leftJoin("transaction.block", "block");
-        queryBuilder.addSelect(["block.status"]);
-
-        queryBuilder.orderBy("transaction.blockNumber", "DESC");
-        queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
-        queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
-
-        return await paginate<Transaction>(queryBuilder, paginationOptions);
+    // Case 1: viewing transactions for an arbitrary address as an authorized viewer (prividium)
+    if (
+      filterOptions.visibleBy &&
+      filterOptions.address &&
+      !isAddressEqual(filterOptions.address, filterOptions.visibleBy)
+    ) {
+      if (disableTxVisibilityByTopics) {
+        // query transactions strictly between address and visibleBy
+        const { fromToMin, fromToMax } = computeFromToMinMax(filterOptions.address, filterOptions.visibleBy);
+        const qb = this.transactionRepository.createQueryBuilder("transaction");
+        this.addTransactionJoins(qb);
+        qb.where({
+          fromToMin,
+          fromToMax,
+          ...commonFilters,
+        });
+        this.addDefaultOrder(qb, "transaction");
+        return await paginate<Transaction>(qb, paginationOptions);
       }
 
-      const queryBuilder = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
-      queryBuilder.select("addressTransaction.number");
-      queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");
-      queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
-      queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-      queryBuilder.leftJoin("transaction.block", "block");
-      queryBuilder.addSelect(["block.status"]);
-      queryBuilder.where({
+      // query transactions visible to the user for the address (including topics with user's address)
+      const qb = this.addressVisibleTransactionRepository.createQueryBuilder("addressVisibleTransaction");
+      qb.select("addressVisibleTransaction.number");
+      qb.leftJoinAndSelect("addressVisibleTransaction.transaction", "transaction");
+      this.addTransactionJoins(qb);
+      qb.where({
         address: filterOptions.address,
-        ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
-        // can't add filters on transaction here due to typeOrm issue with filters on joined tables
+        visibleBy: filterOptions.visibleBy,
+        ...commonFilters,
       });
-      if (filterOptions.blockNumber !== undefined) {
-        // can't use filters on transaction as object here due to typeOrm issue with filters on joined tables
-        queryBuilder.andWhere("transaction.blockNumber = :blockNumber", { blockNumber: filterOptions.blockNumber });
-      }
-      queryBuilder.orderBy("addressTransaction.blockNumber", "DESC");
-      queryBuilder.addOrderBy("addressTransaction.receivedAt", "DESC");
-      queryBuilder.addOrderBy("addressTransaction.transactionIndex", "DESC");
-      const addressTransactions = await paginate<AddressTransaction>(queryBuilder, paginationOptions);
-      return {
-        ...addressTransactions,
-        items: addressTransactions.items.map((item) => item.transaction),
-      };
-    } else {
-      const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
-      queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
-      queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-      queryBuilder.leftJoin("transaction.block", "block");
-      queryBuilder.addSelect(["block.status"]);
-      queryBuilder.where(filterOptions);
-      queryBuilder.orderBy("transaction.blockNumber", "DESC");
-      queryBuilder.addOrderBy("transaction.receivedAt", "DESC");
-      queryBuilder.addOrderBy("transaction.transactionIndex", "DESC");
-      return await paginate<Transaction>(queryBuilder, paginationOptions);
+      this.addDefaultOrder(qb, "addressVisibleTransaction");
+      return this.unwrapTransactions(await paginate<AddressVisibleTransaction>(qb, paginationOptions));
     }
+
+    // Case 2: all transactions visible to a user - own transactions + transactions including topics with user's address (prividium)
+    if (filterOptions.visibleBy && !filterOptions.address) {
+      if (disableTxVisibilityByTopics) {
+        // return own transactions only
+        return this.queryAddressTransactions(filterOptions.visibleBy, filterOptions, paginationOptions);
+      }
+
+      // return transactions visible to the user for all addresses (including txs with topics with user's address)
+      const qb = this.visibleTransactionRepository.createQueryBuilder("visibleTransaction");
+      qb.select("visibleTransaction.number");
+      qb.leftJoinAndSelect("visibleTransaction.transaction", "transaction");
+      this.addTransactionJoins(qb);
+      qb.where({
+        visibleBy: filterOptions.visibleBy,
+        ...commonFilters,
+      });
+      this.addDefaultOrder(qb, "visibleTransaction");
+      return this.unwrapTransactions(await paginate<VisibleTransaction>(qb, paginationOptions));
+    }
+
+    // Case 3: viewing transactions for an arbitrary address (non prividium) or own transactions (prividium)
+    if (filterOptions.address) {
+      return this.queryAddressTransactions(filterOptions.address, filterOptions, paginationOptions);
+    }
+
+    // Case 4: no filter — all transactions (non prividium)
+    const qb = this.transactionRepository.createQueryBuilder("transaction");
+    this.addTransactionJoins(qb);
+    qb.where(commonFilters);
+    this.addDefaultOrder(qb, "transaction");
+    return await paginate<Transaction>(qb, paginationOptions);
+  }
+
+  private async queryAddressTransactions(
+    address: string,
+    filterOptions: FilterTransactionsOptions,
+    paginationOptions: IPaginationOptions
+  ): Promise<Pagination<Transaction>> {
+    const qb = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
+    qb.select("addressTransaction.number");
+    qb.leftJoinAndSelect("addressTransaction.transaction", "transaction");
+    this.addTransactionJoins(qb);
+    qb.where({
+      address,
+      ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
+      ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
+    });
+    this.addDefaultOrder(qb, "addressTransaction");
+    return this.unwrapTransactions(await paginate<AddressTransaction>(qb, paginationOptions));
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private addTransactionJoins(qb: SelectQueryBuilder<any>): void {
+    qb.leftJoin("transaction.transactionReceipt", "transactionReceipt");
+    qb.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
+    qb.leftJoin("transaction.block", "block");
+    qb.addSelect(["block.status"]);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private addDefaultOrder(qb: SelectQueryBuilder<any>, alias: string): void {
+    qb.orderBy(`${alias}.blockNumber`, "DESC");
+    qb.addOrderBy(`${alias}.receivedAt`, "DESC");
+    qb.addOrderBy(`${alias}.transactionIndex`, "DESC");
+  }
+
+  private unwrapTransactions<T extends { transaction: Transaction }>(results: Pagination<T>): Pagination<Transaction> {
+    return { ...results, items: results.items.map((item) => item.transaction) };
   }
 
   public async findByAddress(
@@ -310,14 +257,13 @@ export class TransactionService {
     // - user is the sender
     // - user is the receiver
     // - user is included as part of the logs topics
+    if (isAddressEqual(transaction.from, user.address) || isAddressEqual(transaction.to, user.address)) {
+      return true;
+    }
+    if (this.configService.get<boolean>("prividium.disableTxVisibilityByTopics")) {
+      return false;
+    }
     const topicUserAddress = padAddressToTransactionLogTopic(user.address).toLowerCase();
-    return (
-      isAddressEqual(transaction.from, user.address) ||
-      isAddressEqual(transaction.to, user.address) ||
-      transactionLogs.some((log) => {
-        const topics = log.topics.map((l) => l.toLowerCase());
-        return topics.includes(topicUserAddress);
-      })
-    );
+    return transactionLogs.some((log) => log.topics.some((topic) => topic.toLowerCase() === topicUserAddress));
   }
 }

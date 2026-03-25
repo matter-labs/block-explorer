@@ -9,6 +9,8 @@ import { CounterService } from "../counter/counter.service";
 import { TransactionService, FilterTransactionsOptions } from "./transaction.service";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
+import { VisibleTransaction } from "./entities/visibleTransaction.entity";
+import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block } from "../block/block.entity";
 import { Log } from "../log/log.entity";
 import { ConfigService } from "@nestjs/config";
@@ -23,25 +25,24 @@ describe("TransactionService", () => {
   let service: TransactionService;
   let repositoryMock: typeorm.Repository<Transaction>;
   let addressTransactionRepositoryMock: typeorm.Repository<AddressTransaction>;
+  let visibleTransactionRepositoryMock: typeorm.Repository<VisibleTransaction>;
+  let addressVisibleTransactionRepositoryMock: typeorm.Repository<AddressVisibleTransaction>;
   let blockRepositoryMock: typeorm.Repository<Block>;
   let counterServiceMock: CounterService;
-  let logRepositoryMock: typeorm.Repository<Log>;
   const transactionHash = "transactionHash";
 
-  const configServiceValues = {
-    "featureFlags.prividium": false,
-  };
-
-  const configServiceMock = mock<ConfigService>({
-    get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
-  });
+  let configServiceMock: ConfigService;
 
   beforeEach(async () => {
+    configServiceMock = mock<ConfigService>({
+      get: jest.fn().mockReturnValue(false),
+    });
     counterServiceMock = mock<CounterService>();
     repositoryMock = mock<typeorm.Repository<Transaction>>();
     addressTransactionRepositoryMock = mock<typeorm.Repository<AddressTransaction>>();
+    visibleTransactionRepositoryMock = mock<typeorm.Repository<VisibleTransaction>>();
+    addressVisibleTransactionRepositoryMock = mock<typeorm.Repository<AddressVisibleTransaction>>();
     blockRepositoryMock = mock<typeorm.Repository<Block>>();
-    logRepositoryMock = mock<typeorm.Repository<Log>>();
     transaction = {
       hash: transactionHash,
     };
@@ -58,6 +59,14 @@ describe("TransactionService", () => {
           useValue: addressTransactionRepositoryMock,
         },
         {
+          provide: getRepositoryToken(VisibleTransaction),
+          useValue: visibleTransactionRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(AddressVisibleTransaction),
+          useValue: addressVisibleTransactionRepositoryMock,
+        },
+        {
           provide: getRepositoryToken(Block),
           useValue: blockRepositoryMock,
         },
@@ -68,10 +77,6 @@ describe("TransactionService", () => {
         {
           provide: CounterService,
           useValue: counterServiceMock,
-        },
-        {
-          provide: getRepositoryToken(Log),
-          useValue: logRepositoryMock,
         },
       ],
     }).compile();
@@ -153,6 +158,8 @@ describe("TransactionService", () => {
   describe("findAll", () => {
     let queryBuilderMock;
     let addressTransactionsQueryBuilderMock;
+    let visibleTransactionsQueryBuilderMock;
+    let addressVisibleTransactionsQueryBuilderMock;
     let filterTransactionsOptions: FilterTransactionsOptions;
     const pagingOptions = {
       filterOptions: {},
@@ -163,14 +170,22 @@ describe("TransactionService", () => {
     beforeEach(() => {
       queryBuilderMock = mock<typeorm.SelectQueryBuilder<Transaction>>();
       addressTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressTransaction>>();
+      visibleTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<VisibleTransaction>>();
+      addressVisibleTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressVisibleTransaction>>();
 
       (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
       (addressTransactionRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(
         addressTransactionsQueryBuilderMock
       );
+      (visibleTransactionRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(
+        visibleTransactionsQueryBuilderMock
+      );
+      (addressVisibleTransactionRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(
+        addressVisibleTransactionsQueryBuilderMock
+      );
     });
 
-    describe("when address filter option is not specified", () => {
+    describe("when no address and no visibleBy", () => {
       const paginationResult = mock<Pagination<Transaction, IPaginationMeta>>();
 
       beforeEach(() => {
@@ -188,7 +203,10 @@ describe("TransactionService", () => {
 
       it("filters transactions by the specified options", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.where).toHaveBeenCalledWith(filterTransactionsOptions);
+        expect(queryBuilderMock.where).toHaveBeenCalledWith({
+          blockNumber: filterTransactionsOptions.blockNumber,
+          receivedAt: filterTransactionsOptions.receivedAt,
+        });
       });
 
       it("joins transactionReceipt record to get receipt specific fields", async () => {
@@ -231,7 +249,7 @@ describe("TransactionService", () => {
       });
     });
 
-    describe("when address filter option is specified", () => {
+    describe("when address filter option is specified without visibleBy", () => {
       const paginationResult = mock<Pagination<AddressTransaction, IPaginationMeta>>({
         items: [
           {
@@ -295,7 +313,7 @@ describe("TransactionService", () => {
 
       it("filters transactions by the specified options when only address is defined", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith(filterTransactionsOptions);
+        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address: "address" });
       });
 
       it("filters transactions by the specified options when additional filters are defined", async () => {
@@ -308,11 +326,8 @@ describe("TransactionService", () => {
         expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({
           address: filterOptions.address,
           receivedAt: filterOptions.receivedAt,
+          blockNumber: filterOptions.blockNumber,
         });
-        expect(addressTransactionsQueryBuilderMock.andWhere).toHaveBeenCalledWith(
-          "transaction.blockNumber = :blockNumber",
-          { blockNumber: filterOptions.blockNumber }
-        );
       });
 
       it("selects only needed block fields", async () => {
@@ -343,6 +358,171 @@ describe("TransactionService", () => {
         expect(utils.paginate).toBeCalledTimes(1);
         expect(utils.paginate).toBeCalledWith(addressTransactionsQueryBuilderMock, pagingOptions);
         expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
+      });
+    });
+
+    describe("when visibleBy is set without address", () => {
+      const visibleBy = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+
+      describe("when disableTxVisibilityByTopics is false", () => {
+        const paginationResult = mock<Pagination<VisibleTransaction, IPaginationMeta>>({
+          items: [{ transaction: mock<Transaction>() }, { transaction: mock<Transaction>() }],
+        });
+
+        beforeEach(() => {
+          filterTransactionsOptions = { visibleBy };
+          (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+        });
+
+        it("uses visibleTransactionRepository", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(visibleTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("visibleTransaction");
+        });
+
+        it("selects visibleTransaction number", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(visibleTransactionsQueryBuilderMock.select).toHaveBeenCalledWith("visibleTransaction.number");
+        });
+
+        it("joins transaction records", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(visibleTransactionsQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
+            "visibleTransaction.transaction",
+            "transaction"
+          );
+        });
+
+        it("filters by visibleBy", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(visibleTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ visibleBy });
+        });
+
+        it("orders by visibleTransaction.blockNumber DESC", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(visibleTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith(
+            "visibleTransaction.blockNumber",
+            "DESC"
+          );
+        });
+
+        it("returns unwrapped paginated result", async () => {
+          const result = await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
+        });
+      });
+
+      describe("when disableTxVisibilityByTopics is true", () => {
+        const paginationResult = mock<Pagination<AddressTransaction, IPaginationMeta>>({
+          items: [{ transaction: mock<Transaction>() }],
+        });
+
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockReturnValue(true);
+          filterTransactionsOptions = { visibleBy };
+          (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+        });
+
+        it("falls back to addressTransactionRepository (own transactions only)", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransaction");
+        });
+
+        it("filters by visibleBy as address", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address: visibleBy });
+        });
+      });
+    });
+
+    describe("when visibleBy and address are both set and differ", () => {
+      const address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
+      describe("when disableTxVisibilityByTopics is false", () => {
+        const paginationResult = mock<Pagination<AddressVisibleTransaction, IPaginationMeta>>({
+          items: [{ transaction: mock<Transaction>() }, { transaction: mock<Transaction>() }],
+        });
+
+        beforeEach(() => {
+          filterTransactionsOptions = { address, visibleBy };
+          (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+        });
+
+        it("uses addressVisibleTransactionRepository", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(addressVisibleTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith(
+            "addressVisibleTransaction"
+          );
+        });
+
+        it("selects addressVisibleTransaction number", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(addressVisibleTransactionsQueryBuilderMock.select).toHaveBeenCalledWith(
+            "addressVisibleTransaction.number"
+          );
+        });
+
+        it("joins transaction records", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(addressVisibleTransactionsQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
+            "addressVisibleTransaction.transaction",
+            "transaction"
+          );
+        });
+
+        it("filters by address and visibleBy", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(addressVisibleTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address, visibleBy });
+        });
+
+        it("orders by addressVisibleTransaction.blockNumber DESC", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(addressVisibleTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith(
+            "addressVisibleTransaction.blockNumber",
+            "DESC"
+          );
+        });
+
+        it("returns unwrapped paginated result", async () => {
+          const result = await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
+        });
+      });
+
+      describe("when disableTxVisibilityByTopics is true", () => {
+        const paginationResult = mock<Pagination<Transaction, IPaginationMeta>>();
+
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockReturnValue(true);
+          filterTransactionsOptions = { address, visibleBy };
+          (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+        });
+
+        it("uses transactionRepository with fromToMin/fromToMax", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
+        });
+
+        it("filters by fromToMin and fromToMax", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          // address > visibleBy lexicographically, so fromToMin=visibleBy, fromToMax=address
+          expect(queryBuilderMock.where).toHaveBeenCalledWith(
+            expect.objectContaining({
+              fromToMin: visibleBy,
+              fromToMax: address,
+            })
+          );
+        });
+
+        it("orders by transaction.blockNumber DESC", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
+        });
+
+        it("returns paginated result", async () => {
+          const result = await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(result).toBe(paginationResult);
+        });
       });
     });
   });
@@ -730,6 +910,18 @@ describe("TransactionService", () => {
         ];
         const result = service.isTransactionVisibleByUser(transaction, logs, user);
         expect(result).toBe(true);
+      });
+
+      describe("when disableTxVisibilityByTopics is true", () => {
+        beforeEach(() => {
+          (configServiceMock.get as jest.Mock).mockReturnValue(true);
+        });
+
+        it("returns false even when user address is in log topics", () => {
+          const logs = [{ topics: ["0xtopic0", paddedAddress] } as Log];
+          const result = service.isTransactionVisibleByUser(transaction, logs, user);
+          expect(result).toBe(false);
+        });
       });
     });
 

@@ -10,6 +10,7 @@ import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { baseToken } from "../src/config";
+import { computeFromToMinMax } from "../src/common/utils";
 
 describe("TokenController (e2e)", () => {
   let ETH_TOKEN;
@@ -96,6 +97,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -112,6 +117,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x0000000000000000000000000000000000008001",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x0000000000000000000000000000000000008001"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -128,6 +137,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -144,6 +157,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -160,6 +177,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -176,6 +197,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -193,6 +218,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x0000000000000000000000000000000000008001",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x0000000000000000000000000000000000008001",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -209,6 +238,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x0000000000000000000000000000000000008001",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x0000000000000000000000000000000000008001",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0x000000000000000000000000000000000000800A",

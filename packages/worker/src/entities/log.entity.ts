@@ -9,8 +9,12 @@ import { BaseEntity } from "./base.entity";
 
 @Entity({ name: "logs" })
 @Index(["address", "timestamp", "logIndex"])
+@Index(["address", "transactionFrom", "timestamp", "logIndex"])
 @Index(["transactionHash", "timestamp", "logIndex"])
 @Index(["address", "blockNumber", "logIndex"])
+// TypeORM does not support indexing on array fields, the index is created manually in a migration file.
+// The @index decorator is added here to ensure the index is not dropped on npm run migration:generate.
+@Index("LogsAddressTopic1BlockNumberLogIndex", ["address", /*"topics[1]",*/ "blockNumber", "logIndex"])
 export class Log extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;
@@ -29,6 +33,12 @@ export class Log extends BaseEntity {
 
   @Column({ type: "bytea", nullable: true, transformer: hash64HexTransformer })
   public readonly transactionHash?: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly transactionFrom?: string;
+
+  @Column({ type: "bytea", nullable: true, transformer: hexTransformer })
+  public readonly transactionTo?: string;
 
   @Column({ type: "int" })
   public readonly transactionIndex: number;

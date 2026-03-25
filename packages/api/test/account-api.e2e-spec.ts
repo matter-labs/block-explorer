@@ -12,6 +12,7 @@ import { Balance } from "../src/balance/balance.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { BASE_TOKEN_L2_ADDRESS } from "../src/common/constants";
+import { computeFromToMinMax } from "../src/common/utils";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 
@@ -134,7 +135,10 @@ describe("Account API (e2e)", () => {
         amount: (100 + i).toString(),
       };
 
-      const insertResult = await transferRepository.insert(transferSpec);
+      const insertResult = await transferRepository.insert({
+        ...transferSpec,
+        ...computeFromToMinMax(transferSpec.from, transferSpec.to),
+      });
 
       for (const address of new Set([transferSpec.from, transferSpec.to])) {
         await addressTransferRepository.insert({

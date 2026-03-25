@@ -159,16 +159,19 @@ describe("TransactionProcessor", () => {
     it("saves transaction to the DB", async () => {
       await transactionProcessor.add(blockInfo, transactionData);
       expect(transactionRepositoryMock.add).toHaveBeenCalledTimes(1);
-      expect(transactionRepositoryMock.add).toHaveBeenCalledWith({
-        hash: transactionData.transaction.hash,
-        type: transactionData.transaction.type,
-        fee: "100000",
-        receivedAt: new Date(blockInfo.timestamp * 1000).toJSON(),
-        isL1Originated: false,
-        receiptStatus: 1,
-        transactionIndex: 1,
-        index: 1,
-      });
+      expect(transactionRepositoryMock.add).toHaveBeenCalledWith(
+        {
+          hash: transactionData.transaction.hash,
+          type: transactionData.transaction.type,
+          fee: "100000",
+          receivedAt: new Date(blockInfo.timestamp * 1000).toJSON(),
+          isL1Originated: false,
+          receiptStatus: 1,
+          transactionIndex: 1,
+          index: 1,
+        },
+        transactionData.transactionReceipt.logs
+      );
     });
 
     it("saves transaction receipt to the DB", async () => {
@@ -191,6 +194,8 @@ describe("TransactionProcessor", () => {
           timestamp: new Date(blockInfo.timestamp * 1000).toJSON(),
           topics: [],
           logIndex: log.index,
+          transactionFrom: transactionData.transaction.from,
+          transactionTo: transactionData.transaction.to,
         }))
       );
     });

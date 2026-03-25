@@ -33,6 +33,12 @@ export class Transfer extends BaseEntity {
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly to: string;
 
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
+  public readonly fromToMin: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
+  public readonly fromToMax: string;
+
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
 
@@ -82,7 +88,7 @@ export class Transfer extends BaseEntity {
 
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, ...restFields } = this;
+    const { number, fromToMin, fromToMax, ...restFields } = this;
     return restFields;
   }
 

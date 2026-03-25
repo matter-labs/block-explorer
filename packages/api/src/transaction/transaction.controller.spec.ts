@@ -17,7 +17,6 @@ import clearAllMocks = jest.clearAllMocks;
 
 jest.mock("../common/utils", () => ({
   buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
-  isAddressEqual: jest.fn(),
 }));
 
 describe("TransactionController", () => {
@@ -120,15 +119,14 @@ describe("TransactionController", () => {
         user = mock<UserWithRoles>({ address: mockUser, roles: [], isAdmin: false, token: "token1" });
       });
 
-      it("filters by own address when no address is provided", async () => {
+      it("passes visibleBy when no address is provided", async () => {
         const filterOptionsWithoutAddress = { blockNumber: 10 };
         await controller.getTransactions(filterOptionsWithoutAddress, listFilterOptions, pagingOptions, user);
         expect(serviceMock.findAll).toHaveBeenCalledWith(
           {
             ...filterOptionsWithoutAddress,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
-            address: mockUser,
+            visibleBy: mockUser,
           },
           {
             filterOptions: { ...filterOptionsWithoutAddress, ...listFilterOptions },
@@ -138,16 +136,12 @@ describe("TransactionController", () => {
         );
       });
 
-      it("filters transactions visible by user when different address is provided", async () => {
-        const { isAddressEqual } = jest.requireMock("../common/utils");
-        isAddressEqual.mockReturnValue(false);
-
+      it("passes visibleBy when a different address is provided", async () => {
         await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, user);
         expect(serviceMock.findAll).toHaveBeenCalledWith(
           {
             ...filterTransactionsOptions,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
             visibleBy: mockUser,
           },
           {
@@ -158,19 +152,17 @@ describe("TransactionController", () => {
         );
       });
 
-      it("does not set visibleBy when provided address is same as user address", async () => {
-        const { isAddressEqual } = jest.requireMock("../common/utils");
-        isAddressEqual.mockReturnValue(true);
-
-        await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, user);
+      it("passes visibleBy even when the provided address equals user address", async () => {
+        const filterOptionsWithOwnAddress = { blockNumber: 10, address: mockUser };
+        await controller.getTransactions(filterOptionsWithOwnAddress, listFilterOptions, pagingOptions, user);
         expect(serviceMock.findAll).toHaveBeenCalledWith(
           {
-            ...filterTransactionsOptions,
+            ...filterOptionsWithOwnAddress,
             timestamp: "timestamp",
-            filterAddressInLogTopics: true,
+            visibleBy: mockUser,
           },
           {
-            filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
+            filterOptions: { ...filterOptionsWithOwnAddress, ...listFilterOptions },
             ...pagingOptions,
             route: "transactions",
           }

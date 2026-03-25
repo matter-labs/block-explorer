@@ -55,7 +55,9 @@ describe("TransferRepository", () => {
         },
       ];
       await repository.addMany(records);
-      expect(entityManagerMock.insert).toBeCalledWith(Transfer, records);
+      expect(entityManagerMock.insert).toBeCalledWith(Transfer, [
+        { number: 1, from: "from", to: "to", fromToMin: "from", fromToMax: "to" },
+      ]);
       expect(entityManagerMock.insert).toBeCalledTimes(1);
     });
 
@@ -79,18 +81,24 @@ describe("TransferRepository", () => {
           address: "from",
           from: "from",
           to: "from",
+          fromToMin: "from",
+          fromToMax: "from",
           transferNumber: 1,
         },
         {
           address: "from",
           from: "from",
           to: "to",
+          fromToMin: "from",
+          fromToMax: "to",
           transferNumber: 2,
         },
         {
           address: "to",
           from: "from",
           to: "to",
+          fromToMin: "from",
+          fromToMax: "to",
           transferNumber: 2,
         },
       ]);

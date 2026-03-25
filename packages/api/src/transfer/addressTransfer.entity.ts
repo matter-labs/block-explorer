@@ -7,6 +7,7 @@ import { normalizeAddressTransformer } from "../common/transformers/normalizeAdd
 
 @Entity({ name: "addressTransfers" })
 @Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
+@Index(["address", "tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
 @Index(["address", "type", "timestamp", "logIndex"])
 @Index(["address", "tokenType", "blockNumber", "logIndex"])
 @Index(["address", "tokenAddress", "blockNumber", "logIndex"])

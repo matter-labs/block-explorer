@@ -8,5 +8,8 @@ export * from "./transfer.repository";
 export * from "./addressTransfer.repository";
 export * from "./log.repository";
 export * from "./balance.repository";
+export * from "./visibleTransaction.repository";
+export * from "./addressVisibleTransaction.repository";
+export * from "./visibleLog.repository";
 export * from "./counter.repository";
 export * from "./counterState.repository";

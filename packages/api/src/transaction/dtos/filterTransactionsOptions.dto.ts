@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { IsInt, IsOptional, Min, Matches } from "class-validator";
 import { ADDRESS_REGEX_PATTERN } from "../../common/pipes/parseAddress.pipe";
 
@@ -22,6 +22,7 @@ export class FilterTransactionsOptionsDto {
     example: null,
   })
   @Matches(new RegExp(ADDRESS_REGEX_PATTERN), { message: "Address parameter is invalid" })
+  @Transform(({ value }) => (value && !value.startsWith("0x") ? `0x${value}` : value))
   @Type(() => String)
   @IsOptional()
   public readonly address?: string;

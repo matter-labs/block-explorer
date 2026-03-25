@@ -20,6 +20,8 @@ export enum TransferType {
 @Entity({ name: "transfers" })
 @Index(["transactionHash", "timestamp", "logIndex"])
 @Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
+@Index(["fromToMin", "fromToMax", "isFeeOrRefund", "timestamp", "logIndex"])
+@Index(["fromToMin", "fromToMax", "type", "timestamp", "logIndex"])
 @Index(["tokenAddress", "blockNumber", "logIndex"])
 @Index(["transactionHash", "isInternal", "blockNumber", "logIndex"])
 @Index(["isInternal", "blockNumber", "logIndex"])
@@ -32,6 +34,12 @@ export class Transfer extends CountableEntity {
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly to: string;
+
+  @Column({ type: "bytea", transformer: hexTransformer })
+  public readonly fromToMin: string;
+
+  @Column({ type: "bytea", transformer: hexTransformer })
+  public readonly fromToMax: string;
 
   @ManyToOne(() => Block, { onDelete: "CASCADE" })
   @JoinColumn({ name: "blockNumber" })
