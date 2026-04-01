@@ -5,7 +5,7 @@ import { NumerableEntity } from "./entities/numerable.entity";
 import { hexTransformer } from "./transformers/hex.transformer";
 import { IPaginationOptions } from "./types";
 import { Request } from "express";
-import { getAddress, zeroPadValue } from "ethers";
+import { getAddress } from "ethers";
 
 const MIN_OFFSET_TO_USE_NUMBER_FILTER = 1000;
 
@@ -143,13 +143,6 @@ export const isAddressEqual = (address1: string, address2: string): boolean => {
     return false;
   }
 };
-
-/**
- * Pads an address to 32 bytes by adding zeros to the left.
- * @param address - The address to pad.
- * @returns The padded address.
- */
-export const padAddressToTransactionLogTopic = (address: string) => zeroPadValue(address, 32);
 
 export const computeFromToMinMax = (
   from: string,

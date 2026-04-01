@@ -12,7 +12,6 @@ import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { VisibleTransaction } from "./entities/visibleTransaction.entity";
 import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block } from "../block/block.entity";
-import { Log } from "../log/log.entity";
 import { ConfigService } from "@nestjs/config";
 
 jest.mock("../common/utils", () => ({
@@ -232,10 +231,8 @@ describe("TransactionService", () => {
         expect(queryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
       });
 
-      it("orders transactions by blockNumber, receivedAt and transactionIndex DESC", async () => {
+      it("orders transactions by receivedAt and transactionIndex DESC", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
-        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
         expect(queryBuilderMock.addOrderBy).toBeCalledTimes(2);
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
@@ -335,13 +332,8 @@ describe("TransactionService", () => {
         expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
       });
 
-      it("orders transactions by blockNumber, receivedAt and transactionIndex DESC", async () => {
+      it("orders transactions by receivedAt and transactionIndex DESC", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.orderBy).toBeCalledTimes(1);
-        expect(addressTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith(
-          "addressTransaction.blockNumber",
-          "DESC"
-        );
         expect(addressTransactionsQueryBuilderMock.addOrderBy).toBeCalledTimes(2);
         expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
           "addressTransaction.receivedAt",
@@ -397,10 +389,14 @@ describe("TransactionService", () => {
           expect(visibleTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ visibleBy });
         });
 
-        it("orders by visibleTransaction.blockNumber DESC", async () => {
+        it("orders by visibleTransaction receivedAt and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(visibleTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith(
-            "visibleTransaction.blockNumber",
+          expect(visibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
+            "visibleTransaction.receivedAt",
+            "DESC"
+          );
+          expect(visibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
+            "visibleTransaction.transactionIndex",
             "DESC"
           );
         });
@@ -475,10 +471,14 @@ describe("TransactionService", () => {
           expect(addressVisibleTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address, visibleBy });
         });
 
-        it("orders by addressVisibleTransaction.blockNumber DESC", async () => {
+        it("orders by addressVisibleTransaction receivedAt and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressVisibleTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith(
-            "addressVisibleTransaction.blockNumber",
+          expect(addressVisibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
+            "addressVisibleTransaction.receivedAt",
+            "DESC"
+          );
+          expect(addressVisibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
+            "addressVisibleTransaction.transactionIndex",
             "DESC"
           );
         });
@@ -514,9 +514,10 @@ describe("TransactionService", () => {
           );
         });
 
-        it("orders by transaction.blockNumber DESC", async () => {
+        it("orders by transaction receivedAt and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
+          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
+          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
         });
 
         it("returns paginated result", async () => {
@@ -603,7 +604,7 @@ describe("TransactionService", () => {
       expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
     });
 
-    it("orders transactions by blockNumber, receivedAt and transactionIndex", async () => {
+    it("orders transactions by blockNumber and transactionIndex", async () => {
       await service.findByAddress("address", {
         page: 10,
         offset: 100,
@@ -611,11 +612,7 @@ describe("TransactionService", () => {
       });
       expect(addressTransactionsQueryBuilderMock.orderBy).toBeCalledTimes(1);
       expect(addressTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith("addressTransaction.blockNumber", "ASC");
-      expect(addressTransactionsQueryBuilderMock.addOrderBy).toBeCalledTimes(2);
-      expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
-        "addressTransaction.receivedAt",
-        "ASC"
-      );
+      expect(addressTransactionsQueryBuilderMock.addOrderBy).toBeCalledTimes(1);
       expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
         "addressTransaction.transactionIndex",
         "ASC"
@@ -825,91 +822,57 @@ describe("TransactionService", () => {
   describe("isTransactionVisibleByUser", () => {
     const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
     const user = { address: userAddress, token: "token" };
+    const txHash = "0xabcdef1234567890";
 
     describe("when user is the sender", () => {
-      it("returns true", () => {
+      it("returns true", async () => {
         const transaction = {
+          hash: txHash,
           from: userAddress,
           to: "0x0987654321098765432109876543210987654321",
         } as Transaction;
-        const result = service.isTransactionVisibleByUser(transaction, [], user);
+        const result = await service.isTransactionVisibleByUser(transaction, user);
         expect(result).toBe(true);
       });
     });
 
     describe("when user is the receiver", () => {
-      it("returns true", () => {
+      it("returns true", async () => {
         const transaction = {
+          hash: txHash,
           from: "0x1234567890123456789012345678901234567890",
           to: userAddress,
         } as Transaction;
-        const result = service.isTransactionVisibleByUser(transaction, [], user);
+        const result = await service.isTransactionVisibleByUser(transaction, user);
         expect(result).toBe(true);
       });
     });
 
-    describe("when user address is in log topics", () => {
-      const paddedAddress = "0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266";
+    describe("when user has a visible transaction record", () => {
       let transaction: Transaction;
 
       beforeEach(() => {
         transaction = {
+          hash: txHash,
           from: "0x1234567890123456789012345678901234567890",
           to: "0x0987654321098765432109876543210987654321",
         } as Transaction;
       });
 
-      it("returns true when user address is in topic[1]", () => {
-        const logs = [
-          {
-            topics: ["0xtopic0", paddedAddress, "0xtopic2"],
-          } as Log,
-        ];
-        const result = service.isTransactionVisibleByUser(transaction, logs, user);
+      it("returns true when a visible transaction record exists", async () => {
+        (visibleTransactionRepositoryMock.findOne as jest.Mock).mockResolvedValue({ transactionHash: txHash });
+        const result = await service.isTransactionVisibleByUser(transaction, user);
         expect(result).toBe(true);
+        expect(visibleTransactionRepositoryMock.findOne).toHaveBeenCalledWith({
+          where: { transactionHash: txHash, visibleBy: userAddress },
+          select: { transactionHash: true },
+        });
       });
 
-      it("returns true when user address is in topic[2]", () => {
-        const logs = [
-          {
-            topics: ["0xtopic0", "0xtopic1", paddedAddress],
-          } as Log,
-        ];
-        const result = service.isTransactionVisibleByUser(transaction, logs, user);
-        expect(result).toBe(true);
-      });
-
-      it("returns true when user address is in topic[3]", () => {
-        const logs = [
-          {
-            topics: ["0xtopic0", "0xtopic1", "0xtopic2", paddedAddress],
-          } as Log,
-        ];
-        const result = service.isTransactionVisibleByUser(transaction, logs, user);
-        expect(result).toBe(true);
-      });
-
-      it("returns true with case-insensitive address matching", () => {
-        const logs = [
-          {
-            topics: ["0xtopic0", paddedAddress.toUpperCase()],
-          } as Log,
-        ];
-        const result = service.isTransactionVisibleByUser(transaction, logs, user);
-        expect(result).toBe(true);
-      });
-
-      it("returns true when user address is in multiple logs", () => {
-        const logs = [
-          {
-            topics: ["0xtopic0", "0xtopic1"],
-          } as Log,
-          {
-            topics: ["0xtopic0", paddedAddress],
-          } as Log,
-        ];
-        const result = service.isTransactionVisibleByUser(transaction, logs, user);
-        expect(result).toBe(true);
+      it("returns false when no visible transaction record exists", async () => {
+        (visibleTransactionRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
+        const result = await service.isTransactionVisibleByUser(transaction, user);
+        expect(result).toBe(false);
       });
 
       describe("when disableTxVisibilityByTopics is true", () => {
@@ -917,10 +880,10 @@ describe("TransactionService", () => {
           (configServiceMock.get as jest.Mock).mockReturnValue(true);
         });
 
-        it("returns false even when user address is in log topics", () => {
-          const logs = [{ topics: ["0xtopic0", paddedAddress] } as Log];
-          const result = service.isTransactionVisibleByUser(transaction, logs, user);
+        it("returns false without querying visible transactions", async () => {
+          const result = await service.isTransactionVisibleByUser(transaction, user);
           expect(result).toBe(false);
+          expect(visibleTransactionRepositoryMock.findOne).not.toHaveBeenCalled();
         });
       });
     });
@@ -930,23 +893,15 @@ describe("TransactionService", () => {
 
       beforeEach(() => {
         transaction = {
+          hash: txHash,
           from: "0x1234567890123456789012345678901234567890",
           to: "0x0987654321098765432109876543210987654321",
         } as Transaction;
       });
 
-      it("returns false when user is not sender, receiver, or in logs", () => {
-        const logs = [
-          {
-            topics: ["0xtopic0", "0xothertopic1", "0xothertopic2"],
-          } as Log,
-        ];
-        const result = service.isTransactionVisibleByUser(transaction, logs, user);
-        expect(result).toBe(false);
-      });
-
-      it("returns false when there are no logs", () => {
-        const result = service.isTransactionVisibleByUser(transaction, [], user);
+      it("returns false when no visible transaction record exists", async () => {
+        (visibleTransactionRepositoryMock.findOne as jest.Mock).mockResolvedValue(null);
+        const result = await service.isTransactionVisibleByUser(transaction, user);
         expect(result).toBe(false);
       });
     });

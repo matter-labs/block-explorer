@@ -13,7 +13,6 @@ import {
   parseIntToHex,
   parseReqPathname,
   isAddressEqual,
-  padAddressToTransactionLogTopic,
   computeFromToMinMax,
 } from "./utils";
 import { IPaginationOptions } from "./types";
@@ -542,52 +541,6 @@ describe("utils", () => {
       expect(isAddressEqual(validAddress, undefined as any)).toBe(false);
       expect(isAddressEqual(null as any, null as any)).toBe(false);
       expect(isAddressEqual(undefined as any, undefined as any)).toBe(false);
-    });
-  });
-
-  describe("padAddressToTransactionLogTopic", () => {
-    it("pads a 20-byte address to 32 bytes", () => {
-      const address = "0x1234567890123456789012345678901234567890";
-      const result = padAddressToTransactionLogTopic(address);
-      expect(result).toBe("0x0000000000000000000000001234567890123456789012345678901234567890");
-      expect(result.length).toBe(66); // 0x + 64 hex chars = 32 bytes
-    });
-
-    it("pads a lowercase address correctly", () => {
-      const address = "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd";
-      const result = padAddressToTransactionLogTopic(address);
-      expect(result).toBe("0x000000000000000000000000abcdefabcdefabcdefabcdefabcdefabcdefabcd");
-      expect(result.length).toBe(66);
-    });
-
-    it("pads an uppercase address correctly", () => {
-      const address = "0xABCDEFABCDEFABCDEFABCDEFABCDEFABCDEFABCD";
-      const result = padAddressToTransactionLogTopic(address);
-      // zeroPadValue returns lowercase
-      expect(result).toBe("0x000000000000000000000000abcdefabcdefabcdefabcdefabcdefabcdefabcd");
-      expect(result.length).toBe(66);
-    });
-
-    it("pads a mixed case address correctly", () => {
-      const address = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-      const result = padAddressToTransactionLogTopic(address);
-      expect(result).toBe("0x000000000000000000000000f39fd6e51aad88f6f4ce6ab8827279cfffb92266");
-      expect(result.length).toBe(66);
-    });
-
-    it("pads an address with all zeros", () => {
-      const address = "0x0000000000000000000000000000000000000000";
-      const result = padAddressToTransactionLogTopic(address);
-      expect(result).toBe("0x0000000000000000000000000000000000000000000000000000000000000000");
-      expect(result.length).toBe(66);
-    });
-
-    it("pads an address with all Fs", () => {
-      const address = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
-      const result = padAddressToTransactionLogTopic(address);
-      // zeroPadValue returns lowercase
-      expect(result).toBe("0x000000000000000000000000ffffffffffffffffffffffffffffffffffffffff");
-      expect(result.length).toBe(66);
     });
   });
 

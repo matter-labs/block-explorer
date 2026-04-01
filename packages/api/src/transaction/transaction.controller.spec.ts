@@ -208,14 +208,10 @@ describe("TransactionController", () => {
     describe("when user is provided", () => {
       let user: MockProxy<UserWithRoles>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-      const transactionLogs = mock<Pagination<Log>>({
-        items: [mock<Log>({ topics: [] })],
-      });
 
       beforeEach(() => {
         user = mock<UserWithRoles>({ address: mockUser, isAdmin: false });
         (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
-        (logServiceMock.findAll as jest.Mock).mockResolvedValue(transactionLogs);
       });
 
       afterEach(() => {
@@ -223,22 +219,13 @@ describe("TransactionController", () => {
       });
 
       it("returns the transaction when user can see it", async () => {
-        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(true);
+        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(true);
         const result = await controller.getTransaction(transactionHash, user);
-        expect(logServiceMock.findAll).toHaveBeenCalledWith(
-          { transactionHash },
-          {
-            page: 1,
-            limit: 10_000,
-          }
-        );
-        expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, transactionLogs.items, user);
+        expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, user);
         expect(result).toBe(transaction);
       });
 
       it("returns the transaction when user is admin", async () => {
-        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(false);
-
         const result = await controller.getTransaction(
           transactionHash,
           mock<UserWithRoles>({
@@ -246,13 +233,12 @@ describe("TransactionController", () => {
             isAdmin: true,
           })
         );
-        expect(logServiceMock.findAll).not.toHaveBeenCalled();
         expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
         expect(result).toBe(transaction);
       });
 
       it("throws NotFoundException when transaction is not visible to user", async () => {
-        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(false);
+        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(false);
 
         try {
           await controller.getTransaction(transactionHash, user);
