@@ -9,7 +9,7 @@ import { stringTransformer } from "../transformers/string.transformer";
 @Index(["receivedAt", "transactionIndex"])
 @Index(["blockNumber", "receivedAt", "transactionIndex"])
 @Index(["from", "isL1Originated", "blockNumber", "nonce"])
-@Index(["fromToMin", "fromToMax", "blockNumber", "receivedAt", "transactionIndex"])
+@Index(["fromToMin", "fromToMax", "receivedAt", "transactionIndex"])
 export class Transaction extends CountableEntity {
   @PrimaryColumn({ type: "bytea", transformer: hexTransformer })
   public readonly hash: string;

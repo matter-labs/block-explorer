@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { isAddressEqual, padAddressToTransactionLogTopic, paginate, computeFromToMinMax } from "../common/utils";
+import { isAddressEqual, paginate, computeFromToMinMax } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
@@ -11,7 +11,6 @@ import { VisibleTransaction } from "./entities/visibleTransaction.entity";
 import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block, BlockStatus } from "../block/block.entity";
 import { CounterService } from "../counter/counter.service";
-import { Log } from "../log/log.entity";
 import { UserParam } from "../user/user.decorator";
 
 export interface FilterTransactionsOptions {
@@ -164,7 +163,6 @@ export class TransactionService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private addDefaultOrder(qb: SelectQueryBuilder<any>, alias: string): void {
-    qb.orderBy(`${alias}.blockNumber`, "DESC");
     qb.addOrderBy(`${alias}.receivedAt`, "DESC");
     qb.addOrderBy(`${alias}.transactionIndex`, "DESC");
   }
@@ -207,7 +205,6 @@ export class TransactionService {
     }
     const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
     queryBuilder.orderBy("addressTransaction.blockNumber", order);
-    queryBuilder.addOrderBy("addressTransaction.receivedAt", order);
     queryBuilder.addOrderBy("addressTransaction.transactionIndex", order);
     queryBuilder.offset((page - 1) * offset);
     queryBuilder.limit(offset);
@@ -252,18 +249,23 @@ export class TransactionService {
     return this.counterService.count(Transaction, criteria);
   }
 
-  public isTransactionVisibleByUser(transaction: Transaction, transactionLogs: Log[], user: UserParam): boolean {
+  public async isTransactionVisibleByUser(transaction: Transaction, user: UserParam): Promise<boolean> {
     // A transaction is visible by a user if:
     // - user is the sender
     // - user is the receiver
     // - user is included as part of the logs topics
+    // - user's smart account produced some logs in the transaction
     if (isAddressEqual(transaction.from, user.address) || isAddressEqual(transaction.to, user.address)) {
       return true;
     }
     if (this.configService.get<boolean>("prividium.disableTxVisibilityByTopics")) {
       return false;
     }
-    const topicUserAddress = padAddressToTransactionLogTopic(user.address).toLowerCase();
-    return transactionLogs.some((log) => log.topics.some((topic) => topic.toLowerCase() === topicUserAddress));
+    return (
+      (await this.visibleTransactionRepository.findOne({
+        where: { transactionHash: transaction.hash, visibleBy: user.address },
+        select: { transactionHash: true },
+      })) != null
+    );
   }
 }

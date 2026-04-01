@@ -6,7 +6,8 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 
 @Entity({ name: "visibleTransactions" })
-@Index(["visibleBy", "blockNumber", "receivedAt", "transactionIndex"])
+@Index(["visibleBy", "receivedAt", "transactionIndex"])
+@Index(["transactionHash", "visibleBy"])
 export class VisibleTransaction extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;
@@ -15,7 +16,6 @@ export class VisibleTransaction extends BaseEntity {
   @JoinColumn({ name: "transactionHash" })
   private readonly _transaction: never;
 
-  @Index()
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly transactionHash: string;
 

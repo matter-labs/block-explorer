@@ -85,14 +85,8 @@ export class TransactionController {
     }
 
     if (user && !user.isAdmin) {
-      const transactionLogs = await this.logService.findAll(
-        { transactionHash },
-        {
-          page: 1,
-          limit: 10_000, // default max limit used in pagination-enabled endpoints
-        }
-      );
-      if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
+      const isVisibleByUser = await this.transactionService.isTransactionVisibleByUser(transactionDetail, user);
+      if (!isVisibleByUser) {
         throw new NotFoundException();
       }
       return transactionDetail;
