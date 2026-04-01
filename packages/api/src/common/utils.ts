@@ -27,6 +27,10 @@ async function countQueryWithLimit<T, CustomMetaType = IPaginationMeta>(
   const totalQueryBuilder = queryBuilder.clone();
 
   totalQueryBuilder.select("true");
+  // Remove any joins to improve performance
+  if (totalQueryBuilder.expressionMap?.joinAttributes) {
+    totalQueryBuilder.expressionMap.joinAttributes.length = 0;
+  }
   totalQueryBuilder.skip(undefined);
   totalQueryBuilder.limit(options.maxLimit);
   totalQueryBuilder.offset(undefined);

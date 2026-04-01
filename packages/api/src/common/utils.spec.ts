@@ -64,7 +64,9 @@ describe("utils", () => {
 
     beforeEach(() => {
       countMainQueryBuilder = mock<SelectQueryBuilder<BaseEntity>>();
-      countSubQueryBuilder = mock<SelectQueryBuilder<BaseEntity>>();
+      countSubQueryBuilder = mock<SelectQueryBuilder<BaseEntity>>({
+        expressionMap: { joinAttributes: [] } as any,
+      });
       queryBuilder = mock<SelectQueryBuilder<BaseEntity>>({
         connection: {
           createQueryBuilder: jest.fn().mockReturnValue(countMainQueryBuilder),
@@ -101,6 +103,12 @@ describe("utils", () => {
     it("sets count sub query select setting to true", async () => {
       await paginate(queryBuilder, options);
       expect(countSubQueryBuilder.select).toHaveBeenCalledWith("true");
+    });
+
+    it("clears count sub query join attributes", async () => {
+      countSubQueryBuilder.expressionMap.joinAttributes.push({} as any);
+      await paginate(queryBuilder, options);
+      expect(countSubQueryBuilder.expressionMap.joinAttributes).toHaveLength(0);
     });
 
     it("resets count sub query skip setting", async () => {
