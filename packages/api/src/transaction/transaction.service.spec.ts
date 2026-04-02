@@ -556,7 +556,7 @@ describe("TransactionService", () => {
 
     it("inner query selects only PK", async () => {
       await service.findByAddress("address");
-      expect(innerQueryBuilderMock.select).toHaveBeenCalledWith("addressTransaction.number");
+      expect(innerQueryBuilderMock.select).toHaveBeenCalledWith("addressTransaction.number", "number");
     });
 
     it("inner query filters by address", async () => {
@@ -592,7 +592,7 @@ describe("TransactionService", () => {
       expect(outerQueryBuilderMock.innerJoin).toHaveBeenCalledWith(
         "(inner query)",
         "_paginated",
-        `"_paginated"."addressTransaction_number" = "addressTransaction"."number"`
+        `"_paginated"."number" = "addressTransaction"."number"`
       );
       expect(outerQueryBuilderMock.setParameters).toHaveBeenCalledWith({});
     });

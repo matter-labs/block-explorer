@@ -29,7 +29,7 @@ async function countQueryWithLimit<T, CustomMetaType = IPaginationMeta>(
   totalQueryBuilder.select("true");
   // Remove any joins to improve performance
   if (totalQueryBuilder.expressionMap?.joinAttributes) {
-    totalQueryBuilder.expressionMap.joinAttributes.length = 0;
+    totalQueryBuilder.expressionMap.joinAttributes = [];
   }
   totalQueryBuilder.skip(undefined);
   totalQueryBuilder.limit(options.maxLimit);
@@ -72,18 +72,15 @@ async function paginateQueryBuilder<T, CustomMetaType = IPaginationMeta>(
   }
 
   let itemsQuery = queryBuilder;
+  const pkColumn = queryBuilder.expressionMap.mainAlias?.metadata?.primaryColumns[0]?.databaseName;
   // When using number filter as offset leave the query as it is as deferred joins don't improve performance in this case
-  if (options.deferJoins && !useNumberFilterAsOffset) {
+  if (options.deferJoins && !useNumberFilterAsOffset && pkColumn) {
     const alias = queryBuilder.alias;
-    const metadata = queryBuilder.expressionMap.mainAlias.metadata;
-    const pkColumn = metadata.primaryColumns[0].databaseName;
 
     // Inner subquery: only select PK with filters + limit/offset, no joins
     const innerQb = queryBuilder.clone();
-    innerQb.select(`${alias}.${pkColumn}`);
-    if (innerQb.expressionMap?.joinAttributes) {
-      innerQb.expressionMap.joinAttributes.length = 0;
-    }
+    innerQb.select(`${alias}.${pkColumn}`, pkColumn);
+    innerQb.expressionMap.joinAttributes = [];
 
     // Outer query: clone to keep selects/aliases, reorder so INNER JOIN comes first
     const outerQb = queryBuilder.clone();
@@ -91,11 +88,7 @@ async function paginateQueryBuilder<T, CustomMetaType = IPaginationMeta>(
     outerQb.offset(undefined);
     outerQb.limit(undefined);
     const originalJoins = outerQb.expressionMap.joinAttributes.splice(0);
-    outerQb.innerJoin(
-      `(${innerQb.getQuery()})`,
-      "_paginated",
-      `"_paginated"."${alias}_${pkColumn}" = "${alias}"."${pkColumn}"`
-    );
+    outerQb.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."${pkColumn}" = "${alias}"."${pkColumn}"`);
     outerQb.expressionMap.joinAttributes.push(...originalJoins);
 
     itemsQuery = outerQb;

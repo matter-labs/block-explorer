@@ -112,7 +112,7 @@ export class TransferService {
       const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
       const innerQb = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-      innerQb.select("addressTransfer.number");
+      innerQb.select("addressTransfer.number", "number");
       innerQb.where({ address });
       if (tokenAddress) {
         innerQb.andWhere(`"addressTransfer"."tokenAddress" = :tokenAddress`, {
@@ -137,7 +137,7 @@ export class TransferService {
       queryBuilder.innerJoin(
         `(${innerQb.getQuery()})`,
         "_paginated",
-        `"_paginated"."addressTransfer_number" = "addressTransfer"."number"`
+        `"_paginated"."number" = "addressTransfer"."number"`
       );
       queryBuilder.setParameters(innerQb.getParameters());
       queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
@@ -166,7 +166,7 @@ export class TransferService {
     const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
     const innerQb = this.transferRepository.createQueryBuilder("transfer");
-    innerQb.select("transfer.number");
+    innerQb.select("transfer.number", "number");
     innerQb.where({ tokenAddress });
     if (startBlock !== undefined) {
       innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
@@ -180,11 +180,7 @@ export class TransferService {
     innerQb.limit(offset);
 
     const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-    queryBuilder.innerJoin(
-      `(${innerQb.getQuery()})`,
-      "_paginated",
-      `"_paginated"."transfer_number" = "transfer"."number"`
-    );
+    queryBuilder.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."number" = "transfer"."number"`);
     queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoinAndSelect("transfer.token", "token");
     queryBuilder.leftJoin("transfer.transaction", "transaction");
@@ -218,7 +214,7 @@ export class TransferService {
       const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
       const innerQb = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-      innerQb.select("addressTransfer.number");
+      innerQb.select("addressTransfer.number", "number");
       innerQb.where({ address, isInternal: true });
       if (startBlock !== undefined) {
         innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
@@ -236,7 +232,7 @@ export class TransferService {
       queryBuilder.innerJoin(
         `(${innerQb.getQuery()})`,
         "_paginated",
-        `"_paginated"."addressTransfer_number" = "addressTransfer"."number"`
+        `"_paginated"."number" = "addressTransfer"."number"`
       );
       queryBuilder.setParameters(innerQb.getParameters());
       queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
@@ -257,7 +253,7 @@ export class TransferService {
     const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
     const innerQb = this.transferRepository.createQueryBuilder("transfer");
-    innerQb.select("transfer.number");
+    innerQb.select("transfer.number", "number");
     innerQb.where({
       ...(transactionHash && { transactionHash }),
       isInternal: true,
@@ -274,11 +270,7 @@ export class TransferService {
     innerQb.limit(offset);
 
     const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-    queryBuilder.innerJoin(
-      `(${innerQb.getQuery()})`,
-      "_paginated",
-      `"_paginated"."transfer_number" = "transfer"."number"`
-    );
+    queryBuilder.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."number" = "transfer"."number"`);
     queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoin("transfer.transaction", "transaction");
     queryBuilder.addSelect([

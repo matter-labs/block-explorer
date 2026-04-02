@@ -80,7 +80,7 @@ export class LogService {
     order = "DESC",
   }: FilterLogsByAddressAndTopicsOptions): Promise<Log[]> {
     const innerQb = this.logRepository.createQueryBuilder("log");
-    innerQb.select("log.number");
+    innerQb.select("log.number", "number");
     if (address !== undefined) {
       innerQb.andWhere({ address });
     }
@@ -108,7 +108,7 @@ export class LogService {
     innerQb.limit(offset);
 
     const queryBuilder = this.logRepository.createQueryBuilder("log");
-    queryBuilder.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."log_number" = "log"."number"`);
+    queryBuilder.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."number" = "log"."number"`);
     queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoin("log.transaction", "transaction");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");

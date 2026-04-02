@@ -189,7 +189,7 @@ export class TransactionService {
 
     // Inner query: paginate on the index-only table
     const innerQb = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
-    innerQb.select("addressTransaction.number");
+    innerQb.select("addressTransaction.number", "number");
     innerQb.where({ address });
     if (startBlock !== undefined) {
       innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
@@ -208,7 +208,7 @@ export class TransactionService {
     queryBuilder.innerJoin(
       `(${innerQb.getQuery()})`,
       "_paginated",
-      `"_paginated"."addressTransaction_number" = "addressTransaction"."number"`
+      `"_paginated"."number" = "addressTransaction"."number"`
     );
     queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");

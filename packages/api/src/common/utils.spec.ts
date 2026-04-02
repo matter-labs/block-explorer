@@ -394,13 +394,13 @@ describe("utils", () => {
         await paginate(queryBuilder, { ...options, deferJoins: true }, async () => 50);
 
         // inner clone should have select PK only and joins cleared
-        expect(innerClone.select).toHaveBeenCalledWith("entity.number");
+        expect(innerClone.select).toHaveBeenCalledWith("entity.number", "number");
         // outer clone should have wheres cleared and innerJoin added
         expect(outerQb.expressionMap.wheres).toEqual([]);
         expect(outerQb.innerJoin).toHaveBeenCalledWith(
           "(SELECT pk FROM ...)",
           "_paginated",
-          `"_paginated"."entity_number" = "entity"."number"`
+          `"_paginated"."number" = "entity"."number"`
         );
         // getMany called on outer, not original
         expect(outerQb.getMany).toHaveBeenCalledTimes(1);

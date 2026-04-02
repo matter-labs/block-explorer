@@ -307,7 +307,7 @@ describe("TransferService", () => {
 
       it("inner query filters by tokenAddress", async () => {
         await service.findTokenTransfers(filterOptions);
-        expect(innerQueryBuilderMock.select).toHaveBeenCalledWith("transfer.number");
+        expect(innerQueryBuilderMock.select).toHaveBeenCalledWith("transfer.number", "number");
         expect(innerQueryBuilderMock.where).toHaveBeenCalledWith({ tokenAddress: "tokenAddress" });
       });
 
