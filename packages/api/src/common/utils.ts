@@ -57,7 +57,8 @@ async function paginateQueryBuilder<T, CustomMetaType = IPaginationMeta>(
 
   queryBuilder.limit(limit);
 
-  if (options.canUseNumberFilterAsOffset && offset >= MIN_OFFSET_TO_USE_NUMBER_FILTER) {
+  const useNumberFilterAsOffset = options.canUseNumberFilterAsOffset && offset >= MIN_OFFSET_TO_USE_NUMBER_FILTER;
+  if (useNumberFilterAsOffset) {
     const topItem = (await queryBuilder.clone().limit(1).getOne()) as NumerableEntity;
     const topItemNumber = topItem?.number ?? -1;
 
@@ -70,8 +71,38 @@ async function paginateQueryBuilder<T, CustomMetaType = IPaginationMeta>(
     queryBuilder.offset(offset);
   }
 
+  let itemsQuery = queryBuilder;
+  // When using number filter as offset leave the query as it is as deferred joins don't improve performance in this case
+  if (options.deferJoins && !useNumberFilterAsOffset) {
+    const alias = queryBuilder.alias;
+    const metadata = queryBuilder.expressionMap.mainAlias.metadata;
+    const pkColumn = metadata.primaryColumns[0].databaseName;
+
+    // Inner subquery: only select PK with filters + limit/offset, no joins
+    const innerQb = queryBuilder.clone();
+    innerQb.select(`${alias}.${pkColumn}`);
+    if (innerQb.expressionMap?.joinAttributes) {
+      innerQb.expressionMap.joinAttributes.length = 0;
+    }
+
+    // Outer query: clone to keep selects/aliases, reorder so INNER JOIN comes first
+    const outerQb = queryBuilder.clone();
+    outerQb.expressionMap.wheres = [];
+    outerQb.offset(undefined);
+    outerQb.limit(undefined);
+    const originalJoins = outerQb.expressionMap.joinAttributes.splice(0);
+    outerQb.innerJoin(
+      `(${innerQb.getQuery()})`,
+      "_paginated",
+      `"_paginated"."${alias}_${pkColumn}" = "${alias}"."${pkColumn}"`
+    );
+    outerQb.expressionMap.joinAttributes.push(...originalJoins);
+
+    itemsQuery = outerQb;
+  }
+
   const [items, total] = await Promise.all([
-    queryBuilder.getMany(),
+    itemsQuery.getMany(),
     countQuery ? countQuery() : countQueryWithLimit(queryBuilder, options),
   ]);
 

@@ -66,7 +66,7 @@ export class TransferService {
         queryBuilder.leftJoinAndSelect("transfer.token", "token");
         queryBuilder.orderBy("transfer.timestamp", "DESC");
         queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-        return await paginate<Transfer>(queryBuilder, paginationOptions);
+        return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
       }
       if (options.transactionHash) {
         // transactionHash is highly selective — OR over a handful of rows is negligible
@@ -80,7 +80,7 @@ export class TransferService {
         queryBuilder.leftJoinAndSelect("transfer.token", "token");
         queryBuilder.orderBy("transfer.timestamp", "DESC");
         queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-        return await paginate<Transfer>(queryBuilder, paginationOptions);
+        return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
       }
       // own transfers: address === visibleBy or no address
       return this.findAddressTransfers({ ...options, address: visibleBy }, paginationOptions);
@@ -95,7 +95,7 @@ export class TransferService {
     queryBuilder.leftJoinAndSelect("transfer.token", "token");
     queryBuilder.orderBy("transfer.timestamp", "DESC");
     queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-    return await paginate<Transfer>(queryBuilder, paginationOptions);
+    return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
   }
 
   public async findTokenTransfers({
@@ -109,8 +109,37 @@ export class TransferService {
     sort = SortingOrder.Desc,
   }: FilterTokenTransfersOptions = {}): Promise<Transfer[]> {
     if (address) {
+      const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
+
+      const innerQb = this.addressTransferRepository.createQueryBuilder("addressTransfer");
+      innerQb.select("addressTransfer.number");
+      innerQb.where({ address });
+      if (tokenAddress) {
+        innerQb.andWhere(`"addressTransfer"."tokenAddress" = :tokenAddress`, {
+          tokenAddress: normalizeAddressTransformer.to(tokenAddress),
+        });
+      } else {
+        innerQb.andWhere(`"addressTransfer"."tokenType" = :tokenType`, { tokenType });
+      }
+      if (startBlock !== undefined) {
+        innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
+      }
+      if (endBlock !== undefined) {
+        innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
+      }
+      innerQb.orderBy("addressTransfer.blockNumber", order);
+      innerQb.addOrderBy("addressTransfer.logIndex", order);
+      innerQb.offset((page - 1) * offset);
+      innerQb.limit(offset);
+
       const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
       queryBuilder.select("addressTransfer.number");
+      queryBuilder.innerJoin(
+        `(${innerQb.getQuery()})`,
+        "_paginated",
+        `"_paginated"."addressTransfer_number" = "addressTransfer"."number"`
+      );
+      queryBuilder.setParameters(innerQb.getParameters());
       queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
       queryBuilder.leftJoin("transfer.transaction", "transaction");
@@ -126,40 +155,37 @@ export class TransferService {
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
-      queryBuilder.where({
-        address,
-      });
-      if (tokenAddress) {
-        queryBuilder.andWhere(`"addressTransfer"."tokenAddress" = :tokenAddress`, {
-          tokenAddress: normalizeAddressTransformer.to(tokenAddress),
-        });
-      } else {
-        queryBuilder.andWhere(`"addressTransfer"."tokenType" = :tokenType`, {
-          tokenType,
-        });
-      }
-      if (startBlock !== undefined) {
-        queryBuilder.andWhere({
-          blockNumber: MoreThanOrEqual(startBlock),
-        });
-      }
-      if (endBlock !== undefined) {
-        queryBuilder.andWhere({
-          blockNumber: LessThanOrEqual(endBlock),
-        });
-      }
-      const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
       queryBuilder.orderBy("addressTransfer.blockNumber", order);
       queryBuilder.addOrderBy("addressTransfer.logIndex", order);
-      queryBuilder.offset((page - 1) * offset);
-      queryBuilder.limit(offset);
       const addressTransfers = await queryBuilder.getMany();
       return addressTransfers.map((item) => item.transfer);
     }
     if (!tokenAddress) {
       throw new BadRequestException("Error! Missing address or contract address");
     }
+    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
+
+    const innerQb = this.transferRepository.createQueryBuilder("transfer");
+    innerQb.select("transfer.number");
+    innerQb.where({ tokenAddress });
+    if (startBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
+    }
+    if (endBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
+    }
+    innerQb.orderBy("transfer.blockNumber", order);
+    innerQb.addOrderBy("transfer.logIndex", order);
+    innerQb.offset((page - 1) * offset);
+    innerQb.limit(offset);
+
     const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
+    queryBuilder.innerJoin(
+      `(${innerQb.getQuery()})`,
+      "_paginated",
+      `"_paginated"."transfer_number" = "transfer"."number"`
+    );
+    queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoinAndSelect("transfer.token", "token");
     queryBuilder.leftJoin("transfer.transaction", "transaction");
     queryBuilder.addSelect([
@@ -174,26 +200,9 @@ export class TransferService {
     ]);
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
-    queryBuilder.where({
-      tokenAddress,
-    });
-    if (startBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: MoreThanOrEqual(startBlock),
-      });
-    }
-    if (endBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: LessThanOrEqual(endBlock),
-      });
-    }
-    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
     queryBuilder.orderBy("transfer.blockNumber", order);
     queryBuilder.addOrderBy("transfer.logIndex", order);
-    queryBuilder.offset((page - 1) * offset);
-    queryBuilder.limit(offset);
-    const transfers = await queryBuilder.getMany();
-    return transfers;
+    return await queryBuilder.getMany();
   }
 
   public async findInternalTransfers({
@@ -206,8 +215,30 @@ export class TransferService {
     sort = SortingOrder.Desc,
   }: FilterInternalTransfersOptions = {}): Promise<Transfer[]> {
     if (address) {
+      const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
+
+      const innerQb = this.addressTransferRepository.createQueryBuilder("addressTransfer");
+      innerQb.select("addressTransfer.number");
+      innerQb.where({ address, isInternal: true });
+      if (startBlock !== undefined) {
+        innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
+      }
+      if (endBlock !== undefined) {
+        innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
+      }
+      innerQb.orderBy("addressTransfer.blockNumber", order);
+      innerQb.addOrderBy("addressTransfer.logIndex", order);
+      innerQb.offset((page - 1) * offset);
+      innerQb.limit(offset);
+
       const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
       queryBuilder.select("addressTransfer.number");
+      queryBuilder.innerJoin(
+        `(${innerQb.getQuery()})`,
+        "_paginated",
+        `"_paginated"."addressTransfer_number" = "addressTransfer"."number"`
+      );
+      queryBuilder.setParameters(innerQb.getParameters());
       queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
       queryBuilder.leftJoin("transfer.transaction", "transaction");
       queryBuilder.addSelect([
@@ -218,29 +249,37 @@ export class TransferService {
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-      queryBuilder.where({
-        address,
-        isInternal: true,
-      });
-      if (startBlock !== undefined) {
-        queryBuilder.andWhere({
-          blockNumber: MoreThanOrEqual(startBlock),
-        });
-      }
-      if (endBlock !== undefined) {
-        queryBuilder.andWhere({
-          blockNumber: LessThanOrEqual(endBlock),
-        });
-      }
-      const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
       queryBuilder.orderBy("addressTransfer.blockNumber", order);
       queryBuilder.addOrderBy("addressTransfer.logIndex", order);
-      queryBuilder.offset((page - 1) * offset);
-      queryBuilder.limit(offset);
       const addressTransfers = await queryBuilder.getMany();
       return addressTransfers.map((item) => item.transfer);
     }
+    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
+
+    const innerQb = this.transferRepository.createQueryBuilder("transfer");
+    innerQb.select("transfer.number");
+    innerQb.where({
+      ...(transactionHash && { transactionHash }),
+      isInternal: true,
+    });
+    if (startBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
+    }
+    if (endBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
+    }
+    innerQb.orderBy("transfer.blockNumber", order);
+    innerQb.addOrderBy("transfer.logIndex", order);
+    innerQb.offset((page - 1) * offset);
+    innerQb.limit(offset);
+
     const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
+    queryBuilder.innerJoin(
+      `(${innerQb.getQuery()})`,
+      "_paginated",
+      `"_paginated"."transfer_number" = "transfer"."number"`
+    );
+    queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoin("transfer.transaction", "transaction");
     queryBuilder.addSelect([
       "transaction.receiptStatus",
@@ -250,29 +289,9 @@ export class TransferService {
     ]);
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-    queryBuilder.where({
-      ...(transactionHash && {
-        transactionHash,
-      }),
-      isInternal: true,
-    });
-    if (startBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: MoreThanOrEqual(startBlock),
-      });
-    }
-    if (endBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: LessThanOrEqual(endBlock),
-      });
-    }
-    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
     queryBuilder.orderBy("transfer.blockNumber", order);
     queryBuilder.addOrderBy("transfer.logIndex", order);
-    queryBuilder.offset((page - 1) * offset);
-    queryBuilder.limit(offset);
-    const transfers = await queryBuilder.getMany();
-    return transfers;
+    return await queryBuilder.getMany();
   }
 
   private async findAddressTransfers(
@@ -286,7 +305,7 @@ export class TransferService {
     queryBuilder.where(where);
     queryBuilder.orderBy("addressTransfer.timestamp", "DESC");
     queryBuilder.addOrderBy("addressTransfer.logIndex", "ASC");
-    const addressTransfers = await paginate<AddressTransfer>(queryBuilder, paginationOptions);
+    const addressTransfers = await paginate<AddressTransfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
     return {
       ...addressTransfers,
       items: addressTransfers.items.map((item) => item.transfer),

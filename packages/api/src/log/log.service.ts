@@ -54,7 +54,7 @@ export class LogService {
       qb.where({ visibleBy, ...basicFilters });
       qb.orderBy("visibleLog.timestamp", "DESC");
       qb.addOrderBy("visibleLog.logIndex", "ASC");
-      const result = await paginate<VisibleLog>(qb, paginationOptions);
+      const result = await paginate<VisibleLog>(qb, { ...paginationOptions, deferJoins: true });
       return { ...result, items: result.items.map((vl) => vl.log) };
     }
 
@@ -79,39 +79,40 @@ export class LogService {
     offset = 10,
     order = "DESC",
   }: FilterLogsByAddressAndTopicsOptions): Promise<Log[]> {
+    const innerQb = this.logRepository.createQueryBuilder("log");
+    innerQb.select("log.number");
+    if (address !== undefined) {
+      innerQb.andWhere({ address });
+    }
+    if (fromBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: MoreThanOrEqual(fromBlock) });
+    }
+    if (toBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: LessThanOrEqual(toBlock) });
+    }
+    if (topics.topic0 !== undefined) {
+      innerQb.andWhere("log.topics[1] = :topic0", { topic0: hexTransformer.to(topics.topic0) });
+    }
+    if (topics.topic1 !== undefined) {
+      innerQb.andWhere("log.topics[2] = :topic1", { topic1: hexTransformer.to(topics.topic1) });
+    }
+    if (topics.topic2 !== undefined) {
+      innerQb.andWhere("log.topics[3] = :topic2", { topic2: hexTransformer.to(topics.topic2) });
+    }
+    if (topics.topic3 !== undefined) {
+      innerQb.andWhere("log.topics[4] = :topic3", { topic3: hexTransformer.to(topics.topic3) });
+    }
+    innerQb.orderBy("log.blockNumber", order);
+    innerQb.addOrderBy("log.logIndex", order);
+    innerQb.offset((page - 1) * offset);
+    innerQb.limit(offset);
+
     const queryBuilder = this.logRepository.createQueryBuilder("log");
+    queryBuilder.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."log_number" = "log"."number"`);
+    queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoin("log.transaction", "transaction");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transaction.gasPrice", "transactionReceipt.gasUsed"]);
-
-    if (address !== undefined) {
-      queryBuilder.andWhere({ address });
-    }
-    if (fromBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: MoreThanOrEqual(fromBlock),
-      });
-    }
-    if (toBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: LessThanOrEqual(toBlock),
-      });
-    }
-    if (topics.topic0 !== undefined) {
-      queryBuilder.andWhere("log.topics[1] = :topic0", { topic0: hexTransformer.to(topics.topic0) });
-    }
-    if (topics.topic1 !== undefined) {
-      queryBuilder.andWhere("log.topics[2] = :topic1", { topic1: hexTransformer.to(topics.topic1) });
-    }
-    if (topics.topic2 !== undefined) {
-      queryBuilder.andWhere("log.topics[3] = :topic2", { topic2: hexTransformer.to(topics.topic2) });
-    }
-    if (topics.topic3 !== undefined) {
-      queryBuilder.andWhere("log.topics[4] = :topic3", { topic3: hexTransformer.to(topics.topic3) });
-    }
-
-    queryBuilder.offset((page - 1) * offset);
-    queryBuilder.limit(offset);
     queryBuilder.orderBy("log.blockNumber", order);
     queryBuilder.addOrderBy("log.logIndex", order);
     return await queryBuilder.getMany();

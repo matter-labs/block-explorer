@@ -359,6 +359,77 @@ describe("utils", () => {
         });
       });
     });
+
+    describe("when deferJoins is true", () => {
+      it("creates an outer query via clone and calls getMany on it instead of the original", async () => {
+        const outerQb = mock<SelectQueryBuilder<BaseEntity>>({
+          expressionMap: {
+            wheres: [{ type: "simple" }],
+            joinAttributes: [],
+            orderBys: { "alias.col": "DESC" },
+          } as any,
+          getMany: jest.fn().mockResolvedValue([]),
+        });
+        const innerClone = mock<SelectQueryBuilder<BaseEntity>>({
+          expressionMap: { joinAttributes: [] } as any,
+          getQuery: jest.fn().mockReturnValue("SELECT pk FROM ..."),
+          getParameters: jest.fn().mockReturnValue({ param1: "val1" }),
+        });
+
+        (queryBuilder.clone as jest.Mock)
+          .mockReturnValueOnce(innerClone) // inner subquery
+          .mockReturnValueOnce(outerQb); // outer query
+        (queryBuilder as any).alias = "entity";
+        (queryBuilder as any).expressionMap = {
+          ...queryBuilder.expressionMap,
+          mainAlias: {
+            metadata: {
+              primaryColumns: [{ databaseName: "number" }],
+            },
+          },
+          joinAttributes: [],
+          orderBys: { "entity.col": "DESC" },
+        };
+
+        await paginate(queryBuilder, { ...options, deferJoins: true }, async () => 50);
+
+        // inner clone should have select PK only and joins cleared
+        expect(innerClone.select).toHaveBeenCalledWith("entity.number");
+        // outer clone should have wheres cleared and innerJoin added
+        expect(outerQb.expressionMap.wheres).toEqual([]);
+        expect(outerQb.innerJoin).toHaveBeenCalledWith(
+          "(SELECT pk FROM ...)",
+          "_paginated",
+          `"_paginated"."entity_number" = "entity"."number"`
+        );
+        // getMany called on outer, not original
+        expect(outerQb.getMany).toHaveBeenCalledTimes(1);
+        expect(queryBuilder.getMany).not.toHaveBeenCalled();
+      });
+
+      it("skips deferred joins when canUseNumberFilterAsOffset kicks in", async () => {
+        const clonedForNumberFilter = {
+          limit: jest.fn().mockReturnThis(),
+          getOne: jest.fn().mockResolvedValue({ number: 5000 }),
+        };
+        (queryBuilder.clone as jest.Mock).mockReturnValueOnce(clonedForNumberFilter);
+
+        await paginate(
+          queryBuilder,
+          {
+            ...options,
+            page: 200,
+            deferJoins: true,
+            canUseNumberFilterAsOffset: true,
+          },
+          async () => 10000
+        );
+
+        // Should use number filter path, not deferred joins
+        expect(queryBuilder.andWhere).toHaveBeenCalled();
+        expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   describe("formatHexAddress", () => {

@@ -241,7 +241,7 @@ describe("TransactionService", () => {
       it("returns paginated result", async () => {
         const result = await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(utils.paginate).toBeCalledTimes(1);
-        expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions);
+        expect(utils.paginate).toBeCalledWith(queryBuilderMock, { ...pagingOptions, deferJoins: true });
         expect(result).toBe(paginationResult);
       });
     });
@@ -348,7 +348,10 @@ describe("TransactionService", () => {
       it("returns paginated result", async () => {
         const result = await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(utils.paginate).toBeCalledTimes(1);
-        expect(utils.paginate).toBeCalledWith(addressTransactionsQueryBuilderMock, pagingOptions);
+        expect(utils.paginate).toBeCalledWith(addressTransactionsQueryBuilderMock, {
+          ...pagingOptions,
+          deferJoins: true,
+        });
         expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
       });
     });
@@ -529,110 +532,99 @@ describe("TransactionService", () => {
   });
 
   describe("findByAddress", () => {
-    let addressTransactionsQueryBuilderMock;
+    let innerQueryBuilderMock;
+    let outerQueryBuilderMock;
 
     beforeEach(() => {
-      addressTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressTransaction>>({
+      innerQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressTransaction>>({
+        getQuery: jest.fn().mockReturnValue("inner query"),
+        getParameters: jest.fn().mockReturnValue({}),
+      });
+      outerQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressTransaction>>({
         getMany: jest.fn().mockResolvedValue([]),
       });
-      (addressTransactionRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(
-        addressTransactionsQueryBuilderMock
-      );
+      (addressTransactionRepositoryMock.createQueryBuilder as jest.Mock)
+        .mockReturnValueOnce(innerQueryBuilderMock)
+        .mockReturnValueOnce(outerQueryBuilderMock);
     });
 
-    it("creates query builder with proper params", async () => {
+    it("creates two query builders for inner and outer queries", async () => {
       await service.findByAddress("address");
-      expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
+      expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(2);
       expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransaction");
     });
 
-    it("selects address transactions number", async () => {
+    it("inner query selects only PK", async () => {
       await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.select).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.select).toHaveBeenCalledWith("addressTransaction.number");
+      expect(innerQueryBuilderMock.select).toHaveBeenCalledWith("addressTransaction.number");
     });
 
-    it("joins transaction records", async () => {
+    it("inner query filters by address", async () => {
       await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
+      expect(innerQueryBuilderMock.where).toHaveBeenCalledWith({ address: "address" });
+    });
+
+    it("inner query applies block filters", async () => {
+      await service.findByAddress("address", { startBlock: 100, endBlock: 200 });
+      expect(innerQueryBuilderMock.andWhere).toBeCalledWith({
+        blockNumber: typeorm.MoreThanOrEqual(100),
+      });
+      expect(innerQueryBuilderMock.andWhere).toBeCalledWith({
+        blockNumber: typeorm.LessThanOrEqual(200),
+      });
+    });
+
+    it("inner query sets offset and limit", async () => {
+      await service.findByAddress("address", { page: 10, offset: 100 });
+      expect(innerQueryBuilderMock.offset).toHaveBeenCalledWith(900);
+      expect(innerQueryBuilderMock.limit).toHaveBeenCalledWith(100);
+    });
+
+    it("inner query orders by blockNumber and transactionIndex", async () => {
+      await service.findByAddress("address", { sort: SortingOrder.Asc });
+      expect(innerQueryBuilderMock.orderBy).toHaveBeenCalledWith("addressTransaction.blockNumber", "ASC");
+      expect(innerQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("addressTransaction.transactionIndex", "ASC");
+    });
+
+    it("outer query joins via inner subquery", async () => {
+      await service.findByAddress("address");
+      expect(outerQueryBuilderMock.select).toHaveBeenCalledWith("addressTransaction.number");
+      expect(outerQueryBuilderMock.innerJoin).toHaveBeenCalledWith(
+        "(inner query)",
+        "_paginated",
+        `"_paginated"."addressTransaction_number" = "addressTransaction"."number"`
+      );
+      expect(outerQueryBuilderMock.setParameters).toHaveBeenCalledWith({});
+    });
+
+    it("outer query joins transaction details", async () => {
+      await service.findByAddress("address");
+      expect(outerQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
         "addressTransaction.transaction",
         "transaction"
       );
-    });
-
-    it("joins transactionReceipt records", async () => {
-      await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
+      expect(outerQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
         "transaction.transactionReceipt",
         "transactionReceipt"
       );
-      expect(addressTransactionsQueryBuilderMock.addSelect).toBeCalledWith([
+      expect(outerQueryBuilderMock.addSelect).toBeCalledWith([
         "transactionReceipt.gasUsed",
         "transactionReceipt.cumulativeGasUsed",
         "transactionReceipt.contractAddress",
       ]);
+      expect(outerQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
+      expect(outerQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
     });
 
-    it("joins block records", async () => {
-      await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
-    });
-
-    it("filters transactions by the specified address", async () => {
-      await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address: "address" });
-    });
-
-    it("filters transactions by the specified options when block filters are defined", async () => {
-      const filterOptions = {
-        startBlock: 100,
-        endBlock: 200,
-      };
-      await service.findByAddress("address", filterOptions);
-      expect(addressTransactionsQueryBuilderMock.andWhere).toBeCalledWith({
-        blockNumber: typeorm.MoreThanOrEqual(filterOptions.startBlock),
-      });
-      expect(addressTransactionsQueryBuilderMock.andWhere).toBeCalledWith({
-        blockNumber: typeorm.LessThanOrEqual(filterOptions.endBlock),
-      });
-    });
-
-    it("selects only needed block fields", async () => {
-      await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
-    });
-
-    it("orders transactions by blockNumber and transactionIndex", async () => {
-      await service.findByAddress("address", {
-        page: 10,
-        offset: 100,
-        sort: SortingOrder.Asc,
-      });
-      expect(addressTransactionsQueryBuilderMock.orderBy).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.orderBy).toHaveBeenCalledWith("addressTransaction.blockNumber", "ASC");
-      expect(addressTransactionsQueryBuilderMock.addOrderBy).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
-        "addressTransaction.transactionIndex",
-        "ASC"
-      );
-    });
-
-    it("sets offset and limit", async () => {
-      await service.findByAddress("address", {
-        page: 10,
-        offset: 100,
-      });
-      expect(addressTransactionsQueryBuilderMock.offset).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.offset).toHaveBeenCalledWith(900);
-      expect(addressTransactionsQueryBuilderMock.limit).toBeCalledTimes(1);
-      expect(addressTransactionsQueryBuilderMock.limit).toHaveBeenCalledWith(100);
+    it("outer query orders by blockNumber and transactionIndex", async () => {
+      await service.findByAddress("address", { sort: SortingOrder.Asc });
+      expect(outerQueryBuilderMock.orderBy).toHaveBeenCalledWith("addressTransaction.blockNumber", "ASC");
+      expect(outerQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("addressTransaction.transactionIndex", "ASC");
     });
 
     it("returns list of transactions", async () => {
       const result = await service.findByAddress("address");
-      expect(addressTransactionsQueryBuilderMock.getMany).toBeCalledTimes(1);
+      expect(outerQueryBuilderMock.getMany).toBeCalledTimes(1);
       expect(result).toEqual([]);
     });
   });

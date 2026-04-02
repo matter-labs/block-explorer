@@ -157,6 +157,11 @@ describe("LogService", () => {
         expect(visibleLogQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("visibleLog.logIndex", "ASC");
       });
 
+      it("calls paginate with deferJoins", async () => {
+        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
+        expect(utils.paginate).toHaveBeenCalledWith(visibleLogQueryBuilderMock, { ...pagingOptions, deferJoins: true });
+      });
+
       it("returns unwrapped log items", async () => {
         const log = mock<Log>();
         const paginationResult = mock<Pagination<VisibleLog, IPaginationMeta>>({
@@ -190,122 +195,120 @@ describe("LogService", () => {
 
   describe("findMany", () => {
     const someAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-    let queryBuilderMock;
+    let innerQueryBuilderMock;
+    let outerQueryBuilderMock;
 
     beforeEach(() => {
-      queryBuilderMock = mock<SelectQueryBuilder<Log>>();
-      repositoryMock.createQueryBuilder.mockReturnValue(queryBuilderMock);
+      innerQueryBuilderMock = mock<SelectQueryBuilder<Log>>({
+        getQuery: jest.fn().mockReturnValue("inner query"),
+        getParameters: jest.fn().mockReturnValue({}),
+      });
+      outerQueryBuilderMock = mock<SelectQueryBuilder<Log>>({
+        getMany: jest.fn().mockResolvedValue([]),
+      });
+      (repositoryMock.createQueryBuilder as jest.Mock)
+        .mockReturnValueOnce(innerQueryBuilderMock)
+        .mockReturnValueOnce(outerQueryBuilderMock);
     });
 
-    it("filters by address when address is defined", async () => {
-      await service.findMany({
-        address: someAddress,
-        topics: {},
-      });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ address: someAddress });
+    it("creates two query builders for inner and outer queries", async () => {
+      await service.findMany({ topics: {} });
+      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledTimes(2);
+      expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("log");
     });
 
-    it("does not filter by address when address is not defined", async () => {
-      await service.findMany({
-        topics: {},
-      });
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith({ address: expect.anything() });
+    it("inner query filters by address when address is defined", async () => {
+      await service.findMany({ address: someAddress, topics: {} });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith({ address: someAddress });
     });
 
-    it("filters by fromBlock when address is defined", async () => {
-      await service.findMany({
-        fromBlock: 10,
-        topics: {},
-      });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ blockNumber: MoreThanOrEqual(10) });
+    it("inner query does not filter by address when address is not defined", async () => {
+      await service.findMany({ topics: {} });
+      expect(innerQueryBuilderMock.andWhere).not.toHaveBeenCalledWith({ address: expect.anything() });
     });
 
-    it("filters by toBlock when address is defined", async () => {
-      await service.findMany({
-        toBlock: 10,
-        topics: {},
-      });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ blockNumber: LessThanOrEqual(10) });
+    it("inner query filters by fromBlock", async () => {
+      await service.findMany({ fromBlock: 10, topics: {} });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith({ blockNumber: MoreThanOrEqual(10) });
     });
 
-    it("does not restrict by block when no block conditions are sent", async () => {
-      await service.findMany({
-        topics: {},
-      });
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith({ blockNumber: expect.anything() });
+    it("inner query filters by toBlock", async () => {
+      await service.findMany({ toBlock: 10, topics: {} });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith({ blockNumber: LessThanOrEqual(10) });
+    });
+
+    it("inner query does not restrict by block when no block conditions are sent", async () => {
+      await service.findMany({ topics: {} });
+      expect(innerQueryBuilderMock.andWhere).not.toHaveBeenCalledWith({ blockNumber: expect.anything() });
     });
 
     function hexToBuf(hex: string): Buffer {
       return Buffer.from(hex.replace("0x", ""), "hex");
     }
 
-    it("filters by first topic when topic0 is defined", async () => {
+    it("inner query filters by first topic when topic0 is defined", async () => {
       const topic = "0xabab";
-      await service.findMany({
-        topics: {
-          topic0: topic,
-        },
-      });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[1] = :topic0", {
+      await service.findMany({ topics: { topic0: topic } });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[1] = :topic0", {
         topic0: hexToBuf(topic),
       });
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[2\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[4\]/, expect.anything());
     });
 
-    it("filters by second topic when topic1 is defined", async () => {
+    it("inner query filters by second topic when topic1 is defined", async () => {
       const topic = "0xabab";
-      await service.findMany({
-        topics: {
-          topic1: topic,
-        },
-      });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[2] = :topic1", {
+      await service.findMany({ topics: { topic1: topic } });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[2] = :topic1", {
         topic1: hexToBuf(topic),
       });
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[0\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[4\]/, expect.anything());
     });
 
-    it("filters by third topic when topic2 is defined", async () => {
+    it("inner query filters by third topic when topic2 is defined", async () => {
       const topic = "0xabab";
-      await service.findMany({
-        topics: {
-          topic2: topic,
-        },
-      });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[3] = :topic2", {
+      await service.findMany({ topics: { topic2: topic } });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[3] = :topic2", {
         topic2: hexToBuf(topic),
       });
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[0\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[1\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[4\]/, expect.anything());
     });
 
-    it("filters by fourth topic when topic3 is defined", async () => {
+    it("inner query filters by fourth topic when topic3 is defined", async () => {
       const topic = "0xabab";
-      await service.findMany({
-        topics: {
-          topic3: topic,
-        },
-      });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[4] = :topic3", {
+      await service.findMany({ topics: { topic3: topic } });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith("log.topics[4] = :topic3", {
         topic3: hexToBuf(topic),
       });
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[1\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[2\]/, expect.anything());
-      expect(queryBuilderMock.andWhere).not.toHaveBeenCalledWith(/log.topics\[3\]/, expect.anything());
     });
 
-    it("applies order when provided", async () => {
-      await service.findMany({
-        order: "ASC",
-        topics: {},
-      });
-      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.blockNumber", "ASC");
-      expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("log.logIndex", "ASC");
+    it("inner query sets offset and limit", async () => {
+      await service.findMany({ topics: {}, page: 3, offset: 20 });
+      expect(innerQueryBuilderMock.offset).toHaveBeenCalledWith(40);
+      expect(innerQueryBuilderMock.limit).toHaveBeenCalledWith(20);
+    });
+
+    it("outer query joins transaction and receipt", async () => {
+      await service.findMany({ topics: {} });
+      expect(outerQueryBuilderMock.leftJoin).toHaveBeenCalledWith("log.transaction", "transaction");
+      expect(outerQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
+        "transaction.transactionReceipt",
+        "transactionReceipt"
+      );
+      expect(outerQueryBuilderMock.addSelect).toHaveBeenCalledWith([
+        "transaction.gasPrice",
+        "transactionReceipt.gasUsed",
+      ]);
+    });
+
+    it("applies order to both inner and outer queries", async () => {
+      await service.findMany({ order: "ASC", topics: {} });
+      expect(innerQueryBuilderMock.orderBy).toHaveBeenCalledWith("log.blockNumber", "ASC");
+      expect(innerQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("log.logIndex", "ASC");
+      expect(outerQueryBuilderMock.orderBy).toHaveBeenCalledWith("log.blockNumber", "ASC");
+      expect(outerQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("log.logIndex", "ASC");
+    });
+
+    it("executes outer query and returns results", async () => {
+      const result = await service.findMany({ topics: {} });
+      expect(outerQueryBuilderMock.getMany).toBeCalledTimes(1);
+      expect(result).toEqual([]);
     });
   });
 });
