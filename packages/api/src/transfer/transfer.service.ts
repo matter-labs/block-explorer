@@ -108,9 +108,9 @@ export class TransferService {
     offset = 10,
     sort = SortingOrder.Desc,
   }: FilterTokenTransfersOptions = {}): Promise<Transfer[]> {
-    if (address) {
-      const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
+    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
+    if (address) {
       const innerQb = this.addressTransferRepository.createQueryBuilder("addressTransfer");
       innerQb.select("addressTransfer.number", "number");
       innerQb.where({ address });
@@ -163,7 +163,6 @@ export class TransferService {
     if (!tokenAddress) {
       throw new BadRequestException("Error! Missing address or contract address");
     }
-    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
     const innerQb = this.transferRepository.createQueryBuilder("transfer");
     innerQb.select("transfer.number", "number");
