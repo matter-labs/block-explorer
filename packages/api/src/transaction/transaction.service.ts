@@ -85,7 +85,7 @@ export class TransactionService {
           ...commonFilters,
         });
         this.addDefaultOrder(qb, "transaction");
-        return await paginate<Transaction>(qb, paginationOptions);
+        return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true });
       }
 
       // query transactions visible to the user for the address (including topics with user's address)
@@ -99,7 +99,9 @@ export class TransactionService {
         ...commonFilters,
       });
       this.addDefaultOrder(qb, "addressVisibleTransaction");
-      return this.unwrapTransactions(await paginate<AddressVisibleTransaction>(qb, paginationOptions));
+      return this.unwrapTransactions(
+        await paginate<AddressVisibleTransaction>(qb, { ...paginationOptions, deferJoins: true })
+      );
     }
 
     // Case 2: all transactions visible to a user - own transactions + transactions including topics with user's address (prividium)
@@ -119,7 +121,9 @@ export class TransactionService {
         ...commonFilters,
       });
       this.addDefaultOrder(qb, "visibleTransaction");
-      return this.unwrapTransactions(await paginate<VisibleTransaction>(qb, paginationOptions));
+      return this.unwrapTransactions(
+        await paginate<VisibleTransaction>(qb, { ...paginationOptions, deferJoins: true })
+      );
     }
 
     // Case 3: viewing transactions for an arbitrary address (non prividium) or own transactions (prividium)
@@ -132,7 +136,7 @@ export class TransactionService {
     this.addTransactionJoins(qb);
     qb.where(commonFilters);
     this.addDefaultOrder(qb, "transaction");
-    return await paginate<Transaction>(qb, paginationOptions);
+    return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true });
   }
 
   private async queryAddressTransactions(
@@ -150,7 +154,7 @@ export class TransactionService {
       ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
     });
     this.addDefaultOrder(qb, "addressTransaction");
-    return this.unwrapTransactions(await paginate<AddressTransaction>(qb, paginationOptions));
+    return this.unwrapTransactions(await paginate<AddressTransaction>(qb, { ...paginationOptions, deferJoins: true }));
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -181,8 +185,32 @@ export class TransactionService {
       sort = SortingOrder.Desc,
     }: FindByAddressFilterTransactionsOptions = {}
   ): Promise<AddressTransaction[]> {
+    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
+
+    // Inner query: paginate on the index-only table
+    const innerQb = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
+    innerQb.select("addressTransaction.number", "number");
+    innerQb.where({ address });
+    if (startBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
+    }
+    if (endBlock !== undefined) {
+      innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
+    }
+    innerQb.orderBy("addressTransaction.blockNumber", order);
+    innerQb.addOrderBy("addressTransaction.transactionIndex", order);
+    innerQb.offset((page - 1) * offset);
+    innerQb.limit(offset);
+
+    // Outer query: join transaction details only for the paginated rows
     const queryBuilder = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
     queryBuilder.select("addressTransaction.number");
+    queryBuilder.innerJoin(
+      `(${innerQb.getQuery()})`,
+      "_paginated",
+      `"_paginated"."number" = "addressTransaction"."number"`
+    );
+    queryBuilder.setParameters(innerQb.getParameters());
     queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect([
@@ -192,24 +220,9 @@ export class TransactionService {
     ]);
     queryBuilder.leftJoin("transaction.block", "block");
     queryBuilder.addSelect(["block.status"]);
-    queryBuilder.where({ address });
-    if (startBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: MoreThanOrEqual(startBlock),
-      });
-    }
-    if (endBlock !== undefined) {
-      queryBuilder.andWhere({
-        blockNumber: LessThanOrEqual(endBlock),
-      });
-    }
-    const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
     queryBuilder.orderBy("addressTransaction.blockNumber", order);
     queryBuilder.addOrderBy("addressTransaction.transactionIndex", order);
-    queryBuilder.offset((page - 1) * offset);
-    queryBuilder.limit(offset);
-    const addressTransactions = await queryBuilder.getMany();
-    return addressTransactions;
+    return await queryBuilder.getMany();
   }
 
   private getAccountNonceQueryBuilder(accountAddress: string, isVerified: boolean): SelectQueryBuilder<Transaction> {
