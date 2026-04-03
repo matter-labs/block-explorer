@@ -9,10 +9,15 @@ import { getAddress } from "ethers";
 
 const MIN_OFFSET_TO_USE_NUMBER_FILTER = 1000;
 
+// Uses TypeORM's internal expressionMap.orderBys — no public API alternative exists.
 export function copyOrderBy<S, T>(source: SelectQueryBuilder<S>, target: SelectQueryBuilder<T>, toAlias: string): void {
-  for (const [key, dir] of Object.entries(source.expressionMap.orderBys)) {
+  for (const [key, value] of Object.entries(source.expressionMap.orderBys)) {
     const column = key.split(".").pop();
-    target.addOrderBy(`${toAlias}.${column}`, dir as "ASC" | "DESC");
+    if (typeof value === "string") {
+      target.addOrderBy(`${toAlias}.${column}`, value);
+    } else {
+      target.addOrderBy(`${toAlias}.${column}`, value.order, value.nulls);
+    }
   }
 }
 

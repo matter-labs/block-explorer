@@ -154,7 +154,7 @@ export class TransactionService {
         outerQb.setParameters(pagedInnerQb.getParameters());
         this.addTransactionJoins(outerQb);
         copyOrderBy(pagedInnerQb, outerQb, "transaction");
-        return outerQb as unknown as SelectQueryBuilder<Transaction>;
+        return outerQb;
       },
     });
   }

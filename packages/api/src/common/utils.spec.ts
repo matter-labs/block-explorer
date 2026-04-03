@@ -87,6 +87,18 @@ describe("utils", () => {
 
       expect(target.addOrderBy).not.toHaveBeenCalled();
     });
+
+    it("preserves NULLS FIRST / NULLS LAST when value is an object", () => {
+      const source = mock<SelectQueryBuilder<BaseEntity>>();
+      const target = mock<SelectQueryBuilder<BaseEntity>>();
+      (source as any).expressionMap = {
+        orderBys: { "token.liquidity": { order: "DESC", nulls: "NULLS LAST" } },
+      };
+
+      copyOrderBy(source, target, "transfer");
+
+      expect(target.addOrderBy).toHaveBeenCalledWith("transfer.liquidity", "DESC", "NULLS LAST");
+    });
   });
 
   describe("paginate", () => {
