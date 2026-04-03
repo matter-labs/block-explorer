@@ -174,8 +174,8 @@ describe("BlockService", () => {
     let queryBuilderMock: SelectQueryBuilder<Block>;
 
     beforeEach(() => {
-      (utils.paginate as jest.Mock).mockImplementation(async (_, __, getCount) => {
-        const count = await getCount();
+      (utils.paginate as jest.Mock).mockImplementation(async ({ countQuery }) => {
+        const count = await countQuery();
         return mock<Pagination<Block, IPaginationMeta>>({
           meta: {
             totalItems: count,
@@ -243,7 +243,11 @@ describe("BlockService", () => {
 
       const result = await service.findAll(filterOptions, pagingOptions);
       expect(utils.paginate).toBeCalledTimes(1);
-      expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions, expect.any(Function));
+      expect(utils.paginate).toBeCalledWith({
+        queryBuilder: queryBuilderMock,
+        options: pagingOptions,
+        countQuery: expect.any(Function),
+      });
       expect(result).toBe(paginationResult);
     });
   });

@@ -54,6 +54,6 @@ export class TokenService {
     queryBuilder.orderBy("token.liquidity", "DESC", "NULLS LAST");
     queryBuilder.addOrderBy("token.blockNumber", "DESC");
     queryBuilder.addOrderBy("token.logIndex", "DESC");
-    return await paginate<Token>(queryBuilder, paginationOptions);
+    return await paginate<Token>({ queryBuilder, options: paginationOptions });
   }
 }

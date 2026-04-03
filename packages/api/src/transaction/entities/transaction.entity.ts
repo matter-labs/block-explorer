@@ -1,14 +1,10 @@
-import { Entity, Column, PrimaryColumn, Index, OneToMany, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn } from "typeorm";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 import { hexToDecimalNumberTransformer } from "../../common/transformers/hexToDecimalNumber.transformer";
 import { TransactionReceipt } from "./transactionReceipt.entity";
-import { Transfer } from "../../transfer/transfer.entity";
-import { AddressTransaction } from "./addressTransaction.entity";
-import { VisibleTransaction } from "./visibleTransaction.entity";
-import { AddressVisibleTransaction } from "./addressVisibleTransaction.entity";
 import { Block, BlockStatus } from "../../block/block.entity";
 
 export enum TransactionStatus {
@@ -98,18 +94,6 @@ export class Transaction extends BaseEntity {
   @Column({ type: "timestamp" })
   public readonly receivedAt: Date;
 
-  @OneToMany(() => Transfer, (transfer) => transfer.transaction)
-  public readonly transfers?: Transfer[];
-
-  @OneToMany(() => AddressTransaction, (at) => at.transaction)
-  public readonly addressTransactions?: AddressTransaction[];
-
-  @OneToMany(() => VisibleTransaction, (vt) => vt.transaction)
-  public readonly visibleTransactions?: VisibleTransaction[];
-
-  @OneToMany(() => AddressVisibleTransaction, (avt) => avt.transaction)
-  public readonly addressVisibleTransactions?: AddressVisibleTransaction[];
-
   @Column({ nullable: true })
   public readonly error?: string;
 
@@ -144,18 +128,7 @@ export class Transaction extends BaseEntity {
 
   toJSON(): any {
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    const {
-      number,
-      receiptStatus,
-      transactionReceipt,
-      block,
-      fromToMin,
-      fromToMax,
-      addressTransactions,
-      visibleTransactions,
-      addressVisibleTransactions,
-      ...restFields
-    } = this;
+    const { number, receiptStatus, transactionReceipt, block, fromToMin, fromToMax, ...restFields } = this;
     /* eslint-enable @typescript-eslint/no-unused-vars */
     return {
       ...restFields,

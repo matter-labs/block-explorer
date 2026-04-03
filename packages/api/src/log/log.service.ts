@@ -1,11 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import { Repository, MoreThanOrEqual, LessThanOrEqual, SelectQueryBuilder } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
-import { paginate, applyFilterAlias } from "../common/utils";
+import { paginate, copyOrderBy } from "../common/utils";
 import { Log } from "./log.entity";
+import { VisibleLog } from "./visibleLog.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 
 export interface FilterLogsOptions {
@@ -34,6 +35,8 @@ export class LogService {
   constructor(
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>,
+    @InjectRepository(VisibleLog)
+    private readonly visibleLogRepository: Repository<VisibleLog>,
     private readonly configService: ConfigService
   ) {}
 
@@ -45,24 +48,31 @@ export class LogService {
     const { visibleBy, ...basicFilters } = filterOptions;
 
     if (visibleBy && !disableTxVisibilityByTopics) {
-      const qb = this.logRepository.createQueryBuilder("log");
-      qb.innerJoin("log.visibleLogs", "visibleLog");
-      qb.where(applyFilterAlias("visibleLog", { visibleBy, ...basicFilters }));
-      qb.orderBy("visibleLog.timestamp", "DESC");
-      qb.addOrderBy("visibleLog.logIndex", "ASC");
-      return await paginate<Log>(qb, { ...paginationOptions, deferJoins: true, paginateBy: "visibleLog" });
+      const innerQb = this.visibleLogRepository.createQueryBuilder("vl");
+      innerQb.select("vl.logNumber", "logNumber");
+      innerQb.where({ visibleBy, ...basicFilters });
+      innerQb.orderBy("vl.timestamp", "DESC");
+      innerQb.addOrderBy("vl.logIndex", "ASC");
+
+      return paginate<Log>({
+        queryBuilder: innerQb as unknown as SelectQueryBuilder<Log>,
+        options: paginationOptions,
+        wrapQuery: async (pagedInnerQb) => {
+          const outerQb = this.logRepository.createQueryBuilder("log");
+          outerQb.innerJoin(`(${pagedInnerQb.getQuery()})`, "_paginated", `"_paginated"."logNumber" = "log"."number"`);
+          outerQb.setParameters(pagedInnerQb.getParameters());
+          copyOrderBy(pagedInnerQb, outerQb, "log");
+          return outerQb;
+        },
+      });
     }
 
-    const queryBuilder = this.logRepository.createQueryBuilder("log");
-    queryBuilder.where(basicFilters);
+    const qb = this.logRepository.createQueryBuilder("log");
+    qb.where({ ...basicFilters, ...(visibleBy && { transactionFrom: visibleBy }) });
 
-    if (visibleBy) {
-      queryBuilder.andWhere({ transactionFrom: visibleBy });
-    }
-
-    queryBuilder.orderBy("log.timestamp", "DESC");
-    queryBuilder.addOrderBy("log.logIndex", "ASC");
-    return await paginate<Log>(queryBuilder, paginationOptions);
+    qb.orderBy("log.timestamp", "DESC");
+    qb.addOrderBy("log.logIndex", "ASC");
+    return paginate<Log>({ queryBuilder: qb, options: paginationOptions });
   }
 
   public async findMany({

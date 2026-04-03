@@ -1,6 +1,5 @@
-import { Entity, Column, Index, OneToMany, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm";
+import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { VisibleLog } from "./visibleLog.entity";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
@@ -12,9 +11,6 @@ import { Transaction } from "../transaction/entities/transaction.entity";
 export class Log extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint", select: false })
   public number: number;
-
-  @OneToMany(() => VisibleLog, (vl) => vl.log)
-  public readonly visibleLogs?: VisibleLog[];
 
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly address: string;
@@ -52,8 +48,7 @@ export class Log extends BaseEntity {
 
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, transactionFrom, transactionTo, visibleLogs, ...restFields } = this;
+    const { number, transactionFrom, transactionTo, ...restFields } = this;
     return restFields;
   }
 }

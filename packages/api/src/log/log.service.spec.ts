@@ -7,6 +7,7 @@ import * as utils from "../common/utils";
 import { ConfigService } from "@nestjs/config";
 import { LogService, FilterLogsOptions } from "./log.service";
 import { Log } from "./log.entity";
+import { VisibleLog } from "./visibleLog.entity";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -16,6 +17,7 @@ jest.mock("../common/utils", () => ({
 describe("LogService", () => {
   let service: LogService;
   let repositoryMock: MockProxy<Repository<Log>>;
+  let visibleLogRepositoryMock: MockProxy<Repository<VisibleLog>>;
   let configServiceMock: ConfigService;
 
   const pagingOptions = {
@@ -28,6 +30,7 @@ describe("LogService", () => {
       get: jest.fn().mockReturnValue(false),
     });
     repositoryMock = mock<Repository<Log>>();
+    visibleLogRepositoryMock = mock<Repository<VisibleLog>>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -35,6 +38,10 @@ describe("LogService", () => {
         {
           provide: getRepositoryToken(Log),
           useValue: repositoryMock,
+        },
+        {
+          provide: getRepositoryToken(VisibleLog),
+          useValue: visibleLogRepositoryMock,
         },
         {
           provide: ConfigService,
@@ -108,49 +115,85 @@ describe("LogService", () => {
       (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
       const result = await service.findAll(filterOptions, pagingOptions);
       expect(utils.paginate).toBeCalledTimes(1);
-      expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions);
+      expect(utils.paginate).toBeCalledWith({
+        queryBuilder: queryBuilderMock,
+        options: pagingOptions,
+      });
       expect(result).toBe(paginationResult);
     });
 
     describe("when visibleBy is defined and disableTxVisibilityByTopics is false", () => {
       const address1 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
       const address2 = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+      let visibleLogQbMock;
 
       beforeEach(() => {
+        visibleLogQbMock = mock<SelectQueryBuilder<VisibleLog>>();
+        (visibleLogRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(visibleLogQbMock);
         (utils.paginate as jest.Mock).mockResolvedValue({ items: [] });
       });
 
-      it("creates query builder on logRepository", async () => {
+      it("creates query builder on visibleLogRepository", async () => {
         await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
+        expect(visibleLogRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("vl");
+      });
+
+      it("selects logNumber from visible log", async () => {
+        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
+        expect(visibleLogQbMock.select).toHaveBeenCalledWith("vl.logNumber", "logNumber");
+      });
+
+      it("filters with visibleBy and address", async () => {
+        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
+        expect(visibleLogQbMock.where).toHaveBeenCalledWith({
+          visibleBy: address2,
+          address: address1,
+        });
+      });
+
+      it("orders by vl.timestamp DESC and vl.logIndex ASC", async () => {
+        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
+        expect(visibleLogQbMock.orderBy).toHaveBeenCalledWith("vl.timestamp", "DESC");
+        expect(visibleLogQbMock.addOrderBy).toHaveBeenCalledWith("vl.logIndex", "ASC");
+      });
+
+      it("calls paginate with wrapQuery", async () => {
+        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
+        expect(utils.paginate).toHaveBeenCalledWith({
+          queryBuilder: visibleLogQbMock,
+          options: pagingOptions,
+          wrapQuery: expect.any(Function),
+        });
+      });
+
+      it("wrapQuery builds outer query with inner join on log number", async () => {
+        let outerLogQbMock;
+        (utils.paginate as jest.Mock).mockImplementation(async ({ wrapQuery }) => {
+          const pagedInnerQbMock = mock<SelectQueryBuilder<VisibleLog>>({
+            getQuery: jest.fn().mockReturnValue("inner SQL"),
+            getParameters: jest.fn().mockReturnValue({ param1: "value1" }),
+          });
+          Object.defineProperty(pagedInnerQbMock, "expressionMap", {
+            value: { orderBys: { "vl.timestamp": "DESC" } },
+          });
+
+          outerLogQbMock = mock<SelectQueryBuilder<Log>>();
+          (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(outerLogQbMock);
+
+          await wrapQuery(pagedInnerQbMock);
+          return { items: [] };
+        });
+
+        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
+
         expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("log");
-      });
-
-      it("inner joins visibleLogs", async () => {
-        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
-        expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith("log.visibleLogs", "visibleLog");
-      });
-
-      it("filters with aliased visibleBy and address", async () => {
-        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
-        expect(queryBuilderMock.where).toHaveBeenCalledWith({
-          "visibleLog.visibleBy": address2,
-          "visibleLog.address": address1,
-        });
-      });
-
-      it("orders by visibleLog.timestamp DESC and visibleLog.logIndex ASC", async () => {
-        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
-        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("visibleLog.timestamp", "DESC");
-        expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("visibleLog.logIndex", "ASC");
-      });
-
-      it("calls paginate with deferJoins and paginateBy", async () => {
-        await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
-        expect(utils.paginate).toHaveBeenCalledWith(queryBuilderMock, {
-          ...pagingOptions,
-          deferJoins: true,
-          paginateBy: "visibleLog",
-        });
+        expect(outerLogQbMock.innerJoin).toHaveBeenCalledWith(
+          "(inner SQL)",
+          "_paginated",
+          `"_paginated"."logNumber" = "log"."number"`
+        );
+        expect(outerLogQbMock.setParameters).toHaveBeenCalledWith({ param1: "value1" });
+        expect(outerLogQbMock.addOrderBy).toHaveBeenCalledWith("log.timestamp", "DESC");
       });
 
       it("returns paginated result", async () => {
@@ -173,9 +216,9 @@ describe("LogService", () => {
         expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("log");
       });
 
-      it("filters by transactionFrom instead of topic-based visibility", async () => {
+      it("filters by transactionFrom in where", async () => {
         await service.findAll({ visibleBy }, pagingOptions);
-        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ transactionFrom: visibleBy });
+        expect(queryBuilderMock.where).toHaveBeenCalledWith({ transactionFrom: visibleBy });
       });
     });
   });

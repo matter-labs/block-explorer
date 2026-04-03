@@ -7,7 +7,7 @@ import { BlockDetails } from "../../block/blockDetails.entity";
 import { TransactionService } from "../../transaction/transaction.service";
 import { BalanceService } from "../../balance/balance.service";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { AddressTransaction } from "../../transaction/entities/addressTransaction.entity";
+import { Transaction } from "../../transaction/entities/transaction.entity";
 import { TokenType } from "../../token/token.entity";
 import { Transfer } from "../../transfer/transfer.entity";
 import { TransferService } from "../../transfer/transfer.service";
@@ -23,31 +23,29 @@ describe("AccountController", () => {
   let balanceServiceMock: BalanceService;
 
   const address = "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C";
-  const addressTransaction = {
-    transaction: {
-      blockNumber: 20,
-      receivedAt: new Date("2023-01-01"),
-      hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
-      nonce: 1,
-      blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-      transactionIndex: 10,
-      from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-      to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
-      value: "1000000",
-      gasLimit: "1100000",
-      gasPrice: "100",
-      status: TransactionStatus.Failed,
-      receiptStatus: 1,
-      data: "0x",
-      fee: "0x0",
-      isL1Originated: true,
-      transactionReceipt: {
-        contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
-        cumulativeGasUsed: "1200000",
-        gasUsed: "900000",
-      },
-      type: 255,
+  const transaction = {
+    blockNumber: 20,
+    receivedAt: new Date("2023-01-01"),
+    hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
+    nonce: 1,
+    blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
+    transactionIndex: 10,
+    from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
+    value: "1000000",
+    gasLimit: "1100000",
+    gasPrice: "100",
+    status: TransactionStatus.Failed,
+    receiptStatus: 1,
+    data: "0x",
+    fee: "0x0",
+    isL1Originated: true,
+    transactionReceipt: {
+      contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+      cumulativeGasUsed: "1200000",
+      gasUsed: "900000",
     },
+    type: 255,
   };
 
   const ecr20Transfer = {
@@ -214,7 +212,7 @@ describe("AccountController", () => {
     });
 
     it("returns transactions list when transactions are found by address", async () => {
-      jest.spyOn(transactionServiceMock, "findByAddress").mockResolvedValue([addressTransaction as AddressTransaction]);
+      jest.spyOn(transactionServiceMock, "findByAddress").mockResolvedValue([transaction as Transaction]);
 
       const response = await controller.getAccountTransactions(
         address,

@@ -5,6 +5,7 @@ import { hexTransformer } from "./transformers/hex.transformer";
 import { BaseEntity } from "./entities/base.entity";
 import {
   buildDateFilter,
+  copyOrderBy,
   paginate,
   formatHexAddress,
   getMethodId,
@@ -55,482 +56,226 @@ describe("utils", () => {
     });
   });
 
+  describe("copyOrderBy", () => {
+    it("remaps aliased order by keys to the target alias", () => {
+      const source = mock<SelectQueryBuilder<BaseEntity>>();
+      const target = mock<SelectQueryBuilder<BaseEntity>>();
+      (source as any).expressionMap = { orderBys: { "at.receivedAt": "DESC", "at.transactionIndex": "DESC" } };
+
+      copyOrderBy(source, target, "transaction");
+
+      expect(target.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
+      expect(target.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
+    });
+
+    it("handles keys without alias prefix", () => {
+      const source = mock<SelectQueryBuilder<BaseEntity>>();
+      const target = mock<SelectQueryBuilder<BaseEntity>>();
+      (source as any).expressionMap = { orderBys: { blockNumber: "ASC" } };
+
+      copyOrderBy(source, target, "transfer");
+
+      expect(target.addOrderBy).toHaveBeenCalledWith("transfer.blockNumber", "ASC");
+    });
+
+    it("does nothing when orderBys is empty", () => {
+      const source = mock<SelectQueryBuilder<BaseEntity>>();
+      const target = mock<SelectQueryBuilder<BaseEntity>>();
+      (source as any).expressionMap = { orderBys: {} };
+
+      copyOrderBy(source, target, "log");
+
+      expect(target.addOrderBy).not.toHaveBeenCalled();
+    });
+  });
+
   describe("paginate", () => {
-    const totalCount = 100;
     let queryBuilder: SelectQueryBuilder<BaseEntity>;
-    let countSubQueryBuilder: SelectQueryBuilder<BaseEntity>;
-    let countMainQueryBuilder: SelectQueryBuilder<BaseEntity>;
+    let clonedQb: SelectQueryBuilder<BaseEntity>;
+    let countMainQb: SelectQueryBuilder<BaseEntity>;
     let options: IPaginationOptions;
 
     beforeEach(() => {
-      countMainQueryBuilder = mock<SelectQueryBuilder<BaseEntity>>();
-      countSubQueryBuilder = mock<SelectQueryBuilder<BaseEntity>>({
-        expressionMap: { joinAttributes: [] } as any,
-      });
+      clonedQb = mock<SelectQueryBuilder<BaseEntity>>();
+      countMainQb = mock<SelectQueryBuilder<BaseEntity>>();
+
       queryBuilder = mock<SelectQueryBuilder<BaseEntity>>({
         connection: {
-          createQueryBuilder: jest.fn().mockReturnValue(countMainQueryBuilder),
+          createQueryBuilder: jest.fn().mockReturnValue(countMainQb),
         },
-        andWhere: jest.fn().mockReturnThis(),
-        offset: jest.fn().mockReturnThis(),
       });
+      (queryBuilder.clone as jest.Mock).mockReturnValue(clonedQb);
+      (clonedQb.clone as jest.Mock).mockReturnValue(clonedQb);
 
-      options = {
-        page: 1,
-        limit: 10,
-        filterOptions: {},
-      };
+      (clonedQb.getMany as jest.Mock).mockResolvedValue([]);
+      (countMainQb.getRawOne as jest.Mock).mockResolvedValue({ value: "50" });
 
-      (queryBuilder.clone as jest.Mock).mockReturnValue(countSubQueryBuilder);
-      (countMainQueryBuilder.getRawOne as jest.Mock).mockReturnValue({ value: totalCount.toString() });
+      options = { page: 1, limit: 10, route: "/entities" };
+
+      (paginator.createPaginationObject as jest.Mock).mockReturnValue({
+        items: [],
+        meta: {},
+        links: {},
+      });
     });
 
     afterEach(() => {
       jest.resetAllMocks();
     });
 
-    it("sets items query limit to the limit specified in the options", async () => {
-      await paginate(queryBuilder, options);
-      expect(queryBuilder.limit).toHaveBeenCalledWith(10);
+    it("clones the QB for both count and pagination", async () => {
+      await paginate({ queryBuilder, options });
+      expect(queryBuilder.clone).toHaveBeenCalled();
     });
 
-    it("sets items query the offset based on the specified options", async () => {
-      options.page = 3;
-      await paginate(queryBuilder, options);
-      expect(queryBuilder.offset).toHaveBeenCalledWith(20);
+    it("strips joins from count subquery", async () => {
+      (clonedQb as any).expressionMap = { joinAttributes: [{ alias: "someJoin" }] };
+      await paginate({ queryBuilder, options });
+      expect(clonedQb.expressionMap.joinAttributes).toEqual([]);
     });
 
-    it("sets count sub query select setting to true", async () => {
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.select).toHaveBeenCalledWith("true");
+    it("applies limit and offset to paginated clone", async () => {
+      await paginate({ queryBuilder, options: { ...options, page: 3 } });
+      expect(clonedQb.limit).toHaveBeenCalledWith(10);
+      expect(clonedQb.offset).toHaveBeenCalledWith(20);
     });
 
-    it("clears count sub query join attributes", async () => {
-      countSubQueryBuilder.expressionMap.joinAttributes.push({} as any);
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.expressionMap.joinAttributes).toHaveLength(0);
+    it("executes getMany on paginated clone when no wrapQuery is provided", async () => {
+      await paginate({ queryBuilder, options });
+      expect(clonedQb.getMany).toHaveBeenCalledTimes(1);
     });
 
-    it("does not clear join attributes when expressionMap is nullish", async () => {
-      (countSubQueryBuilder as any).expressionMap = null;
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.expressionMap).toBeNull();
+    it("uses number filter instead of offset when canUseNumberFilterAsOffset is set and offset >= 1000", async () => {
+      const topItemClone = mock<SelectQueryBuilder<BaseEntity>>();
+      (topItemClone.limit as jest.Mock).mockReturnThis();
+      (topItemClone.getOne as jest.Mock).mockResolvedValue({ number: 5000 });
+
+      (clonedQb.clone as jest.Mock).mockReturnValue(topItemClone);
+      (clonedQb.andWhere as jest.Mock).mockReturnThis();
+
+      await paginate({
+        queryBuilder,
+        options: { ...options, page: 101, canUseNumberFilterAsOffset: true },
+        countQuery: async () => 10000,
+      });
+
+      expect(clonedQb.andWhere).toHaveBeenCalledWith({
+        number: LessThanOrEqual(4000),
+      });
+      expect(clonedQb.offset).toHaveBeenCalledWith(0);
     });
 
-    it("resets count sub query skip setting", async () => {
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.skip).toHaveBeenCalledWith(undefined);
+    it("uses -1 as topItemNumber when no items exist for canUseNumberFilterAsOffset", async () => {
+      const topItemClone = mock<SelectQueryBuilder<BaseEntity>>();
+      (topItemClone.limit as jest.Mock).mockReturnThis();
+      (topItemClone.getOne as jest.Mock).mockResolvedValue(null);
+
+      (clonedQb.clone as jest.Mock).mockReturnValue(topItemClone);
+      (clonedQb.andWhere as jest.Mock).mockReturnThis();
+
+      await paginate({
+        queryBuilder,
+        options: { ...options, page: 101, canUseNumberFilterAsOffset: true },
+        countQuery: async () => 10000,
+      });
+
+      expect(clonedQb.andWhere).toHaveBeenCalledWith({
+        number: LessThanOrEqual(-1001),
+      });
     });
 
-    it("resets count sub query limit setting if there is not maxLimit specified", async () => {
-      delete options.maxLimit;
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.limit).toHaveBeenCalledWith(undefined);
+    it("skips clearing joins when expressionMap is nullish", async () => {
+      (clonedQb as any).expressionMap = null;
+      await paginate({ queryBuilder, options });
+      expect(clonedQb.getMany).toHaveBeenCalledTimes(1);
     });
 
-    it("sets count sub query limit setting if maxLimit is specified", async () => {
-      options.maxLimit = 40;
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.limit).toHaveBeenCalledWith(40);
+    it("calls wrapQuery with paginated QB and executes getMany on the returned QB", async () => {
+      const outerQb = mock<SelectQueryBuilder<BaseEntity>>();
+      (outerQb.getMany as jest.Mock).mockResolvedValue([{ id: 1 }]);
+      const wrapQuery = jest.fn().mockResolvedValue(outerQb);
+
+      await paginate({ queryBuilder, options, wrapQuery });
+
+      expect(wrapQuery).toHaveBeenCalledWith(clonedQb);
+      expect(outerQb.getMany).toHaveBeenCalledTimes(1);
     });
 
-    it("resets count sub query offset setting", async () => {
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.offset).toHaveBeenCalledWith(undefined);
+    it("uses custom countQuery instead of building one", async () => {
+      const customCount = jest.fn().mockResolvedValue(999);
+
+      await paginate({ queryBuilder, options, countQuery: customCount });
+
+      expect(customCount).toHaveBeenCalledTimes(1);
+      expect(paginator.createPaginationObject).toHaveBeenCalledWith(expect.objectContaining({ totalItems: 999 }));
     });
 
-    it("resets count sub query take setting", async () => {
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.take).toHaveBeenCalledWith(undefined);
-    });
+    it("creates pagination object with correct parameters", async () => {
+      const items = [{ id: 1 }, { id: 2 }] as any;
+      (clonedQb.getMany as jest.Mock).mockResolvedValue(items);
+      (countMainQb.getRawOne as jest.Mock).mockResolvedValue({ value: "100" });
 
-    it("resets count sub query orderBy setting", async () => {
-      await paginate(queryBuilder, options);
-      expect(countSubQueryBuilder.orderBy).toHaveBeenCalledWith(undefined);
-    });
+      await paginate({ queryBuilder, options });
 
-    it("sets count main query select statement", async () => {
-      await paginate(queryBuilder, options);
-      expect(countMainQueryBuilder.select).toHaveBeenCalledWith("COUNT(*)", "value");
-    });
-
-    it("injects count sub query to the count main query", async () => {
-      const subQuerySql = "subQuerySql";
-      (countSubQueryBuilder.getQuery as jest.Mock).mockReturnValue(subQuerySql);
-      await paginate(queryBuilder, options);
-      expect(countMainQueryBuilder.from).toHaveBeenCalledWith(`(${subQuerySql})`, "uniqueTableAlias");
-    });
-
-    it("sets count main query parameters", async () => {
-      const parameters = ["value1", "value2"];
-      (queryBuilder.getParameters as jest.Mock).mockReturnValue(parameters);
-      await paginate(queryBuilder, options);
-      expect(countMainQueryBuilder.setParameters).toHaveBeenCalledWith(parameters);
-    });
-
-    it("queries items count", async () => {
-      await paginate(queryBuilder, options);
-      expect(countMainQueryBuilder.getRawOne).toHaveBeenCalledWith();
-    });
-
-    it("creates pagination object and returns paginated result", async () => {
-      const items = [{ id: 1 }, { id: 2 }];
-      options.route = "/entityName";
-
-      const paginatedResultMock = mock<paginator.Pagination<BaseEntity>>();
-
-      (paginator.createPaginationObject as jest.Mock).mockResolvedValue(paginatedResultMock);
-      (queryBuilder.getMany as jest.Mock).mockResolvedValue(items);
-
-      const result = await paginate(queryBuilder, options);
-      expect(paginator.createPaginationObject).toBeCalledWith({
+      expect(paginator.createPaginationObject).toHaveBeenCalledWith({
         items,
-        totalItems: totalCount,
-        currentPage: options.page,
-        limit: options.limit,
-        route: options.route,
+        totalItems: 100,
+        currentPage: 1,
+        limit: 10,
+        route: "/entities",
       });
-      expect(result).toBe(paginatedResultMock);
     });
 
-    it("updates pagination meta links", async () => {
-      const paginatedResultMock = {
+    it("appends filter options to pagination links", async () => {
+      const paginatedResult = {
         links: {
-          first: "?page=1&limit=2",
-          last: "?page=2&limit=2",
+          first: "?page=1&limit=10",
+          last: "?page=2&limit=10",
           previous: "",
         },
       };
-      (paginator.createPaginationObject as jest.Mock).mockResolvedValue(paginatedResultMock);
+      (paginator.createPaginationObject as jest.Mock).mockReturnValue(paginatedResult);
 
-      options.filterOptions = {
-        fromDate: "fromDate",
-        toDate: null,
-      };
+      const result = await paginate({
+        queryBuilder,
+        options: { ...options, filterOptions: { fromDate: "2022-01-01", toDate: null } },
+      });
 
-      const result = await paginate(queryBuilder, options);
       expect(result.links).toEqual({
-        first: "?page=1&limit=2&fromDate=fromDate",
-        last: "?page=2&limit=2&fromDate=fromDate",
+        first: "?page=1&limit=10&fromDate=2022-01-01",
+        last: "?page=2&limit=10&fromDate=2022-01-01",
         previous: "",
       });
     });
 
-    it("does not edit pagination meta links if no filter options specified", async () => {
-      const paginatedResultMock = {
+    it("returns result as-is when links is not present", async () => {
+      const paginatedResult = { items: [], meta: {} };
+      (paginator.createPaginationObject as jest.Mock).mockReturnValue(paginatedResult);
+
+      const result = await paginate({
+        queryBuilder,
+        options: { ...options, filterOptions: { fromDate: "2022-01-01" } },
+      });
+
+      expect(result).toBe(paginatedResult);
+    });
+
+    it("does not modify links when no filterOptions are provided", async () => {
+      const paginatedResult = {
         links: {
-          first: "?page=1&limit=2",
-          last: "?page=2&limit=2",
+          first: "?page=1&limit=10",
+          last: "?page=1&limit=10",
           previous: "",
         },
       };
-      (paginator.createPaginationObject as jest.Mock).mockResolvedValue(paginatedResultMock);
-      delete options.filterOptions;
+      (paginator.createPaginationObject as jest.Mock).mockReturnValue(paginatedResult);
 
-      const result = await paginate(queryBuilder, options);
+      const result = await paginate({ queryBuilder, options });
+
       expect(result.links).toEqual({
-        first: "?page=1&limit=2",
-        last: "?page=2&limit=2",
+        first: "?page=1&limit=10",
+        last: "?page=1&limit=10",
         previous: "",
-      });
-    });
-
-    describe("when custom count query is specified", () => {
-      it("creates pagination object and returns paginated result with count from custom query", async () => {
-        const items = [{ id: 1 }, { id: 2 }];
-        options.route = "/entityName";
-
-        const paginatedResultMock = mock<paginator.Pagination<BaseEntity>>();
-
-        (paginator.createPaginationObject as jest.Mock).mockResolvedValue(paginatedResultMock);
-        (queryBuilder.getMany as jest.Mock).mockResolvedValue(items);
-
-        const totalCount = 70;
-        const result = await paginate(queryBuilder, options, async () => totalCount);
-        expect(paginator.createPaginationObject).toBeCalledWith({
-          items,
-          totalItems: totalCount,
-          currentPage: options.page,
-          limit: options.limit,
-          route: options.route,
-        });
-        expect(result).toBe(paginatedResultMock);
-      });
-    });
-
-    describe("when options.canUseNumberFilterAsOffset is set to true", () => {
-      describe("and offset is greater than 1000", () => {
-        it("uses filter by number instead of offset", async () => {
-          const clonedQueryBuilder = {
-            limit: jest.fn().mockReturnThis(),
-            getOne: jest.fn().mockResolvedValue({ number: 3000 }),
-          };
-          (queryBuilder.clone as jest.Mock).mockReturnValueOnce(clonedQueryBuilder);
-
-          await paginate(
-            queryBuilder,
-            {
-              ...options,
-              page: 101,
-              canUseNumberFilterAsOffset: true,
-            },
-            async () => 10000
-          );
-
-          expect(clonedQueryBuilder.limit).toBeCalledWith(1);
-          expect(clonedQueryBuilder.getOne).toBeCalledTimes(1);
-          expect(queryBuilder.andWhere).toBeCalledWith({
-            number: LessThanOrEqual(2000),
-          });
-          expect(queryBuilder.offset).toBeCalledWith(0);
-          expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
-        });
-
-        it("sets negative number filter when there are no items for a given page", async () => {
-          const clonedQueryBuilder = {
-            limit: jest.fn().mockReturnThis(),
-            getOne: jest.fn().mockResolvedValue({ number: 3000 }),
-          };
-          (queryBuilder.clone as jest.Mock).mockReturnValueOnce(clonedQueryBuilder);
-
-          await paginate(
-            queryBuilder,
-            {
-              ...options,
-              page: 401,
-              canUseNumberFilterAsOffset: true,
-            },
-            async () => 10000
-          );
-
-          expect(clonedQueryBuilder.limit).toBeCalledWith(1);
-          expect(clonedQueryBuilder.getOne).toBeCalledTimes(1);
-          expect(queryBuilder.andWhere).toBeCalledWith({
-            number: LessThanOrEqual(-1000),
-          });
-          expect(queryBuilder.offset).toBeCalledWith(0);
-          expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
-        });
-
-        it("sets negative number filter when there are no items for a given filter", async () => {
-          const clonedQueryBuilder = {
-            limit: jest.fn().mockReturnThis(),
-            getOne: jest.fn().mockResolvedValue(null),
-          };
-          (queryBuilder.clone as jest.Mock).mockReturnValueOnce(clonedQueryBuilder);
-
-          await paginate(
-            queryBuilder,
-            {
-              ...options,
-              page: 101,
-              canUseNumberFilterAsOffset: true,
-            },
-            async () => 10000
-          );
-
-          expect(clonedQueryBuilder.limit).toBeCalledWith(1);
-          expect(clonedQueryBuilder.getOne).toBeCalledTimes(1);
-          expect(queryBuilder.andWhere).toBeCalledWith({
-            number: LessThanOrEqual(-1001),
-          });
-          expect(queryBuilder.offset).toBeCalledWith(0);
-          expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
-        });
-      });
-
-      describe("and offset is smaller than 1000", () => {
-        it("does not use filter by number instead of offset", async () => {
-          const clonedQueryBuilder = {
-            limit: jest.fn().mockReturnThis(),
-            getOne: jest.fn().mockResolvedValue({ number: 3000 }),
-          };
-          (queryBuilder.clone as jest.Mock).mockReturnValueOnce(clonedQueryBuilder);
-
-          await paginate(
-            queryBuilder,
-            {
-              ...options,
-              page: 100,
-              canUseNumberFilterAsOffset: true,
-            },
-            async () => 10000
-          );
-
-          expect(clonedQueryBuilder.limit).not.toBeCalled();
-          expect(clonedQueryBuilder.getOne).not.toBeCalled();
-          expect(queryBuilder.andWhere).not.toBeCalled();
-          expect(queryBuilder.offset).toBeCalledWith(990);
-          expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
-        });
-      });
-    });
-
-    describe("when deferJoins is true", () => {
-      it("creates an outer query via clone and calls getMany on it instead of the original", async () => {
-        const outerQb = mock<SelectQueryBuilder<BaseEntity>>({
-          expressionMap: {
-            wheres: [{ type: "simple" }],
-            joinAttributes: [],
-            orderBys: { "alias.col": "DESC" },
-          } as any,
-          getMany: jest.fn().mockResolvedValue([]),
-        });
-        const innerClone = mock<SelectQueryBuilder<BaseEntity>>({
-          expressionMap: { joinAttributes: [] } as any,
-          getQuery: jest.fn().mockReturnValue("SELECT pk FROM ..."),
-          getParameters: jest.fn().mockReturnValue({ param1: "val1" }),
-        });
-
-        (queryBuilder.clone as jest.Mock)
-          .mockReturnValueOnce(innerClone) // inner subquery
-          .mockReturnValueOnce(outerQb); // outer query
-        (queryBuilder as any).alias = "entity";
-        (queryBuilder as any).expressionMap = {
-          ...queryBuilder.expressionMap,
-          mainAlias: {
-            metadata: {
-              primaryColumns: [{ databaseName: "number" }],
-            },
-          },
-          joinAttributes: [],
-          orderBys: { "entity.col": "DESC" },
-        };
-
-        await paginate(queryBuilder, { ...options, deferJoins: true }, async () => 50);
-
-        // inner clone should have select PK only and joins cleared
-        expect(innerClone.select).toHaveBeenCalledWith("entity.number", "number");
-        // outer clone should have wheres cleared and innerJoin added
-        expect(outerQb.expressionMap.wheres).toEqual([]);
-        expect(outerQb.innerJoin).toHaveBeenCalledWith(
-          "(SELECT pk FROM ...)",
-          "_paginated",
-          `"_paginated"."number" = "entity"."number"`
-        );
-        // getMany called on outer, not original
-        expect(outerQb.getMany).toHaveBeenCalledTimes(1);
-        expect(queryBuilder.getMany).not.toHaveBeenCalled();
-      });
-
-      it("falls through to original getMany when mainAlias is nullish", async () => {
-        (queryBuilder as any).alias = "entity";
-        (queryBuilder as any).expressionMap = {
-          ...queryBuilder.expressionMap,
-          mainAlias: null,
-          joinAttributes: [],
-        };
-
-        await paginate(queryBuilder, { ...options, deferJoins: true }, async () => 50);
-
-        expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
-      });
-
-      describe("when paginateBy matches a join attribute", () => {
-        const joinCol = { databaseName: "log_number", referencedColumn: { databaseName: "number" } };
-
-        function setupPaginateByTest(joinAttr: any) {
-          const innerQb = {
-            expressionMap: { wheres: [] as any[] },
-            select: jest.fn(),
-            setParameters: jest.fn(),
-            orderBy: jest.fn(),
-            offset: jest.fn(),
-            limit: jest.fn(),
-            getQuery: jest.fn().mockReturnValue("INNER_SQL"),
-          };
-          const outerQb = mock<SelectQueryBuilder<BaseEntity>>({
-            expressionMap: { wheres: [], joinAttributes: [joinAttr] } as any,
-            getMany: jest.fn().mockResolvedValue([]),
-          });
-
-          (queryBuilder.connection.createQueryBuilder as jest.Mock).mockReturnValueOnce({
-            from: jest.fn().mockReturnValue(innerQb),
-          });
-          (queryBuilder.clone as jest.Mock).mockReturnValueOnce(outerQb);
-          (queryBuilder as any).alias = "log";
-          (queryBuilder as any).expressionMap = {
-            ...queryBuilder.expressionMap,
-            mainAlias: { metadata: { primaryColumns: [{ databaseName: "number" }] } },
-            wheres: [],
-            joinAttributes: [joinAttr],
-            orderBys: { "vl.timestamp": "DESC" },
-            offset: 0,
-            limit: 10,
-          };
-
-          return { innerQb, outerQb };
-        }
-
-        it("falls through when relation is nullish and join columns cannot be resolved", async () => {
-          const joinAttr = {
-            alias: { name: "vl" },
-            relation: null,
-            tablePath: "visible_logs",
-          };
-          setupPaginateByTest(joinAttr);
-
-          await paginate(queryBuilder, { ...options, deferJoins: true, paginateBy: "vl" }, async () => 50);
-
-          expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
-        });
-
-        it("builds inner query from the join table using inverseRelation joinColumns", async () => {
-          const joinAttr = {
-            alias: { name: "vl" },
-            relation: { joinColumns: [], inverseRelation: { joinColumns: [joinCol] } },
-            tablePath: "visible_logs",
-          };
-          const { innerQb, outerQb } = setupPaginateByTest(joinAttr);
-
-          await paginate(queryBuilder, { ...options, deferJoins: true, paginateBy: "vl" }, async () => 50);
-
-          expect(innerQb.select).toHaveBeenCalledWith("vl.log_number", "log_number");
-          expect(outerQb.innerJoin).toHaveBeenCalledWith(
-            "(INNER_SQL)",
-            "_paginated",
-            `"_paginated"."log_number" = "log"."number"`
-          );
-          expect(outerQb.getMany).toHaveBeenCalledTimes(1);
-          expect(queryBuilder.getMany).not.toHaveBeenCalled();
-        });
-
-        it("uses direct joinColumns when joinColumns.length > 0", async () => {
-          const joinAttr = {
-            alias: { name: "vl" },
-            relation: { joinColumns: [joinCol] },
-            tablePath: "visible_logs",
-          };
-          const { innerQb, outerQb } = setupPaginateByTest(joinAttr);
-
-          await paginate(queryBuilder, { ...options, deferJoins: true, paginateBy: "vl" }, async () => 50);
-
-          expect(innerQb.select).toHaveBeenCalledWith("vl.log_number", "log_number");
-          expect(outerQb.getMany).toHaveBeenCalledTimes(1);
-        });
-      });
-
-      it("skips deferred joins when canUseNumberFilterAsOffset kicks in", async () => {
-        const clonedForNumberFilter = {
-          limit: jest.fn().mockReturnThis(),
-          getOne: jest.fn().mockResolvedValue({ number: 5000 }),
-        };
-        (queryBuilder.clone as jest.Mock).mockReturnValueOnce(clonedForNumberFilter);
-
-        await paginate(
-          queryBuilder,
-          {
-            ...options,
-            page: 200,
-            deferJoins: true,
-            canUseNumberFilterAsOffset: true,
-          },
-          async () => 10000
-        );
-
-        // Should use number filter path, not deferred joins
-        expect(queryBuilder.andWhere).toHaveBeenCalled();
-        expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
       });
     });
   });
@@ -659,7 +404,7 @@ describe("utils", () => {
 
     it("returns true when both addresses are the same but one is checksummed", () => {
       const address1 = "0x1234567890123456789012345678901234567890";
-      const address2 = "0x1234567890123456789012345678901234567890"; // Same but potentially different checksum
+      const address2 = "0x1234567890123456789012345678901234567890";
       expect(isAddressEqual(address1, address2)).toBe(true);
     });
 
@@ -670,21 +415,15 @@ describe("utils", () => {
     });
 
     it("returns false when first address is invalid", () => {
-      const invalidAddress = "0xinvalid";
-      const validAddress = "0x1234567890123456789012345678901234567890";
-      expect(isAddressEqual(invalidAddress, validAddress)).toBe(false);
+      expect(isAddressEqual("0xinvalid", "0x1234567890123456789012345678901234567890")).toBe(false);
     });
 
     it("returns false when second address is invalid", () => {
-      const validAddress = "0x1234567890123456789012345678901234567890";
-      const invalidAddress = "0xinvalid";
-      expect(isAddressEqual(validAddress, invalidAddress)).toBe(false);
+      expect(isAddressEqual("0x1234567890123456789012345678901234567890", "0xinvalid")).toBe(false);
     });
 
     it("returns false when both addresses are invalid", () => {
-      const invalidAddress1 = "0xinvalid";
-      const invalidAddress2 = "0xalsoinvalid";
-      expect(isAddressEqual(invalidAddress1, invalidAddress2)).toBe(false);
+      expect(isAddressEqual("0xinvalid", "0xalsoinvalid")).toBe(false);
     });
 
     it("returns false when addresses are empty strings", () => {
@@ -698,21 +437,20 @@ describe("utils", () => {
     });
 
     it("returns false when addresses are too short", () => {
-      const shortAddress1 = "0x123";
-      const shortAddress2 = "0x456";
-      expect(isAddressEqual(shortAddress1, shortAddress2)).toBe(false);
+      expect(isAddressEqual("0x123", "0x456")).toBe(false);
     });
 
     it("returns false when addresses are too long", () => {
-      const longAddress1 = "0x12345678901234567890123456789012345678901234567890";
-      const longAddress2 = "0x98765432109876543210987654321098765432109876543210";
-      expect(isAddressEqual(longAddress1, longAddress2)).toBe(false);
+      expect(
+        isAddressEqual(
+          "0x12345678901234567890123456789012345678901234567890",
+          "0x98765432109876543210987654321098765432109876543210"
+        )
+      ).toBe(false);
     });
 
     it("returns false when addresses are not hex strings", () => {
-      const nonHexAddress1 = "not-an-address";
-      const nonHexAddress2 = "also-not-an-address";
-      expect(isAddressEqual(nonHexAddress1, nonHexAddress2)).toBe(false);
+      expect(isAddressEqual("not-an-address", "also-not-an-address")).toBe(false);
     });
 
     it("handles null and undefined gracefully", () => {
@@ -747,7 +485,6 @@ describe("utils", () => {
     it("compares addresses case-insensitively", () => {
       const from = "0xAAA";
       const to = "0xbbb";
-      // "0xaaa" <= "0xbbb" → fromToMin=from, fromToMax=to
       expect(computeFromToMinMax(from, to)).toEqual({ fromToMin: from, fromToMax: to });
     });
 

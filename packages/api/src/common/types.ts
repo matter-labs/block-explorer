@@ -14,8 +14,6 @@ export interface IPaginationOptions<CustomMetaType = IPaginationMeta> extends Ne
   filterOptions?: IPaginationFilterOptions;
   maxLimit?: number;
   canUseNumberFilterAsOffset?: boolean;
-  deferJoins?: boolean;
-  paginateBy?: string;
 }
 
 export type CounterCriteria<T> = Partial<{

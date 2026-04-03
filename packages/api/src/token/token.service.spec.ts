@@ -174,7 +174,7 @@ describe("TokenService", () => {
       (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
       const result = await service.findAll({}, pagingOptions);
       expect(utils.paginate).toBeCalledTimes(1);
-      expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions);
+      expect(utils.paginate).toBeCalledWith({ queryBuilder: queryBuilderMock, options: pagingOptions });
       expect(result).toBe(paginationResult);
     });
   });

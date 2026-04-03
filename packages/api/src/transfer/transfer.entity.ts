@@ -1,10 +1,9 @@
-import { Entity, Column, Index, OneToMany, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad } from "typeorm";
+import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { Token, TokenType } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import type { AddressTransfer } from "./addressTransfer.entity";
 import { Transaction } from "../transaction/entities/transaction.entity";
 import { baseToken, ethToken } from "../config";
 
@@ -25,9 +24,6 @@ export enum TransferType {
 export class Transfer extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint", select: false })
   public number: number;
-
-  @OneToMany("AddressTransfer", "transfer")
-  public readonly addressTransfers?: AddressTransfer[];
 
   @Index()
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
@@ -92,8 +88,7 @@ export class Transfer extends BaseEntity {
 
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, fromToMin, fromToMax, addressTransfers, ...restFields } = this;
+    const { number, fromToMin, fromToMax, ...restFields } = this;
     return restFields;
   }
 
