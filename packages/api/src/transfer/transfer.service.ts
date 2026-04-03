@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual, Brackets, ObjectLiteral } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { paginate, computeFromToMinMax } from "../common/utils";
+import { paginate, computeFromToMinMax, applyFilterAlias } from "../common/utils";
 import { IPaginationOptions, SortingOrder } from "../common/types";
 import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
@@ -66,7 +66,11 @@ export class TransferService {
         queryBuilder.leftJoinAndSelect("transfer.token", "token");
         queryBuilder.orderBy("transfer.timestamp", "DESC");
         queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-        return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
+        return await paginate<Transfer>(queryBuilder, {
+          ...paginationOptions,
+          deferJoins: true,
+          paginateBy: "transfer",
+        });
       }
       if (options.transactionHash) {
         // transactionHash is highly selective — OR over a handful of rows is negligible
@@ -80,7 +84,11 @@ export class TransferService {
         queryBuilder.leftJoinAndSelect("transfer.token", "token");
         queryBuilder.orderBy("transfer.timestamp", "DESC");
         queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-        return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
+        return await paginate<Transfer>(queryBuilder, {
+          ...paginationOptions,
+          deferJoins: true,
+          paginateBy: "transfer",
+        });
       }
       // own transfers: address === visibleBy or no address
       return this.findAddressTransfers({ ...options, address: visibleBy }, paginationOptions);
@@ -95,7 +103,7 @@ export class TransferService {
     queryBuilder.leftJoinAndSelect("transfer.token", "token");
     queryBuilder.orderBy("transfer.timestamp", "DESC");
     queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-    return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
+    return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true, paginateBy: "transfer" });
   }
 
   public async findTokenTransfers({
@@ -288,17 +296,17 @@ export class TransferService {
     where: ObjectLiteral,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transfer>> {
-    const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-    queryBuilder.select("addressTransfer.number");
-    queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
+    const { address, ...filters } = where;
+    const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
+    queryBuilder.innerJoin("transfer.addressTransfers", "addressTransfer");
     queryBuilder.leftJoinAndSelect("transfer.token", "token");
-    queryBuilder.where(where);
+    queryBuilder.where(applyFilterAlias("addressTransfer", { address, ...filters }));
     queryBuilder.orderBy("addressTransfer.timestamp", "DESC");
     queryBuilder.addOrderBy("addressTransfer.logIndex", "ASC");
-    const addressTransfers = await paginate<AddressTransfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
-    return {
-      ...addressTransfers,
-      items: addressTransfers.items.map((item) => item.transfer),
-    };
+    return await paginate<Transfer>(queryBuilder, {
+      ...paginationOptions,
+      deferJoins: true,
+      paginateBy: "addressTransfer",
+    });
   }
 }

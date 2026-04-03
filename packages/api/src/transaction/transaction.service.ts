@@ -3,12 +3,11 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { isAddressEqual, paginate, computeFromToMinMax } from "../common/utils";
+import { isAddressEqual, paginate, computeFromToMinMax, applyFilterAlias } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { VisibleTransaction } from "./entities/visibleTransaction.entity";
-import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block, BlockStatus } from "../block/block.entity";
 import { CounterService } from "../counter/counter.service";
 import { UserParam } from "../user/user.decorator";
@@ -37,8 +36,6 @@ export class TransactionService {
     private readonly addressTransactionRepository: Repository<AddressTransaction>,
     @InjectRepository(VisibleTransaction)
     private readonly visibleTransactionRepository: Repository<VisibleTransaction>,
-    @InjectRepository(AddressVisibleTransaction)
-    private readonly addressVisibleTransactionRepository: Repository<AddressVisibleTransaction>,
     @InjectRepository(Block)
     private readonly blockRepository: Repository<Block>,
     private readonly counterService: CounterService,
@@ -85,23 +82,26 @@ export class TransactionService {
           ...commonFilters,
         });
         this.addDefaultOrder(qb, "transaction");
-        return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true });
+        return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true, paginateBy: "transaction" });
       }
 
       // query transactions visible to the user for the address (including topics with user's address)
-      const qb = this.addressVisibleTransactionRepository.createQueryBuilder("addressVisibleTransaction");
-      qb.select("addressVisibleTransaction.number");
-      qb.leftJoinAndSelect("addressVisibleTransaction.transaction", "transaction");
+      const qb = this.transactionRepository.createQueryBuilder("transaction");
+      qb.innerJoin("transaction.addressVisibleTransactions", "addressVisibleTransaction");
       this.addTransactionJoins(qb);
-      qb.where({
-        address: filterOptions.address,
-        visibleBy: filterOptions.visibleBy,
-        ...commonFilters,
-      });
-      this.addDefaultOrder(qb, "addressVisibleTransaction");
-      return this.unwrapTransactions(
-        await paginate<AddressVisibleTransaction>(qb, { ...paginationOptions, deferJoins: true })
+      qb.where(
+        applyFilterAlias("addressVisibleTransaction", {
+          address: filterOptions.address,
+          visibleBy: filterOptions.visibleBy,
+          ...commonFilters,
+        })
       );
+      this.addDefaultOrder(qb, "addressVisibleTransaction");
+      return await paginate<Transaction>(qb, {
+        ...paginationOptions,
+        deferJoins: true,
+        paginateBy: "addressVisibleTransaction",
+      });
     }
 
     // Case 2: all transactions visible to a user - own transactions + transactions including topics with user's address (prividium)
@@ -112,18 +112,21 @@ export class TransactionService {
       }
 
       // return transactions visible to the user for all addresses (including txs with topics with user's address)
-      const qb = this.visibleTransactionRepository.createQueryBuilder("visibleTransaction");
-      qb.select("visibleTransaction.number");
-      qb.leftJoinAndSelect("visibleTransaction.transaction", "transaction");
+      const qb = this.transactionRepository.createQueryBuilder("transaction");
+      qb.innerJoin("transaction.visibleTransactions", "visibleTransaction");
       this.addTransactionJoins(qb);
-      qb.where({
-        visibleBy: filterOptions.visibleBy,
-        ...commonFilters,
-      });
-      this.addDefaultOrder(qb, "visibleTransaction");
-      return this.unwrapTransactions(
-        await paginate<VisibleTransaction>(qb, { ...paginationOptions, deferJoins: true })
+      qb.where(
+        applyFilterAlias("visibleTransaction", {
+          visibleBy: filterOptions.visibleBy,
+          ...commonFilters,
+        })
       );
+      this.addDefaultOrder(qb, "visibleTransaction");
+      return await paginate<Transaction>(qb, {
+        ...paginationOptions,
+        deferJoins: true,
+        paginateBy: "visibleTransaction",
+      });
     }
 
     // Case 3: viewing transactions for an arbitrary address (non prividium) or own transactions (prividium)
@@ -136,7 +139,7 @@ export class TransactionService {
     this.addTransactionJoins(qb);
     qb.where(commonFilters);
     this.addDefaultOrder(qb, "transaction");
-    return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true });
+    return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true, paginateBy: "transaction" });
   }
 
   private async queryAddressTransactions(
@@ -144,17 +147,22 @@ export class TransactionService {
     filterOptions: FilterTransactionsOptions,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
-    const qb = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
-    qb.select("addressTransaction.number");
-    qb.leftJoinAndSelect("addressTransaction.transaction", "transaction");
+    const qb = this.transactionRepository.createQueryBuilder("transaction");
+    qb.innerJoin("transaction.addressTransactions", "addressTransaction");
     this.addTransactionJoins(qb);
-    qb.where({
-      address,
-      ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
-      ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
-    });
+    qb.where(
+      applyFilterAlias("addressTransaction", {
+        address,
+        receivedAt: filterOptions.receivedAt,
+        blockNumber: filterOptions.blockNumber,
+      })
+    );
     this.addDefaultOrder(qb, "addressTransaction");
-    return this.unwrapTransactions(await paginate<AddressTransaction>(qb, { ...paginationOptions, deferJoins: true }));
+    return await paginate<Transaction>(qb, {
+      ...paginationOptions,
+      deferJoins: true,
+      paginateBy: "addressTransaction",
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -169,10 +177,6 @@ export class TransactionService {
   private addDefaultOrder(qb: SelectQueryBuilder<any>, alias: string): void {
     qb.addOrderBy(`${alias}.receivedAt`, "DESC");
     qb.addOrderBy(`${alias}.transactionIndex`, "DESC");
-  }
-
-  private unwrapTransactions<T extends { transaction: Transaction }>(results: Pagination<T>): Pagination<Transaction> {
-    return { ...results, items: results.items.map((item) => item.transaction) };
   }
 
   public async findByAddress(

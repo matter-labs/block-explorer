@@ -10,7 +10,6 @@ import { TransactionService, FilterTransactionsOptions } from "./transaction.ser
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
 import { VisibleTransaction } from "./entities/visibleTransaction.entity";
-import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block } from "../block/block.entity";
 import { ConfigService } from "@nestjs/config";
 
@@ -25,7 +24,6 @@ describe("TransactionService", () => {
   let repositoryMock: typeorm.Repository<Transaction>;
   let addressTransactionRepositoryMock: typeorm.Repository<AddressTransaction>;
   let visibleTransactionRepositoryMock: typeorm.Repository<VisibleTransaction>;
-  let addressVisibleTransactionRepositoryMock: typeorm.Repository<AddressVisibleTransaction>;
   let blockRepositoryMock: typeorm.Repository<Block>;
   let counterServiceMock: CounterService;
   const transactionHash = "transactionHash";
@@ -40,7 +38,6 @@ describe("TransactionService", () => {
     repositoryMock = mock<typeorm.Repository<Transaction>>();
     addressTransactionRepositoryMock = mock<typeorm.Repository<AddressTransaction>>();
     visibleTransactionRepositoryMock = mock<typeorm.Repository<VisibleTransaction>>();
-    addressVisibleTransactionRepositoryMock = mock<typeorm.Repository<AddressVisibleTransaction>>();
     blockRepositoryMock = mock<typeorm.Repository<Block>>();
     transaction = {
       hash: transactionHash,
@@ -60,10 +57,6 @@ describe("TransactionService", () => {
         {
           provide: getRepositoryToken(VisibleTransaction),
           useValue: visibleTransactionRepositoryMock,
-        },
-        {
-          provide: getRepositoryToken(AddressVisibleTransaction),
-          useValue: addressVisibleTransactionRepositoryMock,
         },
         {
           provide: getRepositoryToken(Block),
@@ -156,9 +149,6 @@ describe("TransactionService", () => {
 
   describe("findAll", () => {
     let queryBuilderMock;
-    let addressTransactionsQueryBuilderMock;
-    let visibleTransactionsQueryBuilderMock;
-    let addressVisibleTransactionsQueryBuilderMock;
     let filterTransactionsOptions: FilterTransactionsOptions;
     const pagingOptions = {
       filterOptions: {},
@@ -168,20 +158,7 @@ describe("TransactionService", () => {
 
     beforeEach(() => {
       queryBuilderMock = mock<typeorm.SelectQueryBuilder<Transaction>>();
-      addressTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressTransaction>>();
-      visibleTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<VisibleTransaction>>();
-      addressVisibleTransactionsQueryBuilderMock = mock<typeorm.SelectQueryBuilder<AddressVisibleTransaction>>();
-
       (repositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(queryBuilderMock);
-      (addressTransactionRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(
-        addressTransactionsQueryBuilderMock
-      );
-      (visibleTransactionRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(
-        visibleTransactionsQueryBuilderMock
-      );
-      (addressVisibleTransactionRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(
-        addressVisibleTransactionsQueryBuilderMock
-      );
     });
 
     describe("when no address and no visibleBy", () => {
@@ -197,7 +174,7 @@ describe("TransactionService", () => {
 
       it("creates query builder with proper params", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(repositoryMock.createQueryBuilder).toHaveBeenNthCalledWith(1, "transaction");
+        expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
       });
 
       it("filters transactions by the specified options", async () => {
@@ -208,151 +185,89 @@ describe("TransactionService", () => {
         });
       });
 
-      it("joins transactionReceipt record to get receipt specific fields", async () => {
+      it("joins transactionReceipt and block", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
-      });
-
-      it("selects only needed transactionReceipt fields", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith([
-          "transactionReceipt.gasUsed",
-          "transactionReceipt.contractAddress",
-        ]);
-      });
-
-      it("joins block record to get block specific fields", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
       });
 
-      it("selects only needed block fields", async () => {
+      it("orders by receivedAt and transactionIndex DESC", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
-      });
-
-      it("orders transactions by receivedAt and transactionIndex DESC", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.addOrderBy).toBeCalledTimes(2);
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
       });
 
       it("returns paginated result", async () => {
         const result = await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(utils.paginate).toBeCalledTimes(1);
-        expect(utils.paginate).toBeCalledWith(queryBuilderMock, { ...pagingOptions, deferJoins: true });
+        expect(utils.paginate).toBeCalledWith(queryBuilderMock, {
+          ...pagingOptions,
+          deferJoins: true,
+          paginateBy: "transaction",
+        });
         expect(result).toBe(paginationResult);
       });
     });
 
     describe("when address filter option is specified without visibleBy", () => {
-      const paginationResult = mock<Pagination<AddressTransaction, IPaginationMeta>>({
-        items: [
-          {
-            transaction: mock<Transaction>(),
-          },
-          {
-            transaction: mock<Transaction>(),
-          },
-        ],
-      });
+      const paginationResult = mock<Pagination<Transaction, IPaginationMeta>>();
 
       beforeEach(() => {
-        filterTransactionsOptions = {
-          address: "address",
-        };
+        filterTransactionsOptions = { address: "address" };
         (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
       });
 
-      it("creates query builder with proper params", async () => {
+      it("creates query builder on transactionRepository", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
-        expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransaction");
+        expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
       });
 
-      it("selects address transactions number", async () => {
+      it("inner joins addressTransactions", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.select).toBeCalledTimes(1);
-        expect(addressTransactionsQueryBuilderMock.select).toHaveBeenCalledWith("addressTransaction.number");
-      });
-
-      it("joins transaction records", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
-        expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
-          "addressTransaction.transaction",
-          "transaction"
+        expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith(
+          "transaction.addressTransactions",
+          "addressTransaction"
         );
       });
 
-      it("joins transactionReceipt record to get receipt specific fields", async () => {
+      it("joins transactionReceipt and block", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith(
-          "transaction.transactionReceipt",
-          "transactionReceipt"
-        );
+        expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.transactionReceipt", "transactionReceipt");
+        expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
       });
 
-      it("selects only needed transactionReceipt fields", async () => {
+      it("filters with aliased address on addressTransaction", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith([
-          "transactionReceipt.gasUsed",
-          "transactionReceipt.contractAddress",
-        ]);
+        expect(queryBuilderMock.where).toHaveBeenCalledWith({ "addressTransaction.address": "address" });
       });
 
-      it("joins block records", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
-        expect(addressTransactionsQueryBuilderMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
-      });
-
-      it("filters transactions by the specified options when only address is defined", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address: "address" });
-      });
-
-      it("filters transactions by the specified options when additional filters are defined", async () => {
+      it("filters with aliased additional filters", async () => {
         const filterOptions = {
           address: "address",
           blockNumber: 100,
           receivedAt: new typeorm.FindOperator("lessThanOrEqual", new Date()),
         };
         await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({
-          address: filterOptions.address,
-          receivedAt: filterOptions.receivedAt,
-          blockNumber: filterOptions.blockNumber,
+        expect(queryBuilderMock.where).toHaveBeenCalledWith({
+          "addressTransaction.address": filterOptions.address,
+          "addressTransaction.receivedAt": filterOptions.receivedAt,
+          "addressTransaction.blockNumber": filterOptions.blockNumber,
         });
       });
 
-      it("selects only needed block fields", async () => {
+      it("orders by addressTransaction receivedAt and transactionIndex DESC", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
+        expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("addressTransaction.receivedAt", "DESC");
+        expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("addressTransaction.transactionIndex", "DESC");
       });
 
-      it("orders transactions by receivedAt and transactionIndex DESC", async () => {
-        await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionsQueryBuilderMock.addOrderBy).toBeCalledTimes(2);
-        expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
-          "addressTransaction.receivedAt",
-          "DESC"
-        );
-        expect(addressTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
-          "addressTransaction.transactionIndex",
-          "DESC"
-        );
-      });
-
-      it("returns paginated result", async () => {
+      it("returns paginated result with paginateBy", async () => {
         const result = await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(utils.paginate).toBeCalledTimes(1);
-        expect(utils.paginate).toBeCalledWith(addressTransactionsQueryBuilderMock, {
+        expect(utils.paginate).toBeCalledWith(queryBuilderMock, {
           ...pagingOptions,
           deferJoins: true,
+          paginateBy: "addressTransaction",
         });
-        expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
+        expect(result).toBe(paginationResult);
       });
     });
 
@@ -360,60 +275,50 @@ describe("TransactionService", () => {
       const visibleBy = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
       describe("when disableTxVisibilityByTopics is false", () => {
-        const paginationResult = mock<Pagination<VisibleTransaction, IPaginationMeta>>({
-          items: [{ transaction: mock<Transaction>() }, { transaction: mock<Transaction>() }],
-        });
+        const paginationResult = mock<Pagination<Transaction, IPaginationMeta>>();
 
         beforeEach(() => {
           filterTransactionsOptions = { visibleBy };
           (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
         });
 
-        it("uses visibleTransactionRepository", async () => {
+        it("creates query builder on transactionRepository", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(visibleTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("visibleTransaction");
+          expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
         });
 
-        it("selects visibleTransaction number", async () => {
+        it("inner joins visibleTransactions", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(visibleTransactionsQueryBuilderMock.select).toHaveBeenCalledWith("visibleTransaction.number");
-        });
-
-        it("joins transaction records", async () => {
-          await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(visibleTransactionsQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
-            "visibleTransaction.transaction",
-            "transaction"
+          expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith(
+            "transaction.visibleTransactions",
+            "visibleTransaction"
           );
         });
 
-        it("filters by visibleBy", async () => {
+        it("filters with aliased visibleBy", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(visibleTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ visibleBy });
+          expect(queryBuilderMock.where).toHaveBeenCalledWith({ "visibleTransaction.visibleBy": visibleBy });
         });
 
         it("orders by visibleTransaction receivedAt and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(visibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
-            "visibleTransaction.receivedAt",
-            "DESC"
-          );
-          expect(visibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
-            "visibleTransaction.transactionIndex",
-            "DESC"
-          );
+          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("visibleTransaction.receivedAt", "DESC");
+          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("visibleTransaction.transactionIndex", "DESC");
         });
 
-        it("returns unwrapped paginated result", async () => {
+        it("returns paginated result with paginateBy", async () => {
           const result = await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
+          expect(utils.paginate).toBeCalledWith(queryBuilderMock, {
+            ...pagingOptions,
+            deferJoins: true,
+            paginateBy: "visibleTransaction",
+          });
+          expect(result).toBe(paginationResult);
         });
       });
 
       describe("when disableTxVisibilityByTopics is true", () => {
-        const paginationResult = mock<Pagination<AddressTransaction, IPaginationMeta>>({
-          items: [{ transaction: mock<Transaction>() }],
-        });
+        const paginationResult = mock<Pagination<Transaction, IPaginationMeta>>();
 
         beforeEach(() => {
           (configServiceMock.get as jest.Mock).mockReturnValue(true);
@@ -421,14 +326,18 @@ describe("TransactionService", () => {
           (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
         });
 
-        it("falls back to addressTransactionRepository (own transactions only)", async () => {
+        it("uses transactionRepository with innerJoin addressTransactions", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransaction");
+          expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
+          expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith(
+            "transaction.addressTransactions",
+            "addressTransaction"
+          );
         });
 
-        it("filters by visibleBy as address", async () => {
+        it("filters by visibleBy as addressTransaction.address", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address: visibleBy });
+          expect(queryBuilderMock.where).toHaveBeenCalledWith({ "addressTransaction.address": visibleBy });
         });
       });
     });
@@ -438,57 +347,51 @@ describe("TransactionService", () => {
       const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
 
       describe("when disableTxVisibilityByTopics is false", () => {
-        const paginationResult = mock<Pagination<AddressVisibleTransaction, IPaginationMeta>>({
-          items: [{ transaction: mock<Transaction>() }, { transaction: mock<Transaction>() }],
-        });
+        const paginationResult = mock<Pagination<Transaction, IPaginationMeta>>();
 
         beforeEach(() => {
           filterTransactionsOptions = { address, visibleBy };
           (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
         });
 
-        it("uses addressVisibleTransactionRepository", async () => {
+        it("creates query builder on transactionRepository", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressVisibleTransactionRepositoryMock.createQueryBuilder).toHaveBeenCalledWith(
+          expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("transaction");
+        });
+
+        it("inner joins addressVisibleTransactions", async () => {
+          await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith(
+            "transaction.addressVisibleTransactions",
             "addressVisibleTransaction"
           );
         });
 
-        it("selects addressVisibleTransaction number", async () => {
+        it("filters with aliased address and visibleBy", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressVisibleTransactionsQueryBuilderMock.select).toHaveBeenCalledWith(
-            "addressVisibleTransaction.number"
-          );
-        });
-
-        it("joins transaction records", async () => {
-          await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressVisibleTransactionsQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
-            "addressVisibleTransaction.transaction",
-            "transaction"
-          );
-        });
-
-        it("filters by address and visibleBy", async () => {
-          await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressVisibleTransactionsQueryBuilderMock.where).toHaveBeenCalledWith({ address, visibleBy });
+          expect(queryBuilderMock.where).toHaveBeenCalledWith({
+            "addressVisibleTransaction.address": address,
+            "addressVisibleTransaction.visibleBy": visibleBy,
+          });
         });
 
         it("orders by addressVisibleTransaction receivedAt and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressVisibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
-            "addressVisibleTransaction.receivedAt",
-            "DESC"
-          );
-          expect(addressVisibleTransactionsQueryBuilderMock.addOrderBy).toHaveBeenCalledWith(
+          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("addressVisibleTransaction.receivedAt", "DESC");
+          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith(
             "addressVisibleTransaction.transactionIndex",
             "DESC"
           );
         });
 
-        it("returns unwrapped paginated result", async () => {
+        it("returns paginated result with paginateBy", async () => {
           const result = await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(result).toEqual({ ...paginationResult, items: paginationResult.items.map((i) => i.transaction) });
+          expect(utils.paginate).toBeCalledWith(queryBuilderMock, {
+            ...pagingOptions,
+            deferJoins: true,
+            paginateBy: "addressVisibleTransaction",
+          });
+          expect(result).toBe(paginationResult);
         });
       });
 
@@ -508,7 +411,6 @@ describe("TransactionService", () => {
 
         it("filters by fromToMin and fromToMax", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          // address > visibleBy lexicographically, so fromToMin=visibleBy, fromToMax=address
           expect(queryBuilderMock.where).toHaveBeenCalledWith(
             expect.objectContaining({
               fromToMin: visibleBy,
@@ -525,6 +427,11 @@ describe("TransactionService", () => {
 
         it("returns paginated result", async () => {
           const result = await service.findAll(filterTransactionsOptions, pagingOptions);
+          expect(utils.paginate).toBeCalledWith(queryBuilderMock, {
+            ...pagingOptions,
+            deferJoins: true,
+            paginateBy: "transaction",
+          });
           expect(result).toBe(paginationResult);
         });
       });

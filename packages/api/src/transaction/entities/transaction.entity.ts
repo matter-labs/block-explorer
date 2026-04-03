@@ -6,6 +6,9 @@ import { hexTransformer } from "../../common/transformers/hex.transformer";
 import { hexToDecimalNumberTransformer } from "../../common/transformers/hexToDecimalNumber.transformer";
 import { TransactionReceipt } from "./transactionReceipt.entity";
 import { Transfer } from "../../transfer/transfer.entity";
+import { AddressTransaction } from "./addressTransaction.entity";
+import { VisibleTransaction } from "./visibleTransaction.entity";
+import { AddressVisibleTransaction } from "./addressVisibleTransaction.entity";
 import { Block, BlockStatus } from "../../block/block.entity";
 
 export enum TransactionStatus {
@@ -96,7 +99,16 @@ export class Transaction extends BaseEntity {
   public readonly receivedAt: Date;
 
   @OneToMany(() => Transfer, (transfer) => transfer.transaction)
-  public readonly transfers: Transfer[];
+  public readonly transfers?: Transfer[];
+
+  @OneToMany(() => AddressTransaction, (at) => at.transaction)
+  public readonly addressTransactions?: AddressTransaction[];
+
+  @OneToMany(() => VisibleTransaction, (vt) => vt.transaction)
+  public readonly visibleTransactions?: VisibleTransaction[];
+
+  @OneToMany(() => AddressVisibleTransaction, (avt) => avt.transaction)
+  public readonly addressVisibleTransactions?: AddressVisibleTransaction[];
 
   @Column({ nullable: true })
   public readonly error?: string;
@@ -131,8 +143,20 @@ export class Transaction extends BaseEntity {
   }
 
   toJSON(): any {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, receiptStatus, transactionReceipt, block, fromToMin, fromToMax, ...restFields } = this;
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    const {
+      number,
+      receiptStatus,
+      transactionReceipt,
+      block,
+      fromToMin,
+      fromToMax,
+      addressTransactions,
+      visibleTransactions,
+      addressVisibleTransactions,
+      ...restFields
+    } = this;
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     return {
       ...restFields,
       status: this.status,

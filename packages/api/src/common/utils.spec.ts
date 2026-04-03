@@ -111,6 +111,12 @@ describe("utils", () => {
       expect(countSubQueryBuilder.expressionMap.joinAttributes).toHaveLength(0);
     });
 
+    it("does not clear join attributes when expressionMap is nullish", async () => {
+      (countSubQueryBuilder as any).expressionMap = null;
+      await paginate(queryBuilder, options);
+      expect(countSubQueryBuilder.expressionMap).toBeNull();
+    });
+
     it("resets count sub query skip setting", async () => {
       await paginate(queryBuilder, options);
       expect(countSubQueryBuilder.skip).toHaveBeenCalledWith(undefined);
@@ -405,6 +411,103 @@ describe("utils", () => {
         // getMany called on outer, not original
         expect(outerQb.getMany).toHaveBeenCalledTimes(1);
         expect(queryBuilder.getMany).not.toHaveBeenCalled();
+      });
+
+      it("falls through to original getMany when mainAlias is nullish", async () => {
+        (queryBuilder as any).alias = "entity";
+        (queryBuilder as any).expressionMap = {
+          ...queryBuilder.expressionMap,
+          mainAlias: null,
+          joinAttributes: [],
+        };
+
+        await paginate(queryBuilder, { ...options, deferJoins: true }, async () => 50);
+
+        expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
+      });
+
+      describe("when paginateBy matches a join attribute", () => {
+        const joinCol = { databaseName: "log_number", referencedColumn: { databaseName: "number" } };
+
+        function setupPaginateByTest(joinAttr: any) {
+          const innerQb = {
+            expressionMap: { wheres: [] as any[] },
+            select: jest.fn(),
+            setParameters: jest.fn(),
+            orderBy: jest.fn(),
+            offset: jest.fn(),
+            limit: jest.fn(),
+            getQuery: jest.fn().mockReturnValue("INNER_SQL"),
+          };
+          const outerQb = mock<SelectQueryBuilder<BaseEntity>>({
+            expressionMap: { wheres: [], joinAttributes: [joinAttr] } as any,
+            getMany: jest.fn().mockResolvedValue([]),
+          });
+
+          (queryBuilder.connection.createQueryBuilder as jest.Mock).mockReturnValueOnce({
+            from: jest.fn().mockReturnValue(innerQb),
+          });
+          (queryBuilder.clone as jest.Mock).mockReturnValueOnce(outerQb);
+          (queryBuilder as any).alias = "log";
+          (queryBuilder as any).expressionMap = {
+            ...queryBuilder.expressionMap,
+            mainAlias: { metadata: { primaryColumns: [{ databaseName: "number" }] } },
+            wheres: [],
+            joinAttributes: [joinAttr],
+            orderBys: { "vl.timestamp": "DESC" },
+            offset: 0,
+            limit: 10,
+          };
+
+          return { innerQb, outerQb };
+        }
+
+        it("falls through when relation is nullish and join columns cannot be resolved", async () => {
+          const joinAttr = {
+            alias: { name: "vl" },
+            relation: null,
+            tablePath: "visible_logs",
+          };
+          setupPaginateByTest(joinAttr);
+
+          await paginate(queryBuilder, { ...options, deferJoins: true, paginateBy: "vl" }, async () => 50);
+
+          expect(queryBuilder.getMany).toHaveBeenCalledTimes(1);
+        });
+
+        it("builds inner query from the join table using inverseRelation joinColumns", async () => {
+          const joinAttr = {
+            alias: { name: "vl" },
+            relation: { joinColumns: [], inverseRelation: { joinColumns: [joinCol] } },
+            tablePath: "visible_logs",
+          };
+          const { innerQb, outerQb } = setupPaginateByTest(joinAttr);
+
+          await paginate(queryBuilder, { ...options, deferJoins: true, paginateBy: "vl" }, async () => 50);
+
+          expect(innerQb.select).toHaveBeenCalledWith("vl.log_number", "log_number");
+          expect(outerQb.innerJoin).toHaveBeenCalledWith(
+            "(INNER_SQL)",
+            "_paginated",
+            `"_paginated"."log_number" = "log"."number"`
+          );
+          expect(outerQb.getMany).toHaveBeenCalledTimes(1);
+          expect(queryBuilder.getMany).not.toHaveBeenCalled();
+        });
+
+        it("uses direct joinColumns when joinColumns.length > 0", async () => {
+          const joinAttr = {
+            alias: { name: "vl" },
+            relation: { joinColumns: [joinCol] },
+            tablePath: "visible_logs",
+          };
+          const { innerQb, outerQb } = setupPaginateByTest(joinAttr);
+
+          await paginate(queryBuilder, { ...options, deferJoins: true, paginateBy: "vl" }, async () => 50);
+
+          expect(innerQb.select).toHaveBeenCalledWith("vl.log_number", "log_number");
+          expect(outerQb.getMany).toHaveBeenCalledTimes(1);
+        });
       });
 
       it("skips deferred joins when canUseNumberFilterAsOffset kicks in", async () => {

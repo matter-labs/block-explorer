@@ -72,26 +72,67 @@ async function paginateQueryBuilder<T, CustomMetaType = IPaginationMeta>(
   }
 
   let itemsQuery = queryBuilder;
-  const pkColumn = queryBuilder.expressionMap.mainAlias?.metadata?.primaryColumns[0]?.databaseName;
-  // When using number filter as offset leave the query as it is as deferred joins don't improve performance in this case
-  if (options.deferJoins && !useNumberFilterAsOffset && pkColumn) {
+  // When canUseNumberFilterAsOffset is active, pagination is already efficient — skip deferred joins
+  if (options.deferJoins && !useNumberFilterAsOffset) {
     const alias = queryBuilder.alias;
+    const pkColumn = queryBuilder.expressionMap.mainAlias?.metadata?.primaryColumns[0]?.databaseName;
+    const paginateBy = options.paginateBy;
+    const paginateByJoin = queryBuilder.expressionMap.joinAttributes.find((j) => j.alias.name === paginateBy);
 
-    // Inner subquery: only select PK with filters + limit/offset, no joins
-    const innerQb = queryBuilder.clone();
-    innerQb.select(`${alias}.${pkColumn}`, pkColumn);
-    innerQb.expressionMap.joinAttributes = [];
+    if (pkColumn && paginateByJoin) {
+      // paginateBy points to a joined table — build inner query directly on that table for index-only scan
+      const joinColumns = paginateByJoin.relation?.joinColumns.length
+        ? paginateByJoin.relation.joinColumns
+        : paginateByJoin.relation?.inverseRelation?.joinColumns;
+      const fkColumn = joinColumns?.[0]?.databaseName;
+      const targetPkColumn = joinColumns?.[0]?.referencedColumn?.databaseName;
+      const tableName = paginateByJoin.tablePath;
 
-    // Outer query: clone to keep selects/aliases, reorder so INNER JOIN comes first
-    const outerQb = queryBuilder.clone();
-    outerQb.expressionMap.wheres = [];
-    outerQb.offset(undefined);
-    outerQb.limit(undefined);
-    const originalJoins = outerQb.expressionMap.joinAttributes.splice(0);
-    outerQb.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."${pkColumn}" = "${alias}"."${pkColumn}"`);
-    outerQb.expressionMap.joinAttributes.push(...originalJoins);
+      if (fkColumn && targetPkColumn && tableName) {
+        // Inner query: scan only the paginateBy table, select FK, apply all filters + ordering + offset/limit
+        const innerQb = queryBuilder.connection.createQueryBuilder().from(tableName, paginateBy);
+        innerQb.select(`${paginateBy}.${fkColumn}`, fkColumn);
+        innerQb.expressionMap.wheres = [...queryBuilder.expressionMap.wheres];
+        innerQb.setParameters(queryBuilder.getParameters());
+        innerQb.orderBy(queryBuilder.expressionMap.orderBys);
+        innerQb.offset(queryBuilder.expressionMap.offset);
+        innerQb.limit(queryBuilder.expressionMap.limit);
 
-    itemsQuery = outerQb;
+        // Outer query: clone original with all LEFT JOINs, replace filters with subquery match
+        const outerQb = queryBuilder.clone();
+        outerQb.expressionMap.wheres = [];
+        outerQb.offset(undefined);
+        outerQb.limit(undefined);
+        const originalJoins = outerQb.expressionMap.joinAttributes.splice(0);
+        outerQb.innerJoin(
+          `(${innerQb.getQuery()})`,
+          "_paginated",
+          `"_paginated"."${fkColumn}" = "${alias}"."${targetPkColumn}"`
+        );
+        outerQb.expressionMap.joinAttributes.push(...originalJoins.filter((j) => j.alias.name !== paginateBy));
+
+        itemsQuery = outerQb;
+      }
+    } else if (pkColumn) {
+      // paginateBy matches root or not set — paginate on root table, defer all joins
+      const innerQb = queryBuilder.clone();
+      innerQb.select(`${alias}.${pkColumn}`, pkColumn);
+      innerQb.expressionMap.joinAttributes = [];
+
+      const outerQb = queryBuilder.clone();
+      outerQb.expressionMap.wheres = [];
+      outerQb.offset(undefined);
+      outerQb.limit(undefined);
+      const originalJoins = outerQb.expressionMap.joinAttributes.splice(0);
+      outerQb.innerJoin(
+        `(${innerQb.getQuery()})`,
+        "_paginated",
+        `"_paginated"."${pkColumn}" = "${alias}"."${pkColumn}"`
+      );
+      outerQb.expressionMap.joinAttributes.push(...originalJoins);
+
+      itemsQuery = outerQb;
+    }
   }
 
   const [items, total] = await Promise.all([
@@ -133,6 +174,17 @@ export const paginate = async <T, CustomMetaType = IPaginationMeta>(
     }
   }
   return result;
+};
+
+export const applyFilterAlias = <T extends Record<string, unknown>>(
+  alias: string,
+  filters: T
+): Record<string, unknown> => {
+  return Object.fromEntries(
+    Object.entries(filters)
+      .filter(([, v]) => v !== undefined)
+      .map(([k, v]) => [`${alias}.${k}`, v])
+  );
 };
 
 export const formatHexAddress = (address: string) => hexTransformer.from(hexTransformer.to(address));

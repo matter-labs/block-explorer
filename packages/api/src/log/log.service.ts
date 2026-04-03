@@ -4,10 +4,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { IPaginationOptions } from "../common/types";
-import { paginate } from "../common/utils";
+import { paginate, applyFilterAlias } from "../common/utils";
 import { Log } from "./log.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { VisibleLog } from "./visibleLog.entity";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
@@ -35,8 +34,6 @@ export class LogService {
   constructor(
     @InjectRepository(Log)
     private readonly logRepository: Repository<Log>,
-    @InjectRepository(VisibleLog)
-    private readonly visibleLogRepository: Repository<VisibleLog>,
     private readonly configService: ConfigService
   ) {}
 
@@ -48,14 +45,12 @@ export class LogService {
     const { visibleBy, ...basicFilters } = filterOptions;
 
     if (visibleBy && !disableTxVisibilityByTopics) {
-      const qb = this.visibleLogRepository.createQueryBuilder("visibleLog");
-      qb.select("visibleLog.number");
-      qb.leftJoinAndSelect("visibleLog.log", "log");
-      qb.where({ visibleBy, ...basicFilters });
+      const qb = this.logRepository.createQueryBuilder("log");
+      qb.innerJoin("log.visibleLogs", "visibleLog");
+      qb.where(applyFilterAlias("visibleLog", { visibleBy, ...basicFilters }));
       qb.orderBy("visibleLog.timestamp", "DESC");
       qb.addOrderBy("visibleLog.logIndex", "ASC");
-      const result = await paginate<VisibleLog>(qb, { ...paginationOptions, deferJoins: true });
-      return { ...result, items: result.items.map((vl) => vl.log) };
+      return await paginate<Log>(qb, { ...paginationOptions, deferJoins: true, paginateBy: "visibleLog" });
     }
 
     const queryBuilder = this.logRepository.createQueryBuilder("log");
