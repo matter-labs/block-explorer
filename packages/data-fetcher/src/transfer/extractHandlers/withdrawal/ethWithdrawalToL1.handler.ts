@@ -11,6 +11,9 @@ export const ethWithdrawalToL1Handler: ExtractTransferHandler = {
   matches: (log: Log): boolean => log.address.toLowerCase() === BASE_TOKEN_ADDRESS,
   extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ETH_TOKEN, log);
+    if (!parsedLog) {
+      return null;
+    }
     return {
       from: parsedLog.args._l2Sender.toLowerCase(),
       to: parsedLog.args._l1Receiver.toLowerCase(),

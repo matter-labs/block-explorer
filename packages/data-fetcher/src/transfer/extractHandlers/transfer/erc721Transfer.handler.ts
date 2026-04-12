@@ -11,6 +11,9 @@ export const erc721TransferHandler: ExtractTransferHandler = {
   matches: (log: Log): boolean => log.topics.length === 4,
   extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC721, log);
+    if (!parsedLog) {
+      return null;
+    }
 
     let type = TransferType.Transfer;
     let from = parsedLog.args.from;

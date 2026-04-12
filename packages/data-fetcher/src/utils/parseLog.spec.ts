@@ -6,12 +6,52 @@ import parseLog from "./parseLog";
 jest.mock("../logger", () => ({
   default: {
     error: jest.fn(),
+    warn: jest.fn(),
   },
 }));
 
 describe("parseLog", () => {
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  it("returns undefined when parseLog throws", () => {
+    const log = mock<Log>({
+      topics: [],
+      blockNumber: 1,
+      index: 0,
+      transactionHash: "0x1234",
+    });
+    const contractInterface = mock<Interface>({
+      parseLog: jest.fn().mockImplementation(() => {
+        throw new Error("could not decode log data");
+      }),
+    });
+
+    const result = parseLog(
+      {
+        interface: contractInterface,
+      },
+      log
+    );
+    expect(result).toBeUndefined();
+  });
+
+  it("returns undefined when parseLog returns null", () => {
+    const log = mock<Log>({
+      topics: [],
+    });
+    const contractInterface = mock<Interface>({
+      parseLog: jest.fn().mockReturnValue(null),
+    });
+
+    const result = parseLog(
+      {
+        interface: contractInterface,
+      },
+      log
+    );
+    expect(result).toBeUndefined();
   });
 
   it("parses log", () => {

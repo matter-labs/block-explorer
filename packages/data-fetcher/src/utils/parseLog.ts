@@ -4,7 +4,21 @@ import logger from "../logger";
 const ADDRESS_LENGTH = 40;
 
 export default function parseLog(contractInterface: { interface: Interface }, log: Log): LogDescription {
-  const logDescription = contractInterface.interface.parseLog(log);
+  let logDescription: LogDescription;
+  try {
+    logDescription = contractInterface.interface.parseLog(log);
+  } catch (error) {
+    logger.warn("Failed to parse log", {
+      error,
+      blockNumber: log.blockNumber,
+      logIndex: log.index,
+      transactionHash: log.transactionHash,
+    });
+    return;
+  }
+  if (!logDescription) {
+    return;
+  }
   // All the logic below is to handle specific solc versions issue causing args of type address to be out of range sometimes
   if (logDescription.fragment?.type !== "event" || !logDescription.fragment.inputs?.length) {
     return logDescription;
