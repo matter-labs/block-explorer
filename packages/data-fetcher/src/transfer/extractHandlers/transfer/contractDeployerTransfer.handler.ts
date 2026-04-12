@@ -22,6 +22,9 @@ export const contractDeployerTransferHandler: ExtractTransferHandler = {
       log.topics.length === 1
         ? parseLog(CONTRACT_INTERFACES.TRANSFER_WITH_NO_INDEXES, log)
         : parseLog(CONTRACT_INTERFACES.ERC20, log);
+    if (!parsedLog) {
+      return null;
+    }
     return {
       from: parsedLog.args.to.toLowerCase(),
       to: parsedLog.args.to.toLowerCase(),

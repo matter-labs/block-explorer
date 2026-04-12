@@ -16,6 +16,9 @@ export const erc721TransferHandler: ExtractTransferHandler = {
     transactionDetails?: types.TransactionDetails
   ): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC721, log);
+    if (!parsedLog) {
+      return null;
+    }
 
     let type = TransferType.Transfer;
     let from = parsedLog.args.from;

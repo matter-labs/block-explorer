@@ -17,6 +17,9 @@ export const defaultTransferHandler: ExtractTransferHandler = {
     transactionDetails?: types.TransactionDetails
   ): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC20, log);
+    if (!parsedLog) {
+      return null;
+    }
 
     let transferType: TransferType = TransferType.Transfer;
     if (parsedLog.args.to === utils.BOOTLOADER_FORMAL_ADDRESS) {
