@@ -53,6 +53,12 @@ describe("erc721TransferHandler", () => {
   });
 
   describe("extract", () => {
+    it("returns null when log cannot be parsed", async () => {
+      log = mock<types.Log>({ ...log, data: "0x", topics: [] });
+      const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
+      expect(result).toBeNull();
+    });
+
     it("extracts transfer with from field populated with lower cased from address if from log address is not a zero address", async () => {
       const result = await erc721TransferHandler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c");
