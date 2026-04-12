@@ -16,6 +16,9 @@ export const ethWithdrawalToL1Handler: ExtractTransferHandler = {
     transactionDetails?: types.TransactionDetails
   ): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ETH_TOKEN, log);
+    if (!parsedLog) {
+      return null;
+    }
     return {
       from: parsedLog.args._l2Sender.toLowerCase(),
       to: parsedLog.args._l1Receiver.toLowerCase(),

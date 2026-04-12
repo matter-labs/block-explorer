@@ -19,6 +19,9 @@ export const assetRouterFinalizeDepositHandler: ExtractTransferHandler = {
     transactionDetails?: types.TransactionDetails
   ): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_ASSET_ROUTER, log);
+    if (!parsedLog) {
+      return null;
+    }
     const assetId = parsedLog.args.assetId;
     let tokenAddress = (await blockchainService.getTokenAddressByAssetId(assetId)).toLowerCase();
     if (tokenAddress === utils.ETH_ADDRESS.toLowerCase()) {

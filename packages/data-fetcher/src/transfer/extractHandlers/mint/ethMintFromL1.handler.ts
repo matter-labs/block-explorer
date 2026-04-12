@@ -15,6 +15,9 @@ export const ethMintFromL1Handler: ExtractTransferHandler = {
     transactionDetails?: types.TransactionDetails
   ): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ETH_TOKEN, log);
+    if (!parsedLog) {
+      return null;
+    }
 
     return {
       from: parsedLog.args.account.toLowerCase(),

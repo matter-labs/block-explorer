@@ -47,6 +47,12 @@ describe("ethMintFromL1Handler", () => {
   });
 
   describe("extract", () => {
+    it("returns null when log cannot be parsed", async () => {
+      log = mock<types.Log>({ ...log, data: "0x", topics: [] });
+      const result = await ethMintFromL1Handler.extract(log, blockchainService, blockDetails);
+      expect(result).toBeNull();
+    });
+
     it("extracts transfer with from field populated with lower cased account", async () => {
       const result = await ethMintFromL1Handler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0xd206eaf6819007535e893410cfa01885ce40e99a");
