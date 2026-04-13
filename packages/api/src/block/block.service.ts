@@ -79,7 +79,11 @@ export class BlockService {
       .where(filterOptions)
       .orderBy("block.number", "DESC");
 
-    return await paginate<Block>(queryBuilder, paginationOptions, () => this.count(filterOptions));
+    return await paginate<Block>({
+      queryBuilder,
+      options: paginationOptions,
+      countQuery: () => this.count(filterOptions),
+    });
   }
 
   public async findMany({ miner, page = 1, offset = 10, selectFields }: FindManyOptions): Promise<BlockDetails[]> {

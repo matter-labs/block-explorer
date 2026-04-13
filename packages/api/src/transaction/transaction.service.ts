@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FindOperator, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { isAddressEqual, paginate, computeFromToMinMax } from "../common/utils";
+import { isAddressEqual, paginate, computeFromToMinMax, copyOrderBy } from "../common/utils";
 import { CounterCriteria, IPaginationOptions, SortingOrder } from "../common/types";
 import { Transaction } from "./entities/transaction.entity";
 import { AddressTransaction } from "./entities/addressTransaction.entity";
@@ -77,31 +77,19 @@ export class TransactionService {
       if (disableTxVisibilityByTopics) {
         // query transactions strictly between address and visibleBy
         const { fromToMin, fromToMax } = computeFromToMinMax(filterOptions.address, filterOptions.visibleBy);
-        const qb = this.transactionRepository.createQueryBuilder("transaction");
-        this.addTransactionJoins(qb);
-        qb.where({
-          fromToMin,
-          fromToMax,
-          ...commonFilters,
-        });
-        this.addDefaultOrder(qb, "transaction");
-        return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true });
+        const innerQb = this.transactionRepository.createQueryBuilder("transaction");
+        innerQb.select("transaction.hash", "hash");
+        innerQb.where({ fromToMin, fromToMax, ...commonFilters });
+        this.addDefaultOrder(innerQb);
+        return this.paginateTransactions(innerQb, "hash", paginationOptions);
       }
 
       // query transactions visible to the user for the address (including topics with user's address)
-      const qb = this.addressVisibleTransactionRepository.createQueryBuilder("addressVisibleTransaction");
-      qb.select("addressVisibleTransaction.number");
-      qb.leftJoinAndSelect("addressVisibleTransaction.transaction", "transaction");
-      this.addTransactionJoins(qb);
-      qb.where({
-        address: filterOptions.address,
-        visibleBy: filterOptions.visibleBy,
-        ...commonFilters,
-      });
-      this.addDefaultOrder(qb, "addressVisibleTransaction");
-      return this.unwrapTransactions(
-        await paginate<AddressVisibleTransaction>(qb, { ...paginationOptions, deferJoins: true })
-      );
+      const innerQb = this.addressVisibleTransactionRepository.createQueryBuilder("avt");
+      innerQb.select("avt.transactionHash", "transactionHash");
+      innerQb.where({ address: filterOptions.address, visibleBy: filterOptions.visibleBy, ...commonFilters });
+      this.addDefaultOrder(innerQb);
+      return this.paginateTransactions(innerQb, "transactionHash", paginationOptions);
     }
 
     // Case 2: all transactions visible to a user - own transactions + transactions including topics with user's address (prividium)
@@ -112,18 +100,11 @@ export class TransactionService {
       }
 
       // return transactions visible to the user for all addresses (including txs with topics with user's address)
-      const qb = this.visibleTransactionRepository.createQueryBuilder("visibleTransaction");
-      qb.select("visibleTransaction.number");
-      qb.leftJoinAndSelect("visibleTransaction.transaction", "transaction");
-      this.addTransactionJoins(qb);
-      qb.where({
-        visibleBy: filterOptions.visibleBy,
-        ...commonFilters,
-      });
-      this.addDefaultOrder(qb, "visibleTransaction");
-      return this.unwrapTransactions(
-        await paginate<VisibleTransaction>(qb, { ...paginationOptions, deferJoins: true })
-      );
+      const innerQb = this.visibleTransactionRepository.createQueryBuilder("vt");
+      innerQb.select("vt.transactionHash", "transactionHash");
+      innerQb.where({ visibleBy: filterOptions.visibleBy, ...commonFilters });
+      this.addDefaultOrder(innerQb);
+      return this.paginateTransactions(innerQb, "transactionHash", paginationOptions);
     }
 
     // Case 3: viewing transactions for an arbitrary address (non prividium) or own transactions (prividium)
@@ -132,11 +113,11 @@ export class TransactionService {
     }
 
     // Case 4: no filter — all transactions (non prividium)
-    const qb = this.transactionRepository.createQueryBuilder("transaction");
-    this.addTransactionJoins(qb);
-    qb.where(commonFilters);
-    this.addDefaultOrder(qb, "transaction");
-    return await paginate<Transaction>(qb, { ...paginationOptions, deferJoins: true });
+    const innerQb = this.transactionRepository.createQueryBuilder("transaction");
+    innerQb.select("transaction.hash", "hash");
+    innerQb.where(commonFilters);
+    this.addDefaultOrder(innerQb);
+    return this.paginateTransactions(innerQb, "hash", paginationOptions);
   }
 
   private async queryAddressTransactions(
@@ -144,17 +125,38 @@ export class TransactionService {
     filterOptions: FilterTransactionsOptions,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
-    const qb = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
-    qb.select("addressTransaction.number");
-    qb.leftJoinAndSelect("addressTransaction.transaction", "transaction");
-    this.addTransactionJoins(qb);
-    qb.where({
+    const innerQb = this.addressTransactionRepository.createQueryBuilder("at");
+    innerQb.select("at.transactionHash", "transactionHash");
+    innerQb.where({
       address,
       ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
       ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
     });
-    this.addDefaultOrder(qb, "addressTransaction");
-    return this.unwrapTransactions(await paginate<AddressTransaction>(qb, { ...paginationOptions, deferJoins: true }));
+    this.addDefaultOrder(innerQb);
+    return this.paginateTransactions(innerQb, "transactionHash", paginationOptions);
+  }
+
+  private async paginateTransactions<T>(
+    innerQb: SelectQueryBuilder<T>,
+    fkColumn: string,
+    paginationOptions: IPaginationOptions
+  ): Promise<Pagination<Transaction>> {
+    return paginate<Transaction>({
+      queryBuilder: innerQb as unknown as SelectQueryBuilder<Transaction>,
+      options: paginationOptions,
+      wrapQuery: async (pagedInnerQb) => {
+        const outerQb = this.transactionRepository.createQueryBuilder("transaction");
+        outerQb.innerJoin(
+          `(${pagedInnerQb.getQuery()})`,
+          "_paginated",
+          `"_paginated"."${fkColumn}" = "transaction"."hash"`
+        );
+        outerQb.setParameters(pagedInnerQb.getParameters());
+        this.addTransactionJoins(outerQb);
+        copyOrderBy(pagedInnerQb, outerQb, "transaction");
+        return outerQb;
+      },
+    });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -166,13 +168,9 @@ export class TransactionService {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private addDefaultOrder(qb: SelectQueryBuilder<any>, alias: string): void {
-    qb.addOrderBy(`${alias}.receivedAt`, "DESC");
-    qb.addOrderBy(`${alias}.transactionIndex`, "DESC");
-  }
-
-  private unwrapTransactions<T extends { transaction: Transaction }>(results: Pagination<T>): Pagination<Transaction> {
-    return { ...results, items: results.items.map((item) => item.transaction) };
+  private addDefaultOrder(qb: SelectQueryBuilder<any>): void {
+    qb.addOrderBy(`${qb.alias}.receivedAt`, "DESC");
+    qb.addOrderBy(`${qb.alias}.transactionIndex`, "DESC");
   }
 
   public async findByAddress(
@@ -184,12 +182,11 @@ export class TransactionService {
       offset = 10,
       sort = SortingOrder.Desc,
     }: FindByAddressFilterTransactionsOptions = {}
-  ): Promise<AddressTransaction[]> {
+  ): Promise<Transaction[]> {
     const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
-    // Inner query: paginate on the index-only table
-    const innerQb = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
-    innerQb.select("addressTransaction.number", "number");
+    const innerQb = this.addressTransactionRepository.createQueryBuilder("at");
+    innerQb.select("at.transactionHash", "transactionHash");
     innerQb.where({ address });
     if (startBlock !== undefined) {
       innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
@@ -197,21 +194,18 @@ export class TransactionService {
     if (endBlock !== undefined) {
       innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
     }
-    innerQb.orderBy("addressTransaction.blockNumber", order);
-    innerQb.addOrderBy("addressTransaction.transactionIndex", order);
+    innerQb.orderBy("at.blockNumber", order);
+    innerQb.addOrderBy("at.transactionIndex", order);
     innerQb.offset((page - 1) * offset);
     innerQb.limit(offset);
 
-    // Outer query: join transaction details only for the paginated rows
-    const queryBuilder = this.addressTransactionRepository.createQueryBuilder("addressTransaction");
-    queryBuilder.select("addressTransaction.number");
+    const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
     queryBuilder.innerJoin(
       `(${innerQb.getQuery()})`,
       "_paginated",
-      `"_paginated"."number" = "addressTransaction"."number"`
+      `"_paginated"."transactionHash" = "transaction"."hash"`
     );
     queryBuilder.setParameters(innerQb.getParameters());
-    queryBuilder.leftJoinAndSelect("addressTransaction.transaction", "transaction");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect([
       "transactionReceipt.gasUsed",
@@ -220,8 +214,8 @@ export class TransactionService {
     ]);
     queryBuilder.leftJoin("transaction.block", "block");
     queryBuilder.addSelect(["block.status"]);
-    queryBuilder.orderBy("addressTransaction.blockNumber", order);
-    queryBuilder.addOrderBy("addressTransaction.transactionIndex", order);
+    queryBuilder.orderBy("transaction.receivedAt", order);
+    queryBuilder.addOrderBy("transaction.transactionIndex", order);
     return await queryBuilder.getMany();
   }
 

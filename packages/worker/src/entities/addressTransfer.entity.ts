@@ -8,12 +8,12 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 import { TransferFields } from "../dataFetcher/types";
 
 @Entity({ name: "addressTransfers" })
-@Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["address", "tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["address", "type", "timestamp", "logIndex"])
-@Index(["address", "tokenAddress", "blockNumber", "logIndex"])
-@Index(["address", "tokenType", "blockNumber", "logIndex"])
-@Index(["address", "isInternal", "blockNumber", "logIndex"])
+@Index(["address", "isFeeOrRefund", "timestamp", "logIndex", "transferNumber"])
+@Index(["address", "tokenAddress", "isFeeOrRefund", "timestamp", "logIndex", "transferNumber"])
+@Index(["address", "type", "timestamp", "logIndex", "transferNumber"])
+@Index(["address", "tokenAddress", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "tokenType", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "isInternal", "blockNumber", "logIndex", "transferNumber"])
 export class AddressTransfer extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;

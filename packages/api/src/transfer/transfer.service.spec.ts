@@ -108,10 +108,9 @@ describe("TransferService", () => {
         });
       });
 
-      it("joins token records to the transfers", async () => {
+      it("selects transfer number", async () => {
         await service.findAll(filterOptions, pagingOptions);
-        expect(queryBuilderMock.leftJoinAndSelect).toBeCalledTimes(1);
-        expect(queryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith("transfer.token", "token");
+        expect(queryBuilderMock.select).toHaveBeenCalledWith("transfer.number", "number");
       });
 
       it("returns transfers ordered by timestamp DESC and logIndex ASC", async () => {
@@ -122,79 +121,90 @@ describe("TransferService", () => {
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transfer.logIndex", "ASC");
       });
 
-      it("returns paginated result", async () => {
+      it("returns paginated result with wrapQuery", async () => {
         const paginationResult = mock<Pagination<Transfer, IPaginationMeta>>();
         (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
         const result = await service.findAll(filterOptions, pagingOptions);
         expect(utils.paginate).toBeCalledTimes(1);
-        expect(utils.paginate).toBeCalledWith(queryBuilderMock, { ...pagingOptions, deferJoins: true });
+        expect(utils.paginate).toBeCalledWith({
+          queryBuilder: queryBuilderMock,
+          options: pagingOptions,
+          wrapQuery: expect.any(Function),
+        });
         expect(result).toBe(paginationResult);
+      });
+
+      it("wrapQuery builds outer query with inner join on transfer number", async () => {
+        let outerTransferQbMock;
+        (utils.paginate as jest.Mock).mockImplementation(async ({ wrapQuery }) => {
+          const pagedInnerQbMock = mock<typeorm.SelectQueryBuilder<Transfer>>({
+            getQuery: jest.fn().mockReturnValue("inner SQL"),
+            getParameters: jest.fn().mockReturnValue({ param1: "value1" }),
+          });
+          Object.defineProperty(pagedInnerQbMock, "expressionMap", {
+            value: { orderBys: { "transfer.timestamp": "DESC" } },
+          });
+
+          outerTransferQbMock = mock<typeorm.SelectQueryBuilder<Transfer>>();
+          (transferRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(outerTransferQbMock);
+
+          await wrapQuery(pagedInnerQbMock);
+          return { items: [] };
+        });
+
+        await service.findAll(filterOptions, pagingOptions);
+
+        expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
+        expect(outerTransferQbMock.innerJoin).toHaveBeenCalledWith(
+          "(inner SQL)",
+          "_paginated",
+          `"_paginated"."number" = "transfer"."number"`
+        );
+        expect(outerTransferQbMock.setParameters).toHaveBeenCalledWith({ param1: "value1" });
+        expect(outerTransferQbMock.leftJoinAndSelect).toHaveBeenCalledWith("transfer.token", "token");
+        expect(outerTransferQbMock.addOrderBy).toHaveBeenCalledWith("transfer.timestamp", "DESC");
       });
     });
 
     describe("when address filter options is specified", () => {
+      const paginationResult = mock<Pagination<Transfer, IPaginationMeta>>();
+
       beforeEach(() => {
         filterOptions = {
           address: "address",
         };
-        (utils.paginate as jest.Mock).mockResolvedValue({ items: [] });
-      });
-
-      it("creates query builder with proper params", async () => {
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
-        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransfer");
-      });
-
-      it("selects address transfers number", async () => {
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransfersQueryBuilderMock.select).toBeCalledTimes(1);
-        expect(addressTransfersQueryBuilderMock.select).toHaveBeenCalledWith("addressTransfer.number");
-      });
-
-      it("joins transfer records and token records", async () => {
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransfersQueryBuilderMock.leftJoinAndSelect).toBeCalledTimes(2);
-        expect(addressTransfersQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith(
-          "addressTransfer.transfer",
-          "transfer"
-        );
-        expect(addressTransfersQueryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith("transfer.token", "token");
-      });
-
-      it("filters address transfers using specified findOptions", async () => {
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransfersQueryBuilderMock.where).toBeCalledTimes(1);
-        expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({
-          address: "address",
-        });
-      });
-
-      it("orders address transfers by timestamp DESC and logIndex ASC", async () => {
-        await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransfersQueryBuilderMock.orderBy).toBeCalledTimes(1);
-        expect(addressTransfersQueryBuilderMock.orderBy).toHaveBeenCalledWith("addressTransfer.timestamp", "DESC");
-        expect(addressTransfersQueryBuilderMock.addOrderBy).toBeCalledTimes(1);
-        expect(addressTransfersQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("addressTransfer.logIndex", "ASC");
-      });
-
-      it("returns paginated result with transfers records", async () => {
-        const transfers = [mock<Transfer>({ logIndex: 0 }), mock<Transfer>({ logIndex: 1 })];
-        const paginationResult = mock<Pagination<AddressTransfer, IPaginationMeta>>({
-          items: [
-            {
-              transfer: transfers[0],
-            },
-            {
-              transfer: transfers[1],
-            },
-          ],
-        });
         (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
+      });
+
+      it("creates query builder on addressTransferRepository", async () => {
+        await service.findAll(filterOptions, pagingOptions);
+        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("at");
+      });
+
+      it("selects transferNumber", async () => {
+        await service.findAll(filterOptions, pagingOptions);
+        expect(addressTransfersQueryBuilderMock.select).toHaveBeenCalledWith("at.transferNumber", "transferNumber");
+      });
+
+      it("filters with address", async () => {
+        await service.findAll(filterOptions, pagingOptions);
+        expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({ address: "address" });
+      });
+
+      it("orders by at timestamp DESC and logIndex ASC", async () => {
+        await service.findAll(filterOptions, pagingOptions);
+        expect(addressTransfersQueryBuilderMock.orderBy).toHaveBeenCalledWith("at.timestamp", "DESC");
+        expect(addressTransfersQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("at.logIndex", "ASC");
+      });
+
+      it("returns paginated result with wrapQuery", async () => {
         const result = await service.findAll(filterOptions, pagingOptions);
-        expect(utils.paginate).toBeCalledTimes(1);
-        expect(utils.paginate).toBeCalledWith(addressTransfersQueryBuilderMock, { ...pagingOptions, deferJoins: true });
-        expect(result).toStrictEqual({ ...paginationResult, items: transfers });
+        expect(utils.paginate).toBeCalledWith({
+          queryBuilder: addressTransfersQueryBuilderMock,
+          options: pagingOptions,
+          wrapQuery: expect.any(Function),
+        });
+        expect(result).toBe(paginationResult);
       });
     });
 
@@ -203,19 +213,15 @@ describe("TransferService", () => {
       const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
       const tokenAddress = "0x976EA74026E726554dB657fA54763abd0C3a0aa9";
 
-      it("uses transferRepository with fromToMin/fromToMax", async () => {
+      it("uses transferRepository with fromToMin/fromToMax in where", async () => {
         await service.findAll({ address, visibleBy, tokenAddress }, pagingOptions);
         expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
         // address > visibleBy lexicographically, so fromToMin=visibleBy, fromToMax=address
-        expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({
+        expect(queryBuilderMock.where).toHaveBeenCalledWith({
+          tokenAddress,
           fromToMin: visibleBy,
           fromToMax: address,
         });
-      });
-
-      it("preserves extra filter options", async () => {
-        await service.findAll({ address, visibleBy, tokenAddress }, pagingOptions);
-        expect(queryBuilderMock.where).toHaveBeenCalledWith({ tokenAddress });
       });
     });
 
@@ -226,9 +232,9 @@ describe("TransferService", () => {
         (utils.paginate as jest.Mock).mockResolvedValue({ items: [] });
       });
 
-      it("falls back to addressTransferRepository", async () => {
+      it("uses addressTransferRepository", async () => {
         await service.findAll({ visibleBy }, pagingOptions);
-        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransfer");
+        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("at");
       });
 
       it("filters by visibleBy as address", async () => {
@@ -275,15 +281,13 @@ describe("TransferService", () => {
         getQuery: jest.fn().mockReturnValue("inner query"),
         getParameters: jest.fn().mockReturnValue({}),
       });
-      outerAddressTransfersQbMock = mock<typeorm.SelectQueryBuilder<AddressTransfer>>({
+      outerAddressTransfersQbMock = mock<typeorm.SelectQueryBuilder<Transfer>>({
         getMany: jest.fn().mockResolvedValue([]),
       });
       (transferRepositoryMock.createQueryBuilder as jest.Mock)
         .mockReturnValueOnce(innerQueryBuilderMock)
         .mockReturnValueOnce(outerQueryBuilderMock);
-      (addressTransferRepositoryMock.createQueryBuilder as jest.Mock)
-        .mockReturnValueOnce(innerAddressTransfersQbMock)
-        .mockReturnValueOnce(outerAddressTransfersQbMock);
+      (addressTransferRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(innerAddressTransfersQbMock);
     });
 
     describe("when address filter options is not specified", () => {
@@ -367,13 +371,22 @@ describe("TransferService", () => {
         filterOptions = {
           address: "address",
         };
-        jest.spyOn(outerAddressTransfersQbMock, "getMany").mockResolvedValue([{ transfer: { blockNumber: 10 } }]);
+        // After inner addressTransfer QB, the outer is from transferRepository
+        (transferRepositoryMock.createQueryBuilder as jest.Mock).mockReset();
+        outerAddressTransfersQbMock = mock<typeorm.SelectQueryBuilder<Transfer>>({
+          getMany: jest.fn().mockResolvedValue([]),
+        });
+        (transferRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(outerAddressTransfersQbMock);
       });
 
-      it("creates two query builders for inner and outer queries", async () => {
+      it("creates inner query builder on addressTransferRepository", async () => {
         await service.findTokenTransfers(filterOptions);
-        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(2);
         expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransfer");
+      });
+
+      it("creates outer query builder on transferRepository", async () => {
+        await service.findTokenTransfers(filterOptions);
+        expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
       });
 
       describe("when token type is ERC20", () => {
@@ -430,12 +443,8 @@ describe("TransferService", () => {
         });
       });
 
-      it("outer query joins transfers, tokens, transaction and receipt", async () => {
+      it("outer query joins token, transaction and receipt", async () => {
         await service.findTokenTransfers(filterOptions);
-        expect(outerAddressTransfersQbMock.leftJoinAndSelect).toHaveBeenCalledWith(
-          "addressTransfer.transfer",
-          "transfer"
-        );
         expect(outerAddressTransfersQbMock.leftJoinAndSelect).toHaveBeenCalledWith("transfer.token", "token");
         expect(outerAddressTransfersQbMock.leftJoin).toHaveBeenCalledWith("transfer.transaction", "transaction");
         expect(outerAddressTransfersQbMock.leftJoin).toHaveBeenCalledWith(
@@ -447,18 +456,18 @@ describe("TransferService", () => {
       it("sorts by descending order by default", async () => {
         await service.findTokenTransfers(filterOptions);
         expect(innerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "DESC");
-        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "DESC");
+        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("transfer.blockNumber", "DESC");
       });
 
       it("sorts by ascending order if specified", async () => {
         await service.findTokenTransfers({ ...filterOptions, sort: SortingOrder.Asc });
         expect(innerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "ASC");
-        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "ASC");
+        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("transfer.blockNumber", "ASC");
       });
 
       it("executes outer query and returns transfers list", async () => {
         const result = await service.findTokenTransfers(filterOptions);
-        expect(result).toEqual([{ blockNumber: 10 }]);
+        expect(result).toEqual([]);
         expect(outerAddressTransfersQbMock.getMany).toBeCalledTimes(1);
       });
     });
@@ -483,15 +492,13 @@ describe("TransferService", () => {
         getQuery: jest.fn().mockReturnValue("inner query"),
         getParameters: jest.fn().mockReturnValue({}),
       });
-      outerAddressTransfersQbMock = mock<typeorm.SelectQueryBuilder<AddressTransfer>>({
+      outerAddressTransfersQbMock = mock<typeorm.SelectQueryBuilder<Transfer>>({
         getMany: jest.fn().mockResolvedValue([]),
       });
       (transferRepositoryMock.createQueryBuilder as jest.Mock)
         .mockReturnValueOnce(innerQueryBuilderMock)
         .mockReturnValueOnce(outerQueryBuilderMock);
-      (addressTransferRepositoryMock.createQueryBuilder as jest.Mock)
-        .mockReturnValueOnce(innerAddressTransfersQbMock)
-        .mockReturnValueOnce(outerAddressTransfersQbMock);
+      (addressTransferRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(innerAddressTransfersQbMock);
     });
 
     describe("when address filter options is not specified", () => {
@@ -585,13 +592,22 @@ describe("TransferService", () => {
     describe("when address filter option is specified", () => {
       beforeEach(() => {
         filterOptions = { address: "address" };
-        jest.spyOn(outerAddressTransfersQbMock, "getMany").mockResolvedValue([{ transfer: { blockNumber: 10 } }]);
+        // After inner addressTransfer QB, the outer is from transferRepository
+        (transferRepositoryMock.createQueryBuilder as jest.Mock).mockReset();
+        outerAddressTransfersQbMock = mock<typeorm.SelectQueryBuilder<Transfer>>({
+          getMany: jest.fn().mockResolvedValue([]),
+        });
+        (transferRepositoryMock.createQueryBuilder as jest.Mock).mockReturnValue(outerAddressTransfersQbMock);
       });
 
-      it("creates two query builders for inner and outer queries", async () => {
+      it("creates inner query builder on addressTransferRepository", async () => {
         await service.findInternalTransfers(filterOptions);
-        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(2);
         expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("addressTransfer");
+      });
+
+      it("creates outer query builder on transferRepository", async () => {
+        await service.findInternalTransfers(filterOptions);
+        expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
       });
 
       it("inner query adds address filter", async () => {
@@ -602,12 +618,8 @@ describe("TransferService", () => {
         });
       });
 
-      it("outer query joins transfers, transaction and receipt", async () => {
+      it("outer query joins transaction and receipt", async () => {
         await service.findInternalTransfers(filterOptions);
-        expect(outerAddressTransfersQbMock.leftJoinAndSelect).toHaveBeenCalledWith(
-          "addressTransfer.transfer",
-          "transfer"
-        );
         expect(outerAddressTransfersQbMock.leftJoin).toHaveBeenCalledWith("transfer.transaction", "transaction");
         expect(outerAddressTransfersQbMock.leftJoin).toHaveBeenCalledWith(
           "transaction.transactionReceipt",
@@ -632,13 +644,13 @@ describe("TransferService", () => {
       it("sorts by descending order by default", async () => {
         await service.findInternalTransfers(filterOptions);
         expect(innerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "DESC");
-        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "DESC");
+        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("transfer.blockNumber", "DESC");
       });
 
       it("sorts by ascending order if specified", async () => {
         await service.findInternalTransfers({ ...filterOptions, sort: SortingOrder.Asc });
         expect(innerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "ASC");
-        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("addressTransfer.blockNumber", "ASC");
+        expect(outerAddressTransfersQbMock.orderBy).toHaveBeenCalledWith("transfer.blockNumber", "ASC");
       });
 
       it("inner query sets offset and limit", async () => {
@@ -649,7 +661,7 @@ describe("TransferService", () => {
 
       it("executes outer query and returns transfers list", async () => {
         const result = await service.findInternalTransfers(filterOptions);
-        expect(result).toEqual([{ blockNumber: 10 }]);
+        expect(result).toEqual([]);
         expect(outerAddressTransfersQbMock.getMany).toBeCalledTimes(1);
       });
     });

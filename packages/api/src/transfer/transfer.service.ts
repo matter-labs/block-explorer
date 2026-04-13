@@ -1,8 +1,16 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, FindOperator, MoreThanOrEqual, LessThanOrEqual, Brackets, ObjectLiteral } from "typeorm";
+import {
+  Repository,
+  FindOperator,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  Brackets,
+  ObjectLiteral,
+  SelectQueryBuilder,
+} from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { paginate, computeFromToMinMax } from "../common/utils";
+import { paginate, computeFromToMinMax, copyOrderBy } from "../common/utils";
 import { IPaginationOptions, SortingOrder } from "../common/types";
 import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
@@ -60,27 +68,26 @@ export class TransferService {
       if (address && address !== visibleBy) {
         // two-party: transfers between address and visibleBy
         const { fromToMin, fromToMax } = computeFromToMinMax(address, visibleBy);
-        const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-        queryBuilder.where(options);
-        queryBuilder.andWhere({ fromToMin, fromToMax });
-        queryBuilder.leftJoinAndSelect("transfer.token", "token");
-        queryBuilder.orderBy("transfer.timestamp", "DESC");
-        queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-        return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
+        const innerQb = this.transferRepository.createQueryBuilder("transfer");
+        innerQb.select("transfer.number", "number");
+        innerQb.where({ ...options, fromToMin, fromToMax });
+        innerQb.orderBy("transfer.timestamp", "DESC");
+        innerQb.addOrderBy("transfer.logIndex", "ASC");
+        return this.paginateTransfers(innerQb, "number", paginationOptions);
       }
       if (options.transactionHash) {
         // transactionHash is highly selective — OR over a handful of rows is negligible
-        const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-        queryBuilder.where(options);
-        queryBuilder.andWhere(
+        const innerQb = this.transferRepository.createQueryBuilder("transfer");
+        innerQb.select("transfer.number", "number");
+        innerQb.where(options);
+        innerQb.andWhere(
           new Brackets((qb) => {
             qb.where({ from: visibleBy }).orWhere({ to: visibleBy });
           })
         );
-        queryBuilder.leftJoinAndSelect("transfer.token", "token");
-        queryBuilder.orderBy("transfer.timestamp", "DESC");
-        queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-        return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
+        innerQb.orderBy("transfer.timestamp", "DESC");
+        innerQb.addOrderBy("transfer.logIndex", "ASC");
+        return this.paginateTransfers(innerQb, "number", paginationOptions);
       }
       // own transfers: address === visibleBy or no address
       return this.findAddressTransfers({ ...options, address: visibleBy }, paginationOptions);
@@ -90,12 +97,12 @@ export class TransferService {
       return this.findAddressTransfers(basicOptions, paginationOptions);
     }
 
-    const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
-    queryBuilder.where(basicOptions);
-    queryBuilder.leftJoinAndSelect("transfer.token", "token");
-    queryBuilder.orderBy("transfer.timestamp", "DESC");
-    queryBuilder.addOrderBy("transfer.logIndex", "ASC");
-    return await paginate<Transfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
+    const innerQb = this.transferRepository.createQueryBuilder("transfer");
+    innerQb.select("transfer.number", "number");
+    innerQb.where(basicOptions);
+    innerQb.orderBy("transfer.timestamp", "DESC");
+    innerQb.addOrderBy("transfer.logIndex", "ASC");
+    return this.paginateTransfers(innerQb, "number", paginationOptions);
   }
 
   public async findTokenTransfers({
@@ -112,7 +119,7 @@ export class TransferService {
 
     if (address) {
       const innerQb = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-      innerQb.select("addressTransfer.number", "number");
+      innerQb.select("addressTransfer.transferNumber", "transferNumber");
       innerQb.where({ address });
       if (tokenAddress) {
         innerQb.andWhere(`"addressTransfer"."tokenAddress" = :tokenAddress`, {
@@ -132,15 +139,13 @@ export class TransferService {
       innerQb.offset((page - 1) * offset);
       innerQb.limit(offset);
 
-      const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-      queryBuilder.select("addressTransfer.number");
+      const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
       queryBuilder.innerJoin(
         `(${innerQb.getQuery()})`,
         "_paginated",
-        `"_paginated"."number" = "addressTransfer"."number"`
+        `"_paginated"."transferNumber" = "transfer"."number"`
       );
       queryBuilder.setParameters(innerQb.getParameters());
-      queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
       queryBuilder.leftJoin("transfer.transaction", "transaction");
       queryBuilder.addSelect([
@@ -155,10 +160,9 @@ export class TransferService {
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.cumulativeGasUsed"]);
-      queryBuilder.orderBy("addressTransfer.blockNumber", order);
-      queryBuilder.addOrderBy("addressTransfer.logIndex", order);
-      const addressTransfers = await queryBuilder.getMany();
-      return addressTransfers.map((item) => item.transfer);
+      queryBuilder.orderBy("transfer.blockNumber", order);
+      queryBuilder.addOrderBy("transfer.logIndex", order);
+      return await queryBuilder.getMany();
     }
     if (!tokenAddress) {
       throw new BadRequestException("Error! Missing address or contract address");
@@ -213,7 +217,7 @@ export class TransferService {
 
     if (address) {
       const innerQb = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-      innerQb.select("addressTransfer.number", "number");
+      innerQb.select("addressTransfer.transferNumber", "transferNumber");
       innerQb.where({ address, isInternal: true });
       if (startBlock !== undefined) {
         innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
@@ -226,15 +230,13 @@ export class TransferService {
       innerQb.offset((page - 1) * offset);
       innerQb.limit(offset);
 
-      const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-      queryBuilder.select("addressTransfer.number");
+      const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
       queryBuilder.innerJoin(
         `(${innerQb.getQuery()})`,
         "_paginated",
-        `"_paginated"."number" = "addressTransfer"."number"`
+        `"_paginated"."transferNumber" = "transfer"."number"`
       );
       queryBuilder.setParameters(innerQb.getParameters());
-      queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
       queryBuilder.leftJoin("transfer.transaction", "transaction");
       queryBuilder.addSelect([
         "transaction.receiptStatus",
@@ -244,10 +246,9 @@ export class TransferService {
       ]);
       queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
       queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
-      queryBuilder.orderBy("addressTransfer.blockNumber", order);
-      queryBuilder.addOrderBy("addressTransfer.logIndex", order);
-      const addressTransfers = await queryBuilder.getMany();
-      return addressTransfers.map((item) => item.transfer);
+      queryBuilder.orderBy("transfer.blockNumber", order);
+      queryBuilder.addOrderBy("transfer.logIndex", order);
+      return await queryBuilder.getMany();
     }
 
     const innerQb = this.transferRepository.createQueryBuilder("transfer");
@@ -288,17 +289,34 @@ export class TransferService {
     where: ObjectLiteral,
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transfer>> {
-    const queryBuilder = this.addressTransferRepository.createQueryBuilder("addressTransfer");
-    queryBuilder.select("addressTransfer.number");
-    queryBuilder.leftJoinAndSelect("addressTransfer.transfer", "transfer");
-    queryBuilder.leftJoinAndSelect("transfer.token", "token");
-    queryBuilder.where(where);
-    queryBuilder.orderBy("addressTransfer.timestamp", "DESC");
-    queryBuilder.addOrderBy("addressTransfer.logIndex", "ASC");
-    const addressTransfers = await paginate<AddressTransfer>(queryBuilder, { ...paginationOptions, deferJoins: true });
-    return {
-      ...addressTransfers,
-      items: addressTransfers.items.map((item) => item.transfer),
-    };
+    const innerQb = this.addressTransferRepository.createQueryBuilder("at");
+    innerQb.select("at.transferNumber", "transferNumber");
+    innerQb.where(where);
+    innerQb.orderBy("at.timestamp", "DESC");
+    innerQb.addOrderBy("at.logIndex", "ASC");
+    return this.paginateTransfers(innerQb, "transferNumber", paginationOptions);
+  }
+
+  private async paginateTransfers<T>(
+    innerQb: SelectQueryBuilder<T>,
+    fkColumn: string,
+    paginationOptions: IPaginationOptions
+  ): Promise<Pagination<Transfer>> {
+    return paginate<Transfer>({
+      queryBuilder: innerQb as unknown as SelectQueryBuilder<Transfer>,
+      options: paginationOptions,
+      wrapQuery: async (pagedInnerQb) => {
+        const outerQb = this.transferRepository.createQueryBuilder("transfer");
+        outerQb.innerJoin(
+          `(${pagedInnerQb.getQuery()})`,
+          "_paginated",
+          `"_paginated"."${fkColumn}" = "transfer"."number"`
+        );
+        outerQb.setParameters(pagedInnerQb.getParameters());
+        outerQb.leftJoinAndSelect("transfer.token", "token");
+        copyOrderBy(pagedInnerQb, outerQb, "transfer");
+        return outerQb;
+      },
+    });
   }
 }

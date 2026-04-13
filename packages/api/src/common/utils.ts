@@ -9,6 +9,18 @@ import { getAddress } from "ethers";
 
 const MIN_OFFSET_TO_USE_NUMBER_FILTER = 1000;
 
+// Uses TypeORM's internal expressionMap.orderBys — no public API alternative exists.
+export function copyOrderBy<S, T>(source: SelectQueryBuilder<S>, target: SelectQueryBuilder<T>, toAlias: string): void {
+  for (const [key, value] of Object.entries(source.expressionMap.orderBys)) {
+    const column = key.split(".").pop();
+    if (typeof value === "string") {
+      target.addOrderBy(`${toAlias}.${column}`, value);
+    } else {
+      target.addOrderBy(`${toAlias}.${column}`, value.order, value.nulls);
+    }
+  }
+}
+
 export const buildDateFilter = (fromDate: string, toDate: string, fieldName = "timestamp") => {
   return fromDate && toDate
     ? {
@@ -20,118 +32,114 @@ export const buildDateFilter = (fromDate: string, toDate: string, fieldName = "t
       };
 };
 
-async function countQueryWithLimit<T, CustomMetaType = IPaginationMeta>(
+/**
+ * Clones the query builder, applies pagination (limit, offset) and returns the clone.
+ * When canUseNumberFilterAsOffset is set and offset >= 1000, uses a WHERE filter on
+ * the `number` column instead of SQL OFFSET for better performance.
+ */
+async function buildPaginatedQuery<T, CustomMetaType = IPaginationMeta>(
   queryBuilder: SelectQueryBuilder<T>,
   options: IPaginationOptions<CustomMetaType>
-): Promise<number> {
-  const totalQueryBuilder = queryBuilder.clone();
-
-  totalQueryBuilder.select("true");
-  // Remove any joins to improve performance
-  if (totalQueryBuilder.expressionMap?.joinAttributes) {
-    totalQueryBuilder.expressionMap.joinAttributes = [];
-  }
-  totalQueryBuilder.skip(undefined);
-  totalQueryBuilder.limit(options.maxLimit);
-  totalQueryBuilder.offset(undefined);
-  totalQueryBuilder.take(undefined);
-  totalQueryBuilder.orderBy(undefined);
-
-  const countQueryBuilder = queryBuilder.connection.createQueryBuilder();
-  countQueryBuilder.select("COUNT(*)", "value");
-  countQueryBuilder.from(`(${totalQueryBuilder.getQuery()})`, "uniqueTableAlias");
-  countQueryBuilder.setParameters(queryBuilder.getParameters());
-  const { value } = await countQueryBuilder.getRawOne<{ value: string }>();
-
-  return Number(value);
-}
-
-async function paginateQueryBuilder<T, CustomMetaType = IPaginationMeta>(
-  queryBuilder: SelectQueryBuilder<T>,
-  options: IPaginationOptions<CustomMetaType>,
-  countQuery?: () => Promise<number>
-): Promise<Pagination<T, CustomMetaType>> {
+): Promise<SelectQueryBuilder<T>> {
   const limit = options.limit as number;
   const page = options.page as number;
   const offset = (page - 1) * limit;
 
-  queryBuilder.limit(limit);
+  const paginatedQb = queryBuilder.clone();
+  paginatedQb.limit(limit);
 
   const useNumberFilterAsOffset = options.canUseNumberFilterAsOffset && offset >= MIN_OFFSET_TO_USE_NUMBER_FILTER;
   if (useNumberFilterAsOffset) {
-    const topItem = (await queryBuilder.clone().limit(1).getOne()) as NumerableEntity;
+    const topItem = (await paginatedQb.clone().limit(1).getOne()) as NumerableEntity;
     const topItemNumber = topItem?.number ?? -1;
-
-    queryBuilder
-      .andWhere({
-        number: LessThanOrEqual(topItemNumber - offset),
-      })
-      .offset(0);
+    paginatedQb.andWhere({ number: LessThanOrEqual(topItemNumber - offset) }).offset(0);
   } else {
-    queryBuilder.offset(offset);
+    paginatedQb.offset(offset);
   }
 
-  let itemsQuery = queryBuilder;
-  const pkColumn = queryBuilder.expressionMap.mainAlias?.metadata?.primaryColumns[0]?.databaseName;
-  // When using number filter as offset leave the query as it is as deferred joins don't improve performance in this case
-  if (options.deferJoins && !useNumberFilterAsOffset && pkColumn) {
-    const alias = queryBuilder.alias;
-
-    // Inner subquery: only select PK with filters + limit/offset, no joins
-    const innerQb = queryBuilder.clone();
-    innerQb.select(`${alias}.${pkColumn}`, pkColumn);
-    innerQb.expressionMap.joinAttributes = [];
-
-    // Outer query: clone to keep selects/aliases, reorder so INNER JOIN comes first
-    const outerQb = queryBuilder.clone();
-    outerQb.expressionMap.wheres = [];
-    outerQb.offset(undefined);
-    outerQb.limit(undefined);
-    const originalJoins = outerQb.expressionMap.joinAttributes.splice(0);
-    outerQb.innerJoin(`(${innerQb.getQuery()})`, "_paginated", `"_paginated"."${pkColumn}" = "${alias}"."${pkColumn}"`);
-    outerQb.expressionMap.joinAttributes.push(...originalJoins);
-
-    itemsQuery = outerQb;
-  }
-
-  const [items, total] = await Promise.all([
-    itemsQuery.getMany(),
-    countQuery ? countQuery() : countQueryWithLimit(queryBuilder, options),
-  ]);
-
-  return createPaginationObject<T, CustomMetaType>({
-    items,
-    totalItems: total,
-    currentPage: page,
-    limit,
-    route: options.route,
-  });
+  return paginatedQb;
 }
 
-export const paginate = async <T, CustomMetaType = IPaginationMeta>(
+/**
+ * Builds a COUNT query from the given query builder.
+ * Clones the query builder, wraps it as a subquery, and counts the results.
+ * Returns a query builder ready to execute with getRawOne<{ value: string }>().
+ */
+function buildCountQuery<T, CustomMetaType = IPaginationMeta>(
   queryBuilder: SelectQueryBuilder<T>,
-  options: IPaginationOptions<CustomMetaType>,
-  countQuery?: () => Promise<number>
-) => {
-  const result = await paginateQueryBuilder(queryBuilder, options, countQuery);
+  options: IPaginationOptions<CustomMetaType>
+): SelectQueryBuilder<unknown> {
+  const subQb = queryBuilder.clone();
+  subQb.select("true");
+  if (subQb.expressionMap?.joinAttributes) {
+    subQb.expressionMap.joinAttributes = [];
+  }
+  subQb.skip(undefined);
+  subQb.limit(options.maxLimit);
+  subQb.offset(undefined);
+  subQb.take(undefined);
+  subQb.orderBy(undefined);
 
-  if (!result?.links || !options.filterOptions) {
-    return result;
-  }
-  for (const link of Object.keys(result.links)) {
-    if (!result.links[link]) {
-      continue;
-    }
-    for (const filterOption of Object.keys(options.filterOptions)) {
-      const filterOptionValue = options.filterOptions[filterOption];
-      if (filterOptionValue === null || filterOptionValue === undefined) {
-        continue;
+  const countQb = queryBuilder.connection.createQueryBuilder();
+  countQb.select("COUNT(*)", "value");
+  countQb.from(`(${subQb.getQuery()})`, "_count");
+  countQb.setParameters(queryBuilder.getParameters());
+  return countQb;
+}
+
+/**
+ * Applies pagination to the query, optionally wraps it in an outer query
+ * via wrapQuery callback, then executes items + count in parallel.
+ *
+ * @param wrapQuery - async callback receiving the paginated QB, returns the final items QB.
+ *                    Use this to build outer queries with joins around the paginated subquery.
+ */
+export const paginate = async <T, CustomMetaType = IPaginationMeta>({
+  queryBuilder,
+  options,
+  wrapQuery,
+  countQuery,
+}: {
+  queryBuilder: SelectQueryBuilder<T>;
+  options: IPaginationOptions<CustomMetaType>;
+  wrapQuery?: (paginatedQb: SelectQueryBuilder<T>) => Promise<SelectQueryBuilder<T>>;
+  countQuery?: () => Promise<number>;
+}): Promise<Pagination<T, CustomMetaType>> => {
+  const countFn =
+    countQuery ??
+    (async () => {
+      const countQb = buildCountQuery(queryBuilder, options);
+      const { value } = await countQb.getRawOne<{ value: string }>();
+      return Number(value);
+    });
+
+  const itemsFn = async () => {
+    const paginatedQb = await buildPaginatedQuery(queryBuilder, options);
+    const itemsQb = wrapQuery ? await wrapQuery(paginatedQb) : paginatedQb;
+    return itemsQb.getMany();
+  };
+
+  const [items, total] = await Promise.all([itemsFn(), countFn()]);
+
+  const result = createPaginationObject<T, CustomMetaType>({
+    items,
+    totalItems: total,
+    currentPage: options.page as number,
+    limit: options.limit as number,
+    route: options.route,
+  });
+
+  if (result.links && options.filterOptions) {
+    for (const link of Object.keys(result.links)) {
+      if (!result.links[link]) continue;
+      for (const filterOption of Object.keys(options.filterOptions)) {
+        const filterOptionValue = options.filterOptions[filterOption];
+        if (filterOptionValue === null || filterOptionValue === undefined) continue;
+        result.links[link] = `${result.links[link]}&${filterOption}=${encodeURIComponent(filterOptionValue)}`;
       }
-      result.links[link] = `${result.links[link]}&${filterOption}=${encodeURIComponent(
-        options.filterOptions[filterOption]
-      )}`;
     }
   }
+
   return result;
 };
 
