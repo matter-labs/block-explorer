@@ -18,13 +18,13 @@ export enum TransferType {
 }
 
 @Entity({ name: "transfers" })
-@Index(["transactionHash", "timestamp", "logIndex"])
-@Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["fromToMin", "fromToMax", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["fromToMin", "fromToMax", "type", "timestamp", "logIndex"])
-@Index(["tokenAddress", "blockNumber", "logIndex"])
-@Index(["transactionHash", "isInternal", "blockNumber", "logIndex"])
-@Index(["isInternal", "blockNumber", "logIndex"])
+@Index(["transactionHash", "timestamp", "logIndex", "number"])
+@Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex", "number"])
+@Index(["fromToMin", "fromToMax", "isFeeOrRefund", "timestamp", "logIndex", "number"])
+@Index(["fromToMin", "fromToMax", "type", "timestamp", "logIndex", "number"])
+@Index(["tokenAddress", "blockNumber", "logIndex", "number"])
+@Index(["transactionHash", "isInternal", "blockNumber", "logIndex", "number"])
+@Index(["isInternal", "blockNumber", "logIndex", "number"])
 export class Transfer extends CountableEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public override readonly number: number;

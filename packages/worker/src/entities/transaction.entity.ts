@@ -6,10 +6,10 @@ import { CountableEntity } from "./countable.entity";
 import { stringTransformer } from "../transformers/string.transformer";
 
 @Entity({ name: "transactions" })
-@Index(["receivedAt", "transactionIndex"])
-@Index(["blockNumber", "receivedAt", "transactionIndex"])
+@Index(["receivedAt", "transactionIndex", "hash"])
+@Index(["blockNumber", "receivedAt", "transactionIndex", "hash"])
 @Index(["from", "isL1Originated", "blockNumber", "nonce"])
-@Index(["fromToMin", "fromToMax", "receivedAt", "transactionIndex"])
+@Index(["fromToMin", "fromToMax", "receivedAt", "transactionIndex", "hash"])
 export class Transaction extends CountableEntity {
   @PrimaryColumn({ type: "bytea", transformer: hexTransformer })
   public readonly hash: string;
