@@ -12,6 +12,9 @@ export const defaultTransferHandler: ExtractTransferHandler = {
   matches: (log: Log): boolean => log.topics.length === 3,
   extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ERC20, log);
+    if (!parsedLog) {
+      return null;
+    }
 
     let transferType: TransferType = TransferType.Transfer;
     if (parsedLog.args.to === BOOTLOADER_FORMAL_ADDRESS) {

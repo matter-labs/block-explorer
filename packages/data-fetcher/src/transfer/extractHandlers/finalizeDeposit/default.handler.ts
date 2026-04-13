@@ -11,6 +11,9 @@ export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
   extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_SHARED_BRIDGE, log);
+    if (!parsedLog) {
+      return null;
+    }
     const tokenAddress =
       parsedLog.args.l2Token === ETH_L1_ADDRESS ? BASE_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
 

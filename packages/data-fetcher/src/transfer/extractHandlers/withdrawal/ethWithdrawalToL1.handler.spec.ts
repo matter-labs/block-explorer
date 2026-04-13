@@ -48,6 +48,12 @@ describe("ethWithdrawalToL1Handler", () => {
   });
 
   describe("extract", () => {
+    it("returns null when log cannot be parsed", async () => {
+      log = mock<Log>({ ...log, data: "0x", topics: [] });
+      const result = await ethWithdrawalToL1Handler.extract(log, blockchainService, blockDetails);
+      expect(result).toBeNull();
+    });
+
     it("extracts transfer with from field populated with lower cased _l2Sender", async () => {
       const result = await ethWithdrawalToL1Handler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0xd754ff5e8a6f257e162f72578a4bb0493c0681d8");

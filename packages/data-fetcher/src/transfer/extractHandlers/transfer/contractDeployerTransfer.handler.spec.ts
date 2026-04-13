@@ -73,6 +73,12 @@ describe("contractDeployerTransferHandler", () => {
   });
 
   describe("extract", () => {
+    it("returns null when log cannot be parsed", async () => {
+      log = mock<Log>({ ...log, data: "0x", topics: [] });
+      const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
+      expect(result).toBeNull();
+    });
+
     describe("when there are no indexed values in the transfer", () => {
       beforeEach(() => {
         log = mock<Log>({

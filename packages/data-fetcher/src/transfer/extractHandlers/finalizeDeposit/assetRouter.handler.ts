@@ -13,6 +13,9 @@ export const assetRouterFinalizeDepositHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
   extract: async (log: Log, blockchainService: BlockchainService, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_ASSET_ROUTER, log);
+    if (!parsedLog) {
+      return null;
+    }
     const assetId = parsedLog.args.assetId;
     let tokenAddress = (await blockchainService.getTokenAddressByAssetId(assetId)).toLowerCase();
     if (tokenAddress === ETH_L1_ADDRESS.toLowerCase()) {

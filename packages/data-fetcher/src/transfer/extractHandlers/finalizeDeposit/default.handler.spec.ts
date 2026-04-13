@@ -41,6 +41,12 @@ describe("defaultFinalizeDepositHandler", () => {
   });
 
   describe("extract", () => {
+    it("returns null when log cannot be parsed", async () => {
+      log = mock<Log>({ ...log, data: "0x", topics: [] });
+      const result = await defaultFinalizeDepositHandler.extract(log, blockchainService, blockDetails);
+      expect(result).toBeNull();
+    });
+
     it("extracts transfer with from field populated with lower cased l1Sender", async () => {
       const result = await defaultFinalizeDepositHandler.extract(log, blockchainService, blockDetails);
       expect(result.from).toBe("0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c");
