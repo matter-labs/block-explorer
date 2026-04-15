@@ -13,10 +13,10 @@ type LoginState = {
 };
 
 type UseLogin = ToRefs<LoginState> & {
-  login: () => Promise<void>;
+  login: (redirectPath?: string) => Promise<void>;
   logout: () => Promise<void>;
   initializeLogin: () => Promise<void>;
-  handlePrividiumCallback: () => Promise<void>;
+  handlePrividiumCallback: () => Promise<{ redirect: string | null }>;
   switchWallet: (address: string) => Promise<void>;
 };
 
@@ -62,11 +62,11 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     }
   };
 
-  const login = async () => {
+  const login = async (redirectPath?: string) => {
     try {
       state.isLoginPending = true;
       const auth = getPrividiumAuth();
-      auth.login();
+      auth.login(redirectPath);
     } catch (error) {
       _logger.error("Prividium login failed:", error);
       throw error;
@@ -75,7 +75,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     }
   };
 
-  const handlePrividiumCallback = async () => {
+  const handlePrividiumCallback = async (): Promise<{ redirect: string | null }> => {
     try {
       state.isLoginPending = true;
       const auth = getPrividiumAuth();
@@ -97,6 +97,8 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
           loggedIn: true,
         };
       }
+
+      return { redirect: result?.redirect ?? null };
     } catch (err) {
       _logger.error("Prividium callback failed:", err);
       throw err;

@@ -9,6 +9,7 @@ export interface PrividiumAuthConfig {
 export interface AuthResult {
   token: string;
   state: string;
+  redirect: string | null;
 }
 
 export class PrividiumAuth {
@@ -24,11 +25,21 @@ export class PrividiumAuth {
   }
 
   /**
-   * Initiates the login flow by redirecting to User Panel
+   * Initiates the login flow by redirecting to User Panel.
+   *
+   * @param redirectPath - Optional in-app path to return to after the OAuth round-trip completes.
+   *   Stashed in sessionStorage so `handleCallback()` can surface it after `state` validation.
    */
-  login(): void {
+  login(redirectPath?: string): void {
     this.state = this.generateRandomState();
     sessionStorage.setItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY, this.state);
+
+    if (redirectPath) {
+      sessionStorage.setItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY, redirectPath);
+    } else {
+      // Clear any stale value from a previous attempt so it can't be reunited with this flow's state.
+      sessionStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY);
+    }
 
     const url = new URL(PRIVIDIUM_AUTH_CONSTANTS.AUTH_ENDPOINTS.AUTHORIZE, this.userPanelUrl);
     url.searchParams.set("client_id", this.clientId);
@@ -71,10 +82,14 @@ export class PrividiumAuth {
     this.setToken(token);
     sessionStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY);
 
+    // Retrieve (and clear) the original in-app destination stashed at login() time.
+    const redirect = sessionStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY);
+    sessionStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY);
+
     // Clear hash from URL
     window.location.hash = "";
 
-    return { token, state };
+    return { token, state, redirect };
   }
 
   /**
