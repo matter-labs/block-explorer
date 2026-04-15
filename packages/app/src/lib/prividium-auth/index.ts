@@ -26,10 +26,6 @@ export class PrividiumAuth {
 
   /**
    * Initiates the login flow by redirecting to User Panel.
-   *
-   * @param redirectPath - Path to return to after callback completes. Stashed in sessionStorage
-   *   rather than threaded through the OAuth state because user-panel doesn't round-trip
-   *   arbitrary query params — only `state`, which is opaque and must stay random for CSRF.
    */
   login(redirectPath?: string): void {
     this.state = this.generateRandomState();
