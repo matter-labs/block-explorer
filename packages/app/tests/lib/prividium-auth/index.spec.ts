@@ -9,11 +9,26 @@ const CONFIG = {
   userPanelUrl: "https://user-panel.test",
 };
 
+// `crypto` isn't a Node global until v19; jsdom doesn't provide it either. Stub for CI.
+if (typeof (globalThis as { crypto?: Crypto }).crypto === "undefined") {
+  Object.defineProperty(globalThis, "crypto", {
+    configurable: true,
+    value: {
+      getRandomValues: (array: Uint8Array) => {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = i;
+        }
+        return array;
+      },
+    },
+  });
+}
+
 describe("PrividiumAuth redirect lifecycle:", () => {
   const originalLocation = window.location;
 
   beforeEach(() => {
-    // window.location.href is read-only; replace with a mutable stub for the login() redirect.
+    // jsdom's `window.location.href` is read-only; swap in a mutable stub so login() can set it.
     Object.defineProperty(window, "location", {
       configurable: true,
       writable: true,
@@ -83,12 +98,8 @@ describe("PrividiumAuth redirect lifecycle:", () => {
     expect(result?.redirect).toBeNull();
   });
 
-  // Guards against a future refactor that swaps router.push for window.location.href = redirect,
-  // which would turn the lax isValidRedirectPath into an exploitable open redirect.
-  // Today, `router.push` + pushState same-origin check prevents cross-origin navigation;
-  // this test ensures the stashed value itself is returned verbatim so the view layer
-  // remains the only place that decides how to navigate.
-  it("handleCallback() returns the redirect verbatim (view layer owns navigation safety)", () => {
+  // Returned verbatim so the view layer owns navigation safety (no cross-origin sanitization here).
+  it("handleCallback() returns the redirect verbatim", () => {
     const auth = new PrividiumAuth(CONFIG);
     auth.login("/tx/0xabc?foo=bar#section");
     const savedState = sessionStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY)!;

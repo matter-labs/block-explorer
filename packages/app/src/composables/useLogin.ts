@@ -14,7 +14,7 @@ type LoginState = {
 
 type UseLogin = ToRefs<LoginState> & {
   login: (redirectPath?: string) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (options?: { redirectToLogin?: boolean }) => Promise<void>;
   initializeLogin: () => Promise<void>;
   handlePrividiumCallback: () => Promise<{ redirect: string | null }>;
   switchWallet: (address: string) => Promise<void>;
@@ -58,7 +58,8 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
       };
     } catch (err) {
       _logger.error("Failed to initialize login:", err);
-      await logout();
+      // Skip the login redirect so the App.vue guard can preserve any ?redirect= query.
+      await logout({ redirectToLogin: false });
     }
   };
 
@@ -127,7 +128,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     }
   };
 
-  const logout = async () => {
+  const logout = async ({ redirectToLogin = true }: { redirectToLogin?: boolean } = {}) => {
     const auth = getPrividiumAuth();
     auth.clearToken();
 
@@ -139,7 +140,9 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
       _logger.error("Logout failed:", error);
     }
     context.user.value = { loggedIn: false };
-    router.push("/login");
+    if (redirectToLogin) {
+      router.push("/login");
+    }
   };
 
   return {
