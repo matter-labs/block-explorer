@@ -60,9 +60,8 @@ const redirectToLogin = () => {
 
 onMounted(async () => {
   try {
-    await handlePrividiumCallback();
-    const redirectPath = route.query.redirect;
-    await router.push(isValidRedirectPath(redirectPath) ? redirectPath : "/");
+    const { redirect } = await handlePrividiumCallback();
+    await router.push(isValidRedirectPath(redirect) ? redirect : "/");
   } catch (err: unknown) {
     console.error("Auth callback failed:", err);
 

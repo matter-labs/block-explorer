@@ -55,7 +55,8 @@ onMounted(() => {
 
 const handleLogin = async () => {
   try {
-    await login();
+    const redirectPath = route.query.redirect;
+    await login(isValidRedirectPath(redirectPath) ? redirectPath : undefined);
   } catch (error: unknown) {
     if (error instanceof FetchError && error.response?.status === 403) {
       router.push({ name: "not-authorized" });

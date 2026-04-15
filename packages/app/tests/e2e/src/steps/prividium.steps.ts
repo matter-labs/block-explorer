@@ -24,6 +24,13 @@ Given("I am on the login page", async function (this: ICustomWorld) {
   expect(this.page?.url()).toContain(config.BASE_URL + "/login");
 });
 
+Given("I am on the login page with a redirect to {string}", async function (this: ICustomWorld, redirectPath: string) {
+  const loginUrl = `${config.BASE_URL}/login?redirect=${encodeURIComponent(redirectPath)}`;
+  await this.page?.goto(loginUrl);
+  await this.page?.waitForLoadState("networkidle");
+  expect(this.page?.url()).toContain("redirect=");
+});
+
 When("I click the login button", async function (this: ICustomWorld) {
   const connectButton = this.page!.getByRole("button", { name: "Sign in" });
   await connectButton.click();
@@ -70,4 +77,9 @@ Then("I should see the not authorized page", async function (this: ICustomWorld)
   const unauthorizedHeading = this.page!.getByRole("heading", { name: "You are not authorized" });
   await expect(unauthorizedHeading).toBeVisible();
   expect(this.page?.url()).toContain("/not-authorized");
+});
+
+Then("I should land on {string}", async function (this: ICustomWorld, expectedPath: string) {
+  await this.page!.waitForURL((url) => url.pathname === expectedPath, { timeout: 10000 });
+  expect(new URL(this.page!.url()).pathname).toBe(expectedPath);
 });

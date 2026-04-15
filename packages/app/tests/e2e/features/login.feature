@@ -17,3 +17,9 @@ Feature: Prividium Auth Flow
     And I am on the login page
     When I click the login button
     Then I should see the not authorized page
+
+  Scenario: Deep link is preserved across login
+    Given I am an authorized user
+    And I am on the login page with a redirect to "/blocks"
+    When I click the login button
+    Then I should land on "/blocks"

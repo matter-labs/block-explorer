@@ -9,6 +9,7 @@ export interface PrividiumAuthConfig {
 export interface AuthResult {
   token: string;
   state: string;
+  redirect: string | null;
 }
 
 export class PrividiumAuth {
@@ -24,11 +25,17 @@ export class PrividiumAuth {
   }
 
   /**
-   * Initiates the login flow by redirecting to User Panel
+   * Initiates the login flow by redirecting to User Panel.
    */
-  login(): void {
+  login(redirectPath?: string): void {
     this.state = this.generateRandomState();
     sessionStorage.setItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY, this.state);
+
+    if (redirectPath) {
+      sessionStorage.setItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY, redirectPath);
+    } else {
+      sessionStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY);
+    }
 
     const url = new URL(PRIVIDIUM_AUTH_CONSTANTS.AUTH_ENDPOINTS.AUTHORIZE, this.userPanelUrl);
     url.searchParams.set("client_id", this.clientId);
@@ -71,10 +78,13 @@ export class PrividiumAuth {
     this.setToken(token);
     sessionStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY);
 
+    const redirect = sessionStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY);
+    sessionStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY);
+
     // Clear hash from URL
     window.location.hash = "";
 
-    return { token, state };
+    return { token, state, redirect };
   }
 
   /**
