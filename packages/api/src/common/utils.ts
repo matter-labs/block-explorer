@@ -21,15 +21,14 @@ export function copyOrderBy<S, T>(source: SelectQueryBuilder<S>, target: SelectQ
   }
 }
 
-export const buildDateFilter = (fromDate: string, toDate: string, fieldName = "timestamp") => {
-  return fromDate && toDate
-    ? {
-        [fieldName]: Between(new Date(fromDate), new Date(toDate)),
-      }
-    : {
-        ...(fromDate && { [fieldName]: MoreThanOrEqual(new Date(fromDate)) }),
-        ...(toDate && { [fieldName]: LessThanOrEqual(new Date(toDate)) }),
-      };
+export const buildBlockFilter = (fromBlock?: number, toBlock?: number, fieldName = "number") => {
+  if (fromBlock != null && toBlock != null) {
+    return { [fieldName]: Between(fromBlock, toBlock) };
+  }
+  return {
+    ...(fromBlock != null && { [fieldName]: MoreThanOrEqual(fromBlock) }),
+    ...(toBlock != null && { [fieldName]: LessThanOrEqual(toBlock) }),
+  };
 };
 
 /**

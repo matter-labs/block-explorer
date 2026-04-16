@@ -14,9 +14,8 @@ import { CounterService } from "../counter/counter.service";
 import { UserParam } from "../user/user.decorator";
 
 export interface FilterTransactionsOptions {
-  blockNumber?: number;
+  blockNumber?: number | FindOperator<number>;
   address?: string;
-  receivedAt?: FindOperator<Date>;
   visibleBy?: string;
 }
 
@@ -64,7 +63,6 @@ export class TransactionService {
   ): Promise<Pagination<Transaction>> {
     const disableTxVisibilityByTopics = this.configService.get<boolean>("prividium.disableTxVisibilityByTopics");
     const commonFilters = {
-      ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
       ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
     };
 
@@ -129,7 +127,6 @@ export class TransactionService {
     innerQb.select("at.transactionHash", "transactionHash");
     innerQb.where({
       address,
-      ...(filterOptions.receivedAt && { receivedAt: filterOptions.receivedAt }),
       ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
     });
     this.addDefaultOrder(innerQb);
@@ -169,7 +166,7 @@ export class TransactionService {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private addDefaultOrder(qb: SelectQueryBuilder<any>): void {
-    qb.addOrderBy(`${qb.alias}.receivedAt`, "DESC");
+    qb.addOrderBy(`${qb.alias}.blockNumber`, "DESC");
     qb.addOrderBy(`${qb.alias}.transactionIndex`, "DESC");
   }
 
@@ -214,7 +211,7 @@ export class TransactionService {
     ]);
     queryBuilder.leftJoin("transaction.block", "block");
     queryBuilder.addSelect(["block.status"]);
-    queryBuilder.orderBy("transaction.receivedAt", order);
+    queryBuilder.orderBy("transaction.blockNumber", order);
     queryBuilder.addOrderBy("transaction.transactionIndex", order);
     return await queryBuilder.getMany();
   }

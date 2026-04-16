@@ -2,8 +2,8 @@ import { IPaginationOptions as NestIPaginationOptions, IPaginationMeta } from "n
 import { TransferType } from "../transfer/transfer.entity";
 
 interface IPaginationFilterOptions {
-  fromDate?: string;
-  toDate?: string;
+  fromBlock?: number;
+  toBlock?: number;
   blockNumber?: number;
   address?: string;
   minLiquidity?: number;

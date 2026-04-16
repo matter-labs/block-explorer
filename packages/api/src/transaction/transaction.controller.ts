@@ -10,7 +10,7 @@ import {
 import { Pagination } from "nestjs-typeorm-paginate";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
-import { buildDateFilter } from "../common/utils";
+import { buildBlockFilter } from "../common/utils";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { TransactionDto } from "./dtos/transaction.dto";
@@ -45,15 +45,14 @@ export class TransactionController {
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @User(AddUserRolesPipe) user: UserWithRoles
   ): Promise<Pagination<TransactionDto>> {
-    const filterTransactionsListOptions = buildDateFilter(
-      listFilterOptions.fromDate,
-      listFilterOptions.toDate,
-      "receivedAt"
-    );
+    const blockRangeFilter =
+      filterTransactionsOptions.blockNumber == null
+        ? buildBlockFilter(listFilterOptions.fromBlock, listFilterOptions.toBlock, "blockNumber")
+        : {};
     return await this.transactionService.findAll(
       {
         ...filterTransactionsOptions,
-        ...filterTransactionsListOptions,
+        ...blockRangeFilter,
         ...(user && !user.isAdmin && { visibleBy: user.address }),
       },
       {

@@ -18,8 +18,6 @@ config:
     metrics-by-endpoint:
       useOnlyRequestNames: true
   variables:
-    toDate: "2025-04-26T00:43:26.000Z"
-    fromDate: "2021-04-26T00:43:26.000Z"
     limit: 10
     addresses:
       - ["0x0000000000000000000000000000000000008001"] 
@@ -50,24 +48,12 @@ scenarios:
 
       - loop:
           - get:
-              name: "/blocks with toDate"
+              name: "/blocks"
               url: "/blocks"
               qs:
-                toDate: "{{ toDate }}"
                 limit: "{{ limit }}"
                 page: "{{ $randomNumber(1, 100) }}"
         count: 5
-
-      # - loop:
-      #     - get:
-      #         name: "/blocks with toDate and fromDate"
-      #         url: "/blocks"
-      #         qs:
-      #           toDate: "{{ toDate }}"
-      #           fromDate: "{{ fromDate }}"
-      #           limit: "{{ limit }}"
-      #           page: "{{ $randomNumber(1, 100) }}"
-      #   count: 5
 
       - loop:
           - get:
@@ -156,35 +142,22 @@ scenarios:
 
       - loop:
           - get:
-              name: "/transactions with toDate"
+              name: "/transactions"
               url: "/transactions"
               qs:
-                toDate: "{{ toDate }}"
                 limit: "{{ limit }}"
                 page: "{{ $randomNumber(1, 100) }}"
         count: 5
 
       - loop:
           - get:
-              name: "/transactions with toDate and address"
+              name: "/transactions with address"
               url: "/transactions"
               qs:
-                toDate: "{{ toDate }}"
                 limit: "{{ limit }}"
                 page: "{{ $randomNumber(1, 5) }}"
                 address: "{{ $loopElement }}"
         over: addresses
-
-      # - loop:
-      #     - get:
-      #         name: "/transactions with toDate and fromDate"
-      #         url: "/transactions"
-      #         qs:
-      #           toDate: "{{ toDate }}"
-      #           fromDate: "{{ fromDate }}"
-      #           limit: "{{ limit }}"
-      #           page: "{{ $randomNumber(1, 100) }}"
-      #   count: 5
 
       - loop:
           - get:

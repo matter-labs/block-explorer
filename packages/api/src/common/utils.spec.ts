@@ -4,7 +4,7 @@ import * as paginator from "nestjs-typeorm-paginate";
 import { hexTransformer } from "./transformers/hex.transformer";
 import { BaseEntity } from "./entities/base.entity";
 import {
-  buildDateFilter,
+  buildBlockFilter,
   copyOrderBy,
   paginate,
   formatHexAddress,
@@ -21,37 +21,37 @@ import { IPaginationOptions } from "./types";
 jest.mock("nestjs-typeorm-paginate");
 
 describe("utils", () => {
-  describe("buildDateFilter", () => {
-    it("builds Between date filter when both fromDate and toDate are provided", () => {
-      const fromDate = "2022-11-10T14:44:08.000Z";
-      const toDate = "2023-11-10T14:44:08.000Z";
-      const result = buildDateFilter(fromDate, toDate);
+  describe("buildBlockFilter", () => {
+    it("builds Between filter when both fromBlock and toBlock are provided", () => {
+      const fromBlock = 100;
+      const toBlock = 200;
+      const result = buildBlockFilter(fromBlock, toBlock);
       expect(result).toEqual({
-        timestamp: Between(new Date(fromDate), new Date(toDate)),
+        number: Between(fromBlock, toBlock),
       });
     });
 
-    it("builds MoreThanOrEqual date filter when only fromDate is provided", () => {
-      const fromDate = "2022-11-10T14:44:08.000Z";
-      const result = buildDateFilter(fromDate, null);
+    it("builds MoreThanOrEqual filter when only fromBlock is provided", () => {
+      const fromBlock = 100;
+      const result = buildBlockFilter(fromBlock, undefined);
       expect(result).toEqual({
-        timestamp: MoreThanOrEqual(new Date(fromDate)),
+        number: MoreThanOrEqual(fromBlock),
       });
     });
 
-    it("builds LessThanOrEqual date filter when only toDate is provided", () => {
-      const toDate = "2022-11-10T14:44:08.000Z";
-      const result = buildDateFilter(null, toDate);
+    it("builds LessThanOrEqual filter when only toBlock is provided", () => {
+      const toBlock = 200;
+      const result = buildBlockFilter(undefined, toBlock);
       expect(result).toEqual({
-        timestamp: LessThanOrEqual(new Date(toDate)),
+        number: LessThanOrEqual(toBlock),
       });
     });
 
     it("applies custom field name when specified", () => {
-      const toDate = "2022-11-10T14:44:08.000Z";
-      const result = buildDateFilter(null, toDate, "custom");
+      const toBlock = 200;
+      const result = buildBlockFilter(undefined, toBlock, "blockNumber");
       expect(result).toEqual({
-        custom: LessThanOrEqual(new Date(toDate)),
+        blockNumber: LessThanOrEqual(toBlock),
       });
     });
   });
@@ -60,11 +60,11 @@ describe("utils", () => {
     it("remaps aliased order by keys to the target alias", () => {
       const source = mock<SelectQueryBuilder<BaseEntity>>();
       const target = mock<SelectQueryBuilder<BaseEntity>>();
-      (source as any).expressionMap = { orderBys: { "at.receivedAt": "DESC", "at.transactionIndex": "DESC" } };
+      (source as any).expressionMap = { orderBys: { "at.blockNumber": "DESC", "at.transactionIndex": "DESC" } };
 
       copyOrderBy(source, target, "transaction");
 
-      expect(target.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
+      expect(target.addOrderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
       expect(target.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
     });
 
@@ -250,12 +250,12 @@ describe("utils", () => {
 
       const result = await paginate({
         queryBuilder,
-        options: { ...options, filterOptions: { fromDate: "2022-01-01", toDate: null } },
+        options: { ...options, filterOptions: { fromBlock: 100, toBlock: null } },
       });
 
       expect(result.links).toEqual({
-        first: "?page=1&limit=10&fromDate=2022-01-01",
-        last: "?page=2&limit=10&fromDate=2022-01-01",
+        first: "?page=1&limit=10&fromBlock=100",
+        last: "?page=2&limit=10&fromBlock=100",
         previous: "",
       });
     });
@@ -266,7 +266,7 @@ describe("utils", () => {
 
       const result = await paginate({
         queryBuilder,
-        options: { ...options, filterOptions: { fromDate: "2022-01-01" } },
+        options: { ...options, filterOptions: { fromBlock: 100 } },
       });
 
       expect(result).toBe(paginatedResult);

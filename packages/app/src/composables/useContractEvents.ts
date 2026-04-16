@@ -17,8 +17,6 @@ export type EventsQueryParams = {
   contractAddress: Address;
   page: number;
   pageSize: number;
-
-  toDate?: Date;
 };
 
 type Log = {
@@ -43,9 +41,6 @@ export default (context = useContext()) => {
 
     try {
       const searchParams = new URLSearchParams();
-      if (params.toDate && +new Date(params.toDate) > 0) {
-        searchParams.set("toDate", params.toDate.toISOString());
-      }
       if (params.page > 0) {
         searchParams.set("page", params.page.toString());
       }

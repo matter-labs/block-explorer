@@ -6,8 +6,8 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 
 @Entity({ name: "visibleLogs" })
-@Index(["visibleBy", "address", "timestamp", "logIndex", "logNumber"])
-@Index(["visibleBy", "transactionHash", "timestamp", "logIndex", "logNumber"])
+@Index(["visibleBy", "address", "blockNumber", "logIndex", "logNumber"])
+@Index(["visibleBy", "transactionHash", "blockNumber", "logIndex", "logNumber"])
 export class VisibleLog extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;

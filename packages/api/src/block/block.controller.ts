@@ -8,7 +8,7 @@ import {
   ApiExcludeController,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { buildDateFilter } from "../common/utils";
+import { buildBlockFilter } from "../common/utils";
 import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { PagingOptionsDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
@@ -32,7 +32,7 @@ export class BlockController {
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsDto
   ): Promise<Pagination<BlockDto>> {
-    const filterCriteria = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
+    const filterCriteria = buildBlockFilter(listFilterOptions.fromBlock, listFilterOptions.toBlock);
     return await this.blockService.findAll(filterCriteria, {
       filterOptions: listFilterOptions,
       ...pagingOptions,

@@ -102,10 +102,10 @@ describe("LogService", () => {
       });
     });
 
-    it("returns logs ordered by timestamp DESC and logIndex ASC", async () => {
+    it("returns logs ordered by blockNumber ASC and logIndex ASC when transactionHash is specified", async () => {
       await service.findAll(filterOptions, pagingOptions);
       expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
-      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.timestamp", "DESC");
+      expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("log.blockNumber", "ASC");
       expect(queryBuilderMock.addOrderBy).toBeCalledTimes(1);
       expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("log.logIndex", "ASC");
     });
@@ -151,10 +151,10 @@ describe("LogService", () => {
         });
       });
 
-      it("orders by vl.timestamp DESC and vl.logIndex ASC", async () => {
+      it("orders by vl.blockNumber DESC and vl.logIndex DESC", async () => {
         await service.findAll({ address: address1, visibleBy: address2 }, pagingOptions);
-        expect(visibleLogQbMock.orderBy).toHaveBeenCalledWith("vl.timestamp", "DESC");
-        expect(visibleLogQbMock.addOrderBy).toHaveBeenCalledWith("vl.logIndex", "ASC");
+        expect(visibleLogQbMock.orderBy).toHaveBeenCalledWith("vl.blockNumber", "DESC");
+        expect(visibleLogQbMock.addOrderBy).toHaveBeenCalledWith("vl.logIndex", "DESC");
       });
 
       it("calls paginate with wrapQuery", async () => {
@@ -174,7 +174,7 @@ describe("LogService", () => {
             getParameters: jest.fn().mockReturnValue({ param1: "value1" }),
           });
           Object.defineProperty(pagedInnerQbMock, "expressionMap", {
-            value: { orderBys: { "vl.timestamp": "DESC" } },
+            value: { orderBys: { "vl.blockNumber": "DESC" } },
           });
 
           outerLogQbMock = mock<SelectQueryBuilder<Log>>();
@@ -193,7 +193,7 @@ describe("LogService", () => {
           `"_paginated"."logNumber" = "log"."number"`
         );
         expect(outerLogQbMock.setParameters).toHaveBeenCalledWith({ param1: "value1" });
-        expect(outerLogQbMock.addOrderBy).toHaveBeenCalledWith("log.timestamp", "DESC");
+        expect(outerLogQbMock.addOrderBy).toHaveBeenCalledWith("log.blockNumber", "DESC");
       });
 
       it("returns paginated result", async () => {

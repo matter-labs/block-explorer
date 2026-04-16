@@ -4,7 +4,5 @@ import useContext from "@/composables/useContext";
 import type { BlockListItem } from "@/composables/useBlock";
 
 export default (context = useContext()) => {
-  return useFetchCollection<BlockListItem>(
-    new URL(`/blocks?toDate=${new Date().toISOString()}`, context.currentNetwork.value.apiUrl)
-  );
+  return useFetchCollection<BlockListItem>(new URL("/blocks", context.currentNetwork.value.apiUrl));
 };

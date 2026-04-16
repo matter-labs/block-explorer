@@ -104,7 +104,6 @@ const tableHead = computed(() => [
 ]);
 
 const activePage = ref(1);
-const toDate = new Date();
 watch(
   [activePage, () => props.contract.address],
   ([page]) => {
@@ -113,7 +112,6 @@ watch(
         contractAddress: props.contract.address,
         page: page,
         pageSize: pageSize.value,
-        toDate: toDate,
       },
       props.contract.verificationInfo?.abi
     );

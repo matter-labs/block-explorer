@@ -8,9 +8,9 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 import { TransferFields } from "../dataFetcher/types";
 
 @Entity({ name: "addressTransfers" })
-@Index(["address", "isFeeOrRefund", "timestamp", "logIndex", "transferNumber"])
-@Index(["address", "tokenAddress", "isFeeOrRefund", "timestamp", "logIndex", "transferNumber"])
-@Index(["address", "type", "timestamp", "logIndex", "transferNumber"])
+@Index(["address", "isFeeOrRefund", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "tokenAddress", "isFeeOrRefund", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "type", "blockNumber", "logIndex", "transferNumber"])
 @Index(["address", "tokenAddress", "blockNumber", "logIndex", "transferNumber"])
 @Index(["address", "tokenType", "blockNumber", "logIndex", "transferNumber"])
 @Index(["address", "isInternal", "blockNumber", "logIndex", "transferNumber"])

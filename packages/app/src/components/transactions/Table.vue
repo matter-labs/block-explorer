@@ -287,13 +287,12 @@ const ethToken = computed<Token | null>(() => {
 const isLoading = computed(() => pending.value || isLoadingEthTokenInfo.value);
 
 const activePage = ref(props.useQueryPagination ? parseInt(route.query.page as string) || 1 : 1);
-const toDate = new Date();
 
 watch(
   [activePage, () => route.query.pageSize, searchParams],
   ([page, pageSize]) => {
     const currentPageSize = pageSize ? parseInt(pageSize as string) : 10;
-    load(page, toDate, currentPageSize);
+    load(page, currentPageSize);
   },
   { immediate: true }
 );

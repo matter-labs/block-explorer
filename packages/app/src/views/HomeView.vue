@@ -106,7 +106,7 @@ const displayedBlocks = computed(() => {
 
 fetchNetworkStats();
 
-getBlocks(1, new Date());
+getBlocks(1);
 </script>
 
 <style lang="scss" scoped>

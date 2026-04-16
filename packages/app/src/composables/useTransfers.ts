@@ -11,11 +11,7 @@ export type Transfer = Api.Response.Transfer & {
 
 export default (address: ComputedRef<string>, context = useContext()) => {
   return useFetchCollection<Transfer, Api.Response.Transfer>(
-    () =>
-      new URL(
-        `/address/${address.value}/transfers?toDate=${new Date().toISOString()}`,
-        context.currentNetwork.value.apiUrl
-      ),
+    () => new URL(`/address/${address.value}/transfers`, context.currentNetwork.value.apiUrl),
     (transfer: Api.Response.Transfer): Transfer => ({
       ...transfer,
       token: transfer.token || {

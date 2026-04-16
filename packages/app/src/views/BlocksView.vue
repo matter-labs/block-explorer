@@ -58,7 +58,7 @@ watch(
   () => route.query.page,
   (page) => {
     const currentPage = page ? parseInt(page as string) : 1;
-    load(currentPage, currentPage === 1 ? new Date() : undefined);
+    load(currentPage);
   },
   { immediate: true }
 );

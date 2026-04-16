@@ -12,7 +12,7 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
-import { formatHexAddress, buildDateFilter, isAddressEqual } from "../common/utils";
+import { formatHexAddress, buildBlockFilter, isAddressEqual } from "../common/utils";
 import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
@@ -187,7 +187,11 @@ export class AddressController {
   ): Promise<Pagination<TransferDto>> {
     const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
 
-    const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
+    const filterTransfersListOptions = buildBlockFilter(
+      listFilterOptions.fromBlock,
+      listFilterOptions.toBlock,
+      "blockNumber"
+    );
 
     return await this.transferService.findAll(
       {
