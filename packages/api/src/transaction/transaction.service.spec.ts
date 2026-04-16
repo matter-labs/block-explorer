@@ -175,7 +175,6 @@ describe("TransactionService", () => {
       beforeEach(() => {
         filterTransactionsOptions = {
           blockNumber: 100,
-          receivedAt: new typeorm.FindOperator("lessThanOrEqual", new Date()),
         };
         (utils.paginate as jest.Mock).mockResolvedValue(paginationResult);
       });
@@ -194,13 +193,12 @@ describe("TransactionService", () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
         expect(queryBuilderMock.where).toHaveBeenCalledWith({
           blockNumber: filterTransactionsOptions.blockNumber,
-          receivedAt: filterTransactionsOptions.receivedAt,
         });
       });
 
-      it("orders by receivedAt and transactionIndex DESC", async () => {
+      it("orders by blockNumber and transactionIndex DESC", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
+        expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
       });
 
@@ -222,7 +220,7 @@ describe("TransactionService", () => {
             getParameters: jest.fn().mockReturnValue({ p1: "v1" }),
           });
           Object.defineProperty(pagedInnerQbMock, "expressionMap", {
-            value: { orderBys: { "transaction.receivedAt": "DESC" } },
+            value: { orderBys: { "transaction.blockNumber": "DESC" } },
           });
 
           outerQbMock = mock<typeorm.SelectQueryBuilder<Transaction>>();
@@ -248,7 +246,7 @@ describe("TransactionService", () => {
         ]);
         expect(outerQbMock.leftJoin).toHaveBeenCalledWith("transaction.block", "block");
         expect(outerQbMock.addSelect).toHaveBeenCalledWith(["block.status"]);
-        expect(outerQbMock.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
+        expect(outerQbMock.addOrderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
       });
     });
 
@@ -283,19 +281,17 @@ describe("TransactionService", () => {
         const filterOptions = {
           address: "address",
           blockNumber: 100,
-          receivedAt: new typeorm.FindOperator("lessThanOrEqual", new Date()),
         };
         await service.findAll(filterOptions, pagingOptions);
         expect(addressTransactionQbMock.where).toHaveBeenCalledWith({
           address: filterOptions.address,
-          receivedAt: filterOptions.receivedAt,
           blockNumber: filterOptions.blockNumber,
         });
       });
 
-      it("orders by at receivedAt and transactionIndex DESC", async () => {
+      it("orders by at blockNumber and transactionIndex DESC", async () => {
         await service.findAll(filterTransactionsOptions, pagingOptions);
-        expect(addressTransactionQbMock.addOrderBy).toHaveBeenCalledWith("at.receivedAt", "DESC");
+        expect(addressTransactionQbMock.addOrderBy).toHaveBeenCalledWith("at.blockNumber", "DESC");
         expect(addressTransactionQbMock.addOrderBy).toHaveBeenCalledWith("at.transactionIndex", "DESC");
       });
 
@@ -340,9 +336,9 @@ describe("TransactionService", () => {
           expect(visibleTransactionQbMock.where).toHaveBeenCalledWith({ visibleBy });
         });
 
-        it("orders by vt receivedAt and transactionIndex DESC", async () => {
+        it("orders by vt blockNumber and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(visibleTransactionQbMock.addOrderBy).toHaveBeenCalledWith("vt.receivedAt", "DESC");
+          expect(visibleTransactionQbMock.addOrderBy).toHaveBeenCalledWith("vt.blockNumber", "DESC");
           expect(visibleTransactionQbMock.addOrderBy).toHaveBeenCalledWith("vt.transactionIndex", "DESC");
         });
 
@@ -418,9 +414,9 @@ describe("TransactionService", () => {
           });
         });
 
-        it("orders by avt receivedAt and transactionIndex DESC", async () => {
+        it("orders by avt blockNumber and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(addressVisibleTransactionQbMock.addOrderBy).toHaveBeenCalledWith("avt.receivedAt", "DESC");
+          expect(addressVisibleTransactionQbMock.addOrderBy).toHaveBeenCalledWith("avt.blockNumber", "DESC");
           expect(addressVisibleTransactionQbMock.addOrderBy).toHaveBeenCalledWith("avt.transactionIndex", "DESC");
         });
 
@@ -459,9 +455,9 @@ describe("TransactionService", () => {
           );
         });
 
-        it("orders by transaction receivedAt and transactionIndex DESC", async () => {
+        it("orders by transaction blockNumber and transactionIndex DESC", async () => {
           await service.findAll(filterTransactionsOptions, pagingOptions);
-          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.receivedAt", "DESC");
+          expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.blockNumber", "DESC");
           expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "DESC");
         });
 
@@ -561,9 +557,9 @@ describe("TransactionService", () => {
       expect(outerQueryBuilderMock.addSelect).toHaveBeenCalledWith(["block.status"]);
     });
 
-    it("outer query orders by receivedAt and transactionIndex", async () => {
+    it("outer query orders by blockNumber and transactionIndex", async () => {
       await service.findByAddress("address", { sort: SortingOrder.Asc });
-      expect(outerQueryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.receivedAt", "ASC");
+      expect(outerQueryBuilderMock.orderBy).toHaveBeenCalledWith("transaction.blockNumber", "ASC");
       expect(outerQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("transaction.transactionIndex", "ASC");
     });
 

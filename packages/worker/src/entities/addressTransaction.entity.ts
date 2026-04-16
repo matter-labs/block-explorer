@@ -6,7 +6,6 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 
 @Entity({ name: "addressTransactions" })
-@Index(["address", "receivedAt", "transactionIndex", "transactionHash"])
 @Index(["address", "blockNumber", "transactionIndex", "transactionHash"])
 export class AddressTransaction extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })

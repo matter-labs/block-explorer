@@ -8,9 +8,8 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 import { BaseEntity } from "./base.entity";
 
 @Entity({ name: "logs" })
-@Index(["address", "timestamp", "logIndex"])
-@Index(["address", "transactionFrom", "timestamp", "logIndex"])
-@Index(["transactionHash", "timestamp", "logIndex"])
+@Index(["address", "transactionFrom", "blockNumber", "logIndex"])
+@Index(["transactionHash", "blockNumber", "logIndex"])
 @Index(["address", "blockNumber", "logIndex", "number"])
 // TypeORM does not support indexing on array fields, the index is created manually in a migration file.
 // The @index decorator is added here to ensure the index is not dropped on npm run migration:generate.

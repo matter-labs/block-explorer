@@ -16,7 +16,7 @@ import { ConfigService } from "@nestjs/config";
 import clearAllMocks = jest.clearAllMocks;
 
 jest.mock("../common/utils", () => ({
-  buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
+  buildBlockFilter: jest.fn().mockReturnValue({ blockNumber: "blockNumber" }),
 }));
 
 describe("TransactionController", () => {
@@ -77,8 +77,8 @@ describe("TransactionController", () => {
       address: "address",
     };
     const listFilterOptions = {
-      fromDate: "2023-02-08T15:34:46.251Z",
-      toDate: "2023-02-08T17:34:46.251Z",
+      fromBlock: 10,
+      toBlock: 100,
     };
     const pagingOptions: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
 
@@ -92,7 +92,6 @@ describe("TransactionController", () => {
       expect(serviceMock.findAll).toHaveBeenCalledWith(
         {
           ...filterTransactionsOptions,
-          timestamp: "timestamp",
         },
         {
           filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
@@ -125,7 +124,6 @@ describe("TransactionController", () => {
         expect(serviceMock.findAll).toHaveBeenCalledWith(
           {
             ...filterOptionsWithoutAddress,
-            timestamp: "timestamp",
             visibleBy: mockUser,
           },
           {
@@ -141,7 +139,6 @@ describe("TransactionController", () => {
         expect(serviceMock.findAll).toHaveBeenCalledWith(
           {
             ...filterTransactionsOptions,
-            timestamp: "timestamp",
             visibleBy: mockUser,
           },
           {
@@ -158,7 +155,6 @@ describe("TransactionController", () => {
         expect(serviceMock.findAll).toHaveBeenCalledWith(
           {
             ...filterOptionsWithOwnAddress,
-            timestamp: "timestamp",
             visibleBy: mockUser,
           },
           {

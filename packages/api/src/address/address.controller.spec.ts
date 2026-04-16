@@ -21,7 +21,7 @@ import { ConfigService } from "@nestjs/config";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
-  buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
+  buildBlockFilter: jest.fn().mockReturnValue({ blockNumber: "blockNumber" }),
 }));
 
 describe("AddressController", () => {
@@ -471,8 +471,8 @@ describe("AddressController", () => {
     const transfers = mock<Pagination<Transfer>>();
     const address = "address";
     const listFilterOptions = {
-      fromDate: "2023-02-08T15:34:46.251Z",
-      toDate: "2023-02-08T17:34:46.251Z",
+      fromBlock: 10,
+      toBlock: 100,
     };
     const pagingOptions: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
 
@@ -487,7 +487,7 @@ describe("AddressController", () => {
         {
           address,
           isFeeOrRefund: false,
-          timestamp: "timestamp",
+          blockNumber: "blockNumber",
         },
         {
           filterOptions: listFilterOptions,
@@ -510,7 +510,7 @@ describe("AddressController", () => {
         {
           address,
           type: TransferType.Transfer,
-          timestamp: "timestamp",
+          blockNumber: "blockNumber",
         },
         {
           filterOptions: { type: TransferType.Transfer, ...listFilterOptions },

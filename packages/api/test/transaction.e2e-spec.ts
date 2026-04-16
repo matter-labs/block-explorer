@@ -492,9 +492,9 @@ describe("TransactionController (e2e)", () => {
         );
     });
 
-    it("returns HTTP 200 and transactions for the specified paging configuration with date filters", () => {
+    it("returns HTTP 200 and transactions for the specified paging configuration with block range filters", () => {
       return request(app.getHttpServer())
-        .get("/transactions?page=1&limit=3&fromDate=2022-11-21T18:16:01.000Z&toDate=2022-11-21T18:16:08.000Z")
+        .get("/transactions?page=1&limit=3&fromBlock=1&toBlock=8")
         .expect(200)
         .expect((res) =>
           expect(res.body.items).toStrictEqual([
@@ -592,16 +592,16 @@ describe("TransactionController (e2e)", () => {
         );
     });
 
-    it("returns HTTP 200 and populated paging metadata for request with date filters", () => {
+    it("returns HTTP 200 and populated paging metadata for request with block range filters", () => {
       return request(app.getHttpServer())
-        .get("/transactions?page=2&limit=3&fromDate=2022-11-21T18:16:01.000Z&toDate=2022-11-21T18:16:08.000Z")
+        .get("/transactions?page=2&limit=3&fromBlock=1&toBlock=8")
         .expect(200)
         .expect((res) =>
           expect(res.body.meta).toStrictEqual({
             currentPage: 2,
             itemCount: 3,
             itemsPerPage: 3,
-            totalItems: 8,
+            totalItems: 9,
             totalPages: 3,
           })
         );
@@ -609,15 +609,14 @@ describe("TransactionController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging links", () => {
       return request(app.getHttpServer())
-        .get("/transactions?page=2&limit=3&fromDate=2022-11-21T18:16:01.000Z&toDate=2022-11-21T18:16:08.000Z")
+        .get("/transactions?page=2&limit=3&fromBlock=1&toBlock=8")
         .expect(200)
         .expect((res) =>
           expect(res.body.links).toStrictEqual({
-            first: "transactions?limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
-            last: "transactions?page=3&limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
-            next: "transactions?page=3&limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
-            previous:
-              "transactions?page=1&limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
+            first: "transactions?limit=3&fromBlock=1&toBlock=8",
+            last: "transactions?page=3&limit=3&fromBlock=1&toBlock=8",
+            next: "transactions?page=3&limit=3&fromBlock=1&toBlock=8",
+            previous: "transactions?page=1&limit=3&fromBlock=1&toBlock=8",
           })
         );
     });
@@ -771,12 +770,12 @@ describe("TransactionController (e2e)", () => {
       return request(app.getHttpServer()).get("/transactions?address=abc").expect(400);
     });
 
-    it("returns HTTP 400 if toDate is not a valid ISO date", () => {
-      return request(app.getHttpServer()).get("/transactions?toDate=20000107").expect(400);
+    it("returns HTTP 400 if toBlock is not a valid integer", () => {
+      return request(app.getHttpServer()).get("/transactions?toBlock=abc").expect(400);
     });
 
-    it("returns HTTP 400 if fromDate is not a valid ISO date", () => {
-      return request(app.getHttpServer()).get("/transactions?fromDate=20000107").expect(400);
+    it("returns HTTP 400 if fromBlock is not a valid integer", () => {
+      return request(app.getHttpServer()).get("/transactions?fromBlock=abc").expect(400);
     });
   });
 

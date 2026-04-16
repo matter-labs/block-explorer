@@ -6,10 +6,10 @@ import { BlockController } from "./block.controller";
 import { BlockService } from "./block.service";
 import { Block } from "./block.entity";
 import { PagingOptionsDto } from "../common/dtos";
-import { buildDateFilter } from "../common/utils";
+import { buildBlockFilter } from "../common/utils";
 
 jest.mock("../common/utils", () => ({
-  buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
+  buildBlockFilter: jest.fn().mockReturnValue({ number: "number" }),
 }));
 
 describe("BlockController", () => {
@@ -46,24 +46,24 @@ describe("BlockController", () => {
 
     it("queries blocks with the specified options", async () => {
       const listFilterOptions = {
-        fromDate: "2023-02-08T15:34:46.251Z",
-        toDate: "2023-02-08T17:34:46.251Z",
+        fromBlock: 10,
+        toBlock: 100,
       };
       const pagingOptions: PagingOptionsDto = { limit: 10, page: 2 };
       await controller.getBlocks(listFilterOptions, pagingOptions);
 
-      expect(buildDateFilter).toHaveBeenCalledWith(listFilterOptions.fromDate, listFilterOptions.toDate);
+      expect(buildBlockFilter).toHaveBeenCalledWith(listFilterOptions.fromBlock, listFilterOptions.toBlock);
       expect(serviceMock.findAll).toHaveBeenCalledTimes(1);
       expect(serviceMock.findAll).toHaveBeenCalledWith(
-        { timestamp: "timestamp" },
+        { number: "number" },
         { ...pagingOptions, filterOptions: listFilterOptions, route: "blocks", canUseNumberFilterAsOffset: true }
       );
     });
 
     it("returns the blocks", async () => {
       const listFilterOptions = {
-        fromDate: "2023-02-08T15:34:46.251Z",
-        toDate: "2023-02-08T17:34:46.251Z",
+        fromBlock: 10,
+        toBlock: 100,
       };
       const pagingOptions: PagingOptionsDto = { limit: 10, page: 2 };
       const result = await controller.getBlocks(listFilterOptions, pagingOptions);

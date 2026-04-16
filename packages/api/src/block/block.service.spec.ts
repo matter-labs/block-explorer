@@ -165,7 +165,7 @@ describe("BlockService", () => {
     };
     const pagingOptions = {
       filterOptions: {
-        fromDate: undefined,
+        fromBlock: undefined,
       },
       limit: 10,
       page: 2,

@@ -18,10 +18,10 @@ export enum TransferType {
 }
 
 @Entity({ name: "transfers" })
-@Index(["transactionHash", "timestamp", "logIndex", "number"])
-@Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex", "number"])
-@Index(["fromToMin", "fromToMax", "isFeeOrRefund", "timestamp", "logIndex", "number"])
-@Index(["fromToMin", "fromToMax", "type", "timestamp", "logIndex", "number"])
+@Index(["transactionHash", "blockNumber", "logIndex", "number"])
+@Index(["tokenAddress", "isFeeOrRefund", "blockNumber", "logIndex", "number"])
+@Index(["fromToMin", "fromToMax", "isFeeOrRefund", "blockNumber", "logIndex", "number"])
+@Index(["fromToMin", "fromToMax", "type", "blockNumber", "logIndex", "number"])
 @Index(["tokenAddress", "blockNumber", "logIndex", "number"])
 @Index(["transactionHash", "isInternal", "blockNumber", "logIndex", "number"])
 @Index(["isInternal", "blockNumber", "logIndex", "number"])

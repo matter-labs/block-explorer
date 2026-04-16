@@ -102,9 +102,9 @@ describe("BlockController (e2e)", () => {
         );
     });
 
-    it("returns HTTP 200 and blocks for the specified paging configuration and only toDate filter specified", () => {
+    it("returns HTTP 200 and blocks for the specified paging configuration and only toBlock filter specified", () => {
       return request(app.getHttpServer())
-        .get("/blocks?page=2&limit=2&toDate=2022-11-10T14:44:38.000Z")
+        .get("/blocks?page=2&limit=2&toBlock=38")
         .expect(200)
         .expect((res) =>
           expect(res.body).toStrictEqual({
@@ -131,10 +131,10 @@ describe("BlockController (e2e)", () => {
               },
             ],
             links: {
-              first: "blocks?limit=2&toDate=2022-11-10T14%3A44%3A38.000Z",
-              last: "blocks?page=15&limit=2&toDate=2022-11-10T14%3A44%3A38.000Z",
-              next: "blocks?page=3&limit=2&toDate=2022-11-10T14%3A44%3A38.000Z",
-              previous: "blocks?page=1&limit=2&toDate=2022-11-10T14%3A44%3A38.000Z",
+              first: "blocks?limit=2&toBlock=38",
+              last: "blocks?page=15&limit=2&toBlock=38",
+              next: "blocks?page=3&limit=2&toBlock=38",
+              previous: "blocks?page=1&limit=2&toBlock=38",
             },
             meta: {
               currentPage: 2,
@@ -149,7 +149,7 @@ describe("BlockController (e2e)", () => {
 
     it("returns HTTP 200 and blocks for the specified paging configuration", () => {
       return request(app.getHttpServer())
-        .get("/blocks?page=2&limit=2&fromDate=2022-11-10T14:44:17.000Z&toDate=2022-11-10T14:44:38.000Z")
+        .get("/blocks?page=2&limit=2&fromBlock=17&toBlock=38")
         .expect(200)
         .expect((res) =>
           expect(res.body.items).toStrictEqual([
@@ -179,7 +179,7 @@ describe("BlockController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging metadata", () => {
       return request(app.getHttpServer())
-        .get("/blocks?page=2&limit=10&fromDate=2022-11-10T14:44:17.000Z&toDate=2022-11-10T14:44:38.000Z")
+        .get("/blocks?page=2&limit=10&fromBlock=17&toBlock=38")
         .expect(200)
         .expect((res) =>
           expect(res.body.meta).toMatchObject({
@@ -194,15 +194,14 @@ describe("BlockController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging links", () => {
       return request(app.getHttpServer())
-        .get("/blocks?page=2&limit=10&fromDate=2022-11-10T14:44:17.000Z&toDate=2022-11-10T14:44:38.000Z")
+        .get("/blocks?page=2&limit=10&fromBlock=17&toBlock=38")
         .expect(200)
         .expect((res) =>
           expect(res.body.links).toMatchObject({
-            first: "blocks?limit=10&fromDate=2022-11-10T14%3A44%3A17.000Z&toDate=2022-11-10T14%3A44%3A38.000Z",
-            last: "blocks?page=3&limit=10&fromDate=2022-11-10T14%3A44%3A17.000Z&toDate=2022-11-10T14%3A44%3A38.000Z",
-            next: "blocks?page=3&limit=10&fromDate=2022-11-10T14%3A44%3A17.000Z&toDate=2022-11-10T14%3A44%3A38.000Z",
-            previous:
-              "blocks?page=1&limit=10&fromDate=2022-11-10T14%3A44%3A17.000Z&toDate=2022-11-10T14%3A44%3A38.000Z",
+            first: "blocks?limit=10&fromBlock=17&toBlock=38",
+            last: "blocks?page=3&limit=10&fromBlock=17&toBlock=38",
+            next: "blocks?page=3&limit=10&fromBlock=17&toBlock=38",
+            previous: "blocks?page=1&limit=10&fromBlock=17&toBlock=38",
           })
         );
     });
@@ -219,12 +218,12 @@ describe("BlockController (e2e)", () => {
       return request(app.getHttpServer()).get("/blocks?limit=101").expect(400);
     });
 
-    it("returns HTTP 400 if toDate is not a valid ISO date", () => {
-      return request(app.getHttpServer()).get("/blocks?toDate=20000107").expect(400);
+    it("returns HTTP 400 if toBlock is not a valid integer", () => {
+      return request(app.getHttpServer()).get("/blocks?toBlock=abc").expect(400);
     });
 
-    it("returns HTTP 400 if fromDate is not a valid ISO date", () => {
-      return request(app.getHttpServer()).get("/blocks?fromDate=20000107").expect(400);
+    it("returns HTTP 400 if fromBlock is not a valid integer", () => {
+      return request(app.getHttpServer()).get("/blocks?fromBlock=abc").expect(400);
     });
   });
 });

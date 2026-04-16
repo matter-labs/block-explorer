@@ -7,8 +7,8 @@ export type TransactionListItem = Api.Response.Transaction;
 export type TransactionSearchParams = {
   blockNumber?: number;
   address?: string;
-  fromDate?: string;
-  toDate?: string;
+  fromBlock?: number;
+  toBlock?: number;
 };
 
 export default (searchParams: ComputedRef<TransactionSearchParams>, context = useContext()) => {

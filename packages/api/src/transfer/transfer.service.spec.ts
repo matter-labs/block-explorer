@@ -113,10 +113,10 @@ describe("TransferService", () => {
         expect(queryBuilderMock.select).toHaveBeenCalledWith("transfer.number", "number");
       });
 
-      it("returns transfers ordered by timestamp DESC and logIndex ASC", async () => {
+      it("returns transfers ordered by blockNumber ASC and logIndex ASC when transactionHash is specified", async () => {
         await service.findAll(filterOptions, pagingOptions);
         expect(queryBuilderMock.orderBy).toBeCalledTimes(1);
-        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transfer.timestamp", "DESC");
+        expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("transfer.blockNumber", "ASC");
         expect(queryBuilderMock.addOrderBy).toBeCalledTimes(1);
         expect(queryBuilderMock.addOrderBy).toHaveBeenCalledWith("transfer.logIndex", "ASC");
       });
@@ -142,7 +142,7 @@ describe("TransferService", () => {
             getParameters: jest.fn().mockReturnValue({ param1: "value1" }),
           });
           Object.defineProperty(pagedInnerQbMock, "expressionMap", {
-            value: { orderBys: { "transfer.timestamp": "DESC" } },
+            value: { orderBys: { "transfer.blockNumber": "DESC" } },
           });
 
           outerTransferQbMock = mock<typeorm.SelectQueryBuilder<Transfer>>();
@@ -162,7 +162,7 @@ describe("TransferService", () => {
         );
         expect(outerTransferQbMock.setParameters).toHaveBeenCalledWith({ param1: "value1" });
         expect(outerTransferQbMock.leftJoinAndSelect).toHaveBeenCalledWith("transfer.token", "token");
-        expect(outerTransferQbMock.addOrderBy).toHaveBeenCalledWith("transfer.timestamp", "DESC");
+        expect(outerTransferQbMock.addOrderBy).toHaveBeenCalledWith("transfer.blockNumber", "DESC");
       });
     });
 
@@ -191,10 +191,10 @@ describe("TransferService", () => {
         expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({ address: "address" });
       });
 
-      it("orders by at timestamp DESC and logIndex ASC", async () => {
+      it("orders by at blockNumber DESC and logIndex DESC", async () => {
         await service.findAll(filterOptions, pagingOptions);
-        expect(addressTransfersQueryBuilderMock.orderBy).toHaveBeenCalledWith("at.timestamp", "DESC");
-        expect(addressTransfersQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("at.logIndex", "ASC");
+        expect(addressTransfersQueryBuilderMock.orderBy).toHaveBeenCalledWith("at.blockNumber", "DESC");
+        expect(addressTransfersQueryBuilderMock.addOrderBy).toHaveBeenCalledWith("at.logIndex", "DESC");
       });
 
       it("returns paginated result with wrapQuery", async () => {

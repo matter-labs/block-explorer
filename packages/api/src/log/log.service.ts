@@ -46,13 +46,14 @@ export class LogService {
   ): Promise<Pagination<Log>> {
     const disableTxVisibilityByTopics = this.configService.get<boolean>("prividium.disableTxVisibilityByTopics");
     const { visibleBy, ...basicFilters } = filterOptions;
+    const order = basicFilters.transactionHash ? "ASC" : "DESC";
 
     if (visibleBy && !disableTxVisibilityByTopics) {
       const innerQb = this.visibleLogRepository.createQueryBuilder("vl");
       innerQb.select("vl.logNumber", "logNumber");
       innerQb.where({ visibleBy, ...basicFilters });
-      innerQb.orderBy("vl.timestamp", "DESC");
-      innerQb.addOrderBy("vl.logIndex", "ASC");
+      innerQb.orderBy("vl.blockNumber", order);
+      innerQb.addOrderBy("vl.logIndex", order);
 
       return paginate<Log>({
         queryBuilder: innerQb as unknown as SelectQueryBuilder<Log>,
@@ -70,8 +71,8 @@ export class LogService {
     const qb = this.logRepository.createQueryBuilder("log");
     qb.where({ ...basicFilters, ...(visibleBy && { transactionFrom: visibleBy }) });
 
-    qb.orderBy("log.timestamp", "DESC");
-    qb.addOrderBy("log.logIndex", "ASC");
+    qb.orderBy("log.blockNumber", order);
+    qb.addOrderBy("log.logIndex", order);
     return paginate<Log>({ queryBuilder: qb, options: paginationOptions });
   }
 

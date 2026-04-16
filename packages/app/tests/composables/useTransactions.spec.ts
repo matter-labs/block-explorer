@@ -80,8 +80,8 @@ describe("useTransactions:", () => {
   it("skips falsy query params except zero numbers", async () => {
     searchParams = computed(() => ({
       address: "",
-      fromDate: undefined,
-      toDate: undefined,
+      fromBlock: undefined,
+      toBlock: undefined,
       blockNumber: 0,
     }));
     const composable = useTransactions(searchParams);

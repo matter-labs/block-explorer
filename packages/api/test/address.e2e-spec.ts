@@ -1013,7 +1013,7 @@ describe("AddressController (e2e)", () => {
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               blockNumber: 1,
               data: "0x",
-              logIndex: 4,
+              logIndex: 17,
               timestamp: "2022-11-21T18:16:51.000Z",
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
@@ -1028,7 +1028,7 @@ describe("AddressController (e2e)", () => {
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               blockNumber: 1,
               data: "0x",
-              logIndex: 5,
+              logIndex: 16,
               timestamp: "2022-11-21T18:16:51.000Z",
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
@@ -1043,7 +1043,7 @@ describe("AddressController (e2e)", () => {
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               blockNumber: 1,
               data: "0x",
-              logIndex: 6,
+              logIndex: 15,
               timestamp: "2022-11-21T18:16:51.000Z",
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
@@ -1174,9 +1174,7 @@ describe("AddressController (e2e)", () => {
 
     it("returns HTTP 200 and address transfers for the specified paging configuration", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body.items).toStrictEqual([
@@ -1184,32 +1182,9 @@ describe("AddressController (e2e)", () => {
               amount: null,
               blockNumber: 1,
               fields: null,
-              from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
+              from: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
-              token: {
-                decimals: 18,
-                l1Address: null,
-                l2Address: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
-                name: "TEST",
-                symbol: "TST",
-                iconURL: null,
-                liquidity: null,
-                usdPrice: null,
-              },
-              tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
-              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-              type: "mint",
-              tokenType: "ERC20",
-              isInternal: false,
-            },
-            {
-              amount: null,
-              blockNumber: 1,
-              fields: null,
-              from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
-              timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              to: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1230,9 +1205,9 @@ describe("AddressController (e2e)", () => {
               amount: null,
               blockNumber: 1,
               fields: null,
-              from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
+              from: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              to: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               token: {
                 decimals: 18,
                 l1Address: null,
@@ -1245,8 +1220,31 @@ describe("AddressController (e2e)", () => {
               },
               tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-              type: "deposit",
+              type: "mint",
               tokenType: "ERC20",
+              isInternal: false,
+            },
+            {
+              amount: null,
+              blockNumber: 1,
+              fields: null,
+              from: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              timestamp: "2022-11-21T18:16:51.000Z",
+              to: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
+              token: {
+                l2Address: "0x000000000000000000000000000000000000800A",
+                l1Address: "0x0000000000000000000000000000000000000000",
+                symbol: "ETH",
+                name: "Ether",
+                decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
+              },
+              tokenAddress: "0x000000000000000000000000000000000000800A",
+              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
+              type: "withdrawal",
+              tokenType: "BASETOKEN",
               isInternal: false,
             },
           ])
@@ -1255,9 +1253,7 @@ describe("AddressController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging metadata considering limited pagination settings", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body.meta).toStrictEqual({
@@ -1272,34 +1268,27 @@ describe("AddressController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging links considering limited pagination settings", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body.links).toStrictEqual({
-            first:
-              "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
-            last: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=5&limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
-            next: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=3&limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
-            previous:
-              "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=1&limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
+            first: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?limit=3&toBlock=1",
+            last: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=5&limit=3&toBlock=1",
+            next: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=3&limit=3&toBlock=1",
+            previous: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=1&limit=3&toBlock=1",
           })
         );
     });
 
     it("returns HTTP 200 and the default address transfers response if the address does not exist", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?page=1&limit=10&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?page=1&limit=10&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body).toStrictEqual({
             items: [],
             links: {
-              first:
-                "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?limit=10&toDate=2025-11-10T14%3A44%3A38.000Z",
+              first: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?limit=10&toBlock=1",
               last: "",
               next: "",
               previous: "",
@@ -1343,15 +1332,15 @@ describe("AddressController (e2e)", () => {
         .expect(400);
     });
 
-    it("returns HTTP 400 if toDate is not a valid ISO date", () => {
+    it("returns HTTP 400 if toBlock is not a valid integer", () => {
       return request(app.getHttpServer())
-        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?toDate=20000107")
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?toBlock=abc")
         .expect(400);
     });
 
-    it("returns HTTP 400 if fromDate is not a valid ISO date", () => {
+    it("returns HTTP 400 if fromBlock is not a valid integer", () => {
       return request(app.getHttpServer())
-        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?fromDate=20000107")
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?fromBlock=abc")
         .expect(400);
     });
   });

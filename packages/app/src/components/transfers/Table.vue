@@ -180,12 +180,11 @@ function getTransferDirection(item: Transfer): Direction {
 }
 
 const activePage = ref(1);
-const toDate = new Date();
 
 watch(
   [activePage, () => props.address],
   ([page]) => {
-    load(page, toDate);
+    load(page);
   },
   { immediate: true }
 );

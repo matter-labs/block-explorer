@@ -21,7 +21,7 @@ export interface FilterTransfersOptions {
   tokenAddress?: string;
   transactionHash?: string;
   address?: string;
-  timestamp?: FindOperator<Date>;
+  blockNumber?: number | FindOperator<number>;
   isFeeOrRefund?: boolean;
   type?: TransferType;
   visibleBy?: string;
@@ -71,8 +71,8 @@ export class TransferService {
         const innerQb = this.transferRepository.createQueryBuilder("transfer");
         innerQb.select("transfer.number", "number");
         innerQb.where({ ...options, fromToMin, fromToMax });
-        innerQb.orderBy("transfer.timestamp", "DESC");
-        innerQb.addOrderBy("transfer.logIndex", "ASC");
+        innerQb.orderBy("transfer.blockNumber", "DESC");
+        innerQb.addOrderBy("transfer.logIndex", "DESC");
         return this.paginateTransfers(innerQb, "number", paginationOptions);
       }
       if (options.transactionHash) {
@@ -85,7 +85,7 @@ export class TransferService {
             qb.where({ from: visibleBy }).orWhere({ to: visibleBy });
           })
         );
-        innerQb.orderBy("transfer.timestamp", "DESC");
+        innerQb.orderBy("transfer.blockNumber", "ASC");
         innerQb.addOrderBy("transfer.logIndex", "ASC");
         return this.paginateTransfers(innerQb, "number", paginationOptions);
       }
@@ -100,8 +100,9 @@ export class TransferService {
     const innerQb = this.transferRepository.createQueryBuilder("transfer");
     innerQb.select("transfer.number", "number");
     innerQb.where(basicOptions);
-    innerQb.orderBy("transfer.timestamp", "DESC");
-    innerQb.addOrderBy("transfer.logIndex", "ASC");
+    const order = basicOptions.transactionHash ? "ASC" : "DESC";
+    innerQb.orderBy("transfer.blockNumber", order);
+    innerQb.addOrderBy("transfer.logIndex", order);
     return this.paginateTransfers(innerQb, "number", paginationOptions);
   }
 
@@ -292,8 +293,8 @@ export class TransferService {
     const innerQb = this.addressTransferRepository.createQueryBuilder("at");
     innerQb.select("at.transferNumber", "transferNumber");
     innerQb.where(where);
-    innerQb.orderBy("at.timestamp", "DESC");
-    innerQb.addOrderBy("at.logIndex", "ASC");
+    innerQb.orderBy("at.blockNumber", "DESC");
+    innerQb.addOrderBy("at.logIndex", "DESC");
     return this.paginateTransfers(innerQb, "transferNumber", paginationOptions);
   }
 
