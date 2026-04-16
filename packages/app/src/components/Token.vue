@@ -54,9 +54,10 @@
         </TransactionsTable>
       </template>
       <template #tab-2-content>
-        <ContractInfoTab :contract="contract" />
+        <TransfersTable v-if="isBaseToken" :address="contract.address" :for-token="true" />
+        <ContractInfoTab v-if="!isBaseToken" :contract="contract" />
       </template>
-      <template #tab-3-content>
+      <template v-if="!isBaseToken" #tab-3-content>
         <ContractEvents v-if="showEventsTab" :contract="contract" />
       </template>
     </Tabs>
@@ -79,6 +80,7 @@ import ContractEvents from "@/components/event/ContractEvents.vue";
 import MarketTokenInfoTable from "@/components/token/MarketTokenInfoTable.vue";
 import OverviewTokenInfoTable from "@/components/token/OverviewTokenInfoTable.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
+import TransfersTable from "@/components/transfers/Table.vue";
 
 import useContext from "@/composables/useContext";
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
@@ -112,6 +114,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isBaseToken: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const { getTokenInfo, tokenInfo } = useToken();
@@ -126,12 +132,16 @@ watchEffect(() => {
 
 const tabs = computed(() => [
   { title: t("tabs.transactions"), hash: "#transactions" },
-  {
-    title: t("tabs.contract"),
-    hash: "#contract",
-    icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
-  },
-  { title: t("tabs.events"), hash: showEventsTab.value ? "#events" : null },
+  ...(props.isBaseToken
+    ? [{ title: t("tabs.transfers"), hash: "#transfers" }]
+    : [
+        {
+          title: t("tabs.contract"),
+          hash: "#contract",
+          icon: props.contract?.verificationInfo ? CheckCircleIcon : null,
+        },
+        { title: t("tabs.events"), hash: showEventsTab.value ? "#events" : null },
+      ]),
 ]);
 
 const breadcrumbItems = computed((): BreadcrumbItem[] | [] => {

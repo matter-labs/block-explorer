@@ -9,13 +9,22 @@ export type Transfer = Api.Response.Transfer & {
   toNetwork: NetworkOrigin;
 };
 
-export default (address: ComputedRef<string>, context = useContext()) => {
+interface UseTransferOptions {
+  forToken?: boolean;
+}
+
+export default (
+  address: ComputedRef<string>,
+  { forToken = false }: UseTransferOptions = {},
+  context = useContext()
+) => {
   return useFetchCollection<Transfer, Api.Response.Transfer>(
-    () =>
-      new URL(
-        `/address/${address.value}/transfers?toDate=${new Date().toISOString()}`,
-        context.currentNetwork.value.apiUrl
-      ),
+    () => {
+      const path = forToken
+        ? `/tokens/${address.value}/transfers`
+        : `/address/${address.value}/transfers?toDate=${new Date().toISOString()}`;
+      return new URL(path, context.currentNetwork.value.apiUrl);
+    },
     (transfer: Api.Response.Transfer): Transfer => ({
       ...transfer,
       token: transfer.token || {
