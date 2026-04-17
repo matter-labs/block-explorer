@@ -15,3 +15,4 @@ export * from "./addressVisibleTransaction.entity";
 export * from "./visibleLog.entity";
 export * from "./counter.entity";
 export * from "./counterState.entity";
+export * from "./indexerState.entity";

@@ -5,6 +5,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { BalanceService } from "./balance.service";
 import { Balance } from "./balance.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 describe("BalanceService", () => {
   let service: BalanceService;
@@ -18,6 +19,10 @@ describe("BalanceService", () => {
         {
           provide: getRepositoryToken(Balance),
           useValue: repositoryMock,
+        },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
         },
       ],
     }).compile();
@@ -246,8 +251,11 @@ describe("BalanceService", () => {
       await service.getBalancesByAddresses(addresses, tokenAddress);
       expect(subQueryBuilderMock.where).toHaveBeenCalledTimes(1);
       expect(subQueryBuilderMock.where).toHaveBeenCalledWith(`"tokenAddress" = :tokenAddress`);
-      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledTimes(2);
       expect(subQueryBuilderMock.andWhere).toHaveBeenCalledWith("address IN(:...addresses)");
+      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledWith(`"blockNumber" <= :lastReadyBlockNumber`, {
+        lastReadyBlockNumber: 1_000_000,
+      });
     });
 
     it("groups by address and tokenAddress in the sub query", async () => {

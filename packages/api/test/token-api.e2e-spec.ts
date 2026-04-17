@@ -8,11 +8,13 @@ import { Token } from "../src/token/token.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { baseToken } from "../src/config";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("Token API (e2e)", () => {
   let app: INestApplication;
   let blockRepository: Repository<BlockDetails>;
   let tokenRepository: Repository<Token>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,6 +24,9 @@ describe("Token API (e2e)", () => {
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 0 });
 
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
@@ -67,6 +72,7 @@ describe("Token API (e2e)", () => {
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await tokenRepository.createQueryBuilder().delete().execute();
     await blockRepository.createQueryBuilder().delete().execute();
     await app.close();

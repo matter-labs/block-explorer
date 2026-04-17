@@ -1,5 +1,6 @@
 import { Entity, Column, PrimaryColumn, Index } from "typeorm";
 import { BaseEntity } from "../../common/entities/base.entity";
+import { bigIntNumberTransformer } from "../../common/transformers/bigIntNumber.transformer";
 import { normalizeAddressTransformer } from "../../common/transformers/normalizeAddress.transformer";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 
@@ -7,6 +8,9 @@ import { hexTransformer } from "../../common/transformers/hex.transformer";
 export class TransactionReceipt extends BaseEntity {
   @PrimaryColumn({ type: "bytea", transformer: hexTransformer })
   public readonly transactionHash: string;
+
+  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
+  public readonly blockNumber: number;
 
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly from: string;

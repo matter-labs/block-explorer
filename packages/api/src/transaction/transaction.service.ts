@@ -11,6 +11,7 @@ import { VisibleTransaction } from "./entities/visibleTransaction.entity";
 import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block, BlockStatus } from "../block/block.entity";
 import { CounterService } from "../counter/counter.service";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 import { UserParam } from "../user/user.decorator";
 
 export interface FilterTransactionsOptions {
@@ -41,20 +42,31 @@ export class TransactionService {
     @InjectRepository(Block)
     private readonly blockRepository: Repository<Block>,
     private readonly counterService: CounterService,
+    private readonly indexerStateService: IndexerStateService,
     private readonly configService: ConfigService
   ) {}
 
   public async findOne(hash: string): Promise<Transaction> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
     queryBuilder.leftJoinAndSelect("transaction.block", "block");
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
     queryBuilder.where({ hash });
-    return await queryBuilder.getOne();
+    const transaction = await queryBuilder.getOne();
+    if (transaction?.blockNumber > lastReadyBlockNumber) {
+      return null;
+    }
+    return transaction;
   }
 
   public async exists(hash: string): Promise<boolean> {
-    return (await this.transactionRepository.findOne({ where: { hash }, select: { hash: true } })) != null;
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
+    const transaction = await this.transactionRepository.findOne({
+      where: { hash },
+      select: { hash: true, blockNumber: true },
+    });
+    return transaction != null && transaction.blockNumber <= lastReadyBlockNumber;
   }
 
   public async findAll(
@@ -62,6 +74,7 @@ export class TransactionService {
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transaction>> {
     const disableTxVisibilityByTopics = this.configService.get<boolean>("prividium.disableTxVisibilityByTopics");
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const commonFilters = {
       ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
     };
@@ -78,6 +91,7 @@ export class TransactionService {
         const innerQb = this.transactionRepository.createQueryBuilder("transaction");
         innerQb.select("transaction.hash", "hash");
         innerQb.where({ fromToMin, fromToMax, ...commonFilters });
+        innerQb.andWhere("transaction.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
         this.addDefaultOrder(innerQb);
         return this.paginateTransactions(innerQb, "hash", paginationOptions);
       }
@@ -86,6 +100,7 @@ export class TransactionService {
       const innerQb = this.addressVisibleTransactionRepository.createQueryBuilder("avt");
       innerQb.select("avt.transactionHash", "transactionHash");
       innerQb.where({ address: filterOptions.address, visibleBy: filterOptions.visibleBy, ...commonFilters });
+      innerQb.andWhere("avt.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
       this.addDefaultOrder(innerQb);
       return this.paginateTransactions(innerQb, "transactionHash", paginationOptions);
     }
@@ -94,26 +109,38 @@ export class TransactionService {
     if (filterOptions.visibleBy && !filterOptions.address) {
       if (disableTxVisibilityByTopics) {
         // return own transactions only
-        return this.queryAddressTransactions(filterOptions.visibleBy, filterOptions, paginationOptions);
+        return this.queryAddressTransactions(
+          filterOptions.visibleBy,
+          filterOptions,
+          paginationOptions,
+          lastReadyBlockNumber
+        );
       }
 
       // return transactions visible to the user for all addresses (including txs with topics with user's address)
       const innerQb = this.visibleTransactionRepository.createQueryBuilder("vt");
       innerQb.select("vt.transactionHash", "transactionHash");
       innerQb.where({ visibleBy: filterOptions.visibleBy, ...commonFilters });
+      innerQb.andWhere("vt.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
       this.addDefaultOrder(innerQb);
       return this.paginateTransactions(innerQb, "transactionHash", paginationOptions);
     }
 
     // Case 3: viewing transactions for an arbitrary address (non prividium) or own transactions (prividium)
     if (filterOptions.address) {
-      return this.queryAddressTransactions(filterOptions.address, filterOptions, paginationOptions);
+      return this.queryAddressTransactions(
+        filterOptions.address,
+        filterOptions,
+        paginationOptions,
+        lastReadyBlockNumber
+      );
     }
 
     // Case 4: no filter — all transactions (non prividium)
     const innerQb = this.transactionRepository.createQueryBuilder("transaction");
     innerQb.select("transaction.hash", "hash");
     innerQb.where(commonFilters);
+    innerQb.andWhere("transaction.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
     this.addDefaultOrder(innerQb);
     return this.paginateTransactions(innerQb, "hash", paginationOptions);
   }
@@ -121,7 +148,8 @@ export class TransactionService {
   private async queryAddressTransactions(
     address: string,
     filterOptions: FilterTransactionsOptions,
-    paginationOptions: IPaginationOptions
+    paginationOptions: IPaginationOptions,
+    lastReadyBlockNumber: number
   ): Promise<Pagination<Transaction>> {
     const innerQb = this.addressTransactionRepository.createQueryBuilder("at");
     innerQb.select("at.transactionHash", "transactionHash");
@@ -129,6 +157,7 @@ export class TransactionService {
       address,
       ...(filterOptions.blockNumber !== undefined && { blockNumber: filterOptions.blockNumber }),
     });
+    innerQb.andWhere("at.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
     this.addDefaultOrder(innerQb);
     return this.paginateTransactions(innerQb, "transactionHash", paginationOptions);
   }
@@ -180,7 +209,9 @@ export class TransactionService {
       sort = SortingOrder.Desc,
     }: FindByAddressFilterTransactionsOptions = {}
   ): Promise<Transaction[]> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
+    const clampedEndBlock = endBlock !== undefined ? Math.min(endBlock, lastReadyBlockNumber) : lastReadyBlockNumber;
 
     const innerQb = this.addressTransactionRepository.createQueryBuilder("at");
     innerQb.select("at.transactionHash", "transactionHash");
@@ -188,9 +219,7 @@ export class TransactionService {
     if (startBlock !== undefined) {
       innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
     }
-    if (endBlock !== undefined) {
-      innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
-    }
+    innerQb.andWhere({ blockNumber: LessThanOrEqual(clampedEndBlock) });
     innerQb.orderBy("at.blockNumber", order);
     innerQb.addOrderBy("at.transactionIndex", order);
     innerQb.offset((page - 1) * offset);
@@ -216,14 +245,20 @@ export class TransactionService {
     return await queryBuilder.getMany();
   }
 
-  private getAccountNonceQueryBuilder(accountAddress: string, isVerified: boolean): SelectQueryBuilder<Transaction> {
+  private getAccountNonceQueryBuilder(
+    accountAddress: string,
+    isVerified: boolean,
+    lastReadyBlockNumber: number
+  ): SelectQueryBuilder<Transaction> {
     const queryBuilder = this.transactionRepository.createQueryBuilder("transaction");
     queryBuilder.select("nonce");
     queryBuilder.where({ from: accountAddress, isL1Originated: false });
+    queryBuilder.andWhere("transaction.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
     if (isVerified) {
       const lastVerifiedBlockQuery = this.blockRepository.createQueryBuilder("block");
       lastVerifiedBlockQuery.select("number");
       lastVerifiedBlockQuery.where("block.status = :status");
+      lastVerifiedBlockQuery.andWhere("block.number <= :lastReadyBlockNumber");
       lastVerifiedBlockQuery.orderBy("block.status", "DESC");
       lastVerifiedBlockQuery.addOrderBy("block.number", "DESC");
       lastVerifiedBlockQuery.limit(1);
@@ -244,7 +279,8 @@ export class TransactionService {
     accountAddress: string;
     isVerified?: boolean;
   }): Promise<number> {
-    const queryBuilder = this.getAccountNonceQueryBuilder(accountAddress, isVerified);
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
+    const queryBuilder = this.getAccountNonceQueryBuilder(accountAddress, isVerified, lastReadyBlockNumber);
     const transaction = await queryBuilder.getRawOne();
     return transaction?.nonce != null ? Number(transaction.nonce) + 1 : 0;
   }

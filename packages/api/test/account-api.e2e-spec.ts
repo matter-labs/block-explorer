@@ -15,6 +15,7 @@ import { BASE_TOKEN_L2_ADDRESS } from "../src/common/constants";
 import { computeFromToMinMax } from "../src/common/utils";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("Account API (e2e)", () => {
   let app: INestApplication;
@@ -26,6 +27,7 @@ describe("Account API (e2e)", () => {
   let blockRepository: Repository<BlockDetails>;
   let tokenRepository: Repository<Token>;
   let balanceRepository: Repository<Balance>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -35,6 +37,9 @@ describe("Account API (e2e)", () => {
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 2 });
 
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
@@ -86,6 +91,7 @@ describe("Account API (e2e)", () => {
       gasUsed: "900000",
       cumulativeGasUsed: "1100000",
       contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+      blockNumber: 1,
     });
 
     await addressTransactionRepository.insert({
@@ -178,6 +184,7 @@ describe("Account API (e2e)", () => {
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await addressTransferRepository.createQueryBuilder().delete().execute();
     await transferRepository.createQueryBuilder().delete().execute();
     await addressTransactionRepository.createQueryBuilder().delete().execute();

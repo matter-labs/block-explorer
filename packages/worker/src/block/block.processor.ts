@@ -10,7 +10,7 @@ import { BlockWatcher } from "./block.watcher";
 import { BlockData } from "../dataFetcher/types";
 import { BalanceService } from "../balance/balance.service";
 import { TokenService } from "../token/token.service";
-import { BlockRepository } from "../repositories";
+import { BlockRepository, IndexerStateRepository } from "../repositories";
 import { Block } from "../entities";
 import { TransactionProcessor } from "../transaction";
 import { validateBlocksLinking } from "./block.utils";
@@ -40,6 +40,7 @@ export class BlockProcessor {
     private readonly tokenService: TokenService,
     private readonly blockWatcher: BlockWatcher,
     private readonly blockRepository: BlockRepository,
+    private readonly indexerStateRepository: IndexerStateRepository,
     private readonly eventEmitter: EventEmitter2,
     @InjectMetric(BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME)
     private readonly blocksBatchProcessingDurationMetric: Histogram<BlocksBatchProcessingMetricLabels>,
@@ -128,12 +129,13 @@ export class BlockProcessor {
           await Promise.all(blocksToProcessChunk.map((blockInfo) => this.addBlock(blockInfo)));
         }, true)
       );
-      await Promise.all(dbTransactions.map((t) => t.waitForExecution()));
-
-      // sequentially commit transactions to preserve blocks order in DB
       for (const dbTransaction of dbTransactions) {
+        await dbTransaction.waitForExecution();
         await dbTransaction.commit();
       }
+
+      const lastBlock = blocksToProcess[blocksToProcess.length - 1].block.number;
+      await this.indexerStateRepository.setLastReadyBlockNumber(lastBlock);
       stopDurationMeasuring({ status: "success" });
     } catch (error) {
       await Promise.all(dbTransactions.map((dbTransaction) => dbTransaction.ensureRollbackIfNotCommitted()));

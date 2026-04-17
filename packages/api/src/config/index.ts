@@ -108,6 +108,7 @@ export default () => {
     PRIVIDIUM_SESSION_SAME_SITE,
     PRIVIDIUM_SESSION_SECRET,
     PRIVIDIUM_CORS_ORIGINS,
+    INDEXER_STATE_CACHE_TTL_MS,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -241,5 +242,6 @@ export default () => {
     ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
     prividium: getPrividiumConfig(),
+    indexerStateCacheTtlMs: parseInt(INDEXER_STATE_CACHE_TTL_MS, 10) || 1000,
   };
 };

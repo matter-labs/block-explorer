@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, LessThanOrEqual } from "typeorm";
 import { Balance } from "./balance.entity";
 import { Token } from "../token/token.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 export interface TokenBalance {
   balance: string;
@@ -14,15 +15,18 @@ export interface TokenBalance {
 export class BalanceService {
   constructor(
     @InjectRepository(Balance)
-    private readonly balanceRepository: Repository<Balance>
+    private readonly balanceRepository: Repository<Balance>,
+    private readonly indexerStateService: IndexerStateService
   ) {}
 
   public async getBalances(address: string): Promise<{ balances: Record<string, TokenBalance>; blockNumber: number }> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const latestBalancesQuery = this.balanceRepository.createQueryBuilder("latest_balances");
     latestBalancesQuery.select("address");
     latestBalancesQuery.addSelect(`"tokenAddress"`);
     latestBalancesQuery.addSelect(`MAX("blockNumber")`, "blockNumber");
     latestBalancesQuery.where("address = :address");
+    latestBalancesQuery.andWhere(`"blockNumber" <= :lastReadyBlockNumber`);
     latestBalancesQuery.groupBy("address");
     latestBalancesQuery.addGroupBy(`"tokenAddress"`);
 
@@ -35,6 +39,7 @@ export class BalanceService {
       balances."blockNumber" = latest_balances."blockNumber"`
     );
     balancesQuery.setParameter("address", hexTransformer.to(address));
+    balancesQuery.setParameter("lastReadyBlockNumber", lastReadyBlockNumber);
     balancesQuery.leftJoinAndSelect("balances.token", "token");
 
     const balancesRecords = await balancesQuery.getMany();
@@ -56,10 +61,12 @@ export class BalanceService {
   }
 
   public async getBalance(address: string, tokenAddress: string): Promise<string> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const balance = await this.balanceRepository.findOne({
       where: {
         address,
         tokenAddress,
+        blockNumber: LessThanOrEqual(lastReadyBlockNumber),
       },
       select: {
         balance: true,
@@ -72,12 +79,14 @@ export class BalanceService {
   }
 
   public async getBalancesByAddresses(addresses: string[], tokenAddress: string): Promise<Balance[]> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const latestBalancesQuery = this.balanceRepository.createQueryBuilder("latest_balances");
     latestBalancesQuery.select("address");
     latestBalancesQuery.addSelect(`"tokenAddress"`);
     latestBalancesQuery.addSelect(`MAX("blockNumber")`, "blockNumber");
     latestBalancesQuery.where(`"tokenAddress" = :tokenAddress`);
     latestBalancesQuery.andWhere("address IN(:...addresses)");
+    latestBalancesQuery.andWhere(`"blockNumber" <= :lastReadyBlockNumber`);
     latestBalancesQuery.groupBy("address");
     latestBalancesQuery.addGroupBy(`"tokenAddress"`);
 
@@ -92,6 +101,7 @@ export class BalanceService {
       balances."blockNumber" = latest_balances."blockNumber"`
     );
     balancesQuery.setParameter("tokenAddress", hexTransformer.to(tokenAddress));
+    balancesQuery.setParameter("lastReadyBlockNumber", lastReadyBlockNumber);
     balancesQuery.setParameter(
       "addresses",
       addresses.map((address) => hexTransformer.to(address))

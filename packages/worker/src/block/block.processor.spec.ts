@@ -13,7 +13,7 @@ import { BlockchainService } from "../blockchain";
 import { BalanceService } from "../balance";
 import { TokenService } from "../token/token.service";
 import { Block } from "../entities";
-import { BlockRepository, LogRepository, TransferRepository } from "../repositories";
+import { BlockRepository, IndexerStateRepository, LogRepository, TransferRepository } from "../repositories";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 import { BlockProcessor } from "./block.processor";
 import { Balance } from "../dataFetcher/types";
@@ -30,6 +30,7 @@ describe("BlockProcessor", () => {
   let balanceServiceMock: BalanceService;
   let tokenServiceMock: TokenService;
   let blockRepositoryMock: BlockRepository;
+  let indexerStateRepositoryMock: { setLastReadyBlockNumber: jest.Mock };
   let logRepositoryMock: LogRepository;
   let transferRepositoryMock: TransferRepository;
   let eventEmitterMock: EventEmitter2;
@@ -72,6 +73,10 @@ describe("BlockProcessor", () => {
         {
           provide: BlockRepository,
           useValue: blockRepositoryMock,
+        },
+        {
+          provide: IndexerStateRepository,
+          useValue: indexerStateRepositoryMock,
         },
         {
           provide: LogRepository,
@@ -132,6 +137,7 @@ describe("BlockProcessor", () => {
     transactionProcessorMock = mock<TransactionProcessor>();
     tokenServiceMock = mock<TokenService>();
     blockRepositoryMock = mock<BlockRepository>();
+    indexerStateRepositoryMock = { setLastReadyBlockNumber: jest.fn().mockResolvedValue(undefined) };
     logRepositoryMock = mock<LogRepository>();
     transferRepositoryMock = mock<TransferRepository>();
     balanceServiceMock = mock<BalanceService>();
@@ -581,6 +587,12 @@ describe("BlockProcessor", () => {
             it("commits db transactions after execution", async () => {
               await blockProcessor.processNextBlocksRange();
               expect(commitTransactionMock).toBeCalledTimes(1);
+            });
+
+            it("updates last ready block number after committing", async () => {
+              await blockProcessor.processNextBlocksRange();
+              expect(indexerStateRepositoryMock.setLastReadyBlockNumber).toHaveBeenCalledTimes(1);
+              expect(indexerStateRepositoryMock.setLastReadyBlockNumber).toHaveBeenCalledWith(101);
             });
 
             describe("when processing fails with an error", () => {

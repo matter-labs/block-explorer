@@ -8,12 +8,14 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("Transaction API (e2e)", () => {
   let app: INestApplication;
   let transactionRepository: Repository<Transaction>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
   let blockRepository: Repository<BlockDetails>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -23,6 +25,9 @@ describe("Transaction API (e2e)", () => {
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 1 });
 
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
@@ -85,6 +90,7 @@ describe("Transaction API (e2e)", () => {
       status: 0,
       gasUsed: "900000",
       cumulativeGasUsed: "1100000",
+      blockNumber: 1,
     });
 
     await transactionReceiptRepository.insert({
@@ -93,10 +99,12 @@ describe("Transaction API (e2e)", () => {
       status: 1,
       gasUsed: "900000",
       cumulativeGasUsed: "1100000",
+      blockNumber: 1,
     });
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await transactionReceiptRepository.createQueryBuilder().delete().execute();
     await transactionRepository.createQueryBuilder().delete().execute();
     await blockRepository.createQueryBuilder().delete().execute();

@@ -67,6 +67,7 @@ describe("config", () => {
         feature2Enabled: false,
       }),
       gracefulShutdownTimeoutMs: 0,
+      indexerStateCacheTtlMs: 1000,
       prividium: {},
     });
   });
@@ -141,6 +142,7 @@ describe("config", () => {
           feature2Enabled: false,
         }),
         gracefulShutdownTimeoutMs: 0,
+        indexerStateCacheTtlMs: 1000,
         prividium: {},
       });
     });
@@ -207,6 +209,7 @@ describe("config", () => {
             feature2Enabled: false,
           }),
           gracefulShutdownTimeoutMs: 0,
+          indexerStateCacheTtlMs: 1000,
           prividium: {},
         });
       });
@@ -272,6 +275,7 @@ describe("config", () => {
             feature2Enabled: false,
           }),
           gracefulShutdownTimeoutMs: 0,
+          indexerStateCacheTtlMs: 1000,
           prividium: {},
         });
       });
@@ -364,6 +368,7 @@ describe("config", () => {
         prividium: true,
       }),
       gracefulShutdownTimeoutMs: 0,
+      indexerStateCacheTtlMs: 1000,
       prividium: {
         adminRoleName: "admin",
         sessionMaxAge: 1000,

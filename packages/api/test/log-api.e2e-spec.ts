@@ -9,6 +9,7 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("Logs API (e2e)", () => {
   let app: INestApplication;
@@ -16,6 +17,7 @@ describe("Logs API (e2e)", () => {
   let transactionReceiptRepository: Repository<TransactionReceipt>;
   let blockRepository: Repository<BlockDetails>;
   let logRepository: Repository<Log>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -25,6 +27,9 @@ describe("Logs API (e2e)", () => {
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 1 });
 
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
@@ -83,6 +88,7 @@ describe("Logs API (e2e)", () => {
       gasUsed: "900000",
       cumulativeGasUsed: "1100000",
       contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+      blockNumber: 1,
     });
 
     for (let i = 0; i < 4; i++) {
@@ -105,6 +111,7 @@ describe("Logs API (e2e)", () => {
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await logRepository.createQueryBuilder().delete().execute();
     await transactionReceiptRepository.createQueryBuilder().delete().execute();
     await transactionRepository.createQueryBuilder().delete().execute();

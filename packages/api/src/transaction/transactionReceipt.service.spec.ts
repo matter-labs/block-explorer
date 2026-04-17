@@ -4,6 +4,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository, SelectQueryBuilder } from "typeorm";
 import { TransactionReceiptService } from "./transactionReceipt.service";
 import { TransactionReceipt } from "./entities/transactionReceipt.entity";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 describe("TransactionReceiptService", () => {
   let service: TransactionReceiptService;
@@ -18,6 +19,10 @@ describe("TransactionReceiptService", () => {
         {
           provide: getRepositoryToken(TransactionReceipt),
           useValue: repositoryMock,
+        },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
         },
       ],
     }).compile();

@@ -15,6 +15,7 @@ import { configureApp } from "../src/configureApp";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "../src/prividium";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
@@ -25,6 +26,7 @@ describe("Prividium API (e2e)", () => {
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transactionRepository: Repository<Transaction>;
   let blockRepository: Repository<BlockDetails>;
+  let indexerStateRepository: Repository<IndexerState>;
   let agent: request.SuperAgentTest;
 
   const mockWalletAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
@@ -64,6 +66,9 @@ describe("Prividium API (e2e)", () => {
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 1 });
 
     // Set up minimal test data
     await blockRepository.insert({
@@ -86,6 +91,7 @@ describe("Prividium API (e2e)", () => {
 
   afterAll(async () => {
     // Clean up test data
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await addressTransactionRepository.createQueryBuilder().delete().execute();
     await transactionRepository.createQueryBuilder().delete().execute();
     await blockRepository.createQueryBuilder().delete().execute();

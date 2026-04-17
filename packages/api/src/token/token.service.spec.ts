@@ -1,12 +1,13 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder, MoreThanOrEqual } from "typeorm";
+import { Repository, SelectQueryBuilder, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { TokenService } from "./token.service";
 import { Token } from "./token.entity";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import config from "../config";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 const { baseToken } = config();
 
@@ -25,6 +26,10 @@ describe("TokenService", () => {
         {
           provide: getRepositoryToken(Token),
           useValue: repositoryMock,
+        },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
         },
       ],
     }).compile();
@@ -50,7 +55,9 @@ describe("TokenService", () => {
     it("queries tokens by specified token address", async () => {
       await service.findOne(tokenAddress);
       expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
-      expect(repositoryMock.findOne).toHaveBeenCalledWith({ where: { l2Address: tokenAddress } });
+      expect(repositoryMock.findOne).toHaveBeenCalledWith({
+        where: { l2Address: tokenAddress, blockNumber: LessThanOrEqual(1_000_000) },
+      });
     });
 
     it("returns token by address", async () => {
@@ -63,7 +70,7 @@ describe("TokenService", () => {
         await service.findOne(tokenAddress, { l2Address: true });
         expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
         expect(repositoryMock.findOne).toHaveBeenCalledWith({
-          where: { l2Address: tokenAddress },
+          where: { l2Address: tokenAddress, blockNumber: LessThanOrEqual(1_000_000) },
           select: { l2Address: true },
         });
       });
@@ -101,7 +108,7 @@ describe("TokenService", () => {
       await service.exists(tokenAddress);
       expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
       expect(repositoryMock.findOne).toHaveBeenCalledWith({
-        where: { l2Address: tokenAddress },
+        where: { l2Address: tokenAddress, blockNumber: LessThanOrEqual(1_000_000) },
         select: { l2Address: true },
       });
     });
@@ -147,15 +154,22 @@ describe("TokenService", () => {
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("token");
     });
 
+    it("applies watermark filter", async () => {
+      await service.findAll({}, pagingOptions);
+      expect(queryBuilderMock.where).toHaveBeenCalledWith("token.blockNumber <= :lastReadyBlockNumber", {
+        lastReadyBlockNumber: 1_000_000,
+      });
+    });
+
     it("does not add liquidity filter when minLiquidity is not provided", async () => {
       await service.findAll({}, pagingOptions);
-      expect(queryBuilderMock.where).not.toBeCalled();
+      expect(queryBuilderMock.andWhere).not.toBeCalled();
     });
 
     it("adds liquidity filter when minLiquidity is provided", async () => {
       await service.findAll({ minLiquidity: 1000 }, pagingOptions);
-      expect(queryBuilderMock.where).toBeCalledTimes(1);
-      expect(queryBuilderMock.where).toHaveBeenCalledWith({
+      expect(queryBuilderMock.andWhere).toBeCalledTimes(1);
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({
         liquidity: MoreThanOrEqual(1000),
       });
     });
