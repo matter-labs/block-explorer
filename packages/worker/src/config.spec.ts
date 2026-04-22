@@ -34,6 +34,9 @@ describe("config", () => {
         toBlock: null,
         disableBlocksRevert: false,
         disableBlockStatusProcessing: false,
+        disableBlocksEnqueuer: false,
+        disableIndexerStateManager: false,
+        disableBlocksIndexer: false,
         statusCheckPollingInterval: 60000,
       },
       balances: {
@@ -114,6 +117,9 @@ describe("config", () => {
         toBlock: null,
         disableBlocksRevert: false,
         disableBlockStatusProcessing: false,
+        disableBlocksEnqueuer: false,
+        disableIndexerStateManager: false,
+        disableBlocksIndexer: false,
         statusCheckPollingInterval: 60000,
       },
       balances: {

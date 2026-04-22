@@ -70,14 +70,22 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   private startWorkers() {
     const disableBlockStatusProcessing = this.configService.get<boolean>("blocks.disableBlockStatusProcessing");
+    const disableBlocksEnqueuer = this.configService.get<boolean>("blocks.disableBlocksEnqueuer");
+    const disableIndexerStateManager = this.configService.get<boolean>("blocks.disableIndexerStateManager");
+    const disableBlocksIndexer = this.configService.get<boolean>("blocks.disableBlocksIndexer");
     const disableCountersProcessing = this.configService.get<boolean>("counters.disableCountersProcessing");
     const disableOldBalancesCleaner = this.configService.get<boolean>("balances.disableOldBalancesCleaner");
     const enableTokenOffChainDataSaver = this.configService.get<boolean>("tokens.enableTokenOffChainDataSaver");
-    const tasks = [
-      this.blocksEnqueuerService.start(),
-      this.indexerStateManagerService.start(),
-      this.blocksIndexerService.start(),
-    ];
+    const tasks = [];
+    if (!disableBlocksEnqueuer) {
+      tasks.push(this.blocksEnqueuerService.start());
+    }
+    if (!disableIndexerStateManager) {
+      tasks.push(this.indexerStateManagerService.start());
+    }
+    if (!disableBlocksIndexer) {
+      tasks.push(this.blocksIndexerService.start());
+    }
     if (!disableBlockStatusProcessing) {
       tasks.push(this.blockStatusService.start());
     }
