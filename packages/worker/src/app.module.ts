@@ -9,8 +9,11 @@ import { HealthModule } from "./health/health.module";
 import { AppService } from "./app.service";
 import { BlockchainService } from "./blockchain";
 import { BlocksRevertService } from "./blocksRevert";
+import { BlocksEnqueuerService } from "./blocksEnqueuer";
+import { IndexerStateWatcherService } from "./indexerStateWatcher";
 import { BlockStatusService } from "./blockStatus";
-import { BlockProcessor, BlockWatcher, BlockService } from "./block";
+import { BlocksIndexerProcessor, BlocksIndexerService, BlocksIndexerWorkersProvider } from "./blocksIndexer";
+import { IndexerMetricsService } from "./indexerMetrics.service";
 import { TransactionProcessor } from "./transaction";
 import { BalanceService, BalancesCleanerService } from "./balance";
 import { TokenService } from "./token/token.service";
@@ -34,6 +37,7 @@ import {
   AddressVisibleTransactionRepository,
   VisibleLogRepository,
   IndexerStateRepository,
+  BlockQueueRepository,
 } from "./repositories";
 import {
   Block,
@@ -50,6 +54,7 @@ import {
   AddressVisibleTransaction,
   VisibleLog,
   IndexerState,
+  BlockQueue,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -90,6 +95,7 @@ import { SystemContractService } from "./contract/systemContract.service";
       AddressVisibleTransaction,
       VisibleLog,
       IndexerState,
+      BlockQueue,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -134,12 +140,16 @@ import { SystemContractService } from "./contract/systemContract.service";
     AddressVisibleTransactionRepository,
     VisibleLogRepository,
     IndexerStateRepository,
+    BlockQueueRepository,
     BlocksRevertService,
+    BlocksEnqueuerService,
+    IndexerStateWatcherService,
     BlockStatusService,
-    BlockProcessor,
+    BlocksIndexerProcessor,
     TransactionProcessor,
-    BlockWatcher,
-    BlockService,
+    IndexerMetricsService,
+    BlocksIndexerService,
+    BlocksIndexerWorkersProvider,
     Logger,
     RetryDelayProvider,
     DbMetricsService,

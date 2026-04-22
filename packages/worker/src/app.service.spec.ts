@@ -7,8 +7,10 @@ import { DataSource } from "typeorm";
 import { AppService } from "./app.service";
 import { BalancesCleanerService } from "./balance";
 import { CounterService } from "./counter";
-import { BlockService } from "./block";
+import { BlocksIndexerService } from "./blocksIndexer";
 import { BlocksRevertService } from "./blocksRevert";
+import { BlocksEnqueuerService } from "./blocksEnqueuer";
+import { IndexerStateWatcherService } from "./indexerStateWatcher";
 import { BlockStatusService } from "./blockStatus";
 import { TokenService } from "./token/token.service";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
@@ -35,8 +37,10 @@ describe("AppService", () => {
   let appService: AppService;
   let balancesCleanerService: BalancesCleanerService;
   let counterService: CounterService;
-  let blockService: BlockService;
+  let blocksIndexerService: BlocksIndexerService;
   let blocksRevertService: BlocksRevertService;
+  let blocksEnqueuerService: BlocksEnqueuerService;
+  let indexerStateWatcherService: IndexerStateWatcherService;
   let blockStatusService: BlockStatusService;
   let tokenOffChainDataSaverService: TokenOffChainDataSaverService;
   let dataSourceMock: DataSource;
@@ -53,12 +57,20 @@ describe("AppService", () => {
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
-    blockService = mock<BlockService>({
+    blocksIndexerService = mock<BlocksIndexerService>({
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
     blocksRevertService = mock<BlocksRevertService>({
       handleRevert: jest.fn().mockResolvedValue(null),
+    });
+    blocksEnqueuerService = mock<BlocksEnqueuerService>({
+      start: jest.fn().mockResolvedValue(null),
+      stop: jest.fn().mockResolvedValue(null),
+    });
+    indexerStateWatcherService = mock<IndexerStateWatcherService>({
+      start: jest.fn().mockResolvedValue(null),
+      stop: jest.fn().mockResolvedValue(null),
     });
     blockStatusService = mock<BlockStatusService>({
       start: jest.fn().mockResolvedValue(null),
@@ -93,12 +105,20 @@ describe("AppService", () => {
           useValue: counterService,
         },
         {
-          provide: BlockService,
-          useValue: blockService,
+          provide: BlocksIndexerService,
+          useValue: blocksIndexerService,
         },
         {
           provide: BlocksRevertService,
           useValue: blocksRevertService,
+        },
+        {
+          provide: BlocksEnqueuerService,
+          useValue: blocksEnqueuerService,
+        },
+        {
+          provide: IndexerStateWatcherService,
+          useValue: indexerStateWatcherService,
         },
         {
           provide: BlockStatusService,
@@ -163,9 +183,9 @@ describe("AppService", () => {
     it("starts block service", async () => {
       appService.onModuleInit();
       await migrationsRunFinished;
-      expect(blockService.start).toBeCalledTimes(1);
+      expect(blocksIndexerService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
-      expect(blockService.stop).toBeCalledTimes(1);
+      expect(blocksIndexerService.stop).toBeCalledTimes(1);
     });
 
     it("starts old balances cleaner service", async () => {
@@ -242,7 +262,7 @@ describe("AppService", () => {
 
     it("stops block service", async () => {
       appService.onModuleDestroy();
-      expect(blockService.stop).toBeCalledTimes(1);
+      expect(blocksIndexerService.stop).toBeCalledTimes(1);
     });
 
     it("stops old balances cleaner service", async () => {
@@ -264,14 +284,14 @@ describe("AppService", () => {
       );
       await app.init();
 
-      expect(blockService.stop).toBeCalledTimes(1);
+      expect(blocksIndexerService.stop).toBeCalledTimes(1);
       expect(counterService.stop).toBeCalledTimes(1);
       expect(balancesCleanerService.stop).toBeCalledTimes(1);
       expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
 
       expect(blocksRevertService.handleRevert).toBeCalledWith(blockNumber);
 
-      expect(blockService.start).toBeCalledTimes(2);
+      expect(blocksIndexerService.start).toBeCalledTimes(2);
       expect(counterService.start).toBeCalledTimes(2);
       expect(balancesCleanerService.start).toBeCalledTimes(2);
       expect(tokenOffChainDataSaverService.start).toBeCalledTimes(2);

@@ -14,3 +14,4 @@ export * from "./visibleLog.repository";
 export * from "./counter.repository";
 export * from "./counterState.repository";
 export * from "./indexerState.repository";
+export * from "./blockQueue.repository";

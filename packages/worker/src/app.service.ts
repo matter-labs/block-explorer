@@ -4,8 +4,10 @@ import { OnEvent } from "@nestjs/event-emitter";
 import { DataSource } from "typeorm";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
 import { BlocksRevertService } from "./blocksRevert";
+import { BlocksEnqueuerService } from "./blocksEnqueuer";
+import { IndexerStateWatcherService } from "./indexerStateWatcher";
 import { BlockStatusService } from "./blockStatus";
-import { BlockService } from "./block";
+import { BlocksIndexerService } from "./blocksIndexer";
 import { CounterService } from "./counter";
 import { BalancesCleanerService } from "./balance";
 import { TokenService } from "./token/token.service";
@@ -20,8 +22,10 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   public constructor(
     private readonly counterService: CounterService,
-    private readonly blockService: BlockService,
+    private readonly blocksIndexerService: BlocksIndexerService,
     private readonly blocksRevertService: BlocksRevertService,
+    private readonly blocksEnqueuerService: BlocksEnqueuerService,
+    private readonly indexerStateWatcherService: IndexerStateWatcherService,
     private readonly blockStatusService: BlockStatusService,
     private readonly balancesCleanerService: BalancesCleanerService,
     private readonly tokenOffChainDataSaverService: TokenOffChainDataSaverService,
@@ -70,7 +74,11 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     const disableCountersProcessing = this.configService.get<boolean>("counters.disableCountersProcessing");
     const disableOldBalancesCleaner = this.configService.get<boolean>("balances.disableOldBalancesCleaner");
     const enableTokenOffChainDataSaver = this.configService.get<boolean>("tokens.enableTokenOffChainDataSaver");
-    const tasks = [this.blockService.start()];
+    const tasks = [
+      this.blocksEnqueuerService.start(),
+      this.indexerStateWatcherService.start(),
+      this.blocksIndexerService.start(),
+    ];
     if (!disableBlockStatusProcessing) {
       tasks.push(this.blockStatusService.start());
     }
@@ -88,7 +96,9 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
 
   private stopWorkers() {
     return Promise.all([
-      this.blockService.stop(),
+      this.blocksEnqueuerService.stop(),
+      this.indexerStateWatcherService.stop(),
+      this.blocksIndexerService.stop(),
       this.blockStatusService.stop(),
       this.counterService.stop(),
       this.balancesCleanerService.stop(),

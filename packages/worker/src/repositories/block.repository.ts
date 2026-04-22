@@ -35,11 +35,57 @@ export class BlockRepository {
     });
   }
 
-  public async getMissingBlocksCount(): Promise<number> {
+  public async getStateAboveLastReadyBlock(
+    lastReadyBlockNumber: number
+  ): Promise<{ firstIncorrectBlockNumber: number | null; lastCorrectBlockNumber: number | null }> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    const rows = await transactionManager.query<
+      { firstIncorrectBlockNumber: string | null; lastCorrectBlockNumber: string | null }[]
+    >(
+      `WITH ranked AS (
+        SELECT
+          number,
+          "parentHash",
+          LAG(hash) OVER (ORDER BY number) AS prev_hash,
+          LAG(number) OVER (ORDER BY number) AS prev_number
+        FROM blocks
+        WHERE number >= $1
+      ),
+      break AS (
+        SELECT number, prev_number
+        FROM ranked
+        WHERE number > $1
+          AND prev_hash IS DISTINCT FROM "parentHash"
+        ORDER BY number
+        LIMIT 1
+      )
+      SELECT
+        (SELECT number FROM break) AS "firstIncorrectBlockNumber",
+        COALESCE(
+          (SELECT prev_number FROM break),
+          (
+            SELECT number
+            FROM blocks
+            WHERE number >= $1
+            ORDER BY number DESC
+            LIMIT 1
+          )
+        ) AS "lastCorrectBlockNumber"`,
+      [lastReadyBlockNumber]
+    );
+    const row = rows[0];
+    return {
+      firstIncorrectBlockNumber: row.firstIncorrectBlockNumber == null ? null : Number(row.firstIncorrectBlockNumber),
+      lastCorrectBlockNumber: row.lastCorrectBlockNumber == null ? null : Number(row.lastCorrectBlockNumber),
+    };
+  }
+
+  public async getMissingBlocksCount(lastReadyBlockNumber: number): Promise<number> {
     const transactionManager = this.unitOfWork.getTransactionManager();
     const { count } = await transactionManager
       .createQueryBuilder(Block, "block")
-      .select("MAX(number) - COUNT(number) + 1 AS count") // +1 for the block #0
+      .select(":lastReadyBlockNumber - COUNT(number) + 1 AS count") // +1 for the block #0
+      .where("block.number <= :lastReadyBlockNumber", { lastReadyBlockNumber })
       .getRawOne<{ count: number }>();
     return Number(count);
   }
@@ -52,6 +98,18 @@ export class BlockRepository {
   public async delete(where: FindOptionsWhere<Block>): Promise<void> {
     const transactionManager = this.unitOfWork.getTransactionManager();
     await transactionManager.delete<Block>(Block, where);
+  }
+
+  public async deleteWithReturningNumber(where: FindOptionsWhere<Block>): Promise<number[]> {
+    const transactionManager = this.unitOfWork.getTransactionManager();
+    const result = await transactionManager
+      .createQueryBuilder()
+      .delete()
+      .from(Block)
+      .where(where)
+      .returning(`"number"`)
+      .execute();
+    return (result.raw as { number: string }[]).map((row) => Number(row.number));
   }
 
   public updateByRange(from: number, to: number, fieldsToUpdate: QueryDeepPartialEntity<Block>): Promise<UpdateResult> {

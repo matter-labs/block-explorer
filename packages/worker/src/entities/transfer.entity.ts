@@ -25,6 +25,7 @@ export enum TransferType {
 @Index(["tokenAddress", "blockNumber", "logIndex", "number"])
 @Index(["transactionHash", "isInternal", "blockNumber", "logIndex", "number"])
 @Index(["isInternal", "blockNumber", "logIndex", "number"])
+@Index(["blockNumber", "number"]) // used by counter service
 export class Transfer extends CountableEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public override readonly number: number;
@@ -45,7 +46,6 @@ export class Transfer extends CountableEntity {
   @JoinColumn({ name: "blockNumber" })
   private readonly _block: never;
 
-  @Index()
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public override readonly blockNumber: number;
 

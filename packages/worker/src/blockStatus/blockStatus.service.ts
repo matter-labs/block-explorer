@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LessThan } from "typeorm";
 import { BlockchainService } from "../blockchain";
-import { BlockRepository } from "../repositories";
+import { BlockRepository, IndexerStateRepository } from "../repositories";
 import { BlockStatus } from "../entities";
 import waitFor from "../utils/waitFor";
 import { Worker } from "../common/worker";
@@ -15,6 +15,7 @@ export class BlockStatusService extends Worker {
   public constructor(
     private readonly blockchainService: BlockchainService,
     private readonly blockRepository: BlockRepository,
+    private readonly indexerStateRepository: IndexerStateRepository,
     configService: ConfigService
   ) {
     super();
@@ -45,21 +46,23 @@ export class BlockStatusService extends Worker {
       return;
     }
 
-    const lastDbBlock = await this.blockRepository.getBlock({
-      select: {
-        number: true,
-        hash: true,
-      },
-    });
-    if (!lastDbBlock) {
+    const lastReadyBlockNumber = await this.indexerStateRepository.getLastReadyBlockNumber();
+    if (!lastReadyBlockNumber) {
       return;
     }
-    const lastBlockFromBlockchain = await this.blockchainService.getBlock(lastDbBlock.number);
+    const lastReadyBlock = await this.blockRepository.getBlock({
+      where: { number: lastReadyBlockNumber },
+      select: { number: true, hash: true },
+    });
+    if (!lastReadyBlock) {
+      return;
+    }
+    const lastBlockFromBlockchain = await this.blockchainService.getBlock(lastReadyBlockNumber);
     if (!lastBlockFromBlockchain) {
       return;
     }
-    if (lastDbBlock.hash !== lastBlockFromBlockchain.hash) {
-      this.logger.warn(`Skipping block status update: latest DB block hash mismatch (reorg detected)`);
+    if (lastReadyBlock.hash !== lastBlockFromBlockchain.hash) {
+      this.logger.warn(`Skipping block status update: last ready block hash mismatch (reorg detected)`);
       return;
     }
 
@@ -79,7 +82,10 @@ export class BlockStatusService extends Worker {
       return;
     }
     const updateFrom = firstDbBlockWithSmallerStatus.number;
-    const updateTo = latestBlockByStatus.number;
+    const updateTo = Math.min(latestBlockByStatus.number, lastReadyBlockNumber);
+    if (updateFrom > updateTo) {
+      return;
+    }
     this.logger.debug(`Updating blocks with status = ${blockStatus} from ${updateFrom} to ${updateTo}`);
     await this.blockRepository.updateByRange(updateFrom, updateTo, { status: blockStatus });
   }

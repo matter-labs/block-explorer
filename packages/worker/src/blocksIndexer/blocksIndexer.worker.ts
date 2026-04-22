@@ -1,29 +1,28 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { RetryDelayProvider } from "../retryDelay.provider";
 import waitFor from "../utils/waitFor";
 import { Worker } from "../common/worker";
-import { BlockProcessor } from "./block.processor";
+import { BlocksIndexerProcessor } from "./blocksIndexer.processor";
 
-@Injectable()
-export class BlockService extends Worker {
+export class BlocksIndexerWorker extends Worker {
   private readonly logger: Logger;
   private readonly waitForBlocksInterval: number;
 
   public constructor(
-    private readonly blockProcessor: BlockProcessor,
+    private readonly blocksIndexerProcessor: BlocksIndexerProcessor,
     private readonly retryDelayProvider: RetryDelayProvider,
     configService: ConfigService
   ) {
     super();
     this.waitForBlocksInterval = configService.get<number>("blocks.waitForBlocksInterval");
-    this.logger = new Logger(BlockService.name);
+    this.logger = new Logger(BlocksIndexerWorker.name);
   }
 
   protected async runProcess(): Promise<void> {
     let nextIterationDelay = 0;
     try {
-      const isNextBlockRangeProcessed = await this.blockProcessor.processNextBlocksRange();
+      const isNextBlockRangeProcessed = await this.blocksIndexerProcessor.processNextBlocksRange();
       if (!isNextBlockRangeProcessed) {
         nextIterationDelay = this.waitForBlocksInterval;
       }

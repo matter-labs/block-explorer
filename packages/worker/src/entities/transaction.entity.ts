@@ -7,6 +7,7 @@ import { stringTransformer } from "../transformers/string.transformer";
 
 @Entity({ name: "transactions" })
 @Index(["blockNumber", "transactionIndex", "hash"])
+@Index(["blockNumber", "number"]) // used by counter service
 @Index(["from", "isL1Originated", "blockNumber", "nonce"])
 @Index(["fromToMin", "fromToMax", "blockNumber", "transactionIndex", "hash"])
 export class Transaction extends CountableEntity {

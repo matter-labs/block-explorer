@@ -26,11 +26,13 @@ describe("config", () => {
       blocks: {
         waitForBlocksInterval: 1000,
         blocksProcessingBatchSize: 50,
+        blocksProcessingWorkerPoolSize: 1,
+        maxBlocksAheadOfLastReadyBlock: 1000,
+        enqueuerPollingInterval: 1000,
         fromBlock: 0,
         toBlock: null,
         disableBlocksRevert: false,
         disableBlockStatusProcessing: false,
-        numberOfBlocksPerDbTransaction: 50,
         statusCheckPollingInterval: 60000,
       },
       balances: {
@@ -103,11 +105,13 @@ describe("config", () => {
       blocks: {
         waitForBlocksInterval: 1000,
         blocksProcessingBatchSize: 50,
+        blocksProcessingWorkerPoolSize: 1,
+        maxBlocksAheadOfLastReadyBlock: 1000,
+        enqueuerPollingInterval: 1000,
         fromBlock: 0,
         toBlock: null,
         disableBlocksRevert: false,
         disableBlockStatusProcessing: false,
-        numberOfBlocksPerDbTransaction: 50,
         statusCheckPollingInterval: 60000,
       },
       balances: {
