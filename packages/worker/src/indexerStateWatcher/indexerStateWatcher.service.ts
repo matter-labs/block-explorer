@@ -48,9 +48,8 @@ export class IndexerStateWatcherService extends Worker {
       firstIncorrectBlockNumber - lastCorrectBlockNumber === 1
     ) {
       this.logger.warn({
-        message: "Invalid block chain detected above last ready block number",
-        lastReadyBlockNumber,
-        firstIncorrectBlockNumber,
+        message: "Blocks revert detected",
+        detectedIncorrectBlockNumber: firstIncorrectBlockNumber,
       });
       if (!this.disableBlocksRevert) {
         this.eventEmitter.emit(BLOCKS_REVERT_DETECTED_EVENT, {

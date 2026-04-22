@@ -11,11 +11,12 @@ export class BlockQueueRepository extends BaseRepository<BlockQueue> {
 
   public async getLastBlockNumber(): Promise<number | null> {
     const transactionManager = this.unitOfWork.getTransactionManager();
-    const row = await transactionManager.findOne(BlockQueue, {
+    const rows = await transactionManager.find(BlockQueue, {
       select: { blockNumber: true },
       order: { blockNumber: "DESC" },
+      take: 1,
     });
-    return row?.blockNumber ?? null;
+    return rows[0]?.blockNumber ?? null;
   }
 
   public async enqueueRange(fromBlockNumber: number, toBlockNumber: number): Promise<void> {

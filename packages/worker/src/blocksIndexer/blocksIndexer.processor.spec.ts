@@ -2,15 +2,13 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
-import { MoreThanOrEqual, LessThanOrEqual, Between } from "typeorm";
 import { UnitOfWork } from "../unitOfWork";
 import { BlockData, Balance } from "../dataFetcher/types";
 import { DataFetcherService } from "../dataFetcher/dataFetcher.service";
 import { TransactionProcessor } from "../transaction";
 import { BalanceService } from "../balance";
 import { TokenService } from "../token/token.service";
-import { Block } from "../entities";
-import { BlockRepository, BlockQueueRepository, IndexerStateRepository } from "../repositories";
+import { BlockRepository, BlockQueueRepository } from "../repositories";
 import { BlocksIndexerProcessor } from "./blocksIndexer.processor";
 
 describe("BlocksIndexerProcessor", () => {
@@ -29,7 +27,6 @@ describe("BlocksIndexerProcessor", () => {
   let dataFetcherServiceMock: DataFetcherService;
   let blockRepositoryMock: BlockRepository;
   let blockQueueRepositoryMock: BlockQueueRepository;
-  let indexerStateRepositoryMock: IndexerStateRepository;
   let configServiceMock: ConfigService;
 
   let startBlocksBatchDurationMetricMock: jest.Mock;
@@ -66,7 +63,6 @@ describe("BlocksIndexerProcessor", () => {
         { provide: DataFetcherService, useValue: dataFetcherServiceMock },
         { provide: BlockRepository, useValue: blockRepositoryMock },
         { provide: BlockQueueRepository, useValue: blockQueueRepositoryMock },
-        { provide: IndexerStateRepository, useValue: indexerStateRepositoryMock },
         { provide: ConfigService, useValue: configServiceMock },
         {
           provide: "PROM_METRIC_BLOCKS_BATCH_PROCESSING_DURATION_SECONDS",
@@ -131,9 +127,6 @@ describe("BlocksIndexerProcessor", () => {
       claim: jest.fn().mockResolvedValue([]),
       remove: jest.fn().mockResolvedValue(null),
     });
-    indexerStateRepositoryMock = mock<IndexerStateRepository>({
-      getLastReadyBlockNumber: jest.fn().mockResolvedValue(0),
-    });
 
     stopBlocksBatchDurationMetricMock = jest.fn();
     startBlocksBatchDurationMetricMock = jest.fn().mockReturnValue(stopBlocksBatchDurationMetricMock);
@@ -144,66 +137,6 @@ describe("BlocksIndexerProcessor", () => {
   });
 
   describe("processNextBlocksRange", () => {
-    describe("pause check", () => {
-      it("fetches the last DB block with an empty where clause when no fromBlock/toBlock", async () => {
-        await blockProcessor.processNextBlocksRange();
-        expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
-          where: {},
-          select: { number: true },
-        });
-      });
-
-      it("uses Between filter when both fromBlock and toBlock are set", async () => {
-        blockProcessor = await buildProcessor({ fromBlock: 10, toBlock: 1000 });
-        await blockProcessor.processNextBlocksRange();
-        expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
-          where: { number: Between(10, 1000) },
-          select: { number: true },
-        });
-      });
-
-      it("uses MoreThanOrEqual when only fromBlock is set", async () => {
-        blockProcessor = await buildProcessor({ fromBlock: 10, toBlock: null });
-        await blockProcessor.processNextBlocksRange();
-        expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
-          where: { number: MoreThanOrEqual(10) },
-          select: { number: true },
-        });
-      });
-
-      it("uses LessThanOrEqual when only toBlock is set", async () => {
-        blockProcessor = await buildProcessor({ fromBlock: 0, toBlock: 1000 });
-        await blockProcessor.processNextBlocksRange();
-        expect(blockRepositoryMock.getBlock).toHaveBeenCalledWith({
-          where: { number: LessThanOrEqual(1000) },
-          select: { number: true },
-        });
-      });
-
-      it("proceeds to claim when there are no blocks in DB", async () => {
-        jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue(null);
-        await blockProcessor.processNextBlocksRange();
-        expect(blockQueueRepositoryMock.claim).toHaveBeenCalled();
-      });
-
-      it("proceeds to claim when lastDb is within max blocks ahead of lastReady", async () => {
-        jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue({ number: 100 } as Block);
-        jest.spyOn(indexerStateRepositoryMock, "getLastReadyBlockNumber").mockResolvedValue(90);
-        await blockProcessor.processNextBlocksRange();
-        expect(blockQueueRepositoryMock.claim).toHaveBeenCalled();
-      });
-
-      it("returns false and does not claim when lastDb is too far ahead of lastReady", async () => {
-        blockProcessor = await buildProcessor({ maxBlocksAheadOfLastReadyBlock: 50 });
-        jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue({ number: 100 } as Block);
-        jest.spyOn(indexerStateRepositoryMock, "getLastReadyBlockNumber").mockResolvedValue(40);
-
-        const result = await blockProcessor.processNextBlocksRange();
-        expect(result).toBe(false);
-        expect(blockQueueRepositoryMock.claim).not.toHaveBeenCalled();
-      });
-    });
-
     describe("when the queue is empty", () => {
       beforeEach(() => {
         jest.spyOn(blockQueueRepositoryMock, "claim").mockResolvedValue([]);

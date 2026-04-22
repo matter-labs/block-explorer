@@ -1,8 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { MoreThanOrEqual, LessThanOrEqual, Between, FindOptionsWhere } from "typeorm";
-import { BlockchainService } from "../blockchain";
-import { BlockRepository, BlockQueueRepository } from "../repositories";
+import { ChainTipTracker } from "../chainTipTracker.service";
+import { BlockRepository, BlockQueueRepository, IndexerStateRepository } from "../repositories";
 import { Block } from "../entities";
 import waitFor from "../utils/waitFor";
 import { Worker } from "../common/worker";
@@ -16,9 +16,10 @@ export class BlocksEnqueuerService extends Worker {
   private readonly maxBlocksAheadOfLastReadyBlock: number;
 
   public constructor(
-    private readonly blockchainService: BlockchainService,
+    private readonly chainTipTracker: ChainTipTracker,
     private readonly blockRepository: BlockRepository,
     private readonly blockQueueRepository: BlockQueueRepository,
+    private readonly indexerStateRepository: IndexerStateRepository,
     configService: ConfigService
   ) {
     super();
@@ -43,18 +44,37 @@ export class BlocksEnqueuerService extends Worker {
   }
 
   private async enqueueNextBlocks(): Promise<void> {
-    const lastDbBlock = await this.blockRepository.getBlock({
-      where: this.buildBlockRangeCondition(),
-      select: { number: true },
-    });
-    const lastDbBlockNumber = lastDbBlock?.number ?? -1;
+    // Read queue first, then DB. Workers atomically insert the block and remove the
+    // queue row in a single tx, so if we see the queue's "after" state we are guaranteed
+    // to also see the DB's "after" state — avoiding a race where we re-enqueue a block
+    // that was just committed.
     const lastQueuedBlockNumber = (await this.blockQueueRepository.getLastBlockNumber()) ?? -1;
-    const nextToEnqueue = Math.max(lastDbBlockNumber, lastQueuedBlockNumber) + 1;
+    const [lastDbBlock, lastReadyBlockNumber] = await Promise.all([
+      this.blockRepository.getBlock({
+        where: this.buildBlockRangeCondition(),
+        select: { number: true },
+      }),
+      this.indexerStateRepository.getLastReadyBlockNumber(),
+    ]);
+    const lastDbBlockNumber = lastDbBlock?.number ?? -1;
 
+    // Only refill when the system (DB + queue) is less than maxBlocksAheadOfLastReadyBlock
+    // ahead of the watermark. Using max(lastDb, lastQueued) captures cases where the queue
+    // has been drained but DB has already moved far ahead — so if the watermark is stuck,
+    // we don't keep enqueuing more work.
+    const ahead = Math.max(lastDbBlockNumber, lastQueuedBlockNumber) - lastReadyBlockNumber;
+    if (ahead >= this.maxBlocksAheadOfLastReadyBlock) {
+      return;
+    }
+
+    const nextToEnqueue = Math.max(lastDbBlockNumber, lastQueuedBlockNumber) + 1;
     const fromBlockNumber = Math.max(nextToEnqueue, this.fromBlock ?? 0);
-    const chainTip = await this.blockchainService.getBlockNumber();
-    const cap = lastDbBlockNumber + this.maxBlocksAheadOfLastReadyBlock;
-    const toBlockNumber = Math.min(chainTip, cap, this.toBlock ?? Number.MAX_SAFE_INTEGER);
+    const chainTip = this.chainTipTracker.getLastBlockNumber();
+    if (chainTip === null) {
+      return;
+    }
+    const batchEnd = nextToEnqueue + this.maxBlocksAheadOfLastReadyBlock - 1;
+    const toBlockNumber = Math.min(chainTip, batchEnd, this.toBlock ?? Number.MAX_SAFE_INTEGER);
 
     if (toBlockNumber < fromBlockNumber) {
       return;

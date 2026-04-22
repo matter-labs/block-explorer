@@ -14,6 +14,7 @@ import { IndexerStateWatcherService } from "./indexerStateWatcher";
 import { BlockStatusService } from "./blockStatus";
 import { BlocksIndexerProcessor, BlocksIndexerService, BlocksIndexerWorkersProvider } from "./blocksIndexer";
 import { IndexerMetricsService } from "./indexerMetrics.service";
+import { ChainTipTracker } from "./chainTipTracker.service";
 import { TransactionProcessor } from "./transaction";
 import { BalanceService, BalancesCleanerService } from "./balance";
 import { TokenService } from "./token/token.service";
@@ -147,6 +148,7 @@ import { SystemContractService } from "./contract/systemContract.service";
     BlockStatusService,
     BlocksIndexerProcessor,
     TransactionProcessor,
+    ChainTipTracker,
     IndexerMetricsService,
     BlocksIndexerService,
     BlocksIndexerWorkersProvider,

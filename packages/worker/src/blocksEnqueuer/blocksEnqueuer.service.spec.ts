@@ -4,8 +4,8 @@ import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
 import { Between, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import waitFor from "../utils/waitFor";
-import { BlockchainService } from "../blockchain";
-import { BlockRepository, BlockQueueRepository } from "../repositories";
+import { ChainTipTracker } from "../chainTipTracker.service";
+import { BlockRepository, BlockQueueRepository, IndexerStateRepository } from "../repositories";
 import { Block } from "../entities";
 import { BlocksEnqueuerService } from "./blocksEnqueuer.service";
 
@@ -16,9 +16,10 @@ describe("BlocksEnqueuerService", () => {
   const maxBlocksAheadOfLastReadyBlock = 1000;
 
   let service: BlocksEnqueuerService;
-  let blockchainServiceMock: BlockchainService;
+  let chainTipTrackerMock: ChainTipTracker;
   let blockRepositoryMock: BlockRepository;
   let blockQueueRepositoryMock: BlockQueueRepository;
+  let indexerStateRepositoryMock: IndexerStateRepository;
   let configServiceMock: ConfigService;
 
   const buildService = async ({
@@ -45,9 +46,10 @@ describe("BlocksEnqueuerService", () => {
     const app = await Test.createTestingModule({
       providers: [
         BlocksEnqueuerService,
-        { provide: BlockchainService, useValue: blockchainServiceMock },
+        { provide: ChainTipTracker, useValue: chainTipTrackerMock },
         { provide: BlockRepository, useValue: blockRepositoryMock },
         { provide: BlockQueueRepository, useValue: blockQueueRepositoryMock },
+        { provide: IndexerStateRepository, useValue: indexerStateRepositoryMock },
         { provide: ConfigService, useValue: configServiceMock },
       ],
     }).compile();
@@ -59,8 +61,8 @@ describe("BlocksEnqueuerService", () => {
   beforeEach(() => {
     (waitFor as jest.Mock).mockResolvedValue(null);
 
-    blockchainServiceMock = mock<BlockchainService>({
-      getBlockNumber: jest.fn().mockResolvedValue(100),
+    chainTipTrackerMock = mock<ChainTipTracker>({
+      getLastBlockNumber: jest.fn().mockReturnValue(100),
     });
     blockRepositoryMock = mock<BlockRepository>({
       getBlock: jest.fn().mockResolvedValue({ number: 50 } as Block),
@@ -68,6 +70,9 @@ describe("BlocksEnqueuerService", () => {
     blockQueueRepositoryMock = mock<BlockQueueRepository>({
       getLastBlockNumber: jest.fn().mockResolvedValue(60),
       enqueueRange: jest.fn().mockResolvedValue(null),
+    });
+    indexerStateRepositoryMock = mock<IndexerStateRepository>({
+      getLastReadyBlockNumber: jest.fn().mockResolvedValue(0),
     });
   });
 
@@ -117,20 +122,32 @@ describe("BlocksEnqueuerService", () => {
       expect(blockQueueRepositoryMock.enqueueRange).toBeCalledWith(10, 100);
     });
 
-    it("caps the upper bound at lastDbBlockNumber + maxBlocksAheadOfLastReadyBlock", async () => {
+    it("enqueues a batch of maxBlocksAheadOfLastReadyBlock starting from nextToEnqueue", async () => {
       jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue({ number: 50 } as Block);
       jest.spyOn(blockQueueRepositoryMock, "getLastBlockNumber").mockResolvedValue(60);
-      jest.spyOn(blockchainServiceMock, "getBlockNumber").mockResolvedValue(10_000_000);
+      jest.spyOn(chainTipTrackerMock, "getLastBlockNumber").mockReturnValue(10_000_000);
       await buildService();
 
       service.start();
       await service.stop();
 
-      expect(blockQueueRepositoryMock.enqueueRange).toBeCalledWith(61, 50 + maxBlocksAheadOfLastReadyBlock);
+      // nextToEnqueue = max(50, 60) + 1 = 61, batchEnd = 61 + 1000 - 1 = 1060
+      expect(blockQueueRepositoryMock.enqueueRange).toBeCalledWith(61, 61 + maxBlocksAheadOfLastReadyBlock - 1);
+    });
+
+    it("skips when queue is already ahead by at least maxBlocksAheadOfLastReadyBlock", async () => {
+      jest.spyOn(blockRepositoryMock, "getBlock").mockResolvedValue({ number: 50 } as Block);
+      jest.spyOn(blockQueueRepositoryMock, "getLastBlockNumber").mockResolvedValue(50 + maxBlocksAheadOfLastReadyBlock);
+      await buildService();
+
+      service.start();
+      await service.stop();
+
+      expect(blockQueueRepositoryMock.enqueueRange).not.toBeCalled();
     });
 
     it("caps the upper bound at toBlock config", async () => {
-      jest.spyOn(blockchainServiceMock, "getBlockNumber").mockResolvedValue(10_000);
+      jest.spyOn(chainTipTrackerMock, "getLastBlockNumber").mockReturnValue(10_000);
       await buildService({ fromBlock: 10, toBlock: 80 });
 
       service.start();
@@ -140,7 +157,7 @@ describe("BlocksEnqueuerService", () => {
     });
 
     it("does not enqueue when computed upper bound is less than lower bound", async () => {
-      jest.spyOn(blockchainServiceMock, "getBlockNumber").mockResolvedValue(60);
+      jest.spyOn(chainTipTrackerMock, "getLastBlockNumber").mockReturnValue(60);
       await buildService();
 
       service.start();
@@ -204,8 +221,8 @@ describe("BlocksEnqueuerService", () => {
 
       let secondIterationResolve: (value: unknown) => void;
       const secondIterationPromise = new Promise((resolve) => (secondIterationResolve = resolve));
-      jest.spyOn(blockchainServiceMock, "getBlockNumber").mockImplementation(async () => {
-        if ((blockchainServiceMock.getBlockNumber as jest.Mock).mock.calls.length === 2) {
+      jest.spyOn(chainTipTrackerMock, "getLastBlockNumber").mockImplementation(() => {
+        if ((chainTipTrackerMock.getLastBlockNumber as jest.Mock).mock.calls.length === 2) {
           secondIterationResolve(null);
         }
         return 100;

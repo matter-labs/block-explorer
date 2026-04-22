@@ -2,14 +2,12 @@ import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
-import { MoreThanOrEqual, LessThanOrEqual, Between, FindOptionsWhere } from "typeorm";
 import { UnitOfWork } from "../unitOfWork";
 import { BlockData } from "../dataFetcher/types";
 import { DataFetcherService } from "../dataFetcher/dataFetcher.service";
 import { BalanceService } from "../balance/balance.service";
 import { TokenService } from "../token/token.service";
-import { BlockRepository, BlockQueueRepository, IndexerStateRepository } from "../repositories";
-import { Block } from "../entities";
+import { BlockRepository, BlockQueueRepository } from "../repositories";
 import { TransactionProcessor } from "../transaction";
 import {
   BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME,
@@ -23,10 +21,7 @@ import { unixTimeToDate } from "../utils/date";
 @Injectable()
 export class BlocksIndexerProcessor {
   private readonly logger: Logger;
-  private readonly fromBlock: number;
-  private readonly toBlock: number;
   private readonly blocksProcessingBatchSize: number;
-  private readonly maxBlocksAheadOfLastReadyBlock: number;
 
   public constructor(
     private readonly unitOfWork: UnitOfWork,
@@ -36,7 +31,6 @@ export class BlocksIndexerProcessor {
     private readonly dataFetcherService: DataFetcherService,
     private readonly blockRepository: BlockRepository,
     private readonly blockQueueRepository: BlockQueueRepository,
-    private readonly indexerStateRepository: IndexerStateRepository,
     @InjectMetric(BLOCKS_BATCH_PROCESSING_DURATION_METRIC_NAME)
     private readonly blocksBatchProcessingDurationMetric: Histogram<BlocksBatchProcessingMetricLabels>,
     @InjectMetric(BLOCK_PROCESSING_DURATION_METRIC_NAME)
@@ -44,29 +38,10 @@ export class BlocksIndexerProcessor {
     configService: ConfigService
   ) {
     this.logger = new Logger(BlocksIndexerProcessor.name);
-    this.fromBlock = configService.get<number>("blocks.fromBlock");
-    this.toBlock = configService.get<number>("blocks.toBlock");
     this.blocksProcessingBatchSize = configService.get<number>("blocks.blocksProcessingBatchSize");
-    this.maxBlocksAheadOfLastReadyBlock = configService.get<number>("blocks.maxBlocksAheadOfLastReadyBlock");
   }
 
   public async processNextBlocksRange(): Promise<boolean> {
-    const lastDbBlock = await this.blockRepository.getBlock({
-      where: this.buildBlockRangeCondition(),
-      select: { number: true },
-    });
-    if (lastDbBlock) {
-      const lastReadyBlockNumber = await this.indexerStateRepository.getLastReadyBlockNumber();
-      if (lastDbBlock.number - lastReadyBlockNumber >= this.maxBlocksAheadOfLastReadyBlock) {
-        this.logger.debug({
-          message: "Pausing block processing: too far ahead of last ready block",
-          lastDbBlockNumber: lastDbBlock.number,
-          lastReadyBlockNumber,
-        });
-        return false;
-      }
-    }
-
     const stopDurationMeasuring = this.blocksBatchProcessingDurationMetric.startTimer();
     let didWork = false;
 
@@ -159,15 +134,4 @@ export class BlocksIndexerProcessor {
       stopDurationMeasuring({ status: blockProcessingStatus, action: "add" });
     }
   }
-
-  private buildBlockRangeCondition = (): FindOptionsWhere<Block> => {
-    return this.fromBlock && this.toBlock
-      ? {
-          number: Between(this.fromBlock, this.toBlock),
-        }
-      : {
-          ...(this.fromBlock && { number: MoreThanOrEqual(this.fromBlock) }),
-          ...(this.toBlock && { number: LessThanOrEqual(this.toBlock) }),
-        };
-  };
 }

@@ -3,18 +3,18 @@ import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { IndexerMetricsService } from "./indexerMetrics.service";
-import { BlockchainService } from "./blockchain";
+import { ChainTipTracker } from "./chainTipTracker.service";
 import { BlockRepository, IndexerStateRepository } from "./repositories";
 
 jest.useFakeTimers();
 
 describe("IndexerMetricsService", () => {
-  const lastBlockchainBlockNumber = 100;
+  const chainTip = 100;
   const lastReadyBlockNumber = 80;
   const timer = mock<NodeJS.Timer>();
 
   let indexerMetricsService: IndexerMetricsService;
-  let blockchainServiceMock: BlockchainService;
+  let chainTipTrackerMock: ChainTipTracker;
   let blockchainBlocksMetricMock: jest.Mock;
   let blocksToProcessMetricMock: jest.Mock;
   let missingBlocksMetricMock: jest.Mock;
@@ -28,7 +28,7 @@ describe("IndexerMetricsService", () => {
         IndexerMetricsService,
         { provide: BlockRepository, useValue: blockRepositoryMock },
         { provide: IndexerStateRepository, useValue: indexerStateRepositoryMock },
-        { provide: BlockchainService, useValue: blockchainServiceMock },
+        { provide: ChainTipTracker, useValue: chainTipTrackerMock },
         {
           provide: "PROM_METRIC_BLOCKCHAIN_BLOCKS",
           useValue: { set: blockchainBlocksMetricMock },
@@ -61,6 +61,9 @@ describe("IndexerMetricsService", () => {
     indexerStateRepositoryMock = mock<IndexerStateRepository>({
       getLastReadyBlockNumber: jest.fn().mockResolvedValue(lastReadyBlockNumber),
     });
+    chainTipTrackerMock = mock<ChainTipTracker>({
+      getLastBlockNumber: jest.fn().mockReturnValue(chainTip),
+    });
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockImplementation((key: string) => {
         if (key === "blocks.toBlock") return null;
@@ -69,10 +72,6 @@ describe("IndexerMetricsService", () => {
         if (key === "metrics.missingBlocks.interval") return 20000;
         return null;
       }),
-    });
-    blockchainServiceMock = mock<BlockchainService>({
-      getBlockNumber: jest.fn().mockResolvedValue(lastBlockchainBlockNumber),
-      on: jest.fn(),
     });
 
     jest.spyOn(global, "setInterval").mockImplementation((callback: () => void) => {
@@ -89,44 +88,27 @@ describe("IndexerMetricsService", () => {
   });
 
   describe("onModuleInit", () => {
-    it("sets the value for blockchain blocks metric", async () => {
-      await indexerMetricsService.onModuleInit();
-      expect(blockchainBlocksMetricMock).toBeCalledWith(lastBlockchainBlockNumber);
-    });
-
-    it("subscribes to new blocks", async () => {
-      await indexerMetricsService.onModuleInit();
-      expect(blockchainServiceMock.on).toHaveBeenCalledWith("block", expect.any(Function));
-    });
-
-    describe("when new block arrives", () => {
-      it("updates blockchain blocks metric with the new block number", async () => {
-        await indexerMetricsService.onModuleInit();
-        const onBlock = (blockchainServiceMock.on as jest.Mock).mock.calls[0][1];
-
-        onBlock(lastBlockchainBlockNumber + 1);
-        expect(blockchainBlocksMetricMock).toHaveBeenCalledWith(lastBlockchainBlockNumber + 1);
-      });
-
-      it("keeps the previous value when the new block number is falsy", async () => {
-        await indexerMetricsService.onModuleInit();
-        const onBlock = (blockchainServiceMock.on as jest.Mock).mock.calls[0][1];
-
-        onBlock(null);
-        expect(blockchainBlocksMetricMock).toHaveBeenLastCalledWith(lastBlockchainBlockNumber);
-      });
-    });
-
     describe("blocks-to-process metric", () => {
+      it("sets blockchain blocks metric to the current chain tip", async () => {
+        const updateSpy = jest.spyOn(
+          indexerMetricsService as unknown as { setBlocksToProcessMetric: () => Promise<void> },
+          "setBlocksToProcessMetric"
+        );
+        indexerMetricsService.onModuleInit();
+        await updateSpy.mock.results[0].value;
+
+        expect(blockchainBlocksMetricMock).toHaveBeenCalledWith(chainTip);
+      });
+
       it("sets the metric to chainTip - lastReadyBlockNumber when toBlock is not set", async () => {
         const updateSpy = jest.spyOn(
           indexerMetricsService as unknown as { setBlocksToProcessMetric: () => Promise<void> },
           "setBlocksToProcessMetric"
         );
-        await indexerMetricsService.onModuleInit();
+        indexerMetricsService.onModuleInit();
         await updateSpy.mock.results[0].value;
 
-        expect(blocksToProcessMetricMock).toHaveBeenCalledWith(lastBlockchainBlockNumber - lastReadyBlockNumber);
+        expect(blocksToProcessMetricMock).toHaveBeenCalledWith(chainTip - lastReadyBlockNumber);
       });
 
       it("caps at toBlock when toBlock is set and lower than chain tip", async () => {
@@ -142,29 +124,41 @@ describe("IndexerMetricsService", () => {
           "setBlocksToProcessMetric"
         );
 
-        await indexerMetricsService.onModuleInit();
+        indexerMetricsService.onModuleInit();
         await updateSpy.mock.results[0].value;
 
         expect(blocksToProcessMetricMock).toHaveBeenCalledWith(90 - lastReadyBlockNumber);
       });
 
       it("never goes below zero", async () => {
-        (indexerStateRepositoryMock.getLastReadyBlockNumber as jest.Mock).mockResolvedValue(
-          lastBlockchainBlockNumber + 10
-        );
+        (indexerStateRepositoryMock.getLastReadyBlockNumber as jest.Mock).mockResolvedValue(chainTip + 10);
         const updateSpy = jest.spyOn(
           indexerMetricsService as unknown as { setBlocksToProcessMetric: () => Promise<void> },
           "setBlocksToProcessMetric"
         );
 
-        await indexerMetricsService.onModuleInit();
+        indexerMetricsService.onModuleInit();
         await updateSpy.mock.results[0].value;
 
         expect(blocksToProcessMetricMock).toHaveBeenCalledWith(0);
       });
 
+      it("does nothing when chain tip is not yet known", async () => {
+        (chainTipTrackerMock.getLastBlockNumber as jest.Mock).mockReturnValue(null);
+        const updateSpy = jest.spyOn(
+          indexerMetricsService as unknown as { setBlocksToProcessMetric: () => Promise<void> },
+          "setBlocksToProcessMetric"
+        );
+
+        indexerMetricsService.onModuleInit();
+        await updateSpy.mock.results[0].value;
+
+        expect(blockchainBlocksMetricMock).not.toHaveBeenCalled();
+        expect(blocksToProcessMetricMock).not.toHaveBeenCalled();
+      });
+
       it("schedules the setInterval with configured value", async () => {
-        await indexerMetricsService.onModuleInit();
+        indexerMetricsService.onModuleInit();
         expect(global.setInterval).toHaveBeenCalledWith(expect.any(Function), 10000);
       });
     });
@@ -181,7 +175,7 @@ describe("IndexerMetricsService", () => {
       });
 
       it("does not query or set the missing blocks metric", async () => {
-        await indexerMetricsService.onModuleInit();
+        indexerMetricsService.onModuleInit();
         expect(blockRepositoryMock.getMissingBlocksCount).not.toHaveBeenCalled();
         expect(missingBlocksMetricMock).not.toHaveBeenCalled();
       });
@@ -203,7 +197,7 @@ describe("IndexerMetricsService", () => {
           indexerMetricsService as unknown as { updateMissingBlocksMetric: () => Promise<void> },
           "updateMissingBlocksMetric"
         );
-        await indexerMetricsService.onModuleInit();
+        indexerMetricsService.onModuleInit();
         await updateSpy.mock.results[0].value;
 
         expect(blockRepositoryMock.getMissingBlocksCount).toHaveBeenCalledWith(lastReadyBlockNumber);
@@ -213,8 +207,8 @@ describe("IndexerMetricsService", () => {
   });
 
   describe("onModuleDestroy", () => {
-    it("clears the blocks-to-process metric timer", async () => {
-      await indexerMetricsService.onModuleInit();
+    it("clears the blocks-to-process metric timer", () => {
+      indexerMetricsService.onModuleInit();
       indexerMetricsService.onModuleDestroy();
       expect(global.clearInterval).toBeCalledWith(timer);
     });
@@ -228,8 +222,8 @@ describe("IndexerMetricsService", () => {
         indexerMetricsService = await getService();
       });
 
-      it("only clears the blocks-to-process timer", async () => {
-        await indexerMetricsService.onModuleInit();
+      it("only clears the blocks-to-process timer", () => {
+        indexerMetricsService.onModuleInit();
         indexerMetricsService.onModuleDestroy();
         expect(global.clearInterval).toBeCalledTimes(1);
       });
@@ -244,8 +238,8 @@ describe("IndexerMetricsService", () => {
         indexerMetricsService = await getService();
       });
 
-      it("clears both timers", async () => {
-        await indexerMetricsService.onModuleInit();
+      it("clears both timers", () => {
+        indexerMetricsService.onModuleInit();
         indexerMetricsService.onModuleDestroy();
         expect(global.clearInterval).toBeCalledTimes(2);
       });
