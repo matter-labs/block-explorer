@@ -159,21 +159,25 @@ describe("AppService", () => {
 
     beforeEach(() => {
       migrationsRunFinished = new Promise((resolve) => (migrationsRunFinishedResolve = resolve));
-      (runMigrations as jest.Mock).mockImplementation(() => {
-        migrationsRunFinishedResolve();
-        return Promise.resolve();
-      });
+      (runMigrations as jest.Mock).mockImplementation(
+        async (_ds: unknown, _logger: unknown, postMigrationsCallback?: () => Promise<void>) => {
+          if (postMigrationsCallback) {
+            await postMigrationsCallback();
+          }
+          migrationsRunFinishedResolve();
+        }
+      );
     });
 
     it("runs migrations", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(runMigrations).toBeCalledTimes(1);
       appService.onModuleDestroy();
     });
 
     it("starts counter service", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(counterService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
@@ -181,7 +185,7 @@ describe("AppService", () => {
     });
 
     it("starts block service", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(blocksIndexerService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
@@ -189,7 +193,7 @@ describe("AppService", () => {
     });
 
     it("starts old balances cleaner service", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(balancesCleanerService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
@@ -197,7 +201,7 @@ describe("AppService", () => {
     });
 
     it("does not start token offchain data saver service by default", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(tokenOffChainDataSaverService.start).not.toBeCalled();
       appService.onModuleDestroy();
@@ -205,7 +209,7 @@ describe("AppService", () => {
 
     it("does not start counter service when disableCountersProcessing is true", async () => {
       (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(counterService.start).not.toBeCalled();
       appService.onModuleDestroy();
@@ -213,7 +217,7 @@ describe("AppService", () => {
 
     it("does not start old balances cleaner when disableOldBalancesCleaner is true", async () => {
       (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(balancesCleanerService.start).not.toBeCalled();
       appService.onModuleDestroy();
@@ -221,7 +225,7 @@ describe("AppService", () => {
 
     it("starts token offchain data saver service when enableTokenOffChainDataSaver is true", async () => {
       (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(tokenOffChainDataSaverService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
@@ -229,25 +233,14 @@ describe("AppService", () => {
     });
 
     it("adds system contracts", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(systemContractServiceMock.addSystemContracts).toBeCalledTimes(1);
       appService.onModuleDestroy();
     });
 
     it("adds base token", async () => {
-      let addingSystemContractsFinishedResolve: () => void;
-      const addingSystemContractsFinished: Promise<void> = new Promise(
-        (resolve) => (addingSystemContractsFinishedResolve = resolve)
-      );
-
-      (systemContractServiceMock.addSystemContracts as jest.Mock).mockImplementation(() => {
-        addingSystemContractsFinishedResolve();
-        return Promise.resolve();
-      });
-
-      appService.onModuleInit();
-      await addingSystemContractsFinished;
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(tokenServiceMock.addBaseToken).toBeCalledTimes(1);
       appService.onModuleDestroy();

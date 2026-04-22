@@ -37,13 +37,12 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     this.logger = new Logger(AppService.name);
   }
 
-  public onModuleInit() {
-    runMigrations(this.dataSource, this.logger).then(() => {
-      this.systemContractService.addSystemContracts().then(() => {
-        this.tokenService.addBaseToken();
-      });
-      this.startWorkers();
+  public async onModuleInit() {
+    await runMigrations(this.dataSource, this.logger, async () => {
+      await this.systemContractService.addSystemContracts();
+      await this.tokenService.addBaseToken();
     });
+    this.startWorkers();
   }
 
   public onModuleDestroy() {
