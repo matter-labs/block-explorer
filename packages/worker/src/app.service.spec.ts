@@ -10,7 +10,7 @@ import { CounterService } from "./counter";
 import { BlocksIndexerService } from "./blocksIndexer";
 import { BlocksRevertService } from "./blocksRevert";
 import { BlocksEnqueuerService } from "./blocksEnqueuer";
-import { IndexerStateWatcherService } from "./indexerStateWatcher";
+import { IndexerStateManagerService } from "./indexerStateManager";
 import { BlockStatusService } from "./blockStatus";
 import { TokenService } from "./token/token.service";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
@@ -40,7 +40,7 @@ describe("AppService", () => {
   let blocksIndexerService: BlocksIndexerService;
   let blocksRevertService: BlocksRevertService;
   let blocksEnqueuerService: BlocksEnqueuerService;
-  let indexerStateWatcherService: IndexerStateWatcherService;
+  let indexerStateManagerService: IndexerStateManagerService;
   let blockStatusService: BlockStatusService;
   let tokenOffChainDataSaverService: TokenOffChainDataSaverService;
   let dataSourceMock: DataSource;
@@ -68,7 +68,7 @@ describe("AppService", () => {
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
-    indexerStateWatcherService = mock<IndexerStateWatcherService>({
+    indexerStateManagerService = mock<IndexerStateManagerService>({
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
@@ -117,8 +117,8 @@ describe("AppService", () => {
           useValue: blocksEnqueuerService,
         },
         {
-          provide: IndexerStateWatcherService,
-          useValue: indexerStateWatcherService,
+          provide: IndexerStateManagerService,
+          useValue: indexerStateManagerService,
         },
         {
           provide: BlockStatusService,

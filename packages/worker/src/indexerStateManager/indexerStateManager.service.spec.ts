@@ -5,15 +5,15 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import { Logger } from "@nestjs/common";
 import waitFor from "../utils/waitFor";
 import { BlockRepository, IndexerStateRepository } from "../repositories";
-import { IndexerStateWatcherService } from "./indexerStateWatcher.service";
+import { IndexerStateManagerService } from "./indexerStateManager.service";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 
 jest.mock("../utils/waitFor");
 
-describe("IndexerStateWatcherService", () => {
+describe("IndexerStateManagerService", () => {
   const pollingInterval = 1000;
 
-  let service: IndexerStateWatcherService;
+  let service: IndexerStateManagerService;
   let blockRepositoryMock: BlockRepository;
   let indexerStateRepositoryMock: IndexerStateRepository;
   let eventEmitterMock: EventEmitter2;
@@ -34,7 +34,7 @@ describe("IndexerStateWatcherService", () => {
     });
     const app = await Test.createTestingModule({
       providers: [
-        IndexerStateWatcherService,
+        IndexerStateManagerService,
         { provide: BlockRepository, useValue: blockRepositoryMock },
         { provide: IndexerStateRepository, useValue: indexerStateRepositoryMock },
         { provide: EventEmitter2, useValue: eventEmitterMock },
@@ -42,7 +42,7 @@ describe("IndexerStateWatcherService", () => {
       ],
     }).compile();
     app.useLogger(mock<Logger>());
-    service = app.get(IndexerStateWatcherService);
+    service = app.get(IndexerStateManagerService);
   };
 
   beforeEach(() => {

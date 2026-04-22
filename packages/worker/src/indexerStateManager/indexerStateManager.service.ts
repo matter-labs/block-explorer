@@ -7,7 +7,7 @@ import { Worker } from "../common/worker";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "../constants";
 
 @Injectable()
-export class IndexerStateWatcherService extends Worker {
+export class IndexerStateManagerService extends Worker {
   private readonly logger: Logger;
   private readonly pollingInterval: number;
   private readonly disableBlocksRevert: boolean;
@@ -21,7 +21,7 @@ export class IndexerStateWatcherService extends Worker {
     super();
     this.pollingInterval = configService.get<number>("blocks.enqueuerPollingInterval");
     this.disableBlocksRevert = configService.get<boolean>("blocks.disableBlocksRevert");
-    this.logger = new Logger(IndexerStateWatcherService.name);
+    this.logger = new Logger(IndexerStateManagerService.name);
   }
 
   protected async runProcess(): Promise<void> {

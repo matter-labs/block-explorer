@@ -5,7 +5,7 @@ import { DataSource } from "typeorm";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
 import { BlocksRevertService } from "./blocksRevert";
 import { BlocksEnqueuerService } from "./blocksEnqueuer";
-import { IndexerStateWatcherService } from "./indexerStateWatcher";
+import { IndexerStateManagerService } from "./indexerStateManager";
 import { BlockStatusService } from "./blockStatus";
 import { BlocksIndexerService } from "./blocksIndexer";
 import { CounterService } from "./counter";
@@ -25,7 +25,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     private readonly blocksIndexerService: BlocksIndexerService,
     private readonly blocksRevertService: BlocksRevertService,
     private readonly blocksEnqueuerService: BlocksEnqueuerService,
-    private readonly indexerStateWatcherService: IndexerStateWatcherService,
+    private readonly indexerStateManagerService: IndexerStateManagerService,
     private readonly blockStatusService: BlockStatusService,
     private readonly balancesCleanerService: BalancesCleanerService,
     private readonly tokenOffChainDataSaverService: TokenOffChainDataSaverService,
@@ -75,7 +75,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
     const enableTokenOffChainDataSaver = this.configService.get<boolean>("tokens.enableTokenOffChainDataSaver");
     const tasks = [
       this.blocksEnqueuerService.start(),
-      this.indexerStateWatcherService.start(),
+      this.indexerStateManagerService.start(),
       this.blocksIndexerService.start(),
     ];
     if (!disableBlockStatusProcessing) {
@@ -96,7 +96,7 @@ export class AppService implements OnModuleInit, OnModuleDestroy {
   private stopWorkers() {
     return Promise.all([
       this.blocksEnqueuerService.stop(),
-      this.indexerStateWatcherService.stop(),
+      this.indexerStateManagerService.stop(),
       this.blocksIndexerService.stop(),
       this.blockStatusService.stop(),
       this.counterService.stop(),

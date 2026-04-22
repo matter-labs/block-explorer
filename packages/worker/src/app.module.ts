@@ -10,7 +10,7 @@ import { AppService } from "./app.service";
 import { BlockchainService } from "./blockchain";
 import { BlocksRevertService } from "./blocksRevert";
 import { BlocksEnqueuerService } from "./blocksEnqueuer";
-import { IndexerStateWatcherService } from "./indexerStateWatcher";
+import { IndexerStateManagerService } from "./indexerStateManager";
 import { BlockStatusService } from "./blockStatus";
 import { BlocksIndexerProcessor, BlocksIndexerService, BlocksIndexerWorkersProvider } from "./blocksIndexer";
 import { IndexerMetricsService } from "./indexerMetrics.service";
@@ -144,7 +144,7 @@ import { SystemContractService } from "./contract/systemContract.service";
     BlockQueueRepository,
     BlocksRevertService,
     BlocksEnqueuerService,
-    IndexerStateWatcherService,
+    IndexerStateManagerService,
     BlockStatusService,
     BlocksIndexerProcessor,
     TransactionProcessor,
