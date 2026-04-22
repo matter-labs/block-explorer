@@ -17,7 +17,7 @@ export default async (connection: DataSource, logger: Logger, postMigrationsCall
     } catch (err) {
       logger.warn("Failed to connect to database, retrying...", err);
       if (queryRunner) {
-        await queryRunner.release().catch(() => {});
+        await queryRunner.release().catch(() => undefined);
         queryRunner = null;
       }
       await setTimeout(MIGRATIONS_LOCK_CHECK_INTERVAL);
@@ -37,7 +37,7 @@ export default async (connection: DataSource, logger: Logger, postMigrationsCall
       await setTimeout(MIGRATIONS_LOCK_CHECK_INTERVAL);
     } catch (err) {
       logger.warn("Failed to acquire migration lock, retrying...", err);
-      await queryRunner.release().catch(() => {});
+      await queryRunner.release().catch(() => undefined);
       queryRunner = null;
       await setTimeout(MIGRATIONS_LOCK_CHECK_INTERVAL);
     }
