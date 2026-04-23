@@ -53,20 +53,17 @@ export class TransactionService {
     queryBuilder.leftJoin("transaction.transactionReceipt", "transactionReceipt");
     queryBuilder.addSelect(["transactionReceipt.gasUsed", "transactionReceipt.contractAddress"]);
     queryBuilder.where({ hash });
-    const transaction = await queryBuilder.getOne();
-    if (transaction?.blockNumber > lastReadyBlockNumber) {
-      return null;
-    }
-    return transaction;
+    queryBuilder.andWhere("transaction.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
+    return await queryBuilder.getOne();
   }
 
   public async exists(hash: string): Promise<boolean> {
     const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const transaction = await this.transactionRepository.findOne({
-      where: { hash },
-      select: { hash: true, blockNumber: true },
+      where: { hash, blockNumber: LessThanOrEqual(lastReadyBlockNumber) },
+      select: { hash: true },
     });
-    return transaction != null && transaction.blockNumber <= lastReadyBlockNumber;
+    return transaction != null;
   }
 
   public async findAll(

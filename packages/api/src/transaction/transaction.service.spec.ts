@@ -112,6 +112,13 @@ describe("TransactionService", () => {
       expect(queryBuilderMock.where).toHaveBeenCalledWith({ hash });
     });
 
+    it("filters out transactions above the watermark", async () => {
+      await service.findOne(hash);
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("transaction.blockNumber <= :lastReadyBlockNumber", {
+        lastReadyBlockNumber: 1_000_000,
+      });
+    });
+
     it("joins block record to get block specific fields", async () => {
       await service.findOne(hash);
       expect(queryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith("transaction.block", "block");
@@ -137,23 +144,15 @@ describe("TransactionService", () => {
       const result = await service.findOne(hash);
       expect(result).toBe(transaction);
     });
-
-    it("returns null when transaction is past watermark", async () => {
-      const transaction = mock<Transaction>({ blockNumber: 2_000_000 });
-      (queryBuilderMock.getOne as jest.Mock).mockResolvedValue(transaction);
-
-      const result = await service.findOne(hash);
-      expect(result).toBeNull();
-    });
   });
 
   describe("exists", () => {
-    it("filters transactions by the specified hash", async () => {
+    it("filters transactions by the specified hash and watermark", async () => {
       await service.exists(transactionHash);
       expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
       expect(repositoryMock.findOne).toHaveBeenCalledWith({
-        where: { hash: transactionHash },
-        select: { hash: true, blockNumber: true },
+        where: { hash: transactionHash, blockNumber: typeorm.LessThanOrEqual(1_000_000) },
+        select: { hash: true },
       });
     });
 
