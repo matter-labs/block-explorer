@@ -1,17 +1,18 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, SelectQueryBuilder } from "typeorm";
+import { Brackets, Repository, SelectQueryBuilder, WhereExpressionBuilder } from "typeorm";
 import { AddressService } from "./address.service";
 import { Address } from "./address.entity";
 import { IndexerStateService } from "../indexerState/indexerState.service";
+import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 
 describe("AddressService", () => {
   let addressRecord;
   let service: AddressService;
   let repositoryMock: Repository<Address>;
   let queryBuilderMock: SelectQueryBuilder<Address>;
-  const blockchainAddress = "blockchainAddress";
+  const blockchainAddress = "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67";
   const lastReadyBlockNumber = 1_000_000;
 
   beforeEach(async () => {
@@ -53,11 +54,16 @@ describe("AddressService", () => {
 
     it("queries addresses by specified address and watermark", async () => {
       await service.findOne(blockchainAddress);
-      expect(queryBuilderMock.where).toHaveBeenCalledWith("address.address = :address", { address: blockchainAddress });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
-        '(address."createdInBlockNumber" IS NULL OR address."createdInBlockNumber" <= :lastReadyBlockNumber)',
-        { lastReadyBlockNumber }
-      );
+      expect(queryBuilderMock.where).toHaveBeenCalledWith({ address: blockchainAddress });
+
+      const brackets = (queryBuilderMock.andWhere as jest.Mock).mock.calls[0][0] as Brackets;
+      const innerQbMock = mock<WhereExpressionBuilder>();
+      (innerQbMock.where as jest.Mock).mockReturnValue(innerQbMock);
+      brackets.whereFactory(innerQbMock);
+      expect(innerQbMock.where).toHaveBeenCalledWith('address."createdInBlockNumber" IS NULL');
+      expect(innerQbMock.orWhere).toHaveBeenCalledWith('address."createdInBlockNumber" <= :lastReadyBlockNumber', {
+        lastReadyBlockNumber,
+      });
     });
 
     it("returns addressRecord by address", async () => {
@@ -80,12 +86,17 @@ describe("AddressService", () => {
     it("queries addresses by specified addresses list and watermark", async () => {
       await service.findByAddresses([blockchainAddress]);
       expect(queryBuilderMock.where).toHaveBeenCalledWith("address.address IN (:...addresses)", {
-        addresses: [blockchainAddress],
+        addresses: [normalizeAddressTransformer.to(blockchainAddress)],
       });
-      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith(
-        '(address."createdInBlockNumber" IS NULL OR address."createdInBlockNumber" <= :lastReadyBlockNumber)',
-        { lastReadyBlockNumber }
-      );
+
+      const brackets = (queryBuilderMock.andWhere as jest.Mock).mock.calls[0][0] as Brackets;
+      const innerQbMock = mock<WhereExpressionBuilder>();
+      (innerQbMock.where as jest.Mock).mockReturnValue(innerQbMock);
+      brackets.whereFactory(innerQbMock);
+      expect(innerQbMock.where).toHaveBeenCalledWith('address."createdInBlockNumber" IS NULL');
+      expect(innerQbMock.orWhere).toHaveBeenCalledWith('address."createdInBlockNumber" <= :lastReadyBlockNumber', {
+        lastReadyBlockNumber,
+      });
     });
 
     it("returns address records", async () => {

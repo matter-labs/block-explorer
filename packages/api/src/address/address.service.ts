@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Brackets, Repository } from "typeorm";
 import { Address } from "./address.entity";
 import { IndexerStateService } from "../indexerState/indexerState.service";
+import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 
 @Injectable()
 export class AddressService {
@@ -16,10 +17,14 @@ export class AddressService {
     const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     return await this.addressRepository
       .createQueryBuilder("address")
-      .where("address.address = :address", { address })
-      .andWhere('(address."createdInBlockNumber" IS NULL OR address."createdInBlockNumber" <= :lastReadyBlockNumber)', {
-        lastReadyBlockNumber,
-      })
+      .where({ address })
+      .andWhere(
+        new Brackets((qb) =>
+          qb
+            .where('address."createdInBlockNumber" IS NULL')
+            .orWhere('address."createdInBlockNumber" <= :lastReadyBlockNumber', { lastReadyBlockNumber })
+        )
+      )
       .getOne();
   }
 
@@ -30,10 +35,16 @@ export class AddressService {
     const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     return await this.addressRepository
       .createQueryBuilder("address")
-      .where("address.address IN (:...addresses)", { addresses })
-      .andWhere('(address."createdInBlockNumber" IS NULL OR address."createdInBlockNumber" <= :lastReadyBlockNumber)', {
-        lastReadyBlockNumber,
+      .where("address.address IN (:...addresses)", {
+        addresses: addresses.map((a) => normalizeAddressTransformer.to(a)),
       })
+      .andWhere(
+        new Brackets((qb) =>
+          qb
+            .where('address."createdInBlockNumber" IS NULL')
+            .orWhere('address."createdInBlockNumber" <= :lastReadyBlockNumber', { lastReadyBlockNumber })
+        )
+      )
       .getMany();
   }
 }
