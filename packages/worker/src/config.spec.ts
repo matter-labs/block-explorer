@@ -24,7 +24,7 @@ describe("config", () => {
         requestTimeout: 150_000,
       },
       blocks: {
-        waitForBlocksInterval: 1000,
+        queuePollingInterval: 1000,
         blocksProcessingBatchSize: 50,
         blocksProcessingWorkerPoolSize: 1,
         maxBlocksAheadOfLastReadyBlock: 1000,
@@ -107,7 +107,7 @@ describe("config", () => {
         requestTimeout: 150_000,
       },
       blocks: {
-        waitForBlocksInterval: 1000,
+        queuePollingInterval: 1000,
         blocksProcessingBatchSize: 50,
         blocksProcessingWorkerPoolSize: 1,
         maxBlocksAheadOfLastReadyBlock: 1000,

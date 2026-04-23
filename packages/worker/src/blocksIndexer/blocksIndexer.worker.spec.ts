@@ -14,7 +14,7 @@ jest.mock("@nestjs/common", () => ({
 
 describe("BlocksIndexerWorker", () => {
   const retryDelay = 750;
-  const waitForBlocksInterval = 1000;
+  const queuePollingInterval = 1000;
 
   let blockProcessorMock: BlocksIndexerProcessor;
   let retryDelayProviderMock: RetryDelayProvider;
@@ -36,7 +36,7 @@ describe("BlocksIndexerWorker", () => {
       getRetryDelay: jest.fn().mockReturnValue(retryDelay),
     });
     configServiceMock = mock<ConfigService>({
-      get: jest.fn().mockReturnValue(waitForBlocksInterval),
+      get: jest.fn().mockReturnValue(queuePollingInterval),
     });
 
     blockWorker = new BlocksIndexerWorker(blockProcessorMock, retryDelayProviderMock, configServiceMock);
@@ -61,7 +61,7 @@ describe("BlocksIndexerWorker", () => {
       const [conditionPredicate, maxWaitTime] = (waitFor as jest.Mock).mock.calls[0];
       expect(waitFor).toBeCalledTimes(1);
       expect(conditionPredicate()).toBeTruthy();
-      expect(maxWaitTime).toBe(waitForBlocksInterval);
+      expect(maxWaitTime).toBe(queuePollingInterval);
       expect(retryDelayProviderMock.resetRetryDelay).toHaveBeenCalledTimes(1);
     });
 

@@ -11,7 +11,7 @@ export default () => {
     RPC_BATCH_MAX_SIZE_BYTES,
     RPC_BATCH_MAX_COUNT,
     RPC_BATCH_STALL_TIME_MS,
-    WAIT_FOR_BLOCKS_INTERVAL,
+    BLOCKS_QUEUE_POLLING_INTERVAL,
     BLOCKS_PROCESSING_BATCH_SIZE,
     BLOCKS_PROCESSING_WORKER_POOL_SIZE,
     MAX_BLOCKS_AHEAD_OF_LAST_READY_BLOCK,
@@ -75,7 +75,7 @@ export default () => {
       requestTimeout: parseInt(DATA_FETCHER_REQUEST_TIMEOUT, 10) || 150_000,
     },
     blocks: {
-      waitForBlocksInterval: parseInt(WAIT_FOR_BLOCKS_INTERVAL, 10) || 1000,
+      queuePollingInterval: parseInt(BLOCKS_QUEUE_POLLING_INTERVAL, 10) || 1000,
       blocksProcessingBatchSize: parseInt(BLOCKS_PROCESSING_BATCH_SIZE, 10) || 50,
       blocksProcessingWorkerPoolSize: parseInt(BLOCKS_PROCESSING_WORKER_POOL_SIZE, 10) || 1,
       maxBlocksAheadOfLastReadyBlock: parseInt(MAX_BLOCKS_AHEAD_OF_LAST_READY_BLOCK, 10) || 1000,

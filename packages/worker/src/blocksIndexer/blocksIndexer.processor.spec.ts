@@ -158,9 +158,10 @@ describe("BlocksIndexerProcessor", () => {
         expect(blockQueueRepositoryMock.remove).not.toHaveBeenCalled();
       });
 
-      it("stops the batch metric with success", async () => {
+      it("does not record the batch duration metric", async () => {
         await blockProcessor.processNextBlocksRange();
-        expect(stopBlocksBatchDurationMetricMock).toHaveBeenCalledWith({ status: "success" });
+        expect(startBlocksBatchDurationMetricMock).not.toHaveBeenCalled();
+        expect(stopBlocksBatchDurationMetricMock).not.toHaveBeenCalled();
       });
     });
 

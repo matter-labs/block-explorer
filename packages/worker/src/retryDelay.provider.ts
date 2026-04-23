@@ -9,7 +9,7 @@ export class RetryDelayProvider {
   private retries = 0;
 
   constructor(configService: ConfigService) {
-    this.delay = configService.get<number>("blocks.waitForBlocksInterval");
+    this.delay = configService.get<number>("blocks.queuePollingInterval");
   }
 
   public getRetryDelay(): number {

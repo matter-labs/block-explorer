@@ -7,7 +7,7 @@ import { BlocksIndexerProcessor } from "./blocksIndexer.processor";
 
 export class BlocksIndexerWorker extends Worker {
   private readonly logger: Logger;
-  private readonly waitForBlocksInterval: number;
+  private readonly queuePollingInterval: number;
 
   public constructor(
     private readonly blocksIndexerProcessor: BlocksIndexerProcessor,
@@ -15,7 +15,7 @@ export class BlocksIndexerWorker extends Worker {
     configService: ConfigService
   ) {
     super();
-    this.waitForBlocksInterval = configService.get<number>("blocks.waitForBlocksInterval");
+    this.queuePollingInterval = configService.get<number>("blocks.queuePollingInterval");
     this.logger = new Logger(BlocksIndexerWorker.name);
   }
 
@@ -24,7 +24,7 @@ export class BlocksIndexerWorker extends Worker {
     try {
       const isNextBlockRangeProcessed = await this.blocksIndexerProcessor.processNextBlocksRange();
       if (!isNextBlockRangeProcessed) {
-        nextIterationDelay = this.waitForBlocksInterval;
+        nextIterationDelay = this.queuePollingInterval;
       }
       this.retryDelayProvider.resetRetryDelay();
     } catch (error) {

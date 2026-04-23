@@ -42,8 +42,8 @@ export class BlocksIndexerProcessor {
   }
 
   public async processNextBlocksRange(): Promise<boolean> {
-    const stopDurationMeasuring = this.blocksBatchProcessingDurationMetric.startTimer();
     let didWork = false;
+    let stopDurationMeasuring: ReturnType<Histogram<BlocksBatchProcessingMetricLabels>["startTimer"]> | null = null;
 
     try {
       await this.unitOfWork
@@ -52,6 +52,7 @@ export class BlocksIndexerProcessor {
           if (blockNumbers.length === 0) {
             return;
           }
+          stopDurationMeasuring = this.blocksBatchProcessingDurationMetric.startTimer();
 
           const processedBlockNumbers: number[] = [];
           await Promise.all(
@@ -86,9 +87,9 @@ export class BlocksIndexerProcessor {
           didWork = true;
         })
         .waitForExecution();
-      stopDurationMeasuring({ status: "success" });
+      stopDurationMeasuring?.({ status: "success" });
     } catch (error) {
-      stopDurationMeasuring({ status: "error" });
+      stopDurationMeasuring?.({ status: "error" });
       throw error;
     }
 

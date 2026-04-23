@@ -98,10 +98,11 @@ describe("BalanceService", () => {
       );
     });
 
-    it("sets query address params", async () => {
+    it("sets query address and lastReadyBlockNumber params", async () => {
       await service.getBalances(address);
-      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(2);
       expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("address", hexTransformer.to(address));
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("lastReadyBlockNumber", 1_000_000);
     });
 
     it("joins token entity", async () => {
@@ -253,9 +254,7 @@ describe("BalanceService", () => {
       expect(subQueryBuilderMock.where).toHaveBeenCalledWith(`"tokenAddress" = :tokenAddress`);
       expect(subQueryBuilderMock.andWhere).toHaveBeenCalledTimes(2);
       expect(subQueryBuilderMock.andWhere).toHaveBeenCalledWith("address IN(:...addresses)");
-      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledWith(`"blockNumber" <= :lastReadyBlockNumber`, {
-        lastReadyBlockNumber: 1_000_000,
-      });
+      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledWith(`"blockNumber" <= :lastReadyBlockNumber`);
     });
 
     it("groups by address and tokenAddress in the sub query", async () => {
@@ -291,10 +290,11 @@ describe("BalanceService", () => {
       );
     });
 
-    it("sets query tokenAddress and addresses params", async () => {
+    it("sets query tokenAddress, lastReadyBlockNumber and addresses params", async () => {
       await service.getBalancesByAddresses(addresses, tokenAddress);
-      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(2);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(3);
       expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("tokenAddress", hexTransformer.to(tokenAddress));
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("lastReadyBlockNumber", 1_000_000);
       expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith(
         "addresses",
         addresses.map((address) => hexTransformer.to(address))
