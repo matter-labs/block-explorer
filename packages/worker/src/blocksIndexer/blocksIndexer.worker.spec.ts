@@ -1,4 +1,5 @@
 import { mock } from "jest-mock-extended";
+import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import waitFor from "../utils/waitFor";
 import { BlocksIndexerProcessor } from "./blocksIndexer.processor";
@@ -6,6 +7,10 @@ import { BlocksIndexerWorker } from "./blocksIndexer.worker";
 import { RetryDelayProvider } from "../retryDelay.provider";
 
 jest.mock("../utils/waitFor");
+jest.mock("@nestjs/common", () => ({
+  ...jest.requireActual("@nestjs/common"),
+  Logger: jest.fn(),
+}));
 
 describe("BlocksIndexerWorker", () => {
   const retryDelay = 750;
@@ -17,6 +22,11 @@ describe("BlocksIndexerWorker", () => {
   let blockWorker: BlocksIndexerWorker;
 
   beforeEach(() => {
+    (Logger as unknown as jest.Mock).mockReturnValue({
+      log: jest.fn(),
+      debug: jest.fn(),
+      error: jest.fn(),
+    });
     (waitFor as jest.Mock).mockResolvedValue(null);
     blockProcessorMock = mock<BlocksIndexerProcessor>({
       processNextBlocksRange: jest.fn().mockResolvedValue(false),
