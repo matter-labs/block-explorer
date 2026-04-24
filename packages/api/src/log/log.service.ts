@@ -8,6 +8,7 @@ import { paginate, copyOrderBy } from "../common/utils";
 import { Log } from "./log.entity";
 import { VisibleLog } from "./visibleLog.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 export interface FilterLogsOptions {
   transactionHash?: string;
@@ -37,13 +38,15 @@ export class LogService {
     private readonly logRepository: Repository<Log>,
     @InjectRepository(VisibleLog)
     private readonly visibleLogRepository: Repository<VisibleLog>,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly indexerStateService: IndexerStateService
   ) {}
 
   public async findAll(
     filterOptions: FilterLogsOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Log>> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const disableTxVisibilityByTopics = this.configService.get<boolean>("prividium.disableTxVisibilityByTopics");
     const { visibleBy, ...basicFilters } = filterOptions;
     const order = basicFilters.transactionHash ? "ASC" : "DESC";
@@ -52,6 +55,7 @@ export class LogService {
       const innerQb = this.visibleLogRepository.createQueryBuilder("vl");
       innerQb.select("vl.logNumber", "logNumber");
       innerQb.where({ visibleBy, ...basicFilters });
+      innerQb.andWhere("vl.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
       innerQb.orderBy("vl.blockNumber", order);
       innerQb.addOrderBy("vl.logIndex", order);
 
@@ -70,7 +74,7 @@ export class LogService {
 
     const qb = this.logRepository.createQueryBuilder("log");
     qb.where({ ...basicFilters, ...(visibleBy && { transactionFrom: visibleBy }) });
-
+    qb.andWhere("log.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
     qb.orderBy("log.blockNumber", order);
     qb.addOrderBy("log.logIndex", order);
     return paginate<Log>({ queryBuilder: qb, options: paginationOptions });
@@ -85,6 +89,8 @@ export class LogService {
     offset = 10,
     order = "DESC",
   }: FilterLogsByAddressAndTopicsOptions): Promise<Log[]> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
+    const clampedToBlock = toBlock !== undefined ? Math.min(toBlock, lastReadyBlockNumber) : lastReadyBlockNumber;
     const innerQb = this.logRepository.createQueryBuilder("log");
     innerQb.select("log.number", "number");
     if (address !== undefined) {
@@ -93,9 +99,7 @@ export class LogService {
     if (fromBlock !== undefined) {
       innerQb.andWhere({ blockNumber: MoreThanOrEqual(fromBlock) });
     }
-    if (toBlock !== undefined) {
-      innerQb.andWhere({ blockNumber: LessThanOrEqual(toBlock) });
-    }
+    innerQb.andWhere({ blockNumber: LessThanOrEqual(clampedToBlock) });
     if (topics.topic0 !== undefined) {
       innerQb.andWhere("log.topics[1] = :topic0", { topic0: hexTransformer.to(topics.topic0) });
     }

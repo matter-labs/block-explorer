@@ -17,6 +17,7 @@ import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import * as utils from "../common/utils";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -48,6 +49,10 @@ describe("TransferService", () => {
         {
           provide: getRepositoryToken(AddressTransfer),
           useValue: addressTransferRepositoryMock,
+        },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
         },
       ],
     }).compile();
@@ -251,7 +256,7 @@ describe("TransferService", () => {
         await service.findAll({ visibleBy, transactionHash }, pagingOptions);
         expect(transferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("transfer");
         expect(queryBuilderMock.where).toHaveBeenCalledWith({ transactionHash });
-        const brackets = (queryBuilderMock.andWhere as jest.Mock).mock.calls[0][0] as Brackets;
+        const brackets = (queryBuilderMock.andWhere as jest.Mock).mock.calls[1][0] as Brackets;
         expect(brackets).toBeInstanceOf(Brackets);
         const innerQb = mock<typeorm.WhereExpressionBuilder>();
         (innerQb.where as jest.Mock).mockReturnValue(innerQb);

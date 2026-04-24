@@ -13,6 +13,7 @@ import { VisibleTransaction } from "./entities/visibleTransaction.entity";
 import { AddressVisibleTransaction } from "./entities/addressVisibleTransaction.entity";
 import { Block } from "../block/block.entity";
 import { ConfigService } from "@nestjs/config";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -77,6 +78,10 @@ describe("TransactionService", () => {
           provide: CounterService,
           useValue: counterServiceMock,
         },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
+        },
       ],
     }).compile();
 
@@ -107,6 +112,13 @@ describe("TransactionService", () => {
       expect(queryBuilderMock.where).toHaveBeenCalledWith({ hash });
     });
 
+    it("filters out transactions above the watermark", async () => {
+      await service.findOne(hash);
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith("transaction.blockNumber <= :lastReadyBlockNumber", {
+        lastReadyBlockNumber: 1_000_000,
+      });
+    });
+
     it("joins block record to get block specific fields", async () => {
       await service.findOne(hash);
       expect(queryBuilderMock.leftJoinAndSelect).toHaveBeenCalledWith("transaction.block", "block");
@@ -126,7 +138,7 @@ describe("TransactionService", () => {
     });
 
     it("returns paginated result", async () => {
-      const transaction = mock<Transaction>();
+      const transaction = mock<Transaction>({ blockNumber: 100 });
       (queryBuilderMock.getOne as jest.Mock).mockResolvedValue(transaction);
 
       const result = await service.findOne(hash);
@@ -135,14 +147,17 @@ describe("TransactionService", () => {
   });
 
   describe("exists", () => {
-    it("filters transactions by the specified hash", async () => {
+    it("filters transactions by the specified hash and watermark", async () => {
       await service.exists(transactionHash);
       expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
-      expect(repositoryMock.findOne).toHaveBeenCalledWith({ where: { hash: transactionHash }, select: { hash: true } });
+      expect(repositoryMock.findOne).toHaveBeenCalledWith({
+        where: { hash: transactionHash, blockNumber: typeorm.LessThanOrEqual(1_000_000) },
+        select: { hash: true },
+      });
     });
 
     it("returns true if there is a transaction with the specified hash", async () => {
-      (repositoryMock.findOne as jest.Mock).mockResolvedValue(transaction);
+      (repositoryMock.findOne as jest.Mock).mockResolvedValue({ ...transaction, blockNumber: 100 });
       const result = await service.exists(transactionHash);
       expect(result).toBe(true);
     });

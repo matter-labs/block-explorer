@@ -1,26 +1,34 @@
 import { mock } from "jest-mock-extended";
-import { Test } from "@nestjs/testing";
-import { ConfigService } from "@nestjs/config";
 import { Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import waitFor from "../utils/waitFor";
-import { BlockProcessor } from "./block.processor";
-import { BlockService } from "./block.service";
+import { BlocksIndexerProcessor } from "./blocksIndexer.processor";
+import { BlocksIndexerWorker } from "./blocksIndexer.worker";
 import { RetryDelayProvider } from "../retryDelay.provider";
 
 jest.mock("../utils/waitFor");
+jest.mock("@nestjs/common", () => ({
+  ...jest.requireActual("@nestjs/common"),
+  Logger: jest.fn(),
+}));
 
-describe("BlockService", () => {
+describe("BlocksIndexerWorker", () => {
   const retryDelay = 750;
-  const waitForBlocksInterval = 1000;
+  const queuePollingInterval = 1000;
 
-  let blockProcessorMock: BlockProcessor;
+  let blockProcessorMock: BlocksIndexerProcessor;
   let retryDelayProviderMock: RetryDelayProvider;
   let configServiceMock: ConfigService;
-  let blockService: BlockService;
+  let blockWorker: BlocksIndexerWorker;
 
-  beforeEach(async () => {
+  beforeEach(() => {
+    (Logger as unknown as jest.Mock).mockReturnValue({
+      log: jest.fn(),
+      debug: jest.fn(),
+      error: jest.fn(),
+    });
     (waitFor as jest.Mock).mockResolvedValue(null);
-    blockProcessorMock = mock<BlockProcessor>({
+    blockProcessorMock = mock<BlocksIndexerProcessor>({
       processNextBlocksRange: jest.fn().mockResolvedValue(false),
     });
     retryDelayProviderMock = mock<RetryDelayProvider>({
@@ -28,30 +36,10 @@ describe("BlockService", () => {
       getRetryDelay: jest.fn().mockReturnValue(retryDelay),
     });
     configServiceMock = mock<ConfigService>({
-      get: jest.fn().mockReturnValue(waitForBlocksInterval),
+      get: jest.fn().mockReturnValue(queuePollingInterval),
     });
 
-    const app = await Test.createTestingModule({
-      providers: [
-        BlockService,
-        {
-          provide: BlockProcessor,
-          useValue: blockProcessorMock,
-        },
-        {
-          provide: RetryDelayProvider,
-          useValue: retryDelayProviderMock,
-        },
-        {
-          provide: ConfigService,
-          useValue: configServiceMock,
-        },
-      ],
-    }).compile();
-
-    app.useLogger(mock<Logger>());
-
-    blockService = app.get(BlockService);
+    blockWorker = new BlocksIndexerWorker(blockProcessorMock, retryDelayProviderMock, configServiceMock);
   });
 
   afterEach(() => {
@@ -59,37 +47,37 @@ describe("BlockService", () => {
   });
 
   describe("start", () => {
-    it("starts blocks processing processes with processNextBlocksRange call", async () => {
-      blockService.start();
-      await blockService.stop();
+    it("starts blocks processing with processNextBlocksRange call", async () => {
+      blockWorker.start();
+      await blockWorker.stop();
 
       expect(blockProcessorMock.processNextBlocksRange).toBeCalledTimes(1);
     });
 
-    it("resets retry delay and waits for timeout or service stoppage when processNextBlocksRange returns false", async () => {
-      blockService.start();
-      await blockService.stop();
+    it("resets retry delay and waits for timeout or worker stoppage when processNextBlocksRange returns false", async () => {
+      blockWorker.start();
+      await blockWorker.stop();
 
       const [conditionPredicate, maxWaitTime] = (waitFor as jest.Mock).mock.calls[0];
       expect(waitFor).toBeCalledTimes(1);
       expect(conditionPredicate()).toBeTruthy();
-      expect(maxWaitTime).toBe(waitForBlocksInterval);
+      expect(maxWaitTime).toBe(queuePollingInterval);
       expect(retryDelayProviderMock.resetRetryDelay).toHaveBeenCalledTimes(1);
     });
 
     it("resets retry delay and does not wait for timeout when processNextBlocksRange returns true", async () => {
       (blockProcessorMock.processNextBlocksRange as jest.Mock).mockResolvedValue(true);
-      blockService.start();
-      await blockService.stop();
+      blockWorker.start();
+      await blockWorker.stop();
 
       expect(waitFor).not.toBeCalled();
       expect(retryDelayProviderMock.resetRetryDelay).toHaveBeenCalledTimes(1);
     });
 
-    it("waits for retry delay or service stoppage when processNextBlocksRange fails", async () => {
+    it("waits for retry delay or worker stoppage when processNextBlocksRange fails", async () => {
       (blockProcessorMock.processNextBlocksRange as jest.Mock).mockRejectedValue(new Error("error"));
-      blockService.start();
-      await blockService.stop();
+      blockWorker.start();
+      await blockWorker.stop();
 
       const [conditionPredicate, maxWaitTime] = (waitFor as jest.Mock).mock.calls[0];
       expect(waitFor).toBeCalledTimes(1);
@@ -99,9 +87,9 @@ describe("BlockService", () => {
     });
 
     it("starts the process only once when called multiple times", async () => {
-      blockService.start();
-      blockService.start();
-      await blockService.stop();
+      blockWorker.start();
+      blockWorker.start();
+      await blockWorker.stop();
 
       expect(blockProcessorMock.processNextBlocksRange).toBeCalledTimes(1);
     });
@@ -118,18 +106,18 @@ describe("BlockService", () => {
         })
         .mockResolvedValueOnce(true);
 
-      blockService.start();
+      blockWorker.start();
 
       await secondIterationPromise;
-      await blockService.stop();
+      await blockWorker.stop();
       expect(blockProcessorMock.processNextBlocksRange).toBeCalledTimes(2);
     });
   });
 
   describe("stop", () => {
-    it("stops block processing processes", async () => {
-      blockService.start();
-      await blockService.stop();
+    it("stops block processing", async () => {
+      blockWorker.start();
+      await blockWorker.stop();
 
       expect(blockProcessorMock.processNextBlocksRange).toBeCalledTimes(1);
     });

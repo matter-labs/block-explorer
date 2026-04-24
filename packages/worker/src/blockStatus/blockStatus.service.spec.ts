@@ -5,7 +5,7 @@ import { Logger } from "@nestjs/common";
 import { type Block as EthersBlock, type BlockTag } from "ethers";
 import waitFor from "../utils/waitFor";
 import { BlockchainService } from "../blockchain";
-import { BlockRepository } from "../repositories";
+import { BlockRepository, IndexerStateRepository } from "../repositories";
 import { BlockStatus, Block } from "../entities";
 import { BlockStatusService } from "./blockStatus.service";
 
@@ -17,6 +17,7 @@ describe("BlockStatusService", () => {
   let blockStatusService: BlockStatusService;
   let blockchainServiceMock: BlockchainService;
   let blockRepositoryMock: BlockRepository;
+  let indexerStateRepositoryMock: IndexerStateRepository;
   let configServiceMock: ConfigService;
 
   beforeEach(async () => {
@@ -36,14 +37,18 @@ describe("BlockStatusService", () => {
 
     blockRepositoryMock = mock<BlockRepository>({
       getBlock: jest.fn().mockImplementation(({ where } = {}) => {
-        if (!where) {
-          // latest DB block call (no where clause) — used for hash verification
-          return Promise.resolve({ number: 100, hash: "hash100" } as Block);
+        if (where && "number" in where) {
+          // last ready block lookup by number — used for hash verification
+          return Promise.resolve({ number: 200, hash: "hash200" } as Block);
         }
         // first block with smaller status call
         return Promise.resolve({ number: 1 } as Block);
       }),
       updateByRange: jest.fn().mockResolvedValue(null),
+    });
+
+    indexerStateRepositoryMock = mock<IndexerStateRepository>({
+      getLastReadyBlockNumber: jest.fn().mockResolvedValue(200),
     });
 
     configServiceMock = mock<ConfigService>({
@@ -60,6 +65,10 @@ describe("BlockStatusService", () => {
         {
           provide: BlockRepository,
           useValue: blockRepositoryMock,
+        },
+        {
+          provide: IndexerStateRepository,
+          useValue: indexerStateRepositoryMock,
         },
         {
           provide: ConfigService,
@@ -161,11 +170,11 @@ describe("BlockStatusService", () => {
       });
     });
 
-    describe("when the latest DB block hash does not match the blockchain block hash", () => {
+    describe("when the last ready block hash does not match the blockchain block hash", () => {
       beforeEach(() => {
         jest.spyOn(blockRepositoryMock, "getBlock").mockImplementation(({ where } = {}) => {
-          if (!where) {
-            return Promise.resolve({ number: 100, hash: "different-hash" } as Block);
+          if (where && "number" in where) {
+            return Promise.resolve({ number: 200, hash: "different-hash" } as Block);
           }
           return Promise.resolve({ number: 1 } as Block);
         });
@@ -179,11 +188,43 @@ describe("BlockStatusService", () => {
       });
     });
 
+    describe("when the last ready block number is 0", () => {
+      beforeEach(() => {
+        jest.spyOn(indexerStateRepositoryMock, "getLastReadyBlockNumber").mockResolvedValue(0);
+      });
+
+      it("does not update any blocks status", async () => {
+        blockStatusService.start();
+        await blockStatusService.stop();
+
+        expect(blockRepositoryMock.updateByRange).not.toBeCalled();
+      });
+    });
+
+    describe("when the last ready block clamps the update range", () => {
+      beforeEach(() => {
+        jest.spyOn(indexerStateRepositoryMock, "getLastReadyBlockNumber").mockResolvedValue(120);
+        jest.spyOn(blockRepositoryMock, "getBlock").mockImplementation(({ where } = {}) => {
+          if (where && "number" in where) {
+            return Promise.resolve({ number: 120, hash: "hash120" } as Block);
+          }
+          return Promise.resolve({ number: 1 } as Block);
+        });
+      });
+
+      it("clamps finalized update to last ready block", async () => {
+        blockStatusService.start();
+        await blockStatusService.stop();
+
+        expect(blockRepositoryMock.updateByRange).toBeCalledWith(1, 120, { status: BlockStatus.Executed });
+      });
+    });
+
     describe("when there are no blocks with a smaller status in DB", () => {
       beforeEach(() => {
         jest.spyOn(blockRepositoryMock, "getBlock").mockImplementation(({ where } = {}) => {
-          if (!where) {
-            return Promise.resolve({ number: 100, hash: "hash100" } as Block);
+          if (where && "number" in where) {
+            return Promise.resolve({ number: 200, hash: "hash200" } as Block);
           }
           return Promise.resolve(null);
         });

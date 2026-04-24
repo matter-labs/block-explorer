@@ -18,6 +18,7 @@ import { TransferModule } from "./transfer/transfer.module";
 import { TransactionModule } from "./transaction/transaction.module";
 import { LogModule } from "./log/log.module";
 import { StatsModule } from "./stats/stats.module";
+import { IndexerStateModule } from "./indexerState/indexerState.module";
 import { MetricsMiddleware } from "./middlewares/metrics.middleware";
 import { metricProviders } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
@@ -47,6 +48,7 @@ interface AppModuleConfig {
     TransactionModule,
     LogModule,
     StatsModule,
+    IndexerStateModule,
     HealthModule,
   ],
   providers: [Logger, ...metricProviders, DbMetricsService],

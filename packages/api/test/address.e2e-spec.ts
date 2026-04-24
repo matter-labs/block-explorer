@@ -19,6 +19,7 @@ import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 import { baseToken } from "../src/config";
 import { computeFromToMinMax } from "../src/common/utils";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("AddressController (e2e)", () => {
   const ETH_TOKEN = baseToken;
@@ -34,6 +35,7 @@ describe("AddressController (e2e)", () => {
   let counterRepository: Repository<Counter>;
   let transferRepository: Repository<Transfer>;
   let addressTransferRepository: Repository<AddressTransfer>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -45,6 +47,9 @@ describe("AddressController (e2e)", () => {
     configureApp(app);
 
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 106 });
 
     addressRepository = app.get<Repository<Address>>(getRepositoryToken(Address));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
@@ -116,6 +121,7 @@ describe("AddressController (e2e)", () => {
         cumulativeGasUsed: "1100000",
         contractAddress:
           i <= 4 ? "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb68" : "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69",
+        blockNumber: i < 6 ? i : 5,
       });
     }
 
@@ -337,6 +343,7 @@ describe("AddressController (e2e)", () => {
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await balanceRepository.createQueryBuilder().delete().execute();
     await logRepository.createQueryBuilder().delete().execute();
     await addressTransferRepository.createQueryBuilder().delete().execute();
@@ -361,7 +368,7 @@ describe("AddressController (e2e)", () => {
             type: "account",
             address: "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF",
             balances: {},
-            blockNumber: 5,
+            blockNumber: 106,
             sealedNonce: 0,
             verifiedNonce: 0,
           })

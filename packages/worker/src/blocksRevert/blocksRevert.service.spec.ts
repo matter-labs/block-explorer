@@ -7,13 +7,15 @@ import { UnitOfWork } from "../unitOfWork";
 import { BlockchainService } from "../blockchain";
 import { CounterService } from "../counter";
 import { Block, BlockStatus } from "../entities";
-import { BlockRepository } from "../repositories";
+import { BlockRepository, BlockQueueRepository, IndexerStateRepository } from "../repositories";
 import { BlocksRevertService } from "./index";
 
 describe("BlocksRevertService", () => {
   let blocksRevertService: BlocksRevertService;
   let blockchainServiceMock: BlockchainService;
   let blockRepositoryMock: BlockRepository;
+  let blockQueueRepositoryMock: BlockQueueRepository;
+  let indexerStateRepositoryMock: IndexerStateRepository;
   let counterServiceMock: CounterService;
   let unitOfWorkMock: UnitOfWork;
   let waitForTransactionExecutionMock: jest.Mock;
@@ -54,9 +56,16 @@ describe("BlocksRevertService", () => {
               })
         ),
       delete: jest.fn().mockResolvedValue(null),
+      deleteWithReturningNumber: jest.fn().mockResolvedValue([]),
+    });
+    blockQueueRepositoryMock = mock<BlockQueueRepository>({
+      enqueue: jest.fn().mockResolvedValue(null),
     });
     counterServiceMock = mock<CounterService>({
       revert: jest.fn().mockResolvedValue(null),
+    });
+    indexerStateRepositoryMock = mock<IndexerStateRepository>({
+      setLastReadyBlockNumber: jest.fn().mockResolvedValue(null),
     });
 
     stopRevertDurationMetricMock = jest.fn();
@@ -85,6 +94,14 @@ describe("BlocksRevertService", () => {
           useValue: blockRepositoryMock,
         },
         {
+          provide: BlockQueueRepository,
+          useValue: blockQueueRepositoryMock,
+        },
+        {
+          provide: IndexerStateRepository,
+          useValue: indexerStateRepositoryMock,
+        },
+        {
           provide: "PROM_METRIC_BLOCKS_REVERT_DURATION_SECONDS",
           useValue: {
             startTimer: revertDurationMetricMock,
@@ -106,15 +123,20 @@ describe("BlocksRevertService", () => {
 
   describe("handleRevert", () => {
     describe("when detected incorrect block is the next block after the last executed block in DB", () => {
-      it("reverts all the blocks after the last executed block", async () => {
+      it("reverts all the blocks after the last executed block up to the last ready block", async () => {
         await blocksRevertService.handleRevert(101);
-        expect(blockRepositoryMock.delete).toBeCalledWith({ number: MoreThan(100) });
+        expect(blockRepositoryMock.deleteWithReturningNumber).toBeCalledWith({ number: MoreThan(100) });
+      });
+
+      it("updates last ready block number to the last correct block", async () => {
+        await blocksRevertService.handleRevert(101);
+        expect(indexerStateRepositoryMock.setLastReadyBlockNumber).toBeCalledWith(100);
       });
     });
 
     describe("when detected incorrect block is not the next block after the last executed block in DB", () => {
       describe("and the last correct block is the last executed block in DB", () => {
-        it("reverts all the blocks after the last executed block", async () => {
+        it("reverts all the blocks after the last executed block up to the last ready block", async () => {
           jest
             .spyOn(blockRepositoryMock, "getBlock")
             .mockImplementation(({ where: { number } }: { where: { number: number } }) => {
@@ -125,13 +147,13 @@ describe("BlocksRevertService", () => {
             });
 
           await blocksRevertService.handleRevert(105);
-          expect(blockRepositoryMock.delete).toBeCalledWith({ number: MoreThan(100) });
+          expect(blockRepositoryMock.deleteWithReturningNumber).toBeCalledWith({ number: MoreThan(100) });
         });
       });
 
       describe("and the last correct block is not the last executed block in DB", () => {
         describe("and the last correct DB block exists in blockchain", () => {
-          it("reverts all the blocks after the last correct block", async () => {
+          it("reverts all the blocks after the last correct block up to the last ready block", async () => {
             jest
               .spyOn(blockRepositoryMock, "getBlock")
               .mockImplementation(({ where: { number } }: { where: { number: number } }) => {
@@ -142,7 +164,7 @@ describe("BlocksRevertService", () => {
               });
 
             await blocksRevertService.handleRevert(110);
-            expect(blockRepositoryMock.delete).toBeCalledWith({ number: MoreThan(102) });
+            expect(blockRepositoryMock.deleteWithReturningNumber).toBeCalledWith({ number: MoreThan(102) });
           });
         });
 
@@ -160,7 +182,7 @@ describe("BlocksRevertService", () => {
             });
 
             await blocksRevertService.handleRevert(110);
-            expect(blockRepositoryMock.delete).toBeCalledWith({ number: MoreThan(104) });
+            expect(blockRepositoryMock.deleteWithReturningNumber).toBeCalledWith({ number: MoreThan(104) });
           });
         });
       });
@@ -180,7 +202,7 @@ describe("BlocksRevertService", () => {
           });
 
         await blocksRevertService.handleRevert(101);
-        expect(blockRepositoryMock.delete).toBeCalledWith({ number: MoreThan(100) });
+        expect(blockRepositoryMock.deleteWithReturningNumber).toBeCalledWith({ number: MoreThan(100) });
       });
     });
 
@@ -201,13 +223,27 @@ describe("BlocksRevertService", () => {
       expect(counterServiceMock.revert).toBeCalledWith(100);
     });
 
+    describe("re-enqueuing deleted blocks", () => {
+      it("re-enqueues the block numbers returned from the delete", async () => {
+        jest.spyOn(blockRepositoryMock, "deleteWithReturningNumber").mockResolvedValue([101, 102, 103]);
+        await blocksRevertService.handleRevert(101);
+        expect(blockQueueRepositoryMock.enqueue).toBeCalledWith([101, 102, 103]);
+      });
+
+      it("does not enqueue anything when nothing was deleted", async () => {
+        jest.spyOn(blockRepositoryMock, "deleteWithReturningNumber").mockResolvedValue([]);
+        await blocksRevertService.handleRevert(101);
+        expect(blockQueueRepositoryMock.enqueue).not.toBeCalled();
+      });
+    });
+
     describe("when blockchain service call fails", () => {
       beforeEach(() => {
         jest.spyOn(blockchainServiceMock, "getBlock").mockRejectedValue(new Error("blockchain failure"));
       });
 
-      it("throws the original error", async () => {
-        await expect(blocksRevertService.handleRevert(110)).rejects.toThrowError(new Error("blockchain failure"));
+      it("does not throw, swallows the error so workers can restart", async () => {
+        await expect(blocksRevertService.handleRevert(110)).resolves.not.toThrow();
       });
 
       it("measures time of reverting blocks", async () => {

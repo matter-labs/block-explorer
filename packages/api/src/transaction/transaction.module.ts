@@ -12,6 +12,7 @@ import { TransferModule } from "../transfer/transfer.module";
 import { CounterModule } from "../counter/counter.module";
 import { LogModule } from "../log/log.module";
 import { Block } from "../block/block.entity";
+import { IndexerStateModule } from "../indexerState/indexerState.module";
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { Block } from "../block/block.entity";
     TransferModule,
     LogModule,
     CounterModule,
+    IndexerStateModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService, TransactionReceiptService],

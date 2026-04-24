@@ -6,8 +6,9 @@ import { Token } from "./token.entity";
 import { Block } from "../block/block.entity";
 import { Transaction } from "../transaction/entities/transaction.entity";
 import { TransferModule } from "../transfer/transfer.module";
+import { IndexerStateModule } from "../indexerState/indexerState.module";
 @Module({
-  imports: [TypeOrmModule.forFeature([Token, Block, Transaction]), TransferModule],
+  imports: [TypeOrmModule.forFeature([Token, Block, Transaction]), TransferModule, IndexerStateModule],
   controllers: [TokenController],
   providers: [TokenService],
   exports: [TokenService],

@@ -9,12 +9,14 @@ import { BlockDetails } from "../src/block/blockDetails.entity";
 import { BlockStatus } from "../src/block/block.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Counter } from "../src/counter/counter.entity";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("StatsController (e2e)", () => {
   let app: INestApplication;
   let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let counterRepository: Repository<Counter>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -26,6 +28,9 @@ describe("StatsController (e2e)", () => {
     configureApp(app);
 
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 10 });
 
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
@@ -76,6 +81,7 @@ describe("StatsController (e2e)", () => {
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await transactionRepository.createQueryBuilder().delete().execute();
     await blockRepository.createQueryBuilder().delete().execute();
 

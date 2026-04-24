@@ -15,6 +15,7 @@ import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
 import { baseToken } from "../src/config";
 import { numberToHex, computeFromToMinMax } from "../src/common/utils";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("TransactionController (e2e)", () => {
   let ETH_TOKEN;
@@ -26,6 +27,7 @@ describe("TransactionController (e2e)", () => {
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transferRepository: Repository<Transfer>;
   let logRepository: Repository<Log>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -37,6 +39,9 @@ describe("TransactionController (e2e)", () => {
     configureApp(app);
 
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 9 });
 
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
@@ -137,6 +142,7 @@ describe("TransactionController (e2e)", () => {
         status: 1,
         gasUsed: (7000 + i).toString(),
         cumulativeGasUsed: (10000 + i).toString(),
+        blockNumber: transactionSpec.blockNumber,
       });
     }
 
@@ -208,6 +214,7 @@ describe("TransactionController (e2e)", () => {
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await logRepository.createQueryBuilder().delete().execute();
     await transferRepository.createQueryBuilder().delete().execute();
     await tokenRepository.createQueryBuilder().delete().execute();

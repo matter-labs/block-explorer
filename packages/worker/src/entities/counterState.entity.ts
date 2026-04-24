@@ -9,4 +9,7 @@ export class CounterState extends BaseEntity {
 
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly lastProcessedRecordNumber: number;
+
+  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
+  public readonly lastProcessedBlockNumber: number;
 }

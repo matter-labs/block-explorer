@@ -8,6 +8,7 @@ import { ConfigService } from "@nestjs/config";
 import { LogService, FilterLogsOptions } from "./log.service";
 import { Log } from "./log.entity";
 import { VisibleLog } from "./visibleLog.entity";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 jest.mock("../common/utils", () => ({
   ...jest.requireActual("../common/utils"),
@@ -46,6 +47,10 @@ describe("LogService", () => {
         {
           provide: ConfigService,
           useValue: configServiceMock,
+        },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
         },
       ],
     }).compile();
@@ -276,9 +281,12 @@ describe("LogService", () => {
       expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith({ blockNumber: LessThanOrEqual(10) });
     });
 
-    it("inner query does not restrict by block when no block conditions are sent", async () => {
+    it("applies only watermark filter when no block conditions are sent", async () => {
       await service.findMany({ topics: {} });
-      expect(innerQueryBuilderMock.andWhere).not.toHaveBeenCalledWith({ blockNumber: expect.anything() });
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledTimes(1);
+      expect(innerQueryBuilderMock.andWhere).toHaveBeenCalledWith({
+        blockNumber: LessThanOrEqual(1_000_000),
+      });
     });
 
     function hexToBuf(hex: string): Buffer {

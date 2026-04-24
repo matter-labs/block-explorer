@@ -9,8 +9,12 @@ import { HealthModule } from "./health/health.module";
 import { AppService } from "./app.service";
 import { BlockchainService } from "./blockchain";
 import { BlocksRevertService } from "./blocksRevert";
+import { BlocksEnqueuerService } from "./blocksEnqueuer";
+import { IndexerStateManagerService } from "./indexerStateManager";
 import { BlockStatusService } from "./blockStatus";
-import { BlockProcessor, BlockWatcher, BlockService } from "./block";
+import { BlocksIndexerProcessor, BlocksIndexerService, BlocksIndexerWorkersProvider } from "./blocksIndexer";
+import { IndexerMetricsService } from "./indexerMetrics.service";
+import { ChainTipTracker } from "./chainTipTracker.service";
 import { TransactionProcessor } from "./transaction";
 import { BalanceService, BalancesCleanerService } from "./balance";
 import { TokenService } from "./token/token.service";
@@ -33,6 +37,8 @@ import {
   VisibleTransactionRepository,
   AddressVisibleTransactionRepository,
   VisibleLogRepository,
+  IndexerStateRepository,
+  BlockQueueRepository,
 } from "./repositories";
 import {
   Block,
@@ -48,6 +54,8 @@ import {
   VisibleTransaction,
   AddressVisibleTransaction,
   VisibleLog,
+  IndexerState,
+  BlockQueue,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -87,6 +95,8 @@ import { SystemContractService } from "./contract/systemContract.service";
       VisibleTransaction,
       AddressVisibleTransaction,
       VisibleLog,
+      IndexerState,
+      BlockQueue,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -130,12 +140,18 @@ import { SystemContractService } from "./contract/systemContract.service";
     VisibleTransactionRepository,
     AddressVisibleTransactionRepository,
     VisibleLogRepository,
+    IndexerStateRepository,
+    BlockQueueRepository,
     BlocksRevertService,
+    BlocksEnqueuerService,
+    IndexerStateManagerService,
     BlockStatusService,
-    BlockProcessor,
+    BlocksIndexerProcessor,
     TransactionProcessor,
-    BlockWatcher,
-    BlockService,
+    ChainTipTracker,
+    IndexerMetricsService,
+    BlocksIndexerService,
+    BlocksIndexerWorkersProvider,
     Logger,
     RetryDelayProvider,
     DbMetricsService,

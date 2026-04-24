@@ -16,6 +16,7 @@ import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
 import { AddressTransfer } from "./addressTransfer.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 export interface FilterTransfersOptions {
   tokenAddress?: string;
@@ -54,13 +55,15 @@ export class TransferService {
     @InjectRepository(Transfer)
     private readonly transferRepository: Repository<Transfer>,
     @InjectRepository(AddressTransfer)
-    private readonly addressTransferRepository: Repository<AddressTransfer>
+    private readonly addressTransferRepository: Repository<AddressTransfer>,
+    private readonly indexerStateService: IndexerStateService
   ) {}
 
   public async findAll(
     filterOptions: FilterTransfersOptions = {},
     paginationOptions: IPaginationOptions
   ): Promise<Pagination<Transfer>> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     const { visibleBy, ...basicOptions } = filterOptions;
 
     if (visibleBy) {
@@ -71,6 +74,7 @@ export class TransferService {
         const innerQb = this.transferRepository.createQueryBuilder("transfer");
         innerQb.select("transfer.number", "number");
         innerQb.where({ ...options, fromToMin, fromToMax });
+        innerQb.andWhere("transfer.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
         innerQb.orderBy("transfer.blockNumber", "DESC");
         innerQb.addOrderBy("transfer.logIndex", "DESC");
         return this.paginateTransfers(innerQb, "number", paginationOptions);
@@ -80,6 +84,7 @@ export class TransferService {
         const innerQb = this.transferRepository.createQueryBuilder("transfer");
         innerQb.select("transfer.number", "number");
         innerQb.where(options);
+        innerQb.andWhere("transfer.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
         innerQb.andWhere(
           new Brackets((qb) => {
             qb.where({ from: visibleBy }).orWhere({ to: visibleBy });
@@ -90,16 +95,17 @@ export class TransferService {
         return this.paginateTransfers(innerQb, "number", paginationOptions);
       }
       // own transfers: address === visibleBy or no address
-      return this.findAddressTransfers({ ...options, address: visibleBy }, paginationOptions);
+      return this.findAddressTransfers({ ...options, address: visibleBy }, paginationOptions, lastReadyBlockNumber);
     }
 
     if (basicOptions.address) {
-      return this.findAddressTransfers(basicOptions, paginationOptions);
+      return this.findAddressTransfers(basicOptions, paginationOptions, lastReadyBlockNumber);
     }
 
     const innerQb = this.transferRepository.createQueryBuilder("transfer");
     innerQb.select("transfer.number", "number");
     innerQb.where(basicOptions);
+    innerQb.andWhere("transfer.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
     const order = basicOptions.transactionHash ? "ASC" : "DESC";
     innerQb.orderBy("transfer.blockNumber", order);
     innerQb.addOrderBy("transfer.logIndex", order);
@@ -116,6 +122,8 @@ export class TransferService {
     offset = 10,
     sort = SortingOrder.Desc,
   }: FilterTokenTransfersOptions = {}): Promise<Transfer[]> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
+    const clampedEndBlock = endBlock !== undefined ? Math.min(endBlock, lastReadyBlockNumber) : lastReadyBlockNumber;
     const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
     if (address) {
@@ -132,9 +140,7 @@ export class TransferService {
       if (startBlock !== undefined) {
         innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
       }
-      if (endBlock !== undefined) {
-        innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
-      }
+      innerQb.andWhere({ blockNumber: LessThanOrEqual(clampedEndBlock) });
       innerQb.orderBy("addressTransfer.blockNumber", order);
       innerQb.addOrderBy("addressTransfer.logIndex", order);
       innerQb.offset((page - 1) * offset);
@@ -175,9 +181,7 @@ export class TransferService {
     if (startBlock !== undefined) {
       innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
     }
-    if (endBlock !== undefined) {
-      innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
-    }
+    innerQb.andWhere({ blockNumber: LessThanOrEqual(clampedEndBlock) });
     innerQb.orderBy("transfer.blockNumber", order);
     innerQb.addOrderBy("transfer.logIndex", order);
     innerQb.offset((page - 1) * offset);
@@ -214,6 +218,8 @@ export class TransferService {
     offset = 10,
     sort = SortingOrder.Desc,
   }: FilterInternalTransfersOptions = {}): Promise<Transfer[]> {
+    const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
+    const clampedEndBlock = endBlock !== undefined ? Math.min(endBlock, lastReadyBlockNumber) : lastReadyBlockNumber;
     const order = sort === SortingOrder.Asc ? "ASC" : "DESC";
 
     if (address) {
@@ -223,9 +229,7 @@ export class TransferService {
       if (startBlock !== undefined) {
         innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
       }
-      if (endBlock !== undefined) {
-        innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
-      }
+      innerQb.andWhere({ blockNumber: LessThanOrEqual(clampedEndBlock) });
       innerQb.orderBy("addressTransfer.blockNumber", order);
       innerQb.addOrderBy("addressTransfer.logIndex", order);
       innerQb.offset((page - 1) * offset);
@@ -261,9 +265,7 @@ export class TransferService {
     if (startBlock !== undefined) {
       innerQb.andWhere({ blockNumber: MoreThanOrEqual(startBlock) });
     }
-    if (endBlock !== undefined) {
-      innerQb.andWhere({ blockNumber: LessThanOrEqual(endBlock) });
-    }
+    innerQb.andWhere({ blockNumber: LessThanOrEqual(clampedEndBlock) });
     innerQb.orderBy("transfer.blockNumber", order);
     innerQb.addOrderBy("transfer.logIndex", order);
     innerQb.offset((page - 1) * offset);
@@ -288,11 +290,13 @@ export class TransferService {
 
   private async findAddressTransfers(
     where: ObjectLiteral,
-    paginationOptions: IPaginationOptions
+    paginationOptions: IPaginationOptions,
+    lastReadyBlockNumber: number
   ): Promise<Pagination<Transfer>> {
     const innerQb = this.addressTransferRepository.createQueryBuilder("at");
     innerQb.select("at.transferNumber", "transferNumber");
     innerQb.where(where);
+    innerQb.andWhere("at.blockNumber <= :lastReadyBlockNumber", { lastReadyBlockNumber });
     innerQb.orderBy("at.blockNumber", "DESC");
     innerQb.addOrderBy("at.logIndex", "DESC");
     return this.paginateTransfers(innerQb, "transferNumber", paginationOptions);

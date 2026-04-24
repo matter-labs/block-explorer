@@ -7,12 +7,14 @@ import nock from "nock";
 import { Address } from "../src/address/address.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 const { CONTRACT_VERIFICATION_API_URL } = process.env;
 
 describe("Contract API (e2e)", () => {
   let app: INestApplication;
   let addressRepository: Repository<Address>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,6 +24,9 @@ describe("Contract API (e2e)", () => {
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 0 });
 
     addressRepository = app.get<Repository<Address>>(getRepositoryToken(Address));
 
@@ -34,6 +39,7 @@ describe("Contract API (e2e)", () => {
   });
 
   afterAll(async () => {
+    await indexerStateRepository.createQueryBuilder().delete().execute();
     await addressRepository.createQueryBuilder().delete().execute();
     await app.close();
   });

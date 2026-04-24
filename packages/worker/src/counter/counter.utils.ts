@@ -5,7 +5,7 @@ import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-clas
 import { ConfigService } from "@nestjs/config";
 import { UnitOfWork } from "../unitOfWork";
 import { Counter, CountableEntity } from "../entities";
-import { CounterRepository } from "../repositories";
+import { CounterRepository, IndexerStateRepository } from "../repositories";
 import { CounterProcessor } from "./counter.processor";
 import { CounterWorker } from "./counter.worker";
 import { CounterCriteria } from "./counter.types";
@@ -89,12 +89,19 @@ export const getCounterWorkerProvider = <T extends CountableEntity>(
   criteriaList: Array<CounterCriteria<T>>
 ): Provider<CounterWorker<T>> => ({
   provide: injectionToken,
-  inject: [ConfigService, UnitOfWork, getRepositoryToken(entityClass as EntityClassOrSchema), CounterRepository],
+  inject: [
+    ConfigService,
+    UnitOfWork,
+    getRepositoryToken(entityClass as EntityClassOrSchema),
+    CounterRepository,
+    IndexerStateRepository,
+  ],
   useFactory: (
     configService: ConfigService,
     unitOfWork: UnitOfWork,
     repository: Repository<T>,
-    counterRepository: CounterRepository
+    counterRepository: CounterRepository,
+    indexerStateRepository: IndexerStateRepository
   ) => {
     return new CounterWorker<T>(
       new CounterProcessor<T>(
@@ -103,7 +110,8 @@ export const getCounterWorkerProvider = <T extends CountableEntity>(
         configService.get<number>("counters.recordsBatchSize"),
         unitOfWork,
         repository,
-        counterRepository
+        counterRepository,
+        indexerStateRepository
       ),
       configService.get<number>("counters.updateInterval")
     );

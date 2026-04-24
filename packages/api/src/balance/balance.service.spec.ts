@@ -5,6 +5,7 @@ import { Repository, SelectQueryBuilder } from "typeorm";
 import { BalanceService } from "./balance.service";
 import { Balance } from "./balance.entity";
 import { hexTransformer } from "../common/transformers/hex.transformer";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 describe("BalanceService", () => {
   let service: BalanceService;
@@ -18,6 +19,10 @@ describe("BalanceService", () => {
         {
           provide: getRepositoryToken(Balance),
           useValue: repositoryMock,
+        },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
         },
       ],
     }).compile();
@@ -93,10 +98,11 @@ describe("BalanceService", () => {
       );
     });
 
-    it("sets query address params", async () => {
+    it("sets query address and lastReadyBlockNumber params", async () => {
       await service.getBalances(address);
-      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(1);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(2);
       expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("address", hexTransformer.to(address));
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("lastReadyBlockNumber", 1_000_000);
     });
 
     it("joins token entity", async () => {
@@ -246,8 +252,9 @@ describe("BalanceService", () => {
       await service.getBalancesByAddresses(addresses, tokenAddress);
       expect(subQueryBuilderMock.where).toHaveBeenCalledTimes(1);
       expect(subQueryBuilderMock.where).toHaveBeenCalledWith(`"tokenAddress" = :tokenAddress`);
-      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledTimes(1);
+      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledTimes(2);
       expect(subQueryBuilderMock.andWhere).toHaveBeenCalledWith("address IN(:...addresses)");
+      expect(subQueryBuilderMock.andWhere).toHaveBeenCalledWith(`"blockNumber" <= :lastReadyBlockNumber`);
     });
 
     it("groups by address and tokenAddress in the sub query", async () => {
@@ -283,10 +290,11 @@ describe("BalanceService", () => {
       );
     });
 
-    it("sets query tokenAddress and addresses params", async () => {
+    it("sets query tokenAddress, lastReadyBlockNumber and addresses params", async () => {
       await service.getBalancesByAddresses(addresses, tokenAddress);
-      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(2);
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledTimes(3);
       expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("tokenAddress", hexTransformer.to(tokenAddress));
+      expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith("lastReadyBlockNumber", 1_000_000);
       expect(mainQueryBuilderMock.setParameter).toHaveBeenCalledWith(
         "addresses",
         addresses.map((address) => hexTransformer.to(address))
