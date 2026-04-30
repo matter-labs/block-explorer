@@ -9,6 +9,9 @@ export interface UserWithRoles extends UserParam {
   isAdmin: boolean;
 }
 
+// Permissions that grant unrestricted read access to all on-chain data in the explorer.
+const READ_ALL_PERMISSIONS = new Set(["full_read_access", "full_sequencer_rpc_access"]);
+
 function throwError(): never {
   throw new InternalServerErrorException("Authentication failed");
 }
@@ -30,7 +33,12 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
 
     const validatedData = z
       .object({
-        roles: z.array(z.object({ roleName: z.string() })),
+        roles: z.array(
+          z.object({
+            roleName: z.string(),
+            systemPermissions: z.array(z.string()).optional(),
+          })
+        ),
       })
       .safeParse(await response.json().catch(throwError));
 
@@ -40,7 +48,9 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
 
     const roles = validatedData.data.roles.map((r) => r.roleName);
 
-    const isAdmin = roles.some((role) => role === this.config.get("prividium.adminRoleName"));
+    const isAdmin = validatedData.data.roles.some((role) =>
+      role.systemPermissions?.some((p) => READ_ALL_PERMISSIONS.has(p))
+    );
 
     return {
       ...value,

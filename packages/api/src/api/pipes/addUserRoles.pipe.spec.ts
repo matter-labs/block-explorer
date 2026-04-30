@@ -8,11 +8,9 @@ describe("AddUserRolesPipe", () => {
   let fetchSpy: jest.SpyInstance;
   let configServiceMock: ConfigService;
   let pipe: AddUserRolesPipe;
-  const adminRoleName = "admin";
 
   const configServiceValues = {
     "prividium.permissionsApiUrl": "https://permissions-api.example.com",
-    "prividium.adminRoleName": adminRoleName,
   };
 
   beforeEach(() => {
@@ -39,11 +37,11 @@ describe("AddUserRolesPipe", () => {
     expect(user.isAdmin).toBe(false);
   });
 
-  it("sets is admin to false when there there is a list of roles but non of them is admin", async () => {
+  it("sets is admin to false when roles have no systemPermissions", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
-        roles: ["role1", "trader", "admi", "dmin"].map((r) => ({ roleName: r })),
+        roles: ["role1", "trader", "viewer"].map((r) => ({ roleName: r })),
       }),
     });
 
@@ -51,11 +49,50 @@ describe("AddUserRolesPipe", () => {
     expect(user.isAdmin).toBe(false);
   });
 
-  it("sets is admin to true when user has admin role", async () => {
+  it("sets is admin to false when roles have unrelated systemPermissions only", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
-        roles: [adminRoleName].map((r) => ({ roleName: r })),
+        roles: [{ roleName: "deployer", systemPermissions: ["contract_deployment", "admin_read"] }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    expect(user.isAdmin).toBe(false);
+  });
+
+  it("sets is admin to true when a role has full_read_access permission", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "contract_deployment"] }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    expect(user.isAdmin).toBe(true);
+  });
+
+  it("sets is admin to true when a role has full_sequencer_rpc_access permission", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "superuser", systemPermissions: ["full_sequencer_rpc_access"] }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    expect(user.isAdmin).toBe(true);
+  });
+
+  it("sets is admin to true when the permission is on any role in the list", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [
+          { roleName: "trader", systemPermissions: ["contract_deployment"] },
+          { roleName: "reader", systemPermissions: ["full_read_access"] },
+        ],
       }),
     });
 
