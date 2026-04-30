@@ -370,7 +370,6 @@ describe("config", () => {
       gracefulShutdownTimeoutMs: 0,
       indexerStateCacheTtlMs: 1000,
       prividium: {
-        adminRoleName: "admin",
         sessionMaxAge: 1000,
         appUrl: "http://localhost:3020",
         sessionSameSite: "strict",
