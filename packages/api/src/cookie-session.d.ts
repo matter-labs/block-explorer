@@ -7,6 +7,7 @@ declare global {
       address?: string;
       wallets?: string[];
       roles?: string[];
+      isAdmin?: boolean;
       expiresAt?: string;
     }
   }

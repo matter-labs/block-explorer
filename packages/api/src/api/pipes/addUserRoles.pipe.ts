@@ -10,7 +10,7 @@ export interface UserWithRoles extends UserParam {
 }
 
 // Permissions that grant unrestricted read access to all on-chain data in the explorer.
-const READ_ALL_PERMISSIONS = new Set(["full_read_access", "full_sequencer_rpc_access"]);
+export const READ_ALL_PERMISSIONS = new Set(["full_read_access", "full_sequencer_rpc_access"]);
 
 function throwError(): never {
   throw new InternalServerErrorException("Authentication failed");

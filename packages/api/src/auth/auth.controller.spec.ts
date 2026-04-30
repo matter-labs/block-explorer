@@ -44,40 +44,88 @@ describe("AuthController", () => {
       fetchSpy.mockRestore();
     });
 
-    it("logins successfully with valid token", async () => {
+    it("logins successfully with valid token, sets isAdmin true when role has full_read_access", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
-      const mockRoles = [{ roleName: "admin" }, { roleName: "user" }];
+      const mockRoles = [
+        { roleName: "admin", systemPermissions: ["full_read_access", "contract_deployment"] },
+        { roleName: "user" },
+      ];
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({
-            wallets: mockWallets,
-          }),
+          json: jest.fn().mockResolvedValue({ wallets: mockWallets }),
         })
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({
-            type: "user",
-            expiresAt: new Date().toISOString(),
-          }),
+          json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
         })
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({
-            roles: mockRoles,
-          }),
+          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
         });
 
       const result = await controller.login(body, req);
 
-      expect(result).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: ["admin", "user"] });
+      expect(result).toEqual({
+        address: mockWalletAddress,
+        wallets: mockWallets,
+        roles: ["admin", "user"],
+        isAdmin: true,
+      });
       expect(req.session.address).toBe(mockWalletAddress);
       expect(req.session.wallets).toEqual(mockWallets);
       expect(req.session.roles).toEqual(["admin", "user"]);
+      expect(req.session.isAdmin).toBe(true);
       expect(req.session.token).toBe(mockToken);
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
       });
+    });
+
+    it("logins successfully and sets isAdmin false when roles have no read-all permissions", async () => {
+      const mockWallets = [mockWalletAddress];
+      const mockRoles = [{ roleName: "trader", systemPermissions: ["contract_deployment"] }];
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: mockWallets }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
+        });
+
+      const result = await controller.login(body, req);
+
+      expect(result.isAdmin).toBe(false);
+      expect(req.session.isAdmin).toBe(false);
+    });
+
+    it("logins successfully and sets isAdmin true when role has full_sequencer_rpc_access", async () => {
+      const mockWallets = [mockWalletAddress];
+      const mockRoles = [{ roleName: "superuser", systemPermissions: ["full_sequencer_rpc_access"] }];
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: mockWallets }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
+        });
+
+      const result = await controller.login(body, req);
+
+      expect(result.isAdmin).toBe(true);
+      expect(req.session.isAdmin).toBe(true);
     });
 
     it("throws 403 error for 403 response from permissions API", async () => {
@@ -217,19 +265,19 @@ describe("AuthController", () => {
   });
 
   describe("GET /me", () => {
-    it("returns address, wallets and roles stored in session", async () => {
+    it("returns address, wallets, roles and isAdmin stored in session", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       const mockRoles = ["admin", "user"];
-      req.session = { address: mockWalletAddress, wallets: mockWallets, roles: mockRoles };
+      req.session = { address: mockWalletAddress, wallets: mockWallets, roles: mockRoles, isAdmin: true };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: mockRoles });
+      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: mockRoles, isAdmin: true });
     });
 
-    it("returns empty roles array when session has no roles", async () => {
+    it("returns empty roles array and isAdmin false when session has no roles", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       req.session = { address: mockWalletAddress, wallets: mockWallets };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: [] });
+      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: [], isAdmin: false });
     });
   });
 });
