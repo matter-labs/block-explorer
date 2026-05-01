@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
@@ -34,7 +35,15 @@ describe("Contract:", () => {
   let mockContext: SpyInstance;
 
   beforeEach(() => {
-    mockContext = useContextMock();
+    mockContext = useContextMock({
+      user: computed(() => ({
+        address: "0x000000000000000000000000000000000000800A",
+        wallets: ["0x000000000000000000000000000000000000800A"],
+        roles: [],
+        isAdmin: true,
+        loggedIn: true as const,
+      })),
+    });
   });
 
   afterEach(() => {

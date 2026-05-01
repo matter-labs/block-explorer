@@ -16,7 +16,7 @@ router.beforeEach((to) => {
 
   if (isPrividium && to.meta.requiresAdmin) {
     const { user } = useContext();
-    const isAdmin = user.value.loggedIn && user.value.roles.includes("admin");
+    const isAdmin = user.value.loggedIn && user.value.isAdmin;
     if (!isAdmin) {
       return { name: "not-authorized" };
     }
