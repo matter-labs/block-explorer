@@ -6,7 +6,6 @@ declare global {
       token?: string;
       address?: string;
       wallets?: string[];
-      roles?: string[];
       hasFullReadAccess?: boolean;
       expiresAt?: string;
     }

@@ -139,7 +139,6 @@ describe("Prividium API (e2e)", () => {
       expect(loginResponse.body).toEqual({
         address: mockWalletAddress,
         wallets: [mockWalletAddress],
-        roles: ["user"],
         hasFullReadAccess: false,
       });
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {

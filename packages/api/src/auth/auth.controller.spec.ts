@@ -69,12 +69,10 @@ describe("AuthController", () => {
       expect(result).toEqual({
         address: mockWalletAddress,
         wallets: mockWallets,
-        roles: ["admin", "user"],
         hasFullReadAccess: true,
       });
       expect(req.session.address).toBe(mockWalletAddress);
       expect(req.session.wallets).toEqual(mockWallets);
-      expect(req.session.roles).toEqual(["admin", "user"]);
       expect(req.session.hasFullReadAccess).toBe(true);
       expect(req.session.token).toBe(mockToken);
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {

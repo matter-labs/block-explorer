@@ -100,18 +100,6 @@ describe("AddUserRolesPipe", () => {
     expect(user.hasFullReadAccess).toBe(true);
   });
 
-  it("sets received roles into roles array", async () => {
-    fetchSpy.mockResolvedValueOnce({
-      status: 200,
-      json: jest.fn().mockResolvedValue({
-        roles: ["role1", "another", "trader"].map((r) => ({ roleName: r })),
-      }),
-    });
-
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
-    expect(user.roles).toEqual(["role1", "another", "trader"]);
-  });
-
   it("keeps original address and token values", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,

@@ -5,7 +5,6 @@ import { z } from "zod";
 import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 export interface UserWithRoles extends UserParam {
-  roles: string[];
   hasFullReadAccess: boolean;
 }
 
@@ -21,16 +20,15 @@ const userProfileSchema = z.object({
   ),
 });
 
-export function parseUserProfile(data: unknown): { roles: string[]; hasFullReadAccess: boolean } {
+export function parseUserProfile(data: unknown): { hasFullReadAccess: boolean } {
   const result = userProfileSchema.safeParse(data);
   if (!result.success) {
     throw new Error(`Invalid user profile response: ${JSON.stringify(result.error)}`);
   }
-  const roles = result.data.roles.map((r) => r.roleName);
   const hasFullReadAccess = result.data.roles.some((r) =>
     r.systemPermissions?.some((p) => READ_ALL_PERMISSIONS.has(p))
   );
-  return { roles, hasFullReadAccess };
+  return { hasFullReadAccess };
 }
 
 function throwError(): never {
@@ -63,7 +61,6 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
 
     return {
       ...value,
-      roles: profile.roles,
       hasFullReadAccess: profile.hasFullReadAccess,
     };
   }

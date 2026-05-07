@@ -270,7 +270,7 @@ describe("AddressController", () => {
       let user: MockProxy<UserWithRoles>;
       const mockUser = "0xc0ffee254729296a45a3885639AC7E10F9d54979";
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser, hasFullReadAccess: false, roles: [] });
+        user = mock<UserWithRoles>({ address: mockUser, hasFullReadAccess: false });
       });
 
       it("throws if address is an account and is not own address", async () => {
@@ -442,7 +442,6 @@ describe("AddressController", () => {
           user = mock<UserWithRoles>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             hasFullReadAccess: false,
-            roles: [],
             token: "token1",
           });
         });
@@ -531,7 +530,6 @@ describe("AddressController", () => {
         user = mock<UserWithRoles>({
           address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           hasFullReadAccess: false,
-          roles: [],
           token: "token",
         });
       });

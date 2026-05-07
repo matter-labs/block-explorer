@@ -150,7 +150,6 @@ describe("ConnectMetaMaskButton:", () => {
         loggedIn: true,
         address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
         wallets: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
-        roles: [],
       })),
       currentNetwork: computed(() => ({
         name: "test",
@@ -268,7 +267,6 @@ describe("ConnectMetaMaskButton:", () => {
         loggedIn: true,
         address: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
         wallets: ["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b"],
-        roles: [],
       })),
       currentNetwork: computed(() => ({
         name: "test",

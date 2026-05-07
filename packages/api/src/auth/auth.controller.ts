@@ -52,7 +52,7 @@ export class AuthController {
   public async login(
     @Body() body: VerifySignatureDto,
     @Req() req: Request
-  ): Promise<{ address: string; wallets: string[]; roles: string[]; hasFullReadAccess: boolean }> {
+  ): Promise<{ address: string; wallets: string[]; hasFullReadAccess: boolean }> {
     try {
       const wallets = await this.fetchUserWallets(body.token);
 
@@ -60,7 +60,7 @@ export class AuthController {
         throw new HttpException("No wallets associated with the user", 400);
       }
 
-      const [sessionExpirationIso, { roles, hasFullReadAccess }] = await Promise.all([
+      const [sessionExpirationIso, { hasFullReadAccess }] = await Promise.all([
         this.fetchExpirationTimeIso(body.token),
         this.fetchUserProfile(body.token),
       ]);
@@ -70,10 +70,9 @@ export class AuthController {
       req.session.wallets = wallets;
       req.session.address = address;
       req.session.token = body.token;
-      req.session.roles = roles;
       req.session.hasFullReadAccess = hasFullReadAccess;
       req.session.expiresAt = sessionExpirationIso;
-      return { address, wallets, roles, hasFullReadAccess };
+      return { address, wallets, hasFullReadAccess };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -155,7 +154,7 @@ export class AuthController {
     return validatedData.data.wallets;
   }
 
-  private async fetchUserProfile(token: string): Promise<{ roles: string[]; hasFullReadAccess: boolean }> {
+  private async fetchUserProfile(token: string): Promise<{ hasFullReadAccess: boolean }> {
     const response = await fetch(new URL("/api/profiles/me", this.configService.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${token}` },
     });

@@ -115,7 +115,7 @@ describe("TransactionController", () => {
       let user: MockProxy<UserWithRoles>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser, roles: [], hasFullReadAccess: false, token: "token1" });
+        user = mock<UserWithRoles>({ address: mockUser, hasFullReadAccess: false, token: "token1" });
       });
 
       it("passes visibleBy when no address is provided", async () => {
@@ -277,7 +277,6 @@ describe("TransactionController", () => {
           user = mock<UserWithRoles>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             hasFullReadAccess: false,
-            roles: [],
             token: "token1",
           });
         });
@@ -340,7 +339,6 @@ describe("TransactionController", () => {
           user = mock<UserWithRoles>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             hasFullReadAccess: false,
-            roles: [],
             token: "token1",
           });
         });
