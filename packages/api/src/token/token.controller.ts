@@ -97,7 +97,7 @@ export class TokenController {
       throw new NotFoundException();
     }
 
-    const userFilters: FilterTransfersOptions = user && !user.isAdmin ? { visibleBy: user.address } : {};
+    const userFilters: FilterTransfersOptions = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
     return await this.transferService.findAll(
       {
         tokenAddress: address,

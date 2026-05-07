@@ -138,7 +138,7 @@ describe("TokenController", () => {
         let user: MockProxy<UserWithRoles>;
         const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
         beforeEach(() => {
-          user = mock<UserWithRoles>({ address: mockUser, token: "token", isAdmin: false });
+          user = mock<UserWithRoles>({ address: mockUser, token: "token", hasFullReadAccess: false });
         });
 
         it("includes visibleBy filter", async () => {

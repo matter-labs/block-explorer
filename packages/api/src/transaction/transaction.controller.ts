@@ -53,7 +53,7 @@ export class TransactionController {
       {
         ...filterTransactionsOptions,
         ...blockRangeFilter,
-        ...(user && !user.isAdmin && { visibleBy: user.address }),
+        ...(user && !user.hasFullReadAccess && { visibleBy: user.address }),
       },
       {
         filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
@@ -83,7 +83,7 @@ export class TransactionController {
       throw new NotFoundException();
     }
 
-    if (user && !user.isAdmin) {
+    if (user && !user.hasFullReadAccess) {
       const isVisibleByUser = await this.transactionService.isTransactionVisibleByUser(transactionDetail, user);
       if (!isVisibleByUser) {
         throw new NotFoundException();
@@ -115,7 +115,7 @@ export class TransactionController {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
-    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
+    const userFilters = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
 
     const transfers = await this.transferService.findAll(
       { transactionHash, ...userFilters },
@@ -148,7 +148,7 @@ export class TransactionController {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
-    const userFilters = user && !user.isAdmin ? { visibleBy: user.address } : {};
+    const userFilters = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
 
     return await this.logService.findAll(
       { transactionHash, ...userFilters },

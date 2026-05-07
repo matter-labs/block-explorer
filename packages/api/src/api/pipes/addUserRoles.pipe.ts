@@ -6,11 +6,32 @@ import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 export interface UserWithRoles extends UserParam {
   roles: string[];
-  isAdmin: boolean;
+  hasFullReadAccess: boolean;
 }
 
 // Permissions that grant unrestricted read access to all on-chain data in the explorer.
 export const READ_ALL_PERMISSIONS = new Set(["full_read_access", "full_sequencer_rpc_access"]);
+
+const userProfileSchema = z.object({
+  roles: z.array(
+    z.object({
+      roleName: z.string(),
+      systemPermissions: z.array(z.string()).optional(),
+    })
+  ),
+});
+
+export function parseUserProfile(data: unknown): { roles: string[]; hasFullReadAccess: boolean } {
+  const result = userProfileSchema.safeParse(data);
+  if (!result.success) {
+    throw new Error(`Invalid user profile response: ${JSON.stringify(result.error)}`);
+  }
+  const roles = result.data.roles.map((r) => r.roleName);
+  const hasFullReadAccess = result.data.roles.some((r) =>
+    r.systemPermissions?.some((p) => READ_ALL_PERMISSIONS.has(p))
+  );
+  return { roles, hasFullReadAccess };
+}
 
 function throwError(): never {
   throw new InternalServerErrorException("Authentication failed");
@@ -31,31 +52,19 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
       throw new PrividiumApiError("Authentication failed", 401);
     }
 
-    const validatedData = z
-      .object({
-        roles: z.array(
-          z.object({
-            roleName: z.string(),
-            systemPermissions: z.array(z.string()).optional(),
-          })
-        ),
-      })
-      .safeParse(await response.json().catch(throwError));
-
-    if (validatedData.success === false) {
-      throwError();
-    }
-
-    const roles = validatedData.data.roles.map((r) => r.roleName);
-
-    const isAdmin = validatedData.data.roles.some((role) =>
-      role.systemPermissions?.some((p) => READ_ALL_PERMISSIONS.has(p))
-    );
+    const json = await response.json().catch(throwError);
+    const profile = (() => {
+      try {
+        return parseUserProfile(json);
+      } catch {
+        return throwError();
+      }
+    })();
 
     return {
       ...value,
-      roles,
-      isAdmin,
+      roles: profile.roles,
+      hasFullReadAccess: profile.hasFullReadAccess,
     };
   }
 }

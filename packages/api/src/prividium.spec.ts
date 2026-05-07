@@ -126,7 +126,12 @@ describe("applySwaggerAuthMiddleware", () => {
       req.session = { address: "0x123", token: "valid-token" } as any;
       next();
     });
-    transformSpy.mockResolvedValue({ address: "0x123", token: "valid-token", roles: ["user"], isAdmin: false });
+    transformSpy.mockResolvedValue({
+      address: "0x123",
+      token: "valid-token",
+      roles: ["user"],
+      hasFullReadAccess: false,
+    });
     applySwaggerAuthMiddleware(app as unknown as NestExpressApplication, configService);
     app.get("/docs", (_req, res) => res.send("docs"));
 
@@ -140,7 +145,12 @@ describe("applySwaggerAuthMiddleware", () => {
       req.session = { address: "0x123", token: "valid-token" } as any;
       next();
     });
-    transformSpy.mockResolvedValue({ address: "0x123", token: "valid-token", roles: ["admin"], isAdmin: true });
+    transformSpy.mockResolvedValue({
+      address: "0x123",
+      token: "valid-token",
+      roles: ["admin"],
+      hasFullReadAccess: true,
+    });
     applySwaggerAuthMiddleware(app as unknown as NestExpressApplication, configService);
     app.get("/docs", (_req, res) => res.send("docs"));
 

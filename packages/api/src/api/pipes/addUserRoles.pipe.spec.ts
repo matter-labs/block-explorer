@@ -25,7 +25,7 @@ describe("AddUserRolesPipe", () => {
     fetchSpy.mockRestore();
   });
 
-  it("sets is admin to false when empty list of roles is returned", async () => {
+  it("sets hasFullReadAccess to false when empty list of roles is returned", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
@@ -34,10 +34,10 @@ describe("AddUserRolesPipe", () => {
     });
 
     const user = await pipe.transform({ address: "0x01", token: "token1" });
-    expect(user.isAdmin).toBe(false);
+    expect(user.hasFullReadAccess).toBe(false);
   });
 
-  it("sets is admin to false when roles have no systemPermissions", async () => {
+  it("sets hasFullReadAccess to false when roles have no systemPermissions", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
@@ -46,10 +46,10 @@ describe("AddUserRolesPipe", () => {
     });
 
     const user = await pipe.transform({ address: "0x01", token: "token1" });
-    expect(user.isAdmin).toBe(false);
+    expect(user.hasFullReadAccess).toBe(false);
   });
 
-  it("sets is admin to false when roles have unrelated systemPermissions only", async () => {
+  it("sets hasFullReadAccess to false when roles have unrelated systemPermissions only", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
@@ -58,10 +58,10 @@ describe("AddUserRolesPipe", () => {
     });
 
     const user = await pipe.transform({ address: "0x01", token: "token1" });
-    expect(user.isAdmin).toBe(false);
+    expect(user.hasFullReadAccess).toBe(false);
   });
 
-  it("sets is admin to true when a role has full_read_access permission", async () => {
+  it("sets hasFullReadAccess to true when a role has full_read_access permission", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
@@ -70,10 +70,10 @@ describe("AddUserRolesPipe", () => {
     });
 
     const user = await pipe.transform({ address: "0x01", token: "token1" });
-    expect(user.isAdmin).toBe(true);
+    expect(user.hasFullReadAccess).toBe(true);
   });
 
-  it("sets is admin to true when a role has full_sequencer_rpc_access permission", async () => {
+  it("sets hasFullReadAccess to true when a role has full_sequencer_rpc_access permission", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
@@ -82,10 +82,10 @@ describe("AddUserRolesPipe", () => {
     });
 
     const user = await pipe.transform({ address: "0x01", token: "token1" });
-    expect(user.isAdmin).toBe(true);
+    expect(user.hasFullReadAccess).toBe(true);
   });
 
-  it("sets is admin to true when the permission is on any role in the list", async () => {
+  it("sets hasFullReadAccess to true when the permission is on any role in the list", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
@@ -97,7 +97,7 @@ describe("AddUserRolesPipe", () => {
     });
 
     const user = await pipe.transform({ address: "0x01", token: "token1" });
-    expect(user.isAdmin).toBe(true);
+    expect(user.hasFullReadAccess).toBe(true);
   });
 
   it("sets received roles into roles array", async () => {

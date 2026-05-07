@@ -39,8 +39,7 @@ describe("Contract:", () => {
       user: computed(() => ({
         address: "0x000000000000000000000000000000000000800A",
         wallets: ["0x000000000000000000000000000000000000800A"],
-        roles: [],
-        isAdmin: true,
+        hasFullReadAccess: true,
         loggedIn: true as const,
       })),
     });

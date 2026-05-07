@@ -115,7 +115,7 @@ describe("TransactionController", () => {
       let user: MockProxy<UserWithRoles>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser, roles: [], isAdmin: false, token: "token1" });
+        user = mock<UserWithRoles>({ address: mockUser, roles: [], hasFullReadAccess: false, token: "token1" });
       });
 
       it("passes visibleBy when no address is provided", async () => {
@@ -206,7 +206,7 @@ describe("TransactionController", () => {
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser, isAdmin: false });
+        user = mock<UserWithRoles>({ address: mockUser, hasFullReadAccess: false });
         (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
       });
 
@@ -226,7 +226,7 @@ describe("TransactionController", () => {
           transactionHash,
           mock<UserWithRoles>({
             address: mockUser,
-            isAdmin: true,
+            hasFullReadAccess: true,
           })
         );
         expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
@@ -276,7 +276,7 @@ describe("TransactionController", () => {
         beforeEach(() => {
           user = mock<UserWithRoles>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-            isAdmin: false,
+            hasFullReadAccess: false,
             roles: [],
             token: "token1",
           });
@@ -339,7 +339,7 @@ describe("TransactionController", () => {
         beforeEach(() => {
           user = mock<UserWithRoles>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-            isAdmin: false,
+            hasFullReadAccess: false,
             roles: [],
             token: "token1",
           });

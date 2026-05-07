@@ -50,14 +50,12 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
       const response = await FetchInstance.api(context)<{
         address: string;
         wallets: string[];
-        roles: string[];
-        isAdmin: boolean;
+        hasFullReadAccess: boolean;
       }>("/auth/me");
       context.user.value = {
         address: response.address,
         wallets: response.wallets,
-        roles: response.roles,
-        isAdmin: response.isAdmin,
+        hasFullReadAccess: response.hasFullReadAccess,
         loggedIn: true,
       };
     } catch (err) {
@@ -91,8 +89,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
         const response = await FetchInstance.api(context)<{
           address: string;
           wallets: string[];
-          roles: string[];
-          isAdmin: boolean;
+          hasFullReadAccess: boolean;
         }>("/auth/login", {
           method: "POST",
           body: { token: result.token },
@@ -100,8 +97,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
         context.user.value = {
           address: response.address,
           wallets: response.wallets,
-          roles: response.roles,
-          isAdmin: response.isAdmin,
+          hasFullReadAccess: response.hasFullReadAccess,
           loggedIn: true,
         };
       }

@@ -140,7 +140,7 @@ describe("Prividium API (e2e)", () => {
         address: mockWalletAddress,
         wallets: [mockWalletAddress],
         roles: ["user"],
-        isAdmin: false,
+        hasFullReadAccess: false,
       });
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
@@ -151,7 +151,7 @@ describe("Prividium API (e2e)", () => {
         address: mockWalletAddress,
         wallets: [mockWalletAddress],
         roles: ["user"],
-        isAdmin: false,
+        hasFullReadAccess: false,
       });
 
       // Logout user

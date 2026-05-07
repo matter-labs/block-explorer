@@ -56,7 +56,7 @@ export function applySwaggerAuthMiddleware(app: NestExpressApplication, configSe
         address: req.session.address,
         token: req.session.token,
       });
-      if (!userWithRoles?.isAdmin) {
+      if (!userWithRoles?.hasFullReadAccess) {
         res.status(403).json({ message: "Forbidden" });
         return;
       }

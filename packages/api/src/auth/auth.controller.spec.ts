@@ -44,7 +44,7 @@ describe("AuthController", () => {
       fetchSpy.mockRestore();
     });
 
-    it("logins successfully with valid token, sets isAdmin true when role has full_read_access", async () => {
+    it("logins successfully with valid token, sets hasFullReadAccess true when role has full_read_access", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       const mockRoles = [
         { roleName: "admin", systemPermissions: ["full_read_access", "contract_deployment"] },
@@ -70,19 +70,19 @@ describe("AuthController", () => {
         address: mockWalletAddress,
         wallets: mockWallets,
         roles: ["admin", "user"],
-        isAdmin: true,
+        hasFullReadAccess: true,
       });
       expect(req.session.address).toBe(mockWalletAddress);
       expect(req.session.wallets).toEqual(mockWallets);
       expect(req.session.roles).toEqual(["admin", "user"]);
-      expect(req.session.isAdmin).toBe(true);
+      expect(req.session.hasFullReadAccess).toBe(true);
       expect(req.session.token).toBe(mockToken);
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
       });
     });
 
-    it("logins successfully and sets isAdmin false when roles have no read-all permissions", async () => {
+    it("logins successfully and sets hasFullReadAccess false when roles have no read-all permissions", async () => {
       const mockWallets = [mockWalletAddress];
       const mockRoles = [{ roleName: "trader", systemPermissions: ["contract_deployment"] }];
       fetchSpy
@@ -101,11 +101,11 @@ describe("AuthController", () => {
 
       const result = await controller.login(body, req);
 
-      expect(result.isAdmin).toBe(false);
-      expect(req.session.isAdmin).toBe(false);
+      expect(result.hasFullReadAccess).toBe(false);
+      expect(req.session.hasFullReadAccess).toBe(false);
     });
 
-    it("logins successfully and sets isAdmin true when role has full_sequencer_rpc_access", async () => {
+    it("logins successfully and sets hasFullReadAccess true when role has full_sequencer_rpc_access", async () => {
       const mockWallets = [mockWalletAddress];
       const mockRoles = [{ roleName: "superuser", systemPermissions: ["full_sequencer_rpc_access"] }];
       fetchSpy
@@ -124,8 +124,8 @@ describe("AuthController", () => {
 
       const result = await controller.login(body, req);
 
-      expect(result.isAdmin).toBe(true);
-      expect(req.session.isAdmin).toBe(true);
+      expect(result.hasFullReadAccess).toBe(true);
+      expect(req.session.hasFullReadAccess).toBe(true);
     });
 
     it("throws 403 error for 403 response from permissions API", async () => {
@@ -265,19 +265,24 @@ describe("AuthController", () => {
   });
 
   describe("GET /me", () => {
-    it("returns address, wallets, roles and isAdmin stored in session", async () => {
+    it("returns address, wallets, roles and hasFullReadAccess stored in session", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       const mockRoles = ["admin", "user"];
-      req.session = { address: mockWalletAddress, wallets: mockWallets, roles: mockRoles, isAdmin: true };
+      req.session = { address: mockWalletAddress, wallets: mockWallets, roles: mockRoles, hasFullReadAccess: true };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: mockRoles, isAdmin: true });
+      expect(res).toEqual({
+        address: mockWalletAddress,
+        wallets: mockWallets,
+        roles: mockRoles,
+        hasFullReadAccess: true,
+      });
     });
 
-    it("returns empty roles array and isAdmin false when session has no roles", async () => {
+    it("returns empty roles array and hasFullReadAccess false when session has no roles", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       req.session = { address: mockWalletAddress, wallets: mockWallets };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: [], isAdmin: false });
+      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: [], hasFullReadAccess: false });
     });
   });
 });

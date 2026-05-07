@@ -117,7 +117,7 @@ const runtimeConfig = useRuntimeConfig();
 const context = useContext();
 
 const isPrividium = runtimeConfig.appEnvironment === "prividium";
-const isAdmin = computed(() => context.user.value.loggedIn && context.user.value.isAdmin);
+const isAdmin = computed(() => context.user.value.loggedIn && context.user.value.hasFullReadAccess);
 const showEventsTab = computed(() => !isPrividium || isAdmin.value);
 
 const props = defineProps({
