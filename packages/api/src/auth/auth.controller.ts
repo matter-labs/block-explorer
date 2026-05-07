@@ -121,7 +121,6 @@ export class AuthController {
       properties: {
         address: { type: "string" },
         wallets: { type: "array", items: { type: "string" } },
-        roles: { type: "array", items: { type: "string" } },
       },
     },
   })
@@ -129,7 +128,6 @@ export class AuthController {
     return {
       address: req.session.address,
       wallets: req.session.wallets,
-      roles: req.session.roles ?? [],
       hasFullReadAccess: req.session.hasFullReadAccess ?? false,
     };
   }

@@ -150,7 +150,6 @@ describe("Prividium API (e2e)", () => {
       await agent.get("/auth/me").expect(200, {
         address: mockWalletAddress,
         wallets: [mockWalletAddress],
-        roles: ["user"],
         hasFullReadAccess: false,
       });
 

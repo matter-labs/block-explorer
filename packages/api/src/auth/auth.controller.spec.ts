@@ -265,24 +265,18 @@ describe("AuthController", () => {
   });
 
   describe("GET /me", () => {
-    it("returns address, wallets, roles and hasFullReadAccess stored in session", async () => {
+    it("returns address, wallets and hasFullReadAccess stored in session", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
-      const mockRoles = ["admin", "user"];
-      req.session = { address: mockWalletAddress, wallets: mockWallets, roles: mockRoles, hasFullReadAccess: true };
+      req.session = { address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: true };
       const res = await controller.me(req);
-      expect(res).toEqual({
-        address: mockWalletAddress,
-        wallets: mockWallets,
-        roles: mockRoles,
-        hasFullReadAccess: true,
-      });
+      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: true });
     });
 
-    it("returns empty roles array and hasFullReadAccess false when session has no roles", async () => {
+    it("returns hasFullReadAccess false when session has no hasFullReadAccess", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       req.session = { address: mockWalletAddress, wallets: mockWallets };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, roles: [], hasFullReadAccess: false });
+      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: false });
     });
   });
 });
