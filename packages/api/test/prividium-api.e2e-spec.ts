@@ -136,7 +136,12 @@ describe("Prividium API (e2e)", () => {
       // Login with token
       const loginResponse = await agent.post("/auth/login").send({ token: mockToken }).expect(201);
 
-      expect(loginResponse.body).toEqual({ address: mockWalletAddress, wallets: [mockWalletAddress], roles: ["user"] });
+      expect(loginResponse.body).toEqual({
+        address: mockWalletAddress,
+        wallets: [mockWalletAddress],
+        roles: ["user"],
+        isAdmin: false,
+      });
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
       });
@@ -146,6 +151,7 @@ describe("Prividium API (e2e)", () => {
         address: mockWalletAddress,
         wallets: [mockWalletAddress],
         roles: ["user"],
+        isAdmin: false,
       });
 
       // Logout user
@@ -288,7 +294,9 @@ describe("Prividium API (e2e)", () => {
         })
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin" }] }),
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+          }),
         });
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
@@ -296,7 +304,9 @@ describe("Prividium API (e2e)", () => {
       // Mock the roles check for /docs access (admin)
       fetchSpy.mockResolvedValueOnce({
         status: 200,
-        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin" }] }),
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+        }),
       });
 
       const response = await agent.get("/docs");
