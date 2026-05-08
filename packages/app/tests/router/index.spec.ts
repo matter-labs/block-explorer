@@ -58,8 +58,8 @@ describe("Router Navigation Guard", () => {
       const isPrividium = mockAppEnvironment() === "prividium";
 
       if (isPrividium && to.meta.requiresAdmin) {
-        const isAdmin = mockUser.value.loggedIn && mockUser.value.hasFullReadAccess;
-        if (!isAdmin) {
+        const hasAdminRead = mockUser.value.loggedIn && mockUser.value.hasAdminRead;
+        if (!hasAdminRead) {
           return { name: "not-authorized" };
         }
       }
@@ -100,6 +100,7 @@ describe("Router Navigation Guard", () => {
         address: "0x123",
         wallets: ["0x123"],
         hasFullReadAccess: false,
+        hasAdminRead: false,
       };
 
       await router.push("/contracts/verify");
@@ -112,6 +113,7 @@ describe("Router Navigation Guard", () => {
         address: "0x123",
         wallets: ["0x123"],
         hasFullReadAccess: true,
+        hasAdminRead: true,
       };
 
       await router.push("/contracts/verify");
@@ -131,6 +133,7 @@ describe("Router Navigation Guard", () => {
         address: "0x123",
         wallets: ["0x123"],
         hasFullReadAccess: false,
+        hasAdminRead: false,
       };
 
       await router.push("/public");

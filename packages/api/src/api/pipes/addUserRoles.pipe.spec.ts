@@ -85,6 +85,43 @@ describe("AddUserRolesPipe", () => {
     expect(user.hasFullReadAccess).toBe(true);
   });
 
+  it("sets hasAdminRead to false when no role has admin_read permission", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "trader", systemPermissions: ["contract_deployment"] }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    expect(user.hasAdminRead).toBe(false);
+  });
+
+  it("sets hasAdminRead to true when a role has admin_read permission", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "admin", systemPermissions: ["admin_read", "full_read_access"] }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    expect(user.hasAdminRead).toBe(true);
+  });
+
+  it("sets hasAdminRead independently from hasFullReadAccess", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "sequencer", systemPermissions: ["full_sequencer_rpc_access"] }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    expect(user.hasFullReadAccess).toBe(true);
+    expect(user.hasAdminRead).toBe(false);
+  });
+
   it("sets hasFullReadAccess to true when the permission is on any role in the list", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,

@@ -6,6 +6,7 @@ import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 type Permissions = {
   hasFullReadAccess: boolean;
+  hasAdminRead: boolean;
 };
 
 export type UserWithPermissions = UserParam & Permissions;
@@ -30,7 +31,8 @@ export function parseUserProfile(data: unknown): Permissions {
   const hasFullReadAccess = result.data.roles.some((r) =>
     r.systemPermissions?.some((p) => READ_ALL_PERMISSIONS.has(p))
   );
-  return { hasFullReadAccess };
+  const hasAdminRead = result.data.roles.some((r) => r.systemPermissions?.includes("admin_read"));
+  return { hasFullReadAccess, hasAdminRead };
 }
 
 function throwError(): never {
@@ -64,6 +66,7 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
     return {
       ...value,
       hasFullReadAccess: profile.hasFullReadAccess,
+      hasAdminRead: profile.hasAdminRead,
     };
   }
 }

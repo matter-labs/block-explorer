@@ -7,6 +7,7 @@ declare global {
       address?: string;
       wallets?: string[];
       hasFullReadAccess?: boolean;
+      hasAdminRead?: boolean;
       expiresAt?: string;
     }
   }

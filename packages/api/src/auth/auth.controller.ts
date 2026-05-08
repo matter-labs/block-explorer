@@ -52,7 +52,7 @@ export class AuthController {
   public async login(
     @Body() body: VerifySignatureDto,
     @Req() req: Request
-  ): Promise<{ address: string; wallets: string[]; hasFullReadAccess: boolean }> {
+  ): Promise<{ address: string; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean }> {
     try {
       const wallets = await this.fetchUserWallets(body.token);
 
@@ -60,7 +60,7 @@ export class AuthController {
         throw new HttpException("No wallets associated with the user", 400);
       }
 
-      const [sessionExpirationIso, { hasFullReadAccess }] = await Promise.all([
+      const [sessionExpirationIso, { hasFullReadAccess, hasAdminRead }] = await Promise.all([
         this.fetchExpirationTimeIso(body.token),
         this.fetchUserProfile(body.token),
       ]);
@@ -71,8 +71,9 @@ export class AuthController {
       req.session.address = address;
       req.session.token = body.token;
       req.session.hasFullReadAccess = hasFullReadAccess;
+      req.session.hasAdminRead = hasAdminRead;
       req.session.expiresAt = sessionExpirationIso;
-      return { address, wallets, hasFullReadAccess };
+      return { address, wallets, hasFullReadAccess, hasAdminRead };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -128,6 +129,7 @@ export class AuthController {
       address: req.session.address,
       wallets: req.session.wallets,
       hasFullReadAccess: req.session.hasFullReadAccess ?? false,
+      hasAdminRead: req.session.hasAdminRead ?? false,
     };
   }
 
@@ -154,7 +156,7 @@ export class AuthController {
     return validatedData.data.wallets;
   }
 
-  private async fetchUserProfile(token: string): Promise<{ hasFullReadAccess: boolean }> {
+  private async fetchUserProfile(token: string): Promise<{ hasFullReadAccess: boolean; hasAdminRead: boolean }> {
     const response = await fetch(new URL("/api/profiles/me", this.configService.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${token}` },
     });

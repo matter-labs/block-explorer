@@ -70,10 +70,12 @@ describe("AuthController", () => {
         address: mockWalletAddress,
         wallets: mockWallets,
         hasFullReadAccess: true,
+        hasAdminRead: false,
       });
       expect(req.session.address).toBe(mockWalletAddress);
       expect(req.session.wallets).toEqual(mockWallets);
       expect(req.session.hasFullReadAccess).toBe(true);
+      expect(req.session.hasAdminRead).toBe(false);
       expect(req.session.token).toBe(mockToken);
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
@@ -263,18 +265,28 @@ describe("AuthController", () => {
   });
 
   describe("GET /me", () => {
-    it("returns address, wallets and hasFullReadAccess stored in session", async () => {
+    it("returns address, wallets, hasFullReadAccess, and hasAdminRead stored in session", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
-      req.session = { address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: true };
+      req.session = { address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: true, hasAdminRead: true };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: true });
+      expect(res).toEqual({
+        address: mockWalletAddress,
+        wallets: mockWallets,
+        hasFullReadAccess: true,
+        hasAdminRead: true,
+      });
     });
 
-    it("returns hasFullReadAccess false when session has no hasFullReadAccess", async () => {
+    it("returns false for both flags when session has neither set", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       req.session = { address: mockWalletAddress, wallets: mockWallets };
       const res = await controller.me(req);
-      expect(res).toEqual({ address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: false });
+      expect(res).toEqual({
+        address: mockWalletAddress,
+        wallets: mockWallets,
+        hasFullReadAccess: false,
+        hasAdminRead: false,
+      });
     });
   });
 });

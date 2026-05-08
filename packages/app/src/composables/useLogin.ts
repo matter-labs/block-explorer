@@ -51,11 +51,13 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
         address: string;
         wallets: string[];
         hasFullReadAccess: boolean;
+        hasAdminRead: boolean;
       }>("/auth/me");
       context.user.value = {
         address: response.address,
         wallets: response.wallets,
         hasFullReadAccess: response.hasFullReadAccess,
+        hasAdminRead: response.hasAdminRead,
         loggedIn: true,
       };
     } catch (err) {
@@ -90,6 +92,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
           address: string;
           wallets: string[];
           hasFullReadAccess: boolean;
+          hasAdminRead: boolean;
         }>("/auth/login", {
           method: "POST",
           body: { token: result.token },
@@ -98,6 +101,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
           address: response.address,
           wallets: response.wallets,
           hasFullReadAccess: response.hasFullReadAccess,
+          hasAdminRead: response.hasAdminRead,
           loggedIn: true,
         };
       }
