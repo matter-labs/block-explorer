@@ -11,7 +11,7 @@ import { Transfer } from "../transfer/transfer.entity";
 import { Log } from "../log/log.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
-import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 import { ConfigService } from "@nestjs/config";
 import clearAllMocks = jest.clearAllMocks;
 
@@ -112,10 +112,10 @@ describe("TransactionController", () => {
     });
 
     describe("when user is provided", () => {
-      let user: MockProxy<UserWithRoles>;
+      let user: MockProxy<UserWithPermissions>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser, hasFullReadAccess: false, token: "token1" });
+        user = mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: false, token: "token1" });
       });
 
       it("passes visibleBy when no address is provided", async () => {
@@ -202,11 +202,11 @@ describe("TransactionController", () => {
     });
 
     describe("when user is provided", () => {
-      let user: MockProxy<UserWithRoles>;
+      let user: MockProxy<UserWithPermissions>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser, hasFullReadAccess: false });
+        user = mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: false });
         (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
       });
 
@@ -224,7 +224,7 @@ describe("TransactionController", () => {
       it("returns the transaction when user is admin", async () => {
         const result = await controller.getTransaction(
           transactionHash,
-          mock<UserWithRoles>({
+          mock<UserWithPermissions>({
             address: mockUser,
             hasFullReadAccess: true,
           })
@@ -272,9 +272,9 @@ describe("TransactionController", () => {
       });
 
       describe("when user is provided", () => {
-        let user: MockProxy<UserWithRoles>;
+        let user: MockProxy<UserWithPermissions>;
         beforeEach(() => {
-          user = mock<UserWithRoles>({
+          user = mock<UserWithPermissions>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             hasFullReadAccess: false,
             token: "token1",
@@ -334,9 +334,9 @@ describe("TransactionController", () => {
       });
 
       describe("when user is provided", () => {
-        let user: MockProxy<UserWithRoles>;
+        let user: MockProxy<UserWithPermissions>;
         beforeEach(() => {
-          user = mock<UserWithRoles>({
+          user = mock<UserWithPermissions>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             hasFullReadAccess: false,
             token: "token1",

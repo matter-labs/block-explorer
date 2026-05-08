@@ -22,7 +22,7 @@ import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
 import { User } from "../user/user.decorator";
-import { AddUserRolesPipe, UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { AddUserRolesPipe, UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "transactions";
 
@@ -43,7 +43,7 @@ export class TransactionController {
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<TransactionDto>> {
     const blockRangeFilter =
       filterTransactionsOptions.blockNumber == null
@@ -76,7 +76,7 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
@@ -110,7 +110,7 @@ export class TransactionController {
   public async getTransactionTransfers(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<TransferDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
@@ -143,7 +143,7 @@ export class TransactionController {
   public async getTransactionLogs(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
-    @User(AddUserRolesPipe) user: UserWithRoles
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<LogDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();

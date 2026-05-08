@@ -16,7 +16,7 @@ import { Transfer, TransferType } from "../transfer/transfer.entity";
 import { Address } from "./address.entity";
 import { ForbiddenException } from "@nestjs/common";
 import { Wallet, zeroPadValue } from "ethers";
-import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 import { ConfigService } from "@nestjs/config";
 
 jest.mock("../common/utils", () => ({
@@ -267,10 +267,10 @@ describe("AddressController", () => {
     });
 
     describe("when user is provided", () => {
-      let user: MockProxy<UserWithRoles>;
+      let user: MockProxy<UserWithPermissions>;
       const mockUser = "0xc0ffee254729296a45a3885639AC7E10F9d54979";
       beforeEach(() => {
-        user = mock<UserWithRoles>({ address: mockUser, hasFullReadAccess: false });
+        user = mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: false });
       });
 
       it("throws if address is an account and is not own address", async () => {
@@ -437,9 +437,9 @@ describe("AddressController", () => {
       });
 
       describe("when user is provided", () => {
-        let user: MockProxy<UserWithRoles>;
+        let user: MockProxy<UserWithPermissions>;
         beforeEach(() => {
-          user = mock<UserWithRoles>({
+          user = mock<UserWithPermissions>({
             address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             hasFullReadAccess: false,
             token: "token1",
@@ -525,9 +525,9 @@ describe("AddressController", () => {
     });
 
     describe("when user is provided", () => {
-      let user: MockProxy<UserWithRoles>;
+      let user: MockProxy<UserWithPermissions>;
       beforeEach(() => {
-        user = mock<UserWithRoles>({
+        user = mock<UserWithPermissions>({
           address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           hasFullReadAccess: false,
           token: "token",
