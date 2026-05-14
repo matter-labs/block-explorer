@@ -36,9 +36,11 @@ vi.mock("ohmyfetch", () => {
           { ...baseTransferPayload, token: null, type: "transfer" },
           { ...baseTransferPayload, type: "deposit" },
           { ...baseTransferPayload, type: "withdrawal" },
+          { ...baseTransferPayload, type: "deposit", chainId: "11" },
+          { ...baseTransferPayload, type: "deposit", chainId: "270" },
         ],
         meta: {
-          totalItems: 4,
+          totalItems: 6,
           page: 1,
           pageSize: 10,
           totalPages: 1,
@@ -77,7 +79,7 @@ describe("useTransfers:", () => {
     const composable = useTransfers(address);
     await composable.load(1);
     const transfers = composable.data.value;
-    expect(composable.data.value?.length).toBe(4);
+    expect(composable.data.value?.length).toBe(6);
     expect(transfers).toEqual([
       {
         ...baseTransferPayload,
@@ -112,6 +114,20 @@ describe("useTransfers:", () => {
         type: "withdrawal",
         fromNetwork: "L2",
         toNetwork: "L1",
+      },
+      {
+        ...baseTransferPayload,
+        type: "deposit",
+        chainId: "11",
+        fromNetwork: "L1",
+        toNetwork: "L2",
+      },
+      {
+        ...baseTransferPayload,
+        type: "deposit",
+        chainId: "270",
+        fromNetwork: "L2",
+        toNetwork: "L2",
       },
     ]);
   });

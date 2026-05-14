@@ -340,6 +340,68 @@ describe("useTransaction:", () => {
       );
       expect(result).toEqual("L2");
     });
+
+    it("returns L2 for deposit 'from' when transfer chainId differs from l1ChainId", () => {
+      const result = getTransferNetworkOrigin(
+        {
+          from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+          to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
+          amount: "0x2279f530c00",
+          type: "deposit",
+          chainId: "270",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any,
+        "from",
+        11155111
+      );
+      expect(result).toBe("L2");
+    });
+
+    it("returns L1 for deposit 'from' when transfer chainId matches l1ChainId", () => {
+      const result = getTransferNetworkOrigin(
+        {
+          from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+          to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
+          amount: "0x2279f530c00",
+          type: "deposit",
+          chainId: "11155111",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any,
+        "from",
+        11155111
+      );
+      expect(result).toBe("L1");
+    });
+
+    it("returns L1 for deposit 'from' when transfer chainId is not provided", () => {
+      const result = getTransferNetworkOrigin(
+        {
+          from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+          to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
+          amount: "0x2279f530c00",
+          type: "deposit",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any,
+        "from",
+        11155111
+      );
+      expect(result).toBe("L1");
+    });
+
+    it("returns L1 for deposit 'from' when l1ChainId is not provided", () => {
+      const result = getTransferNetworkOrigin(
+        {
+          from: "0xcfa3dd0cba60484d1c8d0cdd22c5432013368875",
+          to: "0xde03a0b5963f75f1c8485b355ff6d30f3093bde7",
+          amount: "0x2279f530c00",
+          type: "deposit",
+          chainId: "270",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } as any,
+        "from"
+      );
+      expect(result).toBe("L1");
+    });
   });
   describe("getByHash:", () => {
     it("sets isRequestPending to true when request is pending", async () => {
