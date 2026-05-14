@@ -9,6 +9,7 @@
         "localhost"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 31337,
       "l2ChainId": 270,
       "l2NetworkName": "Local",
       "maintenance": false,
@@ -26,6 +27,7 @@
         "https://era-stage-proofs.explorer.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io/",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -68,6 +70,7 @@
       "bridgeUrl": "https://portal.zksync.io/bridge/?network=sepolia",
       "hostnames": ["https://sepolia.explorer.zksync.io"],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -95,6 +98,7 @@
         "https://explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 1,
       "l1ExplorerUrl": "https://etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://etherscan.io",
@@ -124,6 +128,7 @@
         "https://zksync-os-stage.explorer.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -147,6 +152,7 @@
         "https://zksync-os-testnet-alpha.explorer.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -170,6 +176,7 @@
         "https://zksync-os-mainnet-dawn.explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 1,
       "l1ExplorerUrl": "https://etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://etherscan.io",
@@ -205,6 +212,7 @@
       "bridgeUrl": "https://portal.era-gateway-testnet.zksync.dev/bridge",
       "hostnames": ["https://sepolia.gateway.explorer.zksync.io"],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "l2ChainId": 32657,
       "l2NetworkName": "ZKsync Gateway Testnet",
@@ -220,6 +228,7 @@
       "bridgeUrl": "https://portal.era-gateway-mainnet.zksync.dev/bridge",
       "hostnames": ["https://gateway.explorer.zksync.io"],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 1,
       "l1ExplorerUrl": "https:/etherscan.io",
       "l2ChainId": 9075,
       "l2NetworkName": "ZKsync Gateway Mainnet",

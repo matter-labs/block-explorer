@@ -13,6 +13,7 @@ export type NetworkConfig = {
   bridgeUrl?: string;
   l2NetworkName: string;
   l2ChainId: number;
+  l1ChainId?: number;
   l1ExplorerUrl?: string;
   settlementChains?: SettlementChain[];
   maintenance: boolean;

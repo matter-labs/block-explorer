@@ -42,6 +42,7 @@ export const assetRouterFinalizeDepositHandler: ExtractTransferHandler = {
       logIndex: log.index,
       transactionIndex: log.transactionIndex,
       timestamp: unixTimeToDate(block.timestamp),
+      chainId: parsedLog.args.chainId.toString(),
     };
   },
 };

@@ -85,4 +85,7 @@ export class Transfer extends CountableEntity {
 
   @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
+
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly chainId?: string;
 }

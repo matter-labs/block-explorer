@@ -102,6 +102,7 @@
               <div class="flex items-center justify-center gap-2">
                 <AddressLink v-if="!!displayedTxReceiver" :address="displayedTxReceiver" />
                 <p v-if="isContractDeploymentTx">{{ t("contract.created") }}</p>
+                <p v-if="displayedTxReceiverName">({{ displayedTxReceiverName }})</p>
               </div>
               <Badge
                 v-if="transaction?.isEvmLike && displayedTxReceiver"
@@ -239,7 +240,7 @@ import TransferTableCell from "@/components/transactions/infoTable/TransferTable
 
 import type { TransactionItem } from "@/composables/useTransaction";
 
-import { isContractDeployerAddress } from "@/utils/helpers";
+import { getContractDisplayName, isContractDeployerAddress } from "@/utils/helpers";
 
 const { t } = useI18n();
 
@@ -272,6 +273,10 @@ const isContractDeploymentTx = computed(() => {
 
 const displayedTxReceiver = computed(() => {
   return isContractDeploymentTx.value ? props.transaction?.contractAddress : props.transaction?.to;
+});
+
+const displayedTxReceiverName = computed(() => {
+  return getContractDisplayName(displayedTxReceiver.value);
 });
 
 const tokenTransfers = computed(() => {

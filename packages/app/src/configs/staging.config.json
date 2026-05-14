@@ -9,6 +9,7 @@
         "https://sepolia.explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -36,6 +37,7 @@
         "https://explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 1,
       "l1ExplorerUrl": "https://etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://etherscan.io",
@@ -65,6 +67,7 @@
         "https://era-stage-proofs.explorer.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io/",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -123,6 +126,7 @@
         "https://zksync-os-stage.explorer.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -146,6 +150,7 @@
         "https://zksync-os-testnet-alpha.explorer.zksync.dev"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 11155111,
       "l1ExplorerUrl": "https://sepolia.etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://sepolia.etherscan.io",
@@ -169,6 +174,7 @@
         "https://zksync-os-mainnet-dawn.explorer.zksync.io"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 1,
       "l1ExplorerUrl": "https://etherscan.io",
       "settlementChains": [{
         "explorerUrl": "https://etherscan.io",

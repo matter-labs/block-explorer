@@ -9,6 +9,7 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   hostnames: ["https://sepolia.explorer.zksync.io"],
   icon: "/images/icons/zksync-arrows.svg",
   l1ExplorerUrl: "https://sepolia.etherscan.io",
+  l1ChainId: 11155111,
   l2ChainId: 300,
   l2NetworkName: "ZKsync Era Sepolia Testnet",
   maintenance: false,

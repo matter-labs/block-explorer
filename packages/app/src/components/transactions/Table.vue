@@ -125,11 +125,7 @@
                 :network="item.toNetwork"
                 class="transactions-data-link-value"
               >
-                {{
-                  item.isContractDeploymentTx
-                    ? t("contract.contractCreated")
-                    : shortenFitText(item.displayedTxReceiver, "left", 125)
-                }}
+                {{ item.displayedTxReceiverName ?? shortenFitText(item.displayedTxReceiver, "left", 125) }}
               </AddressLink>
             </span>
           </div>
@@ -156,11 +152,7 @@
             :network="item.toNetwork"
             class="transactions-data-link-value"
           >
-            {{
-              item.isContractDeploymentTx
-                ? t("contract.contractCreated")
-                : shortenFitText(item.displayedTxReceiver, "left", 125)
-            }}
+            {{ item.displayedTxReceiverName ?? shortenFitText(item.displayedTxReceiver, "left", 125) }}
           </AddressLink>
         </span>
       </TableBodyColumn>
@@ -246,7 +238,7 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 
 import { type NetworkOrigin, TimeFormat } from "@/types";
-import { isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
+import { getContractDisplayName, isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
 
@@ -345,13 +337,14 @@ type TransactionListItemMapped = TransactionListItem & {
   toNetwork: NetworkOrigin;
   statusIcon: unknown;
   statusColor: "danger" | "dark-success";
-  isContractDeploymentTx: boolean;
   displayedTxReceiver: string | null;
+  displayedTxReceiverName: string | null;
 };
 
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
   return data.value?.map((transaction) => {
     const isContractDeploymentTx = isContractDeployerAddress(transaction.to) && !!transaction.contractAddress;
+    const displayedTxReceiver = isContractDeploymentTx ? transaction.contractAddress : transaction.to;
     return {
       ...transaction,
       methodName: getTransactionMethod(transaction, methodNames.value),
@@ -361,8 +354,10 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
       // replace finality status with execution status here
       status: ["verified", "proved", "committed"].includes(transaction.status) ? "included" : transaction.status,
       statusIcon: ZkSyncIcon,
-      isContractDeploymentTx,
-      displayedTxReceiver: isContractDeploymentTx ? transaction.contractAddress : transaction.to,
+      displayedTxReceiver,
+      displayedTxReceiverName: isContractDeploymentTx
+        ? t("contract.contractCreated")
+        : getContractDisplayName(displayedTxReceiver),
     };
   });
 });

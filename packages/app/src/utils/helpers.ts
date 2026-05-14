@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { AbiCoder, Interface } from "ethers";
 
-import { BOOTLOADER_FORMAL_ADDRESS, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
+import { BOOTLOADER_FORMAL_ADDRESS, CONTRACT_DISPLAY_NAMES, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
 
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
@@ -186,4 +186,9 @@ export function truncateNumber(value: string, decimal: number): string {
 
 export function isContractDeployerAddress(address?: string | null): boolean {
   return !address || address === DEPLOYER_CONTRACT_ADDRESS;
+}
+
+export function getContractDisplayName(address?: string | null): string | null {
+  if (!address) return null;
+  return CONTRACT_DISPLAY_NAMES[address.toLowerCase()] ?? null;
 }

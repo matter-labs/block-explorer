@@ -86,6 +86,9 @@ export class Transfer extends BaseEntity {
   @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
 
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly chainId?: string;
+
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { number, fromToMin, fromToMax, ...restFields } = this;

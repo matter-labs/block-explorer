@@ -1,5 +1,6 @@
 import useFetchCollection from "@/composables/common/useFetchCollection";
 import useContext from "@/composables/useContext";
+import { getTransferNetworkOrigin } from "@/composables/useTransaction";
 
 import type { NetworkOrigin } from "@/types";
 import type { ComputedRef } from "vue";
@@ -24,8 +25,8 @@ export default (address: ComputedRef<string>, context = useContext()) => {
         liquidity: null,
         iconURL: null,
       },
-      fromNetwork: transfer.type === "deposit" ? "L1" : "L2",
-      toNetwork: transfer.type === "withdrawal" ? "L1" : "L2",
+      fromNetwork: getTransferNetworkOrigin(transfer, "from", context.currentNetwork.value.l1ChainId),
+      toNetwork: getTransferNetworkOrigin(transfer, "to", context.currentNetwork.value.l1ChainId),
     })
   );
 };

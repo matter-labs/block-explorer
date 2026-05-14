@@ -8,6 +8,7 @@
         "localhost"
       ],
       "icon": "/images/icons/zksync-arrows.svg",
+      "l1ChainId": 31337,
       "l2ChainId": 270,
       "l2NetworkName": "Local",
       "maintenance": false,
