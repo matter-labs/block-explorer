@@ -22,15 +22,13 @@ import { VerifySignatureDto, SwitchWalletDto } from "./auth.dto";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
 import { PrividiumApiError } from "../errors/prividiumApiError";
+import { parseUserProfile } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "auth";
 const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
 const currentSessionSchema = z.object({
   type: z.string(),
   expiresAt: z.string().datetime(),
-});
-const userProfileSchema = z.object({
-  roles: z.array(z.object({ roleName: z.string() })),
 });
 
 @ApiTags("Auth BFF")
@@ -54,7 +52,7 @@ export class AuthController {
   public async login(
     @Body() body: VerifySignatureDto,
     @Req() req: Request
-  ): Promise<{ address: string; wallets: string[]; roles: string[] }> {
+  ): Promise<{ address: string; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean }> {
     try {
       const wallets = await this.fetchUserWallets(body.token);
 
@@ -62,9 +60,9 @@ export class AuthController {
         throw new HttpException("No wallets associated with the user", 400);
       }
 
-      const [sessionExpirationIso, roles] = await Promise.all([
+      const [sessionExpirationIso, { hasFullReadAccess, hasAdminRead }] = await Promise.all([
         this.fetchExpirationTimeIso(body.token),
-        this.fetchUserRoles(body.token),
+        this.fetchUserProfile(body.token),
       ]);
 
       // Store all wallets and use first address as default
@@ -72,9 +70,10 @@ export class AuthController {
       req.session.wallets = wallets;
       req.session.address = address;
       req.session.token = body.token;
-      req.session.roles = roles;
+      req.session.hasFullReadAccess = hasFullReadAccess;
+      req.session.hasAdminRead = hasAdminRead;
       req.session.expiresAt = sessionExpirationIso;
-      return { address, wallets, roles };
+      return { address, wallets, hasFullReadAccess, hasAdminRead };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -122,12 +121,16 @@ export class AuthController {
       properties: {
         address: { type: "string" },
         wallets: { type: "array", items: { type: "string" } },
-        roles: { type: "array", items: { type: "string" } },
       },
     },
   })
   public async me(@Req() req: Request) {
-    return { address: req.session.address, wallets: req.session.wallets, roles: req.session.roles ?? [] };
+    return {
+      address: req.session.address,
+      wallets: req.session.wallets,
+      hasFullReadAccess: req.session.hasFullReadAccess ?? false,
+      hasAdminRead: req.session.hasAdminRead ?? false,
+    };
   }
 
   private clearSession(req: Request) {
@@ -153,7 +156,7 @@ export class AuthController {
     return validatedData.data.wallets;
   }
 
-  private async fetchUserRoles(token: string): Promise<string[]> {
+  private async fetchUserProfile(token: string): Promise<{ hasFullReadAccess: boolean; hasAdminRead: boolean }> {
     const response = await fetch(new URL("/api/profiles/me", this.configService.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -162,13 +165,7 @@ export class AuthController {
       throw new PrividiumApiError("Invalid or expired token", 403);
     }
 
-    const data = await response.json();
-    const validatedData = userProfileSchema.safeParse(data);
-    if (!validatedData.success) {
-      throw new Error(`Invalid response from Prividium API: ${JSON.stringify(validatedData.error)}`);
-    }
-
-    return validatedData.data.roles.map((r) => r.roleName);
+    return parseUserProfile(await response.json());
   }
 
   private async fetchExpirationTimeIso(token: string): Promise<string> {

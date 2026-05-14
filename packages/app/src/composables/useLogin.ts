@@ -47,13 +47,17 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
   const initializeLogin = async () => {
     try {
-      const response = await FetchInstance.api(context)<{ address: string; wallets: string[]; roles: string[] }>(
-        "/auth/me"
-      );
+      const response = await FetchInstance.api(context)<{
+        address: string;
+        wallets: string[];
+        hasFullReadAccess: boolean;
+        hasAdminRead: boolean;
+      }>("/auth/me");
       context.user.value = {
         address: response.address,
         wallets: response.wallets,
-        roles: response.roles,
+        hasFullReadAccess: response.hasFullReadAccess,
+        hasAdminRead: response.hasAdminRead,
         loggedIn: true,
       };
     } catch (err) {
@@ -84,17 +88,20 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
 
       if (result && result.token) {
         // Exchange JWT for cookie session
-        const response = await FetchInstance.api(context)<{ address: string; wallets: string[]; roles: string[] }>(
-          "/auth/login",
-          {
-            method: "POST",
-            body: { token: result.token },
-          }
-        );
+        const response = await FetchInstance.api(context)<{
+          address: string;
+          wallets: string[];
+          hasFullReadAccess: boolean;
+          hasAdminRead: boolean;
+        }>("/auth/login", {
+          method: "POST",
+          body: { token: result.token },
+        });
         context.user.value = {
           address: response.address,
           wallets: response.wallets,
-          roles: response.roles,
+          hasFullReadAccess: response.hasFullReadAccess,
+          hasAdminRead: response.hasAdminRead,
           loggedIn: true,
         };
       }

@@ -9,7 +9,7 @@ import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
-import { UserWithRoles } from "../api/pipes/addUserRoles.pipe";
+import { UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
@@ -135,10 +135,10 @@ describe("TokenController", () => {
       });
 
       describe("when user is provided", () => {
-        let user: MockProxy<UserWithRoles>;
+        let user: MockProxy<UserWithPermissions>;
         const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
         beforeEach(() => {
-          user = mock<UserWithRoles>({ address: mockUser, token: "token", isAdmin: false });
+          user = mock<UserWithPermissions>({ address: mockUser, token: "token", hasFullReadAccess: false });
         });
 
         it("includes visibleBy filter", async () => {
