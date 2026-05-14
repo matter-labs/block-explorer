@@ -1207,6 +1207,7 @@ describe("AddressController (e2e)", () => {
               type: "transfer",
               tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: null,
@@ -1230,6 +1231,7 @@ describe("AddressController (e2e)", () => {
               type: "mint",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: null,
@@ -1253,6 +1255,7 @@ describe("AddressController (e2e)", () => {
               type: "withdrawal",
               tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
           ])
         );
