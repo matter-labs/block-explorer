@@ -177,7 +177,8 @@ export const useContextMock = (params: any = {}) => {
     user: computed(() => ({
       address: "0x000000000000000000000000000000000000800A",
       wallets: ["0x000000000000000000000000000000000000800A"],
-      roles: [],
+      hasFullReadAccess: false,
+      hasAdminRead: false,
       loggedIn: true,
     })),
     identifyNetwork: () => undefined,

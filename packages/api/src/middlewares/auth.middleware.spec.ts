@@ -109,7 +109,7 @@ describe("AuthMiddleware", () => {
   it("blocks traffic for api route when user is not admin", async () => {
     (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
       transform: jest.fn().mockResolvedValue({
-        isAdmin: false,
+        hasFullReadAccess: false,
       }),
     }));
     const middleware = new AuthMiddleware(configServiceMock);
@@ -127,7 +127,7 @@ describe("AuthMiddleware", () => {
   it("allows traffic for api route when user is admin", async () => {
     (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
       transform: jest.fn().mockResolvedValue({
-        isAdmin: true,
+        hasFullReadAccess: true,
       }),
     }));
     const middleware = new AuthMiddleware(configServiceMock);
