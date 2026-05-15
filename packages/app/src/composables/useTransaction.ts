@@ -80,9 +80,15 @@ export type TransactionItem = {
   contractAddress: string | null;
 };
 
-export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to") {
+export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to", l1ChainId?: number) {
   if (sender === "from") {
-    return transfer.type === "deposit" ? "L1" : "L2";
+    if (transfer.type === "deposit") {
+      if (transfer.chainId != null && l1ChainId != null && Number(transfer.chainId) !== l1ChainId) {
+        return "L2";
+      }
+      return "L1";
+    }
+    return "L2";
   } else {
     return transfer.type === "withdrawal" ? "L1" : "L2";
   }
@@ -169,7 +175,7 @@ export default (context = useContext()) => {
         all<Api.Response.Transfer>(context, `/transactions/${hash}/transfers`, new URLSearchParams({ limit: "100" })),
         all<Api.Response.Log>(context, `/transactions/${hash}/logs`, new URLSearchParams({ limit: "100" })),
       ]);
-      transaction.value = mapTransaction(txResponse, txTransfers, txLogs);
+      transaction.value = mapTransaction(txResponse, txTransfers, txLogs, context.currentNetwork.value.l1ChainId);
     } catch (error) {
       if (error instanceof FetchError && error.response?.status === 404) {
         transaction.value = await getFromBlockchainByHash(hash);
@@ -195,10 +201,11 @@ export default (context = useContext()) => {
 export function mapTransaction(
   transaction: Api.Response.Transaction,
   transfers: Api.Response.Transfer[],
-  logs: Api.Response.Log[]
+  logs: Api.Response.Log[],
+  l1ChainId?: number
 ): TransactionItem {
-  const fees = mapTransfers(filterFees(transfers));
-  const refunds = mapTransfers(filterRefunds(transfers));
+  const fees = mapTransfers(filterFees(transfers), l1ChainId);
+  const refunds = mapTransfers(filterRefunds(transfers), l1ChainId);
   const paymasterFee = fees.find((fee) => fee.from !== transaction.from);
   const paymasterAddress = paymasterFee?.from;
   const isPaidByPaymaster = !transaction.isL1Originated && !!paymasterFee;
@@ -221,7 +228,7 @@ export function mapTransaction(
       isPaidByPaymaster,
       paymasterAddress: isPaidByPaymaster ? paymasterAddress : undefined,
       refunds,
-      amountRefunded: sumAmounts(mapTransfers(filterRefunds(transfers))),
+      amountRefunded: sumAmounts(mapTransfers(filterRefunds(transfers), l1ChainId)),
     },
     indexInBlock: transaction.transactionIndex,
     // initiatorAddress: Hash;
@@ -243,7 +250,7 @@ export function mapTransaction(
       transactionIndex: item.transactionIndex.toString(16),
     })),
 
-    transfers: mapTransfers(filterTransfers(transfers)),
+    transfers: mapTransfers(filterTransfers(transfers), l1ChainId),
 
     gasPrice: transaction.gasPrice,
     gasLimit: transaction.gasLimit,
@@ -256,13 +263,13 @@ export function mapTransaction(
   };
 }
 
-function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
+function mapTransfers(transfers: Api.Response.Transfer[], l1ChainId?: number): TokenTransfer[] {
   return transfers.map((item) => ({
     amount: item.amount,
     from: item.from,
     to: item.to,
-    fromNetwork: getTransferNetworkOrigin(item, "from"),
-    toNetwork: getTransferNetworkOrigin(item, "to"),
+    fromNetwork: getTransferNetworkOrigin(item, "from", l1ChainId),
+    toNetwork: getTransferNetworkOrigin(item, "to", l1ChainId),
     type: item.type,
     tokenInfo: {
       address: item.tokenAddress,

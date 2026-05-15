@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import { AbiCoder, Interface } from "ethers";
 
-import { BOOTLOADER_FORMAL_ADDRESS, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
+import { BOOTLOADER_FORMAL_ADDRESS, CONTRACT_DISPLAY_NAMES, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
 
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
@@ -9,6 +9,8 @@ import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composa
 import type { TokenTransfer } from "@/composables/useTransaction";
 import type { InputData } from "@/composables/useTransactionData";
 import type { ParamType, Result } from "ethers";
+
+import IInteropCenterABI from "@/abi/IInteropCenter";
 
 export const DefaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
@@ -186,4 +188,49 @@ export function truncateNumber(value: string, decimal: number): string {
 
 export function isContractDeployerAddress(address?: string | null): boolean {
   return !address || address === DEPLOYER_CONTRACT_ADDRESS;
+}
+
+export function getContractDisplayName(address?: string | null): string | null {
+  if (!address) return null;
+  return CONTRACT_DISPLAY_NAMES[address.toLowerCase()] ?? null;
+}
+
+export const INTEROP_BUNDLE_SENT_TOPIC = new Interface(IInteropCenterABI as never)
+  .getEvent("InteropBundleSent")!
+  .topicHash.toLowerCase();
+
+function bytesToAddress(bytes: string): string {
+  const hex = bytes.startsWith("0x") ? bytes.slice(2) : bytes;
+  return `0x${hex.slice(-40).padStart(40, "0")}`;
+}
+
+export function decodeInteropBundleSentEvent(log: TransactionLogEntry) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const InteropCenter = new Interface(IInteropCenterABI as any);
+    const parsed = InteropCenter.parseLog({ topics: log.topics as string[], data: log.data });
+    if (!parsed) return undefined;
+    const bundle = parsed.args.interopBundle;
+    return {
+      sourceChainId: Number(bundle.sourceChainId),
+      destinationChainId: Number(bundle.destinationChainId),
+      interopBundleHash: parsed.args.interopBundleHash as string,
+      l2l1MsgHash: parsed.args.l2l1MsgHash as string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      calls: bundle.calls.map((call: any) => ({
+        to: call.to as string,
+        from: call.from as string,
+        value: call.value.toString(),
+        data: call.data as string,
+        shadowAccount: call.shadowAccount as boolean,
+      })),
+      bundleAttributes: {
+        executionAddress: bytesToAddress(bundle.bundleAttributes.executionAddress as string),
+        unbundlerAddress: bytesToAddress(bundle.bundleAttributes.unbundlerAddress as string),
+        useFixedFee: bundle.bundleAttributes.useFixedFee as boolean,
+      },
+    };
+  } catch {
+    return undefined;
+  }
 }

@@ -73,6 +73,7 @@ declare namespace Api {
       tokenAddress: string;
       type: "deposit" | "transfer" | "withdrawal" | "fee" | "mint" | "refund";
       timestamp: string;
+      chainId?: string;
     };
 
     type TokenAddress = {

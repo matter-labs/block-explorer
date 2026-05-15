@@ -1039,6 +1039,7 @@ describe("TransactionController (e2e)", () => {
               type: "deposit",
               tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1062,6 +1063,7 @@ describe("TransactionController (e2e)", () => {
               type: "transfer",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1085,6 +1087,7 @@ describe("TransactionController (e2e)", () => {
               type: "withdrawal",
               tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1108,6 +1111,7 @@ describe("TransactionController (e2e)", () => {
               type: "fee",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1131,6 +1135,7 @@ describe("TransactionController (e2e)", () => {
               type: "mint",
               tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1154,6 +1159,7 @@ describe("TransactionController (e2e)", () => {
               type: "refund",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1177,6 +1183,7 @@ describe("TransactionController (e2e)", () => {
               type: "deposit",
               tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1200,6 +1207,7 @@ describe("TransactionController (e2e)", () => {
               type: "deposit",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1223,6 +1231,7 @@ describe("TransactionController (e2e)", () => {
               type: "transfer",
               tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
           ])
         );
@@ -1291,6 +1300,7 @@ describe("TransactionController (e2e)", () => {
                 type: "deposit",
                 tokenType: "BASETOKEN",
                 isInternal: false,
+                chainId: null,
               },
             ],
             links: {

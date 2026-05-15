@@ -20,4 +20,5 @@ export interface Transfer {
   logIndex: number;
   fields?: TransferFields;
   isInternal?: boolean;
+  chainId?: string;
 }

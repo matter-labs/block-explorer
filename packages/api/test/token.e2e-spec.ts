@@ -484,6 +484,7 @@ describe("TokenController (e2e)", () => {
               type: "transfer",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "1000",
@@ -507,6 +508,7 @@ describe("TokenController (e2e)", () => {
               type: "mint",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "1000",
@@ -530,6 +532,7 @@ describe("TokenController (e2e)", () => {
               type: "deposit",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: null,
@@ -555,6 +558,7 @@ describe("TokenController (e2e)", () => {
               type: "mint",
               tokenType: "ERC721",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "1000",
@@ -578,6 +582,7 @@ describe("TokenController (e2e)", () => {
               type: "withdrawal",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "1000",
@@ -601,6 +606,7 @@ describe("TokenController (e2e)", () => {
               type: "transfer",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "1000",
@@ -624,6 +630,7 @@ describe("TokenController (e2e)", () => {
               type: "mint",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
           ])
         );
@@ -687,6 +694,7 @@ describe("TokenController (e2e)", () => {
                 tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
+                chainId: null,
               },
               {
                 amount: "1000",
@@ -710,6 +718,7 @@ describe("TokenController (e2e)", () => {
                 tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
+                chainId: null,
               },
               {
                 amount: "1000",
@@ -733,6 +742,7 @@ describe("TokenController (e2e)", () => {
                 tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
+                chainId: null,
               },
             ],
             links: {

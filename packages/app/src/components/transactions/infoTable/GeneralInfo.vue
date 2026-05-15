@@ -102,6 +102,7 @@
               <div class="flex items-center justify-center gap-2">
                 <AddressLink v-if="!!displayedTxReceiver" :address="displayedTxReceiver" />
                 <p v-if="isContractDeploymentTx">{{ t("contract.created") }}</p>
+                <p v-if="displayedTxReceiverName">({{ displayedTxReceiverName }})</p>
               </div>
               <Badge
                 v-if="transaction?.isEvmLike && displayedTxReceiver"
@@ -138,6 +139,55 @@
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
           <TransactionData :data="transaction?.data" :error="decodingDataError" />
+        </TableBodyColumn>
+      </tr>
+
+      <tr v-if="interopBundle" class="transaction-table-row">
+        <TableBodyColumn class="transaction-table-label">
+          <span class="transaction-info-field-label">{{ t("transactions.table.interopBundle") }}</span>
+          <InfoTooltip class="transaction-info-field-tooltip">
+            {{ t("transactions.table.interopBundleTooltip") }}
+          </InfoTooltip>
+        </TableBodyColumn>
+        <TableBodyColumn class="transaction-table-value">
+          <div class="interop-bundle">
+            <div class="interop-bundle-field interop-bundle-chain-ids">
+              <span class="interop-bundle-label">{{ t("transactions.table.interopBundleSourceChainId") }}:</span>
+              <span class="interop-bundle-value">{{ interopBundle.sourceChainId }}</span>
+              <span class="interop-bundle-label">{{ t("transactions.table.interopBundleDestinationChainId") }}:</span>
+              <span class="interop-bundle-value">{{ interopBundle.destinationChainId }}</span>
+            </div>
+            <div class="interop-bundle-field">
+              <span class="interop-bundle-label">{{ t("transactions.table.interopBundleCalls") }}:</span>
+              <div v-for="(call, index) in interopBundle.calls" :key="index" class="interop-bundle-call-starter">
+                <div class="interop-bundle-call-starter-index">[{{ index }}]</div>
+                <div class="interop-bundle-row">
+                  <span class="interop-bundle-label">{{ t("transactions.table.interopBundleCallFrom") }}:</span>
+                  <AddressLink :address="call.from" />
+                </div>
+                <div class="interop-bundle-row">
+                  <span class="interop-bundle-label">{{ t("transactions.table.interopBundleCallTo") }}:</span>
+                  <AddressLink :address="call.to" />
+                </div>
+                <div class="interop-bundle-row">
+                  <span class="interop-bundle-label">{{ t("transactions.table.interopBundleCallValue") }}:</span>
+                  <span class="interop-bundle-value">{{ call.value }}</span>
+                </div>
+                <div class="interop-bundle-row">
+                  <span class="interop-bundle-label">{{ t("transactions.table.interopBundleCallData") }}:</span>
+                  <InteropCallData :to="call.to" :call-data="call.data" :call-value="call.value" />
+                </div>
+              </div>
+            </div>
+            <div class="interop-bundle-row">
+              <span class="interop-bundle-label">{{ t("transactions.table.interopBundleExecutionAddress") }}:</span>
+              <AddressLink :address="interopBundle.bundleAttributes.executionAddress" />
+            </div>
+            <div class="interop-bundle-row">
+              <span class="interop-bundle-label">{{ t("transactions.table.interopBundleUnbundlerAddress") }}:</span>
+              <AddressLink :address="interopBundle.bundleAttributes.unbundlerAddress" />
+            </div>
+          </div>
         </TableBodyColumn>
       </tr>
 
@@ -234,12 +284,18 @@ import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 import EthAmountPrice from "@/components/transactions/EthAmountPrice.vue";
 import TransactionStatus from "@/components/transactions/Status.vue";
+import InteropCallData from "@/components/transactions/infoTable/InteropCallData.vue";
 import TransactionData from "@/components/transactions/infoTable/TransactionData.vue";
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
 
 import type { TransactionItem } from "@/composables/useTransaction";
 
-import { isContractDeployerAddress } from "@/utils/helpers";
+import {
+  decodeInteropBundleSentEvent,
+  getContractDisplayName,
+  INTEROP_BUNDLE_SENT_TOPIC,
+  isContractDeployerAddress,
+} from "@/utils/helpers";
 
 const { t } = useI18n();
 
@@ -272,6 +328,16 @@ const isContractDeploymentTx = computed(() => {
 
 const displayedTxReceiver = computed(() => {
   return isContractDeploymentTx.value ? props.transaction?.contractAddress : props.transaction?.to;
+});
+
+const displayedTxReceiverName = computed(() => {
+  return getContractDisplayName(displayedTxReceiver.value);
+});
+
+const interopBundle = computed(() => {
+  const log = props.transaction?.logs?.find((entry) => entry.topics[0]?.toLowerCase() === INTEROP_BUNDLE_SENT_TOPIC);
+  if (!log) return null;
+  return decodeInteropBundleSentEvent(log) ?? null;
 });
 
 const tokenTransfers = computed(() => {
@@ -329,6 +395,38 @@ const gasUsedPercent = computed(() => {
   }
   .transaction-token-transferred {
     @apply align-top;
+  }
+  .interop-bundle {
+    @apply flex flex-col gap-3 text-sm;
+
+    .interop-bundle-field {
+      @apply flex flex-col gap-1;
+    }
+    .interop-bundle-chain-ids {
+      @apply flex-row flex-wrap items-center gap-x-4 gap-y-1;
+    }
+    .interop-bundle-label {
+      @apply text-gray-400;
+    }
+    .interop-bundle-value {
+      @apply text-gray-800;
+    }
+    .interop-bundle-row {
+      @apply flex flex-wrap items-start gap-2;
+    }
+    .interop-bundle-call-starter {
+      @apply ml-2 flex flex-col gap-1 rounded-md border bg-neutral-100 px-3 py-2;
+
+      .interop-bundle-call-starter-index {
+        @apply font-mono text-neutral-500;
+      }
+    }
+    .interop-bundle-bytes {
+      @apply break-all font-mono text-neutral-700;
+    }
+    .interop-bundle-attributes {
+      @apply ml-4 list-disc text-neutral-700;
+    }
   }
   .copy-button-container {
     @apply inline;
