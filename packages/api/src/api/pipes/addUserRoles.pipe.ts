@@ -1,4 +1,4 @@
-import { PipeTransform, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { PipeTransform, Injectable, BadGatewayException } from "@nestjs/common";
 import { UserParam } from "../../user/user.decorator";
 import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
@@ -35,8 +35,8 @@ export function parseUserProfile(data: unknown): Permissions {
   return { hasFullReadAccess, hasAdminRead };
 }
 
-function throwError(): never {
-  throw new InternalServerErrorException("Authentication failed");
+function throwUpstreamError(): never {
+  throw new BadGatewayException("Auth service unavailable");
 }
 
 @Injectable()
@@ -48,18 +48,22 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
 
     const response = await fetch(new URL("/api/profiles/me", this.config.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${value.token}` },
-    }).catch(throwError);
+    }).catch(throwUpstreamError);
 
-    if (response.status !== 200) {
+    if (response.status === 401) {
       throw new PrividiumApiError("Authentication failed", 401);
     }
 
-    const json = await response.json().catch(throwError);
+    if (response.status !== 200) {
+      throwUpstreamError();
+    }
+
+    const json = await response.json().catch(throwUpstreamError);
     const profile = (() => {
       try {
         return parseUserProfile(json);
       } catch {
-        return throwError();
+        return throwUpstreamError();
       }
     })();
 

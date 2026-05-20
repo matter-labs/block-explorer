@@ -45,9 +45,7 @@ export function useFetchCollection<T, TApiResponse = T>(
       url.searchParams.set("limit", pageSize.value.toString());
       url.searchParams.set("page", nextPage.toString());
 
-      const response = await FetchInstance.withCredentials(context)<Api.Response.Collection<TApiResponse>>(
-        url.toString()
-      );
+      const response = await FetchInstance.api(context)<Api.Response.Collection<TApiResponse>>(url.toString());
       data.value = itemMapper ? response.items?.map((item) => itemMapper(item)) : (response.items as unknown as T[]);
       total.value = response.meta.totalItems;
     } catch (error) {
