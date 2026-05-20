@@ -7,28 +7,30 @@ import { useContextMock } from "./../mocks";
 import useBlocks from "@/composables/useBlocks";
 
 vi.mock("ohmyfetch", () => {
-  return {
-    $fetch: vi.fn(() =>
-      Promise.resolve({
-        items: [
-          {
-            hash: "0x5a606c1c09d5be2f73c413f27758459a959a642fd3dca2af05d153aac29e229b",
-            l1TxCount: 0,
-            l2TxCount: 1,
-            number: 105205,
-            status: "sealed",
-            timestamp: "2022-04-13T13:09:31.000Z",
-          },
-        ],
-        meta: {
-          totalItems: 1,
-          page: 1,
-          pageSize: 10,
-          totalPages: 1,
-          itemCount: 1,
+  const fetchSpy = vi.fn(() =>
+    Promise.resolve({
+      items: [
+        {
+          hash: "0x5a606c1c09d5be2f73c413f27758459a959a642fd3dca2af05d153aac29e229b",
+          l1TxCount: 0,
+          l2TxCount: 1,
+          number: 105205,
+          status: "sealed",
+          timestamp: "2022-04-13T13:09:31.000Z",
         },
-      })
-    ),
+      ],
+      meta: {
+        totalItems: 1,
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+        itemCount: 1,
+      },
+    })
+  );
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
+  return {
+    $fetch: fetchSpy,
   };
 });
 
