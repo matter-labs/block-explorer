@@ -17,3 +17,5 @@ export * from "./counter.entity";
 export * from "./counterState.entity";
 export * from "./indexerState.entity";
 export * from "./blockQueue.entity";
+export * from "./monthlyActiveAddress.entity";
+export * from "./monthlyActiveAddressCount.entity";
