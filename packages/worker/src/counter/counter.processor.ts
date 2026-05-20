@@ -1,5 +1,5 @@
 import { Logger } from "@nestjs/common";
-import { Repository, EntityTarget, getMetadataArgsStorage } from "typeorm";
+import { Repository, EntityTarget } from "typeorm";
 import { UnitOfWork } from "../unitOfWork";
 import { CounterRepository, IndexerStateRepository } from "../repositories";
 import { CountableEntity } from "../entities";
