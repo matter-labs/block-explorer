@@ -1,17 +1,23 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { BadRequestException } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
+import { MonthlyActiveAddressService } from "./monthlyActiveAddress.service";
 import { StatsController } from "./stats.controller";
 
 describe("StatsController", () => {
   let blockServiceMock: BlockService;
   let transactionServiceMock: TransactionService;
+  let monthlyActiveAddressServiceMock: MonthlyActiveAddressService;
   let statsController: StatsController;
 
   beforeEach(async () => {
     blockServiceMock = mock<BlockService>();
     transactionServiceMock = mock<TransactionService>();
+    monthlyActiveAddressServiceMock = mock<MonthlyActiveAddressService>({
+      getCount: jest.fn().mockResolvedValue(0),
+    });
 
     const app: TestingModule = await Test.createTestingModule({
       controllers: [StatsController],
@@ -23,6 +29,10 @@ describe("StatsController", () => {
         {
           provide: TransactionService,
           useValue: transactionServiceMock,
+        },
+        {
+          provide: MonthlyActiveAddressService,
+          useValue: monthlyActiveAddressServiceMock,
         },
       ],
     }).compile();
@@ -54,6 +64,25 @@ describe("StatsController", () => {
         lastVerifiedBlock: 20,
         totalTransactions: 30,
       });
+    });
+  });
+
+  describe("monthlyActiveAddresses", () => {
+    it("returns the count for the given month", async () => {
+      (monthlyActiveAddressServiceMock.getCount as jest.Mock).mockResolvedValueOnce(12345);
+      const result = await statsController.monthlyActiveAddresses("2026-05");
+      expect(monthlyActiveAddressServiceMock.getCount).toHaveBeenCalledWith("2026-05");
+      expect(result).toStrictEqual({ count: 12345 });
+    });
+
+    it("throws BadRequestException when month is missing", async () => {
+      await expect(statsController.monthlyActiveAddresses(undefined)).rejects.toThrow(BadRequestException);
+    });
+
+    it("throws BadRequestException when month is malformed", async () => {
+      await expect(statsController.monthlyActiveAddresses("2026-13")).rejects.toThrow(BadRequestException);
+      await expect(statsController.monthlyActiveAddresses("2026")).rejects.toThrow(BadRequestException);
+      await expect(statsController.monthlyActiveAddresses("2026-05-01")).rejects.toThrow(BadRequestException);
     });
   });
 });
