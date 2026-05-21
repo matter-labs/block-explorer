@@ -1,10 +1,11 @@
 import { Logger } from "@nestjs/common";
-import { Repository, EntityTarget, getMetadataArgsStorage } from "typeorm";
+import { Repository, EntityTarget } from "typeorm";
 import { UnitOfWork } from "../unitOfWork";
 import { CounterRepository, IndexerStateRepository } from "../repositories";
 import { CountableEntity } from "../entities";
 import { calculateCounters } from "./counter.utils";
 import { CounterCriteria } from "./counter.types";
+import { getTableNameForEntity } from "../utils/db";
 
 export class CounterProcessor<T extends CountableEntity> {
   private lastProcessedRecordNumber: number = null;
@@ -22,7 +23,7 @@ export class CounterProcessor<T extends CountableEntity> {
     private readonly counterRepository: CounterRepository,
     private readonly indexerStateRepository: IndexerStateRepository
   ) {
-    this.tableName = this.getTableNameForEntity(this.entityClass);
+    this.tableName = getTableNameForEntity(this.entityClass);
     this.fieldsToSelect = this.getFieldsToSelect();
     this.logger = new Logger(CounterProcessor.name);
   }
@@ -137,11 +138,6 @@ export class CounterProcessor<T extends CountableEntity> {
       startingFromBlockNumber: this.lastProcessedBlockNumber != null ? this.lastProcessedBlockNumber + 1 : null,
       ...(stack && { stack }),
     };
-  }
-
-  private getTableNameForEntity(entityClass: EntityTarget<T>): string {
-    const table = getMetadataArgsStorage().tables.find((t) => t.target === entityClass);
-    return table.name;
   }
 
   private getFieldsToSelect() {

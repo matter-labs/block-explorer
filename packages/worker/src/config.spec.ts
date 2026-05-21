@@ -47,6 +47,7 @@ describe("config", () => {
         recordsBatchSize: 20000,
         updateInterval: 30000,
         disableCountersProcessing: false,
+        disableMonthlyActiveAddressCounting: false,
       },
       tokens: {
         enableTokenOffChainDataSaver: false,
@@ -130,6 +131,7 @@ describe("config", () => {
         recordsBatchSize: 20000,
         updateInterval: 30000,
         disableCountersProcessing: false,
+        disableMonthlyActiveAddressCounting: false,
       },
       tokens: {
         enableTokenOffChainDataSaver: false,

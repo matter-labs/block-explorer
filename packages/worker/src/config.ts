@@ -28,6 +28,7 @@ export default () => {
     DISABLE_INDEXER_STATE_MANAGER,
     DISABLE_BLOCKS_INDEXER,
     DISABLE_COUNTERS_PROCESSING,
+    DISABLE_MONTHLY_ACTIVE_ADDRESS_COUNTING,
     DISABLE_OLD_BALANCES_CLEANER,
     DISABLE_BLOCKS_REVERT,
     ENABLE_TOKEN_OFFCHAIN_DATA_SAVER,
@@ -98,6 +99,7 @@ export default () => {
       recordsBatchSize: parseInt(COUNTERS_PROCESSING_RECORDS_BATCH_SIZE, 10) || 20000,
       updateInterval: parseInt(COUNTERS_PROCESSING_POLLING_INTERVAL, 10) || 30000,
       disableCountersProcessing: DISABLE_COUNTERS_PROCESSING === "true",
+      disableMonthlyActiveAddressCounting: DISABLE_MONTHLY_ACTIVE_ADDRESS_COUNTING === "true",
     },
     tokens: {
       enableTokenOffChainDataSaver: ENABLE_TOKEN_OFFCHAIN_DATA_SAVER === "true",
