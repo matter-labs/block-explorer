@@ -12,12 +12,13 @@ export class FetchInstance {
 
   public static api(context = useContext()) {
     return this.withCredentials(context, context.currentNetwork.value.apiUrl, ({ response }) => {
-      // For prividium response of 401 when the context indicates that the server logged out
-      // the user. To avoid complex state management, we force
-      // refresh preserving the current url as redirect url after login
-      if (context.currentNetwork.value.prividium && context.user.value.loggedIn && response.status === 401) {
-        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      if (response.status !== 401 || !context.currentNetwork.value.prividium || !context.user.value.loggedIn) {
+        return;
       }
+
+      // API invalidated the session
+      context.user.value = { loggedIn: false };
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
     });
   }
 
@@ -25,7 +26,7 @@ export class FetchInstance {
     return this.withBaseUrl(context.currentNetwork.value.verificationApiUrl ?? "");
   }
 
-  public static withCredentials(context: Context, baseUrl?: string, onResponse?: OnResponse) {
+  private static withCredentials(context: Context, baseUrl?: string, onResponse?: OnResponse) {
     const prividium = !!context.currentNetwork.value.prividium;
     if (prividium) {
       return baseUrl

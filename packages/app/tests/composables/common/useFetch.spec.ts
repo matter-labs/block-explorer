@@ -5,8 +5,10 @@ import { $fetch } from "ohmyfetch";
 import composable, { type UseFetch } from "@/composables/common/useFetch";
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => null);
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => null),
+    $fetch: fetchSpy,
   };
 });
 

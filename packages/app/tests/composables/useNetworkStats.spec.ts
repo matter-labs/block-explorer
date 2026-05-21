@@ -10,8 +10,10 @@ import type { UseFetch } from "@/composables/common/useFetch";
 import type { SpyInstance } from "vitest";
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => new Promise((resolve) => setImmediate(resolve)));
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => new Promise((resolve) => setImmediate(resolve))),
+    $fetch: fetchSpy,
   };
 });
 

@@ -1,7 +1,7 @@
 import { AddUserRolesPipe } from "./addUserRoles.pipe";
 import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
-import { InternalServerErrorException } from "@nestjs/common";
+import { BadGatewayException } from "@nestjs/common";
 import { PrividiumApiError } from "../../errors/prividiumApiError";
 
 describe("AddUserRolesPipe", () => {
@@ -160,10 +160,10 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
   });
 
-  it("throws if server returns non 200 status", async () => {
+  it("throws PrividiumApiError if server returns 401", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 401,
       json: jest.fn().mockResolvedValue({
@@ -176,6 +176,17 @@ describe("AddUserRolesPipe", () => {
     await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(PrividiumApiError);
   });
 
+  it("throws BadGatewayException if server returns a non-401 error status", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 503,
+      json: jest.fn().mockResolvedValue({}),
+    });
+
+    const pipe = new AddUserRolesPipe(configServiceMock);
+
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
+  });
+
   it("throws if server returns non parseable json", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
@@ -184,7 +195,7 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
   });
 
   it("throws if server do not complete request", async () => {
@@ -192,6 +203,6 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(InternalServerErrorException);
+    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
   });
 });

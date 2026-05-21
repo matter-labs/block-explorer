@@ -24,7 +24,7 @@ export function useFetch<T>(getRequestUrl: (...params: string[]) => URL, context
     failed.value = false;
 
     try {
-      const response = await FetchInstance.withCredentials(context)<T>(getRequestUrl(...params).toString());
+      const response = await FetchInstance.api(context)<T>(getRequestUrl(...params).toString());
 
       item.value = response;
     } catch (error) {
