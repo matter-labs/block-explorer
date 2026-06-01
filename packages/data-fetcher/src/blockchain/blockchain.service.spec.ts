@@ -1,4 +1,5 @@
 import { mock } from "jest-mock-extended";
+import { register } from "prom-client";
 import { Log, Block, TransactionReceipt, TransactionResponse } from "ethers";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
@@ -1677,6 +1678,40 @@ describe("BlockchainService", () => {
       const result = await blockchainService.getTrustedLegacyBridgeAddresses();
       expect(result.has("0xe1d6a50e7101c8f8db77352897ee3f1ac53f782b")).toBe(true);
       expect(result.size).toBe(1);
+    });
+
+    it("caches the fallback on a deterministic failure and does not re-call the node", async () => {
+      jest.spyOn(provider, "send").mockRejectedValue({ code: -32601, message: "Method not found" });
+      await blockchainService.getTrustedLegacyBridgeAddresses();
+      await blockchainService.getTrustedLegacyBridgeAddresses();
+      expect(provider.send).toHaveBeenCalledTimes(1);
+    });
+
+    it("retries on a transient network failure rather than caching the fallback", async () => {
+      jest.spyOn(provider, "send").mockRejectedValue({ code: "NETWORK_ERROR", message: "boom" });
+      await blockchainService.getTrustedLegacyBridgeAddresses();
+      await blockchainService.getTrustedLegacyBridgeAddresses();
+      expect(provider.send).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("isTrustedLegacyBridgeEmitter", () => {
+    const bridgeContracts = { l2LegacySharedBridge: "0x11F943b2c77b743AB90f4A0Ae7d5A4e7FCA3E102" };
+
+    it("returns true for a log emitted by a trusted bridge", async () => {
+      jest.spyOn(provider, "send").mockResolvedValue(bridgeContracts);
+      const log = mock<Log>({ address: "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102" });
+      expect(await blockchainService.isTrustedLegacyBridgeEmitter(log, "withdrawal")).toBe(true);
+    });
+
+    it("returns false and counts the skip for an untrusted emitter", async () => {
+      jest.spyOn(provider, "send").mockResolvedValue(bridgeContracts);
+      const log = mock<Log>({ address: "0x9999999999999999999999999999999999999999" });
+      const metric = register.getSingleMetric("skipped_untrusted_legacy_bridge_logs_total");
+      const total = async () => (await metric.get()).values.reduce((sum, v) => sum + v.value, 0);
+      const before = await total();
+      expect(await blockchainService.isTrustedLegacyBridgeEmitter(log, "withdrawal")).toBe(false);
+      expect(await total()).toBeGreaterThan(before);
     });
   });
 });

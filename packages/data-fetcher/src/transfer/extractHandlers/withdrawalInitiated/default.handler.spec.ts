@@ -31,9 +31,7 @@ describe("defaultWithdrawalInitiatedHandler", () => {
       timestamp: new Date().getTime() / 1000,
     });
     blockchainService = mock<BlockchainService>();
-    blockchainService.getTrustedLegacyBridgeAddresses.mockResolvedValue(
-      new Set(["0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c"])
-    );
+    blockchainService.isTrustedLegacyBridgeEmitter.mockResolvedValue(true);
   });
 
   describe("matches", () => {
@@ -51,9 +49,7 @@ describe("defaultWithdrawalInitiatedHandler", () => {
     });
 
     it("returns null when the log is emitted by an address that is not a trusted bridge", async () => {
-      blockchainService.getTrustedLegacyBridgeAddresses.mockResolvedValue(
-        new Set(["0x1111111111111111111111111111111111111111"])
-      );
+      blockchainService.isTrustedLegacyBridgeEmitter.mockResolvedValue(false);
       const result = await defaultWithdrawalInitiatedHandler.extract(log, blockchainService, blockDetails);
       expect(result).toBeNull();
     });

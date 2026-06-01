@@ -14,8 +14,7 @@ export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
     // The legacy FinalizeDeposit event has no single authoritative emitter (the canonical shared bridge
     // plus deployment-specific custom token bridges), so authenticate against the trusted bridge set
     // rather than indexing any contract's ABI-shaped log as a real bridge deposit.
-    const trustedBridgeAddresses = await blockchainService.getTrustedLegacyBridgeAddresses();
-    if (!trustedBridgeAddresses.has(log.address.toLowerCase())) {
+    if (!(await blockchainService.isTrustedLegacyBridgeEmitter(log, TransferType.Deposit))) {
       return null;
     }
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_SHARED_BRIDGE, log);

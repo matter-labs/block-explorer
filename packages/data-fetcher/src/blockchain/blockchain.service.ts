@@ -1,5 +1,5 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { Histogram } from "prom-client";
+import { Counter, Histogram, register } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Listener, toBeHex } from "ethers";
 import { ConfigService } from "@nestjs/config";
@@ -30,6 +30,20 @@ const ZKS_BRIDGE_CONTRACT_KEYS = [
   "l2Erc20DefaultBridge",
   "l2WethBridge",
 ];
+
+// Counts legacy bridge logs skipped because their emitter is not a trusted bridge. Lets operators
+// detect legitimate custom bridges that need to be added to TRUSTED_LEGACY_BRIDGE_ADDRESSES instead
+// of having those transfers silently dropped. Defined at module level (and guarded against double
+// registration) because the transfer handlers are plain objects that cannot receive an injected
+// metric; it is registered on the default prom-client registry that the /metrics endpoint collects.
+const SKIPPED_UNTRUSTED_LEGACY_BRIDGE_LOG_METRIC_NAME = "skipped_untrusted_legacy_bridge_logs_total";
+const skippedUntrustedLegacyBridgeLogsMetric =
+  (register.getSingleMetric(SKIPPED_UNTRUSTED_LEGACY_BRIDGE_LOG_METRIC_NAME) as Counter<"type">) ||
+  new Counter({
+    name: SKIPPED_UNTRUSTED_LEGACY_BRIDGE_LOG_METRIC_NAME,
+    help: "Number of legacy bridge logs skipped because the emitter is not a trusted bridge.",
+    labelNames: ["type"],
+  });
 
 export interface TransactionTrace {
   type: string;
@@ -89,10 +103,14 @@ export class BlockchainService {
           addresses.add(address.toLowerCase());
         }
       }
-      // Only cache once we have successfully resolved the canonical bridges, so transient RPC
-      // failures are retried rather than permanently degrading to the configured allowlist.
       this.trustedLegacyBridgeAddresses = addresses;
     } catch (error) {
+      // Cache the fallback for deterministic failures (e.g. a chain that doesn't implement
+      // zks_getBridgeContracts, which returns -32601) so we don't re-issue a failing call for every
+      // legacy log. Transient network errors are left uncached so they are retried on the next call.
+      if (!this.errorCodesForQuickRetry.includes(error.code)) {
+        this.trustedLegacyBridgeAddresses = addresses;
+      }
       this.logger.warn({
         message:
           "zks_getBridgeContracts is unavailable; trusting only the configured legacy bridge addresses for this chain",
@@ -100,6 +118,26 @@ export class BlockchainService {
       });
     }
     return addresses;
+  }
+
+  // Whether a legacy bridge event from the given log may be trusted as a real bridge transfer.
+  // Emitters outside the trusted set are skipped (and counted) so that attacker-emitted ABI-shaped
+  // logs are not indexed as bridge transfers; the metric/log surfaces legitimate custom bridges that
+  // should be added to TRUSTED_LEGACY_BRIDGE_ADDRESSES.
+  public async isTrustedLegacyBridgeEmitter(log: Log, transferType: string): Promise<boolean> {
+    const trustedBridgeAddresses = await this.getTrustedLegacyBridgeAddresses();
+    if (trustedBridgeAddresses.has(log.address.toLowerCase())) {
+      return true;
+    }
+    skippedUntrustedLegacyBridgeLogsMetric.inc({ type: transferType });
+    this.logger.debug({
+      message:
+        "Skipped a legacy bridge log from an untrusted emitter; add it to TRUSTED_LEGACY_BRIDGE_ADDRESSES if it is a legitimate bridge",
+      type: transferType,
+      emitter: log.address,
+      transactionHash: log.transactionHash,
+    });
+    return false;
   }
 
   private async rpcCall<T>(action: () => Promise<T>, functionName: string, retriesTotalTimeAwaited = 0): Promise<T> {
