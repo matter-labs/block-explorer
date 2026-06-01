@@ -16,10 +16,18 @@ export default () => {
     MAX_BLOCKS_BATCH_SIZE,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
     RPC_HEALTH_CHECK_TIMEOUT_MS,
+    TRUSTED_LEGACY_BRIDGE_ADDRESSES,
   } = process.env;
 
   return {
     port: parseInt(PORT, 10) || 3040,
+    // Additional L2 addresses (besides the canonical bridges reported by zks_getBridgeContracts)
+    // whose legacy FinalizeDeposit / WithdrawalInitiated events are trusted as real bridge transfers,
+    // e.g. third-party custom token bridges. Comma-separated, lower-cased. Deployment-specific.
+    trustedLegacyBridgeAddresses: (TRUSTED_LEGACY_BRIDGE_ADDRESSES || "")
+      .split(",")
+      .map((address) => address.trim().toLowerCase())
+      .filter((address) => address.length > 0),
     blockchain: {
       rpcUrl: BLOCKCHAIN_RPC_URL || "http://localhost:3050",
 

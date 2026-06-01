@@ -1,4 +1,5 @@
 import { type Log, type Block } from "ethers";
+import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
@@ -9,7 +10,14 @@ import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES, ETH_L1_ADDRESS } from "../../.
 import { isBaseToken } from "../../../utils/token";
 export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
   matches: (): boolean => true,
-  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
+  extract: async (log: Log, blockchainService: BlockchainService, block: Block): Promise<Transfer> => {
+    // The legacy FinalizeDeposit event has no single authoritative emitter (the canonical shared bridge
+    // plus deployment-specific custom token bridges), so authenticate against the trusted bridge set
+    // rather than indexing any contract's ABI-shaped log as a real bridge deposit.
+    const trustedBridgeAddresses = await blockchainService.getTrustedLegacyBridgeAddresses();
+    if (!trustedBridgeAddresses.has(log.address.toLowerCase())) {
+      return null;
+    }
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_SHARED_BRIDGE, log);
     if (!parsedLog) {
       return null;

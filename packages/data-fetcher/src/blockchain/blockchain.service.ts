@@ -15,8 +15,21 @@ import {
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
-import { L2_NATIVE_TOKEN_VAULT_ADDRESS, L2_ACCOUNT_CODE_STORAGE_ADDRESS, CONTRACT_INTERFACES } from "../constants";
+import {
+  L2_NATIVE_TOKEN_VAULT_ADDRESS,
+  L2_ACCOUNT_CODE_STORAGE_ADDRESS,
+  CONTRACT_INTERFACES,
+  ETH_L1_ADDRESS,
+} from "../constants";
 import isBaseToken from "../utils/isBaseToken";
+
+// L2 bridge addresses reported by the node that may legitimately emit legacy bridge events.
+const ZKS_BRIDGE_CONTRACT_KEYS = [
+  "l2SharedDefaultBridge",
+  "l2LegacySharedBridge",
+  "l2Erc20DefaultBridge",
+  "l2WethBridge",
+];
 
 export interface TransactionTrace {
   type: string;
@@ -42,6 +55,8 @@ export class BlockchainService {
   private readonly rpcCallsQuickRetryTimeout: number;
   private readonly rpcCallRetriesMaxTotalTimeout: number;
   private readonly errorCodesForQuickRetry: string[] = ["NETWORK_ERROR", "ECONNRESET", "ECONNREFUSED", "TIMEOUT"];
+  private readonly configuredTrustedLegacyBridgeAddresses: string[];
+  private trustedLegacyBridgeAddresses: Set<string> | null = null;
 
   public constructor(
     configService: ConfigService,
@@ -53,6 +68,38 @@ export class BlockchainService {
     this.rpcCallsDefaultRetryTimeout = configService.get<number>("blockchain.rpcCallDefaultRetryTimeout");
     this.rpcCallsQuickRetryTimeout = configService.get<number>("blockchain.rpcCallQuickRetryTimeout");
     this.rpcCallRetriesMaxTotalTimeout = configService.get<number>("blockchain.rpcCallRetriesMaxTotalTimeout");
+    this.configuredTrustedLegacyBridgeAddresses = configService.get<string[]>("trustedLegacyBridgeAddresses") || [];
+  }
+
+  // Returns the set of L2 addresses (lower-cased) whose legacy FinalizeDeposit / WithdrawalInitiated
+  // events may be trusted as real bridge transfers: the canonical bridges reported by the node via
+  // zks_getBridgeContracts, plus any deployment-specific custom bridges configured via env. The result
+  // is cached. Chains that don't implement zks_getBridgeContracts (e.g. ZKsync OS) gracefully fall back
+  // to the configured allowlist only; on those chains legacy bridge events do not occur.
+  public async getTrustedLegacyBridgeAddresses(): Promise<Set<string>> {
+    if (this.trustedLegacyBridgeAddresses) {
+      return this.trustedLegacyBridgeAddresses;
+    }
+    const addresses = new Set<string>(this.configuredTrustedLegacyBridgeAddresses);
+    try {
+      const bridgeContracts = await this.provider.send("zks_getBridgeContracts", []);
+      for (const key of ZKS_BRIDGE_CONTRACT_KEYS) {
+        const address = bridgeContracts?.[key];
+        if (address && address.toLowerCase() !== ETH_L1_ADDRESS) {
+          addresses.add(address.toLowerCase());
+        }
+      }
+      // Only cache once we have successfully resolved the canonical bridges, so transient RPC
+      // failures are retried rather than permanently degrading to the configured allowlist.
+      this.trustedLegacyBridgeAddresses = addresses;
+    } catch (error) {
+      this.logger.warn({
+        message:
+          "zks_getBridgeContracts is unavailable; trusting only the configured legacy bridge addresses for this chain",
+        code: error.code,
+      });
+    }
+    return addresses;
   }
 
   private async rpcCall<T>(action: () => Promise<T>, functionName: string, retriesTotalTimeAwaited = 0): Promise<T> {

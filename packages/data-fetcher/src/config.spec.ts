@@ -9,6 +9,7 @@ describe("config", () => {
 
     defaultConfig = {
       port: 3040,
+      trustedLegacyBridgeAddresses: [],
       blockchain: {
         rpcUrl: "http://localhost:3050",
         rpcCallDefaultRetryTimeout: 30000,
@@ -34,6 +35,25 @@ describe("config", () => {
 
   it("sets default values", () => {
     expect(config()).toEqual(defaultConfig);
+  });
+
+  describe("when TRUSTED_LEGACY_BRIDGE_ADDRESSES is specified in env vars", () => {
+    beforeEach(() => {
+      process.env = {
+        TRUSTED_LEGACY_BRIDGE_ADDRESSES:
+          "0xE1d6A50E7101C8f8db77352897Ee3F1aC53f782b, 0x11F943b2c77b743AB90f4A0Ae7d5A4e7FCA3E102",
+      };
+    });
+
+    it("parses the addresses into a lower-cased, trimmed list", () => {
+      expect(config()).toEqual({
+        ...defaultConfig,
+        trustedLegacyBridgeAddresses: [
+          "0xe1d6a50e7101c8f8db77352897ee3f1ac53f782b",
+          "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
+        ],
+      });
+    });
   });
 
   describe("when RPC_BATCH_MAX_COUNT is specified in env vars", () => {

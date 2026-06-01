@@ -8,10 +8,13 @@ import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
 import { isBaseToken } from "../../../utils/token";
-import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES, ETH_L1_ADDRESS } from "../../../constants";
+import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES, ETH_L1_ADDRESS, L2_ASSET_ROUTER_ADDRESS } from "../../../constants";
 
 export const assetRouterWithdrawalInitiatedHandler: ExtractTransferHandler = {
-  matches: (): boolean => true,
+  // Only the trusted L2 Asset Router (a system contract at the same fixed address on Era and every
+  // ZK chain) may emit authoritative bridge withdrawal events. Without this check any contract could emit
+  // an ABI-shaped WithdrawalInitiatedAssetRouter log and have it indexed as a real bridge withdrawal.
+  matches: (log: Log): boolean => log.address.toLowerCase() === L2_ASSET_ROUTER_ADDRESS,
   extract: async (log: Log, blockchainService: BlockchainService, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_ASSET_ROUTER, log);
     if (!parsedLog) {

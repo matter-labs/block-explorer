@@ -1633,4 +1633,50 @@ describe("BlockchainService", () => {
       });
     });
   });
+
+  describe("getTrustedLegacyBridgeAddresses", () => {
+    const bridgeContracts = {
+      l2SharedDefaultBridge: "0x0000000000000000000000000000000000010003",
+      l2LegacySharedBridge: "0x11F943b2c77b743AB90f4A0Ae7d5A4e7FCA3E102",
+      l2Erc20DefaultBridge: "0x0000000000000000000000000000000000010003",
+      l2WethBridge: "0x0000000000000000000000000000000000000000",
+    };
+
+    it("returns the lower-cased canonical bridge addresses from zks_getBridgeContracts, excluding the zero address", async () => {
+      jest.spyOn(provider, "send").mockResolvedValue(bridgeContracts);
+      const result = await blockchainService.getTrustedLegacyBridgeAddresses();
+      expect(provider.send).toHaveBeenCalledWith("zks_getBridgeContracts", []);
+      expect(result.has("0x0000000000000000000000000000000000010003")).toBe(true);
+      expect(result.has("0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102")).toBe(true);
+      expect(result.has("0x0000000000000000000000000000000000000000")).toBe(false);
+    });
+
+    it("caches the result and does not call the node again on subsequent calls", async () => {
+      jest.spyOn(provider, "send").mockResolvedValue(bridgeContracts);
+      await blockchainService.getTrustedLegacyBridgeAddresses();
+      await blockchainService.getTrustedLegacyBridgeAddresses();
+      expect(provider.send).toHaveBeenCalledTimes(1);
+    });
+
+    it("includes the configured allowlist of custom bridge addresses", async () => {
+      (configServiceMock.get as jest.Mock).mockImplementation((configName) =>
+        configName === "trustedLegacyBridgeAddresses" ? ["0xe1d6a50e7101c8f8db77352897ee3f1ac53f782b"] : undefined
+      );
+      blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+      jest.spyOn(provider, "send").mockResolvedValue(bridgeContracts);
+      const result = await blockchainService.getTrustedLegacyBridgeAddresses();
+      expect(result.has("0xe1d6a50e7101c8f8db77352897ee3f1ac53f782b")).toBe(true);
+    });
+
+    it("falls back to the configured allowlist when zks_getBridgeContracts is unavailable", async () => {
+      (configServiceMock.get as jest.Mock).mockImplementation((configName) =>
+        configName === "trustedLegacyBridgeAddresses" ? ["0xe1d6a50e7101c8f8db77352897ee3f1ac53f782b"] : undefined
+      );
+      blockchainService = new BlockchainService(configServiceMock, provider, app.get(metricProviderKey));
+      jest.spyOn(provider, "send").mockRejectedValue({ code: -32601, message: "Method not found" });
+      const result = await blockchainService.getTrustedLegacyBridgeAddresses();
+      expect(result.has("0xe1d6a50e7101c8f8db77352897ee3f1ac53f782b")).toBe(true);
+      expect(result.size).toBe(1);
+    });
+  });
 });

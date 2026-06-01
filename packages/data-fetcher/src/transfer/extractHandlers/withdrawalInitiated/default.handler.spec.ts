@@ -1,5 +1,5 @@
 import { Log, Block } from "ethers";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { ZERO_HASH_64 } from "../../../constants";
 import { TransferType } from "../../transfer.service";
@@ -10,7 +10,7 @@ import { BASE_TOKEN_ADDRESS } from "../../../../src/constants";
 describe("defaultWithdrawalInitiatedHandler", () => {
   let log: Log;
   let blockDetails: Block;
-  let blockchainService: BlockchainService;
+  let blockchainService: MockProxy<BlockchainService>;
   beforeEach(() => {
     log = mock<Log>({
       transactionIndex: 1,
@@ -31,6 +31,9 @@ describe("defaultWithdrawalInitiatedHandler", () => {
       timestamp: new Date().getTime() / 1000,
     });
     blockchainService = mock<BlockchainService>();
+    blockchainService.getTrustedLegacyBridgeAddresses.mockResolvedValue(
+      new Set(["0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c"])
+    );
   });
 
   describe("matches", () => {
@@ -43,6 +46,14 @@ describe("defaultWithdrawalInitiatedHandler", () => {
   describe("extract", () => {
     it("returns null when log cannot be parsed", async () => {
       log = mock<Log>({ ...log, data: "0x", topics: [] });
+      const result = await defaultWithdrawalInitiatedHandler.extract(log, blockchainService, blockDetails);
+      expect(result).toBeNull();
+    });
+
+    it("returns null when the log is emitted by an address that is not a trusted bridge", async () => {
+      blockchainService.getTrustedLegacyBridgeAddresses.mockResolvedValue(
+        new Set(["0x1111111111111111111111111111111111111111"])
+      );
       const result = await defaultWithdrawalInitiatedHandler.extract(log, blockchainService, blockDetails);
       expect(result).toBeNull();
     });
