@@ -16,7 +16,7 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 import enUS from "./locales/en.json";
 
 import { useSentry } from "@/utils/logger";
-import setColorScheme from "@/utils/setColorScheme";
+import setColorScheme, { prividiumColors } from "@/utils/setColorScheme";
 
 import "@/assets/tailwind.scss";
 
@@ -38,7 +38,10 @@ app.use(i18n);
 app.use(testId);
 const runtimeConfig = useRuntimeConfig();
 
-setColorScheme(runtimeConfig.theme?.colors);
+const themeColors =
+  runtimeConfig.theme?.colors ?? (runtimeConfig.appEnvironment === "prividium" ? prividiumColors : undefined);
+
+setColorScheme(themeColors);
 
 const context = useContext();
 
