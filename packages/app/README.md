@@ -55,6 +55,8 @@ By default the app is served from the root of the domain (e.g. `https://explorer
 
 When the app sits behind a reverse proxy that forwards the subpath prefix to the container (prefix-preserving, e.g. `proxy.example.com/explorer/*` -> `container/explorer/*`), set `BASE_PATH` to that prefix. If the proxy strips the prefix before forwarding, leave `BASE_PATH` unset and note that the app would then generate root-relative URLs which will not work under the proxied subpath, so prefix-preserving proxying is the supported setup.
 
+For contributors: when referencing files from `public/` (e.g. `/images/...`) or building full-page redirect URLs in app code, resolve them through the helpers in [`src/utils/basePath.ts`](./src/utils/basePath.ts) (`publicAsset`, `appUrl`, etc.) instead of hardcoding root-absolute paths. Hardcoded `/...` URLs work at the domain root but silently break subpath deployments.
+
 ### Compile and Hot-Reload for Development
 
 ```sh

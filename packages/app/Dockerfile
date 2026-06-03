@@ -46,8 +46,11 @@ RUN cp /usr/share/nginx/html/index.html /usr/share/nginx/html/index.html.tpl
 # BASE_PATH (e.g. "/explorer") serves the app under a subpath for
 # prefix-preserving reverse proxies. When unset, behavior is unchanged.
 # nginx needs the prefix without a trailing slash, the <base> tag (filled
-# by gomplate from BASE_PATH) needs it with one.
+# by gomplate from BASE_PATH) needs it with one. The charset check fails
+# fast on values that would be unsafe to interpolate into the nginx
+# location/rewrite rules (see nginx.conf.subpath.template).
 CMD BP="${BASE_PATH#/}" && BP="${BP%/}" \
+  && case "$BP" in *[!a-zA-Z0-9_/-]*) echo "Invalid BASE_PATH: only letters, digits, '-', '_' and '/' are allowed" >&2 && exit 1;; esac \
   && if [ -n "$BP" ]; then \
        export BASE_PATH="/$BP" \
        && envsubst '$PORT $CSP_REPORT_ONLY $BASE_PATH' < /etc/nginx/conf.d/subpath.conf.template > /etc/nginx/conf.d/default.conf \

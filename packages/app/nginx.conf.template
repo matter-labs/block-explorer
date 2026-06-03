@@ -1,3 +1,6 @@
+# NOTE: keep gzip and header settings in sync with nginx.conf.subpath.template,
+# which is used instead of this file when the BASE_PATH env var is set
+# (see the Dockerfile CMD).
 server {
     listen   ${PORT};
     listen   [::]:${PORT} default;

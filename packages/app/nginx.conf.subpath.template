@@ -22,9 +22,10 @@ server {
     gzip_vary on;
 
     # Redirect the bare prefix to its trailing-slash form so relative
-    # asset URLs resolve correctly.
+    # asset URLs resolve correctly. $is_args$args preserves the query string
+    # (e.g. ?network=...); envsubst leaves both untouched, like $uri below.
     location = ${BASE_PATH} {
-        return 301 ${BASE_PATH}/;
+        return 301 ${BASE_PATH}/$is_args$args;
     }
 
     location ${BASE_PATH}/ {
