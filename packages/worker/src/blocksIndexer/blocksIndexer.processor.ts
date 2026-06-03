@@ -42,21 +42,22 @@ export class BlocksIndexerProcessor {
   }
 
   public async processNextBlocksRange(): Promise<boolean> {
-    let didWork = false;
     let stopDurationMeasuring: ReturnType<Histogram<BlocksBatchProcessingMetricLabels>["startTimer"]> | null = null;
+    let didWork = false;
+    let claimedBlockNumbers: number[] = [];
+    const processedBlockNumbers: number[] = [];
 
     try {
       await this.unitOfWork
         .useTransaction(async () => {
-          const blockNumbers = await this.blockQueueRepository.claim(this.blocksProcessingBatchSize);
-          if (blockNumbers.length === 0) {
+          claimedBlockNumbers = await this.blockQueueRepository.claim(this.blocksProcessingBatchSize);
+          if (claimedBlockNumbers.length === 0) {
             return;
           }
           stopDurationMeasuring = this.blocksBatchProcessingDurationMetric.startTimer();
 
-          const processedBlockNumbers: number[] = [];
           await Promise.all(
-            blockNumbers.map(async (blockNumber) => {
+            claimedBlockNumbers.map(async (blockNumber) => {
               let blockData: BlockData;
               try {
                 blockData = await this.dataFetcherService.getBlockData(blockNumber);
@@ -64,7 +65,7 @@ export class BlocksIndexerProcessor {
                 this.logger.error({
                   message: "Failed to fetch block data, will retry next iteration",
                   blockNumber,
-                  stack: error.stack,
+                  stack: (error as Error).stack,
                 });
                 return;
               }
@@ -88,6 +89,14 @@ export class BlocksIndexerProcessor {
         })
         .waitForExecution();
       stopDurationMeasuring?.({ status: "success" });
+
+      if (claimedBlockNumbers.length > 0) {
+        this.logger.log({
+          message: "Blocks batch processed",
+          claimedBlockNumbers,
+          processedBlockNumbers,
+        });
+      }
     } catch (error) {
       stopDurationMeasuring?.({ status: "error" });
       throw error;
@@ -130,6 +139,10 @@ export class BlocksIndexerProcessor {
       }
     } catch (error) {
       blockProcessingStatus = "error";
+      this.logger.error({
+        message: `Failed to add block #${blockNumber}`,
+        stack: (error as Error).stack,
+      });
       throw error;
     } finally {
       stopDurationMeasuring({ status: blockProcessingStatus, action: "add" });
