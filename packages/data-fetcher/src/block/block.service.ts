@@ -46,7 +46,7 @@ export class BlockService {
     const blockTraces = block && (await this.blockchainService.debugTraceBlock(blockNumber));
     stopGetBlockInfoDurationMetric();
 
-    if (!block) {
+    if (!block || !blockTraces) {
       return null;
     }
 

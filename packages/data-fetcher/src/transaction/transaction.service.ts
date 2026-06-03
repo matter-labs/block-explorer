@@ -61,6 +61,23 @@ export class TransactionService {
       throw new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transactionHash}`);
     }
 
+    // Guard against the RPC reporting the transaction as pending (e.g. transient reorg
+    // or a behind-the-tip node behind a load balancer). Throwing forces a retry on a consistent
+    // view, instead of inserting nulls that violate NOT NULL constraints downstream.
+    if (
+      transaction.index == null ||
+      transactionReceipt.index == null ||
+      transaction.blockHash !== block.hash ||
+      transactionReceipt.blockHash !== block.hash
+    ) {
+      throw new Error(
+        `Inconsistent transaction state for ${transactionHash} in block #${block.number}: ` +
+          `expected blockHash ${block.hash}, got tx.blockHash=${transaction.blockHash} ` +
+          `(index=${transaction.index}), receipt.blockHash=${transactionReceipt.blockHash} ` +
+          `(index=${transactionReceipt.index})`
+      );
+    }
+
     this.balanceService.trackSenderBalance(transaction.from.toLowerCase(), block.number);
 
     const transactionInfo = {
