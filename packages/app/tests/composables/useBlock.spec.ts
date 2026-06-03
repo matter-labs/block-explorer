@@ -56,19 +56,20 @@ describe("useBlock:", () => {
     expect(isRequestFailed.value).toEqual(true);
     mock.mockRestore();
   });
-  it("sets blockItem to null and failed to false when request fails with status code 404", async () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const error: any = new FetchError("404");
-    error.response = {
-      status: 404,
-    };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const mock = ($fetch as any).mockRejectedValue(error);
-    const { isRequestFailed, blockItem, getById } = useBlock();
-    await getById("1234");
+  it.each([404, 403, 500])(
+    "sets blockItem to null and isRequestFailed to false when request fails with FetchError status %i",
+    async (status) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error: any = new FetchError(String(status));
+      error.response = { status };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mock = ($fetch as any).mockRejectedValue(error);
+      const { isRequestFailed, blockItem, getById } = useBlock();
+      await getById("1234");
 
-    expect(blockItem.value).toEqual(null);
-    expect(isRequestFailed.value).toEqual(false);
-    mock.mockRestore();
-  });
+      expect(blockItem.value).toEqual(null);
+      expect(isRequestFailed.value).toEqual(false);
+      mock.mockRestore();
+    }
+  );
 });

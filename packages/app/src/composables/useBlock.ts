@@ -42,7 +42,10 @@ export default (context = useContext()) => {
       blockItem.value = await FetchInstance.api(context)(`/blocks/${id}`);
     } catch (error: unknown) {
       blockItem.value = null;
-      if (!(error instanceof FetchError) || error.response?.status !== 404) {
+      // All FetchError responses (404 and otherwise) reach the not-found
+      // view through useNotFoundView; this keeps Prividium 403s from
+      // surfacing as "Something went wrong" and matches useTransaction.
+      if (!(error instanceof FetchError)) {
         isRequestFailed.value = true;
       }
     } finally {

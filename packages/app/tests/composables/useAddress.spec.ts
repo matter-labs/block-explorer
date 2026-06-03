@@ -2,7 +2,7 @@ import { computed } from "vue";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { $fetch } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import useAddress from "@/composables/useAddress";
 
@@ -44,6 +44,9 @@ vi.mock("ohmyfetch", () => {
   (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
     $fetch: fetchSpy,
+    FetchError: function error() {
+      return;
+    },
   };
 });
 
@@ -118,7 +121,7 @@ describe("useAddresses", () => {
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1a");
       expect(isRequestPending.value).toEqual(false);
     });
-    it("sets isRequestFailed to true when request failed", async () => {
+    it("sets isRequestFailed to true when request fails with a non-FetchError", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mock = ($fetch as any).mockRejectedValueOnce(new Error("An error occurred"));
       const { isRequestFailed, getByAddress } = useAddress();
@@ -127,6 +130,22 @@ describe("useAddresses", () => {
       expect(isRequestFailed.value).toEqual(true);
       mock.mockRestore();
     });
+    it.each([404, 403, 500])(
+      "leaves item null and isRequestFailed false when request fails with FetchError status %i (lets useNotFoundView redirect)",
+      async (status) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error: any = new FetchError(String(status));
+        error.response = { status };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mock = ($fetch as any).mockRejectedValueOnce(error);
+        const { isRequestFailed, item, getByAddress } = useAddress();
+        await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1a");
+
+        expect(item.value).toEqual(null);
+        expect(isRequestFailed.value).toEqual(false);
+        mock.mockRestore();
+      }
+    );
   });
 
   describe("when called on contract", () => {

@@ -805,6 +805,8 @@
     "notFound": {
         "title": "Oops, we can’t find anything",
         "description": "Sorry we can’t find anything on your search result, please try one more time via search bar below",
+        "prividiumTitle": "Nothing to show",
+        "prividiumDescription": "This page may not exist, or it may not be visible to you.",
         "contactSupportTitle": "If you think this is a problem with us, please",
         "contactSupport": "contact support"
     },
