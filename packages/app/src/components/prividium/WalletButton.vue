@@ -1,6 +1,6 @@
 <template>
   <div class="wallet-button" :class="{ disabled: buttonDisabled }" @click="openModalConditionally">
-    <img src="/images/metamask.svg" class="wallet-image" />
+    <img :src="publicAsset('/images/metamask.svg')" class="wallet-image" />
     <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="handleLogin">
       {{ buttonText }}
     </button>
@@ -39,6 +39,7 @@ import useEnvironmentConfig from "@/composables/useEnvironmentConfig";
 import useLogin from "@/composables/useLogin";
 import { isAuthenticated, default as useWallet } from "@/composables/useWallet";
 
+import { publicAsset } from "@/utils/basePath";
 import { formatShortAddress } from "@/utils/formatters";
 import logger from "@/utils/logger";
 

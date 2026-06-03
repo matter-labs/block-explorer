@@ -3,8 +3,29 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath, URL } from "url";
 
+// Base public path the app is served from.
+// - VITE_BASE_PATH: explicit base path (e.g. "/explorer/") baked in at build time.
+// - Docker builds (DOCKER_BUILD=true) use a relative base so the same image can be
+//   served from any subpath, configured at container start via the BASE_PATH env var
+//   (injected as a <base> tag in index.html, see Dockerfile and index.html).
+// - Local dev/builds keep the default root base.
+function resolveBase(): string {
+  if (process.env.VITE_BASE_PATH) {
+    const trimmed = process.env.VITE_BASE_PATH.replace(/^\/+|\/+$/g, "");
+    return trimmed ? `/${trimmed}/` : "/";
+  }
+  return process.env.DOCKER_BUILD === "true" ? "./" : "/";
+}
+
+// Keep the <base> tag in index.html (filled from BASE_PATH by the html-transform
+// plugin below) in sync with the build-time base for non-Docker dev/builds.
+if (!process.env.BASE_PATH && process.env.VITE_BASE_PATH) {
+  process.env.BASE_PATH = resolveBase();
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: resolveBase(),
   server: {
     port: 3010,
   },

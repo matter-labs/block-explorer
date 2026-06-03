@@ -1,0 +1,51 @@
+# Used instead of nginx.conf.template when the BASE_PATH env var is set
+# (see the Dockerfile CMD). Serves the app under the ${BASE_PATH} prefix
+# for prefix-preserving reverse proxies. BASE_PATH must have a leading
+# slash and no trailing slash (e.g. /explorer); the Dockerfile normalizes it.
+server {
+    listen   ${PORT};
+    listen   [::]:${PORT} default;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    server_name _; # all hostnames
+
+    # Emit relative Location headers so redirects survive https-terminating
+    # reverse proxies in front of this container.
+    absolute_redirect off;
+
+    gzip on;
+    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+    gzip_min_length 256;
+    gzip_proxied any;
+    gzip_vary on;
+
+    # Redirect the bare prefix to its trailing-slash form so relative
+    # asset URLs resolve correctly.
+    location = ${BASE_PATH} {
+        return 301 ${BASE_PATH}/;
+    }
+
+    location ${BASE_PATH}/ {
+        # Static files live at the filesystem root, strip the prefix.
+        rewrite ^${BASE_PATH}/(.*)$ /$1 break;
+        # "=404" makes "/index.html" a file check (SPA fallback) instead of an
+        # internal redirect, which would re-match "location /" and return 404.
+        try_files $uri /index.html =404;
+        # Add headers to all responses
+        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+        add_header Referrer-Policy "no-referrer, strict-origin-when-cross-origin" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Content-Security-Policy-Report-Only "${CSP_REPORT_ONLY}" always;
+    }
+
+    # Anything outside the prefix is not served.
+    location / {
+        return 404;
+    }
+
+    # TODO: add cache for static files, avoid caching config.js, index.html etc.
+}

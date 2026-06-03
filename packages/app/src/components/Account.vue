@@ -16,7 +16,7 @@
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img src="/images/empty-state/empty_balance.svg" alt="empty_balance" />
+                  <img :src="publicAsset('/images/empty-state/empty_balance.svg')" alt="empty_balance" />
                 </div>
               </template>
               <template #title>
@@ -41,7 +41,7 @@
             <EmptyState>
               <template #image>
                 <div class="balances-empty-icon">
-                  <img src="/images/empty-state/error_balance.svg" alt="empty_balance" />
+                  <img :src="publicAsset('/images/empty-state/error_balance.svg')" alt="empty_balance" />
                 </div>
               </template>
               <template #title>
@@ -91,6 +91,7 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Account } from "@/composables/useAddress";
 
+import { publicAsset } from "@/utils/basePath";
 import { shortValue } from "@/utils/formatters";
 
 const runtimeConfig = useRuntimeConfig();

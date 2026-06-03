@@ -60,6 +60,8 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 import type { Hash } from "@/types";
 
+import { publicAsset } from "@/utils/basePath";
+
 export type IconSize = "sm" | "md" | "lg" | "xl";
 
 const { t } = useI18n();
@@ -97,7 +99,7 @@ const props = defineProps({
 });
 
 const imgSource = computed(() => {
-  return props.iconUrl || "/images/currencies/customToken.svg";
+  return publicAsset(props.iconUrl || "/images/currencies/customToken.svg");
 });
 const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
 </script>

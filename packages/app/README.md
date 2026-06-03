@@ -47,6 +47,14 @@ settlement chains:
 
 For a complete example of network configuration including settlement chains, refer to [`production.config.json`](./src/configs/production.config.json).
 
+### Serving the app from a subpath
+By default the app is served from the root of the domain (e.g. `https://explorer.example.com/`). To serve it from a subpath (e.g. `https://example.com/explorer/`), there are two options:
+
+- **Build time**: set the `VITE_BASE_PATH` env variable when building (e.g. `VITE_BASE_PATH=/explorer/ npm run build`). This bakes the base path into the build output. It also works for the dev server: `VITE_BASE_PATH=/explorer/ npm run dev`.
+- **Container runtime**: the published Docker image is built with a relative base, so the base path can be configured at container start by setting the `BASE_PATH` env variable (e.g. `docker run -e BASE_PATH=/explorer ...`). This injects a `<base>` tag into `index.html` and configures nginx to serve the app under the prefix. No rebuild is needed. `BASE_PATH` must be a plain path prefix consisting of URL path segments (letters, digits, `-`, `_`, `/`), since it is interpolated into an nginx location and rewrite rule.
+
+When the app sits behind a reverse proxy that forwards the subpath prefix to the container (prefix-preserving, e.g. `proxy.example.com/explorer/*` -> `container/explorer/*`), set `BASE_PATH` to that prefix. If the proxy strips the prefix before forwarding, leave `BASE_PATH` unset and note that the app would then generate root-relative URLs which will not work under the proxied subpath, so prefix-preserving proxying is the supported setup.
+
 ### Compile and Hot-Reload for Development
 
 ```sh

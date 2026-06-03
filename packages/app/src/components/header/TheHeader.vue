@@ -5,7 +5,7 @@
         <div class="logo-container">
           <router-link :to="{ name: 'home' }">
             <span class="sr-only">ZKsync</span>
-            <img v-if="currentNetwork.logoUrl" :src="currentNetwork.logoUrl" />
+            <img v-if="currentNetwork.logoUrl" :src="publicAsset(currentNetwork.logoUrl)" />
             <zk-sync-era v-else-if="currentNetwork.groupId === 'era'" />
             <zk-sync-arrows-logo v-else />
           </router-link>
@@ -56,7 +56,11 @@
       class="hero-banner-container"
       :class="[`${currentNetwork.name}`, { 'home-banner': route.path === '/' }]"
     >
-      <img v-if="currentNetwork.heroBannerImageUrl" class="hero-image" :src="currentNetwork.heroBannerImageUrl" />
+      <img
+        v-if="currentNetwork.heroBannerImageUrl"
+        class="hero-image"
+        :src="publicAsset(currentNetwork.heroBannerImageUrl)"
+      />
       <hero-arrows v-else class="hero-image" />
     </div>
     <transition
@@ -72,7 +76,7 @@
           <div class="mobile-header-container">
             <div class="mobile-popover-navigation">
               <div class="popover-zksync-logo">
-                <img v-if="currentNetwork.logoInverseUrl" :src="currentNetwork.logoInverseUrl" />
+                <img v-if="currentNetwork.logoInverseUrl" :src="publicAsset(currentNetwork.logoInverseUrl)" />
                 <zk-sync v-else class="logo" />
               </div>
               <div class="-mr-2">
@@ -159,6 +163,7 @@ import useContext from "@/composables/useContext";
 import useLocalization from "@/composables/useLocalization";
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
+import { publicAsset } from "@/utils/basePath";
 import { isAddress, isBlockNumber, isTransactionHash } from "@/utils/validators";
 const { changeLanguage } = useLocalization();
 const { t, locale } = useI18n({ useScope: "global" });

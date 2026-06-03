@@ -54,6 +54,8 @@ import Popup from "@/components/common/Popup.vue";
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
 
+import { appUrl } from "@/utils/basePath";
+
 const props = defineProps({
   opened: {
     type: Boolean,
@@ -92,7 +94,7 @@ const handleWalletSwitch = async (newAddress: string) => {
   try {
     isSwitching.value = true;
     await switchWallet(newAddress);
-    window.location.href = "/"; // Triggers full reload of the page
+    window.location.href = appUrl(); // Triggers full reload of the page
     emit("close");
   } catch (error) {
     console.error("Failed to switch wallet:", error);

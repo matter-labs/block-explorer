@@ -8,7 +8,7 @@
       <img
         v-if="contract?.address && !pending && tokenInfo"
         class="token-img"
-        :src="tokenInfo.iconURL || '/images/currencies/customToken.svg'"
+        :src="publicAsset(tokenInfo.iconURL || '/images/currencies/customToken.svg')"
         :alt="tokenInfo.symbol || t('balances.table.unknownSymbol')"
       />
     </div>
@@ -88,6 +88,7 @@ import useTokenOverview from "@/composables/useTokenOverview";
 import type { BreadcrumbItem } from "@/components/common/Breadcrumbs.vue";
 import type { Contract } from "@/composables/useAddress";
 
+import { publicAsset } from "@/utils/basePath";
 import { shortValue } from "@/utils/formatters";
 
 const { t } = useI18n();

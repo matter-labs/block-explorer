@@ -1,6 +1,7 @@
 import { $fetch } from "ohmyfetch";
 
 import useContext from "./useContext";
+import { appUrl, currentAppPath } from "../utils/basePath";
 
 import type { Context } from "./useContext";
 import type { FetchOptions, FetchResponse } from "ohmyfetch";
@@ -18,7 +19,7 @@ export class FetchInstance {
 
       // API invalidated the session
       context.user.value = { loggedIn: false };
-      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      window.location.href = `${appUrl("login")}?redirect=${encodeURIComponent(currentAppPath())}`;
     });
   }
 

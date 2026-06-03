@@ -23,6 +23,11 @@ ARG VITE_VERSION=
 ENV VITE_VERSION=$VITE_VERSION
 ARG VITE_APP_ENVIRONMENT=default
 ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
+# Optional explicit base path baked in at build time. When empty (default),
+# the build uses a relative base so the image can be served from any subpath
+# configured at container start via the BASE_PATH env var. See vite.config.ts.
+ARG VITE_BASE_PATH=
+ENV VITE_BASE_PATH=$VITE_BASE_PATH
 ENV DOCKER_BUILD=true
 RUN npm run build
 
@@ -33,10 +38,23 @@ ENV CSP_REPORT_ONLY="default-src 'self'; child-src 'self' blob:; script-src 'sel
 RUN apk add --no-cache gomplate
 
 COPY --from=build-stage /usr/src/app/packages/app/nginx.conf.template /etc/nginx/conf.d/default.conf.template
+COPY --from=build-stage /usr/src/app/packages/app/nginx.conf.subpath.template /etc/nginx/conf.d/subpath.conf.template
 COPY --from=build-stage /usr/src/app/packages/app/dist /usr/share/nginx/html
 
 RUN cp /usr/share/nginx/html/index.html /usr/share/nginx/html/index.html.tpl
 
-CMD envsubst '$PORT $CSP_REPORT_ONLY' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf \
+# BASE_PATH (e.g. "/explorer") serves the app under a subpath for
+# prefix-preserving reverse proxies. When unset, behavior is unchanged.
+# nginx needs the prefix without a trailing slash, the <base> tag (filled
+# by gomplate from BASE_PATH) needs it with one.
+CMD BP="${BASE_PATH#/}" && BP="${BP%/}" \
+  && if [ -n "$BP" ]; then \
+       export BASE_PATH="/$BP" \
+       && envsubst '$PORT $CSP_REPORT_ONLY $BASE_PATH' < /etc/nginx/conf.d/subpath.conf.template > /etc/nginx/conf.d/default.conf \
+       && export BASE_PATH="/$BP/"; \
+     else \
+       export BASE_PATH="/" \
+       && envsubst '$PORT $CSP_REPORT_ONLY' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf; \
+     fi \
   && gomplate -f /usr/share/nginx/html/index.html.tpl -o /usr/share/nginx/html/index.html \
   && exec nginx -g 'daemon off;'

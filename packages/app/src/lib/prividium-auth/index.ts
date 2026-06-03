@@ -1,5 +1,7 @@
 import { AUTH_ERRORS, PRIVIDIUM_AUTH_CONSTANTS } from "./constants";
 
+import { appRootUrl } from "@/utils/basePath";
+
 export interface PrividiumAuthConfig {
   clientId: string;
   redirectUri: string;
@@ -117,7 +119,7 @@ export class PrividiumAuth {
     if (this.userPanelUrl) {
       window.location.href = `${this.userPanelUrl}${
         PRIVIDIUM_AUTH_CONSTANTS.AUTH_ENDPOINTS.LOGOUT
-      }?post_logout_redirect_uri=${encodeURIComponent(window.location.origin)}`;
+      }?post_logout_redirect_uri=${encodeURIComponent(appRootUrl())}`;
     }
   }
 

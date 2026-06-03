@@ -6,7 +6,9 @@ import useContext from "@/composables/useContext";
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  // With no base argument vue-router reads the <base> tag, which covers both
+  // build-time (VITE_BASE_PATH) and runtime (BASE_PATH env var) configuration.
+  history: createWebHistory(),
   routes,
 });
 
