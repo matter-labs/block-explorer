@@ -166,7 +166,7 @@ Feature: Copying
 
     Examples:
       | Row             | Text                                       |
-      | USDC            | 0x8DfcCCBB134E36EE145bE17E682ED46EaF4b6c5b |
+      | USDC            | 0x4A76CCA1b7527d4dc78f87FB57257c8ACc5dE05B |
 
   @id275:I @mainnet
   Scenario Outline: Check "<Row>" hashes copying for Tokens page
