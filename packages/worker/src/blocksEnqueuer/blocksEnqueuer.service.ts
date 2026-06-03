@@ -79,7 +79,7 @@ export class BlocksEnqueuerService extends Worker {
     if (toBlockNumber < fromBlockNumber) {
       return;
     }
-    this.logger.debug(`Enqueuing blocks from ${fromBlockNumber} to ${toBlockNumber}`);
+    this.logger.log(`Enqueuing blocks from ${fromBlockNumber} to ${toBlockNumber}`);
     await this.blockQueueRepository.enqueueRange(fromBlockNumber, toBlockNumber);
   }
 
