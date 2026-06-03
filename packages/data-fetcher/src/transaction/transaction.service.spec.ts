@@ -75,12 +75,20 @@ describe("TransactionService", () => {
 
   describe("getData", () => {
     const trace = {} as TransactionTrace;
+    const blockHash = "0xblockhash";
     const blockDetails = mock<Block>({
       number: 1,
+      hash: blockHash,
     });
-    const transaction = mock<TransactionResponse>({ hash: "0", from: "0x36615cf349d7f6344891b1e7ca7c72883f5dc049" });
+    const transaction = mock<TransactionResponse>({
+      hash: "0",
+      from: "0x36615cf349d7f6344891b1e7ca7c72883f5dc049",
+      blockHash,
+      index: 0,
+    });
     const transactionReceipt = mock<TransactionReceipt>({
       index: 0,
+      blockHash,
       logs: [mock<Log>(), mock<Log>()],
       status: 1,
     });
@@ -177,6 +185,42 @@ describe("TransactionService", () => {
       );
     });
 
+    it("throws error if transaction index is null", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransaction")
+        .mockResolvedValue(mock<TransactionResponse>({ ...transaction, index: null as unknown as number }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
+    it("throws error if transaction receipt index is null", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransactionReceipt")
+        .mockResolvedValue(mock<TransactionReceipt>({ ...transactionReceipt, index: null as unknown as number }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
+    it("throws error if transaction blockHash does not match the block hash", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransaction")
+        .mockResolvedValue(mock<TransactionResponse>({ ...transaction, blockHash: "0xotherhash" }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
+    it("throws error if transaction receipt blockHash does not match the block hash", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransactionReceipt")
+        .mockResolvedValue(mock<TransactionReceipt>({ ...transactionReceipt, blockHash: "0xotherhash" }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
     it("tracks sender balance for the transaction", async () => {
       await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(balanceServiceMock.trackSenderBalance).toHaveBeenCalledTimes(1);
@@ -235,6 +279,7 @@ describe("TransactionService", () => {
       beforeEach(() => {
         (blockchainServiceMock.getTransactionReceipt as jest.Mock).mockResolvedValueOnce({
           index: 0,
+          blockHash,
           logs: [],
           status: 0,
         });
