@@ -163,7 +163,7 @@ export class TransactionTracesService {
     }
 
     this.logger.debug({
-      message: "Requesting contracts' bytecode and bytecode hashes",
+      message: "Requesting contracts' bytecode",
       blockNumber: transaction.blockNumber,
     });
     transactionTraceData.contractAddresses = (
