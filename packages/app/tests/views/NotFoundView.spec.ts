@@ -9,7 +9,7 @@ import enUS from "@/locales/en.json";
 import $testId from "@/plugins/testId";
 import NotFound from "@/views/NotFound.vue";
 
-// SearchForm reaches into useContext / useSearch — stub it out for this view test.
+// SearchForm reaches into useContext / useSearch, so stub it out for this view test.
 vi.mock("@/components/SearchForm.vue", () => ({
   default: { template: '<div data-testid="search-form-stub"></div>' },
 }));
