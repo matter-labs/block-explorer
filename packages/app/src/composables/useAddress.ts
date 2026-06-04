@@ -192,11 +192,6 @@ export default (context = useContext()) => {
       }
     } catch (error: unknown) {
       item.value = null;
-      // FetchError 4xx/5xx flow to the not-found view via useNotFoundView so
-      // we don't render the generic "Something went wrong" page (and don't
-      // leak permission-vs-existence in Prividium mode). Only non-network
-      // failures (e.g. a JS error in the response mapping above) surface as
-      // an error page.
       if (!(error instanceof FetchError)) {
         isRequestFailed.value = true;
       }
