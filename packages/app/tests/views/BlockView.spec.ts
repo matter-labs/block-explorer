@@ -12,11 +12,12 @@ import $testId from "@/plugins/testId";
 import routes from "@/router/routes";
 import BlockView from "@/views/BlockView.vue";
 
+const notFoundRoute = { name: "not-found", meta: { title: "404 Not Found" } };
 const router = {
-  resolve: vi.fn(),
+  resolve: vi.fn(() => notFoundRoute),
   replace: vi.fn(),
   currentRoute: {
-    value: {},
+    value: { fullPath: "/block/1234" },
   },
   beforeEach: vi.fn(),
 };
