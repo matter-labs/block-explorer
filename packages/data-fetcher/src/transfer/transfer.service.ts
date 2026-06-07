@@ -1,5 +1,6 @@
 import { types, utils } from "zksync-ethers";
 import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { LogType } from "../log/logType";
 import isInternalTransaction from "../utils/isInternalTransaction";
@@ -46,9 +47,21 @@ const conflictingTransferLogs = [
 @Injectable()
 export class TransferService {
   private readonly logger: Logger;
+  private trustedBridgeAddressesPromise: Promise<Set<string>> | null = null;
 
-  constructor(private readonly blockchainService: BlockchainService) {
+  constructor(private readonly blockchainService: BlockchainService, private readonly configService: ConfigService) {
     this.logger = new Logger(TransferService.name);
+  }
+
+  private getTrustedBridgeAddresses(): Promise<Set<string>> {
+    if (!this.trustedBridgeAddressesPromise) {
+      this.trustedBridgeAddressesPromise = (async () => {
+        const fromEnv = this.configService.get<Set<string>>("trustedBridgeAddresses") || new Set<string>();
+        const fromRpc = await this.blockchainService.getTrustedBridgeAddresses();
+        return new Set<string>([...fromEnv, ...fromRpc]);
+      })();
+    }
+    return this.trustedBridgeAddressesPromise;
   }
 
   public async getTransfers(
@@ -77,9 +90,11 @@ export class TransferService {
       }
     }
 
+    const trustedBridgeAddresses = await this.getTrustedBridgeAddresses();
+
     for (const log of logs) {
       const handlerForLog = uniqueExtractTransfersHandlers[log.topics[0]]?.find((handler) =>
-        handler.matches(log, transactionReceipt)
+        handler.matches(log, transactionReceipt, trustedBridgeAddresses)
       );
 
       if (!handlerForLog) {

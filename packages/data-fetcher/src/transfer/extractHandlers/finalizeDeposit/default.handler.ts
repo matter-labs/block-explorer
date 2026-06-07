@@ -8,7 +8,8 @@ import parseLog from "../../../utils/parseLog";
 import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 import { isBaseToken } from "../../../utils/token";
 export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
-  matches: (): boolean => true,
+  matches: (log: types.Log, _txReceipt, trustedBridgeAddresses): boolean =>
+    !!trustedBridgeAddresses?.has(log.address.toLowerCase()),
   extract: async (
     log: types.Log,
     _,

@@ -1,5 +1,6 @@
 import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
 import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -67,13 +68,25 @@ describe("TransferService", () => {
   let blockchainServiceMock: BlockchainService;
 
   beforeEach(async () => {
-    blockchainServiceMock = mock<BlockchainService>();
+    blockchainServiceMock = mock<BlockchainService>({
+      getTrustedBridgeAddresses: jest
+        .fn()
+        .mockResolvedValue(
+          new Set<string>(["0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c", "0x00ff932a6d70e2b8f1eb4919e1e09c1923e7e57b"])
+        ),
+    });
     const app = await Test.createTestingModule({
       providers: [
         TransferService,
         {
           provide: BlockchainService,
           useValue: blockchainServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: mock<ConfigService>({
+            get: jest.fn().mockReturnValue(new Set<string>()),
+          }),
         },
       ],
     }).compile();

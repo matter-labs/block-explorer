@@ -34,9 +34,19 @@ describe("defaultFinalizeDepositHandler", () => {
   });
 
   describe("matches", () => {
-    it("returns true", () => {
-      const result = defaultFinalizeDepositHandler.matches(null);
+    it("returns true when log address is a trusted bridge address", () => {
+      const result = defaultFinalizeDepositHandler.matches(log, null, new Set([log.address.toLowerCase()]));
       expect(result).toBe(true);
+    });
+
+    it("returns false when log address is not a trusted bridge address", () => {
+      const result = defaultFinalizeDepositHandler.matches(log, null, new Set<string>());
+      expect(result).toBe(false);
+    });
+
+    it("returns false when no trusted bridge addresses are provided", () => {
+      const result = defaultFinalizeDepositHandler.matches(log, null);
+      expect(result).toBe(false);
     });
   });
 
