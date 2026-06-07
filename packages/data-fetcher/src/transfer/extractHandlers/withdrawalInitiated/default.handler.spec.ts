@@ -1,4 +1,5 @@
 import { Log, Block } from "ethers";
+import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { ZERO_HASH_64 } from "../../../constants";
@@ -34,9 +35,20 @@ describe("defaultWithdrawalInitiatedHandler", () => {
   });
 
   describe("matches", () => {
-    it("returns true", () => {
-      const result = defaultWithdrawalInitiatedHandler.matches(null, null);
+    it("returns true when log address is a trusted bridge address", () => {
+      const configService = mock<ConfigService>({
+        get: jest.fn().mockReturnValue(new Set([log.address.toLowerCase()])),
+      });
+      const result = defaultWithdrawalInitiatedHandler.matches(log, null, configService);
       expect(result).toBe(true);
+    });
+
+    it("returns false when log address is not a trusted bridge address", () => {
+      const configService = mock<ConfigService>({
+        get: jest.fn().mockReturnValue(new Set<string>()),
+      });
+      const result = defaultWithdrawalInitiatedHandler.matches(log, null, configService);
+      expect(result).toBe(false);
     });
   });
 
