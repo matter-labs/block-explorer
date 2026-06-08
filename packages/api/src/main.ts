@@ -8,7 +8,7 @@ import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
 import { prividium } from "./config/featureFlags";
-import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "./prividium";
+import { applyPrividiumExpressConfig } from "./prividium";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -34,8 +34,7 @@ async function bootstrap() {
   metricsApp.enableShutdownHooks();
 
   if (prividium) {
-    // Prividium config includes strict CORS configuration
-    // Must be applied before Swagger setup so session is available for auth check
+    // Prividium config includes strict CORS configuration.
     applyPrividiumExpressConfig(app, {
       sessionSecret: configService.get<string>("prividium.sessionSecret"),
       appUrl: configService.get<string>("prividium.appUrl"),
@@ -43,7 +42,6 @@ async function bootstrap() {
       sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
       corsOrigins: configService.get<string[]>("prividium.corsOrigins"),
     });
-    applySwaggerAuthMiddleware(app, configService);
   } else {
     app.enableCors();
   }
