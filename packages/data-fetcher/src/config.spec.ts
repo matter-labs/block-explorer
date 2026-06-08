@@ -1,4 +1,5 @@
 import config from "./config";
+import { L2_ASSET_ROUTER_ADDRESS } from "./constants";
 
 describe("config", () => {
   const env = process.env;
@@ -25,6 +26,7 @@ describe("config", () => {
       healthChecks: {
         rpcHealthCheckTimeoutMs: 20_000,
       },
+      trustedBridgeAddresses: new Set([L2_ASSET_ROUTER_ADDRESS]),
     };
   });
 
