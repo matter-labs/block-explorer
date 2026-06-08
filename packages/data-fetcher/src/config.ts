@@ -1,4 +1,5 @@
 import { config } from "dotenv";
+import { L2_ASSET_ROUTER_ADDRESS } from "./constants";
 config();
 
 export default () => {
@@ -16,7 +17,16 @@ export default () => {
     MAX_BLOCKS_BATCH_SIZE,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
     RPC_HEALTH_CHECK_TIMEOUT_MS,
+    TRUSTED_BRIDGE_ADDRESSES,
   } = process.env;
+
+  const trustedBridgeAddresses = new Set<string>([
+    L2_ASSET_ROUTER_ADDRESS,
+    ...(TRUSTED_BRIDGE_ADDRESSES || "")
+      .split(",")
+      .map((a) => a.trim().toLowerCase())
+      .filter(Boolean),
+  ]);
 
   return {
     port: parseInt(PORT, 10) || 3040,
@@ -46,5 +56,6 @@ export default () => {
     healthChecks: {
       rpcHealthCheckTimeoutMs: parseInt(RPC_HEALTH_CHECK_TIMEOUT_MS, 10) || 20_000,
     },
+    trustedBridgeAddresses,
   };
 };

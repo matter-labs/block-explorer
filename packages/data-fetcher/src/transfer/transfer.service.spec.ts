@@ -1,5 +1,6 @@
 import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
 //import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -74,6 +75,12 @@ describe("TransferService", () => {
         {
           provide: BlockchainService,
           useValue: blockchainServiceMock,
+        },
+        {
+          provide: ConfigService,
+          useValue: mock<ConfigService>({
+            get: jest.fn().mockReturnValue(new Set<string>()),
+          }),
         },
       ],
     }).compile();

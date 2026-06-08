@@ -1,4 +1,5 @@
 import { type Log, type Block } from "ethers";
+import { ConfigService } from "@nestjs/config";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
@@ -8,7 +9,8 @@ import parseLog from "../../../utils/parseLog";
 import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES, ETH_L1_ADDRESS } from "../../../constants";
 import { isBaseToken } from "../../../utils/token";
 export const defaultFinalizeDepositHandler: ExtractTransferHandler = {
-  matches: (): boolean => true,
+  matches: (log: Log, _txReceipt, configService: ConfigService): boolean =>
+    configService.get<Set<string>>("trustedBridgeAddresses").has(log.address.toLowerCase()),
   extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_SHARED_BRIDGE, log);
     if (!parsedLog) {

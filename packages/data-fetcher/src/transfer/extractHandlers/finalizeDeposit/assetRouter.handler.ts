@@ -1,4 +1,5 @@
 import { AbiCoder, type Log, type Block } from "ethers";
+import { ConfigService } from "@nestjs/config";
 import { BlockchainService } from "../../../blockchain/blockchain.service";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
@@ -10,7 +11,8 @@ import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES, ETH_L1_ADDRESS } from "../../.
 import { isBaseToken } from "../../../utils/token";
 
 export const assetRouterFinalizeDepositHandler: ExtractTransferHandler = {
-  matches: (): boolean => true,
+  matches: (log: Log, _txReceipt, configService: ConfigService): boolean =>
+    configService.get<Set<string>>("trustedBridgeAddresses").has(log.address.toLowerCase()),
   extract: async (log: Log, blockchainService: BlockchainService, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.L2_ASSET_ROUTER, log);
     if (!parsedLog) {

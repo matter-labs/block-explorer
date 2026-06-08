@@ -1,5 +1,6 @@
 import { type Log, type Block, type TransactionReceipt } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { L1_ORIGINATED_TX_TYPES } from "../constants";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { LogType } from "../log/logType";
@@ -48,7 +49,7 @@ const conflictingTransferLogs = [
 export class TransferService {
   private readonly logger: Logger;
 
-  constructor(private readonly blockchainService: BlockchainService) {
+  constructor(private readonly blockchainService: BlockchainService, private readonly configService: ConfigService) {
     this.logger = new Logger(TransferService.name);
   }
 
@@ -81,7 +82,7 @@ export class TransferService {
 
     for (const log of logs) {
       const handlerForLog = uniqueExtractTransfersHandlers[log.topics[0]]?.find((handler) =>
-        handler.matches(log, transactionReceipt)
+        handler.matches(log, transactionReceipt, this.configService)
       );
 
       if (!handlerForLog) {
