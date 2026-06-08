@@ -34,9 +34,19 @@ describe("defaultWithdrawalInitiatedHandler", () => {
   });
 
   describe("matches", () => {
-    it("returns true", () => {
-      const result = defaultWithdrawalInitiatedHandler.matches(null);
+    it("returns true when log address is a trusted bridge address", () => {
+      const result = defaultWithdrawalInitiatedHandler.matches(log, null, new Set([log.address.toLowerCase()]));
       expect(result).toBe(true);
+    });
+
+    it("returns false when log address is not a trusted bridge address", () => {
+      const result = defaultWithdrawalInitiatedHandler.matches(log, null, new Set<string>());
+      expect(result).toBe(false);
+    });
+
+    it("returns false when no trusted bridge addresses are provided", () => {
+      const result = defaultWithdrawalInitiatedHandler.matches(log, null);
+      expect(result).toBe(false);
     });
   });
 

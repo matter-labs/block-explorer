@@ -1774,6 +1774,71 @@ describe("BlockchainService", () => {
     });
   });
 
+  describe("getTrustedBridgeAddresses", () => {
+    const bridgeContracts = {
+      l1SharedDefaultBridge: "0xf2a49545c5b1a85d2fb018cc39103661639a9b06",
+      l2SharedDefaultBridge: "0x0000000000000000000000000000000000010003",
+      l1Erc20DefaultBridge: "0x2ae09702f77a4940621572fbcdae2382d44a2cba",
+      l2Erc20DefaultBridge: "0x0000000000000000000000000000000000010003",
+      l1WethBridge: "0x0000000000000000000000000000000000000000",
+      l2WethBridge: "0x0000000000000000000000000000000000000000",
+      l2LegacySharedBridge: "0x681a1afdc2e06776816386500d2d461a6c96cb45",
+    };
+
+    beforeEach(() => {
+      jest.spyOn(provider, "send").mockResolvedValue(bridgeContracts);
+    });
+
+    it("calls zks_getBridgeContracts RPC", async () => {
+      await blockchainService.getTrustedBridgeAddresses();
+      expect(provider.send).toHaveBeenCalledWith("zks_getBridgeContracts", []);
+    });
+
+    it("starts and stops the rpc call duration metric", async () => {
+      await blockchainService.getTrustedBridgeAddresses();
+      expect(startRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "getTrustedBridgeAddresses" });
+    });
+
+    it("returns every non-zero bridge address lowercased", async () => {
+      const result = await blockchainService.getTrustedBridgeAddresses();
+      expect(result).toEqual(
+        new Set<string>([
+          "0xf2a49545c5b1a85d2fb018cc39103661639a9b06",
+          "0x0000000000000000000000000000000000010003",
+          "0x2ae09702f77a4940621572fbcdae2382d44a2cba",
+          "0x681a1afdc2e06776816386500d2d461a6c96cb45",
+        ])
+      );
+    });
+
+    it("returns an empty set when the RPC response is empty", async () => {
+      jest.spyOn(provider, "send").mockResolvedValueOnce(null);
+      const result = await blockchainService.getTrustedBridgeAddresses();
+      expect(result).toEqual(new Set<string>());
+    });
+
+    describe("if the call throws an error", () => {
+      const error = new Error("RPC call error");
+      beforeEach(() => {
+        jest.spyOn(provider, "send").mockRejectedValueOnce(error).mockResolvedValueOnce(bridgeContracts);
+      });
+
+      it("retries and returns the successful result", async () => {
+        const result = await blockchainService.getTrustedBridgeAddresses();
+        expect(provider.send).toHaveBeenCalledTimes(2);
+        expect(result).toEqual(
+          new Set<string>([
+            "0xf2a49545c5b1a85d2fb018cc39103661639a9b06",
+            "0x0000000000000000000000000000000000010003",
+            "0x2ae09702f77a4940621572fbcdae2382d44a2cba",
+            "0x681a1afdc2e06776816386500d2d461a6c96cb45",
+          ])
+        );
+      });
+    });
+  });
+
   describe("on", () => {
     beforeEach(() => {
       provider.on = jest.fn();

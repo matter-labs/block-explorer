@@ -137,6 +137,17 @@ export class BlockchainService implements OnModuleInit {
     }, "getDefaultBridgeAddresses");
   }
 
+  public async getTrustedBridgeAddresses(): Promise<Set<string>> {
+    return await this.rpcCall(async () => {
+      const result: Record<string, string> = await this.provider.send("zks_getBridgeContracts", []);
+      return new Set<string>(
+        Object.values(result || {})
+          .filter((v) => typeof v === "string" && v.toLowerCase() !== utils.ETH_ADDRESS.toLowerCase())
+          .map((v) => v.toLowerCase())
+      );
+    }, "getTrustedBridgeAddresses");
+  }
+
   public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TraceTransactionResult> {
     return await this.rpcCall(async () => {
       return await this.provider.send("debug_traceTransaction", [

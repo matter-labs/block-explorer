@@ -11,7 +11,8 @@ import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 import { isBaseToken } from "../../../utils/token";
 
 export const assetRouterFinalizeDepositHandler: ExtractTransferHandler = {
-  matches: (): boolean => true,
+  matches: (log: types.Log, _txReceipt, trustedBridgeAddresses): boolean =>
+    !!trustedBridgeAddresses?.has(log.address.toLowerCase()),
   extract: async (
     log: types.Log,
     blockchainService: BlockchainService,

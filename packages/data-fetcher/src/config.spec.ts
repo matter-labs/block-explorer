@@ -25,6 +25,7 @@ describe("config", () => {
       healthChecks: {
         rpcHealthCheckTimeoutMs: 20_000,
       },
+      trustedBridgeAddresses: new Set<string>(),
     };
   });
 
