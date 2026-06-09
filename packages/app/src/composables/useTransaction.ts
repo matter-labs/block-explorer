@@ -182,7 +182,7 @@ export default (context = useContext()) => {
         return;
       }
       transaction.value = null;
-      if (!(error instanceof FetchError)) {
+      if (!(error instanceof FetchError) || error.response?.status !== 403) {
         isRequestFailed.value = true;
       }
     } finally {

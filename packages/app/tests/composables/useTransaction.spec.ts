@@ -441,6 +441,32 @@ describe("useTransaction:", () => {
       expect(isRequestFailed.value).toEqual(false);
       mock.mockRestore();
     });
+    it("routes status code 403 to the not-found view (isRequestFailed false)", async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error: any = new FetchError("403");
+      error.response = { status: 403 };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mock = ($fetch as any).mockRejectedValue(error);
+      const { transaction, isRequestFailed, getByHash } = useTransaction();
+      await getByHash(hash);
+
+      expect(transaction.value).toEqual(null);
+      expect(isRequestFailed.value).toEqual(false);
+      mock.mockRestore();
+    });
+    it("shows the error page for status code 500 (isRequestFailed true)", async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error: any = new FetchError("500");
+      error.response = { status: 500 };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mock = ($fetch as any).mockRejectedValue(error);
+      const { transaction, isRequestFailed, getByHash } = useTransaction();
+      await getByHash(hash);
+
+      expect(transaction.value).toEqual(null);
+      expect(isRequestFailed.value).toEqual(true);
+      mock.mockRestore();
+    });
     it("requests data successfully", async () => {
       const { transaction, isRequestFailed, getByHash } = useTransaction();
       await getByHash(hash);

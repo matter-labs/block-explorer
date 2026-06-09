@@ -130,7 +130,7 @@ describe("useAddresses", () => {
       expect(isRequestFailed.value).toEqual(true);
       mock.mockRestore();
     });
-    it.each([404, 403, 500])("leaves item null and isRequestFailed false on FetchError status %i", async (status) => {
+    it.each([403, 404])("routes FetchError status %i to the not-found view (isRequestFailed false)", async (status) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const error: any = new FetchError(String(status));
       error.response = { status };
@@ -141,6 +141,19 @@ describe("useAddresses", () => {
 
       expect(item.value).toEqual(null);
       expect(isRequestFailed.value).toEqual(false);
+      mock.mockRestore();
+    });
+    it.each([400, 500])("shows the error page for FetchError status %i (isRequestFailed true)", async (status) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error: any = new FetchError(String(status));
+      error.response = { status };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mock = ($fetch as any).mockRejectedValueOnce(error);
+      const { isRequestFailed, item, getByAddress } = useAddress();
+      await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1a");
+
+      expect(item.value).toEqual(null);
+      expect(isRequestFailed.value).toEqual(true);
       mock.mockRestore();
     });
   });

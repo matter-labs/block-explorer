@@ -192,7 +192,7 @@ export default (context = useContext()) => {
       }
     } catch (error: unknown) {
       item.value = null;
-      if (!(error instanceof FetchError)) {
+      if (!(error instanceof FetchError) || ![403, 404].includes(error.response?.status ?? 0)) {
         isRequestFailed.value = true;
       }
     } finally {
