@@ -4,16 +4,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mount } from "@vue/test-utils";
 
-import TheFooter from "@/components/TheFooter.vue";
-
 import enUS from "@/locales/en.json";
 
+import $testId from "@/plugins/testId";
+import NotFound from "@/views/NotFound.vue";
+
+// SearchForm reaches into useContext / useSearch, so stub it out for this view test.
+vi.mock("@/components/SearchForm.vue", () => ({
+  default: { template: '<div data-testid="search-form-stub"></div>' },
+}));
+
 const runtimeConfigMock = {
-  version: "localhost",
   appEnvironment: "default",
   links: {
-    docsUrl: "https://docs.zksync.io/zksync-network/tooling/block-explorers",
-    termsOfServiceUrl: "https://zksync.io/terms",
     contactUsUrl: "https://zksync.io/contact",
     hasContactUs: false,
   },
@@ -22,41 +25,39 @@ vi.mock("@/composables/useRuntimeConfig", () => ({
   default: () => runtimeConfigMock,
 }));
 
-describe("TheFooter:", () => {
+function render() {
   const i18n = createI18n({
     locale: "en",
     allowComposition: true,
-    messages: {
-      en: enUS,
-    },
+    messages: { en: enUS },
   });
+  return mount(NotFound, { global: { plugins: [i18n, $testId] } });
+}
 
-  const mountFooter = () => mount(TheFooter, { global: { plugins: [i18n] } });
-  const contactLink = (wrapper: ReturnType<typeof mountFooter>) =>
-    wrapper.findAll("a").find((a) => a.attributes("href") === runtimeConfigMock.links.contactUsUrl);
-
+describe("NotFound view", () => {
   beforeEach(() => {
     runtimeConfigMock.appEnvironment = "default";
     runtimeConfigMock.links.contactUsUrl = "https://zksync.io/contact";
     runtimeConfigMock.links.hasContactUs = false;
   });
 
-  it("renders navigation links", () => {
-    const links = mountFooter().findAll("a");
-    expect(links[0].attributes("href")).toBe("https://docs.zksync.io/zksync-network/tooling/block-explorers");
-    expect(links[1].attributes("href")).toBe("https://zksync.io/terms");
-    expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
+  it("shows the contact link outside prividium mode", () => {
+    const wrapper = render();
+    expect(wrapper.find(".contact-support").exists()).toBe(true);
+    expect(wrapper.find(".contact-support a").attributes("href")).toBe("https://zksync.io/contact");
   });
 
   it("hides the contact link in prividium mode when no contact URL is configured", () => {
     runtimeConfigMock.appEnvironment = "prividium";
-    expect(contactLink(mountFooter())).toBeUndefined();
+    expect(render().find(".contact-support").exists()).toBe(false);
   });
 
   it("shows the operator contact link in prividium mode when configured", () => {
     runtimeConfigMock.appEnvironment = "prividium";
     runtimeConfigMock.links.contactUsUrl = "https://bank-xyz.example/support";
     runtimeConfigMock.links.hasContactUs = true;
-    expect(contactLink(mountFooter())?.attributes("href")).toBe("https://bank-xyz.example/support");
+    const wrapper = render();
+    expect(wrapper.find(".contact-support").exists()).toBe(true);
+    expect(wrapper.find(".contact-support a").attributes("href")).toBe("https://bank-xyz.example/support");
   });
 });

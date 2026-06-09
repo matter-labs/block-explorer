@@ -24,6 +24,8 @@ export default (): RuntimeConfig => {
   // @ts-ignore
   const runtimeConfig = window && window["##runtimeConfig"];
 
+  const explicitContactUs = runtimeConfig?.links?.contactUsUrl || import.meta.env?.VITE_CONTACT_US_URL || "";
+
   return {
     version: import.meta.env?.VITE_VERSION || "localhost",
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
@@ -40,8 +42,8 @@ export default (): RuntimeConfig => {
         runtimeConfig?.links?.termsOfServiceUrl ||
         import.meta.env?.VITE_TERMS_OF_SERVICE_URL ||
         "https://zksync.io/terms",
-      contactUsUrl:
-        runtimeConfig?.links?.contactUsUrl || import.meta.env?.VITE_CONTACT_US_URL || "https://zksync.io/contact",
+      contactUsUrl: explicitContactUs || "https://zksync.io/contact",
+      hasContactUs: !!explicitContactUs,
     },
     environmentConfig: runtimeConfig?.environmentConfig,
     theme: runtimeConfig?.theme || JSON.parse(import.meta.env?.VITE_THEME_CONFIG || "{}"),

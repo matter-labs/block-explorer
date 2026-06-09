@@ -29,7 +29,7 @@ const navigation = computed(() => {
     { label: t("footer.nav.terms"), url: config.links.termsOfServiceUrl },
   ];
 
-  if (!isPrividium) {
+  if (!isPrividium || config.links.hasContactUs) {
     items.push({ label: t("footer.nav.contact"), url: config.links.contactUsUrl });
   }
 

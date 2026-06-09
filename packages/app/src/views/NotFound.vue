@@ -6,21 +6,28 @@
       {{ t("notFound.description") }}
     </p>
     <SearchForm class="search-form"></SearchForm>
-    <div class="contact-support">
+    <div v-if="showContactSupport" class="contact-support">
       {{ t("notFound.contactSupportTitle") }}
-      <a href="https://zksync.io/contact" target="_blank">{{ t("notFound.contactSupport") }}</a>
+      <a :href="runtimeConfig.links.contactUsUrl" target="_blank">{{ t("notFound.contactSupport") }}</a>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { SearchIcon } from "@heroicons/vue/outline";
 
 import SearchForm from "@/components/SearchForm.vue";
 
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
+const showContactSupport = computed(
+  () => runtimeConfig.appEnvironment !== "prividium" || runtimeConfig.links.hasContactUs
+);
 </script>
 
 <style lang="scss" scoped>
