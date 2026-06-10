@@ -10,12 +10,10 @@ import enUS from "@/locales/en.json";
 
 const runtimeConfigMock = {
   version: "localhost",
-  appEnvironment: "default",
   links: {
     docsUrl: "https://docs.zksync.io/zksync-network/tooling/block-explorers",
     termsOfServiceUrl: "https://zksync.io/terms",
-    contactUsUrl: "https://zksync.io/contact",
-    hasContactUs: false,
+    contactUsUrl: "https://zksync.io/contact" as string | null,
   },
 };
 vi.mock("@/composables/useRuntimeConfig", () => ({
@@ -36,9 +34,7 @@ describe("TheFooter:", () => {
     wrapper.findAll("a").find((a) => a.attributes("href") === runtimeConfigMock.links.contactUsUrl);
 
   beforeEach(() => {
-    runtimeConfigMock.appEnvironment = "default";
     runtimeConfigMock.links.contactUsUrl = "https://zksync.io/contact";
-    runtimeConfigMock.links.hasContactUs = false;
   });
 
   it("renders navigation links", () => {
@@ -48,15 +44,13 @@ describe("TheFooter:", () => {
     expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
   });
 
-  it("hides the contact link in prividium mode when no contact URL is configured", () => {
-    runtimeConfigMock.appEnvironment = "prividium";
-    expect(contactLink(mountFooter())).toBeUndefined();
+  it("hides the contact link when no contact URL is resolved", () => {
+    runtimeConfigMock.links.contactUsUrl = null;
+    expect(mountFooter().findAll("a")).toHaveLength(2);
   });
 
-  it("shows the operator contact link in prividium mode when configured", () => {
-    runtimeConfigMock.appEnvironment = "prividium";
+  it("shows the operator contact link when configured", () => {
     runtimeConfigMock.links.contactUsUrl = "https://bank-xyz.example/support";
-    runtimeConfigMock.links.hasContactUs = true;
     expect(contactLink(mountFooter())?.attributes("href")).toBe("https://bank-xyz.example/support");
   });
 });

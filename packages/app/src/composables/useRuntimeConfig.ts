@@ -24,13 +24,14 @@ export default (): RuntimeConfig => {
   // @ts-ignore
   const runtimeConfig = window && window["##runtimeConfig"];
 
-  const explicitContactUs = runtimeConfig?.links?.contactUsUrl || import.meta.env?.VITE_CONTACT_US_URL || "";
+  const appEnvironment = runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default";
+  const explicitContactUs = runtimeConfig?.links?.contactUsUrl || import.meta.env?.VITE_CONTACT_US_URL;
 
   return {
     version: import.meta.env?.VITE_VERSION || "localhost",
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
     brandName: runtimeConfig?.brandName || import.meta.env?.VITE_BRAND_NAME || "ZKsync",
-    appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default",
+    appEnvironment,
     links: {
       discordUrl: runtimeConfig?.links?.discordUrl || import.meta.env?.VITE_DISCORD_URL || "https://join.zksync.dev",
       xUrl: runtimeConfig?.links?.xUrl || import.meta.env?.VITE_X_URL || "https://x.com/zksync",
@@ -42,8 +43,8 @@ export default (): RuntimeConfig => {
         runtimeConfig?.links?.termsOfServiceUrl ||
         import.meta.env?.VITE_TERMS_OF_SERVICE_URL ||
         "https://zksync.io/terms",
-      contactUsUrl: explicitContactUs || "https://zksync.io/contact",
-      hasContactUs: !!explicitContactUs,
+      // In prividium mode the link is only shown when the operator explicitly configures it
+      contactUsUrl: explicitContactUs || (appEnvironment === "prividium" ? null : "https://zksync.io/contact"),
     },
     environmentConfig: runtimeConfig?.environmentConfig,
     theme: runtimeConfig?.theme || JSON.parse(import.meta.env?.VITE_THEME_CONFIG || "{}"),
