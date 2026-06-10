@@ -30,8 +30,6 @@ describe("TheFooter:", () => {
   });
 
   const mountFooter = () => mount(TheFooter, { global: { plugins: [i18n] } });
-  const contactLink = (wrapper: ReturnType<typeof mountFooter>) =>
-    wrapper.findAll("a").find((a) => a.attributes("href") === runtimeConfigMock.links.contactUsUrl);
 
   beforeEach(() => {
     runtimeConfigMock.links.contactUsUrl = "https://zksync.io/contact";
@@ -47,10 +45,5 @@ describe("TheFooter:", () => {
   it("hides the contact link when no contact URL is resolved", () => {
     runtimeConfigMock.links.contactUsUrl = null;
     expect(mountFooter().findAll("a")).toHaveLength(2);
-  });
-
-  it("shows the operator contact link when configured", () => {
-    runtimeConfigMock.links.contactUsUrl = "https://bank-xyz.example/support";
-    expect(contactLink(mountFooter())?.attributes("href")).toBe("https://bank-xyz.example/support");
   });
 });

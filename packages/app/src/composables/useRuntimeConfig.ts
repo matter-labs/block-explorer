@@ -25,7 +25,6 @@ export default (): RuntimeConfig => {
   const runtimeConfig = window && window["##runtimeConfig"];
 
   const appEnvironment = runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default";
-  const explicitContactUs = runtimeConfig?.links?.contactUsUrl || import.meta.env?.VITE_CONTACT_US_URL;
 
   return {
     version: import.meta.env?.VITE_VERSION || "localhost",
@@ -43,8 +42,10 @@ export default (): RuntimeConfig => {
         runtimeConfig?.links?.termsOfServiceUrl ||
         import.meta.env?.VITE_TERMS_OF_SERVICE_URL ||
         "https://zksync.io/terms",
-      // In prividium mode the link is only shown when the operator explicitly configures it
-      contactUsUrl: explicitContactUs || (appEnvironment === "prividium" ? null : "https://zksync.io/contact"),
+      contactUsUrl:
+        runtimeConfig?.links?.contactUsUrl ||
+        import.meta.env?.VITE_CONTACT_US_URL ||
+        (appEnvironment === "prividium" ? null : "https://zksync.io/contact"),
     },
     environmentConfig: runtimeConfig?.environmentConfig,
     theme: runtimeConfig?.theme || JSON.parse(import.meta.env?.VITE_THEME_CONFIG || "{}"),

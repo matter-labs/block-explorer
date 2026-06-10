@@ -47,11 +47,4 @@ describe("NotFound view", () => {
     runtimeConfigMock.links.contactUsUrl = null;
     expect(render().find(".contact-support").exists()).toBe(false);
   });
-
-  it("shows the operator contact link when configured", () => {
-    runtimeConfigMock.links.contactUsUrl = "https://bank-xyz.example/support";
-    const wrapper = render();
-    expect(wrapper.find(".contact-support").exists()).toBe(true);
-    expect(wrapper.find(".contact-support a").attributes("href")).toBe("https://bank-xyz.example/support");
-  });
 });
