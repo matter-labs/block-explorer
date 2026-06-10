@@ -56,12 +56,10 @@ describe("useBlock:", () => {
     expect(isRequestFailed.value).toEqual(true);
     mock.mockRestore();
   });
-  it("sets blockItem to null and failed to false when request fails with status code 404", async () => {
+  it.each([403, 404])("routes FetchError status %i to the not-found view (isRequestFailed false)", async (status) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const error: any = new FetchError("404");
-    error.response = {
-      status: 404,
-    };
+    const error: any = new FetchError(String(status));
+    error.response = { status };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mock = ($fetch as any).mockRejectedValue(error);
     const { isRequestFailed, blockItem, getById } = useBlock();
@@ -69,6 +67,19 @@ describe("useBlock:", () => {
 
     expect(blockItem.value).toEqual(null);
     expect(isRequestFailed.value).toEqual(false);
+    mock.mockRestore();
+  });
+  it.each([400, 500])("shows the error page for FetchError status %i (isRequestFailed true)", async (status) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const error: any = new FetchError(String(status));
+    error.response = { status };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const mock = ($fetch as any).mockRejectedValue(error);
+    const { isRequestFailed, blockItem, getById } = useBlock();
+    await getById("1234");
+
+    expect(blockItem.value).toEqual(null);
+    expect(isRequestFailed.value).toEqual(true);
     mock.mockRestore();
   });
 });

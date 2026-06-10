@@ -192,7 +192,9 @@ export default (context = useContext()) => {
       }
     } catch (error: unknown) {
       item.value = null;
-      isRequestFailed.value = true;
+      if (!(error instanceof FetchError) || ![403, 404].includes(error.response?.status ?? 0)) {
+        isRequestFailed.value = true;
+      }
     } finally {
       isRequestPending.value = false;
     }

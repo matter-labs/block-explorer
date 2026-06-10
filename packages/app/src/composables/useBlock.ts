@@ -42,7 +42,7 @@ export default (context = useContext()) => {
       blockItem.value = await FetchInstance.api(context)(`/blocks/${id}`);
     } catch (error: unknown) {
       blockItem.value = null;
-      if (!(error instanceof FetchError) || error.response?.status !== 404) {
+      if (!(error instanceof FetchError) || ![403, 404].includes(error.response?.status ?? 0)) {
         isRequestFailed.value = true;
       }
     } finally {
