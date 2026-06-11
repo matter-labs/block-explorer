@@ -15,6 +15,7 @@ vi.mock("@/components/SearchForm.vue", () => ({
 }));
 
 const runtimeConfigMock = {
+  appEnvironment: "default" as "default" | "prividium",
   links: {
     contactUsUrl: "https://zksync.io/contact" as string | null,
   },
@@ -34,7 +35,22 @@ function render() {
 
 describe("NotFound view", () => {
   beforeEach(() => {
+    runtimeConfigMock.appEnvironment = "default";
     runtimeConfigMock.links.contactUsUrl = "https://zksync.io/contact";
+  });
+
+  it("renders the default copy when appEnvironment is not prividium", () => {
+    runtimeConfigMock.appEnvironment = "default";
+    const wrapper = render();
+    expect(wrapper.find(".header").text()).toBe(enUS.notFound.title);
+    expect(wrapper.find(".description").text()).toBe(enUS.notFound.description);
+  });
+
+  it("renders the prividium copy when appEnvironment is prividium", () => {
+    runtimeConfigMock.appEnvironment = "prividium";
+    const wrapper = render();
+    expect(wrapper.find(".header").text()).toBe(enUS.notFound.prividiumTitle);
+    expect(wrapper.find(".description").text()).toBe(enUS.notFound.prividiumDescription);
   });
 
   it("shows the contact link when a contact URL is resolved", () => {
