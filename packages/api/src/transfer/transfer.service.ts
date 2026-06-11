@@ -10,7 +10,7 @@ import {
   SelectQueryBuilder,
 } from "typeorm";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { paginate, computeFromToMinMax, copyOrderBy } from "../common/utils";
+import { paginate, computeFromToMinMax, copyOrderBy, isAddressEqual } from "../common/utils";
 import { IPaginationOptions, SortingOrder } from "../common/types";
 import { Transfer, TransferType } from "./transfer.entity";
 import { TokenType } from "../token/token.entity";
@@ -68,7 +68,7 @@ export class TransferService {
 
     if (visibleBy) {
       const { address, ...options } = basicOptions;
-      if (address && address !== visibleBy) {
+      if (address && !isAddressEqual(address, visibleBy)) {
         // two-party: transfers between address and visibleBy
         const { fromToMin, fromToMax } = computeFromToMinMax(address, visibleBy);
         const innerQb = this.transferRepository.createQueryBuilder("transfer");

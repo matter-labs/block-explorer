@@ -125,8 +125,8 @@
           </InfoTooltip>
         </TableBodyColumn>
         <TableBodyColumn class="transaction-table-value">
-          <div v-for="transfer in tokenTransfers" :key="transfer.to + transfer.from">
-            <TransferTableCell :transfer="transfer" />
+          <div v-for="(item, index) in tokenTransfers" :key="index">
+            <TransferTableCell :transfer="item.transfer" :memo="item.memo" />
           </div>
         </TableBodyColumn>
       </tr>
@@ -292,9 +292,11 @@ import type { TransactionItem } from "@/composables/useTransaction";
 
 import {
   decodeInteropBundleSentEvent,
+  decodeTransferWithMemoEvent,
   getContractDisplayName,
   INTEROP_BUNDLE_SENT_TOPIC,
   isContractDeployerAddress,
+  TRANSFER_WITH_MEMO_TOPIC,
 } from "@/utils/helpers";
 
 const { t } = useI18n();
@@ -342,7 +344,32 @@ const interopBundle = computed(() => {
 
 const tokenTransfers = computed(() => {
   // exclude transfers with no amount, such as NFT until we fully support them
-  return props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
+  const transfers = props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
+
+  // Decode TransferWithMemo logs once, in emission order, so that identical
+  // transfers (same from/to/value/token) pair with the correct memo by position
+  // rather than the first value-match. Each log is consumed at most once.
+  const memoLogs = (props.transaction?.logs || [])
+    .filter((log) => log.topics[0]?.toLowerCase() === TRANSFER_WITH_MEMO_TOPIC)
+    .slice()
+    .sort((a, b) => Number(a.logIndex) - Number(b.logIndex))
+    .map((log) => ({ log, decoded: decodeTransferWithMemoEvent(log), consumed: false }))
+    .filter((entry) => entry.decoded);
+
+  return transfers.map((transfer) => {
+    const match = memoLogs.find(
+      (entry) =>
+        !entry.consumed &&
+        entry.log.address.toLowerCase() === transfer.tokenInfo?.l2Address?.toLowerCase() &&
+        entry.decoded!.from.toLowerCase() === transfer.from.toLowerCase() &&
+        entry.decoded!.to.toLowerCase() === transfer.to.toLowerCase() &&
+        entry.decoded!.value === transfer.amount
+    );
+    if (match) {
+      match.consumed = true;
+    }
+    return { transfer, memo: match?.decoded?.memo ?? null };
+  });
 });
 
 const gasUsedPercent = computed(() => {

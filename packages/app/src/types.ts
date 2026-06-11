@@ -62,3 +62,11 @@ export enum TimeFormat {
   FULL = "full",
   TIME_AGO_AND_FULL = "time_ago_and_full",
 }
+
+export type TransferWithMemo = {
+  from: string;
+  to: string;
+  value: string;
+  // The memo bytes decoded as a UTF-8 string.
+  memo: string;
+};
