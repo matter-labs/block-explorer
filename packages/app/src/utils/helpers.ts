@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { AbiCoder, Interface } from "ethers";
+import { AbiCoder, Interface, toUtf8String } from "ethers";
 
 import { BOOTLOADER_FORMAL_ADDRESS, CONTRACT_DISPLAY_NAMES, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
 
@@ -8,9 +8,11 @@ import type { AbiFragment } from "@/composables/useAddress";
 import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composables/useEventLog";
 import type { TokenTransfer } from "@/composables/useTransaction";
 import type { InputData } from "@/composables/useTransactionData";
+import type { TransferWithMemo } from "@/types";
 import type { ParamType, Result } from "ethers";
 
 import IInteropCenterABI from "@/abi/IInteropCenter";
+import Iso20022TokenABI from "@/abi/Iso20022Token";
 
 export const DefaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
@@ -229,6 +231,26 @@ export function decodeInteropBundleSentEvent(log: TransactionLogEntry) {
         unbundlerAddress: bytesToAddress(bundle.bundleAttributes.unbundlerAddress as string),
         useFixedFee: bundle.bundleAttributes.useFixedFee as boolean,
       },
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export const TRANSFER_WITH_MEMO_TOPIC = new Interface(Iso20022TokenABI as never)
+  .getEvent("TransferWithMemo")!
+  .topicHash.toLowerCase();
+
+export function decodeTransferWithMemoEvent(log: TransactionLogEntry): TransferWithMemo | undefined {
+  try {
+    const iface = new Interface(Iso20022TokenABI as never);
+    const parsed = iface.parseLog({ topics: log.topics as string[], data: log.data });
+    if (!parsed) return undefined;
+    return {
+      from: parsed.args.from as string,
+      to: parsed.args.to as string,
+      value: (parsed.args.value as bigint).toString(),
+      memo: toUtf8String(parsed.args.memo as string),
     };
   } catch {
     return undefined;
