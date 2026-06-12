@@ -248,6 +248,23 @@ describe("TransferService", () => {
       });
     });
 
+    describe("when visibleBy and address are the same address but differ in case (own transfers)", () => {
+      // Route param is lower-cased by ParseAddressPipe while the session address keeps
+      // its checksum casing, so the two must be compared case-insensitively.
+      const address = "0x70997970c51812dc3a010c7d01b50e0d17dc79c8";
+      const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
+
+      beforeEach(() => {
+        (utils.paginate as jest.Mock).mockResolvedValue({ items: [] });
+      });
+
+      it("routes to own transfers via addressTransferRepository, not the two-party branch", async () => {
+        await service.findAll({ address, visibleBy }, pagingOptions);
+        expect(addressTransferRepositoryMock.createQueryBuilder).toHaveBeenCalledWith("at");
+        expect(addressTransfersQueryBuilderMock.where).toHaveBeenCalledWith({ address: visibleBy });
+      });
+    });
+
     describe("when visibleBy is set with transactionHash", () => {
       const visibleBy = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8";
       const transactionHash = "0xabc123";
