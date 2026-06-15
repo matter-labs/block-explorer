@@ -1,4 +1,4 @@
-FROM node:18.17.1-alpine AS base-stage
+FROM node:22.22.3-alpine AS base-stage
 ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
@@ -26,7 +26,7 @@ ENV VITE_APP_ENVIRONMENT=$VITE_APP_ENVIRONMENT
 ENV DOCKER_BUILD=true
 RUN npm run build
 
-FROM nginx:alpine AS production-stage
+FROM nginx:1.30.2-alpine AS production-stage
 ENV PORT=3010
 ENV CSP_REPORT_ONLY="default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src https://*.ingest.sentry.io https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
 
