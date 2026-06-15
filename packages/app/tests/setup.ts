@@ -36,3 +36,5 @@ class TestFileReader extends EventTarget {
 }
 
 globalThis.FileReader = TestFileReader as unknown as typeof FileReader;
+
+export {};
