@@ -20,24 +20,25 @@ export class BlocksIndexerWorker extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    let nextIterationDelay = 0;
-    try {
-      const isNextBlockRangeProcessed = await this.blocksIndexerProcessor.processNextBlocksRange();
-      if (!isNextBlockRangeProcessed) {
-        nextIterationDelay = this.queuePollingInterval;
+    do {
+      let nextIterationDelay = 0;
+      try {
+        const isNextBlockRangeProcessed = await this.blocksIndexerProcessor.processNextBlocksRange();
+        if (!isNextBlockRangeProcessed) {
+          nextIterationDelay = this.queuePollingInterval;
+        }
+        this.retryDelayProvider.resetRetryDelay();
+      } catch (error) {
+        nextIterationDelay = this.retryDelayProvider.getRetryDelay();
+        this.logger.error(
+          `Error on processing next block range, waiting ${nextIterationDelay} ms to retry`,
+          error.stack
+        );
       }
-      this.retryDelayProvider.resetRetryDelay();
-    } catch (error) {
-      nextIterationDelay = this.retryDelayProvider.getRetryDelay();
-      this.logger.error(`Error on processing next block range, waiting ${nextIterationDelay} ms to retry`, error.stack);
-    }
-    if (nextIterationDelay) {
-      this.logger.debug(`Waiting for ${nextIterationDelay}ms`);
-      await waitFor(() => !this.currentProcessPromise, nextIterationDelay);
-    }
-    if (!this.currentProcessPromise) {
-      return;
-    }
-    return this.runProcess();
+      if (nextIterationDelay) {
+        this.logger.debug(`Waiting for ${nextIterationDelay}ms`);
+        await waitFor(() => !this.currentProcessPromise, nextIterationDelay);
+      }
+    } while (this.currentProcessPromise);
   }
 }

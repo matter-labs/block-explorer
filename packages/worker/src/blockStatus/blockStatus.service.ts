@@ -24,20 +24,18 @@ export class BlockStatusService extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    try {
-      await this.updateBlocksStatus("finalized");
-      await this.updateBlocksStatus("safe");
-    } catch (error) {
-      this.logger.error({
-        message: "Error while updating blocks status",
-        stack: error.stack,
-      });
-    }
-    await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
-    if (!this.currentProcessPromise) {
-      return;
-    }
-    return this.runProcess();
+    do {
+      try {
+        await this.updateBlocksStatus("finalized");
+        await this.updateBlocksStatus("safe");
+      } catch (error) {
+        this.logger.error({
+          message: "Error while updating blocks status",
+          stack: error.stack,
+        });
+      }
+      await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
+    } while (this.currentProcessPromise);
   }
 
   private async updateBlocksStatus(status: "safe" | "finalized"): Promise<void> {

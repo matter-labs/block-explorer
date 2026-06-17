@@ -27,14 +27,12 @@ export class MonthlyActiveAddressCounterWorker extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    const hasMore = await this.processNextRecordsBatch();
-    if (!hasMore) {
-      await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
-    }
-    if (!this.currentProcessPromise) {
-      return;
-    }
-    return this.runProcess();
+    do {
+      const hasMore = await this.processNextRecordsBatch();
+      if (!hasMore) {
+        await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
+      }
+    } while (this.currentProcessPromise);
   }
 
   public revert(lastCorrectBlockNumber: number): Promise<void> {

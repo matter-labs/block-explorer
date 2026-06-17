@@ -39,14 +39,15 @@ export class DataFetcherService {
   }
 
   private async getBlocksDataRetryable(from: number, to: number): Promise<BlockData[]> {
-    try {
-      return await this.getBlocksData(from, to);
-    } catch {
-      this.logger.debug({
-        message: `Retrying to fetch data for blocks: [${from}, ${to}]`,
-      });
-      await setTimeout(DATA_FETCHER_RETRY_TIMEOUT);
-      return this.getBlocksDataRetryable(from, to);
+    while (true) {
+      try {
+        return await this.getBlocksData(from, to);
+      } catch {
+        this.logger.debug({
+          message: `Retrying to fetch data for blocks: [${from}, ${to}]`,
+        });
+        await setTimeout(DATA_FETCHER_RETRY_TIMEOUT);
+      }
     }
   }
 
