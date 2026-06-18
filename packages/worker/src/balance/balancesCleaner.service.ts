@@ -20,28 +20,25 @@ export class BalancesCleanerService extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    const lastVerifiedBlock = await this.blockRepository.getBlock({
-      where: {
-        status: BlockStatus.Executed,
-      },
-      select: {
-        number: true,
-      },
-    });
-    const lastVerifiedBlockNumber = lastVerifiedBlock?.number || 0;
-    const lastRunBlockNumber = await this.balanceService.getDeleteBalancesFromBlockNumber();
+    do {
+      const lastVerifiedBlock = await this.blockRepository.getBlock({
+        where: {
+          status: BlockStatus.Executed,
+        },
+        select: {
+          number: true,
+        },
+      });
+      const lastVerifiedBlockNumber = lastVerifiedBlock?.number || 0;
+      const lastRunBlockNumber = await this.balanceService.getDeleteBalancesFromBlockNumber();
 
-    if (lastVerifiedBlockNumber > lastRunBlockNumber) {
-      await this.balanceService.deleteOldBalances(lastRunBlockNumber, lastVerifiedBlockNumber);
-      await this.balanceService.deleteZeroBalances(lastRunBlockNumber, lastVerifiedBlockNumber);
-      await this.balanceService.setDeleteBalancesFromBlockNumber(lastVerifiedBlockNumber);
-    }
+      if (lastVerifiedBlockNumber > lastRunBlockNumber) {
+        await this.balanceService.deleteOldBalances(lastRunBlockNumber, lastVerifiedBlockNumber);
+        await this.balanceService.deleteZeroBalances(lastRunBlockNumber, lastVerifiedBlockNumber);
+        await this.balanceService.setDeleteBalancesFromBlockNumber(lastVerifiedBlockNumber);
+      }
 
-    await waitFor(() => !this.currentProcessPromise, this.deleteBalancesInterval);
-    if (!this.currentProcessPromise) {
-      return;
-    }
-
-    return this.runProcess();
+      await waitFor(() => !this.currentProcessPromise, this.deleteBalancesInterval);
+    } while (this.currentProcessPromise);
   }
 }

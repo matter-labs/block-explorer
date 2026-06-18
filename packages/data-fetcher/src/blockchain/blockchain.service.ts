@@ -55,26 +55,28 @@ export class BlockchainService {
     this.rpcCallRetriesMaxTotalTimeout = configService.get<number>("blockchain.rpcCallRetriesMaxTotalTimeout");
   }
 
-  private async rpcCall<T>(action: () => Promise<T>, functionName: string, retriesTotalTimeAwaited = 0): Promise<T> {
-    const stopDurationMeasuring = this.rpcCallDurationMetric.startTimer();
-    try {
-      const result = await action();
-      stopDurationMeasuring({ function: functionName });
-      return result;
-    } catch (error) {
-      this.logger.error({ message: error.message, code: error.code, function: functionName }, error.stack);
-      const retryTimeout = this.errorCodesForQuickRetry.includes(error.code)
-        ? this.rpcCallsQuickRetryTimeout
-        : this.rpcCallsDefaultRetryTimeout;
+  private async rpcCall<T>(action: () => Promise<T>, functionName: string): Promise<T> {
+    let retriesTotalTimeAwaited = 0;
+    while (true) {
+      const stopDurationMeasuring = this.rpcCallDurationMetric.startTimer();
+      try {
+        const result = await action();
+        stopDurationMeasuring({ function: functionName });
+        return result;
+      } catch (error) {
+        this.logger.error({ message: error.message, code: error.code, function: functionName }, error.stack);
+        const retryTimeout = this.errorCodesForQuickRetry.includes(error.code)
+          ? this.rpcCallsQuickRetryTimeout
+          : this.rpcCallsDefaultRetryTimeout;
 
-      const totalTimeAwaited = retriesTotalTimeAwaited + retryTimeout;
-      if (totalTimeAwaited > this.rpcCallRetriesMaxTotalTimeout) {
-        this.logger.error({ message: "Exceeded retries total timeout, failing the request", functionName });
-        throw error;
+        retriesTotalTimeAwaited += retryTimeout;
+        if (retriesTotalTimeAwaited > this.rpcCallRetriesMaxTotalTimeout) {
+          this.logger.error({ message: "Exceeded retries total timeout, failing the request", functionName });
+          throw error;
+        }
+
+        await setTimeout(retryTimeout);
       }
-
-      await setTimeout(retryTimeout);
-      return this.rpcCall(action, functionName, totalTimeAwaited);
     }
   }
 

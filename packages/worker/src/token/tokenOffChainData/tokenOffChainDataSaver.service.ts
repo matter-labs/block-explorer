@@ -23,61 +23,60 @@ export class TokenOffChainDataSaverService extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    let nextUpdateTimeout = this.updateTokenOffChainDataInterval;
-    try {
-      const lastUpdatedAt = await this.tokenRepository.getOffChainDataLastUpdatedAt();
-      const now = new Date().getTime();
-      const timeSinceLastUpdate = lastUpdatedAt ? now - lastUpdatedAt.getTime() : this.updateTokenOffChainDataInterval;
-      nextUpdateTimeout =
-        timeSinceLastUpdate >= this.updateTokenOffChainDataInterval
-          ? 0
-          : this.updateTokenOffChainDataInterval - timeSinceLastUpdate;
+    do {
+      let nextUpdateTimeout = this.updateTokenOffChainDataInterval;
+      try {
+        const lastUpdatedAt = await this.tokenRepository.getOffChainDataLastUpdatedAt();
+        const now = new Date().getTime();
+        const timeSinceLastUpdate = lastUpdatedAt
+          ? now - lastUpdatedAt.getTime()
+          : this.updateTokenOffChainDataInterval;
+        nextUpdateTimeout =
+          timeSinceLastUpdate >= this.updateTokenOffChainDataInterval
+            ? 0
+            : this.updateTokenOffChainDataInterval - timeSinceLastUpdate;
 
-      if (!nextUpdateTimeout) {
-        const bridgedTokens = await this.tokenRepository.getBridgedTokens();
-        const tokensToUpdate = await this.tokenOffChainDataProvider.getTokensOffChainData({
-          bridgedTokensToInclude: bridgedTokens.map((t) => t.l1Address),
-        });
-        const updatedAt = new Date();
+        if (!nextUpdateTimeout) {
+          const bridgedTokens = await this.tokenRepository.getBridgedTokens();
+          const tokensToUpdate = await this.tokenOffChainDataProvider.getTokensOffChainData({
+            bridgedTokensToInclude: bridgedTokens.map((t) => t.l1Address),
+          });
+          const updatedAt = new Date();
 
-        let updateTokensTasks = [];
-        for (let i = 0; i < tokensToUpdate.length; i++) {
-          updateTokensTasks.push(
-            this.tokenRepository.updateTokenOffChainData({
-              l1Address: tokensToUpdate[i].l1Address,
-              l2Address: tokensToUpdate[i].l2Address,
-              liquidity: tokensToUpdate[i].liquidity,
-              usdPrice: tokensToUpdate[i].usdPrice,
-              updatedAt,
-              iconURL: tokensToUpdate[i].iconURL,
-            })
-          );
-          if (updateTokensTasks.length === UPDATE_TOKENS_BATCH_SIZE || i === tokensToUpdate.length - 1) {
-            await Promise.all(updateTokensTasks);
-            updateTokensTasks = [];
+          let updateTokensTasks = [];
+          for (let i = 0; i < tokensToUpdate.length; i++) {
+            updateTokensTasks.push(
+              this.tokenRepository.updateTokenOffChainData({
+                l1Address: tokensToUpdate[i].l1Address,
+                l2Address: tokensToUpdate[i].l2Address,
+                liquidity: tokensToUpdate[i].liquidity,
+                usdPrice: tokensToUpdate[i].usdPrice,
+                updatedAt,
+                iconURL: tokensToUpdate[i].iconURL,
+              })
+            );
+            if (updateTokensTasks.length === UPDATE_TOKENS_BATCH_SIZE || i === tokensToUpdate.length - 1) {
+              await Promise.all(updateTokensTasks);
+              updateTokensTasks = [];
+            }
           }
+
+          this.logger.log({
+            message: "Updated tokens offchain data",
+            totalTokensUpdated: tokensToUpdate.length,
+          });
+
+          nextUpdateTimeout = this.updateTokenOffChainDataInterval;
         }
-
-        this.logger.log({
-          message: "Updated tokens offchain data",
-          totalTokensUpdated: tokensToUpdate.length,
+      } catch (err) {
+        this.logger.error({
+          message: "Failed to update tokens offchain data",
+          originalError: err,
         });
-
         nextUpdateTimeout = this.updateTokenOffChainDataInterval;
       }
-    } catch (err) {
-      this.logger.error({
-        message: "Failed to update tokens offchain data",
-        originalError: err,
-      });
-      nextUpdateTimeout = this.updateTokenOffChainDataInterval;
-    }
 
-    await waitFor(() => !this.currentProcessPromise, nextUpdateTimeout);
-    if (!this.currentProcessPromise) {
-      return;
-    }
-
-    return this.runProcess();
+      await waitFor(() => !this.currentProcessPromise, nextUpdateTimeout);
+    } while (this.currentProcessPromise);
   }
 }

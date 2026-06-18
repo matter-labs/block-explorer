@@ -60,44 +60,42 @@ const retryableFunctionCall = async (
   retryTimeout: number,
   retriesTotalTimeAwaited = 0
 ): Promise<any> => {
-  try {
-    return await result;
-  } catch (error) {
-    const isRetryable = shouldRetry(error);
-    if (!isRetryable) {
-      logger.warn({
-        message: `Requested contract function ${functionName} failed to execute, not retryable`,
+  let currentResult = result;
+  let currentRetryTimeout = retryTimeout;
+  let totalTimeAwaited = retriesTotalTimeAwaited;
+  while (true) {
+    try {
+      return await currentResult;
+    } catch (error) {
+      const isRetryable = shouldRetry(error);
+      if (!isRetryable) {
+        logger.warn({
+          message: `Requested contract function ${functionName} failed to execute, not retryable`,
+          contractAddress: addressOrName,
+          error,
+        });
+        throw error;
+      }
+
+      const exceededRetriesTotalTimeout =
+        totalTimeAwaited + currentRetryTimeout > blockchain.rpcCallRetriesMaxTotalTimeout;
+      const failedStatus = exceededRetriesTotalTimeout ? "exceeded total retries timeout" : "retrying...";
+      logger[exceededRetriesTotalTimeout ? "error" : "warn"]({
+        message: `Requested contract function ${functionName} failed to execute, ${failedStatus}`,
         contractAddress: addressOrName,
         error,
       });
-      throw error;
-    }
 
-    const exceededRetriesTotalTimeout =
-      retriesTotalTimeAwaited + retryTimeout > blockchain.rpcCallRetriesMaxTotalTimeout;
-    const failedStatus = exceededRetriesTotalTimeout ? "exceeded total retries timeout" : "retrying...";
-    logger[exceededRetriesTotalTimeout ? "error" : "warn"]({
-      message: `Requested contract function ${functionName} failed to execute, ${failedStatus}`,
-      contractAddress: addressOrName,
-      error,
-    });
-
-    if (exceededRetriesTotalTimeout) {
-      throw new ExceededRetriesTotalTimeoutError(error);
+      if (exceededRetriesTotalTimeout) {
+        throw new ExceededRetriesTotalTimeoutError(error);
+      }
     }
+    await setTimeout(currentRetryTimeout);
+
+    totalTimeAwaited += currentRetryTimeout;
+    currentRetryTimeout = Math.min(currentRetryTimeout * 2, MAX_RETRY_INTERVAL);
+    currentResult = functionCall();
   }
-  await setTimeout(retryTimeout);
-
-  const nextRetryTimeout = Math.min(retryTimeout * 2, MAX_RETRY_INTERVAL);
-  return retryableFunctionCall(
-    functionCall(),
-    functionCall,
-    logger,
-    functionName,
-    addressOrName,
-    nextRetryTimeout,
-    retriesTotalTimeAwaited + retryTimeout
-  );
 };
 
 const getProxyHandler = (addressOrName: string, logger: Logger, retryTimeout: number) => {

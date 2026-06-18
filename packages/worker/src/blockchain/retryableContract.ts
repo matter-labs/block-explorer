@@ -51,25 +51,29 @@ const retryableFunctionCall = async (
   addressOrName: string,
   retryTimeout: number
 ): Promise<any> => {
-  try {
-    return await result;
-  } catch (error) {
-    const isRetryable = shouldRetry(error);
-    logger.warn({
-      message: `Requested contract function ${functionName} failed to execute, ${
-        isRetryable ? "retrying..." : "not retryable"
-      }`,
-      contractAddress: addressOrName,
-      error,
-    });
-    if (!isRetryable) {
-      throw error;
+  let currentResult = result;
+  let currentRetryTimeout = retryTimeout;
+  while (true) {
+    try {
+      return await currentResult;
+    } catch (error) {
+      const isRetryable = shouldRetry(error);
+      logger.warn({
+        message: `Requested contract function ${functionName} failed to execute, ${
+          isRetryable ? "retrying..." : "not retryable"
+        }`,
+        contractAddress: addressOrName,
+        error,
+      });
+      if (!isRetryable) {
+        throw error;
+      }
     }
-  }
-  await setTimeout(retryTimeout);
+    await setTimeout(currentRetryTimeout);
 
-  const nextRetryTimeout = Math.min(retryTimeout * 2, MAX_RETRY_INTERVAL);
-  return retryableFunctionCall(functionCall(), functionCall, logger, functionName, addressOrName, nextRetryTimeout);
+    currentRetryTimeout = Math.min(currentRetryTimeout * 2, MAX_RETRY_INTERVAL);
+    currentResult = functionCall();
+  }
 };
 
 const getProxyHandler = (addressOrName: string, logger: Logger, retryTimeout: number) => {
