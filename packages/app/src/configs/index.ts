@@ -66,7 +66,7 @@ export type RuntimeConfig = {
     xUrl: string;
     docsUrl: string;
     termsOfServiceUrl: string;
-    contactUsUrl: string;
+    contactUsUrl: string | null;
   };
   environmentConfig?: EnvironmentConfig;
   theme?: {

@@ -6,9 +6,9 @@
       {{ isPrividium ? t("notFound.prividiumDescription") : t("notFound.description") }}
     </p>
     <SearchForm class="search-form"></SearchForm>
-    <div class="contact-support">
+    <div v-if="runtimeConfig.links.contactUsUrl" class="contact-support">
       {{ t("notFound.contactSupportTitle") }}
-      <a href="https://zksync.io/contact" target="_blank">{{ t("notFound.contactSupport") }}</a>
+      <a :href="runtimeConfig.links.contactUsUrl" target="_blank">{{ t("notFound.contactSupport") }}</a>
     </div>
   </div>
 </template>

@@ -1,12 +1,24 @@
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mount } from "@vue/test-utils";
 
 import TheFooter from "@/components/TheFooter.vue";
 
 import enUS from "@/locales/en.json";
+
+const runtimeConfigMock = {
+  version: "localhost",
+  links: {
+    docsUrl: "https://docs.zksync.io/zksync-network/tooling/block-explorers",
+    termsOfServiceUrl: "https://zksync.io/terms",
+    contactUsUrl: "https://zksync.io/contact" as string | null,
+  },
+};
+vi.mock("@/composables/useRuntimeConfig", () => ({
+  default: () => runtimeConfigMock,
+}));
 
 describe("TheFooter:", () => {
   const i18n = createI18n({
@@ -17,15 +29,21 @@ describe("TheFooter:", () => {
     },
   });
 
+  const mountFooter = () => mount(TheFooter, { global: { plugins: [i18n] } });
+
+  beforeEach(() => {
+    runtimeConfigMock.links.contactUsUrl = "https://zksync.io/contact";
+  });
+
   it("renders navigation links", () => {
-    const wrapper = mount(TheFooter, {
-      global: {
-        plugins: [i18n],
-      },
-    });
-    const links = wrapper.findAll("a");
+    const links = mountFooter().findAll("a");
     expect(links[0].attributes("href")).toBe("https://docs.zksync.io/zksync-network/tooling/block-explorers");
     expect(links[1].attributes("href")).toBe("https://zksync.io/terms");
     expect(links[2].attributes("href")).toBe("https://zksync.io/contact");
+  });
+
+  it("hides the contact link when no contact URL is resolved", () => {
+    runtimeConfigMock.links.contactUsUrl = null;
+    expect(mountFooter().findAll("a")).toHaveLength(2);
   });
 });

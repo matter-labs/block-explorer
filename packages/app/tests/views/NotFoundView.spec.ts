@@ -1,6 +1,6 @@
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mount } from "@vue/test-utils";
 
@@ -14,7 +14,12 @@ vi.mock("@/components/SearchForm.vue", () => ({
   default: { template: '<div data-testid="search-form-stub"></div>' },
 }));
 
-const runtimeConfigMock = { appEnvironment: "default" as "default" | "prividium" };
+const runtimeConfigMock = {
+  appEnvironment: "default" as "default" | "prividium",
+  links: {
+    contactUsUrl: "https://zksync.io/contact" as string | null,
+  },
+};
 vi.mock("@/composables/useRuntimeConfig", () => ({
   default: () => runtimeConfigMock,
 }));
@@ -29,6 +34,11 @@ function render() {
 }
 
 describe("NotFound view", () => {
+  beforeEach(() => {
+    runtimeConfigMock.appEnvironment = "default";
+    runtimeConfigMock.links.contactUsUrl = "https://zksync.io/contact";
+  });
+
   it("renders the default copy when appEnvironment is not prividium", () => {
     runtimeConfigMock.appEnvironment = "default";
     const wrapper = render();
@@ -41,5 +51,16 @@ describe("NotFound view", () => {
     const wrapper = render();
     expect(wrapper.find(".header").text()).toBe(enUS.notFound.prividiumTitle);
     expect(wrapper.find(".description").text()).toBe(enUS.notFound.prividiumDescription);
+  });
+
+  it("shows the contact link when a contact URL is resolved", () => {
+    const wrapper = render();
+    expect(wrapper.find(".contact-support").exists()).toBe(true);
+    expect(wrapper.find(".contact-support a").attributes("href")).toBe("https://zksync.io/contact");
+  });
+
+  it("hides the contact link when no contact URL is resolved", () => {
+    runtimeConfigMock.links.contactUsUrl = null;
+    expect(render().find(".contact-support").exists()).toBe(false);
   });
 });
