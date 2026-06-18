@@ -25,16 +25,14 @@ export class IndexerStateManagerService extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    try {
-      await this.advanceLastReadyBlockNumber();
-    } catch (error) {
-      this.logger.error({ message: "Error while advancing last ready block number", stack: error.stack });
-    }
-    await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
-    if (!this.currentProcessPromise) {
-      return;
-    }
-    return this.runProcess();
+    do {
+      try {
+        await this.advanceLastReadyBlockNumber();
+      } catch (error) {
+        this.logger.error({ message: "Error while advancing last ready block number", stack: error.stack });
+      }
+      await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
+    } while (this.currentProcessPromise);
   }
 
   private async advanceLastReadyBlockNumber(): Promise<void> {

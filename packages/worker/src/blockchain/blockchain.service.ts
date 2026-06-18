@@ -45,20 +45,21 @@ export class BlockchainService {
   }
 
   private async rpcCall<T>(action: () => Promise<T>, functionName: string): Promise<T> {
-    const stopDurationMeasuring = this.rpcCallDurationMetric.startTimer();
-    try {
-      const result = await action();
-      stopDurationMeasuring({ function: functionName });
-      return result;
-    } catch (error) {
-      this.logger.error({ message: error.message, code: error.code, function: functionName }, error.stack);
-      if (this.errorCodesForQuickRetry.includes(error.code)) {
-        await setTimeout(this.rpcCallsQuickRetryTimeout);
-      } else {
-        await setTimeout(this.rpcCallsDefaultRetryTimeout);
+    while (true) {
+      const stopDurationMeasuring = this.rpcCallDurationMetric.startTimer();
+      try {
+        const result = await action();
+        stopDurationMeasuring({ function: functionName });
+        return result;
+      } catch (error) {
+        this.logger.error({ message: error.message, code: error.code, function: functionName }, error.stack);
+        if (this.errorCodesForQuickRetry.includes(error.code)) {
+          await setTimeout(this.rpcCallsQuickRetryTimeout);
+        } else {
+          await setTimeout(this.rpcCallsDefaultRetryTimeout);
+        }
       }
     }
-    return this.rpcCall(action, functionName);
   }
 
   public async getBlock(blockHashOrBlockTag: BlockTag): Promise<Block | null> {

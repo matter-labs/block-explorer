@@ -31,16 +31,14 @@ export class BlocksEnqueuerService extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    try {
-      await this.enqueueNextBlocks();
-    } catch (error) {
-      this.logger.error({ message: "Error while enqueuing blocks", stack: error.stack });
-    }
-    await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
-    if (!this.currentProcessPromise) {
-      return;
-    }
-    return this.runProcess();
+    do {
+      try {
+        await this.enqueueNextBlocks();
+      } catch (error) {
+        this.logger.error({ message: "Error while enqueuing blocks", stack: error.stack });
+      }
+      await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
+    } while (this.currentProcessPromise);
   }
 
   private async enqueueNextBlocks(): Promise<void> {

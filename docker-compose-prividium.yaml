@@ -73,7 +73,7 @@ services:
     restart: on-failure
 
   postgres:
-    image: "postgres:14"
+    image: "postgres:18"
     logging:
       driver: none
     volumes:
