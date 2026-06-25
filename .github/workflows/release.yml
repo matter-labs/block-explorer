@@ -91,8 +91,8 @@ jobs:
           aws s3 sync "$APP_DIST/images" "$ASSETS_DEST/$VERSION/images" --endpoint-url "$ASSETS_S3_ENDPOINT" \
             --cache-control "public, max-age=31536000, immutable"
 
-          # Retention: keep only the newest 50 version folders, delete the rest.
-          KEEP=50
+          # Retention: keep only the newest 100 version folders, delete the rest.
+          KEEP=100
           STALE=$(aws s3 ls "$ASSETS_DEST/" --endpoint-url "$ASSETS_S3_ENDPOINT" \
             | awk '/ PRE / {print $2}' | sed 's#/$##' | grep -E '^[0-9]' | sort -V | head -n "-$KEEP" || true)
           for v in $STALE; do
