@@ -5,6 +5,8 @@ import useContext from "./useContext";
 import type { Context } from "./useContext";
 import type { FetchOptions, FetchResponse } from "ohmyfetch";
 
+import { resolveBase } from "@/utils/appBase";
+
 type OnResponse = (args: { response: FetchResponse<unknown> }) => void | Promise<void>;
 
 export class FetchInstance {
@@ -18,7 +20,7 @@ export class FetchInstance {
 
       // API invalidated the session
       context.user.value = { loggedIn: false };
-      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+      window.location.href = `${resolveBase("/login")}?redirect=${encodeURIComponent(window.location.pathname)}`;
     });
   }
 

@@ -6,7 +6,7 @@
     <template v-else>
       <span class="network-item">
         <img
-          :src="context.currentNetwork.value.icon"
+          :src="resolveAsset(context.currentNetwork.value.icon)"
           :alt="`${context.currentNetwork.value.l2NetworkName} logo`"
           class="network-item-img"
         />
@@ -21,6 +21,8 @@ import { computed } from "vue";
 
 import useContext from "@/composables/useContext";
 import useWallet from "@/composables/useWallet";
+
+import { resolveAsset } from "@/utils/appBase";
 
 const context = useContext();
 const { isConnectedWrongNetwork } = useWallet({

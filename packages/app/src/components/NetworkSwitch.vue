@@ -2,7 +2,7 @@
   <Listbox as="div" :model-value="selected" class="network-switch">
     <ListboxButton class="toggle-button">
       <span class="network-item">
-        <img :src="currentNetwork.icon" alt="ZKsync arrows logo" class="network-item-img" />
+        <img :src="resolveAsset(currentNetwork.icon)" alt="ZKsync arrows logo" class="network-item-img" />
         <span class="network-item-label">{{ currentNetwork.l2NetworkName }}</span>
       </span>
       <span class="toggle-button-icon-wrapper">
@@ -26,7 +26,11 @@
               :class="{ selected }"
             >
               <span class="network-item">
-                <img :src="network.icon" :alt="`${network.l2NetworkName} logo`" class="network-item-img" />
+                <img
+                  :src="resolveAsset(network.icon)"
+                  :alt="`${network.l2NetworkName} logo`"
+                  class="network-item-img"
+                />
                 <span class="network-item-label network-list-item-label">{{ network.l2NetworkName }} </span>
               </span>
               <MinusCircleIcon v-if="network.maintenance" class="maintenance-icon" aria-hidden="true" />
@@ -50,6 +54,7 @@ import useContext from "@/composables/useContext";
 
 import type { NetworkConfig } from "@/configs";
 
+import { resolveAsset, resolveBase } from "@/utils/appBase";
 import { getWindowLocation } from "@/utils/helpers";
 
 const { networks: allNetworks, currentNetwork } = useContext();
@@ -65,7 +70,7 @@ const getNetworkUrl = (network: NetworkConfig) => {
   const hostname = getWindowLocation().hostname;
 
   if (hostname === "localhost" || hostname.endsWith("web.app") || !network.hostnames?.length) {
-    return `${route.path}?network=${network.name}`;
+    return `${resolveBase(route.path)}?network=${network.name}`;
   }
   return network.hostnames[0] + route.path;
 };
