@@ -96,7 +96,7 @@ content-hashed bundle and `/images` move to `STATIC_ASSETS_URL`.
 ### Publishing assets to the CDN (CI)
 
 When the release workflow runs, the `publishStaticAssetsToR2` job uploads the released `dist`'s
-`assets/` and `images/` to the bucket under `<version>/`, then prunes to the newest 50 versions. It runs
+`assets/` and `images/` to the bucket under `<version>/`, then prunes to the newest 100 versions. It runs
 only when `STATIC_ASSETS_UPLOAD_FOLDER` is configured, and **before** the app image is pushed.
 
 The uploaded files are byte-identical to what the image serves (same content hashes), so Sentry source
