@@ -57,14 +57,14 @@
           <div class="proxy-implementation-link">
             <Alert v-if="contract.proxyInfo?.implementation.verificationInfo" class="w-fit" type="notification">
               <span>{{ t("contract.abiInteraction.contractImplementationFound") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" /> </a
               >{{ "." }}
               <span>{{ t("contract.abiInteraction.proxyCautionMessage") }}</span>
             </Alert>
             <Alert v-else class="w-fit" type="warning">
               <span>{{ t("contract.abiInteraction.contractImplementationAt") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" />
               </a>
               <span class="to-lowercase">&nbsp;{{ t("contract.abiInteraction.contractNotVerified") }}.</span>
@@ -98,14 +98,14 @@
           <div class="proxy-implementation-link">
             <Alert v-if="contract.proxyInfo?.implementation.verificationInfo" class="w-fit" type="notification">
               <span>{{ t("contract.abiInteraction.contractImplementationFound") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" /> </a
               >{{ "." }}
               <span>{{ t("contract.abiInteraction.proxyCautionMessage") }}</span>
             </Alert>
             <Alert v-else class="w-fit" type="warning">
               <span>{{ t("contract.abiInteraction.contractImplementationAt") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" />
               </a>
               <span class="to-lowercase">&nbsp;{{ t("contract.abiInteraction.contractNotVerified") }}.</span>
@@ -157,6 +157,8 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 import type { Contract } from "@/composables/useAddress";
 import type { PropType } from "vue";
+
+import { resolveBase } from "@/utils/appBase";
 
 const runtimeConfig = useRuntimeConfig();
 const props = defineProps({
