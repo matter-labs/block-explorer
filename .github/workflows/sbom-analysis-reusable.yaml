@@ -1,0 +1,99 @@
+name: SBOM generation and upload to Dependency Track
+
+on:
+  push:
+    branches:
+      - ZKD-3716-sbom-workflows
+#  workflow_call:
+#    inputs:
+#      version:
+#        description: Version string to sync (e.g. 1.2.3)
+#        required: true
+#        type: string
+
+env:
+  VERSION: "3.23.3"
+
+jobs:
+  create-parent-project:
+    name: Create or verify Dependency Track collection project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Create or verify Dependency Track collection project
+        shell: bash
+        run: |
+          bash .github/scripts/create-dtrack-collection-project.sh
+        env:
+          DT_BASE_URL: https://${{ vars.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          DT_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          PROJECT_NAME: ${{ github.event.repository.name }}
+          PROJECT_VERSION: v${{ env.VERSION }}
+          PARENT_UUID: ${{ vars.DEPENDENCY_TRACK_PARENT_PROJECT_UUID }}
+
+  sbom-code:
+    name: Generate and upload SBOM of the source code for analysis
+    needs: create-parent-project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Generate CycloneDX file on code analysis
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          path: .
+          output-file: "bom-code.cdx.json"
+          format: 'cyclonedx-json@1.6'
+          upload-artifact: 'false'
+          upload-release-assets: 'false'
+
+      - name: Upload CycloneDX file to Dependency Track
+        uses: DependencyTrack/gh-upload-sbom@b717d6595efa77a7ff1b18b57ac28597afc75d77 # v4.0.0
+        with:
+          serverhostname: ${{ vars.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          projectname: "${{ github.event.repository.name }}-code"
+          projectversion: v${{ env.VERSION }}
+          isLatest: true
+          bomfilename: "bom-code.cdx.json"
+          autocreate: true
+          parentname: ${{ github.event.repository.name }}
+          parentversion: v${{ env.VERSION }}
+
+  sbom-image:
+    name: Generate and upload SBOM of the container images for analysis
+    needs: create-parent-project
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    strategy:
+      matrix:
+        app: [api, app, data-fetcher, worker]
+    steps:
+      - name: Generate CycloneDX file on image analysis
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
+        with:
+          image: ghcr.io/matter-labs/block-explorer-${{ matrix.app }}:v${{ env.VERSION }}
+          registry-username: ${{ github.repository_owner }}
+          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          output-file: "bom-${{ matrix.app }}-image.cdx.json"
+          format: 'cyclonedx-json@1.6'
+          upload-artifact: 'false'
+          upload-release-assets: 'false'
+
+      - name: Upload CycloneDX file to Dependency Track
+        uses: DependencyTrack/gh-upload-sbom@b717d6595efa77a7ff1b18b57ac28597afc75d77 # v4.0.0
+        with:
+          serverhostname: ${{ vars.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
+          apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          projectname: "${{ github.event.repository.name }}-${{ matrix.app }}-image"
+          projectversion: v${{ env.VERSION }}
+          isLatest: true
+          bomfilename: "bom-${{ matrix.app }}-image.cdx.json"
+          autocreate: true
+          parentname: ${{ github.event.repository.name }}
+          parentversion: v${{ env.VERSION }}
