@@ -7,6 +7,7 @@ import { FetchInstance } from "./useFetchInstance";
 import type { Context } from "./useContext";
 
 import { PrividiumAuth } from "@/lib/prividium-auth";
+import { resolveBase } from "@/utils/appBase";
 
 type LoginState = {
   isLoginPending: boolean;
@@ -37,7 +38,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
     if (!prividiumAuth) {
       prividiumAuth = new PrividiumAuth({
         clientId: "block-explorer",
-        redirectUri: new URL("auth/callback", window.location.origin).toString(),
+        redirectUri: new URL(resolveBase("/auth/callback"), window.location.origin).toString(),
         userPanelUrl: context.currentNetwork.value.userPanelUrl!,
       });
     }

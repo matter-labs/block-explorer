@@ -2,7 +2,11 @@
   <div
     class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
   >
-    <img :src="currentNetwork.logoUrl || '/images/prividium_logo.svg'" alt="Logo" class="mb-6 h-16 w-auto" />
+    <img
+      :src="resolveAsset(currentNetwork.logoUrl || '/images/prividium_logo.svg')"
+      alt="Logo"
+      class="mb-6 h-16 w-auto"
+    />
 
     <!-- Loading state (no card) -->
     <div v-if="!error" class="text-center">
@@ -36,6 +40,8 @@ import { FetchError } from "ohmyfetch";
 import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
 
+import { resolveAsset, resolveBase } from "@/utils/appBase";
+
 const { t } = useI18n();
 
 const router = useRouter();
@@ -61,7 +67,7 @@ const redirectToLogin = () => {
 onMounted(async () => {
   try {
     const { redirect } = await handlePrividiumCallback();
-    await router.push(isValidRedirectPath(redirect) ? redirect : "/");
+    window.location.href = isValidRedirectPath(redirect) ? redirect : resolveBase("/");
   } catch (err: unknown) {
     console.error("Auth callback failed:", err);
 

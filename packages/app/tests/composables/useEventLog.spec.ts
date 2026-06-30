@@ -58,6 +58,7 @@ describe("useEventLog:", () => {
   });
   it("returns raw logs in case account request failed", async () => {
     const mock = ($fetch as unknown as SpyInstance).mockRejectedValue(new Error("An error occurred"));
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const { collection, isDecodePending, isDecodeFailed, decodeEventLog } = useEventLog();
     const logWithNewAddress = [
       {
@@ -69,6 +70,8 @@ describe("useEventLog:", () => {
     expect(isDecodePending.value).toEqual(false);
     expect(isDecodeFailed.value).toEqual(true);
     expect(collection.value).toEqual(logWithNewAddress);
+    expect(errorSpy).toHaveBeenCalledWith("Error fetching event names:", expect.any(Error));
+    errorSpy.mockRestore();
     mock.mockRestore();
   });
   it("decodes logs successfully", async () => {

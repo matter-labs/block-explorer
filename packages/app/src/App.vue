@@ -4,7 +4,7 @@
     v-if="isPrividiumAuthChecking"
     class="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-12 sm:px-6 lg:px-8"
   >
-    <img src="/images/prividium_logo.svg" alt="Prividium Logo" class="mb-6 h-16 w-auto" />
+    <img :src="resolveAsset('/images/prividium_logo.svg')" alt="Prividium Logo" class="mb-6 h-16 w-auto" />
     <div class="text-center">
       <h1 class="mb-4 text-2xl font-semibold text-gray-900">Checking permissions...</h1>
       <div class="mx-auto h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
@@ -46,6 +46,7 @@ import useLocalization from "@/composables/useLocalization";
 import useLogin from "@/composables/useLogin";
 import useRouteTitle from "@/composables/useRouteTitle";
 
+import { resolveAsset, resolveBase } from "@/utils/appBase";
 import MaintenanceView from "@/views/MaintenanceView.vue";
 
 const { setup } = useLocalization();
@@ -81,7 +82,7 @@ onBeforeMount(async () => {
     return;
   }
 
-  return router.push({ name: "login", query: { redirect: route.fullPath } });
+  return router.push({ name: "login", query: { redirect: resolveBase(route.fullPath) } });
 });
 </script>
 

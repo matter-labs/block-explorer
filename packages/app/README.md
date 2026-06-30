@@ -77,10 +77,34 @@ npm run test:e2e
 npm run lint
 ```
 
+## Runtime base path & serving assets from a CDN
+
+The Docker image is built once and configured at container start (via env vars), so a single image can
+be served under any base path and optionally load its hashed assets from a separate origin.
+
+### Runtime env vars (container)
+
+| Var | Default | Purpose |
+| --- | --- | --- |
+| `APP_BASE` | `/` | Base path the app is served under (leading + trailing slash, e.g. `/explorer/`). Applies to routing, `config.js`, favicon, and locally-served assets. |
+| `STATIC_ASSETS_URL` | _(empty)_ | If set, hashed assets and `/images` load from this origin instead of the app (e.g. `https://static.example.com/explorer`). Empty = serve everything from the app at `APP_BASE`. |
+| `STATIC_ASSETS_VERSIONED` | `true` | When `STATIC_ASSETS_URL` is set, assets are read from a `/<VITE_VERSION>/` sub-folder. Set `false` to read them flat (requires assets uploaded flat — the release pipeline always uploads versioned). |
+
+`config.js` and the favicon are always served by the app at `APP_BASE` (never the CDN). Only the
+content-hashed bundle and `/images` move to `STATIC_ASSETS_URL`.
+
+### Publishing assets to the CDN (CI)
+
+When the release workflow runs, the `publishStaticAssetsToR2` job uploads the released `dist`'s
+`assets/` and `images/` to the bucket under `<version>/`, then prunes to the newest 100 versions. It runs
+only when `STATIC_ASSETS_UPLOAD_FOLDER` is configured, and **before** the app image is pushed.
+
+The uploaded files are byte-identical to what the image serves (same content hashes), so Sentry source
+maps match either way.
+
 ## Production links
  - [Web Application](https://explorer.zksync.io)
  - [Storybook](https://storybook-scan-v2.zksync.dev)
-
 
 ## Verify Block Explorer UI test results in GitHub Actions
 GitHub Actions test results are available in:

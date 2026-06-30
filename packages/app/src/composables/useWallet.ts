@@ -9,6 +9,7 @@ import defaultLogger from "./../utils/logger";
 import type { BaseProvider } from "@metamask/providers";
 import type { AbstractSigner, JsonRpcProvider } from "ethers";
 
+import { appPrefix } from "@/utils/appBase";
 import { numberToHexString } from "@/utils/formatters";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -280,7 +281,7 @@ export default (
               decimals: 18,
             },
             rpcUrls: [rpcUrl],
-            blockExplorerUrls: [window.location.origin],
+            blockExplorerUrls: [window.location.origin + appPrefix],
             iconUrls: ["https://zksync.io/favicon.ico"],
           },
         ],

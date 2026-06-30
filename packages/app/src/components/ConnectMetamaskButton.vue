@@ -1,6 +1,6 @@
 <template>
   <div class="metamask-button" :class="{ disabled: buttonDisabled }">
-    <img src="/images/metamask.svg" class="metamask-image" />
+    <img :src="resolveAsset('/images/metamask.svg')" class="metamask-image" />
     <button v-if="!address" :disabled="buttonDisabled" class="login-button" @click="connect">
       {{ buttonText }}
     </button>
@@ -35,6 +35,8 @@ import HashLabel from "@/components/common/HashLabel.vue";
 
 import useContext from "@/composables/useContext";
 import { default as useWallet } from "@/composables/useWallet";
+
+import { resolveAsset } from "@/utils/appBase";
 
 const { t } = useI18n();
 
