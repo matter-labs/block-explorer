@@ -78,7 +78,7 @@ jobs:
       - name: Unzip Dist package
         if: ${{ env.STATIC_ASSETS_UPLOAD_FOLDER != '' }}
         run: |
-          unzip dist.zip -d packages/app
+          unzip dist.zip
 
       - name: Publish to R2
         if: ${{ env.STATIC_ASSETS_UPLOAD_FOLDER != '' }}
@@ -89,7 +89,7 @@ jobs:
           ASSETS_S3_ENDPOINT: ${{ secrets.STATIC_ASSETS_S3_ENDPOINT }}
         run: |
           set -e
-          APP_DIST=packages/app/dist
+          APP_DIST=dist
           ASSETS_DEST="s3://${STATIC_ASSETS_UPLOAD_FOLDER}"
           VERSION="${{ needs.createReleaseVersion.outputs.releaseVersion }}"
 
