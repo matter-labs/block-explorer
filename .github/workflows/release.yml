@@ -216,6 +216,18 @@ jobs:
           file: packages/app/Dockerfile
           no-cache: true
 
+  sbom-generation:
+    name: SBOM
+    needs: [ 'createReleaseVersion', 'deployBackendToStaging' ]
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/sbom-analysis-reusable.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.createReleaseVersion.outputs.releaseVersion }}
+
+
   deployFrontendToStaging:
     name: Deploy Block Explorer frontend to staging
     runs-on: matterlabs-firebase-deployer
