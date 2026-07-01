@@ -110,29 +110,18 @@ export class AddressController {
       };
     }
 
-    if (addressBalance.blockNumber) {
-      const [sealedNonce, verifiedNonce] = await Promise.all([
-        this.transactionService.getAccountNonce({ accountAddress: address }),
-        this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
-      ]);
-
-      return {
-        type: AddressType.Account,
-        address: ethersGetAddress(address),
-        blockNumber: addressBalance.blockNumber,
-        balances: addressBalance.balances,
-        sealedNonce,
-        verifiedNonce,
-      };
-    }
+    const [sealedNonce, verifiedNonce] = await Promise.all([
+      this.transactionService.getAccountNonce({ accountAddress: address }),
+      this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
+    ]);
 
     return {
       type: AddressType.Account,
       address: ethersGetAddress(address),
-      blockNumber: await this.blockService.getLastBlockNumber(),
-      balances: {},
-      sealedNonce: 0,
-      verifiedNonce: 0,
+      blockNumber: addressBalance.blockNumber || (await this.blockService.getLastBlockNumber()),
+      balances: addressBalance.balances,
+      sealedNonce,
+      verifiedNonce,
     };
   }
 
