@@ -42,7 +42,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "VITE_VERSION=${nextRelease.version} npm run build",
+        "prepareCmd": "VITE_APP_ENVIRONMENT=default VITE_VERSION=${nextRelease.version} npm run build",
         "publishCmd": "zip -r dist.zip dist",
         "execCwd": "packages/app"
       }

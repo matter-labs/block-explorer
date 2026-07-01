@@ -50,8 +50,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
         run: |
-            VITE_APP_ENVIRONMENT=production \
-              npx semantic-release
+            npx semantic-release
 
   # Publish the app's assets + public images to the R2 bucket before the App image is pushed so the files are already in place when it goes live.
   publishStaticAssetsToR2:
