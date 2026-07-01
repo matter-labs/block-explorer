@@ -247,6 +247,7 @@ describe("AddressController", () => {
       beforeEach(() => {
         (serviceMock.findOne as jest.Mock).mockResolvedValueOnce(null);
         (blockServiceMock.getLastBlockNumber as jest.Mock).mockResolvedValueOnce(blockNumber);
+        (transactionServiceMock.getAccountNonce as jest.Mock).mockResolvedValueOnce(0).mockResolvedValueOnce(0);
         (balanceServiceMock.getBalances as jest.Mock).mockResolvedValue({
           blockNumber: 0,
           balances: {},
@@ -262,6 +263,20 @@ describe("AddressController", () => {
           balances: {},
           sealedNonce: 0,
           verifiedNonce: 0,
+        });
+      });
+
+      it("still resolves the nonce from account transactions (gasless chains)", async () => {
+        (transactionServiceMock.getAccountNonce as jest.Mock).mockReset();
+        (transactionServiceMock.getAccountNonce as jest.Mock).mockResolvedValueOnce(5).mockResolvedValueOnce(3);
+        const result = await controller.getAddress(blockchainAddress, null);
+        expect(result).toStrictEqual({
+          type: AddressType.Account,
+          address: normalizedAddress,
+          blockNumber,
+          balances: {},
+          sealedNonce: 5,
+          verifiedNonce: 3,
         });
       });
     });
