@@ -155,6 +155,10 @@ jobs:
           cache-to: type=gha,mode=max,scope=app
           cache-from: type=gha,scope=app
 
+      - name: Install AWS CLI
+        if: ${{ env.STATIC_ASSETS_UPLOAD_FOLDER != '' }}
+        run: command -v aws >/dev/null || { sudo apt-get update && sudo apt-get install -y --no-install-recommends awscli; }
+
       # Extract the built static assets (JS/CSS + /images) from the loaded image and upload to R2, so
       # they are byte-identical to what the published image's index.html references.
       - name: Upload static assets to R2
