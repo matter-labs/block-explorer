@@ -33,7 +33,7 @@ ENV STATIC_ASSETS_URL=
 ENV STATIC_ASSETS_VERSIONED=true
 ARG VITE_VERSION=
 ENV VITE_VERSION=$VITE_VERSION
-ENV CSP_REPORT_ONLY="default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src https://*.ingest.sentry.io https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
+ENV CSP_REPORT_ONLY="default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src https://*.ingest.sentry.io https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com https://cdn.mementoblockchain.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
 
 RUN apk add --no-cache gomplate
 
