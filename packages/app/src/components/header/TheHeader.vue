@@ -59,6 +59,7 @@
       <img
         v-if="currentNetwork.heroBannerImageUrl"
         class="hero-image"
+        :class="{ 'hero-image-cover': currentNetwork.heroBannerCover }"
         :src="resolveAsset(currentNetwork.heroBannerImageUrl)"
       />
       <hero-arrows v-else class="hero-image" />
@@ -337,6 +338,10 @@ const hasContent = computed(() => {
 
     .hero-image {
       @apply h-5/6 w-auto;
+
+      &.hero-image-cover {
+        @apply h-full w-full object-cover;
+      }
     }
   }
 
