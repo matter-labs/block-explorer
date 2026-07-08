@@ -18,6 +18,7 @@ vi.mock("vue-router", () => ({
 }));
 
 const maintenanceMock = vi.fn(() => false);
+const networkOverridesMock = vi.fn(() => ({}));
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -25,6 +26,7 @@ vi.mock("@/composables/useContext", () => {
         maintenance: maintenanceMock(),
         bridgeUrl: "https://bridge.zksync.io/",
         apiUrl: "https://api-url",
+        ...networkOverridesMock(),
       })),
       networks: computed(() => []),
       user: computed(() => ({ loggedIn: false })),
@@ -95,6 +97,39 @@ describe("TheHeader:", () => {
     });
 
     expect(wrapper.find(".hero-banner-container").exists()).toBe(true);
+  });
+  it("renders hero banner image without cover class by default", async () => {
+    const mockNetwork = networkOverridesMock.mockReturnValue({
+      heroBannerImageUrl: "https://example.com/banner.webp",
+    });
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n],
+      },
+    });
+
+    const heroImage = wrapper.find(".hero-image");
+    expect(heroImage.attributes("src")).toBe("https://example.com/banner.webp");
+    expect(heroImage.classes()).not.toContain("hero-image-cover");
+    mockNetwork.mockRestore();
+  });
+  it("renders hero banner image with cover class if heroBannerCover is true", async () => {
+    const mockNetwork = networkOverridesMock.mockReturnValue({
+      heroBannerImageUrl: "https://example.com/banner.webp",
+      heroBannerCover: true,
+    });
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n],
+      },
+    });
+
+    const heroImage = wrapper.find(".hero-image");
+    expect(heroImage.attributes("src")).toBe("https://example.com/banner.webp");
+    expect(heroImage.classes()).toContain("hero-image-cover");
+    mockNetwork.mockRestore();
   });
   it("doesn't render hero banner for not-found route", async () => {
     const mockRoute = routeMock.mockReturnValue({ name: "not-found", params: {} });
