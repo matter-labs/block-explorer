@@ -59,9 +59,14 @@ const tableInfoItems = computed(() => {
   };
   const tableItems: InfoTableItem[] = [
     { label: t("accountView.accountInfo.address"), value: { value: props.account.address }, component: CopyContent },
-    { label: t("accountView.accountInfo.sealedNonce"), value: props.account.sealedNonce },
-    { label: t("accountView.accountInfo.verifiedNonce"), value: props.account.verifiedNonce },
   ];
+  // Nonces are omitted by the API in prividium mode unless the user is the account owner or an admin
+  if (props.account.sealedNonce != null) {
+    tableItems.push({ label: t("accountView.accountInfo.sealedNonce"), value: props.account.sealedNonce });
+  }
+  if (props.account.verifiedNonce != null) {
+    tableItems.push({ label: t("accountView.accountInfo.verifiedNonce"), value: props.account.verifiedNonce });
+  }
   return tableItems;
 });
 </script>

@@ -19,13 +19,24 @@ describe("User Decorator", () => {
   it("returns user object with address when request session has address and token", () => {
     mockRequest.session = {
       address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      wallets: ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266", "0xc0ffee254729296a45a3885639AC7E10F9d54979"],
       token: "jwt-token",
     };
     const result = userFactory(mockExecutionContext);
     expect(result).toEqual({
       address: mockRequest.session.address,
+      wallets: mockRequest.session.wallets,
       token: "jwt-token",
     });
+  });
+
+  it("defaults wallets to the session address when session has no wallets", () => {
+    mockRequest.session = {
+      address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+      token: "jwt-token",
+    };
+    const result = userFactory(mockExecutionContext);
+    expect(result.wallets).toEqual([mockRequest.session.address]);
   });
 
   it("returns null when request session has no address", () => {

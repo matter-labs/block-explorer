@@ -54,6 +54,7 @@ export function applySwaggerAuthMiddleware(app: NestExpressApplication, configSe
     try {
       const userWithRoles = await addUserRolesPipe.transform({
         address: req.session.address,
+        wallets: req.session.wallets ?? [req.session.address],
         token: req.session.token,
       });
       if (!userWithRoles?.hasAdminRead && !userWithRoles?.hasFullReadAccess) {

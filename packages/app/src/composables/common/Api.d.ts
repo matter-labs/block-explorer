@@ -90,8 +90,8 @@ declare namespace Api {
       address: string;
       blockNumber: number;
       balances: Balances;
-      sealedNonce: number;
-      verifiedNonce: number;
+      sealedNonce?: number;
+      verifiedNonce?: number;
     };
 
     type Contract = {

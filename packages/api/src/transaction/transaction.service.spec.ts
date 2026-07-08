@@ -769,7 +769,7 @@ describe("TransactionService", () => {
 
   describe("isTransactionVisibleByUser", () => {
     const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-    const user = { address: userAddress, token: "token" };
+    const user = { address: userAddress, wallets: [userAddress], token: "token" };
     const txHash = "0xabcdef1234567890";
 
     describe("when user is the sender", () => {
