@@ -74,6 +74,7 @@ export class AddressController {
     let includeBytecode = true;
     let includeCreatorAddress = true;
     let includeCreatorTxHash = true;
+    let includeTotalTransactions = true;
 
     const isOwnAddress = !!user && user.wallets.some((wallet) => isAddressEqual(wallet, address));
 
@@ -89,6 +90,7 @@ export class AddressController {
         includeBytecode = false;
         includeCreatorAddress = false;
         includeCreatorTxHash = false;
+        includeTotalTransactions = false;
       }
     }
 
@@ -97,7 +99,9 @@ export class AddressController {
       : { blockNumber: 0, balances: {} };
 
     if (addressType === AddressType.Contract) {
-      const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
+      const totalTransactions = includeTotalTransactions
+        ? await this.transactionService.count({ "from|to": formatHexAddress(address) })
+        : undefined;
       return {
         type: AddressType.Contract,
         ...addressRecord,
@@ -105,7 +109,7 @@ export class AddressController {
         balances: addressBalance.balances,
         createdInBlockNumber: addressRecord.createdInBlockNumber,
         creatorTxHash: includeCreatorTxHash ? addressRecord.creatorTxHash : "",
-        totalTransactions,
+        ...(includeTotalTransactions && { totalTransactions }),
         creatorAddress: includeCreatorAddress ? addressRecord.creatorAddress : "",
         isEvmLike: addressRecord.isEvmLike,
         bytecode: includeBytecode ? addressRecord.bytecode : "",

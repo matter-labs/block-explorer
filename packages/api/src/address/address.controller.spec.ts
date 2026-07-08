@@ -320,6 +320,8 @@ describe("AddressController", () => {
           expect(result["bytecode"]).toEqual("");
           expect(result["creatorAddress"]).toEqual("");
           expect(result["creatorTxHash"]).toEqual("");
+          expect(result).not.toHaveProperty("totalTransactions");
+          expect(transactionServiceMock.count).not.toHaveBeenCalled();
         });
 
         it("does not include additional information if user is not owner (ownerTopic is undefined)", async () => {
@@ -399,6 +401,7 @@ describe("AddressController", () => {
           expect(result["bytecode"]).not.toEqual("");
           expect(result["creatorAddress"]).not.toEqual("");
           expect(result["creatorTxHash"]).not.toEqual("");
+          expect(result["totalTransactions"]).toBeDefined();
         });
 
         it("does not include additional information if logService throws an error", async () => {
