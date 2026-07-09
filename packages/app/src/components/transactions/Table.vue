@@ -44,12 +44,7 @@
         <Badge :color="item.statusColor" :data-testid="$testId.statusBadge">
           <template #default>
             {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status
-            }}<img
-              v-if="currentNetwork.txStatusBadgeIconUrl"
-              class="status-badge-icon"
-              :src="resolveAsset(currentNetwork.txStatusBadgeIconUrl)"
-              alt=""
-            /><component :is="item.statusIcon" v-else />
+            }}<component :is="item.statusIcon" />
           </template>
         </Badge>
       </TableBodyColumn>
@@ -232,6 +227,7 @@ import ZkSyncIcon from "@/components/icons/ZkSync.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+import TxStatusBadgeIcon from "@/components/transactions/TxStatusBadgeIcon.vue";
 
 import useContext from "@/composables/useContext";
 import { fetchMethodNames } from "@/composables/useOpenChain";
@@ -243,7 +239,6 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 
 import { type NetworkOrigin, TimeFormat } from "@/types";
-import { resolveAsset } from "@/utils/appBase";
 import { getContractDisplayName, isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
@@ -359,7 +354,7 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
       statusColor: transaction.status === "failed" ? "danger" : "dark-success",
       // replace finality status with execution status here
       status: ["verified", "proved", "committed"].includes(transaction.status) ? "included" : transaction.status,
-      statusIcon: ZkSyncIcon,
+      statusIcon: currentNetwork.value.txStatusBadgeIconUrl ? TxStatusBadgeIcon : ZkSyncIcon,
       displayedTxReceiver,
       displayedTxReceiverName: isContractDeploymentTx
         ? t("contract.contractCreated")
@@ -520,10 +515,6 @@ const toggleAgeTimestamp = () => {
 
     svg {
       @apply ml-1;
-    }
-
-    .status-badge-icon {
-      @apply ml-1 h-5 w-5 object-contain;
     }
   }
   .badge-container.type-label {
