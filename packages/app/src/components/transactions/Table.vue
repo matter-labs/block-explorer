@@ -227,6 +227,7 @@ import ZkSyncIcon from "@/components/icons/ZkSync.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+import TxStatusBadgeIcon from "@/components/transactions/TxStatusBadgeIcon.vue";
 
 import useContext from "@/composables/useContext";
 import { fetchMethodNames } from "@/composables/useOpenChain";
@@ -353,7 +354,7 @@ const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
       statusColor: transaction.status === "failed" ? "danger" : "dark-success",
       // replace finality status with execution status here
       status: ["verified", "proved", "committed"].includes(transaction.status) ? "included" : transaction.status,
-      statusIcon: ZkSyncIcon,
+      statusIcon: currentNetwork.value.txStatusBadgeIconUrl ? TxStatusBadgeIcon : ZkSyncIcon,
       displayedTxReceiver,
       displayedTxReceiverName: isContractDeploymentTx
         ? t("contract.contractCreated")
