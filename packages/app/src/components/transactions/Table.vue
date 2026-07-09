@@ -45,11 +45,10 @@
           <template #default>
             {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status
             }}<img
-              v-if="currentNetwork.statusBadgeIconUrl && !statusBadgeIconFailed"
+              v-if="currentNetwork.txStatusBadgeIconUrl"
               class="status-badge-icon"
-              :src="resolveAsset(currentNetwork.statusBadgeIconUrl)"
+              :src="resolveAsset(currentNetwork.txStatusBadgeIconUrl)"
               alt=""
-              @error="statusBadgeIconFailed = true"
             /><component :is="item.statusIcon" v-else />
           </template>
         </Badge>
@@ -248,8 +247,6 @@ import { resolveAsset } from "@/utils/appBase";
 import { getContractDisplayName, isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
-
-const statusBadgeIconFailed = ref(false);
 
 const { t, te } = useI18n();
 

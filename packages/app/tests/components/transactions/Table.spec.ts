@@ -3,7 +3,7 @@ import { createI18n } from "vue-i18n";
 
 import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { fireEvent, render, type RenderResult } from "@testing-library/vue";
+import { render, type RenderResult } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 
 import { ETH_TOKEN_MOCK, TESTNET_NETWORK, useContextMock, useTransactionsMock } from "../../mocks";
@@ -210,19 +210,19 @@ describe("Transfers:", () => {
       expect(renderResult!.getByTestId(elements.statusBadge).textContent).toEqual("Processed on");
     });
 
-    it("renders the default status icon when statusBadgeIconUrl is not configured", () => {
+    it("renders the default status icon when txStatusBadgeIconUrl is not configured", () => {
       expect(renderResult!.container.querySelector(".status-badge-icon")).toBeNull();
       expect(renderResult!.container.querySelector(".badge-content svg")).toBeTruthy();
     });
 
-    describe("when statusBadgeIconUrl is configured", () => {
+    describe("when txStatusBadgeIconUrl is configured", () => {
       let renderResult: RenderResult | null;
       const iconUrl = "https://cdn.example.com/status-icon.svg";
 
       beforeEach(() => {
         mockContext?.mockRestore();
         mockContext = useContextMock({
-          currentNetwork: computed(() => ({ ...TESTNET_NETWORK, statusBadgeIconUrl: iconUrl })),
+          currentNetwork: computed(() => ({ ...TESTNET_NETWORK, txStatusBadgeIconUrl: iconUrl })),
         });
         renderResult = render(Table, {
           props: {},
@@ -242,13 +242,6 @@ describe("Transfers:", () => {
         expect(icon).toBeTruthy();
         expect(icon!.getAttribute("src")).toEqual(iconUrl);
         expect(renderResult!.container.querySelector(".badge-content svg")).toBeNull();
-      });
-
-      it("falls back to the default status icon when the configured icon fails to load", async () => {
-        const icon = renderResult!.container.querySelector(".status-badge-icon") as HTMLImageElement;
-        await fireEvent(icon, new Event("error"));
-        expect(renderResult!.container.querySelector(".status-badge-icon")).toBeNull();
-        expect(renderResult!.container.querySelector(".badge-content svg")).toBeTruthy();
       });
     });
 
