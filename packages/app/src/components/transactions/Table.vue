@@ -44,7 +44,13 @@
         <Badge :color="item.statusColor" :data-testid="$testId.statusBadge">
           <template #default>
             {{ te(`transactions.status.${item.status}`) ? t(`transactions.status.${item.status}`) : item.status
-            }}<component :is="item.statusIcon" />
+            }}<img
+              v-if="currentNetwork.statusBadgeIconUrl && !statusBadgeIconFailed"
+              class="status-badge-icon"
+              :src="resolveAsset(currentNetwork.statusBadgeIconUrl)"
+              alt=""
+              @error="statusBadgeIconFailed = true"
+            /><component :is="item.statusIcon" v-else />
           </template>
         </Badge>
       </TableBodyColumn>
@@ -238,9 +244,12 @@ import type { Direction } from "@/components/transactions/TransactionDirectionTa
 import type { AbiFragment } from "@/composables/useAddress";
 
 import { type NetworkOrigin, TimeFormat } from "@/types";
+import { resolveAsset } from "@/utils/appBase";
 import { getContractDisplayName, isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
 
 const { currentNetwork } = useContext();
+
+const statusBadgeIconFailed = ref(false);
 
 const { t, te } = useI18n();
 
@@ -514,6 +523,10 @@ const toggleAgeTimestamp = () => {
 
     svg {
       @apply ml-1;
+    }
+
+    .status-badge-icon {
+      @apply ml-1 h-5 w-5 object-contain;
     }
   }
   .badge-container.type-label {

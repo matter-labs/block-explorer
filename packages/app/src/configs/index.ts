@@ -6,6 +6,7 @@ export type NetworkConfig = {
   logoInverseUrl?: string;
   heroBannerImageUrl?: string;
   heroBannerCover?: boolean;
+  statusBadgeIconUrl?: string;
   verificationApiUrl?: string;
   apiUrl: string;
   rpcUrl: string;

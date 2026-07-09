@@ -3,10 +3,10 @@ import { createI18n } from "vue-i18n";
 
 import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { render, type RenderResult } from "@testing-library/vue";
+import { fireEvent, render, type RenderResult } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 
-import { ETH_TOKEN_MOCK, useContextMock, useTransactionsMock } from "../../mocks";
+import { ETH_TOKEN_MOCK, TESTNET_NETWORK, useContextMock, useTransactionsMock } from "../../mocks";
 
 import Table from "@/components/transactions/Table.vue";
 
@@ -208,6 +208,48 @@ describe("Transfers:", () => {
 
     it("renders status column", () => {
       expect(renderResult!.getByTestId(elements.statusBadge).textContent).toEqual("Processed on");
+    });
+
+    it("renders the default status icon when statusBadgeIconUrl is not configured", () => {
+      expect(renderResult!.container.querySelector(".status-badge-icon")).toBeNull();
+      expect(renderResult!.container.querySelector(".badge-content svg")).toBeTruthy();
+    });
+
+    describe("when statusBadgeIconUrl is configured", () => {
+      let renderResult: RenderResult | null;
+      const iconUrl = "https://cdn.example.com/status-icon.svg";
+
+      beforeEach(() => {
+        mockContext?.mockRestore();
+        mockContext = useContextMock({
+          currentNetwork: computed(() => ({ ...TESTNET_NETWORK, statusBadgeIconUrl: iconUrl })),
+        });
+        renderResult = render(Table, {
+          props: {},
+          global: {
+            plugins: [i18n, $testId],
+            stubs: { RouterLink: RouterLinkStub },
+          },
+        });
+      });
+
+      afterEach(() => {
+        renderResult?.unmount();
+      });
+
+      it("renders the configured icon instead of the default status icon", () => {
+        const icon = renderResult!.container.querySelector(".status-badge-icon") as HTMLImageElement | null;
+        expect(icon).toBeTruthy();
+        expect(icon!.getAttribute("src")).toEqual(iconUrl);
+        expect(renderResult!.container.querySelector(".badge-content svg")).toBeNull();
+      });
+
+      it("falls back to the default status icon when the configured icon fails to load", async () => {
+        const icon = renderResult!.container.querySelector(".status-badge-icon") as HTMLImageElement;
+        await fireEvent(icon, new Event("error"));
+        expect(renderResult!.container.querySelector(".status-badge-icon")).toBeNull();
+        expect(renderResult!.container.querySelector(".badge-content svg")).toBeTruthy();
+      });
     });
 
     it("renders transaction hash column", () => {
