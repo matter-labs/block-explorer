@@ -26,7 +26,7 @@ export class AuthMiddleware implements NestMiddleware {
         throw new UnauthorizedException({ message: "Unauthorized request" });
       }
       const addUserRolesPipe = new AddUserRolesPipe(this.configService);
-      const userWithRoles = await addUserRolesPipe.transform({ address: "", token });
+      const userWithRoles = await addUserRolesPipe.transform({ address: "", wallets: [], token });
       if (!userWithRoles.hasFullReadAccess) {
         // Only admin users can access the API for now
         throw new ForbiddenException({ message: "Forbidden request" });

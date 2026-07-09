@@ -33,7 +33,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasFullReadAccess).toBe(false);
   });
 
@@ -45,7 +45,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasFullReadAccess).toBe(false);
   });
 
@@ -57,7 +57,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasFullReadAccess).toBe(false);
   });
 
@@ -69,7 +69,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasFullReadAccess).toBe(true);
   });
 
@@ -81,7 +81,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasFullReadAccess).toBe(true);
   });
 
@@ -93,7 +93,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasAdminRead).toBe(false);
   });
 
@@ -105,7 +105,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasAdminRead).toBe(true);
   });
 
@@ -117,7 +117,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasFullReadAccess).toBe(true);
     expect(user.hasAdminRead).toBe(false);
   });
@@ -133,7 +133,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.hasFullReadAccess).toBe(true);
   });
 
@@ -145,7 +145,7 @@ describe("AddUserRolesPipe", () => {
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", token: "token1" });
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.address).toEqual("0x01");
     expect(user.token).toEqual("token1");
   });
@@ -160,7 +160,9 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
+    await expect(pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" })).rejects.toThrow(
+      BadGatewayException
+    );
   });
 
   it("throws PrividiumApiError if server returns 401", async () => {
@@ -173,7 +175,9 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(PrividiumApiError);
+    await expect(pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" })).rejects.toThrow(
+      PrividiumApiError
+    );
   });
 
   it("throws BadGatewayException if server returns a non-401 error status", async () => {
@@ -184,7 +188,9 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
+    await expect(pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" })).rejects.toThrow(
+      BadGatewayException
+    );
   });
 
   it("throws if server returns non parseable json", async () => {
@@ -195,7 +201,9 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
+    await expect(pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" })).rejects.toThrow(
+      BadGatewayException
+    );
   });
 
   it("throws if server do not complete request", async () => {
@@ -203,6 +211,8 @@ describe("AddUserRolesPipe", () => {
 
     const pipe = new AddUserRolesPipe(configServiceMock);
 
-    await expect(pipe.transform({ address: "0x01", token: "token1" })).rejects.toThrow(BadGatewayException);
+    await expect(pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" })).rejects.toThrow(
+      BadGatewayException
+    );
   });
 });

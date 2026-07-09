@@ -49,7 +49,7 @@ jobs:
           upload-release-assets: 'false'
 
       - name: Upload CycloneDX file to Dependency Track
-        uses: DependencyTrack/gh-upload-sbom@b717d6595efa77a7ff1b18b57ac28597afc75d77 # v4.0.0
+        uses: DependencyTrack/gh-upload-sbom@95c2b5a810450509ef8a67e4f854b42d2ddf7fbf # v4.1.0
         with:
           serverhostname: ${{ vars.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
           apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
@@ -84,7 +84,7 @@ jobs:
           upload-release-assets: 'false'
 
       - name: Upload CycloneDX file to Dependency Track
-        uses: DependencyTrack/gh-upload-sbom@b717d6595efa77a7ff1b18b57ac28597afc75d77 # v4.0.0
+        uses: DependencyTrack/gh-upload-sbom@95c2b5a810450509ef8a67e4f854b42d2ddf7fbf # v4.1.0
         with:
           serverhostname: ${{ vars.DEPENDENCY_TRACK_SERVER_HOSTNAME }}
           apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}

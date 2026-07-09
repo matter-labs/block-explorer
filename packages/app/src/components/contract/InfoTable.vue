@@ -23,7 +23,7 @@
           </router-link>
         </table-body-column>
       </tr>
-      <tr>
+      <tr v-if="contract.totalTransactions != null">
         <table-body-column class="contract-info-field-label">
           {{ t("contract.table.transactions") }}
         </table-body-column>

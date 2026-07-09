@@ -74,19 +74,23 @@ export class AddressController {
     let includeBytecode = true;
     let includeCreatorAddress = true;
     let includeCreatorTxHash = true;
+    let includeTotalTransactions = true;
+
+    const isOwnAddress = !!user && user.wallets.some((wallet) => isAddressEqual(wallet, address));
 
     if (user && !user.hasFullReadAccess) {
       // If address is an account and is not own address, forbid access
-      if (addressType === AddressType.Account && !isAddressEqual(user.address, address)) {
+      if (addressType === AddressType.Account && !isOwnAddress) {
         throw new ForbiddenException();
       }
 
       // If address is a contract and user is not owner, don't include additional information
-      if (addressType === AddressType.Contract && !(await this.isUserOwnerOfContract(address, user.address))) {
+      if (addressType === AddressType.Contract && !(await this.isUserOwnerOfContract(address, user.wallets))) {
         includeBalances = false;
         includeBytecode = false;
         includeCreatorAddress = false;
         includeCreatorTxHash = false;
+        includeTotalTransactions = false;
       }
     }
 
@@ -95,7 +99,9 @@ export class AddressController {
       : { blockNumber: 0, balances: {} };
 
     if (addressType === AddressType.Contract) {
-      const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
+      const totalTransactions = includeTotalTransactions
+        ? await this.transactionService.count({ "from|to": formatHexAddress(address) })
+        : undefined;
       return {
         type: AddressType.Contract,
         ...addressRecord,
@@ -103,25 +109,28 @@ export class AddressController {
         balances: addressBalance.balances,
         createdInBlockNumber: addressRecord.createdInBlockNumber,
         creatorTxHash: includeCreatorTxHash ? addressRecord.creatorTxHash : "",
-        totalTransactions,
+        ...(includeTotalTransactions && { totalTransactions }),
         creatorAddress: includeCreatorAddress ? addressRecord.creatorAddress : "",
         isEvmLike: addressRecord.isEvmLike,
         bytecode: includeBytecode ? addressRecord.bytecode : "",
       };
     }
 
-    const [sealedNonce, verifiedNonce] = await Promise.all([
-      this.transactionService.getAccountNonce({ accountAddress: address }),
-      this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
-    ]);
+    // In prividium mode account nonces are only visible to the account owner or an admin
+    const includeNonces = !user || user.hasAdminRead || isOwnAddress;
+    const [sealedNonce, verifiedNonce] = includeNonces
+      ? await Promise.all([
+          this.transactionService.getAccountNonce({ accountAddress: address }),
+          this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
+        ])
+      : [undefined, undefined];
 
     return {
       type: AddressType.Account,
       address: ethersGetAddress(address),
       blockNumber: addressBalance.blockNumber || (await this.blockService.getLastBlockNumber()),
       balances: addressBalance.balances,
-      sealedNonce,
-      verifiedNonce,
+      ...(includeNonces && { sealedNonce, verifiedNonce }),
     };
   }
 
@@ -209,10 +218,10 @@ export class AddressController {
    * the OpenZeppelin Ownable pattern.
    *
    * @param contractAddress - The contract address to check
-   * @param accountAddress - The account address to verify ownership for
-   * @returns Promise<boolean> - True if the account is the contract owner
+   * @param accountAddresses - The user account addresses to verify ownership for
+   * @returns Promise<boolean> - True if any of the accounts is the contract owner
    */
-  private async isUserOwnerOfContract(contractAddress: string, accountAddress: string): Promise<boolean> {
+  private async isUserOwnerOfContract(contractAddress: string, accountAddresses: string[]): Promise<boolean> {
     try {
       const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
       const logs = await this.logService.findMany({
@@ -235,7 +244,7 @@ export class AddressController {
       // Topic is 32 bytes log, so we need to convert it to an address
       // by removing the first 12 bytes and 0x prefix
       const owner = `0x${ownerTopic.slice(2 + 12 * 2)}`;
-      return isAddressEqual(owner, accountAddress);
+      return accountAddresses.some((accountAddress) => isAddressEqual(owner, accountAddress));
     } catch (err) {
       this.logger.error("Failed to check if user is owner of contract", err.stack);
       return false;

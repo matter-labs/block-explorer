@@ -33,8 +33,9 @@ export class ContractDto extends BaseAddressDto {
     type: Number,
     description: "The total number of transactions for the contract",
     example: 12345,
+    required: false,
   })
-  public readonly totalTransactions: number;
+  public readonly totalTransactions?: number;
 
   @ApiProperty({
     type: String,
