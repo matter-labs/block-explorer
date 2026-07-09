@@ -12,13 +12,15 @@ export class AccountDto extends BaseAddressDto {
     type: Number,
     description: "The nonce for the account in sealed blocks",
     example: 12345,
+    required: false,
   })
-  public readonly sealedNonce: number;
+  public readonly sealedNonce?: number;
 
   @ApiProperty({
     type: Number,
     description: "The nonce for the account in verified blocks",
     example: 12345,
+    required: false,
   })
-  public readonly verifiedNonce: number;
+  public readonly verifiedNonce?: number;
 }

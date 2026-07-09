@@ -45,6 +45,26 @@ describe("InfoTable:", () => {
     expect(verified[0].text()).toBe("Verified nonce");
     expect(verified[1].text()).toBe("1");
   });
+  it("hides nonce rows when nonces are not returned by the API", () => {
+    const wrapper = mount(InfoTable, {
+      global: {
+        plugins: [i18n],
+      },
+      props: {
+        account: <Account>{
+          address: "0x481e48ce19781c3ca573967216dee75fdcf70f54",
+          balances: {},
+        },
+        loading: false,
+      },
+    });
+
+    const rowArray = wrapper.findAll("tbody tr");
+    expect(rowArray.length).toBe(1);
+    const address = rowArray[0].findAll("td");
+    expect(address[0].text()).toBe("Address");
+    expect(address[1].text()).toBe("0x481e48ce19781c3ca573967216dee75fdcf70f54");
+  });
   it("renders loading state", () => {
     const wrapper = mount(InfoTable, {
       global: {
