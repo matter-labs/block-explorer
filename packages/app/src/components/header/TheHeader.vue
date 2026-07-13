@@ -176,12 +176,16 @@ const isPrividium = runtimeConfig.appEnvironment === "prividium";
 const hasAdminRead = computed(() => user.value.loggedIn && user.value.hasAdminRead);
 const showAdminLinks = computed(() => !isPrividium || hasAdminRead.value);
 
-const navigation = reactive([
-  {
-    label: computed(() => t("header.nav.documentation")),
-    url: runtimeConfig.links.docsUrl,
-  },
-]);
+const navigation = computed(() =>
+  runtimeConfig.links.docsUrl
+    ? [
+        {
+          label: t("header.nav.documentation"),
+          url: runtimeConfig.links.docsUrl,
+        },
+      ]
+    : []
+);
 
 const blockExplorerLinks = reactive([
   {
