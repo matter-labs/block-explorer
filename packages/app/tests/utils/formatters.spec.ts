@@ -50,9 +50,14 @@ describe("formatters:", () => {
   });
   it("returns formatted token price", () => {
     expect(formatPricePretty("1", 1, "12.5315131")).toBe("$1.25");
-    expect(formatPricePretty("1", 4, "12.5315131")).toBe("$0.001");
+    expect(formatPricePretty("1", 4, "12.5315131")).toBe("$0.001253");
     expect(formatPricePretty("0", 4, "12.5315131")).toBe("$0");
     expect(formatPricePretty("1", 8, "12.5315131")).toBe("<$0.00001");
+  });
+  it("shows 2 decimals for prices >= $1 and significant digits below", () => {
+    expect(formatPricePretty("1", 0, "62791.86")).toBe("$62,791.86");
+    expect(formatPricePretty("1", 0, "0.5")).toBe("$0.5");
+    expect(formatPricePretty("1", 0, "0.0428")).toBe("$0.0428");
   });
   it("returns formatted Decimals data", () => {
     expect(formatHexDecimals("0x8002", "Dec")).toBe("32770");

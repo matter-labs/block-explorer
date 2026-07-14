@@ -304,7 +304,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
         "https://pro-api.coingecko.com/api/v3/coins/list?include_platform=true&x_cg_pro_api_key=apiKey"
       );
       expect(httpServiceMock.get).toBeCalledWith(
-        "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum%2Ctoken1%2Ctoken2&per_page=3&page=1&locale=en&x_cg_pro_api_key=apiKey"
+        "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum%2Ctoken1%2Ctoken2&per_page=3&page=1&locale=en&precision=full&x_cg_pro_api_key=apiKey"
       );
       expect(tokens).toEqual([
         {

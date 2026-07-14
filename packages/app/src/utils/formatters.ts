@@ -85,15 +85,20 @@ export const numberToHexString = (num: number | bigint) => `0x${num.toString(16)
 
 export function formatPricePretty(amount: BigNumberish, decimals: number, usdPrice: string) {
   const price = +usdPrice * +formatBigNumberish(amount, decimals);
-  const leadingZeroes = price.toString().split(".")[1]?.match(/^0*/)?.[0].length || 0;
-  const priceDecimals = Math.max(2, Math.min(5, leadingZeroes + 1));
   if (price === 0) {
     return "$0";
   } else if (price < 0.00001) {
     return `<${formatMoney(0.00001, 5)}`;
-  } else {
-    return `${formatMoney(price, priceDecimals)}`;
+  } else if (price >= 1) {
+    return `${formatMoney(price, 2)}`;
   }
+  // Sub-dollar prices: show 4 significant figures so small-value tokens keep
+  // meaningful precision, adapting to magnitude and trimming trailing zeroes.
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumSignificantDigits: 4,
+  }).format(price);
 }
 
 export function formatShortAddress(address: string | null | undefined, prefixLength = 6, suffixLength = 4): string {
