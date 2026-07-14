@@ -68,6 +68,17 @@ describe("TheHeader:", () => {
       "https://docs.zksync.io/zksync-network/tooling/block-explorers"
     );
   });
+  it("hides the documentation link when the docs URL is explicitly hidden", () => {
+    (window as any)["##runtimeConfig"] = { links: { docsUrl: "" } };
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: { RouterLink: RouterLinkStub },
+        plugins: [i18n],
+      },
+    });
+    expect(wrapper.findAll(".navigation-container > .navigation-link")).toHaveLength(0);
+    delete (window as any)["##runtimeConfig"];
+  });
   it("renders social links", () => {
     const wrapper = mount(TheHeader, {
       global: {
