@@ -52,6 +52,7 @@ import { useI18n } from "vue-i18n";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 
 import useContext from "@/composables/useContext";
+import { resolveHideable } from "@/composables/useRuntimeConfig";
 
 import { formatMoney, formatWithSpaces } from "@/utils/formatters";
 
@@ -77,15 +78,14 @@ defineProps({
   },
 });
 
-const subtitle = computed(() => {
-  const configSubtitle = currentNetwork.value.networkStatsSubtitle;
-  if (configSubtitle !== undefined) {
-    return configSubtitle || null;
-  }
-  return currentNetwork.value.name.includes("mainnet")
-    ? t("networkStats.subtitleMainnet", { l2NetworkName: currentNetwork.value.l2NetworkName })
-    : t("networkStats.subtitleTestnet");
-});
+const subtitle = computed(() =>
+  resolveHideable(
+    currentNetwork.value.networkStatsSubtitle,
+    currentNetwork.value.name.includes("mainnet")
+      ? t("networkStats.subtitleMainnet", { l2NetworkName: currentNetwork.value.l2NetworkName })
+      : t("networkStats.subtitleTestnet")
+  )
+);
 </script>
 
 <style scoped lang="scss">
