@@ -4,11 +4,12 @@ import type { Token } from "@/composables/useToken";
 import type { HexDecimals } from "@/composables/useTrace";
 import type { Address, Hash } from "@/types";
 
-export function formatMoney(num: number, maximumFractionDigits = 1) {
+export function formatMoney(num: number, maximumFractionDigits = 1, minimumFractionDigits = 0) {
   return new Intl.NumberFormat("en-US", {
     notation: num > 99_999_999 ? "compact" : "standard",
     style: "currency",
     currency: "USD",
+    minimumFractionDigits,
     maximumFractionDigits,
   }).format(num);
 }
@@ -90,15 +91,19 @@ export function formatPricePretty(amount: BigNumberish, decimals: number, usdPri
   } else if (price < 0.00001) {
     return `<${formatMoney(0.00001, 5)}`;
   } else if (price >= 1) {
-    return `${formatMoney(price, 2)}`;
+    return formatMoney(price, 2, 2);
   }
   // Sub-dollar prices: show 4 significant figures so small-value tokens keep
   // meaningful precision, adapting to magnitude and trimming trailing zeroes.
-  return new Intl.NumberFormat("en-US", {
+  const formatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
     maximumSignificantDigits: 4,
   }).format(price);
+  // Rounding to 4 significant figures can leave fewer than 2 decimals
+  // ("$0.5", or "$1" when a price just below a dollar rounds up); use the
+  // same 2-decimal style as the >= $1 branch in that case.
+  return (formatted.split(".")[1]?.length ?? 0) >= 2 ? formatted : formatMoney(price, 2, 2);
 }
 
 export function formatShortAddress(address: string | null | undefined, prefixLength = 6, suffixLength = 4): string {

@@ -22,8 +22,11 @@ describe("formatters:", () => {
     expect(formatWithSpaces(20300)).toBe("20 300");
   });
   it("returns formatted number with symbols", () => {
-    expect(formatMoney(20300)).toBe("$20,300.0");
-    expect(formatMoney(2000000)).toBe("$2,000,000.0");
+    expect(formatMoney(20300)).toBe("$20,300");
+    expect(formatMoney(2000000)).toBe("$2,000,000");
+    expect(formatMoney(45123456.8)).toBe("$45,123,456.8");
+    expect(formatMoney(220000000000)).toBe("$220B");
+    expect(formatMoney(7300503357)).toBe("$7.3B");
   });
   it("returns shorted value", () => {
     expect(shortValue("0xb989b65e02b")).toBe("0xb989...e02b");
@@ -56,7 +59,9 @@ describe("formatters:", () => {
   });
   it("shows 2 decimals for prices >= $1 and significant digits below", () => {
     expect(formatPricePretty("1", 0, "62791.86")).toBe("$62,791.86");
-    expect(formatPricePretty("1", 0, "0.5")).toBe("$0.5");
+    expect(formatPricePretty("1", 0, "1")).toBe("$1.00");
+    expect(formatPricePretty("1", 0, "0.5")).toBe("$0.50");
+    expect(formatPricePretty("1", 0, "0.99999")).toBe("$1.00");
     expect(formatPricePretty("1", 0, "0.0428")).toBe("$0.0428");
   });
   it("returns formatted Decimals data", () => {

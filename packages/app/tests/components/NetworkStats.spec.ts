@@ -51,7 +51,7 @@ describe("NetworkStats:", () => {
     expect(wrapperArray[0].textContent).toContain("123");
     expect(wrapperArray[1].textContent).toContain("542");
     expect(wrapperArray[2].textContent).toContain("1 404");
-    expect(wrapperArray[3].textContent).toContain("$849,320.0");
+    expect(wrapperArray[3].textContent).toContain("$849,320");
   });
   it("renders component without total value locked property", () => {
     const { container } = render(NetworkStats, {
