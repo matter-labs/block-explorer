@@ -11,8 +11,8 @@ import enUS from "@/locales/en.json";
 const runtimeConfigMock = {
   version: "localhost",
   links: {
-    docsUrl: "https://docs.zksync.io/zksync-network/tooling/block-explorers",
-    termsOfServiceUrl: "https://zksync.io/terms",
+    docsUrl: "https://docs.zksync.io/zksync-network/tooling/block-explorers" as string | null,
+    termsOfServiceUrl: "https://zksync.io/terms" as string | null,
     contactUsUrl: "https://zksync.io/contact" as string | null,
   },
 };
@@ -32,6 +32,8 @@ describe("TheFooter:", () => {
   const mountFooter = () => mount(TheFooter, { global: { plugins: [i18n] } });
 
   beforeEach(() => {
+    runtimeConfigMock.links.docsUrl = "https://docs.zksync.io/zksync-network/tooling/block-explorers";
+    runtimeConfigMock.links.termsOfServiceUrl = "https://zksync.io/terms";
     runtimeConfigMock.links.contactUsUrl = "https://zksync.io/contact";
   });
 
@@ -45,5 +47,26 @@ describe("TheFooter:", () => {
   it("hides the contact link when no contact URL is resolved", () => {
     runtimeConfigMock.links.contactUsUrl = null;
     expect(mountFooter().findAll("a")).toHaveLength(2);
+  });
+
+  it("hides the docs link when no docs URL is resolved", () => {
+    runtimeConfigMock.links.docsUrl = null;
+    const links = mountFooter().findAll("a");
+    expect(links).toHaveLength(2);
+    expect(links[0].attributes("href")).toBe("https://zksync.io/terms");
+  });
+
+  it("hides the terms link when no terms URL is resolved", () => {
+    runtimeConfigMock.links.termsOfServiceUrl = null;
+    const links = mountFooter().findAll("a");
+    expect(links).toHaveLength(2);
+    expect(links[1].attributes("href")).toBe("https://zksync.io/contact");
+  });
+
+  it("renders no links when all URLs are hidden", () => {
+    runtimeConfigMock.links.docsUrl = null;
+    runtimeConfigMock.links.termsOfServiceUrl = null;
+    runtimeConfigMock.links.contactUsUrl = null;
+    expect(mountFooter().findAll("a")).toHaveLength(0);
   });
 });

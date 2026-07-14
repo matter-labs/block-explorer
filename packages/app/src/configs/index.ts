@@ -66,8 +66,8 @@ export type RuntimeConfig = {
   links: {
     discordUrl: string;
     xUrl: string;
-    docsUrl: string;
-    termsOfServiceUrl: string;
+    docsUrl: string | null;
+    termsOfServiceUrl: string | null;
     contactUsUrl: string | null;
   };
   environmentConfig?: EnvironmentConfig;
