@@ -2,7 +2,7 @@
   <div class="card">
     <div>
       <div class="title">{{ t("networkStats.title") }}</div>
-      <div class="subtitle">{{ subtitle }}</div>
+      <div v-if="subtitle" class="subtitle">{{ subtitle }}</div>
     </div>
     <dl class="description-list">
       <div class="stats-container">
@@ -77,11 +77,15 @@ defineProps({
   },
 });
 
-const subtitle = computed(() =>
-  currentNetwork.value.name.includes("mainnet")
+const subtitle = computed(() => {
+  const configSubtitle = currentNetwork.value.networkStatsSubtitle;
+  if (configSubtitle !== undefined) {
+    return configSubtitle || null;
+  }
+  return currentNetwork.value.name.includes("mainnet")
     ? t("networkStats.subtitleMainnet", { l2NetworkName: currentNetwork.value.l2NetworkName })
-    : t("networkStats.subtitleTestnet")
-);
+    : t("networkStats.subtitleTestnet");
+});
 </script>
 
 <style scoped lang="scss">
