@@ -3,6 +3,7 @@ import { Request } from "express";
 
 export type UserParam = {
   address: string;
+  wallets: string[];
   token: string;
 } | null;
 
@@ -17,5 +18,9 @@ export function userFactory(ctx: ExecutionContext): UserParam {
     return null;
   }
 
-  return { address: request.session.address, token: request.session.token };
+  return {
+    address: request.session.address,
+    wallets: request.session.wallets ?? [request.session.address],
+    token: request.session.token,
+  };
 }

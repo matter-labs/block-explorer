@@ -17,12 +17,12 @@ jobs:
       releaseVersion: ${{ steps.release.outputs.releaseVersion }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -63,19 +63,19 @@ jobs:
     env:
       STATIC_ASSETS_UPLOAD_FOLDER: ${{ secrets.STATIC_ASSETS_UPLOAD_FOLDER }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Set up Docker Build
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           username: ${{ secrets.DOCKERHUB_USER }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
+        uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4.4.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -93,7 +93,7 @@ jobs:
           gcloud auth configure-docker us-docker.pkg.dev -q 
 
       - name: Build and push Docker image for API
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           push: true
           tags: |
@@ -110,7 +110,7 @@ jobs:
           no-cache: true
 
       - name: Build and push Docker image for Worker
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           push: true
           tags: |
@@ -127,7 +127,7 @@ jobs:
           no-cache: true
 
       - name: Build and push Docker image for Data Fetcher
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           push: true
           tags: |
@@ -144,7 +144,7 @@ jobs:
           no-cache: true
 
       - name: Build Docker image for App
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           push: false
           load: ${{ env.STATIC_ASSETS_UPLOAD_FOLDER != '' }}
@@ -194,7 +194,7 @@ jobs:
 
       # Publish the App image from the gha cache
       - name: Push Docker image for App
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           push: true
           build-args: |
@@ -233,11 +233,11 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: 22
 

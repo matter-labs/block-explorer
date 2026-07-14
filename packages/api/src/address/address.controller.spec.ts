@@ -285,7 +285,7 @@ describe("AddressController", () => {
       let user: MockProxy<UserWithPermissions>;
       const mockUser = "0xc0ffee254729296a45a3885639AC7E10F9d54979";
       beforeEach(() => {
-        user = mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: false });
+        user = mock<UserWithPermissions>({ address: mockUser, wallets: [mockUser], hasFullReadAccess: false });
       });
 
       it("throws if address is an account and is not own address", async () => {
@@ -320,6 +320,8 @@ describe("AddressController", () => {
           expect(result["bytecode"]).toEqual("");
           expect(result["creatorAddress"]).toEqual("");
           expect(result["creatorTxHash"]).toEqual("");
+          expect(result).not.toHaveProperty("totalTransactions");
+          expect(transactionServiceMock.count).not.toHaveBeenCalled();
         });
 
         it("does not include additional information if user is not owner (ownerTopic is undefined)", async () => {
@@ -399,6 +401,7 @@ describe("AddressController", () => {
           expect(result["bytecode"]).not.toEqual("");
           expect(result["creatorAddress"]).not.toEqual("");
           expect(result["creatorTxHash"]).not.toEqual("");
+          expect(result["totalTransactions"]).toBeDefined();
         });
 
         it("does not include additional information if logService throws an error", async () => {
@@ -422,6 +425,56 @@ describe("AddressController", () => {
         serviceMock.findOne.mockResolvedValue(mock<Address>({ address: mockUser, bytecode: "0x" }));
         await controller.getAddress(mockUser, user);
         expect(balanceServiceMock.getBalances).toHaveBeenCalledTimes(1);
+      });
+
+      it("includes nonces if address is an account and is self", async () => {
+        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: mockUser, bytecode: "0x" }));
+        (transactionServiceMock.getAccountNonce as jest.Mock).mockResolvedValueOnce(5).mockResolvedValueOnce(3);
+        const result = await controller.getAddress(mockUser, user);
+        expect(result["sealedNonce"]).toBe(5);
+        expect(result["verifiedNonce"]).toBe(3);
+      });
+
+      it("allows access and includes nonces for any wallet of the user", async () => {
+        user = mock<UserWithPermissions>({
+          address: mockUser,
+          wallets: [mockUser, blockchainAddress],
+          hasFullReadAccess: false,
+          hasAdminRead: false,
+        });
+        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: blockchainAddress, bytecode: "0x" }));
+        (transactionServiceMock.getAccountNonce as jest.Mock).mockResolvedValueOnce(5).mockResolvedValueOnce(3);
+        const result = await controller.getAddress(blockchainAddress, user);
+        expect(result["sealedNonce"]).toBe(5);
+        expect(result["verifiedNonce"]).toBe(3);
+      });
+
+      it("does not include nonces if user is not the account owner and is not an admin", async () => {
+        user = mock<UserWithPermissions>({
+          address: mockUser,
+          wallets: [mockUser],
+          hasFullReadAccess: true,
+          hasAdminRead: false,
+        });
+        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: blockchainAddress, bytecode: "0x" }));
+        const result = await controller.getAddress(blockchainAddress, user);
+        expect(transactionServiceMock.getAccountNonce).not.toHaveBeenCalled();
+        expect(result).not.toHaveProperty("sealedNonce");
+        expect(result).not.toHaveProperty("verifiedNonce");
+      });
+
+      it("includes nonces if user is an admin and is not the account owner", async () => {
+        user = mock<UserWithPermissions>({
+          address: mockUser,
+          wallets: [mockUser],
+          hasFullReadAccess: true,
+          hasAdminRead: true,
+        });
+        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: blockchainAddress, bytecode: "0x" }));
+        (transactionServiceMock.getAccountNonce as jest.Mock).mockResolvedValueOnce(5).mockResolvedValueOnce(3);
+        const result = await controller.getAddress(blockchainAddress, user);
+        expect(result["sealedNonce"]).toBe(5);
+        expect(result["verifiedNonce"]).toBe(3);
       });
     });
   });

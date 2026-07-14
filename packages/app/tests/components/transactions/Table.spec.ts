@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } fro
 import { render, type RenderResult } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 
-import { ETH_TOKEN_MOCK, useContextMock, useTransactionsMock } from "../../mocks";
+import { ETH_TOKEN_MOCK, TESTNET_NETWORK, useContextMock, useTransactionsMock } from "../../mocks";
 
 import Table from "@/components/transactions/Table.vue";
 
@@ -208,6 +208,41 @@ describe("Transfers:", () => {
 
     it("renders status column", () => {
       expect(renderResult!.getByTestId(elements.statusBadge).textContent).toEqual("Processed on");
+    });
+
+    it("renders the default status icon when txStatusBadgeIconUrl is not configured", () => {
+      expect(renderResult!.container.querySelector(".status-badge-icon")).toBeNull();
+      expect(renderResult!.container.querySelector(".badge-content svg")).toBeTruthy();
+    });
+
+    describe("when txStatusBadgeIconUrl is configured", () => {
+      let renderResult: RenderResult | null;
+      const iconUrl = "https://cdn.example.com/status-icon.svg";
+
+      beforeEach(() => {
+        mockContext?.mockRestore();
+        mockContext = useContextMock({
+          currentNetwork: computed(() => ({ ...TESTNET_NETWORK, txStatusBadgeIconUrl: iconUrl })),
+        });
+        renderResult = render(Table, {
+          props: {},
+          global: {
+            plugins: [i18n, $testId],
+            stubs: { RouterLink: RouterLinkStub },
+          },
+        });
+      });
+
+      afterEach(() => {
+        renderResult?.unmount();
+      });
+
+      it("renders the configured icon instead of the default status icon", () => {
+        const icon = renderResult!.container.querySelector(".status-badge-icon") as HTMLImageElement | null;
+        expect(icon).toBeTruthy();
+        expect(icon!.getAttribute("src")).toEqual(iconUrl);
+        expect(renderResult!.container.querySelector(".badge-content svg")).toBeNull();
+      });
     });
 
     it("renders transaction hash column", () => {
