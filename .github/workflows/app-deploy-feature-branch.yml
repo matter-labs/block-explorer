@@ -49,8 +49,9 @@ jobs:
         run: npm run typecheck
 
       - name: Build
+        env:
+          VITE_VERSION: ${{ github.head_ref }}
         run: |
-          VITE_VERSION=${{ github.head_ref }} \
             npm run build
 
       - name: Build Storybook
