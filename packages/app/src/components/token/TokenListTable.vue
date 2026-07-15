@@ -130,11 +130,12 @@ const shouldDisplayL1Address = (l1Address?: string) => {
   }
   .token-address-container {
     @apply flex gap-x-2;
-    .token-address {
-      @apply block cursor-pointer font-mono text-sm font-medium;
-    }
+    .token-address,
     .origin-token-address {
       @apply block font-mono text-sm font-medium;
+    }
+    .token-address {
+      @apply cursor-pointer;
     }
   }
   .loading-row {

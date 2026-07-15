@@ -75,6 +75,8 @@ The worker service can fetch and update token metadata (prices, icons, market ca
 - `COINGECKO_PLATFORM_ID` - the platform identifier for your blockchain on CoinGecko (default: `zksync`)
 - `COINGECKO_ORIGIN_PLATFORM_IDS` - comma-separated list of CoinGecko platform identifiers that bridged token origin addresses are matched against, e.g. `ethereum,zksync` (default: `ethereum,zksync`)
 
+Note: origin platform matching is only supported by the `coingecko` provider. The `portalsFi` provider matches bridged tokens against Ethereum addresses only, so tokens bridged from other origin chains will not receive off-chain data when it is selected.
+
 ### Finding the correct CoinGecko Platform ID:
 To find the correct platform ID for your blockchain, you can query the CoinGecko asset platforms API:
 

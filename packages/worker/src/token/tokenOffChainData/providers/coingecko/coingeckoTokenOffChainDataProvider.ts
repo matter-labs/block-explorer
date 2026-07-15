@@ -37,6 +37,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
   private readonly apiUrl: string;
   private readonly platformId: string;
   private readonly originPlatformIds: string[];
+  private readonly platformIdsToKeep: string[];
 
   constructor(configService: ConfigService, private readonly httpService: HttpService) {
     this.logger = new Logger(CoingeckoTokenOffChainDataProvider.name);
@@ -44,7 +45,13 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     this.apiKey = configService.get<string>("tokens.coingecko.apiKey");
     this.apiUrl = this.isProPlan ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
     this.platformId = configService.get<string>("tokens.coingecko.platformId");
-    this.originPlatformIds = configService.get<string[]>("tokens.coingecko.originPlatformIds");
+    // drop ids naming Object.prototype members ("constructor", "toString", ...) since platform ids
+    // are used as keys on JSON-parsed objects, where inherited values would match every coin
+    this.originPlatformIds = (configService.get<string[]>("tokens.coingecko.originPlatformIds") || []).filter(
+      (platformId) => !(platformId in Object.prototype)
+    );
+    // all platform ids whose addresses are kept on the trimmed tokens list
+    this.platformIdsToKeep = [...new Set([...this.originPlatformIds, this.platformId, "ethereum"])];
   }
 
   public async getTokensOffChainData({
@@ -152,14 +159,10 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       )
       .map((item) => ({
         ...item,
-        platforms: {
-          // use substring(0, 42) to fix some instances when after address there is some additional text
-          ...Object.fromEntries(
-            this.originPlatformIds.map((platformId) => [platformId, item.platforms[platformId]?.substring(0, 42)])
-          ),
-          [this.platformId]: item.platforms[this.platformId]?.substring(0, 42),
-          ethereum: item.platforms.ethereum?.substring(0, 42),
-        },
+        // use substring(0, 42) to fix some instances when after address there is some additional text
+        platforms: Object.fromEntries(
+          this.platformIdsToKeep.map((platformId) => [platformId, item.platforms[platformId]?.substring(0, 42)])
+        ),
       }));
   }
 

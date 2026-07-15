@@ -35,6 +35,20 @@ const providerTokensListResponse = [
   },
 ];
 
+const mockConfigService = (configValues: Record<string, unknown> = {}) =>
+  mock<ConfigService>({
+    get: jest.fn().mockImplementation(
+      (key: string) =>
+        ({
+          "tokens.coingecko.isProPlan": true,
+          "tokens.coingecko.apiKey": "apiKey",
+          "tokens.coingecko.platformId": "zksync",
+          "tokens.coingecko.originPlatformIds": ["ethereum", "zksync"],
+          ...configValues,
+        }[key])
+    ),
+  });
+
 jest.useFakeTimers().setSystemTime(new Date("2023-01-01T02:00:00.000Z"));
 
 jest.mock("timers/promises", () => ({
@@ -47,14 +61,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
   let httpServiceMock: HttpService;
 
   beforeEach(async () => {
-    configServiceMock = mock<ConfigService>({
-      get: jest
-        .fn()
-        .mockReturnValueOnce(true)
-        .mockReturnValueOnce("apiKey")
-        .mockReturnValueOnce("zksync")
-        .mockReturnValueOnce(["ethereum", "zksync"]),
-    });
+    configServiceMock = mockConfigService();
     httpServiceMock = mock<HttpService>();
     const module = await Test.createTestingModule({
       providers: [
@@ -111,14 +118,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           CoingeckoTokenOffChainDataProvider,
           {
             provide: ConfigService,
-            useValue: mock<ConfigService>({
-              get: jest
-                .fn()
-                .mockReturnValueOnce(false)
-                .mockReturnValueOnce("apiKey")
-                .mockReturnValueOnce("zksync")
-                .mockReturnValueOnce(["ethereum", "zksync"]),
-            }),
+            useValue: mockConfigService({ "tokens.coingecko.isProPlan": false }),
           },
           {
             provide: HttpService,
@@ -488,6 +488,70 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
       expect(tokens).toEqual([]);
     });
 
+    it("ignores origin platform ids that name Object.prototype members", async () => {
+      const module = await Test.createTestingModule({
+        providers: [
+          CoingeckoTokenOffChainDataProvider,
+          {
+            provide: ConfigService,
+            useValue: mockConfigService({
+              "tokens.coingecko.originPlatformIds": ["constructor", "ethereum"],
+            }),
+          },
+          {
+            provide: HttpService,
+            useValue: httpServiceMock,
+          },
+        ],
+      }).compile();
+      module.useLogger(mock<Logger>());
+      const hardenedProvider = module.get<CoingeckoTokenOffChainDataProvider>(CoingeckoTokenOffChainDataProvider);
+
+      pipeMock
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "no-platforms-token",
+                  platforms: {},
+                },
+                {
+                  id: "token1",
+                  platforms: {
+                    ethereum: "address1",
+                  },
+                },
+              ],
+            });
+          })
+        )
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "token1",
+                  market_cap: 101,
+                  current_price: 11,
+                  image: "http://token1.img",
+                },
+              ],
+            });
+          })
+        );
+
+      const tokens = await hardenedProvider.getTokensOffChainData({ bridgedTokensToInclude: ["address1"] });
+      expect(tokens).toEqual([
+        {
+          l1Address: "address1",
+          liquidity: 101,
+          usdPrice: 11,
+          iconURL: "http://token1.img",
+        },
+      ]);
+    });
+
     describe("when a bridged token originates from a non-ethereum origin platform", () => {
       const eraOriginTokenAddress = "0x5a7d6b2f92c77fad6ccabd7ee0624e64907eaf3e";
       const ethereumTokenAddress = "0x66a5c43c6ac93a8ba26e35d9146d3fca0a1f26f5";
@@ -499,14 +563,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
             CoingeckoTokenOffChainDataProvider,
             {
               provide: ConfigService,
-              useValue: mock<ConfigService>({
-                get: jest
-                  .fn()
-                  .mockReturnValueOnce(true)
-                  .mockReturnValueOnce("apiKey")
-                  .mockReturnValueOnce("sophon")
-                  .mockReturnValueOnce(["ethereum", "zksync"]),
-              }),
+              useValue: mockConfigService({ "tokens.coingecko.platformId": "sophon" }),
             },
             {
               provide: HttpService,
