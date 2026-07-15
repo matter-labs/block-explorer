@@ -4,7 +4,7 @@ import type { Token } from "@/composables/useToken";
 import type { HexDecimals } from "@/composables/useTrace";
 import type { Address, Hash } from "@/types";
 
-export function formatMoney(num: number, maximumFractionDigits = 1, minimumFractionDigits = 0) {
+export function formatMoney(num: number, maximumFractionDigits = 2, minimumFractionDigits = 0) {
   return new Intl.NumberFormat("en-US", {
     notation: num > 99_999_999 ? "compact" : "standard",
     style: "currency",
@@ -94,16 +94,12 @@ export function formatPricePretty(amount: BigNumberish, decimals: number, usdPri
     return formatMoney(price, 2, 2);
   }
   // Sub-dollar prices: show 4 significant figures so small-value tokens keep
-  // meaningful precision, adapting to magnitude and trimming trailing zeroes.
-  const formatted = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumSignificantDigits: 4,
-  }).format(price);
-  // Rounding to 4 significant figures can leave fewer than 2 decimals
-  // ("$0.5", or "$1" when a price just below a dollar rounds up); use the
-  // same 2-decimal style as the >= $1 branch in that case.
-  return (formatted.split(".")[1]?.length ?? 0) >= 2 ? formatted : formatMoney(price, 2, 2);
+  // meaningful precision, adapting to magnitude and trimming trailing zeroes,
+  // but never fewer than 2 decimals ("$0.50", and "$1.00" when a price just
+  // below a dollar rounds up). The first significant digit sits at
+  // 10^exponent, so 4 significant figures end 3 places past it.
+  const exponent = Math.floor(Math.log10(price));
+  return formatMoney(price, Math.max(2, 3 - exponent), 2);
 }
 
 export function formatShortAddress(address: string | null | undefined, prefixLength = 6, suffixLength = 4): string {

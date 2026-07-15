@@ -25,8 +25,11 @@ describe("formatters:", () => {
     expect(formatMoney(20300)).toBe("$20,300");
     expect(formatMoney(2000000)).toBe("$2,000,000");
     expect(formatMoney(45123456.8)).toBe("$45,123,456.8");
+    expect(formatMoney(12312.23131231312)).toBe("$12,312.23");
+    expect(formatMoney(0.03)).toBe("$0.03");
     expect(formatMoney(220000000000)).toBe("$220B");
     expect(formatMoney(7300503357)).toBe("$7.3B");
+    expect(formatMoney(7350000000)).toBe("$7.35B");
   });
   it("returns shorted value", () => {
     expect(shortValue("0xb989b65e02b")).toBe("0xb989...e02b");
