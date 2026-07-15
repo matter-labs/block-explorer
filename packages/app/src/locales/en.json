@@ -716,7 +716,7 @@
             "tokenAddress": "Token Address",
             "bridged": {
                 "title": "Bridged",
-                "tooltip": "This token is bridged from L1 to {brandName}"
+                "tooltip": "This token is bridged to {brandName}"
             },
             "native": {
                 "title": "L2-native",

@@ -53,17 +53,19 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     bridgedTokensToInclude: string[];
   }): Promise<ITokenOffChainData[]> {
     const tokensList = await this.getTokensList();
-    const bridgedTokenAddresses = new Set(bridgedTokensToInclude);
+    const bridgedTokenAddresses = new Set(bridgedTokensToInclude.map((address) => address.toLowerCase()));
     // Include ETH, all L2 tokens and bridged tokens
     const supportedTokens = tokensList
       .map((token) => ({
         ...token,
-        // bridged tokens store the origin chain address, so match it against every configured origin platform
+        // bridged tokens store the origin chain address, so match it against every configured origin platform;
+        // compare lowercased since CoinGecko occasionally returns checksummed addresses, and skip the zero
+        // address so placeholder platform entries cannot match the base token row
         matchedBridgedAddresses: [
           ...new Set(
             this.originPlatformIds
-              .map((platformId) => token.platforms[platformId])
-              .filter((address) => address && bridgedTokenAddresses.has(address))
+              .map((platformId) => token.platforms[platformId]?.toLowerCase())
+              .filter((address) => address && address !== ZERO_ADDRESS && bridgedTokenAddresses.has(address))
           ),
         ],
       }))
@@ -94,10 +96,15 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
               l1Address: bridgedAddress,
               ...marketData,
             }));
+            // the zero address is never a valid origin address, so treat such entries as absent
+            const ethereumAddress =
+              token.platforms.ethereum && token.platforms.ethereum.toLowerCase() !== ZERO_ADDRESS
+                ? token.platforms.ethereum.toLowerCase()
+                : undefined;
             // keep the record keyed by the ethereum address (or by l2Address when there is none)
             // so natively listed tokens keep receiving updates alongside their bridged variants
-            if (!records.length || (!token.platforms.ethereum && marketData.l2Address)) {
-              records.push({ l1Address: token.platforms.ethereum, ...marketData });
+            if (!records.length || (!ethereumAddress && marketData.l2Address)) {
+              records.push({ l1Address: ethereumAddress, ...marketData });
             }
             return records;
           })

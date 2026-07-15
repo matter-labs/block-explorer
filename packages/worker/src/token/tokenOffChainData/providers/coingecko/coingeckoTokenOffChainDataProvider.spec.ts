@@ -380,6 +380,115 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
       ]);
     });
 
+    it("matches bridged addresses case-insensitively", async () => {
+      pipeMock
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "token1",
+                  platforms: {
+                    ethereum: "0x66A5C43C6ac93A8bA26E35d9146d3fCa0a1F26f5",
+                  },
+                },
+              ],
+            });
+          })
+        )
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "token1",
+                  market_cap: 101,
+                  current_price: 11,
+                  image: "http://token1.img",
+                },
+              ],
+            });
+          })
+        );
+
+      const tokens = await provider.getTokensOffChainData({
+        bridgedTokensToInclude: ["0x66a5c43c6ac93a8ba26e35d9146d3fca0a1f26f5"],
+      });
+      expect(tokens).toEqual([
+        {
+          l1Address: "0x66a5c43c6ac93a8ba26e35d9146d3fca0a1f26f5",
+          liquidity: 101,
+          usdPrice: 11,
+          iconURL: "http://token1.img",
+        },
+      ]);
+    });
+
+    it("emits the ethereum platform address for L2 listed tokens that are not bridged", async () => {
+      pipeMock
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "token4",
+                  platforms: {
+                    ethereum: "unbridged-eth-address",
+                    zksync: "l2address4",
+                  },
+                },
+              ],
+            });
+          })
+        )
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "token4",
+                  market_cap: 104,
+                  current_price: 14,
+                  image: "http://token4.img",
+                },
+              ],
+            });
+          })
+        );
+
+      const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
+      expect(tokens).toEqual([
+        {
+          l1Address: "unbridged-eth-address",
+          l2Address: "l2address4",
+          liquidity: 104,
+          usdPrice: 14,
+          iconURL: "http://token4.img",
+        },
+      ]);
+    });
+
+    it("never matches the zero address so the base token row is not overwritten", async () => {
+      const zeroAddress = "0x0000000000000000000000000000000000000000";
+      pipeMock.mockReturnValueOnce(
+        new rxjs.Observable((subscriber) => {
+          subscriber.next({
+            data: [
+              {
+                id: "junk-token",
+                platforms: {
+                  ethereum: zeroAddress,
+                },
+              },
+            ],
+          });
+        })
+      );
+
+      const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: [zeroAddress] });
+      expect(tokens).toEqual([]);
+    });
+
     describe("when a bridged token originates from a non-ethereum origin platform", () => {
       const eraOriginTokenAddress = "0x5a7d6b2f92c77fad6ccabd7ee0624e64907eaf3e";
       const ethereumTokenAddress = "0x66a5c43c6ac93a8ba26e35d9146d3fca0a1f26f5";
