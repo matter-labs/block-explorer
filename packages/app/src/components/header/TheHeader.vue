@@ -96,8 +96,8 @@
                 <div class="mobile-navigation">
                   <LinksMobilePopover :items="toolsLinks" />
                 </div>
-                <div class="mobile-navigation-divider"></div>
-                <div class="mobile-navigation">
+                <div v-if="navigation.length" class="mobile-navigation-divider"></div>
+                <div v-if="navigation.length" class="mobile-navigation">
                   <a
                     v-for="item in navigation"
                     :key="item.label"
