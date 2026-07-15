@@ -150,6 +150,11 @@ export const dateToTimestamp = (date: Date) => Math.floor(date.getTime() / 1000)
 
 export const numberToHex = (num: number | bigint) => (num != null ? `0x${num.toString(16)}` : "0x");
 
+// Plain decimal string; use toLocaleString instead of toString which would emit exponential
+// notation for prices below 1e-6.
+export const numberToDecimalString = (num: number) =>
+  num.toLocaleString("en-US", { useGrouping: false, maximumFractionDigits: 20 });
+
 export const parseIntToHex = (numStr: string) => {
   if (numStr != null) {
     const parsedInt = parseInt(numStr, 10);

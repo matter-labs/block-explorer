@@ -281,12 +281,12 @@ describe("Transfers:", () => {
 
     it("renders value column", () => {
       expect(renderResult!.getAllByTestId(elements.tokenAmount)[0].textContent).toEqual("0.0000123213123");
-      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[0].textContent).toEqual("$0.02");
+      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[0].textContent).toEqual("$0.02218");
     });
 
     it("renders fee column", () => {
       expect(renderResult!.getAllByTestId(elements.tokenAmount)[2].textContent).toEqual("0.00006550325");
-      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[1].textContent).toEqual("$0.12");
+      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[1].textContent).toEqual("$0.1179");
     });
   });
 

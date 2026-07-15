@@ -47,7 +47,7 @@ describe("MarketTokenInfoTable", () => {
     const rowArray = wrapper.findAll("tr");
     const marketCap = rowArray[0].findAll("td");
     expect(marketCap[0].text()).toBe("Market Cap");
-    expect(marketCap[1].text()).toBe("$220.00B");
+    expect(marketCap[1].text()).toBe("$220B");
 
     const price = rowArray[1].findAll("td");
     expect(price[0].text()).toBe("Price");

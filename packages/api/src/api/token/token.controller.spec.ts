@@ -62,6 +62,18 @@ describe("TokenController", () => {
       });
     });
 
+    it("returns tokenPriceUSD as a plain decimal string for very small prices", async () => {
+      jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce({
+        l2Address: "l2Address",
+        symbol: "TINY",
+        decimals: 18,
+        usdPrice: 1.25e-7,
+      } as Token);
+
+      const response = await controller.tokenInfo(contractAddress);
+      expect(response.result[0].tokenPriceUSD).toBe("0.000000125");
+    });
+
     it("returns ok response and token info with default values when token doesn't have all details", async () => {
       jest.spyOn(tokenServiceMock, "findOne").mockResolvedValueOnce({
         l2Address: "0x000000000000000000000000000000000000800A",
