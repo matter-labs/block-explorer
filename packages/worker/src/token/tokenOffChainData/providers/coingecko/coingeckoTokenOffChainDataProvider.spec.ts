@@ -501,6 +501,110 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           },
         ]);
       });
+
+      it("emits one record per bridged variant when a coin matches multiple origin platforms", async () => {
+        pipeMock
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync",
+                    platforms: {
+                      ethereum: ethereumTokenAddress,
+                      zksync: eraOriginTokenAddress,
+                    },
+                  },
+                ],
+              });
+            })
+          )
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync",
+                    market_cap: 200,
+                    current_price: 20,
+                    image: "http://zksync.img",
+                  },
+                ],
+              });
+            })
+          );
+
+        const tokens = await providerForOtherChain.getTokensOffChainData({
+          bridgedTokensToInclude: [eraOriginTokenAddress, ethereumTokenAddress],
+        });
+        expect(tokens).toEqual([
+          {
+            l1Address: ethereumTokenAddress,
+            liquidity: 200,
+            usdPrice: 20,
+            iconURL: "http://zksync.img",
+          },
+          {
+            l1Address: eraOriginTokenAddress,
+            liquidity: 200,
+            usdPrice: 20,
+            iconURL: "http://zksync.img",
+          },
+        ]);
+      });
+
+      it("also emits a record for the natively listed token when the coin has no ethereum platform entry", async () => {
+        const sophonTokenAddress = "0x9c1a3e7b52c77fad6ccabd7ee0624e64907eaf11";
+        pipeMock
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync",
+                    platforms: {
+                      sophon: sophonTokenAddress,
+                      zksync: eraOriginTokenAddress,
+                    },
+                  },
+                ],
+              });
+            })
+          )
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync",
+                    market_cap: 200,
+                    current_price: 20,
+                    image: "http://zksync.img",
+                  },
+                ],
+              });
+            })
+          );
+
+        const tokens = await providerForOtherChain.getTokensOffChainData({
+          bridgedTokensToInclude: [eraOriginTokenAddress],
+        });
+        expect(tokens).toEqual([
+          {
+            l1Address: eraOriginTokenAddress,
+            l2Address: sophonTokenAddress,
+            liquidity: 200,
+            usdPrice: 20,
+            iconURL: "http://zksync.img",
+          },
+          {
+            l2Address: sophonTokenAddress,
+            liquidity: 200,
+            usdPrice: 20,
+            iconURL: "http://zksync.img",
+          },
+        ]);
+      });
     });
   });
 });

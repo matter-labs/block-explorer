@@ -247,6 +247,27 @@ describe("config", () => {
     });
   });
 
+  describe("when COINGECKO_ORIGIN_PLATFORM_IDS contains whitespace or empty entries", () => {
+    beforeEach(() => {
+      process.env = {
+        COINGECKO_ORIGIN_PLATFORM_IDS: " ethereum, abstract ,",
+      };
+    });
+
+    it("trims platform ids and drops empty entries", () => {
+      expect(config()).toEqual({
+        ...defaultConfig,
+        tokens: {
+          ...defaultConfig.tokens,
+          coingecko: {
+            ...defaultConfig.tokens.coingecko,
+            originPlatformIds: ["ethereum", "abstract"],
+          },
+        },
+      });
+    });
+  });
+
   describe("when PRIVIDIUM is set to true", () => {
     beforeEach(() => {
       process.env = { PRIVIDIUM: "true" };

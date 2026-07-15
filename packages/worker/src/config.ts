@@ -111,7 +111,10 @@ export default () => {
         isProPlan: COINGECKO_IS_PRO_PLAN === "true",
         apiKey: COINGECKO_API_KEY,
         platformId: COINGECKO_PLATFORM_ID || "zksync",
-        originPlatformIds: (COINGECKO_ORIGIN_PLATFORM_IDS || "ethereum,zksync").split(","),
+        originPlatformIds: (COINGECKO_ORIGIN_PLATFORM_IDS || "ethereum,zksync")
+          .split(",")
+          .map((platformId) => platformId.trim())
+          .filter(Boolean),
       },
       baseToken: {
         symbol: BASE_TOKEN_SYMBOL || "ETH",
