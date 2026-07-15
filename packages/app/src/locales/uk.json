@@ -386,7 +386,7 @@
                 "tooltip": "Цей токен є нативним для {brandName}"
             },
             "tokenAddressL2": "L2 Адреса Токена",
-            "tokenAddressL1": "L1 Адреса Токена"
+            "tokenAddressL1": "Адреса токена в мережі походження"
         }
     },
     "tokenHolders": {

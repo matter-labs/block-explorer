@@ -78,7 +78,10 @@ describe("TokenListTable:", () => {
     expect(tr0Arr[0].find(".verified-badge").text()).toBe("Bridged");
     expect(tr0Arr[1].text()).toBe("$150.00");
     expect(tr0Arr[2].text()).toBe("L20x5A7d6b2F92C7...af3E");
-    expect(tr0Arr[3].text()).toBe("L10xEee...EEeE");
+    expect(tr0Arr[3].text()).toBe("0xEee...EEeE");
+    expect(tr0Arr[3].find("a").exists()).toBe(false);
+    const headColArr = wrapper.findAll("thead th");
+    expect(headColArr[3].text()).toBe("Origin token address");
   });
 
   it("renders properly with native token", async () => {

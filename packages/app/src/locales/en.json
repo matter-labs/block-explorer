@@ -723,7 +723,7 @@
                 "tooltip": "This token is native to {brandName}"
             },
             "tokenAddressL2": "L2 Token address",
-            "tokenAddressL1": "L1 Token address"
+            "tokenAddressL1": "Origin token address"
         }
     },
     "tokenHolders": {

@@ -73,6 +73,7 @@ The worker service can fetch and update token metadata (prices, icons, market ca
 - `COINGECKO_IS_PRO_PLAN` - set to `true` if using CoinGecko Pro API (default: `false`)
 - `COINGECKO_API_KEY` - your CoinGecko API key (required for both free and pro plans)
 - `COINGECKO_PLATFORM_ID` - the platform identifier for your blockchain on CoinGecko (default: `zksync`)
+- `COINGECKO_ORIGIN_PLATFORM_IDS` - comma-separated list of CoinGecko platform identifiers that bridged token origin addresses are matched against, e.g. `ethereum,zksync` (default: `ethereum,zksync`)
 
 ### Finding the correct CoinGecko Platform ID:
 To find the correct platform ID for your blockchain, you can query the CoinGecko asset platforms API:
@@ -109,6 +110,7 @@ SELECTED_TOKEN_OFFCHAIN_DATA_PROVIDER=coingecko
 COINGECKO_IS_PRO_PLAN=false
 COINGECKO_API_KEY=your_api_key_here
 COINGECKO_PLATFORM_ID=zksync
+COINGECKO_ORIGIN_PLATFORM_IDS=ethereum,zksync
 ```
 
 ## Running the app

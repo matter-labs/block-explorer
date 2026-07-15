@@ -48,7 +48,12 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
 
   beforeEach(async () => {
     configServiceMock = mock<ConfigService>({
-      get: jest.fn().mockReturnValueOnce(true).mockReturnValueOnce("apiKey").mockReturnValueOnce("zksync"),
+      get: jest
+        .fn()
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce("apiKey")
+        .mockReturnValueOnce("zksync")
+        .mockReturnValueOnce(["ethereum", "zksync"]),
     });
     httpServiceMock = mock<HttpService>();
     const module = await Test.createTestingModule({
@@ -107,7 +112,12 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           {
             provide: ConfigService,
             useValue: mock<ConfigService>({
-              get: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce("apiKey").mockReturnValueOnce("zksync"),
+              get: jest
+                .fn()
+                .mockReturnValueOnce(false)
+                .mockReturnValueOnce("apiKey")
+                .mockReturnValueOnce("zksync")
+                .mockReturnValueOnce(["ethereum", "zksync"]),
             }),
           },
           {
@@ -326,6 +336,171 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           iconURL: "http://token2.img",
         },
       ]);
+    });
+
+    it("emits platforms.ethereum for tokens bridged from Ethereum", async () => {
+      pipeMock
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "token1",
+                  platforms: {
+                    ethereum: "address1",
+                  },
+                },
+              ],
+            });
+          })
+        )
+        .mockReturnValueOnce(
+          new rxjs.Observable((subscriber) => {
+            subscriber.next({
+              data: [
+                {
+                  id: "token1",
+                  market_cap: 101,
+                  current_price: 11,
+                  image: "http://token1.img",
+                },
+              ],
+            });
+          })
+        );
+
+      const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: ["address1"] });
+      expect(tokens).toEqual([
+        {
+          l1Address: "address1",
+          liquidity: 101,
+          usdPrice: 11,
+          iconURL: "http://token1.img",
+        },
+      ]);
+    });
+
+    describe("when a bridged token originates from a non-ethereum origin platform", () => {
+      const eraOriginTokenAddress = "0x5a7d6b2f92c77fad6ccabd7ee0624e64907eaf3e";
+      const ethereumTokenAddress = "0x66a5c43c6ac93a8ba26e35d9146d3fca0a1f26f5";
+      let providerForOtherChain: CoingeckoTokenOffChainDataProvider;
+
+      beforeEach(async () => {
+        const module = await Test.createTestingModule({
+          providers: [
+            CoingeckoTokenOffChainDataProvider,
+            {
+              provide: ConfigService,
+              useValue: mock<ConfigService>({
+                get: jest
+                  .fn()
+                  .mockReturnValueOnce(true)
+                  .mockReturnValueOnce("apiKey")
+                  .mockReturnValueOnce("sophon")
+                  .mockReturnValueOnce(["ethereum", "zksync"]),
+              }),
+            },
+            {
+              provide: HttpService,
+              useValue: httpServiceMock,
+            },
+          ],
+        }).compile();
+        module.useLogger(mock<Logger>());
+        providerForOtherChain = module.get<CoingeckoTokenOffChainDataProvider>(CoingeckoTokenOffChainDataProvider);
+      });
+
+      it("matches the token by its origin platform address and emits the stored bridged address", async () => {
+        pipeMock
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync",
+                    platforms: {
+                      zksync: eraOriginTokenAddress,
+                      ethereum: ethereumTokenAddress,
+                    },
+                  },
+                ],
+              });
+            })
+          )
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync",
+                    market_cap: 200,
+                    current_price: 20,
+                    image: "http://zksync.img",
+                  },
+                ],
+              });
+            })
+          );
+
+        const tokens = await providerForOtherChain.getTokensOffChainData({
+          bridgedTokensToInclude: [eraOriginTokenAddress],
+        });
+        expect(tokens).toEqual([
+          {
+            l1Address: eraOriginTokenAddress,
+            liquidity: 200,
+            usdPrice: 20,
+            iconURL: "http://zksync.img",
+          },
+        ]);
+      });
+
+      it("keeps coins listed only under an origin platform in the tokens list", async () => {
+        pipeMock
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync-only-token",
+                    platforms: {
+                      zksync: eraOriginTokenAddress,
+                    },
+                  },
+                ],
+              });
+            })
+          )
+          .mockReturnValueOnce(
+            new rxjs.Observable((subscriber) => {
+              subscriber.next({
+                data: [
+                  {
+                    id: "zksync-only-token",
+                    market_cap: 300,
+                    current_price: 30,
+                    image: "http://zksync-only-token.img",
+                  },
+                ],
+              });
+            })
+          );
+
+        const tokens = await providerForOtherChain.getTokensOffChainData({
+          bridgedTokensToInclude: [eraOriginTokenAddress],
+        });
+        expect(httpServiceMock.get).toBeCalledWith(
+          "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=zksync-only-token&per_page=1&page=1&locale=en&precision=full&x_cg_pro_api_key=apiKey"
+        );
+        expect(tokens).toEqual([
+          {
+            l1Address: eraOriginTokenAddress,
+            liquidity: 300,
+            usdPrice: 30,
+            iconURL: "http://zksync-only-token.img",
+          },
+        ]);
+      });
     });
   });
 });
