@@ -344,7 +344,7 @@ const hasContent = computed(() => {
       @apply h-5/6 w-auto;
 
       &.hero-image-cover {
-        @apply h-full w-full object-cover;
+        @apply h-full;
       }
     }
   }
