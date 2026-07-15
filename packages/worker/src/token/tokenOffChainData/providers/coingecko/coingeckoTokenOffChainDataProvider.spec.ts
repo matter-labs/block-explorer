@@ -424,7 +424,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
       ]);
     });
 
-    it("emits the ethereum platform address for L2 listed tokens that are not bridged", async () => {
+    it("keys the record by l2Address when the ethereum platform address is not a stored bridged token", async () => {
       pipeMock
         .mockReturnValueOnce(
           new rxjs.Observable((subscriber) => {
@@ -459,7 +459,6 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
       const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
       expect(tokens).toEqual([
         {
-          l1Address: "unbridged-eth-address",
           l2Address: "l2address4",
           liquidity: 104,
           usdPrice: 14,

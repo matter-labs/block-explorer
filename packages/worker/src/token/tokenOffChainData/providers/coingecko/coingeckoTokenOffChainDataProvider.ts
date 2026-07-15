@@ -101,10 +101,14 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
               token.platforms.ethereum && token.platforms.ethereum.toLowerCase() !== ZERO_ADDRESS
                 ? token.platforms.ethereum.toLowerCase()
                 : undefined;
+            // bridgedTokensToInclude holds every stored l1Address, so a record keyed by an unknown
+            // ethereum address would update no rows; key by l2Address instead in that case
+            const bridgedEthereumAddress =
+              ethereumAddress && bridgedTokenAddresses.has(ethereumAddress) ? ethereumAddress : undefined;
             // keep the record keyed by the ethereum address (or by l2Address when there is none)
             // so natively listed tokens keep receiving updates alongside their bridged variants
-            if (!records.length || (!ethereumAddress && marketData.l2Address)) {
-              records.push({ l1Address: ethereumAddress, ...marketData });
+            if (!records.length || (!bridgedEthereumAddress && marketData.l2Address)) {
+              records.push({ l1Address: bridgedEthereumAddress, ...marketData });
             }
             return records;
           })
