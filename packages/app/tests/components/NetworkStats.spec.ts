@@ -11,11 +11,16 @@ import NetworkStats from "@/components/NetworkStats.vue";
 import enUS from "@/locales/en.json";
 
 const currentNetworkMock = vi.fn(() => "testnet");
+const networkStatsSubtitleMock = vi.fn((): string | null | undefined => undefined);
 
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
-      currentNetwork: computed(() => ({ name: currentNetworkMock(), l2NetworkName: "Network" })),
+      currentNetwork: computed(() => ({
+        name: currentNetworkMock(),
+        l2NetworkName: "Network",
+        networkStatsSubtitle: networkStatsSubtitleMock(),
+      })),
     }),
   };
 });
@@ -163,5 +168,41 @@ describe("NetworkStats:", () => {
 
     expect(wrapper.find(".subtitle").text()).toBe("Network is open to everyone.");
     mockNetwork.mockRestore();
+  });
+  it("renders custom subtitle when networkStatsSubtitle is set", () => {
+    const mockSubtitle = networkStatsSubtitleMock.mockReturnValue("Custom subtitle text");
+    const wrapper = mount(NetworkStats, {
+      props: {
+        loading: false,
+      },
+      global,
+    });
+
+    expect(wrapper.find(".subtitle").text()).toBe("Custom subtitle text");
+    mockSubtitle.mockRestore();
+  });
+  it("hides subtitle when networkStatsSubtitle is an empty string", () => {
+    const mockSubtitle = networkStatsSubtitleMock.mockReturnValue("");
+    const wrapper = mount(NetworkStats, {
+      props: {
+        loading: false,
+      },
+      global,
+    });
+
+    expect(wrapper.find(".subtitle").exists()).toBe(false);
+    mockSubtitle.mockRestore();
+  });
+  it("hides subtitle when networkStatsSubtitle is null", () => {
+    const mockSubtitle = networkStatsSubtitleMock.mockReturnValue(null);
+    const wrapper = mount(NetworkStats, {
+      props: {
+        loading: false,
+      },
+      global,
+    });
+
+    expect(wrapper.find(".subtitle").exists()).toBe(false);
+    mockSubtitle.mockRestore();
   });
 });
