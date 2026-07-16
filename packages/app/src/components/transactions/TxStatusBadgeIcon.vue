@@ -12,6 +12,6 @@ const { currentNetwork } = useContext();
 
 <style lang="scss" scoped>
 .status-badge-icon {
-  @apply ml-1 h-5 w-5 object-contain;
+  @apply my-0.5 ml-2 mr-0 h-4 w-4 object-contain;
 }
 </style>
