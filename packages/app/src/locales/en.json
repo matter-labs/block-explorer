@@ -1,7 +1,7 @@
 {
     "general": {
         "execution": "Execution",
-        "finality": "Finality"
+        "finality": "L1 Finality"
     },
     "copyButton": {
         "tooltip": "Copied!"
