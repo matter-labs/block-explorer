@@ -49,7 +49,7 @@ describe("useRuntimeConfig: docs and terms resolution", () => {
 
   it("falls back to the ZKsync URLs when nothing is set", () => {
     const { links } = useRuntimeConfig();
-    expect(links.docsUrl).toBe("https://docs.zksync.io/zksync-network/tooling/block-explorers");
+    expect(links.docsUrl).toBe("https://docs.zksync.io");
     expect(links.termsOfServiceUrl).toBe("https://zksync.io/terms");
   });
 

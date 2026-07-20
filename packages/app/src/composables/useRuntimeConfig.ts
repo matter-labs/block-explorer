@@ -41,7 +41,7 @@ export default (): RuntimeConfig => {
       xUrl: runtimeConfig?.links?.xUrl || import.meta.env?.VITE_X_URL || "https://x.com/zksync",
       docsUrl: resolveHideable(
         runtimeConfig?.links?.docsUrl,
-        import.meta.env?.VITE_DOCS_URL || "https://docs.zksync.io/zksync-network/tooling/block-explorers"
+        import.meta.env?.VITE_DOCS_URL || "https://docs.zksync.io"
       ),
       termsOfServiceUrl: resolveHideable(
         runtimeConfig?.links?.termsOfServiceUrl,
