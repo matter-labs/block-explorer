@@ -2,9 +2,11 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
+import { AbiCoder, Interface, Log, Block, TransactionReceipt } from "ethers";
 //import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
-import { TransferService } from "./transfer.service";
+import { TransferService, TransferType } from "./transfer.service";
+import { L2_ASSET_ROUTER_ADDRESS } from "../constants";
 // import { TokenType } from "../token/token.service";
 
 // import * as ethDepositNoFee from "../../test/transactionReceipts/eth/deposit-no-fee.json";
@@ -62,6 +64,72 @@ jest.mock("../logger", () => ({
 }));
 
 //const toTxReceipt = (receipt: any): types.TransactionReceipt => receipt as types.TransactionReceipt;
+
+// Test utils for legacy/Asset Router transfer deduplication: independent bridge actions in one
+// transaction must be preserved, while a genuine double-emit collapses into a single record.
+
+const abi = AbiCoder.defaultAbiCoder();
+
+const iface = new Interface([
+  "event WithdrawalInitiated(address indexed l2Sender, address indexed l1Receiver, address indexed l2Token, uint256 amount)",
+  "event WithdrawalInitiatedAssetRouter(uint256 chainId, address indexed l2Sender, bytes32 indexed assetId, bytes assetData)",
+  "event FinalizeDeposit(address indexed l1Sender, address indexed l2Receiver, address indexed l2Token, uint256 amount)",
+  "event DepositFinalizedAssetRouter(uint256 indexed chainId, bytes32 indexed assetId, bytes assetData)",
+]);
+
+const TX_HASH = "0x9cf4c8deca577bda1adcd4285e2f284321594737bcbe71bbd9baec1838e566ca";
+// Trusted legacy custom bridge (Lido wstETH bridge from the report).
+const LEGACY_BRIDGE = "0xE1D6A50E7101c8f8db77352897Ee3f1AC53f782B";
+
+const SENDER = "0x1111111111111111111111111111111111111111";
+const RECEIVER = "0x2222222222222222222222222222222222222222";
+
+const TOKEN_LEGACY = "0x703b52f2b28febcb60e1372858af5b18849fe867"; // e.g. wstETH
+const TOKEN_ASSET_ROUTER = "0xa0806da7835a4e63db2ce44a2b622ef8b73b5db5"; // e.g. STORJ
+
+const ASSET_ID_AR = "0x" + "a1".repeat(32);
+const ASSET_ID_DUP = "0x" + "b2".repeat(32);
+
+const EXTRA_ADDRESS = "0x3333333333333333333333333333333333333333";
+
+let logIndexCounter = 0;
+function makeLog(eventName: string, values: unknown[], address: string): Log {
+  const { data, topics } = iface.encodeEventLog(eventName, values);
+  return mock<Log>({
+    transactionIndex: 0,
+    blockNumber: 1,
+    transactionHash: TX_HASH,
+    address,
+    topics: [...topics],
+    data,
+    index: logIndexCounter++,
+    blockHash: "0x" + "0".repeat(64),
+  });
+}
+
+const legacyWithdrawalLog = (l2Token: string, amount: bigint) =>
+  makeLog("WithdrawalInitiated", [SENDER, RECEIVER, l2Token, amount], LEGACY_BRIDGE);
+
+const assetRouterWithdrawalLog = (assetId: string, amount: bigint) =>
+  makeLog(
+    "WithdrawalInitiatedAssetRouter",
+    [BigInt(1), SENDER, assetId, abi.encode(["uint256", "address", "address"], [amount, RECEIVER, EXTRA_ADDRESS])],
+    L2_ASSET_ROUTER_ADDRESS
+  );
+
+const legacyDepositLog = (l2Token: string, amount: bigint) =>
+  makeLog("FinalizeDeposit", [SENDER, RECEIVER, l2Token, amount], LEGACY_BRIDGE);
+
+const assetRouterDepositLog = (assetId: string, amount: bigint) =>
+  makeLog(
+    "DepositFinalizedAssetRouter",
+    [
+      BigInt(1),
+      assetId,
+      abi.encode(["address", "address", "uint256", "uint256"], [SENDER, RECEIVER, BigInt(0), amount]),
+    ],
+    L2_ASSET_ROUTER_ADDRESS
+  );
 
 describe("TransferService", () => {
   let transferService: TransferService;
@@ -2307,4 +2375,103 @@ describe("TransferService", () => {
   //     });
   //   });
   //});
+
+  describe("legacy/Asset Router deduplication", () => {
+    let dedupTransferService: TransferService;
+    let blockchainService: ReturnType<typeof mock<BlockchainService>>;
+    let configService: ReturnType<typeof mock<ConfigService>>;
+    let block: Block;
+    let receipt: TransactionReceipt;
+
+    const withTrustedBridges = (addresses: string[]) => {
+      const trusted = new Set(addresses.map((a) => a.toLowerCase()));
+      configService.get.mockImplementation((key: string) => (key === "trustedBridgeAddresses" ? trusted : undefined));
+    };
+
+    beforeEach(() => {
+      logIndexCounter = 0;
+      blockchainService = mock<BlockchainService>();
+      blockchainService.getTokenAddressByAssetId.mockImplementation(async (assetId: string) => {
+        if (assetId.toLowerCase() === ASSET_ID_AR.toLowerCase()) return TOKEN_ASSET_ROUTER;
+        if (assetId.toLowerCase() === ASSET_ID_DUP.toLowerCase()) return TOKEN_LEGACY;
+        return EXTRA_ADDRESS;
+      });
+      configService = mock<ConfigService>();
+      // Both the legacy Lido bridge and the Asset Router are trusted.
+      withTrustedBridges([LEGACY_BRIDGE, L2_ASSET_ROUTER_ADDRESS]);
+      dedupTransferService = new TransferService(blockchainService, configService);
+      block = mock<Block>({ timestamp: 1700000000 });
+      receipt = mock<TransactionReceipt>({ type: 2, from: SENDER, to: RECEIVER });
+    });
+
+    describe("independent legacy + Asset Router withdrawals in one transaction", () => {
+      it("keeps both when the legacy withdrawal is emitted first", async () => {
+        const logs = [
+          legacyWithdrawalLog(TOKEN_LEGACY, BigInt(100)),
+          assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200)),
+        ];
+        const transfers = await dedupTransferService.getTransfers(logs, block, [], receipt);
+        const withdrawals = transfers.filter((t) => t.type === TransferType.Withdrawal);
+        expect(withdrawals).toHaveLength(2);
+        expect(withdrawals.map((t) => t.tokenAddress).sort()).toEqual([TOKEN_ASSET_ROUTER, TOKEN_LEGACY].sort());
+      });
+
+      it("keeps both when the Asset Router withdrawal is emitted first (reversed order)", async () => {
+        const logs = [
+          assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200)),
+          legacyWithdrawalLog(TOKEN_LEGACY, BigInt(100)),
+        ];
+        const transfers = await dedupTransferService.getTransfers(logs, block, [], receipt);
+        const withdrawals = transfers.filter((t) => t.type === TransferType.Withdrawal);
+        expect(withdrawals).toHaveLength(2);
+        expect(withdrawals.map((t) => t.tokenAddress).sort()).toEqual([TOKEN_ASSET_ROUTER, TOKEN_LEGACY].sort());
+      });
+    });
+
+    describe("genuine double-emit of a single logical action", () => {
+      it("collapses a legacy FinalizeDeposit and its identical DepositFinalizedAssetRouter into one record", async () => {
+        // Emission order on-chain: the Asset Router event precedes the legacy event.
+        const logs = [assetRouterDepositLog(ASSET_ID_DUP, BigInt(100)), legacyDepositLog(TOKEN_LEGACY, BigInt(100))];
+        const transfers = await dedupTransferService.getTransfers(logs, block, [], receipt);
+        const deposits = transfers.filter((t) => t.type === TransferType.Deposit);
+        expect(deposits).toHaveLength(1);
+        // The Asset Router record is the one kept (it carries chainId).
+        expect(deposits[0].chainId).toBe("1");
+        expect(deposits[0].tokenAddress).toBe(TOKEN_LEGACY);
+        expect(deposits[0].amount).toBe(BigInt(100));
+      });
+
+      it("collapses regardless of log order", async () => {
+        const logs = [legacyDepositLog(TOKEN_LEGACY, BigInt(100)), assetRouterDepositLog(ASSET_ID_DUP, BigInt(100))];
+        const transfers = await dedupTransferService.getTransfers(logs, block, [], receipt);
+        expect(transfers.filter((t) => t.type === TransferType.Deposit)).toHaveLength(1);
+      });
+    });
+
+    describe("same-family transfers are never deduplicated against each other", () => {
+      it("keeps two Asset Router withdrawals with identical fields", async () => {
+        const logs = [
+          assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200)),
+          assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200)),
+        ];
+        const transfers = await dedupTransferService.getTransfers(logs, block, [], receipt);
+        expect(transfers.filter((t) => t.type === TransferType.Withdrawal)).toHaveLength(2);
+      });
+    });
+
+    describe("untrusted legacy emitter", () => {
+      it("does not index the legacy withdrawal and does not suppress the Asset Router withdrawal", async () => {
+        // Only the Asset Router is trusted; the legacy Lido bridge is not.
+        withTrustedBridges([L2_ASSET_ROUTER_ADDRESS]);
+        const logs = [
+          legacyWithdrawalLog(TOKEN_LEGACY, BigInt(100)),
+          assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200)),
+        ];
+        const transfers = await dedupTransferService.getTransfers(logs, block, [], receipt);
+        const withdrawals = transfers.filter((t) => t.type === TransferType.Withdrawal);
+        expect(withdrawals).toHaveLength(1);
+        expect(withdrawals[0].tokenAddress).toBe(TOKEN_ASSET_ROUTER);
+      });
+    });
+  });
 });
