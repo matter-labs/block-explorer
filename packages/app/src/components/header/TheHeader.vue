@@ -96,8 +96,8 @@
                 <div class="mobile-navigation">
                   <LinksMobilePopover :items="toolsLinks" />
                 </div>
-                <div class="mobile-navigation-divider"></div>
-                <div class="mobile-navigation">
+                <div v-if="navigation.length" class="mobile-navigation-divider"></div>
+                <div v-if="navigation.length" class="mobile-navigation">
                   <a
                     v-for="item in navigation"
                     :key="item.label"
@@ -176,12 +176,16 @@ const isPrividium = runtimeConfig.appEnvironment === "prividium";
 const hasAdminRead = computed(() => user.value.loggedIn && user.value.hasAdminRead);
 const showAdminLinks = computed(() => !isPrividium || hasAdminRead.value);
 
-const navigation = reactive([
-  {
-    label: computed(() => t("header.nav.documentation")),
-    url: runtimeConfig.links.docsUrl,
-  },
-]);
+const navigation = computed(() =>
+  runtimeConfig.links.docsUrl
+    ? [
+        {
+          label: t("header.nav.documentation"),
+          url: runtimeConfig.links.docsUrl,
+        },
+      ]
+    : []
+);
 
 const blockExplorerLinks = reactive([
   {
@@ -340,7 +344,7 @@ const hasContent = computed(() => {
       @apply h-5/6 w-auto;
 
       &.hero-image-cover {
-        @apply h-full w-full object-cover;
+        @apply h-full;
       }
     }
   }

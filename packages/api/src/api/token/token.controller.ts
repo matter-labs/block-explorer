@@ -5,6 +5,7 @@ import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { TokenInfoResponseDto } from "../dtos/token/tokenInfo.dto";
 import { TokenService } from "../../token/token.service";
+import { numberToDecimalString } from "../../common/utils";
 const entityName = "token";
 
 @ApiExcludeController()
@@ -30,7 +31,7 @@ export class TokenController {
               tokenName: token.name || "",
               symbol: token.symbol,
               tokenDecimal: token.decimals.toString(),
-              tokenPriceUSD: token.usdPrice?.toString() || "",
+              tokenPriceUSD: token.usdPrice != null ? numberToDecimalString(token.usdPrice) : "",
               liquidity: token.liquidity?.toString() || "",
               l1Address: token.l1Address || "",
               iconURL: token.iconURL || "",

@@ -7,7 +7,7 @@
         </table-body-column>
         <table-body-column class="token-info-field-value">
           <div v-if="tokenInfo.liquidity && tokenInfo.usdPrice">
-            {{ formatMoney(tokenInfo.liquidity, tokenInfo.decimals) }}
+            {{ formatMoney(tokenInfo.liquidity) }}
           </div>
         </table-body-column>
       </tr>

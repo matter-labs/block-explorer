@@ -7,6 +7,7 @@ export type NetworkConfig = {
   heroBannerImageUrl?: string;
   heroBannerCover?: boolean;
   txStatusBadgeIconUrl?: string;
+  networkStatsSubtitle?: string | null;
   verificationApiUrl?: string;
   apiUrl: string;
   rpcUrl: string;
@@ -66,8 +67,8 @@ export type RuntimeConfig = {
   links: {
     discordUrl: string;
     xUrl: string;
-    docsUrl: string;
-    termsOfServiceUrl: string;
+    docsUrl: string | null;
+    termsOfServiceUrl: string | null;
     contactUsUrl: string | null;
   };
   environmentConfig?: EnvironmentConfig;

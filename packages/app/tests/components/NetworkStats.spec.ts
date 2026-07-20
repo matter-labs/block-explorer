@@ -11,11 +11,16 @@ import NetworkStats from "@/components/NetworkStats.vue";
 import enUS from "@/locales/en.json";
 
 const currentNetworkMock = vi.fn(() => "testnet");
+const networkStatsSubtitleMock = vi.fn((): string | null | undefined => undefined);
 
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
-      currentNetwork: computed(() => ({ name: currentNetworkMock(), l2NetworkName: "Network" })),
+      currentNetwork: computed(() => ({
+        name: currentNetworkMock(),
+        l2NetworkName: "Network",
+        networkStatsSubtitle: networkStatsSubtitleMock(),
+      })),
     }),
   };
 });
@@ -51,7 +56,7 @@ describe("NetworkStats:", () => {
     expect(wrapperArray[0].textContent).toContain("123");
     expect(wrapperArray[1].textContent).toContain("542");
     expect(wrapperArray[2].textContent).toContain("1 404");
-    expect(wrapperArray[3].textContent).toContain("$849,320.0");
+    expect(wrapperArray[3].textContent).toContain("$849,320");
   });
   it("renders component without total value locked property", () => {
     const { container } = render(NetworkStats, {
@@ -163,5 +168,41 @@ describe("NetworkStats:", () => {
 
     expect(wrapper.find(".subtitle").text()).toBe("Network is open to everyone.");
     mockNetwork.mockRestore();
+  });
+  it("renders custom subtitle when networkStatsSubtitle is set", () => {
+    const mockSubtitle = networkStatsSubtitleMock.mockReturnValue("Custom subtitle text");
+    const wrapper = mount(NetworkStats, {
+      props: {
+        loading: false,
+      },
+      global,
+    });
+
+    expect(wrapper.find(".subtitle").text()).toBe("Custom subtitle text");
+    mockSubtitle.mockRestore();
+  });
+  it("hides subtitle when networkStatsSubtitle is an empty string", () => {
+    const mockSubtitle = networkStatsSubtitleMock.mockReturnValue("");
+    const wrapper = mount(NetworkStats, {
+      props: {
+        loading: false,
+      },
+      global,
+    });
+
+    expect(wrapper.find(".subtitle").exists()).toBe(false);
+    mockSubtitle.mockRestore();
+  });
+  it("hides subtitle when networkStatsSubtitle is null", () => {
+    const mockSubtitle = networkStatsSubtitleMock.mockReturnValue(null);
+    const wrapper = mount(NetworkStats, {
+      props: {
+        loading: false,
+      },
+      global,
+    });
+
+    expect(wrapper.find(".subtitle").exists()).toBe(false);
+    mockSubtitle.mockRestore();
   });
 });

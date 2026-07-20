@@ -19,6 +19,11 @@ export const DEFAULT_NETWORK: NetworkConfig = {
   baseTokenAddress: checksumAddress("0x000000000000000000000000000000000000800A"),
 };
 
+// An operator can hide a value by explicitly setting it to null or "" in the
+// config. Only when the key is absent does the fallback apply.
+export const resolveHideable = (configValue: string | null | undefined, fallback: string | null): string | null =>
+  configValue === undefined ? fallback : configValue || null;
+
 export default (): RuntimeConfig => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -34,18 +39,18 @@ export default (): RuntimeConfig => {
     links: {
       discordUrl: runtimeConfig?.links?.discordUrl || import.meta.env?.VITE_DISCORD_URL || "https://join.zksync.dev",
       xUrl: runtimeConfig?.links?.xUrl || import.meta.env?.VITE_X_URL || "https://x.com/zksync",
-      docsUrl:
-        runtimeConfig?.links?.docsUrl ||
-        import.meta.env?.VITE_DOCS_URL ||
-        "https://docs.zksync.io/zksync-network/tooling/block-explorers",
-      termsOfServiceUrl:
-        runtimeConfig?.links?.termsOfServiceUrl ||
-        import.meta.env?.VITE_TERMS_OF_SERVICE_URL ||
-        "https://zksync.io/terms",
-      contactUsUrl:
-        runtimeConfig?.links?.contactUsUrl ||
-        import.meta.env?.VITE_CONTACT_US_URL ||
-        (appEnvironment === "prividium" ? null : "https://zksync.io/contact"),
+      docsUrl: resolveHideable(
+        runtimeConfig?.links?.docsUrl,
+        import.meta.env?.VITE_DOCS_URL || "https://docs.zksync.io/zksync-network/tooling/block-explorers"
+      ),
+      termsOfServiceUrl: resolveHideable(
+        runtimeConfig?.links?.termsOfServiceUrl,
+        import.meta.env?.VITE_TERMS_OF_SERVICE_URL || "https://zksync.io/terms"
+      ),
+      contactUsUrl: resolveHideable(
+        runtimeConfig?.links?.contactUsUrl,
+        import.meta.env?.VITE_CONTACT_US_URL || (appEnvironment === "prividium" ? null : "https://zksync.io/contact")
+      ),
     },
     environmentConfig: runtimeConfig?.environmentConfig,
     theme: runtimeConfig?.theme || JSON.parse(import.meta.env?.VITE_THEME_CONFIG || "{}"),

@@ -5,7 +5,7 @@ import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto
 import { ApiExceptionFilter } from "../exceptionFilter";
 import { EthPriceResponseDto } from "../dtos/stats/ethPrice.dto";
 import { TokenService } from "../../token/token.service";
-import { dateToTimestamp } from "../../common/utils";
+import { dateToTimestamp, numberToDecimalString } from "../../common/utils";
 import { type BaseToken } from "../../config";
 
 const entityName = "stats";
@@ -32,7 +32,7 @@ export class StatsController {
       message: token ? ResponseMessage.OK : ResponseMessage.NO_DATA_FOUND,
       result: token
         ? {
-            ethusd: token.usdPrice?.toString() || "",
+            ethusd: token.usdPrice != null ? numberToDecimalString(token.usdPrice) : "",
             ethusd_timestamp: token.offChainDataUpdatedAt
               ? dateToTimestamp(token.offChainDataUpdatedAt).toString()
               : "",

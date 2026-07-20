@@ -92,6 +92,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
         per_page: tokenIds.length.toString(),
         page: "1",
         locale: "en",
+        precision: "full",
       },
     });
   }
