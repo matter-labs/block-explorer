@@ -1,55 +1,45 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
-import * as request from "supertest";
+import request from "supertest";
 import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
-import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { baseToken } from "../src/config";
+import { computeFromToMinMax } from "../src/common/utils";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("TokenController (e2e)", () => {
+  let ETH_TOKEN;
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
   let blockRepository: Repository<BlockDetails>;
   let transactionRepository: Repository<Transaction>;
   let transferRepository: Repository<Transfer>;
-  let batchRepository: Repository<BatchDetails>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.build()],
     }).compile();
-
+    ETH_TOKEN = baseToken;
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);
 
     await app.init();
 
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 1 });
+
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
-
-    await batchRepository.insert({
-      number: 1,
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      l1TxCount: 10,
-      l2TxCount: 20,
-      l1GasPrice: "10000000",
-      l2FairGasPrice: "20000000",
-      commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
-      executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
-      proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
-      committedAt: new Date("2022-11-10T14:44:08.000Z"),
-      executedAt: new Date("2022-11-10T14:44:08.000Z"),
-      provenAt: new Date("2022-11-10T14:44:08.000Z"),
-    });
 
     await blockRepository.insert({
       number: 1,
@@ -59,7 +49,6 @@ describe("TokenController (e2e)", () => {
       gasUsed: "0",
       baseFeePerGas: "100000000",
       extraData: "0x",
-      l1BatchNumber: 1,
       l1TxCount: 10,
       l2TxCount: 20,
       miner: "0x0000000000000000000000000000000000000000",
@@ -78,7 +67,6 @@ describe("TokenController (e2e)", () => {
       blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
       receivedAt: "2022-11-21T18:16:51.000Z",
       isL1Originated: true,
-      l1BatchNumber: 1,
       receiptStatus: 1,
       gasLimit: "1000000",
       gasPrice: "100",
@@ -114,6 +102,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -130,6 +122,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x0000000000000000000000000000000000008001",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x0000000000000000000000000000000000008001"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -146,6 +142,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -162,6 +162,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -178,6 +182,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -194,6 +202,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -211,6 +223,10 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x0000000000000000000000000000000000008001",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x0000000000000000000000000000000000008001",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0xd754ff5e8a6f257e162f72578a4bb0493c068101",
@@ -227,12 +243,16 @@ describe("TokenController (e2e)", () => {
       await transferRepository.insert({
         from: "0x0000000000000000000000000000000000008001",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fe",
+        ...computeFromToMinMax(
+          "0x0000000000000000000000000000000000008001",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fe"
+        ),
         blockNumber: 1,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress: "0x000000000000000000000000000000000000800A",
         amount: "1000",
         type: TransferType.Refund,
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
         logIndex: transferIndex++,
         transactionIndex: 0,
         timestamp: "2022-11-21T18:16:51.000Z",
@@ -243,11 +263,11 @@ describe("TokenController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await transferRepository.delete({});
-    await tokenRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
-    await batchRepository.delete({});
+    await indexerStateRepository.createQueryBuilder().delete().execute();
+    await transferRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });
@@ -383,29 +403,29 @@ describe("TokenController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging metadata", () => {
       return request(app.getHttpServer())
-        .get("/tokens?page=2&limit=10")
+        .get("/tokens?page=2&limit=5")
         .expect(200)
         .expect((res) =>
           expect(res.body.meta).toStrictEqual({
             currentPage: 2,
-            itemCount: 10,
-            itemsPerPage: 10,
-            totalItems: 31,
-            totalPages: 4,
+            itemCount: 5,
+            itemsPerPage: 5,
+            totalItems: 15,
+            totalPages: 3,
           })
         );
     });
 
     it("returns HTTP 200 and populated paging links", () => {
       return request(app.getHttpServer())
-        .get("/tokens?page=2&limit=10")
+        .get("/tokens?page=2&limit=5")
         .expect(200)
         .expect((res) =>
           expect(res.body.links).toStrictEqual({
-            first: "tokens?limit=10",
-            last: "tokens?page=4&limit=10",
-            next: "tokens?page=3&limit=10",
-            previous: "tokens?page=1&limit=10",
+            first: "tokens?limit=5",
+            last: "tokens?page=3&limit=5",
+            next: "tokens?page=3&limit=5",
+            previous: "tokens?page=1&limit=5",
           })
         );
     });
@@ -464,6 +484,7 @@ describe("TokenController (e2e)", () => {
               type: "transfer",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "1000",
@@ -484,9 +505,34 @@ describe("TokenController (e2e)", () => {
               },
               tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
-              type: "withdrawal",
+              type: "mint",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
+            },
+            {
+              amount: "1000",
+              blockNumber: 1,
+              fields: null,
+              from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              timestamp: "2022-11-21T18:16:51.000Z",
+              to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              token: {
+                decimals: 18,
+                l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
+                l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
+                name: "TEST token 1",
+                symbol: "TEST1",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
+              },
+              tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
+              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+              type: "deposit",
+              tokenType: "ERC20",
+              isInternal: false,
+              chainId: null,
             },
             {
               amount: null,
@@ -512,75 +558,7 @@ describe("TokenController (e2e)", () => {
               type: "mint",
               tokenType: "ERC721",
               isInternal: false,
-            },
-            {
-              amount: "1000",
-              blockNumber: 1,
-              fields: null,
-              from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
-              timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
-              token: {
-                decimals: 18,
-                l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
-                l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
-                name: "TEST token 1",
-                symbol: "TEST1",
-                iconURL: null,
-                liquidity: null,
-                usdPrice: null,
-              },
-              tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
-              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
-              type: "deposit",
-              tokenType: "ERC20",
-              isInternal: false,
-            },
-            {
-              amount: "1000",
-              blockNumber: 1,
-              fields: null,
-              from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
-              timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
-              token: {
-                decimals: 18,
-                l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
-                l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
-                name: "TEST token 1",
-                symbol: "TEST1",
-                iconURL: null,
-                liquidity: null,
-                usdPrice: null,
-              },
-              tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
-              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
-              type: "mint",
-              tokenType: "ERC20",
-              isInternal: false,
-            },
-            {
-              amount: "1000",
-              blockNumber: 1,
-              fields: null,
-              from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
-              timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
-              token: {
-                decimals: 18,
-                l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
-                l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
-                name: "TEST token 1",
-                symbol: "TEST1",
-                iconURL: null,
-                liquidity: null,
-                usdPrice: null,
-              },
-              tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
-              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
-              type: "transfer",
-              tokenType: "ERC20",
-              isInternal: false,
+              chainId: null,
             },
             {
               amount: "1000",
@@ -604,6 +582,55 @@ describe("TokenController (e2e)", () => {
               type: "withdrawal",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
+            },
+            {
+              amount: "1000",
+              blockNumber: 1,
+              fields: null,
+              from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              timestamp: "2022-11-21T18:16:51.000Z",
+              to: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
+              token: {
+                decimals: 18,
+                l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
+                l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
+                name: "TEST token 1",
+                symbol: "TEST1",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
+              },
+              tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
+              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+              type: "transfer",
+              tokenType: "ERC20",
+              isInternal: false,
+              chainId: null,
+            },
+            {
+              amount: "1000",
+              blockNumber: 1,
+              fields: null,
+              from: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              timestamp: "2022-11-21T18:16:51.000Z",
+              to: "0x52312AD6f01657413b2eaE9287f6B9ADaD93D5FE",
+              token: {
+                decimals: 18,
+                l1Address: "0xf754ff5E8a6F257e162F72578a4Bb0493c068101",
+                l2Address: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
+                name: "TEST token 1",
+                symbol: "TEST1",
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
+              },
+              tokenAddress: "0xD754FF5E8a6F257E162f72578a4bB0493c068101",
+              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
+              type: "mint",
+              tokenType: "ERC20",
+              isInternal: false,
+              chainId: null,
             },
           ])
         );
@@ -664,9 +691,10 @@ describe("TokenController (e2e)", () => {
                   usdPrice: null,
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
+                chainId: null,
               },
               {
                 amount: "1000",
@@ -687,9 +715,10 @@ describe("TokenController (e2e)", () => {
                   usdPrice: null,
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
+                chainId: null,
               },
               {
                 amount: "1000",
@@ -710,9 +739,10 @@ describe("TokenController (e2e)", () => {
                   usdPrice: null,
                 },
                 tokenAddress: "0x000000000000000000000000000000000000800A",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "refund",
+                chainId: null,
               },
             ],
             links: {

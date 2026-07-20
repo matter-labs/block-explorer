@@ -39,16 +39,16 @@ Feature: Main Page
       | Value   | url                        |
       # discord renamed to "join"
       | join    | https://join.zksync.dev/   |
-      | twitter | https://twitter.com/zksync |
+      | x.com | https://x.com/zksync |
 
-  @id254:I
+  @id254:
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
     Given Set the "<Value>" value for "<Dropdown>" switcher
     Then Check the "<Value>" value is actual for "<Dropdown>" switcher
 
     Examples:
       | Value                      | Dropdown |
-      | zkSync Era Mainnet         | network  |
+      | ZKsync Era Mainnet         | network  |
       | EN                         | language |
       | UA                         | language |
 
@@ -59,8 +59,7 @@ Feature: Main Page
 
   Examples:
       | Value                       | Dropdown |
-      | zkSync Era Sepolia Testnet  | network  |
-      | Goerli (Stage2)             | network  |
+      | ZKsync Era Sepolia Testnet  | network  |
 
   @id254:II @productionEnv
   Scenario Outline: Check dropdown "<Dropdown>" for "<Value>" and verify
@@ -69,7 +68,7 @@ Feature: Main Page
 
   Examples:
       | Value                      | Dropdown |
-      | zkSync Era Sepolia Testnet | network  |
+      | ZKsync Era Sepolia Testnet | network  |
 
   Scenario: Network stats is displayed
     Then Element with "text" "Network Stats" should be "visible"
@@ -80,7 +79,7 @@ Feature: Main Page
 
     Examples:
       | Table               | Number of rows |
-      | Latest Batches      | 10             |
+      | Latest Blocks       | 10             |
       | Latest Transactions | 10             |
 
   @id101:II @id274:II @testnetSmokeSuite
@@ -92,10 +91,9 @@ Feature: Main Page
       | Latest Transactions | Status           |
       | Latest Transactions | Transaction Hash |
       | Latest Transactions | Age              |
-      | Latest Batches      | Status           |
-      | Latest Batches      | Batch            |
-      | Latest Batches      | Size             |
-      | Latest Batches      | Age              |
+      | Latest Blocks       | Block            |
+      | Latest Blocks       | Status           |
+      | Latest Blocks       | Age              |
 
   #  @id127 #should be fixed on the ci
   #  Scenario Outline: Verify "<Title name>" Tab title
@@ -140,8 +138,7 @@ Feature: Main Page
       | Row                | Value                                                              |
       | Input data         | 0xa9059cbb00000000000000000000000                                  |
       | Block              | 45751                                                              |
-      | Batch              | #661                                                               |
-      | Created            | 2023-02-10                                                         |
+      | Received            | 2023-02-10                                                         |
       | Tokens Transferred | 0x8f0F33583a5                                                      |
       | Tokens Transferred | From                                                               |
       | Tokens Transferred | 0x8f0F33583a5...d8f6                                               |
@@ -172,8 +169,7 @@ Feature: Main Page
       | Row                | Value                                                              |
       | Input data         | Function: transfer                                                 |
       | Block              | 3491940                                                            |
-      | Batch              | #28739                                                             |
-      | Created            | 2023-05-14                                                         |
+      | Received            | 2023-05-14                                                         |
 
 
   @id211 @testnet

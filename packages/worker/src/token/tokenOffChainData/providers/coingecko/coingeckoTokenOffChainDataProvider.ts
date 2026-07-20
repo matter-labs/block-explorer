@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config";
 import { AxiosError } from "axios";
 import { setTimeout } from "timers/promises";
 import { catchError, firstValueFrom } from "rxjs";
-import { utils } from "zksync-web3";
+import { ZERO_ADDRESS } from "../../../../constants";
 import { TokenOffChainDataProvider, ITokenOffChainData } from "../../tokenOffChainDataProvider.abstract";
 
 const API_NUMBER_OF_TOKENS_PER_REQUEST = 250;
@@ -35,12 +35,14 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
   private readonly isProPlan: boolean;
   private readonly apiKey: string;
   private readonly apiUrl: string;
+  private readonly platformId: string;
 
   constructor(configService: ConfigService, private readonly httpService: HttpService) {
     this.logger = new Logger(CoingeckoTokenOffChainDataProvider.name);
     this.isProPlan = configService.get<boolean>("tokens.coingecko.isProPlan");
     this.apiKey = configService.get<string>("tokens.coingecko.apiKey");
     this.apiUrl = this.isProPlan ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
+    this.platformId = configService.get<string>("tokens.coingecko.platformId");
   }
 
   public async getTokensOffChainData({
@@ -49,11 +51,11 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     bridgedTokensToInclude: string[];
   }): Promise<ITokenOffChainData[]> {
     const tokensList = await this.getTokensList();
-    // Include ETH, all zksync L2 tokens and bridged tokens
+    // Include ETH, all L2 tokens and bridged tokens
     const supportedTokens = tokensList.filter(
       (token) =>
         token.id === "ethereum" ||
-        token.platforms.zksync ||
+        token.platforms[this.platformId] ||
         bridgedTokensToInclude.find((bridgetTokenAddress) => bridgetTokenAddress === token.platforms.ethereum)
     );
 
@@ -67,8 +69,8 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
           ...tokensMarkedData.map((tokenMarketData) => {
             const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
             return {
-              l1Address: token.id === "ethereum" ? utils.ETH_ADDRESS : token.platforms.ethereum,
-              l2Address: token.platforms.zksync,
+              l1Address: token.id === "ethereum" ? ZERO_ADDRESS : token.platforms.ethereum,
+              l2Address: token.platforms[this.platformId],
               liquidity: tokenMarketData.market_cap,
               usdPrice: tokenMarketData.current_price,
               iconURL: tokenMarketData.image,
@@ -90,6 +92,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
         per_page: tokenIds.length.toString(),
         page: "1",
         locale: "en",
+        precision: "full",
       },
     });
   }
@@ -105,12 +108,12 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       return [];
     }
     return list
-      .filter((item) => item.id === "ethereum" || item.platforms.zksync || item.platforms.ethereum)
+      .filter((item) => item.id === "ethereum" || item.platforms[this.platformId] || item.platforms.ethereum)
       .map((item) => ({
         ...item,
         platforms: {
           // use substring(0, 42) to fix some instances when after address there is some additional text
-          zksync: item.platforms.zksync?.substring(0, 42),
+          [this.platformId]: item.platforms[this.platformId]?.substring(0, 42),
           ethereum: item.platforms.ethereum?.substring(0, 42),
         },
       }));
@@ -128,9 +131,16 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     retryTimeout?: number;
   }): Promise<T> {
     try {
-      return await this.makeApiRequest<T>(path, query);
+      return await this.makeApiRequest<T>(path, query, retryAttempt);
     } catch (err) {
       if (err.status === 404) {
+        return null;
+      }
+      if (retryAttempt >= API_RETRY_ATTEMPTS) {
+        this.logger.error({
+          message: `Failed to fetch data at ${path} from coingecko after ${retryAttempt} retries`,
+          provider: CoingeckoTokenOffChainDataProvider.name,
+        });
         return null;
       }
       if (err.status === 429) {
@@ -139,14 +149,9 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
         return this.makeApiRequestRetryable<T>({
           path,
           query,
+          retryAttempt: API_RETRY_ATTEMPTS, // disable retries after rate limit reset
+          retryTimeout,
         });
-      }
-      if (retryAttempt >= API_RETRY_ATTEMPTS) {
-        this.logger.error({
-          message: `Failed to fetch data at ${path} from coingecko after ${retryAttempt} retries`,
-          provider: CoingeckoTokenOffChainDataProvider.name,
-        });
-        return null;
       }
       await setTimeout(retryTimeout);
       return this.makeApiRequestRetryable<T>({
@@ -158,7 +163,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     }
   }
 
-  private async makeApiRequest<T>(path: string, query?: Record<string, string>): Promise<T> {
+  private async makeApiRequest<T>(path: string, query?: Record<string, string>, attempt?: number): Promise<T> {
     const queryString = new URLSearchParams({
       ...query,
       ...(this.isProPlan
@@ -179,12 +184,13 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
             const rateLimitResetDate = rateLimitReset
               ? new Date(rateLimitReset)
               : new Date(new Date().getTime() + 60000);
-            this.logger.debug({
+            this.logger.error({
               message: `Reached coingecko rate limit, reset at ${rateLimitResetDate}`,
               stack: error.stack,
               status: error.response.status,
               response: error.response.data,
               provider: CoingeckoTokenOffChainDataProvider.name,
+              attempt,
             });
             throw new ProviderResponseError(error.message, error.response.status, rateLimitResetDate);
           }
@@ -194,6 +200,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
             status: error.response?.status,
             response: error.response?.data,
             provider: CoingeckoTokenOffChainDataProvider.name,
+            attempt,
           });
           throw new ProviderResponseError(error.message, error.response?.status);
         })

@@ -1,50 +1,57 @@
 import { ref } from "vue";
 
-import { utils } from "ethers";
+import { Interface } from "ethers";
 
 import useAddress from "./useAddress";
 import useContext from "./useContext";
 import useContractABI from "./useContractABI";
+import { fetchMethodNames } from "./useOpenChain";
 
 import type { AbiFragment } from "./useAddress";
 import type { InputType } from "./useEventLog";
 import type { Address } from "@/types";
 
+import { decodeInputData } from "@/utils/helpers";
+import { parseFunctionSignature } from "@/utils/parseSignature";
+
+export type MethodData = {
+  name: string;
+  inputs: InputData[];
+};
+
+export type InputData = {
+  name: string;
+  type: InputType | string;
+  value: string;
+  inputs: InputData[];
+  encodedValue: string;
+};
 export type TransactionData = {
   calldata: string;
-  contractAddress: Address;
+  contractAddress: Address | null;
   value: string;
   sighash: string;
-  method?: {
-    name: string;
-    inputs: {
-      name: string;
-      type: InputType;
-      value: string;
-      encodedValue: string;
-    }[];
-  };
+  method?: MethodData;
+  signature?: string;
+  isPartialDecoding?: boolean;
 };
 
 export function decodeDataWithABI(
   transactionData: { calldata: TransactionData["calldata"]; value: TransactionData["value"] },
   abi: AbiFragment[]
 ): TransactionData["method"] | undefined {
-  const contractInterface = new utils.Interface(abi);
-
+  const contractInterface = new Interface(abi);
   try {
     const decodedData = contractInterface.parseTransaction({
       data: transactionData.calldata,
       value: transactionData.value,
-    });
+    })!;
     return {
       name: decodedData.name,
-      inputs: decodedData.functionFragment.inputs.map((input) => ({
-        name: input.name,
-        type: input.type as InputType,
-        value: decodedData.args[input.name]?.toString(),
-        encodedValue: utils.defaultAbiCoder.encode([input.type], [decodedData.args[input.name]]).split("0x")[1],
-      })),
+      inputs: decodedData.fragment.inputs.flatMap((input, index) =>
+        // Use index if name is empty (common with some ABIs)
+        decodeInputData(input, decodedData.args[input.name || index])
+      ),
     };
   } catch {
     return undefined;
@@ -63,7 +70,7 @@ export default (context = useContext()) => {
   const decodingError = ref("");
 
   const decodeTransactionData = async (transactionData: TransactionData) => {
-    if (transactionData.calldata === "0x") {
+    if (transactionData.calldata === "0x" || !transactionData.contractAddress) {
       data.value = transactionData;
       decodingError.value = "";
       return;
@@ -72,30 +79,71 @@ export default (context = useContext()) => {
     try {
       isDecodePending.value = true;
       decodingError.value = "";
+
+      // Get contract ABI first to properly handle verification errors
       await getABICollection([transactionData.contractAddress]);
-      const abi = ABICollection.value[transactionData.contractAddress];
-      if (!abi) {
-        if (!isABIRequestFailed.value) {
-          throw "contract_not_verified";
-        }
-        throw "contract_request_failed";
+
+      // Check for request failures first
+      if (isABIRequestFailed.value) {
+        throw new Error("contract_request_failed");
       }
-      let method = abi ? decodeDataWithABI(transactionData, abi) : undefined;
+
+      const contractAbi = ABICollection.value[transactionData.contractAddress];
+
+      // Try to decode with contract's own ABI first if available
+      let method: TransactionData["method"] | undefined;
+      if (contractAbi) {
+        method = decodeDataWithABI(transactionData, contractAbi);
+      }
+
+      // Only get proxy info if we don't have a contract ABI or if decoding failed
       if (!method) {
         const proxyInfo = await getContractProxyInfo(transactionData.contractAddress);
-        method = proxyInfo?.implementation.verificationInfo
-          ? decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.artifacts.abi)
-          : undefined;
+
+        // Try with proxy implementation if available
+        if (proxyInfo?.implementation.verificationInfo) {
+          method = decodeDataWithABI(transactionData, proxyInfo.implementation.verificationInfo.abi);
+        }
       }
-      if (abi && !method) {
+
+      // If we still couldn't decode, try to get signature from OpenChain
+      if (!method) {
+        const signatureMap = await fetchMethodNames([transactionData.sighash]);
+        const signature = signatureMap[transactionData.sighash];
+
+        if (signature) {
+          // We found a signature, but can't decode parameter values without ABI
+          const parsedSig = parseFunctionSignature(signature);
+          if (parsedSig) {
+            data.value = {
+              ...transactionData,
+              signature,
+              isPartialDecoding: true,
+              method: {
+                name: parsedSig.name,
+                inputs: parsedSig.inputs.map((input) => ({
+                  ...input,
+                  value: "Unable to decode without ABI",
+                  inputs: [],
+                  encodedValue: "",
+                })),
+              },
+            };
+            decodingError.value = "signature_decode_limited";
+            return;
+          }
+        }
+
+        // No signature found or parsing failed - contract not verified
         throw new Error("data_decode_failed");
       }
+
       data.value = {
         ...transactionData,
         method,
       };
     } catch (error) {
-      decodingError.value = (error as Error)?.toString().replace(/^Error: /, "") || "unknown_error";
+      decodingError.value = (error as Error)?.message || "unknown_error";
       data.value = transactionData;
     } finally {
       isDecodePending.value = false;

@@ -1,6 +1,7 @@
 .env
 junit.xml
 e2e-junit.xml
+prividium-e2e-junit.xml
 
 # compiled output
 yarn.lock

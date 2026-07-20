@@ -1,13 +1,13 @@
 import { Test } from "@nestjs/testing";
 import { mock } from "jest-mock-extended";
 import { BadRequestException, Logger } from "@nestjs/common";
-import { L2_ETH_TOKEN_ADDRESS } from "../../common/constants";
+import { BASE_TOKEN_L2_ADDRESS } from "../../common/constants";
 import { BlockService } from "../../block/block.service";
 import { BlockDetails } from "../../block/blockDetails.entity";
 import { TransactionService } from "../../transaction/transaction.service";
 import { BalanceService } from "../../balance/balance.service";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { AddressTransaction } from "../../transaction/entities/addressTransaction.entity";
+import { Transaction } from "../../transaction/entities/transaction.entity";
 import { TokenType } from "../../token/token.entity";
 import { Transfer } from "../../transfer/transfer.entity";
 import { TransferService } from "../../transfer/transfer.service";
@@ -23,35 +23,29 @@ describe("AccountController", () => {
   let balanceServiceMock: BalanceService;
 
   const address = "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C";
-  const addressTransaction = {
-    transaction: {
-      blockNumber: 20,
-      receivedAt: new Date("2023-01-01"),
-      hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
-      nonce: 1,
-      blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-      transactionIndex: 10,
-      from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-      to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
-      value: "1000000",
-      gasLimit: "1100000",
-      gasPrice: "100",
-      status: TransactionStatus.Failed,
-      receiptStatus: 1,
-      data: "0x",
-      fee: "0x0",
-      commitTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b1",
-      proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",
-      executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
-      isL1Originated: true,
-      l1BatchNumber: 3,
-      transactionReceipt: {
-        contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
-        cumulativeGasUsed: "1200000",
-        gasUsed: "900000",
-      },
-      type: 255,
+  const transaction = {
+    blockNumber: 20,
+    receivedAt: new Date("2023-01-01"),
+    hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
+    nonce: 1,
+    blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
+    transactionIndex: 10,
+    from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
+    value: "1000000",
+    gasLimit: "1100000",
+    gasPrice: "100",
+    status: TransactionStatus.Failed,
+    receiptStatus: 1,
+    data: "0x",
+    fee: "0x0",
+    isL1Originated: true,
+    transactionReceipt: {
+      contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+      cumulativeGasUsed: "1200000",
+      gasUsed: "900000",
     },
+    type: 255,
   };
 
   const ecr20Transfer = {
@@ -83,11 +77,7 @@ describe("AccountController", () => {
       receiptStatus: 1,
       data: "0x",
       fee: "0x0",
-      commitTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b1",
-      proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",
-      executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
       isL1Originated: true,
-      l1BatchNumber: 3,
       transactionReceipt: {
         contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
         cumulativeGasUsed: "1200000",
@@ -118,6 +108,22 @@ describe("AccountController", () => {
     });
     balanceServiceMock = mock<BalanceService>({
       getBalance: jest.fn().mockResolvedValue("1000"),
+      getBalances: jest.fn().mockResolvedValue({
+        balances: {
+          "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C": {
+            balance: "20000",
+            token: {
+              l2Address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+              number: 1,
+              symbol: "TKN",
+              name: "Token",
+              decimals: 18,
+              blockNumber: 50,
+              logIndex: 100,
+            },
+          },
+        },
+      }),
       getBalancesByAddresses: jest.fn().mockResolvedValue([
         {
           address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -206,7 +212,7 @@ describe("AccountController", () => {
     });
 
     it("returns transactions list when transactions are found by address", async () => {
-      jest.spyOn(transactionServiceMock, "findByAddress").mockResolvedValue([addressTransaction as AddressTransaction]);
+      jest.spyOn(transactionServiceMock, "findByAddress").mockResolvedValue([transaction as Transaction]);
 
       const response = await controller.getAccountTransactions(
         address,
@@ -224,11 +230,9 @@ describe("AccountController", () => {
           {
             blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
             blockNumber: "20",
-            commitTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b1",
             confirmations: "80",
             contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
             cumulativeGasUsed: "1200000",
-            executeTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b3",
             fee: "0",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             functionName: "",
@@ -239,10 +243,8 @@ describe("AccountController", () => {
             input: "0x",
             isError: "1",
             isL1Originated: "1",
-            l1BatchNumber: "3",
             methodId: "0x",
             nonce: "1",
-            proveTxHash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b2",
             timeStamp: "1672531200",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
             transactionIndex: "10",
@@ -328,7 +330,6 @@ describe("AccountController", () => {
             hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
             input: "",
             isError: "1",
-            l1BatchNumber: "3",
             timeStamp: "1672531200",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
             traceId: "0",
@@ -431,7 +432,6 @@ describe("AccountController", () => {
             gasUsed: "900000",
             hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
             input: "0x",
-            l1BatchNumber: "3",
             nonce: "1",
             timeStamp: "1672531200",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
@@ -537,7 +537,6 @@ describe("AccountController", () => {
             gasUsed: "900000",
             hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
             input: "0x",
-            l1BatchNumber: "3",
             nonce: "1",
             timeStamp: "1672531200",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
@@ -557,7 +556,7 @@ describe("AccountController", () => {
   describe("getAccountEtherBalance", () => {
     it("calls balanceService.getBalance and returns account ether balance", async () => {
       const response = await controller.getAccountEtherBalance(address);
-      expect(balanceServiceMock.getBalance).toBeCalledWith(address, L2_ETH_TOKEN_ADDRESS);
+      expect(balanceServiceMock.getBalance).toBeCalledWith(address, BASE_TOKEN_L2_ADDRESS);
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,
@@ -578,6 +577,52 @@ describe("AccountController", () => {
     });
   });
 
+  describe("getAccountTokenHoldings", () => {
+    it("calls balanceService.getBalances and returns account token holdings", async () => {
+      const response = await controller.getAccountTokenHoldings(address);
+      expect(balanceServiceMock.getBalances).toBeCalledWith(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          {
+            TokenAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+            TokenName: "Token",
+            TokenSymbol: "TKN",
+            TokenQuantity: "20000",
+            TokenDivisor: "18",
+          },
+        ],
+      });
+    });
+
+    it("sets empty string value for token fields if token is missing", async () => {
+      jest.spyOn(balanceServiceMock, "getBalances").mockResolvedValueOnce({
+        balances: {
+          "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C": {
+            balance: "20000",
+          },
+        },
+        blockNumber: 0,
+      });
+      const response = await controller.getAccountTokenHoldings(address);
+      expect(balanceServiceMock.getBalances).toBeCalledWith(address);
+      expect(response).toEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          {
+            TokenAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+            TokenName: "",
+            TokenSymbol: "",
+            TokenQuantity: "20000",
+            TokenDivisor: "",
+          },
+        ],
+      });
+    });
+  });
+
   describe("getAccountsEtherBalances", () => {
     it("throws error when called with more than 20 addresses", async () => {
       const addresses = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21".split(",");
@@ -588,7 +633,7 @@ describe("AccountController", () => {
 
     it("calls balanceService.getBalancesByAddresses and returns accounts ether balances", async () => {
       const response = await controller.getAccountsEtherBalances([address, "address2"]);
-      expect(balanceServiceMock.getBalancesByAddresses).toBeCalledWith([address, "address2"], L2_ETH_TOKEN_ADDRESS);
+      expect(balanceServiceMock.getBalancesByAddresses).toBeCalledWith([address, "address2"], BASE_TOKEN_L2_ADDRESS);
       expect(response).toEqual({
         status: ResponseStatus.OK,
         message: ResponseMessage.OK,

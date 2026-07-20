@@ -7,6 +7,7 @@ import { normalizeAddressTransformer } from "../common/transformers/normalizeAdd
 
 @Entity({ name: "addressTransfers" })
 @Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
+@Index(["address", "tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
 @Index(["address", "type", "timestamp", "logIndex"])
 @Index(["address", "tokenType", "blockNumber", "logIndex"])
 @Index(["address", "tokenAddress", "blockNumber", "logIndex"])
@@ -38,7 +39,7 @@ export class AddressTransfer extends BaseEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
-  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.BaseToken })
   public readonly tokenType: TokenType;
 
   @Column({ type: "boolean" })

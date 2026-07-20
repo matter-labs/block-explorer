@@ -35,4 +35,19 @@ describe("CodeBlock", () => {
     await wrapper.find(".expand-button").trigger("click");
     expect(wrapper.findComponent(SolidityEditor).props().expanded).toBe(true);
   });
+  it("renders bold label", () => {
+    const wrapper = mount(CodeBlock, {
+      global: {
+        stubs: ["CopyButton"],
+      },
+      props: {
+        label: "Test label",
+        code: "some code",
+        labelBold: true,
+      },
+    });
+    expect(wrapper.find(".code-block-label.bold").text()).toBe("Test label");
+    expect(wrapper.findComponent(SolidityEditor).props().modelValue).toBe("some code");
+    expect(wrapper.findComponent(CopyButton).props().value).toBe("some code");
+  });
 });

@@ -23,9 +23,8 @@
         "0x0000000000000000000000000000000000000000000000000000000000008001"
       ],
       "data": "0x0000000000000000000000000000000000000000000000000000b782effd8200",
-      "logIndex": 0,
-      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac",
-      "l1BatchNumber": 91911
+      "index": 0,
+      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac"
     },
     {
       "transactionIndex": 0,
@@ -38,9 +37,8 @@
         "0x39f8871fd3306b7a3bc2827a71f5b1344f8fa6a08d09fbcfbbb9c030566c926c"
       ],
       "data": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000386c0960f9c62a6e5d98b3a0de9ec4a930fbb354443e92e9e000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "logIndex": 1,
-      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac",
-      "l1BatchNumber": 91911
+      "index": 1,
+      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac"
     },
     {
       "transactionIndex": 0,
@@ -53,9 +51,8 @@
         "0x000000000000000000000000c62a6e5d98b3a0de9ec4a930fbb354443e92e9e0"
       ],
       "data": "0x0000000000000000000000000000000000000000000000000000000000000000",
-      "logIndex": 2,
-      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac",
-      "l1BatchNumber": 91911
+      "index": 2,
+      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac"
     },
     {
       "transactionIndex": 0,
@@ -68,9 +65,8 @@
         "0x000000000000000000000000fb7e0856e44eff812a44a9f47733d7d55c39aa28"
       ],
       "data": "0x000000000000000000000000000000000000000000000000000071e06f110780",
-      "logIndex": 3,
-      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac",
-      "l1BatchNumber": 91911
+      "index": 3,
+      "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac"
     }
   ],
   "blockNumber": 7508823,
@@ -85,13 +81,10 @@
   },
   "status": 1,
   "type": 0,
-  "l1BatchNumber": 91911,
-  "l1BatchTxIndex": 322,
   "l2ToL1Logs": [
     {
       "blockNumber": 7508823,
       "blockHash": "0x9106c0fcc2b15a1184b37da5406e4599f467e95e466fb87244e201d2e5bc3eac",
-      "l1BatchNumber": 91911,
       "transactionIndex": 0,
       "shardId": 0,
       "isService": true,
@@ -99,7 +92,7 @@
       "key": "0x000000000000000000000000000000000000000000000000000000000000800a",
       "value": "0x39f8871fd3306b7a3bc2827a71f5b1344f8fa6a08d09fbcfbbb9c030566c926c",
       "transactionHash": "0x6424dd7b1d52f9d8f6ea8300f1bf1eab65246f71f00fd3197e49c6423c9a59bf",
-      "logIndex": 0
+      "index": 0
     }
   ],
   "byzantium": true

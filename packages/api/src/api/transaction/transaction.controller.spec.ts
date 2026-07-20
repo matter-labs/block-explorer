@@ -3,8 +3,7 @@ import { mock } from "jest-mock-extended";
 import { Logger } from "@nestjs/common";
 import { TransactionService } from "../../transaction/transaction.service";
 import { TransactionReceiptService } from "../../transaction/transactionReceipt.service";
-import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { TransactionDetails } from "../../transaction/entities/transactionDetails.entity";
+import { TransactionStatus, Transaction } from "../../transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../../transaction/entities/transactionReceipt.entity";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { TransactionController } from "./transaction.controller";
@@ -57,7 +56,7 @@ describe("TransactionController", () => {
     it("returns isError as 0 when transaction is successful", async () => {
       jest
         .spyOn(transactionServiceMock, "findOne")
-        .mockResolvedValue({ status: TransactionStatus.Included } as TransactionDetails);
+        .mockResolvedValue({ status: TransactionStatus.Included } as Transaction);
 
       const response = await controller.getTransactionStatus(transactionHash);
       expect(response).toEqual({
@@ -73,7 +72,7 @@ describe("TransactionController", () => {
     it("returns isError as 1 when transaction is failed", async () => {
       jest
         .spyOn(transactionServiceMock, "findOne")
-        .mockResolvedValue({ status: TransactionStatus.Failed } as TransactionDetails);
+        .mockResolvedValue({ status: TransactionStatus.Failed } as Transaction);
 
       const response = await controller.getTransactionStatus(transactionHash);
       expect(response).toEqual({
@@ -91,7 +90,7 @@ describe("TransactionController", () => {
         status: TransactionStatus.Failed,
         error: "Error",
         revertReason: "Reverted",
-      } as TransactionDetails);
+      } as Transaction);
 
       const response = await controller.getTransactionStatus(transactionHash);
       expect(response).toEqual({
@@ -107,7 +106,7 @@ describe("TransactionController", () => {
     it("returns transaction revert reason in errDescription when transaction is failed and transaction revert reason is present", async () => {
       jest
         .spyOn(transactionServiceMock, "findOne")
-        .mockResolvedValue({ status: TransactionStatus.Failed, revertReason: "Reverted" } as TransactionDetails);
+        .mockResolvedValue({ status: TransactionStatus.Failed, revertReason: "Reverted" } as Transaction);
 
       const response = await controller.getTransactionStatus(transactionHash);
       expect(response).toEqual({
@@ -123,7 +122,7 @@ describe("TransactionController", () => {
     it("returns empty errDescription when transaction is failed and transaction error and revert reason are not present", async () => {
       jest
         .spyOn(transactionServiceMock, "findOne")
-        .mockResolvedValue({ status: TransactionStatus.Failed } as TransactionDetails);
+        .mockResolvedValue({ status: TransactionStatus.Failed } as Transaction);
 
       const response = await controller.getTransactionStatus(transactionHash);
       expect(response).toEqual({

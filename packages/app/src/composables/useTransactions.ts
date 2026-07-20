@@ -5,11 +5,10 @@ import type { ComputedRef } from "vue";
 
 export type TransactionListItem = Api.Response.Transaction;
 export type TransactionSearchParams = {
-  l1BatchNumber?: number;
   blockNumber?: number;
   address?: string;
-  fromDate?: string;
-  toDate?: string;
+  fromBlock?: number;
+  toBlock?: number;
 };
 
 export default (searchParams: ComputedRef<TransactionSearchParams>, context = useContext()) => {

@@ -1,22 +1,24 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
-import * as request from "supertest";
+import request from "supertest";
 import { Repository } from "typeorm";
-import { BigNumber } from "ethers";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { Token, TokenType } from "../src/token/token.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
+import { BlockStatus } from "../src/block/block.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
-import { ETH_TOKEN } from "../src/token/token.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { Log } from "../src/log/log.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { baseToken } from "../src/config";
+import { numberToHex, computeFromToMinMax } from "../src/common/utils";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("TransactionController (e2e)", () => {
+  let ETH_TOKEN;
   let app: INestApplication;
   let tokenRepository: Repository<Token>;
   let blockRepository: Repository<BlockDetails>;
@@ -25,18 +27,21 @@ describe("TransactionController (e2e)", () => {
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transferRepository: Repository<Transfer>;
   let logRepository: Repository<Log>;
-  let batchRepository: Repository<BatchDetails>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.build()],
     }).compile();
-
+    ETH_TOKEN = baseToken;
     app = moduleFixture.createNestApplication({ logger: false });
 
     configureApp(app);
 
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 9 });
 
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
@@ -45,29 +50,15 @@ describe("TransactionController (e2e)", () => {
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
-
-    for (let i = 0; i < 10; i++) {
-      const isCommitted = i > 2 && i < 9;
-      const isProved = i > 4 && i < 9;
-      const isExecuted = i > 6 && i < 9;
-      await batchRepository.insert({
-        number: i,
-        timestamp: new Date("2022-11-10T14:44:08.000Z"),
-        l1TxCount: i * 10,
-        l2TxCount: i * 20,
-        l1GasPrice: "10000000",
-        l2FairGasPrice: "20000000",
-        commitTxHash: isCommitted ? `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa${i}` : null,
-        committedAt: isCommitted ? new Date("2022-11-10T14:44:08.000Z") : null,
-        proveTxHash: isProved ? `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac${i}` : null,
-        provenAt: isProved ? new Date("2022-11-10T14:44:08.000Z") : null,
-        executeTxHash: isExecuted ? `0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab${i}` : null,
-        executedAt: isExecuted ? new Date("2022-11-10T14:44:08.000Z") : null,
-      });
-    }
 
     for (let i = 0; i <= 9; i++) {
+      let status = BlockStatus.Sealed;
+      if (i > 2 && i <= 5) {
+        status = BlockStatus.Committed;
+      }
+      if (i > 5) {
+        status = BlockStatus.Executed;
+      }
       await blockRepository.insert({
         number: i,
         hash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
@@ -78,8 +69,8 @@ describe("TransactionController (e2e)", () => {
         extraData: "0x",
         l1TxCount: 1,
         l2TxCount: 1,
-        l1BatchNumber: i,
         miner: "0x0000000000000000000000000000000000000000",
+        status,
       });
     }
 
@@ -104,7 +95,6 @@ describe("TransactionController (e2e)", () => {
         transactionIndex: 3233070 + i,
         blockNumber: 0,
         receivedAt: `2010-11-21T18:16:0${i}.000Z`,
-        l1BatchNumber: 0,
         receiptStatus: 0,
       };
       await transactionRepository.insert(transactionSpec);
@@ -127,13 +117,12 @@ describe("TransactionController (e2e)", () => {
         transactionIndex: 3233097 + i,
         blockNumber: i < 3 ? 1 : i,
         receivedAt: `2022-11-21T18:16:0${i}.000Z`,
-        l1BatchNumber: i < 3 ? 1 : i,
         receiptStatus: i < 9 ? 1 : 0,
-        gasPrice: BigNumber.from(1000 + i).toString(),
-        gasLimit: BigNumber.from(2000 + i).toString(),
-        maxFeePerGas: BigNumber.from(3000 + i).toString(),
-        maxPriorityFeePerGas: BigNumber.from(4000 + i).toString(),
-        gasPerPubdata: BigNumber.from(5000 + i).toHexString(),
+        gasPrice: BigInt(1000 + i).toString(),
+        gasLimit: BigInt(2000 + i).toString(),
+        maxFeePerGas: BigInt(3000 + i).toString(),
+        maxPriorityFeePerGas: BigInt(4000 + i).toString(),
+        gasPerPubdata: numberToHex(BigInt(5000 + i)),
       };
       await transactionRepository.insert(transactionSpec);
 
@@ -153,6 +142,7 @@ describe("TransactionController (e2e)", () => {
         status: 1,
         gasUsed: (7000 + i).toString(),
         cumulativeGasUsed: (10000 + i).toString(),
+        blockNumber: transactionSpec.blockNumber,
       });
     }
 
@@ -203,11 +193,15 @@ describe("TransactionController (e2e)", () => {
       await transferRepository.insert({
         from: "0x0000000000000000000000000000000000008007",
         to: "0x52312ad6f01657413b2eae9287f6b9adad93d5fd",
+        ...computeFromToMinMax(
+          "0x0000000000000000000000000000000000008007",
+          "0x52312ad6f01657413b2eae9287f6b9adad93d5fd"
+        ),
         blockNumber: 0,
         transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
         tokenAddress:
           i % 2 ? "0xd754ff5e8a6f257e162f72578a4bb0493c068101" : "0x000000000000000000000000000000000000800a",
-        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.BaseToken,
         amount: "2000",
         type,
         logIndex: i,
@@ -220,14 +214,14 @@ describe("TransactionController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await logRepository.delete({});
-    await transferRepository.delete({});
-    await tokenRepository.delete({});
-    await addressTransactionRepository.delete({});
-    await transactionRepository.delete({});
-    await transactionReceiptRepository.delete({});
-    await blockRepository.delete({});
-    await batchRepository.delete({});
+    await indexerStateRepository.createQueryBuilder().delete().execute();
+    await logRepository.createQueryBuilder().delete().execute();
+    await transferRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });
@@ -254,24 +248,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 9,
-              commitTxHash: null,
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2009",
               gasPrice: "1009",
+              gasUsed: "7009",
               gasPerPubdata: "5009",
               maxFeePerGas: "3009",
               maxPriorityFeePerGas: "4009",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e19",
-              isL1BatchSealed: false,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 9,
               nonce: 42,
-              proveTxHash: null,
               receivedAt: "2022-11-21T18:16:09.000Z",
               status: "failed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -282,24 +273,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 8,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa8",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab8",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2008",
               gasPrice: "1008",
+              gasUsed: "7008",
               gasPerPubdata: "5008",
               maxFeePerGas: "3008",
               maxPriorityFeePerGas: "4008",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 8,
               nonce: 42,
-              proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac8",
               receivedAt: "2022-11-21T18:16:08.000Z",
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -310,24 +298,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 7,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa7",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab7",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2007",
               gasPrice: "1007",
+              gasUsed: "7007",
               gasPerPubdata: "5007",
               maxFeePerGas: "3007",
               maxPriorityFeePerGas: "4007",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 7,
               nonce: 42,
-              proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac7",
               receivedAt: "2022-11-21T18:16:07.000Z",
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -338,26 +323,23 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 6,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa6",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2006",
               gasPrice: "1006",
+              gasUsed: "7006",
               gasPerPubdata: "5006",
               maxFeePerGas: "3006",
               maxPriorityFeePerGas: "4006",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 6,
               nonce: 42,
-              proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac6",
               receivedAt: "2022-11-21T18:16:06.000Z",
-              status: "proved",
+              status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
               type: 255,
@@ -366,26 +348,23 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 5,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa5",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2005",
               gasPrice: "1005",
+              gasUsed: "7005",
               gasPerPubdata: "5005",
               maxFeePerGas: "3005",
               maxPriorityFeePerGas: "4005",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 5,
               nonce: 42,
-              proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac5",
               receivedAt: "2022-11-21T18:16:05.000Z",
-              status: "proved",
+              status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233102,
               type: 255,
@@ -394,24 +373,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 4,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa4",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasPrice: "1004",
+              gasUsed: "7004",
               gasLimit: "2004",
               gasPerPubdata: "5004",
               maxFeePerGas: "3004",
               maxPriorityFeePerGas: "4004",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e14",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 4,
               nonce: 42,
-              proveTxHash: null,
               receivedAt: "2022-11-21T18:16:04.000Z",
               status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -422,24 +398,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 3,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa3",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2003",
               gasPrice: "1003",
+              gasUsed: "7003",
               gasPerPubdata: "5003",
               maxFeePerGas: "3003",
               maxPriorityFeePerGas: "4003",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e13",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 3,
               nonce: 42,
-              proveTxHash: null,
               receivedAt: "2022-11-21T18:16:03.000Z",
               status: "committed",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -450,24 +423,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 1,
-              commitTxHash: null,
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasPrice: "1002",
+              gasUsed: "7002",
               gasLimit: "2002",
               gasPerPubdata: "5002",
               maxFeePerGas: "3002",
               maxPriorityFeePerGas: "4002",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e12",
-              isL1BatchSealed: false,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 1,
               nonce: 42,
-              proveTxHash: null,
               receivedAt: "2022-11-21T18:16:02.000Z",
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -478,24 +448,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 1,
-              commitTxHash: null,
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasPrice: "1001",
+              gasUsed: "7001",
               gasLimit: "2001",
               gasPerPubdata: "5001",
               maxFeePerGas: "3001",
               maxPriorityFeePerGas: "4001",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-              isL1BatchSealed: false,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 1,
               nonce: 42,
-              proveTxHash: null,
               receivedAt: "2022-11-21T18:16:01.000Z",
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -506,24 +473,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 1,
-              commitTxHash: null,
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2000",
               gasPrice: "1000",
+              gasUsed: "7000",
               gasPerPubdata: "5000",
               maxFeePerGas: "3000",
               maxPriorityFeePerGas: "4000",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
-              isL1BatchSealed: false,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 1,
               nonce: 42,
-              proveTxHash: null,
               receivedAt: "2022-11-21T18:16:00.000Z",
               status: "included",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -535,33 +499,30 @@ describe("TransactionController (e2e)", () => {
         );
     });
 
-    it("returns HTTP 200 and transactions for the specified paging configuration with date filters", () => {
+    it("returns HTTP 200 and transactions for the specified paging configuration with block range filters", () => {
       return request(app.getHttpServer())
-        .get("/transactions?page=1&limit=3&fromDate=2022-11-21T18:16:01.000Z&toDate=2022-11-21T18:16:08.000Z")
+        .get("/transactions?page=1&limit=3&fromBlock=1&toBlock=8")
         .expect(200)
         .expect((res) =>
           expect(res.body.items).toStrictEqual([
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 8,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa8",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab8",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2008",
               gasPrice: "1008",
+              gasUsed: "7008",
               gasPerPubdata: "5008",
               maxFeePerGas: "3008",
               maxPriorityFeePerGas: "4008",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 8,
               nonce: 42,
-              proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac8",
               receivedAt: "2022-11-21T18:16:08.000Z",
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -572,24 +533,21 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 7,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa7",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab7",
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2007",
               gasPrice: "1007",
+              gasUsed: "7007",
               gasPerPubdata: "5007",
               maxFeePerGas: "3007",
               maxPriorityFeePerGas: "4007",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 7,
               nonce: 42,
-              proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac7",
               receivedAt: "2022-11-21T18:16:07.000Z",
               status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -600,26 +558,23 @@ describe("TransactionController (e2e)", () => {
             {
               blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
               blockNumber: 6,
-              commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa6",
               data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
               error: null,
               revertReason: null,
-              executeTxHash: null,
               fee: "0x2386f26fc10000",
               from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               gasLimit: "2006",
               gasPrice: "1006",
+              gasUsed: "7006",
               gasPerPubdata: "5006",
               maxFeePerGas: "3006",
               maxPriorityFeePerGas: "4006",
               hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
-              isL1BatchSealed: true,
+              contractAddress: null,
               isL1Originated: true,
-              l1BatchNumber: 6,
               nonce: 42,
-              proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac6",
               receivedAt: "2022-11-21T18:16:06.000Z",
-              status: "proved",
+              status: "verified",
               to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
               transactionIndex: 3233103,
               type: 255,
@@ -644,16 +599,16 @@ describe("TransactionController (e2e)", () => {
         );
     });
 
-    it("returns HTTP 200 and populated paging metadata for request with date filters", () => {
+    it("returns HTTP 200 and populated paging metadata for request with block range filters", () => {
       return request(app.getHttpServer())
-        .get("/transactions?page=2&limit=3&fromDate=2022-11-21T18:16:01.000Z&toDate=2022-11-21T18:16:08.000Z")
+        .get("/transactions?page=2&limit=3&fromBlock=1&toBlock=8")
         .expect(200)
         .expect((res) =>
           expect(res.body.meta).toStrictEqual({
             currentPage: 2,
             itemCount: 3,
             itemsPerPage: 3,
-            totalItems: 8,
+            totalItems: 9,
             totalPages: 3,
           })
         );
@@ -661,68 +616,14 @@ describe("TransactionController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging links", () => {
       return request(app.getHttpServer())
-        .get("/transactions?page=2&limit=3&fromDate=2022-11-21T18:16:01.000Z&toDate=2022-11-21T18:16:08.000Z")
+        .get("/transactions?page=2&limit=3&fromBlock=1&toBlock=8")
         .expect(200)
         .expect((res) =>
           expect(res.body.links).toStrictEqual({
-            first: "transactions?limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
-            last: "transactions?page=3&limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
-            next: "transactions?page=3&limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
-            previous:
-              "transactions?page=1&limit=3&fromDate=2022-11-21T18%3A16%3A01.000Z&toDate=2022-11-21T18%3A16%3A08.000Z",
-          })
-        );
-    });
-
-    it("returns HTTP 200 and transactions for the specified L1 batch number", () => {
-      return request(app.getHttpServer())
-        .get("/transactions?l1BatchNumber=1&page=2&limit=1")
-        .expect(200)
-        .expect((res) =>
-          expect(res.body).toStrictEqual({
-            items: [
-              {
-                blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
-                blockNumber: 1,
-                commitTxHash: null,
-                data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                error: null,
-                revertReason: null,
-                executeTxHash: null,
-                fee: "0x2386f26fc10000",
-                from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                gasLimit: "2001",
-                gasPrice: "1001",
-                gasPerPubdata: "5001",
-                maxFeePerGas: "3001",
-                maxPriorityFeePerGas: "4001",
-                hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-                isL1BatchSealed: false,
-                isL1Originated: true,
-                l1BatchNumber: 1,
-                nonce: 42,
-                proveTxHash: null,
-                receivedAt: "2022-11-21T18:16:01.000Z",
-                status: "included",
-                to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-                transactionIndex: 3233098,
-                type: 255,
-                value: "0x2386f26fc10000",
-              },
-            ],
-            links: {
-              first: "transactions?limit=1&l1BatchNumber=1",
-              last: "transactions?page=3&limit=1&l1BatchNumber=1",
-              next: "transactions?page=3&limit=1&l1BatchNumber=1",
-              previous: "transactions?page=1&limit=1&l1BatchNumber=1",
-            },
-            meta: {
-              currentPage: 2,
-              itemCount: 1,
-              itemsPerPage: 1,
-              totalItems: 3,
-              totalPages: 3,
-            },
+            first: "transactions?limit=3&fromBlock=1&toBlock=8",
+            last: "transactions?page=3&limit=3&fromBlock=1&toBlock=8",
+            next: "transactions?page=3&limit=3&fromBlock=1&toBlock=8",
+            previous: "transactions?page=1&limit=3&fromBlock=1&toBlock=8",
           })
         );
     });
@@ -737,24 +638,21 @@ describe("TransactionController (e2e)", () => {
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
                 blockNumber: 1,
-                commitTxHash: null,
                 data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
                 error: null,
                 revertReason: null,
-                executeTxHash: null,
                 fee: "0x2386f26fc10000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 gasLimit: "2001",
                 gasPrice: "1001",
+                gasUsed: "7001",
                 gasPerPubdata: "5001",
                 maxFeePerGas: "3001",
                 maxPriorityFeePerGas: "4001",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-                isL1BatchSealed: false,
+                contractAddress: null,
                 isL1Originated: true,
-                l1BatchNumber: 1,
                 nonce: 42,
-                proveTxHash: null,
                 receivedAt: "2022-11-21T18:16:01.000Z",
                 status: "included",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -790,24 +688,21 @@ describe("TransactionController (e2e)", () => {
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
                 blockNumber: 7,
-                commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa7",
                 data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
                 error: null,
                 revertReason: null,
-                executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab7",
                 fee: "0x2386f26fc10000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 gasLimit: "2007",
                 gasPrice: "1007",
+                gasUsed: "7007",
                 gasPerPubdata: "5007",
                 maxFeePerGas: "3007",
                 maxPriorityFeePerGas: "4007",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e17",
-                isL1BatchSealed: true,
+                contractAddress: null,
                 isL1Originated: true,
-                l1BatchNumber: 7,
                 nonce: 42,
-                proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac7",
                 receivedAt: "2022-11-21T18:16:07.000Z",
                 status: "verified",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -818,26 +713,23 @@ describe("TransactionController (e2e)", () => {
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
                 blockNumber: 6,
-                commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa6",
                 data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
                 error: null,
                 revertReason: null,
-                executeTxHash: null,
                 fee: "0x2386f26fc10000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 gasLimit: "2006",
                 gasPrice: "1006",
+                gasUsed: "7006",
                 gasPerPubdata: "5006",
                 maxFeePerGas: "3006",
                 maxPriorityFeePerGas: "4006",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e16",
-                isL1BatchSealed: true,
+                contractAddress: null,
                 isL1Originated: true,
-                l1BatchNumber: 6,
                 nonce: 42,
-                proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac6",
                 receivedAt: "2022-11-21T18:16:06.000Z",
-                status: "proved",
+                status: "verified",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: 3233103,
                 type: 255,
@@ -881,20 +773,16 @@ describe("TransactionController (e2e)", () => {
       return request(app.getHttpServer()).get("/transactions?blockNumber=abc").expect(400);
     });
 
-    it("returns HTTP 400 if specified l1 batch number is not valid", () => {
-      return request(app.getHttpServer()).get("/transactions?l1BatchNumber=abc").expect(400);
-    });
-
     it("returns HTTP 400 if specified address is not valid", () => {
       return request(app.getHttpServer()).get("/transactions?address=abc").expect(400);
     });
 
-    it("returns HTTP 400 if toDate is not a valid ISO date", () => {
-      return request(app.getHttpServer()).get("/transactions?toDate=20000107").expect(400);
+    it("returns HTTP 400 if toBlock is not a valid integer", () => {
+      return request(app.getHttpServer()).get("/transactions?toBlock=abc").expect(400);
     });
 
-    it("returns HTTP 400 if fromDate is not a valid ISO date", () => {
-      return request(app.getHttpServer()).get("/transactions?fromDate=20000107").expect(400);
+    it("returns HTTP 400 if fromBlock is not a valid integer", () => {
+      return request(app.getHttpServer()).get("/transactions?fromBlock=abc").expect(400);
     });
   });
 
@@ -907,11 +795,9 @@ describe("TransactionController (e2e)", () => {
           expect(res.body).toStrictEqual({
             blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
             blockNumber: 8,
-            commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa8",
             data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
             error: null,
             revertReason: null,
-            executeTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ab8",
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2008",
@@ -921,11 +807,9 @@ describe("TransactionController (e2e)", () => {
             maxFeePerGas: "3008",
             maxPriorityFeePerGas: "4008",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e18",
-            isL1BatchSealed: true,
+            contractAddress: null,
             isL1Originated: true,
-            l1BatchNumber: 8,
             nonce: 42,
-            proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac8",
             receivedAt: "2022-11-21T18:16:08.000Z",
             status: "verified",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -944,11 +828,9 @@ describe("TransactionController (e2e)", () => {
           expect(res.body).toStrictEqual({
             blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
             blockNumber: 5,
-            commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa5",
             data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
             error: null,
             revertReason: null,
-            executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2005",
@@ -958,13 +840,11 @@ describe("TransactionController (e2e)", () => {
             maxFeePerGas: "3005",
             maxPriorityFeePerGas: "4005",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
-            isL1BatchSealed: true,
+            contractAddress: null,
             isL1Originated: true,
-            l1BatchNumber: 5,
             nonce: 42,
-            proveTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ac5",
             receivedAt: "2022-11-21T18:16:05.000Z",
-            status: "proved",
+            status: "committed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             transactionIndex: 3233102,
             type: 255,
@@ -981,11 +861,9 @@ describe("TransactionController (e2e)", () => {
           expect(res.body).toStrictEqual({
             blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
             blockNumber: 3,
-            commitTxHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5aa3",
             data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
             error: null,
             revertReason: null,
-            executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2003",
@@ -995,11 +873,9 @@ describe("TransactionController (e2e)", () => {
             maxFeePerGas: "3003",
             maxPriorityFeePerGas: "4003",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e13",
-            isL1BatchSealed: true,
+            contractAddress: null,
             isL1Originated: true,
-            l1BatchNumber: 3,
             nonce: 42,
-            proveTxHash: null,
             receivedAt: "2022-11-21T18:16:03.000Z",
             status: "committed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -1018,11 +894,9 @@ describe("TransactionController (e2e)", () => {
           expect(res.body).toStrictEqual({
             blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
             blockNumber: 1,
-            commitTxHash: null,
             data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
             error: null,
             revertReason: null,
-            executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2000",
@@ -1032,11 +906,9 @@ describe("TransactionController (e2e)", () => {
             maxFeePerGas: "3000",
             maxPriorityFeePerGas: "4000",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
-            isL1BatchSealed: true,
+            contractAddress: null,
             isL1Originated: true,
-            l1BatchNumber: 1,
             nonce: 42,
-            proveTxHash: null,
             receivedAt: "2022-11-21T18:16:00.000Z",
             status: "included",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -1055,11 +927,9 @@ describe("TransactionController (e2e)", () => {
           expect(res.body).toStrictEqual({
             blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
             blockNumber: 9,
-            commitTxHash: null,
             data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
             error: null,
             revertReason: null,
-            executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2009",
@@ -1069,11 +939,9 @@ describe("TransactionController (e2e)", () => {
             maxFeePerGas: "3009",
             maxPriorityFeePerGas: "4009",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e19",
-            isL1BatchSealed: true,
+            contractAddress: null,
             isL1Originated: true,
-            l1BatchNumber: 9,
             nonce: 42,
-            proveTxHash: null,
             receivedAt: "2022-11-21T18:16:09.000Z",
             status: "failed",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -1092,11 +960,9 @@ describe("TransactionController (e2e)", () => {
           expect(res.body).toStrictEqual({
             blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
             blockNumber: 1,
-            commitTxHash: null,
             data: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
             error: null,
             revertReason: null,
-            executeTxHash: null,
             fee: "0x2386f26fc10000",
             from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
             gasLimit: "2000",
@@ -1106,11 +972,9 @@ describe("TransactionController (e2e)", () => {
             maxFeePerGas: "3000",
             maxPriorityFeePerGas: "4000",
             hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
-            isL1BatchSealed: true,
+            contractAddress: null,
             isL1Originated: true,
-            l1BatchNumber: 1,
             nonce: 42,
-            proveTxHash: null,
             receivedAt: "2022-11-21T18:16:00.000Z",
             status: "included",
             to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
@@ -1173,8 +1037,9 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1198,6 +1063,7 @@ describe("TransactionController (e2e)", () => {
               type: "transfer",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1219,8 +1085,9 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "withdrawal",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1244,6 +1111,7 @@ describe("TransactionController (e2e)", () => {
               type: "fee",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1265,8 +1133,9 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "mint",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1290,6 +1159,7 @@ describe("TransactionController (e2e)", () => {
               type: "refund",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1311,8 +1181,9 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "deposit",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1336,6 +1207,7 @@ describe("TransactionController (e2e)", () => {
               type: "deposit",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: "2000",
@@ -1357,8 +1229,9 @@ describe("TransactionController (e2e)", () => {
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
               type: "transfer",
-              tokenType: "ETH",
+              tokenType: "BASETOKEN",
               isInternal: false,
+              chainId: null,
             },
           ])
         );
@@ -1425,8 +1298,9 @@ describe("TransactionController (e2e)", () => {
                 tokenAddress: "0x000000000000000000000000000000000000800A",
                 transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e10",
                 type: "deposit",
-                tokenType: "ETH",
+                tokenType: "BASETOKEN",
                 isInternal: false,
+                chainId: null,
               },
             ],
             links: {

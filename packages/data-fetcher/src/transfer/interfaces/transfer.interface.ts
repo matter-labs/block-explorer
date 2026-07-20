@@ -1,9 +1,8 @@
-import { BigNumber } from "ethers";
 import { TransferType } from "../transfer.service";
 import { TokenType } from "../../token/token.service";
 
 export interface TransferFields {
-  tokenId?: BigNumber;
+  tokenId?: bigint;
 }
 
 export interface Transfer {
@@ -13,7 +12,7 @@ export interface Transfer {
   transactionIndex: number;
   timestamp: Date;
   blockNumber: number;
-  amount: BigNumber;
+  amount: bigint;
   tokenAddress: string;
   type: TransferType;
   tokenType: TokenType;
@@ -21,4 +20,5 @@ export interface Transfer {
   logIndex: number;
   fields?: TransferFields;
   isInternal?: boolean;
+  chainId?: string;
 }

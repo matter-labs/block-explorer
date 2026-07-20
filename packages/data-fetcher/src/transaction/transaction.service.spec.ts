@@ -1,15 +1,20 @@
 import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-web3";
-import { BlockchainService, TraceTransactionResult } from "../blockchain";
-import { TransactionService } from "./transaction.service";
+import { TransactionReceipt, TransactionResponse, Block, Log } from "ethers";
+import { BlockchainService, TransactionTrace } from "../blockchain";
+import { TransactionService, TransactionTracesService, ContractAddress, TransactionTraceData } from "./";
 import { LogService } from "../log";
+import { Token } from "../token/token.service";
+import { Transfer } from "../transfer/interfaces/transfer.interface";
+import { BalanceService } from "../balance/balance.service";
 
 describe("TransactionService", () => {
-  let transactionProcessor: TransactionService;
+  let transactionService: TransactionService;
   let blockchainServiceMock: BlockchainService;
+  let transactionTracesServiceMock: TransactionTracesService;
   let logServiceMock: LogService;
+  let balanceServiceMock: BalanceService;
 
   let startTxProcessingDurationMetricMock: jest.Mock;
   let stopTxProcessingDurationMetricMock: jest.Mock;
@@ -20,6 +25,8 @@ describe("TransactionService", () => {
   beforeEach(async () => {
     blockchainServiceMock = mock<BlockchainService>();
     logServiceMock = mock<LogService>();
+    transactionTracesServiceMock = mock<TransactionTracesService>();
+    balanceServiceMock = mock<BalanceService>();
 
     stopTxProcessingDurationMetricMock = jest.fn();
     startTxProcessingDurationMetricMock = jest.fn().mockReturnValue(stopTxProcessingDurationMetricMock);
@@ -35,8 +42,16 @@ describe("TransactionService", () => {
           useValue: blockchainServiceMock,
         },
         {
+          provide: TransactionTracesService,
+          useValue: transactionTracesServiceMock,
+        },
+        {
           provide: LogService,
           useValue: logServiceMock,
+        },
+        {
+          provide: BalanceService,
+          useValue: balanceServiceMock,
         },
         {
           provide: "PROM_METRIC_TRANSACTION_PROCESSING_DURATION_SECONDS",
@@ -55,145 +70,248 @@ describe("TransactionService", () => {
 
     app.useLogger(mock<Logger>());
 
-    transactionProcessor = app.get<TransactionService>(TransactionService);
+    transactionService = app.get<TransactionService>(TransactionService);
   });
 
   describe("getData", () => {
-    const blockDetails = mock<types.BlockDetails>({
+    const trace = {} as TransactionTrace;
+    const blockHash = "0xblockhash";
+    const blockDetails = mock<Block>({
       number: 1,
-      l1BatchNumber: 3,
+      hash: blockHash,
     });
-    const transaction = mock<types.TransactionResponse>({ hash: "0" });
-    const transactionReceipt = mock<types.TransactionReceipt>({
-      transactionIndex: 0,
-      logs: [mock<types.Log>(), mock<types.Log>()],
+    const transaction = mock<TransactionResponse>({
+      hash: "0",
+      from: "0x36615cf349d7f6344891b1e7ca7c72883f5dc049",
+      blockHash,
+      index: 0,
+    });
+    const transactionReceipt = mock<TransactionReceipt>({
+      index: 0,
+      blockHash,
+      logs: [mock<Log>(), mock<Log>()],
       status: 1,
     });
-    const transactionDetails = mock<types.TransactionDetails>();
-    const traceTransactionResult = mock<TraceTransactionResult>({
+
+    const transactionTraceData = {
       error: "Some error",
       revertReason: "Some revert reason",
-    });
+      contractAddresses: [
+        mock<ContractAddress>({
+          address: "0x1234567890abcdef1234567890abcdef12345678",
+        }),
+        mock<ContractAddress>({
+          address: "0xabcdef1234567890abcdef1234567890abcdef12",
+        }),
+      ],
+      tokens: [
+        mock<Token>({
+          l2Address: "0xabcdef1234567890abcdef1234567890abcdef12",
+        }),
+        mock<Token>({
+          l2Address: "0x1234567890abcdef1234567890abcdef12345678",
+        }),
+      ],
+      transfers: [
+        {
+          from: "0xabcdefabcdefabcdefabcdefabcdefabcdef",
+          to: "0x1234567890abcdef1234567890abcdef12345678",
+        } as Transfer,
+        {
+          from: "0x1234567890abcdef1234567890abcdef12345678",
+          to: "0xabcdefabcdefabcdefabcdefabcdefabcdef",
+        } as Transfer,
+      ],
+    } as TransactionTraceData;
+
+    const logsData = {
+      transfers: [
+        {
+          from: "0xdefdefdefdefdefdefdefdefdefdefdefdef",
+          to: "0x234567890abcdef1234567890abcdef12345678",
+        } as Transfer,
+        {
+          from: "0x234567890abcdef1234567890abcdef12345678",
+          to: "0xdefdefdefdefdefdefdefdefdefdefdefdef",
+        } as Transfer,
+      ],
+    };
 
     beforeEach(() => {
       jest.spyOn(blockchainServiceMock, "getTransaction").mockResolvedValue(transaction);
       jest.spyOn(blockchainServiceMock, "getTransactionReceipt").mockResolvedValue(transactionReceipt);
-      jest.spyOn(blockchainServiceMock, "getTransactionDetails").mockResolvedValue(transactionDetails);
-      jest.spyOn(blockchainServiceMock, "debugTraceTransaction").mockResolvedValue(traceTransactionResult);
+      jest.spyOn(transactionTracesServiceMock, "getData").mockResolvedValue(transactionTraceData);
+      jest.spyOn(logServiceMock, "getData").mockResolvedValue(logsData);
     });
 
     it("starts the transaction duration metric", async () => {
-      await transactionProcessor.getData(transaction.hash, blockDetails);
+      await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(startTxProcessingDurationMetricMock).toHaveBeenCalledTimes(1);
     });
 
     it("starts the get info transaction duration metric", async () => {
-      await transactionProcessor.getData(transaction.hash, blockDetails);
+      await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(stopGetTransactionInfoDurationMetricMock).toHaveBeenCalledTimes(1);
     });
 
     it("reads transaction data by hash", async () => {
-      await transactionProcessor.getData(transaction.hash, blockDetails);
+      await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(blockchainServiceMock.getTransaction).toHaveBeenCalledTimes(1);
       expect(blockchainServiceMock.getTransaction).toHaveBeenCalledWith(transaction.hash);
     });
 
-    it("reads transaction details by hash", async () => {
-      await transactionProcessor.getData(transaction.hash, blockDetails);
-      expect(blockchainServiceMock.getTransactionDetails).toHaveBeenCalledTimes(1);
-      expect(blockchainServiceMock.getTransactionDetails).toHaveBeenCalledWith(transaction.hash);
-    });
-
     it("reads transaction receipt by hash", async () => {
-      await transactionProcessor.getData(transaction.hash, blockDetails);
+      await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(blockchainServiceMock.getTransactionReceipt).toHaveBeenCalledTimes(1);
       expect(blockchainServiceMock.getTransactionReceipt).toHaveBeenCalledWith(transaction.hash);
     });
 
     it("stops the get info transaction duration metric", async () => {
-      await transactionProcessor.getData(transaction.hash, blockDetails);
+      await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(stopGetTransactionInfoDurationMetricMock).toHaveBeenCalledTimes(1);
     });
 
     it("throws error if transaction data by hash API returns null", async () => {
       jest.spyOn(blockchainServiceMock, "getTransaction").mockResolvedValue(null);
-      await expect(transactionProcessor.getData(transaction.hash, blockDetails)).rejects.toThrowError(
-        new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transaction.hash}`)
-      );
-    });
-
-    it("throws error if transaction details by hash API returns null", async () => {
-      jest.spyOn(blockchainServiceMock, "getTransactionDetails").mockResolvedValue(null);
-      await expect(transactionProcessor.getData(transaction.hash, blockDetails)).rejects.toThrowError(
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
         new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transaction.hash}`)
       );
     });
 
     it("throws error if transaction receipt by hash API returns null", async () => {
       jest.spyOn(blockchainServiceMock, "getTransactionReceipt").mockResolvedValue(null);
-      await expect(transactionProcessor.getData(transaction.hash, blockDetails)).rejects.toThrowError(
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
         new Error(`Some of the blockchain transaction APIs returned null for a transaction ${transaction.hash}`)
       );
     });
 
+    it("throws error if transaction index is null", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransaction")
+        .mockResolvedValue(mock<TransactionResponse>({ ...transaction, index: null as unknown as number }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
+    it("throws error if transaction receipt index is null", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransactionReceipt")
+        .mockResolvedValue(mock<TransactionReceipt>({ ...transactionReceipt, index: null as unknown as number }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
+    it("throws error if transaction blockHash does not match the block hash", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransaction")
+        .mockResolvedValue(mock<TransactionResponse>({ ...transaction, blockHash: "0xotherhash" }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
+    it("throws error if transaction receipt blockHash does not match the block hash", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransactionReceipt")
+        .mockResolvedValue(mock<TransactionReceipt>({ ...transactionReceipt, blockHash: "0xotherhash" }));
+      await expect(transactionService.getData(transaction.hash, trace, blockDetails)).rejects.toThrowError(
+        /Inconsistent transaction state for 0 in block #1/
+      );
+    });
+
+    it("tracks sender balance for the transaction", async () => {
+      await transactionService.getData(transaction.hash, trace, blockDetails);
+      expect(balanceServiceMock.trackSenderBalance).toHaveBeenCalledTimes(1);
+      expect(balanceServiceMock.trackSenderBalance).toHaveBeenCalledWith(
+        transaction.from.toLowerCase(),
+        blockDetails.number
+      );
+    });
+
+    it("calls log service with correct data", async () => {
+      await transactionService.getData(transaction.hash, trace, blockDetails);
+      expect(logServiceMock.getData).toHaveBeenCalledTimes(1);
+      expect(logServiceMock.getData).toHaveBeenCalledWith(
+        transactionReceipt.logs,
+        blockDetails,
+        transactionTraceData.transfers,
+        transactionReceipt
+      );
+    });
+
     it("returns data with transaction info", async () => {
-      const txData = await transactionProcessor.getData(transaction.hash, blockDetails);
+      const txData = await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(txData.transaction).toEqual({
         ...transaction,
-        ...transactionDetails,
-        l1BatchNumber: blockDetails.l1BatchNumber,
         receiptStatus: transactionReceipt.status,
+        to: undefined,
       });
     });
 
     it("returns data with transaction receipt", async () => {
-      const txData = await transactionProcessor.getData(transaction.hash, blockDetails);
+      const txData = await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(txData.transactionReceipt).toEqual(transactionReceipt);
     });
 
+    it("returns data with contract addresses", async () => {
+      const txData = await transactionService.getData(transaction.hash, trace, blockDetails);
+      expect(txData.contractAddresses).toEqual(transactionTraceData.contractAddresses);
+    });
+
+    it("returns data with tokens", async () => {
+      const txData = await transactionService.getData(transaction.hash, trace, blockDetails);
+      expect(txData.tokens).toEqual(transactionTraceData.tokens);
+    });
+
+    it("returns data with transfers", async () => {
+      const txData = await transactionService.getData(transaction.hash, trace, blockDetails);
+      expect(txData.transfers).toEqual(logsData.transfers);
+    });
+
     it("stops the transaction duration metric", async () => {
-      await transactionProcessor.getData(transaction.hash, blockDetails);
+      await transactionService.getData(transaction.hash, trace, blockDetails);
       expect(stopTxProcessingDurationMetricMock).toHaveBeenCalledTimes(1);
     });
 
     describe("when transaction has failed status", () => {
       beforeEach(() => {
         (blockchainServiceMock.getTransactionReceipt as jest.Mock).mockResolvedValueOnce({
-          transactionIndex: 0,
+          index: 0,
+          blockHash,
           logs: [],
           status: 0,
         });
       });
 
-      it("reads transaction trace", async () => {
-        await transactionProcessor.getData(transaction.hash, blockDetails);
-        expect(blockchainServiceMock.debugTraceTransaction).toHaveBeenCalledTimes(1);
-        expect(blockchainServiceMock.debugTraceTransaction).toHaveBeenCalledWith(transaction.hash, true);
-      });
-
       describe("when transaction trace contains error and revert reason", () => {
         it("returns data with transaction info with error and revert reason", async () => {
-          const txData = await transactionProcessor.getData(transaction.hash, blockDetails);
+          const txData = await transactionService.getData(transaction.hash, trace, blockDetails);
           expect(txData.transaction).toEqual({
             ...transaction,
-            ...transactionDetails,
-            l1BatchNumber: blockDetails.l1BatchNumber,
             receiptStatus: 0,
-            error: traceTransactionResult.error,
-            revertReason: traceTransactionResult.revertReason,
+            error: transactionTraceData.error,
+            revertReason: transactionTraceData.revertReason,
+            to: undefined,
           });
         });
       });
 
-      describe("when transaction trace doe not contain error and revert reason", () => {
+      describe("when transaction trace does not contain error and revert reason", () => {
         it("returns data with transaction info without error and revert reason", async () => {
-          (blockchainServiceMock.debugTraceTransaction as jest.Mock).mockResolvedValueOnce(null);
-          const txData = await transactionProcessor.getData(transaction.hash, blockDetails);
+          (transactionTracesServiceMock.getData as jest.Mock).mockResolvedValueOnce({
+            error: null,
+            revertReason: null,
+            contractAddresses: [],
+            tokens: [],
+          });
+          const txData = await transactionService.getData(transaction.hash, trace, blockDetails);
           expect(txData.transaction).toEqual({
             ...transaction,
-            ...transactionDetails,
-            l1BatchNumber: blockDetails.l1BatchNumber,
             receiptStatus: 0,
+            error: null,
+            revertReason: null,
           });
         });
       });

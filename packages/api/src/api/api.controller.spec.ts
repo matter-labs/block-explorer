@@ -38,7 +38,12 @@ describe("ApiController", () => {
     it("delegates request handling to a different controller based on module and action from body string", async () => {
       const request = mock<Request>();
       const next = jest.fn();
-      await controller.apiPostHandler(request, next, ApiContractAction.VerifySourceCode, ApiModule.Contract);
+      await controller.apiPostHandler(
+        request,
+        next,
+        { module: ApiModule.Contract, action: ApiContractAction.VerifySourceCode },
+        { module: ApiModule.Contract, action: ApiContractAction.VerifySourceCode }
+      );
 
       expect(request.url).toBe(`/api/${ApiModule.Contract}/${ApiContractAction.VerifySourceCode}`);
       expect(next).toBeCalledTimes(1);
@@ -195,6 +200,13 @@ describe("ApiController", () => {
   describe("getAccountTokenBalance", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
       const result = await controller.getAccountTokenBalance();
+      expect(result).toBe(null);
+    });
+  });
+
+  describe("getAccountTokenHoldings", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getAccountTokenHoldings();
       expect(result).toBe(null);
     });
   });

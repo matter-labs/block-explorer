@@ -1,7 +1,8 @@
 import { ref } from "vue";
 
 import { useMemoize } from "@vueuse/core";
-import { $fetch } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext, { type Context } from "@/composables/useContext";
 import useTokenLibrary from "@/composables/useTokenLibrary";
@@ -9,10 +10,9 @@ import useTokenLibrary from "@/composables/useTokenLibrary";
 import type { Hash } from "@/types";
 
 export type Token = Api.Response.Token;
-
 export const retrieveToken = useMemoize(
   (tokenAddress: Hash, context: Context = useContext()): Promise<Api.Response.Token> => {
-    return $fetch(`${context.currentNetwork.value.apiUrl}/tokens/${tokenAddress}`);
+    return FetchInstance.api(context)(`/tokens/${tokenAddress}`);
   },
   {
     getKey(tokenAddress: Hash, context: Context = useContext()) {
@@ -20,10 +20,8 @@ export const retrieveToken = useMemoize(
     },
   }
 );
-
 export default () => {
   const { getToken, getTokens } = useTokenLibrary();
-
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
   const tokenInfo = ref(null as Token | null);

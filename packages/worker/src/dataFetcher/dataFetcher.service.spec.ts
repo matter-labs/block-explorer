@@ -36,6 +36,10 @@ describe("DataFetcherService", () => {
           provide: HttpService,
           useValue: httpServiceMock,
         },
+        {
+          provide: "PROM_METRIC_GET_BLOCK_INFO_DURATION_SECONDS",
+          useValue: { startTimer: jest.fn().mockReturnValue(jest.fn()) },
+        },
       ],
     }).compile();
     module.useLogger(mock<Logger>());

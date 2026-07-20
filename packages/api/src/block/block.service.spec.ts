@@ -5,8 +5,9 @@ import { Repository, SelectQueryBuilder, FindOptionsOrder } from "typeorm";
 import { Pagination, IPaginationMeta } from "nestjs-typeorm-paginate";
 import * as utils from "../common/utils";
 import { BlockService, FindManyOptions } from "./block.service";
-import { Block } from "./block.entity";
+import { Block, BlockStatus } from "./block.entity";
 import { BlockDetails } from "./blockDetails.entity";
+import { IndexerStateService } from "../indexerState/indexerState.service";
 
 jest.mock("../common/utils");
 
@@ -35,6 +36,10 @@ describe("BlockService", () => {
           provide: getRepositoryToken(BlockDetails),
           useValue: blockDetailRepositoryMock,
         },
+        {
+          provide: IndexerStateService,
+          useValue: { getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000) },
+        },
       ],
     }).compile();
 
@@ -46,34 +51,9 @@ describe("BlockService", () => {
   });
 
   describe("getLastBlockNumber", () => {
-    beforeEach(() => {
-      (repositoryMock.findOne as jest.Mock).mockResolvedValue(blockRecord);
-    });
-
-    it("queries blocks with proper filter options", async () => {
-      await service.getLastBlockNumber();
-      expect(repositoryMock.findOne).toHaveBeenCalledTimes(1);
-      expect(repositoryMock.findOne).toHaveBeenCalledWith({
-        where: {},
-        order: { number: "DESC" },
-        select: { number: true },
-      });
-    });
-
-    it("returns last block number", async () => {
+    it("returns the last ready block number from indexer state", async () => {
       const result = await service.getLastBlockNumber();
-      expect(result).toBe(blockRecord.number);
-    });
-
-    describe("if there are no blocks", () => {
-      beforeEach(() => {
-        (repositoryMock.findOne as jest.Mock).mockResolvedValue(null);
-      });
-
-      it("returns zero", async () => {
-        const result = await service.getLastBlockNumber();
-        expect(result).toBe(0);
-      });
+      expect(result).toBe(1_000_000);
     });
   });
 
@@ -99,14 +79,9 @@ describe("BlockService", () => {
       expect(queryBuilderMock.select).toHaveBeenCalledWith("block.number");
     });
 
-    it("joins batch record to get batch specific fields", async () => {
+    it("filters block record by status", async () => {
       await service.getLastVerifiedBlockNumber();
-      expect(queryBuilderMock.innerJoin).toHaveBeenCalledWith("block.batch", "batches");
-    });
-
-    it("filters batch record by executedAt", async () => {
-      await service.getLastVerifiedBlockNumber();
-      expect(queryBuilderMock.where).toHaveBeenCalledWith("batches.executedAt IS NOT NULL");
+      expect(queryBuilderMock.where).toHaveBeenCalledWith("block.status = :status", { status: BlockStatus.Executed });
     });
 
     it("orders blocks by number DESC", async () => {
@@ -146,7 +121,6 @@ describe("BlockService", () => {
       expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledTimes(1);
       expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { number: blockRecord.number },
-        relations: { batch: true },
       });
     });
 
@@ -156,23 +130,18 @@ describe("BlockService", () => {
       expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledWith({
         where: { number: blockRecord.number },
         select: ["number", "timestamp"],
-        relations: { batch: true },
-      });
-    });
-
-    it("overrides default relations setting if custom value is specified", async () => {
-      await service.findOne(blockRecord.number, ["number", "timestamp"], { batch: false });
-      expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledTimes(1);
-      expect(blockDetailRepositoryMock.findOne).toHaveBeenCalledWith({
-        where: { number: blockRecord.number },
-        select: ["number", "timestamp"],
-        relations: { batch: false },
       });
     });
 
     it("returns block by number", async () => {
       const result = await service.findOne(blockRecord.number);
       expect(result).toBe(blockRecord);
+    });
+
+    it("returns null when block number is past watermark", async () => {
+      const result = await service.findOne(2_000_000);
+      expect(blockDetailRepositoryMock.findOne).not.toHaveBeenCalled();
+      expect(result).toBeNull();
     });
   });
 
@@ -182,7 +151,7 @@ describe("BlockService", () => {
     };
     const pagingOptions = {
       filterOptions: {
-        fromDate: undefined,
+        fromBlock: undefined,
       },
       limit: 10,
       page: 2,
@@ -191,8 +160,8 @@ describe("BlockService", () => {
     let queryBuilderMock: SelectQueryBuilder<Block>;
 
     beforeEach(() => {
-      (utils.paginate as jest.Mock).mockImplementation(async (_, __, getCount) => {
-        const count = await getCount();
+      (utils.paginate as jest.Mock).mockImplementation(async ({ countQuery }) => {
+        const count = await countQuery();
         return mock<Pagination<Block, IPaginationMeta>>({
           meta: {
             totalItems: count,
@@ -204,6 +173,7 @@ describe("BlockService", () => {
         leftJoin: jest.fn().mockReturnThis(),
         addSelect: jest.fn().mockReturnThis(),
         where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
       });
 
@@ -217,16 +187,6 @@ describe("BlockService", () => {
       expect(repositoryMock.createQueryBuilder).toHaveBeenCalledWith("block");
     });
 
-    it("joins batch record to get batch specific fields", async () => {
-      await service.findAll(filterOptions, pagingOptions);
-      expect(queryBuilderMock.leftJoin).toHaveBeenCalledWith("block.batch", "batches");
-    });
-
-    it("selects only needed batch fields", async () => {
-      await service.findAll(filterOptions, pagingOptions);
-      expect(queryBuilderMock.addSelect).toHaveBeenCalledWith("batches.executedAt");
-    });
-
     it("applies filters", async () => {
       await service.findAll(filterOptions, pagingOptions);
       expect(queryBuilderMock.where).toHaveBeenCalledWith(filterOptions);
@@ -237,7 +197,7 @@ describe("BlockService", () => {
       expect(queryBuilderMock.orderBy).toHaveBeenCalledWith("block.number", "DESC");
     });
 
-    it("uses count query that calculates the diff between last and first block with proper filter options", async () => {
+    it("uses count query that clamps last block to watermark", async () => {
       (repositoryMock.findOne as jest.Mock)
         .mockResolvedValueOnce({ number: 100 } as Block)
         .mockResolvedValueOnce({ number: 50 } as Block);
@@ -254,7 +214,16 @@ describe("BlockService", () => {
         order: { number: "ASC" },
         select: { number: true },
       });
-      expect(result.meta.totalItems).toBe(51);
+      expect(result.meta.totalItems).toBe(100 - 50 + 1);
+    });
+
+    it("clamps count to watermark when last block exceeds it", async () => {
+      (repositoryMock.findOne as jest.Mock)
+        .mockResolvedValueOnce({ number: 2_000_000 } as Block)
+        .mockResolvedValueOnce({ number: 50 } as Block);
+
+      const result = await service.findAll(filterOptions, pagingOptions);
+      expect(result.meta.totalItems).toBe(1_000_000 - 50 + 1);
     });
 
     describe("if there are no blocks", () => {
@@ -270,7 +239,11 @@ describe("BlockService", () => {
 
       const result = await service.findAll(filterOptions, pagingOptions);
       expect(utils.paginate).toBeCalledTimes(1);
-      expect(utils.paginate).toBeCalledWith(queryBuilderMock, pagingOptions, expect.any(Function));
+      expect(utils.paginate).toBeCalledWith({
+        queryBuilder: queryBuilderMock,
+        options: pagingOptions,
+        countQuery: expect.any(Function),
+      });
       expect(result).toBe(paginationResult);
     });
   });
@@ -297,6 +270,14 @@ describe("BlockService", () => {
         order: orderOpts,
       });
       expect(number).toBe(1000);
+    });
+
+    it("returns undefined when found block is past watermark", async () => {
+      jest.spyOn(repositoryMock, "findOne").mockResolvedValue({
+        number: 2_000_000,
+      } as Block);
+      const number = await service.getBlockNumber({ timestamp: new Date() }, { timestamp: "ASC" });
+      expect(number).toBeUndefined();
     });
   });
 
@@ -337,15 +318,14 @@ describe("BlockService", () => {
 
     it("adds where condition for miner when specified", async () => {
       await service.findMany(filterOptions);
-      expect(queryBuilderMock.where).toHaveBeenCalledTimes(1);
-      expect(queryBuilderMock.where).toHaveBeenCalledWith({
-        miner: "address",
-      });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith({ miner: "address" });
     });
 
-    it("does not add where condition for miner when not specified", async () => {
+    it("applies watermark filter when miner is not specified", async () => {
       await service.findMany({});
-      expect(queryBuilderMock.where).not.toBeCalled();
+      expect(queryBuilderMock.where).toHaveBeenCalledWith("block.number <= :lastReadyBlockNumber", {
+        lastReadyBlockNumber: 1_000_000,
+      });
     });
 
     it("sets offset and limit", async () => {

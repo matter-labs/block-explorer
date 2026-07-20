@@ -6,7 +6,7 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 
 @Entity({ name: "addressTransactions" })
-@Index(["address", "blockNumber", "receivedAt", "transactionIndex"])
+@Index(["address", "blockNumber", "transactionIndex", "transactionHash"])
 export class AddressTransaction extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;
@@ -19,8 +19,8 @@ export class AddressTransaction extends BaseEntity {
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly transactionHash: string;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
-  public readonly address: string;
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly address?: string;
 
   @ManyToOne(() => Block, { onDelete: "CASCADE" })
   @JoinColumn({ name: "blockNumber" })

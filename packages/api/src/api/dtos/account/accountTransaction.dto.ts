@@ -12,8 +12,10 @@ export class AccountTransactionDto {
     type: String,
     description: "The to address of this transaction",
     example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
   })
-  public readonly to: string;
+  public readonly to?: string;
 
   @ApiProperty({
     type: String,
@@ -115,45 +117,11 @@ export class AccountTransactionDto {
 
   @ApiProperty({
     type: String,
-    description: "The hash of the transaction that committed the block, null if not committed yet",
-    example: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-    examples: ["0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c", null],
-    nullable: true,
-  })
-  public readonly commitTxHash?: string;
-
-  @ApiProperty({
-    type: String,
-    description: "The hash of the transaction that proved the block, null if not proved yet",
-    example: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-    examples: ["0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c", null],
-    nullable: true,
-  })
-  public readonly proveTxHash?: string;
-
-  @ApiProperty({
-    type: String,
-    description: "The hash of the transaction that executed the block, null if not executed yet",
-    example: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-    examples: ["0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c", null],
-    nullable: true,
-  })
-  public readonly executeTxHash?: string;
-
-  @ApiProperty({
-    type: String,
     description: "Property that shows whether the transaction was originated from L1 network",
     example: "1",
     examples: ["1", "0"],
   })
   public readonly isL1Originated: string;
-
-  @ApiProperty({
-    type: String,
-    description: "L1 batch number",
-    example: "3233097",
-  })
-  public readonly l1BatchNumber: string;
 
   @ApiProperty({
     type: String,

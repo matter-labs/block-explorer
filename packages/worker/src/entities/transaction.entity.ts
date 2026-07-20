@@ -1,16 +1,15 @@
 import { Entity, Column, PrimaryColumn, JoinColumn, ManyToOne, Index } from "typeorm";
 import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../transformers/hex.transformer";
-import { Batch } from "./batch.entity";
 import { Block } from "./block.entity";
 import { CountableEntity } from "./countable.entity";
 import { stringTransformer } from "../transformers/string.transformer";
 
 @Entity({ name: "transactions" })
-@Index(["receivedAt", "transactionIndex"])
-@Index(["l1BatchNumber", "receivedAt", "transactionIndex"])
-@Index(["blockNumber", "receivedAt", "transactionIndex"])
-@Index(["from", "isL1Originated", "l1BatchNumber", "nonce"])
+@Index(["blockNumber", "transactionIndex", "hash"])
+@Index(["blockNumber", "number"]) // used by counter service
+@Index(["from", "isL1Originated", "blockNumber", "nonce"])
+@Index(["fromToMin", "fromToMax", "blockNumber", "transactionIndex", "hash"])
 export class Transaction extends CountableEntity {
   @PrimaryColumn({ type: "bytea", transformer: hexTransformer })
   public readonly hash: string;
@@ -19,11 +18,17 @@ export class Transaction extends CountableEntity {
   @Column({ generated: true, type: "bigint" })
   public override readonly number: number;
 
-  @Column({ type: "bytea", transformer: hexTransformer })
-  public readonly to: string;
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly to?: string;
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly from: string;
+
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly fromToMin?: string;
+
+  @Column({ type: "bytea", transformer: hexTransformer, nullable: true })
+  public readonly fromToMax?: string;
 
   @Column({ type: "bigint" })
   public readonly nonce: number;
@@ -49,9 +54,6 @@ export class Transaction extends CountableEntity {
   @Column({ type: "varchar", length: 128 })
   public readonly value: string;
 
-  @Column({ type: "int" })
-  public readonly chainId: number;
-
   @ManyToOne(() => Block, { onDelete: "CASCADE" })
   @JoinColumn({ name: "blockNumber" })
   private readonly _block: never;
@@ -67,13 +69,6 @@ export class Transaction extends CountableEntity {
 
   @Column({ type: "jsonb", nullable: true })
   public readonly accessList?: any;
-
-  @ManyToOne(() => Batch, {
-    createForeignKeyConstraints: false,
-  })
-  @JoinColumn({ name: "l1BatchNumber" })
-  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
-  public readonly l1BatchNumber: number;
 
   @Column({ type: "varchar" })
   public readonly fee: string;

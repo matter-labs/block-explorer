@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
-import { Repository, MoreThanOrEqual, MoreThan, Between } from "typeorm";
-import { CounterRepository } from "../repositories";
+import { Repository } from "typeorm";
+import { CounterRepository, IndexerStateRepository } from "../repositories";
 import { Transaction } from "../entities";
 import { UnitOfWork } from "../unitOfWork";
 import { CounterProcessor } from "./counter.processor";
@@ -19,18 +19,44 @@ jest.mock("@nestjs/common", () => ({
 describe("CounterProcessor", () => {
   let repositoryMock: Repository<Transaction>;
   let counterRepositoryMock: CounterRepository;
+  let indexerStateRepositoryMock: IndexerStateRepository;
   let unitOfWorkMock: UnitOfWork;
   let waitForTransactionExecutionMock: jest.Mock;
   let counterProcessor: CounterProcessor<Transaction>;
+  let queryBuilderMock: {
+    select: jest.Mock;
+    where: jest.Mock;
+    andWhere: jest.Mock;
+    orderBy: jest.Mock;
+    addOrderBy: jest.Mock;
+    limit: jest.Mock;
+    getMany: jest.Mock;
+  };
 
   beforeEach(() => {
+    queryBuilderMock = {
+      select: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      addOrderBy: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      getMany: jest.fn().mockResolvedValue([]),
+    };
     repositoryMock = mock<Repository<Transaction>>({
       find: jest.fn().mockResolvedValue([]),
+      createQueryBuilder: jest.fn().mockReturnValue(queryBuilderMock),
     });
     counterRepositoryMock = mock<CounterRepository>({
       incrementCounters: jest.fn().mockResolvedValue(null),
       decrementCounters: jest.fn().mockResolvedValue(null),
       getLastProcessedRecordNumber: jest.fn().mockResolvedValue(-1),
+      getLastProcessedCursor: jest
+        .fn()
+        .mockResolvedValue({ lastProcessedRecordNumber: -1, lastProcessedBlockNumber: -1 }),
+    });
+    indexerStateRepositoryMock = mock<IndexerStateRepository>({
+      getLastReadyBlockNumber: jest.fn().mockResolvedValue(1_000_000),
     });
     waitForTransactionExecutionMock = jest.fn();
     unitOfWorkMock = mock<UnitOfWork>({
@@ -46,23 +72,32 @@ describe("CounterProcessor", () => {
       5,
       unitOfWorkMock,
       repositoryMock,
-      counterRepositoryMock
+      counterRepositoryMock,
+      indexerStateRepositoryMock
     );
   });
 
   describe("processNextRecordsBatch", () => {
-    it("fetches the next records batch from the DB", async () => {
+    it("fetches the next records batch from the DB with tuple cursor + watermark filter", async () => {
       await counterProcessor.processNextRecordsBatch();
-      expect(repositoryMock.find).toBeCalledWith({
-        where: {
-          number: MoreThanOrEqual(0),
-        },
-        select: ["blockNumber", "from", "to", "number"],
-        take: 5,
-        order: {
-          number: "ASC",
-        },
+      expect(repositoryMock.createQueryBuilder).toBeCalledWith("record");
+      expect(queryBuilderMock.select).toBeCalledWith([
+        "record.blockNumber",
+        "record.from",
+        "record.to",
+        "record.number",
+      ]);
+      expect(queryBuilderMock.where).toBeCalledWith(
+        `(record."blockNumber", record."number") > (:lastBlockNumber, :lastRecordNumber)`,
+        { lastBlockNumber: -1, lastRecordNumber: -1 }
+      );
+      expect(queryBuilderMock.andWhere).toBeCalledWith(`record."blockNumber" <= :lastReadyBlockNumber`, {
+        lastReadyBlockNumber: 1_000_000,
       });
+      expect(queryBuilderMock.orderBy).toBeCalledWith(`record."blockNumber"`, "ASC");
+      expect(queryBuilderMock.addOrderBy).toBeCalledWith(`record."number"`, "ASC");
+      expect(queryBuilderMock.limit).toBeCalledWith(5);
+      expect(queryBuilderMock.getMany).toBeCalledTimes(1);
     });
 
     it("returns false when the next records batch from the DB is empty", async () => {
@@ -70,9 +105,9 @@ describe("CounterProcessor", () => {
       expect(result).toBeFalsy();
     });
 
-    it("returns false and logs error when repository find call fails", async () => {
+    it("returns false and logs error when repository query fails", async () => {
       const error = new Error("error");
-      jest.spyOn(repositoryMock, "find").mockRejectedValueOnce(error);
+      queryBuilderMock.getMany.mockRejectedValueOnce(error);
 
       const result = await counterProcessor.processNextRecordsBatch();
       expect(result).toBeFalsy();
@@ -81,12 +116,13 @@ describe("CounterProcessor", () => {
         stack: error.stack,
         tableName: "transactions",
         startingFromNumber: 0,
+        startingFromBlockNumber: 0,
       });
     });
 
-    it("logs error when last processed record number from DB query fails", async () => {
+    it("logs error when last processed cursor from DB query fails", async () => {
       const error = new Error("error");
-      (counterRepositoryMock.getLastProcessedRecordNumber as jest.Mock).mockRejectedValueOnce(error);
+      (counterRepositoryMock.getLastProcessedCursor as jest.Mock).mockRejectedValueOnce(error);
 
       const result = await counterProcessor.processNextRecordsBatch();
       expect(result).toBeFalsy();
@@ -95,6 +131,7 @@ describe("CounterProcessor", () => {
         stack: error.stack,
         tableName: "transactions",
         startingFromNumber: null,
+        startingFromBlockNumber: null,
       });
     });
 
@@ -106,24 +143,28 @@ describe("CounterProcessor", () => {
           5,
           unitOfWorkMock,
           repositoryMock,
-          counterRepositoryMock
+          counterRepositoryMock,
+          indexerStateRepositoryMock
         );
         const records = [
           {
             number: 1,
+            blockNumber: 5,
             from: "addr1",
           },
           {
             number: 2,
+            blockNumber: 5,
             from: "addr2",
           },
           {
             number: 3,
+            blockNumber: 6,
             from: "addr2",
             to: "addr3",
           },
         ];
-        (repositoryMock.find as jest.Mock).mockResolvedValueOnce(records);
+        queryBuilderMock.getMany.mockResolvedValueOnce(records);
         await counterProcessorWithNoCriteria.processNextRecordsBatch();
 
         expect(unitOfWorkMock.useTransaction).toBeCalledTimes(1);
@@ -137,7 +178,8 @@ describe("CounterProcessor", () => {
               count: records.length,
             },
           ],
-          records[records.length - 1].number
+          records[records.length - 1].number,
+          records[records.length - 1].blockNumber
         );
       });
     });
@@ -170,7 +212,7 @@ describe("CounterProcessor", () => {
             to: "addr4",
           },
         ];
-        (repositoryMock.find as jest.Mock).mockResolvedValueOnce(records);
+        queryBuilderMock.getMany.mockResolvedValueOnce(records);
         await counterProcessor.processNextRecordsBatch();
 
         expect(unitOfWorkMock.useTransaction).toBeCalledTimes(1);
@@ -214,7 +256,8 @@ describe("CounterProcessor", () => {
               count: 1,
             },
           ],
-          records[records.length - 1].number
+          records[records.length - 1].number,
+          records[records.length - 1].blockNumber
         );
       });
     });
@@ -235,7 +278,7 @@ describe("CounterProcessor", () => {
             to: null,
           },
         ];
-        (repositoryMock.find as jest.Mock).mockResolvedValueOnce(records);
+        queryBuilderMock.getMany.mockResolvedValueOnce(records);
         await counterProcessor.processNextRecordsBatch();
 
         expect(unitOfWorkMock.useTransaction).toBeCalledTimes(1);
@@ -264,28 +307,19 @@ describe("CounterProcessor", () => {
               count: 1,
             },
           ],
-          records[records.length - 1].number
+          records[records.length - 1].number,
+          records[records.length - 1].blockNumber
         );
       });
     });
 
     it("returns true when the next records batch size is not greater than actual number of fetched records", async () => {
-      (repositoryMock.find as jest.Mock).mockResolvedValueOnce([
-        {
-          number: 1,
-        },
-        {
-          number: 2,
-        },
-        {
-          number: 3,
-        },
-        {
-          number: 4,
-        },
-        {
-          number: 5,
-        },
+      queryBuilderMock.getMany.mockResolvedValueOnce([
+        { number: 1 },
+        { number: 2 },
+        { number: 3 },
+        { number: 4 },
+        { number: 5 },
       ]);
 
       const result = await counterProcessor.processNextRecordsBatch();
@@ -293,30 +327,17 @@ describe("CounterProcessor", () => {
     });
 
     it("returns false when next records batch size is grater than actual number of fetched records", async () => {
-      (repositoryMock.find as jest.Mock).mockResolvedValueOnce([
-        {
-          number: 1,
-        },
-        {
-          number: 2,
-        },
-        {
-          number: 3,
-        },
-        {
-          number: 4,
-        },
-      ]);
+      queryBuilderMock.getMany.mockResolvedValueOnce([{ number: 1 }, { number: 2 }, { number: 3 }, { number: 4 }]);
 
       const result = await counterProcessor.processNextRecordsBatch();
       expect(result).toBeFalsy();
     });
 
-    it("reuses lastProcessedRecordNumber on next call if present", async () => {
+    it("reuses last processed cursor on next call if present", async () => {
       await counterProcessor.processNextRecordsBatch();
       await counterProcessor.processNextRecordsBatch();
       await counterProcessor.processNextRecordsBatch();
-      expect(counterRepositoryMock.getLastProcessedRecordNumber).toBeCalledTimes(1);
+      expect(counterRepositoryMock.getLastProcessedCursor).toBeCalledTimes(1);
     });
   });
 
@@ -330,7 +351,10 @@ describe("CounterProcessor", () => {
 
     describe("when there are processed records", () => {
       beforeEach(() => {
-        jest.spyOn(counterRepositoryMock, "getLastProcessedRecordNumber").mockResolvedValue(200);
+        (counterRepositoryMock.getLastProcessedCursor as jest.Mock).mockResolvedValue({
+          lastProcessedRecordNumber: 200,
+          lastProcessedBlockNumber: 10,
+        });
       });
 
       describe("and there are no changes processed after the last correct block", () => {
@@ -341,118 +365,54 @@ describe("CounterProcessor", () => {
       });
 
       describe("and there are some changes processed after the last correct block", () => {
-        it("iteratively fetches records added after the last correct block and reverts all the counters changes", async () => {
+        it("iteratively fetches records in DESC order and reverts all the counters changes", async () => {
+          // DESC order: newest (highest blockNumber, then highest number) first
           const recordsBatch1 = [
-            { number: 187, blockNumber: 10, from: "from" },
-            { number: 188, blockNumber: 10, from: "from" },
-            { number: 189, blockNumber: 10, from: "from" },
-            { number: 190, blockNumber: 10, from: "from" },
-            { number: 191, blockNumber: 10, from: "from" },
-          ];
-          const recordsBatch2 = [
-            { number: 192, blockNumber: 10, to: "to" },
-            { number: 193, blockNumber: 10, to: "to" },
-            { number: 194, blockNumber: 10, to: "to" },
-            { number: 195, blockNumber: 10, to: "to" },
+            { number: 200, blockNumber: 10 },
+            { number: 199, blockNumber: 10 },
+            { number: 198, blockNumber: 10 },
+            { number: 197, blockNumber: 10 },
             { number: 196, blockNumber: 10, to: "to" },
           ];
-          const recordsBatch3 = [
-            { number: 197, blockNumber: 10 },
-            { number: 198, blockNumber: 10 },
-            { number: 199, blockNumber: 10 },
-            { number: 200, blockNumber: 10 },
+          const recordsBatch2 = [
+            { number: 195, blockNumber: 10, to: "to" },
+            { number: 194, blockNumber: 10, to: "to" },
+            { number: 193, blockNumber: 10, to: "to" },
+            { number: 192, blockNumber: 10, to: "to" },
+            { number: 191, blockNumber: 10, from: "from" },
           ];
-          (repositoryMock.find as jest.Mock)
+          const recordsBatch3 = [
+            { number: 190, blockNumber: 10, from: "from" },
+            { number: 189, blockNumber: 10, from: "from" },
+            { number: 188, blockNumber: 10, from: "from" },
+            { number: 187, blockNumber: 10, from: "from" },
+          ];
+          queryBuilderMock.getMany
             .mockResolvedValueOnce(recordsBatch1)
             .mockResolvedValueOnce(recordsBatch2)
             .mockResolvedValueOnce(recordsBatch3);
 
           await counterProcessor.revert(100);
 
-          expect(repositoryMock.find).toBeCalledTimes(3);
           expect(counterRepositoryMock.decrementCounters).toBeCalledTimes(3);
-
-          expect(repositoryMock.find).toBeCalledWith({
-            where: {
-              blockNumber: MoreThan(100),
-              number: Between(0, 200),
-            },
-            select: ["blockNumber", "from", "to", "number"],
-            take: 5,
-            order: {
-              number: "ASC",
-            },
-          });
-          expect(counterRepositoryMock.decrementCounters).toBeCalledWith([
-            {
-              count: 5,
-              tableName: "transactions",
-              queryString: "",
-            },
-            {
-              count: 5,
-              tableName: "transactions",
-              queryString: "blockNumber=10&from%7Cto=from",
-            },
-            {
-              count: 5,
-              tableName: "transactions",
-              queryString: "blockNumber=10&from%7Cto=undefined",
-            },
-          ]);
-
-          expect(repositoryMock.find).toBeCalledWith({
-            where: {
-              blockNumber: MoreThan(100),
-              number: Between(192, 200),
-            },
-            select: ["blockNumber", "from", "to", "number"],
-            take: 5,
-            order: {
-              number: "ASC",
-            },
-          });
-          expect(counterRepositoryMock.decrementCounters).toBeCalledWith([
-            {
-              count: 5,
-              tableName: "transactions",
-              queryString: "",
-            },
-            {
-              count: 5,
-              tableName: "transactions",
-              queryString: "blockNumber=10&from%7Cto=undefined",
-            },
-            {
-              count: 5,
-              tableName: "transactions",
-              queryString: "blockNumber=10&from%7Cto=to",
-            },
-          ]);
-
-          expect(repositoryMock.find).toBeCalledWith({
-            where: {
-              blockNumber: MoreThan(100),
-              number: Between(197, 200),
-            },
-            select: ["blockNumber", "from", "to", "number"],
-            take: 5,
-            order: {
-              number: "ASC",
-            },
-          });
-          expect(counterRepositoryMock.decrementCounters).toBeCalledWith([
-            {
-              count: 4,
-              tableName: "transactions",
-              queryString: "",
-            },
-            {
-              count: 4,
-              tableName: "transactions",
-              queryString: "blockNumber=10&from%7Cto=undefined",
-            },
-          ]);
+          expect(counterRepositoryMock.decrementCounters).toHaveBeenNthCalledWith(
+            1,
+            expect.any(Array),
+            195, // 196 - 1
+            10
+          );
+          expect(counterRepositoryMock.decrementCounters).toHaveBeenNthCalledWith(
+            2,
+            expect.any(Array),
+            190, // 191 - 1
+            10
+          );
+          expect(counterRepositoryMock.decrementCounters).toHaveBeenNthCalledWith(
+            3,
+            expect.any(Array),
+            186, // 187 - 1
+            10
+          );
         });
       });
     });

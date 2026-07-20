@@ -7,12 +7,16 @@ import { DataSource } from "typeorm";
 import { AppService } from "./app.service";
 import { BalancesCleanerService } from "./balance";
 import { CounterService } from "./counter";
-import { BatchService } from "./batch";
-import { BlockService } from "./block";
+import { BlocksIndexerService } from "./blocksIndexer";
 import { BlocksRevertService } from "./blocksRevert";
+import { BlocksEnqueuerService } from "./blocksEnqueuer";
+import { IndexerStateManagerService } from "./indexerStateManager";
+import { BlockStatusService } from "./blockStatus";
+import { TokenService } from "./token/token.service";
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import runMigrations from "./utils/runMigrations";
 import { BLOCKS_REVERT_DETECTED_EVENT } from "./constants";
+import { SystemContractService } from "./contract/systemContract.service";
 
 jest.mock("./utils/runMigrations");
 
@@ -33,12 +37,16 @@ describe("AppService", () => {
   let appService: AppService;
   let balancesCleanerService: BalancesCleanerService;
   let counterService: CounterService;
-  let batchService: BatchService;
-  let blockService: BlockService;
+  let blocksIndexerService: BlocksIndexerService;
   let blocksRevertService: BlocksRevertService;
+  let blocksEnqueuerService: BlocksEnqueuerService;
+  let indexerStateManagerService: IndexerStateManagerService;
+  let blockStatusService: BlockStatusService;
   let tokenOffChainDataSaverService: TokenOffChainDataSaverService;
   let dataSourceMock: DataSource;
   let configServiceMock: ConfigService;
+  let systemContractServiceMock: SystemContractService;
+  let tokenServiceMock: TokenService;
 
   beforeEach(async () => {
     balancesCleanerService = mock<BalancesCleanerService>({
@@ -49,16 +57,24 @@ describe("AppService", () => {
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
-    batchService = mock<BatchService>({
-      start: jest.fn().mockResolvedValue(null),
-      stop: jest.fn().mockResolvedValue(null),
-    });
-    blockService = mock<BlockService>({
+    blocksIndexerService = mock<BlocksIndexerService>({
       start: jest.fn().mockResolvedValue(null),
       stop: jest.fn().mockResolvedValue(null),
     });
     blocksRevertService = mock<BlocksRevertService>({
       handleRevert: jest.fn().mockResolvedValue(null),
+    });
+    blocksEnqueuerService = mock<BlocksEnqueuerService>({
+      start: jest.fn().mockResolvedValue(null),
+      stop: jest.fn().mockResolvedValue(null),
+    });
+    indexerStateManagerService = mock<IndexerStateManagerService>({
+      start: jest.fn().mockResolvedValue(null),
+      stop: jest.fn().mockResolvedValue(null),
+    });
+    blockStatusService = mock<BlockStatusService>({
+      start: jest.fn().mockResolvedValue(null),
+      stop: jest.fn().mockResolvedValue(null),
     });
     tokenOffChainDataSaverService = mock<TokenOffChainDataSaverService>({
       start: jest.fn().mockResolvedValue(null),
@@ -67,6 +83,12 @@ describe("AppService", () => {
     dataSourceMock = mock<DataSource>();
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockReturnValue(false),
+    });
+    systemContractServiceMock = mock<SystemContractService>({
+      addSystemContracts: jest.fn().mockResolvedValue(null),
+    });
+    tokenServiceMock = mock<TokenService>({
+      addBaseToken: jest.fn().mockResolvedValue(null),
     });
 
     const module = await Test.createTestingModule({
@@ -83,20 +105,32 @@ describe("AppService", () => {
           useValue: counterService,
         },
         {
-          provide: BatchService,
-          useValue: batchService,
-        },
-        {
-          provide: BlockService,
-          useValue: blockService,
+          provide: BlocksIndexerService,
+          useValue: blocksIndexerService,
         },
         {
           provide: BlocksRevertService,
           useValue: blocksRevertService,
         },
         {
+          provide: BlocksEnqueuerService,
+          useValue: blocksEnqueuerService,
+        },
+        {
+          provide: IndexerStateManagerService,
+          useValue: indexerStateManagerService,
+        },
+        {
+          provide: BlockStatusService,
+          useValue: blockStatusService,
+        },
+        {
           provide: TokenOffChainDataSaverService,
           useValue: tokenOffChainDataSaverService,
+        },
+        {
+          provide: TokenService,
+          useValue: tokenServiceMock,
         },
         {
           provide: DataSource,
@@ -105,6 +139,10 @@ describe("AppService", () => {
         {
           provide: ConfigService,
           useValue: configServiceMock,
+        },
+        {
+          provide: SystemContractService,
+          useValue: systemContractServiceMock,
         },
       ],
     }).compile();
@@ -121,45 +159,41 @@ describe("AppService", () => {
 
     beforeEach(() => {
       migrationsRunFinished = new Promise((resolve) => (migrationsRunFinishedResolve = resolve));
-      (runMigrations as jest.Mock).mockImplementation(() => {
-        migrationsRunFinishedResolve();
-        return Promise.resolve();
-      });
+      (runMigrations as jest.Mock).mockImplementation(
+        async (_ds: unknown, _logger: unknown, postMigrationsCallback?: () => Promise<void>) => {
+          if (postMigrationsCallback) {
+            await postMigrationsCallback();
+          }
+          migrationsRunFinishedResolve();
+        }
+      );
     });
 
     it("runs migrations", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(runMigrations).toBeCalledTimes(1);
       appService.onModuleDestroy();
     });
 
     it("starts counter service", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(counterService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
       expect(counterService.stop).toBeCalledTimes(1);
     });
 
-    it("starts batch service", async () => {
-      appService.onModuleInit();
-      await migrationsRunFinished;
-      expect(batchService.start).toBeCalledTimes(1);
-      appService.onModuleDestroy();
-      expect(batchService.stop).toBeCalledTimes(1);
-    });
-
     it("starts block service", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
-      expect(blockService.start).toBeCalledTimes(1);
+      expect(blocksIndexerService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
-      expect(blockService.stop).toBeCalledTimes(1);
+      expect(blocksIndexerService.stop).toBeCalledTimes(1);
     });
 
     it("starts old balances cleaner service", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(balancesCleanerService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
@@ -167,23 +201,15 @@ describe("AppService", () => {
     });
 
     it("does not start token offchain data saver service by default", async () => {
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(tokenOffChainDataSaverService.start).not.toBeCalled();
       appService.onModuleDestroy();
     });
 
-    it("does not start batches service when disableBatchesProcessing is true", async () => {
-      (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
-      await migrationsRunFinished;
-      expect(batchService.start).not.toBeCalled();
-      appService.onModuleDestroy();
-    });
-
     it("does not start counter service when disableCountersProcessing is true", async () => {
       (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(counterService.start).not.toBeCalled();
       appService.onModuleDestroy();
@@ -191,7 +217,7 @@ describe("AppService", () => {
 
     it("does not start old balances cleaner when disableOldBalancesCleaner is true", async () => {
       (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(balancesCleanerService.start).not.toBeCalled();
       appService.onModuleDestroy();
@@ -199,11 +225,25 @@ describe("AppService", () => {
 
     it("starts token offchain data saver service when enableTokenOffChainDataSaver is true", async () => {
       (configServiceMock.get as jest.Mock).mockReturnValue(true);
-      appService.onModuleInit();
+      await appService.onModuleInit();
       await migrationsRunFinished;
       expect(tokenOffChainDataSaverService.start).toBeCalledTimes(1);
       appService.onModuleDestroy();
       expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
+    });
+
+    it("adds system contracts", async () => {
+      await appService.onModuleInit();
+      await migrationsRunFinished;
+      expect(systemContractServiceMock.addSystemContracts).toBeCalledTimes(1);
+      appService.onModuleDestroy();
+    });
+
+    it("adds base token", async () => {
+      await appService.onModuleInit();
+      await migrationsRunFinished;
+      expect(tokenServiceMock.addBaseToken).toBeCalledTimes(1);
+      appService.onModuleDestroy();
     });
   });
 
@@ -213,14 +253,9 @@ describe("AppService", () => {
       expect(counterService.stop).toBeCalledTimes(1);
     });
 
-    it("stops batch service", async () => {
-      appService.onModuleDestroy();
-      expect(batchService.stop).toBeCalledTimes(1);
-    });
-
     it("stops block service", async () => {
       appService.onModuleDestroy();
-      expect(blockService.stop).toBeCalledTimes(1);
+      expect(blocksIndexerService.stop).toBeCalledTimes(1);
     });
 
     it("stops old balances cleaner service", async () => {
@@ -242,16 +277,14 @@ describe("AppService", () => {
       );
       await app.init();
 
-      expect(blockService.stop).toBeCalledTimes(1);
-      expect(batchService.stop).toBeCalledTimes(1);
+      expect(blocksIndexerService.stop).toBeCalledTimes(1);
       expect(counterService.stop).toBeCalledTimes(1);
       expect(balancesCleanerService.stop).toBeCalledTimes(1);
       expect(tokenOffChainDataSaverService.stop).toBeCalledTimes(1);
 
       expect(blocksRevertService.handleRevert).toBeCalledWith(blockNumber);
 
-      expect(blockService.start).toBeCalledTimes(2);
-      expect(batchService.start).toBeCalledTimes(2);
+      expect(blocksIndexerService.start).toBeCalledTimes(2);
       expect(counterService.start).toBeCalledTimes(2);
       expect(balancesCleanerService.start).toBeCalledTimes(2);
       expect(tokenOffChainDataSaverService.start).toBeCalledTimes(2);

@@ -18,39 +18,37 @@ const transaction: TransactionListItem = {
   fee: "0x3b9329f2a880",
   nonce: 69,
   blockNumber: 6539779,
-  l1BatchNumber: 74373,
   blockHash: "0x5ad6b0475a6bdff6007e62adec0ceed0796fb427fe8f4de310432a52e118800b",
   transactionIndex: 5,
   receivedAt: "2023-06-20T12:10:44.187Z",
   status: "included",
-  commitTxHash: null,
-  executeTxHash: null,
-  proveTxHash: null,
-  isL1BatchSealed: false,
   gasPrice: "4000",
   gasLimit: "5000",
   gasUsed: "3000",
   gasPerPubdata: "800",
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
+  contractAddress: null,
   error: null,
   revertReason: null,
 };
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() =>
+    Promise.resolve({
+      items: new Array(3).fill(transaction),
+      meta: {
+        totalItems: 3,
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+        itemCount: 1,
+      },
+    })
+  );
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() =>
-      Promise.resolve({
-        items: new Array(3).fill(transaction),
-        meta: {
-          totalItems: 3,
-          page: 1,
-          pageSize: 10,
-          totalPages: 1,
-          itemCount: 1,
-        },
-      })
-    ),
+    $fetch: fetchSpy,
   };
 });
 
@@ -82,15 +80,14 @@ describe("useTransactions:", () => {
   it("skips falsy query params except zero numbers", async () => {
     searchParams = computed(() => ({
       address: "",
-      fromDate: undefined,
-      toDate: undefined,
+      fromBlock: undefined,
+      toBlock: undefined,
       blockNumber: 0,
-      l1BatchNumber: 0,
     }));
     const composable = useTransactions(searchParams);
     await composable.load(1);
     expect(fetchMock.mock.calls[0][0]).toBe(
-      "https://block-explorer-api.testnets.zksync.dev/transactions?blockNumber=0&l1BatchNumber=0&pageSize=10&page=1"
+      "https://block-explorer-api.testnets.zksync.dev/transactions?blockNumber=0&limit=10&page=1"
     );
   });
 

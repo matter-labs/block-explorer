@@ -1,14 +1,15 @@
 {
     "general": {
-        "l2NetworkName": "zkSync Era",
-        "l1NetworkName": "Ethereum"
+        "execution": "Виконання",
+        "finality": "L1 Фінальність"
     },
     "copyButton": {
         "tooltip": "Скопійовано!"
     },
     "networkStats": {
         "title": "Статистика мережі",
-        "subtitle": "Статистика час від часу скидається в тестовій мережі.",
+        "subtitleTestnet": "Статистика час від часу скидається в тестовій мережі.",
+        "subtitleMainnet": "{l2NetworkName} відкритий для всіх.",
         "committed": "Затверджені блоки",
         "verified": "Перевірені блоки",
         "transactions": "Транзакції",
@@ -26,8 +27,8 @@
             "timestamp": "Створено",
             "blockNumber": "Номер",
             "blockSize": "Розмір",
-            "rootHash": "Кореневий хеш",
-            "noRootHashYet": "Ще немає кореневого хешу",
+            "blockHash": "Хеш блоку",
+            "noBlockHashYet": "Ще немає хешу блоку",
             "committedAt": "Затверджений",
             "commitTxHash": "Завірений хеш",
             "notYetCommitted": "Ще не затверджено",
@@ -36,7 +37,10 @@
             "notYetProven": "Ще не підтверджений",
             "executeTxHash": "Виконання хешу",
             "executedAt": "Виконаний",
-            "notYetExecuted": "Ще не виконано"
+            "notYetExecuted": "Ще не виконано",
+            "notFound": "Не знайдено",
+            "notFoundHomePage": "У нас ще немає жодних блоків. Будь ласка, перевірте пізніше.",
+            "prividiumNotFoundHomePage": "Для вас немає видимих блоків на даний момент"
         },
         "status": {
             "verified": "Перевірено",
@@ -49,11 +53,17 @@
         "transactionTableError": "Щось пішло не так",
         "transactionTable": {
             "title": "Транзакції Блоку",
-            "showMore": "Показати більше транзакцій ->"
-        }
+            "showMore": "Показати більше транзакцій ->",
+            "noTransactions": "Цей блок не має жодних транзакцій",
+            "prividiumNoTransactions": "У цьому блоці для вас немає видимих транзакцій",
+            "blockNotFound": "Цей блок ще не створено або не затверджено"
+        },
+        "tooltipInfo": "Останні блоки згенеровані мережею",
+        "viewAll": "Переглянути всі блоки"
     },
     "transfers": {
         "notFound": "Для даної адреси трансфери відсутні на цей момент",
+        "prividiumNotFound": "Для даної адреси для вас немає видимих трансферів",
         "table": {
             "transactionHash": "Хеш Транзакції",
             "age": "Створено",
@@ -73,11 +83,14 @@
         "table": {
             "status": "Статус",
             "statusTooltip": "Статус транзакції",
-            "reason": "Причина",
-            "reasonTooltip": "Причина невиконання транзакції",
+            "reason": "Причина відкату",
+            "reasonTooltip": "Причина відкату транзакції",
+            "error": "Помилка",
+            "errorTooltip": "Повідомлення про помилку транзакції",
             "transactionHash": "Хеш Транзакції",
             "nonce": "Нонс",
-            "created": "Створено",
+            "receivedAt": "Отримано",
+            "receivedAtTooltip": "Час коли транзакцію було отримано",
             "from": "Від",
             "to": "До",
             "block": "Блок",
@@ -96,6 +109,8 @@
             "inputData": "Дані",
             "contractHash": "Хеш Контракту",
             "notFound": "Не знайдено",
+            "notFoundHomePage": "У нас ще немає жодних транзакцій. Будь ласка, перевірте пізніше.",
+            "prividiumNotFoundHomePage": "Для вас немає видимих транзакцій на даний момент",
             "footer": {
                 "showMore": "Показати більше транзакцій ->",
                 "unableToLoadMore": "Неможливо завантажити більше",
@@ -143,7 +158,8 @@
         "loadingInfoFailed": "Не вдалося завантажити інформацію про транзакцію",
         "transactionNotFound": "Транзакцію не знайдено",
         "transactionInfo": "Інформація про транзакцію",
-        "tryRequestAgain": "Спробуйте знову"
+        "tryRequestAgain": "Спробуйте знову",
+        "viewAll": "Переглянути всі транзакції"
     },
     "header": {
         "nav": {
@@ -175,8 +191,9 @@
         "subtitle": "zkRollups значно дешевше, ніж L1 або Optimistic Rollups"
     },
     "blockExplorer": {
-        "title": "zkSync Era Провідник",
+        "title": "{brandName} Провідник",
         "subtitle": "Переглядайте в режимі реального часу інформацію про блоки, транзакції, контракти та іншу активність у мережі.",
+        "prividiumSubtitle": "{brandName} приватний блокчейн-провідник з контрольованим доступом надає всю інформацію для глибокого аналізу транзакцій, блоків, контрактів та багато іншого.",
         "latestBlocks": "Останні Блоки",
         "latestTransactions": "Останні транзакції"
     },
@@ -188,17 +205,30 @@
         "infoTableError": "Виникла помилка",
         "balanceTableTitle": "Мої кошти",
         "notFound": "Не знайдено",
+        "verified": "вихідний код",
+        "verifiedTooltip": "Вихідний код контракту було перевірено на відповідність його байт-коду в мережі. Перевірений вихідний код не означає, що контракт безпечний для взаємодії.",
+        "evm": "EVM",
+        "created": "Створено",
+        "contractCreated": "Контракт створено",
         "transactionTable": {
             "error": "Щось пішло не так",
             "notFound": {
                 "title": "Цей смарт-контракт не має жодних транзакцій",
                 "subtitle": "Ми не можемо знайти жодних транзакцій, пов’язаних із цим смарт-контрактом. Це ваш шанс бути першим"
+            },
+            "prividiumNotFound": {
+                "title": "Транзакції не знайдено",
+                "subtitle": "Можливо, у вас немає дозволу на перегляд транзакцій цього смарт-контракту, або їх ще не існує"
             }
         },
         "balances": {
             "notFound": {
                 "title": "Цей смарт-контракт не має жодних коштів",
                 "subtitle": "Ми не можемо знайти жодних коштів, пов’язаних із цим смарт-контрактом."
+            },
+            "prividiumNotFound": {
+                "title": "Баланси не знайдено",
+                "subtitle": "Можливо, у вас немає дозволу на перегляд балансів цього смарт-контракту, або токенові баланси відсутні"
             }
         },
         "table": {
@@ -213,11 +243,14 @@
             "verifyButton": "Завірити Смарт Контракт",
             "deployedBytecode": "Розгорнутий байт-код",
             "sourceCode": "Вихідний код"
+        },
+        "abiInteraction": {
+            "contractAbi": "ABI контракту"
         }
     },
     "contractVerification": {
         "title": "Верифікація Смарт контракту",
-        "subtitle": "Перевірка вихідного коду забезпечує прозорість для користувачів, які взаємодіють зі смарт-контрактами. Завантаживши вихідний код, Era Explorer зіставить скомпільований код із кодом у блокчейні.",
+        "subtitle": "Перевірка вихідного коду забезпечує прозорість для користувачів, які взаємодіють зі смарт-контрактами. Завантаживши вихідний код, Explorer зіставить скомпільований код із кодом у блокчейні.",
         "form": {
             "title": "Деталі Контракту",
             "compilationInfo": "Деталі компіляції",
@@ -237,6 +270,15 @@
                 "placeholder": "Імʼя",
                 "validation": {
                     "required": "Імʼя контракту є обовʼязковим"
+                }
+            },
+            "contractPath": {
+                "label": "Шлях до контракту",
+                "underline": "Відносний шлях до вашого контракту на момент компіляції",
+                "solcPlaceholder": "contracts/ContractFile.sol",
+                "vyperPlaceholder": "contracts/ContractFile.vy",
+                "validation": {
+                    "required": "Шлях до контракту є обов'язковим"
                 }
             },
             "optimizationUsed": {
@@ -334,7 +376,27 @@
         "table": {
             "tokenName": "Назва Токена",
             "price": "Ціна",
-            "tokenAddress": "Адреса Токена"
+            "tokenAddress": "Адреса Токена",
+            "bridged": {
+                "title": "Бридж",
+                "tooltip": "Цей токен перенесений з L1 до {brandName}"
+            },
+            "native": {
+                "title": "L2-нативний",
+                "tooltip": "Цей токен є нативним для {brandName}"
+            },
+            "tokenAddressL2": "L2 Адреса Токена",
+            "tokenAddressL1": "L1 Адреса Токена"
+        }
+    },
+    "tokenHolders": {
+        "notFound": "Для даного токена токен-власники відсутні на цей момент",
+        "prividiumNotFound": "Для цього токена для вас немає видимих власників",
+        "table": {
+            "address": "Адреса",
+            "balance": "Баланс",
+            "percentage": "Відсоток",
+            "value": "Вартість"
         }
     },
     "timeMessages": {
@@ -364,8 +426,27 @@
         "second": "сек.",
         "secondPlural": "сек."
     },
-    "addressView" : {
+    "addressView": {
         "title": "Адреса"
+    },
+    "tokenView": {
+        "title": "Токен",
+        "token": "Токен",
+        "table": {
+            "market": {
+                "marketCap": "Капіталізація ринку",
+                "totalSupply": "Загальна кількість",
+                "circulatingSupply": "Обігова кількість",
+                "price": "Ціна",
+                "decimals": "Десяткові"
+            },
+            "overview": {
+                "holders": "Власники",
+                "maxTotalSupply": "Максимальна загальна кількість",
+                "totalTransfers": "Загальна кількість трансферів",
+                "tokenContract": "Контракт Токена"
+            }
+        }
     },
     "accountView": {
         "title": "Профіль",
@@ -382,6 +463,10 @@
             "notFound": {
                 "title": "Цей профіль не має жодних транзакцій",
                 "subtitle": "Ми не можемо знайти жодних транзакцій, пов’язаних із цим акаунтом. Це ваш шанс бути першим"
+            },
+            "prividiumNotFound": {
+                "title": "Транзакції не знайдено",
+                "subtitle": "Можливо, у вас немає дозволу на перегляд транзакцій цього акаунту, або їх ще не існує"
             }
         },
         "balanceTableTitle": "Мої кошти",
@@ -389,6 +474,10 @@
             "notFound": {
                 "title": "Цей профіль не має жодних коштів",
                 "subtitle": "Ми не можемо знайти жодних коштів, пов’язаних із цим акаунтом."
+            },
+            "prividiumNotFound": {
+                "title": "Баланси не знайдено",
+                "subtitle": "Можливо, у вас немає дозволу на перегляд балансів цього акаунту, або токенові баланси відсутні"
             }
         }
     },
@@ -401,7 +490,7 @@
         }
     },
     "document": {
-        "title": "zkSync Era Провідник",
+        "title": "{brandName} Провідник",
         "home": "Транзакції, Блоки, Контракти та інше"
     },
     "notFound": {
@@ -412,7 +501,10 @@
     },
     "tabs": {
         "transactions": "Транзакції",
-        "contract": "Контракт"
+        "contract": "Контракт",
+        "events": "Події",
+        "transfers": "Трансфери",
+        "holders": "Власники"
     },
     "debuggerTool": {
         "title": "zkEVM Налагоджувач",
@@ -421,7 +513,7 @@
         "orDropHere": "або перенесіть сюди",
         "unableToParseTrace": "На жаль, не вдалося проаналізувати цей файл трасування",
         "transaction": "Транзакція: з файлу трасування",
-        "executionStepNavigation":"Стрілка Вліво/Вправо",
+        "executionStepNavigation": "Стрілка Вліво/Вправо",
         "searchPlaceholder": "Пошук",
         "metadataBlock": {
             "contract": "Контракт",
@@ -439,7 +531,10 @@
         }
     },
     "systemAlert": {
-        "indexerDelayed": "Індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі.",
-        "indexerDelayedDueToHeavyLoad": "Мережа наразі перебуває під великим навантаженням, індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://zksync.io/explore/\" style=\"color: inherit\">блок експлорерами</a> наразі."
+        "indexerDelayed": "Індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">блок експлорерами</a> наразі.",
+        "indexerDelayedDueToHeavyLoad": "Мережа наразі перебуває під великим навантаженням, індексація транзакцій відстає на {indexerDelayInHours} годин. Транзакції будуть поступово оброблені та відображені. Ви також можете скористатися іншими <a href=\"https://www.zksync.io/era#explorers\" style=\"color: inherit\">блок експлорерами</a> наразі."
+    },
+    "pagination": {
+        "records": "записи"
     }
 }

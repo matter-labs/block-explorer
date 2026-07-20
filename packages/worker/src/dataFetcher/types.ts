@@ -1,4 +1,4 @@
-import { types } from "zksync-web3";
+import { type Block, type TransactionResponse, type TransactionReceipt } from "ethers";
 import { TokenType } from "../entities/token.entity";
 import { TransferType } from "../entities/transfer.entity";
 
@@ -31,6 +31,7 @@ export interface Transfer {
   logIndex: number;
   fields?: TransferFields;
   isInternal: boolean;
+  chainId?: string;
 }
 
 export interface Token {
@@ -51,6 +52,7 @@ export interface ContractAddress {
   creatorAddress: string;
   logIndex: number;
   bytecode?: string;
+  isEvmLike: boolean;
 }
 
 export interface LogsData {
@@ -61,7 +63,7 @@ export interface LogsData {
 
 export interface TransactionInfo
   extends Modify<
-    types.TransactionResponse,
+    TransactionResponse,
     {
       gasPrice: string;
       maxPriorityFeePerGas: string;
@@ -70,44 +72,37 @@ export interface TransactionInfo
       value: string;
     }
   > {
-  // TransactionDetails fields
-  fee: string;
-  receiptStatus: number;
-  isL1Originated: boolean;
-  receivedAt: string;
   error?: string;
   revertReason?: string;
 }
 
-export type TransactionReceipt = Modify<
-  types.TransactionReceipt,
+export type TransactionReceiptInfo = Modify<
+  TransactionReceipt,
   {
     gasUsed: string;
-    cumulativeGasUsed: string;
-    effectiveGasPrice: string;
+    gasPrice: string;
   }
 >;
 
-export interface TransactionData extends LogsData {
+export interface TransactionData {
   transaction: TransactionInfo;
-  transactionReceipt: TransactionReceipt;
+  transactionReceipt: TransactionReceiptInfo;
+  contractAddresses: ContractAddress[];
+  tokens?: Token[];
+  transfers: Transfer[];
 }
 
-export type Block = Modify<
-  types.Block,
+export type BlockInfo = Modify<
+  Block,
   {
     gasLimit: string;
     gasUsed: string;
     baseFeePerGas: string;
-    _difficulty: string;
   }
 >;
 
 export interface BlockData {
-  block: Block;
-  blockDetails: types.BlockDetails;
+  block: BlockInfo;
   transactions: TransactionData[];
-  blockLogs: types.Log[];
-  blockTransfers: Transfer[];
   changedBalances: Balance[];
 }

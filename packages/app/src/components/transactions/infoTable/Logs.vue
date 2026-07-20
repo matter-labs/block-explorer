@@ -190,7 +190,7 @@ function scrollPageToTop() {
   }
 
   .pagination {
-    @apply flex justify-center p-3;
+    @apply p-3;
   }
   .loading-row {
     .table-body-col {

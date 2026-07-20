@@ -1,7 +1,13 @@
 <template>
   <div class="home">
-    <h1 class="title">{{ t("blockExplorer.title") }}</h1>
-    <div class="subtitle">{{ t("blockExplorer.subtitle") }}</div>
+    <h1 class="title">{{ t("blockExplorer.title", { brandName }) }}</h1>
+    <div class="subtitle">
+      {{
+        runtimeConfig.appEnvironment === "prividium"
+          ? t("blockExplorer.prividiumSubtitle", { brandName })
+          : t("blockExplorer.subtitle", { brandName })
+      }}
+    </div>
     <SearchForm class="search-form" />
     <div class="section">
       <NetworkStats
@@ -15,22 +21,28 @@
     </div>
     <div class="latest-blocks-transactions">
       <div>
-        <div class="batches-label-container">
-          <p>{{ t("blockExplorer.batches") }}</p>
-          <InfoTooltip class="batches-tooltip">{{ t("batches.tooltipInfo") }}</InfoTooltip>
+        <div class="blocks-label-container">
+          <p>{{ t("blockExplorer.latestBlocks") }}</p>
+          <InfoTooltip class="blocks-tooltip">{{ t("blocks.tooltipInfo") }}</InfoTooltip>
         </div>
-        <TableBatches
-          v-if="(isBatchesPending || batches) && !isBatchesFailed"
-          :data-testid="$testId.latestBatchesTable"
-          :loading="isBatchesPending"
-          :batches="displayedBatches"
-          :columns="['status', 'size', 'txnBatch', 'age']"
-        >
-          <template #not-found>
-            <p class="not-found">{{ t("batches.table.notFoundHomePage") }}</p>
-          </template>
-        </TableBatches>
-        <span v-else-if="isBatchesFailed" class="error-message">
+        <template v-if="(isBlocksPending || blocks) && !isBlocksFailed">
+          <TableBlocks :data-testid="$testId.latestBlocksTable" :loading="isBlocksPending" :blocks="displayedBlocks">
+            <template #not-found>
+              <p class="not-found">
+                {{
+                  runtimeConfig.appEnvironment === "prividium"
+                    ? t("blocks.table.prividiumNotFoundHomePage")
+                    : t("blocks.table.notFoundHomePage")
+                }}
+              </p>
+            </template>
+          </TableBlocks>
+          <Button variant="outlined" color="primary" @click="router.push('blocks')">
+            {{ t("blocks.viewAll") }}
+            <ArrowRightIcon class="blocks-view-all-arrow" />
+          </Button>
+        </template>
+        <span v-else-if="isBlocksFailed" class="error-message">
           {{ t("failedRequest") }}
         </span>
       </div>
@@ -44,10 +56,20 @@
         >
           <template #not-found>
             <TableBodyColumn>
-              <p class="not-found">{{ t("transactions.table.notFoundHomePage") }}</p>
+              <p class="not-found">
+                {{
+                  runtimeConfig.appEnvironment === "prividium"
+                    ? t("transactions.table.prividiumNotFoundHomePage")
+                    : t("transactions.table.notFoundHomePage")
+                }}
+              </p>
             </TableBodyColumn>
           </template>
         </TransactionsTable>
+        <Button variant="outlined" color="primary" @click="router.push('transactions')">
+          {{ t("transactions.viewAll") }}
+          <ArrowRightIcon class="transactions-view-all-arrow" />
+        </Button>
       </div>
     </div>
   </div>
@@ -56,27 +78,35 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { ArrowRightIcon } from "@heroicons/vue/outline";
+
 import NetworkStats from "@/components/NetworkStats.vue";
 import SearchForm from "@/components/SearchForm.vue";
-import TableBatches from "@/components/batches/Table.vue";
+import TableBlocks from "@/components/blocks/Table.vue";
+import Button from "@/components/common/Button.vue";
 import InfoTooltip from "@/components/common/InfoTooltip.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TransactionsTable from "@/components/transactions/Table.vue";
 
-import useBatches from "@/composables/useBatches";
+import useBlocks from "@/composables/useBlocks";
 import useNetworkStats from "@/composables/useNetworkStats";
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
+import router from "@/router";
 
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
+const { brandName } = runtimeConfig;
 const { fetch: fetchNetworkStats, pending: networkStatsPending, item: networkStats } = useNetworkStats();
-const { load: getBatches, pending: isBatchesPending, failed: isBatchesFailed, data: batches } = useBatches();
+const { load: getBlocks, pending: isBlocksPending, failed: isBlocksFailed, data: blocks } = useBlocks();
 
-const displayedBatches = computed(() => {
-  return batches.value ? batches.value : [];
+const displayedBlocks = computed(() => {
+  return blocks.value ? blocks.value : [];
 });
 
 fetchNetworkStats();
 
-getBatches(1, new Date());
+getBlocks(1);
 </script>
 
 <style lang="scss" scoped>
@@ -115,11 +145,15 @@ getBatches(1, new Date());
     .error-message {
       @apply h-full;
     }
-    .batches-label-container {
+    .blocks-label-container {
       @apply flex items-center gap-x-1;
-      .batches-tooltip {
+      .blocks-tooltip {
         @apply mb-3;
       }
+    }
+    .blocks-view-all-arrow,
+    .transactions-view-all-arrow {
+      @apply ml-1 w-4;
     }
   }
 

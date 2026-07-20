@@ -2,24 +2,51 @@ import { computed } from "vue";
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { $fetch } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import useAddress from "@/composables/useAddress";
 
+import type { SpyInstance } from "vitest";
+
 vi.mock("ohmyfetch", () => {
-  return {
-    $fetch: vi.fn(async (url: string) => {
-      if (url.includes("contract_verification")) {
-        return {
-          artifacts: { abi: "abi" },
-        };
-      }
+  const fetchSpy = vi.fn(async (url: string) => {
+    if (url.includes("action=getsourcecode")) {
       return {
-        address: url.split("/").pop(),
-        balances: {},
-        type: url.endsWith("a") ? "account" : "contract",
+        status: "1",
+        result: [
+          {
+            ABI: "[]",
+            SourceCode:
+              '{{"language":"Solidity","settings":{"optimizer":{"enabled":true,"runs":200},"evmVersion":"istanbul","libraries":{}},"sources":{"DARA2.sol":{"content":"\\n}"}}}}',
+            CompilerVersion: "v0.8.16+commit.07a7930e",
+            ContractName: "DARA2",
+            OptimizationUsed: "1",
+            Runs: "200",
+            ConstructorArguments: "",
+            EVMVersion: "istanbul",
+            Implementation: "",
+            Proxy: "0",
+            Library: "",
+            LicenseType: "Unknown",
+            SwarmSource: "",
+            VerifiedAt: "2022-09-23T11:36:07.988424532Z",
+            Match: "match",
+          },
+        ],
       };
-    }),
+    }
+    return {
+      address: url.slice(url.length - 42),
+      balances: {},
+      type: url.endsWith("a") ? "account" : "contract",
+    };
+  });
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
+  return {
+    $fetch: fetchSpy,
+    FetchError: function error() {
+      return;
+    },
   };
 });
 
@@ -31,29 +58,44 @@ vi.mock("ethers", async () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     ...actualEthers,
-    ethers: {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      ...actualEthers.ethers,
-      Contract: vi.fn().mockReturnValue({
-        implementation: () => mockContractImplementation(),
-      }),
-    },
+    Contract: vi.fn().mockReturnValue({
+      implementation: () => mockContractImplementation(),
+    }),
   };
 });
 
-const mockGetStorageAt = vi.fn().mockResolvedValue("0x000000000000000000000000000000000000000000000000000000000000");
+const mockGetStorage = vi.fn().mockResolvedValue("0x000000000000000000000000000000000000000000000000000000000000");
 
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
       currentNetwork: computed(() => ({ verificationApiUrl: "http://verification.url", apiUrl: "http://api2.url" })),
       getL2Provider: vi.fn().mockReturnValue({
-        getStorageAt: (slot: string) => mockGetStorageAt(slot),
+        getStorage: (slot: string) => mockGetStorage(slot),
       }),
     }),
   };
 });
+
+const mappedVerificationInfo = {
+  abi: [],
+  compilation: {
+    compilerSettings: {
+      evmVersion: "istanbul",
+      libraries: {},
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+    compilerVersion: "v0.8.16+commit.07a7930e",
+    fullyQualifiedName: "DARA2",
+    language: "Solidity",
+  },
+  sources: { "DARA2.sol": { content: "\n}" } },
+  match: "match",
+  verifiedAt: "2022-09-23T11:36:07.988424532Z",
+};
 
 describe("useAddresses", () => {
   afterEach(() => {
@@ -79,12 +121,38 @@ describe("useAddresses", () => {
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1a");
       expect(isRequestPending.value).toEqual(false);
     });
-    it("sets isRequestFailed to true when request failed", async () => {
+    it("sets isRequestFailed to true when request fails with a non-FetchError", async () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const mock = ($fetch as any).mockRejectedValueOnce(new Error("An error occurred"));
       const { isRequestFailed, getByAddress } = useAddress();
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1a");
 
+      expect(isRequestFailed.value).toEqual(true);
+      mock.mockRestore();
+    });
+    it.each([403, 404])("routes FetchError status %i to the not-found view (isRequestFailed false)", async (status) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error: any = new FetchError(String(status));
+      error.response = { status };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mock = ($fetch as any).mockRejectedValueOnce(error);
+      const { isRequestFailed, item, getByAddress } = useAddress();
+      await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1a");
+
+      expect(item.value).toEqual(null);
+      expect(isRequestFailed.value).toEqual(false);
+      mock.mockRestore();
+    });
+    it.each([400, 500])("shows the error page for FetchError status %i (isRequestFailed true)", async (status) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const error: any = new FetchError(String(status));
+      error.response = { status };
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const mock = ($fetch as any).mockRejectedValueOnce(error);
+      const { isRequestFailed, item, getByAddress } = useAddress();
+      await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1a");
+
+      expect(item.value).toEqual(null);
       expect(isRequestFailed.value).toEqual(true);
       mock.mockRestore();
     });
@@ -95,24 +163,20 @@ describe("useAddresses", () => {
       const { item, getByAddress } = useAddress();
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
       expect($fetch).toBeCalledWith(
-        "http://verification.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c"
+        "?module=contract&action=getsourcecode&address=0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c"
       );
       expect($fetch).toBeCalledWith(
-        "http://verification.url/contract_verification/info/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10"
+        "?module=contract&action=getsourcecode&address=0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10"
       );
       expect(item.value).toEqual({
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
         type: "contract",
-        verificationInfo: {
-          artifacts: { abi: "abi" },
-        },
+        verificationInfo: mappedVerificationInfo,
         proxyInfo: {
           implementation: {
             address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10",
-            verificationInfo: {
-              artifacts: { abi: "abi" },
-            },
+            verificationInfo: mappedVerificationInfo,
           },
         },
       });
@@ -124,7 +188,7 @@ describe("useAddresses", () => {
       const { item, getByAddress } = useAddress({ currentNetwork } as any);
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
       expect($fetch).toHaveBeenCalledOnce();
-      expect($fetch).toHaveBeenCalledWith("http://api.url/address/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+      expect($fetch).toHaveBeenCalledWith("/address/0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
       expect(item.value).toEqual({
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
@@ -143,15 +207,11 @@ describe("useAddresses", () => {
         address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
         balances: {},
         type: "contract",
-        verificationInfo: {
-          artifacts: { abi: "abi" },
-        },
+        verificationInfo: mappedVerificationInfo,
         proxyInfo: {
           implementation: {
             address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a10",
-            verificationInfo: {
-              artifacts: { abi: "abi" },
-            },
+            verificationInfo: mappedVerificationInfo,
           },
         },
       });
@@ -160,7 +220,7 @@ describe("useAddresses", () => {
     describe("when proxy implementation function does not exist", () => {
       it("takes proxy implementation contract from eip1967 implementation storage slot when it exists", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x00000000000000000000c31f9d4cbf557b6cf0ad2af66d44c358f7fa7a12")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000");
@@ -173,15 +233,11 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a12",
-              verificationInfo: {
-                artifacts: { abi: "abi" },
-              },
+              verificationInfo: mappedVerificationInfo,
             },
           },
         });
@@ -189,7 +245,7 @@ describe("useAddresses", () => {
 
       it("takes proxy implementation contract from eip1822 implementation storage slot when it exists", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x00000000000000000000c31f9d4cbf557b6cf0ad2af66d44c358f7fa7a13");
@@ -202,15 +258,11 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a13",
-              verificationInfo: {
-                artifacts: { abi: "abi" },
-              },
+              verificationInfo: mappedVerificationInfo,
             },
           },
         });
@@ -219,7 +271,7 @@ describe("useAddresses", () => {
       it("takes proxy implementation contract from beacon contract by eip1967 beacon storage slot when it exists", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
         mockContractImplementation.mockResolvedValueOnce("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a14");
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x00000000000000000000c31f9d4cbf557b6cf0ad2af66d44c358f7fa7a13")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000");
@@ -232,15 +284,11 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: {
             implementation: {
               address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a14",
-              verificationInfo: {
-                artifacts: { abi: "abi" },
-              },
+              verificationInfo: mappedVerificationInfo,
             },
           },
         });
@@ -248,7 +296,7 @@ describe("useAddresses", () => {
 
       it("returns proxyInfo as null when contract is not a proxy", async () => {
         mockContractImplementation.mockRejectedValueOnce(new Error("function does not exist"));
-        mockGetStorageAt
+        mockGetStorage
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000")
           .mockResolvedValueOnce("0x000000000000000000000000000000000000000000000000000000000000");
@@ -261,9 +309,7 @@ describe("useAddresses", () => {
           address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
           balances: {},
           type: "contract",
-          verificationInfo: {
-            artifacts: { abi: "abi" },
-          },
+          verificationInfo: mappedVerificationInfo,
           proxyInfo: null,
         });
       });

@@ -1,5 +1,3 @@
-import { BigNumber } from "ethers";
-
 import type { AbiFragment } from "@/composables/useAddress";
 import type { TransactionLogEntry } from "@/composables/useEventLog";
 import type { HexDecimals, TraceStep } from "@/composables/useTrace";
@@ -10,7 +8,7 @@ import { decodeLogWithABI } from "@/utils/helpers";
 export function mapContractEvents(contractEvents: TransactionLogEntry[], abi?: AbiFragment[]): TransactionLogEntry[] {
   return contractEvents.map((e) => ({
     ...e,
-    blockNumber: BigNumber.from(e.blockNumber),
+    blockNumber: BigInt(e.blockNumber),
     event: abi ? decodeLogWithABI(e, abi) : undefined,
     address: checksumAddress(e.address),
   }));

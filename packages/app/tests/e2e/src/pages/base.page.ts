@@ -20,6 +20,10 @@ export class BasePage {
     return "//*[@aria-label='Pagination']";
   }
 
+  get pageSizeDropdown() {
+    return "//div[contains(@class, 'page-size-container')]";
+  }
+
   async getColumnByText(text: string) {
     element = `//th[text()="${text}"]`;
     result = await this.world.page?.locator(element).first();

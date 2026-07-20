@@ -1,23 +1,25 @@
 import { setWorldConstructor, World } from "@cucumber/cucumber";
 
 import type { IWorldOptions } from "@cucumber/cucumber";
-import type * as messages from "@cucumber/messages";
-import type { BrowserContext, Page, PlaywrightTestOptions } from "@playwright/test";
+import type { Pickle } from "@cucumber/messages";
+import type { PlaywrightTestOptions } from "@playwright/test";
+import type { Dappwright } from "@tenkeylabs/dappwright";
 import type { AxiosInstance } from "axios";
+import type { Browser, BrowserContext, Page } from "playwright-core";
 
 export interface ICustomWorld extends World {
-  debug: boolean;
-  feature?: messages.Pickle;
+  browser?: Browser | null;
   context?: BrowserContext;
-  persistentContext?: BrowserContext;
   page?: Page;
-  testName?: string;
-  startTime?: Date;
+  feature?: Pickle;
   server?: AxiosInstance;
   playwrightOptions?: PlaywrightTestOptions;
+  metamask?: Dappwright;
+  testName?: string;
 }
 
 export class CustomWorld extends World implements ICustomWorld {
+  metamask: Dappwright | undefined;
   constructor(options: IWorldOptions) {
     super(options);
   }

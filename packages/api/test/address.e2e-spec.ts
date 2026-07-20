@@ -1,6 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
-import * as request from "supertest";
+import request from "supertest";
 import { Repository } from "typeorm";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { AppModule } from "../src/app.module";
@@ -8,17 +8,21 @@ import { configureApp } from "../src/configureApp";
 import { Address } from "../src/address/address.entity";
 import { Balance } from "../src/balance/balance.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
+import { BlockStatus } from "../src/block/block.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { Log } from "../src/log/log.entity";
-import { Token, TokenType, ETH_TOKEN } from "../src/token/token.entity";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
+import { Token, TokenType } from "../src/token/token.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
+import { baseToken } from "../src/config";
+import { computeFromToMinMax } from "../src/common/utils";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("AddressController (e2e)", () => {
+  const ETH_TOKEN = baseToken;
   let app: INestApplication;
   let addressRepository: Repository<Address>;
   let blockRepository: Repository<BlockDetails>;
@@ -28,14 +32,14 @@ describe("AddressController (e2e)", () => {
   let logRepository: Repository<Log>;
   let tokenRepository: Repository<Token>;
   let balanceRepository: Repository<Balance>;
-  let batchRepository: Repository<BatchDetails>;
   let counterRepository: Repository<Counter>;
   let transferRepository: Repository<Transfer>;
   let addressTransferRepository: Repository<AddressTransfer>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.build()],
     }).compile();
 
     app = moduleFixture.createNestApplication({ logger: false });
@@ -43,6 +47,9 @@ describe("AddressController (e2e)", () => {
     configureApp(app);
 
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 106 });
 
     addressRepository = app.get<Repository<Address>>(getRepositoryToken(Address));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
@@ -52,29 +59,9 @@ describe("AddressController (e2e)", () => {
     logRepository = app.get<Repository<Log>>(getRepositoryToken(Log));
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     balanceRepository = app.get<Repository<Balance>>(getRepositoryToken(Balance));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
     counterRepository = app.get<Repository<Counter>>(getRepositoryToken(Counter));
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     addressTransferRepository = app.get<Repository<AddressTransfer>>(getRepositoryToken(AddressTransfer));
-
-    for (let i = 0; i < 6; i++) {
-      const isExecuted = i < 3;
-      await batchRepository.insert({
-        number: i,
-        rootHash: `0x1915069f839c80d8bf1df2ba08dc41fbca1fcae62ecf3a148dda013d520a360${i}`,
-        timestamp: new Date("2022-11-10T14:44:05.000Z"),
-        l1GasPrice: "10000000",
-        l2FairGasPrice: "20000000",
-        l1TxCount: 1,
-        l2TxCount: 2,
-        commitTxHash: isExecuted ? "0x546b26df0927cd01611e41b136b35317a991597ed7a01843b5f47460a3549a2b" : null,
-        proveTxHash: isExecuted ? "0x253d496e6dc5a019f12a2b560798a222657f37f4da29dafcd100ba97c79baddc" : null,
-        executeTxHash: isExecuted ? "0xebbe54f44eb960094264315bbddf468871e489abbd4d9af9e3bd96e38f08ddab" : null,
-        committedAt: isExecuted ? new Date("2022-11-10T14:44:06.000Z") : null,
-        provenAt: isExecuted ? new Date("2022-11-10T14:44:07.000Z") : null,
-        executedAt: isExecuted ? new Date("2022-11-10T14:44:08.000Z") : null,
-      });
-    }
 
     for (let i = 1; i <= 5; i++) {
       await blockRepository.insert({
@@ -85,10 +72,10 @@ describe("AddressController (e2e)", () => {
         gasUsed: "0",
         baseFeePerGas: "0",
         extraData: "0x",
-        l1BatchNumber: i < 4 ? 4 : 2,
         l1TxCount: 1,
         l2TxCount: 1,
         miner: "0x0000000000000000000000000000000000000000",
+        status: BlockStatus.Executed,
       });
     }
 
@@ -106,7 +93,6 @@ describe("AddressController (e2e)", () => {
         blockHash: "0xeb5ead20476b91008c3b6e44005017e697de78e4fd868d99d2c58566655c5ace",
         receivedAt: "2022-11-21T18:16:51.000Z",
         isL1Originated: i > 4,
-        l1BatchNumber: i < 3 ? 2 : 5,
         receiptStatus: 1,
         gasLimit: "1000000",
         gasPrice: "100",
@@ -135,6 +121,7 @@ describe("AddressController (e2e)", () => {
         cumulativeGasUsed: "1100000",
         contractAddress:
           i <= 4 ? "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb68" : "0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69",
+        blockNumber: i < 6 ? i : 5,
       });
     }
 
@@ -325,7 +312,7 @@ describe("AddressController (e2e)", () => {
         transactionIndex: i,
         timestamp: new Date("2022-11-21T18:16:51.000Z"),
         type,
-        tokenType: i % 2 ? TokenType.ERC20 : TokenType.ETH,
+        tokenType: i % 2 ? TokenType.ERC20 : TokenType.BaseToken,
         tokenAddress:
           i % 2 ? "0x97d0a23f34e535e44df8ba84c53a0945cf0eeb67" : "0x000000000000000000000000000000000000800a",
         logIndex: i,
@@ -333,7 +320,10 @@ describe("AddressController (e2e)", () => {
         isInternal: false,
       };
 
-      const insertResult = await transferRepository.insert(transferSpec);
+      const insertResult = await transferRepository.insert({
+        ...transferSpec,
+        ...computeFromToMinMax(transferSpec.from, transferSpec.to),
+      });
 
       for (const address of new Set([transferSpec.from, transferSpec.to])) {
         await addressTransferRepository.insert({
@@ -353,17 +343,17 @@ describe("AddressController (e2e)", () => {
   });
 
   afterAll(async () => {
-    await balanceRepository.delete({});
-    await logRepository.delete({});
-    await addressTransferRepository.delete({});
-    await transferRepository.delete({});
-    await addressRepository.delete({});
-    await tokenRepository.delete({});
-    await transactionReceiptRepository.delete({});
-    await addressTransactionRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
-    await batchRepository.delete({});
+    await indexerStateRepository.createQueryBuilder().delete().execute();
+    await balanceRepository.createQueryBuilder().delete().execute();
+    await logRepository.createQueryBuilder().delete().execute();
+    await addressTransferRepository.createQueryBuilder().delete().execute();
+    await transferRepository.createQueryBuilder().delete().execute();
+    await addressRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
 
     await app.close();
   });
@@ -378,7 +368,7 @@ describe("AddressController (e2e)", () => {
             type: "account",
             address: "0xFFfFfFffFFfffFFfFFfFFFFFffFFFffffFfFFFfF",
             balances: {},
-            blockNumber: 5,
+            blockNumber: 106,
             sealedNonce: 0,
             verifiedNonce: 0,
           })
@@ -450,7 +440,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });
@@ -519,7 +509,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });
@@ -588,7 +578,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });
@@ -657,7 +647,7 @@ describe("AddressController (e2e)", () => {
               blockNumber: 103,
               sealedNonce: 47,
               type: "account",
-              verifiedNonce: 45,
+              verifiedNonce: 47,
             })
           );
       });
@@ -788,6 +778,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -847,6 +838,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -906,6 +898,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -965,6 +958,7 @@ describe("AddressController (e2e)", () => {
               createdInBlockNumber: 10,
               creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+              isEvmLike: false,
               totalTransactions: 4,
               type: "contract",
             })
@@ -985,6 +979,7 @@ describe("AddressController (e2e)", () => {
                 createdInBlockNumber: 10,
                 creatorAddress: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
                 creatorTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e15",
+                isEvmLike: false,
                 totalTransactions: 0,
                 type: "contract",
               })
@@ -1025,7 +1020,7 @@ describe("AddressController (e2e)", () => {
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               blockNumber: 1,
               data: "0x",
-              logIndex: 4,
+              logIndex: 17,
               timestamp: "2022-11-21T18:16:51.000Z",
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
@@ -1040,7 +1035,7 @@ describe("AddressController (e2e)", () => {
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               blockNumber: 1,
               data: "0x",
-              logIndex: 5,
+              logIndex: 16,
               timestamp: "2022-11-21T18:16:51.000Z",
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
@@ -1055,7 +1050,7 @@ describe("AddressController (e2e)", () => {
               address: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               blockNumber: 1,
               data: "0x",
-              logIndex: 6,
+              logIndex: 15,
               timestamp: "2022-11-21T18:16:51.000Z",
               topics: [
                 "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
@@ -1186,9 +1181,7 @@ describe("AddressController (e2e)", () => {
 
     it("returns HTTP 200 and address transfers for the specified paging configuration", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body.items).toStrictEqual([
@@ -1196,9 +1189,33 @@ describe("AddressController (e2e)", () => {
               amount: null,
               blockNumber: 1,
               fields: null,
-              from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
+              from: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              to: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
+              token: {
+                l2Address: "0x000000000000000000000000000000000000800A",
+                l1Address: "0x0000000000000000000000000000000000000000",
+                symbol: "ETH",
+                name: "Ether",
+                decimals: 18,
+                iconURL: null,
+                liquidity: null,
+                usdPrice: null,
+              },
+              tokenAddress: "0x000000000000000000000000000000000000800A",
+              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
+              type: "transfer",
+              tokenType: "BASETOKEN",
+              isInternal: false,
+              chainId: null,
+            },
+            {
+              amount: null,
+              blockNumber: 1,
+              fields: null,
+              from: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              timestamp: "2022-11-21T18:16:51.000Z",
+              to: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               token: {
                 decimals: 18,
                 l1Address: null,
@@ -1214,14 +1231,15 @@ describe("AddressController (e2e)", () => {
               type: "mint",
               tokenType: "ERC20",
               isInternal: false,
+              chainId: null,
             },
             {
               amount: null,
               blockNumber: 1,
               fields: null,
-              from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
+              from: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
               timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
+              to: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
               token: {
                 l2Address: "0x000000000000000000000000000000000000800A",
                 l1Address: "0x0000000000000000000000000000000000000000",
@@ -1234,32 +1252,10 @@ describe("AddressController (e2e)", () => {
               },
               tokenAddress: "0x000000000000000000000000000000000000800A",
               transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-              type: "transfer",
-              tokenType: "ETH",
+              type: "withdrawal",
+              tokenType: "BASETOKEN",
               isInternal: false,
-            },
-            {
-              amount: null,
-              blockNumber: 1,
-              fields: null,
-              from: "0x91D0a23f34E535E44dF8ba84c53A0945CF0EEb67",
-              timestamp: "2022-11-21T18:16:51.000Z",
-              to: "0x91d0a23f34e535e44Df8Ba84c53a0945cf0eEB60",
-              token: {
-                decimals: 18,
-                l1Address: null,
-                l2Address: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
-                name: "TEST",
-                symbol: "TST",
-                iconURL: null,
-                liquidity: null,
-                usdPrice: null,
-              },
-              tokenAddress: "0x97d0a23F34E535e44dF8ba84c53A0945cF0eEb67",
-              transactionHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e11",
-              type: "deposit",
-              tokenType: "ERC20",
-              isInternal: false,
+              chainId: null,
             },
           ])
         );
@@ -1267,9 +1263,7 @@ describe("AddressController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging metadata considering limited pagination settings", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body.meta).toStrictEqual({
@@ -1284,34 +1278,27 @@ describe("AddressController (e2e)", () => {
 
     it("returns HTTP 200 and populated paging links considering limited pagination settings", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=2&limit=3&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body.links).toStrictEqual({
-            first:
-              "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
-            last: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=5&limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
-            next: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=3&limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
-            previous:
-              "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=1&limit=3&toDate=2025-11-10T14%3A44%3A38.000Z",
+            first: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?limit=3&toBlock=1",
+            last: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=5&limit=3&toBlock=1",
+            next: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=3&limit=3&toBlock=1",
+            previous: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?page=1&limit=3&toBlock=1",
           })
         );
     });
 
     it("returns HTTP 200 and the default address transfers response if the address does not exist", () => {
       return request(app.getHttpServer())
-        .get(
-          "/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?page=1&limit=10&toDate=2025-11-10T14:44:38.000Z"
-        )
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?page=1&limit=10&toBlock=1")
         .expect(200)
         .expect((res) =>
           expect(res.body).toStrictEqual({
             items: [],
             links: {
-              first:
-                "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?limit=10&toDate=2025-11-10T14%3A44%3A38.000Z",
+              first: "address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb69/transfers?limit=10&toBlock=1",
               last: "",
               next: "",
               previous: "",
@@ -1355,15 +1342,15 @@ describe("AddressController (e2e)", () => {
         .expect(400);
     });
 
-    it("returns HTTP 400 if toDate is not a valid ISO date", () => {
+    it("returns HTTP 400 if toBlock is not a valid integer", () => {
       return request(app.getHttpServer())
-        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?toDate=20000107")
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?toBlock=abc")
         .expect(400);
     });
 
-    it("returns HTTP 400 if fromDate is not a valid ISO date", () => {
+    it("returns HTTP 400 if fromBlock is not a valid integer", () => {
       return request(app.getHttpServer())
-        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?fromDate=20000107")
+        .get("/address/0x91d0a23f34e535e44df8ba84c53a0945cf0eeb67/transfers?fromBlock=abc")
         .expect(400);
     });
   });

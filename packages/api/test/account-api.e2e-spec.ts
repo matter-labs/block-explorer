@@ -1,9 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import * as request from "supertest";
+import request from "supertest";
 import { Repository } from "typeorm";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
@@ -12,9 +11,11 @@ import { Token, TokenType } from "../src/token/token.entity";
 import { Balance } from "../src/balance/balance.entity";
 import { AddressTransfer } from "../src/transfer/addressTransfer.entity";
 import { Transfer, TransferType } from "../src/transfer/transfer.entity";
-import { L2_ETH_TOKEN_ADDRESS } from "../src/common/constants";
+import { BASE_TOKEN_L2_ADDRESS } from "../src/common/constants";
+import { computeFromToMinMax } from "../src/common/utils";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("Account API (e2e)", () => {
   let app: INestApplication;
@@ -24,18 +25,21 @@ describe("Account API (e2e)", () => {
   let transferRepository: Repository<Transfer>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
   let blockRepository: Repository<BlockDetails>;
-  let batchRepository: Repository<BatchDetails>;
   let tokenRepository: Repository<Token>;
   let balanceRepository: Repository<Balance>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.build()],
     }).compile();
 
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();
+
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 2 });
 
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
@@ -43,21 +47,8 @@ describe("Account API (e2e)", () => {
     transferRepository = app.get<Repository<Transfer>>(getRepositoryToken(Transfer));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
     tokenRepository = app.get<Repository<Token>>(getRepositoryToken(Token));
     balanceRepository = app.get<Repository<Balance>>(getRepositoryToken(Balance));
-
-    await batchRepository.insert({
-      number: 0,
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      l1TxCount: 10,
-      l2TxCount: 20,
-      l1GasPrice: "10000000",
-      l2FairGasPrice: "20000000",
-      commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
-      proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
-      executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
-    });
 
     for (let i = 1; i <= 2; i++) {
       await blockRepository.insert({
@@ -70,7 +61,6 @@ describe("Account API (e2e)", () => {
         extraData: "0x",
         l1TxCount: 1,
         l2TxCount: 1,
-        l1BatchNumber: 0,
         miner: "0x0000000000000000000000000000000000000000",
       });
     }
@@ -88,7 +78,6 @@ describe("Account API (e2e)", () => {
       transactionIndex: 1,
       blockNumber: 1,
       receivedAt: "2010-11-21T18:16:00.000Z",
-      l1BatchNumber: 0,
       receiptStatus: 0,
       gasLimit: "1000000",
       gasPrice: "100",
@@ -102,6 +91,7 @@ describe("Account API (e2e)", () => {
       gasUsed: "900000",
       cumulativeGasUsed: "1100000",
       contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+      blockNumber: 1,
     });
 
     await addressTransactionRepository.insert({
@@ -125,7 +115,7 @@ describe("Account API (e2e)", () => {
 
     const tokens = [
       {
-        tokenType: TokenType.ETH,
+        tokenType: TokenType.BaseToken,
         tokenAddress: "0x000000000000000000000000000000000000800a",
       },
       {
@@ -151,7 +141,10 @@ describe("Account API (e2e)", () => {
         amount: (100 + i).toString(),
       };
 
-      const insertResult = await transferRepository.insert(transferSpec);
+      const insertResult = await transferRepository.insert({
+        ...transferSpec,
+        ...computeFromToMinMax(transferSpec.from, transferSpec.to),
+      });
 
       for (const address of new Set([transferSpec.from, transferSpec.to])) {
         await addressTransferRepository.insert({
@@ -170,14 +163,14 @@ describe("Account API (e2e)", () => {
 
     await balanceRepository.insert({
       address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
-      tokenAddress: L2_ETH_TOKEN_ADDRESS,
+      tokenAddress: BASE_TOKEN_L2_ADDRESS,
       blockNumber: 1,
       balance: "1000",
     });
 
     await balanceRepository.insert({
       address: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
-      tokenAddress: L2_ETH_TOKEN_ADDRESS,
+      tokenAddress: BASE_TOKEN_L2_ADDRESS,
       blockNumber: 1,
       balance: "100",
     });
@@ -191,16 +184,16 @@ describe("Account API (e2e)", () => {
   });
 
   afterAll(async () => {
-    await addressTransferRepository.delete({});
-    await transferRepository.delete({});
-    await addressTransactionRepository.delete({});
-    await transactionReceiptRepository.delete({});
-    await transactionRepository.delete({});
-    await transactionRepository.delete({});
-    await balanceRepository.delete({});
-    await tokenRepository.delete({});
-    await blockRepository.delete({});
-    await batchRepository.delete({});
+    await indexerStateRepository.createQueryBuilder().delete().execute();
+    await addressTransferRepository.createQueryBuilder().delete().execute();
+    await transferRepository.createQueryBuilder().delete().execute();
+    await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await balanceRepository.createQueryBuilder().delete().execute();
+    await tokenRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
     await app.close();
   });
 
@@ -230,11 +223,9 @@ describe("Account API (e2e)", () => {
               {
                 blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
                 blockNumber: "1",
-                commitTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e21",
                 confirmations: "1",
                 contractAddress: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
                 cumulativeGasUsed: "1100000",
-                executeTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e23",
                 fee: "10000000000000000",
                 from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 functionName: "",
@@ -245,10 +236,8 @@ describe("Account API (e2e)", () => {
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
                 isError: "1",
                 isL1Originated: "1",
-                l1BatchNumber: "0",
                 methodId: "0x00000000",
                 nonce: "42",
-                proveTxHash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e22",
                 timeStamp: "1290363360",
                 to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
                 transactionIndex: "1",
@@ -297,7 +286,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -321,7 +309,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -345,7 +332,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -385,7 +371,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -409,7 +394,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -433,7 +417,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -471,7 +454,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -495,7 +477,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",
@@ -533,7 +514,6 @@ describe("Account API (e2e)", () => {
                 gasUsed: "900000",
                 hash: "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20",
                 input: "0x000000000000000000000000000000000000000000000000016345785d8a0000",
-                l1BatchNumber: "0",
                 nonce: "42",
                 timeStamp: "1669054611",
                 to: "0xc7E0220D02D549C4846a6eC31d89c3b670ebE35e",

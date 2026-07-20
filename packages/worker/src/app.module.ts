@@ -9,8 +9,12 @@ import { HealthModule } from "./health/health.module";
 import { AppService } from "./app.service";
 import { BlockchainService } from "./blockchain";
 import { BlocksRevertService } from "./blocksRevert";
-import { BatchService } from "./batch";
-import { BlockProcessor, BlockWatcher, BlockService } from "./block";
+import { BlocksEnqueuerService } from "./blocksEnqueuer";
+import { IndexerStateManagerService } from "./indexerStateManager";
+import { BlockStatusService } from "./blockStatus";
+import { BlocksIndexerProcessor, BlocksIndexerService, BlocksIndexerWorkersProvider } from "./blocksIndexer";
+import { IndexerMetricsService } from "./indexerMetrics.service";
+import { ChainTipTracker } from "./chainTipTracker.service";
 import { TransactionProcessor } from "./transaction";
 import { BalanceService, BalancesCleanerService } from "./balance";
 import { TokenService } from "./token/token.service";
@@ -20,7 +24,6 @@ import { PortalsFiTokenOffChainDataProvider } from "./token/tokenOffChainData/pr
 import { TokenOffChainDataSaverService } from "./token/tokenOffChainData/tokenOffChainDataSaver.service";
 import { CounterModule } from "./counter/counter.module";
 import {
-  BatchRepository,
   BlockRepository,
   TransactionRepository,
   AddressTransactionRepository,
@@ -31,9 +34,13 @@ import {
   AddressTransferRepository,
   LogRepository,
   BalanceRepository,
+  VisibleTransactionRepository,
+  AddressVisibleTransactionRepository,
+  VisibleLogRepository,
+  IndexerStateRepository,
+  BlockQueueRepository,
 } from "./repositories";
 import {
-  Batch,
   Block,
   Transaction,
   AddressTransaction,
@@ -44,6 +51,11 @@ import {
   Transfer,
   AddressTransfer,
   Balance,
+  VisibleTransaction,
+  AddressVisibleTransaction,
+  VisibleLog,
+  IndexerState,
+  BlockQueue,
 } from "./entities";
 import { typeOrmModuleOptions } from "./typeorm.config";
 import { JsonRpcProviderModule } from "./rpcProvider/jsonRpcProvider.module";
@@ -52,6 +64,7 @@ import { MetricsModule } from "./metrics";
 import { DbMetricsService } from "./dbMetrics.service";
 import { UnitOfWorkModule } from "./unitOfWork";
 import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
+import { SystemContractService } from "./contract/systemContract.service";
 
 @Module({
   imports: [
@@ -69,7 +82,6 @@ import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
       },
     }),
     TypeOrmModule.forFeature([
-      Batch,
       Block,
       Transaction,
       AddressTransaction,
@@ -80,6 +92,11 @@ import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
       AddressTransfer,
       Transfer,
       Balance,
+      VisibleTransaction,
+      AddressVisibleTransaction,
+      VisibleLog,
+      IndexerState,
+      BlockQueue,
     ]),
     EventEmitterModule.forRoot(),
     JsonRpcProviderModule.forRoot(),
@@ -110,7 +127,6 @@ import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
       inject: [ConfigService, HttpService],
     },
     TokenOffChainDataSaverService,
-    BatchRepository,
     BlockRepository,
     TransactionRepository,
     AddressTransactionRepository,
@@ -121,15 +137,25 @@ import { DataFetcherService } from "./dataFetcher/dataFetcher.service";
     AddressTransferRepository,
     BalanceRepository,
     LogRepository,
+    VisibleTransactionRepository,
+    AddressVisibleTransactionRepository,
+    VisibleLogRepository,
+    IndexerStateRepository,
+    BlockQueueRepository,
     BlocksRevertService,
-    BatchService,
-    BlockProcessor,
+    BlocksEnqueuerService,
+    IndexerStateManagerService,
+    BlockStatusService,
+    BlocksIndexerProcessor,
     TransactionProcessor,
-    BlockWatcher,
-    BlockService,
+    ChainTipTracker,
+    IndexerMetricsService,
+    BlocksIndexerService,
+    BlocksIndexerWorkersProvider,
     Logger,
     RetryDelayProvider,
     DbMetricsService,
+    SystemContractService,
   ],
 })
 export class AppModule {}

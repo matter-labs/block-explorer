@@ -13,8 +13,10 @@ export class TransactionDto {
     type: String,
     description: "The address this transaction is to",
     example: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
   })
-  public readonly to: string;
+  public readonly to?: string;
 
   @ApiProperty({
     type: String,
@@ -121,56 +123,12 @@ export class TransactionDto {
   public readonly receivedAt: Date;
 
   @ApiProperty({
-    type: String,
-    description: "The hash of the transaction that committed the block, null if not committed yet",
-    example: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-    examples: ["0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c", null],
-    nullable: true,
-  })
-  public readonly commitTxHash?: string;
-
-  @ApiProperty({
-    type: String,
-    description: "The hash of the transaction that proved the block, null if not proved yet",
-    example: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-    examples: ["0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c", null],
-    nullable: true,
-  })
-  public readonly proveTxHash?: string;
-
-  @ApiProperty({
-    type: String,
-    description: "The hash of the transaction that executed the block, null if not executed yet",
-    example: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
-    examples: ["0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c", null],
-    nullable: true,
-  })
-  public readonly executeTxHash?: string;
-
-  @ApiProperty({
     type: Boolean,
     description: "Property that shows whether the transaction was originated from L1 network",
     example: true,
     examples: [true, false],
   })
   public readonly isL1Originated: boolean;
-
-  @ApiProperty({
-    type: Number,
-    description: "L1 batch number",
-    example: 3233097,
-    examples: [3233097, null],
-    nullable: true,
-  })
-  public readonly l1BatchNumber?: number;
-
-  @ApiProperty({
-    type: Boolean,
-    description: "Property that shows whether the transaction's L1 batch is already sealed",
-    example: true,
-    examples: [true, false],
-  })
-  public readonly isL1BatchSealed: boolean;
 
   @ApiProperty({
     type: Number,
@@ -204,4 +162,20 @@ export class TransactionDto {
     nullable: true,
   })
   public readonly revertReason?: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Gas used by the transaction",
+    example: "50000000",
+  })
+  public readonly gasUsed: string;
+
+  @ApiProperty({
+    type: String,
+    description: "Address of the deployed contract",
+    example: "50000000",
+    examples: ["0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C", null],
+    nullable: true,
+  })
+  public readonly contractAddress?: string;
 }

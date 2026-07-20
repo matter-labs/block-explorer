@@ -33,8 +33,9 @@ export class ContractDto extends BaseAddressDto {
     type: Number,
     description: "The total number of transactions for the contract",
     example: 12345,
+    required: false,
   })
-  public readonly totalTransactions: number;
+  public readonly totalTransactions?: number;
 
   @ApiProperty({
     type: String,
@@ -42,4 +43,11 @@ export class ContractDto extends BaseAddressDto {
     example: "0xd754Ff5e8a6f257E162F72578A4bB0493c0681d8",
   })
   public readonly creatorAddress: string;
+
+  @ApiProperty({
+    type: Boolean,
+    description: "Is the contract EVM-like",
+    example: true,
+  })
+  public readonly isEvmLike: boolean;
 }

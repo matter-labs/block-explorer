@@ -9,8 +9,15 @@ import ERC20VerificationInfo from "@/../mock/contracts/ERC20VerificationInfo.jso
 import type { Address } from "@/types";
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() =>
+    Promise.resolve({
+      status: "1",
+      result: ERC20VerificationInfo.ABI,
+    })
+  );
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => Promise.resolve(ERC20VerificationInfo)),
+    $fetch: fetchSpy,
     FetchError: function error() {
       return;
     },
@@ -51,6 +58,7 @@ describe("useEventLog:", () => {
   });
   it("returns raw logs in case account request failed", async () => {
     const mock = ($fetch as unknown as SpyInstance).mockRejectedValue(new Error("An error occurred"));
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
     const { collection, isDecodePending, isDecodeFailed, decodeEventLog } = useEventLog();
     const logWithNewAddress = [
       {
@@ -62,6 +70,8 @@ describe("useEventLog:", () => {
     expect(isDecodePending.value).toEqual(false);
     expect(isDecodeFailed.value).toEqual(true);
     expect(collection.value).toEqual(logWithNewAddress);
+    expect(errorSpy).toHaveBeenCalledWith("Error fetching event names:", expect.any(Error));
+    errorSpy.mockRestore();
     mock.mockRestore();
   });
   it("decodes logs successfully", async () => {

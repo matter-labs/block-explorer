@@ -2,10 +2,10 @@ name: BE App E2E tests
 
 on:
   workflow_call:
-    secrets:
-      ALLURE_TOKEN:
-        description: 'A token passed from the caller workflow'
-        required: true
+    # secrets:
+    #   ALLURE_TOKEN:
+    #     description: 'A token passed from the caller workflow'
+    #     required: true
     inputs:
       environmentTags:
         type: string
@@ -13,16 +13,16 @@ on:
         required: false
       targetUrl:
         type: string
-        default: 'https://staging-scan-v2.zksync.dev/'
+        default: 'https://staging-scan-v2.zksync.dev'
         required: true
       default_network_value_for_e2e:
         type: string
-        default: '/?network=mainnet'
+        default: '/?network=zksync-os-mainnet'
         required: true
       testnet_network_value_for_e2e:
-          type: string
-          default: '/?network=sepolia'
-          required: true
+        type: string
+        default: '/?network=zksync-os-testnet-alpha'
+        required: true
       publish_to_allure: #Here we define the variable that can be overwritten by caller workflow
         type: boolean
         description: "Publish test results to allure"
@@ -47,36 +47,37 @@ jobs:
       fail-fast: false
       matrix:
         tags: [
-                "@artifactsSet1",
-                "@artifactsSet2",
-                "@artifactsSet3",
-                "@artifactsSet4",
-                "@redirectionSet1",
-                "@redirectionSet2",
-                "@redirectionSet3",
-                "@copying",
-                "@search",
+                # Disabled all tests running on Mainnet until Mainnet is deployed
+                # "@artifactsSet1",
+                # "@artifactsSet2",
+                # "@artifactsSet3",
+                # "@artifactsSet4",
+                # "@redirectionSet1",
+                # "@redirectionSet2",
+                # "@redirectionSet3",
+                # "@copying",
+                # "@search",
                 "@testnetSmokeSuite"
               ]
 
     name: '${{ matrix.tags }}'
     container:
-      image: mcr.microsoft.com/playwright:v1.27.0-focal
+      image: mcr.microsoft.com/playwright:v1.54.1-noble
       options: --user 1001
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Cache node modules
         id: cache-nodemodules
-        uses: actions/cache@v3
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         env:
           cache-name: cache-node-modules
           # Workaround for bug https://github.com/typicode/husky/issues/991
@@ -96,6 +97,9 @@ jobs:
           npm pkg delete scripts.prepare
           npm ci
 
+      - name: Create reports directory
+        run: mkdir -p packages/app/tests/e2e/reports/
+
       - name: Download allurectl
         run: wget https://github.com/allure-framework/allurectl/releases/latest/download/allurectl_linux_386 -O ./allurectl
 
@@ -110,83 +114,83 @@ jobs:
           echo "Run tests"
             if [ "${{ matrix.tags }}" = "@testnetSmokeSuite" ]; then
                 echo "Run in testnetSmokeSuite only"
-                E2ENETWORK='${{ inputs.testnet_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @mainnet"
+                E2ENETWORK='${{ inputs.testnet_network_value_for_e2e }}' npx cucumber-js -f progress --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @mainnet"
             else
                 echo "Run in mainnet"
-                E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
+                E2ENETWORK='${{ inputs.default_network_value_for_e2e }}' npx cucumber-js -f progress --tags "${{ matrix.tags }} ${{ inputs.environmentTags }} and not @testnet"
             fi
 
       - name: Save artifacts to Git
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: allure-results
+          name: ${{ matrix.tags }}-allure-results
           path: packages/app/allure-results
 
-      - name: Upload test results to Allure reporter
-        if: always()
-        env:
-          ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
-        run: |
-          ./allurectl upload allure-results
-          echo "*Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
-          echo "*Public report link will be available when the 'Allure Report' job will be succesfully executed."
+      # - name: Upload test results to Allure reporter
+      #   if: always()
+      #   env:
+      #     ALLURE_TOKEN: ${{ secrets.ALLURE_TOKEN }}
+      #   run: |
+      #     ./allurectl upload allure-results
+      #     echo "*Public report link: https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
+      #     echo "*Public report link will be available when the 'Allure Report' job will be succesfully executed."
 
       - if: failure()
         name: Save artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: portal_e2e_${{ github.run_number }}_artifacts
+          name: portal_e2e_${{ github.run_number }}_${{ matrix.tags }}_artifacts
           path: packages/app/tests/e2e/artifacts/*
 
-  publish:
-    name: Allure Report
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    needs: e2e
-    if: always()
-    steps:
-      - uses: actions/checkout@v3
+  # publish:
+  #   name: Allure Report
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   needs: e2e
+  #   if: always()
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
-        with:
-          name: allure-results
-          path: packages/app/allure-results
+  #     - uses: actions/download-artifact@v4
+  #       with:
+  #         name: allure-results
+  #         path: packages/app/allure-results
 
-      - name: Get Allure history
-        uses: actions/checkout@v3
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
+  #     - name: Get Allure history
+  #       uses: actions/checkout@v3
+  #       if: always()
+  #       continue-on-error: true
+  #       with:
+  #         ref: gh-pages
+  #         path: gh-pages
 
-      - name: Allure Report action from marketplace
-        uses: simple-elf/allure-report-action@v1.7
-        if: always()
-        id: allure-report
-        with:
-          allure_results: packages/app/allure-results
-          gh_pages: gh-pages
-          allure_report: allure-report
-          allure_history: allure-history
-          keep_reports: 10
+  #     - name: Allure Report action from marketplace
+  #       uses: simple-elf/allure-report-action@v1.7
+  #       if: always()
+  #       id: allure-report
+  #       with:
+  #         allure_results: packages/app/allure-results
+  #         gh_pages: gh-pages
+  #         allure_report: allure-report
+  #         allure_history: allure-history
+  #         keep_reports: 10
 
-      - name: Deploy report to Github Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: allure-history
+  #     - name: Deploy report to Github Pages
+  #       if: always()
+  #       uses: peaceiris/actions-gh-pages@v2
+  #       env:
+  #         PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #         PUBLISH_BRANCH: gh-pages
+  #         PUBLISH_DIR: allure-history
 
-      - name: Prepare a link
-        run: |
-          echo "BASE64_SEARCH_REQUEST=$(echo '${{ env.ALLURE_SEARCH_REQUEST }}' | base64)" >> $GITHUB_ENV
+  #     - name: Prepare a link
+  #       run: |
+  #         echo "BASE64_SEARCH_REQUEST=$(echo '${{ env.ALLURE_SEARCH_REQUEST }}' | base64)" >> $GITHUB_ENV
 
-      - name: Publish Allure link to GIT Summary
-        run: |
-          LINK1="${{ vars.ALLURE_ENDPOINT }}project/${{ vars.ALLURE_PROJECT_ID }}/launches?search=${{ env.BASE64_SEARCH_REQUEST }}"
-          LINK2="https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
-          echo "Allure [Private]($LINK1) and [Public]($LINK2) links:rocket: in git run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+  #     - name: Publish Allure link to GIT Summary
+  #       run: |
+  #         LINK1="${{ vars.ALLURE_ENDPOINT }}project/${{ vars.ALLURE_PROJECT_ID }}/launches?search=${{ env.BASE64_SEARCH_REQUEST }}"
+  #         LINK2="https://raw.githack.com/matter-labs/block-explorer/gh-pages/${{ github.run_number }}/index.html"
+  #         echo "Allure [Private]($LINK1) and [Public]($LINK2) links:rocket: in git run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY

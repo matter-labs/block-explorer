@@ -9,6 +9,7 @@ import { TokenModule } from "../token/token.module";
 import { TransactionModule } from "../transaction/transaction.module";
 import { BalanceModule } from "../balance/balance.module";
 import { TransferModule } from "../transfer/transfer.module";
+import { IndexerStateModule } from "../indexerState/indexerState.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TransferModule } from "../transfer/transfer.module";
     LogModule,
     BalanceModule,
     TransferModule,
+    IndexerStateModule,
   ],
   controllers: [AddressController],
   providers: [AddressService],

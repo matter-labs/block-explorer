@@ -15,8 +15,6 @@ import InfoTableBlock from "@/components/blocks/InfoTableBlock.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 
-import useContext from "@/composables/useContext";
-
 import type { Block } from "@/composables/useBlock";
 import type { Params } from "react-router";
 import type { Component, PropType } from "vue";
@@ -25,7 +23,6 @@ import { arrayHalfDivider } from "@/utils/helpers";
 
 const { t } = useI18n();
 const { width: screenWidth } = useWindowSize();
-const { currentNetwork } = useContext();
 
 const props = defineProps({
   block: {
@@ -74,26 +71,9 @@ const tableInfoItems = computed(() => {
       value: t(`blocks.status.${props.block.status}`),
     },
     {
-      label: t("blocks.table.batch"),
-      tooltip: t("blocks.table.batchTooltip"),
-      value: props.block.l1BatchNumber ?? undefined,
-      ...(props.block.l1BatchNumber
-        ? {
-            route: {
-              name: "batch",
-              params: {
-                id: props.block.l1BatchNumber.toString(),
-              },
-              disabled: !props.block.isL1BatchSealed,
-              disabledTooltip: t("batches.notYetSealed"),
-            },
-          }
-        : {}),
-    },
-    {
-      label: t("blocks.table.rootHash"),
-      tooltip: t("blocks.table.rootHashTooltip"),
-      value: props.block.hash ? { value: props.block.hash } : t("blocks.table.noRootHashYet"),
+      label: t("blocks.table.blockHash"),
+      tooltip: t("blocks.table.blockHashTooltip"),
+      value: props.block.hash ? { value: props.block.hash } : t("blocks.table.noBlockHashYet"),
       component: props.block.hash ? CopyContent : undefined,
     },
     {
@@ -103,31 +83,6 @@ const tableInfoItems = computed(() => {
       component: TimeField,
     }
   );
-  for (const [key, timeKey] of [
-    ["commitTxHash", "committedAt", "notYetCommitted"],
-    ["proveTxHash", "provenAt", "notYetProven"],
-    ["executeTxHash", "executedAt", "notYetExecuted"],
-  ] as [keyof Block, keyof Block, string][]) {
-    if (props.block[key]) {
-      tableItems.push(
-        {
-          label: t(`blocks.table.${key}`),
-          tooltip: t(`blocks.table.${key}Tooltip`),
-          value: { value: props.block[key] },
-          component: CopyContent,
-          url: currentNetwork.value.l1ExplorerUrl
-            ? `${currentNetwork.value.l1ExplorerUrl}/tx/${props.block[key]}`
-            : undefined,
-        },
-        {
-          label: t(`blocks.table.${timeKey}`),
-          tooltip: t(`blocks.table.${timeKey}Tooltip`),
-          value: { value: props.block[timeKey] },
-          component: TimeField,
-        }
-      );
-    }
-  }
 
   if (screenWidth.value < 1024) {
     return [tableItems];

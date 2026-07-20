@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } fro
 import { render, type RenderResult } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 
-import { ETH_TOKEN_MOCK, useContextMock, useTransactionsMock } from "../../mocks";
+import { ETH_TOKEN_MOCK, TESTNET_NETWORK, useContextMock, useTransactionsMock } from "../../mocks";
 
 import Table from "@/components/transactions/Table.vue";
 
@@ -18,8 +18,16 @@ import type { TransactionListItem } from "@/composables/useTransactions";
 
 import $testId from "@/plugins/testId";
 
+const router = {
+  push: vi.fn(),
+};
+
+const routeQueryMock = vi.fn(() => ({}));
 vi.mock("vue-router", () => ({
-  useRoute: vi.fn(() => ({ query: {} })),
+  useRoute: () => ({
+    query: routeQueryMock(),
+  }),
+  useRouter: () => router,
 }));
 vi.mock("@/composables/useTokenLibrary", () => {
   return {
@@ -48,21 +56,17 @@ const transaction: TransactionListItem = {
   fee: "0x3b9329f2a880",
   nonce: 69,
   blockNumber: 6539779,
-  l1BatchNumber: 74373,
   blockHash: "0x5ad6b0475a6bdff6007e62adec0ceed0796fb427fe8f4de310432a52e118800b",
   transactionIndex: 5,
   receivedAt: "2023-06-20T12:10:44.187Z",
   status: "included",
-  commitTxHash: null,
-  executeTxHash: null,
-  proveTxHash: null,
-  isL1BatchSealed: false,
   gasPrice: "4000",
   gasLimit: "5000",
   gasUsed: "3000",
   gasPerPubdata: "800",
   maxFeePerGas: "7000",
   maxPriorityFeePerGas: "8000",
+  contractAddress: null,
   error: null,
   revertReason: null,
 };
@@ -147,8 +151,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders sent status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Sent on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 
@@ -172,8 +176,8 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders validated status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Validated on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 
@@ -197,13 +201,48 @@ describe("Transfers:", () => {
         renderResult!.unmount();
       });
 
-      it("renders executed status column", () => {
-        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Executed on");
+      it("renders processed status column", () => {
+        expect(renderResult!.container.querySelector(".badge-content")!.textContent).toEqual("Processed on");
       });
     });
 
     it("renders status column", () => {
       expect(renderResult!.getByTestId(elements.statusBadge).textContent).toEqual("Processed on");
+    });
+
+    it("renders the default status icon when txStatusBadgeIconUrl is not configured", () => {
+      expect(renderResult!.container.querySelector(".status-badge-icon")).toBeNull();
+      expect(renderResult!.container.querySelector(".badge-content svg")).toBeTruthy();
+    });
+
+    describe("when txStatusBadgeIconUrl is configured", () => {
+      let renderResult: RenderResult | null;
+      const iconUrl = "https://cdn.example.com/status-icon.svg";
+
+      beforeEach(() => {
+        mockContext?.mockRestore();
+        mockContext = useContextMock({
+          currentNetwork: computed(() => ({ ...TESTNET_NETWORK, txStatusBadgeIconUrl: iconUrl })),
+        });
+        renderResult = render(Table, {
+          props: {},
+          global: {
+            plugins: [i18n, $testId],
+            stubs: { RouterLink: RouterLinkStub },
+          },
+        });
+      });
+
+      afterEach(() => {
+        renderResult?.unmount();
+      });
+
+      it("renders the configured icon instead of the default status icon", () => {
+        const icon = renderResult!.container.querySelector(".status-badge-icon") as HTMLImageElement | null;
+        expect(icon).toBeTruthy();
+        expect(icon!.getAttribute("src")).toEqual(iconUrl);
+        expect(renderResult!.container.querySelector(".badge-content svg")).toBeNull();
+      });
     });
 
     it("renders transaction hash column", () => {
@@ -242,12 +281,12 @@ describe("Transfers:", () => {
 
     it("renders value column", () => {
       expect(renderResult!.getAllByTestId(elements.tokenAmount)[0].textContent).toEqual("0.0000123213123");
-      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[0].textContent).toEqual("$0.02");
+      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[0].textContent).toEqual("$0.02218");
     });
 
     it("renders fee column", () => {
       expect(renderResult!.getAllByTestId(elements.tokenAmount)[2].textContent).toEqual("0.00006550325");
-      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[1].textContent).toEqual("$0.12");
+      expect(renderResult!.getAllByTestId(elements.tokenAmountPrice)[1].textContent).toEqual("$0.1179");
     });
   });
 
@@ -278,12 +317,12 @@ describe("Transfers:", () => {
       });
 
       it("renders pagination", async () => {
-        expect(renderResult!.container.querySelector(".pagination")).not.toBeNull();
+        expect(renderResult!.container.querySelector(".pagination-container")).not.toBeNull();
       });
 
       it("does not render pagination if pagination prop is false", async () => {
         await renderResult?.rerender({ pagination: false });
-        expect(renderResult!.container.querySelector(".pagination")).toBeNull();
+        expect(renderResult!.container.querySelector(".pagination-container")).toBeNull();
       });
     });
 

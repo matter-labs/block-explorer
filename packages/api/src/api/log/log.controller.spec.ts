@@ -50,16 +50,21 @@ describe("LogController", () => {
           maxLimit: 10000,
         },
         0,
-        10
+        10,
+        "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
       );
       expect(logServiceMock.findMany).toBeCalledTimes(1);
       expect(logServiceMock.findMany).toBeCalledWith({
         address,
         fromBlock: 0,
         toBlock: 10,
+        topics: {
+          topic0: "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+        },
         page: 2,
         offset: 20,
         maxLimit: 10000,
+        order: "ASC",
       });
     });
 

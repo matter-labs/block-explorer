@@ -1,6 +1,6 @@
 import { Module, DynamicModule, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { JsonRpcProviderBase, JsonRpcProviderExtended, WrappedWebSocketProvider } from "./index";
+import { JsonRpcProviderBase, JsonRpcProviderExtended } from "./index";
 
 @Module({
   providers: [
@@ -11,12 +11,22 @@ import { JsonRpcProviderBase, JsonRpcProviderExtended, WrappedWebSocketProvider 
         const providerUrl = configService.get<string>("blockchain.rpcUrl");
         const connectionTimeout = configService.get<number>("blockchain.rpcCallConnectionTimeout");
         const connectionQuickTimeout = configService.get<number>("blockchain.rpcCallConnectionQuickTimeout");
+        const batchMaxSizeBytes = configService.get<number>("blockchain.rpcBatchMaxSizeBytes");
+        const batchMaxCount = configService.get<number>("blockchain.rpcBatchMaxCount");
+        const batchStallTimeMs = configService.get<number>("blockchain.rpcBatchStallTimeMs");
         const providerUrlProtocol = new URL(providerUrl).protocol;
 
         logger.debug(`Initializing RPC provider with the following URL: ${providerUrl}.`, "RpcProviderModule");
 
         if (providerUrlProtocol === "http:" || providerUrlProtocol === "https:") {
-          return new JsonRpcProviderExtended(providerUrl, connectionTimeout, connectionQuickTimeout);
+          return new JsonRpcProviderExtended(
+            providerUrl,
+            connectionTimeout,
+            connectionQuickTimeout,
+            batchMaxCount,
+            batchMaxSizeBytes,
+            batchStallTimeMs
+          );
         }
 
         throw new Error(
@@ -25,27 +35,8 @@ import { JsonRpcProviderBase, JsonRpcProviderExtended, WrappedWebSocketProvider 
       },
       inject: [ConfigService, Logger],
     },
-    {
-      provide: WrappedWebSocketProvider,
-      useFactory: (configService: ConfigService, logger: Logger) => {
-        const providerUrl = configService.get<string>("blockchain.wsRpcUrl");
-        const connectionTimeout = configService.get<number>("blockchain.rpcCallConnectionTimeout");
-        const connectionQuickTimeout = configService.get<number>("blockchain.rpcCallConnectionQuickTimeout");
-        const maxConnections = configService.get<number>("blockchain.wsMaxConnections");
-        const useWebSocketsForTransactions = configService.get<boolean>("blockchain.useWebSocketsForTransactions");
-
-        if (!useWebSocketsForTransactions) {
-          return null;
-        }
-
-        logger.debug(`Initializing WS RPC provider with the following URL: ${providerUrl}.`, "RpcProviderModule");
-
-        return new WrappedWebSocketProvider(providerUrl, connectionTimeout, connectionQuickTimeout, maxConnections);
-      },
-      inject: [ConfigService, Logger],
-    },
   ],
-  exports: [JsonRpcProviderBase, WrappedWebSocketProvider],
+  exports: [JsonRpcProviderBase],
 })
 export class JsonRpcProviderModule {
   static forRoot(): DynamicModule {

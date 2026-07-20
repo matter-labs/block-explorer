@@ -8,24 +8,20 @@ import { TESTNET_BETA_NETWORK, TESTNET_NETWORK } from "../mocks";
 
 import useContractABI from "@/composables/useContractABI";
 
-const contractVerificationInfo = {
-  artifacts: {
-    abi: [
-      {
-        inputs: [],
-        stateMutability: "nonpayable",
-        type: "constructor",
-      },
-    ],
+const abi = [
+  {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
   },
-  request: {
-    contractAddress: "0x0000000000000000000000000000000000000000",
-  },
-};
+];
+const abiResponse = JSON.stringify(abi);
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => Promise.resolve({ result: abiResponse, status: "1" }));
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => Promise.resolve(contractVerificationInfo)),
+    $fetch: fetchSpy,
     FetchError: function error() {
       return;
     },
@@ -44,7 +40,7 @@ describe("useContractABI:", () => {
     const { collection, getCollection } = useContractABI();
     await getCollection(["0x0000000000000000000000000000000000000000"]);
     expect(collection.value).toEqual({
-      "0x0000000000000000000000000000000000000000": contractVerificationInfo.artifacts.abi,
+      "0x0000000000000000000000000000000000000000": abi,
     });
   });
   it("sets isRequestPending to true when request is pending", async () => {

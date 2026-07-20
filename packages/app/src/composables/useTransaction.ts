@@ -1,13 +1,16 @@
 import { ref } from "vue";
 
-import { BigNumber } from "ethers";
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
+import { FetchInstance } from "./useFetchInstance";
 
+import type { Context } from "./useContext";
 import type { TransactionLogEntry } from "./useEventLog";
 import type { Hash, NetworkOrigin } from "@/types";
-import type { types } from "zksync-web3";
+
+import { numberToHexString } from "@/utils/formatters";
+import { ISOStringFromUnixTimestamp } from "@/utils/helpers";
 
 export type TransactionStatus = "included" | "committed" | "proved" | "verified" | "failed" | "indexing";
 type TokenInfo = {
@@ -32,10 +35,6 @@ export type TokenTransfer = {
   tokenInfo?: TokenInfo;
 };
 
-export type TransactionDetails = types.TransactionDetails & {
-  gasPerPubdata: string | null;
-};
-
 export type FeeData = {
   amountPaid: Hash;
   isPaidByPaymaster: boolean;
@@ -50,16 +49,14 @@ export type TransactionItem = {
   blockNumber: number;
   value: string;
   data: {
-    contractAddress: Hash;
+    // called contract address if any
+    contractAddress: Hash | null;
     calldata: string;
     sighash: string;
     value: string;
   };
   from: string;
-  to: string;
-  ethCommitTxHash: Hash | null;
-  ethExecuteTxHash: Hash | null;
-  ethProveTxHash: Hash | null;
+  to: string | null;
   fee: Hash;
   indexInBlock?: number;
   isL1Originated: boolean;
@@ -73,17 +70,25 @@ export type TransactionItem = {
   maxFeePerGas: string | null;
   maxPriorityFeePerGas: string | null;
   status: TransactionStatus;
-  l1BatchNumber: number | null;
-  isL1BatchSealed: boolean;
   error?: string | null;
   revertReason?: string | null;
   logs: TransactionLogEntry[];
   transfers: TokenTransfer[];
+  // If transaction is EVM-like (destination address is not present)
+  isEvmLike: boolean;
+  // Deployed contract address if any
+  contractAddress: string | null;
 };
 
-export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to") {
+export function getTransferNetworkOrigin(transfer: Api.Response.Transfer, sender: "from" | "to", l1ChainId?: number) {
   if (sender === "from") {
-    return transfer.type === "deposit" ? "L1" : "L2";
+    if (transfer.type === "deposit") {
+      if (transfer.chainId != null && l1ChainId != null && Number(transfer.chainId) !== l1ChainId) {
+        return "L2";
+      }
+      return "L1";
+    }
+    return "L2";
   } else {
     return transfer.type === "withdrawal" ? "L1" : "L2";
   }
@@ -97,56 +102,49 @@ export default (context = useContext()) => {
   const getFromBlockchainByHash = async (hash: string): Promise<TransactionItem | null> => {
     const provider = context.getL2Provider();
     try {
-      const [transactionData, transactionDetails, transactionReceipt] = await Promise.all([
+      const [transactionData, transactionReceipt] = await Promise.all([
         provider.getTransaction(hash),
-        provider.getTransactionDetails(hash),
         provider.getTransactionReceipt(hash),
       ]);
-      if (!transactionData || !transactionDetails || !transactionReceipt) {
+      const block = transactionData?.blockNumber != null ? await provider.getBlock(transactionData.blockNumber) : null;
+      if (!transactionData || !transactionReceipt) {
         return null;
       }
-      if (transactionDetails.status === "pending") {
-        return null;
-      }
-      const gasPerPubdata = (<TransactionDetails>transactionDetails).gasPerPubdata;
-      return {
+      const blockTimestamp = block ? ISOStringFromUnixTimestamp(block.timestamp) : "";
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const gasPerPubdata = (transactionData as any).gasPerPubdata;
+      const tx = {
         hash: transactionData.hash,
         blockHash: transactionData.blockHash!,
         blockNumber: transactionData.blockNumber!,
         data: {
-          contractAddress: transactionData.to!,
+          contractAddress: transactionData.to,
           calldata: transactionData.data,
           sighash: transactionData.data.slice(0, 10),
           value: transactionData.value.toString(),
         },
         value: transactionData.value.toString(),
         from: transactionData.from,
-        to: transactionData.to!,
-        ethCommitTxHash: transactionDetails.ethCommitTxHash ?? null,
-        ethExecuteTxHash: transactionDetails.ethExecuteTxHash ?? null,
-        ethProveTxHash: transactionDetails.ethProveTxHash ?? null,
-        fee: transactionDetails.fee.toString(),
+        to: transactionData.to,
+        fee: (transactionReceipt.gasUsed * transactionReceipt.gasPrice).toString(),
         feeData: {
-          amountPaid: transactionDetails.fee.toString(),
+          amountPaid: (transactionReceipt.gasUsed * transactionReceipt.gasPrice).toString(),
           isPaidByPaymaster: false,
           refunds: [],
-          amountRefunded: BigNumber.from(0).toHexString(),
+          amountRefunded: numberToHexString(0),
         },
-        indexInBlock: transactionReceipt.transactionIndex,
-        isL1Originated: transactionDetails.isL1Originated,
+        indexInBlock: transactionReceipt.index,
+        isL1Originated: [126, 127].includes(transactionData.type),
         nonce: transactionData.nonce,
-        receivedAt: new Date(transactionDetails.receivedAt).toJSON(),
-
-        status: "indexing",
-        l1BatchNumber: transactionData.l1BatchNumber,
-        isL1BatchSealed: false,
+        receivedAt: blockTimestamp,
+        status: "indexing" as TransactionStatus,
 
         logs: transactionReceipt.logs.map((item) => ({
           address: item.address,
           blockNumber: item.blockNumber,
           data: item.data,
-          logIndex: item.logIndex.toString(16),
-          topics: item.topics,
+          logIndex: item.index.toString(16),
+          topics: item.topics as string[],
           transactionHash: item.transactionHash,
           transactionIndex: item.transactionIndex.toString(16),
         })),
@@ -155,10 +153,13 @@ export default (context = useContext()) => {
         gasPrice: transactionData.gasPrice!.toString(),
         gasLimit: transactionData.gasLimit.toString(),
         gasUsed: transactionReceipt.gasUsed.toString(),
-        gasPerPubdata: gasPerPubdata ? BigNumber.from(gasPerPubdata).toString() : null,
+        gasPerPubdata: gasPerPubdata ? BigInt(gasPerPubdata).toString() : null,
         maxFeePerGas: transactionData.maxFeePerGas?.toString() ?? null,
         maxPriorityFeePerGas: transactionData.maxPriorityFeePerGas?.toString() ?? null,
+        isEvmLike: !transactionData.to,
+        contractAddress: transactionReceipt.contractAddress,
       };
+      return tx;
     } catch (err) {
       return null;
     }
@@ -170,20 +171,18 @@ export default (context = useContext()) => {
 
     try {
       const [txResponse, txTransfers, txLogs] = await Promise.all([
-        $fetch<Api.Response.Transaction>(`${context.currentNetwork.value.apiUrl}/transactions/${hash}`),
-        all<Api.Response.Transfer>(
-          new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/transfers?limit=100`)
-        ),
-        all<Api.Response.Log>(new URL(`${context.currentNetwork.value.apiUrl}/transactions/${hash}/logs?limit=100`)),
+        FetchInstance.api(context)<Api.Response.Transaction>(`/transactions/${hash}`),
+        all<Api.Response.Transfer>(context, `/transactions/${hash}/transfers`, new URLSearchParams({ limit: "100" })),
+        all<Api.Response.Log>(context, `/transactions/${hash}/logs`, new URLSearchParams({ limit: "100" })),
       ]);
-      transaction.value = mapTransaction(txResponse, txTransfers, txLogs);
+      transaction.value = mapTransaction(txResponse, txTransfers, txLogs, context.currentNetwork.value.l1ChainId);
     } catch (error) {
       if (error instanceof FetchError && error.response?.status === 404) {
         transaction.value = await getFromBlockchainByHash(hash);
         return;
       }
       transaction.value = null;
-      if (!(error instanceof FetchError)) {
+      if (!(error instanceof FetchError) || error.response?.status !== 403) {
         isRequestFailed.value = true;
       }
     } finally {
@@ -202,10 +201,11 @@ export default (context = useContext()) => {
 export function mapTransaction(
   transaction: Api.Response.Transaction,
   transfers: Api.Response.Transfer[],
-  logs: Api.Response.Log[]
+  logs: Api.Response.Log[],
+  l1ChainId?: number
 ): TransactionItem {
-  const fees = mapTransfers(filterFees(transfers));
-  const refunds = mapTransfers(filterRefunds(transfers));
+  const fees = mapTransfers(filterFees(transfers), l1ChainId);
+  const refunds = mapTransfers(filterRefunds(transfers), l1ChainId);
   const paymasterFee = fees.find((fee) => fee.from !== transaction.from);
   const paymasterAddress = paymasterFee?.from;
   const isPaidByPaymaster = !transaction.isL1Originated && !!paymasterFee;
@@ -222,16 +222,13 @@ export function mapTransaction(
     value: transaction.value,
     from: transaction.from,
     to: transaction.to,
-    ethCommitTxHash: transaction.commitTxHash ?? null,
-    ethExecuteTxHash: transaction.executeTxHash ?? null,
-    ethProveTxHash: transaction.proveTxHash ?? null,
     fee: transaction.fee,
     feeData: {
       amountPaid: transaction.fee!,
       isPaidByPaymaster,
       paymasterAddress: isPaidByPaymaster ? paymasterAddress : undefined,
       refunds,
-      amountRefunded: sumAmounts(mapTransfers(filterRefunds(transfers))),
+      amountRefunded: sumAmounts(mapTransfers(filterRefunds(transfers), l1ChainId)),
     },
     indexInBlock: transaction.transactionIndex,
     // initiatorAddress: Hash;
@@ -240,8 +237,6 @@ export function mapTransaction(
     receivedAt: transaction.receivedAt,
 
     status: transaction.status,
-    l1BatchNumber: transaction.l1BatchNumber,
-    isL1BatchSealed: transaction.isL1BatchSealed,
     error: transaction.error,
     revertReason: transaction.revertReason,
 
@@ -255,7 +250,7 @@ export function mapTransaction(
       transactionIndex: item.transactionIndex.toString(16),
     })),
 
-    transfers: mapTransfers(filterTransfers(transfers)),
+    transfers: mapTransfers(filterTransfers(transfers), l1ChainId),
 
     gasPrice: transaction.gasPrice,
     gasLimit: transaction.gasLimit,
@@ -263,16 +258,18 @@ export function mapTransaction(
     gasPerPubdata: transaction.gasPerPubdata,
     maxFeePerGas: transaction.maxFeePerGas,
     maxPriorityFeePerGas: transaction.maxPriorityFeePerGas,
+    isEvmLike: !transaction.to,
+    contractAddress: transaction.contractAddress,
   };
 }
 
-function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
+function mapTransfers(transfers: Api.Response.Transfer[], l1ChainId?: number): TokenTransfer[] {
   return transfers.map((item) => ({
     amount: item.amount,
     from: item.from,
     to: item.to,
-    fromNetwork: getTransferNetworkOrigin(item, "from"),
-    toNetwork: getTransferNetworkOrigin(item, "to"),
+    fromNetwork: getTransferNetworkOrigin(item, "from", l1ChainId),
+    toNetwork: getTransferNetworkOrigin(item, "to", l1ChainId),
     type: item.type,
     tokenInfo: {
       address: item.tokenAddress,
@@ -289,8 +286,8 @@ function mapTransfers(transfers: Api.Response.Transfer[]): TokenTransfer[] {
 }
 
 function sumAmounts(balanceChanges: TokenTransfer[]) {
-  const total = balanceChanges.reduce((acc, cur) => acc.add(cur.amount || 0), BigNumber.from(0));
-  return total.toHexString() as Hash;
+  const total = balanceChanges.reduce((acc, cur) => acc + BigInt(cur.amount || 0), BigInt(0));
+  return numberToHexString(total) as Hash;
 }
 
 export function filterRefunds(transfers: Api.Response.Transfer[]) {
@@ -305,14 +302,14 @@ export function filterTransfers(transfers: Api.Response.Transfer[]) {
   return transfers.filter((item) => item.type !== "fee" && item.type !== "refund");
 }
 
-async function all<T>(url: URL): Promise<T[]> {
+async function all<T>(context: Context, url: string, searchParams: URLSearchParams): Promise<T[]> {
   const collection: T[] = [];
   const limit = 100;
-  url.searchParams.set("page", "1");
-  url.searchParams.set("limit", limit.toString());
+  searchParams.set("page", "1");
+  searchParams.set("limit", limit.toString());
   for (let page = 1; page < 100; page++) {
-    url.searchParams.set("page", page.toString());
-    const response = await $fetch<Api.Response.Collection<T>>(url.toString());
+    searchParams.set("page", page.toString());
+    const response = await FetchInstance.api(context)<Api.Response.Collection<T>>(`${url}?${searchParams.toString()}`);
 
     if (!response.items.length) {
       break;

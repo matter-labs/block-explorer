@@ -17,6 +17,8 @@ vi.mock("vue-router", () => ({
   useRoute: () => ({
     query: routeQueryMock(),
   }),
+  createWebHistory: () => vi.fn(),
+  createRouter: () => ({ beforeEach: vi.fn() }),
 }));
 
 import $testId from "@/plugins/testId";

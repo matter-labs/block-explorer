@@ -1,12 +1,12 @@
-<h1 align="center">zkSync Era Block Explorer</h1>
+<h1 align="center">ZKsync Block Explorer</h1>
 
-<p align="center">Online blockchain browser for viewing and analyzing <a href="https://zksync.io">zkSync Era</a> blockchain.</p>
+<p align="center">Online blockchain browser for viewing and analyzing <a href="https://zksync.io">ZKsync</a> blockchain.</p>
 
 ## 📌 Overview
 This repository is a monorepo consisting of 4 packages:
-- [Worker](./packages/worker) - an indexer service for [zkSync Era](https://zksync.io) blockchain data. The purpose of the service is to read blockchain data in real time, transform it and fill in it's database with the data in a way that makes it easy to be queried by the [API](./packages/api) service.
+- [Worker](./packages/worker) - an indexer service for [ZKsync](https://zksync.io) blockchain data. The purpose of the service is to read blockchain data in real time, transform it and fill in it's database with the data in a way that makes it easy to be queried by the [API](./packages/api) service.
 - [Data Fetcher](./packages/data-fetcher) - a service that exposes and implements an HTTP endpoint to retrieve aggregated data for a certain block / range of blocks from the blockchain. This endpoint is called by the [Worker](./packages/worker) service.
-- [API](./packages/api) - a service providing Web API for retrieving structured [zkSync Era](https://zksync.io) blockchain data collected by [Worker](./packages/worker). It connects to the Worker's database to be able to query the collected data.
+- [API](./packages/api) - a service providing Web API for retrieving structured [ZKsync](https://zksync.io) blockchain data collected by [Worker](./packages/worker). It connects to the Worker's database to be able to query the collected data.
 - [App](./packages/app) - a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more. It makes requests to the [API](./packages/api) to get the data and presents it in a way that's easy to read and understand.
 
 ## 🏛 Architecture
@@ -15,7 +15,7 @@ The following diagram illustrates how are the block explorer components connecte
 ```mermaid
 flowchart
   subgraph blockchain[Blockchain]
-    Blockchain[zkSync Era JSON-RPC API]
+    Blockchain[ZKsync JSON-RPC API]
   end
 
   subgraph explorer[Block explorer]
@@ -37,7 +37,7 @@ flowchart
   Worker-."Request data (HTTP)".->Blockchain
 ```
 
-[Worker](./packages/worker) service retrieves aggregated data from the [Data Fetcher](./packages/data-fetcher) via HTTP and also directly from the blockchain using [zkSync Era JSON-RPC API](https://era.zksync.io/docs/api/api.html), processes it and saves into the database. [API](./packages/api) service is connected to the same database where it gets the data from to handle API requests. It performs only read requests to the database. The front-end [App](./packages/app) makes HTTP calls to the Block Explorer [API](./packages/api) to get blockchain data and to the [zkSync Era JSON-RPC API](https://era.zksync.io/docs/api/api.html) for reading contracts, performing transactions etc.
+[Worker](./packages/worker) service retrieves aggregated data from the [Data Fetcher](./packages/data-fetcher) via HTTP and also directly from the blockchain using [ZKsync JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc), processes it and saves into the database. [API](./packages/api) service is connected to the same database where it gets the data from to handle API requests. It performs only read requests to the database. The front-end [App](./packages/app) makes HTTP calls to the Block Explorer [API](./packages/api) to get blockchain data and to the [ZKsync JSON-RPC API](https://docs.zksync.io/build/api-reference/ethereum-rpc) for reading contracts, performing transactions etc.
 
 ## 🚀 Features
 
@@ -63,14 +63,8 @@ npm install
 ### Manually set up env variables
 Make sure you have set up all the necessary env variables. Follow setting up env variables instructions for [Worker](./packages/worker#setting-up-env-variables), [Data Fetcher](./packages/data-fetcher#setting-up-env-variables) and [API](./packages/api#setting-up-env-variables). For the [App](./packages/app) package you might want to edit environment config, see [Environment configs](./packages/app#environment-configs).
 
-### Build env variables based on your [zksync-era](https://github.com/matter-labs/zksync-era) local repo setup
-Make sure you have [zksync-era](https://github.com/matter-labs/zksync-era) repo set up locally. You must have your environment variables files present in the [zksync-era](https://github.com/matter-labs/zksync-era) repo at `/etc/env/*.env` for the build envs script to work.
-
-The following script sets `.env` files for [Worker](./packages/worker), [Data Fetcher](./packages/data-fetcher) and [API](./packages/api) packages as well as environment configuration file for [App](./packages/app) package based on your local [zksync-era](https://github.com/matter-labs/zksync-era) repo setup.
-```bash
-npm run hyperchain:configure
-```
-You can review and edit generated files if you need to change any settings.
+### Configure custom base token
+For networks with a custom base token, make sure to configure the base token for both Worker and API services by following the corresponding instructions [here](./packages/worker/README.md#custom-base-token-configuration) and [here](./packages/api/README.md#custom-base-token-configuration).
 
 ## 👨‍💻 Running locally
 
@@ -98,14 +92,48 @@ There is a docker compose configuration that allows you to run Block Explorer an
 ```
 docker compose up
 ```
-It will run local Ethereum node, ZkSync Era, Postgres DB and all Block Explorer services.
-
-## ⛓️ Connection to your Hyperchain
-To get block-explorer connected to your ZK Stack Hyperchain you need to set up all the the necessary environment and configuration files with your Hyperchain settings. You can use a script to build them. See [Setting up env variables](#%EF%B8%8F-setting-up-env-variables).
+It will run local Ethereum node, ZkSync, Postgres DB and all Block Explorer services.
 
 ## 🔍 Verify Block Explorer is up and running
 
 To verify front-end `App` is running open http://localhost:3010 in your browser. `API` should be available at http://localhost:3020, `Worker` at http://localhost:3001 and `Data Fetcher` at http://localhost:3040.
+
+## 🎨 Customizing branding and color scheme
+
+The front end supports customization of branding, links, and the color scheme via environment variables or `config.js`. See the [Branding, links, and color scheme](./packages/app/.env.example) section in `.env.example`.
+
+The color scheme configuration can be set either via the `VITE_THEME_CONFIG` environment variable (as a JSON string) or directly in the `config.js` file.
+
+There are 3 ways to define colors:
+1) Use standard Tailwind colors (e.g., blue, yellow, green). Shades are defined by Tailwind.
+2) Use a single hex color, and all shades will be calculated automatically.
+3) Define all shades manually for full control.
+Example config:
+```
+{
+  "colors": {
+    "primary": {
+      "50": "#F3F5FF",
+      "100": "#D9D9F9",
+      "200": "#CBCBFF",
+      "300": "#8C8DFC",
+      "400": "#5D65B9",
+      "500": "#53579f",
+      "600": "#4E529A",
+      "700": "#32325D",
+      "800": "#27274E",
+      "900": "#11142B"
+    },
+    "secondary": "#FEFCE8",
+    "neutral": "gray",
+    "success": "green",
+    "error": "red",
+    "warning": "yellow"
+  }
+}
+```
+
+Some branding configuration (e.g., icon and logo) is network-specific and can be set in the [environment config](./packages/app#environment-configs). See [the interface](./packages/app/src/configs/index.ts) for reference.
 
 ## 🕵️‍♂️ Testing
 Run unit tests for all packages:
@@ -126,7 +154,7 @@ For more details on testing please check individual packages `README`.
 We follow the Conventional Commits [specification](https://www.conventionalcommits.org/en/v1.0.0/#specification).
 
 ## 📘 License
-zkSync Era Block Explorer is distributed under the terms of either
+ZKsync Block Explorer is distributed under the terms of either
 
 - Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
 - MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)

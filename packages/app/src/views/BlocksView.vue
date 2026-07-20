@@ -18,9 +18,7 @@
         :blocks="data ?? []"
       >
         <template v-if="page && total && total > pageSize" #footer>
-          <div class="flex justify-center p-3">
-            <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
-          </div>
+          <Pagination :active-page="page!" :total-items="total!" :page-size="pageSize" :disabled="pending" />
         </template>
       </TableBlocks>
     </div>
@@ -60,7 +58,7 @@ watch(
   () => route.query.page,
   (page) => {
     const currentPage = page ? parseInt(page as string) : 1;
-    load(currentPage, currentPage === 1 ? new Date() : undefined);
+    load(currentPage);
   },
   { immediate: true }
 );

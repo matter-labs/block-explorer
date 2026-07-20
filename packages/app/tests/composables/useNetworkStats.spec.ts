@@ -10,8 +10,10 @@ import type { UseFetch } from "@/composables/common/useFetch";
 import type { SpyInstance } from "vitest";
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => new Promise((resolve) => setImmediate(resolve)));
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => new Promise((resolve) => setImmediate(resolve))),
+    $fetch: fetchSpy,
   };
 });
 
@@ -34,8 +36,6 @@ describe("UseNetworkStats:", () => {
     lastSealedBlock: 15,
     lastVerifiedBlock: 15,
     totalTransactions: 15,
-    lastSealedBatch: 15,
-    lastVerifiedBatch: 15,
   };
 
   it("creates useNetworkStats composable", () => {

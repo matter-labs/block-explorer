@@ -7,37 +7,33 @@ export type NetworkOrigin = "L1" | "L2";
 export enum ContractVerificationCodeFormatEnum {
   soliditySingleFile = "solidity-single-file",
   solidityMultiPart = "solidity-standard-json-input",
-  vyperSingleFile = "vyper-multi-file",
-  vyperMultiPart = "vyper-multi-file",
+  vyperJson = "vyper-json",
 }
 
 export type ContractVerificationCodeFormat =
   | ContractVerificationCodeFormatEnum.soliditySingleFile
   | ContractVerificationCodeFormatEnum.solidityMultiPart
-  | ContractVerificationCodeFormatEnum.vyperSingleFile
-  | ContractVerificationCodeFormatEnum.vyperMultiPart;
+  | ContractVerificationCodeFormatEnum.vyperJson;
 
 export enum CompilerEnum {
   solc = "solc",
-  zksolc = "zksolc",
   vyper = "vyper",
-  zkvyper = "zkvyper",
 }
 
 export enum CompilationTypeOptionsEnum {
   soliditySingleFile = "soliditySingleFile",
   solidityMultiPart = "solidityMultiPart",
-  vyperSingleFile = "vyperSingleFile",
-  vyperMultiPart = "vyperMultiPart",
+  vyperJson = "vyperJson",
 }
 
-export type Compiler = CompilerEnum.solc | CompilerEnum.zksolc | CompilerEnum.vyper | CompilerEnum.zkvyper;
+export type Compiler = CompilerEnum.solc | CompilerEnum.vyper;
 
 export type ContractVerificationData = {
   codeFormat: ContractVerificationCodeFormat;
   contractAddress: string;
   contractName: string;
   optimizationUsed: boolean;
+  optimizerRuns: number;
   sourceCode:
     | string
     | {
@@ -48,14 +44,29 @@ export type ContractVerificationData = {
           };
         };
         settings: {
-          optimizer: {
+          optimizer?: {
             enabled: boolean;
+            runs?: number;
           };
         };
       };
-  zkCompilerVersion: string;
+  evmVersion: string;
   compilerVersion: string;
   constructorArguments: string;
 };
 
 export type ContractVerificationStatus = "successful" | "failed" | "in_progress" | "queued";
+
+export enum TimeFormat {
+  TIME_AGO = "time_ago",
+  FULL = "full",
+  TIME_AGO_AND_FULL = "time_ago_and_full",
+}
+
+export type TransferWithMemo = {
+  from: string;
+  to: string;
+  value: string;
+  // The memo bytes decoded as a UTF-8 string.
+  memo: string;
+};

@@ -8,8 +8,12 @@
       <TableHeadColumn v-if="columns.includes('method')">
         {{ t("transactions.table.method") }}
       </TableHeadColumn>
-      <TableHeadColumn v-if="columns.includes('age')">
-        {{ t("transactions.table.age") }}
+      <TableHeadColumn
+        v-if="columns.includes('age')"
+        @click="toggleAgeTimestamp()"
+        class="text-blue-700 hover:cursor-pointer"
+      >
+        {{ isTimeAgeView ? t("transactions.table.age") : t("transactions.table.dateTimeUTC") }}
       </TableHeadColumn>
       <TableHeadColumn v-if="columns.includes('from')" class="tablet-column-hidden">
         {{ t("transactions.table.from") }}
@@ -58,16 +62,24 @@
         </span>
       </TableBodyColumn>
       <TableBodyColumn v-if="columns.includes('method')" :data-heading="t('transactions.table.method')">
-        <div class="transactions-data-method">
-          <span :data-testid="$testId.transactionsMethodName">{{ item.methodName }}</span>
-        </div>
+        <Tooltip>
+          <div class="transactions-data-method">
+            <span :data-testid="$testId.transactionsMethodName">{{ item.methodName }}</span>
+          </div>
+
+          <template #content>{{ item.methodName }}</template>
+        </Tooltip>
       </TableBodyColumn>
       <TableBodyColumn
         v-if="columns.includes('age') && columns.length < 10"
         :data-heading="t('transactions.table.age')"
       >
         <CopyButton :value="utcStringFromISOString(item.receivedAt)">
-          <TimeField :value="item.receivedAt" :show-exact-date="false" :data-testid="$testId.timestamp" />
+          <TimeField
+            :value="item.receivedAt"
+            :data-testid="$testId.timestamp"
+            :format="isTimeAgeView ? TimeFormat.TIME_AGO : TimeFormat.FULL"
+          />
         </CopyButton>
       </TableBodyColumn>
       <TableBodyColumn
@@ -107,8 +119,13 @@
             </span>
             <span class="transactions-data-link">
               <TransactionNetworkSquareBlock :network="item.toNetwork" />
-              <AddressLink :address="item.to" :network="item.toNetwork" class="transactions-data-link-value">
-                {{ shortenFitText(item.to, "left", 125) }}
+              <AddressLink
+                v-if="!!item.displayedTxReceiver"
+                :address="item.displayedTxReceiver"
+                :network="item.toNetwork"
+                class="transactions-data-link-value"
+              >
+                {{ item.displayedTxReceiverName ?? shortenFitText(item.displayedTxReceiver, "left", 125) }}
               </AddressLink>
             </span>
           </div>
@@ -129,12 +146,13 @@
         <span class="transactions-data-link">
           <TransactionNetworkSquareBlock :network="item.toNetwork" />
           <AddressLink
+            v-if="!!item.displayedTxReceiver"
             :data-testid="$testId.toAddress"
-            :address="item.to"
+            :address="item.displayedTxReceiver"
             :network="item.toNetwork"
             class="transactions-data-link-value"
           >
-            {{ shortenFitText(item.to, "left", 125) }}
+            {{ item.displayedTxReceiverName ?? shortenFitText(item.displayedTxReceiver, "left", 125) }}
           </AddressLink>
         </span>
       </TableBodyColumn>
@@ -171,15 +189,13 @@
       </TableBodyColumn>
     </template>
     <template v-if="pagination && total && total > pageSize && transactions?.length" #footer>
-      <div class="pagination">
-        <Pagination
-          v-model:active-page="activePage"
-          :use-query="useQueryPagination"
-          :total-items="total!"
-          :page-size="pageSize"
-          :disabled="isLoading"
-        />
-      </div>
+      <Pagination
+        v-model:active-page="activePage"
+        :use-query="useQueryPagination"
+        :total-items="total!"
+        :page-size="pageSize"
+        :disabled="isLoading"
+      />
     </template>
     <template #loading>
       <tr class="loader-row" v-for="row in pageSize" :key="row">
@@ -201,27 +217,31 @@ import Badge from "@/components/common/Badge.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import { shortenFitText } from "@/components/common/HashLabel.vue";
 import Pagination from "@/components/common/Pagination.vue";
+import Tooltip from "@/components/common/Tooltip.vue";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
-import EthereumIcon from "@/components/icons/Ethereum.vue";
 import ZkSyncIcon from "@/components/icons/ZkSync.vue";
 import TokenAmountPriceTableCell from "@/components/transactions/TokenAmountPriceTableCell.vue";
 import TransactionDirectionTableCell from "@/components/transactions/TransactionDirectionTableCell.vue";
 import TransactionNetworkSquareBlock from "@/components/transactions/TransactionNetworkSquareBlock.vue";
+import TxStatusBadgeIcon from "@/components/transactions/TxStatusBadgeIcon.vue";
 
+import useContext from "@/composables/useContext";
+import { fetchMethodNames } from "@/composables/useOpenChain";
 import useToken, { type Token } from "@/composables/useToken";
 import { decodeDataWithABI } from "@/composables/useTransactionData";
 import useTransactions, { type TransactionListItem, type TransactionSearchParams } from "@/composables/useTransactions";
 
 import type { Direction } from "@/components/transactions/TransactionDirectionTableCell.vue";
 import type { AbiFragment } from "@/composables/useAddress";
-import type { NetworkOrigin } from "@/types";
 
-import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
-import { utcStringFromISOString } from "@/utils/helpers";
+import { type NetworkOrigin, TimeFormat } from "@/types";
+import { getContractDisplayName, isContractDeployerAddress, utcStringFromISOString } from "@/utils/helpers";
+
+const { currentNetwork } = useContext();
 
 const { t, te } = useI18n();
 
@@ -251,7 +271,7 @@ const searchParams = computed(() => props.searchParams ?? {});
 const { data, load, total, pending, pageSize } = useTransactions(searchParams);
 
 const { getTokenInfo, tokenInfo, isRequestPending: isLoadingEthTokenInfo } = useToken();
-getTokenInfo(ETH_TOKEN_L2_ADDRESS);
+getTokenInfo(currentNetwork.value.baseTokenAddress);
 
 const ethToken = computed<Token | null>(() => {
   return tokenInfo.value;
@@ -260,33 +280,56 @@ const ethToken = computed<Token | null>(() => {
 const isLoading = computed(() => pending.value || isLoadingEthTokenInfo.value);
 
 const activePage = ref(props.useQueryPagination ? parseInt(route.query.page as string) || 1 : 1);
-const toDate = new Date();
 
 watch(
-  [activePage, searchParams],
-  ([page]) => {
-    load(page, toDate);
+  [activePage, () => route.query.pageSize, searchParams],
+  ([page, pageSize]) => {
+    const currentPageSize = pageSize ? parseInt(pageSize as string) : 10;
+    load(page, currentPageSize);
   },
   { immediate: true }
 );
 
-const getTransactionMethod = (transaction: TransactionListItem) => {
+const methodNames = ref<Record<string, string>>({});
+
+const loadMethodNames = async () => {
+  if (!data.value) return;
+
+  const uniqueSighashes = [
+    ...new Set(
+      data.value?.map((transaction) => transaction.data.slice(0, 10)).filter((sighash) => sighash !== "0x") ?? []
+    ),
+  ];
+  const fetchedMethodNames = await fetchMethodNames(uniqueSighashes);
+  methodNames.value = { ...methodNames.value, ...fetchedMethodNames };
+};
+
+watch(
+  data,
+  async (newData) => {
+    if (!newData) return;
+
+    await loadMethodNames();
+  },
+  { immediate: true }
+);
+
+const getTransactionMethod = (transaction: TransactionListItem, methodNames: Record<string, string>) => {
   if (transaction.data === "0x") {
     return t("transactions.table.transferMethodName");
   }
   const sighash = transaction.data.slice(0, 10);
   if (props.contractAbi) {
-    return (
-      decodeDataWithABI(
-        {
-          calldata: transaction.data,
-          value: transaction.value,
-        },
-        props.contractAbi
-      )?.name ?? sighash
+    const decodedMethod = decodeDataWithABI(
+      { calldata: transaction.data, value: transaction.value },
+      props.contractAbi
     );
+    if (decodedMethod?.name) {
+      return decodedMethod.name;
+    }
   }
-  return sighash;
+
+  return methodNames[sighash] ?? sighash;
 };
 
 type TransactionListItemMapped = TransactionListItem & {
@@ -295,17 +338,29 @@ type TransactionListItemMapped = TransactionListItem & {
   toNetwork: NetworkOrigin;
   statusIcon: unknown;
   statusColor: "danger" | "dark-success";
+  displayedTxReceiver: string | null;
+  displayedTxReceiverName: string | null;
 };
 
 const transactions = computed<TransactionListItemMapped[] | undefined>(() => {
-  return data.value?.map((transaction) => ({
-    ...transaction,
-    methodName: getTransactionMethod(transaction),
-    fromNetwork: transaction.isL1Originated ? "L1" : "L2",
-    toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
-    statusColor: transaction.status === "failed" ? "danger" : "dark-success",
-    statusIcon: ["failed", "included"].includes(transaction.status) ? ZkSyncIcon : EthereumIcon,
-  }));
+  return data.value?.map((transaction) => {
+    const isContractDeploymentTx = isContractDeployerAddress(transaction.to) && !!transaction.contractAddress;
+    const displayedTxReceiver = isContractDeploymentTx ? transaction.contractAddress : transaction.to;
+    return {
+      ...transaction,
+      methodName: getTransactionMethod(transaction, methodNames.value),
+      fromNetwork: transaction.isL1Originated ? "L1" : "L2",
+      toNetwork: "L2", // even withdrawals go through L2 addresses (800A or bridge addresses)
+      statusColor: transaction.status === "failed" ? "danger" : "dark-success",
+      // replace finality status with execution status here
+      status: ["verified", "proved", "committed"].includes(transaction.status) ? "included" : transaction.status,
+      statusIcon: currentNetwork.value.txStatusBadgeIconUrl ? TxStatusBadgeIcon : ZkSyncIcon,
+      displayedTxReceiver,
+      displayedTxReceiverName: isContractDeploymentTx
+        ? t("contract.contractCreated")
+        : getContractDisplayName(displayedTxReceiver),
+    };
+  });
 });
 
 const isHighRowsSize = computed(() => props.columns.includes("fee"));
@@ -313,6 +368,12 @@ const isHighRowsSize = computed(() => props.columns.includes("fee"));
 function getDirection(item: TransactionListItem): Direction {
   return item.from === item.to ? "self" : item.to !== props.searchParams?.address ? "out" : "in";
 }
+
+const isTimeAgeView = ref(true);
+
+const toggleAgeTimestamp = () => {
+  isTimeAgeView.value = !isTimeAgeView.value;
+};
 </script>
 
 <style lang="scss">
@@ -431,7 +492,7 @@ function getDirection(item: TransactionListItem): Direction {
     }
   }
   .transactions-data-method {
-    @apply w-[200px] truncate sm:w-auto;
+    @apply w-36 truncate rounded border border-slate-200 bg-slate-400/10 px-2 py-0.5 text-center text-xs text-slate-600 sm:w-28;
   }
   .transactions-data-transaction-amount,
   .transactions-data-age {
@@ -458,10 +519,6 @@ function getDirection(item: TransactionListItem): Direction {
   }
   .badge-container.type-label {
     @apply pr-2 normal-case	normal-case;
-  }
-
-  .pagination {
-    @apply flex justify-center p-3;
   }
 
   .table-body {

@@ -23,18 +23,18 @@ jobs:
         working-directory: ./packages/api
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
 
       - name: Start docker containers
         run: |
-          docker-compose -f "docker-compose.e2e.yaml" up -d --build
+          docker compose -f "docker-compose.e2e.yaml" up -d --build
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: '18'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -44,9 +44,10 @@ jobs:
       - name: Run e2e tests
         run: |
           npm run test:e2e
+          npm run test:e2e-prividium
 
       - name: Publish Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        uses: EnricoMi/publish-unit-test-result-action/composite@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
         if: always()
         with:
           files: "packages/api/e2e-junit.xml"
@@ -54,6 +55,15 @@ jobs:
           report_individual_runs: "true"
           check_name: API E2E Test Results
 
+      - name: Publish Prividium Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        if: always()
+        with:
+          files: "packages/api/prividium-e2e-junit.xml"
+          check_run_annotations: all tests, skipped tests
+          report_individual_runs: "true"
+          check_name: API Prividium E2E Test Results
+
       - name: Stop containers
         if: always()
-        run: docker-compose -f "docker-compose.e2e.yaml" down
+        run: docker compose -f "docker-compose.e2e.yaml" down

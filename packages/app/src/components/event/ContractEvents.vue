@@ -104,7 +104,6 @@ const tableHead = computed(() => [
 ]);
 
 const activePage = ref(1);
-const toDate = new Date();
 watch(
   [activePage, () => props.contract.address],
   ([page]) => {
@@ -113,9 +112,8 @@ watch(
         contractAddress: props.contract.address,
         page: page,
         pageSize: pageSize.value,
-        toDate: toDate,
       },
-      props.contract.verificationInfo?.artifacts.abi
+      props.contract.verificationInfo?.abi
     );
   },
   { immediate: true }
@@ -159,7 +157,7 @@ watch(
     @apply block;
   }
   .pagination {
-    @apply flex justify-center p-3;
+    @apply p-3;
   }
   .only-mobile {
     @apply flex md:hidden;

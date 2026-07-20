@@ -1,9 +1,14 @@
-import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
-import { BatchDetails } from "../batch/batchDetails.entity";
-import { BatchStatus } from "../batch/batch.entity";
+
+export enum BlockStatus {
+  Sealed = "sealed",
+  Committed = "committed",
+  Proven = "proven",
+  Executed = "executed",
+}
 
 @Entity({ name: "blocks" })
 export class Block extends BaseEntity {
@@ -19,13 +24,8 @@ export class Block extends BaseEntity {
   @Column({ type: "varchar", length: 128 })
   public readonly gasUsed: string;
 
-  @ManyToOne(() => BatchDetails)
-  @JoinColumn({ name: "l1BatchNumber" })
-  public batch: BatchDetails;
-
-  @Index()
-  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
-  public readonly l1BatchNumber: number;
+  @Column({ type: "enum", enum: BlockStatus, default: BlockStatus.Sealed })
+  public readonly status: BlockStatus;
 
   @Column({ type: "int" })
   public readonly l1TxCount: number;
@@ -37,22 +37,10 @@ export class Block extends BaseEntity {
     return this.l1TxCount + this.l2TxCount;
   }
 
-  public get status(): BatchStatus {
-    return this.batch ? this.batch.status : BatchStatus.Sealed;
-  }
-
-  public get isL1BatchSealed(): boolean {
-    return !!this.batch;
-  }
-
   toJSON(): any {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { batch, ...restFields } = this;
     return {
-      ...restFields,
+      ...this,
       size: this.size,
-      status: this.status,
-      isL1BatchSealed: this.isL1BatchSealed,
     };
   }
 }

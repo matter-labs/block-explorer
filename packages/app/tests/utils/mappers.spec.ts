@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { BigNumber } from "ethers";
-
 import type { TransactionLogEntry } from "@/composables/useEventLog";
 import type { TraceStep } from "@/composables/useTrace";
 import type { Address } from "@/types";
@@ -22,7 +20,6 @@ describe("mappers:", () => {
         data: "0x00000000000000000000000000000000000000000000000000000033ef3c4feb",
         blockHash: "0xd2a12062d1ebb1dedad2fd378ba91c90c59a061a1938657e3ab6c508130d0124",
         blockNumber: "0x2e3099",
-        l1BatchNumber: "0x92bab",
         transactionHash: "0x34c62716d99068c6a7742cc74fe9c0020d7a600a67ea2d8a216ab93182995a90",
         transactionIndex: "0x0",
         logIndex: "0x4",
@@ -36,7 +33,7 @@ describe("mappers:", () => {
     expect(result).toEqual([
       {
         ...contractEvents[0],
-        blockNumber: BigNumber.from(contractEvents[0].blockNumber),
+        blockNumber: BigInt(contractEvents[0].blockNumber),
         address: checksumAddress(contractEvents[0].address),
       },
     ]);

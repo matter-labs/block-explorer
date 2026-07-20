@@ -1,5 +1,92 @@
 import { TypeOrmModuleOptions } from "@nestjs/typeorm";
 import * as featureFlags from "./featureFlags";
+import { BASE_TOKEN_L1_ADDRESS, BASE_TOKEN_L2_ADDRESS } from "../common/constants";
+import { z } from "zod";
+import { getDatabaseConnectionOptions, getDatabaseConfig } from "./database.config";
+
+const INVALID_PERMISSIONS_API_URL_MSG = "PRIVIDIUM_PERMISSIONS_API_URL has to be a valid url";
+const PRIVIDIUM_SESSION_MAX_AGE_MSG = "PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer";
+const PRIVIDIUM_SESSION_SECRET_MSG = "PRIVIDIUM_SESSION_SECRET has to be a non empty string";
+const PRIVIDIUM_SESSION_SAME_SITE_MSG = "PRIVIDIUM_SESSION_SAME_SITE has to be one of [none, strict, lax]";
+const PRIVIDIUM_APP_URL_ERROR_MSG = "PRIVIDIUM_APP_URL has to be a valid url";
+
+export type BaseToken = {
+  name: string;
+  symbol: string;
+  decimals: number;
+  l1Address: string;
+  l2Address: string;
+  liquidity?: number;
+  iconURL?: string;
+  usdPrice?: number;
+};
+
+const defaultBaseToken: BaseToken = {
+  l2Address: BASE_TOKEN_L2_ADDRESS,
+  l1Address: BASE_TOKEN_L1_ADDRESS,
+  symbol: "ETH",
+  name: "Ether",
+  decimals: 18,
+  // Fallback data in case ETH token is not in the DB
+  iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+};
+
+const getBaseToken = (): BaseToken => {
+  const {
+    BASE_TOKEN_SYMBOL,
+    BASE_TOKEN_DECIMALS,
+    BASE_TOKEN_L1_ADDRESS,
+    BASE_TOKEN_ICON_URL,
+    BASE_TOKEN_NAME,
+    BASE_TOKEN_LIQUIDITY,
+    BASE_TOKEN_USDPRICE,
+  } = process.env;
+
+  if (BASE_TOKEN_L1_ADDRESS && BASE_TOKEN_SYMBOL) {
+    return {
+      name: BASE_TOKEN_NAME,
+      symbol: BASE_TOKEN_SYMBOL,
+      decimals: parseInt(BASE_TOKEN_DECIMALS, 10),
+      l1Address: BASE_TOKEN_L1_ADDRESS,
+      l2Address: BASE_TOKEN_L2_ADDRESS,
+      liquidity: parseFloat(BASE_TOKEN_LIQUIDITY) || undefined,
+      iconURL: BASE_TOKEN_ICON_URL,
+      usdPrice: parseFloat(BASE_TOKEN_USDPRICE) || undefined,
+    };
+  }
+
+  return defaultBaseToken;
+};
+
+const getEthToken = (): BaseToken => {
+  const {
+    ETH_TOKEN_SYMBOL,
+    ETH_TOKEN_DECIMALS,
+    ETH_TOKEN_L2_ADDRESS,
+    ETH_TOKEN_ICON_URL,
+    ETH_TOKEN_NAME,
+    ETH_TOKEN_LIQUIDITY,
+    ETH_TOKEN_USDPRICE,
+  } = process.env;
+
+  if (ETH_TOKEN_L2_ADDRESS) {
+    return {
+      name: ETH_TOKEN_NAME || defaultBaseToken.name,
+      symbol: ETH_TOKEN_SYMBOL || defaultBaseToken.symbol,
+      decimals: parseFloat(ETH_TOKEN_DECIMALS) || defaultBaseToken.decimals,
+      l1Address: "0x0000000000000000000000000000000000000000",
+      l2Address: ETH_TOKEN_L2_ADDRESS,
+      liquidity: parseFloat(ETH_TOKEN_LIQUIDITY) || undefined,
+      iconURL: ETH_TOKEN_ICON_URL || defaultBaseToken.iconURL,
+      usdPrice: parseFloat(ETH_TOKEN_USDPRICE) || undefined,
+    };
+  }
+
+  return defaultBaseToken;
+};
+
+export const baseToken: BaseToken = getBaseToken();
+export const ethToken: BaseToken = getEthToken();
 
 export default () => {
   const {
@@ -7,12 +94,20 @@ export default () => {
     PORT,
     METRICS_PORT,
     COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL,
-    DATABASE_URL,
     DATABASE_CONNECTION_POOL_SIZE,
     DATABASE_CONNECTION_IDLE_TIMEOUT_MS,
     DATABASE_STATEMENT_TIMEOUT_MS,
     CONTRACT_VERIFICATION_API_URL,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
+    CHAIN_ID,
+    PRIVIDIUM_APP_URL,
+    PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS,
+    PRIVIDIUM_PERMISSIONS_API_URL,
+    PRIVIDIUM_SESSION_MAX_AGE,
+    PRIVIDIUM_SESSION_SAME_SITE,
+    PRIVIDIUM_SESSION_SECRET,
+    PRIVIDIUM_CORS_ORIGINS,
+    INDEXER_STATE_CACHE_TTL_MS,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -32,13 +127,27 @@ export default () => {
   };
 
   const getTypeOrmModuleOptions = (): TypeOrmModuleOptions => {
-    const master = { url: DATABASE_URL || "postgres://postgres:postgres@localhost:5432/block-explorer" };
+    const dbOptions = getDatabaseConnectionOptions();
+    const dbConfig = getDatabaseConfig();
+
+    // When SSL is enabled, use individual connection params instead of URL
+    // because TypeORM doesn't properly apply SSL config with URL
+    const connectionConfig = dbOptions.ssl
+      ? {
+          host: dbConfig.host,
+          port: dbConfig.port,
+          username: dbConfig.username,
+          password: dbConfig.password,
+          database: dbConfig.database,
+        }
+      : { url: dbOptions.url };
+
     const replicaSet = getDatabaseReplicaSet();
 
     return {
       type: "postgres",
       ...(!replicaSet.length && {
-        ...master,
+        ...connectionConfig,
       }),
       ...(replicaSet.length && {
         replication: {
@@ -51,10 +160,12 @@ export default () => {
           slaves: replicaSet,
         },
       }),
+      ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
       poolSize: parseInt(DATABASE_CONNECTION_POOL_SIZE, 10) || 300,
       extra: {
         idleTimeoutMillis: parseInt(DATABASE_CONNECTION_IDLE_TIMEOUT_MS, 10) || 60000,
         statement_timeout: parseInt(DATABASE_STATEMENT_TIMEOUT_MS, 10) || 90_000,
+        ...(dbOptions.ssl && { ssl: dbOptions.ssl }),
       },
       synchronize: NODE_ENV === "test",
       logging: false,
@@ -65,6 +176,54 @@ export default () => {
     };
   };
 
+  const getPrividiumConfig = () => {
+    if (!featureFlags.prividium) {
+      return {};
+    }
+
+    const prividiumSchema = z.object(
+      {
+        permissionsApiUrl: z.string({ message: INVALID_PERMISSIONS_API_URL_MSG }).url(INVALID_PERMISSIONS_API_URL_MSG),
+        sessionSecret: z.string({ message: PRIVIDIUM_SESSION_SECRET_MSG }).nonempty(PRIVIDIUM_SESSION_SECRET_MSG),
+        sessionMaxAge: z.coerce
+          .number({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
+          .int({ message: PRIVIDIUM_SESSION_MAX_AGE_MSG })
+          .positive(PRIVIDIUM_SESSION_MAX_AGE_MSG)
+          .default(86_400_000), // 1 day
+        sessionSameSite: z
+          .enum(["none", "strict", "lax"], { message: PRIVIDIUM_SESSION_SAME_SITE_MSG })
+          .default("none"),
+        appUrl: z
+          .string({ message: PRIVIDIUM_APP_URL_ERROR_MSG })
+          .url(PRIVIDIUM_APP_URL_ERROR_MSG)
+          .default("http://localhost:3010"),
+        corsOrigins: z
+          .string()
+          .optional()
+          .transform((val) => (val ? val.split(",").map((s) => s.trim()) : undefined)),
+        disableTxVisibilityByTopics: z.preprocess((v) => v === "true", z.boolean()).default(false),
+      },
+      { message: "Invalid prividium configuration" }
+    );
+
+    const result = prividiumSchema.safeParse({
+      permissionsApiUrl: PRIVIDIUM_PERMISSIONS_API_URL,
+      sessionSecret: PRIVIDIUM_SESSION_SECRET,
+      sessionMaxAge: PRIVIDIUM_SESSION_MAX_AGE,
+      sessionSameSite: PRIVIDIUM_SESSION_SAME_SITE,
+      appUrl: PRIVIDIUM_APP_URL,
+      corsOrigins: PRIVIDIUM_CORS_ORIGINS,
+      disableTxVisibilityByTopics: PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS,
+    });
+
+    if (!result.success) {
+      const msg = result.error.errors.map((e) => e.message).join(", ");
+      throw new Error(`Invalid prividium config: ${msg}`);
+    }
+
+    return result.data;
+  };
+
   return {
     NODE_ENV,
     port: parseInt(PORT, 10) || 3020,
@@ -73,8 +232,13 @@ export default () => {
       collectDbConnectionPoolMetricsInterval: parseInt(COLLECT_DB_CONNECTION_POOL_METRICS_INTERVAL, 10) || 10000,
     },
     typeORM: getTypeOrmModuleOptions(),
-    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://127.0.0.1:3070",
+    contractVerificationApiUrl: CONTRACT_VERIFICATION_API_URL || "http://localhost:5555",
     featureFlags,
+    chainId: parseInt(CHAIN_ID, 10) || 1,
+    baseToken: getBaseToken(),
+    ethToken: getEthToken(),
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
+    prividium: getPrividiumConfig(),
+    indexerStateCacheTtlMs: parseInt(INDEXER_STATE_CACHE_TTL_MS, 10) || 1000,
   };
 };

@@ -13,6 +13,8 @@ vi.mock("vue-router", () => ({
   useRoute: () => ({
     query: routeQueryMock(),
   }),
+  createWebHistory: () => vi.fn(),
+  createRouter: () => ({ beforeEach: vi.fn() }),
 }));
 
 import enUS from "@/locales/en.json";
@@ -27,7 +29,7 @@ const getMockCollection = (length: number) =>
     l1TxCount: 1,
     l2TxCount: 58,
     hash: "0x01ee8af7626f87e046f212c59e4505ef64d3fa5746db26bec7b46566420321f3",
-    status: "verified",
+    status: "executed",
     timestamp: "2022-02-23T08:58:20.000Z",
   }));
 

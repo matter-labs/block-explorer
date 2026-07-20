@@ -7,17 +7,17 @@ import { parse as parseConnectionString } from "pg-connection-string";
 const buildAppConfig = (zkSyncEnvs: { [key: string]: string }) => ({
   networks: [{
     apiUrl: "http://localhost:3020",
-    verificationApiUrl: zkSyncEnvs.API_CONTRACT_VERIFICATION_URL || "",
+    verificationApiUrl: "http://localhost:3020/api",
     hostnames: ["localhost"],
     icon: "/images/icons/zksync-arrows.svg",
     l2ChainId: parseInt(zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK_ID, 10) || "",
     l2NetworkName: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
     bridgeUrl: "http://localhost:3000/bridge",
-    l2WalletUrl: "http://localhost:3000",
     maintenance: false,
     name: zkSyncEnvs.CHAIN_ETH_ZKSYNC_NETWORK || "",
     published: true,
     rpcUrl: zkSyncEnvs.API_WEB3_JSON_RPC_HTTP_URL || "",
+    baseTokenAddress: "0x000000000000000000000000000000000000800A",
   }]
 });
 
@@ -43,7 +43,7 @@ const buildApiConfig = (zkSyncEnvs: { [key: string]: string }) => {
   const dbConfig = parseConnectionString(zkSyncEnvs.DATABASE_URL);
   return {
     DATABASE_URL: `postgres://${dbConfig.user}:${dbConfig.password}@${dbConfig.host}/block-explorer`,
-    CONTRACT_VERIFICATION_API_URL: zkSyncEnvs.API_CONTRACT_VERIFICATION_URL || "",
+    CONTRACT_VERIFICATION_API_URL: "http://localhost:3020/api",
   }
 };
 
@@ -57,7 +57,7 @@ const buildEnvFileContent = (json: { [key: string]: string | number }) => Object
   }
   console.log(`zksync-era repo found at ${zkSyncHome}`);
 
-  const zkSyncEnvFolder = `${zkSyncHome}/etc/env`;
+  const zkSyncEnvFolder = `${zkSyncHome}/etc/env/target`;
   const envFiles = readdirSync(zkSyncEnvFolder)
     .map((fullFileName) => path.parse(fullFileName))
     .filter((file) => {

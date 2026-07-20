@@ -1,8 +1,8 @@
-import { types, utils } from "zksync-web3";
+import { TransactionReceipt } from "ethers";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { TransferType } from "../transfer/transfer.service";
 import isInternalTransaction from "./isInternalTransaction";
-
+import { BASE_TOKEN_ADDRESS, BOOTLOADER_FORMAL_ADDRESS } from "../../src/constants";
 describe("isInternalTransaction", () => {
   it("returns false when transfer type is not transfer", () => {
     expect(isInternalTransaction({ type: TransferType.Deposit } as Transfer)).toBeFalsy();
@@ -10,7 +10,7 @@ describe("isInternalTransaction", () => {
 
   it("returns false when token is not ETH", () => {
     expect(
-      isInternalTransaction({ type: TransferType.Transfer, tokenAddress: utils.BOOTLOADER_FORMAL_ADDRESS } as Transfer)
+      isInternalTransaction({ type: TransferType.Transfer, tokenAddress: BOOTLOADER_FORMAL_ADDRESS } as Transfer)
     ).toBeFalsy();
   });
 
@@ -19,14 +19,14 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "FROM",
           to: "to",
         } as Transfer,
         {
           from: "from",
           to: "TO",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeFalsy();
   });
@@ -36,14 +36,14 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "from1",
           to: "to",
         } as Transfer,
         {
           from: "from2",
           to: "to",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeTruthy();
   });
@@ -53,14 +53,14 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "from",
           to: "to1",
         } as Transfer,
         {
           from: "from",
           to: "to2",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeTruthy();
   });
@@ -70,14 +70,14 @@ describe("isInternalTransaction", () => {
       isInternalTransaction(
         {
           type: TransferType.Transfer,
-          tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+          tokenAddress: BASE_TOKEN_ADDRESS,
           from: "from1",
           to: "to1",
         } as Transfer,
         {
           from: "from2",
           to: "to2",
-        } as types.TransactionReceipt
+        } as TransactionReceipt
       )
     ).toBeTruthy();
   });
@@ -86,10 +86,27 @@ describe("isInternalTransaction", () => {
     expect(
       isInternalTransaction({
         type: TransferType.Transfer,
-        tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+        tokenAddress: BASE_TOKEN_ADDRESS,
         from: "from",
         to: "to1",
       } as Transfer)
+    ).toBeTruthy();
+  });
+
+  it("returns true when transfer from addresses are the same but receipt to is null", () => {
+    expect(
+      isInternalTransaction(
+        {
+          type: TransferType.Transfer,
+          tokenAddress: BASE_TOKEN_ADDRESS,
+          from: "FROM",
+          to: "to",
+        } as Transfer,
+        {
+          from: "from",
+          to: null,
+        } as TransactionReceipt
+      )
     ).toBeTruthy();
   });
 });

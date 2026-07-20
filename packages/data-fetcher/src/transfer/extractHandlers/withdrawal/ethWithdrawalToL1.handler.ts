@@ -1,33 +1,32 @@
-import { utils, types } from "zksync-web3";
+import { type Log, type Block } from "ethers";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES } from "../../../constants";
 
 export const ethWithdrawalToL1Handler: ExtractTransferHandler = {
-  matches: (log: types.Log): boolean => log.address.toLowerCase() === utils.L2_ETH_TOKEN_ADDRESS,
-  extract: (
-    log: types.Log,
-    blockDetails: types.BlockDetails,
-    transactionDetails?: types.TransactionDetails
-  ): Transfer => {
+  matches: (log: Log): boolean => log.address.toLowerCase() === BASE_TOKEN_ADDRESS,
+  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
     const parsedLog = parseLog(CONTRACT_INTERFACES.ETH_TOKEN, log);
+    if (!parsedLog) {
+      return null;
+    }
     return {
       from: parsedLog.args._l2Sender.toLowerCase(),
       to: parsedLog.args._l1Receiver.toLowerCase(),
       transactionHash: log.transactionHash,
       blockNumber: log.blockNumber,
       amount: parsedLog.args._amount,
-      tokenAddress: utils.L2_ETH_TOKEN_ADDRESS,
+      tokenAddress: BASE_TOKEN_ADDRESS,
       type: TransferType.Withdrawal,
-      tokenType: TokenType.ETH,
+      tokenType: TokenType.BaseToken,
       isFeeOrRefund: false,
-      logIndex: log.logIndex,
+      logIndex: log.index,
       transactionIndex: log.transactionIndex,
-      timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
+      timestamp: unixTimeToDate(block.timestamp),
     };
   },
 };

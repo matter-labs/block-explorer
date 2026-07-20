@@ -7,7 +7,7 @@ export const hexTransformer: ValueTransformer = {
       return null;
     }
 
-    if (value instanceof FindOperator<any>) {
+    if (value instanceof FindOperator) {
       return value;
     }
 

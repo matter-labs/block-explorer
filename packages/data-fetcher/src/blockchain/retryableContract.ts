@@ -1,38 +1,52 @@
 import { Logger } from "@nestjs/common";
-import { Provider } from "@ethersproject/abstract-provider";
 import { setTimeout } from "timers/promises";
-import { Contract, ContractInterface, Signer, errors } from "ethers";
+import { Contract, Interface, ContractRunner, ErrorCode, isError } from "ethers";
 import config from "../config";
 
 const { blockchain } = config();
 
 interface EthersError {
-  code: string;
-  method: string;
-  transaction: {
-    data: string;
-    to: string;
-  };
+  code: ErrorCode | number;
+  shortMessage: string;
   message: string;
+  info?: {
+    error?: {
+      message: string;
+    };
+  };
+}
+export class ExceededRetriesTotalTimeoutError extends Error {
+  constructor(message?: string) {
+    super(message);
+  }
 }
 
 const MAX_RETRY_INTERVAL = 60000;
 
-const PERMANENT_ERRORS: string[] = [
-  errors.INVALID_ARGUMENT,
-  errors.MISSING_ARGUMENT,
-  errors.UNEXPECTED_ARGUMENT,
-  errors.NOT_IMPLEMENTED,
+const PERMANENT_ERRORS: ErrorCode[] = [
+  "INVALID_ARGUMENT",
+  "MISSING_ARGUMENT",
+  "UNEXPECTED_ARGUMENT",
+  "NOT_IMPLEMENTED",
 ];
 
-const shouldRetry = (calledFunctionName: string, error: EthersError): boolean => {
+const shouldRetry = (error: EthersError): boolean => {
+  const isPermanentErrorCode = PERMANENT_ERRORS.find((errorCode) => isError(error, errorCode));
   return (
-    !PERMANENT_ERRORS.includes(error.code) &&
+    !isPermanentErrorCode &&
+    // example block mainnet 47752810
     !(
-      error.code === errors.CALL_EXCEPTION &&
-      error.method?.startsWith(`${calledFunctionName}(`) &&
-      !!error.transaction &&
-      error.message?.startsWith("call revert exception")
+      ["CALL_EXCEPTION", 3].includes(error.code) &&
+      [error.shortMessage, error.message, error.info?.error?.message].find((msg) =>
+        msg?.startsWith("execution reverted")
+      )
+    ) &&
+    // example block mainnet 47819836
+    !(
+      error.code === "BAD_DATA" &&
+      ["could not decode result data", "invalid length for result data"].find((message) =>
+        error.shortMessage?.startsWith(message)
+      )
     )
   );
 };
@@ -46,44 +60,42 @@ const retryableFunctionCall = async (
   retryTimeout: number,
   retriesTotalTimeAwaited = 0
 ): Promise<any> => {
-  try {
-    return await result;
-  } catch (error) {
-    const isRetryable = shouldRetry(functionName, error);
-    if (!isRetryable) {
-      logger.warn({
-        message: `Requested contract function ${functionName} failed to execute, not retryable`,
+  let currentResult = result;
+  let currentRetryTimeout = retryTimeout;
+  let totalTimeAwaited = retriesTotalTimeAwaited;
+  while (true) {
+    try {
+      return await currentResult;
+    } catch (error) {
+      const isRetryable = shouldRetry(error);
+      if (!isRetryable) {
+        logger.warn({
+          message: `Requested contract function ${functionName} failed to execute, not retryable`,
+          contractAddress: addressOrName,
+          error,
+        });
+        throw error;
+      }
+
+      const exceededRetriesTotalTimeout =
+        totalTimeAwaited + currentRetryTimeout > blockchain.rpcCallRetriesMaxTotalTimeout;
+      const failedStatus = exceededRetriesTotalTimeout ? "exceeded total retries timeout" : "retrying...";
+      logger[exceededRetriesTotalTimeout ? "error" : "warn"]({
+        message: `Requested contract function ${functionName} failed to execute, ${failedStatus}`,
         contractAddress: addressOrName,
         error,
       });
-      throw error;
-    }
 
-    const exceededRetriesTotalTimeout =
-      retriesTotalTimeAwaited + retryTimeout > blockchain.rpcCallRetriesMaxTotalTimeout;
-    const failedStatus = exceededRetriesTotalTimeout ? "exceeded total retries timeout" : "retrying...";
-    logger.warn({
-      message: `Requested contract function ${functionName} failed to execute, ${failedStatus}`,
-      contractAddress: addressOrName,
-      error,
-    });
-
-    if (exceededRetriesTotalTimeout) {
-      throw error;
+      if (exceededRetriesTotalTimeout) {
+        throw new ExceededRetriesTotalTimeoutError(error);
+      }
     }
+    await setTimeout(currentRetryTimeout);
+
+    totalTimeAwaited += currentRetryTimeout;
+    currentRetryTimeout = Math.min(currentRetryTimeout * 2, MAX_RETRY_INTERVAL);
+    currentResult = functionCall();
   }
-  await setTimeout(retryTimeout);
-
-  const nextRetryTimeout = Math.min(retryTimeout * 2, MAX_RETRY_INTERVAL);
-  return retryableFunctionCall(
-    functionCall(),
-    functionCall,
-    logger,
-    functionName,
-    addressOrName,
-    nextRetryTimeout,
-    retriesTotalTimeAwaited + retryTimeout
-  );
 };
 
 const getProxyHandler = (addressOrName: string, logger: Logger, retryTimeout: number) => {
@@ -113,12 +125,12 @@ const getProxyHandler = (addressOrName: string, logger: Logger, retryTimeout: nu
 export class RetryableContract extends Contract {
   constructor(
     addressOrName: string,
-    contractInterface: ContractInterface,
-    signerOrProvider: Signer | Provider,
+    contractInterface: Interface,
+    contractRunner: ContractRunner,
     retryTimeout = 1000
   ) {
     const logger = new Logger("Contract");
-    super(addressOrName, contractInterface, signerOrProvider);
+    super(addressOrName, contractInterface, contractRunner);
     return new Proxy({ contract: this }, getProxyHandler(addressOrName, logger, retryTimeout));
   }
 }

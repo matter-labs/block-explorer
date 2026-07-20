@@ -13,9 +13,9 @@ Feature: Copying
 
     Examples:
       | Page                                                                   |
-      | /tx/0xe84dcdaa4e40c9899763c8f55255376fd77f3a588be0fe0afa69f153a0ae3f10 |
-      | /address/0xed7175341f123f7718aBaCF1702d6980CFc08784                    |
-      | /tx/0xe239f4cc4ddbaad475d0ef3e23114a89387864bcde5da5b5ca4d2c140bfc4bc4 |
+      | /tx/0xe7286a5fca5b1f5eb19ab5e63752de713059a042efc4cd3725213051951a77b0 |
+      | /address/0x000000000000000000000000000000000000800A                    |
+      | /tx/0xf47aaa3fde4cec0015cad3a38a46e047e667f81753ecf8642a0e60a5901eb00f |
       | /block/1                                                               |
       | /address/0x574343B3d1544477f2C4dF38c2Ef720Ab33e782b                    |
 
@@ -120,7 +120,7 @@ Feature: Copying
 
     Examples:
       | Row             | Text                                                               |
-      | Root hash       | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
+      | Block hash      | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
       | Commit tx hash  | 0x6ad6a118e09a27e39ee57c63e812953788de4974987c76bc954c14a8c32688e8 |
       | Prove tx hash   | 0xfbd3a89cee83e4f28999bc8fd5e96d133b7ebc367d5c7026f173d21687998379 |
       | Execute tx hash | 0x5131c1bb47dca3d42ccdfd12d1ab7224cbb88fb9ad91b94e2da26631602f6fab |
@@ -134,7 +134,7 @@ Feature: Copying
 
     Examples:
       | Row             | Text                                                               |
-      | Root hash       | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
+      | Block hash       | 0x51f81bcdfc324a0dff2b5bec9d92e21cbebc4d5e29d3a3d30de3e03fbeab8d7f |
       | Commit tx hash  | 0x33143afba6c91f77d18b0d7a50248e6255461ec0e0cd80a06d3bd86f2686768c |
       | Prove tx hash   | 0x424cdbfb877178a909fbbe6dca6ef131a752e6c91c8b24470d919e30c06e3692 |
       | Execute tx hash | 0x51425089db3b2ce38b1893ec2f1dc23e3f5db8e9f48f06bb624e99d77fe76aca |
@@ -159,18 +159,18 @@ Feature: Copying
 
   @id275 @testnet @testnetSmokeSuite
   Scenario Outline: Check "<Row>" hashes copying for Tokens page
-    Given I go to page "/tokenlist"
+    Given I go to page "/tokens"
     When I click on the copy button with "<Row>" row on "Tokens" page
     And Element with "text" "Copied!" should be "visible"
     Then Clipboard contains "<Text>" value
 
     Examples:
       | Row             | Text                                       |
-      | ETH             | 0x000000000000000000000000000000000000800A |
+      | USDC            | 0x4A76CCA1b7527d4dc78f87FB57257c8ACc5dE05B |
 
   @id275:I @mainnet
   Scenario Outline: Check "<Row>" hashes copying for Tokens page
-    Given I go to page "/tokenlist"
+    Given I go to page "/tokens"
     When I click on the copy button with "<Row>" row on "Tokens" page
     And Element with "text" "Copied!" should be "visible"
     Then Clipboard contains "<Text>" value

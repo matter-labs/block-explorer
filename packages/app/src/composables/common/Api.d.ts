@@ -28,35 +28,6 @@ declare namespace Api {
       iconURL: string | null;
     };
 
-    type BatchListItem = {
-      number: string;
-      timestamp: string;
-      rootHash?: string | null;
-      executedAt: string | null;
-      status: "sealed" | "verified";
-      l1TxCount: number;
-      l2TxCount: number;
-      size: number;
-    };
-
-    type BatchDetails = {
-      number: string;
-      timestamp: string;
-      rootHash?: string | null;
-      executedAt: string | null;
-      status: "sealed" | "verified";
-      l1TxCount: number;
-      l2TxCount: number;
-      size: number;
-      commitTxHash: string | null;
-      proveTxHash: string | null;
-      executeTxHash: string | null;
-      committedAt: string | null;
-      provenAt: string | null;
-      l1GasPrice: string;
-      l2FairGasPrice: string;
-    };
-
     type Log = {
       address: string;
       topics: string[];
@@ -69,7 +40,7 @@ declare namespace Api {
 
     type Transaction = {
       hash: string;
-      to: string;
+      to: string | null;
       from: string;
       transactionIndex: number;
       data: string;
@@ -85,15 +56,11 @@ declare namespace Api {
       maxFeePerGas: string | null;
       maxPriorityFeePerGas: string | null;
       receivedAt: string;
-      commitTxHash: string | null;
-      proveTxHash: string | null;
-      executeTxHash: string | null;
       isL1Originated: boolean;
-      l1BatchNumber: number | null;
-      isL1BatchSealed: boolean;
       status: "included" | "committed" | "proved" | "verified" | "failed";
       error: string | null;
       revertReason: string | null;
+      contractAddress: string | null;
     };
 
     type Transfer = {
@@ -106,6 +73,7 @@ declare namespace Api {
       tokenAddress: string;
       type: "deposit" | "transfer" | "withdrawal" | "fee" | "mint" | "refund";
       timestamp: string;
+      chainId?: string;
     };
 
     type TokenAddress = {
@@ -122,8 +90,8 @@ declare namespace Api {
       address: string;
       blockNumber: number;
       balances: Balances;
-      sealedNonce: number;
-      verifiedNonce: number;
+      sealedNonce?: number;
+      verifiedNonce?: number;
     };
 
     type Contract = {
@@ -135,7 +103,8 @@ declare namespace Api {
       creatorAddress: string;
       creatorTxHash: string;
       createdInBlockNumber: number;
-      totalTransactions: number;
+      totalTransactions?: number;
+      isEvmLike: boolean;
     };
   }
 }

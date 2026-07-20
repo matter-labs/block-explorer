@@ -18,11 +18,14 @@ export enum TransferType {
 }
 
 @Entity({ name: "transfers" })
-@Index(["transactionHash", "timestamp", "logIndex"])
-@Index(["tokenAddress", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["tokenAddress", "blockNumber", "logIndex"])
-@Index(["transactionHash", "isInternal", "blockNumber", "logIndex"])
-@Index(["isInternal", "blockNumber", "logIndex"])
+@Index(["transactionHash", "blockNumber", "logIndex", "number"])
+@Index(["tokenAddress", "isFeeOrRefund", "blockNumber", "logIndex", "number"])
+@Index(["fromToMin", "fromToMax", "isFeeOrRefund", "blockNumber", "logIndex", "number"])
+@Index(["fromToMin", "fromToMax", "type", "blockNumber", "logIndex", "number"])
+@Index(["tokenAddress", "blockNumber", "logIndex", "number"])
+@Index(["transactionHash", "isInternal", "blockNumber", "logIndex", "number"])
+@Index(["isInternal", "blockNumber", "logIndex", "number"])
+@Index(["blockNumber", "number"]) // used by counter service
 export class Transfer extends CountableEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public override readonly number: number;
@@ -33,11 +36,16 @@ export class Transfer extends CountableEntity {
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly to: string;
 
+  @Column({ type: "bytea", transformer: hexTransformer })
+  public readonly fromToMin: string;
+
+  @Column({ type: "bytea", transformer: hexTransformer })
+  public readonly fromToMax: string;
+
   @ManyToOne(() => Block, { onDelete: "CASCADE" })
   @JoinColumn({ name: "blockNumber" })
   private readonly _block: never;
 
-  @Index()
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public override readonly blockNumber: number;
 
@@ -63,7 +71,7 @@ export class Transfer extends CountableEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
-  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.BaseToken })
   public readonly tokenType: TokenType;
 
   @Column({ type: "boolean" })
@@ -77,4 +85,7 @@ export class Transfer extends CountableEntity {
 
   @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
+
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly chainId?: string;
 }

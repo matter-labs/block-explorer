@@ -3,6 +3,7 @@ import { Transfer } from "../entities";
 import { UnitOfWork } from "../unitOfWork";
 import { BaseRepository } from "./base.repository";
 import { AddressTransferRepository } from "./addressTransfer.repository";
+import { computeFromToMinMax } from "../utils/computeFromToMinMax";
 
 @Injectable()
 export class TransferRepository extends BaseRepository<Transfer> {
@@ -11,9 +12,10 @@ export class TransferRepository extends BaseRepository<Transfer> {
   }
 
   public override async addMany(records: Partial<Transfer>[]): Promise<void> {
-    await super.addMany(records);
+    const recordsToAdd = records.map((record) => ({ ...record, ...computeFromToMinMax(record.from, record.to) }));
+    await super.addMany(recordsToAdd);
 
-    const addressTransfers = records.flatMap((record) => {
+    const addressTransfers = recordsToAdd.flatMap((record) => {
       const { number, ...addressTransfer } = record;
       const transferNumber = Number(number);
 

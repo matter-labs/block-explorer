@@ -7,14 +7,16 @@ import { hexTransformer } from "../transformers/hex.transformer";
 import { BaseEntity } from "./base.entity";
 
 export enum TokenType {
-  ETH = "ETH",
+  BaseToken = "BASETOKEN",
   ERC20 = "ERC20",
   ERC721 = "ERC721",
 }
 
 @Entity({ name: "tokens" })
 @Check(`"symbol" <> ''`)
-@Index(["liquidity", "blockNumber", "logIndex"])
+// TypeORM doesn't support indexes with custom order, the index is created manually in a migration file.
+// The @Index decorator is added here to ensure the index is not dropped on npm run migration:generate.
+@Index("IDX_f1d168776e18becd1d1a5e594f", ["liquidity", "blockNumber", "logIndex"])
 export class Token extends BaseEntity {
   @PrimaryColumn({ type: "bytea", transformer: hexTransformer })
   public readonly l2Address: string;

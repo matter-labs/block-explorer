@@ -11,14 +11,12 @@ export class CounterWorker<T extends CountableEntity> extends Worker {
   }
 
   protected async runProcess(): Promise<void> {
-    const isNextRecordsBatchProcessed = await this.counterProcessor.processNextRecordsBatch();
-    if (!isNextRecordsBatchProcessed) {
-      await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
-    }
-    if (!this.currentProcessPromise) {
-      return;
-    }
-    return this.runProcess();
+    do {
+      const isNextRecordsBatchProcessed = await this.counterProcessor.processNextRecordsBatch();
+      if (!isNextRecordsBatchProcessed) {
+        await waitFor(() => !this.currentProcessPromise, this.pollingInterval);
+      }
+    } while (this.currentProcessPromise);
   }
 
   public revert(lastCorrectBlockNumber: number): Promise<void> {

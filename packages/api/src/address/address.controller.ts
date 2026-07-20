@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from "@nestjs/common";
+import { Controller, ForbiddenException, Get, Logger, Param, Query } from "@nestjs/common";
 import {
   ApiTags,
   ApiParam,
@@ -9,10 +9,10 @@ import {
   ApiExcludeController,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { utils } from "ethers";
+import { getAddress as ethersGetAddress } from "ethers";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
-import { formatHexAddress, buildDateFilter } from "../common/utils";
+import { formatHexAddress, buildBlockFilter, isAddressEqual } from "../common/utils";
 import { AddressService } from "./address.service";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
@@ -25,6 +25,8 @@ import { TransferService } from "../transfer/transfer.service";
 import { TransferDto } from "../transfer/transfer.dto";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { User } from "../user/user.decorator";
+import { AddUserRolesPipe, UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "address";
 
@@ -32,6 +34,8 @@ const entityName = "address";
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class AddressController {
+  private readonly logger: Logger;
+
   constructor(
     private readonly addressService: AddressService,
     private readonly blockService: BlockService,
@@ -39,11 +43,14 @@ export class AddressController {
     private readonly logService: LogService,
     private readonly balanceService: BalanceService,
     private readonly transferService: TransferService
-  ) {}
+  ) {
+    this.logger = new Logger(AddressController.name);
+  }
 
   @Get(":address")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.address,
     description: "Valid hex address",
@@ -56,56 +63,81 @@ export class AddressController {
   })
   @ApiBadRequestResponse({ description: "Specified address is invalid" })
   public async getAddress(
-    @Param("address", new ParseAddressPipe()) address: string
+    @Param("address", new ParseAddressPipe()) address: string,
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<AccountDto | ContractDto> {
-    const [addressRecord, addressBalance] = await Promise.all([
-      this.addressService.findOne(address),
-      this.balanceService.getBalances(address),
-    ]);
+    const addressRecord = await this.addressService.findOne(address);
+    const addressType = !!(addressRecord && addressRecord.bytecode.length > 2)
+      ? AddressType.Contract
+      : AddressType.Account;
+    let includeBalances = true;
+    let includeBytecode = true;
+    let includeCreatorAddress = true;
+    let includeCreatorTxHash = true;
+    let includeTotalTransactions = true;
 
-    if (addressRecord?.bytecode.length > 2) {
-      const totalTransactions = await this.transactionService.count({ "from|to": formatHexAddress(address) });
+    const isOwnAddress = !!user && user.wallets.some((wallet) => isAddressEqual(wallet, address));
+
+    if (user && !user.hasFullReadAccess) {
+      // If address is an account and is not own address, forbid access
+      if (addressType === AddressType.Account && !isOwnAddress) {
+        throw new ForbiddenException();
+      }
+
+      // If address is a contract and user is not owner, don't include additional information
+      if (addressType === AddressType.Contract && !(await this.isUserOwnerOfContract(address, user.wallets))) {
+        includeBalances = false;
+        includeBytecode = false;
+        includeCreatorAddress = false;
+        includeCreatorTxHash = false;
+        includeTotalTransactions = false;
+      }
+    }
+
+    const addressBalance = includeBalances
+      ? await this.balanceService.getBalances(address)
+      : { blockNumber: 0, balances: {} };
+
+    if (addressType === AddressType.Contract) {
+      const totalTransactions = includeTotalTransactions
+        ? await this.transactionService.count({ "from|to": formatHexAddress(address) })
+        : undefined;
       return {
         type: AddressType.Contract,
         ...addressRecord,
         blockNumber: addressBalance.blockNumber || addressRecord.createdInBlockNumber,
         balances: addressBalance.balances,
         createdInBlockNumber: addressRecord.createdInBlockNumber,
-        creatorTxHash: addressRecord.creatorTxHash,
-        totalTransactions,
-        creatorAddress: addressRecord.creatorAddress,
+        creatorTxHash: includeCreatorTxHash ? addressRecord.creatorTxHash : "",
+        ...(includeTotalTransactions && { totalTransactions }),
+        creatorAddress: includeCreatorAddress ? addressRecord.creatorAddress : "",
+        isEvmLike: addressRecord.isEvmLike,
+        bytecode: includeBytecode ? addressRecord.bytecode : "",
       };
     }
 
-    if (addressBalance.blockNumber) {
-      const [sealedNonce, verifiedNonce] = await Promise.all([
-        this.transactionService.getAccountNonce({ accountAddress: address }),
-        this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
-      ]);
-
-      return {
-        type: AddressType.Account,
-        address: utils.getAddress(address),
-        blockNumber: addressBalance.blockNumber,
-        balances: addressBalance.balances,
-        sealedNonce,
-        verifiedNonce,
-      };
-    }
+    // In prividium mode account nonces are only visible to the account owner or an admin
+    const includeNonces = !user || user.hasAdminRead || isOwnAddress;
+    const [sealedNonce, verifiedNonce] = includeNonces
+      ? await Promise.all([
+          this.transactionService.getAccountNonce({ accountAddress: address }),
+          this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
+        ])
+      : [undefined, undefined];
 
     return {
       type: AddressType.Account,
-      address: utils.getAddress(address),
-      blockNumber: await this.blockService.getLastBlockNumber(),
-      balances: {},
-      sealedNonce: 0,
-      verifiedNonce: 0,
+      address: ethersGetAddress(address),
+      blockNumber: addressBalance.blockNumber || (await this.blockService.getLastBlockNumber()),
+      balances: addressBalance.balances,
+      ...(includeNonces && { sealedNonce, verifiedNonce }),
     };
   }
 
   @Get(":address/logs")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.contractAddressWithLogs,
     description: "Valid hex address",
@@ -116,8 +148,13 @@ export class AddressController {
   })
   public async getAddressLogs(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<LogDto>> {
+    if (user && !user.hasFullReadAccess) {
+      throw new ForbiddenException();
+    }
+
     return await this.logService.findAll(
       { address },
       {
@@ -130,6 +167,7 @@ export class AddressController {
   @Get(":address/transfers")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.address,
     description: "Valid hex address",
@@ -142,9 +180,16 @@ export class AddressController {
     @Param("address", new ParseAddressPipe()) address: string,
     @Query() filterAddressTransferOptions: FilterAddressTransfersOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<TransferDto>> {
-    const filterTransfersListOptions = buildDateFilter(listFilterOptions.fromDate, listFilterOptions.toDate);
+    const userFilters = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
+
+    const filterTransfersListOptions = buildBlockFilter(
+      listFilterOptions.fromBlock,
+      listFilterOptions.toBlock,
+      "blockNumber"
+    );
 
     return await this.transferService.findAll(
       {
@@ -157,6 +202,7 @@ export class AddressController {
           : {
               isFeeOrRefund: false,
             }),
+        ...userFilters,
       },
       {
         filterOptions: { ...filterAddressTransferOptions, ...listFilterOptions },
@@ -164,5 +210,44 @@ export class AddressController {
         route: `${entityName}/${address}/transfers`,
       }
     );
+  }
+
+  /**
+   * Checks if a user is the owner of a contract by looking for the most recent
+   * OwnershipTransferred event. This only works for contracts that implement
+   * the OpenZeppelin Ownable pattern.
+   *
+   * @param contractAddress - The contract address to check
+   * @param accountAddresses - The user account addresses to verify ownership for
+   * @returns Promise<boolean> - True if any of the accounts is the contract owner
+   */
+  private async isUserOwnerOfContract(contractAddress: string, accountAddresses: string[]): Promise<boolean> {
+    try {
+      const OWNERSHIP_TRANSFERRED_TOPIC = "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0";
+      const logs = await this.logService.findMany({
+        address: contractAddress,
+        topics: {
+          topic0: OWNERSHIP_TRANSFERRED_TOPIC,
+        },
+        page: 1,
+        offset: 1,
+      });
+      if (logs.length === 0) {
+        return false;
+      }
+
+      const ownerTopic = logs[0].topics[2];
+      if (!ownerTopic) {
+        return false;
+      }
+
+      // Topic is 32 bytes log, so we need to convert it to an address
+      // by removing the first 12 bytes and 0x prefix
+      const owner = `0x${ownerTopic.slice(2 + 12 * 2)}`;
+      return accountAddresses.some((accountAddress) => isAddressEqual(owner, accountAddress));
+    } catch (err) {
+      this.logger.error("Failed to check if user is owner of contract", err.stack);
+      return false;
+    }
   }
 }

@@ -1,7 +1,8 @@
 import { ref } from "vue";
 
 import { useMemoize } from "@vueuse/core";
-import { $fetch } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext, { type Context } from "@/composables/useContext";
 
@@ -18,12 +19,32 @@ const retrieveTokens = useMemoize(
     let hasMore = true;
 
     while (hasMore) {
-      const tokensResponse = await $fetch<Api.Response.Collection<Api.Response.Token>>(
-        `${context.currentNetwork.value.apiUrl}/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`
+      const tokensResponse = await FetchInstance.api(context)<Api.Response.Collection<Api.Response.Token>>(
+        `/tokens?${new URLSearchParams(tokensParams).toString()}&page=${page}`
       );
       tokens.push(...tokensResponse.items);
       page++;
       hasMore = !!tokensParams.minLiquidity && tokensResponse.meta.totalPages > tokensResponse.meta.currentPage;
+    }
+
+    if (context.currentNetwork.value.zkTokenAddress) {
+      const fetchedZkTokenIndex = tokens.findIndex(
+        (token) => token.l2Address === context.currentNetwork.value.zkTokenAddress
+      );
+      if (fetchedZkTokenIndex !== -1) {
+        const fetchedZkToken = tokens[fetchedZkTokenIndex];
+        tokens.splice(fetchedZkTokenIndex, 1);
+        tokens.unshift(fetchedZkToken);
+      } else {
+        try {
+          const zkTokenResponse = await FetchInstance.api(context)<Api.Response.Token>(
+            `/tokens/${context.currentNetwork.value.zkTokenAddress}`
+          );
+          tokens.unshift(zkTokenResponse);
+        } catch (err) {
+          console.error(`Couldn't fetch ZK token by address: ${context.currentNetwork.value.zkTokenAddress}`);
+        }
+      }
     }
 
     return tokens;
@@ -39,7 +60,6 @@ export default (context = useContext()) => {
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
   const tokens = ref<Api.Response.Token[]>([]);
-
   const getToken = (tokenAddress: string) => {
     return tokens.value.find((token) => token.l2Address === tokenAddress);
   };

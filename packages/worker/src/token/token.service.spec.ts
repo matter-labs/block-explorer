@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { types, utils } from "zksync-web3";
+import { TransactionReceipt, Log } from "ethers";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -7,7 +7,9 @@ import { TokenRepository } from "../repositories/token.repository";
 import { AddressRepository } from "../repositories/address.repository";
 import { TokenService } from "./token.service";
 import { ContractAddress } from "../dataFetcher/types";
+import { BASE_TOKEN_L2_ADDRESS, ZERO_ADDRESS, L2_ASSET_ROUTER_ADDRESS } from "../constants";
 import { Token } from "../entities";
+import { ConfigService } from "@nestjs/config";
 
 describe("TokenService", () => {
   let tokenService: TokenService;
@@ -16,18 +18,24 @@ describe("TokenService", () => {
   let addressRepositoryMock: AddressRepository;
   let startGetTokenInfoDurationMetricMock: jest.Mock;
   let stopGetTokenInfoDurationMetricMock: jest.Mock;
-
+  let configServiceMock: ConfigService;
   beforeEach(async () => {
-    blockchainServiceMock = mock<BlockchainService>({
-      bridgeAddresses: {
-        l2Erc20DefaultBridge: "0x0000000000000000000000000000000000001111",
-      },
-    });
+    blockchainServiceMock = mock<BlockchainService>({});
     tokenRepositoryMock = mock<TokenRepository>();
     addressRepositoryMock = mock<AddressRepository>();
 
     stopGetTokenInfoDurationMetricMock = jest.fn();
     startGetTokenInfoDurationMetricMock = jest.fn().mockReturnValue(stopGetTokenInfoDurationMetricMock);
+
+    configServiceMock = mock<ConfigService>({
+      get: jest
+        .fn()
+        .mockReturnValueOnce("0x0000000000000000000000000000000000000000")
+        .mockReturnValueOnce("ETH")
+        .mockReturnValueOnce("Ether")
+        .mockReturnValueOnce(18)
+        .mockReturnValueOnce("https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501427"),
+    });
 
     const app: TestingModule = await Test.createTestingModule({
       providers: [
@@ -45,6 +53,10 @@ describe("TokenService", () => {
           useValue: addressRepositoryMock,
         },
         {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
+        {
           provide: "PROM_METRIC_GET_TOKEN_INFO_DURATION_SECONDS",
           useValue: {
             startTimer: startGetTokenInfoDurationMetricMock,
@@ -60,7 +72,7 @@ describe("TokenService", () => {
 
   describe("saveERC20Token", () => {
     let deployedContractAddress: ContractAddress;
-    let transactionReceipt: types.TransactionReceipt;
+    let transactionReceipt: TransactionReceipt;
     let tokenData;
 
     beforeEach(() => {
@@ -70,9 +82,9 @@ describe("TokenService", () => {
         name: "name",
       };
 
-      transactionReceipt = mock<types.TransactionReceipt>({
+      transactionReceipt = mock<TransactionReceipt>({
         logs: [],
-        to: "0x0000000000000000000000000000000000001111",
+        to: L2_ASSET_ROUTER_ADDRESS,
       });
 
       deployedContractAddress = mock<ContractAddress>({
@@ -87,7 +99,10 @@ describe("TokenService", () => {
 
     describe("when there is neither bridge initialization nor bridge initialize log for the current token address", () => {
       beforeEach(() => {
-        transactionReceipt.logs = [];
+        transactionReceipt = mock<TransactionReceipt>({
+          ...transactionReceipt,
+          logs: [],
+        });
       });
 
       it("starts the get token info duration metric", async () => {
@@ -119,10 +134,11 @@ describe("TokenService", () => {
           const ethTokenData = {
             symbol: "ETH",
             decimals: 18,
-            name: "Ethers",
+            name: "Ether",
+            iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501427",
           };
           const deployedETHContractAddress = mock<ContractAddress>({
-            address: utils.L2_ETH_TOKEN_ADDRESS,
+            address: BASE_TOKEN_L2_ADDRESS,
             blockNumber: 0,
             transactionHash: "transactionHash",
             logIndex: 0,
@@ -136,8 +152,9 @@ describe("TokenService", () => {
             blockNumber: deployedETHContractAddress.blockNumber,
             transactionHash: deployedETHContractAddress.transactionHash,
             l2Address: deployedETHContractAddress.address,
-            l1Address: utils.ETH_ADDRESS,
+            l1Address: ZERO_ADDRESS,
             logIndex: deployedETHContractAddress.logIndex,
+            iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1696501427",
           });
         });
       });
@@ -168,7 +185,10 @@ describe("TokenService", () => {
 
     describe("when transaction receipt does not contain logs", () => {
       beforeEach(() => {
-        transactionReceipt.logs = null;
+        transactionReceipt = mock<TransactionReceipt>({
+          ...transactionReceipt,
+          logs: null,
+        });
       });
 
       it("starts the get token info duration metric", async () => {
@@ -223,29 +243,32 @@ describe("TokenService", () => {
       let bridgedToken;
 
       beforeEach(() => {
-        transactionReceipt.logs = [
-          mock<types.Log>({
-            topics: [
-              "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
-              "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
-              "0x0100014340e955cbf39159da998b3374bee8f3c0b3c75a7a9e3df6b85052379d",
-              "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
-            ],
-          }),
-          mock<types.Log>({
-            address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
-            topics: [
-              "0xe6b2ac4004ee4493db8844da5db69722d2128345671818c3c41928655a83fb2c",
-              "0x0000000000000000000000000db321efaa9e380d0b37b55b530cdaa62728b9a3",
-            ],
-            data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000",
-          }),
-        ];
+        transactionReceipt = mock<TransactionReceipt>({
+          ...transactionReceipt,
+          logs: [
+            mock<Log>({
+              topics: [
+                "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
+                "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
+                "0x0100014340e955cbf39159da998b3374bee8f3c0b3c75a7a9e3df6b85052379d",
+                "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
+              ],
+            }),
+            mock<Log>({
+              address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
+              topics: [
+                "0xe6b2ac4004ee4493db8844da5db69722d2128345671818c3c41928655a83fb2c",
+                "0x0000000000000000000000000db321efaa9e380d0b37b55b530cdaa62728b9a3",
+              ],
+              data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000",
+            }),
+          ],
+        });
 
         bridgedToken = {
           name: "ADL1",
           symbol: "ADL1",
-          decimals: 18,
+          decimals: BigInt(18),
         };
       });
 
@@ -270,25 +293,27 @@ describe("TokenService", () => {
 
     describe("when there is a bridge initialization log in transaction receipt which is not produced by the bridge contract", () => {
       beforeEach(() => {
-        transactionReceipt.to = "0x0000000000000000000000000000000000001112";
-        transactionReceipt.logs = [
-          mock<types.Log>({
-            topics: [
-              "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
-              "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
-              "0x0100014340e955cbf39159da998b3374bee8f3c0b3c75a7a9e3df6b85052379d",
-              "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
-            ],
-          }),
-          mock<types.Log>({
-            address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
-            topics: [
-              "0xe6b2ac4004ee4493db8844da5db69722d2128345671818c3c41928655a83fb2c",
-              "0x0000000000000000000000000db321efaa9e380d0b37b55b530cdaa62728b9a3",
-            ],
-            data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000",
-          }),
-        ];
+        transactionReceipt = mock<TransactionReceipt>({
+          to: "0x0000000000000000000000000000000000001112",
+          logs: [
+            mock<Log>({
+              topics: [
+                "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
+                "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
+                "0x0100014340e955cbf39159da998b3374bee8f3c0b3c75a7a9e3df6b85052379d",
+                "0x000000000000000000000000dc187378edd8ed1585fb47549cc5fe633295d571",
+              ],
+            }),
+            mock<Log>({
+              address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
+              topics: [
+                "0xe6b2ac4004ee4493db8844da5db69722d2128345671818c3c41928655a83fb2c",
+                "0x0000000000000000000000000db321efaa9e380d0b37b55b530cdaa62728b9a3",
+              ],
+              data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000441444c3100000000000000000000000000000000000000000000000000000000",
+            }),
+          ],
+        });
       });
 
       it("starts the get token info duration metric", async () => {
@@ -320,24 +345,27 @@ describe("TokenService", () => {
       let bridgedToken;
 
       beforeEach(() => {
-        transactionReceipt.logs = [
-          mock<types.Log>({
-            topics: [
-              "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
-              "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
-              "0x01000125c745537b5254be2ca086aee7fbd5d91789ed15790a942f9422d36447",
-              "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
-            ],
-          }),
-          mock<types.Log>({
-            address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
-            topics: [
-              "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
-              "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
-            ],
-            data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000134c313131206465706c6f79656420746f204c310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044c31313100000000000000000000000000000000000000000000000000000000",
-          }),
-        ];
+        transactionReceipt = mock<TransactionReceipt>({
+          to: L2_ASSET_ROUTER_ADDRESS,
+          logs: [
+            mock<Log>({
+              topics: [
+                "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
+                "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
+                "0x01000125c745537b5254be2ca086aee7fbd5d91789ed15790a942f9422d36447",
+                "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
+              ],
+            }),
+            mock<Log>({
+              address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
+              topics: [
+                "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
+                "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
+              ],
+              data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000134c313131206465706c6f79656420746f204c310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044c31313100000000000000000000000000000000000000000000000000000000",
+            }),
+          ],
+        });
 
         deployedContractAddress = mock<ContractAddress>({
           address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
@@ -349,7 +377,7 @@ describe("TokenService", () => {
         bridgedToken = {
           name: "L111 deployed to L1",
           symbol: "L111",
-          decimals: 18,
+          decimals: BigInt(18),
         };
       });
 
@@ -374,25 +402,27 @@ describe("TokenService", () => {
 
     describe("when there is a bridge initialize log in transaction receipt which is not produced by the bridge contract", () => {
       beforeEach(() => {
-        transactionReceipt.to = "0x0000000000000000000000000000000000001112";
-        transactionReceipt.logs = [
-          mock<types.Log>({
-            topics: [
-              "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
-              "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
-              "0x01000125c745537b5254be2ca086aee7fbd5d91789ed15790a942f9422d36447",
-              "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
-            ],
-          }),
-          mock<types.Log>({
-            address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
-            topics: [
-              "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
-              "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
-            ],
-            data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000134c313131206465706c6f79656420746f204c310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044c31313100000000000000000000000000000000000000000000000000000000",
-          }),
-        ];
+        transactionReceipt = mock<TransactionReceipt>({
+          to: "0x0000000000000000000000000000000000001112",
+          logs: [
+            mock<Log>({
+              topics: [
+                "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
+                "0x000000000000000000000000913389f49358cb49a8e9e984a5871df43f80eb96",
+                "0x01000125c745537b5254be2ca086aee7fbd5d91789ed15790a942f9422d36447",
+                "0x0000000000000000000000005a393c95e7bddd0281650023d8c746fb1f596b7b",
+              ],
+            }),
+            mock<Log>({
+              address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
+              topics: [
+                "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
+                "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
+              ],
+              data: "0x000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000001200000000000000000000000000000000000000000000000000000000000000134c313131206465706c6f79656420746f204c310000000000000000000000000000000000000000000000000000000000000000000000000000000000000000044c31313100000000000000000000000000000000000000000000000000000000",
+            }),
+          ],
+        });
 
         deployedContractAddress = mock<ContractAddress>({
           address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
@@ -522,6 +552,89 @@ describe("TokenService", () => {
         creatorAddress: "0x0000000000000000000000000000000000000009",
         logIndex: 1,
       });
+    });
+  });
+
+  describe("addBaseToken", () => {
+    const baseTokenContract = {
+      address: BASE_TOKEN_L2_ADDRESS,
+      createdInBlockNumber: 123,
+      creatorTxHash: "0xabc",
+      createdInLogIndex: 7,
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+      (configServiceMock.get as jest.Mock)
+        .mockReset()
+        .mockReturnValueOnce("ETH")
+        .mockReturnValueOnce("Ether")
+        .mockReturnValueOnce(18)
+        .mockReturnValueOnce("https://icon.url")
+        .mockReturnValueOnce("ETH_L1");
+    });
+
+    it("adds base token if not present and contract exists", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(undefined);
+      (addressRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(baseTokenContract);
+
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.upsert).toHaveBeenCalledWith({
+        l2Address: BASE_TOKEN_L2_ADDRESS,
+        l1Address: "ETH_L1",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        iconURL: "https://icon.url",
+        blockNumber: 123,
+        transactionHash: "0xabc",
+        logIndex: 7,
+      });
+    });
+
+    it("does not add base token if contract is missing", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(undefined);
+      (addressRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce(undefined);
+
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.upsert).not.toHaveBeenCalled();
+    });
+
+    it("updates base token if present and config values differ", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce({
+        l2Address: BASE_TOKEN_L2_ADDRESS,
+        symbol: "OLD",
+        name: "Old Ether",
+        decimals: 8,
+        iconURL: "oldurl",
+        l1Address: "OLD_L1",
+      });
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.update).toHaveBeenCalledWith(BASE_TOKEN_L2_ADDRESS, {
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        iconURL: "https://icon.url",
+        l1Address: "ETH_L1",
+      });
+    });
+
+    it("does nothing if base token exists and config values are the same", async () => {
+      (tokenRepositoryMock.findOneBy as jest.Mock).mockResolvedValueOnce({
+        l2Address: BASE_TOKEN_L2_ADDRESS,
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        iconURL: "https://icon.url",
+        l1Address: "ETH_L1",
+      });
+
+      await tokenService.addBaseToken();
+
+      expect(tokenRepositoryMock.update).not.toHaveBeenCalled();
     });
   });
 });

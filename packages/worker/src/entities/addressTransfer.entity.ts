@@ -8,11 +8,12 @@ import { bigIntNumberTransformer } from "../transformers/bigIntNumber.transforme
 import { TransferFields } from "../dataFetcher/types";
 
 @Entity({ name: "addressTransfers" })
-@Index(["address", "isFeeOrRefund", "timestamp", "logIndex"])
-@Index(["address", "type", "timestamp", "logIndex"])
-@Index(["address", "tokenAddress", "blockNumber", "logIndex"])
-@Index(["address", "tokenType", "blockNumber", "logIndex"])
-@Index(["address", "isInternal", "blockNumber", "logIndex"])
+@Index(["address", "isFeeOrRefund", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "tokenAddress", "isFeeOrRefund", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "type", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "tokenAddress", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "tokenType", "blockNumber", "logIndex", "transferNumber"])
+@Index(["address", "isInternal", "blockNumber", "logIndex", "transferNumber"])
 export class AddressTransfer extends BaseEntity {
   @PrimaryColumn({ generated: true, type: "bigint" })
   public readonly number: number;
@@ -45,7 +46,7 @@ export class AddressTransfer extends BaseEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
-  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.BaseToken })
   public readonly tokenType: TokenType;
 
   @Column({ type: "boolean" })

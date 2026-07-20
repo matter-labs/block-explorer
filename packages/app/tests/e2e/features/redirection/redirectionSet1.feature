@@ -13,26 +13,26 @@ Feature: Redirection
 
     Examples:
       | Extra button name | url                                     |
-      | Docs              | https://docs.zksync.io/build/tooling/block-explorer/getting-started.html         |
-      | Terms             | https://zksync.io/terms                 |
-      | Contact           | https://zksync.io/contact      |
+      | Docs              | https://docs.zksync.io/zksync-network/tooling/block-explorers         |
+      | Terms             | https://www.zksync.io/terms                 |
+      | Contact           | https://www.zksync.io/contact      |
 
   #Header
   @id231
   Scenario Outline: Verify redirection for "<Icon>" social network icon  on Header
     When I click by element with partial href "<Icon>"
-    Then New page have "<url>" address
+    Then New page address matches the "<regexp>"
 
     Examples:
-      | Icon    | url                                |
+      | Icon    | regexp                                |
       # discord renamed to "join"
-      | join    | https://join.zksync.dev/           |
-      | twitter | https://twitter.com/zksync         |
+      | join    | ^https://join.zksync.dev/$           |
+      | x.com | ^https://x.com/zksync(\\?.*)?$               |
 
   @id251
   Scenario: Verify redirection for Documentation link
     Given I click by text "Documentation"
-    Then New page have "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html" address
+    Then New page have "https://docs.zksync.io/zksync-network/tooling/block-explorers" address
 
   @id252
   Scenario Outline: Verify redirection for "<Sub-Section>" in BE menu
@@ -88,8 +88,8 @@ Feature: Redirection
       | tx hash           | /tx/        |
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
   #Account page
   @id367 @testnet
@@ -115,8 +115,8 @@ Feature: Redirection
       | tx hash           | /tx/        |
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
   #Account page
   @id367:I @mainnet
@@ -142,8 +142,8 @@ Feature: Redirection
       | tx hash           | /tx/        |
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
   #Blocks page
   @id246

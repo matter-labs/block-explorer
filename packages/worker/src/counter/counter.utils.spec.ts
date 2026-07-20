@@ -4,7 +4,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Test, TestingModule } from "@nestjs/testing";
 import { UnitOfWork } from "../unitOfWork";
 import { Transaction } from "../entities";
-import { CounterRepository, TransactionRepository } from "../repositories";
+import { CounterRepository, IndexerStateRepository, TransactionRepository } from "../repositories";
 import { getQueryString, calculateCounters, getCounterWorkerProvider } from "./counter.utils";
 
 describe("getQueryString", () => {
@@ -100,6 +100,7 @@ describe("getCounterWorkerProvider", () => {
     const unitOfWorkMock = mock<UnitOfWork>();
     const transactionRepositoryMock = mock<TransactionRepository>();
     const counterRepositoryMock = mock<CounterRepository>();
+    const indexerStateRepositoryMock = mock<IndexerStateRepository>();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -114,6 +115,10 @@ describe("getCounterWorkerProvider", () => {
         {
           provide: CounterRepository,
           useValue: counterRepositoryMock,
+        },
+        {
+          provide: IndexerStateRepository,
+          useValue: indexerStateRepositoryMock,
         },
         {
           provide: UnitOfWork,

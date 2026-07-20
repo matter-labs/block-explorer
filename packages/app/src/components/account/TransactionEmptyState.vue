@@ -2,11 +2,19 @@
   <div class="transactions-empty-state">
     <EmptyState>
       <template #title>
-        {{ t("accountView.transactionTable.notFound.title") }}
+        {{
+          runtimeConfig.appEnvironment === "prividium"
+            ? t("accountView.transactionTable.prividiumNotFound.title")
+            : t("accountView.transactionTable.notFound.title")
+        }}
       </template>
       <template #description>
         <div class="transactions-empty-description">
-          {{ t("accountView.transactionTable.notFound.subtitle") }}
+          {{
+            runtimeConfig.appEnvironment === "prividium"
+              ? t("accountView.transactionTable.prividiumNotFound.subtitle")
+              : t("accountView.transactionTable.notFound.subtitle")
+          }}
         </div>
       </template>
     </EmptyState>
@@ -18,7 +26,10 @@ import { useI18n } from "vue-i18n";
 
 import EmptyState from "@/components/common/EmptyState.vue";
 
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
 const { t } = useI18n();
+const runtimeConfig = useRuntimeConfig();
 </script>
 
 <style scoped lang="scss">

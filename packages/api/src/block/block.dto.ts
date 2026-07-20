@@ -1,20 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { BatchStatus } from "../batch/batch.entity";
+import { BlockStatus } from "../block/block.entity";
 
 export class BlockDto {
   @ApiProperty({ type: Number, description: "The height (number) of this block", example: 10 })
   public readonly number: number;
-
-  @ApiProperty({ type: Number, description: "The height (number) of block's batch", example: 5 })
-  public readonly l1BatchNumber: number;
-
-  @ApiProperty({
-    type: Boolean,
-    description: "Property that shows whether the block's L1 batch is already sealed",
-    example: true,
-    examples: [true, false],
-  })
-  public readonly isL1BatchSealed: boolean;
 
   @ApiProperty({
     type: String,
@@ -38,12 +27,12 @@ export class BlockDto {
   public readonly gasUsed: string;
 
   @ApiProperty({
-    enum: BatchStatus,
+    enum: BlockStatus,
     description: "Status of the block",
-    example: "sealed",
-    examples: ["sealed", "verified"],
+    example: BlockStatus.Sealed,
+    examples: [BlockStatus.Sealed, BlockStatus.Committed, BlockStatus.Proven, BlockStatus.Executed],
   })
-  public readonly status: BatchStatus;
+  public readonly status: BlockStatus;
 
   @ApiProperty({ type: Number, description: "L1 transactions count", example: 10 })
   public readonly l1TxCount: number;

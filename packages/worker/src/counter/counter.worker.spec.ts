@@ -1,17 +1,25 @@
 import { mock } from "jest-mock-extended";
+import { Logger } from "@nestjs/common";
 import waitFor from "../utils/waitFor";
 import { Transaction } from "../entities";
 import { CounterProcessor } from "./counter.processor";
 import { CounterWorker } from "./counter.worker";
 
 jest.mock("../utils/waitFor");
+jest.mock("@nestjs/common", () => ({
+  ...jest.requireActual("@nestjs/common"),
+  Logger: jest.fn(),
+}));
 
 describe("CounterWorker", () => {
   let counterProcessorMock: CounterProcessor<Transaction>;
   let counterWorker: CounterWorker<Transaction>;
 
   beforeEach(() => {
-    (waitFor as jest.Mock).mockResolvedValue(null);
+    (Logger as unknown as jest.Mock).mockReturnValue({
+      log: jest.fn(),
+    }),
+      (waitFor as jest.Mock).mockResolvedValue(null);
     counterProcessorMock = mock<CounterProcessor<Transaction>>({
       processNextRecordsBatch: jest.fn().mockResolvedValue(false),
     });

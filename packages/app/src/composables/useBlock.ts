@@ -1,28 +1,21 @@
 import { ref } from "vue";
 
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext from "@/composables/useContext";
 
 import type { Hash } from "@/types";
 
-export type BlockStatus = "sealed" | "verified";
+export type BlockStatus = "sealed" | "committed" | "proven" | "executed";
 export type Block = {
   number: number;
   status: BlockStatus;
   hash: Hash;
-  commitTxHash: null | Hash;
-  l1BatchNumber: number;
-  isL1BatchSealed: boolean;
-  executeTxHash: null | Hash;
-  proveTxHash: null | Hash;
-  committedAt: null | string;
-  executedAt: null | string;
-  provenAt: null | string;
   l1TxCount: number;
   l2TxCount: number;
   timestamp: string;
-  isProvenByNewProver?: boolean;
 };
 
 export type BlockListItem = {
@@ -30,12 +23,10 @@ export type BlockListItem = {
   hash: Hash;
   timestamp: string;
   gasUsed: string;
-  l1BatchNumber: number;
   l1TxCount: number;
   l2TxCount: number;
   size: number;
   status: BlockStatus;
-  isL1BatchSealed: boolean;
 };
 
 export default (context = useContext()) => {
@@ -48,10 +39,10 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      blockItem.value = await $fetch(`${context.currentNetwork.value.apiUrl}/blocks/${id}`);
+      blockItem.value = await FetchInstance.api(context)(`/blocks/${id}`);
     } catch (error: unknown) {
       blockItem.value = null;
-      if (!(error instanceof FetchError) || error.response?.status !== 404) {
+      if (!(error instanceof FetchError) || ![403, 404].includes(error.response?.status ?? 0)) {
         isRequestFailed.value = true;
       }
     } finally {

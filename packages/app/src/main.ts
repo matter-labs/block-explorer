@@ -3,11 +3,11 @@ import { createI18n } from "vue-i18n";
 
 import "tippy.js/dist/tippy.css";
 import "tippy.js/themes/light.css";
-import { useWallet } from "@matterlabs/composables";
 
 import App from "./App.vue";
 import useContext from "./composables/useContext";
 import { loadEnvironmentConfig } from "./composables/useEnvironmentConfig";
+import { default as useWallet } from "./composables/useWallet";
 import testId from "./plugins/testId";
 import router from "./router";
 
@@ -16,6 +16,7 @@ import useRuntimeConfig from "@/composables/useRuntimeConfig";
 import enUS from "./locales/en.json";
 
 import { useSentry } from "@/utils/logger";
+import setColorScheme, { prividiumColors } from "@/utils/setColorScheme";
 
 import "@/assets/tailwind.scss";
 
@@ -37,6 +38,11 @@ app.use(i18n);
 app.use(testId);
 const runtimeConfig = useRuntimeConfig();
 
+const themeColors =
+  runtimeConfig.theme?.colors ?? (runtimeConfig.appEnvironment === "prividium" ? prividiumColors : undefined);
+
+setColorScheme(themeColors);
+
 const context = useContext();
 
 const { initialize: initializeWallet } = useWallet({
@@ -54,8 +60,7 @@ if (runtimeConfig.sentryDSN?.length) {
   useSentry(app, runtimeConfig.sentryDSN, runtimeConfig.appEnvironment, runtimeConfig.version, router);
 }
 
-(process.env.NODE_ENV === "test" ? Promise.resolve() : loadEnvironmentConfig(runtimeConfig))
-  .catch(() => null)
-  .then(context.identifyNetwork);
+await loadEnvironmentConfig(runtimeConfig);
 
+context.identifyNetwork();
 app.mount("#app");

@@ -1,6 +1,7 @@
 import config from "../config";
 
 jest.mock("./featureFlags", () => ({
+  __esModule: true,
   feature1Enabled: true,
   feature2Enabled: false,
 }));
@@ -8,18 +9,36 @@ jest.mock("./featureFlags", () => ({
 describe("config", () => {
   const env = process.env;
 
-  beforeAll(() => {
+  beforeEach(() => {
     process.env = {
       NODE_ENV: "test",
     };
   });
 
-  afterAll(() => {
+  afterEach(() => {
     process.env = env;
+    jest.resetModules();
   });
 
   it("sets default values", () => {
     expect(config()).toEqual({
+      baseToken: {
+        l2Address: "0x000000000000000000000000000000000000800A",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        // Fallback data incase ETH token is not in the DB
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+      },
+      ethToken: {
+        decimals: 18,
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        l2Address: "0x000000000000000000000000000000000000800A",
+        name: "Ether",
+        symbol: "ETH",
+      },
       NODE_ENV: "test",
       port: 3020,
       metrics: {
@@ -28,7 +47,7 @@ describe("config", () => {
       },
       typeORM: {
         type: "postgres",
-        url: "postgres://postgres:postgres@localhost:5432/block-explorer",
+        url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
         poolSize: 300,
         extra: {
           idleTimeoutMillis: 60000,
@@ -41,12 +60,225 @@ describe("config", () => {
         retryDelay: 3000,
         applicationName: "block-explorer-api",
       },
-      contractVerificationApiUrl: "http://127.0.0.1:3070",
-      featureFlags: {
+      chainId: 1,
+      contractVerificationApiUrl: "http://localhost:5555",
+      featureFlags: expect.objectContaining({
         feature1Enabled: true,
         feature2Enabled: false,
-      },
+      }),
       gracefulShutdownTimeoutMs: 0,
+      indexerStateCacheTtlMs: 1000,
+      prividium: {},
+    });
+  });
+
+  describe("when custom base token is defined", () => {
+    it("sets default values with base ERC20", () => {
+      process.env = {
+        BASE_TOKEN_SYMBOL: "MTTL",
+        BASE_TOKEN_DECIMALS: "18",
+        BASE_TOKEN_L1_ADDRESS: "0xSomeAddress",
+        BASE_TOKEN_ICON_URL: "https://matter-labs.io",
+        BASE_TOKEN_NAME: "MatterLabs",
+        BASE_TOKEN_LIQUIDITY: "999999999999",
+        BASE_TOKEN_USDPRICE: "19",
+        NODE_ENV: "test",
+
+        ETH_TOKEN_SYMBOL: "ETH1",
+        ETH_TOKEN_DECIMALS: "181",
+        ETH_TOKEN_L2_ADDRESS: "0x000000000000000000000000000000000000800A1",
+        ETH_TOKEN_ICON_URL: "iconUrl",
+        ETH_TOKEN_NAME: "Ether1",
+        ETH_TOKEN_LIQUIDITY: "2200000000001",
+        ETH_TOKEN_USDPRICE: "18001",
+      };
+
+      expect(config()).toEqual({
+        baseToken: {
+          l2Address: "0x000000000000000000000000000000000000800A",
+          l1Address: "0xSomeAddress",
+          symbol: "MTTL",
+          name: "MatterLabs",
+          decimals: 18,
+          iconURL: "https://matter-labs.io",
+          liquidity: 999999999999,
+          usdPrice: 19,
+        },
+        ethToken: {
+          l2Address: "0x000000000000000000000000000000000000800A1",
+          l1Address: "0x0000000000000000000000000000000000000000",
+          symbol: "ETH1",
+          name: "Ether1",
+          decimals: 181,
+          iconURL: "iconUrl",
+          liquidity: 2200000000001,
+          usdPrice: 18001,
+        },
+        NODE_ENV: "test",
+        port: 3020,
+        metrics: {
+          port: 3005,
+          collectDbConnectionPoolMetricsInterval: 10000,
+        },
+        typeORM: {
+          type: "postgres",
+          url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
+          poolSize: 300,
+          extra: {
+            idleTimeoutMillis: 60000,
+            statement_timeout: 90000,
+          },
+          synchronize: true,
+          logging: false,
+          autoLoadEntities: true,
+          retryAttempts: 10,
+          retryDelay: 3000,
+          applicationName: "block-explorer-api",
+        },
+        chainId: 1,
+        contractVerificationApiUrl: "http://localhost:5555",
+        featureFlags: expect.objectContaining({
+          feature1Enabled: true,
+          feature2Enabled: false,
+        }),
+        gracefulShutdownTimeoutMs: 0,
+        indexerStateCacheTtlMs: 1000,
+        prividium: {},
+      });
+    });
+
+    describe("and liquidity and price is not provided", () => {
+      it("sets default values with base ERC20", () => {
+        process.env = {
+          BASE_TOKEN_SYMBOL: "MTTL",
+          BASE_TOKEN_DECIMALS: "18",
+          BASE_TOKEN_L1_ADDRESS: "0xSomeAddress",
+          BASE_TOKEN_ICON_URL: "https://matter-labs.io",
+          BASE_TOKEN_NAME: "MatterLabs",
+          NODE_ENV: "test",
+
+          ETH_TOKEN_SYMBOL: "ETH1",
+          ETH_TOKEN_DECIMALS: "181",
+          ETH_TOKEN_L2_ADDRESS: "0x000000000000000000000000000000000000800A1",
+          ETH_TOKEN_ICON_URL: "iconUrl",
+          ETH_TOKEN_NAME: "Ether1",
+        };
+
+        expect(config()).toEqual({
+          baseToken: {
+            l2Address: "0x000000000000000000000000000000000000800A",
+            l1Address: "0xSomeAddress",
+            symbol: "MTTL",
+            name: "MatterLabs",
+            decimals: 18,
+            iconURL: "https://matter-labs.io",
+          },
+          ethToken: {
+            l2Address: "0x000000000000000000000000000000000000800A1",
+            l1Address: "0x0000000000000000000000000000000000000000",
+            symbol: "ETH1",
+            name: "Ether1",
+            decimals: 181,
+            iconURL: "iconUrl",
+          },
+          NODE_ENV: "test",
+          port: 3020,
+          metrics: {
+            port: 3005,
+            collectDbConnectionPoolMetricsInterval: 10000,
+          },
+          typeORM: {
+            type: "postgres",
+            url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
+            poolSize: 300,
+            extra: {
+              idleTimeoutMillis: 60000,
+              statement_timeout: 90000,
+            },
+            synchronize: true,
+            logging: false,
+            autoLoadEntities: true,
+            retryAttempts: 10,
+            retryDelay: 3000,
+            applicationName: "block-explorer-api",
+          },
+          chainId: 1,
+          contractVerificationApiUrl: "http://localhost:5555",
+          featureFlags: expect.objectContaining({
+            feature1Enabled: true,
+            feature2Enabled: false,
+          }),
+          gracefulShutdownTimeoutMs: 0,
+          indexerStateCacheTtlMs: 1000,
+          prividium: {},
+        });
+      });
+    });
+
+    describe("and only l2 eth address is provided", () => {
+      it("sets other l2 eth fields from the default configuration", () => {
+        process.env = {
+          BASE_TOKEN_SYMBOL: "MTTL",
+          BASE_TOKEN_DECIMALS: "18",
+          BASE_TOKEN_L1_ADDRESS: "0xSomeAddress",
+          BASE_TOKEN_ICON_URL: "https://matter-labs.io",
+          BASE_TOKEN_NAME: "MatterLabs",
+          NODE_ENV: "test",
+
+          ETH_TOKEN_L2_ADDRESS: "0x000000000000000000000000000000000000800A1",
+        };
+
+        expect(config()).toEqual({
+          baseToken: {
+            l2Address: "0x000000000000000000000000000000000000800A",
+            l1Address: "0xSomeAddress",
+            symbol: "MTTL",
+            name: "MatterLabs",
+            decimals: 18,
+            iconURL: "https://matter-labs.io",
+          },
+          ethToken: {
+            l2Address: "0x000000000000000000000000000000000000800A1",
+            l1Address: "0x0000000000000000000000000000000000000000",
+            liquidity: undefined,
+            name: "Ether",
+            symbol: "ETH",
+            usdPrice: undefined,
+            decimals: 18,
+            iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+          },
+          NODE_ENV: "test",
+          port: 3020,
+          metrics: {
+            port: 3005,
+            collectDbConnectionPoolMetricsInterval: 10000,
+          },
+          typeORM: {
+            type: "postgres",
+            url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
+            poolSize: 300,
+            extra: {
+              idleTimeoutMillis: 60000,
+              statement_timeout: 90000,
+            },
+            synchronize: true,
+            logging: false,
+            autoLoadEntities: true,
+            retryAttempts: 10,
+            retryDelay: 3000,
+            applicationName: "block-explorer-api",
+          },
+          chainId: 1,
+          contractVerificationApiUrl: "http://localhost:5555",
+          featureFlags: expect.objectContaining({
+            feature1Enabled: true,
+            feature2Enabled: false,
+          }),
+          gracefulShutdownTimeoutMs: 0,
+          indexerStateCacheTtlMs: 1000,
+          prividium: {},
+        });
+      });
     });
   });
 
@@ -70,6 +302,161 @@ describe("config", () => {
           ],
         },
       },
+    });
+  });
+
+  it("sets prividium values", async () => {
+    process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
+    process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
+    process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
+    process.env.PRIVIDIUM_SESSION_SECRET = "secret";
+    process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
+    process.env.PRIVIDIUM_DISABLE_TX_VISIBILITY_BY_TOPICS = "true";
+
+    jest.doMock("./featureFlags", () => ({
+      feature1Enabled: true,
+      feature2Enabled: false,
+      prividium: true,
+    }));
+
+    const { default: currentConfig } = await import("../config");
+
+    expect(currentConfig()).toEqual({
+      baseToken: {
+        l2Address: "0x000000000000000000000000000000000000800A",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        symbol: "ETH",
+        name: "Ether",
+        decimals: 18,
+        // Fallback data incase ETH token is not in the DB
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+      },
+      ethToken: {
+        decimals: 18,
+        iconURL: "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1698873266",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        l2Address: "0x000000000000000000000000000000000000800A",
+        name: "Ether",
+        symbol: "ETH",
+      },
+      NODE_ENV: "test",
+      port: 3020,
+      metrics: {
+        port: 3005,
+        collectDbConnectionPoolMetricsInterval: 10000,
+      },
+      typeORM: {
+        type: "postgres",
+        url: "postgres://postgres:postgres@127.0.0.1:5432/block-explorer",
+        poolSize: 300,
+        extra: {
+          idleTimeoutMillis: 60000,
+          statement_timeout: 90000,
+        },
+        synchronize: true,
+        logging: false,
+        autoLoadEntities: true,
+        retryAttempts: 10,
+        retryDelay: 3000,
+        applicationName: "block-explorer-api",
+      },
+      chainId: 1,
+      contractVerificationApiUrl: "http://localhost:5555",
+      featureFlags: expect.objectContaining({
+        feature1Enabled: true,
+        feature2Enabled: false,
+        prividium: true,
+      }),
+      gracefulShutdownTimeoutMs: 0,
+      indexerStateCacheTtlMs: 1000,
+      prividium: {
+        sessionMaxAge: 1000,
+        appUrl: "http://localhost:3020",
+        sessionSameSite: "strict",
+        sessionSecret: "secret",
+        permissionsApiUrl: "http://localhost:8000",
+        disableTxVisibilityByTopics: true,
+      },
+    });
+  });
+
+  describe("prividium validations", () => {
+    beforeEach(() => {
+      jest.doMock("./featureFlags", () => ({
+        feature1Enabled: true,
+        feature2Enabled: false,
+        prividium: true,
+      }));
+
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "1000";
+      process.env.PRIVIDIUM_APP_URL = "http://localhost:3020";
+      process.env.PRIVIDIUM_SESSION_SAME_SITE = "strict";
+      process.env.PRIVIDIUM_SESSION_SECRET = "secret";
+      process.env.PRIVIDIUM_PERMISSIONS_API_URL = "http://localhost:8000";
+    });
+
+    it("sets default when prividium is true and PRIVIDIUM_APP_URL is missing", async () => {
+      process.env.PRIVIDIUM_APP_URL = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.appUrl).toBe("http://localhost:3010");
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_APP_URL is not a valid url", async () => {
+      process.env.PRIVIDIUM_APP_URL = "thisisnotavalidurl";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_APP_URL has to be a valid url")
+      );
+    });
+
+    it("sets default when prividium is true and PRIVIDIUM_SESSION_MAX_AGE is absent", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.sessionMaxAge).toBe(86_400_000);
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_MAX_AGE negative", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "-10";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer")
+      );
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_MAX_AGE is non integer", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "1.10";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer")
+      );
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_MAX_AGE is non integer", async () => {
+      process.env.PRIVIDIUM_SESSION_MAX_AGE = "1.10";
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_MAX_AGE has to be a positive integer")
+      );
+    });
+
+    it("throws error when prividium is true and PRIVIDIUM_SESSION_SECRET is absent", async () => {
+      process.env.PRIVIDIUM_SESSION_SECRET = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(() => currentConfig()).toThrow(
+        new Error("Invalid prividium config: PRIVIDIUM_SESSION_SECRET has to be a non empty string")
+      );
+    });
+
+    it("parses PRIVIDIUM_CORS_ORIGINS as comma-separated list", async () => {
+      process.env.PRIVIDIUM_CORS_ORIGINS = "https://a.example.com,https://b.example.com";
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.corsOrigins).toEqual(["https://a.example.com", "https://b.example.com"]);
+    });
+
+    it("returns undefined corsOrigins when PRIVIDIUM_CORS_ORIGINS is not set", async () => {
+      process.env.PRIVIDIUM_CORS_ORIGINS = undefined;
+      const { default: currentConfig } = await import("../config");
+      expect(currentConfig().prividium.corsOrigins).toBeUndefined();
     });
   });
 });

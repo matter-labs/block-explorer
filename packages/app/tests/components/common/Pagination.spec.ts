@@ -1,9 +1,13 @@
+import { createI18n } from "vue-i18n";
+
 import { describe, expect, it, vi } from "vitest";
 
 import { fireEvent } from "@testing-library/vue";
 import { mount, RouterLinkStub } from "@vue/test-utils";
 
 import Pagination from "@/components/common/Pagination.vue";
+
+import enUS from "@/locales/en.json";
 
 vi.mock("vue-router", () => ({
   useRouter: () => vi.fn(),
@@ -13,6 +17,14 @@ vi.mock("vue-router", () => ({
 }));
 
 describe("Pagination:", () => {
+  const i18n = createI18n({
+    locale: "en",
+    allowComposition: true,
+    messages: {
+      en: enUS,
+    },
+  });
+
   it("renders default state properly", () => {
     const wrapper = mount(Pagination, {
       props: {
@@ -23,12 +35,13 @@ describe("Pagination:", () => {
         stubs: {
           RouterLink: RouterLinkStub,
         },
+        plugins: [i18n],
       },
     });
     const pageLinks = wrapper.findAllComponents(RouterLinkStub).filter((e) => e.classes().includes("page"));
 
     expect(pageLinks.length).toBe(5);
-    expect(pageLinks[0].props().to.query).toEqual({});
+    expect(pageLinks[0].props().to.query).toEqual({ pageSize: "10" });
     for (let a = 2; a < 5; a++) {
       expect(pageLinks[a - 1].props().to.query.page).toBe(a);
     }
@@ -46,9 +59,10 @@ describe("Pagination:", () => {
         stubs: {
           RouterLink: RouterLinkStub,
         },
+        plugins: [i18n],
       },
     });
-    expect(wrapper.classes("disabled")).toBe(true);
+    expect(wrapper.find(".page-numbers-container").classes("disabled")).toBe(true);
   });
 
   describe("Dots:", () => {
@@ -62,6 +76,7 @@ describe("Pagination:", () => {
           stubs: {
             RouterLink: RouterLinkStub,
           },
+          plugins: [i18n],
         },
       });
       expect(wrapper.findAll(".dots").length).toBe(1);
@@ -77,6 +92,7 @@ describe("Pagination:", () => {
           stubs: {
             RouterLink: RouterLinkStub,
           },
+          plugins: [i18n],
         },
       });
       expect(wrapper.findAll(".dots").length).toBe(1);
@@ -92,6 +108,7 @@ describe("Pagination:", () => {
           stubs: {
             RouterLink: RouterLinkStub,
           },
+          plugins: [i18n],
         },
       });
       expect(wrapper.findAll(".dots").length).toBe(2);
@@ -109,6 +126,7 @@ describe("Pagination:", () => {
         stubs: {
           RouterLink: RouterLinkStub,
         },
+        plugins: [i18n],
       },
     });
 
@@ -116,7 +134,7 @@ describe("Pagination:", () => {
     expect(wrapper.emitted("update:activePage")).toEqual([[5], [5], [5], [6]]);
   });
   describe("Back & Next buttons:", () => {
-    it("back button doesn't have a query and is disabled if first page is active", () => {
+    it("back button only has pageSize query and is disabled if first page is active", () => {
       const wrapper = mount(Pagination, {
         props: {
           activePage: 1,
@@ -126,10 +144,11 @@ describe("Pagination:", () => {
           stubs: {
             RouterLink: RouterLinkStub,
           },
+          plugins: [i18n],
         },
       });
       const pageLinks = wrapper.findAllComponents(RouterLinkStub).filter((e) => e.classes().includes("arrow"));
-      expect(pageLinks[0].props().to.query).toEqual({});
+      expect(pageLinks[0].props().to.query).toEqual({ pageSize: "10" });
       expect(pageLinks[0].classes().includes("disabled")).toEqual(true);
     });
     it("next button is disabled if last page is active", () => {
@@ -142,6 +161,7 @@ describe("Pagination:", () => {
           stubs: {
             RouterLink: RouterLinkStub,
           },
+          plugins: [i18n],
         },
       });
       const pageLinks = wrapper.findAllComponents(RouterLinkStub).filter((e) => e.classes().includes("arrow"));
@@ -158,6 +178,7 @@ describe("Pagination:", () => {
           stubs: {
             RouterLink: RouterLinkStub,
           },
+          plugins: [i18n],
         },
       });
       const pageLinks = wrapper.findAllComponents(RouterLinkStub).filter((e) => e.classes().includes("arrow"));
@@ -177,6 +198,7 @@ describe("Pagination:", () => {
         stubs: {
           RouterLink: RouterLinkStub,
         },
+        plugins: [i18n],
       },
     });
     const pageLinks = wrapper.findAllComponents(RouterLinkStub);

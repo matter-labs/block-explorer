@@ -92,7 +92,7 @@ export class BlockController {
     @Query("blockno", new ParseLimitedIntPipe())
     blockNumber: number
   ): Promise<BlockRewardResponseDto> {
-    const block = await this.blockService.findOne(blockNumber, ["number", "timestamp", "miner"], { batch: false });
+    const block = await this.blockService.findOne(blockNumber, ["number", "timestamp", "miner"]);
     if (!block) {
       return {
         status: ResponseStatus.NOTOK,
@@ -117,7 +117,7 @@ export class BlockController {
         blockMiner: block.miner,
         // There is no such term as block reward for now.
         blockReward: "0",
-        // There are no uncles in zkSync.
+        // There are no uncles in ZKsync.
         uncles: [],
         uncleInclusionReward: "0",
       },

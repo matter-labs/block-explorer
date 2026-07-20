@@ -88,6 +88,16 @@ Then("New page have {string} address", async function (this: ICustomWorld, url: 
   await expect(result).toBe(url);
 });
 
+Then("New page address matches the {string}", async function (this: ICustomWorld, regexp: string) {
+  mainPage = new MainPage(this);
+  helper = new Helper(this);
+  await this.page?.waitForTimeout(config.increasedTimeout.timeout);
+  const pages: any = this.context?.pages();
+
+  result = await pages[1].url();
+  await expect(RegExp(regexp).test(result)).toBe(true);
+});
+
 Given("I go to page {string}", async function (this: ICustomWorld, route: string) {
   await this.page?.goto(config.BASE_URL + route + config.DAPP_NETWORK);
   await this.page?.waitForLoadState();
@@ -310,12 +320,17 @@ Then("Tab title on {string} contains {string}", async function (this: ICustomWor
   await this.page?.waitForNavigation();
   result = await this.page?.title();
 
-  await expect(result).toBe(tabTitle + " | zkSync 2.0 Block Explorer");
+  await expect(result).toBe(tabTitle + " | ZKsync 2.0 Block Explorer");
 });
 
 Then("Pagination form should be visible", async function (this: ICustomWorld) {
   basePage = new BasePage(this);
   element = basePage.paginationForm;
+  result = await this.page?.locator(element);
+
+  await expect(result).toBeVisible(config.increasedTimeout);
+
+  element = basePage.pageSizeDropdown;
   result = await this.page?.locator(element);
 
   await expect(result).toBeVisible(config.increasedTimeout);

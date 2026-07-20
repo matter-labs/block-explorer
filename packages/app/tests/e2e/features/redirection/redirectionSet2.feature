@@ -13,7 +13,7 @@ Feature: Redirection
     Given I am on main page
 
   @id238
-  Scenario: Check zkSync logo redirection from Account page to Main page
+  Scenario: Check ZKsync logo redirection from Account page to Main page
     Given I go to page "/address/0x0000000000000000000000000000000000000000"
     When I click on main logo
     Given I am on main page
@@ -67,8 +67,6 @@ Feature: Redirection
 
     Examples:
       | Artifact type     | url             |
-      | batch number      | /batch/         |
-      | batch size        | /batch/         |
       | tx hash           | /tx/            |
       | committed blocks  | /blocks/        |
       | verified blocks   | /blocks/        |
@@ -91,16 +89,16 @@ Feature: Redirection
   #Transaction page 241 - navigation, 553 - redirection
   @id241 @id553 @id339 @id340 @testnet @testnetSmokeSuite
   Scenario Outline: Verify redirection from Transaction page after "<Artifact type>" click
-    Given I go to page "/tx/0x095ba0e946b09767085c7ddfb0f9ff36fab230fc819b56d41185a3033de27bea"
+    Given I go to page "/tx/0x822f9eeb3c6e03ecd0d3027baafa187e0b96e0cd5e6efd959e2cb73e6322f7f1"
     When I click on the first "<Artifact type>" link
     Given Page with part address "<url>" includes ID result
 
     Examples:
-      | Artifact type     | url        |
-      | block number      | /block/    |
-      | To                | /address/  |
-      | Fee               | /address/  |
-      | Tokens Transferred | /address/ |
+      | Artifact type      | url        |
+      | block number       | /block/    |
+      | To                 | /address/  |
+      | Fee                | /token/    |
+      | Tokens Transferred | /address/  |
 
   @id241 @id553 @id339 @id340 @mainnet 
   Scenario Outline: Verify redirection from Transaction page after "<Artifact type>" click
@@ -112,7 +110,7 @@ Feature: Redirection
       | Artifact type     | url        |
       | block number      | /block/    |
       | To                | /address/  |
-      | Fee               | /address/  |
+      | Fee               | /token/  |
       | Tokens Transferred | /address/ |
 
   #Transactions page
@@ -128,18 +126,18 @@ Feature: Redirection
       # | initiator address | /address/   | Removed
       | from address      | /address/   |
       | to address        | /address/   |
-      | Value             | /address/   |
-      | Fee               | /address/   |
+      | Value             | /token/   |
+      | Fee               | /token/   |
 
 
   #Tokens page 
   @id250 @testnetSmokeSuite
   Scenario Outline: Verify redirection from Tokens page after "<Artifact type>" click
-    Given I go to page "/tokenlist/"
+    Given I go to page "/tokens/"
     When I click on the first "<Artifact type>" link
     Given Page with part address "<url>" includes ID result
 
     Examples:
       | Artifact type     | url         |
-      | token icon        | /address/   |
-      | token address     | /address/   |
+      | token icon        | /token/   |
+      | token address     | /token/   |

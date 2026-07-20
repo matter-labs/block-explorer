@@ -1,6 +1,8 @@
 import { type Ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
+import { resolveBase } from "@/utils/appBase";
+
 export default () => {
   const router = useRouter();
   const notFoundRoute = router.resolve({ name: "not-found" });
@@ -8,7 +10,7 @@ export default () => {
   async function setNotFoundView() {
     const fullPath = router.currentRoute.value.fullPath;
     await router.replace(notFoundRoute);
-    history.replaceState({}, notFoundRoute.meta.title as string, fullPath);
+    history.replaceState({}, notFoundRoute.meta.title as string, resolveBase(fullPath));
   }
 
   async function useNotFoundView(...refs: Ref[]) {

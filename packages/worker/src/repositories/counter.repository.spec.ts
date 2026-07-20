@@ -69,7 +69,8 @@ describe("CounterRepository", () => {
         },
       ];
       const lastProcessedRecordNumber = 100;
-      await repository.incrementCounters(records, lastProcessedRecordNumber);
+      const lastProcessedBlockNumber = 50;
+      await repository.incrementCounters(records, lastProcessedRecordNumber, lastProcessedBlockNumber);
       expect(entityManagerMock.createQueryBuilder).toBeCalledTimes(2);
       expect(queryBuilderMock.insert).toBeCalledTimes(2);
       expect(queryBuilderMock.into).toBeCalledTimes(2);
@@ -83,7 +84,7 @@ describe("CounterRepository", () => {
       expect(queryBuilderMock.execute).toBeCalledTimes(2);
     });
 
-    it("updates counter state with last processed record number", async () => {
+    it("updates counter state with last processed record and block numbers", async () => {
       const records = [
         {
           tableName: "transactions",
@@ -92,11 +93,13 @@ describe("CounterRepository", () => {
         },
       ];
       const lastProcessedRecordNumber = 100;
-      await repository.incrementCounters(records, lastProcessedRecordNumber);
+      const lastProcessedBlockNumber = 50;
+      await repository.incrementCounters(records, lastProcessedRecordNumber, lastProcessedBlockNumber);
       expect(counterStateRepositoryMock.upsert).toBeCalledWith(
         {
           tableName: "transactions",
           lastProcessedRecordNumber: 100,
+          lastProcessedBlockNumber: 50,
         },
         false,
         ["tableName"]
@@ -105,19 +108,23 @@ describe("CounterRepository", () => {
   });
 
   describe("decrementCounters", () => {
-    it("decrements count for each counter", async () => {
-      await repository.decrementCounters([
-        {
-          tableName: "transfers",
-          count: 5,
-          queryString: "",
-        },
-        {
-          tableName: "transactions",
-          count: 3,
-          queryString: "",
-        },
-      ]);
+    it("decrements count for each counter and updates counter state", async () => {
+      await repository.decrementCounters(
+        [
+          {
+            tableName: "transfers",
+            count: 5,
+            queryString: "",
+          },
+          {
+            tableName: "transactions",
+            count: 3,
+            queryString: "",
+          },
+        ],
+        50,
+        10
+      );
 
       expect(entityManagerMock.decrement).toBeCalledTimes(2);
       expect(entityManagerMock.decrement).toBeCalledWith(
@@ -131,6 +138,15 @@ describe("CounterRepository", () => {
         { tableName: "transactions", queryString: "" },
         "count",
         3
+      );
+      expect(counterStateRepositoryMock.upsert).toBeCalledWith(
+        {
+          tableName: "transfers",
+          lastProcessedRecordNumber: 50,
+          lastProcessedBlockNumber: 10,
+        },
+        false,
+        ["tableName"]
       );
     });
   });

@@ -1,27 +1,36 @@
 import { format } from "date-fns";
-import { utils } from "ethers";
-import { BOOTLOADER_FORMAL_ADDRESS } from "zksync-web3/build/src/utils";
+import { AbiCoder, Interface, toUtf8String } from "ethers";
+
+import { BOOTLOADER_FORMAL_ADDRESS, CONTRACT_DISPLAY_NAMES, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
 
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
 import type { InputType, TransactionEvent, TransactionLogEntry } from "@/composables/useEventLog";
 import type { TokenTransfer } from "@/composables/useTransaction";
+import type { InputData } from "@/composables/useTransactionData";
+import type { TransferWithMemo } from "@/types";
+import type { ParamType, Result } from "ethers";
+
+import IInteropCenterABI from "@/abi/IInteropCenter";
+import Iso20022TokenABI from "@/abi/Iso20022Token";
+
+export const DefaultAbiCoder: AbiCoder = AbiCoder.defaultAbiCoder();
 
 export function utcStringFromUnixTimestamp(timestamp: number) {
   const isoDate = new Date(+`${timestamp}000`).toISOString();
-  return format(new Date(isoDate.slice(0, -1)), "yyyy-MM-dd HH:mm 'UTC'");
+  return format(new Date(isoDate.slice(0, -1)), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function utcStringFromISOString(ISOString: string) {
-  return format(new Date(ISOString.slice(0, -1)), "yyyy-MM-dd HH:mm:ss 'UTC'");
+  return format(new Date(ISOString.slice(0, -1)), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function localDateFromISOString(ISOString: string) {
-  return format(new Date(ISOString), "yyyy-MM-dd HH:mm");
+  return format(new Date(ISOString), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function localDateFromUnixTimestamp(timestamp: number) {
-  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm");
+  return format(new Date(timestamp * 1000), "yyyy-MM-dd HH:mm:ss a 'UTC'");
 }
 
 export function ISOStringFromUnixTimestamp(timestamp: number) {
@@ -93,15 +102,15 @@ export const mapOrder = (array: any[], order: string[], key: string) => {
 };
 
 export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): TransactionEvent | undefined {
-  const contractInterface = new utils.Interface(abi);
+  const contractInterface = new Interface(abi);
   try {
     const decodedLog = contractInterface.parseLog({
       topics: log.topics,
       data: log.data,
-    });
+    })!;
     return {
       name: decodedLog.name,
-      inputs: decodedLog.eventFragment.inputs.map((input) => ({
+      inputs: decodedLog?.fragment.inputs.map((input) => ({
         name: input.name,
         type: input.type as InputType,
         value: decodedLog.args[input.name]?.toString(),
@@ -110,6 +119,56 @@ export function decodeLogWithABI(log: TransactionLogEntry, abi: AbiFragment[]): 
   } catch {
     return undefined;
   }
+}
+
+export function decodeInputData(input: ParamType, args: Result): InputData[] {
+  if (input.isArray()) {
+    return decodeArrayInputData(input, args);
+  }
+
+  if (input.isTuple()) {
+    return decodeTupleInputData(input, args);
+  }
+
+  return [
+    {
+      name: input.name,
+      type: input.type as InputType,
+      value: args.toString(),
+      encodedValue: DefaultAbiCoder.encode([input.type], [args]).split("0x")[1],
+      inputs: [],
+    },
+  ];
+}
+
+function decodeArrayInputData(input: ParamType, args: Result): InputData[] {
+  const inputs = args.flatMap((arg) => decodeInputData(input.arrayChildren!, arg));
+
+  return [
+    {
+      name: input.name,
+      type: `${inputs[0]?.type ? `${inputs[0]?.type}[]` : input.type}`,
+      value: `[${inputs.map((input) => input.value).join(",")}]`,
+      inputs: inputs,
+      encodedValue: `[${inputs.map((input) => input.encodedValue).join(",")}]`,
+    },
+  ];
+}
+
+function decodeTupleInputData(input: ParamType, args: Result): InputData[] {
+  const inputs = input.components!.flatMap((component: ParamType, index: number) =>
+    decodeInputData(component, args[index])
+  );
+
+  return [
+    {
+      name: input.name,
+      type: `tuple(${inputs.map((input) => input.type).join(",")})`,
+      value: `(${inputs.map((input) => input.value).join(",")})`,
+      inputs,
+      encodedValue: `(${inputs.map((input) => input.encodedValue).join(",")})`,
+    },
+  ];
 }
 
 export function sortTokenTransfers(transfers: TokenTransfer[]): TokenTransfer[] {
@@ -127,4 +186,73 @@ export function truncateNumber(value: string, decimal: number): string {
   }
   const regex = new RegExp(`\\d+(?:\\.\\d{0,${decimal}})?`);
   return value.match(regex)![0];
+}
+
+export function isContractDeployerAddress(address?: string | null): boolean {
+  return !address || address === DEPLOYER_CONTRACT_ADDRESS;
+}
+
+export function getContractDisplayName(address?: string | null): string | null {
+  if (!address) return null;
+  return CONTRACT_DISPLAY_NAMES[address.toLowerCase()] ?? null;
+}
+
+export const INTEROP_BUNDLE_SENT_TOPIC = new Interface(IInteropCenterABI as never)
+  .getEvent("InteropBundleSent")!
+  .topicHash.toLowerCase();
+
+function bytesToAddress(bytes: string): string {
+  const hex = bytes.startsWith("0x") ? bytes.slice(2) : bytes;
+  return `0x${hex.slice(-40).padStart(40, "0")}`;
+}
+
+export function decodeInteropBundleSentEvent(log: TransactionLogEntry) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const InteropCenter = new Interface(IInteropCenterABI as any);
+    const parsed = InteropCenter.parseLog({ topics: log.topics as string[], data: log.data });
+    if (!parsed) return undefined;
+    const bundle = parsed.args.interopBundle;
+    return {
+      sourceChainId: Number(bundle.sourceChainId),
+      destinationChainId: Number(bundle.destinationChainId),
+      interopBundleHash: parsed.args.interopBundleHash as string,
+      l2l1MsgHash: parsed.args.l2l1MsgHash as string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      calls: bundle.calls.map((call: any) => ({
+        to: call.to as string,
+        from: call.from as string,
+        value: call.value.toString(),
+        data: call.data as string,
+        shadowAccount: call.shadowAccount as boolean,
+      })),
+      bundleAttributes: {
+        executionAddress: bytesToAddress(bundle.bundleAttributes.executionAddress as string),
+        unbundlerAddress: bytesToAddress(bundle.bundleAttributes.unbundlerAddress as string),
+        useFixedFee: bundle.bundleAttributes.useFixedFee as boolean,
+      },
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export const TRANSFER_WITH_MEMO_TOPIC = new Interface(Iso20022TokenABI as never)
+  .getEvent("TransferWithMemo")!
+  .topicHash.toLowerCase();
+
+export function decodeTransferWithMemoEvent(log: TransactionLogEntry): TransferWithMemo | undefined {
+  try {
+    const iface = new Interface(Iso20022TokenABI as never);
+    const parsed = iface.parseLog({ topics: log.topics as string[], data: log.data });
+    if (!parsed) return undefined;
+    return {
+      from: parsed.args.from as string,
+      to: parsed.args.to as string,
+      value: (parsed.args.value as bigint).toString(),
+      memo: toUtf8String(parsed.args.memo as string),
+    };
+  } catch {
+    return undefined;
+  }
 }

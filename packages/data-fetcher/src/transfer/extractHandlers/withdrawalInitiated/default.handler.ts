@@ -1,23 +1,25 @@
-import { utils, types } from "zksync-web3";
+import { type Log, type Block } from "ethers";
+import { ConfigService } from "@nestjs/config";
 import { Transfer } from "../../interfaces/transfer.interface";
 import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
 import { TransferType } from "../../transfer.service";
 import { TokenType } from "../../../token/token.service";
 import { unixTimeToDate } from "../../../utils/date";
 import parseLog from "../../../utils/parseLog";
-import { CONTRACT_INTERFACES } from "../../../constants";
+import { isBaseToken } from "../../../utils/token";
+import { BASE_TOKEN_ADDRESS, CONTRACT_INTERFACES, ETH_L1_ADDRESS } from "../../../constants";
 
 export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
-  matches: (): boolean => true,
-  extract: (
-    log: types.Log,
-    blockDetails: types.BlockDetails,
-    transactionDetails?: types.TransactionDetails
-  ): Transfer => {
-    const parsedLog = parseLog(CONTRACT_INTERFACES.L2_BRIDGE, log);
+  matches: (log: Log, _txReceipt, configService: ConfigService): boolean =>
+    configService.get<Set<string>>("trustedBridgeAddresses").has(log.address.toLowerCase()),
+  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
+    const parsedLog = parseLog(CONTRACT_INTERFACES.L2_SHARED_BRIDGE, log);
+    if (!parsedLog) {
+      return null;
+    }
 
     const tokenAddress =
-      parsedLog.args.l2Token === utils.ETH_ADDRESS ? utils.L2_ETH_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
+      parsedLog.args.l2Token === ETH_L1_ADDRESS ? BASE_TOKEN_ADDRESS : parsedLog.args.l2Token.toLowerCase();
 
     return {
       from: parsedLog.args.l2Sender.toLowerCase(),
@@ -27,11 +29,11 @@ export const defaultWithdrawalInitiatedHandler: ExtractTransferHandler = {
       amount: parsedLog.args.amount,
       tokenAddress,
       type: TransferType.Withdrawal,
-      tokenType: tokenAddress === utils.L2_ETH_TOKEN_ADDRESS ? TokenType.ETH : TokenType.ERC20,
+      tokenType: isBaseToken(tokenAddress) ? TokenType.BaseToken : TokenType.ERC20,
       isFeeOrRefund: false,
-      logIndex: log.logIndex,
+      logIndex: log.index,
       transactionIndex: log.transactionIndex,
-      timestamp: transactionDetails?.receivedAt || unixTimeToDate(blockDetails.timestamp),
+      timestamp: unixTimeToDate(block.timestamp),
     };
   },
 };

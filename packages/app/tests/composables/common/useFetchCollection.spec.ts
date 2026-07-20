@@ -5,8 +5,10 @@ import { $fetch } from "ohmyfetch";
 import composable, { type UseFetchCollection } from "@/composables/common/useFetchCollection";
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() => null);
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() => null),
+    $fetch: fetchSpy,
   };
 });
 
@@ -103,16 +105,14 @@ describe("useFetchCollection:", () => {
       expect(fc.pageSize.value).toEqual(10);
     });
 
-    it("sets toDate to query string when param specified", async () => {
+    it("sets pageSize when param specified", async () => {
       ($fetch as unknown as SpyInstance).mockResolvedValue({
         items: [{}, {}],
         meta: {},
       });
-      await fc.load(1, new Date("2023-05-01T10:00:00.000Z"));
+      await fc.load(1, 20);
 
-      expect($fetch).toHaveBeenCalledWith(
-        "https://block-explorer-api.testnets.zksync.dev/?pageSize=10&page=1&toDate=2023-05-01T10%3A00%3A00.000Z"
-      );
+      expect($fetch).toHaveBeenCalledWith("https://block-explorer-api.testnets.zksync.dev/?limit=20&page=1");
     });
   });
 });

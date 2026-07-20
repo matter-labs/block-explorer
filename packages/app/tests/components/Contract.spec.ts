@@ -1,3 +1,4 @@
+import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
@@ -34,7 +35,15 @@ describe("Contract:", () => {
   let mockContext: SpyInstance;
 
   beforeEach(() => {
-    mockContext = useContextMock();
+    mockContext = useContextMock({
+      user: computed(() => ({
+        address: "0x000000000000000000000000000000000000800A",
+        wallets: ["0x000000000000000000000000000000000000800A"],
+        hasFullReadAccess: true,
+        hasAdminRead: false,
+        loggedIn: true as const,
+      })),
+    });
   });
 
   afterEach(() => {
@@ -65,7 +74,7 @@ describe("Contract:", () => {
       },
     });
     expect(container.querySelector(".breadcrumb-item-active")?.textContent).toBe("Contract 0x0cc7...dc1b");
-    expect(container.querySelector(".title-container")?.textContent?.replace(/\u00a0/g, " ")).toBe(
+    expect(container.querySelector(".title-container")?.textContent?.replace(/\u00a0/g, " ")).toContain(
       "Contract  0x0cc7...dc1b"
     );
     expect(container.querySelector(".contract-info-table")).toBeDefined();
@@ -88,6 +97,7 @@ describe("Contract:", () => {
         stubs: ["router-link"],
       },
     });
-    expect(container.querySelector(".title-container")?.textContent?.trim()).toBe("DARA2");
+    expect(container.querySelector(".title-container")?.textContent?.trim()).toContain("DARA2");
+    expect(container.querySelector(".title-container")?.textContent?.trim()).toContain("Source Code");
   });
 });

@@ -3,7 +3,8 @@ import { MoreThan } from "typeorm";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { UnitOfWork } from "../unitOfWork";
-import { BatchRepository, BlockRepository } from "../repositories";
+import { BlockStatus } from "../entities";
+import { BlockRepository, BlockQueueRepository, IndexerStateRepository } from "../repositories";
 import { BlockchainService } from "../blockchain";
 import { CounterService } from "../counter";
 import { BLOCKS_REVERT_DURATION_METRIC_NAME, BLOCKS_REVERT_DETECT_METRIC_NAME } from "../metrics";
@@ -14,8 +15,9 @@ export class BlocksRevertService {
 
   public constructor(
     private readonly blockchainService: BlockchainService,
-    private readonly batchRepository: BatchRepository,
     private readonly blockRepository: BlockRepository,
+    private readonly blockQueueRepository: BlockQueueRepository,
+    private readonly indexerStateRepository: IndexerStateRepository,
     private readonly counterService: CounterService,
     private readonly unitOfWork: UnitOfWork,
     @InjectMetric(BLOCKS_REVERT_DURATION_METRIC_NAME)
@@ -32,46 +34,41 @@ export class BlocksRevertService {
     stopRevertDetectMetric();
 
     try {
-      const lastExecutedBlockNumber = await this.blockRepository.getLastExecutedBlockNumber();
-      const lastCorrectBlockNumber = await this.findLastCorrectBlockNumber(
-        lastExecutedBlockNumber,
-        detectedIncorrectBlockNumber
-      );
-
-      const lastCorrectBlock = await this.blockRepository.getLastBlock({
-        where: { number: lastCorrectBlockNumber },
-        select: { number: true, l1BatchNumber: true },
-        relations: {
-          batch: true,
+      const lastExecutedBlock = await this.blockRepository.getBlock({
+        where: {
+          status: BlockStatus.Executed,
+        },
+        select: {
+          number: true,
         },
       });
-      // If the last correct block is in the middle of the batch it's possible that this batch might need a revert,
-      // e.g. revert happened in blockchain for the 2-nd half of blocks for the batch.
-      let lastCorrectBatchNumber = lastCorrectBlock.l1BatchNumber;
-      if (lastCorrectBlock.batch) {
-        const batchFromBlockchain = await this.blockchainService.getL1BatchDetails(lastCorrectBlock.l1BatchNumber);
-        // Check if batch of the last correct block has to be reverted, if so - decrement last correct batch number.
-        if (!batchFromBlockchain || lastCorrectBlock.batch.rootHash !== batchFromBlockchain.rootHash) {
-          lastCorrectBatchNumber -= 1;
-        }
-      }
+      const lastCorrectBlockNumber = await this.findLastCorrectBlockNumber(
+        lastExecutedBlock?.number || 0,
+        detectedIncorrectBlockNumber
+      );
 
       const dbTransaction = this.unitOfWork.useTransaction(async () => {
         this.logger.log("Reverting counters", { lastCorrectBlockNumber });
         await this.counterService.revert(lastCorrectBlockNumber);
 
-        this.logger.log("Reverting batches and blocks", { lastCorrectBlockNumber, lastCorrectBatchNumber });
-        await Promise.all([
-          this.batchRepository.delete({ number: MoreThan(lastCorrectBatchNumber) }),
-          this.blockRepository.delete({ number: MoreThan(lastCorrectBlockNumber) }),
-        ]);
+        this.logger.log("Reverting blocks", { lastCorrectBlockNumber });
+        const deletedBlockNumbers = await this.blockRepository.deleteWithReturningNumber({
+          number: MoreThan(lastCorrectBlockNumber),
+        });
+
+        this.logger.log("Updating last ready block number", { lastCorrectBlockNumber });
+        await this.indexerStateRepository.setLastReadyBlockNumber(lastCorrectBlockNumber);
+
+        if (deletedBlockNumbers.length > 0) {
+          this.logger.log("Re-enqueueing reverted block numbers", { count: deletedBlockNumbers.length });
+          await this.blockQueueRepository.enqueue(deletedBlockNumbers);
+        }
       });
       await dbTransaction.waitForExecution();
 
       this.logger.log("Blocks revert completed", { lastCorrectBlockNumber });
     } catch (error) {
       this.logger.error("Blocks revert failed", { detectedIncorrectBlockNumber, error: error.stack });
-      throw error;
     } finally {
       stopRevertDurationMetric();
     }
@@ -81,7 +78,7 @@ export class BlocksRevertService {
     lastExecutedBlockNumber: number,
     detectedIncorrectBlockNumber: number
   ) => {
-    // binary search the last block with matching hash between latest executed block from DB and incorrect clock detected
+    // binary search the last block with matching hash between latest executed block from DB and incorrect block detected
     let start = lastExecutedBlockNumber;
     let end = detectedIncorrectBlockNumber;
 
@@ -98,7 +95,7 @@ export class BlocksRevertService {
   };
 
   private async isHashMatch(blockNumber: number) {
-    const blockFromDB = await this.blockRepository.getLastBlock({
+    const blockFromDB = await this.blockRepository.getBlock({
       where: { number: blockNumber },
       select: { hash: true },
     });

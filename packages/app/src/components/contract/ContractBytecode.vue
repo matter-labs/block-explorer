@@ -9,14 +9,7 @@
         </div>
       </div>
       <div class="contract-link-container">
-        <Button
-          class="contract-verification-link"
-          :data-testid="$testId.contractVerificationButton"
-          tag="RouterLink"
-          :to="{ name: 'contract-verification', query: { address: contract.address } }"
-        >
-          {{ t("contract.bytecode.verifyButton") }}
-        </Button>
+        <VerificationButton :address="contract.address" />
       </div>
     </div>
     <div v-else class="functions-contract-container">
@@ -26,6 +19,15 @@
       <div v-if="sourceCode" class="source-code-container">
         <div class="info-field-label">{{ t("contract.sourceCode.label") }}</div>
         <CodeBlock v-for="(item, index) in sourceCode" :key="index" :code="item.code" :label="item.label" />
+      </div>
+      <div v-if="settings" class="source-code-container">
+        <CodeBlock :code="settings" :label="t('contract.settings.label')" :label-bold="true" />
+      </div>
+      <div v-if="sourceCode" class="abi-json-field-container">
+        <div class="info-field-label">{{ t("contract.abiInteraction.contractAbi") }}</div>
+        <div class="abi-json">
+          <AbiData :value="abiJson" />
+        </div>
       </div>
       <div class="bytecode-field-container">
         <div class="info-field-label">{{ t("contract.bytecode.deployedBytecode") }}</div>
@@ -41,10 +43,11 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import Button from "@/components/common/Button.vue";
+import AbiData from "@/components/common/table/fields/AbiData.vue";
 import ByteData from "@/components/common/table/fields/ByteData.vue";
 import CodeBlock from "@/components/contract/CodeBlock.vue";
 import CompilationInfo from "@/components/contract/CompilationInfo.vue";
+import VerificationButton from "@/components/contract/VerificationButton.vue";
 
 import type { Contract } from "@/composables/useAddress";
 import type { PropType } from "vue";
@@ -59,32 +62,21 @@ const props = defineProps({
 
 const { t } = useI18n();
 
+const settings = computed(() =>
+  JSON.stringify(props.contract?.verificationInfo?.compilation.compilerSettings, null, 2)
+);
 const sourceCode = computed<undefined | { code: string; label: string }[]>(() => {
   if (!props.contract?.verificationInfo) {
     return undefined;
   }
-  const request = props.contract.verificationInfo.request;
-  if (request.compilerZkvyperVersion) {
-    const sourceCode = request.sourceCode as Record<string, string>;
-    const contractNames = Object.keys(sourceCode);
-    if (contractNames.length === 1) {
-      return [{ code: sourceCode[contractNames[0]], label: t("contract.sourceCode.singleFileContract") }];
-    }
-    return Object.entries(sourceCode).map(([key, value], index, arr) => {
-      return {
-        code: value,
-        label: t("contract.sourceCode.fileLabel", {
-          index: index + 1,
-          total: arr.length,
-          fileName: key.split("/").pop(),
-        }),
-      };
-    });
-  }
-  if (typeof request.sourceCode === "string") {
-    return [{ code: request.sourceCode, label: t("contract.sourceCode.singleFileContract") }];
+  const verificationInfo = props.contract.verificationInfo;
+  const contractNames = Object.keys(verificationInfo.sources);
+  if (contractNames.length === 1 && verificationInfo.compilation.language === "Solidity") {
+    return [
+      { code: verificationInfo.sources[contractNames[0]].content, label: t("contract.sourceCode.singleFileContract") },
+    ];
   } else {
-    return Object.entries(request.sourceCode.sources).map(([key, value], index, arr) => {
+    return Object.entries(verificationInfo.sources).map(([key, value], index, arr) => {
       return {
         code: value.content,
         label: t("contract.sourceCode.fileLabel", {
@@ -95,6 +87,14 @@ const sourceCode = computed<undefined | { code: string; label: string }[]>(() =>
       };
     });
   }
+});
+
+const abiJson = computed<undefined | string>(() => {
+  if (!props.contract?.verificationInfo?.abi) {
+    return undefined;
+  }
+
+  return JSON.stringify(props.contract.verificationInfo.abi);
 });
 </script>
 
@@ -114,9 +114,6 @@ const sourceCode = computed<undefined | { code: string; label: string }[]>(() =>
     }
     .contract-link-container {
       @apply mt-5 flex items-end md:mt-0;
-      .contract-verification-link {
-        @apply whitespace-nowrap md:px-5 md:py-3;
-      }
     }
   }
   .functions-contract-container {
@@ -132,6 +129,7 @@ const sourceCode = computed<undefined | { code: string; label: string }[]>(() =>
       @apply text-sm font-bold text-neutral-700;
     }
     .source-code-container,
+    .abi-json-field-container,
     .bytecode-field-container {
       @apply grid grid-cols-1 gap-2;
     }

@@ -28,24 +28,28 @@ const baseTransferPayload = {
 };
 
 vi.mock("ohmyfetch", () => {
+  const fetchSpy = vi.fn(() =>
+    Promise.resolve({
+      items: [
+        { ...baseTransferPayload, type: "transfer" },
+        { ...baseTransferPayload, token: null, type: "transfer" },
+        { ...baseTransferPayload, type: "deposit" },
+        { ...baseTransferPayload, type: "withdrawal" },
+        { ...baseTransferPayload, type: "deposit", chainId: "11" },
+        { ...baseTransferPayload, type: "deposit", chainId: "270" },
+      ],
+      meta: {
+        totalItems: 6,
+        page: 1,
+        pageSize: 10,
+        totalPages: 1,
+        itemCount: 1,
+      },
+    })
+  );
+  (fetchSpy as unknown as { create: SpyInstance }).create = vi.fn(() => fetchSpy);
   return {
-    $fetch: vi.fn(() =>
-      Promise.resolve({
-        items: [
-          { ...baseTransferPayload, type: "transfer" },
-          { ...baseTransferPayload, token: null, type: "transfer" },
-          { ...baseTransferPayload, type: "deposit" },
-          { ...baseTransferPayload, type: "withdrawal" },
-        ],
-        meta: {
-          totalItems: 4,
-          page: 1,
-          pageSize: 10,
-          totalPages: 1,
-          itemCount: 1,
-        },
-      })
-    ),
+    $fetch: fetchSpy,
   };
 });
 
@@ -77,7 +81,7 @@ describe("useTransfers:", () => {
     const composable = useTransfers(address);
     await composable.load(1);
     const transfers = composable.data.value;
-    expect(composable.data.value?.length).toBe(4);
+    expect(composable.data.value?.length).toBe(6);
     expect(transfers).toEqual([
       {
         ...baseTransferPayload,
@@ -112,6 +116,20 @@ describe("useTransfers:", () => {
         type: "withdrawal",
         fromNetwork: "L2",
         toNetwork: "L1",
+      },
+      {
+        ...baseTransferPayload,
+        type: "deposit",
+        chainId: "11",
+        fromNetwork: "L1",
+        toNetwork: "L2",
+      },
+      {
+        ...baseTransferPayload,
+        type: "deposit",
+        chainId: "270",
+        fromNetwork: "L2",
+        toNetwork: "L2",
       },
     ]);
   });

@@ -11,6 +11,14 @@
     {
       "name": "alpha",
       "prerelease": true
+    },
+    {
+      "name": "prividium",
+      "prerelease": true
+    },
+        {
+      "name": "zksync-os",
+      "prerelease": true
     }
   ],
   "plugins": [
@@ -34,7 +42,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "VITE_VERSION=${nextRelease.version} npm run build",
+        "prepareCmd": "VITE_APP_ENVIRONMENT=default VITE_VERSION=${nextRelease.version} npm run build",
         "publishCmd": "zip -r dist.zip dist",
         "execCwd": "packages/app"
       }

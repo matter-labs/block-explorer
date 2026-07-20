@@ -154,7 +154,7 @@ describe("BlockController", () => {
     it("selects only needed fields for the block record", async () => {
       await controller.getBlockReward(20);
       expect(blockServiceMock.findOne).toHaveBeenCalledTimes(1);
-      expect(blockServiceMock.findOne).toHaveBeenCalledWith(20, ["number", "timestamp", "miner"], { batch: false });
+      expect(blockServiceMock.findOne).toHaveBeenCalledWith(20, ["number", "timestamp", "miner"]);
     });
 
     it("returns not OK response and result with empty values when specified block number does not exist", async () => {

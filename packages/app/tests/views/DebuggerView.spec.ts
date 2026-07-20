@@ -1,10 +1,9 @@
-import { nextTick, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 import { createI18n } from "vue-i18n";
 
 import { describe, expect, it, vi } from "vitest";
 
 import { fireEvent, render, waitFor } from "@testing-library/vue";
-import { computed } from "@vue/reactivity";
 
 import * as useTrace from "@/composables/useTrace";
 
@@ -74,7 +73,10 @@ describe("DebuggerView:", () => {
   vi.mock("vue-router", () => ({
     useRouter: () => vi.fn(),
     useRoute: () => vi.fn(),
+    createWebHistory: () => vi.fn(),
+    createRouter: () => ({ beforeEach: vi.fn() }),
   }));
+
   it("has correct title", async () => {
     expect(i18n.global.t(routes.find((e) => e.name === "debugger")?.meta?.title as string)).toBe("zkEVM Debugger");
   });

@@ -10,7 +10,7 @@ import {
   blocksTable,
   fromAddress,
   initiatorsAddress,
-  latestBatchesTable,
+  latestBlocksTable,
   latestTransactionsTable,
   toAddress,
   tokenAddress,
@@ -38,7 +38,7 @@ export class MainPage extends BasePage {
   }
 
   get logo() {
-    return "//*[text()='zkSync']/..";
+    return "//*[text()='ZKsync']/..";
   }
 
   get searchField() {
@@ -71,14 +71,6 @@ export class MainPage extends BasePage {
 
   get txHash() {
     return "//span[@class='transactions-data-link'][1]/a";
-  }
-
-  get batchNumber() {
-    return "//*[@data-heading='Batch']/a";
-  }
-
-  get batchSize() {
-    return "//*[@data-heading='Size']/a";
   }
 
   get committedBlocks() {
@@ -125,8 +117,8 @@ export class MainPage extends BasePage {
     return blocksTable;
   }
 
-  get latestBatchesTable() {
-    return latestBatchesTable;
+  get latestBlocksTable() {
+    return latestBlocksTable;
   }
 
   get latestTransactionTable() {
@@ -170,8 +162,8 @@ export class MainPage extends BasePage {
   }
 
   async countRowsInTable(table: string) {
-    if (table === "Latest Batches") {
-      element = this.latestBatchesTable;
+    if (table === "Latest Blocks") {
+      element = this.latestBlocksTable;
     } else if (table === "Latest Transactions") {
       element = this.latestTransactionTable;
     } else if (table === "Blocks") {
@@ -193,8 +185,8 @@ export class MainPage extends BasePage {
 
   async getColumnValueInTable(table: string, column: string) {
     let tableDataId: any;
-    if (table === "Latest Batches") {
-      tableDataId = this.latestBatchesTable;
+    if (table === "Latest Blocks") {
+      tableDataId = this.latestBlocksTable;
     } else if (table === "Latest Transactions") {
       tableDataId = this.latestTransactionTable;
     } else if (table === "Blocks") {
@@ -289,10 +281,6 @@ export class MainPage extends BasePage {
   async getLinkForElement(elementType: string) {
     if (elementType === "tx hash") {
       element = this.txHash;
-    } else if (elementType === "batch number") {
-      element = this.batchNumber;
-    } else if (elementType === "batch size") {
-      element = this.batchSize;
     } else if (elementType === "committed blocks") {
       element = this.committedBlocks;
     } else if (elementType === "verified blocks") {

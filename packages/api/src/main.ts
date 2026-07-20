@@ -7,6 +7,8 @@ import { configureApp } from "./configureApp";
 import { getLogger } from "./logger";
 import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
+import { prividium } from "./config/featureFlags";
+import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "./prividium";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -18,13 +20,33 @@ async function bootstrap() {
     process.exit(1);
   });
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+  process.on("unhandledRejection", (reason) => {
+    logger.error("Unhandled Rejection: ", reason);
+  });
+
+  const app = await NestFactory.create<NestExpressApplication>(AppModule.build({ prividium }), {
     logger,
     rawBody: true,
   });
+
   const configService = app.get(ConfigService);
   const metricsApp = await NestFactory.create(AppMetricsModule);
   metricsApp.enableShutdownHooks();
+
+  if (prividium) {
+    // Prividium config includes strict CORS configuration
+    // Must be applied before Swagger setup so session is available for auth check
+    applyPrividiumExpressConfig(app, {
+      sessionSecret: configService.get<string>("prividium.sessionSecret"),
+      appUrl: configService.get<string>("prividium.appUrl"),
+      sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
+      sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
+      corsOrigins: configService.get<string[]>("prividium.corsOrigins"),
+    });
+    applySwaggerAuthMiddleware(app, configService);
+  } else {
+    app.enableCors();
+  }
 
   if (configService.get<boolean>("featureFlags.swagger.enabled")) {
     const swaggerConfig = new DocumentBuilder()
@@ -38,7 +60,6 @@ async function bootstrap() {
 
   app.useBodyParser("json", { limit: BODY_PARSER_SIZE_LIMIT });
   app.useBodyParser("urlencoded", { limit: BODY_PARSER_SIZE_LIMIT, extended: true });
-  app.enableCors();
   app.use(helmet());
   configureApp(app);
   app.enableShutdownHooks();

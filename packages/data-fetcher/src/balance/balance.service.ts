@@ -1,17 +1,16 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { BigNumber } from "ethers";
-import { utils } from "zksync-web3";
+import { ETH_L1_ADDRESS, BASE_TOKEN_ADDRESS } from "../constants";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TokenType } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 
-export type BlockChangedBalances = Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>;
+export type BlockChangedBalances = Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>;
 
 export interface Balance {
   address: string;
   tokenAddress: string;
   blockNumber: number;
-  balance: BigNumber;
+  balance: bigint;
   tokenType: TokenType;
 }
 
@@ -29,6 +28,19 @@ export class BalanceService {
     this.changedBalances.delete(blockNumber);
   }
 
+  public trackSenderBalance(address: string, blockNumber: number): void {
+    const blockChangedBalances =
+      this.changedBalances.get(blockNumber) ||
+      new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
+
+    if (!blockChangedBalances.has(address)) {
+      blockChangedBalances.set(address, new Map<string, { balance: bigint; tokenType: TokenType }>());
+    }
+    blockChangedBalances.get(address).set(BASE_TOKEN_ADDRESS, { balance: undefined, tokenType: TokenType.BaseToken });
+
+    this.changedBalances.set(blockNumber, blockChangedBalances);
+  }
+
   public trackChangedBalances(transfers: Transfer[]): void {
     if (!transfers?.length) {
       return;
@@ -36,20 +48,17 @@ export class BalanceService {
 
     const blockChangedBalances =
       this.changedBalances.get(transfers[0].blockNumber) ||
-      new Map<string, Map<string, { balance: BigNumber; tokenType: TokenType }>>();
+      new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
 
     for (const transfer of transfers) {
       const changedBalancesAddresses = new Set([transfer.from, transfer.to]);
       for (const changedBalanceAddress of changedBalancesAddresses) {
-        if (changedBalanceAddress === utils.ETH_ADDRESS) {
+        if (changedBalanceAddress === ETH_L1_ADDRESS) {
           continue;
         }
 
         if (!blockChangedBalances.has(changedBalanceAddress)) {
-          blockChangedBalances.set(
-            changedBalanceAddress,
-            new Map<string, { balance: BigNumber; tokenType: TokenType }>()
-          );
+          blockChangedBalances.set(changedBalanceAddress, new Map<string, { balance: bigint; tokenType: TokenType }>());
         }
 
         blockChangedBalances
@@ -68,7 +77,7 @@ export class BalanceService {
 
     const blockChangedBalances = this.changedBalances.get(blockNumber);
     const balanceAddresses: string[][] = [];
-    const getBalancePromises: Promise<BigNumber>[] = [];
+    const getBalancePromises: Promise<bigint>[] = [];
 
     for (const [address, tokenAddresses] of blockChangedBalances) {
       for (const [tokenAddress] of tokenAddresses) {
@@ -85,7 +94,7 @@ export class BalanceService {
       if (balances[i].status === "fulfilled") {
         const blockChangedBalancesForAddress = blockChangedBalances.get(address);
         blockChangedBalancesForAddress.set(tokenAddress, {
-          balance: (balances[i] as PromiseFulfilledResult<BigNumber>).value,
+          balance: (balances[i] as PromiseFulfilledResult<bigint>).value,
           tokenType: blockChangedBalancesForAddress.get(tokenAddress).tokenType,
         });
       } else {

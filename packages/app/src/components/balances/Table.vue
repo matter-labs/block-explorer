@@ -48,8 +48,6 @@
 import { computed, type PropType, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { BigNumber } from "ethers";
-
 import TokenIconLabel from "@/components/TokenIconLabel.vue";
 import BalanceValue from "@/components/balances/BalanceValue.vue";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
@@ -58,12 +56,12 @@ import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
 import CopyContent from "@/components/common/table/fields/CopyContent.vue";
 
+import useContext from "@/composables/useContext";
 import useTokenLibrary from "@/composables/useTokenLibrary";
 
 import type { Balances } from "@/composables/useAddress";
 
-import { ETH_TOKEN_L2_ADDRESS } from "@/utils/constants";
-
+const { currentNetwork } = useContext();
 const { t } = useI18n();
 
 const props = defineProps({
@@ -91,16 +89,16 @@ function showAllBalances() {
 }
 
 const validBalances = computed(() =>
-  Object.values(props.balances).filter((e) => !BigNumber.from(e.balance).isZero() && e.token)
+  Object.values(props.balances).filter((e) => BigInt(e.balance) != BigInt(0) && e.token)
 );
 const displayedBalances = computed(() => {
   return [...validBalances.value]
     .sort((a, b) => {
       if (!a.token || !b.token) return 0;
 
-      if (a.token.l2Address === ETH_TOKEN_L2_ADDRESS) {
+      if (a.token.l2Address === currentNetwork.value.baseTokenAddress) {
         return -1;
-      } else if (b.token.l2Address === ETH_TOKEN_L2_ADDRESS) {
+      } else if (b.token.l2Address === currentNetwork.value.baseTokenAddress) {
         return 1;
       }
 

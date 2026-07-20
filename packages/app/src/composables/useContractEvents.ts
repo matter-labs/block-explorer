@@ -1,7 +1,8 @@
 import { ref } from "vue";
 
-import { BigNumber } from "ethers";
-import { $fetch, FetchError } from "ohmyfetch";
+import { FetchError } from "ohmyfetch";
+
+import { FetchInstance } from "./useFetchInstance";
 
 import useContext from "@/composables/useContext";
 
@@ -16,8 +17,6 @@ export type EventsQueryParams = {
   contractAddress: Address;
   page: number;
   pageSize: number;
-
-  toDate?: Date;
 };
 
 type Log = {
@@ -41,25 +40,24 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const url = new URL(`/address/${params.contractAddress}/logs`, context.currentNetwork.value.apiUrl);
-      if (params.toDate && +new Date(params.toDate) > 0) {
-        url.searchParams.set("toDate", params.toDate.toISOString());
-      }
+      const searchParams = new URLSearchParams();
       if (params.page > 0) {
-        url.searchParams.set("page", params.page.toString());
+        searchParams.set("page", params.page.toString());
       }
       if (params.pageSize > 0) {
-        url.searchParams.set("limit", params.pageSize.toString());
+        searchParams.set("limit", params.pageSize.toString());
       }
 
-      const response = await $fetch<Api.Response.Collection<Log>>(url.toString());
+      const response = await FetchInstance.api(context)<Api.Response.Collection<Log>>(
+        `/address/${params.contractAddress}/logs?${searchParams.toString()}`
+      );
 
       collection.value = response.items.map((e) => {
         const item: TransactionLogEntry = {
           address: checksumAddress(e.address),
           topics: e.topics,
           data: e.data as Address,
-          blockNumber: BigNumber.from(e.blockNumber),
+          blockNumber: BigInt(e.blockNumber),
           transactionHash: e.transactionHash as Address,
           transactionIndex: e.transactionIndex.toString(16) as Address,
           logIndex: e.logIndex.toString(16) as Address,

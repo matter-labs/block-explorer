@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { NotFoundException } from "@nestjs/common";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { TransactionController } from "./transaction.controller";
@@ -11,9 +11,12 @@ import { Transfer } from "../transfer/transfer.entity";
 import { Log } from "../log/log.entity";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
+import { UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
+import { ConfigService } from "@nestjs/config";
+import clearAllMocks = jest.clearAllMocks;
 
 jest.mock("../common/utils", () => ({
-  buildDateFilter: jest.fn().mockReturnValue({ timestamp: "timestamp" }),
+  buildBlockFilter: jest.fn().mockReturnValue({ blockNumber: "blockNumber" }),
 }));
 
 describe("TransactionController", () => {
@@ -23,7 +26,7 @@ describe("TransactionController", () => {
   let serviceMock: TransactionService;
   let transferServiceMock: TransferService;
   let logServiceMock: LogService;
-  let transaction;
+  let transaction: { hash: string };
 
   beforeEach(async () => {
     serviceMock = mock<TransactionService>();
@@ -34,9 +37,21 @@ describe("TransactionController", () => {
       hash: transactionHash,
     };
 
+    const configServiceValues = {
+      "prividium.permissionsApiUrl": "https://permissions-api.example.com",
+    };
+
+    const configServiceMock = mock<ConfigService>({
+      get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
+    });
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionController],
       providers: [
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
         {
           provide: TransactionService,
           useValue: serviceMock,
@@ -62,8 +77,8 @@ describe("TransactionController", () => {
       address: "address",
     };
     const listFilterOptions = {
-      fromDate: "2023-02-08T15:34:46.251Z",
-      toDate: "2023-02-08T17:34:46.251Z",
+      fromBlock: 10,
+      toBlock: 100,
     };
     const pagingOptions: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
 
@@ -72,12 +87,11 @@ describe("TransactionController", () => {
     });
 
     it("queries transactions with the specified options", async () => {
-      await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions);
+      await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, null);
       expect(serviceMock.findAll).toHaveBeenCalledTimes(1);
       expect(serviceMock.findAll).toHaveBeenCalledWith(
         {
           ...filterTransactionsOptions,
-          timestamp: "timestamp",
         },
         {
           filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
@@ -88,8 +102,68 @@ describe("TransactionController", () => {
     });
 
     it("returns the transactions", async () => {
-      const result = await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions);
+      const result = await controller.getTransactions(
+        filterTransactionsOptions,
+        listFilterOptions,
+        pagingOptions,
+        null
+      );
       expect(result).toBe(transactions);
+    });
+
+    describe("when user is provided", () => {
+      let user: MockProxy<UserWithPermissions>;
+      const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      beforeEach(() => {
+        user = mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: false, token: "token1" });
+      });
+
+      it("passes visibleBy when no address is provided", async () => {
+        const filterOptionsWithoutAddress = { blockNumber: 10 };
+        await controller.getTransactions(filterOptionsWithoutAddress, listFilterOptions, pagingOptions, user);
+        expect(serviceMock.findAll).toHaveBeenCalledWith(
+          {
+            ...filterOptionsWithoutAddress,
+            visibleBy: mockUser,
+          },
+          {
+            filterOptions: { ...filterOptionsWithoutAddress, ...listFilterOptions },
+            ...pagingOptions,
+            route: "transactions",
+          }
+        );
+      });
+
+      it("passes visibleBy when a different address is provided", async () => {
+        await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, user);
+        expect(serviceMock.findAll).toHaveBeenCalledWith(
+          {
+            ...filterTransactionsOptions,
+            visibleBy: mockUser,
+          },
+          {
+            filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
+            ...pagingOptions,
+            route: "transactions",
+          }
+        );
+      });
+
+      it("passes visibleBy even when the provided address equals user address", async () => {
+        const filterOptionsWithOwnAddress = { blockNumber: 10, address: mockUser };
+        await controller.getTransactions(filterOptionsWithOwnAddress, listFilterOptions, pagingOptions, user);
+        expect(serviceMock.findAll).toHaveBeenCalledWith(
+          {
+            ...filterOptionsWithOwnAddress,
+            visibleBy: mockUser,
+          },
+          {
+            filterOptions: { ...filterOptionsWithOwnAddress, ...listFilterOptions },
+            ...pagingOptions,
+            route: "transactions",
+          }
+        );
+      });
     });
   });
 
@@ -100,13 +174,13 @@ describe("TransactionController", () => {
       });
 
       it("queries transactions by specified transaction hash", async () => {
-        await controller.getTransaction(transactionHash);
+        await controller.getTransaction(transactionHash, null);
         expect(serviceMock.findOne).toHaveBeenCalledTimes(1);
         expect(serviceMock.findOne).toHaveBeenCalledWith(transactionHash);
       });
 
       it("returns the transaction", async () => {
-        const result = await controller.getTransaction(transactionHash);
+        const result = await controller.getTransaction(transactionHash, null);
         expect(result).toBe(transaction);
       });
     });
@@ -120,9 +194,53 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransaction(transactionHash);
+          await controller.getTransaction(transactionHash, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
+        }
+      });
+    });
+
+    describe("when user is provided", () => {
+      let user: MockProxy<UserWithPermissions>;
+      const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+
+      beforeEach(() => {
+        user = mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: false });
+        (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
+      });
+
+      afterEach(() => {
+        clearAllMocks();
+      });
+
+      it("returns the transaction when user can see it", async () => {
+        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(true);
+        const result = await controller.getTransaction(transactionHash, user);
+        expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, user);
+        expect(result).toBe(transaction);
+      });
+
+      it("returns the transaction when user is admin", async () => {
+        const result = await controller.getTransaction(
+          transactionHash,
+          mock<UserWithPermissions>({
+            address: mockUser,
+            hasFullReadAccess: true,
+          })
+        );
+        expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
+        expect(result).toBe(transaction);
+      });
+
+      it("throws NotFoundException when transaction is not visible to user", async () => {
+        (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(false);
+
+        try {
+          await controller.getTransaction(transactionHash, user);
+        } catch (error) {
+          expect(error).toBeInstanceOf(NotFoundException);
+          expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledTimes(1);
         }
       });
     });
@@ -137,7 +255,7 @@ describe("TransactionController", () => {
       });
 
       it("queries transfers with the specified options", async () => {
-        await controller.getTransactionTransfers(transactionHash, pagingOptions);
+        await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(transferServiceMock.findAll).toHaveBeenCalledWith(
           { transactionHash },
@@ -149,8 +267,27 @@ describe("TransactionController", () => {
       });
 
       it("returns transaction transfers", async () => {
-        const result = await controller.getTransactionTransfers(transactionHash, pagingOptions);
+        const result = await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         expect(result).toBe(transactionTransfers);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserWithPermissions>;
+        beforeEach(() => {
+          user = mock<UserWithPermissions>({
+            address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            hasFullReadAccess: false,
+            token: "token1",
+          });
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTransactionTransfers(transactionHash, pagingOptions, user);
+          expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+            expect.objectContaining({ visibleBy: user.address }),
+            expect.anything()
+          );
+        });
       });
     });
 
@@ -163,7 +300,7 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransactionTransfers(transactionHash, pagingOptions);
+          await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
@@ -180,7 +317,7 @@ describe("TransactionController", () => {
       });
 
       it("queries logs with the specified options", async () => {
-        await controller.getTransactionLogs(transactionHash, pagingOptions);
+        await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         expect(logServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(logServiceMock.findAll).toHaveBeenCalledWith(
           { transactionHash },
@@ -192,8 +329,27 @@ describe("TransactionController", () => {
       });
 
       it("returns transaction logs", async () => {
-        const result = await controller.getTransactionLogs(transactionHash, pagingOptions);
+        const result = await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         expect(result).toBe(transactionLogs);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserWithPermissions>;
+        beforeEach(() => {
+          user = mock<UserWithPermissions>({
+            address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            hasFullReadAccess: false,
+            token: "token1",
+          });
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTransactionLogs(transactionHash, pagingOptions, user);
+          expect(logServiceMock.findAll).toHaveBeenCalledWith(
+            expect.objectContaining({ visibleBy: user.address }),
+            expect.anything()
+          );
+        });
       });
     });
 
@@ -206,7 +362,7 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransactionLogs(transactionHash, pagingOptions);
+          await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }

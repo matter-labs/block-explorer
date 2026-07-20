@@ -22,11 +22,6 @@ scenarios:
           name: "/stats"
           url: "/stats"
 
-      # BATCHES
-      - get:
-          name: "/batches"
-          url: "/batches"
-
       # TRANSACTIONS
       - get:
           name: "/transactions"

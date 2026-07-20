@@ -19,11 +19,11 @@ export class ContractPage extends BasePage {
     super(world);
   }
   get transactionsTab() {
-    return "//button[text()='Transactions']/..";
+    return "//button[contains(.,'Transactions')]/..";
   }
 
   get contractTab() {
-    return "//button[text()='Contract']/..";
+    return "//button[contains(.,'Contract')]/..";
   }
 
   get contractVerificationBtn() {

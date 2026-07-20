@@ -1,6 +1,6 @@
 <template>
   <div class="contract-info-tabs-container">
-    <Tabs v-if="tabs.length" class="contract-info-tabs" :tabs="tabs" :has-route="false">
+    <Tabs v-if="tabs.length" class="contract-info-tabs" :tabs="tabs" :has-route="false" :has-nested-route="true">
       <template #tab-1-content>
         <ContractBytecode :contract="contract" />
       </template>
@@ -13,7 +13,7 @@
             <div class="function-dropdown-spacer">
               <div class="metamask-button-container">
                 <span class="function-type-title">{{ t("contract.abiInteraction.method.read.name") }}</span>
-                <ConnectMetamaskButton />
+                <ConnectMetamaskButton v-if="runtimeConfig.appEnvironment !== 'prividium'" />
               </div>
               <FunctionDropdown
                 v-for="(item, index) in readFunctions"
@@ -37,7 +37,7 @@
             <div class="function-dropdown-spacer">
               <div class="metamask-button-container">
                 <span class="function-type-title"> {{ t("contract.abiInteraction.method.write.name") }}</span>
-                <ConnectMetamaskButton />
+                <ConnectMetamaskButton v-if="runtimeConfig.appEnvironment !== 'prividium'" />
               </div>
               <FunctionDropdown
                 v-for="(item, index) in writeFunctions"
@@ -57,14 +57,14 @@
           <div class="proxy-implementation-link">
             <Alert v-if="contract.proxyInfo?.implementation.verificationInfo" class="w-fit" type="notification">
               <span>{{ t("contract.abiInteraction.contractImplementationFound") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" /> </a
               >{{ "." }}
               <span>{{ t("contract.abiInteraction.proxyCautionMessage") }}</span>
             </Alert>
             <Alert v-else class="w-fit" type="warning">
               <span>{{ t("contract.abiInteraction.contractImplementationAt") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" />
               </a>
               <span class="to-lowercase">&nbsp;{{ t("contract.abiInteraction.contractNotVerified") }}.</span>
@@ -98,14 +98,14 @@
           <div class="proxy-implementation-link">
             <Alert v-if="contract.proxyInfo?.implementation.verificationInfo" class="w-fit" type="notification">
               <span>{{ t("contract.abiInteraction.contractImplementationFound") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" /> </a
               >{{ "." }}
               <span>{{ t("contract.abiInteraction.proxyCautionMessage") }}</span>
             </Alert>
             <Alert v-else class="w-fit" type="warning">
               <span>{{ t("contract.abiInteraction.contractImplementationAt") }}&nbsp;</span>
-              <a :href="`/address/${contract.proxyInfo?.implementation.address}#contract`">
+              <a :href="resolveBase(`/address/${contract.proxyInfo?.implementation.address}#contract`)">
                 <HashLabel :text="contract.proxyInfo?.implementation.address" />
               </a>
               <span class="to-lowercase">&nbsp;{{ t("contract.abiInteraction.contractNotVerified") }}.</span>
@@ -121,7 +121,7 @@
               <div class="function-dropdown-spacer">
                 <div class="metamask-button-container">
                   <span class="function-type-title"> {{ t("contract.abiInteraction.method.writeAsProxy.name") }}</span>
-                  <ConnectMetamaskButton />
+                  <ConnectMetamaskButton v-if="runtimeConfig.appEnvironment !== 'prividium'" />
                 </div>
                 <FunctionDropdown
                   v-for="(item, index) in writeProxyFunctions"
@@ -153,9 +153,14 @@ import Tabs from "@/components/common/Tabs.vue";
 import ContractBytecode from "@/components/contract/ContractBytecode.vue";
 import FunctionDropdown from "@/components/contract/interaction/FunctionDropdown.vue";
 
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
+
 import type { Contract } from "@/composables/useAddress";
 import type { PropType } from "vue";
 
+import { resolveBase } from "@/utils/appBase";
+
+const runtimeConfig = useRuntimeConfig();
 const props = defineProps({
   contract: {
     type: Object as PropType<Contract>,
@@ -198,7 +203,7 @@ const missingWriteProxyFunctionsMessage = computed(() => {
 
 const writeFunctions = computed(() => {
   return (
-    props.contract?.verificationInfo?.artifacts.abi.filter(
+    props.contract?.verificationInfo?.abi.filter(
       (item) =>
         item.name &&
         item.type !== "constructor" &&
@@ -209,7 +214,7 @@ const writeFunctions = computed(() => {
 
 const readFunctions = computed(() => {
   return (
-    props.contract?.verificationInfo?.artifacts.abi.filter(
+    props.contract?.verificationInfo?.abi.filter(
       (item) => (item.type !== "constructor" && item.stateMutability === "view") || item.stateMutability === "pure"
     ) || []
   );
@@ -217,7 +222,7 @@ const readFunctions = computed(() => {
 
 const writeProxyFunctions = computed(() => {
   return (
-    props.contract?.proxyInfo?.implementation.verificationInfo?.artifacts.abi.filter(
+    props.contract?.proxyInfo?.implementation.verificationInfo?.abi.filter(
       (item) =>
         item.name &&
         item.type !== "constructor" &&
@@ -228,7 +233,7 @@ const writeProxyFunctions = computed(() => {
 
 const readProxyFunctions = computed(() => {
   return (
-    props.contract?.proxyInfo?.implementation.verificationInfo?.artifacts.abi.filter(
+    props.contract?.proxyInfo?.implementation.verificationInfo?.abi.filter(
       (item) => (item.type !== "constructor" && item.stateMutability === "view") || item.stateMutability === "pure"
     ) || []
   );

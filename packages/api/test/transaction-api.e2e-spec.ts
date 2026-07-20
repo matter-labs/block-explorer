@@ -1,44 +1,37 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import * as request from "supertest";
+import request from "supertest";
 import { Repository } from "typeorm";
-import { BatchDetails } from "../src/batch/batchDetails.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
+import { IndexerState } from "../src/indexerState/indexerState.entity";
 
 describe("Transaction API (e2e)", () => {
   let app: INestApplication;
   let transactionRepository: Repository<Transaction>;
   let transactionReceiptRepository: Repository<TransactionReceipt>;
   let blockRepository: Repository<BlockDetails>;
-  let batchRepository: Repository<BatchDetails>;
+  let indexerStateRepository: Repository<IndexerState>;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule.build()],
     }).compile();
 
     app = moduleFixture.createNestApplication({ logger: false });
     configureApp(app);
     await app.init();
 
+    indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
+    await indexerStateRepository.insert({ id: 1, lastReadyBlockNumber: 1 });
+
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
     transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
-    batchRepository = app.get<Repository<BatchDetails>>(getRepositoryToken(BatchDetails));
-
-    await batchRepository.insert({
-      number: 0,
-      timestamp: new Date("2022-11-10T14:44:08.000Z"),
-      l1TxCount: 10,
-      l2TxCount: 20,
-      l1GasPrice: "10000000",
-      l2FairGasPrice: "20000000",
-    });
 
     await blockRepository.insert({
       number: 1,
@@ -50,7 +43,6 @@ describe("Transaction API (e2e)", () => {
       extraData: "0x",
       l1TxCount: 1,
       l2TxCount: 1,
-      l1BatchNumber: 0,
       miner: "0x0000000000000000000000000000000000000000",
     });
 
@@ -67,7 +59,6 @@ describe("Transaction API (e2e)", () => {
       transactionIndex: 1,
       blockNumber: 1,
       receivedAt: "2010-11-21T18:16:00.000Z",
-      l1BatchNumber: 0,
       receiptStatus: 0,
       gasLimit: "1000000",
       gasPrice: "100",
@@ -87,7 +78,6 @@ describe("Transaction API (e2e)", () => {
       transactionIndex: 1,
       blockNumber: 1,
       receivedAt: "2010-11-21T18:16:00.000Z",
-      l1BatchNumber: 0,
       receiptStatus: 1,
       gasLimit: "1000000",
       gasPrice: "100",
@@ -100,6 +90,7 @@ describe("Transaction API (e2e)", () => {
       status: 0,
       gasUsed: "900000",
       cumulativeGasUsed: "1100000",
+      blockNumber: 1,
     });
 
     await transactionReceiptRepository.insert({
@@ -108,14 +99,15 @@ describe("Transaction API (e2e)", () => {
       status: 1,
       gasUsed: "900000",
       cumulativeGasUsed: "1100000",
+      blockNumber: 1,
     });
   });
 
   afterAll(async () => {
-    await transactionReceiptRepository.delete({});
-    await transactionRepository.delete({});
-    await blockRepository.delete({});
-    await batchRepository.delete({});
+    await indexerStateRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
+    await transactionRepository.createQueryBuilder().delete().execute();
+    await blockRepository.createQueryBuilder().delete().execute();
     await app.close();
   });
 

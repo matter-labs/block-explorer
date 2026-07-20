@@ -1,21 +1,24 @@
-import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
-import { BigNumber } from "ethers";
-import { utils, types } from "zksync-web3";
+import { Injectable, Logger } from "@nestjs/common";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { EventType, Listener } from "@ethersproject/abstract-provider";
+import { Listener, Interface } from "ethers";
+import {
+  ProviderEvent,
+  type Block,
+  type TransactionReceipt,
+  type TransactionResponse,
+  type Log,
+  type BlockTag,
+} from "ethers";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
 import { JsonRpcProviderBase } from "../rpcProvider";
 import { BLOCKCHAIN_RPC_CALL_DURATION_METRIC_NAME, BlockchainRpcCallMetricLabel } from "../metrics";
 import { RetryableContract } from "./retryableContract";
+import isBaseToken from "../utils/isBaseToken";
+import * as erc20Abi from "../abis/erc20.json";
 
-export interface BridgeAddresses {
-  l1Erc20DefaultBridge: string;
-  l2Erc20DefaultBridge: string;
-}
-
-export interface TraceTransactionResult {
+export interface TransactionTrace {
   type: string;
   from: string;
   to: string;
@@ -24,12 +27,11 @@ export interface TraceTransactionResult {
 }
 
 @Injectable()
-export class BlockchainService implements OnModuleInit {
+export class BlockchainService {
   private readonly logger: Logger;
   private readonly rpcCallsDefaultRetryTimeout: number;
   private readonly rpcCallsQuickRetryTimeout: number;
   private readonly errorCodesForQuickRetry: string[] = ["NETWORK_ERROR", "ECONNRESET", "ECONNREFUSED", "TIMEOUT"];
-  public bridgeAddresses: BridgeAddresses;
 
   public constructor(
     configService: ConfigService,
@@ -43,39 +45,24 @@ export class BlockchainService implements OnModuleInit {
   }
 
   private async rpcCall<T>(action: () => Promise<T>, functionName: string): Promise<T> {
-    const stopDurationMeasuring = this.rpcCallDurationMetric.startTimer();
-    try {
-      const result = await action();
-      stopDurationMeasuring({ function: functionName });
-      return result;
-    } catch (error) {
-      this.logger.error({ message: error.message, code: error.code }, error.stack);
-      if (this.errorCodesForQuickRetry.includes(error.code)) {
-        await setTimeout(this.rpcCallsQuickRetryTimeout);
-      } else {
-        await setTimeout(this.rpcCallsDefaultRetryTimeout);
+    while (true) {
+      const stopDurationMeasuring = this.rpcCallDurationMetric.startTimer();
+      try {
+        const result = await action();
+        stopDurationMeasuring({ function: functionName });
+        return result;
+      } catch (error) {
+        this.logger.error({ message: error.message, code: error.code, function: functionName }, error.stack);
+        if (this.errorCodesForQuickRetry.includes(error.code)) {
+          await setTimeout(this.rpcCallsQuickRetryTimeout);
+        } else {
+          await setTimeout(this.rpcCallsDefaultRetryTimeout);
+        }
       }
     }
-    return this.rpcCall(action, functionName);
   }
 
-  public async getL1BatchNumber(): Promise<number> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getL1BatchNumber();
-    }, "getL1BatchNumber");
-  }
-
-  public async getL1BatchDetails(batchNumber: number): Promise<types.BatchDetails> {
-    return await this.rpcCall(async () => {
-      const batchDetails = await this.provider.getL1BatchDetails(batchNumber);
-      if (batchDetails && batchNumber === 0) {
-        batchDetails.committedAt = batchDetails.provenAt = batchDetails.executedAt = new Date(0);
-      }
-      return batchDetails;
-    }, "getL1BatchDetails");
-  }
-
-  public async getBlock(blockHashOrBlockTag: types.BlockTag): Promise<types.Block> {
+  public async getBlock(blockHashOrBlockTag: BlockTag): Promise<Block | null> {
     return await this.rpcCall(async () => {
       return await this.provider.getBlock(blockHashOrBlockTag);
     }, "getBlock");
@@ -87,31 +74,19 @@ export class BlockchainService implements OnModuleInit {
     }, "getBlockNumber");
   }
 
-  public async getBlockDetails(blockNumber: number): Promise<types.BlockDetails> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getBlockDetails(blockNumber);
-    }, "getBlockDetails");
-  }
-
-  public async getTransaction(transactionHash: string): Promise<types.TransactionResponse> {
+  public async getTransaction(transactionHash: string): Promise<TransactionResponse> {
     return await this.rpcCall(async () => {
       return await this.provider.getTransaction(transactionHash);
     }, "getTransaction");
   }
 
-  public async getTransactionDetails(transactionHash: string): Promise<types.TransactionDetails> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getTransactionDetails(transactionHash);
-    }, "getTransactionDetails");
-  }
-
-  public async getTransactionReceipt(transactionHash: string): Promise<types.TransactionReceipt> {
+  public async getTransactionReceipt(transactionHash: string): Promise<TransactionReceipt> {
     return await this.rpcCall(async () => {
       return await this.provider.getTransactionReceipt(transactionHash);
     }, "getTransactionReceipt");
   }
 
-  public async getLogs(eventFilter: { fromBlock: number; toBlock: number }): Promise<types.Log[]> {
+  public async getLogs(eventFilter: { fromBlock: number; toBlock: number }): Promise<Log[]> {
     return await this.rpcCall(async () => {
       return await this.provider.getLogs(eventFilter);
     }, "getLogs");
@@ -123,13 +98,7 @@ export class BlockchainService implements OnModuleInit {
     }, "getCode");
   }
 
-  public async getDefaultBridgeAddresses(): Promise<{ erc20L1: string; erc20L2: string }> {
-    return await this.rpcCall(async () => {
-      return await this.provider.getDefaultBridgeAddresses();
-    }, "getDefaultBridgeAddresses");
-  }
-
-  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TraceTransactionResult> {
+  public async debugTraceTransaction(txHash: string, onlyTopCall = false): Promise<TransactionTrace> {
     return await this.rpcCall(async () => {
       return await this.provider.send("debug_traceTransaction", [
         txHash,
@@ -141,12 +110,12 @@ export class BlockchainService implements OnModuleInit {
     }, "debugTraceTransaction");
   }
 
-  public async on(eventName: EventType, listener: Listener): Promise<void> {
+  public async on(eventName: ProviderEvent, listener: Listener): Promise<void> {
     this.provider.on(eventName, listener);
   }
 
   public async getERC20TokenData(contractAddress: string): Promise<{ symbol: string; decimals: number; name: string }> {
-    const erc20Contract = new RetryableContract(contractAddress, utils.IERC20, this.provider);
+    const erc20Contract = new RetryableContract(contractAddress, new Interface(erc20Abi), this.provider);
     const [symbol, decimals, name] = await Promise.all([
       erc20Contract.symbol(),
       erc20Contract.decimals(),
@@ -159,27 +128,28 @@ export class BlockchainService implements OnModuleInit {
     };
   }
 
-  public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<BigNumber> {
-    const blockTag = this.provider.formatter.blockTag(blockNumber);
-
-    if (utils.isETH(tokenAddress)) {
+  public async getBalance(address: string, blockNumber: number, tokenAddress: string): Promise<bigint> {
+    if (isBaseToken(tokenAddress)) {
       return await this.rpcCall(async () => {
-        return await this.provider.getBalance(address, blockTag);
+        return await this.provider.getBalance(address, blockNumber);
       }, "getBalance");
     }
 
-    const erc20Contract = new RetryableContract(tokenAddress, utils.IERC20, this.provider);
-    return await erc20Contract.balanceOf(address, { blockTag });
+    const erc20Contract = new RetryableContract(tokenAddress, new Interface(erc20Abi), this.provider);
+    return await erc20Contract.balanceOf(address, { blockTag: blockNumber });
   }
 
-  public async onModuleInit(): Promise<void> {
-    const bridgeAddresses = await this.getDefaultBridgeAddresses();
-
-    this.bridgeAddresses = {
-      l1Erc20DefaultBridge: bridgeAddresses.erc20L1.toLowerCase(),
-      l2Erc20DefaultBridge: bridgeAddresses.erc20L2.toLowerCase(),
-    };
-
-    this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
+  public async getGenesisContracts(): Promise<Array<{ address: string; code: string }>> {
+    const result = await this.rpcCall(async () => {
+      return await this.provider.send("zks_getGenesis", []);
+    }, "getGenesisContracts");
+    return (
+      result?.initial_contracts
+        ?.filter((contract: [string, string]) => contract[0] && contract[1])
+        .map((contract: [string, string]) => ({
+          address: contract[0],
+          code: contract[1],
+        })) || []
+    );
   }
 }

@@ -10,7 +10,8 @@ import {
   LogRepository,
 } from "../repositories";
 import { TransactionProcessor } from "./transaction.processor";
-import { TransactionData } from "../dataFetcher/types";
+import { TransactionData, BlockInfo } from "../dataFetcher/types";
+import { ConfigService } from "@nestjs/config";
 
 describe("TransactionProcessor", () => {
   let transactionProcessor: TransactionProcessor;
@@ -20,6 +21,7 @@ describe("TransactionProcessor", () => {
   let addressRepositoryMock: AddressRepository;
   let tokenRepositoryMock: TokenRepository;
   let logRepositoryMock: LogRepository;
+  let configServiceMock: ConfigService;
 
   let startTxProcessingDurationMetricMock: jest.Mock;
   let stopTxProcessingDurationMetricMock: jest.Mock;
@@ -34,6 +36,19 @@ describe("TransactionProcessor", () => {
 
     stopTxProcessingDurationMetricMock = jest.fn();
     startTxProcessingDurationMetricMock = jest.fn().mockReturnValue(stopTxProcessingDurationMetricMock);
+
+    configServiceMock = mock<ConfigService>({
+      get: jest.fn((key: string) => {
+        const configValues: Record<string, any> = {
+          "tokens.baseToken.l1Address": "0x0000000000000000000000000000000000000000",
+          "tokens.baseToken.symbol": "ETH",
+          "tokens.baseToken.name": "ETH",
+          "tokens.baseToken.decimals": 18,
+          "tokens.baseToken.iconUrl": "https://eth-icon-url",
+        };
+        return configValues[key];
+      }),
+    });
 
     const app = await Test.createTestingModule({
       providers: [
@@ -63,6 +78,10 @@ describe("TransactionProcessor", () => {
           useValue: tokenRepositoryMock,
         },
         {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
+        {
           provide: "PROM_METRIC_TRANSACTION_PROCESSING_DURATION_SECONDS",
           useValue: {
             startTimer: startTxProcessingDurationMetricMock,
@@ -77,15 +96,25 @@ describe("TransactionProcessor", () => {
   });
 
   describe("add", () => {
-    const blockNumber = 10;
+    const blockInfo = { number: 10, timestamp: Math.floor(new Date().getTime() / 1000) } as BlockInfo;
     const transactionData = {
       transaction: {
         hash: "transactionHash",
         receivedAt: "2023-12-29T06:52:51.438Z",
+        type: 3,
+        index: 1,
       },
       transactionReceipt: {
-        transactionHash: "transactionHash",
-        logs: [{ logIndex: 0 }, { logIndex: 1 }],
+        hash: "transactionHash",
+        logs: [
+          { index: 0, topics: [] },
+          { index: 1, topics: [] },
+        ],
+        index: 1,
+        gasPrice: "100",
+        gasUsed: "1000",
+        cumulativeGasUsed: "2000",
+        status: 1,
       },
       transfers: [{ logIndex: 2 }, { logIndex: 3 }],
       contractAddresses: [
@@ -106,45 +135,79 @@ describe("TransactionProcessor", () => {
           logIndex: 2,
         },
       ],
-      tokens: [{ l2Address: "l2Address1" }, { l2Address: "l2Address2" }],
-    } as TransactionData;
+      tokens: [
+        { l2Address: "l2Address1" },
+        { l2Address: "l2Address2" },
+        {
+          l2Address: "0x000000000000000000000000000000000000800a",
+          blockNumber: 123,
+          transactionHash: "0xtxhash",
+          logIndex: 1,
+          name: "Token Name",
+          symbol: "Token Symbol",
+          decimals: 6,
+          iconURL: "https://token-icon.url",
+        },
+      ],
+    } as unknown as TransactionData;
 
     it("starts the transaction duration metric", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
+      await transactionProcessor.add(blockInfo, transactionData);
       expect(startTxProcessingDurationMetricMock).toHaveBeenCalledTimes(1);
     });
 
     it("saves transaction to the DB", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
+      await transactionProcessor.add(blockInfo, transactionData);
       expect(transactionRepositoryMock.add).toHaveBeenCalledTimes(1);
-      expect(transactionRepositoryMock.add).toHaveBeenCalledWith(transactionData.transaction);
+      expect(transactionRepositoryMock.add).toHaveBeenCalledWith(
+        {
+          hash: transactionData.transaction.hash,
+          type: transactionData.transaction.type,
+          fee: "100000",
+          receivedAt: new Date(blockInfo.timestamp * 1000).toJSON(),
+          isL1Originated: false,
+          receiptStatus: 1,
+          transactionIndex: 1,
+          index: 1,
+        },
+        transactionData.transactionReceipt.logs
+      );
     });
 
     it("saves transaction receipt to the DB", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
+      await transactionProcessor.add(blockInfo, transactionData);
       expect(transactionReceiptRepositoryMock.add).toHaveBeenCalledTimes(1);
-      expect(transactionReceiptRepositoryMock.add).toHaveBeenCalledWith(transactionData.transactionReceipt);
+      expect(transactionReceiptRepositoryMock.add).toHaveBeenCalledWith({
+        ...transactionData.transactionReceipt,
+        transactionIndex: transactionData.transactionReceipt.index,
+        transactionHash: transactionData.transactionReceipt.hash,
+        effectiveGasPrice: transactionData.transactionReceipt.gasPrice,
+      });
     });
 
     it("saves transaction logs to the DB", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
+      await transactionProcessor.add(blockInfo, transactionData);
       expect(logRepositoryMock.addMany).toHaveBeenCalledTimes(1);
       expect(logRepositoryMock.addMany).toHaveBeenCalledWith(
         transactionData.transactionReceipt.logs.map((log) => ({
           ...log,
-          timestamp: transactionData.transaction.receivedAt,
+          timestamp: new Date(blockInfo.timestamp * 1000).toJSON(),
+          topics: [],
+          logIndex: log.index,
+          transactionFrom: transactionData.transaction.from,
+          transactionTo: transactionData.transaction.to,
         }))
       );
     });
 
     it("saves transaction transfers to the DB", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
+      await transactionProcessor.add(blockInfo, transactionData);
       expect(transferRepositoryMock.addMany).toHaveBeenCalledTimes(1);
       expect(transferRepositoryMock.addMany).toHaveBeenCalledWith(transactionData.transfers);
     });
 
     it("saves contract addresses to the DB", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
+      await transactionProcessor.add(blockInfo, transactionData);
       expect(addressRepositoryMock.upsert).toHaveBeenCalledTimes(2);
       expect(addressRepositoryMock.upsert).toHaveBeenNthCalledWith(1, {
         address: "address1",
@@ -165,15 +228,26 @@ describe("TransactionProcessor", () => {
       });
     });
 
-    it("saves tokens to the DB", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
-      expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(2);
+    it("saves tokens to the DB and overwrites base token with config values", async () => {
+      await transactionProcessor.add(blockInfo, transactionData);
+      expect(tokenRepositoryMock.upsert).toHaveBeenCalledTimes(3);
       expect(tokenRepositoryMock.upsert).toHaveBeenNthCalledWith(1, transactionData.tokens[0]);
       expect(tokenRepositoryMock.upsert).toHaveBeenNthCalledWith(2, transactionData.tokens[1]);
+      expect(tokenRepositoryMock.upsert).toHaveBeenNthCalledWith(3, {
+        blockNumber: 123,
+        transactionHash: "0xtxhash",
+        logIndex: 1,
+        l2Address: "0x000000000000000000000000000000000000800a",
+        l1Address: "0x0000000000000000000000000000000000000000",
+        symbol: "ETH",
+        name: "ETH",
+        decimals: 18,
+        iconURL: "https://eth-icon-url",
+      });
     });
 
     it("stops the transaction duration metric", async () => {
-      await transactionProcessor.add(blockNumber, transactionData);
+      await transactionProcessor.add(blockInfo, transactionData);
       expect(stopTxProcessingDurationMetricMock).toHaveBeenCalledTimes(1);
     });
   });

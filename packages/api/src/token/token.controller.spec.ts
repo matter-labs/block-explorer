@@ -1,26 +1,29 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { NotFoundException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { TokenController } from "./token.controller";
 import { TokenService } from "./token.service";
 import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
-import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
+import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
+import { UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 
 describe("TokenController", () => {
   const tokenAddress = "tokenAddress";
-  const pagingOptions: PagingOptionsDto = { limit: 10, page: 2 };
-  const pagingOptionsWithLimit: PagingOptionsWithMaxItemsLimitDto = { ...pagingOptions, maxLimit: 10000 };
+  const pagingOptionsWithLimit: PagingOptionsWithMaxItemsLimitDto = { limit: 10, page: 2, maxLimit: 10000 };
   let controller: TokenController;
   let serviceMock: TokenService;
   let transferServiceMock: TransferService;
+  let configServiceMock: ConfigService;
   let token;
 
   beforeEach(async () => {
     serviceMock = mock<TokenService>();
     transferServiceMock = mock<TransferService>();
+    configServiceMock = mock<ConfigService>();
 
     token = {
       l2Address: "tokenAddress",
@@ -37,6 +40,10 @@ describe("TokenController", () => {
           provide: TransferService,
           useValue: transferServiceMock,
         },
+        {
+          provide: ConfigService,
+          useValue: configServiceMock,
+        },
       ],
     }).compile();
 
@@ -50,16 +57,16 @@ describe("TokenController", () => {
     });
 
     it("queries tokens with the specified options", async () => {
-      await controller.getTokens(pagingOptions, 1000);
+      await controller.getTokens(pagingOptionsWithLimit, 1000);
       expect(serviceMock.findAll).toHaveBeenCalledTimes(1);
       expect(serviceMock.findAll).toHaveBeenCalledWith(
         { minLiquidity: 1000 },
-        { ...pagingOptions, filterOptions: { minLiquidity: 1000 }, route: "tokens" }
+        { ...pagingOptionsWithLimit, filterOptions: { minLiquidity: 1000 }, route: "tokens" }
       );
     });
 
     it("returns the tokens", async () => {
-      const result = await controller.getTokens(pagingOptions);
+      const result = await controller.getTokens(pagingOptionsWithLimit);
       expect(result).toBe(tokens);
     });
   });
@@ -108,7 +115,7 @@ describe("TokenController", () => {
       });
 
       it("queries transfers with the specified options", async () => {
-        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit);
+        await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, null);
         expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(transferServiceMock.findAll).toHaveBeenCalledWith(
           {
@@ -123,8 +130,32 @@ describe("TokenController", () => {
       });
 
       it("returns token transfers", async () => {
-        const result = await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit);
+        const result = await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, null);
         expect(result).toBe(tokenTransfers);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserWithPermissions>;
+        const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+        beforeEach(() => {
+          user = mock<UserWithPermissions>({ address: mockUser, token: "token", hasFullReadAccess: false });
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, user);
+          expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
+          expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+            {
+              tokenAddress,
+              isFeeOrRefund: false,
+              visibleBy: mockUser,
+            },
+            {
+              ...pagingOptionsWithLimit,
+              route: `tokens/${tokenAddress}/transfers`,
+            }
+          );
+        });
       });
     });
 
@@ -137,7 +168,7 @@ describe("TokenController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit);
+          await controller.getTokenTransfers(tokenAddress, pagingOptionsWithLimit, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }

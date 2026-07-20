@@ -36,7 +36,7 @@ Feature: Main Page
 
     Examples:
       | Row            | Value                  |
-      | Root hash      | 0xfa8fadc06c46dc8a3c52 |
+      | Block hash     | 0xfa8fadc06c46dc8a3c52 |
       | Timestamp      | 2023-02-09             |
       | Commit tx hash | 0xc3211d8bc51163f923ff |
 
@@ -48,7 +48,7 @@ Feature: Main Page
 
     Examples:
       | Row            | Value                  |
-      | Root hash      | 0xfa8fadc06c46dc8a3c52 |
+      | Block hash      | 0xfa8fadc06c46dc8a3c52 |
       | Timestamp      | 2023-03-24             |
       | Commit tx hash | 0xeb94693555bd2ef92c82 |
 
@@ -146,7 +146,7 @@ Feature: Main Page
     Examples:
       | Block                                    |
       | Network Stats                            |
-      | zkSync Era Mainnet is open to everyone.  |
+      | ZKsync Era Mainnet is open to everyone.  |
       | Committed Blocks                         |
       | Verified Blocks                          |
       | Transactions                             |

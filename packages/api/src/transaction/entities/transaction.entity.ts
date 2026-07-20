@@ -1,13 +1,11 @@
-import { Entity, Column, PrimaryColumn, Index, OneToMany, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryColumn, Index, ManyToOne, JoinColumn } from "typeorm";
 import { BaseEntity } from "../../common/entities/base.entity";
 import { normalizeAddressTransformer } from "../../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../../common/transformers/hex.transformer";
 import { hexToDecimalNumberTransformer } from "../../common/transformers/hexToDecimalNumber.transformer";
 import { TransactionReceipt } from "./transactionReceipt.entity";
-import { Transfer } from "../../transfer/transfer.entity";
-import { Block } from "../../block/block.entity";
-import { BatchDetails } from "../../batch/batchDetails.entity";
+import { Block, BlockStatus } from "../../block/block.entity";
 
 export enum TransactionStatus {
   Included = "included",
@@ -31,12 +29,18 @@ export class Transaction extends BaseEntity {
   @Column({ generated: true, type: "bigint" })
   public number: number;
 
-  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
-  public readonly to: string;
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
+  public readonly to?: string;
 
   @Index()
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly from: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
+  public readonly fromToMin?: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer, nullable: true })
+  public readonly fromToMax?: string;
 
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly data: string;
@@ -78,14 +82,6 @@ export class Transaction extends BaseEntity {
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
 
-  @ManyToOne(() => BatchDetails)
-  @JoinColumn({ name: "l1BatchNumber" })
-  public batch: BatchDetails;
-
-  @Index()
-  @Column({ type: "bigint", transformer: bigIntNumberTransformer })
-  public readonly l1BatchNumber: number;
-
   @Column({ type: "bytea", transformer: hexTransformer })
   public readonly blockHash: string;
 
@@ -98,9 +94,6 @@ export class Transaction extends BaseEntity {
   @Column({ type: "timestamp" })
   public readonly receivedAt: Date;
 
-  @OneToMany(() => Transfer, (transfer) => transfer.transaction)
-  public readonly transfers: Transfer[];
-
   @Column({ nullable: true })
   public readonly error?: string;
 
@@ -111,46 +104,37 @@ export class Transaction extends BaseEntity {
     if (this.receiptStatus === 0) {
       return TransactionStatus.Failed;
     }
-    if (this.batch) {
-      if (this.batch.executeTxHash) {
+    if (this.block) {
+      if (this.block.status === BlockStatus.Executed) {
         return TransactionStatus.Verified;
       }
-      if (this.batch.proveTxHash) {
+      if (this.block.status === BlockStatus.Proven) {
         return TransactionStatus.Proved;
       }
-      if (this.batch.commitTxHash) {
+      if (this.block.status === BlockStatus.Committed) {
         return TransactionStatus.Committed;
       }
     }
     return TransactionStatus.Included;
   }
 
-  public get commitTxHash(): string {
-    return this.batch ? this.batch.commitTxHash : null;
+  public get gasUsed(): string {
+    return this.transactionReceipt ? this.transactionReceipt.gasUsed : null;
   }
 
-  public get executeTxHash(): string {
-    return this.batch ? this.batch.executeTxHash : null;
-  }
-
-  public get proveTxHash(): string {
-    return this.batch ? this.batch.proveTxHash : null;
-  }
-
-  public get isL1BatchSealed(): boolean {
-    return !!this.batch;
+  public get contractAddress(): string {
+    return this.transactionReceipt ? this.transactionReceipt.contractAddress : null;
   }
 
   toJSON(): any {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, receiptStatus, batch, ...restFields } = this;
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    const { number, receiptStatus, transactionReceipt, block, fromToMin, fromToMax, ...restFields } = this;
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     return {
       ...restFields,
       status: this.status,
-      commitTxHash: this.commitTxHash,
-      executeTxHash: this.executeTxHash,
-      proveTxHash: this.proveTxHash,
-      isL1BatchSealed: this.isL1BatchSealed,
+      gasUsed: this.gasUsed,
+      contractAddress: this.contractAddress,
     };
   }
 }

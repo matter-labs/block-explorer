@@ -1,10 +1,11 @@
 import { Entity, Column, Index, ManyToOne, JoinColumn, PrimaryColumn, AfterLoad } from "typeorm";
 import { BaseEntity } from "../common/entities/base.entity";
-import { Token, TokenType, ETH_TOKEN } from "../token/token.entity";
+import { Token, TokenType } from "../token/token.entity";
 import { normalizeAddressTransformer } from "../common/transformers/normalizeAddress.transformer";
 import { bigIntNumberTransformer } from "../common/transformers/bigIntNumber.transformer";
 import { hexTransformer } from "../common/transformers/hex.transformer";
 import { Transaction } from "../transaction/entities/transaction.entity";
+import { baseToken, ethToken } from "../config";
 
 export enum TransferType {
   Deposit = "deposit",
@@ -31,6 +32,12 @@ export class Transfer extends BaseEntity {
   @Index()
   @Column({ type: "bytea", transformer: normalizeAddressTransformer })
   public readonly to: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
+  public readonly fromToMin: string;
+
+  @Column({ type: "bytea", transformer: normalizeAddressTransformer })
+  public readonly fromToMax: string;
 
   @Column({ type: "bigint", transformer: bigIntNumberTransformer })
   public readonly blockNumber: number;
@@ -64,7 +71,7 @@ export class Transfer extends BaseEntity {
   @Column({ type: "enum", enum: TransferType, default: TransferType.Transfer })
   public readonly type: TransferType;
 
-  @Column({ type: "enum", enum: TokenType, default: TokenType.ETH })
+  @Column({ type: "enum", enum: TokenType, default: TokenType.BaseToken })
   public readonly tokenType: TokenType;
 
   @Column({ type: "boolean", select: false })
@@ -79,16 +86,25 @@ export class Transfer extends BaseEntity {
   @Column({ type: "boolean", default: false })
   public readonly isInternal: boolean;
 
+  @Column({ type: "varchar", length: 128, nullable: true })
+  public readonly chainId?: string;
+
   toJSON() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { number, ...restFields } = this;
+    const { number, fromToMin, fromToMax, ...restFields } = this;
     return restFields;
   }
 
   @AfterLoad()
-  populateEthToken() {
-    if (!this.token && this.tokenAddress === ETH_TOKEN.l2Address) {
-      this.token = ETH_TOKEN;
+  populateBaseToken() {
+    // tokenAddress might be empty when not all entity fields are requested from the DB
+    if (this.tokenAddress && !this.token) {
+      const tokenAddress = this.tokenAddress.toLowerCase();
+      if (tokenAddress === baseToken.l2Address.toLowerCase()) {
+        this.token = baseToken as Token;
+      } else if (tokenAddress === ethToken.l2Address.toLowerCase()) {
+        this.token = ethToken as Token;
+      }
     }
   }
 }

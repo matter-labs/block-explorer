@@ -43,7 +43,7 @@ Feature: Redirection
   #369 Contract page - Pages - Redirection
   @id369 @testnet @testnetSmokeSuite
   Scenario: Verify contract link on the Contacts page
-    Given I go to page "/address/0xed7175341f123f7718aBaCF1702d6980CFc08784"
+    Given I go to page "/address/0xfb7e0856e44eff812a44a9f47733d7d55c39aa28"
     When I click on the first "from address" link
     Given Page with part address "/address/" includes ID result
 
@@ -62,9 +62,8 @@ Feature: Redirection
 
     Examples: 
      | Initial page                                             | Network                   | url                                                                      |
-     | /address/0x000000000000000000000000000000000000800A      | Goerli (Stage2)           | /address/0x000000000000000000000000000000000000800A/?network=goerli-beta | 
-     | /address/0x000000000000000000000000000000000000800A      | zkSync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     |
-     | /address/0x000000000000000000000000000000000000800A      | zkSync Era Sepolia Testnet | /address/0x000000000000000000000000000000000000800A/?network=sepolia    |  
+     | /address/0x000000000000000000000000000000000000800A      | ZKsync Era Mainnet        | /address/0x000000000000000000000000000000000000800A/?network=mainnet     |
+     | /address/0x000000000000000000000000000000000000800A      | ZKsync Era Sepolia Testnet | /address/0x000000000000000000000000000000000000800A/?network=sepolia    |  
 
   @id561:I @id562:I @id563:I @productionEnv
   Scenario Outline: Verify redirection to "<Network>" network 
@@ -74,5 +73,5 @@ Feature: Redirection
 
     Examples: 
      | Initial page                                         | Network                           | url                                                                      | 
-     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Sepolia Testnet        | /address/0x000000000000000000000000000000000000800A/?network=sepolia     | 
-     | /address/0x000000000000000000000000000000000000800A  | zkSync Era Mainnet                | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 
+     | /address/0x000000000000000000000000000000000000800A  | ZKsync Era Sepolia Testnet        | /address/0x000000000000000000000000000000000000800A/?network=sepolia     | 
+     | /address/0x000000000000000000000000000000000000800A  | ZKsync Era Mainnet                | /address/0x000000000000000000000000000000000000800A/?network=mainnet     | 

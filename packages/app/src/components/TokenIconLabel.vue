@@ -1,6 +1,6 @@
 <template>
   <div class="token-icon-label">
-    <AddressLink :address="address" class="token-link" :data-testid="$testId?.tokensIcon">
+    <AddressLink :address="address" :is-token-address="true" class="token-link" :data-testid="$testId?.tokensIcon">
       <span v-if="showLinkSymbol" class="token-symbol">
         <span v-if="symbol">
           {{ symbol }}
@@ -17,12 +17,32 @@
         />
       </div>
     </AddressLink>
-    <div class="token-info" v-if="name && symbol">
-      <div class="token-symbol">
-        {{ symbol }}
-      </div>
-      <div class="token-name">
-        {{ name }}
+    <div class="token-info-container">
+      <div class="token-info" v-if="name && symbol">
+        <div class="token-symbol">
+          {{ symbol }}
+        </div>
+        <div class="token-name">
+          {{ name }}
+        </div>
+        <div class="token-badge">
+          <Badge
+            v-if="bridged"
+            color="primary"
+            class="verified-badge"
+            :tooltip="t('tokensView.table.bridged.tooltip', { brandName })"
+          >
+            {{ t("tokensView.table.bridged.title") }}
+          </Badge>
+          <Badge
+            v-else
+            color="progress"
+            class="verified-badge"
+            :tooltip="t('tokensView.table.native.tooltip', { brandName })"
+          >
+            {{ t("tokensView.table.native.title") }}
+          </Badge>
+        </div>
       </div>
     </div>
   </div>
@@ -34,12 +54,18 @@ import { useI18n } from "vue-i18n";
 import { useImage } from "@vueuse/core";
 
 import AddressLink from "@/components/AddressLink.vue";
+import Badge from "@/components/common/Badge.vue";
+
+import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 import type { Hash } from "@/types";
+
+import { resolveAsset } from "@/utils/appBase";
 
 export type IconSize = "sm" | "md" | "lg" | "xl";
 
 const { t } = useI18n();
+const { brandName } = useRuntimeConfig();
 
 const props = defineProps({
   address: {
@@ -66,10 +92,14 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  bridged: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const imgSource = computed(() => {
-  return props.iconUrl || "/images/currencies/customToken.svg";
+  return resolveAsset(props.iconUrl || "/images/currencies/customToken.svg");
 });
 const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
 </script>
@@ -115,12 +145,21 @@ const { isReady: isImageLoaded } = useImage({ src: imgSource.value });
       }
     }
   }
+  .token-info-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
   .token-info {
     .token-symbol {
       @apply text-neutral-600;
     }
     .token-name {
       @apply text-xs text-neutral-400;
+    }
+    .token-badge {
+      @apply flex items-center justify-end gap-x-1 md:justify-start;
     }
   }
 }

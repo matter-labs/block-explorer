@@ -1,6 +1,6 @@
-# zkSync Era Block Explorer App
+# ZKsync Era Block Explorer App
 ## Overview
-`zkSync Era Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [zkSync Era](https://zksync.io) blockchain.
+`ZKsync Era Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [ZKsync Era](https://zksync.io) blockchain.
 
 ## Recommended IDE Setup
 
@@ -30,46 +30,22 @@ Currently there are 3 different environments for the project: `local`, `staging`
 ### Adding a new network to the config
 In order to change the configuration for the environment, you need to change its configuration file. By default, there are 4 networks configured for the `local` environment: `local`, `stage`, `testnet` and `mainnet`. Your local network might be different from what is configured in `local.config.json` in such case you should edit the config and set correct values for your setup. You can also add new items to the `networks` array and they will automatically appear in the networks dropdown on UI. 
 
-Example of `local.config.json` extended with the new network:
+#### Settlement Chains Configuration
+Each network can include a `settlementChains` array that defines the settlement
+chains available for that network. This configuration allows users to view
+transactions and data across different connected chains. When configuring
+settlement chains:
 
-```
-import stagingConfig from "./staging.config";
+- **Order matters**: The currently used settlement chain should be placed
+  **last** in the array, as the explorer will default to the last item in the
+  list
+- Each settlement chain object should include:
+  - `explorerUrl`: The URL of the explorer for that chain
+  - `name`: Display name for the chain
+  - `chainId`: The chain ID of the settlement chain
+- If this is not set, then it will default to Ethereum
 
-import type { EnvironmentConfig } from ".";
-
-const config: EnvironmentConfig = {
-  networks: [
-    {
-      apiUrl: "http://localhost:3020",
-      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
-      hostnames: ["localhost"],
-      icon: "/images/icons/zksync-arrows.svg",
-      l2ChainId: 270,
-      l2NetworkName: "Local",
-      maintenance: false,
-      name: "local",
-      published: true,
-      rpcUrl: "http://localhost:3050",
-    },
-    // next network has been just added
-    {
-      apiUrl: "http://localhost:3030",
-      verificationApiUrl: "https://zksync2-testnet-explorer.zksync.dev",
-      hostnames: ["localhost"],
-      icon: "/images/icons/zksync-arrows.svg",
-      l2ChainId: 270,
-      l2NetworkName: "Local Hyperchain",
-      maintenance: false,
-      name: "local-hyperchain",
-      published: true,
-      rpcUrl: "http://localhost:3070",
-    },
-    ...stagingConfig.networks,
-  ],
-};
-
-export default config;
-```
+For a complete example of network configuration including settlement chains, refer to [`production.config.json`](./src/configs/production.config.json).
 
 ### Compile and Hot-Reload for Development
 
@@ -101,10 +77,34 @@ npm run test:e2e
 npm run lint
 ```
 
+## Runtime base path & serving assets from a CDN
+
+The Docker image is built once and configured at container start (via env vars), so a single image can
+be served under any base path and optionally load its hashed assets from a separate origin.
+
+### Runtime env vars (container)
+
+| Var | Default | Purpose |
+| --- | --- | --- |
+| `APP_BASE` | `/` | Base path the app is served under (leading + trailing slash, e.g. `/explorer/`). Applies to routing, `config.js`, favicon, and locally-served assets. |
+| `STATIC_ASSETS_URL` | _(empty)_ | If set, hashed assets and `/images` load from this origin instead of the app (e.g. `https://static.example.com/explorer`). Empty = serve everything from the app at `APP_BASE`. |
+| `STATIC_ASSETS_VERSIONED` | `true` | When `STATIC_ASSETS_URL` is set, assets are read from a `/<VITE_VERSION>/` sub-folder. Set `false` to read them flat (requires assets uploaded flat — the release pipeline always uploads versioned). |
+
+`config.js` and the favicon are always served by the app at `APP_BASE` (never the CDN). Only the
+content-hashed bundle and `/images` move to `STATIC_ASSETS_URL`.
+
+### Publishing assets to the CDN (CI)
+
+When the release workflow runs, the `publishStaticAssetsToR2` job uploads the released `dist`'s
+`assets/` and `images/` to the bucket under `<version>/`, then prunes to the newest 100 versions. It runs
+only when `STATIC_ASSETS_UPLOAD_FOLDER` is configured, and **before** the app image is pushed.
+
+The uploaded files are byte-identical to what the image serves (same content hashes), so Sentry source
+maps match either way.
+
 ## Production links
  - [Web Application](https://explorer.zksync.io)
  - [Storybook](https://storybook-scan-v2.zksync.dev)
-
 
 ## Verify Block Explorer UI test results in GitHub Actions
 GitHub Actions test results are available in:

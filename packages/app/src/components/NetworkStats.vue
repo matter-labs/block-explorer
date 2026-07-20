@@ -2,7 +2,7 @@
   <div class="card">
     <div>
       <div class="title">{{ t("networkStats.title") }}</div>
-      <div class="subtitle">{{ subtitle }}</div>
+      <div v-if="subtitle" class="subtitle">{{ subtitle }}</div>
     </div>
     <dl class="description-list">
       <div class="stats-container">
@@ -52,6 +52,7 @@ import { useI18n } from "vue-i18n";
 import ContentLoader from "@/components/common/loaders/ContentLoader.vue";
 
 import useContext from "@/composables/useContext";
+import { resolveHideable } from "@/composables/useRuntimeConfig";
 
 import { formatMoney, formatWithSpaces } from "@/utils/formatters";
 
@@ -78,7 +79,12 @@ defineProps({
 });
 
 const subtitle = computed(() =>
-  currentNetwork.value.name === "mainnet" ? t("networkStats.subtitleMainnet") : t("networkStats.subtitleTestnet")
+  resolveHideable(
+    currentNetwork.value.networkStatsSubtitle,
+    currentNetwork.value.name.includes("mainnet")
+      ? t("networkStats.subtitleMainnet", { l2NetworkName: currentNetwork.value.l2NetworkName })
+      : t("networkStats.subtitleTestnet")
+  )
 );
 </script>
 

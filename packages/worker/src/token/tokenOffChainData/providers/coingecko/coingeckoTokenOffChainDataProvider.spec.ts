@@ -48,7 +48,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
 
   beforeEach(async () => {
     configServiceMock = mock<ConfigService>({
-      get: jest.fn().mockReturnValueOnce(true).mockReturnValueOnce("apiKey"),
+      get: jest.fn().mockReturnValueOnce(true).mockReturnValueOnce("apiKey").mockReturnValueOnce("zksync"),
     });
     httpServiceMock = mock<HttpService>();
     const module = await Test.createTestingModule({
@@ -107,7 +107,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           {
             provide: ConfigService,
             useValue: mock<ConfigService>({
-              get: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce("apiKey"),
+              get: jest.fn().mockReturnValueOnce(false).mockReturnValueOnce("apiKey").mockReturnValueOnce("zksync"),
             }),
           },
           {
@@ -244,6 +244,22 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
           expect(setTimeout).toBeCalledWith(61000);
         });
       });
+
+      it("disables retries after 429", async () => {
+        pipeMock.mockImplementation((callback) => {
+          callback({
+            stack: "error stack",
+            response: {
+              headers: {},
+              status: 429,
+            },
+          } as AxiosError);
+        });
+
+        const tokens = await provider.getTokensOffChainData({ bridgedTokensToInclude: bridgedTokens });
+        expect(tokens).toEqual([]);
+        expect(httpServiceMock.get).toBeCalledTimes(2);
+      });
     });
 
     it("fetches offchain tokens data and returns filtered tokens list", async () => {
@@ -288,7 +304,7 @@ describe("CoingeckoTokenOffChainDataProvider", () => {
         "https://pro-api.coingecko.com/api/v3/coins/list?include_platform=true&x_cg_pro_api_key=apiKey"
       );
       expect(httpServiceMock.get).toBeCalledWith(
-        "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum%2Ctoken1%2Ctoken2&per_page=3&page=1&locale=en&x_cg_pro_api_key=apiKey"
+        "https://pro-api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=ethereum%2Ctoken1%2Ctoken2&per_page=3&page=1&locale=en&precision=full&x_cg_pro_api_key=apiKey"
       );
       expect(tokens).toEqual([
         {

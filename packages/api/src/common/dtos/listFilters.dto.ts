@@ -1,24 +1,27 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
-import { IsISODateString } from "../decorators/isISODateString";
+import { IsOptional, IsInt, Min } from "class-validator";
 
 export class ListFiltersDto {
   @ApiPropertyOptional({
-    description: "A date in JSON format. Filters items with timestamp greater or equal to specified",
-    example: "2020-04-25T00:43:26.000Z",
+    description: "Filters items with block number greater than or equal to specified value",
+    example: 1,
+    type: "integer",
   })
-  @Type(() => String)
-  @IsISODateString()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
   @IsOptional()
-  public readonly fromDate: string;
+  public readonly fromBlock?: number;
 
   @ApiPropertyOptional({
-    description: "A date in JSON format. Filters items with timestamp less than specified",
-    example: "2025-04-26T00:43:26.000Z",
+    description: "Filters items with block number less than or equal to specified value",
+    example: 100,
+    type: "integer",
   })
-  @Type(() => String)
-  @IsISODateString()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
   @IsOptional()
-  public readonly toDate: string;
+  public readonly toBlock?: number;
 }

@@ -1,8 +1,8 @@
 import * as ethers from "ethers";
 import { mock } from "jest-mock-extended";
-import { utils } from "zksync-web3";
 import { setTimeout } from "timers/promises";
-import { RetryableContract } from "./retryableContract";
+import { CONTRACT_INTERFACES } from "../constants";
+import { RetryableContract, ExceededRetriesTotalTimeoutError } from "./retryableContract";
 
 jest.mock("../config", () => ({
   default: () => ({
@@ -31,7 +31,7 @@ jest.mock("timers/promises", () => ({
 
 describe("RetryableContract", () => {
   const tokenAddress = "tokenAddress";
-  const providerMock = mock<ethers.providers.BaseProvider>({});
+  const providerMock = mock<ethers.ContractRunner>({});
 
   afterEach(() => {
     jest.clearAllMocks();
@@ -39,9 +39,9 @@ describe("RetryableContract", () => {
 
   describe("constructor", () => {
     it("inits Contract instance with specified ctor params", async () => {
-      new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
       expect(ethers.Contract).toHaveBeenCalledTimes(1);
-      expect(ethers.Contract).toBeCalledWith(tokenAddress, utils.IERC20, providerMock);
+      expect(ethers.Contract).toBeCalledWith(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
     });
   });
 
@@ -54,7 +54,7 @@ describe("RetryableContract", () => {
         contractField: fieldValue,
       });
 
-      contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
     });
 
     it("returns field value", () => {
@@ -72,7 +72,7 @@ describe("RetryableContract", () => {
         contractFn: () => functionResult,
       });
 
-      contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
     });
 
     it("returns function call result", () => {
@@ -90,7 +90,7 @@ describe("RetryableContract", () => {
         contractFn: async () => functionResult,
       });
 
-      contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
     });
 
     it("returns function call async result", async () => {
@@ -98,15 +98,10 @@ describe("RetryableContract", () => {
       expect(result).toBe(functionResult);
     });
 
-    describe("when throws a permanent call exception function error", () => {
+    describe("when throws a permanent execution reverted error", () => {
       const callExceptionError = {
-        code: "CALL_EXCEPTION",
-        method: "contractFn(address)",
-        transaction: {
-          data: "0x00",
-          to: "to",
-        },
-        message: "call revert exception ....",
+        code: 3,
+        shortMessage: "execution reverted...",
       };
 
       beforeEach(() => {
@@ -116,7 +111,34 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+        contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
+      });
+
+      it("throws an error", async () => {
+        expect.assertions(1);
+
+        try {
+          await contract.contractFn();
+        } catch (e) {
+          expect(e).toBe(callExceptionError);
+        }
+      });
+    });
+
+    describe("when throws a permanent could not decode result data error", () => {
+      const callExceptionError = {
+        code: "BAD_DATA",
+        shortMessage: "could not decode result data...",
+      };
+
+      beforeEach(() => {
+        (ethers.Contract as any as jest.Mock).mockReturnValue({
+          contractFn: async () => {
+            throw callExceptionError;
+          },
+        });
+
+        contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
       });
 
       it("throws an error", async () => {
@@ -142,7 +164,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+        contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
       });
 
       it("throws an error", async () => {
@@ -172,7 +194,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+        contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock, 20000);
       });
 
       it("retries and returns the result when it's available", async () => {
@@ -197,11 +219,13 @@ describe("RetryableContract", () => {
             },
           });
 
-          contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+          contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock, 20000);
         });
 
         it("throws an error", async () => {
-          await expect(contract.contractFn()).rejects.toThrowError(error);
+          await expect(contract.contractFn()).rejects.toThrowError(
+            new ExceededRetriesTotalTimeoutError(error.toString())
+          );
         });
       });
     });
@@ -209,7 +233,7 @@ describe("RetryableContract", () => {
     describe("when throws a few errors with no method or message before returning a result", () => {
       const functionResult = "functionResult";
       const error = new Error();
-      (error as any).code = "CALL_EXCEPTION";
+      (error as any).code = 3;
 
       beforeEach(() => {
         let countOfFailedRequests = 0;
@@ -230,7 +254,7 @@ describe("RetryableContract", () => {
           },
         });
 
-        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+        contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock, 20000);
       });
 
       it("retries and returns the result when it's available", async () => {
@@ -255,11 +279,13 @@ describe("RetryableContract", () => {
             },
           });
 
-          contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock, 20000);
+          contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock, 20000);
         });
 
         it("throws an error", async () => {
-          await expect(contract.contractFn()).rejects.toThrowError(error);
+          await expect(contract.contractFn()).rejects.toThrowError(
+            new ExceededRetriesTotalTimeoutError(error.toString())
+          );
         });
       });
     });

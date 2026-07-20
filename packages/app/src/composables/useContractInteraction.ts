@@ -1,13 +1,24 @@
 import { computed, ref } from "vue";
 
-import { processException, useWallet } from "@matterlabs/composables";
-import { ethers } from "ethers";
-import * as zkSyncSdk from "zksync-web3";
+import { Contract, JsonRpcProvider, parseEther } from "ethers";
 
 import useContext from "@/composables/useContext";
+import { processException, default as useWallet, type WalletError } from "@/composables/useWallet";
 
 import type { AbiFragment } from "./useAddress";
-import type { WalletError } from "@matterlabs/composables";
+import type { AbstractSigner } from "ethers";
+
+export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
+
+type ContractError = WalletError & {
+  messageCode: "CONTRACT_EXECUTION_REVERTED" | "CONTRACT_OPERATION_FAILED";
+};
+
+const createContractError = (messageCode: ContractError["messageCode"], message: string): ContractError => ({
+  messageCode,
+  name: messageCode,
+  message,
+});
 
 export default (context = useContext()) => {
   const walletContext = {
@@ -21,14 +32,14 @@ export default (context = useContext()) => {
       };
     }),
     networks: context.networks,
-    getL2Provider: () => null as unknown as zkSyncSdk.Provider,
+    getL2Provider: () => context.getL2Provider(),
   };
 
   const { connect: connectWallet, getL2Signer, address: walletAddress, isMetamaskInstalled } = useWallet(walletContext);
   const isRequestPending = ref(false);
   const isRequestFailed = ref(false);
   const response = ref<{ message?: string; transactionHash?: string } | undefined>(undefined);
-  const errorMessage = ref<WalletError | null>(null);
+  const errorMessage = ref<ContractError | WalletError | null>(null);
 
   const writeFunction = async (
     address: string,
@@ -41,26 +52,28 @@ export default (context = useContext()) => {
       response.value = undefined;
       errorMessage.value = null;
       const signer = await getL2Signer();
-      const contract = new ethers.Contract(address, [abiFragment], signer!);
+      const contract = new Contract(address, [abiFragment], signer!);
       const method = contract[abiFragment.name];
-      const methodArguments = Object.entries(params)
-        .filter(([key]) => key !== "value")
-        .map(([, inputValue]) => {
-          if (inputValue === "true") {
-            inputValue = true;
-          } else if (inputValue === "false") {
-            inputValue = false;
-          }
-          return inputValue;
-        });
-      const methodOptions = {
-        value: ethers.utils.parseEther((params.value as string) ?? "0"),
-        gasLimit: "10000000",
+      const abiFragmentNames = abiFragment.inputs.map((abiInput) => abiInput.name);
+      const methodArguments = abiFragmentNames.map((abiFragmentName) => {
+        if (params[abiFragmentName] === "true") {
+          return true;
+        }
+        if (params[abiFragmentName] === "false") {
+          return false;
+        }
+        return params[abiFragmentName];
+      });
+      const valueMethodOption = {
+        value: parseEther((params[PAYABLE_AMOUNT_PARAM_NAME] as string) ?? "0"),
       };
       const res = await method(
         ...[
           ...(methodArguments.length ? methodArguments : []),
-          abiFragment.stateMutability === "payable" ? methodOptions : undefined,
+          {
+            ...{ from: await signer.getAddress(), type: 0 },
+            ...(abiFragment.stateMutability === "payable" ? valueMethodOption : undefined),
+          },
         ].filter((e) => e !== undefined)
       ).catch(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -69,8 +82,20 @@ export default (context = useContext()) => {
       response.value = { transactionHash: res.hash };
     } catch (e) {
       isRequestFailed.value = true;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errorMessage.value = (e as any)?.message;
+      if (context.currentNetwork.value.prividium) {
+        const error = e as Error;
+        if (error?.message?.includes("execution reverted")) {
+          errorMessage.value = createContractError("CONTRACT_EXECUTION_REVERTED", error.message);
+        } else {
+          errorMessage.value = createContractError(
+            "CONTRACT_OPERATION_FAILED",
+            "You might not be authorized to execute this operation"
+          );
+        }
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        errorMessage.value = (e as any)?.message;
+      }
     } finally {
       isRequestPending.value = false;
     }
@@ -86,12 +111,17 @@ export default (context = useContext()) => {
       isRequestFailed.value = false;
       response.value = undefined;
       errorMessage.value = null;
-      let signer: zkSyncSdk.Provider | zkSyncSdk.Signer = new zkSyncSdk.Provider(context.currentNetwork.value.rpcUrl);
-      if (walletAddress.value !== null) {
-        // If connected to a wallet, use the signer so 'msg.sender' is correctly populated downstream
+
+      let signer: JsonRpcProvider | AbstractSigner;
+      if (walletAddress.value === null) {
+        signer = new JsonRpcProvider(context.currentNetwork.value.rpcUrl, context.currentNetwork.value.l2ChainId, {
+          staticNetwork: true,
+        });
+      } else {
         signer = await getL2Signer();
       }
-      const contract = new ethers.Contract(address, [abiFragment], signer!);
+
+      const contract = new Contract(address, [abiFragment], signer!);
       const res = (
         await contract[abiFragment.name](...Object.entries(params).map(([, inputValue]) => inputValue)).catch(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -101,8 +131,20 @@ export default (context = useContext()) => {
       response.value = { message: res };
     } catch (e) {
       isRequestFailed.value = true;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      errorMessage.value = (e as any)?.message;
+      if (context.currentNetwork.value.prividium) {
+        const error = e as Error;
+        if (error?.message?.includes("execution reverted")) {
+          errorMessage.value = createContractError("CONTRACT_EXECUTION_REVERTED", error.message);
+        } else {
+          errorMessage.value = createContractError(
+            "CONTRACT_OPERATION_FAILED",
+            "You might not be authorized to execute this operation"
+          );
+        }
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        errorMessage.value = (e as any)?.message;
+      }
     } finally {
       isRequestPending.value = false;
     }

@@ -1,21 +1,21 @@
 import { ref } from "vue";
 
-import { BigNumber } from "@ethersproject/bignumber";
-import { keccak256 } from "@ethersproject/keccak256";
-import { constants, ethers, utils } from "ethers";
-import { $fetch, FetchError } from "ohmyfetch";
+import { Contract as EthersContract, isAddress, keccak256, toUtf8Bytes, ZeroAddress } from "ethers";
+import { FetchError } from "ohmyfetch";
 
 import useContext from "./useContext";
 
-import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
+import { FetchInstance } from "@/composables/useFetchInstance";
 
-const EIP1967_PROXY_IMPLEMENTATION_SLOT = BigNumber.from(keccak256(utils.toUtf8Bytes("eip1967.proxy.implementation")))
-  .sub(1)
-  .toHexString();
-const EIP1967_PROXY_BEACON_SLOT = BigNumber.from(keccak256(utils.toUtf8Bytes("eip1967.proxy.beacon")))
-  .sub(1)
-  .toHexString();
-const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(utils.toUtf8Bytes("PROXIABLE"));
+import { PROXY_CONTRACT_IMPLEMENTATION_ABI } from "@/utils/constants";
+import { numberToHexString } from "@/utils/formatters";
+
+const oneBigInt = BigInt(1);
+const EIP1967_PROXY_IMPLEMENTATION_SLOT = numberToHexString(
+  BigInt(keccak256(toUtf8Bytes("eip1967.proxy.implementation"))) - oneBigInt
+);
+const EIP1967_PROXY_BEACON_SLOT = numberToHexString(BigInt(keccak256(toUtf8Bytes("eip1967.proxy.beacon"))) - oneBigInt);
+const EIP1822_PROXY_IMPLEMENTATION_SLOT = keccak256(toUtf8Bytes("PROXIABLE"));
 
 type ContractFunctionInput = {
   internalType: string;
@@ -36,41 +36,42 @@ export type AbiFragment = {
   type: string;
 };
 
-type ContractVerificationRequest = {
-  id: number;
-  contractName: string;
-  contractAddress: string;
-  compilerSolcVersion?: string;
-  compilerZksolcVersion?: string;
-  compilerVyperVersion?: string;
-  compilerZkvyperVersion?: string;
-  constructorArguments: string;
-  sourceCode:
-    | string
-    | {
-        language: string;
-        settings: {
-          optimizer: {
-            enabled: boolean;
-          };
-        };
-        sources: {
-          [key: string]: {
-            content: string;
-          };
-        };
-      }
-    | Record<string, string>;
-  optimizationUsed: boolean;
+export type GetSourceCodeResponseData = {
+  ABI: string;
+  SourceCode: string;
+  ConstructorArguments: string;
+  ContractName: string;
+  EVMVersion: string;
+  OptimizationUsed: string;
+  Library: string;
+  LicenseType: string;
+  CompilerVersion: string;
+  Runs: string;
+  VerifiedAt: string;
+  Match: string;
 };
 
 export type ContractVerificationInfo = {
-  artifacts: {
-    abi: AbiFragment[];
-    bytecode: number[];
+  abi: AbiFragment[];
+  compilation: {
+    language: string;
+    fullyQualifiedName: string;
+    compilerVersion: string;
+    compilerSettings: {
+      evmVersion?: string;
+      optimizer?: {
+        enabled: boolean;
+        runs?: number;
+      };
+    };
   };
-  request: ContractVerificationRequest;
+  sources: {
+    [key: string]: {
+      content: string;
+    };
+  };
   verifiedAt: string;
+  match: string;
 };
 
 export type Balance = Api.Response.TokenAddress;
@@ -78,6 +79,7 @@ export type Balances = Api.Response.Balances;
 export type Account = Api.Response.Account;
 export type Contract = Api.Response.Contract & {
   verificationInfo: null | ContractVerificationInfo;
+  isEvmLike: boolean;
   proxyInfo: null | {
     implementation: {
       address: string;
@@ -97,7 +99,14 @@ export default (context = useContext()) => {
       return null;
     }
     try {
-      return await $fetch(`${context.currentNetwork.value.verificationApiUrl}/contract_verification/info/${address}`);
+      const { result: sourceCodeData, status } = await FetchInstance.verificationApi()<{
+        status: string;
+        result: GetSourceCodeResponseData[];
+      }>(`?module=contract&action=getsourcecode&address=${address}`);
+      if (status === "0" || !sourceCodeData[0].SourceCode) {
+        return null;
+      }
+      return mapSourceCodeDataToVerificationInfo(sourceCodeData[0]);
     } catch (e) {
       if (!(e instanceof FetchError) || e.response?.status !== 404) {
         throw e;
@@ -110,7 +119,7 @@ export default (context = useContext()) => {
     try {
       const addressBytes = await getAddressFn();
       const address = `0x${addressBytes.slice(-40)}`;
-      if (!utils.isAddress(address) || address === constants.AddressZero) {
+      if (!isAddress(address) || address === ZeroAddress) {
         return null;
       }
       return address;
@@ -121,12 +130,12 @@ export default (context = useContext()) => {
 
   const getProxyImplementation = async (address: string): Promise<string | null> => {
     const provider = context.getL2Provider();
-    const proxyContract = new ethers.Contract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
+    const proxyContract = new EthersContract(address, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
     const [implementation, eip1967Implementation, eip1967Beacon, eip1822Implementation] = await Promise.all([
       getAddressSafe(() => proxyContract.implementation()),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1967_PROXY_BEACON_SLOT)),
-      getAddressSafe(() => provider.getStorageAt(address, EIP1822_PROXY_IMPLEMENTATION_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_IMPLEMENTATION_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1967_PROXY_BEACON_SLOT)),
+      getAddressSafe(() => provider.getStorage(address, EIP1822_PROXY_IMPLEMENTATION_SLOT)),
     ]);
     if (implementation) {
       return implementation;
@@ -138,7 +147,7 @@ export default (context = useContext()) => {
       return eip1822Implementation;
     }
     if (eip1967Beacon) {
-      const beaconContract = new ethers.Contract(eip1967Beacon, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
+      const beaconContract = new EthersContract(eip1967Beacon, PROXY_CONTRACT_IMPLEMENTATION_ABI, provider);
       return getAddressSafe(() => beaconContract.implementation());
     }
     return null;
@@ -167,9 +176,7 @@ export default (context = useContext()) => {
     isRequestFailed.value = false;
 
     try {
-      const response: Api.Response.Account | Api.Response.Contract = await $fetch(
-        `${context.currentNetwork.value.apiUrl}/address/${address}`
-      );
+      const response: Api.Response.Account | Api.Response.Contract = await FetchInstance.api()(`/address/${address}`);
       if (response.type === "account") {
         item.value = response;
       } else if (response.type === "contract") {
@@ -185,7 +192,9 @@ export default (context = useContext()) => {
       }
     } catch (error: unknown) {
       item.value = null;
-      isRequestFailed.value = true;
+      if (!(error instanceof FetchError) || ![403, 404].includes(error.response?.status ?? 0)) {
+        isRequestFailed.value = true;
+      }
     } finally {
       isRequestPending.value = false;
     }
@@ -198,3 +207,29 @@ export default (context = useContext()) => {
     isRequestFailed,
   };
 };
+
+function mapSourceCodeDataToVerificationInfo(sourceCodeData: GetSourceCodeResponseData): ContractVerificationInfo {
+  const isSourceCodeDoubleBracesFormat =
+    sourceCodeData.SourceCode.startsWith("{{") && sourceCodeData.SourceCode.endsWith("}}");
+  const sourceCode = JSON.parse(
+    isSourceCodeDoubleBracesFormat ? sourceCodeData.SourceCode.slice(1, -1) : sourceCodeData.SourceCode
+  );
+  return {
+    abi: JSON.parse(sourceCodeData.ABI),
+    compilation: {
+      language: sourceCode.language,
+      fullyQualifiedName: sourceCodeData.ContractName,
+      compilerVersion: sourceCodeData.CompilerVersion,
+      compilerSettings: sourceCode.settings || {
+        evmVersion: sourceCodeData.EVMVersion,
+        optimizer: {
+          enabled: sourceCodeData.OptimizationUsed === "1",
+          ...(sourceCodeData.Runs && { runs: parseInt(sourceCodeData.Runs, 10) }),
+        },
+      },
+    },
+    sources: sourceCode.sources,
+    verifiedAt: sourceCodeData.VerifiedAt,
+    match: sourceCodeData.Match,
+  };
+}

@@ -1,0 +1,16 @@
+import "cookie-session";
+
+declare global {
+  namespace CookieSessionInterfaces {
+    interface CookieSessionObject {
+      token?: string;
+      address?: string;
+      wallets?: string[];
+      hasFullReadAccess?: boolean;
+      hasAdminRead?: boolean;
+      expiresAt?: string;
+    }
+  }
+}
+
+export {};

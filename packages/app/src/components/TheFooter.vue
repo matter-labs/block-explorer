@@ -14,27 +14,20 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
 const { t } = useI18n();
 const config = useRuntimeConfig();
 
-const navigation = reactive([
-  {
-    label: computed(() => t("footer.nav.docs")),
-    url: "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html",
-  },
-  {
-    label: computed(() => t("footer.nav.terms")),
-    url: "https://zksync.io/terms",
-  },
-  {
-    label: computed(() => t("footer.nav.contact")),
-    url: "https://zksync.io/contact",
-  },
-]);
+const navigation = computed(() =>
+  [
+    { label: t("footer.nav.docs"), url: config.links.docsUrl },
+    { label: t("footer.nav.terms"), url: config.links.termsOfServiceUrl },
+    { label: t("footer.nav.contact"), url: config.links.contactUsUrl },
+  ].filter((item): item is { label: string; url: string } => !!item.url)
+);
 </script>
 
 <style scoped lang="scss">

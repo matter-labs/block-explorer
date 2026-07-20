@@ -9,7 +9,7 @@
           <CopyContent :value="contract.address" />
         </table-body-column>
       </tr>
-      <tr>
+      <tr v-if="contract.creatorAddress && contract.creatorTxHash">
         <table-body-column class="contract-info-field-label">
           {{ t("contract.table.creator") }}
         </table-body-column>
@@ -23,7 +23,7 @@
           </router-link>
         </table-body-column>
       </tr>
-      <tr>
+      <tr v-if="contract.totalTransactions != null">
         <table-body-column class="contract-info-field-label">
           {{ t("contract.table.transactions") }}
         </table-body-column>

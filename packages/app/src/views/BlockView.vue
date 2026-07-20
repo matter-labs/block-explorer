@@ -53,7 +53,7 @@ import { isBlockNumber } from "@/utils/validators";
 
 const { t } = useI18n();
 
-const { setNotFoundView } = useNotFound();
+const { useNotFoundView, setNotFoundView } = useNotFound();
 const { getById, blockItem, isRequestPending: blockPending, isRequestFailed: blockFailed } = useBlock();
 
 const props = defineProps({
@@ -62,6 +62,8 @@ const props = defineProps({
     required: true,
   },
 });
+
+useNotFoundView(blockPending, blockFailed, blockItem);
 
 const breadcrumbItems = computed((): BreadcrumbItem[] => [
   {

@@ -9,7 +9,7 @@ import SourceViewer, { ITEM_HEIGHT } from "@/components/debugger/SourceViewer.vu
 
 import enUS from "@/locales/en.json";
 
-import type { ActiveStep } from "@/composables/useTrace";
+import type { ActiveStep, TraceStep } from "@/composables/useTrace";
 
 describe("SourceViewer:", () => {
   const container = {
@@ -269,8 +269,8 @@ describe("SourceViewer:", () => {
     });
 
     vi.spyOn(document.documentElement, "clientHeight", "get").mockReturnValue(100);
-    await wrapper.setProps({ activeStep: { address: "0x01", line: 3, step: {} } });
-    await wrapper.find("instruction-list-item");
+    await wrapper.setProps({ activeStep: { address: "0x01", line: 3, step: {} as TraceStep } });
+    wrapper.find("instruction-list-item");
     expect(spy).toHaveBeenCalledWith(0, -72);
     wrapper.unmount();
   });

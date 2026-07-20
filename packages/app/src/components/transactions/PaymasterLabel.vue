@@ -11,6 +11,6 @@ const { t } = useI18n();
 
 <style scoped lang="scss">
 .paymaster-label {
-  @apply h-[20px] px-1 rounded bg-neutral-200 text-center text-sm text-gray-600;
+  @apply h-[20px] rounded bg-neutral-200 px-1 text-center text-sm text-gray-600;
 }
 </style>

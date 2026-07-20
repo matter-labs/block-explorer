@@ -18,6 +18,7 @@ vi.mock("vue-router", () => ({
 }));
 
 const maintenanceMock = vi.fn(() => false);
+const networkOverridesMock = vi.fn(() => ({}));
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -25,7 +26,10 @@ vi.mock("@/composables/useContext", () => {
         maintenance: maintenanceMock(),
         bridgeUrl: "https://bridge.zksync.io/",
         apiUrl: "https://api-url",
+        ...networkOverridesMock(),
       })),
+      networks: computed(() => []),
+      user: computed(() => ({ loggedIn: false })),
     }),
   };
 });
@@ -50,9 +54,8 @@ describe("TheHeader:", () => {
     await fireEvent.click(dropdown[0].find("button")!.element);
     const blockExplorerLinks = dropdown[0].findAllComponents(RouterLinkStub);
     expect(blockExplorerLinks[0].props().to.name).toBe("blocks");
-    expect(blockExplorerLinks[1].props().to.name).toBe("batches");
-    expect(blockExplorerLinks[2].props().to.name).toBe("transactions");
-    expect(blockExplorerLinks[3].props().to.name).toBe("tokens");
+    expect(blockExplorerLinks[1].props().to.name).toBe("transactions");
+    expect(blockExplorerLinks[2].props().to.name).toBe("tokens");
 
     await fireEvent.click(dropdown[1].find("button")!.element);
     const toolsLinksRouter = dropdown[1].findAllComponents(RouterLinkStub);
@@ -62,8 +65,19 @@ describe("TheHeader:", () => {
     expect(toolsLinks[2].attributes("href")).toBe("https://bridge.zksync.io/");
 
     expect(wrapper.findAll(".navigation-container > .navigation-link")[0].attributes("href")).toBe(
-      "https://docs.zksync.io/build/tooling/block-explorer/getting-started.html"
+      "https://docs.zksync.io/zksync-network/tooling/block-explorers"
     );
+  });
+  it("hides the documentation link when the docs URL is explicitly hidden", () => {
+    (window as any)["##runtimeConfig"] = { links: { docsUrl: "" } };
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: { RouterLink: RouterLinkStub },
+        plugins: [i18n],
+      },
+    });
+    expect(wrapper.findAll(".navigation-container > .navigation-link")).toHaveLength(0);
+    delete (window as any)["##runtimeConfig"];
   });
   it("renders social links", () => {
     const wrapper = mount(TheHeader, {
@@ -73,8 +87,8 @@ describe("TheHeader:", () => {
       },
     });
     const routerArray = wrapper.findAll(".socials-container > a");
-    expect(routerArray[0].attributes("href")).toBe("https://join.zksync.dev/");
-    expect(routerArray[1].attributes("href")).toBe("https://twitter.com/zksync");
+    expect(routerArray[0].attributes("href")).toBe("https://join.zksync.dev");
+    expect(routerArray[1].attributes("href")).toBe("https://x.com/zksync");
   });
   it("renders network switch", () => {
     const wrapper = mount(TheHeader, {
@@ -94,6 +108,39 @@ describe("TheHeader:", () => {
     });
 
     expect(wrapper.find(".hero-banner-container").exists()).toBe(true);
+  });
+  it("renders hero banner image without cover class by default", async () => {
+    const mockNetwork = networkOverridesMock.mockReturnValue({
+      heroBannerImageUrl: "https://example.com/banner.webp",
+    });
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n],
+      },
+    });
+
+    const heroImage = wrapper.find(".hero-image");
+    expect(heroImage.attributes("src")).toBe("https://example.com/banner.webp");
+    expect(heroImage.classes()).not.toContain("hero-image-cover");
+    mockNetwork.mockRestore();
+  });
+  it("renders hero banner image with cover class if heroBannerCover is true", async () => {
+    const mockNetwork = networkOverridesMock.mockReturnValue({
+      heroBannerImageUrl: "https://example.com/banner.webp",
+      heroBannerCover: true,
+    });
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n],
+      },
+    });
+
+    const heroImage = wrapper.find(".hero-image");
+    expect(heroImage.attributes("src")).toBe("https://example.com/banner.webp");
+    expect(heroImage.classes()).toContain("hero-image-cover");
+    mockNetwork.mockRestore();
   });
   it("doesn't render hero banner for not-found route", async () => {
     const mockRoute = routeMock.mockReturnValue({ name: "not-found", params: {} });

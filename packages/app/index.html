@@ -1,25 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>zkSync Era Block Explorer</title>
+    <title>{{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} Block Explorer</title>
     <meta charset="UTF-8" />
-    <meta name="description" content="zkSync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into zkSync Era and explore the network."/>
+    <meta name="description" content='{{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into {{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} and explore the network.' />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-    <meta property="og:title" content="zkSync Era Block Explorer" />
-    <meta property="og:description" content="zkSync Era Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into zkSync Era and explore the network." />
-    <meta property="og:image" content="https://explorer.zksync.io/preview.png" />
+    <meta property="og:title" content='{{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} Block Explorer' />
+    <meta property="og:description" content='{{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} Block Explorer provides all the information to deep dive into transactions, blocks, contracts, and much more. Deep dive into {{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} and explore the network.' />
+    <meta property="og:image" content='{{ getenv "VITE_OG_IMAGE_URL" | default "https://explorer.zksync.io/preview.png" }}' />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="zkSync Era Block Explorer" />
+    <meta property="og:image:alt" content='{{ getenv "VITE_BRAND_NAME" | default "ZKsync" }} Block Explorer' />
 
-    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-
+    <link rel="alternate icon" type='{{ getenv "VITE_ALT_FAVICON_IMAGE_TYPE" | default "image/x-icon" }}' href='{{ getenv "VITE_ALT_FAVICON_IMAGE_URL" | default (print (getenv "APP_BASE" "/") "favicon.ico") }}' />
+    <link rel="icon" type='{{ getenv "VITE_FAVICON_IMAGE_TYPE" | default "image/svg+xml" }}' href='{{ getenv "VITE_FAVICON_IMAGE_URL" | default (print (getenv "APP_BASE" "/") "favicon.svg") }}' />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <script src="/config.js"></script>
+    <script>
+      window.__APP_BASE__ = '{{ getenv "APP_BASE" | default "/" }}';
+      window.__ASSETS_BASE__ = (function () {
+        var url = '{{ getenv "STATIC_ASSETS_URL" }}';
+        var version = '{{ getenv "VITE_VERSION" }}';
+        var versioned = '{{ getenv "STATIC_ASSETS_VERSIONED" | default "true" }}' !== 'false';
+        var base = (url || window.__APP_BASE__).replace(/\/?$/, '/');
+        return url && versioned && version ? base + version + '/' : base;
+      })();
+    </script>
+    <script src='{{ getenv "APP_BASE" | default "/" }}config.js'></script>
     
   </head>
   <body>

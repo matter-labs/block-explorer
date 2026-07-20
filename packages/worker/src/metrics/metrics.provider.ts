@@ -23,6 +23,7 @@ export type BlockchainRpcCallMetricLabel = "function";
 
 export const BLOCKCHAIN_BLOCKS_METRIC_NAME = "blockchain_blocks";
 export const BLOCKS_TO_PROCESS_METRIC_NAME = "blocks_to_process";
+export const MISSING_BLOCKS_METRIC_NAME = "missing_blocks";
 export const BLOCKS_REVERT_DURATION_METRIC_NAME = "blocks_revert_duration_seconds";
 export const BLOCKS_REVERT_DETECT_METRIC_NAME = "blocks_revert_detect";
 
@@ -95,6 +96,10 @@ export const metricProviders: Provider<any>[] = [
   makeGaugeProvider({
     name: BLOCKS_TO_PROCESS_METRIC_NAME,
     help: "total number of remaining blocks to process.",
+  }),
+  makeGaugeProvider({
+    name: MISSING_BLOCKS_METRIC_NAME,
+    help: "total number of missing blocks should be 0. A value > 0 indicates an issue that should be investigated.",
   }),
   makeHistogramProvider({
     name: BLOCKS_REVERT_DURATION_METRIC_NAME,

@@ -10,11 +10,10 @@ import {
 import { Pagination } from "nestjs-typeorm-paginate";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { PagingOptionsWithMaxItemsLimitDto, ListFiltersDto } from "../common/dtos";
-import { buildDateFilter } from "../common/utils";
+import { buildBlockFilter } from "../common/utils";
 import { FilterTransactionsOptionsDto } from "./dtos/filterTransactionsOptions.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { TransactionDto } from "./dtos/transaction.dto";
-import { TransactionDetailsDto } from "./dtos/transactionDetails.dto";
 import { TransferService } from "../transfer/transfer.service";
 import { LogDto } from "../log/log.dto";
 import { LogService } from "../log/log.service";
@@ -22,6 +21,8 @@ import { TransactionService } from "./transaction.service";
 import { ParseTransactionHashPipe, TX_HASH_REGEX_PATTERN } from "../common/pipes/parseTransactionHash.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { User } from "../user/user.decorator";
+import { AddUserRolesPipe, UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "transactions";
 
@@ -41,17 +42,18 @@ export class TransactionController {
   public async getTransactions(
     @Query() filterTransactionsOptions: FilterTransactionsOptionsDto,
     @Query() listFilterOptions: ListFiltersDto,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<TransactionDto>> {
-    const filterTransactionsListOptions = buildDateFilter(
-      listFilterOptions.fromDate,
-      listFilterOptions.toDate,
-      "receivedAt"
-    );
+    const blockRangeFilter =
+      filterTransactionsOptions.blockNumber == null
+        ? buildBlockFilter(listFilterOptions.fromBlock, listFilterOptions.toBlock, "blockNumber")
+        : {};
     return await this.transactionService.findAll(
       {
         ...filterTransactionsOptions,
-        ...filterTransactionsListOptions,
+        ...blockRangeFilter,
+        ...(user && !user.hasFullReadAccess && { visibleBy: user.address }),
       },
       {
         filterOptions: { ...filterTransactionsOptions, ...listFilterOptions },
@@ -64,6 +66,7 @@ export class TransactionController {
   @Get(":transactionHash")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",
@@ -72,18 +75,29 @@ export class TransactionController {
   @ApiBadRequestResponse({ description: "Transaction hash is invalid" })
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransaction(
-    @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string
-  ): Promise<TransactionDetailsDto> {
+    @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
+    @User(AddUserRolesPipe) user: UserWithPermissions
+  ): Promise<TransactionDto> {
     const transactionDetail = await this.transactionService.findOne(transactionHash);
     if (!transactionDetail) {
       throw new NotFoundException();
     }
+
+    if (user && !user.hasFullReadAccess) {
+      const isVisibleByUser = await this.transactionService.isTransactionVisibleByUser(transactionDetail, user);
+      if (!isVisibleByUser) {
+        throw new NotFoundException();
+      }
+      return transactionDetail;
+    }
+
     return transactionDetail;
   }
 
   @Get(":transactionHash/transfers")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",
@@ -95,24 +109,28 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransactionTransfers(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<TransferDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
+    const userFilters = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
 
-    return await this.transferService.findAll(
-      { transactionHash },
+    const transfers = await this.transferService.findAll(
+      { transactionHash, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/transfers`,
       }
     );
+    return transfers;
   }
 
   @Get(":transactionHash/logs")
   @ApiParam({
     name: "transactionHash",
+    type: String,
     schema: { pattern: TX_HASH_REGEX_PATTERN },
     example: constants.txHash,
     description: "Valid transaction hash",
@@ -124,14 +142,16 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransactionLogs(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<LogDto>> {
     if (!(await this.transactionService.exists(transactionHash))) {
       throw new NotFoundException();
     }
+    const userFilters = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
 
     return await this.logService.findAll(
-      { transactionHash },
+      { transactionHash, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,

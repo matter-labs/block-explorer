@@ -23,9 +23,8 @@
                 "0x0000000000000000000000000000000000000000000000000000000000008001"
             ],
             "data": "0x0000000000000000000000000000000000000000000000000000cdab63f37000",
-            "logIndex": 3,
-            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744",
-            "l1BatchNumber": 1524
+            "index": 3,
+            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744"
         },
         {
             "transactionIndex": 1,
@@ -38,9 +37,8 @@
                 "0x0000000000000000000000007869cd51c2483169e1ce06fa6912e7d1e3bf629b"
             ],
             "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
-            "logIndex": 4,
-            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744",
-            "l1BatchNumber": 1524
+            "index": 4,
+            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744"
         },
         {
             "transactionIndex": 1,
@@ -52,9 +50,8 @@
                 "0x0000000000000000000000007869cd51c2483169e1ce06fa6912e7d1e3bf629b"
             ],
             "data": "0x0000000000000000000000000000000000000000000000000000000000000001",
-            "logIndex": 5,
-            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744",
-            "l1BatchNumber": 1524
+            "index": 5,
+            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744"
         },
         {
             "transactionIndex": 1,
@@ -67,9 +64,8 @@
                 "0x000000000000000000000000088282b61a8cc1014186076698e35bcc92e88b0d"
             ],
             "data": "0x000000000000000000000000000000000000000000000000000054c81f943900",
-            "logIndex": 6,
-            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744",
-            "l1BatchNumber": 1524
+            "index": 6,
+            "blockHash": "0xec97ff411cc4e2ddc3d51e641d5445c106e6f062d2ad962b0bfa509a1aa36744"
         }
     ],
     "blockNumber": 166322,
@@ -84,8 +80,6 @@
     },
     "status": 1,
     "type": 0,
-    "l1BatchNumber": 1524,
-    "l1BatchTxIndex": 21,
     "l2ToL1Logs": [],
     "byzantium": true
 }

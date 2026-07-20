@@ -49,7 +49,7 @@
       </TableBodyColumn>
       <TableBodyColumn :data-heading="t('blocks.table.age')">
         <CopyButton :value="item.timestamp">
-          <TimeField :value="item.timestamp" :show-exact-date="false" />
+          <TimeField :value="item.timestamp" :format="TimeFormat.TIME_AGO" />
         </CopyButton>
       </TableBodyColumn>
     </template>
@@ -78,6 +78,8 @@ import TimeField from "@/components/common/table/fields/TimeField.vue";
 
 import type { BlockListItem } from "@/composables/useBlock";
 import type { PropType } from "vue";
+
+import { TimeFormat } from "@/types";
 
 const { t } = useI18n();
 
@@ -132,7 +134,7 @@ defineProps({
     @apply rounded-t-lg;
 
     td {
-      @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:text-left;
+      @apply relative flex flex-col items-end justify-end whitespace-normal text-right md:table-cell md:py-2.5 md:text-left;
 
       &:before {
         @apply absolute left-4 top-2 whitespace-nowrap pr-5 text-left text-xs uppercase text-neutral-400 content-[attr(data-heading)] md:content-none;

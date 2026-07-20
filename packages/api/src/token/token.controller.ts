@@ -9,16 +9,18 @@ import {
   ApiQuery,
 } from "@nestjs/swagger";
 import { Pagination } from "nestjs-typeorm-paginate";
-import { PagingOptionsDto, PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
+import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { TokenService } from "./token.service";
-import { TransferService } from "../transfer/transfer.service";
+import { FilterTransfersOptions, TransferService } from "../transfer/transfer.service";
 import { TokenDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
+import { User } from "../user/user.decorator";
+import { AddUserRolesPipe, UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "tokens";
 
@@ -39,7 +41,7 @@ export class TokenController {
     required: false,
   })
   public async getTokens(
-    @Query() pagingOptions: PagingOptionsDto,
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @Query("minLiquidity", new ParseLimitedIntPipe({ min: 0, isOptional: true })) minLiquidity?: number
   ): Promise<Pagination<TokenDto>> {
     return await this.tokenService.findAll(
@@ -57,6 +59,7 @@ export class TokenController {
   @Get(":address")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.tokenAddress,
     description: "Valid hex address",
@@ -75,6 +78,7 @@ export class TokenController {
   @Get(":address/transfers")
   @ApiParam({
     name: "address",
+    type: String,
     schema: { pattern: ADDRESS_REGEX_PATTERN },
     example: constants.tokenAddress,
     description: "Valid hex address",
@@ -86,16 +90,19 @@ export class TokenController {
   @ApiNotFoundResponse({ description: "Token with the specified address does not exist" })
   public async getTokenTransfers(
     @Param("address", new ParseAddressPipe()) address: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<TransferDto>> {
     if (!(await this.tokenService.exists(address))) {
       throw new NotFoundException();
     }
 
+    const userFilters: FilterTransfersOptions = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
     return await this.transferService.findAll(
       {
         tokenAddress: address,
         isFeeOrRefund: false,
+        ...userFilters,
       },
       {
         ...pagingOptions,

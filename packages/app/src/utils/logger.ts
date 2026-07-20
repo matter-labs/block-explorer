@@ -32,6 +32,8 @@ export function useSentry(
       // of transactions for performance monitoring.
       // We recommend adjusting this value in production
       tracesSampleRate: 1.0,
+      // Ignore reporting network errors as they are often caused by network issues
+      ignoreErrors: [/Failed to fetch/, /NetworkError/],
     });
     sentryReady = true;
   }
