@@ -59,11 +59,16 @@ describe("HealthController", () => {
   });
 
   describe("checkLiveness", () => {
-    it("checks liveness of the JSON RPC provider and not the DB", async () => {
+    it("checks health of the DB", async () => {
+      await healthController.checkLiveness();
+      expect(dbHealthCheckerMock.pingCheck).toHaveBeenCalledTimes(1);
+      expect(dbHealthCheckerMock.pingCheck).toHaveBeenCalledWith("database", { timeout: 5000 });
+    });
+
+    it("checks liveness of the JSON RPC provider", async () => {
       await healthController.checkLiveness();
       expect(jsonRpcHealthIndicatorMock.isAlive).toHaveBeenCalledTimes(1);
       expect(jsonRpcHealthIndicatorMock.isAlive).toHaveBeenCalledWith("jsonRpcProvider");
-      expect(dbHealthCheckerMock.pingCheck).not.toHaveBeenCalled();
     });
   });
 

@@ -27,7 +27,10 @@ export class HealthController {
   @Get("health")
   @HealthCheck()
   public async checkLiveness(): Promise<HealthCheckResult> {
-    return await this.check([() => this.jsonRpcHealthIndicator.isAlive("jsonRpcProvider")]);
+    return await this.check([
+      () => this.dbHealthChecker.pingCheck("database", { timeout: this.dbHealthCheckTimeoutMs }),
+      () => this.jsonRpcHealthIndicator.isAlive("jsonRpcProvider"),
+    ]);
   }
 
   @Get("ready")
