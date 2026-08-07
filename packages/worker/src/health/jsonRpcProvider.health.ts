@@ -6,6 +6,8 @@ import { HttpService } from "@nestjs/axios";
 import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 
+const LOCAL_DNS_ERROR_CODES = ["EAI_AGAIN", "ENOTFOUND"];
+
 @Injectable()
 export class JsonRpcHealthIndicator extends HealthIndicator {
   private readonly rpcUrl: string;
@@ -20,7 +22,47 @@ export class JsonRpcHealthIndicator extends HealthIndicator {
   }
 
   async isHealthy(key: string): Promise<HealthIndicatorResult> {
-    let isHealthy = true;
+    const error = await this.pingRpc();
+    const isHealthy = !error;
+
+    const result = this.getStatus(key, isHealthy, { status: isHealthy ? "up" : "down" });
+
+    if (isHealthy) {
+      return result;
+    }
+
+    throw new HealthCheckError("JSON RPC provider is down or not reachable", result);
+  }
+
+  // Liveness-grade check: fails only on pod-local network problems (DNS resolution),
+  // where a restart can help. A remote RPC failure must not kill the pod — it is
+  // reported by isHealthy so readiness takes the pod out of the Service instead.
+  async isAlive(key: string): Promise<HealthIndicatorResult> {
+    const error = await this.pingRpc();
+    const isAlive = !error || !this.isLocalNetworkError(error);
+
+    const result = this.getStatus(key, isAlive, { status: isAlive ? "up" : "down" });
+
+    if (isAlive) {
+      return result;
+    }
+
+    throw new HealthCheckError("Local networking is broken", result);
+  }
+
+  private isLocalNetworkError(error: AxiosError): boolean {
+    if (error.response) {
+      return false;
+    }
+    const cause = (error.cause ?? error) as NodeJS.ErrnoException;
+    return (
+      cause.syscall === "getaddrinfo" ||
+      LOCAL_DNS_ERROR_CODES.includes(cause.code) ||
+      LOCAL_DNS_ERROR_CODES.includes(error.code)
+    );
+  }
+
+  private async pingRpc(): Promise<AxiosError | null> {
     try {
       // Check RPC health with a pure HTTP request to remove SDK out of the picture
       // and avoid any SDK-specific issues.
@@ -49,16 +91,9 @@ export class JsonRpcHealthIndicator extends HealthIndicator {
             })
           )
       );
-    } catch {
-      isHealthy = false;
+      return null;
+    } catch (error) {
+      return error as AxiosError;
     }
-
-    const result = this.getStatus(key, isHealthy, { status: isHealthy ? "up" : "down" });
-
-    if (isHealthy) {
-      return result;
-    }
-
-    throw new HealthCheckError("JSON RPC provider is down or not reachable", result);
   }
 }
