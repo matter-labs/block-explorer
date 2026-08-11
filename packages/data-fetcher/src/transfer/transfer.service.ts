@@ -38,12 +38,16 @@ const extractTransfersHandlers: Record<string, ExtractTransferHandler[]> = {
   [LogType.Withdrawal]: [ethWithdrawalToL1Handler],
 };
 
-// Array of logs that tell about the same event, e.g. one is legacy another is a new one.
-// This is used to make sure multiple transfers are not produces by these logs.
-const conflictingTransferLogs = [
-  [LogType.FinalizeDeposit, LogType.DepositFinalizedAssetRouter],
-  [LogType.WithdrawalInitiated, LogType.WithdrawalInitiatedAssetRouter],
-];
+// A legacy bridge event and its Asset Router counterpart can describe the same withdrawal/deposit
+// (a genuine double-emit) or two independent bridge actions in one transaction.
+const legacyBridgeTransferTopics = new Set<string>([LogType.FinalizeDeposit, LogType.WithdrawalInitiated]);
+const assetRouterTransferTopics = new Set<string>([
+  LogType.DepositFinalizedAssetRouter,
+  LogType.WithdrawalInitiatedAssetRouter,
+]);
+
+const bridgeTransferKey = (transfer: Transfer): string =>
+  [transfer.type, transfer.from, transfer.to, transfer.tokenAddress, transfer.amount.toString()].join("-");
 
 @Injectable()
 export class TransferService {
@@ -65,23 +69,12 @@ export class TransferService {
       return transfers;
     }
 
-    // Remove handlers for logs that tell about the same event as other present logs
-    // This is done to avoid having duplicated transfers produces
-    const uniqueExtractTransfersHandlers = {
-      ...extractTransfersHandlers,
-    };
-    for (const topics of conflictingTransferLogs) {
-      const firstMatchingLog = logs.find((log) => topics.find((topic) => log.topics[0] === topic));
-      if (firstMatchingLog) {
-        const topicsToRemoveHandlers = topics.filter((t) => t !== firstMatchingLog.topics[0]);
-        for (const topicToRemoveHandlers of topicsToRemoveHandlers) {
-          delete uniqueExtractTransfersHandlers[topicToRemoveHandlers];
-        }
-      }
-    }
-
+    // Extract every candidate transfer first (each handler authenticates its own log), then
+    // deduplicate legacy/Asset Router pairs below.
+    const extractedTransfers: { transfer: Transfer; topic: string }[] = [];
     for (const log of logs) {
-      const handlerForLog = uniqueExtractTransfersHandlers[log.topics[0]]?.find((handler) =>
+      const topic = log.topics[0];
+      const handlerForLog = extractTransfersHandlers[topic]?.find((handler) =>
         handler.matches(log, transactionReceipt, this.configService)
       );
 
@@ -99,10 +92,7 @@ export class TransferService {
       try {
         const transfer = await handlerForLog.extract(log, this.blockchainService, block);
         if (transfer) {
-          // Eth transfers logIndex are no longer taken from the tx logs and just an incrementing index
-          // To avoid collision with token transfers logIndex, we override logIndex with an incrementing value
-          // Otherwise there might be multiple rows with the same logIndex and inconsistent data will be returned by the API
-          transfers.push({ ...transfer, logIndex: transfers.length + 1 });
+          extractedTransfers.push({ transfer, topic });
         }
       } catch (error) {
         this.logger.error("Failed to parse transfer", {
@@ -113,6 +103,32 @@ export class TransferService {
         });
         throw error;
       }
+    }
+
+    // A legacy transfer is dropped only if it duplicates an Asset Router transfer (one match each),
+    // so genuine double-emits collapse while independent actions are preserved.
+    const assetRouterTransferKeyCounts = new Map<string, number>();
+    for (const { transfer, topic } of extractedTransfers) {
+      if (assetRouterTransferTopics.has(topic)) {
+        const key = bridgeTransferKey(transfer);
+        assetRouterTransferKeyCounts.set(key, (assetRouterTransferKeyCounts.get(key) ?? 0) + 1);
+      }
+    }
+
+    for (const { transfer, topic } of extractedTransfers) {
+      if (legacyBridgeTransferTopics.has(topic)) {
+        const key = bridgeTransferKey(transfer);
+        const duplicatesLeft = assetRouterTransferKeyCounts.get(key) ?? 0;
+        if (duplicatesLeft > 0) {
+          // Duplicate of an Asset Router transfer; keep the richer Asset Router record.
+          assetRouterTransferKeyCounts.set(key, duplicatesLeft - 1);
+          continue;
+        }
+      }
+      // Eth transfers logIndex are no longer taken from the tx logs and just an incrementing index
+      // To avoid collision with token transfers logIndex, we override logIndex with an incrementing value
+      // Otherwise there might be multiple rows with the same logIndex and inconsistent data will be returned by the API
+      transfers.push({ ...transfer, logIndex: transfers.length + 1 });
     }
 
     if (transfers.length) {

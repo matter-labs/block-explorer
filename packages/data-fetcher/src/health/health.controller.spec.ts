@@ -53,9 +53,17 @@ describe("HealthController", () => {
     healthController = app.get<HealthController>(HealthController);
   });
 
-  describe("check", () => {
-    it("checks health of the JSON RPC provider", async () => {
-      await healthController.check();
+  describe("checkLiveness", () => {
+    it("checks liveness of the JSON RPC provider", async () => {
+      await healthController.checkLiveness();
+      expect(jsonRpcHealthIndicatorMock.isAlive).toHaveBeenCalledTimes(1);
+      expect(jsonRpcHealthIndicatorMock.isAlive).toHaveBeenCalledWith("jsonRpcProvider");
+    });
+  });
+
+  describe("checkReadiness", () => {
+    it("checks reachability of the JSON RPC provider", async () => {
+      await healthController.checkReadiness();
       expect(jsonRpcHealthIndicatorMock.isHealthy).toHaveBeenCalledTimes(1);
       expect(jsonRpcHealthIndicatorMock.isHealthy).toHaveBeenCalledWith("jsonRpcProvider");
     });
@@ -63,7 +71,7 @@ describe("HealthController", () => {
     it("returns the overall check status", async () => {
       const healthCheckResult = mock<HealthCheckResult>({ status: "ok" });
       jest.spyOn(healthCheckServiceMock, "check").mockResolvedValueOnce(healthCheckResult);
-      const result = await healthController.check();
+      const result = await healthController.checkReadiness();
       expect(result).toBe(healthCheckResult);
     });
 
@@ -84,7 +92,7 @@ describe("HealthController", () => {
       it("throws generated error", async () => {
         expect.assertions(4);
         try {
-          await healthController.check();
+          await healthController.checkReadiness();
         } catch (e) {
           expect(e).toBeInstanceOf(ServiceUnavailableException);
           expect(e.message).toBe("Service Unavailable Exception");

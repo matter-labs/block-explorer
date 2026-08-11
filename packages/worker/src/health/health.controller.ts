@@ -1,9 +1,15 @@
 import { Logger, Controller, Get } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { HealthCheckService, TypeOrmHealthIndicator, HealthCheck, HealthCheckResult } from "@nestjs/terminus";
+import {
+  HealthCheckService,
+  TypeOrmHealthIndicator,
+  HealthCheck,
+  HealthCheckResult,
+  HealthIndicatorFunction,
+} from "@nestjs/terminus";
 import { JsonRpcHealthIndicator } from "./jsonRpcProvider.health";
 
-@Controller(["health", "ready"])
+@Controller()
 export class HealthController {
   private readonly logger: Logger;
   private readonly dbHealthCheckTimeoutMs: number;
@@ -18,14 +24,27 @@ export class HealthController {
     this.dbHealthCheckTimeoutMs = configService.get<number>("healthChecks.dbHealthCheckTimeoutMs");
   }
 
-  @Get()
+  @Get("health")
   @HealthCheck()
-  public async check(): Promise<HealthCheckResult> {
+  public async checkLiveness(): Promise<HealthCheckResult> {
+    return await this.check([
+      () => this.dbHealthChecker.pingCheck("database", { timeout: this.dbHealthCheckTimeoutMs }),
+      () => this.jsonRpcHealthIndicator.isAlive("jsonRpcProvider"),
+    ]);
+  }
+
+  @Get("ready")
+  @HealthCheck()
+  public async checkReadiness(): Promise<HealthCheckResult> {
+    return await this.check([
+      () => this.dbHealthChecker.pingCheck("database", { timeout: this.dbHealthCheckTimeoutMs }),
+      () => this.jsonRpcHealthIndicator.isHealthy("jsonRpcProvider"),
+    ]);
+  }
+
+  private async check(indicators: HealthIndicatorFunction[]): Promise<HealthCheckResult> {
     try {
-      return await this.healthCheckService.check([
-        () => this.dbHealthChecker.pingCheck("database", { timeout: this.dbHealthCheckTimeoutMs }),
-        () => this.jsonRpcHealthIndicator.isHealthy("jsonRpcProvider"),
-      ]);
+      return await this.healthCheckService.check(indicators);
     } catch (error) {
       this.logger.error({ message: error.message, response: error.getResponse() }, error.stack);
       throw error;

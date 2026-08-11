@@ -1,10 +1,10 @@
 import { Logger, Controller, Get, BeforeApplicationShutdown } from "@nestjs/common";
-import { HealthCheckService, HealthCheck, HealthCheckResult } from "@nestjs/terminus";
+import { HealthCheckService, HealthCheck, HealthCheckResult, HealthIndicatorFunction } from "@nestjs/terminus";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "node:timers/promises";
 import { JsonRpcHealthIndicator } from "./jsonRpcProvider.health";
 
-@Controller(["health", "ready"])
+@Controller()
 export class HealthController implements BeforeApplicationShutdown {
   private readonly logger: Logger;
   private readonly gracefulShutdownTimeoutMs: number;
@@ -18,11 +18,21 @@ export class HealthController implements BeforeApplicationShutdown {
     this.gracefulShutdownTimeoutMs = configService.get<number>("gracefulShutdownTimeoutMs");
   }
 
-  @Get()
+  @Get("health")
   @HealthCheck()
-  public async check(): Promise<HealthCheckResult> {
+  public async checkLiveness(): Promise<HealthCheckResult> {
+    return await this.check([() => this.jsonRpcHealthIndicator.isAlive("jsonRpcProvider")]);
+  }
+
+  @Get("ready")
+  @HealthCheck()
+  public async checkReadiness(): Promise<HealthCheckResult> {
+    return await this.check([() => this.jsonRpcHealthIndicator.isHealthy("jsonRpcProvider")]);
+  }
+
+  private async check(indicators: HealthIndicatorFunction[]): Promise<HealthCheckResult> {
     try {
-      return await this.healthCheckService.check([() => this.jsonRpcHealthIndicator.isHealthy("jsonRpcProvider")]);
+      return await this.healthCheckService.check(indicators);
     } catch (error) {
       this.logger.error({ message: error.message, response: error.getResponse() }, error.stack);
       throw error;
