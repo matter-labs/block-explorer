@@ -36,6 +36,8 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
   private readonly apiKey: string;
   private readonly apiUrl: string;
   private readonly platformId: string;
+  private readonly originPlatformIds: string[];
+  private readonly platformIdsToKeep: string[];
 
   constructor(configService: ConfigService, private readonly httpService: HttpService) {
     this.logger = new Logger(CoingeckoTokenOffChainDataProvider.name);
@@ -43,6 +45,9 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     this.apiKey = configService.get<string>("tokens.coingecko.apiKey");
     this.apiUrl = this.isProPlan ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
     this.platformId = configService.get<string>("tokens.coingecko.platformId");
+    this.originPlatformIds = configService.get<string[]>("tokens.coingecko.originPlatformIds") || [];
+    // all platform ids whose addresses are kept on the trimmed tokens list
+    this.platformIdsToKeep = [...new Set([...this.originPlatformIds, this.platformId, "ethereum"])];
   }
 
   public async getTokensOffChainData({
@@ -51,12 +56,13 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     bridgedTokensToInclude: string[];
   }): Promise<ITokenOffChainData[]> {
     const tokensList = await this.getTokensList();
+    const bridgedTokenAddresses = new Set(bridgedTokensToInclude.map((address) => address.toLowerCase()));
     // Include ETH, all L2 tokens and bridged tokens
     const supportedTokens = tokensList.filter(
       (token) =>
         token.id === "ethereum" ||
         token.platforms[this.platformId] ||
-        bridgedTokensToInclude.find((bridgetTokenAddress) => bridgetTokenAddress === token.platforms.ethereum)
+        this.getMatchedBridgedAddresses(token, bridgedTokenAddresses).length
     );
 
     const tokensOffChainData: ITokenOffChainData[] = [];
@@ -66,21 +72,58 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       if (tokenIdsPerRequest.length === API_NUMBER_OF_TOKENS_PER_REQUEST || i === supportedTokens.length - 1) {
         const tokensMarkedData = await this.getTokensMarketData(tokenIdsPerRequest);
         tokensOffChainData.push(
-          ...tokensMarkedData.map((tokenMarketData) => {
+          ...tokensMarkedData.flatMap((tokenMarketData) => {
             const token = supportedTokens.find((t) => t.id === tokenMarketData.id);
-            return {
-              l1Address: token.id === "ethereum" ? ZERO_ADDRESS : token.platforms.ethereum,
+            const marketData = {
               l2Address: token.platforms[this.platformId],
               liquidity: tokenMarketData.market_cap,
               usdPrice: tokenMarketData.current_price,
               iconURL: tokenMarketData.image,
             };
+            if (token.id === "ethereum") {
+              return [{ l1Address: ZERO_ADDRESS, ...marketData }];
+            }
+            // one record per matched bridged address so every bridged variant of the token gets updated
+            const records: ITokenOffChainData[] = this.getMatchedBridgedAddresses(token, bridgedTokenAddresses).map(
+              (bridgedAddress) => ({
+                l1Address: bridgedAddress,
+                ...marketData,
+              })
+            );
+            // the zero address is never a valid origin address, so treat such entries as absent
+            const ethereumAddress =
+              token.platforms.ethereum && token.platforms.ethereum.toLowerCase() !== ZERO_ADDRESS
+                ? token.platforms.ethereum.toLowerCase()
+                : undefined;
+            // bridgedTokensToInclude holds every stored l1Address, so a record keyed by an unknown
+            // ethereum address would update no rows; key by l2Address instead in that case
+            const bridgedEthereumAddress =
+              ethereumAddress && bridgedTokenAddresses.has(ethereumAddress) ? ethereumAddress : undefined;
+            // keep the record keyed by the ethereum address (or by l2Address when there is none)
+            // so natively listed tokens keep receiving updates alongside their bridged variants
+            if (!records.length || (!bridgedEthereumAddress && marketData.l2Address)) {
+              records.push({ l1Address: bridgedEthereumAddress, ...marketData });
+            }
+            return records;
           })
         );
         tokenIdsPerRequest = [];
       }
     }
     return tokensOffChainData;
+  }
+
+  private getMatchedBridgedAddresses(
+    token: ITokenListItemProviderResponse,
+    bridgedTokenAddresses: Set<string>
+  ): string[] {
+    return [
+      ...new Set(
+        this.originPlatformIds
+          .map((platformId) => token.platforms[platformId]?.toLowerCase())
+          .filter((address) => address && address !== ZERO_ADDRESS && bridgedTokenAddresses.has(address))
+      ),
+    ];
   }
 
   private getTokensMarketData(tokenIds: string[]) {
@@ -108,14 +151,18 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       return [];
     }
     return list
-      .filter((item) => item.id === "ethereum" || item.platforms[this.platformId] || item.platforms.ethereum)
+      .filter(
+        (item) =>
+          item.id === "ethereum" ||
+          item.platforms[this.platformId] ||
+          this.originPlatformIds.some((platformId) => item.platforms[platformId])
+      )
       .map((item) => ({
         ...item,
-        platforms: {
-          // use substring(0, 42) to fix some instances when after address there is some additional text
-          [this.platformId]: item.platforms[this.platformId]?.substring(0, 42),
-          ethereum: item.platforms.ethereum?.substring(0, 42),
-        },
+        // use substring(0, 42) to fix some instances when after address there is some additional text
+        platforms: Object.fromEntries(
+          this.platformIdsToKeep.map((platformId) => [platformId, item.platforms[platformId]?.substring(0, 42)])
+        ),
       }));
   }
 

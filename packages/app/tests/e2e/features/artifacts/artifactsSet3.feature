@@ -73,7 +73,7 @@ Feature: Main Page
       | Token Name        |
       | Price             |
       | L2 Token address  |
-      | L1 Token address  |
+      | Origin token address |
 
   @id249 @mainnet
   Scenario Outline: Verify table contains "<Column name>" column name on Tokens page
@@ -86,7 +86,7 @@ Feature: Main Page
       | Token Name        |
       | Price             |
       | L2 Token address  |
-      | L1 Token address  |
+      | Origin token address |
 
   @id381 @mainnet
   Scenario Outline: Verify label "out" for Account info on Account page

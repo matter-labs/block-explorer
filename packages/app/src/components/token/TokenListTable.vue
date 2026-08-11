@@ -38,15 +38,9 @@
         :data-heading="shouldDisplayL1Address(item.l1Address) ? t('tokensView.table.tokenAddressL1') : ''"
       >
         <div v-if="shouldDisplayL1Address(item.l1Address)" class="token-address-container max-w-sm">
-          <TransactionNetworkSquareBlock network="L1" />
-          <AddressLink
-            :data-testid="$testId.tokenAddress"
-            :address="item.l1Address"
-            network="L1"
-            class="token-address block max-w-sm"
-          >
+          <span :data-testid="$testId.tokenAddress" class="origin-token-address block max-w-sm">
             {{ shortenFitText(item.l1Address, "left", 100, subtraction) }}
-          </AddressLink>
+          </span>
           <CopyButton :value="item.l1Address" />
         </div>
       </TableBodyColumn>
@@ -136,8 +130,12 @@ const shouldDisplayL1Address = (l1Address?: string) => {
   }
   .token-address-container {
     @apply flex gap-x-2;
+    .token-address,
+    .origin-token-address {
+      @apply block font-mono text-sm font-medium;
+    }
     .token-address {
-      @apply block cursor-pointer font-mono text-sm font-medium;
+      @apply cursor-pointer;
     }
   }
   .loading-row {

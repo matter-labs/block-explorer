@@ -58,6 +58,7 @@ describe("config", () => {
           isProPlan: false,
           apiKey: undefined,
           platformId: "zksync",
+          originPlatformIds: ["ethereum", "zksync"],
         },
         baseToken: {
           symbol: "ETH",
@@ -142,6 +143,7 @@ describe("config", () => {
           isProPlan: false,
           apiKey: undefined,
           platformId: "zksync",
+          originPlatformIds: ["ethereum", "zksync"],
         },
         baseToken: {
           symbol: "ETH",
@@ -219,6 +221,48 @@ describe("config", () => {
         blockchain: {
           ...defaultConfig.blockchain,
           rpcBatchStallTimeMs: 7,
+        },
+      });
+    });
+  });
+
+  describe("when COINGECKO_ORIGIN_PLATFORM_IDS is specified in env vars", () => {
+    beforeEach(() => {
+      process.env = {
+        COINGECKO_ORIGIN_PLATFORM_IDS: "ethereum,zksync,abstract",
+      };
+    });
+
+    it("sets originPlatformIds to the parsed value from env vars", () => {
+      expect(config()).toEqual({
+        ...defaultConfig,
+        tokens: {
+          ...defaultConfig.tokens,
+          coingecko: {
+            ...defaultConfig.tokens.coingecko,
+            originPlatformIds: ["ethereum", "zksync", "abstract"],
+          },
+        },
+      });
+    });
+  });
+
+  describe("when COINGECKO_ORIGIN_PLATFORM_IDS contains whitespace or empty entries", () => {
+    beforeEach(() => {
+      process.env = {
+        COINGECKO_ORIGIN_PLATFORM_IDS: " ethereum, abstract ,",
+      };
+    });
+
+    it("trims platform ids and drops empty entries", () => {
+      expect(config()).toEqual({
+        ...defaultConfig,
+        tokens: {
+          ...defaultConfig.tokens,
+          coingecko: {
+            ...defaultConfig.tokens.coingecko,
+            originPlatformIds: ["ethereum", "abstract"],
+          },
         },
       });
     });

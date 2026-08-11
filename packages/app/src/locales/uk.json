@@ -379,14 +379,14 @@
             "tokenAddress": "Адреса Токена",
             "bridged": {
                 "title": "Бридж",
-                "tooltip": "Цей токен перенесений з L1 до {brandName}"
+                "tooltip": "Цей токен перенесений до {brandName}"
             },
             "native": {
                 "title": "L2-нативний",
                 "tooltip": "Цей токен є нативним для {brandName}"
             },
             "tokenAddressL2": "L2 Адреса Токена",
-            "tokenAddressL1": "L1 Адреса Токена"
+            "tokenAddressL1": "Адреса токена в мережі походження"
         }
     },
     "tokenHolders": {

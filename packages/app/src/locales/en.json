@@ -716,14 +716,14 @@
             "tokenAddress": "Token Address",
             "bridged": {
                 "title": "Bridged",
-                "tooltip": "This token is bridged from L1 to {brandName}"
+                "tooltip": "This token is bridged to {brandName}"
             },
             "native": {
                 "title": "L2-native",
                 "tooltip": "This token is native to {brandName}"
             },
             "tokenAddressL2": "L2 Token address",
-            "tokenAddressL1": "L1 Token address"
+            "tokenAddressL1": "Origin token address"
         }
     },
     "tokenHolders": {
