@@ -45,11 +45,7 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     this.apiKey = configService.get<string>("tokens.coingecko.apiKey");
     this.apiUrl = this.isProPlan ? "https://pro-api.coingecko.com/api/v3" : "https://api.coingecko.com/api/v3";
     this.platformId = configService.get<string>("tokens.coingecko.platformId");
-    // drop ids naming Object.prototype members ("constructor", "toString", ...) since platform ids
-    // are used as keys on JSON-parsed objects, where inherited values would match every coin
-    this.originPlatformIds = (configService.get<string[]>("tokens.coingecko.originPlatformIds") || []).filter(
-      (platformId) => !(platformId in Object.prototype)
-    );
+    this.originPlatformIds = configService.get<string[]>("tokens.coingecko.originPlatformIds") || [];
     // all platform ids whose addresses are kept on the trimmed tokens list
     this.platformIdsToKeep = [...new Set([...this.originPlatformIds, this.platformId, "ethereum"])];
   }
@@ -62,23 +58,12 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
     const tokensList = await this.getTokensList();
     const bridgedTokenAddresses = new Set(bridgedTokensToInclude.map((address) => address.toLowerCase()));
     // Include ETH, all L2 tokens and bridged tokens
-    const supportedTokens = tokensList
-      .map((token) => ({
-        ...token,
-        // bridged tokens store the origin chain address, so match it against every configured origin platform;
-        // compare lowercased since CoinGecko occasionally returns checksummed addresses, and skip the zero
-        // address so placeholder platform entries cannot match the base token row
-        matchedBridgedAddresses: [
-          ...new Set(
-            this.originPlatformIds
-              .map((platformId) => token.platforms[platformId]?.toLowerCase())
-              .filter((address) => address && address !== ZERO_ADDRESS && bridgedTokenAddresses.has(address))
-          ),
-        ],
-      }))
-      .filter(
-        (token) => token.id === "ethereum" || token.platforms[this.platformId] || token.matchedBridgedAddresses.length
-      );
+    const supportedTokens = tokensList.filter(
+      (token) =>
+        token.id === "ethereum" ||
+        token.platforms[this.platformId] ||
+        this.getMatchedBridgedAddresses(token, bridgedTokenAddresses).length
+    );
 
     const tokensOffChainData: ITokenOffChainData[] = [];
     let tokenIdsPerRequest = [];
@@ -99,10 +84,12 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
               return [{ l1Address: ZERO_ADDRESS, ...marketData }];
             }
             // one record per matched bridged address so every bridged variant of the token gets updated
-            const records: ITokenOffChainData[] = token.matchedBridgedAddresses.map((bridgedAddress) => ({
-              l1Address: bridgedAddress,
-              ...marketData,
-            }));
+            const records: ITokenOffChainData[] = this.getMatchedBridgedAddresses(token, bridgedTokenAddresses).map(
+              (bridgedAddress) => ({
+                l1Address: bridgedAddress,
+                ...marketData,
+              })
+            );
             // the zero address is never a valid origin address, so treat such entries as absent
             const ethereumAddress =
               token.platforms.ethereum && token.platforms.ethereum.toLowerCase() !== ZERO_ADDRESS
@@ -124,6 +111,19 @@ export class CoingeckoTokenOffChainDataProvider implements TokenOffChainDataProv
       }
     }
     return tokensOffChainData;
+  }
+
+  private getMatchedBridgedAddresses(
+    token: ITokenListItemProviderResponse,
+    bridgedTokenAddresses: Set<string>
+  ): string[] {
+    return [
+      ...new Set(
+        this.originPlatformIds
+          .map((platformId) => token.platforms[platformId]?.toLowerCase())
+          .filter((address) => address && address !== ZERO_ADDRESS && bridgedTokenAddresses.has(address))
+      ),
+    ];
   }
 
   private getTokensMarketData(tokenIds: string[]) {
