@@ -2,9 +2,7 @@ import { computed } from "vue";
 
 import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { $fetch } from "ohmyfetch";
-
-import { TESTNET_NETWORK, useContextMock } from "./../mocks";
+import { useContextMock } from "./../mocks";
 
 import useTokenOverview from "@/composables/useTokenOverview";
 
@@ -19,70 +17,49 @@ vi.mock("ethers", async () => {
   };
 });
 
-vi.mock("ohmyfetch", () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const instance: any = vi.fn();
-  instance.create = () => instance;
-  return { $fetch: instance };
-});
-
-const fetchMock = $fetch as unknown as SpyInstance;
-
 describe("useTokenOverview:", () => {
   let mockContext: SpyInstance;
 
   afterEach(() => {
     mockContext?.mockRestore();
-    fetchMock.mockReset();
     totalSupplyMock.mockClear();
   });
 
-  describe("on a public network", () => {
+  describe("when a user is logged in", () => {
     beforeEach(() => {
       mockContext = useContextMock();
     });
 
-    it("reads the supply straight from the contract", async () => {
+    it("reads the supply as that user", async () => {
       const { getTokenOverview, tokenOverview } = useTokenOverview();
       await getTokenOverview(tokenAddress);
 
-      expect(totalSupplyMock).toHaveBeenCalledOnce();
-      expect(fetchMock).not.toHaveBeenCalled();
+      expect(totalSupplyMock).toBeCalledWith({ from: "0x000000000000000000000000000000000000800A" });
       expect(tokenOverview.value).toEqual({ totalSupply: BigInt("500000000000000000") });
     });
   });
 
-  describe("on a Prividium network", () => {
+  describe("when there is no logged in user", () => {
     beforeEach(() => {
-      mockContext = useContextMock({
-        currentNetwork: computed(() => ({ ...TESTNET_NETWORK, prividium: true })),
-      });
+      mockContext = useContextMock({ user: computed(() => ({ loggedIn: false })) });
     });
 
-    it("reads the supply through the explorer API", async () => {
-      fetchMock.mockResolvedValueOnce({ totalSupply: "500000000000000000" });
-
+    it("reads the supply without a from address", async () => {
       const { getTokenOverview, tokenOverview } = useTokenOverview();
       await getTokenOverview(tokenAddress);
 
-      expect(totalSupplyMock).not.toHaveBeenCalled();
-      expect(fetchMock).toHaveBeenCalledWith(`/tokens/${tokenAddress}/total-supply`);
-      expect(tokenOverview.value).toEqual({ totalSupply: "500000000000000000" });
+      expect(totalSupplyMock).toBeCalledWith({});
+      expect(tokenOverview.value).toEqual({ totalSupply: BigInt("500000000000000000") });
+    });
+  });
+
+  describe("when the call is rejected", () => {
+    beforeEach(() => {
+      mockContext = useContextMock();
+      totalSupplyMock.mockRejectedValueOnce(new Error("Permission check for method call returned false"));
     });
 
-    it("leaves the overview empty when the supply is not readable", async () => {
-      fetchMock.mockResolvedValueOnce({ totalSupply: null });
-
-      const { getTokenOverview, tokenOverview, isRequestFailed } = useTokenOverview();
-      await getTokenOverview(tokenAddress);
-
-      expect(tokenOverview.value).toBeNull();
-      expect(isRequestFailed.value).toBe(false);
-    });
-
-    it("marks the request as failed when the API errors", async () => {
-      fetchMock.mockRejectedValueOnce(new Error("boom"));
-
+    it("marks the request as failed and leaves the overview empty", async () => {
       const { getTokenOverview, tokenOverview, isRequestFailed } = useTokenOverview();
       await getTokenOverview(tokenAddress);
 

@@ -89,4 +89,36 @@ describe("useContext:", () => {
       });
     });
   });
+
+  describe("getL2Provider:", () => {
+    const PRIVIDIUM_NETWORK = { ...TESTNET_NETWORK, name: "prividium", rpcUrl: "https://api.example.com/rpc" };
+    const PUBLIC_NETWORK = { ...TESTNET_NETWORK, name: "public", rpcUrl: "https://rpc.example.com" };
+
+    const buildContext = (network: typeof TESTNET_NETWORK, token: string | null) => {
+      const mockStorage = vi.spyOn(Storage.prototype, "getItem").mockImplementation((key: string) => {
+        return key === "prividium_jwt" ? token : network.name;
+      });
+      const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
+        networks: computed(() => [network]),
+        baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
+      });
+      const context = useContext.default();
+      context.identifyNetwork();
+      return { context, restore: () => [mockStorage, mockEnvironmentConfig].forEach((m) => m.mockRestore()) };
+    };
+
+    it("does not authorize requests on a public network", () => {
+      const { context, restore } = buildContext(PUBLIC_NETWORK, null);
+
+      expect(context.getL2Provider()._getConnection().getHeader("authorization")).toBeFalsy();
+      restore();
+    });
+
+    it("sends the session token on a Prividium network", () => {
+      const { context, restore } = buildContext({ ...PRIVIDIUM_NETWORK, prividium: true }, "jwt-token");
+
+      expect(context.getL2Provider()._getConnection().getHeader("authorization")).toBe("Bearer jwt-token");
+      restore();
+    });
+  });
 });

@@ -1,13 +1,14 @@
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
 
 import { useStorage } from "@vueuse/core";
-import { JsonRpcProvider } from "ethers";
+import { FetchRequest, JsonRpcProvider } from "ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";
 
 import type { NetworkConfig } from "@/configs";
 
+import { PRIVIDIUM_AUTH_CONSTANTS } from "@/lib/prividium-auth/constants";
 import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
 
@@ -30,6 +31,19 @@ export type Context = {
   getSettlementChainName: (chainId: number | null, commitTxHash?: string | null) => string;
   isGatewaySettlementChain: (chainId: number | null) => boolean;
 };
+
+// Prividium authorizes every RPC call against the caller, so requests carry the session
+// token. Anonymous calls are rejected before any permission rule is evaluated.
+function getRpcRequest(network: NetworkConfig) {
+  const token = network.prividium ? localStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.TOKEN_KEY) : null;
+  if (!token) {
+    return network.rpcUrl;
+  }
+
+  const request = new FetchRequest(network.rpcUrl);
+  request.setHeader("Authorization", `Bearer ${token}`);
+  return request;
+}
 
 let l2Provider: JsonRpcProvider | null;
 export default (): Context => {
@@ -71,14 +85,15 @@ export default (): Context => {
     isReady.value = true;
   }
 
-  watch(currentNetwork, () => {
-    // reset l2Provider on network change so it is recreated for the correct network in getL2Provider
+  watch([currentNetwork, user], () => {
+    // reset l2Provider on network or user change so it is recreated with the correct
+    // network and session token in getL2Provider
     l2Provider = null;
   });
 
   function getL2Provider() {
     if (!l2Provider) {
-      l2Provider = new JsonRpcProvider(currentNetwork.value.rpcUrl, currentNetwork.value.l2ChainId, {
+      l2Provider = new JsonRpcProvider(getRpcRequest(currentNetwork.value), currentNetwork.value.l2ChainId, {
         staticNetwork: true,
       });
     }

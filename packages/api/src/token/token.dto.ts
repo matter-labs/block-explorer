@@ -59,14 +59,3 @@ export class TokenDto {
   })
   public readonly iconURL?: string;
 }
-
-export class TokenTotalSupplyDto {
-  @ApiProperty({
-    type: String,
-    description: "Token total supply, absent when it cannot be read for the current user",
-    example: "1000000000000000000000",
-    examples: ["1000000000000000000000", null],
-    required: false,
-  })
-  public readonly totalSupply: string | null;
-}

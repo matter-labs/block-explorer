@@ -2,7 +2,6 @@ import { Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { TokenController } from "./token.controller";
 import { TokenService } from "./token.service";
-import { TokenSupplyService } from "./tokenSupply.service";
 import { Token } from "./token.entity";
 import { Block } from "../block/block.entity";
 import { Transaction } from "../transaction/entities/transaction.entity";
@@ -11,7 +10,7 @@ import { IndexerStateModule } from "../indexerState/indexerState.module";
 @Module({
   imports: [TypeOrmModule.forFeature([Token, Block, Transaction]), TransferModule, IndexerStateModule],
   controllers: [TokenController],
-  providers: [TokenService, TokenSupplyService],
+  providers: [TokenService],
   exports: [TokenService],
 })
 export class TokenModule {}
