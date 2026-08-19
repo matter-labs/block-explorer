@@ -12,14 +12,15 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { PagingOptionsWithMaxItemsLimitDto } from "../common/dtos";
 import { ApiListPageOkResponse } from "../common/decorators/apiListPageOkResponse";
 import { TokenService } from "./token.service";
+import { TokenSupplyService } from "./tokenSupply.service";
 import { FilterTransfersOptions, TransferService } from "../transfer/transfer.service";
-import { TokenDto } from "./token.dto";
+import { TokenDto, TokenTotalSupplyDto } from "./token.dto";
 import { TransferDto } from "../transfer/transfer.dto";
 import { ParseLimitedIntPipe } from "../common/pipes/parseLimitedInt.pipe";
 import { ParseAddressPipe, ADDRESS_REGEX_PATTERN } from "../common/pipes/parseAddress.pipe";
 import { swagger } from "../config/featureFlags";
 import { constants } from "../config/docs";
-import { User } from "../user/user.decorator";
+import { User, UserParam } from "../user/user.decorator";
 import { AddUserRolesPipe, UserWithPermissions } from "../api/pipes/addUserRoles.pipe";
 
 const entityName = "tokens";
@@ -28,7 +29,11 @@ const entityName = "tokens";
 @ApiExcludeController(!swagger.bffEnabled)
 @Controller(entityName)
 export class TokenController {
-  constructor(private readonly tokenService: TokenService, private readonly transferService: TransferService) {}
+  constructor(
+    private readonly tokenService: TokenService,
+    private readonly transferService: TransferService,
+    private readonly tokenSupplyService: TokenSupplyService
+  ) {}
 
   @Get("")
   @ApiListPageOkResponse(TokenDto, { description: "Successfully returned token list" })
@@ -109,5 +114,22 @@ export class TokenController {
         route: `${entityName}/${address}/transfers`,
       }
     );
+  }
+
+  @Get(":address/total-supply")
+  @ApiParam({
+    name: "address",
+    type: String,
+    schema: { pattern: ADDRESS_REGEX_PATTERN },
+    example: constants.tokenAddress,
+    description: "Valid hex address",
+  })
+  @ApiOkResponse({ description: "Token total supply was returned successfully", type: TokenTotalSupplyDto })
+  @ApiBadRequestResponse({ description: "Token address is invalid" })
+  public async getTokenTotalSupply(
+    @Param("address", new ParseAddressPipe()) address: string,
+    @User() user: UserParam
+  ): Promise<TokenTotalSupplyDto> {
+    return { totalSupply: await this.tokenSupplyService.getTotalSupply(address, user) };
   }
 }

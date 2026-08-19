@@ -5,6 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { Pagination } from "nestjs-typeorm-paginate";
 import { TokenController } from "./token.controller";
 import { TokenService } from "./token.service";
+import { TokenSupplyService } from "./tokenSupply.service";
 import { TransferService } from "../transfer/transfer.service";
 import { Token } from "./token.entity";
 import { Transfer } from "../transfer/transfer.entity";
@@ -17,12 +18,14 @@ describe("TokenController", () => {
   let controller: TokenController;
   let serviceMock: TokenService;
   let transferServiceMock: TransferService;
+  let tokenSupplyServiceMock: TokenSupplyService;
   let configServiceMock: ConfigService;
   let token;
 
   beforeEach(async () => {
     serviceMock = mock<TokenService>();
     transferServiceMock = mock<TransferService>();
+    tokenSupplyServiceMock = mock<TokenSupplyService>();
     configServiceMock = mock<ConfigService>();
 
     token = {
@@ -39,6 +42,10 @@ describe("TokenController", () => {
         {
           provide: TransferService,
           useValue: transferServiceMock,
+        },
+        {
+          provide: TokenSupplyService,
+          useValue: tokenSupplyServiceMock,
         },
         {
           provide: ConfigService,
@@ -173,6 +180,25 @@ describe("TokenController", () => {
           expect(error).toBeInstanceOf(NotFoundException);
         }
       });
+    });
+  });
+
+  describe("getTokenTotalSupply", () => {
+    const user = { address: "0x01", wallets: ["0x01"], token: "token1" };
+
+    it("returns the total supply read for the current user", async () => {
+      (tokenSupplyServiceMock.getTotalSupply as jest.Mock).mockResolvedValueOnce("1000");
+
+      const result = await controller.getTokenTotalSupply(tokenAddress, user);
+
+      expect(tokenSupplyServiceMock.getTotalSupply).toBeCalledWith(tokenAddress, user);
+      expect(result).toEqual({ totalSupply: "1000" });
+    });
+
+    it("returns an absent supply when it cannot be read", async () => {
+      (tokenSupplyServiceMock.getTotalSupply as jest.Mock).mockResolvedValueOnce(null);
+
+      expect(await controller.getTokenTotalSupply(tokenAddress, user)).toEqual({ totalSupply: null });
     });
   });
 });
