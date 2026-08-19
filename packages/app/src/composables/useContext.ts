@@ -32,8 +32,6 @@ export type Context = {
   isGatewaySettlementChain: (chainId: number | null) => boolean;
 };
 
-// Prividium authorizes every RPC call against the caller, so requests carry the session
-// token. Anonymous calls are rejected before any permission rule is evaluated.
 function getRpcRequest(network: NetworkConfig) {
   const token = network.prividium ? localStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.TOKEN_KEY) : null;
   if (!token) {
