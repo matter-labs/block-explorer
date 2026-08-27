@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
 
 import { useStorage } from "@vueuse/core";
-import { JsonRpcProvider } from "ethers";
+import { FetchRequest, JsonRpcProvider, makeError } from "ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";
@@ -30,6 +30,59 @@ export type Context = {
   getSettlementChainName: (chainId: number | null, commitTxHash?: string | null) => string;
   isGatewaySettlementChain: (chainId: number | null) => boolean;
 };
+
+// Prividium authorizes every RPC call against the caller, and only the explorer API session
+// holds the user's token, so RPC calls go through the API instead of straight to the RPC.
+// The session cookie is set on the API origin and ethers does not send cross-origin
+// credentials, so the request is made with a fetch that includes them.
+function getRpcRequest(network: NetworkConfig) {
+  if (!network.prividium) {
+    return network.rpcUrl;
+  }
+
+  const request = new FetchRequest(`${network.apiUrl}/rpc`);
+  // Overriding getUrlFunc replaces ethers' own fetch, which arms `req.timeout` and forwards
+  // cancellation, so both are reproduced here to keep requests bounded and abortable.
+  request.getUrlFunc = async (req, signal) => {
+    const controller = new AbortController();
+    let abortError: Error | null = null;
+    const timer = setTimeout(() => {
+      abortError = makeError("request timeout", "TIMEOUT");
+      controller.abort();
+    }, req.timeout);
+    signal?.addListener(() => {
+      abortError = makeError("request cancelled", "CANCELLED");
+      controller.abort();
+    });
+
+    let response: Response;
+    try {
+      response = await fetch(req.url, {
+        method: req.method,
+        headers: req.headers,
+        body: req.body,
+        credentials: "include",
+        signal: controller.signal,
+      });
+    } catch (error) {
+      throw abortError ?? error;
+    } finally {
+      clearTimeout(timer);
+    }
+
+    const headers: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      headers[key.toLowerCase()] = value;
+    });
+    return {
+      statusCode: response.status,
+      statusMessage: response.statusText,
+      headers,
+      body: new Uint8Array(await response.arrayBuffer()),
+    };
+  };
+  return request;
+}
 
 let l2Provider: JsonRpcProvider | null;
 export default (): Context => {
@@ -78,7 +131,7 @@ export default (): Context => {
 
   function getL2Provider() {
     if (!l2Provider) {
-      l2Provider = new JsonRpcProvider(currentNetwork.value.rpcUrl, currentNetwork.value.l2ChainId, {
+      l2Provider = new JsonRpcProvider(getRpcRequest(currentNetwork.value), currentNetwork.value.l2ChainId, {
         staticNetwork: true,
       });
     }
