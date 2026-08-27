@@ -91,13 +91,17 @@ describe("useContext:", () => {
   });
 
   describe("getL2Provider:", () => {
-    const PRIVIDIUM_NETWORK = { ...TESTNET_NETWORK, name: "prividium", rpcUrl: "https://api.example.com/rpc" };
     const PUBLIC_NETWORK = { ...TESTNET_NETWORK, name: "public", rpcUrl: "https://rpc.example.com" };
+    const PRIVIDIUM_NETWORK = {
+      ...TESTNET_NETWORK,
+      name: "prividium",
+      prividium: true,
+      apiUrl: "https://api.example.com",
+      rpcUrl: "https://rpc.example.com",
+    };
 
-    const buildContext = (network: typeof TESTNET_NETWORK, token: string | null) => {
-      const mockStorage = vi.spyOn(Storage.prototype, "getItem").mockImplementation((key: string) => {
-        return key === "prividium_jwt" ? token : network.name;
-      });
+    const buildContext = (network: typeof TESTNET_NETWORK) => {
+      const mockStorage = vi.spyOn(Storage.prototype, "getItem").mockReturnValue(network.name);
       const mockEnvironmentConfig = vi.spyOn(useEnvironmentConfig, "default").mockReturnValue({
         networks: computed(() => [network]),
         baseTokenAddress: computed(() => "0x000000000000000000000000000000000000800A"),
@@ -107,17 +111,17 @@ describe("useContext:", () => {
       return { context, restore: () => [mockStorage, mockEnvironmentConfig].forEach((m) => m.mockRestore()) };
     };
 
-    it("does not authorize requests on a public network", () => {
-      const { context, restore } = buildContext(PUBLIC_NETWORK, null);
+    it("connects straight to the RPC on a public network", () => {
+      const { context, restore } = buildContext(PUBLIC_NETWORK);
 
-      expect(context.getL2Provider()._getConnection().getHeader("authorization")).toBeFalsy();
+      expect(context.getL2Provider()._getConnection().url).toBe("https://rpc.example.com");
       restore();
     });
 
-    it("sends the session token on a Prividium network", () => {
-      const { context, restore } = buildContext({ ...PRIVIDIUM_NETWORK, prividium: true }, "jwt-token");
+    it("connects through the explorer API on a Prividium network", () => {
+      const { context, restore } = buildContext(PRIVIDIUM_NETWORK);
 
-      expect(context.getL2Provider()._getConnection().getHeader("authorization")).toBe("Bearer jwt-token");
+      expect(context.getL2Provider()._getConnection().url).toBe("https://api.example.com/rpc");
       restore();
     });
   });

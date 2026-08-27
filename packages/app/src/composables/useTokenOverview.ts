@@ -25,10 +25,7 @@ export default () => {
     try {
       const provider = context.getL2Provider();
       const contract = new EthersContract(address, ERC20_ABI, provider);
-      // Prividium authorizes eth_call against the caller's wallet and rejects calls with
-      // no `from`, so the read is made as the logged in user when there is one.
-      const user = context.user.value;
-      const totalSupply = await contract.totalSupply(user.loggedIn ? { from: user.address } : {});
+      const totalSupply = await contract.totalSupply();
       tokenOverview.value = {
         totalSupply,
       };

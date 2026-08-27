@@ -8,7 +8,6 @@ import { DEFAULT_NETWORK } from "./useRuntimeConfig";
 
 import type { NetworkConfig } from "@/configs";
 
-import { PRIVIDIUM_AUTH_CONSTANTS } from "@/lib/prividium-auth/constants";
 import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
 
@@ -32,14 +31,34 @@ export type Context = {
   isGatewaySettlementChain: (chainId: number | null) => boolean;
 };
 
+// Prividium authorizes every RPC call against the caller, and only the explorer API session
+// holds the user's token, so RPC calls go through the API instead of straight to the RPC.
+// The session cookie is set on the API origin and ethers does not send cross-origin
+// credentials, so the request is made with a fetch that includes them.
 function getRpcRequest(network: NetworkConfig) {
-  const token = network.prividium ? localStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.TOKEN_KEY) : null;
-  if (!token) {
+  if (!network.prividium) {
     return network.rpcUrl;
   }
 
-  const request = new FetchRequest(network.rpcUrl);
-  request.setHeader("Authorization", `Bearer ${token}`);
+  const request = new FetchRequest(`${network.apiUrl}/rpc`);
+  request.getUrlFunc = async (req) => {
+    const response = await fetch(req.url, {
+      method: req.method,
+      headers: req.headers,
+      body: req.body,
+      credentials: "include",
+    });
+    const headers: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      headers[key.toLowerCase()] = value;
+    });
+    return {
+      statusCode: response.status,
+      statusMessage: response.statusText,
+      headers,
+      body: new Uint8Array(await response.arrayBuffer()),
+    };
+  };
   return request;
 }
 
@@ -83,9 +102,8 @@ export default (): Context => {
     isReady.value = true;
   }
 
-  watch([currentNetwork, user], () => {
-    // reset l2Provider on network or user change so it is recreated with the correct
-    // network and session token in getL2Provider
+  watch(currentNetwork, () => {
+    // reset l2Provider on network change so it is recreated for the correct network in getL2Provider
     l2Provider = null;
   });
 

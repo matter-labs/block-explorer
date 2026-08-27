@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { AuthModule } from "./auth/auth.module";
 import { AuthController } from "./auth/auth.controller";
+import { RpcModule } from "./rpc/rpc.module";
 import { NoCacheMiddleware } from "./middlewares/no-cache.middleware";
 import { AddUserRolesPipe } from "./api/pipes/addUserRoles.pipe";
 import cookieSession from "cookie-session";
@@ -75,4 +76,4 @@ export function applyPrividiumMiddlewares(consumer: MiddlewareConsumer) {
   consumer.apply(AuthMiddleware).forRoutes("*");
 }
 
-export const PRIVIDIUM_MODULES = [AuthModule];
+export const PRIVIDIUM_MODULES = [AuthModule, RpcModule];
