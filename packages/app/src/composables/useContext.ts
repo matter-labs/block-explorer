@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, type Ref, ref, watch } from "vue";
 
 import { useStorage } from "@vueuse/core";
-import { FetchRequest, JsonRpcProvider } from "ethers";
+import { FetchRequest, JsonRpcProvider, makeError } from "ethers";
 
 import useEnvironmentConfig from "./useEnvironmentConfig";
 import { DEFAULT_NETWORK } from "./useRuntimeConfig";
@@ -41,13 +41,35 @@ function getRpcRequest(network: NetworkConfig) {
   }
 
   const request = new FetchRequest(`${network.apiUrl}/rpc`);
-  request.getUrlFunc = async (req) => {
-    const response = await fetch(req.url, {
-      method: req.method,
-      headers: req.headers,
-      body: req.body,
-      credentials: "include",
+  // Overriding getUrlFunc replaces ethers' own fetch, which arms `req.timeout` and forwards
+  // cancellation, so both are reproduced here to keep requests bounded and abortable.
+  request.getUrlFunc = async (req, signal) => {
+    const controller = new AbortController();
+    let abortError: Error | null = null;
+    const timer = setTimeout(() => {
+      abortError = makeError("request timeout", "TIMEOUT");
+      controller.abort();
+    }, req.timeout);
+    signal?.addListener(() => {
+      abortError = makeError("request cancelled", "CANCELLED");
+      controller.abort();
     });
+
+    let response: Response;
+    try {
+      response = await fetch(req.url, {
+        method: req.method,
+        headers: req.headers,
+        body: req.body,
+        credentials: "include",
+        signal: controller.signal,
+      });
+    } catch (error) {
+      throw abortError ?? error;
+    } finally {
+      clearTimeout(timer);
+    }
+
     const headers: Record<string, string> = {};
     response.headers.forEach((value, key) => {
       headers[key.toLowerCase()] = value;

@@ -36,6 +36,16 @@ export class RpcController {
       throw new PrividiumApiError("Invalid or expired token", 401);
     }
 
-    return response.json();
+    // A JSON-RPC error is carried in a 2xx body, so any other status is a transport failure.
+    // Without this an upstream 5xx is returned to the app as a 200 with a body ethers cannot parse.
+    if (!response.ok) {
+      throw new PrividiumApiError("Invalid response from permissions API", 502);
+    }
+
+    try {
+      return await response.json();
+    } catch {
+      throw new PrividiumApiError("Invalid response from permissions API", 502);
+    }
   }
 }

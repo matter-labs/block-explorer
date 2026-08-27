@@ -30,6 +30,7 @@ describe("RpcController", () => {
   it("forwards the request with the session token and returns the response", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
+      ok: true,
       json: () => Promise.resolve({ jsonrpc: "2.0", id: 1, result: "0x1" }),
     });
 
@@ -50,8 +51,24 @@ describe("RpcController", () => {
   });
 
   it("throws when the permissions API rejects the token", async () => {
-    fetchSpy.mockResolvedValueOnce({ status: 401, json: () => Promise.resolve({}) });
+    fetchSpy.mockResolvedValueOnce({ status: 401, ok: false, json: () => Promise.resolve({}) });
 
     await expect(controller.proxy(body, user)).rejects.toThrowError(PrividiumApiError);
+  });
+
+  it("throws a bad gateway when the permissions API fails", async () => {
+    fetchSpy.mockResolvedValueOnce({ status: 500, ok: false, json: () => Promise.resolve({}) });
+
+    await expect(controller.proxy(body, user)).rejects.toThrowError(expect.objectContaining({ status: 502 }) as Error);
+  });
+
+  it("throws a bad gateway when the response is not JSON", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      ok: true,
+      json: () => Promise.reject(new SyntaxError("Unexpected token < in JSON")),
+    });
+
+    await expect(controller.proxy(body, user)).rejects.toThrowError(expect.objectContaining({ status: 502 }) as Error);
   });
 });

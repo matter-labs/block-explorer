@@ -124,5 +124,42 @@ describe("useContext:", () => {
       expect(context.getL2Provider()._getConnection().url).toBe("https://api.example.com/rpc");
       restore();
     });
+
+    it("sends session credentials and an abort signal on a Prividium network", async () => {
+      const { context, restore } = buildContext(PRIVIDIUM_NETWORK);
+      const fetchMock = vi.spyOn(global, "fetch").mockResolvedValue({
+        status: 200,
+        statusText: "OK",
+        headers: new Headers(),
+        arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)),
+      } as unknown as Response);
+
+      const request = context.getL2Provider()._getConnection();
+      await request.getUrlFunc(request);
+
+      expect(fetchMock).toBeCalledWith(
+        "https://api.example.com/rpc",
+        expect.objectContaining({ credentials: "include", signal: expect.any(AbortSignal) })
+      );
+      fetchMock.mockRestore();
+      restore();
+    });
+
+    it("aborts a Prividium request that exceeds the request timeout", async () => {
+      const { context, restore } = buildContext(PRIVIDIUM_NETWORK);
+      const fetchMock = vi.spyOn(global, "fetch").mockImplementation(
+        (_url, init) =>
+          new Promise((_resolve, reject) => {
+            (init as RequestInit).signal?.addEventListener("abort", () => reject(new Error("aborted")));
+          })
+      );
+
+      const request = context.getL2Provider()._getConnection();
+      request.timeout = 1;
+
+      await expect(request.getUrlFunc(request)).rejects.toThrowError(/timeout/);
+      fetchMock.mockRestore();
+      restore();
+    });
   });
 });
