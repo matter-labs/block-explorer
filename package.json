@@ -47,5 +47,8 @@
   "engines": {
     "npm": ">=9.0.0",
     "node": ">=22.0.0"
+  },
+  "overrides": {
+    "swagger-ui-dist": "^5.32.14"
   }
 }
