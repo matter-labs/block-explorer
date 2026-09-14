@@ -64,7 +64,7 @@ const { address, isConnectPending, isMetamaskInstalled } = useWallet({
 
 const isWalletInfoModalOpen = ref(false);
 
-const hasNoLinkedWallet = computed(() => context.user.value.loggedIn && context.user.value.wallets.length === 0);
+const hasNoLinkedWallet = computed(() => context.user.value.loggedIn && context.user.value.wallets?.length === 0);
 
 const displayAddress = computed(() => {
   if (hasNoLinkedWallet.value) {
