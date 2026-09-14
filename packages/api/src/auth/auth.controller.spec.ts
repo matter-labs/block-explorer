@@ -4,6 +4,7 @@ import { Request } from "express";
 import { VerifySignatureDto, SwitchWalletDto } from "./auth.dto";
 import { HttpException, InternalServerErrorException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { NO_WALLET_VIEWER } from "../common/constants";
 
 jest.mock("@nestjs/common", () => ({
   ...jest.requireActual("@nestjs/common"),
@@ -154,15 +155,50 @@ describe("AuthController", () => {
       );
     });
 
-    it("throws 400 error for empty wallets array", async () => {
-      fetchSpy.mockResolvedValueOnce({
-        status: 200,
-        json: jest.fn().mockResolvedValue({ wallets: [] }),
-      });
+    const mockWalletlessLogin = (systemPermissions: string[]) => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin", systemPermissions }] }),
+        });
+    };
 
-      await expect(controller.login(body, req)).rejects.toThrow(
-        new HttpException("No wallets associated with the user", 400)
-      );
+    it("logins without a wallet when the user has full read access", async () => {
+      mockWalletlessLogin(["full_read_access"]);
+
+      const result = await controller.login(body, req);
+
+      expect(result).toEqual({
+        address: null,
+        wallets: [],
+        hasFullReadAccess: true,
+        hasAdminRead: false,
+      });
+      expect(req.session.address).toBe(NO_WALLET_VIEWER);
+      expect(req.session.wallets).toEqual([]);
+    });
+
+    it("logins without a wallet when the user has no read-all permissions", async () => {
+      mockWalletlessLogin(["contract_deployment"]);
+
+      const result = await controller.login(body, req);
+
+      expect(result).toEqual({
+        address: null,
+        wallets: [],
+        hasFullReadAccess: false,
+        hasAdminRead: false,
+      });
+      expect(req.session.address).toBe(NO_WALLET_VIEWER);
+      expect(req.session.wallets).toEqual([]);
     });
 
     it("throws 403 error when roles API returns 403", async () => {
@@ -274,6 +310,23 @@ describe("AuthController", () => {
         wallets: mockWallets,
         hasFullReadAccess: true,
         hasAdminRead: true,
+      });
+    });
+
+    it("returns the switched wallet, not the first one", async () => {
+      req.session = { address: mockWalletAddress2, wallets: [mockWalletAddress, mockWalletAddress2] };
+      const res = await controller.me(req);
+      expect(res.address).toBe(mockWalletAddress2);
+    });
+
+    it("returns null when the session has no wallets", async () => {
+      req.session = { address: NO_WALLET_VIEWER, wallets: [], hasFullReadAccess: true, hasAdminRead: false };
+      const res = await controller.me(req);
+      expect(res).toEqual({
+        address: null,
+        wallets: [],
+        hasFullReadAccess: true,
+        hasAdminRead: false,
       });
     });
 

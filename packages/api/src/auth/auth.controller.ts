@@ -23,6 +23,7 @@ import { ConfigService } from "@nestjs/config";
 import { z } from "zod";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 import { parseUserProfile } from "../api/pipes/addUserRoles.pipe";
+import { NO_WALLET_VIEWER } from "../common/constants";
 
 const entityName = "auth";
 const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
@@ -52,28 +53,28 @@ export class AuthController {
   public async login(
     @Body() body: VerifySignatureDto,
     @Req() req: Request
-  ): Promise<{ address: string; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean }> {
+  ): Promise<{ address: string | null; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean }> {
     try {
-      const wallets = await this.fetchUserWallets(body.token);
-
-      if (wallets.length === 0) {
-        throw new HttpException("No wallets associated with the user", 400);
-      }
-
-      const [sessionExpirationIso, { hasFullReadAccess, hasAdminRead }] = await Promise.all([
+      const [wallets, sessionExpirationIso, { hasFullReadAccess, hasAdminRead }] = await Promise.all([
+        this.fetchUserWallets(body.token),
         this.fetchExpirationTimeIso(body.token),
         this.fetchUserProfile(body.token),
       ]);
 
       // Store all wallets and use first address as default
-      const address = wallets[0];
+      const address = wallets[0] ?? NO_WALLET_VIEWER;
       req.session.wallets = wallets;
       req.session.address = address;
       req.session.token = body.token;
       req.session.hasFullReadAccess = hasFullReadAccess;
       req.session.hasAdminRead = hasAdminRead;
       req.session.expiresAt = sessionExpirationIso;
-      return { address, wallets, hasFullReadAccess, hasAdminRead };
+      return {
+        address: address === NO_WALLET_VIEWER ? null : address,
+        wallets,
+        hasFullReadAccess,
+        hasAdminRead,
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -119,14 +120,14 @@ export class AuthController {
     schema: {
       type: "object",
       properties: {
-        address: { type: "string" },
+        address: { type: "string", nullable: true },
         wallets: { type: "array", items: { type: "string" } },
       },
     },
   })
   public async me(@Req() req: Request) {
     return {
-      address: req.session.address,
+      address: req.session.address === NO_WALLET_VIEWER ? null : req.session.address,
       wallets: req.session.wallets,
       hasFullReadAccess: req.session.hasFullReadAccess ?? false,
       hasAdminRead: req.session.hasAdminRead ?? false,
