@@ -14,6 +14,7 @@ import { AppModule } from "../src/app.module";
 import { configureApp } from "../src/configureApp";
 import { AddressTransaction } from "../src/transaction/entities/addressTransaction.entity";
 import { Transaction } from "../src/transaction/entities/transaction.entity";
+import { TransactionReceipt } from "../src/transaction/entities/transactionReceipt.entity";
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { IndexerState } from "../src/indexerState/indexerState.entity";
 import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "../src/prividium";
@@ -25,6 +26,7 @@ describe("Prividium API (e2e)", () => {
   let app: INestApplication;
   let addressTransactionRepository: Repository<AddressTransaction>;
   let transactionRepository: Repository<Transaction>;
+  let transactionReceiptRepository: Repository<TransactionReceipt>;
   let blockRepository: Repository<BlockDetails>;
   let indexerStateRepository: Repository<IndexerState>;
   let agent: request.SuperAgentTest;
@@ -65,6 +67,7 @@ describe("Prividium API (e2e)", () => {
 
     addressTransactionRepository = app.get<Repository<AddressTransaction>>(getRepositoryToken(AddressTransaction));
     transactionRepository = app.get<Repository<Transaction>>(getRepositoryToken(Transaction));
+    transactionReceiptRepository = app.get<Repository<TransactionReceipt>>(getRepositoryToken(TransactionReceipt));
     blockRepository = app.get<Repository<BlockDetails>>(getRepositoryToken(BlockDetails));
     indexerStateRepository = app.get<Repository<IndexerState>>(getRepositoryToken(IndexerState));
 
@@ -93,6 +96,7 @@ describe("Prividium API (e2e)", () => {
     // Clean up test data
     await indexerStateRepository.createQueryBuilder().delete().execute();
     await addressTransactionRepository.createQueryBuilder().delete().execute();
+    await transactionReceiptRepository.createQueryBuilder().delete().execute();
     await transactionRepository.createQueryBuilder().delete().execute();
     await blockRepository.createQueryBuilder().delete().execute();
 
@@ -313,6 +317,100 @@ describe("Prividium API (e2e)", () => {
       // Swagger returns 200 with HTML content
       expect(response.status).toBe(200);
       expect(response.text).toContain("swagger");
+    });
+  });
+  // `/API/...` reaches the `/api/...` handler, so it must hit the same full read access gate.
+  describe("Etherscan API route authorization", () => {
+    const otherAddress = "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C";
+    const otherTxHash = "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20";
+    let fetchSpy: jest.SpyInstance;
+
+    beforeAll(async () => {
+      await transactionRepository.insert({
+        to: otherAddress,
+        from: otherAddress,
+        data: "0x",
+        value: "0x2386f26fc10000",
+        fee: "0x2386f26fc10000",
+        nonce: 42,
+        blockHash: "0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79cb1",
+        isL1Originated: true,
+        hash: otherTxHash,
+        transactionIndex: 1,
+        blockNumber: 1,
+        receivedAt: "2010-11-21T18:16:00.000Z",
+        receiptStatus: 0,
+        gasLimit: "1000000",
+        gasPrice: "100",
+        type: 255,
+      });
+      await transactionReceiptRepository.insert({
+        transactionHash: otherTxHash,
+        from: otherAddress,
+        status: 1,
+        gasUsed: "900000",
+        cumulativeGasUsed: "1100000",
+        contractAddress: null,
+        blockNumber: 1,
+      });
+      await addressTransactionRepository.insert({
+        number: 1,
+        transactionHash: otherTxHash,
+        address: otherAddress,
+        blockNumber: 1,
+        receivedAt: new Date("2023-01-01"),
+        transactionIndex: 1,
+      });
+    });
+
+    beforeEach(async () => {
+      fetchSpy = jest.spyOn(global, "fetch");
+      // Ordinary user: a wallet, no full read access, no admin read.
+      fetchSpy
+        .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }) })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }),
+        })
+        .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }) });
+      await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+      fetchSpy.mockReset();
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
+    });
+
+    it.each(["/API/account/txlist", "/Api/account/txlist", "/aPi/Account/TxList"])(
+      "denies %s to a session without full read access and leaks no transactions",
+      async (path) => {
+        const response = await agent.get(`${path}?address=${otherAddress}&page=1&offset=10`);
+
+        expect(response.status).not.toBe(200);
+        expect([401, 403, 404]).toContain(response.status);
+        expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
+      }
+    );
+
+    it("denies the lower-case api route to a session without a bearer token", async () => {
+      const response = await agent.get(`/api/account/txlist?address=${otherAddress}`);
+
+      expect(response.status).toBe(401);
+      expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
+    });
+
+    it("still refuses an upper-case api route when the bearer token lacks full read access", async () => {
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user", systemPermissions: [] }] }),
+      });
+
+      const response = await agent
+        .get(`/API/account/txlist?address=${otherAddress}`)
+        .set("Authorization", "Bearer some-token");
+
+      expect(response.status).not.toBe(200);
+      expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
     });
   });
 });

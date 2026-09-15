@@ -8,6 +8,12 @@ const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/
 
 const API_ROUTES_ROOT_PATH = "/api";
 
+// Express routes case-insensitively, so `/API/...` hits the `/api/...` handler — classify it the same way.
+export const isApiRoutePathname = (pathname: string): boolean => {
+  const normalized = pathname.toLowerCase();
+  return normalized === API_ROUTES_ROOT_PATH || normalized.startsWith(`${API_ROUTES_ROOT_PATH}/`);
+};
+
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(private configService: ConfigService) {}
@@ -20,7 +26,7 @@ export class AuthMiddleware implements NestMiddleware {
       return;
     }
 
-    if (pathname.startsWith(API_ROUTES_ROOT_PATH)) {
+    if (isApiRoutePathname(pathname)) {
       const token = req.headers.authorization?.split(" ")[1];
       if (!token) {
         throw new UnauthorizedException({ message: "Unauthorized request" });

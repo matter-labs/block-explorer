@@ -27,6 +27,8 @@ export function applyPrividiumExpressConfig(
   }
 ) {
   app.set("trust proxy", 1);
+  // Without this, `/API/...` reaches the `/api/...` handler that AuthMiddleware gates.
+  app.set("case sensitive routing", true);
   app.use(
     cookieSession({
       name: "_auth",
