@@ -49,7 +49,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
   const initializeLogin = async () => {
     try {
       const response = await FetchInstance.api(context)<{
-        address: string;
+        address: string | null;
         wallets: string[];
         hasFullReadAccess: boolean;
         hasAdminRead: boolean;
@@ -90,7 +90,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
       if (result && result.token) {
         // Exchange JWT for cookie session
         const response = await FetchInstance.api(context)<{
-          address: string;
+          address: string | null;
           wallets: string[];
           hasFullReadAccess: boolean;
           hasAdminRead: boolean;

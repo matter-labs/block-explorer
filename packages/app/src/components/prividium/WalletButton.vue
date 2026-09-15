@@ -1,5 +1,8 @@
 <template>
-  <div class="wallet-button" :class="{ disabled: buttonDisabled }" @click="openModalConditionally">
+  <button v-if="hasNoLinkedWallet" class="logout-link" @click="logout()">
+    {{ t("connectMetamaskButton.logout") }}
+  </button>
+  <div v-else class="wallet-button" :class="{ disabled: buttonDisabled }" @click="openModalConditionally">
     <img :src="resolveAsset('/images/metamask.svg')" class="wallet-image" />
     <button v-if="!displayAddress" :disabled="buttonDisabled" class="login-button" @click="handleLogin">
       {{ buttonText }}
@@ -61,7 +64,12 @@ const { address, isConnectPending, isMetamaskInstalled } = useWallet({
 
 const isWalletInfoModalOpen = ref(false);
 
+const hasNoLinkedWallet = computed(() => context.user.value.loggedIn && context.user.value.wallets?.length === 0);
+
 const displayAddress = computed(() => {
+  if (hasNoLinkedWallet.value) {
+    return null;
+  }
   if (context.user.value.loggedIn && context.user.value.address !== null) {
     return context.user.value.address;
   }
@@ -175,6 +183,9 @@ const shortenedAddress = computed(() => {
       @apply cursor-not-allowed;
     }
   }
+}
+.logout-link {
+  @apply font-sans text-sm font-medium leading-5 text-white underline hover:text-primary-300;
 }
 .balance-loading {
   @apply text-sm text-neutral-500;
