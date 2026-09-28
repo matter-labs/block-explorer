@@ -86,6 +86,24 @@ describe("useContractInteraction:", () => {
       mockGetL2Signer.mockRestore();
       walletMock.mockRestore();
     });
+    it("passes arguments in ABI inputs order regardless of params order", async () => {
+      const mock = vi.spyOn(ethers.Contract.prototype, "transfer").mockImplementation(async () => "Test response");
+      const { readFunction } = useContractInteraction();
+      await readFunction(
+        "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
+        {
+          ...abiFragment,
+          inputs: [
+            { internalType: "address", name: "spender", type: "address" },
+            { internalType: "uint256", name: "", type: "uint256" },
+            { internalType: "bool[]", name: "flags", type: "bool[]" },
+          ],
+        },
+        { flags: [true, false], input1: "2", spender: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b" }
+      );
+      expect(mock.mock.lastCall).toEqual(["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b", "2", [true, false]]);
+      mock.mockRestore();
+    });
   });
   describe("writeFunction:", () => {
     beforeEach(() => {
