@@ -30,6 +30,7 @@ describe("AddressService", () => {
   describe("getContractAddresses", () => {
     const logs = [
       mock<types.Log>({
+        address: "0x0000000000000000000000000000000000008006",
         topics: [
           "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
           "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
@@ -46,6 +47,7 @@ describe("AddressService", () => {
         index: 2,
       }),
       mock<types.Log>({
+        address: "0x0000000000000000000000000000000000008006",
         topics: [
           "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
           "0x000000000000000000000000481e48ce19781c3ca573967216dee75fdcf70f54",
@@ -83,6 +85,7 @@ describe("AddressService", () => {
           blockNumber: transactionReceipt.blockNumber,
           transactionHash: transactionReceipt.hash,
           creatorAddress: transactionReceipt.from,
+          deployerAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
           logIndex: logs[0].index,
           isEvmLike: false,
         },
@@ -92,10 +95,40 @@ describe("AddressService", () => {
           blockNumber: transactionReceipt.blockNumber,
           transactionHash: transactionReceipt.hash,
           creatorAddress: transactionReceipt.from,
+          deployerAddress: "0x481E48Ce19781c3cA573967216deE75FDcF70F54",
           logIndex: logs[2].index,
           isEvmLike: false,
         },
       ]);
+    });
+
+    it.each([
+      {
+        logType: "LOG1",
+        topics: ["0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5"],
+      },
+      {
+        logType: "LOG4 with an out-of-range contract address",
+        topics: [
+          "0x290afdae231a3fc0bbae8b1af63698b0a1d79b21ad17df0342dfb952fe74f8e5",
+          "0x000000000000000000000000c7e0220d02d549c4846a6ec31d89c3b670ebe35c",
+          "0x0100014340e955cbf39159da998b3374bee8f3c0b3c75a7a9e3df6b85052379d",
+          "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        ],
+      },
+    ])("skips $logType ContractDeployed logs that are not emitted by the contract deployer", async ({ topics }) => {
+      const contractAddresses = await addressService.getContractAddresses(
+        [
+          mock<types.Log>({
+            address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571",
+            topics,
+            index: 1,
+          }),
+        ],
+        transactionReceipt
+      );
+      expect(contractAddresses).toStrictEqual([]);
+      expect(blockchainServiceMock.getCode).not.toHaveBeenCalled();
     });
 
     it("returns an empty array if no logs specified", async () => {

@@ -2407,6 +2407,10 @@ describe("BlockchainService", () => {
   describe("onModuleInit", () => {
     let bridgeAddresses;
 
+    beforeEach(() => {
+      jest.spyOn(provider, "send").mockResolvedValue({});
+    });
+
     describe("when l2 ERC20 default bridge is defined", () => {
       beforeEach(() => {
         bridgeAddresses = {
@@ -2435,6 +2439,46 @@ describe("BlockchainService", () => {
         await blockchainService.onModuleInit();
         expect(blockchainService.bridgeAddresses.l2Erc20DefaultBridge).toBe(undefined);
       });
+    });
+
+    describe("when l2 legacy shared bridge is defined", () => {
+      beforeEach(() => {
+        bridgeAddresses = {
+          erc20L2: "l2Erc20DefaultBridge",
+        };
+
+        jest.spyOn(provider, "getDefaultBridgeAddresses").mockResolvedValueOnce(bridgeAddresses);
+        jest
+          .spyOn(provider, "send")
+          .mockResolvedValueOnce({ l2LegacySharedBridge: "0x11f943b2c77b743AB90f4A0Ae7d5A4e7FCA3E102" });
+      });
+
+      it("inits L2 legacy shared bridge address", async () => {
+        await blockchainService.onModuleInit();
+        expect(provider.send).toHaveBeenCalledWith("zks_getBridgeContracts", []);
+        expect(blockchainService.bridgeAddresses.l2LegacySharedBridge).toBe(
+          "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102"
+        );
+      });
+    });
+
+    describe("when l2 legacy shared bridge is not defined", () => {
+      beforeEach(() => {
+        bridgeAddresses = {
+          erc20L2: "l2Erc20DefaultBridge",
+        };
+
+        jest.spyOn(provider, "getDefaultBridgeAddresses").mockResolvedValueOnce(bridgeAddresses);
+      });
+
+      it.each([undefined, "0x0000000000000000000000000000000000000000"])(
+        "sets L2 legacy shared bridge address to undefined when it is %s",
+        async (l2LegacySharedBridge) => {
+          jest.spyOn(provider, "send").mockResolvedValueOnce({ l2LegacySharedBridge });
+          await blockchainService.onModuleInit();
+          expect(blockchainService.bridgeAddresses.l2LegacySharedBridge).toBe(undefined);
+        }
+      );
     });
   });
 });

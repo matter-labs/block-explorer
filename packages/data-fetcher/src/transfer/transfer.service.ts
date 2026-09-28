@@ -1,4 +1,5 @@
 import { types, utils } from "zksync-ethers";
+import { isError } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -43,6 +44,10 @@ const conflictingTransferLogs = [
   [LogType.FinalizeDeposit, LogType.DepositFinalizedAssetRouter],
   [LogType.WithdrawalInitiated, LogType.WithdrawalInitiatedAssetRouter],
 ];
+
+// Malformed log data fails to decode on every retry, so such a log must not fail the whole block.
+const isLogDataDecodingError = (error): boolean =>
+  isError(error, "BUFFER_OVERRUN") || !!error?.message?.startsWith("deferred error during ABI decoding");
 
 @Injectable()
 export class TransferService {
@@ -113,6 +118,9 @@ export class TransferService {
           logIndex: log.index,
           transactionHash: log.transactionHash,
         });
+        if (isLogDataDecodingError(error)) {
+          continue;
+        }
         throw error;
       }
     }

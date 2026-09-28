@@ -152,7 +152,7 @@ export default (context = useContext()) => {
         nonce: transactionData.nonce,
         receivedAt: new Date(transactionDetails.receivedAt).toJSON(),
 
-        status: "indexing" as TransactionStatus,
+        status: (transactionReceipt.status === 0 ? "failed" : "indexing") as TransactionStatus,
         l1BatchNumber: transactionData.l1BatchNumber,
         isL1BatchSealed: false,
 

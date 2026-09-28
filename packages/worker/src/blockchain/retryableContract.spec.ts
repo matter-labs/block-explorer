@@ -144,6 +144,33 @@ describe("RetryableContract", () => {
       });
     });
 
+    describe("when throws a permanent invalid length for result data error", () => {
+      const badDataError = {
+        code: "BAD_DATA",
+        shortMessage: "invalid length for result data",
+      };
+
+      beforeEach(() => {
+        let countOfRequests = 0;
+        (ethers.Contract as any as jest.Mock).mockReturnValue({
+          // a result is returned if the call is retried
+          contractFn: async () => {
+            if (!countOfRequests++) {
+              throw badDataError;
+            }
+            return "functionResult";
+          },
+        });
+
+        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      });
+
+      it("throws the error without retrying", async () => {
+        await expect(contract.contractFn()).rejects.toBe(badDataError);
+        expect(setTimeout).not.toBeCalled();
+      });
+    });
+
     describe("when throws an invalid argument function error", () => {
       const invalidArgumentError = {
         code: "INVALID_ARGUMENT",
@@ -167,6 +194,29 @@ describe("RetryableContract", () => {
         } catch (e) {
           expect(e).toBe(invalidArgumentError);
         }
+      });
+    });
+
+    describe("when the contract returns an invalid UTF-8 string", () => {
+      beforeEach(() => {
+        const { AbiCoder, Contract } = jest.requireActual("ethers");
+        let countOfRequests = 0;
+        (ethers.Contract as any as jest.Mock).mockReturnValue(
+          new Contract("0x0000000000000000000000000000000000000001", utils.IERC20, {
+            // string and bytes have the same ABI encoding, a valid string is returned if the call is retried
+            call: async () =>
+              AbiCoder.defaultAbiCoder().encode(["bytes"], [countOfRequests++ ? "0x4c313131" : "0xfffe"]),
+          })
+        );
+
+        contract = new RetryableContract(tokenAddress, utils.IERC20, providerMock);
+      });
+
+      it("throws the deferred decoding error without retrying", async () => {
+        await expect(contract.symbol()).rejects.toThrowError(
+          "deferred error during ABI decoding triggered accessing index 0"
+        );
+        expect(setTimeout).not.toBeCalled();
       });
     });
 

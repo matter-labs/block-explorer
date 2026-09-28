@@ -66,7 +66,7 @@ export class TransactionController {
       listFilterOptions.toDate,
       "receivedAt"
     );
-    return await this.transactionService.findAll(
+    const transactions = await this.transactionService.findAll(
       {
         ...filterTransactionsOptions,
         ...filterTransactionsListOptions,
@@ -78,6 +78,13 @@ export class TransactionController {
         route: entityName,
       }
     );
+    if (user) {
+      return {
+        ...transactions,
+        items: transactions.items.map((transaction) => this.transactionService.redactForUser(transaction, user)),
+      };
+    }
+    return transactions;
   }
 
   @Get(":transactionHash")
@@ -111,7 +118,7 @@ export class TransactionController {
       if (!this.transactionService.isTransactionVisibleByUser(transactionDetail, transactionLogs.items, user)) {
         throw new NotFoundException();
       }
-      return transactionDetail;
+      return this.transactionService.redactForUser(transactionDetail, user);
     }
 
     return transactionDetail;
@@ -132,14 +139,16 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransactionTransfers(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User() user: UserParam
   ): Promise<Pagination<TransferDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
+    if (!(await this.transactionExistsForUser(transactionHash, user))) {
       throw new NotFoundException();
     }
+    const userFilters = user ? { visibleBy: user.address } : {};
 
     const transfers = await this.transferService.findAll(
-      { transactionHash },
+      { transactionHash, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/transfers`,
@@ -163,18 +172,32 @@ export class TransactionController {
   @ApiNotFoundResponse({ description: "Transaction with the specified hash does not exist" })
   public async getTransactionLogs(
     @Param("transactionHash", new ParseTransactionHashPipe()) transactionHash: string,
-    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @User() user: UserParam
   ): Promise<Pagination<LogDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
+    if (!(await this.transactionExistsForUser(transactionHash, user))) {
       throw new NotFoundException();
     }
+    const userFilters = user ? { visibleBy: user.address } : {};
 
     return await this.logService.findAll(
-      { transactionHash },
+      { transactionHash, ...userFilters },
       {
         ...pagingOptions,
         route: `${entityName}/${transactionHash}/logs`,
       }
     );
+  }
+
+  private async transactionExistsForUser(transactionHash: string, user: UserParam): Promise<boolean> {
+    if (user) {
+      const transaction = await this.transactionService.findOne(transactionHash);
+      if (!transaction) {
+        return false;
+      }
+      const transactionLogs = await this.logService.findAll({ transactionHash }, { page: 1, limit: 10_000 });
+      return this.transactionService.isTransactionVisibleByUser(transaction, transactionLogs.items, user);
+    }
+    return await this.transactionService.exists(transactionHash);
   }
 }

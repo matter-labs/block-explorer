@@ -59,16 +59,15 @@ export class TransferService {
       const { address, ...rest } = basicOptions;
       const queryBuilder = this.transferRepository.createQueryBuilder("transfer");
       queryBuilder.where(rest);
-      queryBuilder.andWhere([
-        {
-          from: address,
-          to: visibleBy,
-        },
-        {
-          from: visibleBy,
-          to: address,
-        },
-      ]);
+      // Without an address, returns every transfer from or to visibleBy.
+      queryBuilder.andWhere(
+        address
+          ? [
+              { from: address, to: visibleBy },
+              { from: visibleBy, to: address },
+            ]
+          : [{ from: visibleBy }, { to: visibleBy }]
+      );
       queryBuilder.leftJoinAndSelect("transfer.token", "token");
       queryBuilder.orderBy("transfer.timestamp", "DESC");
       queryBuilder.addOrderBy("transfer.logIndex", "ASC");

@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { types } from "zksync-ethers";
-import { BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
+import { AbiCoder } from "ethers";
+import { BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS, L2_NATIVE_TOKEN_VAULT_ADDRESS } from "../constants";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -17,6 +18,7 @@ describe("TokenService", () => {
     blockchainServiceMock = mock<BlockchainService>({
       bridgeAddresses: {
         l2Erc20DefaultBridge: "0x0000000000000000000000000000000000001111",
+        l2LegacySharedBridge: "0x11f943b2c77b743ab90f4a0ae7d5a4e7fca3e102",
       },
     });
 
@@ -66,6 +68,7 @@ describe("TokenService", () => {
         blockNumber: 10,
         transactionHash: "transactionHash",
         logIndex: 20,
+        deployerAddress: L2_NATIVE_TOKEN_VAULT_ADDRESS,
       });
 
       jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValue(tokenData);
@@ -337,6 +340,7 @@ describe("TokenService", () => {
           blockNumber: 10,
           transactionHash: "transactionHash",
           logIndex: 20,
+          deployerAddress: L2_NATIVE_TOKEN_VAULT_ADDRESS,
         });
 
         bridgedToken = {
@@ -361,6 +365,69 @@ describe("TokenService", () => {
           l1Address: "0xc8F8cE6491227a6a2Ab92e67a64011a4Eba1C6CF",
           logIndex: deployedContractAddress.logIndex,
         });
+      });
+
+      it.each([
+        ["legacy shared bridge", "0x11f943b2c77b743AB90f4A0Ae7d5A4e7FCA3E102"],
+        ["default bridge", "0x0000000000000000000000000000000000001111"],
+      ])("returns the token with l1Address when the token is deployed by the %s", async (_, deployerAddress) => {
+        deployedContractAddress = mock<ContractAddress>({
+          address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
+          blockNumber: 10,
+          transactionHash: "transactionHash",
+          logIndex: 20,
+          deployerAddress,
+        });
+        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        expect(token).toStrictEqual({
+          ...bridgedToken,
+          blockNumber: deployedContractAddress.blockNumber,
+          transactionHash: deployedContractAddress.transactionHash,
+          l2Address: deployedContractAddress.address,
+          l1Address: "0xc8F8cE6491227a6a2Ab92e67a64011a4Eba1C6CF",
+          logIndex: deployedContractAddress.logIndex,
+        });
+      });
+
+      it.each(["0x0000000000000000000000000000000000000aaa", undefined])(
+        "returns the token without l1Address when the token is deployed by %s",
+        async (deployerAddress) => {
+          deployedContractAddress = mock<ContractAddress>({
+            address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
+            blockNumber: 10,
+            transactionHash: "transactionHash",
+            logIndex: 20,
+            deployerAddress,
+          });
+          const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+          expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
+          expect(token).toStrictEqual({
+            ...tokenData,
+            blockNumber: deployedContractAddress.blockNumber,
+            transactionHash: deployedContractAddress.transactionHash,
+            l2Address: deployedContractAddress.address,
+            logIndex: deployedContractAddress.logIndex,
+          });
+        }
+      );
+
+      it("returns null when the token symbol in the log is an invalid UTF-8 string", async () => {
+        transactionReceipt = mock<types.TransactionReceipt>({
+          ...transactionReceipt,
+          logs: [
+            mock<types.Log>({
+              address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
+              topics: [
+                "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
+                "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
+              ],
+              // string and bytes have the same ABI encoding
+              data: AbiCoder.defaultAbiCoder().encode(["bytes", "bytes", "uint8"], ["0x4c313131", "0xfffe", 18]),
+            }),
+          ],
+        });
+        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        expect(token).toBeNull();
       });
     });
 

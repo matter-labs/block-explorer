@@ -9,6 +9,8 @@ import { processException, default as useWallet, type WalletError } from "@/comp
 import type { AbiFragment } from "./useAddress";
 import type { Signer } from "zksync-ethers";
 
+import { isArrayFunctionType } from "@/utils/helpers";
+
 export const PAYABLE_AMOUNT_PARAM_NAME = "payable_function_payable_amount";
 
 type ContractError = WalletError & {
@@ -123,8 +125,12 @@ export default (context = useContext()) => {
       }
 
       const contract = new Contract(address, [abiFragment], signer!);
+      // same keys as FunctionForm uses for the inputs
+      const methodArguments = abiFragment.inputs.map((abiInput, index) =>
+        isArrayFunctionType(abiInput.type) ? params[abiInput.name] : params[abiInput.name || `input${index}`]
+      );
       const res = (
-        await contract[abiFragment.name](...Object.entries(params).map(([, inputValue]) => inputValue)).catch(
+        await contract[abiFragment.name](...methodArguments).catch(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (e: any) => processException(e, "Please, try again later")
         )

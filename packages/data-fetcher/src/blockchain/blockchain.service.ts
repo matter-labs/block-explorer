@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit, Logger } from "@nestjs/common";
 import { utils, types } from "zksync-ethers";
 import { Histogram } from "prom-client";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
-import { Listener } from "ethers";
+import { Listener, ZeroAddress } from "ethers";
 import { ConfigService } from "@nestjs/config";
 import { setTimeout } from "timers/promises";
 import { ProviderEvent } from "ethers";
@@ -13,6 +13,7 @@ import { L2_NATIVE_TOKEN_VAULT_ADDRESS, CONTRACT_INTERFACES } from "../constants
 
 export interface BridgeAddresses {
   l2Erc20DefaultBridge?: string;
+  l2LegacySharedBridge?: string;
 }
 
 export interface TraceTransactionResult {
@@ -201,9 +202,15 @@ export class BlockchainService implements OnModuleInit {
 
   public async onModuleInit(): Promise<void> {
     const bridgeAddresses = await this.getDefaultBridgeAddresses();
+    // the legacy shared bridge is not returned by getDefaultBridgeAddresses
+    const bridgeContracts: { l2LegacySharedBridge?: string } = await this.rpcCall(async () => {
+      return await this.provider.send("zks_getBridgeContracts", []);
+    }, "getBridgeContracts");
+    const l2LegacySharedBridge = bridgeContracts.l2LegacySharedBridge?.toLowerCase();
 
     this.bridgeAddresses = {
       l2Erc20DefaultBridge: bridgeAddresses.erc20L2?.toLowerCase(),
+      l2LegacySharedBridge: l2LegacySharedBridge !== ZeroAddress ? l2LegacySharedBridge : undefined,
     };
     this.logger.debug(`L2 ERC20 Bridge is set to: ${this.bridgeAddresses.l2Erc20DefaultBridge}`);
   }

@@ -214,6 +214,19 @@ describe("TransferService", () => {
         },
       ]);
     });
+
+    it("searchs for transfers from or to visibleBy when address is not defined", async () => {
+      const filterOptions = {
+        transactionHash: "0xd99d0b0e4e4ef0b4d0d6b4f4b9d8b2b4b2a4f8e2f8e2f8e2f8e2f8e2f8e2f8e2",
+        visibleBy: "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      };
+      await service.findAll(filterOptions, pagingOptions);
+      expect(queryBuilderMock.where).toHaveBeenCalledWith({ transactionHash: filterOptions.transactionHash });
+      expect(queryBuilderMock.andWhere).toHaveBeenCalledWith([
+        { from: filterOptions.visibleBy },
+        { to: filterOptions.visibleBy },
+      ]);
+    });
   });
 
   describe("findTokenTransfers", () => {

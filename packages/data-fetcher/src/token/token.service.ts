@@ -7,7 +7,7 @@ import { BlockchainService } from "../blockchain/blockchain.service";
 import { GET_TOKEN_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { ContractAddress } from "../address/interface/contractAddress.interface";
 import parseLog from "../utils/parseLog";
-import { CONTRACT_INTERFACES, BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS } from "../constants";
+import { CONTRACT_INTERFACES, BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS, L2_NATIVE_TOKEN_VAULT_ADDRESS } from "../constants";
 
 export interface Token {
   l2Address: string;
@@ -82,14 +82,32 @@ export class TokenService {
           log.address.toLowerCase() === contractAddress.address.toLowerCase()
       );
 
-    if (bridgeLog) {
+    // Bridged tokens are deployed by the native token vault, by the legacy shared bridge (L1 tokens on Era)
+    // or by the default bridge (before the native token vault), the bridge log of any other contract is not trusted
+    const bridgedTokenDeployers = [
+      L2_NATIVE_TOKEN_VAULT_ADDRESS,
+      this.blockchainService.bridgeAddresses.l2LegacySharedBridge,
+      this.blockchainService.bridgeAddresses.l2Erc20DefaultBridge,
+    ].filter(Boolean);
+
+    if (bridgeLog && bridgedTokenDeployers.includes(contractAddress.deployerAddress?.toLowerCase())) {
       const parsedLog = parseLog(CONTRACT_INTERFACES.L2_STANDARD_ERC20, bridgeLog);
-      erc20Token = {
-        name: parsedLog.args.name,
-        symbol: parsedLog.args.symbol,
-        decimals: parsedLog.args.decimals,
-        l1Address: parsedLog.args.l1Token,
-      };
+      try {
+        erc20Token = {
+          name: parsedLog.args.name,
+          symbol: parsedLog.args.symbol,
+          decimals: parsedLog.args.decimals,
+          l1Address: parsedLog.args.l1Token,
+        };
+      } catch {
+        // accessing an arg that cannot be decoded (e.g. invalid UTF-8 name or symbol) throws a deferred error,
+        // the token contract returns the same name and symbol, so it is handled as a non ERC20 contract
+        this.logger.log({
+          message: "Cannot parse bridge initialize log of ERC20 contract.",
+          contractAddress: contractAddress.address,
+        });
+        erc20Token = null;
+      }
     } else {
       const stopGetTokenInfoDurationMetric = this.getTokenInfoDurationMetric.startTimer();
       erc20Token = await this.getERC20TokenData(contractAddress.address);
