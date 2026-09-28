@@ -42,7 +42,7 @@ export function formatValue(value: BigNumberish, decimals: number): string {
 }
 
 export function formatBigNumberish(value: BigNumberish, decimals: number) {
-  return formatUnits(value, decimals).replace(/.0$/g, "");
+  return formatUnits(value, decimals).replace(/\.0$/g, "");
 }
 
 export function checksumAddress(address?: Address | string | null): Address {

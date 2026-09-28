@@ -43,6 +43,7 @@ import useLogin from "@/composables/useLogin";
 import useRuntimeConfig from "@/composables/useRuntimeConfig";
 
 import { resolveAsset, resolveBase } from "@/utils/appBase";
+import { isValidRedirectPath } from "@/utils/redirect";
 
 const { t } = useI18n();
 const { brandName } = useRuntimeConfig();
@@ -70,10 +71,6 @@ const handleLogin = async () => {
     }
     console.error("Login failed:", error);
   }
-};
-
-const isValidRedirectPath = (path: unknown): path is string => {
-  return typeof path === "string" && path.length > 0;
 };
 
 watchEffect(() => {

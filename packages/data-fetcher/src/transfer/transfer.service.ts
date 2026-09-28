@@ -1,4 +1,4 @@
-import { type Log, type Block, type TransactionReceipt } from "ethers";
+import { type Log, type Block, type TransactionReceipt, isError } from "ethers";
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { L1_ORIGINATED_TX_TYPES } from "../constants";
@@ -48,6 +48,10 @@ const assetRouterTransferTopics = new Set<string>([
 
 const bridgeTransferKey = (transfer: Transfer): string =>
   [transfer.type, transfer.from, transfer.to, transfer.tokenAddress, transfer.amount.toString()].join("-");
+
+// Malformed log data fails to decode on every retry, so such a log must not fail the whole block.
+const isLogDataDecodingError = (error): boolean =>
+  isError(error, "BUFFER_OVERRUN") || !!error?.message?.startsWith("deferred error during ABI decoding");
 
 @Injectable()
 export class TransferService {
@@ -101,6 +105,9 @@ export class TransferService {
           logIndex: log.index,
           transactionHash: log.transactionHash,
         });
+        if (isLogDataDecodingError(error)) {
+          continue;
+        }
         throw error;
       }
     }

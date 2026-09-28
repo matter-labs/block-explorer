@@ -854,4 +854,45 @@ describe("TransactionService", () => {
       });
     });
   });
+
+  describe("redactForUser", () => {
+    const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    const user = { address: userAddress, wallets: [userAddress], token: "token" };
+    const otherAddress = "0x1234567890123456789012345678901234567890";
+    const calldata = `0x252dba42${"00".repeat(64)}`;
+    const buildTransaction = (from: string, to: string) =>
+      Object.assign(new Transaction(), {
+        hash: "0xabcdef1234567890",
+        from,
+        to,
+        data: calldata,
+        receiptStatus: 0,
+        error: "execution reverted",
+        revertReason: "Insufficient balance",
+      });
+
+    it("returns the transaction unchanged when user is the sender", () => {
+      const transaction = buildTransaction(userAddress, otherAddress);
+      expect(service.redactForUser(transaction, user)).toBe(transaction);
+    });
+
+    it("returns the transaction unchanged when user is the receiver", () => {
+      const transaction = buildTransaction(otherAddress, userAddress.toLowerCase());
+      expect(service.redactForUser(transaction, user)).toBe(transaction);
+    });
+
+    it("returns a copy without calldata and failure details when user is neither the sender nor the receiver", () => {
+      const transaction = buildTransaction(otherAddress, otherAddress);
+      const json = JSON.parse(JSON.stringify(service.redactForUser(transaction, user)));
+      expect(json).toMatchObject({
+        hash: transaction.hash,
+        data: "0x",
+        error: null,
+        revertReason: null,
+        status: "failed",
+      });
+      expect(json).not.toHaveProperty("receiptStatus");
+      expect(transaction.data).toBe(calldata);
+    });
+  });
 });

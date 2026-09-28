@@ -29,15 +29,18 @@
       <button
         v-if="memo"
         class="transfer-memo-badge"
+        :class="{ 'is-mismatch': memoMismatch }"
         :aria-expanded="showMemo"
         :title="t('transactions.table.iso20022.toggle')"
         @click="showMemo = !showMemo"
       >
-        <span class="transfer-memo-badge-label">{{ t("transactions.table.iso20022.badge") }}</span>
+        <span class="transfer-memo-badge-label">{{
+          memoMismatch ? t("transactions.table.iso20022.badgeMismatch") : t("transactions.table.iso20022.badge")
+        }}</span>
         <ChevronDownIcon class="transfer-memo-chevron" :class="{ 'is-open': showMemo }" />
       </button>
     </div>
-    <Iso20022Memo v-if="memo && showMemo" :memo="memo" />
+    <Iso20022Memo v-if="memo && showMemo" :memo="memo" :mismatch="memoMismatch" />
   </div>
 </template>
 
@@ -55,6 +58,7 @@ import type { TokenTransfer } from "@/composables/useTransaction";
 import type { Hash } from "@/types";
 
 import { formatBigNumberish } from "@/utils/formatters";
+import { isIso20022MemoMismatch, parseIso20022Pain001 } from "@/utils/iso20022";
 
 const { t } = useI18n();
 
@@ -74,6 +78,10 @@ const props = defineProps({
 });
 
 const showMemo = ref(false);
+
+const memoMismatch = computed(
+  () => !!props.memo && isIso20022MemoMismatch(parseIso20022Pain001(props.memo), props.transfer)
+);
 
 const transferAmount = computed(() =>
   props.transfer.tokenInfo ? formatBigNumberish(props.transfer.amount || 0, props.transfer.tokenInfo?.decimals) : ""
@@ -96,6 +104,10 @@ const transferAmount = computed(() =>
         &.is-open {
           @apply rotate-180;
         }
+      }
+
+      &.is-mismatch {
+        @apply bg-error-600 bg-opacity-[15%] text-error-600;
       }
     }
 

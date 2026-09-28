@@ -290,6 +290,7 @@ import TransferTableCell from "@/components/transactions/infoTable/TransferTable
 
 import type { TransactionItem } from "@/composables/useTransaction";
 
+import { INTEROP_CENTER_ADDRESS } from "@/utils/constants";
 import {
   decodeInteropBundleSentEvent,
   decodeTransferWithMemoEvent,
@@ -337,7 +338,11 @@ const displayedTxReceiverName = computed(() => {
 });
 
 const interopBundle = computed(() => {
-  const log = props.transaction?.logs?.find((entry) => entry.topics[0]?.toLowerCase() === INTEROP_BUNDLE_SENT_TOPIC);
+  const log = props.transaction?.logs?.find(
+    (entry) =>
+      entry.topics[0]?.toLowerCase() === INTEROP_BUNDLE_SENT_TOPIC &&
+      entry.address.toLowerCase() === INTEROP_CENTER_ADDRESS.toLowerCase()
+  );
   if (!log) return null;
   return decodeInteropBundleSentEvent(log) ?? null;
 });
