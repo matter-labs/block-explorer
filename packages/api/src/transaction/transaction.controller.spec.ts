@@ -111,11 +111,60 @@ describe("TransactionController", () => {
       expect(result).toBe(transactions);
     });
 
+    it("does not redact the transactions", async () => {
+      await controller.getTransactions(filterTransactionsOptions, listFilterOptions, pagingOptions, null);
+      expect(serviceMock.redactForUser).not.toHaveBeenCalled();
+    });
+
     describe("when user is provided", () => {
       let user: MockProxy<UserWithPermissions>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      const firstTransaction = { hash: "0x01" } as Transaction;
+      const secondTransaction = { hash: "0x02" } as Transaction;
+      const userTransactions = new Pagination(
+        [firstTransaction, secondTransaction],
+        { itemCount: 2, itemsPerPage: 10, currentPage: 2 },
+        { first: "first", previous: "previous", next: "next", last: "last" }
+      );
       beforeEach(() => {
         user = mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: false, token: "token1" });
+        (serviceMock.findAll as jest.Mock).mockReset();
+        (serviceMock.findAll as jest.Mock).mockResolvedValue(userTransactions);
+        (serviceMock.redactForUser as jest.Mock).mockImplementation((transaction) => ({
+          ...transaction,
+          data: "0x",
+        }));
+      });
+
+      it("returns the transactions redacted for the user", async () => {
+        const result = await controller.getTransactions(
+          filterTransactionsOptions,
+          listFilterOptions,
+          pagingOptions,
+          user
+        );
+        expect(serviceMock.redactForUser).toHaveBeenCalledTimes(2);
+        expect(serviceMock.redactForUser).toHaveBeenCalledWith(firstTransaction, user);
+        expect(serviceMock.redactForUser).toHaveBeenCalledWith(secondTransaction, user);
+        expect(result).toEqual({
+          items: [
+            { hash: "0x01", data: "0x" },
+            { hash: "0x02", data: "0x" },
+          ],
+          meta: userTransactions.meta,
+          links: userTransactions.links,
+        });
+      });
+
+      it("returns the transactions as is when user has full read access", async () => {
+        const result = await controller.getTransactions(
+          filterTransactionsOptions,
+          listFilterOptions,
+          pagingOptions,
+          mock<UserWithPermissions>({ address: mockUser, hasFullReadAccess: true })
+        );
+        expect(serviceMock.redactForUser).not.toHaveBeenCalled();
+        expect(result).toBe(userTransactions);
       });
 
       it("passes visibleBy when no address is provided", async () => {
@@ -182,6 +231,7 @@ describe("TransactionController", () => {
       it("returns the transaction", async () => {
         const result = await controller.getTransaction(transactionHash, null);
         expect(result).toBe(transaction);
+        expect(serviceMock.redactForUser).not.toHaveBeenCalled();
       });
     });
 
@@ -214,11 +264,14 @@ describe("TransactionController", () => {
         clearAllMocks();
       });
 
-      it("returns the transaction when user can see it", async () => {
+      it("returns the transaction redacted for the user when user can see it", async () => {
+        const redactedTransaction = { ...transaction, data: "0x" };
         (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(true);
+        (serviceMock.redactForUser as jest.Mock).mockReturnValue(redactedTransaction);
         const result = await controller.getTransaction(transactionHash, user);
         expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, user);
-        expect(result).toBe(transaction);
+        expect(serviceMock.redactForUser).toHaveBeenCalledWith(transaction, user);
+        expect(result).toBe(redactedTransaction);
       });
 
       it("returns the transaction when user is admin", async () => {
@@ -230,6 +283,7 @@ describe("TransactionController", () => {
           })
         );
         expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
+        expect(serviceMock.redactForUser).not.toHaveBeenCalled();
         expect(result).toBe(transaction);
       });
 
@@ -279,6 +333,8 @@ describe("TransactionController", () => {
             hasFullReadAccess: false,
             token: "token1",
           });
+          (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(true);
         });
 
         it("includes visibleBy filter", async () => {
@@ -287,6 +343,31 @@ describe("TransactionController", () => {
             expect.objectContaining({ visibleBy: user.address }),
             expect.anything()
           );
+        });
+
+        it("checks that the transaction is visible by the user", async () => {
+          await controller.getTransactionTransfers(transactionHash, pagingOptions, user);
+          expect(serviceMock.findOne).toHaveBeenCalledWith(transactionHash);
+          expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, user);
+        });
+
+        it("throws NotFoundException when transaction is not visible to user", async () => {
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(false);
+          await expect(controller.getTransactionTransfers(transactionHash, pagingOptions, user)).rejects.toThrow(
+            NotFoundException
+          );
+          expect(transferServiceMock.findAll).not.toHaveBeenCalled();
+        });
+
+        it("does not check transaction visibility when user has full read access", async () => {
+          const result = await controller.getTransactionTransfers(
+            transactionHash,
+            pagingOptions,
+            mock<UserWithPermissions>({ address: user.address, hasFullReadAccess: true })
+          );
+          expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
+          expect(transferServiceMock.findAll).toHaveBeenCalledWith({ transactionHash }, expect.anything());
+          expect(result).toBe(transactionTransfers);
         });
       });
     });
@@ -304,6 +385,22 @@ describe("TransactionController", () => {
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
+      });
+
+      it("throws NotFoundException when user is provided", async () => {
+        (serviceMock.findOne as jest.Mock).mockResolvedValue(null);
+        await expect(
+          controller.getTransactionTransfers(
+            transactionHash,
+            pagingOptions,
+            mock<UserWithPermissions>({
+              address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              hasFullReadAccess: false,
+            })
+          )
+        ).rejects.toThrow(NotFoundException);
+        expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
+        expect(transferServiceMock.findAll).not.toHaveBeenCalled();
       });
     });
   });
@@ -341,6 +438,8 @@ describe("TransactionController", () => {
             hasFullReadAccess: false,
             token: "token1",
           });
+          (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(true);
         });
 
         it("includes visibleBy filter", async () => {
@@ -349,6 +448,31 @@ describe("TransactionController", () => {
             expect.objectContaining({ visibleBy: user.address }),
             expect.anything()
           );
+        });
+
+        it("checks that the transaction is visible by the user", async () => {
+          await controller.getTransactionLogs(transactionHash, pagingOptions, user);
+          expect(serviceMock.findOne).toHaveBeenCalledWith(transactionHash);
+          expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, user);
+        });
+
+        it("throws NotFoundException when transaction is not visible to user", async () => {
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockResolvedValue(false);
+          await expect(controller.getTransactionLogs(transactionHash, pagingOptions, user)).rejects.toThrow(
+            NotFoundException
+          );
+          expect(logServiceMock.findAll).not.toHaveBeenCalled();
+        });
+
+        it("does not check transaction visibility when user has full read access", async () => {
+          const result = await controller.getTransactionLogs(
+            transactionHash,
+            pagingOptions,
+            mock<UserWithPermissions>({ address: user.address, hasFullReadAccess: true })
+          );
+          expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
+          expect(logServiceMock.findAll).toHaveBeenCalledWith({ transactionHash }, expect.anything());
+          expect(result).toBe(transactionLogs);
         });
       });
     });
@@ -366,6 +490,22 @@ describe("TransactionController", () => {
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
+      });
+
+      it("throws NotFoundException when user is provided", async () => {
+        (serviceMock.findOne as jest.Mock).mockResolvedValue(null);
+        await expect(
+          controller.getTransactionLogs(
+            transactionHash,
+            pagingOptions,
+            mock<UserWithPermissions>({
+              address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+              hasFullReadAccess: false,
+            })
+          )
+        ).rejects.toThrow(NotFoundException);
+        expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
+        expect(logServiceMock.findAll).not.toHaveBeenCalled();
       });
     });
   });

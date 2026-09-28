@@ -3,7 +3,7 @@ import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import { Block, TransactionReceipt, TransactionResponse } from "ethers";
 import { TransactionTracesService, ContractAddress } from "./transactionTraces.service";
-import { BlockchainService } from "../blockchain";
+import { BlockchainService, TransactionTrace } from "../blockchain";
 import { TokenService, Token } from "../token/token.service";
 import * as contractDeployedTraces from "../../test/traces/multiple-create.json";
 import * as revertedTxTraces from "../../test/traces/reverted-tx.json";
@@ -97,6 +97,7 @@ describe("TransactionTracesService", () => {
           blockNumber: 123456,
           bytecode: "0x681a1afdc2e06776816386500d2d461a6c96cb45-bytecode",
           creatorAddress: "0xabcdefabcdefabcdefabcdefabcdefabcdef",
+          deployerAddress: "0x3bf19702f77a4940621572fbcdae2382d44a3dcb",
           isEvmLike: true,
           logIndex: 1,
           transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
@@ -106,6 +107,7 @@ describe("TransactionTracesService", () => {
           blockNumber: 123456,
           bytecode: "0xa0c9cf35e98810794d0ac664408e778a4f6e69bd-bytecode",
           creatorAddress: "0xabcdefabcdefabcdefabcdefabcdefabcdef",
+          deployerAddress: "0x681a1afdc2e06776816386500d2d461a6c96cb45",
           isEvmLike: true,
           logIndex: 2,
           transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
@@ -115,6 +117,7 @@ describe("TransactionTracesService", () => {
           blockNumber: 123456,
           bytecode: "0x89057dea64da472a8422287c6cf0b2ebb3b3d8df-bytecode",
           creatorAddress: "0xabcdefabcdefabcdefabcdefabcdefabcdef",
+          deployerAddress: "0x681a1afdc2e06776816386500d2d461a6c96cb45",
           isEvmLike: true,
           logIndex: 3,
           transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
@@ -201,6 +204,245 @@ describe("TransactionTracesService", () => {
             type: "transfer",
           },
         ]);
+      });
+    });
+
+    describe("when transaction trace contains frames that do not commit", () => {
+      const eoa = "0x000000000000000000000000000000000000e0a0";
+      const contractA = "0x000000000000000000000000000000000000a11c";
+      const contractB = "0x000000000000000000000000000000000000b0b0";
+      const contractC = "0x000000000000000000000000000000000000c0c0";
+      const victim = "0x000000000000000000000000000000000000dead";
+      const createdContract = "0x0000000000000000000000000000000000c4ea7e";
+
+      const frame = (
+        type: string,
+        from: string,
+        to: string,
+        options: Partial<TransactionTrace> = {}
+      ): TransactionTrace => ({
+        type,
+        from,
+        to,
+        calls: [],
+        error: null,
+        revertReason: null,
+        value: "0x0",
+        input: "0x",
+        ...options,
+      });
+
+      it("does not return transfers and contract addresses from frames under a reverted sub-call", async () => {
+        const trace = frame("CALL", eoa, contractA, {
+          calls: [
+            frame("CALL", contractA, contractB, {
+              value: "0x64",
+              error: "execution reverted",
+              calls: [
+                frame("CALL", contractB, victim, {
+                  value: "0x64",
+                  calls: [frame("CALL", victim, contractC, { value: "0x1" })],
+                }),
+                frame("CREATE", contractB, createdContract, { value: "0x2" }),
+              ],
+            }),
+            frame("CALL", contractA, contractC, { value: "0x5" }),
+            frame("CREATE", contractA, "0x0000000000000000000000000000000000c0ffee"),
+          ],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.error).toBeNull();
+        expect(data.transfers).toEqual([
+          expect.objectContaining({ from: contractA, to: contractC, amount: BigInt(5), logIndex: 1 }),
+        ]);
+        expect(data.contractAddresses).toEqual([
+          expect.objectContaining({ address: "0x0000000000000000000000000000000000c0ffee", logIndex: 1 }),
+        ]);
+      });
+
+      it("does not return transfers and contract addresses from frames of a reverted transaction", async () => {
+        const trace = frame("CALL", eoa, contractA, {
+          value: "0x64",
+          error: "execution reverted",
+          revertReason: "reason",
+          calls: [
+            frame("CALL", contractA, victim, { value: "0x64" }),
+            frame("CREATE", contractA, createdContract, { value: "0x1" }),
+          ],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.error).toBe("execution reverted");
+        expect(data.revertReason).toBe("reason");
+        expect(data.transfers).toEqual([]);
+        expect(data.contractAddresses).toEqual([]);
+      });
+
+      it("does not return CALLCODE value as a transfer", async () => {
+        const trace = frame("CALL", eoa, contractA, {
+          calls: [
+            frame("CALLCODE", contractA, victim, {
+              value: "0x64",
+              calls: [frame("CALL", contractA, contractC, { value: "0x5" })],
+            }),
+          ],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.transfers).toEqual([
+          expect.objectContaining({ from: contractA, to: contractC, amount: BigInt(5), logIndex: 1 }),
+        ]);
+      });
+
+      describe.each(["0x0", "0x1"])("when a nested CREATE frame with value %s has no to", (value) => {
+        const createFrameWithoutTo = () =>
+          frame("CREATE", contractA, undefined, {
+            value,
+            calls: [frame("CREATE", contractB, createdContract, { value: "0x1" })],
+          });
+
+        it("skips the frame under a failed transaction", async () => {
+          const trace = frame("CALL", eoa, contractA, {
+            error: "out of native",
+            calls: [createFrameWithoutTo()],
+          });
+
+          const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+          expect(data.error).toBe("out of native");
+          expect(data.transfers).toEqual([]);
+          expect(data.contractAddresses).toEqual([]);
+          expect(blockchainServiceMock.getCode).not.toHaveBeenCalled();
+        });
+
+        it("skips the frame under a successful parent", async () => {
+          const trace = frame("CALL", eoa, contractA, {
+            calls: [createFrameWithoutTo(), frame("CALL", contractA, contractC, { value: "0x5" })],
+          });
+
+          const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+          expect(data.transfers).toEqual([
+            expect.objectContaining({ from: contractA, to: contractC, amount: BigInt(5), logIndex: 1 }),
+          ]);
+          expect(data.contractAddresses).toEqual([]);
+          expect(blockchainServiceMock.getCode).not.toHaveBeenCalled();
+        });
+      });
+    });
+
+    describe("when transaction is an L1 to L2 transaction with value", () => {
+      const l1Sender = "0x000000000000000000000000000000000000a11c";
+      const recipient = "0x000000000000000000000000000000000000dead";
+      const otherAddress = "0x000000000000000000000000000000000000c0c0";
+      const value = "0xde0b6b3a7640000";
+
+      const rootFrame = (options: Partial<TransactionTrace> = {}): TransactionTrace => ({
+        type: "CALL",
+        from: l1Sender,
+        to: recipient,
+        calls: [
+          {
+            type: "CALL",
+            from: recipient,
+            to: otherAddress,
+            calls: [],
+            error: null,
+            revertReason: null,
+            value: "0x5",
+            input: "0x",
+          },
+        ],
+        error: null,
+        revertReason: null,
+        value,
+        input: "0x",
+        ...options,
+      });
+
+      beforeEach(() => {
+        transactionResponse = mock<TransactionResponse>({
+          hash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+          blockNumber: 123456,
+          from: l1Sender,
+          to: recipient,
+          type: 127,
+          value: BigInt(value),
+          index: 1,
+        });
+      });
+
+      describe("and transaction failed", () => {
+        beforeEach(() => {
+          transactionReceipt = mock<TransactionReceipt>({ status: 0 });
+        });
+
+        it.each([
+          ["an errored root frame", rootFrame({ error: "execution reverted" })],
+          ["a root frame reverted after execution", rootFrame()],
+          ["no trace", null],
+        ])("does not return a deposit or trace transfers for %s", async (_, trace) => {
+          const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+          expect(data.transfers).toEqual([]);
+        });
+      });
+
+      describe("and transaction succeeded", () => {
+        beforeEach(() => {
+          transactionReceipt = mock<TransactionReceipt>({ status: 1 });
+        });
+
+        it("returns the root frame transfer as the only deposit", async () => {
+          const data = await transactionTracesService.getData(
+            block,
+            transactionResponse,
+            transactionReceipt,
+            rootFrame()
+          );
+
+          expect(data.transfers).toEqual([
+            expect.objectContaining({
+              from: l1Sender,
+              to: recipient,
+              amount: BigInt(value),
+              type: "deposit",
+              logIndex: 1,
+            }),
+            expect.objectContaining({
+              from: recipient,
+              to: otherAddress,
+              amount: BigInt(5),
+              type: "transfer",
+              logIndex: 2,
+            }),
+          ]);
+        });
+
+        it("returns the deposit when there is no trace", async () => {
+          const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, null);
+
+          expect(data.transfers).toEqual([
+            {
+              amount: BigInt(value),
+              blockNumber: 123456,
+              from: l1Sender,
+              isFeeOrRefund: false,
+              logIndex: 1,
+              timestamp: new Date(block.timestamp * 1000),
+              to: recipient,
+              tokenAddress: "0x000000000000000000000000000000000000800a",
+              tokenType: "BASETOKEN",
+              transactionHash: "0x75cae7288587ca63fc468e16a909e570dec5eb1e58a2c6017ff97e97c2134859",
+              transactionIndex: 1,
+              type: "deposit",
+            },
+          ]);
+        });
       });
     });
 

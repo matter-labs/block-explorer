@@ -10,6 +10,8 @@ import cookieSession from "cookie-session";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Request, Response, NextFunction } from "express";
 
+const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
 export function applyPrividiumExpressConfig(
   app: NestExpressApplication,
   {
@@ -43,6 +45,32 @@ export function applyPrividiumExpressConfig(
   app.enableCors({
     origin: corsOrigins ?? appUrl,
     credentials: true,
+  });
+  // The session cookie is sent with requests from any site and CORS only hides the response, so
+  // state-changing requests are refused unless they come from the CORS origins or the API's own
+  // pages (docs). Browsers send an Origin on them (`null` when opaque); other clients may not.
+  const allowedOrigins = corsOrigins ?? [appUrl];
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    const origin = req.headers.origin;
+    if (
+      !SAFE_METHODS.has(req.method) &&
+      origin !== undefined &&
+      !allowedOrigins.includes(origin) &&
+      req.headers["sec-fetch-site"] !== "same-origin"
+    ) {
+      res.status(403).json({ message: "Forbidden" });
+      return;
+    }
+    next();
+  });
+  // An HTML form is posted without a preflight and the urlencoded parser turns its fields into
+  // a JSON-RPC call, so the RPC proxy only accepts JSON bodies.
+  app.use("/rpc", (req: Request, res: Response, next: NextFunction) => {
+    if (!SAFE_METHODS.has(req.method) && !req.is("application/json")) {
+      res.status(415).json({ message: "Unsupported Media Type" });
+      return;
+    }
+    next();
   });
 }
 

@@ -133,7 +133,8 @@ describe("Prividium API (e2e)", () => {
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "user" }],
+            roles: [{ roleName: "user", organizationId: null }],
+            wallets: [{ walletAddress: mockWalletAddress }],
           }),
         });
 
@@ -268,7 +269,10 @@ describe("Prividium API (e2e)", () => {
         })
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "user", organizationId: null }],
+            wallets: [{ walletAddress: mockWalletAddress }],
+          }),
         });
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
@@ -276,7 +280,10 @@ describe("Prividium API (e2e)", () => {
       // Mock the roles check for /docs access (non-admin)
       fetchSpy.mockResolvedValueOnce({
         status: 200,
-        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "user", organizationId: null }],
+          wallets: [{ walletAddress: mockWalletAddress }],
+        }),
       });
 
       await agent.get("/docs").expect(403);
@@ -299,7 +306,8 @@ describe("Prividium API (e2e)", () => {
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"], organizationId: null }],
+            wallets: [{ walletAddress: mockWalletAddress }],
           }),
         });
 
@@ -309,7 +317,8 @@ describe("Prividium API (e2e)", () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({
-          roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+          roles: [{ roleName: "admin", systemPermissions: ["full_read_access"], organizationId: null }],
+          wallets: [{ walletAddress: mockWalletAddress }],
         }),
       });
 
@@ -372,7 +381,13 @@ describe("Prividium API (e2e)", () => {
           status: 200,
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }),
         })
-        .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }) });
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "user", organizationId: null }],
+            wallets: [{ walletAddress: mockWalletAddress }],
+          }),
+        });
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
       fetchSpy.mockReset();
     });
@@ -402,14 +417,17 @@ describe("Prividium API (e2e)", () => {
     it("still refuses an upper-case api route when the bearer token lacks full read access", async () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
-        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user", systemPermissions: [] }] }),
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "user", systemPermissions: [], organizationId: null }],
+          wallets: [{ walletAddress: mockWalletAddress }],
+        }),
       });
 
       const response = await agent
         .get(`/API/account/txlist?address=${otherAddress}`)
         .set("Authorization", "Bearer some-token");
 
-      expect(response.status).not.toBe(200);
+      expect(response.status).toBe(403);
       expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
     });
   });

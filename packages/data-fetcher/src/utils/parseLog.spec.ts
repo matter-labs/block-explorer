@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { Interface, LogDescription, Result } from "ethers";
+import { AbiCoder, Interface, LogDescription, Result, getAddress, zeroPadValue } from "ethers";
 import { Log } from "ethers";
 import parseLog from "./parseLog";
 
@@ -436,6 +436,49 @@ describe("parseLog", () => {
           });
         });
       });
+    });
+  });
+
+  describe("when non-indexed address args are out of range", () => {
+    const abiCoder = AbiCoder.defaultAbiCoder();
+    const address = "0x38686aa0f4e8fc2fd2910272671b26ff9c53c73a";
+    const outOfRangeAddress = (BigInt(1) << BigInt(160)) + BigInt(address);
+
+    it("fixes out of range address args in data and returns parsed log", () => {
+      const contractInterface = new Interface(["event Transfer(address from, address to, uint256 value)"]);
+      const log = {
+        topics: [contractInterface.getEvent("Transfer").topicHash],
+        data: abiCoder.encode(["uint256", "uint256", "uint256"], [outOfRangeAddress, outOfRangeAddress, BigInt(5)]),
+      } as unknown as Log;
+      const result = parseLog({ interface: contractInterface }, log);
+      expect(result.args.from).toBe(getAddress(address));
+      expect(result.args.to).toBe(getAddress(address));
+      expect(result.args.value).toBe(BigInt(5));
+    });
+
+    it("fixes the arg word located after indexed and dynamic args", () => {
+      const contractInterface = new Interface([
+        "event Test(uint256 amount, address indexed sender, string name, address receiver)",
+      ]);
+      const log = {
+        topics: [contractInterface.getEvent("Test").topicHash, zeroPadValue(address, 32)],
+        data: abiCoder.encode(["uint256", "string", "uint256"], [BigInt(7), "name", outOfRangeAddress]),
+      } as unknown as Log;
+      const result = parseLog({ interface: contractInterface }, log);
+      expect(result.args.amount).toBe(BigInt(7));
+      expect(result.args.sender).toBe(getAddress(address));
+      expect(result.args.name).toBe("name");
+      expect(result.args.receiver).toBe(getAddress(address));
+    });
+
+    it("returns parsed log as it is when arg word cannot be located", () => {
+      const contractInterface = new Interface(["event Test((uint256,uint256) pair, address receiver)"]);
+      const log = {
+        topics: [contractInterface.getEvent("Test").topicHash],
+        data: abiCoder.encode(["tuple(uint256,uint256)", "uint256"], [[BigInt(1), BigInt(2)], outOfRangeAddress]),
+      } as unknown as Log;
+      const result = parseLog({ interface: contractInterface }, log);
+      expect(() => result.args.receiver).toThrow("deferred error during ABI decoding");
     });
   });
 });

@@ -153,4 +153,25 @@ describe("MetadataBlock:", () => {
     expect(memoryTabs[1].textContent).toBe("heap 5");
     expect(memoryTabs[2].textContent).toBe("code 4");
   });
+  it("renders page index as text", async () => {
+    const { container } = render(MetadataBlock, {
+      props: {
+        metadata: {
+          ...metadata,
+          stack_page_index: '<img src="x" onerror="alert(1)">',
+        },
+        file,
+      },
+      global: {
+        plugins: [i18n, $testId],
+      },
+    });
+
+    await nextTick();
+    const memoryIndexesContainer = container.querySelector(".page-index-container");
+    const memoryTabs = container.querySelectorAll(".tab-btn");
+    expect(memoryIndexesContainer!.querySelector("img")).toBeNull();
+    expect(memoryIndexesContainer!.querySelector(".page-index")!.textContent).toBe('<img src="x" onerror="alert(1)">');
+    expect(memoryTabs[0].textContent).toBe('stack <img src="x" onerror="alert(1)">');
+  });
 });

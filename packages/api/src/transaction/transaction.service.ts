@@ -305,4 +305,17 @@ export class TransactionService {
       })) != null
     );
   }
+
+  public redactForUser(transaction: Transaction, user: UserParam): Transaction {
+    // Only the sender and the receiver can see the calldata and failure details. Other viewers (e.g. included
+    // as part of the logs topics) could otherwise decode every other call batched in the transaction.
+    if (isAddressEqual(transaction.from, user.address) || isAddressEqual(transaction.to, user.address)) {
+      return transaction;
+    }
+    return Object.assign(Object.create(Object.getPrototypeOf(transaction)), transaction, {
+      data: "0x",
+      error: null,
+      revertReason: null,
+    });
+  }
 }

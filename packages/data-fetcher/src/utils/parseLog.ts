@@ -26,6 +26,7 @@ export default function parseLog(contractInterface: { interface: Interface }, lo
 
   let hasAddressOutOfRangeErrors = false;
   const topics = [...log.topics];
+  let data = log.data;
   Object.keys(logDescription.args).forEach((arg) => {
     try {
       // accessing property to throw deferred error if any
@@ -48,6 +49,14 @@ export default function parseLog(contractInterface: { interface: Interface }, lo
       const inputIndex = Number(arg);
       const input = logDescription.fragment.inputs[inputIndex];
       if (!input.indexed) {
+        // non-indexed args are encoded in data, arg word is located only if all preceding non-indexed args take one word
+        const precedingInputs = logDescription.fragment.inputs.slice(0, inputIndex).filter(({ indexed }) => !indexed);
+        if (precedingInputs.some(({ baseType }) => baseType === "tuple" || baseType === "array")) {
+          return;
+        }
+        const dataIndex = 2 + precedingInputs.length * 64;
+        data = `${data.slice(0, dataIndex)}000000000000000000000000${data.slice(dataIndex + 24)}`;
+        hasAddressOutOfRangeErrors = true;
         return;
       }
       // incrementing inputIndex to get topicIndex as the first topic is event signature
@@ -64,6 +73,7 @@ export default function parseLog(contractInterface: { interface: Interface }, lo
     ? contractInterface.interface.parseLog({
         ...log,
         topics,
+        data,
       })
     : logDescription;
 }

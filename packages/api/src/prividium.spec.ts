@@ -6,10 +6,12 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { mock } from "jest-mock-extended";
 import { MiddlewareConsumer } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { Test } from "@nestjs/testing";
 import { MiddlewareConfigProxy } from "@nestjs/common/interfaces/middleware/middleware-config-proxy.interface";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
 import { NoCacheMiddleware } from "./middlewares/no-cache.middleware";
 import { AddUserRolesPipe } from "./api/pipes/addUserRoles.pipe";
+import { RpcController } from "./rpc/rpc.controller";
 
 describe("applyPrividiumExpressConfig", () => {
   it("allows to set cookies", async () => {
@@ -61,6 +63,148 @@ describe("applyPrividiumExpressConfig", () => {
     expect(enableCorsMock).toHaveBeenCalledWith({
       origin: "https://blockexplorer.com",
       credentials: true,
+    });
+  });
+
+  // The session cookie is SameSite=None, so another site can make the browser send it on a POST.
+  describe("cross-site requests with the session cookie", () => {
+    const appUrl = "https://blockexplorer.com";
+    const attackerOrigin = "https://attacker.example";
+    const rpcForm = "jsonrpc=2.0&id=1&method=eth_sendRawTransaction&params[0]=0x02f8";
+    const rpcBody = { jsonrpc: "2.0", id: 1, method: "eth_sendRawTransaction", params: ["0x02f8"] };
+    let app: NestExpressApplication;
+    let agent: request.SuperAgentTest;
+    let fetchSpy: jest.SpyInstance;
+
+    const createApp = async (corsOrigins?: string[]) => {
+      const moduleRef = await Test.createTestingModule({
+        controllers: [RpcController],
+        providers: [
+          {
+            provide: ConfigService,
+            useValue: { get: (key: string) => ({ "prividium.permissionsApiUrl": "https://permissions-api.com" }[key]) },
+          },
+        ],
+      }).compile();
+      app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
+      applyPrividiumExpressConfig(app, {
+        sessionSecret: "secretvalue",
+        appUrl,
+        sessionMaxAge: 60_000,
+        sessionSameSite: "none",
+        corsOrigins,
+      });
+      app.use("/session", (req: express.Request, res: express.Response) => {
+        req.session.address = "0x01";
+        req.session.wallets = ["0x01"];
+        req.session.token = "admin-token";
+        res.send("ok");
+      });
+      await app.init();
+      agent = request.agent(app.getHttpServer());
+      await agent.get("/session").expect(200);
+    };
+
+    beforeEach(async () => {
+      fetchSpy = jest.spyOn(global, "fetch").mockResolvedValue({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve({ jsonrpc: "2.0", id: 1, result: "0xhash" }),
+      } as Response);
+      await createApp();
+    });
+
+    afterEach(async () => {
+      fetchSpy.mockRestore();
+      await app.close();
+    });
+
+    it("rejects a form POST to /rpc from another origin and does not forward it", async () => {
+      await agent.post("/rpc").set("Origin", attackerOrigin).type("form").send(rpcForm).expect(403);
+      expect(fetchSpy).not.toBeCalled();
+    });
+
+    it("rejects a JSON POST to /rpc from another origin and does not forward it", async () => {
+      await agent.post("/rpc").set("Origin", attackerOrigin).send(rpcBody).expect(403);
+      expect(fetchSpy).not.toBeCalled();
+    });
+
+    it("rejects a POST to /rpc from an opaque origin", async () => {
+      await agent.post("/rpc").set("Origin", "null").send(rpcBody).expect(403);
+      expect(fetchSpy).not.toBeCalled();
+    });
+
+    it("rejects a POST from a sibling subdomain of the app", async () => {
+      await agent
+        .post("/rpc")
+        .set("Origin", "https://sub.blockexplorer.com")
+        .set("Sec-Fetch-Site", "same-site")
+        .send(rpcBody)
+        .expect(403);
+      expect(fetchSpy).not.toBeCalled();
+    });
+
+    it.each(["/auth/login", "/auth/logout", "/auth/switch-wallet"])(
+      "rejects a form POST to %s from another origin",
+      async (path) => {
+        await agent.post(path).set("Origin", attackerOrigin).type("form").send("token=attacker-token").expect(403);
+      }
+    );
+
+    it("rejects a form POST to /rpc that has no Origin and does not forward it", async () => {
+      await agent.post("/rpc").type("form").send(rpcForm).expect(415);
+      await agent.post("/rpc/").type("form").send(rpcForm).expect(415);
+      await agent.post("/rpc").set("Content-Type", "text/plain").send(JSON.stringify(rpcBody)).expect(415);
+      expect(fetchSpy).not.toBeCalled();
+    });
+
+    it("forwards a JSON POST to /rpc from the app origin with the session token", async () => {
+      const res = await agent.post("/rpc").set("Origin", appUrl).send(rpcBody).expect(201);
+
+      expect(res.body).toEqual({ jsonrpc: "2.0", id: 1, result: "0xhash" });
+      expect(fetchSpy).toBeCalledWith(new URL("https://permissions-api.com/rpc"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer admin-token" },
+        body: JSON.stringify(rpcBody),
+      });
+    });
+
+    it("forwards a JSON POST to /rpc with a charset from the app origin", async () => {
+      await agent
+        .post("/rpc")
+        .set("Origin", appUrl)
+        .set("Content-Type", "application/json; charset=utf-8")
+        .send(JSON.stringify(rpcBody))
+        .expect(201);
+      expect(fetchSpy).toBeCalledTimes(1);
+    });
+
+    it("forwards a same-origin JSON POST to /rpc, e.g. from the API docs", async () => {
+      await agent
+        .post("/rpc")
+        .set("Origin", "https://api.blockexplorer.com")
+        .set("Sec-Fetch-Site", "same-origin")
+        .send(rpcBody)
+        .expect(201);
+      expect(fetchSpy).toBeCalledTimes(1);
+    });
+
+    it("forwards a JSON POST to /rpc without an Origin", async () => {
+      await agent.post("/rpc").send(rpcBody).expect(201);
+      expect(fetchSpy).toBeCalledTimes(1);
+    });
+
+    it("allows GET requests from another origin", async () => {
+      await agent.get("/session").set("Origin", attackerOrigin).expect(200);
+    });
+
+    it("allows POSTs from the configured CORS origins only", async () => {
+      await app.close();
+      await createApp(["https://sso.example.com"]);
+
+      await agent.post("/rpc").set("Origin", "https://sso.example.com").send(rpcBody).expect(201);
+      await agent.post("/rpc").set("Origin", appUrl).send(rpcBody).expect(403);
+      expect(fetchSpy).toBeCalledTimes(1);
     });
   });
 });

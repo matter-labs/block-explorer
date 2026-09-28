@@ -11,6 +11,7 @@ interface EthersError {
       message: string;
     };
   };
+  error?: unknown;
 }
 
 const MAX_RETRY_INTERVAL = 60000;
@@ -23,7 +24,10 @@ const PERMANENT_ERRORS: ErrorCode[] = [
 ];
 
 const shouldRetry = (error: EthersError): boolean => {
-  const isPermanentErrorCode = PERMANENT_ERRORS.find((errorCode) => isError(error, errorCode));
+  // deferred ABI decoding errors (e.g. invalid UTF-8 string result) have no code and wrap the decoding error
+  const isPermanentErrorCode = PERMANENT_ERRORS.find(
+    (errorCode) => isError(error, errorCode) || isError(error?.error, errorCode)
+  );
   return (
     !isPermanentErrorCode &&
     // example block mainnet 47752810

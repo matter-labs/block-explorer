@@ -854,4 +854,71 @@ describe("TransactionService", () => {
       });
     });
   });
+
+  describe("redactForUser", () => {
+    const userAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    const user = { address: userAddress, wallets: [userAddress], token: "token" };
+    const otherAddress = "0x1234567890123456789012345678901234567890";
+    const calldata = `0x252dba42${"00".repeat(64)}`;
+    const buildTransaction = (from: string, to: string) =>
+      Object.assign(new Transaction(), {
+        hash: "0xabcdef1234567890",
+        from,
+        to,
+        data: calldata,
+        value: "0",
+        number: 1,
+        receiptStatus: 0,
+        fromToMin: from,
+        fromToMax: to,
+        error: "execution reverted",
+        revertReason: "Insufficient balance for 0x0987654321098765432109876543210987654321",
+      });
+
+    it("returns the transaction unchanged when user is the sender", () => {
+      const transaction = buildTransaction(userAddress, otherAddress);
+      expect(service.redactForUser(transaction, user)).toBe(transaction);
+    });
+
+    it("returns the transaction unchanged when user is the receiver", () => {
+      const transaction = buildTransaction(otherAddress, userAddress.toLowerCase());
+      expect(service.redactForUser(transaction, user)).toBe(transaction);
+    });
+
+    describe("when user is neither the sender nor the receiver", () => {
+      let transaction: Transaction;
+
+      beforeEach(() => {
+        transaction = buildTransaction(otherAddress, "0x0987654321098765432109876543210987654321");
+      });
+
+      it("returns the transaction without calldata and failure details", () => {
+        const result = service.redactForUser(transaction, user);
+        expect(result.data).toBe("0x");
+        expect(result.error).toBeNull();
+        expect(result.revertReason).toBeNull();
+        expect(result.hash).toBe(transaction.hash);
+        expect(result.from).toBe(transaction.from);
+        expect(result.to).toBe(transaction.to);
+        expect(result.status).toBe(transaction.status);
+      });
+
+      it("keeps the entity serialization", () => {
+        const result = service.redactForUser(transaction, user);
+        expect(result).toBeInstanceOf(Transaction);
+        const json = JSON.parse(JSON.stringify(result));
+        expect(json).toMatchObject({ data: "0x", error: null, revertReason: null, status: "failed" });
+        expect(json).not.toHaveProperty("number");
+        expect(json).not.toHaveProperty("receiptStatus");
+        expect(json).not.toHaveProperty("fromToMin");
+        expect(json).not.toHaveProperty("fromToMax");
+      });
+
+      it("does not modify the original transaction", () => {
+        service.redactForUser(transaction, user);
+        expect(transaction.data).toBe(calldata);
+        expect(transaction.error).toBe("execution reverted");
+      });
+    });
+  });
 });

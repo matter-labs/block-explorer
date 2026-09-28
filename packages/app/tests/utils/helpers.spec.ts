@@ -1,20 +1,22 @@
 import { describe, expect, it } from "vitest";
 
 import { format } from "date-fns";
-import { ParamType } from "ethers";
+import { Interface, ParamType } from "ethers";
 
 import ExecuteTx from "@/../mock/transactions/Execute.json";
 
-import type { InputType } from "@/composables/useEventLog";
+import type { InputType, TransactionLogEntry } from "@/composables/useEventLog";
 import type { TokenTransfer } from "@/composables/useTransaction";
 import type { Result } from "ethers";
 
-import { BASE_TOKEN_L1_ADDRESS, BOOTLOADER_FORMAL_ADDRESS } from "@/utils/constants";
+import IInteropCenterABI from "@/abi/IInteropCenter";
+import { BASE_TOKEN_L1_ADDRESS, BOOTLOADER_FORMAL_ADDRESS, INTEROP_CENTER_ADDRESS } from "@/utils/constants";
 import {
   arrayHalfDivider,
   camelCaseFromSnakeCase,
   contractInputTypeToHumanType,
   decodeInputData,
+  decodeInteropBundleSentEvent,
   getRawFunctionType,
   getRequiredArrayLength,
   getTypeFromEvent,
@@ -178,6 +180,36 @@ describe("helpers:", () => {
     });
     it("returns the value if the decimals of the number are less than the given decimal attribute", () => {
       expect(truncateNumber("0.02", 5)).toEqual("0.02");
+    });
+  });
+  describe("decodeInteropBundleSentEvent:", () => {
+    const createInteropBundleSentLog = (address: string) =>
+      ({
+        address,
+        blockNumber: 1,
+        logIndex: "0",
+        transactionHash: "0x" + "ee".repeat(32),
+        transactionIndex: "0",
+        ...new Interface(IInteropCenterABI as never).encodeEventLog("InteropBundleSent", [
+          "0x" + "aa".repeat(32),
+          "0x" + "bb".repeat(32),
+          ["0x01", 270, 271, "0x" + "cc".repeat(32), "0x" + "dd".repeat(32), [], ["0x", "0x", false]],
+        ]),
+      } as TransactionLogEntry);
+
+    it("decodes the event emitted by the Interop Center regardless of address case", () => {
+      expect(decodeInteropBundleSentEvent(createInteropBundleSentLog(INTEROP_CENTER_ADDRESS))).toMatchObject({
+        sourceChainId: 270,
+        destinationChainId: 271,
+      });
+      expect(
+        decodeInteropBundleSentEvent(createInteropBundleSentLog(INTEROP_CENTER_ADDRESS.toLowerCase()))
+      ).toMatchObject({ sourceChainId: 270 });
+    });
+    it("returns undefined for the event emitted by another contract", () => {
+      expect(
+        decodeInteropBundleSentEvent(createInteropBundleSentLog("0x5555555555555555555555555555555555555555"))
+      ).toBeUndefined();
     });
   });
   describe("decodeInputData:", () => {

@@ -94,8 +94,9 @@ export class AuthController {
     description: "Wallet not authorized for this user",
   })
   public async switchWallet(@Body() body: SwitchWalletDto, @Req() req: Request): Promise<{ address: string }> {
-    // Validate that the requested wallet belongs to the user
-    if (!req.session.wallets || !req.session.wallets.map((w) => w.toLowerCase()).includes(body.address.toLowerCase())) {
+    // Validate that the requested wallet still belongs to the user
+    const wallets = await this.fetchUserWallets(req.session.token);
+    if (!wallets.map((w) => w.toLowerCase()).includes(body.address.toLowerCase())) {
       throw new HttpException("Wallet not authorized for this user", 403);
     }
 

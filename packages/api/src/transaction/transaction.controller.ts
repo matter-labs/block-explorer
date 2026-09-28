@@ -49,7 +49,7 @@ export class TransactionController {
       filterTransactionsOptions.blockNumber == null
         ? buildBlockFilter(listFilterOptions.fromBlock, listFilterOptions.toBlock, "blockNumber")
         : {};
-    return await this.transactionService.findAll(
+    const transactions = await this.transactionService.findAll(
       {
         ...filterTransactionsOptions,
         ...blockRangeFilter,
@@ -61,6 +61,13 @@ export class TransactionController {
         route: entityName,
       }
     );
+    if (user && !user.hasFullReadAccess) {
+      return {
+        ...transactions,
+        items: transactions.items.map((transaction) => this.transactionService.redactForUser(transaction, user)),
+      };
+    }
+    return transactions;
   }
 
   @Get(":transactionHash")
@@ -88,7 +95,7 @@ export class TransactionController {
       if (!isVisibleByUser) {
         throw new NotFoundException();
       }
-      return transactionDetail;
+      return this.transactionService.redactForUser(transactionDetail, user);
     }
 
     return transactionDetail;
@@ -112,7 +119,7 @@ export class TransactionController {
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<TransferDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
+    if (!(await this.transactionExistsForUser(transactionHash, user))) {
       throw new NotFoundException();
     }
     const userFilters = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
@@ -145,7 +152,7 @@ export class TransactionController {
     @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
     @User(AddUserRolesPipe) user: UserWithPermissions
   ): Promise<Pagination<LogDto>> {
-    if (!(await this.transactionService.exists(transactionHash))) {
+    if (!(await this.transactionExistsForUser(transactionHash, user))) {
       throw new NotFoundException();
     }
     const userFilters = user && !user.hasFullReadAccess ? { visibleBy: user.address } : {};
@@ -157,5 +164,13 @@ export class TransactionController {
         route: `${entityName}/${transactionHash}/logs`,
       }
     );
+  }
+
+  private async transactionExistsForUser(transactionHash: string, user: UserWithPermissions): Promise<boolean> {
+    if (user && !user.hasFullReadAccess) {
+      const transaction = await this.transactionService.findOne(transactionHash);
+      return !!transaction && (await this.transactionService.isTransactionVisibleByUser(transaction, user));
+    }
+    return await this.transactionService.exists(transactionHash);
   }
 }

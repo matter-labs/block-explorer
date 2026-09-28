@@ -4,6 +4,7 @@ import { createI18n } from "vue-i18n";
 import { describe, expect, it, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
+import { Interface } from "ethers";
 
 import { ETH_TOKEN_MOCK } from "../../mocks";
 
@@ -15,7 +16,9 @@ import enUS from "@/locales/en.json";
 
 import type { TransactionItem } from "@/composables/useTransaction";
 
+import IInteropCenterABI from "@/abi/IInteropCenter";
 import $testId from "@/plugins/testId";
+import { INTEROP_CENTER_ADDRESS } from "@/utils/constants";
 
 const transaction: TransactionItem = {
   hash: "0x9c526cc47ca2d3f72b7997a61d890d72951a283fa05d08df058ff8a629cffa3c",
@@ -520,5 +523,69 @@ describe("Transaction info table", () => {
     const block = rowArray[2].findAll("td");
     expect(block[1].find("span").text()).toBe("#1162235");
     expect(block[1].findComponent(RouterLinkStub).exists()).toBeFalsy();
+  });
+  describe("interop bundle", () => {
+    const FORGED_EMITTER = "0x5555555555555555555555555555555555555555";
+    const createInteropBundleSentLog = (address: string, sourceChainId: number, logIndex: string) => {
+      const { data, topics } = new Interface(IInteropCenterABI as never).encodeEventLog("InteropBundleSent", [
+        "0x" + "aa".repeat(32),
+        "0x" + "bb".repeat(32),
+        [
+          "0x01",
+          sourceChainId,
+          271,
+          "0x" + "cc".repeat(32),
+          "0x" + "dd".repeat(32),
+          [
+            [
+              "0x01",
+              false,
+              "0x1111111111111111111111111111111111111111",
+              "0x2222222222222222222222222222222222222222",
+              1,
+              "0x",
+            ],
+          ],
+          ["0x3333333333333333333333333333333333333333", "0x4444444444444444444444444444444444444444", false],
+        ],
+      ]);
+      return { ...transaction.logs[0], address, data, topics, logIndex };
+    };
+    const mountWithLogs = (logs: TransactionItem["logs"]) =>
+      mount(Table, {
+        global: {
+          stubs: {
+            RouterLink: RouterLinkStub,
+            InteropCallData: true,
+          },
+          plugins: [i18n, $testId],
+        },
+        props: {
+          transaction: { ...transaction, logs },
+          loading: false,
+        },
+      });
+
+    it("does not render interop bundle emitted by a contract other than the Interop Center", () => {
+      const wrapper = mountWithLogs([createInteropBundleSentLog(FORGED_EMITTER, 999999, "0")]);
+      expect(wrapper.find(".interop-bundle").exists()).toBe(false);
+    });
+    it("renders interop bundle emitted by the Interop Center", () => {
+      // API returns checksummed addresses, which differ in case from INTEROP_CENTER_ADDRESS
+      const wrapper = mountWithLogs([
+        createInteropBundleSentLog("0x000000000000000000000000000000000001000d", 270, "0"),
+      ]);
+      const chainIds = wrapper.findAll(".interop-bundle-chain-ids .interop-bundle-value");
+      expect(chainIds[0].text()).toBe("270");
+      expect(chainIds[1].text()).toBe("271");
+    });
+    it("renders the Interop Center bundle when a forged one is emitted before it", () => {
+      const wrapper = mountWithLogs([
+        createInteropBundleSentLog(FORGED_EMITTER, 999999, "0"),
+        createInteropBundleSentLog(INTEROP_CENTER_ADDRESS, 270, "1"),
+      ]);
+      expect(wrapper.findAll(".interop-bundle").length).toBe(1);
+      expect(wrapper.find(".interop-bundle-chain-ids .interop-bundle-value").text()).toBe("270");
+    });
   });
 });

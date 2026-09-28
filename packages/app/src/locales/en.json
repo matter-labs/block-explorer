@@ -174,10 +174,13 @@
             "interopBundleUnbundlerAddress": "Unbundler address",
             "iso20022": {
                 "badge": "ISO 20022 payment",
+                "badgeMismatch": "ISO 20022 memo mismatch",
                 "toggle": "Show ISO 20022 payment details",
                 "viewRawXml": "View raw XML",
                 "viewDetails": "View details",
                 "parseFailed": "Could not parse this memo as an ISO 20022 pain.001 document. Showing the raw decoded memo.",
+                "unverified": "Provided by the sender. Not verified by the explorer.",
+                "mismatch": "The accounts or amount in this memo do not match this transfer.",
                 "msgId": "Message ID",
                 "created": "Created",
                 "instructionId": "Instruction ID",

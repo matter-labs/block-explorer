@@ -257,6 +257,7 @@ describe("AuthController", () => {
 
   describe("switchWallet", () => {
     let body: SwitchWalletDto;
+    let fetchSpy: jest.SpyInstance;
 
     beforeEach(() => {
       body = { address: mockWalletAddress2 };
@@ -265,6 +266,15 @@ describe("AuthController", () => {
         wallets: [mockWalletAddress, mockWalletAddress2],
         token: mockToken,
       };
+      fetchSpy = jest.spyOn(global, "fetch");
+      fetchSpy.mockResolvedValue({
+        status: 200,
+        json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress, mockWalletAddress2] }),
+      });
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
     });
 
     it("switches to a valid wallet successfully", async () => {
@@ -272,6 +282,9 @@ describe("AuthController", () => {
 
       expect(result).toEqual({ address: mockWalletAddress2 });
       expect(req.session.address).toBe(mockWalletAddress2);
+      expect(fetchSpy).toHaveBeenCalledWith(new URL("/api/user-wallets", "https://permissions-api.example.com"), {
+        headers: { Authorization: `Bearer ${mockToken}` },
+      });
     });
 
     it("throws 403 error when wallet is not in user's wallet list", async () => {
@@ -282,12 +295,25 @@ describe("AuthController", () => {
       );
     });
 
-    it("throws 403 error when session has no wallets", async () => {
-      req.session.wallets = undefined;
+    it("throws 403 error when wallet was removed from the user after login", async () => {
+      fetchSpy.mockResolvedValue({
+        status: 200,
+        json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+      });
 
       await expect(controller.switchWallet(body, req)).rejects.toThrow(
         new HttpException("Wallet not authorized for this user", 403)
       );
+      expect(req.session.address).toBe(mockWalletAddress);
+    });
+
+    it("throws 403 error when permissions API rejects the token", async () => {
+      fetchSpy.mockResolvedValue({ status: 401, json: jest.fn() });
+
+      await expect(controller.switchWallet(body, req)).rejects.toThrow(
+        new HttpException("Invalid or expired token", 403)
+      );
+      expect(req.session.address).toBe(mockWalletAddress);
     });
 
     it("is case-insensitive when validating wallet addresses", async () => {

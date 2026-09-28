@@ -1,7 +1,12 @@
 import { format } from "date-fns";
 import { AbiCoder, Interface, toUtf8String } from "ethers";
 
-import { BOOTLOADER_FORMAL_ADDRESS, CONTRACT_DISPLAY_NAMES, DEPLOYER_CONTRACT_ADDRESS } from "./constants";
+import {
+  BOOTLOADER_FORMAL_ADDRESS,
+  CONTRACT_DISPLAY_NAMES,
+  DEPLOYER_CONTRACT_ADDRESS,
+  INTEROP_CENTER_ADDRESS,
+} from "./constants";
 
 import type { DecodingType } from "@/components/transactions/infoTable/HashViewer.vue";
 import type { AbiFragment } from "@/composables/useAddress";
@@ -208,6 +213,7 @@ function bytesToAddress(bytes: string): string {
 
 export function decodeInteropBundleSentEvent(log: TransactionLogEntry) {
   try {
+    if (log.address.toLowerCase() !== INTEROP_CENTER_ADDRESS.toLowerCase()) return undefined;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const InteropCenter = new Interface(IInteropCenterABI as any);
     const parsed = InteropCenter.parseLog({ topics: log.topics as string[], data: log.data });

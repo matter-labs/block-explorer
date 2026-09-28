@@ -6,7 +6,7 @@ import { AbiCoder, Interface, Log, Block, TransactionReceipt } from "ethers";
 //import { types } from "zksync-ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TransferService, TransferType } from "./transfer.service";
-import { L2_ASSET_ROUTER_ADDRESS } from "../constants";
+import { L2_ASSET_ROUTER_ADDRESS, L2_CONTRACT_DEPLOYER_ADDRESS } from "../constants";
 // import { TokenType } from "../token/token.service";
 
 // import * as ethDepositNoFee from "../../test/transactionReceipts/eth/deposit-no-fee.json";
@@ -2472,6 +2472,70 @@ describe("TransferService", () => {
         expect(withdrawals).toHaveLength(1);
         expect(withdrawals[0].tokenAddress).toBe(TOKEN_ASSET_ROUTER);
       });
+    });
+  });
+
+  describe("when logs have malformed data", () => {
+    const outOfRangeAddress = (BigInt(1) << BigInt(160)) + BigInt(RECEIVER);
+    let service: TransferService;
+    let blockchainService: ReturnType<typeof mock<BlockchainService>>;
+    let block: Block;
+    let receipt: TransactionReceipt;
+
+    beforeEach(() => {
+      logIndexCounter = 0;
+      blockchainService = mock<BlockchainService>();
+      blockchainService.getTokenAddressByAssetId.mockResolvedValue(TOKEN_ASSET_ROUTER);
+      const configService = mock<ConfigService>();
+      configService.get.mockReturnValue(new Set([L2_ASSET_ROUTER_ADDRESS]));
+      service = new TransferService(blockchainService, configService);
+      block = mock<Block>({ number: 1, timestamp: 1700000000 });
+      receipt = mock<TransactionReceipt>({ type: 2, from: SENDER, to: RECEIVER });
+    });
+
+    it("fixes out of range non-indexed address in a contract deployment transfer log", async () => {
+      receipt = mock<TransactionReceipt>({ type: 2, from: SENDER, to: L2_CONTRACT_DEPLOYER_ADDRESS });
+      const log = mock<Log>({
+        transactionIndex: 0,
+        blockNumber: 1,
+        transactionHash: TX_HASH,
+        address: TOKEN_LEGACY,
+        topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
+        data: abi.encode(["uint256", "uint256", "uint256"], [BigInt(1), outOfRangeAddress, BigInt(5)]),
+        index: 0,
+      });
+      const transfers = await service.getTransfers([log], block, [], receipt);
+      expect(transfers).toHaveLength(1);
+      expect(transfers[0].to).toBe(RECEIVER);
+      expect(transfers[0].amount).toBe(BigInt(5));
+    });
+
+    it("skips Asset Router logs with undecodable asset data and keeps other transfers", async () => {
+      const logs = [
+        makeLog("WithdrawalInitiatedAssetRouter", [BigInt(1), SENDER, ASSET_ID_AR, "0x"], L2_ASSET_ROUTER_ADDRESS),
+        makeLog(
+          "WithdrawalInitiatedAssetRouter",
+          [
+            BigInt(1),
+            SENDER,
+            ASSET_ID_AR,
+            abi.encode(["uint256", "uint256", "address"], [BigInt(100), outOfRangeAddress, EXTRA_ADDRESS]),
+          ],
+          L2_ASSET_ROUTER_ADDRESS
+        ),
+        makeLog("DepositFinalizedAssetRouter", [BigInt(1), ASSET_ID_AR, "0x1234"], L2_ASSET_ROUTER_ADDRESS),
+        assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200)),
+      ];
+      const transfers = await service.getTransfers(logs, block, [], receipt);
+      expect(transfers).toHaveLength(1);
+      expect(transfers[0].amount).toBe(BigInt(200));
+    });
+
+    it("throws when transfer extraction fails for other reasons", async () => {
+      blockchainService.getTokenAddressByAssetId.mockRejectedValue(new Error("RPC error"));
+      await expect(
+        service.getTransfers([assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200))], block, [], receipt)
+      ).rejects.toThrow("RPC error");
     });
   });
 });

@@ -3,6 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
 import { BadGatewayException } from "@nestjs/common";
 import { PrividiumApiError } from "../../errors/prividiumApiError";
+import { NO_WALLET_VIEWER } from "../../common/constants";
 
 describe("AddUserRolesPipe", () => {
   let fetchSpy: jest.SpyInstance;
@@ -30,6 +31,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -42,6 +44,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: ["role1", "trader", "viewer"].map((r) => ({ roleName: r })),
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -54,6 +57,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "deployer", systemPermissions: ["contract_deployment", "admin_read"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -66,6 +70,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "contract_deployment"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -78,6 +83,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "superuser", systemPermissions: ["full_sequencer_rpc_access"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -90,6 +96,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "trader", systemPermissions: ["contract_deployment"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -102,6 +109,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "admin", systemPermissions: ["admin_read", "full_read_access"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -114,6 +122,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "sequencer", systemPermissions: ["full_sequencer_rpc_access"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -130,6 +139,7 @@ describe("AddUserRolesPipe", () => {
           { roleName: "trader", systemPermissions: ["contract_deployment"] },
           { roleName: "reader", systemPermissions: ["full_read_access"] },
         ],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -142,12 +152,130 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: ["role1", "another", "trader"].map((r) => ({ roleName: r })),
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
     const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
     expect(user.address).toEqual("0x01");
     expect(user.token).toEqual("token1");
+  });
+
+  it("ignores read permissions granted by organization-scoped roles", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [
+          {
+            roleName: "org-reader",
+            organizationId: "org-a",
+            systemPermissions: ["full_read_access", "full_sequencer_rpc_access", "admin_read"],
+          },
+        ],
+        wallets: [{ walletAddress: "0x01" }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
+    expect(user.hasFullReadAccess).toBe(false);
+    expect(user.hasAdminRead).toBe(false);
+  });
+
+  it("grants read permissions from zone-level roles", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [
+          { roleName: "org-admin", organizationId: "org-a", systemPermissions: ["contract_deployment"] },
+          { roleName: "zone-reader", organizationId: null, systemPermissions: ["full_read_access", "admin_read"] },
+        ],
+        wallets: [{ walletAddress: "0x01" }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
+    expect(user.hasFullReadAccess).toBe(true);
+    expect(user.hasAdminRead).toBe(true);
+  });
+
+  it("replaces cached wallets with the live wallet list", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [],
+        wallets: [{ walletAddress: "0x01" }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01", "0x02"], token: "token1" });
+    expect(user.wallets).toEqual(["0x01"]);
+  });
+
+  it("throws PrividiumApiError 401 if the selected wallet is no longer associated with the user", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+        wallets: [{ walletAddress: "0x01" }],
+      }),
+    });
+
+    await expect(pipe.transform({ address: "0x02", wallets: ["0x01", "0x02"], token: "token1" })).rejects.toThrow(
+      new PrividiumApiError("Authentication failed", 401)
+    );
+  });
+
+  it("matches the selected wallet case-insensitively", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [],
+        wallets: [{ walletAddress: "0xabcd" }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0xABCD", wallets: ["0xABCD"], token: "token1" });
+    expect(user.address).toEqual("0xABCD");
+  });
+
+  it("does not require a wallet for walletless sessions", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [],
+        wallets: [],
+      }),
+    });
+
+    const user = await pipe.transform({ address: NO_WALLET_VIEWER, wallets: [], token: "token1" });
+    expect(user.address).toEqual(NO_WALLET_VIEWER);
+    expect(user.wallets).toEqual([]);
+  });
+
+  it("does not require a wallet when no address is selected", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+        wallets: [],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "", wallets: [], token: "token1" });
+    expect(user.hasFullReadAccess).toBe(true);
+  });
+
+  it("throws if server returns no wallets", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [],
+      }),
+    });
+
+    await expect(pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" })).rejects.toThrow(
+      BadGatewayException
+    );
   });
 
   it("throws if server returns incorrect body", async () => {

@@ -97,6 +97,17 @@ describe("contractDeployerTransferHandler", () => {
         const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
         expect(result.to).toBe("0x934f351e49800ff7d72b63d11d12ea0027e57302");
       });
+
+      it("extracts transfer with out of range to address fixed", async () => {
+        log = mock<Log>({
+          ...log,
+          data: "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000001934f351e49800ff7d72b63d11d12ea0027e5730200000000000000000000000000000000000000000000152d02c7e14af6800000",
+        });
+        const result = await contractDeployerTransferHandler.extract(log, blockchainService, blockDetails);
+        expect(result.from).toBe("0x934f351e49800ff7d72b63d11d12ea0027e57302");
+        expect(result.to).toBe("0x934f351e49800ff7d72b63d11d12ea0027e57302");
+        expect(result.amount).toBe(BigInt("0x152d02c7e14af6800000"));
+      });
     });
 
     it("extracts transfer with from field populated with lower cased to", async () => {

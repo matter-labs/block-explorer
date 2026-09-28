@@ -5,6 +5,10 @@
 // missing, individual fields come back undefined and callers fall back to
 // showing the raw memo string.
 
+import { formatUnits } from "ethers";
+
+import type { TokenTransfer } from "@/composables/useTransaction";
+
 export type Iso20022Payment = {
   msgId?: string;
   creationDateTime?: string;
@@ -89,6 +93,24 @@ export function parseIso20022Pain001(xml: string): Iso20022Payment | null {
   } catch {
     return null;
   }
+}
+
+// The memo is supplied by the sender and is not checked on chain. Returns true
+// when its debtor/creditor account is not the transfer's from/to address, or its
+// instructed amount is not the transferred amount in token units. Amounts are
+// compared as numbers because memos are written with Number#toFixed, which can
+// add float noise past the token's decimals. Absent memo fields are not checked.
+export function isIso20022MemoMismatch(payment: Iso20022Payment | null, transfer: TokenTransfer): boolean {
+  if (!payment) return false;
+  const differs = (account: string | undefined, address: string) =>
+    !!account && account.toLowerCase() !== address.toLowerCase();
+  return (
+    differs(payment.debtorAccount, transfer.from) ||
+    differs(payment.creditorAccount, transfer.to) ||
+    (!!payment.instructedAmount &&
+      (!transfer.tokenInfo ||
+        Number(payment.instructedAmount) !== Number(formatUnits(transfer.amount || 0, transfer.tokenInfo.decimals))))
+  );
 }
 
 // Pretty-prints XML with two-space indentation for display. Returns the input
