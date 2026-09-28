@@ -815,6 +815,30 @@ describe("useTransaction:", () => {
           maxPriorityFeePerGas: "8000",
         });
       });
+      it("marks the transaction as failed when the receipt status is 0", async () => {
+        const provider = {
+          getTransaction: vi.fn().mockResolvedValue({ data: "0x", value: "0", gasPrice: "4000", gasLimit: "5000" }),
+          getTransactionReceipt: vi.fn().mockResolvedValue({
+            index: 0,
+            logs: [],
+            gasUsed: "3000",
+            gasPrice: "4000",
+            status: 0,
+          }),
+        };
+        const { transaction, getByHash } = useTransaction({
+          currentNetwork: {
+            value: {
+              apiUrl: "http://api.url",
+            },
+          },
+          getL2Provider: vi.fn().mockReturnValue(provider),
+        } as unknown as Context);
+
+        await getByHash("0x00000d03dd8c01f1049143cf9c4c817e4b167f1d1b83e5c6f0f10d89ba1e7bcf");
+
+        expect(transaction.value?.status).toBe("failed");
+      });
     });
   });
 });

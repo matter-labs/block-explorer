@@ -1,8 +1,8 @@
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
-import { render } from "@testing-library/vue";
+import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { RouterLinkStub } from "@vue/test-utils";
 
 import TransferTableCell from "@/components/transactions/infoTable/TransferTableCell.vue";
@@ -52,5 +52,54 @@ describe("TransferTableCell:", () => {
     expect(container.querySelectorAll(".transfer-amount-container span")[0]?.textContent).toBe("for");
     expect(container.querySelectorAll(".transfer-amount-container span")[1]?.textContent).toBe("100");
     expect(container.querySelectorAll(".transfer-amount-container span")[2]?.textContent).toBe("LINK");
+  });
+
+  describe("ISO 20022 memo", () => {
+    const transfer = {
+      amount: "123456",
+      from: "0x6c10d9C1744F149D4B17660E14FaA247964749c7",
+      to: "0xD5736a5c56498577b8e699520fe20b57Ac91D491",
+      type: "transfer",
+      fromNetwork: "L2",
+      toNetwork: "L2",
+      tokenInfo: { decimals: 2, l2Address: "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB", symbol: "ISO" },
+    };
+    const pain001 = (amount: string, debtor = transfer.from) => `<Document>
+  <CstmrCdtTrfInitn>
+    <PmtInf>
+      <DbtrAcct><Id><Othr><Id>${debtor}</Id></Othr></Id></DbtrAcct>
+      <CdtTrfTxInf>
+        <Amt><InstdAmt Ccy="USD">${amount}</InstdAmt></Amt>
+        <CdtrAcct><Id><Othr><Id>${transfer.to}</Id></Othr></Id></CdtrAcct>
+      </CdtTrfTxInf>
+    </PmtInf>
+  </CstmrCdtTrfInitn>
+</Document>`;
+    const renderWithMemo = (memo: string) => render(TransferTableCell, { global, props: { transfer, memo } });
+
+    afterEach(cleanup);
+
+    it("labels a matching memo as unverified", async () => {
+      const { getByText, queryByText } = renderWithMemo(pain001("1234.56"));
+      await fireEvent.click(getByText("ISO 20022 payment"));
+
+      expect(getByText(enUS.transactions.table.iso20022.unverified)).toBeTruthy();
+      expect(queryByText(enUS.transactions.table.iso20022.mismatch)).toBeNull();
+    });
+
+    it("flags an amount mismatch", async () => {
+      const { container, getByText } = renderWithMemo(pain001("1000000.00"));
+      expect(container.querySelector(".transfer-memo-badge.is-mismatch")).toBeTruthy();
+      await fireEvent.click(getByText(enUS.transactions.table.iso20022.badgeMismatch));
+
+      expect(getByText(enUS.transactions.table.iso20022.mismatch)).toBeTruthy();
+    });
+
+    it("renders an account that is not an address as text", async () => {
+      const { container, getByText } = renderWithMemo(pain001("1234.56", "DE89370400440532013000"));
+      await fireEvent.click(container.querySelector(".transfer-memo-badge")!);
+
+      expect(getByText("DE89370400440532013000").tagName).toBe("SPAN");
+    });
   });
 });

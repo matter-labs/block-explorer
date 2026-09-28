@@ -406,14 +406,17 @@ describe("Prividium API (e2e)", () => {
     it("still refuses an upper-case api route when the bearer token lacks full read access", async () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
-        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user", systemPermissions: [] }] }),
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "user", systemPermissions: [] }],
+          wallets: [{ walletAddress: mockWalletAddress }],
+        }),
       });
 
       const response = await agent
         .get(`/API/account/txlist?address=${otherAddress}`)
         .set("Authorization", "Bearer some-token");
 
-      expect(response.status).not.toBe(200);
+      expect(response.status).toBe(403);
       expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
     });
   });
