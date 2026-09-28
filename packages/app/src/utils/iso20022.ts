@@ -28,16 +28,13 @@ export type Iso20022Payment = {
   remittanceInfo?: string;
 };
 
-// First direct child element matching a local name, ignoring namespace prefixes
+// Only direct child element matching a local name, ignoring namespace prefixes
 // (pain.001 uses a default namespace, so prefix-based lookups are unreliable).
+// A repeated element is treated as missing, as only one of them would be shown.
 function childByLocalName(parent: Element | undefined, localName: string): Element | undefined {
   if (!parent) return undefined;
-  for (let i = 0; i < parent.children.length; i++) {
-    if (parent.children[i].localName === localName) {
-      return parent.children[i];
-    }
-  }
-  return undefined;
+  const children = Array.from(parent.children).filter((child) => child.localName === localName);
+  return children.length === 1 ? children[0] : undefined;
 }
 
 // Walks a strict parent → child path of local names. Traversing direct children
@@ -96,20 +93,20 @@ export function parseIso20022Pain001(xml: string): Iso20022Payment | null {
 }
 
 // The memo is supplied by the sender and is not checked on chain. Returns true
-// when its debtor/creditor account is not the transfer's from/to address, or its
-// instructed amount is not the transferred amount in token units. Amounts are
-// compared as numbers because memos are written with Number#toFixed, which can
-// add float noise past the token's decimals. Absent memo fields are not checked.
+// unless its debtor/creditor accounts are the transfer's from/to addresses and
+// its instructed amount, a plain decimal with an ISO 4217 currency code, is the
+// transferred amount in token units. A memo that cannot be parsed or has missing
+// fields counts as a mismatch. Amounts are compared as numbers because memos are
+// written with Number#toFixed, which can add float noise past the token's decimals.
 export function isIso20022MemoMismatch(payment: Iso20022Payment | null, transfer: TokenTransfer): boolean {
-  if (!payment) return false;
-  const differs = (account: string | undefined, address: string) =>
-    !!account && account.toLowerCase() !== address.toLowerCase();
-  return (
-    differs(payment.debtorAccount, transfer.from) ||
-    differs(payment.creditorAccount, transfer.to) ||
-    (!!payment.instructedAmount &&
-      (!transfer.tokenInfo ||
-        Number(payment.instructedAmount) !== Number(formatUnits(transfer.amount || 0, transfer.tokenInfo.decimals))))
+  if (!payment) return true;
+  return !(
+    /^\d+(\.\d+)?$/.test(payment.instructedAmount ?? "") &&
+    /^[A-Z]{3}$/.test(payment.currency ?? "") &&
+    payment.debtorAccount?.toLowerCase() === transfer.from.toLowerCase() &&
+    payment.creditorAccount?.toLowerCase() === transfer.to.toLowerCase() &&
+    !!transfer.tokenInfo &&
+    Number(payment.instructedAmount) === Number(formatUnits(transfer.amount || 0, transfer.tokenInfo.decimals))
   );
 }
 

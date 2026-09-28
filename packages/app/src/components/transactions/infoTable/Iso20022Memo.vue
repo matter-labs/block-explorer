@@ -46,7 +46,7 @@ import { parseIso20022Pain001, prettyPrintXml } from "@/utils/iso20022";
 
 const props = defineProps<{
   memo: string;
-  // The memo's accounts or amount do not match the transfer it is attached to.
+  // The memo's accounts or amount are missing or do not match the transfer it is attached to.
   mismatch?: boolean;
 }>();
 

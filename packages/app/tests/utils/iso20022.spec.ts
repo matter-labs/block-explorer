@@ -22,20 +22,17 @@ const transfer: TokenTransfer = {
     symbol: "ISO",
   },
 } as unknown as TokenTransfer;
+const token18 = { amount: "12340000000000000000", tokenInfo: { ...transfer.tokenInfo!, decimals: 18 } };
 
-function pain001({ amount, debtor, creditor }: { amount?: string; debtor?: string; creditor?: string }) {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09">
+// An empty amount or account leaves that element out of the memo.
+function pain001({ amount = "1234.56", currency = "USD", debtor = sender, creditor = receiver } = {}) {
+  return `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09">
   <CstmrCdtTrfInitn>
-    <GrpHdr><MsgId>PRIV-1</MsgId></GrpHdr>
     <PmtInf>
-      <Dbtr><Nm>Example Bank N.A.</Nm></Dbtr>
-      ${debtor === undefined ? "" : `<DbtrAcct><Id><Othr><Id>${debtor}</Id></Othr></Id></DbtrAcct>`}
+      ${debtor && `<DbtrAcct><Id><Othr><Id>${debtor}</Id></Othr></Id></DbtrAcct>`}
       <CdtTrfTxInf>
-        ${amount === undefined ? "" : `<Amt><InstdAmt Ccy="USD">${amount}</InstdAmt></Amt>`}
-        <Cdtr><Nm>Victim Ltd</Nm></Cdtr>
-        ${creditor === undefined ? "" : `<CdtrAcct><Id><Othr><Id>${creditor}</Id></Othr></Id></CdtrAcct>`}
-        <RmtInf><Ustrd>Invoice 4471 paid in full</Ustrd></RmtInf>
+        ${amount && `<Amt><InstdAmt Ccy="${currency}">${amount}</InstdAmt></Amt>`}
+        ${creditor && `<CdtrAcct><Id><Othr><Id>${creditor}</Id></Othr></Id></CdtrAcct>`}
       </CdtTrfTxInf>
     </PmtInf>
   </CstmrCdtTrfInitn>
@@ -46,78 +43,48 @@ const check = (memo: string, overrides: Partial<TokenTransfer> = {}) =>
   isIso20022MemoMismatch(parseIso20022Pain001(memo), { ...transfer, ...overrides });
 
 describe("isIso20022MemoMismatch:", () => {
-  it("returns false when accounts and amount match the transfer", () => {
-    expect(check(pain001({ amount: "1234.56", debtor: sender, creditor: receiver }))).toBe(false);
+  it("returns false when accounts (in any case) and amount match the transfer", () => {
+    expect(check(pain001({ debtor: sender.toLowerCase(), creditor: receiver.toUpperCase() }))).toBe(false);
   });
 
-  it("compares accounts case-insensitively", () => {
-    expect(check(pain001({ amount: "1234.56", debtor: sender.toLowerCase(), creditor: receiver.toUpperCase() }))).toBe(
-      false
-    );
-  });
-
-  it("returns false when the memo carries no accounts or amount to check", () => {
-    expect(check(pain001({}))).toBe(false);
-  });
-
-  it("returns false when the memo is not a pain.001 document", () => {
-    expect(isIso20022MemoMismatch(parseIso20022Pain001("not xml"), transfer)).toBe(false);
-  });
-
-  it("returns true when the instructed amount differs from the transferred amount", () => {
-    expect(check(pain001({ amount: "1000000.00", debtor: sender, creditor: receiver }))).toBe(true);
+  it("scales the transferred amount by the token decimals and accepts Number#toFixed float noise", () => {
+    // What the ISO 20022 sender app writes for 12.34 of an 18-decimals token.
+    expect(check(pain001({ amount: (12.34).toFixed(18) }), token18)).toBe(false);
   });
 
   it("returns true for a large memo amount next to a 1 wei transfer", () => {
+    expect(check(pain001({ amount: "1000000.00" }), { ...token18, amount: "1" })).toBe(true);
+  });
+
+  it("returns true when the amount is not a plain decimal, even if it equals the transferred amount", () => {
+    expect(check(pain001({ amount: "1000000.00e-24" }), { ...token18, amount: "1" })).toBe(true);
+    expect(check(pain001({ amount: "1e6" }), { amount: "100000000" })).toBe(true);
+  });
+
+  it("returns true when the currency is not an ISO 4217 code", () => {
+    // Displayed as the amount "1 000 000.00 USD".
+    expect(check(pain001({ amount: "1", currency: "000 000.00 USD" }), { amount: "100" })).toBe(true);
+  });
+
+  it("returns true when the memo leaves out the amount or an account", () => {
+    expect(check(pain001({ amount: "" }))).toBe(true);
+    expect(check(pain001({ debtor: "" }))).toBe(true);
+    expect(check(pain001({ creditor: "" }))).toBe(true);
+  });
+
+  it("returns true when the memo cannot be parsed or repeats a payment instruction", () => {
+    expect(check("PAYMENT CONFIRMED 1,000,000.00 USD")).toBe(true);
+    // Only the first amount would be checked, while the raw memo also shows the second one.
     expect(
-      check(pain001({ amount: "1000000.00" }), {
-        amount: "1",
-        tokenInfo: { ...transfer.tokenInfo!, decimals: 18 },
-      })
+      check(pain001().replace("</CdtTrfTxInf>", "<Amt><InstdAmt Ccy='USD'>1000000.00</InstdAmt></Amt></CdtTrfTxInf>"))
     ).toBe(true);
   });
 
-  it("returns true when the instructed amount is not a number", () => {
-    expect(check(pain001({ amount: "1,234.56" }))).toBe(true);
-    expect(check(pain001({ amount: "abc" }))).toBe(true);
-  });
-
-  it("scales the transferred amount by the token decimals", () => {
-    expect(check(pain001({ amount: "1234.560000" }))).toBe(false);
-    expect(check(pain001({ amount: "123456" }))).toBe(true);
-    expect(
-      check(pain001({ amount: "12.340000000000000000" }), {
-        amount: "12340000000000000000",
-        tokenInfo: { ...transfer.tokenInfo!, decimals: 18 },
-      })
-    ).toBe(false);
-  });
-
-  it("accepts the float noise of an amount written with Number#toFixed", () => {
-    // What the ISO 20022 sender app writes for 12.34 of an 18-decimals token.
-    expect(
-      check(pain001({ amount: (12.34).toFixed(18) }), {
-        amount: "12340000000000000000",
-        tokenInfo: { ...transfer.tokenInfo!, decimals: 18 },
-      })
-    ).toBe(false);
-  });
-
   it("returns true when the debtor account is not the transfer sender", () => {
-    expect(check(pain001({ amount: "1234.56", debtor: receiver, creditor: receiver }))).toBe(true);
+    expect(check(pain001({ debtor: receiver }))).toBe(true);
   });
 
-  it("returns true when the creditor account is not the transfer receiver", () => {
-    expect(check(pain001({ amount: "1234.56", debtor: sender, creditor: sender }))).toBe(true);
-  });
-
-  it("returns true when an account is not the on-chain address (e.g. a bank account number)", () => {
-    expect(check(pain001({ debtor: "DE89370400440532013000" }))).toBe(true);
-    // Zero-width space inside an otherwise matching address.
-    expect(check(pain001({ creditor: `${receiver.slice(0, 10)}\u200b${receiver.slice(10)}` }))).toBe(true);
-  });
-
-  it("returns true when the memo has an amount but the transfer has no token info", () => {
-    expect(check(pain001({ amount: "1234.56" }), { tokenInfo: undefined })).toBe(true);
+  it("returns true when the transfer has no token info", () => {
+    expect(check(pain001(), { tokenInfo: undefined })).toBe(true);
   });
 });

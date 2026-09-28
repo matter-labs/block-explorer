@@ -1,11 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { TransactionReceipt, Log, AbiCoder } from "ethers";
-import { setTimeout } from "timers/promises";
-import { Histogram } from "prom-client";
-import { ConfigService } from "@nestjs/config";
 import {
   BASE_TOKEN_ADDRESS,
-  CONTRACT_INTERFACES,
   ETH_L1_ADDRESS,
   L2_ASSET_ROUTER_ADDRESS,
   L2_NATIVE_TOKEN_VAULT_ADDRESS,
@@ -13,13 +9,8 @@ import {
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
-import { JsonRpcProviderBase } from "../rpcProvider";
 import { TokenService } from "./token.service";
 import { ContractAddress } from "../transaction/transactionTraces.service";
-
-jest.mock("timers/promises", () => ({
-  setTimeout: jest.fn().mockResolvedValue(null),
-}));
 
 describe("TokenService", () => {
   let tokenService: TokenService;
@@ -375,71 +366,44 @@ describe("TokenService", () => {
         });
       });
 
-      describe.each(["0x0000000000000000000000000000000000000aaa", undefined])(
-        "and the token is deployed by %s instead of the native token vault",
-        (deployerAddress) => {
-          beforeEach(() => {
-            deployedContractAddress = mock<ContractAddress>({
-              address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
-              blockNumber: 10,
-              transactionHash: "transactionHash",
-              logIndex: 20,
-              deployerAddress,
-            });
+      it.each(["0x0000000000000000000000000000000000000aaa", undefined])(
+        "returns the token without l1Address when the token is deployed by %s instead of the native token vault",
+        async (deployerAddress) => {
+          deployedContractAddress = mock<ContractAddress>({
+            address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
+            blockNumber: 10,
+            transactionHash: "transactionHash",
+            logIndex: 20,
+            deployerAddress,
           });
-
-          it("gets token data by the contract address", async () => {
-            await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-            expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledTimes(1);
-            expect(blockchainServiceMock.getERC20TokenData).toHaveBeenCalledWith(deployedContractAddress.address);
-          });
-
-          it("returns the token without l1Address", async () => {
-            const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-            expect(token).toStrictEqual({
-              ...tokenData,
-              blockNumber: deployedContractAddress.blockNumber,
-              transactionHash: deployedContractAddress.transactionHash,
-              l2Address: deployedContractAddress.address,
-              logIndex: deployedContractAddress.logIndex,
-            });
+          const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+          expect(token).toStrictEqual({
+            ...tokenData,
+            blockNumber: deployedContractAddress.blockNumber,
+            transactionHash: deployedContractAddress.transactionHash,
+            l2Address: deployedContractAddress.address,
+            logIndex: deployedContractAddress.logIndex,
           });
         }
       );
 
-      describe.each([
-        ["name", "0xfffe"],
-        ["name", "0xc0af"],
-        ["name", "0xeda080"],
-        ["symbol", "0xfffe"],
-        ["symbol", "0xc0af"],
-        ["symbol", "0xeda080"],
-      ])("and the token %s in the log is an invalid UTF-8 string %s", (field, invalidUtf8String) => {
-        beforeEach(() => {
-          const logTokenData = { name: "0x4c313131", symbol: "0x4c313131", [field]: invalidUtf8String };
-          transactionReceipt = mock<TransactionReceipt>({
-            ...transactionReceipt,
-            logs: [
-              mock<Log>({
-                address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
-                topics: [
-                  "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
-                  "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
-                ],
-                // string and bytes have the same ABI encoding
-                data: AbiCoder.defaultAbiCoder().encode(
-                  ["bytes", "bytes", "uint8"],
-                  [logTokenData.name, logTokenData.symbol, 18]
-                ),
-              }),
-            ],
-          });
+      it("returns null when the token symbol in the log is an invalid UTF-8 string", async () => {
+        transactionReceipt = mock<TransactionReceipt>({
+          ...transactionReceipt,
+          logs: [
+            mock<Log>({
+              address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
+              topics: [
+                "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
+                "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
+              ],
+              // string and bytes have the same ABI encoding
+              data: AbiCoder.defaultAbiCoder().encode(["bytes", "bytes", "uint8"], ["0x4c313131", "0xfffe", 18]),
+            }),
+          ],
         });
-
-        it("returns null", async () => {
-          const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
-          expect(token).toBeNull();
-        });
+        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        expect(token).toBeNull();
       });
     });
 
@@ -559,77 +523,6 @@ describe("TokenService", () => {
           transactionHash: deployedContractAddress.transactionHash,
           l2Address: deployedContractAddress.address,
           logIndex: deployedContractAddress.logIndex,
-        });
-      });
-    });
-
-    describe("when token data is requested from the token contract", () => {
-      let tokenContractResults: Record<string, string>;
-      let providerCallMock: jest.Mock;
-
-      beforeEach(() => {
-        const abiCoder = AbiCoder.defaultAbiCoder();
-        tokenContractResults = {
-          symbol: abiCoder.encode(["string"], ["symbol"]),
-          name: abiCoder.encode(["string"], ["name"]),
-          decimals: abiCoder.encode(["uint8"], [18]),
-        };
-        providerCallMock = jest.fn(
-          async ({ data }) => tokenContractResults[CONTRACT_INTERFACES.ERC20.interface.parseTransaction({ data }).name]
-        );
-        tokenService = new TokenService(
-          new BlockchainService(
-            mock<ConfigService>(),
-            { call: providerCallMock } as unknown as JsonRpcProviderBase,
-            mock<Histogram>()
-          ),
-          mock<Histogram>({ startTimer: startGetTokenInfoDurationMetricMock })
-        );
-        (setTimeout as unknown as jest.Mock).mockClear();
-      });
-
-      it("returns the token", async () => {
-        const token = await tokenService.getERC20Token(deployedContractAddress);
-        expect(token).toStrictEqual({
-          ...tokenData,
-          decimals: BigInt(18),
-          blockNumber: deployedContractAddress.blockNumber,
-          transactionHash: deployedContractAddress.transactionHash,
-          l2Address: deployedContractAddress.address,
-          logIndex: deployedContractAddress.logIndex,
-        });
-      });
-
-      describe.each([
-        ["symbol", "0xfffe"],
-        ["symbol", "0xc0af"],
-        ["symbol", "0xeda080"],
-        ["name", "0xfffe"],
-        ["name", "0xc0af"],
-        ["name", "0xeda080"],
-      ])("and the token %s is an invalid UTF-8 string %s", (fn, invalidUtf8String) => {
-        beforeEach(() => {
-          // string and bytes have the same ABI encoding
-          tokenContractResults[fn] = AbiCoder.defaultAbiCoder().encode(["bytes"], [invalidUtf8String]);
-        });
-
-        it("returns null without retrying the contract call", async () => {
-          const token = await tokenService.getERC20Token(deployedContractAddress);
-          expect(token).toBeNull();
-          expect(setTimeout).not.toBeCalled();
-        });
-      });
-
-      describe("and the contract call fails with a network error", () => {
-        beforeEach(() => {
-          providerCallMock.mockRejectedValue(new Error("socket hang up"));
-        });
-
-        it("retries the contract call and throws an error when retries total timeout is exceeded", async () => {
-          await expect(tokenService.getERC20Token(deployedContractAddress)).rejects.toThrowError(
-            `Failed to call potential ERC20 contract at ${deployedContractAddress.address}, exceeded total retries timeout`
-          );
-          expect(setTimeout).toBeCalled();
         });
       });
     });

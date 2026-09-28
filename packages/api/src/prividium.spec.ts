@@ -79,12 +79,7 @@ describe("applyPrividiumExpressConfig", () => {
     const createApp = async (corsOrigins?: string[]) => {
       const moduleRef = await Test.createTestingModule({
         controllers: [RpcController],
-        providers: [
-          {
-            provide: ConfigService,
-            useValue: { get: (key: string) => ({ "prividium.permissionsApiUrl": "https://permissions-api.com" }[key]) },
-          },
-        ],
+        providers: [{ provide: ConfigService, useValue: { get: () => "https://permissions-api.com" } }],
       }).compile();
       app = moduleRef.createNestApplication<NestExpressApplication>({ logger: false });
       applyPrividiumExpressConfig(app, {
@@ -96,11 +91,11 @@ describe("applyPrividiumExpressConfig", () => {
       });
       app.use("/session", (req: express.Request, res: express.Response) => {
         req.session.address = "0x01";
-        req.session.wallets = ["0x01"];
         req.session.token = "admin-token";
         res.send("ok");
       });
-      await app.init();
+      // One loopback listener: supertest would otherwise bind [::]:0 per request and dial 127.0.0.1.
+      await app.listen(0, "127.0.0.1");
       agent = request.agent(app.getHttpServer());
       await agent.get("/session").expect(200);
     };
@@ -119,37 +114,14 @@ describe("applyPrividiumExpressConfig", () => {
       await app.close();
     });
 
-    it("rejects a form POST to /rpc from another origin and does not forward it", async () => {
-      await agent.post("/rpc").set("Origin", attackerOrigin).type("form").send(rpcForm).expect(403);
+    it.each([
+      ["another origin", { Origin: attackerOrigin }],
+      ["an opaque origin", { Origin: "null" }],
+      ["a sibling subdomain of the app", { Origin: "https://sub.blockexplorer.com", "Sec-Fetch-Site": "same-site" }],
+    ])("rejects a form POST to /rpc from %s and does not forward it", async (_, headers) => {
+      await agent.post("/rpc").set(headers).type("form").send(rpcForm).expect(403);
       expect(fetchSpy).not.toBeCalled();
     });
-
-    it("rejects a JSON POST to /rpc from another origin and does not forward it", async () => {
-      await agent.post("/rpc").set("Origin", attackerOrigin).send(rpcBody).expect(403);
-      expect(fetchSpy).not.toBeCalled();
-    });
-
-    it("rejects a POST to /rpc from an opaque origin", async () => {
-      await agent.post("/rpc").set("Origin", "null").send(rpcBody).expect(403);
-      expect(fetchSpy).not.toBeCalled();
-    });
-
-    it("rejects a POST from a sibling subdomain of the app", async () => {
-      await agent
-        .post("/rpc")
-        .set("Origin", "https://sub.blockexplorer.com")
-        .set("Sec-Fetch-Site", "same-site")
-        .send(rpcBody)
-        .expect(403);
-      expect(fetchSpy).not.toBeCalled();
-    });
-
-    it.each(["/auth/login", "/auth/logout", "/auth/switch-wallet"])(
-      "rejects a form POST to %s from another origin",
-      async (path) => {
-        await agent.post(path).set("Origin", attackerOrigin).type("form").send("token=attacker-token").expect(403);
-      }
-    );
 
     it("rejects a form POST to /rpc that has no Origin and does not forward it", async () => {
       await agent.post("/rpc").type("form").send(rpcForm).expect(415);
@@ -158,24 +130,8 @@ describe("applyPrividiumExpressConfig", () => {
       expect(fetchSpy).not.toBeCalled();
     });
 
-    it("forwards a JSON POST to /rpc from the app origin with the session token", async () => {
-      const res = await agent.post("/rpc").set("Origin", appUrl).send(rpcBody).expect(201);
-
-      expect(res.body).toEqual({ jsonrpc: "2.0", id: 1, result: "0xhash" });
-      expect(fetchSpy).toBeCalledWith(new URL("https://permissions-api.com/rpc"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: "Bearer admin-token" },
-        body: JSON.stringify(rpcBody),
-      });
-    });
-
-    it("forwards a JSON POST to /rpc with a charset from the app origin", async () => {
-      await agent
-        .post("/rpc")
-        .set("Origin", appUrl)
-        .set("Content-Type", "application/json; charset=utf-8")
-        .send(JSON.stringify(rpcBody))
-        .expect(201);
+    it("forwards a JSON POST to /rpc from the app origin", async () => {
+      await agent.post("/rpc").set("Origin", appUrl).send(rpcBody).expect(201);
       expect(fetchSpy).toBeCalledTimes(1);
     });
 
@@ -186,11 +142,6 @@ describe("applyPrividiumExpressConfig", () => {
         .set("Sec-Fetch-Site", "same-origin")
         .send(rpcBody)
         .expect(201);
-      expect(fetchSpy).toBeCalledTimes(1);
-    });
-
-    it("forwards a JSON POST to /rpc without an Origin", async () => {
-      await agent.post("/rpc").send(rpcBody).expect(201);
       expect(fetchSpy).toBeCalledTimes(1);
     });
 

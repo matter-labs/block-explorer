@@ -133,8 +133,7 @@ describe("Prividium API (e2e)", () => {
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "user", organizationId: null }],
-            wallets: [{ walletAddress: mockWalletAddress }],
+            roles: [{ roleName: "user" }],
           }),
         });
 
@@ -269,10 +268,7 @@ describe("Prividium API (e2e)", () => {
         })
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "user", organizationId: null }],
-            wallets: [{ walletAddress: mockWalletAddress }],
-          }),
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
         });
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
@@ -281,7 +277,7 @@ describe("Prividium API (e2e)", () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({
-          roles: [{ roleName: "user", organizationId: null }],
+          roles: [{ roleName: "user" }],
           wallets: [{ walletAddress: mockWalletAddress }],
         }),
       });
@@ -306,8 +302,7 @@ describe("Prividium API (e2e)", () => {
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"], organizationId: null }],
-            wallets: [{ walletAddress: mockWalletAddress }],
+            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
           }),
         });
 
@@ -317,7 +312,7 @@ describe("Prividium API (e2e)", () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({
-          roles: [{ roleName: "admin", systemPermissions: ["full_read_access"], organizationId: null }],
+          roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
           wallets: [{ walletAddress: mockWalletAddress }],
         }),
       });
@@ -381,13 +376,7 @@ describe("Prividium API (e2e)", () => {
           status: 200,
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }),
         })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "user", organizationId: null }],
-            wallets: [{ walletAddress: mockWalletAddress }],
-          }),
-        });
+        .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }) });
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
       fetchSpy.mockReset();
     });
@@ -418,7 +407,7 @@ describe("Prividium API (e2e)", () => {
       fetchSpy.mockResolvedValueOnce({
         status: 200,
         json: jest.fn().mockResolvedValue({
-          roles: [{ roleName: "user", systemPermissions: [], organizationId: null }],
+          roles: [{ roleName: "user", systemPermissions: [] }],
           wallets: [{ walletAddress: mockWalletAddress }],
         }),
       });

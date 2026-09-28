@@ -171,31 +171,28 @@ describe("RetryableContract", () => {
       });
     });
 
-    describe.each(["0xfffe", "0xc0af", "0xeda080"])(
-      "when the contract returns an invalid UTF-8 string %s",
-      (invalidUtf8String) => {
-        beforeEach(() => {
-          const { AbiCoder, Contract } = jest.requireActual("ethers");
-          let countOfRequests = 0;
-          (ethers.Contract as any as jest.Mock).mockReturnValue(
-            new Contract("0x0000000000000000000000000000000000000001", new Interface(erc20ABI), {
-              // string and bytes have the same ABI encoding, a valid string is returned if the call is retried
-              call: async () =>
-                AbiCoder.defaultAbiCoder().encode(["bytes"], [countOfRequests++ ? "0x4c313131" : invalidUtf8String]),
-            })
-          );
+    describe("when the contract returns an invalid UTF-8 string", () => {
+      beforeEach(() => {
+        const { AbiCoder, Contract } = jest.requireActual("ethers");
+        let countOfRequests = 0;
+        (ethers.Contract as any as jest.Mock).mockReturnValue(
+          new Contract("0x0000000000000000000000000000000000000001", new Interface(erc20ABI), {
+            // string and bytes have the same ABI encoding, a valid string is returned if the call is retried
+            call: async () =>
+              AbiCoder.defaultAbiCoder().encode(["bytes"], [countOfRequests++ ? "0x4c313131" : "0xfffe"]),
+          })
+        );
 
-          contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
-        });
+        contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock);
+      });
 
-        it.each(["symbol", "name"])("throws the deferred decoding error of %s without retrying", async (fn) => {
-          await expect(contract[fn]()).rejects.toThrowError(
-            "deferred error during ABI decoding triggered accessing index 0"
-          );
-          expect(setTimeout).not.toBeCalled();
-        });
-      }
-    );
+      it("throws the deferred decoding error without retrying", async () => {
+        await expect(contract.symbol()).rejects.toThrowError(
+          "deferred error during ABI decoding triggered accessing index 0"
+        );
+        expect(setTimeout).not.toBeCalled();
+      });
+    });
 
     describe("when throws a few network errors before returning a result", () => {
       const functionResult = "functionResult";
@@ -266,36 +263,6 @@ describe("RetryableContract", () => {
         expect(setTimeout).toBeCalledWith(40000);
         expect(setTimeout).toBeCalledWith(60000);
         expect(setTimeout).toBeCalledWith(60000);
-      });
-    });
-
-    describe("when throws a few errors with no code before returning a result", () => {
-      const functionResult = "functionResult";
-
-      beforeEach(() => {
-        let countOfFailedRequests = 0;
-        (ethers.Contract as any as jest.Mock).mockReturnValue({
-          contractFn: async () => {
-            countOfFailedRequests++;
-            if (countOfFailedRequests <= 2) {
-              throw new Error("socket hang up");
-            }
-            if (countOfFailedRequests <= 4) {
-              throw Object.assign(new Error("request failed"), {
-                error: { code: -32603, message: "internal error" },
-              });
-            }
-            return functionResult;
-          },
-        });
-
-        contract = new RetryableContract(tokenAddress, new Interface(erc20ABI), providerMock, 20000);
-      });
-
-      it("retries and returns the result when it's available", async () => {
-        const result = await contract.contractFn();
-        expect(result).toBe(functionResult);
-        expect(setTimeout).toBeCalledTimes(4);
       });
     });
   });

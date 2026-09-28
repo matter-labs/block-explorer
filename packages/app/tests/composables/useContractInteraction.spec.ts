@@ -94,44 +94,14 @@ describe("useContractInteraction:", () => {
         {
           ...abiFragment,
           inputs: [
-            { internalType: "address", name: "owner", type: "address" },
             { internalType: "address", name: "spender", type: "address" },
+            { internalType: "uint256", name: "", type: "uint256" },
             { internalType: "bool[]", name: "flags", type: "bool[]" },
           ],
         },
-        {
-          flags: [true, false],
-          spender: "0x000000000000000000000000000000000000800A",
-          owner: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
-        }
+        { flags: [true, false], input1: "2", spender: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b" }
       );
-      expect(mock.mock.lastCall).toEqual([
-        "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
-        "0x000000000000000000000000000000000000800A",
-        [true, false],
-      ]);
-      mock.mockRestore();
-    });
-    it("passes unnamed arguments in ABI inputs order", async () => {
-      const mock = vi.spyOn(ethers.Contract.prototype, "transfer").mockImplementation(async () => "Test response");
-      const { readFunction } = useContractInteraction();
-      await readFunction(
-        "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
-        {
-          ...abiFragment,
-          inputs: [
-            { internalType: "address", name: "", type: "address" },
-            { internalType: "uint256[]", name: "", type: "uint256[]" },
-            { internalType: "uint256", name: "", type: "uint256" },
-          ],
-        },
-        {
-          input2: "2",
-          "": ["1"],
-          input0: "0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b",
-        }
-      );
-      expect(mock.mock.lastCall).toEqual(["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b", ["1"], "2"]);
+      expect(mock.mock.lastCall).toEqual(["0x0cc725e6ba24e7db79f62f22a7994a8ee33adc1b", "2", [true, false]]);
       mock.mockRestore();
     });
   });

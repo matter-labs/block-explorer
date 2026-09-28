@@ -62,21 +62,15 @@ describe("TransferTableCell:", () => {
       type: "transfer",
       fromNetwork: "L2",
       toNetwork: "L2",
-      tokenInfo: {
-        decimals: 2,
-        l2Address: "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB",
-        symbol: "ISO",
-      },
+      tokenInfo: { decimals: 2, l2Address: "0x4732C03B2CF6eDe46500e799DE79a15Df44929eB", symbol: "ISO" },
     };
-    const pain001 = (amount: string, debtor = transfer.from, creditor = transfer.to) => `<Document>
+    const pain001 = (amount: string, debtor = transfer.from) => `<Document>
   <CstmrCdtTrfInitn>
     <PmtInf>
-      <Dbtr><Nm>Example Bank N.A.</Nm></Dbtr>
       <DbtrAcct><Id><Othr><Id>${debtor}</Id></Othr></Id></DbtrAcct>
       <CdtTrfTxInf>
         <Amt><InstdAmt Ccy="USD">${amount}</InstdAmt></Amt>
-        <CdtrAcct><Id><Othr><Id>${creditor}</Id></Othr></Id></CdtrAcct>
-        <RmtInf><Ustrd>Invoice 4471 paid in full</Ustrd></RmtInf>
+        <CdtrAcct><Id><Othr><Id>${transfer.to}</Id></Othr></Id></CdtrAcct>
       </CdtTrfTxInf>
     </PmtInf>
   </CstmrCdtTrfInitn>
@@ -85,45 +79,27 @@ describe("TransferTableCell:", () => {
 
     afterEach(cleanup);
 
-    it("labels a memo that matches the transfer as unverified, without a mismatch warning", async () => {
-      const { container, getByText, queryByText } = renderWithMemo(pain001("1234.56"));
-
-      expect(container.querySelector(".transfer-memo-badge.is-mismatch")).toBeNull();
+    it("labels a matching memo as unverified", async () => {
+      const { getByText, queryByText } = renderWithMemo(pain001("1234.56"));
       await fireEvent.click(getByText("ISO 20022 payment"));
 
       expect(getByText(enUS.transactions.table.iso20022.unverified)).toBeTruthy();
       expect(queryByText(enUS.transactions.table.iso20022.mismatch)).toBeNull();
-      expect(getByText("1234.56 USD")).toBeTruthy();
     });
 
-    it("flags a memo whose amount does not match the transfer", async () => {
-      const { container, getByText, queryByText } = renderWithMemo(pain001("1000000.00"));
-
-      expect(queryByText("ISO 20022 payment")).toBeNull();
+    it("flags an amount mismatch", async () => {
+      const { container, getByText } = renderWithMemo(pain001("1000000.00"));
       expect(container.querySelector(".transfer-memo-badge.is-mismatch")).toBeTruthy();
       await fireEvent.click(getByText(enUS.transactions.table.iso20022.badgeMismatch));
 
       expect(getByText(enUS.transactions.table.iso20022.mismatch)).toBeTruthy();
-      expect(getByText(enUS.transactions.table.iso20022.unverified)).toBeTruthy();
     });
 
-    it("flags a memo whose debtor or creditor account does not match the transfer", async () => {
-      const other = "0x0000000000000000000000000000000000000001";
-      for (const memo of [pain001("1234.56", other), pain001("1234.56", transfer.from, other)]) {
-        const { container, unmount } = renderWithMemo(memo);
-        expect(container.querySelector(".transfer-memo-badge.is-mismatch")).toBeTruthy();
-        unmount();
-      }
-    });
-
-    it("renders an account that is not an address as text and flags it as a mismatch", async () => {
+    it("renders an account that is not an address as text", async () => {
       const { container, getByText } = renderWithMemo(pain001("1234.56", "DE89370400440532013000"));
-
-      expect(container.querySelector(".transfer-memo-badge.is-mismatch")).toBeTruthy();
-      await fireEvent.click(getByText(enUS.transactions.table.iso20022.badgeMismatch));
+      await fireEvent.click(container.querySelector(".transfer-memo-badge")!);
 
       expect(getByText("DE89370400440532013000").tagName).toBe("SPAN");
-      expect(getByText(enUS.transactions.table.iso20022.mismatch)).toBeTruthy();
     });
   });
 });

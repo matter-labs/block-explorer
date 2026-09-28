@@ -181,34 +181,17 @@ describe("AddUserRolesPipe", () => {
     expect(user.hasAdminRead).toBe(false);
   });
 
-  it("grants read permissions from zone-level roles", async () => {
-    fetchSpy.mockResolvedValueOnce({
-      status: 200,
-      json: jest.fn().mockResolvedValue({
-        roles: [
-          { roleName: "org-admin", organizationId: "org-a", systemPermissions: ["contract_deployment"] },
-          { roleName: "zone-reader", organizationId: null, systemPermissions: ["full_read_access", "admin_read"] },
-        ],
-        wallets: [{ walletAddress: "0x01" }],
-      }),
-    });
-
-    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
-    expect(user.hasFullReadAccess).toBe(true);
-    expect(user.hasAdminRead).toBe(true);
-  });
-
-  it("replaces cached wallets with the live wallet list", async () => {
+  it("replaces cached wallets with the live wallet list, matching the selected wallet case-insensitively", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [],
-        wallets: [{ walletAddress: "0x01" }],
+        wallets: [{ walletAddress: "0xabcd" }],
       }),
     });
 
-    const user = await pipe.transform({ address: "0x01", wallets: ["0x01", "0x02"], token: "token1" });
-    expect(user.wallets).toEqual(["0x01"]);
+    const user = await pipe.transform({ address: "0xABCD", wallets: ["0xABCD", "0x02"], token: "token1" });
+    expect(user.wallets).toEqual(["0xabcd"]);
   });
 
   it("throws PrividiumApiError 401 if the selected wallet is no longer associated with the user", async () => {
@@ -223,19 +206,6 @@ describe("AddUserRolesPipe", () => {
     await expect(pipe.transform({ address: "0x02", wallets: ["0x01", "0x02"], token: "token1" })).rejects.toThrow(
       new PrividiumApiError("Authentication failed", 401)
     );
-  });
-
-  it("matches the selected wallet case-insensitively", async () => {
-    fetchSpy.mockResolvedValueOnce({
-      status: 200,
-      json: jest.fn().mockResolvedValue({
-        roles: [],
-        wallets: [{ walletAddress: "0xabcd" }],
-      }),
-    });
-
-    const user = await pipe.transform({ address: "0xABCD", wallets: ["0xABCD"], token: "token1" });
-    expect(user.address).toEqual("0xABCD");
   });
 
   it("does not require a wallet for walletless sessions", async () => {

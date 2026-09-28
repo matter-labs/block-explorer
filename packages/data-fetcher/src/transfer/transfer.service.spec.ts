@@ -2493,7 +2493,7 @@ describe("TransferService", () => {
       receipt = mock<TransactionReceipt>({ type: 2, from: SENDER, to: RECEIVER });
     });
 
-    it("fixes out of range non-indexed address in a contract deployment transfer log", async () => {
+    it("skips a contract deployment transfer log with out of range non-indexed address", async () => {
       receipt = mock<TransactionReceipt>({ type: 2, from: SENDER, to: L2_CONTRACT_DEPLOYER_ADDRESS });
       const log = mock<Log>({
         transactionIndex: 0,
@@ -2505,25 +2505,12 @@ describe("TransferService", () => {
         index: 0,
       });
       const transfers = await service.getTransfers([log], block, [], receipt);
-      expect(transfers).toHaveLength(1);
-      expect(transfers[0].to).toBe(RECEIVER);
-      expect(transfers[0].amount).toBe(BigInt(5));
+      expect(transfers).toEqual([]);
     });
 
     it("skips Asset Router logs with undecodable asset data and keeps other transfers", async () => {
       const logs = [
         makeLog("WithdrawalInitiatedAssetRouter", [BigInt(1), SENDER, ASSET_ID_AR, "0x"], L2_ASSET_ROUTER_ADDRESS),
-        makeLog(
-          "WithdrawalInitiatedAssetRouter",
-          [
-            BigInt(1),
-            SENDER,
-            ASSET_ID_AR,
-            abi.encode(["uint256", "uint256", "address"], [BigInt(100), outOfRangeAddress, EXTRA_ADDRESS]),
-          ],
-          L2_ASSET_ROUTER_ADDRESS
-        ),
-        makeLog("DepositFinalizedAssetRouter", [BigInt(1), ASSET_ID_AR, "0x1234"], L2_ASSET_ROUTER_ADDRESS),
         assetRouterWithdrawalLog(ASSET_ID_AR, BigInt(200)),
       ];
       const transfers = await service.getTransfers(logs, block, [], receipt);

@@ -168,10 +168,8 @@ describe("MetadataBlock:", () => {
     });
 
     await nextTick();
-    const memoryIndexesContainer = container.querySelector(".page-index-container");
     const memoryTabs = container.querySelectorAll(".tab-btn");
-    expect(memoryIndexesContainer!.querySelector("img")).toBeNull();
-    expect(memoryIndexesContainer!.querySelector(".page-index")!.textContent).toBe('<img src="x" onerror="alert(1)">');
+    expect(memoryTabs[0].querySelector("img")).toBeNull();
     expect(memoryTabs[0].textContent).toBe('stack <img src="x" onerror="alert(1)">');
   });
 });

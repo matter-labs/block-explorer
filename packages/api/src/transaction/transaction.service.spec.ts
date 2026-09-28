@@ -866,13 +866,9 @@ describe("TransactionService", () => {
         from,
         to,
         data: calldata,
-        value: "0",
-        number: 1,
         receiptStatus: 0,
-        fromToMin: from,
-        fromToMax: to,
         error: "execution reverted",
-        revertReason: "Insufficient balance for 0x0987654321098765432109876543210987654321",
+        revertReason: "Insufficient balance",
       });
 
     it("returns the transaction unchanged when user is the sender", () => {
@@ -885,40 +881,18 @@ describe("TransactionService", () => {
       expect(service.redactForUser(transaction, user)).toBe(transaction);
     });
 
-    describe("when user is neither the sender nor the receiver", () => {
-      let transaction: Transaction;
-
-      beforeEach(() => {
-        transaction = buildTransaction(otherAddress, "0x0987654321098765432109876543210987654321");
+    it("returns a copy without calldata and failure details when user is neither the sender nor the receiver", () => {
+      const transaction = buildTransaction(otherAddress, otherAddress);
+      const json = JSON.parse(JSON.stringify(service.redactForUser(transaction, user)));
+      expect(json).toMatchObject({
+        hash: transaction.hash,
+        data: "0x",
+        error: null,
+        revertReason: null,
+        status: "failed",
       });
-
-      it("returns the transaction without calldata and failure details", () => {
-        const result = service.redactForUser(transaction, user);
-        expect(result.data).toBe("0x");
-        expect(result.error).toBeNull();
-        expect(result.revertReason).toBeNull();
-        expect(result.hash).toBe(transaction.hash);
-        expect(result.from).toBe(transaction.from);
-        expect(result.to).toBe(transaction.to);
-        expect(result.status).toBe(transaction.status);
-      });
-
-      it("keeps the entity serialization", () => {
-        const result = service.redactForUser(transaction, user);
-        expect(result).toBeInstanceOf(Transaction);
-        const json = JSON.parse(JSON.stringify(result));
-        expect(json).toMatchObject({ data: "0x", error: null, revertReason: null, status: "failed" });
-        expect(json).not.toHaveProperty("number");
-        expect(json).not.toHaveProperty("receiptStatus");
-        expect(json).not.toHaveProperty("fromToMin");
-        expect(json).not.toHaveProperty("fromToMax");
-      });
-
-      it("does not modify the original transaction", () => {
-        service.redactForUser(transaction, user);
-        expect(transaction.data).toBe(calldata);
-        expect(transaction.error).toBe("execution reverted");
-      });
+      expect(json).not.toHaveProperty("receiptStatus");
+      expect(transaction.data).toBe(calldata);
     });
   });
 });

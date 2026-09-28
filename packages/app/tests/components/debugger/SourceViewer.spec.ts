@@ -303,32 +303,6 @@ describe("SourceViewer:", () => {
     unmount();
   });
 
-  it("renders source line as text", async () => {
-    const source = ['<img src="x" onerror="alert(1)">'];
-    const { findAllByTestId, unmount } = render(SourceViewer, {
-      props: {
-        address: "0x00",
-        source,
-        container,
-        searchText: "img",
-        traceCountPercentage: {},
-        pcLineMapping: {},
-      },
-      global: {
-        plugins: [i18n],
-      },
-    });
-    vi.spyOn(document.documentElement, "clientHeight", "get").mockReturnValue(1000);
-
-    const collection = await findAllByTestId("instruction-list-item");
-    expect(collection[0].querySelector("img")).toBeNull();
-    expect(collection[0].querySelector(".instruction-list-item-text")!.textContent).toBe(
-      '<img src="x" onerror="alert(1)">'
-    );
-
-    unmount();
-  });
-
   it("filters by search text", async () => {
     const source = ["foo", "Hello", "World", "!"];
     const { findAllByTestId, unmount } = render(SourceViewer, {

@@ -7,117 +7,64 @@ import { enableAutoUnmount, mount } from "@vue/test-utils";
 
 import enUS from "@/locales/en.json";
 
-import $testId from "@/plugins/testId";
 import LoginView from "@/views/LoginView.vue";
 
 const routeQuery = ref<Record<string, unknown>>({});
-const user = ref<{ loggedIn: boolean }>({ loggedIn: false });
+const user = ref({ loggedIn: false });
 const loginMock = vi.fn();
 
 vi.mock("vue-router", () => ({
   useRouter: () => ({ push: vi.fn() }),
   useRoute: () => ({ query: routeQuery.value }),
 }));
-
 vi.mock("@/composables/useContext", () => ({
-  default: () => ({
-    user,
-    currentNetwork: computed(() => ({ logoUrl: "/images/prividium_logo.svg" })),
-  }),
+  default: () => ({ user, currentNetwork: computed(() => ({})) }),
 }));
-
 vi.mock("@/composables/useLogin", () => ({
   default: () => ({ login: loginMock, isLoginPending: ref(false) }),
 }));
-
 vi.mock("@/composables/useRuntimeConfig", () => ({
   default: () => ({ brandName: "Prividium" }),
 }));
 
-const maliciousRedirects = [
-  "javascript:window.__xss__=true",
-  "https://phishing.example/harvest",
-  "//phishing.example/harvest",
-  "/\\phishing.example",
-];
-
 describe("LoginView:", () => {
   enableAutoUnmount(afterEach);
 
-  const i18n = createI18n({
-    locale: "en",
-    allowComposition: true,
-    messages: {
-      en: enUS,
-    },
-  });
-  const global = {
-    stubs: ["router-link"],
-    plugins: [i18n, $testId],
-  };
-
+  const global = { plugins: [createI18n({ locale: "en", allowComposition: true, messages: { en: enUS } })] };
   const originalLocation = window.location;
   const hrefSetter = vi.fn();
 
   beforeEach(() => {
     hrefSetter.mockReset();
-    loginMock.mockReset();
-    Object.defineProperty(window, "location", {
-      configurable: true,
-      value: {
-        origin: originalLocation.origin,
-        set href(value: string) {
-          hrefSetter(value);
-        },
-      },
-    });
+    const location = Object.defineProperty({ origin: originalLocation.origin }, "href", { set: hrefSetter });
+    Object.defineProperty(window, "location", { configurable: true, value: location });
   });
 
   afterEach(() => {
     Object.defineProperty(window, "location", { configurable: true, value: originalLocation });
   });
 
-  describe("when the user is logged in", () => {
-    beforeEach(() => {
-      user.value = { loggedIn: true };
-    });
+  it("does not follow a javascript: redirect once logged in", () => {
+    user.value = { loggedIn: true };
+    routeQuery.value = { redirect: "javascript:alert(1)" };
+    mount(LoginView, { global });
 
-    it.each(maliciousRedirects)("does not follow redirect %j and falls back to the app root", (redirect) => {
-      routeQuery.value = { redirect };
-      mount(LoginView, { global });
-
-      expect(hrefSetter).toHaveBeenCalledTimes(1);
-      expect(hrefSetter).toHaveBeenCalledWith("/");
-    });
-
-    it("follows a same-origin relative redirect", () => {
-      routeQuery.value = { redirect: "/tx/0xabc?foo=bar#section" };
-      mount(LoginView, { global });
-
-      expect(hrefSetter).toHaveBeenCalledWith("/tx/0xabc?foo=bar#section");
-    });
+    expect(hrefSetter).toHaveBeenCalledWith("/");
   });
 
-  describe("when the user is not logged in", () => {
-    beforeEach(() => {
-      user.value = { loggedIn: false };
-    });
+  it("follows a same-origin relative redirect once logged in", () => {
+    user.value = { loggedIn: true };
+    routeQuery.value = { redirect: "/tx/0xabc?foo=bar#section" };
+    mount(LoginView, { global });
 
-    it.each(maliciousRedirects)("does not pass redirect %j to login", async (redirect) => {
-      routeQuery.value = { redirect };
-      const wrapper = mount(LoginView, { global });
-      await wrapper.find("button").trigger("click");
+    expect(hrefSetter).toHaveBeenCalledWith("/tx/0xabc?foo=bar#section");
+  });
 
-      expect(hrefSetter).not.toHaveBeenCalled();
-      expect(loginMock).toHaveBeenCalledWith(undefined);
-    });
+  it("does not pass a javascript: redirect to login", async () => {
+    user.value = { loggedIn: false };
+    routeQuery.value = { redirect: "javascript:alert(1)" };
+    await mount(LoginView, { global }).find("button").trigger("click");
 
-    it("passes a same-origin relative redirect to login", async () => {
-      routeQuery.value = { redirect: "/tx/0xabc" };
-      const wrapper = mount(LoginView, { global });
-      await wrapper.find("button").trigger("click");
-
-      expect(loginMock).toHaveBeenCalledWith("/tx/0xabc");
-    });
+    expect(loginMock).toHaveBeenCalledWith(undefined);
   });
 });

@@ -180,7 +180,7 @@
                 "viewDetails": "View details",
                 "parseFailed": "Could not parse this memo as an ISO 20022 pain.001 document. Showing the raw decoded memo.",
                 "unverified": "Provided by the sender. Not verified by the explorer.",
-                "mismatch": "The accounts or amount in this memo do not match this transfer.",
+                "mismatch": "The accounts or amount in this memo are missing or do not match this transfer.",
                 "msgId": "Message ID",
                 "created": "Created",
                 "instructionId": "Instruction ID",
