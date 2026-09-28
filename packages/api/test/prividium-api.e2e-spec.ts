@@ -276,7 +276,10 @@ describe("Prividium API (e2e)", () => {
       // Mock the roles check for /docs access (non-admin)
       fetchSpy.mockResolvedValueOnce({
         status: 200,
-        json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "user" }],
+          wallets: [{ walletAddress: mockWalletAddress }],
+        }),
       });
 
       await agent.get("/docs").expect(403);
@@ -310,6 +313,7 @@ describe("Prividium API (e2e)", () => {
         status: 200,
         json: jest.fn().mockResolvedValue({
           roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+          wallets: [{ walletAddress: mockWalletAddress }],
         }),
       });
 

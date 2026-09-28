@@ -137,7 +137,7 @@ export default (context = useContext()) => {
         isL1Originated: [126, 127].includes(transactionData.type),
         nonce: transactionData.nonce,
         receivedAt: blockTimestamp,
-        status: "indexing" as TransactionStatus,
+        status: (transactionReceipt.status === 0 ? "failed" : "indexing") as TransactionStatus,
 
         logs: transactionReceipt.logs.map((item) => ({
           address: item.address,

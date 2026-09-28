@@ -18,6 +18,8 @@ export interface ContractAddress {
   blockNumber: number;
   transactionHash: string;
   creatorAddress: string;
+  // Address that executed the CREATE/CREATE2
+  deployerAddress?: string;
   logIndex: number;
   bytecode?: string;
   isEvmLike?: boolean;
@@ -42,7 +44,8 @@ function getTransactionTraceData(
   block: Block,
   transaction: TransactionResponse,
   transactionTrace: TransactionTrace,
-  extractedData: ExtractedTraceData = undefined
+  extractedData: ExtractedTraceData = undefined,
+  isAncestorFailed = false
 ): ExtractedTraceData {
   if (!extractedData) {
     extractedData = {
@@ -55,21 +58,25 @@ function getTransactionTraceData(
 
   if (transactionTrace) {
     const traceType = transactionTrace.type.toLowerCase();
-    if (["create", "create2"].includes(traceType) && !transactionTrace.error) {
+    // Frame effects are rolled back if the frame or any of its ancestors failed.
+    // A frame without `to` (e.g. a CREATE that did not complete) is treated as failed.
+    const isFailed = isAncestorFailed || !!transactionTrace.error || !transactionTrace.to;
+    if (["create", "create2"].includes(traceType) && !isFailed) {
       extractedData.contractAddresses.push({
         address: transactionTrace.to,
         blockNumber: transaction.blockNumber,
         transactionHash: transaction.hash,
         creatorAddress: transaction.from,
+        deployerAddress: transactionTrace.from,
         logIndex: extractedData.contractAddresses.length + 1,
       });
     }
 
-    // DELEGATECALL and STATICCALL cannot transfer ETH.
+    // DELEGATECALL and STATICCALL cannot transfer ETH, CALLCODE transfers ETH to the caller itself.
     if (
       transactionTrace.value !== "0x0" &&
-      !transactionTrace.error &&
-      !["delegatecall", "staticcall"].includes(traceType)
+      !isFailed &&
+      !["delegatecall", "staticcall", "callcode"].includes(traceType)
     ) {
       extractedData.transfersWithValue.push({
         from: transactionTrace.from.toLowerCase(),
@@ -88,7 +95,7 @@ function getTransactionTraceData(
     }
 
     transactionTrace.calls?.forEach((subCall) => {
-      getTransactionTraceData(block, transaction, subCall, extractedData);
+      getTransactionTraceData(block, transaction, subCall, extractedData, isFailed);
     });
   }
 
@@ -114,7 +121,14 @@ export class TransactionTracesService {
       blockNumber: transaction.blockNumber,
       transactionHash: transaction.hash,
     });
-    const extractedTraceData = getTransactionTraceData(block, transaction, transactionTrace);
+    // Effects of a failed transaction are rolled back even if the trace does not report the failure
+    const extractedTraceData = getTransactionTraceData(
+      block,
+      transaction,
+      transactionTrace,
+      undefined,
+      transactionReceipt.status === 0
+    );
     const transactionTraceData: TransactionTraceData = {
       contractAddresses: extractedTraceData.contractAddresses,
       error: extractedTraceData.error,
@@ -123,8 +137,18 @@ export class TransactionTracesService {
       tokens: [],
     };
 
-    // Check if transaction is a deposit
-    if (transaction.type === L1_TO_L2_TX_TYPE && transaction.value > 0) {
+    // Check if transaction is a successful deposit
+    const isDeposit = transaction.type === L1_TO_L2_TX_TYPE && transaction.value > 0 && transactionReceipt.status === 1;
+    const [rootTransfer] = transactionTraceData.transfers;
+    // The deposited value is transferred by the root trace frame if there is one, so it is marked as the deposit
+    if (
+      isDeposit &&
+      rootTransfer?.from === transaction.from.toLowerCase() &&
+      rootTransfer.to === transaction.to.toLowerCase() &&
+      rootTransfer.amount === BigInt(transaction.value)
+    ) {
+      rootTransfer.type = TransferType.Deposit;
+    } else if (isDeposit) {
       transactionTraceData.transfers.push({
         from: transaction.from.toLowerCase(),
         to: transaction.to.toLowerCase(),

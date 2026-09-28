@@ -17,7 +17,7 @@
             :class="{ active: currentTabHash === tab.hash && tabs.length > 1 }"
             @click="setTab(tab)"
           >
-            <span v-html="tab.title"></span>
+            <span>{{ tab.title }}</span>
             <span v-if="tab.icon" class="tab-icon">
               <component :is="tab.icon" />
             </span>

@@ -30,6 +30,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -42,6 +43,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: ["role1", "trader", "viewer"].map((r) => ({ roleName: r })),
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -54,6 +56,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "deployer", systemPermissions: ["contract_deployment", "admin_read"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -66,6 +69,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "contract_deployment"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -78,6 +82,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "superuser", systemPermissions: ["full_sequencer_rpc_access"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -90,6 +95,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "trader", systemPermissions: ["contract_deployment"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -102,6 +108,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "admin", systemPermissions: ["admin_read", "full_read_access"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -114,6 +121,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: [{ roleName: "sequencer", systemPermissions: ["full_sequencer_rpc_access"] }],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -130,6 +138,7 @@ describe("AddUserRolesPipe", () => {
           { roleName: "trader", systemPermissions: ["contract_deployment"] },
           { roleName: "reader", systemPermissions: ["full_read_access"] },
         ],
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 
@@ -142,6 +151,7 @@ describe("AddUserRolesPipe", () => {
       status: 200,
       json: jest.fn().mockResolvedValue({
         roles: ["role1", "another", "trader"].map((r) => ({ roleName: r })),
+        wallets: [{ walletAddress: "0x01" }],
       }),
     });
 

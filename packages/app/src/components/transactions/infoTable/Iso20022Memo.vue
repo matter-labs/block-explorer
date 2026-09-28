@@ -1,10 +1,12 @@
 <template>
   <div class="iso20022-memo">
     <div class="iso20022-memo-toolbar">
+      <span class="iso20022-memo-unverified">{{ t("transactions.table.iso20022.unverified") }}</span>
       <button class="iso20022-memo-toggle" @click="showRaw = !showRaw">
         {{ showRaw ? t("transactions.table.iso20022.viewDetails") : t("transactions.table.iso20022.viewRawXml") }}
       </button>
     </div>
+    <span v-if="mismatch" class="iso20022-memo-mismatch">{{ t("transactions.table.iso20022.mismatch") }}</span>
 
     <!-- Raw XML view -->
     <pre v-if="showRaw" class="iso20022-memo-raw">{{ prettyXml }}</pre>
@@ -13,7 +15,11 @@
     <div v-else-if="fields.length" class="iso20022-memo-fields">
       <div v-for="field in fields" :key="field.label" class="iso20022-memo-field">
         <span class="iso20022-memo-label">{{ field.label }}</span>
-        <AddressLink v-if="field.isAddress" :address="field.value" class="iso20022-memo-value" />
+        <AddressLink
+          v-if="field.isAddress && isAddress(field.value)"
+          :address="field.value"
+          class="iso20022-memo-value"
+        />
         <TimeField v-else-if="field.isTime" :value="field.value" class="iso20022-memo-value" />
         <span v-else class="iso20022-memo-value">{{ field.value }}</span>
       </div>
@@ -31,6 +37,8 @@
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { isAddress } from "ethers";
+
 import AddressLink from "@/components/AddressLink.vue";
 import TimeField from "@/components/common/table/fields/TimeField.vue";
 
@@ -38,6 +46,8 @@ import { parseIso20022Pain001, prettyPrintXml } from "@/utils/iso20022";
 
 const props = defineProps<{
   memo: string;
+  // The memo's accounts or amount are missing or do not match the transfer it is attached to.
+  mismatch?: boolean;
 }>();
 
 const { t } = useI18n();
@@ -96,9 +106,17 @@ const fields = computed<Field[]>(() => {
   .iso20022-memo-toolbar {
     @apply flex items-center justify-end gap-2;
 
+    .iso20022-memo-unverified {
+      @apply mr-auto text-gray-400;
+    }
+
     .iso20022-memo-toggle {
       @apply rounded-md bg-primary-600 bg-opacity-[15%] px-3 py-1.5 text-primary-600 transition-colors hover:bg-opacity-10;
     }
+  }
+
+  .iso20022-memo-mismatch {
+    @apply text-error-600;
   }
 
   .iso20022-memo-fields {
