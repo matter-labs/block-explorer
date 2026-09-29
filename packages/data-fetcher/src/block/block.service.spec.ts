@@ -74,6 +74,7 @@ describe("BlockService", () => {
 
   const blockInfoData = {
     hash: "hash",
+    miner: "0xfEe00B1FccE186A482D5Da50a01183131237F15d",
   };
 
   const blockTraceData = [
@@ -166,6 +167,21 @@ describe("BlockService", () => {
         blockInfoData
       );
       expect(blockData.transactions).toEqual(transactionData);
+    });
+
+    it("tracks the base token balance of the block miner", async () => {
+      await blockService.getData(blockNumber);
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledTimes(1);
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledWith(
+        "0xfee00b1fcce186a482d5da50a01183131237f15d",
+        blockNumber
+      );
+    });
+
+    it("does not track the block miner balance when the block has no transactions", async () => {
+      (blockchainServiceMock.debugTraceBlock as jest.Mock).mockResolvedValue([]);
+      await blockService.getData(blockNumber);
+      expect(balanceServiceMock.trackBaseTokenBalance).not.toHaveBeenCalled();
     });
 
     describe("when processing fails with an error", () => {

@@ -389,12 +389,12 @@ describe("BalanceService", () => {
     });
   });
 
-  describe("trackSenderBalance", () => {
+  describe("trackBaseTokenBalance", () => {
     const address = "0x36615cf349d7f6344891b1e7ca7c72883f5dc049";
     const blockNumber = 10;
 
-    it("adds sender address with base token to changedBalances", () => {
-      balanceService.trackSenderBalance(address, blockNumber);
+    it("adds address with base token to changedBalances", () => {
+      balanceService.trackBaseTokenBalance(address, blockNumber);
       const blockChangedBalances = balanceService.changedBalances.get(blockNumber);
       expect(blockChangedBalances.get(address).get(BASE_TOKEN_ADDRESS)).toEqual({
         balance: undefined,
@@ -410,7 +410,7 @@ describe("BalanceService", () => {
       );
       balanceService.changedBalances.set(blockNumber, existingBlockBalances);
 
-      balanceService.trackSenderBalance(address, blockNumber);
+      balanceService.trackBaseTokenBalance(address, blockNumber);
       const blockChangedBalances = balanceService.changedBalances.get(blockNumber);
       expect(blockChangedBalances.size).toBe(2);
       expect(blockChangedBalances.has("0xd206eaf6819007535e893410cfa01885ce40e99a")).toBe(true);
@@ -425,7 +425,7 @@ describe("BalanceService", () => {
       );
       balanceService.changedBalances.set(blockNumber, existingBlockBalances);
 
-      balanceService.trackSenderBalance(address, blockNumber);
+      balanceService.trackBaseTokenBalance(address, blockNumber);
       expect(balanceService.changedBalances.get(blockNumber).get(address).get(BASE_TOKEN_ADDRESS)).toEqual({
         balance: undefined,
         tokenType: TokenType.BaseToken,
