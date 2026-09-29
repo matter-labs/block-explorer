@@ -28,7 +28,7 @@ export class BalanceService {
     this.changedBalances.delete(blockNumber);
   }
 
-  public trackSenderBalance(address: string, blockNumber: number): void {
+  public trackBaseTokenBalance(address: string, blockNumber: number): void {
     const blockChangedBalances =
       this.changedBalances.get(blockNumber) ||
       new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
