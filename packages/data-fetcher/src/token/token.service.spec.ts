@@ -1,6 +1,11 @@
 import { mock } from "jest-mock-extended";
 import { TransactionReceipt, Log } from "ethers";
-import { BASE_TOKEN_ADDRESS, ETH_L1_ADDRESS, L2_ASSET_ROUTER_ADDRESS } from "../constants";
+import {
+  BASE_TOKEN_ADDRESS,
+  ETH_L1_ADDRESS,
+  L2_ASSET_ROUTER_ADDRESS,
+  L2_NATIVE_TOKEN_VAULT_ADDRESS,
+} from "../constants";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { BlockchainService } from "../blockchain/blockchain.service";
@@ -62,6 +67,7 @@ describe("TokenService", () => {
         blockNumber: 10,
         transactionHash: "transactionHash",
         logIndex: 20,
+        deployerAddress: L2_NATIVE_TOKEN_VAULT_ADDRESS,
       });
 
       jest.spyOn(blockchainServiceMock, "getERC20TokenData").mockResolvedValue(tokenData);
@@ -333,6 +339,7 @@ describe("TokenService", () => {
           blockNumber: 10,
           transactionHash: "transactionHash",
           logIndex: 20,
+          deployerAddress: L2_NATIVE_TOKEN_VAULT_ADDRESS,
         });
 
         bridgedToken = {

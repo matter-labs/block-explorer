@@ -1,6 +1,11 @@
 <template>
   <div class="page-index-container">
     <Tabs class="metadata-tabs" :tabs="tabs" :has-route="false">
+      <template v-for="(tab, i) in tabs" :key="i" v-slot:[`tab-${i+1}-header`]>
+        <span
+          >{{ tab.title }} <span class="page-index">{{ tab.index }}</span></span
+        >
+      </template>
       <template v-for="(data, i) in memoryData" :key="i" v-slot:[`tab-${i+1}-content`]>
         <div class="memory-badge-wrap">
           <template
@@ -97,10 +102,9 @@ const tabs = computed(() => [
     .filter((data) => !!data.index)
     .map((data) => {
       return {
-        title: `${t(`debuggerTool.metadataBlock.memoryPageIndex.${data.type}`)} ${
-          data.index ? `<span class="page-index">${data.index}</span>` : ""
-        }`,
+        title: t(`debuggerTool.metadataBlock.memoryPageIndex.${data.type}`),
         hash: `#${data.type.toLowerCase()}`,
+        index: data.index,
       };
     }),
 ]);

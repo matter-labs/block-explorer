@@ -41,6 +41,7 @@ import useContext from "@/composables/useContext";
 import useLogin from "@/composables/useLogin";
 
 import { resolveAsset, resolveBase } from "@/utils/appBase";
+import { isValidRedirectPath } from "@/utils/redirect";
 
 const { t } = useI18n();
 
@@ -51,10 +52,6 @@ const { currentNetwork } = context;
 const { handlePrividiumCallback } = useLogin(context);
 
 const error = ref<string | null>(null);
-
-const isValidRedirectPath = (path: unknown): path is string => {
-  return typeof path === "string" && path.length > 0;
-};
 
 const redirectToLogin = () => {
   const redirectPath = route.query.redirect;
