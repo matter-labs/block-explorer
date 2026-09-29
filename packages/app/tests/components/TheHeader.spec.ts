@@ -3,7 +3,7 @@
 import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fireEvent } from "@testing-library/vue";
 import { mount, RouterLinkStub } from "@vue/test-utils";
@@ -15,6 +15,14 @@ import enUS from "@/locales/en.json";
 const routeMock = vi.fn(() => ({ name: "home", params: {} }));
 vi.mock("vue-router", () => ({
   useRoute: () => routeMock(),
+}));
+
+const discordUrlMock = vi.fn((): string | undefined => undefined);
+vi.mock("@/composables/useRuntimeConfig", () => ({
+  default: () => ({
+    appEnvironment: "default",
+    discordUrl: discordUrlMock(),
+  }),
 }));
 
 const maintenanceMock = vi.fn(() => false);
@@ -38,6 +46,10 @@ describe("TheHeader:", () => {
     messages: {
       en: enUS,
     },
+  });
+
+  beforeEach(() => {
+    discordUrlMock.mockReturnValue(undefined);
   });
 
   it("renders navigation links", async () => {
@@ -66,7 +78,19 @@ describe("TheHeader:", () => {
       "https://docs.zksync.io/zksync-era/tooling/block-explorers"
     );
   });
-  it("renders social links", () => {
+  it("renders social links without Discord when no Discord URL is configured", () => {
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n],
+      },
+    });
+    const routerArray = wrapper.findAll(".socials-container > a");
+    expect(routerArray.length).toBe(1);
+    expect(routerArray[0].attributes("href")).toBe("https://x.com/zksync");
+  });
+  it("renders the Discord link when a Discord URL is configured", () => {
+    discordUrlMock.mockReturnValue("https://join.zksync.dev/");
     const wrapper = mount(TheHeader, {
       global: {
         stubs: ["router-link"],

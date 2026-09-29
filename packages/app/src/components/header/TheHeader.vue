@@ -209,7 +209,7 @@ if (currentNetwork.value.bridgeUrl) {
 const toolsLinks = reactive(links);
 
 const socials = [
-  { url: "https://join.zksync.dev/", component: DiscordIcon },
+  ...(runtimeConfig.discordUrl ? [{ url: runtimeConfig.discordUrl, component: DiscordIcon }] : []),
   { url: "https://x.com/zksync", component: TwitterIcon },
 ];
 
@@ -299,7 +299,7 @@ const hasContent = computed(() => {
   }
 
   .header-right-side {
-    @apply hidden items-stretch justify-end md:flex-1 lg:flex lg:w-0 gap-x-4;
+    @apply hidden items-stretch justify-end gap-x-4 md:flex-1 lg:flex lg:w-0;
 
     .language-switch {
       @apply mr-2;

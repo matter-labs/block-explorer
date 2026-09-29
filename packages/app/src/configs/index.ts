@@ -36,4 +36,5 @@ export type RuntimeConfig = {
   sentryDSN: string;
   appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
   environmentConfig?: EnvironmentConfig;
+  discordUrl?: string;
 };

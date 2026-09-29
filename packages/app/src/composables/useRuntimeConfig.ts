@@ -29,5 +29,6 @@ export default (): RuntimeConfig => {
     sentryDSN: runtimeConfig?.sentryDSN || import.meta.env?.VITE_SENTRY_DSN,
     appEnvironment: runtimeConfig?.appEnvironment || import.meta.env?.VITE_APP_ENVIRONMENT || "default",
     environmentConfig: runtimeConfig?.environmentConfig,
+    discordUrl: runtimeConfig?.discordUrl || import.meta.env?.VITE_DISCORD_URL,
   };
 };
