@@ -37,8 +37,6 @@ Feature: Main Page
 
     Examples:
       | Value   | url                        |
-      # discord renamed to "join"
-      | join    | https://join.zksync.dev/   |
       | x.com | https://x.com/zksync |
 
   @id254:

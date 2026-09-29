@@ -25,8 +25,6 @@ Feature: Redirection
 
     Examples:
       | Icon    | regexp                                |
-      # discord renamed to "join"
-      | join    | ^https://join.zksync.dev/$           |
       | x.com | ^https://x.com/zksync(\\?.*)?$               |
 
   @id251
