@@ -59,6 +59,11 @@ export class BlockService {
         blockTraces.map((trace) => this.transactionService.getData(trace.txHash, trace.result, block))
       );
 
+      // Fees credited to the coinbase (fee collector) emit no Transfer event.
+      if (transactions.length) {
+        this.balanceService.trackBaseTokenBalance(block.miner.toLowerCase(), blockNumber);
+      }
+
       const stopBalancesDurationMeasuring = this.balancesProcessingDurationMetric.startTimer();
       this.logger.debug({ message: "Getting balances", blockNumber });
       changedBalances = await this.balanceService.getChangedBalances(blockNumber);

@@ -78,7 +78,7 @@ export class TransactionService {
       );
     }
 
-    this.balanceService.trackSenderBalance(transaction.from.toLowerCase(), block.number);
+    this.balanceService.trackBaseTokenBalance(transaction.from.toLowerCase(), block.number);
 
     const transactionInfo = {
       ...transaction,

@@ -223,8 +223,8 @@ describe("TransactionService", () => {
 
     it("tracks sender balance for the transaction", async () => {
       await transactionService.getData(transaction.hash, trace, blockDetails);
-      expect(balanceServiceMock.trackSenderBalance).toHaveBeenCalledTimes(1);
-      expect(balanceServiceMock.trackSenderBalance).toHaveBeenCalledWith(
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledTimes(1);
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledWith(
         transaction.from.toLowerCase(),
         blockDetails.number
       );
