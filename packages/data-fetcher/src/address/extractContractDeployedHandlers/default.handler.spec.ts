@@ -24,9 +24,15 @@ describe("defaultContractDeployedHandler", () => {
   });
 
   describe("matches", () => {
-    it("returns true", () => {
+    it("returns true for logs emitted by the contract deployer", () => {
       const result = defaultContractDeployedHandler.matches(log);
       expect(result).toBe(true);
+    });
+
+    it("returns false for logs emitted by other contracts", () => {
+      log = mock<types.Log>({ ...log, address: "0xdc187378edD8Ed1585fb47549Cc5fe633295d571" });
+      const result = defaultContractDeployedHandler.matches(log);
+      expect(result).toBe(false);
     });
   });
 
@@ -64,6 +70,11 @@ describe("defaultContractDeployedHandler", () => {
     it("extracts logIndex for the created contract", () => {
       const result = defaultContractDeployedHandler.extract(log, transactionReceipt);
       expect(result.logIndex).toBe(log.index);
+    });
+
+    it("extracts deployer address for the created contract", () => {
+      const result = defaultContractDeployedHandler.extract(log, transactionReceipt);
+      expect(result.deployerAddress).toBe("0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C");
     });
   });
 });

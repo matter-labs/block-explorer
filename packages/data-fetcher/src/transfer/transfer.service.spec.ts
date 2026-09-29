@@ -2,10 +2,12 @@ import { Test } from "@nestjs/testing";
 import { Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { mock } from "jest-mock-extended";
-import { types } from "zksync-ethers";
+import { types, utils } from "zksync-ethers";
+import { AbiCoder } from "ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TransferService } from "./transfer.service";
 import { TokenType } from "../token/token.service";
+import { CONTRACT_INTERFACES } from "../constants";
 
 import * as ethDepositNoFee from "../../test/transactionReceipts/eth/deposit-no-fee.json";
 import * as ethDepositZeroValue from "../../test/transactionReceipts/eth/deposit-zero-value.json";
@@ -2272,6 +2274,84 @@ describe("TransferService", () => {
           blockDetails
         );
         expect(transfers).toStrictEqual(expectedTransfers);
+      });
+    });
+
+    describe("when logs have malformed data", () => {
+      const tokenAddress = "0x6dd28c2c5b91dd63b4d4e78ecac7139878371768";
+      const sender = "0x481e48ce19781c3ca573967216dee75fdcf70f54";
+      const receiver = "0xa9232040bf0e0aea2578a5b2243f2916dbfc0a69";
+      const logFields = {
+        transactionIndex: 1,
+        blockNumber: 1,
+        transactionHash: "0x52cdf727855ce9310b69a75d84fa23662d451e2dbcea64f3b277db12d78ab9ef",
+      };
+      const validAssetData = AbiCoder.defaultAbiCoder().encode(
+        ["uint256", "address", "address"],
+        [BigInt(200), receiver, tokenAddress]
+      );
+
+      const assetRouterWithdrawalLog = (assetData: string, index: number) => ({
+        ...logFields,
+        ...CONTRACT_INTERFACES.L2_ASSET_ROUTER.interface.encodeEventLog("WithdrawalInitiatedAssetRouter", [
+          BigInt(1),
+          sender,
+          "0x0000000000000000000000000000000000000000000000000000000000000001",
+          assetData,
+        ]),
+        address: "0x00ff932a6d70e2b8f1eb4919e1e09c1923e7e57b",
+        index,
+      });
+
+      beforeEach(() => {
+        (blockchainServiceMock.getTokenAddressByAssetId as jest.Mock).mockResolvedValue(tokenAddress);
+      });
+
+      it("skips a contract deployment transfer log with out of range non-indexed address", async () => {
+        const txReceipt = toTxReceipt({
+          to: utils.CONTRACT_DEPLOYER_ADDRESS,
+          logs: [
+            {
+              ...logFields,
+              address: tokenAddress,
+              topics: ["0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"],
+              data: AbiCoder.defaultAbiCoder().encode(
+                ["uint256", "uint256", "uint256"],
+                [BigInt(1), (BigInt(1) << BigInt(160)) + BigInt(receiver), BigInt(5)]
+              ),
+              index: 0,
+            },
+          ],
+        });
+        const transfers = await transferService.getTransfers(
+          txReceipt.logs,
+          blockDetails,
+          transactionDetails,
+          txReceipt
+        );
+        expect(transfers).toStrictEqual([]);
+      });
+
+      it("skips Asset Router logs with undecodable asset data and keeps other transfers", async () => {
+        const txReceipt = toTxReceipt({
+          logs: [assetRouterWithdrawalLog("0x", 0), assetRouterWithdrawalLog(validAssetData, 1)],
+        });
+        const transfers = await transferService.getTransfers(
+          txReceipt.logs,
+          blockDetails,
+          transactionDetails,
+          txReceipt
+        );
+        expect(transfers).toHaveLength(1);
+        expect(transfers[0].amount).toBe(BigInt(200));
+      });
+
+      it("throws when transfer extraction fails for other reasons", async () => {
+        (blockchainServiceMock.getTokenAddressByAssetId as jest.Mock).mockRejectedValue(new Error("RPC error"));
+        const txReceipt = toTxReceipt({ logs: [assetRouterWithdrawalLog(validAssetData, 0)] });
+        await expect(
+          transferService.getTransfers(txReceipt.logs, blockDetails, transactionDetails, txReceipt)
+        ).rejects.toThrow("RPC error");
       });
     });
   });

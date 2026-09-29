@@ -3,6 +3,7 @@ export interface ContractAddress {
   blockNumber: number;
   transactionHash: string;
   creatorAddress: string;
+  deployerAddress?: string;
   logIndex: number;
   bytecode?: string;
   isEvmLike: boolean;

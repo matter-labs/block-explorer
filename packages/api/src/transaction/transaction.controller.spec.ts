@@ -103,8 +103,36 @@ describe("TransactionController", () => {
     describe("when user is provided", () => {
       let user: MockProxy<UserParam>;
       const mockUser = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+      const firstTransaction = { hash: "0x01" } as Transaction;
+      const secondTransaction = { hash: "0x02" } as Transaction;
+      const userTransactions = new Pagination(
+        [firstTransaction, secondTransaction],
+        { itemCount: 2, itemsPerPage: 10, currentPage: 2 },
+        { first: "first", previous: "previous", next: "next", last: "last" }
+      );
       beforeEach(() => {
         user = mock<UserParam>({ address: mockUser });
+        (serviceMock.findAll as jest.Mock).mockReset();
+        (serviceMock.findAll as jest.Mock).mockResolvedValue(userTransactions);
+        (serviceMock.redactForUser as jest.Mock).mockImplementation((transaction) => ({ ...transaction, data: "0x" }));
+      });
+
+      it("returns the transactions redacted for the user", async () => {
+        const result = await controller.getTransactions(
+          filterTransactionsOptions,
+          listFilterOptions,
+          pagingOptions,
+          user
+        );
+        expect(serviceMock.redactForUser).toHaveBeenCalledWith(firstTransaction, user);
+        expect(result).toEqual({
+          items: [
+            { hash: "0x01", data: "0x" },
+            { hash: "0x02", data: "0x" },
+          ],
+          meta: userTransactions.meta,
+          links: userTransactions.links,
+        });
       });
 
       it("filters by own address when no address is provided", async () => {
@@ -217,8 +245,10 @@ describe("TransactionController", () => {
         clearAllMocks();
       });
 
-      it("returns the transaction when user can see it", async () => {
+      it("returns the transaction redacted for the user when user can see it", async () => {
+        const redactedTransaction = { ...transaction, data: "0x" };
         (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(true);
+        (serviceMock.redactForUser as jest.Mock).mockReturnValue(redactedTransaction);
         const result = await controller.getTransaction(transactionHash, user);
         expect(logServiceMock.findAll).toHaveBeenCalledWith(
           { transactionHash },
@@ -228,7 +258,8 @@ describe("TransactionController", () => {
           }
         );
         expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, transactionLogs.items, user);
-        expect(result).toBe(transaction);
+        expect(serviceMock.redactForUser).toHaveBeenCalledWith(transaction, user);
+        expect(result).toBe(redactedTransaction);
       });
 
       it("throws NotFoundException when transaction is not visible to user", async () => {
@@ -253,7 +284,7 @@ describe("TransactionController", () => {
       });
 
       it("queries transfers with the specified options", async () => {
-        await controller.getTransactionTransfers(transactionHash, pagingOptions);
+        await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         expect(transferServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(transferServiceMock.findAll).toHaveBeenCalledWith(
           { transactionHash },
@@ -265,8 +296,40 @@ describe("TransactionController", () => {
       });
 
       it("returns transaction transfers", async () => {
-        const result = await controller.getTransactionTransfers(transactionHash, pagingOptions);
+        const result = await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         expect(result).toBe(transactionTransfers);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserParam>;
+        const transactionLogs = mock<Pagination<Log>>({
+          items: [mock<Log>({ topics: [] })],
+        });
+
+        beforeEach(() => {
+          user = mock<UserParam>({ address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" });
+          (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
+          (logServiceMock.findAll as jest.Mock).mockResolvedValue(transactionLogs);
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(true);
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTransactionTransfers(transactionHash, pagingOptions, user);
+          expect(transferServiceMock.findAll).toHaveBeenCalledWith(
+            expect.objectContaining({ visibleBy: user.address }),
+            expect.anything()
+          );
+        });
+
+        it("throws NotFoundException when transaction is not visible to user", async () => {
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(false);
+          await expect(controller.getTransactionTransfers(transactionHash, pagingOptions, user)).rejects.toThrow(
+            NotFoundException
+          );
+          expect(logServiceMock.findAll).toHaveBeenCalledWith({ transactionHash }, { page: 1, limit: 10_000 });
+          expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, transactionLogs.items, user);
+          expect(transferServiceMock.findAll).not.toHaveBeenCalled();
+        });
       });
     });
 
@@ -279,10 +342,22 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransactionTransfers(transactionHash, pagingOptions);
+          await controller.getTransactionTransfers(transactionHash, pagingOptions, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }
+      });
+
+      it("throws NotFoundException when user is provided", async () => {
+        (serviceMock.findOne as jest.Mock).mockResolvedValue(null);
+        await expect(
+          controller.getTransactionTransfers(
+            transactionHash,
+            pagingOptions,
+            mock<UserParam>({ address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" })
+          )
+        ).rejects.toThrow(NotFoundException);
+        expect(serviceMock.isTransactionVisibleByUser).not.toHaveBeenCalled();
       });
     });
   });
@@ -296,7 +371,7 @@ describe("TransactionController", () => {
       });
 
       it("queries logs with the specified options", async () => {
-        await controller.getTransactionLogs(transactionHash, pagingOptions);
+        await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         expect(logServiceMock.findAll).toHaveBeenCalledTimes(1);
         expect(logServiceMock.findAll).toHaveBeenCalledWith(
           { transactionHash },
@@ -308,8 +383,35 @@ describe("TransactionController", () => {
       });
 
       it("returns transaction logs", async () => {
-        const result = await controller.getTransactionLogs(transactionHash, pagingOptions);
+        const result = await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         expect(result).toBe(transactionLogs);
+      });
+
+      describe("when user is provided", () => {
+        let user: MockProxy<UserParam>;
+        beforeEach(() => {
+          user = mock<UserParam>({ address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" });
+          (serviceMock.findOne as jest.Mock).mockResolvedValue(transaction);
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(true);
+        });
+
+        it("includes visibleBy filter", async () => {
+          await controller.getTransactionLogs(transactionHash, pagingOptions, user);
+          expect(logServiceMock.findAll).toHaveBeenCalledWith(
+            expect.objectContaining({ visibleBy: user.address }),
+            expect.anything()
+          );
+        });
+
+        it("throws NotFoundException when transaction is not visible to user", async () => {
+          (serviceMock.isTransactionVisibleByUser as jest.Mock).mockReturnValue(false);
+          await expect(controller.getTransactionLogs(transactionHash, pagingOptions, user)).rejects.toThrow(
+            NotFoundException
+          );
+          expect(logServiceMock.findAll).toHaveBeenCalledTimes(1);
+          expect(logServiceMock.findAll).toHaveBeenCalledWith({ transactionHash }, { page: 1, limit: 10_000 });
+          expect(serviceMock.isTransactionVisibleByUser).toHaveBeenCalledWith(transaction, transactionLogs.items, user);
+        });
       });
     });
 
@@ -322,7 +424,7 @@ describe("TransactionController", () => {
         expect.assertions(1);
 
         try {
-          await controller.getTransactionLogs(transactionHash, pagingOptions);
+          await controller.getTransactionLogs(transactionHash, pagingOptions, null);
         } catch (error) {
           expect(error).toBeInstanceOf(NotFoundException);
         }

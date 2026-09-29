@@ -124,6 +124,14 @@ describe("Prividium API (e2e)", () => {
         headers: { Authorization: `Bearer ${mockToken}` },
       });
 
+      // Mock wallets check for authenticated request
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          wallets: [mockWalletAddress],
+        }),
+      });
+
       // Check authenticated user
       await agent.get("/auth/me").expect(200, {
         address: mockWalletAddress,
@@ -133,6 +141,28 @@ describe("Prividium API (e2e)", () => {
       // Logout user
       await agent.post("/auth/logout").expect(201);
       await agent.get("/auth/me").expect(401);
+    });
+
+    it("logs out user when selected wallet is removed", async () => {
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          wallets: [mockWalletAddress],
+        }),
+      });
+      await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+
+      // Mock wallets check without the selected wallet
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          wallets: [],
+        }),
+      });
+
+      await agent.get("/auth/me").expect(401);
+      await agent.get("/auth/me").expect(401);
+      expect(fetchSpy).toHaveBeenCalledTimes(2);
     });
 
     it("rejects login with forbidden token", async () => {

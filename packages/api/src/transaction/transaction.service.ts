@@ -349,4 +349,17 @@ export class TransactionService {
       })
     );
   }
+
+  public redactForUser(transaction: Transaction, user: UserParam): Transaction {
+    // Only the sender and the receiver can see the calldata and failure details. Other viewers
+    // (e.g. included as part of the logs topics) get a copy of the transaction without them.
+    if (isAddressEqual(transaction.from, user.address) || isAddressEqual(transaction.to, user.address)) {
+      return transaction;
+    }
+    return Object.assign(Object.create(Object.getPrototypeOf(transaction)), transaction, {
+      data: "0x",
+      error: null,
+      revertReason: null,
+    });
+  }
 }
