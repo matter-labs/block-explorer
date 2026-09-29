@@ -45,6 +45,15 @@ describe("formatters:", () => {
   it("returns correct amount from big numberish", () => {
     expect(formatBigNumberish("10000000", 18)).toBe("0.00000000001");
     expect(formatBigNumberish("10000000", 1)).toBe("1000000");
+    expect(formatBigNumberish("100000000000000000000", 18)).toBe("100");
+    expect(formatBigNumberish("105", 1)).toBe("10.5");
+  });
+  it("keeps trailing zeroes of amounts with 0 decimals", () => {
+    expect(formatBigNumberish("0", 0)).toBe("0");
+    expect(formatBigNumberish("10", 0)).toBe("10");
+    expect(formatBigNumberish("20", 0)).toBe("20");
+    expect(formatBigNumberish("100", 0)).toBe("100");
+    expect(formatBigNumberish("1230", 0)).toBe("1230");
   });
   it("returns checksum address", () => {
     expect(checksumAddress("0xb98c32aa56559df22f5b4928e4816d0bb40e0659")).toBe(
@@ -66,6 +75,13 @@ describe("formatters:", () => {
     expect(formatPricePretty("1", 0, "0.5")).toBe("$0.50");
     expect(formatPricePretty("1", 0, "0.99999")).toBe("$1.00");
     expect(formatPricePretty("1", 0, "0.0428")).toBe("$0.0428");
+  });
+  it("returns formatted token price for amounts with 0 decimals", () => {
+    expect(formatPricePretty("0", 0, "2")).toBe("$0");
+    expect(formatPricePretty("10", 0, "2")).toBe("$20.00");
+    expect(formatPricePretty("20", 0, "2")).toBe("$40.00");
+    expect(formatPricePretty("100", 0, "2")).toBe("$200.00");
+    expect(formatPricePretty("1230", 0, "2")).toBe("$2,460.00");
   });
   it("returns formatted Decimals data", () => {
     expect(formatHexDecimals("0x8002", "Dec")).toBe("32770");

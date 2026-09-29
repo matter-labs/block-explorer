@@ -4,6 +4,7 @@ import { createI18n } from "vue-i18n";
 import { describe, expect, it, vi } from "vitest";
 
 import { mount, RouterLinkStub } from "@vue/test-utils";
+import { Interface } from "ethers";
 
 import { ETH_TOKEN_MOCK } from "../../mocks";
 
@@ -15,6 +16,7 @@ import enUS from "@/locales/en.json";
 
 import type { TransactionItem } from "@/composables/useTransaction";
 
+import IInteropCenterABI from "@/abi/IInteropCenter";
 import $testId from "@/plugins/testId";
 
 const transaction: TransactionItem = {
@@ -520,5 +522,42 @@ describe("Transaction info table", () => {
     const block = rowArray[2].findAll("td");
     expect(block[1].find("span").text()).toBe("#1162235");
     expect(block[1].findComponent(RouterLinkStub).exists()).toBeFalsy();
+  });
+  describe("interop bundle", () => {
+    const FORGED_EMITTER = "0x5555555555555555555555555555555555555555";
+    const createInteropBundleSentLog = (address: string, sourceChainId: number) => ({
+      ...transaction.logs[0],
+      ...new Interface(IInteropCenterABI as never).encodeEventLog("InteropBundleSent", [
+        "0x" + "aa".repeat(32),
+        "0x" + "bb".repeat(32),
+        ["0x01", sourceChainId, 271, "0x" + "cc".repeat(32), "0x" + "dd".repeat(32), [], ["0x", "0x", false]],
+      ]),
+      address,
+    });
+    const mountWithLogs = (logs: TransactionItem["logs"]) =>
+      mount(Table, {
+        global: {
+          stubs: { RouterLink: RouterLinkStub },
+          plugins: [i18n, $testId],
+        },
+        props: {
+          transaction: { ...transaction, logs },
+          loading: false,
+        },
+      });
+
+    it("does not render interop bundle emitted by a contract other than the Interop Center", () => {
+      const wrapper = mountWithLogs([createInteropBundleSentLog(FORGED_EMITTER, 999999)]);
+      expect(wrapper.find(".interop-bundle").exists()).toBe(false);
+    });
+    it("renders the Interop Center bundle when a forged one is emitted before it", () => {
+      // API returns checksummed addresses, which differ in case from INTEROP_CENTER_ADDRESS
+      const wrapper = mountWithLogs([
+        createInteropBundleSentLog(FORGED_EMITTER, 999999),
+        createInteropBundleSentLog("0x000000000000000000000000000000000001000d", 270),
+      ]);
+      expect(wrapper.findAll(".interop-bundle").length).toBe(1);
+      expect(wrapper.find(".interop-bundle-chain-ids .interop-bundle-value").text()).toBe("270");
+    });
   });
 });

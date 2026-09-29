@@ -54,6 +54,15 @@ describe("Tabs", () => {
     expect(wrapper.findAll(".tab-content > div")[0].text()).toBe("Tab 1 slot content");
     expect(wrapper.findAll(".tab-content > div")[1].text()).toBe("Tab 2 slot content");
   });
+  it("renders tab title as text", () => {
+    const wrapper = mount(Tabs, {
+      props: {
+        tabs: [{ title: '<img src="x" onerror="alert(1)">', hash: "tab1" }],
+      },
+    });
+    expect(wrapper.find(".tab-head img").exists()).toBe(false);
+    expect(wrapper.find(".tab-head li").text()).toBe('<img src="x" onerror="alert(1)">');
+  });
   it("redirects to current tab hash on tab button click", async () => {
     const wrapper = mount(Tabs, {
       props: {

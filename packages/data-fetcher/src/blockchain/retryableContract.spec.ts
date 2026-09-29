@@ -178,6 +178,29 @@ describe("RetryableContract", () => {
       });
     });
 
+    describe("when the contract returns an invalid UTF-8 string", () => {
+      beforeEach(() => {
+        const { AbiCoder, Contract } = jest.requireActual("ethers");
+        let countOfRequests = 0;
+        (ethers.Contract as any as jest.Mock).mockReturnValue(
+          new Contract("0x0000000000000000000000000000000000000001", CONTRACT_INTERFACES.ERC20.interface, {
+            // string and bytes have the same ABI encoding, a valid string is returned if the call is retried
+            call: async () =>
+              AbiCoder.defaultAbiCoder().encode(["bytes"], [countOfRequests++ ? "0x4c313131" : "0xfffe"]),
+          })
+        );
+
+        contract = new RetryableContract(tokenAddress, CONTRACT_INTERFACES.ERC20.interface, providerMock);
+      });
+
+      it("throws the deferred decoding error without retrying", async () => {
+        await expect(contract.symbol()).rejects.toThrowError(
+          "deferred error during ABI decoding triggered accessing index 0"
+        );
+        expect(setTimeout).not.toBeCalled();
+      });
+    });
+
     describe("when throws a few network errors before returning a result", () => {
       const functionResult = "functionResult";
       const error = new Error();

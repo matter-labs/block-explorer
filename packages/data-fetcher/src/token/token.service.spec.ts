@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { TransactionReceipt, Log } from "ethers";
+import { TransactionReceipt, Log, AbiCoder } from "ethers";
 import {
   BASE_TOKEN_ADDRESS,
   ETH_L1_ADDRESS,
@@ -364,6 +364,46 @@ describe("TokenService", () => {
           l1Address: "0xc8F8cE6491227a6a2Ab92e67a64011a4Eba1C6CF",
           logIndex: deployedContractAddress.logIndex,
         });
+      });
+
+      it.each(["0x0000000000000000000000000000000000000aaa", undefined])(
+        "returns the token without l1Address when the token is deployed by %s instead of the native token vault",
+        async (deployerAddress) => {
+          deployedContractAddress = mock<ContractAddress>({
+            address: "0x5a393c95e7bddd0281650023d8c746fb1f596b7b",
+            blockNumber: 10,
+            transactionHash: "transactionHash",
+            logIndex: 20,
+            deployerAddress,
+          });
+          const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+          expect(token).toStrictEqual({
+            ...tokenData,
+            blockNumber: deployedContractAddress.blockNumber,
+            transactionHash: deployedContractAddress.transactionHash,
+            l2Address: deployedContractAddress.address,
+            logIndex: deployedContractAddress.logIndex,
+          });
+        }
+      );
+
+      it("returns null when the token symbol in the log is an invalid UTF-8 string", async () => {
+        transactionReceipt = mock<TransactionReceipt>({
+          ...transactionReceipt,
+          logs: [
+            mock<Log>({
+              address: "0x5a393c95e7Bddd0281650023D8C746fB1F596B7b",
+              topics: [
+                "0x81e8e92e5873539605a102eddae7ed06d19bea042099a437cbc3644415eb7404",
+                "0x000000000000000000000000c8f8ce6491227a6a2ab92e67a64011a4eba1c6cf",
+              ],
+              // string and bytes have the same ABI encoding
+              data: AbiCoder.defaultAbiCoder().encode(["bytes", "bytes", "uint8"], ["0x4c313131", "0xfffe", 18]),
+            }),
+          ],
+        });
+        const token = await tokenService.getERC20Token(deployedContractAddress, transactionReceipt);
+        expect(token).toBeNull();
       });
     });
 

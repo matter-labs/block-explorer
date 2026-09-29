@@ -3,7 +3,7 @@ import { Logger } from "@nestjs/common";
 import { mock } from "jest-mock-extended";
 import { Block, TransactionReceipt, TransactionResponse } from "ethers";
 import { TransactionTracesService, ContractAddress } from "./transactionTraces.service";
-import { BlockchainService } from "../blockchain";
+import { BlockchainService, TransactionTrace } from "../blockchain";
 import { TokenService, Token } from "../token/token.service";
 import * as contractDeployedTraces from "../../test/traces/multiple-create.json";
 import * as revertedTxTraces from "../../test/traces/reverted-tx.json";
@@ -207,6 +207,147 @@ describe("TransactionTracesService", () => {
       });
     });
 
+    const eoa = "0x000000000000000000000000000000000000e0a0";
+    const contractA = "0x000000000000000000000000000000000000a11c";
+    const contractB = "0x000000000000000000000000000000000000b0b0";
+    const contractC = "0x000000000000000000000000000000000000c0c0";
+    const victim = "0x000000000000000000000000000000000000dead";
+    const createdContract = "0x0000000000000000000000000000000000c4ea7e";
+
+    const frame = (
+      type: string,
+      from: string,
+      to: string,
+      options: Partial<TransactionTrace> = {}
+    ): TransactionTrace => ({
+      type,
+      from,
+      to,
+      calls: [],
+      error: null,
+      revertReason: null,
+      value: "0x0",
+      input: "0x",
+      ...options,
+    });
+
+    describe("when transaction trace contains frames that do not commit", () => {
+      it("does not return transfers and contract addresses from frames under a reverted sub-call", async () => {
+        const trace = frame("CALL", eoa, contractA, {
+          calls: [
+            frame("CALL", contractA, contractB, {
+              value: "0x64",
+              error: "execution reverted",
+              calls: [
+                frame("CALL", contractB, victim, {
+                  value: "0x64",
+                  calls: [frame("CALL", victim, contractC, { value: "0x1" })],
+                }),
+                frame("CREATE", contractB, createdContract, { value: "0x2" }),
+              ],
+            }),
+            frame("CALL", contractA, contractC, { value: "0x5" }),
+            frame("CREATE", contractA, "0x0000000000000000000000000000000000c0ffee"),
+          ],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.error).toBeNull();
+        expect(data.transfers).toEqual([
+          expect.objectContaining({ from: contractA, to: contractC, amount: BigInt(5), logIndex: 1 }),
+        ]);
+        expect(data.contractAddresses).toEqual([
+          expect.objectContaining({ address: "0x0000000000000000000000000000000000c0ffee", logIndex: 1 }),
+        ]);
+      });
+
+      it("does not return transfers and contract addresses of a failed transaction without trace errors", async () => {
+        transactionResponse = mock<TransactionResponse>({ type: 2 });
+        transactionReceipt = mock<TransactionReceipt>({ status: 0 });
+        const trace = frame("CALL", eoa, contractA, {
+          calls: [
+            frame("CALL", contractA, victim, {
+              value: "0x64",
+              calls: [frame("CREATE", victim, createdContract, { value: "0x1" })],
+            }),
+          ],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.transfers).toEqual([]);
+        expect(data.contractAddresses).toEqual([]);
+      });
+
+      it("does not return CALLCODE value as a transfer", async () => {
+        const trace = frame("CALL", eoa, contractA, {
+          calls: [
+            frame("CALLCODE", contractA, victim, {
+              value: "0x64",
+              calls: [frame("CALL", contractA, contractC, { value: "0x5" })],
+            }),
+          ],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.transfers).toEqual([
+          expect.objectContaining({ from: contractA, to: contractC, amount: BigInt(5), logIndex: 1 }),
+        ]);
+      });
+
+      it.each(["0x0", "0x1"])("skips a nested CREATE frame with value %s and no to", async (value) => {
+        const trace = frame("CALL", eoa, contractA, {
+          calls: [
+            frame("CREATE", contractA, undefined, {
+              value,
+              calls: [frame("CREATE", contractB, createdContract, { value: "0x1" })],
+            }),
+            frame("CALL", contractA, contractC, { value: "0x5" }),
+          ],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.transfers).toEqual([
+          expect.objectContaining({ from: contractA, to: contractC, amount: BigInt(5), logIndex: 1 }),
+        ]);
+        expect(data.contractAddresses).toEqual([]);
+        expect(blockchainServiceMock.getCode).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("when transaction is an L1 to L2 transaction with value", () => {
+      const value = "0xde0b6b3a7640000";
+
+      beforeEach(() => {
+        transactionResponse = mock<TransactionResponse>({ from: eoa, to: contractA, type: 127, value: BigInt(value) });
+      });
+
+      it("does not return a deposit when transaction failed", async () => {
+        transactionReceipt = mock<TransactionReceipt>({ status: 0 });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, null);
+
+        expect(data.transfers).toEqual([]);
+      });
+
+      it("returns the root frame transfer as the only deposit when transaction succeeded", async () => {
+        transactionReceipt = mock<TransactionReceipt>({ status: 1 });
+        const trace = frame("CALL", eoa, contractA, {
+          value,
+          calls: [frame("CALL", contractA, contractC, { value: "0x5" })],
+        });
+
+        const data = await transactionTracesService.getData(block, transactionResponse, transactionReceipt, trace);
+
+        expect(data.transfers).toEqual([
+          expect.objectContaining({ from: eoa, to: contractA, amount: BigInt(value), type: "deposit", logIndex: 1 }),
+          expect.objectContaining({ from: contractA, to: contractC, amount: BigInt(5), type: "transfer", logIndex: 2 }),
+        ]);
+      });
+    });
     describe("when transaction is a system contracts upgrade tx", () => {
       it("returns system contracts addresses", async () => {
         const data = await transactionTracesService.getData(
