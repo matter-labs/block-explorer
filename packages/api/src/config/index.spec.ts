@@ -72,6 +72,15 @@ describe("config", () => {
     });
   });
 
+  it("returns undefined trustXForwardedFor when TRUST_X_FORWARDED_FOR is not set", () => {
+    expect(config().trustXForwardedFor).toBeUndefined();
+  });
+
+  it("parses TRUST_X_FORWARDED_FOR as comma-separated list", () => {
+    process.env.TRUST_X_FORWARDED_FOR = "192.0.2.0/24, 198.51.100.0/24,203.0.113.10/32,";
+    expect(config().trustXForwardedFor).toEqual(["192.0.2.0/24", "198.51.100.0/24", "203.0.113.10/32"]);
+  });
+
   describe("when custom base token is defined", () => {
     it("sets default values with base ERC20", () => {
       process.env = {

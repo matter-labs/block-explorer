@@ -33,6 +33,52 @@ describe("applyPrividiumExpressConfig", () => {
     expect(cookies.length).toEqual(2);
   });
 
+  describe("client ip", () => {
+    const createApp = (trustXForwardedFor?: string[]) => {
+      const app = express();
+      (app as any).enableCors = jest.fn();
+      applyPrividiumExpressConfig(app as unknown as NestExpressApplication, {
+        sessionSecret: "secretvalue",
+        appUrl: "https://blockexplorer.com",
+        sessionMaxAge: 1000,
+        sessionSameSite: "strict",
+        trustXForwardedFor,
+      });
+      app.get("/ip", (req, res) => {
+        res.json({ ip: req.ip, protocol: req.protocol });
+      });
+      return app;
+    };
+
+    it("trusts a single proxy hop when trustXForwardedFor is not set", async () => {
+      const res = await request(createApp())
+        .get("/ip")
+        .set("X-Forwarded-For", "203.0.113.7")
+        .set("X-Forwarded-Proto", "https")
+        .expect(200);
+      expect(res.body).toEqual({ ip: "203.0.113.7", protocol: "https" });
+    });
+
+    it("resolves the client ip behind the listed proxies", async () => {
+      const res = await request(createApp(["127.0.0.1", "192.0.2.0/24"]))
+        .get("/ip")
+        .set("X-Forwarded-For", "198.51.100.1, 203.0.113.7, 192.0.2.10")
+        .set("X-Forwarded-Proto", "https")
+        .expect(200);
+      expect(res.body).toEqual({ ip: "203.0.113.7", protocol: "https" });
+    });
+
+    it("ignores forwarded headers from a proxy that is not listed", async () => {
+      const res = await request(createApp(["192.0.2.0/24"]))
+        .get("/ip")
+        .set("X-Forwarded-For", "203.0.113.7")
+        .set("X-Forwarded-Proto", "https")
+        .expect(200);
+      expect(res.body.ip).not.toBe("203.0.113.7");
+      expect(res.body.protocol).toBe("http");
+    });
+  });
+
   it("uses corsOrigins array when provided", () => {
     const app = express();
     const enableCorsMock = jest.fn();
