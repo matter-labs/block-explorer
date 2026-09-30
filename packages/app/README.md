@@ -1,5 +1,7 @@
 # ZKsync Era Block Explorer App
+
 ## Overview
+
 `ZKsync Era Block Explorer App` is a front-end app providing an easy-to-use interface for users to view and inspect transactions, blocks, contracts and more on [ZKsync Era](https://zksync.io) blockchain.
 
 ## Recommended IDE Setup
@@ -13,8 +15,8 @@ TypeScript cannot handle type information for `.vue` imports by default, so we r
 If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
 
 1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
+   1. Run `Extensions: Show Built-in Extensions` from VSCode's command palette
+   2. Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
 2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
 
 ## Installation
@@ -24,13 +26,16 @@ $ npm install
 ```
 
 ### Environment configs
+
 Public environment configs are stored in `src/configs` folder and are named as `<appEnvironment>.config.json` where `appEnvironment` is the name of the environment set in `VITE_APP_ENVIRONMENT` env variable.
 Currently there are 3 different environments for the project: `local`, `staging` and `production`, each with its corresponding configuration file.
 
 ### Adding a new network to the config
-In order to change the configuration for the environment, you need to change its configuration file. By default, there are 4 networks configured for the `local` environment: `local`, `stage`, `testnet` and `mainnet`. Your local network might be different from what is configured in `local.config.json` in such case you should edit the config and set correct values for your setup. You can also add new items to the `networks` array and they will automatically appear in the networks dropdown on UI. 
+
+In order to change the configuration for the environment, you need to change its configuration file. By default, there are 4 networks configured for the `local` environment: `local`, `stage`, `testnet` and `mainnet`. Your local network might be different from what is configured in `local.config.json` in such case you should edit the config and set correct values for your setup. You can also add new items to the `networks` array and they will automatically appear in the networks dropdown on UI.
 
 #### Settlement Chains Configuration
+
 Each network can include a `settlementChains` array that defines the settlement
 chains available for that network. This configuration allows users to view
 transactions and data across different connected chains. When configuring
@@ -84,11 +89,19 @@ be served under any base path and optionally load its hashed assets from a separ
 
 ### Runtime env vars (container)
 
-| Var | Default | Purpose |
-| --- | --- | --- |
-| `APP_BASE` | `/` | Base path the app is served under (leading + trailing slash, e.g. `/explorer/`). Applies to routing, `config.js`, favicon, and locally-served assets. |
-| `STATIC_ASSETS_URL` | _(empty)_ | If set, hashed assets and `/images` load from this origin instead of the app (e.g. `https://static.example.com/explorer`). Empty = serve everything from the app at `APP_BASE`. |
-| `STATIC_ASSETS_VERSIONED` | `true` | When `STATIC_ASSETS_URL` is set, assets are read from a `/<VITE_VERSION>/` sub-folder. Set `false` to read them flat (requires assets uploaded flat — the release pipeline always uploads versioned). |
+| Var                       | Default   | Purpose                                                                                                                                                                                               |
+| ------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `APP_BASE`                | `/`       | Base path the app is served under (leading + trailing slash, e.g. `/explorer/`). Applies to routing, `config.js`, favicon, and locally-served assets.                                                 |
+| `STATIC_ASSETS_URL`       | _(empty)_ | If set, hashed assets and `/images` load from this origin instead of the app (e.g. `https://static.example.com/explorer`). Empty = serve everything from the app at `APP_BASE`.                       |
+| `STATIC_ASSETS_VERSIONED` | `true`    | When `STATIC_ASSETS_URL` is set, assets are read from a `/<VITE_VERSION>/` sub-folder. Set `false` to read them flat (requires assets uploaded flat — the release pipeline always uploads versioned). |
+
+`CSP_ENFORCE` defaults to `false`. Only the exact value `true` enforces CSP. Unset, empty and other
+values keep report-only behavior; unrecognized values log a warning without failing startup.
+Enable enforcement per deployment after validating the policy in a representative test environment.
+
+`CSP_REPORT_ONLY` remains the complete policy override in either mode. Include the environment's
+API, branding, signature lookup and compiler-list origins in custom policies. Public deployments
+and Firebase remain report-only by default.
 
 `config.js` and the favicon are always served by the app at `APP_BASE` (never the CDN). Only the
 content-hashed bundle and `/images` move to `STATIC_ASSETS_URL`.
@@ -103,10 +116,12 @@ The uploaded files are byte-identical to what the image serves (same content has
 maps match either way.
 
 ## Production links
- - [Web Application](https://explorer.zksync.io)
- - [Storybook](https://storybook-scan-v2.zksync.dev)
+
+- [Web Application](https://explorer.zksync.io)
+- [Storybook](https://storybook-scan-v2.zksync.dev)
 
 ## Verify Block Explorer UI test results in GitHub Actions
+
 GitHub Actions test results are available in:
 
 - `GitHub Actions` --> `Summary` page at the very end of a page.

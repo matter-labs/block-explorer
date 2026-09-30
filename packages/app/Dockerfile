@@ -33,8 +33,9 @@ ENV STATIC_ASSETS_URL=
 ENV STATIC_ASSETS_VERSIONED=true
 ARG VITE_VERSION=
 ENV VITE_VERSION=$VITE_VERSION
-# Keep the legacy env var name for deployment overrides; the policy is enforced.
-ENV CSP_REPORT_ONLY="default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src https://*.ingest.sentry.io https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
+ENV CSP_ENFORCE=false
+# Keep the legacy policy env var name for existing deployment overrides.
+ENV CSP_REPORT_ONLY="default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src https://api.4byte.sourcify.dev https://binaries.soliditylang.org https://vyper-releases-mirror.hardhat.org https://*.ingest.sentry.io https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
 
 RUN apk add --no-cache gomplate
 
@@ -48,6 +49,11 @@ RUN cp /usr/share/nginx/html/index.html /usr/share/nginx/html/index.html.tpl
 # (in its entry/preload/stylesheet URLs); the JS reads window.__ASSETS_BASE__ at runtime
 # (set in index.html by gomplate), so the bundle itself is never edited -> sourcemaps stay valid.
 CMD set -e; \
+  case "$CSP_ENFORCE" in \
+    true) export CSP_HEADER=Content-Security-Policy ;; \
+    false|'') export CSP_HEADER=Content-Security-Policy-Report-Only ;; \
+    *) echo 'Unrecognized CSP_ENFORCE; using report-only mode' >&2; export CSP_HEADER=Content-Security-Policy-Report-Only ;; \
+  esac; \
   if [ -n "$STATIC_ASSETS_URL" ]; then \
     ASSET_TARGET="${STATIC_ASSETS_URL%/}/"; \
     if [ "$STATIC_ASSETS_VERSIONED" != "false" ] && [ -n "$VITE_VERSION" ]; then \
@@ -62,7 +68,7 @@ CMD set -e; \
   else \
     ASSET_TARGET="${APP_BASE%/}/"; \
   fi; \
-  envsubst '$PORT $CSP_REPORT_ONLY' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf; \
+  envsubst '$PORT $CSP_HEADER $CSP_REPORT_ONLY' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf; \
   gomplate -f /usr/share/nginx/html/index.html.tpl -o /usr/share/nginx/html/index.html; \
   sed -i "s#/__ASSET_BASE__/#$ASSET_TARGET#g" /usr/share/nginx/html/index.html; \
   exec nginx -g 'daemon off;'

@@ -6,6 +6,9 @@ services:
       dockerfile: ./packages/app/Dockerfile
       args:
         VITE_APP_ENVIRONMENT: prividium
+    environment:
+      CSP_ENFORCE: "true"
+      CSP_REPORT_ONLY: "default-src 'self'; child-src 'self' blob:; script-src 'self' 'unsafe-eval' blob:; connect-src http://localhost:3020 https://api.4byte.sourcify.dev https://binaries.soliditylang.org https://vyper-releases-mirror.hardhat.org https://*.ingest.sentry.io https://*.zkscan.io https://*.zksync.io https://*.zksync.dev https://storage.googleapis.com; style-src 'self' fonts.googleapis.com; font-src 'self' fonts.gstatic.com; img-src 'self' https://assets.coingecko.com blob: data: https://firebasestorage.googleapis.com/v0/b/token-library.appspot.com/o/;"
     ports:
       - '3010:3010'
     depends_on:
