@@ -2,17 +2,24 @@ import { AuthMiddleware, isApiRoutePathname } from "./auth.middleware";
 import { AddUserRolesPipe } from "../api/pipes/addUserRoles.pipe";
 import { mock } from "jest-mock-extended";
 import { Request, Response } from "express";
-import { UnauthorizedException, ForbiddenException } from "@nestjs/common";
+import { UnauthorizedException, ForbiddenException, BadGatewayException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 
 jest.mock("../api/pipes/addUserRoles.pipe", () => {
   return {
+    ...jest.requireActual("../api/pipes/addUserRoles.pipe"),
     AddUserRolesPipe: jest.fn(),
   };
 });
 
-const configServiceMock = mock<ConfigService>();
+const configServiceMock = mock<ConfigService>({
+  get: jest
+    .fn()
+    .mockImplementation((key: string) =>
+      key === "prividium.permissionsApiUrl" ? "https://permissions-api.example.com" : undefined
+    ),
+});
 
 describe("AuthMiddleware", () => {
   it("allows traffic for unprotected route", async () => {
@@ -140,6 +147,108 @@ describe("AuthMiddleware", () => {
     const next = jest.fn();
     await middleware.use(req, res, next);
     expect(next).toHaveBeenCalled();
+  });
+
+  describe("api route with m2m app api key", () => {
+    let fetchSpy: jest.SpyInstance;
+
+    const apiKeyRequest = (apiKey: string | string[] = "m2m-api-key") => {
+      const req = mock<Request>();
+      req.headers = { "x-api-key": apiKey };
+      req.originalUrl = "/api/account/txlist";
+      Object.defineProperty(req, "ip", { value: "203.0.113.7" });
+      return req;
+    };
+
+    const mockM2mAppResponse = (roles: unknown[]) =>
+      fetchSpy.mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ id: "app", roles }) });
+
+    beforeEach(() => {
+      fetchSpy = jest.spyOn(global, "fetch");
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
+    });
+
+    it("allows traffic when the m2m app has full read access and forwards the client ip", async () => {
+      mockM2mAppResponse([{ roleName: "indexer", systemPermissions: ["full_read_access"], organizationId: null }]);
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await middleware.use(apiKeyRequest(), mock<Response>(), next);
+      expect(next).toHaveBeenCalled();
+      expect(fetchSpy).toHaveBeenCalledWith(new URL("https://permissions-api.example.com/api/m2m-app-queries/me"), {
+        headers: { "x-api-key": "m2m-api-key", "X-Forwarded-For": "203.0.113.7" },
+      });
+    });
+
+    it("blocks traffic when the m2m app has no full read access", async () => {
+      mockM2mAppResponse([{ roleName: "reader", systemPermissions: ["admin_read"], organizationId: null }]);
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(ForbiddenException);
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("ignores read permissions granted by organization-scoped roles", async () => {
+      mockM2mAppResponse([{ roleName: "org-reader", systemPermissions: ["full_read_access"], organizationId: "org1" }]);
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(ForbiddenException);
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("throws PrividiumApiError 401 when the permissions API rejects the api key", async () => {
+      fetchSpy.mockResolvedValueOnce({ status: 401, json: jest.fn() });
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(
+        new PrividiumApiError("Authentication failed", 401)
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["returns a non-401 error status", () => fetchSpy.mockResolvedValueOnce({ status: 500, json: jest.fn() })],
+      [
+        "returns an invalid body",
+        () => fetchSpy.mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ roles: "x" }) }),
+      ],
+      [
+        "returns non parseable json",
+        () => fetchSpy.mockResolvedValueOnce({ status: 200, json: jest.fn().mockRejectedValue(new Error()) }),
+      ],
+      ["is unreachable", () => fetchSpy.mockRejectedValueOnce(new Error("ECONNREFUSED"))],
+    ])("throws BadGatewayException when the permissions API %s", async (_, mockResponse) => {
+      mockResponse();
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(BadGatewayException);
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it.each([[""], [["key1", "key2"]]])("blocks traffic without a usable api key (%p)", async (apiKey) => {
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await expect(middleware.use(apiKeyRequest(apiKey), mock<Response>(), next)).rejects.toThrow(
+        UnauthorizedException
+      );
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("uses the bearer token when both a bearer token and an api key are sent", async () => {
+      const transform = jest.fn().mockResolvedValue({ hasFullReadAccess: true });
+      (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({ transform }));
+      const middleware = new AuthMiddleware(configServiceMock);
+      const req = apiKeyRequest();
+      req.headers.authorization = "Bearer token";
+      const next = jest.fn();
+      await middleware.use(req, mock<Response>(), next);
+      expect(transform).toHaveBeenCalledWith({ address: "", wallets: [], token: "token" });
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(next).toHaveBeenCalled();
+    });
   });
 
   // `/API/...` reaches the `/api/...` handler, so it must hit this gate too.
