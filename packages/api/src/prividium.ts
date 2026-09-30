@@ -20,15 +20,17 @@ export function applyPrividiumExpressConfig(
     sessionMaxAge,
     sessionSameSite,
     corsOrigins,
+    trustXForwardedFor,
   }: {
     sessionSecret: string;
     appUrl: string;
     sessionMaxAge: number;
     sessionSameSite: "none" | "strict" | "lax";
     corsOrigins?: string[];
+    trustXForwardedFor?: string[];
   }
 ) {
-  app.set("trust proxy", 1);
+  app.set("trust proxy", trustXForwardedFor ?? 1);
   // Without this, `/API/...` reaches the `/api/...` handler that AuthMiddleware gates.
   app.set("case sensitive routing", true);
   app.use(

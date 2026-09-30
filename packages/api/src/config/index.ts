@@ -108,6 +108,7 @@ export default () => {
     PRIVIDIUM_SESSION_SECRET,
     PRIVIDIUM_CORS_ORIGINS,
     INDEXER_STATE_CACHE_TTL_MS,
+    TRUST_X_FORWARDED_FOR,
   } = process.env;
 
   const MAX_NUMBER_OF_REPLICA = 100;
@@ -240,5 +241,11 @@ export default () => {
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
     prividium: getPrividiumConfig(),
     indexerStateCacheTtlMs: parseInt(INDEXER_STATE_CACHE_TTL_MS, 10) || 1000,
+    // IPs/CIDRs of the proxies in front of the API whose X-Forwarded-* headers are trusted.
+    trustXForwardedFor: TRUST_X_FORWARDED_FOR
+      ? TRUST_X_FORWARDED_FOR.split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : undefined,
   };
 };
