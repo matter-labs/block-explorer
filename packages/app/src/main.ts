@@ -22,6 +22,13 @@ import "@/assets/tailwind.scss";
 
 export type MessageSchema = typeof enUS;
 
+try {
+  // Older clients persisted the JWT; authenticated requests now use the API session cookie.
+  localStorage.removeItem("prividium_jwt");
+} catch {
+  // Browsers that disable storage must still be able to load the public explorer.
+}
+
 const app = createApp(App);
 const i18n = createI18n<[MessageSchema], "en">({
   legacy: false,

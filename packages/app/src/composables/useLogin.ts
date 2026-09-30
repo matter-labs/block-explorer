@@ -137,9 +137,6 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
   };
 
   const logout = async ({ redirectToLogin = true }: { redirectToLogin?: boolean } = {}) => {
-    const auth = getPrividiumAuth();
-    auth.clearToken();
-
     try {
       await FetchInstance.api(context)("/auth/logout", {
         method: "POST",

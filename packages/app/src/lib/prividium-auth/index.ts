@@ -75,8 +75,6 @@ export class PrividiumAuth {
       return null;
     }
 
-    // Store token
-    this.setToken(token);
     sessionStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY);
 
     const redirect = sessionStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY);
@@ -88,32 +86,8 @@ export class PrividiumAuth {
     return { token, state, redirect };
   }
 
-  /**
-   * Gets the stored JWT token
-   */
-  getToken(): string | null {
-    return localStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.TOKEN_KEY);
-  }
-
-  /**
-   * Sets the JWT token
-   */
-  setToken(token: string): void {
-    localStorage.setItem(PRIVIDIUM_AUTH_CONSTANTS.TOKEN_KEY, token);
-  }
-
-  /**
-   * Clears the stored JWT token
-   */
-  clearToken(): void {
-    localStorage.removeItem(PRIVIDIUM_AUTH_CONSTANTS.TOKEN_KEY);
-  }
-
-  /**
-   * Logs out the user by clearing the token
-   */
+  /** Redirects to the User Panel to end its session. */
   logout(): void {
-    this.clearToken();
     // Optionally redirect to User Panel logout to clear Okta session
     if (this.userPanelUrl) {
       window.location.href = `${this.userPanelUrl}${
