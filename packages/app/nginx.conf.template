@@ -21,7 +21,7 @@ server {
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "DENY" always;
         add_header X-XSS-Protection "1; mode=block" always;
-        add_header Content-Security-Policy-Report-Only "${CSP_REPORT_ONLY}" always;
+        add_header ${CSP_HEADER} "${CSP_REPORT_ONLY}" always;
     }
 
     # TODO: add cache for static files, avoid caching config.js, index.html etc.

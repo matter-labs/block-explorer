@@ -85,6 +85,17 @@ describe("PrividiumAuth redirect lifecycle:", () => {
     });
     expect(sessionStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.REDIRECT_KEY)).toBeNull();
     expect(sessionStorage.getItem(PRIVIDIUM_AUTH_CONSTANTS.STATE_KEY)).toBeNull();
+    expect(localStorage.getItem("prividium_jwt")).toBeNull();
+    expect(window.location.hash).toBe("");
+  });
+
+  it("does not persist a token from an invalid callback", () => {
+    const auth = new PrividiumAuth(CONFIG);
+    auth.login();
+    window.location.hash = "#token=mock-jwt&state=invalid";
+
+    expect(() => auth.handleCallback()).toThrow("Invalid state parameter");
+    expect(localStorage.getItem("prividium_jwt")).toBeNull();
   });
 
   it("handleCallback() returns redirect: null when nothing was stashed", () => {
