@@ -32,6 +32,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const metricsApp = await NestFactory.create(AppMetricsModule);
   metricsApp.enableShutdownHooks();
+  const trustXForwardedFor = configService.get<string[] | undefined>("trustXForwardedFor");
 
   if (prividium) {
     // Prividium config includes strict CORS configuration
@@ -42,9 +43,13 @@ async function bootstrap() {
       sessionMaxAge: configService.get<number>("prividium.sessionMaxAge"),
       sessionSameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
       corsOrigins: configService.get<string[]>("prividium.corsOrigins"),
+      trustXForwardedFor,
     });
     applySwaggerAuthMiddleware(app, configService);
   } else {
+    if (trustXForwardedFor) {
+      app.set("trust proxy", trustXForwardedFor);
+    }
     app.enableCors();
   }
 

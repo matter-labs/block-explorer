@@ -1,10 +1,20 @@
-import { Injectable, NestMiddleware, UnauthorizedException, ForbiddenException } from "@nestjs/common";
+import {
+  Injectable,
+  NestMiddleware,
+  UnauthorizedException,
+  ForbiddenException,
+  BadGatewayException,
+} from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Request, Response, NextFunction } from "express";
 import { parseReqPathname } from "../common/utils";
-import { AddUserRolesPipe } from "../api/pipes/addUserRoles.pipe";
+import { AddUserRolesPipe, parseUserProfile } from "../api/pipes/addUserRoles.pipe";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
+
+function throwUpstreamError(): never {
+  throw new BadGatewayException("Auth service unavailable");
+}
 
 const API_ROUTES_ROOT_PATH = "/api";
 
@@ -28,13 +38,18 @@ export class AuthMiddleware implements NestMiddleware {
 
     if (isApiRoutePathname(pathname)) {
       const token = req.headers.authorization?.split(" ")[1];
-      if (!token) {
+      const apiKey = req.headers["x-api-key"];
+      let hasFullReadAccess: boolean;
+      if (token) {
+        const addUserRolesPipe = new AddUserRolesPipe(this.configService);
+        ({ hasFullReadAccess } = await addUserRolesPipe.transform({ address: "", wallets: [], token }));
+      } else if (typeof apiKey === "string" && apiKey) {
+        ({ hasFullReadAccess } = await this.fetchM2mAppPermissions(apiKey, req.ip));
+      } else {
         throw new UnauthorizedException({ message: "Unauthorized request" });
       }
-      const addUserRolesPipe = new AddUserRolesPipe(this.configService);
-      const userWithRoles = await addUserRolesPipe.transform({ address: "", wallets: [], token });
-      if (!userWithRoles.hasFullReadAccess) {
-        // Only admin users can access the API for now
+      if (!hasFullReadAccess) {
+        // Only users/m2m apps with full read access can use the API for now
         throw new ForbiddenException({ message: "Forbidden request" });
       }
       next();
@@ -56,5 +71,25 @@ export class AuthMiddleware implements NestMiddleware {
     // headers without modifying the session object.
     req.session._nowInMinutes = Math.floor(Date.now() / 1000 / 60);
     next();
+  }
+
+  // M2M apps use an API key, which the permissions API only accepts from the app's whitelisted IPs,
+  // so the client's IP is forwarded.
+  private async fetchM2mAppPermissions(apiKey: string, clientIp?: string) {
+    const response = await fetch(
+      new URL("/api/m2m-app-queries/me", this.configService.get("prividium.permissionsApiUrl")),
+      { headers: { "x-api-key": apiKey, ...(clientIp && { "X-Forwarded-For": clientIp }) } }
+    ).catch(throwUpstreamError);
+    if (response.status === 401) {
+      throw new PrividiumApiError("Authentication failed", 401);
+    }
+    if (response.status !== 200) {
+      throwUpstreamError();
+    }
+    try {
+      return parseUserProfile(await response.json());
+    } catch {
+      return throwUpstreamError();
+    }
   }
 }
