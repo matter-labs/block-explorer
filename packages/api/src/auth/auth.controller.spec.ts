@@ -10,6 +10,7 @@ jest.mock("@nestjs/common", () => ({
   ...jest.requireActual("@nestjs/common"),
   Logger: jest.fn().mockReturnValue({
     error: jest.fn(),
+    warn: jest.fn(),
   }),
 }));
 
@@ -127,6 +128,58 @@ describe("AuthController", () => {
 
       expect(result.hasFullReadAccess).toBe(true);
       expect(req.session.hasFullReadAccess).toBe(true);
+    });
+
+    it("logins with the explorer's own application session", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+            oauthClientId: "block-explorer",
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        });
+
+      const result = await controller.login(body, req);
+
+      expect(result.address).toBe(mockWalletAddress);
+      expect(req.session.token).toBe(mockToken);
+    });
+
+    it("throws 403 error when the token was issued to another application", async () => {
+      req.session = {};
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+            oauthClientId: "some-dapp",
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin", systemPermissions: ["admin_read"] }] }),
+        });
+
+      await expect(controller.login(body, req)).rejects.toThrow(
+        new HttpException("Token was not issued for the block explorer", 403)
+      );
+      expect(req.session.token).toBeUndefined();
+      expect(req.session.hasAdminRead).toBeUndefined();
     });
 
     it("throws 403 error for 403 response from permissions API", async () => {

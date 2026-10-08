@@ -9,6 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import { Request, Response, NextFunction } from "express";
 import { parseReqPathname } from "../common/utils";
 import { AddUserRolesPipe, parseUserProfile } from "../api/pipes/addUserRoles.pipe";
+import { ExplorerSessionVerifier } from "../auth/explorerSession";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
 
@@ -26,6 +27,8 @@ export const isApiRoutePathname = (pathname: string): boolean => {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
+  private readonly explorerSessions = new ExplorerSessionVerifier();
+
   constructor(private configService: ConfigService) {}
 
   public async use(req: Request, _res: Response, next: NextFunction) {
@@ -43,6 +46,7 @@ export class AuthMiddleware implements NestMiddleware {
       if (token) {
         const addUserRolesPipe = new AddUserRolesPipe(this.configService);
         ({ hasFullReadAccess } = await addUserRolesPipe.transform({ address: "", wallets: [], token }));
+        await this.assertExplorerSession(token);
       } else if (typeof apiKey === "string" && apiKey) {
         ({ hasFullReadAccess } = await this.fetchM2mAppPermissions(apiKey, req.ip));
       } else {
@@ -71,6 +75,18 @@ export class AuthMiddleware implements NestMiddleware {
     // headers without modifying the session object.
     req.session._nowInMinutes = Math.floor(Date.now() / 1000 / 60);
     next();
+  }
+
+  // A token issued to another application is the user's on the permissions API but not an explorer credential.
+  private async assertExplorerSession(token: string) {
+    try {
+      await this.explorerSessions.assert(this.configService.get("prividium.permissionsApiUrl"), token);
+    } catch (error) {
+      if (error instanceof PrividiumApiError) {
+        throw error;
+      }
+      throwUpstreamError();
+    }
   }
 
   // M2M apps use an API key, which the permissions API only accepts from the app's whitelisted IPs,

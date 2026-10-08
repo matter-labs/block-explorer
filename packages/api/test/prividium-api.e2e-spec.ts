@@ -177,6 +177,32 @@ describe("Prividium API (e2e)", () => {
       });
     });
 
+    it("rejects a token issued to another application and creates no session", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date(2100, 0, 0).toISOString(),
+            oauthClientId: "some-dapp",
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "admin_read"] }],
+          }),
+        });
+
+      await agent.post("/auth/login").send({ token: mockToken }).expect(403);
+
+      await agent.get("/auth/me").expect(401);
+    });
+
     it("handles invalid permissions API response", async () => {
       // Mock invalid response structure
       fetchSpy.mockResolvedValueOnce({
@@ -403,14 +429,45 @@ describe("Prividium API (e2e)", () => {
       expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
     });
 
+    it("refuses the api route when the bearer token was issued to another application", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+            wallets: [{ walletAddress: mockWalletAddress }],
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date(2100, 0, 0).toISOString(),
+            oauthClientId: "some-dapp",
+          }),
+        });
+
+      const response = await agent
+        .get(`/api/account/txlist?address=${otherAddress}`)
+        .set("Authorization", "Bearer some-token");
+
+      expect(response.status).toBe(403);
+      expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
+    });
+
     it("still refuses an upper-case api route when the bearer token lacks full read access", async () => {
-      fetchSpy.mockResolvedValueOnce({
-        status: 200,
-        json: jest.fn().mockResolvedValue({
-          roles: [{ roleName: "user", systemPermissions: [] }],
-          wallets: [{ walletAddress: mockWalletAddress }],
-        }),
-      });
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "user", systemPermissions: [] }],
+            wallets: [{ walletAddress: mockWalletAddress }],
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }),
+        });
 
       const response = await agent
         .get(`/API/account/txlist?address=${otherAddress}`)

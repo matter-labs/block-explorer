@@ -5,6 +5,9 @@ import { Request, Response } from "express";
 import { UnauthorizedException, ForbiddenException, BadGatewayException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PrividiumApiError } from "../errors/prividiumApiError";
+import { ExplorerSessionVerifier } from "../auth/explorerSession";
+
+jest.mock("../auth/explorerSession");
 
 jest.mock("../api/pipes/addUserRoles.pipe", () => {
   return {
@@ -137,6 +140,8 @@ describe("AuthMiddleware", () => {
         hasFullReadAccess: true,
       }),
     }));
+    const assertExplorerSession = jest.fn().mockResolvedValue(undefined);
+    (ExplorerSessionVerifier as jest.Mock).mockImplementationOnce(() => ({ assert: assertExplorerSession }));
     const middleware = new AuthMiddleware(configServiceMock);
     const req = mock<Request>();
     req.headers = {
@@ -146,7 +151,42 @@ describe("AuthMiddleware", () => {
     const res = mock<Response>();
     const next = jest.fn();
     await middleware.use(req, res, next);
+    expect(assertExplorerSession).toHaveBeenCalledWith("https://permissions-api.example.com", "token");
     expect(next).toHaveBeenCalled();
+  });
+
+  describe("api route with a bearer token of a user with full read access", () => {
+    const fullReadRequest = () => {
+      (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
+        transform: jest.fn().mockResolvedValue({ hasFullReadAccess: true }),
+      }));
+      const req = mock<Request>();
+      req.headers = { authorization: "Bearer token" };
+      req.originalUrl = "/api";
+      return req;
+    };
+
+    it("blocks traffic when the token was issued to another application", async () => {
+      (ExplorerSessionVerifier as jest.Mock).mockImplementationOnce(() => ({
+        assert: jest.fn().mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403)),
+      }));
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await expect(middleware.use(fullReadRequest(), mock<Response>(), next)).rejects.toThrow(
+        new PrividiumApiError("Token was not issued for the block explorer", 403)
+      );
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("throws BadGatewayException when the session check fails upstream", async () => {
+      (ExplorerSessionVerifier as jest.Mock).mockImplementationOnce(() => ({
+        assert: jest.fn().mockRejectedValue(new Error("ECONNREFUSED")),
+      }));
+      const middleware = new AuthMiddleware(configServiceMock);
+      const next = jest.fn();
+      await expect(middleware.use(fullReadRequest(), mock<Response>(), next)).rejects.toThrow(BadGatewayException);
+      expect(next).not.toHaveBeenCalled();
+    });
   });
 
   describe("api route with m2m app api key", () => {
