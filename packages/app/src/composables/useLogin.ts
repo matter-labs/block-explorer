@@ -1,6 +1,8 @@
 import { reactive, type ToRefs, toRefs } from "vue";
 import { useRouter } from "vue-router";
 
+import { FetchError } from "ohmyfetch";
+
 import defaultLogger from "./../utils/logger";
 import { FetchInstance } from "./useFetchInstance";
 
@@ -24,6 +26,9 @@ type UseLogin = ToRefs<LoginState> & {
 const state = reactive<LoginState>({
   isLoginPending: false,
 });
+
+const isAuthFailure = (err: unknown) =>
+  err instanceof FetchError && (err.response?.status === 401 || err.response?.status === 403);
 
 let prividiumAuth: PrividiumAuth | null = null;
 
@@ -63,6 +68,11 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
       };
     } catch (err) {
       _logger.error("Failed to initialize login:", err);
+      if (!isAuthFailure(err)) {
+        // A transient API failure keeps the cookie, so a reload restores the session once the API is back.
+        context.user.value = { loggedIn: false };
+        return;
+      }
       // Skip the login redirect so the App.vue guard can preserve any ?redirect= query.
       await logout({ redirectToLogin: false });
     }

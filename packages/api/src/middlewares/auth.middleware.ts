@@ -12,6 +12,8 @@ import { AddUserRolesPipe, parseUserProfile } from "../api/pipes/addUserRoles.pi
 import { ExplorerSessionVerifier } from "../auth/explorerSession";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
+// Only reflects the cookie, so it stays answerable while the permissions API is down; data routes verify the token.
+const SESSION_INTROSPECTION_ROUTE = "/auth/me";
 
 function throwUpstreamError(): never {
   throw new BadGatewayException("Auth service unavailable");
@@ -69,14 +71,16 @@ export class AuthMiddleware implements NestMiddleware {
     }
 
     // Also covers cookies minted before the token's application was checked at login.
-    try {
-      await this.assertExplorerSession(req.session.token);
-    } catch (error) {
-      if (error instanceof PrividiumApiError) {
-        req.session = null;
-        throw new PrividiumApiError({ message: error.message }, 401);
+    if (pathname !== SESSION_INTROSPECTION_ROUTE) {
+      try {
+        await this.assertExplorerSession(req.session.token);
+      } catch (error) {
+        if (error instanceof PrividiumApiError) {
+          req.session = null;
+          throw new PrividiumApiError({ message: error.message }, 401);
+        }
+        throw error;
       }
-      throw error;
     }
 
     // Update a value in the session to reset the expiration time.

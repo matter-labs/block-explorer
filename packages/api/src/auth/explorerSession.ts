@@ -98,6 +98,7 @@ export class ExplorerSessionVerifier {
   }
 }
 
+// Cache key only: the token is a random session token, not a password, so a fast hash is the right one.
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }

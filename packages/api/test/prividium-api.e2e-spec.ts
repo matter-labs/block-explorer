@@ -415,6 +415,13 @@ describe("Prividium API (e2e)", () => {
       mockPermissionsApi({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() });
       const cookie = await forgeSessionCookie("pre-fix-explorer-token");
 
+      await request(app.getHttpServer()).get("/transactions").set("Cookie", cookie).expect(200);
+    });
+
+    it("answers /auth/me from the cookie while the permissions API is unavailable", async () => {
+      fetchSpy.mockRejectedValue(new Error("ECONNREFUSED"));
+      const cookie = await forgeSessionCookie("unverified-explorer-token");
+
       await request(app.getHttpServer()).get("/auth/me").set("Cookie", cookie).expect(200);
     });
 

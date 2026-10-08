@@ -96,6 +96,23 @@ describe("AuthMiddleware", () => {
     expect(next).toHaveBeenCalled();
   });
 
+  it("answers the session introspection route from the cookie without verifying the token", async () => {
+    verifier.verify.mockRejectedValue(new Error("ECONNREFUSED"));
+    const middleware = buildMiddleware();
+    const req = mock<Request>();
+    req.originalUrl = "/auth/me";
+    req.session = {
+      address: "0x36Ea1B6673eA6269014D6cA0AdCca6598f618319",
+      wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
+      token: "mock-token",
+      expiresAt: new Date(2100, 1, 1).toISOString(),
+    };
+    const next = jest.fn();
+    await middleware.use(req, mock<Response>(), next);
+    expect(verifier.verify).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
+
   it("clears the cookie session and blocks traffic when its token was issued to another application", async () => {
     verifier.verify.mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403));
     const middleware = buildMiddleware();
