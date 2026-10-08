@@ -4,7 +4,7 @@ import { z } from "zod";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 
 // The perpetual OAuth client the explorer logs in as; fixed on both sides, so no env var.
-export const BLOCK_EXPLORER_OAUTH_CLIENT_ID = "block-explorer";
+const BLOCK_EXPLORER_OAUTH_CLIENT_ID = "block-explorer";
 
 const currentSessionSchema = z.object({
   type: z.string(),
@@ -27,8 +27,11 @@ export async function fetchExplorerSession(permissionsApiUrl: string, token: str
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (response.status !== 200) {
+  if (response.status === 401 || response.status === 403) {
     throw new PrividiumApiError("Invalid or expired token", 403);
+  }
+  if (response.status !== 200) {
+    throw new Error(`Unexpected ${response.status} response from permissions API`);
   }
 
   const validatedData = currentSessionSchema.safeParse(await response.json());
@@ -46,7 +49,6 @@ export async function fetchExplorerSession(permissionsApiUrl: string, token: str
   return { expiresAt };
 }
 
-const VERDICT_TTL_MS = 5 * 60 * 1000;
 const MAX_VERIFIED_TOKENS = 10_000;
 
 /**
@@ -55,27 +57,47 @@ const MAX_VERIFIED_TOKENS = 10_000;
  * enforced per request by the uncached profile lookup.
  */
 export class ExplorerSessionVerifier {
-  private readonly verifiedUntil = new Map<string, number>();
+  private readonly verified = new Map<string, ExplorerSession>();
+  private readonly pending = new Map<string, Promise<ExplorerSession>>();
 
-  constructor(private readonly maxEntries = MAX_VERIFIED_TOKENS, private readonly ttlMs = VERDICT_TTL_MS) {}
+  constructor(private readonly maxEntries = MAX_VERIFIED_TOKENS) {}
 
-  async assert(permissionsApiUrl: string, token: string): Promise<void> {
-    const key = createHash("sha256").update(token).digest("hex");
-    const cachedUntil = this.verifiedUntil.get(key);
-    if (cachedUntil !== undefined && cachedUntil > Date.now()) {
+  /** Always fetches, so a login stores the session's current expiry, and remembers the verdict. */
+  establish(permissionsApiUrl: string, token: string): Promise<ExplorerSession> {
+    return this.fetchShared(permissionsApiUrl, token, hashToken(token));
+  }
+
+  async verify(permissionsApiUrl: string, token: string): Promise<void> {
+    const key = hashToken(token);
+    const cached = this.verified.get(key);
+    if (cached !== undefined && Date.parse(cached.expiresAt) > Date.now()) {
       return;
     }
-    this.verifiedUntil.delete(key);
-
-    const { expiresAt } = await fetchExplorerSession(permissionsApiUrl, token);
-    this.remember(key, Math.min(Date.parse(expiresAt), Date.now() + this.ttlMs));
+    this.verified.delete(key);
+    await this.fetchShared(permissionsApiUrl, token, key);
   }
 
-  private remember(key: string, until: number) {
-    if (this.verifiedUntil.size >= this.maxEntries) {
-      const oldest = this.verifiedUntil.keys().next().value;
-      this.verifiedUntil.delete(oldest);
+  // Concurrent requests with the same token share one upstream call.
+  private fetchShared(permissionsApiUrl: string, token: string, key: string): Promise<ExplorerSession> {
+    let verification = this.pending.get(key);
+    if (verification === undefined) {
+      verification = this.fetchAndRemember(permissionsApiUrl, token, key).finally(() => this.pending.delete(key));
+      this.pending.set(key, verification);
     }
-    this.verifiedUntil.set(key, until);
+    return verification;
   }
+
+  private async fetchAndRemember(permissionsApiUrl: string, token: string, key: string): Promise<ExplorerSession> {
+    const session = await fetchExplorerSession(permissionsApiUrl, token);
+    if (this.verified.size >= this.maxEntries) {
+      const oldest = this.verified.keys().next().value;
+      this.verified.delete(oldest);
+    }
+    this.verified.set(key, session);
+    return session;
+  }
+}
+
+function hashToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
 }

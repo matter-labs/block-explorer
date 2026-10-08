@@ -9,6 +9,7 @@ import { AppModule } from "./app.module";
 import { AppMetricsModule } from "./appMetrics.module";
 import { prividium } from "./config/featureFlags";
 import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "./prividium";
+import { ExplorerSessionVerifier } from "./auth/explorerSession";
 
 const BODY_PARSER_SIZE_LIMIT = "10mb";
 
@@ -45,7 +46,7 @@ async function bootstrap() {
       corsOrigins: configService.get<string[]>("prividium.corsOrigins"),
       trustXForwardedFor,
     });
-    applySwaggerAuthMiddleware(app, configService);
+    applySwaggerAuthMiddleware(app, configService, app.get(ExplorerSessionVerifier, { strict: false }));
   } else {
     if (trustXForwardedFor) {
       app.set("trust proxy", trustXForwardedFor);

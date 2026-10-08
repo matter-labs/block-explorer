@@ -18,9 +18,12 @@ import { TransactionReceipt } from "../src/transaction/entities/transactionRecei
 import { BlockDetails } from "../src/block/blockDetails.entity";
 import { IndexerState } from "../src/indexerState/indexerState.entity";
 import { applyPrividiumExpressConfig, applySwaggerAuthMiddleware } from "../src/prividium";
+import { ExplorerSessionVerifier } from "../src/auth/explorerSession";
 import { ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import express from "express";
+import cookieSession from "cookie-session";
 
 describe("Prividium API (e2e)", () => {
   let app: INestApplication;
@@ -50,7 +53,11 @@ describe("Prividium API (e2e)", () => {
     });
 
     // Set up Swagger auth middleware before Swagger setup
-    applySwaggerAuthMiddleware(app as NestExpressApplication, configService);
+    applySwaggerAuthMiddleware(
+      app as NestExpressApplication,
+      configService,
+      moduleFixture.get(ExplorerSessionVerifier, { strict: false })
+    );
 
     // Set up Swagger docs
     const swaggerConfig = new DocumentBuilder()
@@ -198,7 +205,7 @@ describe("Prividium API (e2e)", () => {
           }),
         });
 
-      await agent.post("/auth/login").send({ token: mockToken }).expect(403);
+      await agent.post("/auth/login").send({ token: "foreign-app-token" }).expect(403);
 
       await agent.get("/auth/me").expect(401);
     });
@@ -349,6 +356,87 @@ describe("Prividium API (e2e)", () => {
       expect(response.text).toContain("swagger");
     });
   });
+  // Cookies minted by a login that did not check the token's application must not outlive the fix.
+  describe("Cookie sessions issued before the token's application was checked", () => {
+    const otherTxHash = "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20";
+    let fetchSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      fetchSpy = jest.spyOn(global, "fetch");
+    });
+
+    afterEach(() => {
+      fetchSpy.mockRestore();
+    });
+
+    // Signs a session cookie exactly as the explorer does, bypassing the login checks.
+    const forgeSessionCookie = async (token: string) => {
+      const configService = app.get(ConfigService);
+      const minter = express();
+      minter.use(
+        cookieSession({
+          name: "_auth",
+          secret: configService.get<string>("prividium.sessionSecret"),
+          maxAge: configService.get<number>("prividium.sessionMaxAge"),
+          httpOnly: true,
+          sameSite: configService.get<"none" | "strict" | "lax">("prividium.sessionSameSite"),
+          path: "/",
+        })
+      );
+      minter.get("/", (req, res) => {
+        Object.assign(req.session, {
+          address: mockWalletAddress,
+          wallets: [mockWalletAddress],
+          token,
+          hasFullReadAccess: true,
+          hasAdminRead: true,
+          expiresAt: new Date(2100, 0, 0).toISOString(),
+        });
+        res.end();
+      });
+      const response = await request(minter).get("/");
+      return (response.headers["set-cookie"] as string[]).map((cookie) => cookie.split(";")[0]).join("; ");
+    };
+
+    const mockPermissionsApi = (currentSession: Record<string, unknown>) =>
+      fetchSpy.mockImplementation(async (url: URL) => ({
+        status: 200,
+        json: jest.fn().mockResolvedValue(
+          url.pathname.endsWith("/current-session")
+            ? currentSession
+            : {
+                roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "admin_read"] }],
+                wallets: [{ walletAddress: mockWalletAddress }],
+              }
+        ),
+      }));
+
+    it("still accepts a cookie whose token belongs to the explorer", async () => {
+      mockPermissionsApi({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() });
+      const cookie = await forgeSessionCookie("pre-fix-explorer-token");
+
+      await request(app.getHttpServer()).get("/auth/me").set("Cookie", cookie).expect(200);
+    });
+
+    it("rejects a cookie whose token was issued to another application and clears it", async () => {
+      mockPermissionsApi({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString(), oauthClientId: "some-dapp" });
+      const cookie = await forgeSessionCookie("pre-fix-foreign-token");
+
+      const response = await request(app.getHttpServer()).get("/transactions").set("Cookie", cookie);
+
+      expect(response.status).toBe(401);
+      expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
+      expect((response.headers["set-cookie"] as string[]).join(";")).toContain("_auth=;");
+    });
+
+    it("rejects the same cookie on the docs", async () => {
+      mockPermissionsApi({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString(), oauthClientId: "some-dapp" });
+      const cookie = await forgeSessionCookie("pre-fix-foreign-token");
+
+      await request(app.getHttpServer()).get("/docs").set("Cookie", cookie).expect(401);
+    });
+  });
+
   // `/API/...` reaches the `/api/...` handler, so it must hit the same full read access gate.
   describe("Etherscan API route authorization", () => {
     const otherAddress = "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C";

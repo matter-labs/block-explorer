@@ -5,6 +5,7 @@ import { VerifySignatureDto, SwitchWalletDto } from "./auth.dto";
 import { HttpException, InternalServerErrorException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NO_WALLET_VIEWER } from "../common/constants";
+import { ExplorerSessionVerifier } from "./explorerSession";
 
 jest.mock("@nestjs/common", () => ({
   ...jest.requireActual("@nestjs/common"),
@@ -29,7 +30,7 @@ describe("AuthController", () => {
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
     });
-    controller = new AuthController(configServiceMock);
+    controller = new AuthController(configServiceMock, new ExplorerSessionVerifier());
     req = mock<Request>();
   });
 
@@ -198,6 +199,23 @@ describe("AuthController", () => {
       });
 
       await expect(controller.login(body, req)).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it("throws internal server error when the permissions API throttles the session check", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({ status: 429, json: jest.fn() })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        });
+
+      await expect(controller.login(body, req)).rejects.toThrow(
+        new InternalServerErrorException("Authentication failed")
+      );
     });
 
     it("throws internal server error for network errors", async () => {

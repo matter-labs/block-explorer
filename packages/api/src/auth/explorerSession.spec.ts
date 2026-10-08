@@ -77,6 +77,14 @@ describe("fetchExplorerSession", () => {
     );
   });
 
+  it("throws an upstream error, not an auth error, when the permissions API throttles", async () => {
+    fetchSpy.mockResolvedValueOnce({ status: 429, json: jest.fn() });
+
+    await expect(fetchExplorerSession(permissionsApiUrl, token)).rejects.toThrow(
+      "Unexpected 429 response from permissions API"
+    );
+  });
+
   it("throws on a malformed response", async () => {
     mockCurrentSession({ invalid: "response" });
 
@@ -88,11 +96,9 @@ describe("fetchExplorerSession", () => {
 
 describe("ExplorerSessionVerifier", () => {
   const permissionsApiUrl = "https://permissions-api.example.com";
-  const now = new Date("2030-01-01T00:00:00.000Z");
   let fetchSpy: jest.SpyInstance;
 
   beforeEach(() => {
-    jest.useFakeTimers({ now });
     fetchSpy = jest.spyOn(global, "fetch");
   });
 
@@ -101,53 +107,58 @@ describe("ExplorerSessionVerifier", () => {
     jest.useRealTimers();
   });
 
+  const inOneHour = () => new Date(Date.now() + 60 * 60 * 1000).toISOString();
   const mockCurrentSession = (session: Record<string, unknown>) =>
     fetchSpy.mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue(session) });
-  const inOneHour = () => new Date(Date.now() + 60 * 60 * 1000).toISOString();
+  const deferredCurrentSession = () => {
+    let resolve: (value: unknown) => void;
+    fetchSpy.mockReturnValueOnce(new Promise((r) => (resolve = r)));
+    return (session: Record<string, unknown>) => resolve({ status: 200, json: jest.fn().mockResolvedValue(session) });
+  };
 
   it("verifies a token once and reuses the verdict", async () => {
     const verifier = new ExplorerSessionVerifier();
     mockCurrentSession({ type: "user", expiresAt: inOneHour(), oauthClientId: "block-explorer" });
 
-    await verifier.assert(permissionsApiUrl, "token");
-    await verifier.assert(permissionsApiUrl, "token");
+    await verifier.verify(permissionsApiUrl, "token");
+    await verifier.verify(permissionsApiUrl, "token");
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
-  it("verifies each token separately", async () => {
+  it("reuses the verdict established at login", async () => {
     const verifier = new ExplorerSessionVerifier();
-    mockCurrentSession({ type: "user", expiresAt: inOneHour() });
-    mockCurrentSession({ type: "user", expiresAt: inOneHour() });
-
-    await verifier.assert(permissionsApiUrl, "token-a");
-    await verifier.assert(permissionsApiUrl, "token-b");
-
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it("verifies again once the verdict is older than the ttl", async () => {
-    const verifier = new ExplorerSessionVerifier(10, 1000);
-    mockCurrentSession({ type: "user", expiresAt: inOneHour() });
-    mockCurrentSession({ type: "user", expiresAt: inOneHour() });
-
-    await verifier.assert(permissionsApiUrl, "token");
-    jest.setSystemTime(now.getTime() + 1001);
-    await verifier.assert(permissionsApiUrl, "token");
-
-    expect(fetchSpy).toHaveBeenCalledTimes(2);
-  });
-
-  it("verifies again once the session has expired, even within the ttl", async () => {
-    const verifier = new ExplorerSessionVerifier();
-    const expiresAt = new Date(Date.now() + 1000).toISOString();
+    const expiresAt = inOneHour();
     mockCurrentSession({ type: "user", expiresAt });
+
+    await expect(verifier.establish(permissionsApiUrl, "token")).resolves.toEqual({ expiresAt });
+    await verifier.verify(permissionsApiUrl, "token");
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("always fetches a fresh session on establish", async () => {
+    const verifier = new ExplorerSessionVerifier();
+    mockCurrentSession({ type: "user", expiresAt: inOneHour() });
+    mockCurrentSession({ type: "user", expiresAt: inOneHour() });
+
+    await verifier.establish(permissionsApiUrl, "token");
+    await verifier.establish(permissionsApiUrl, "token");
+
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("verifies again once the session has expired", async () => {
+    const now = new Date("2030-01-01T00:00:00.000Z");
+    jest.useFakeTimers({ now });
+    const verifier = new ExplorerSessionVerifier();
+    mockCurrentSession({ type: "user", expiresAt: new Date(now.getTime() + 1000).toISOString() });
     fetchSpy.mockResolvedValueOnce({ status: 401, json: jest.fn() });
 
-    await verifier.assert(permissionsApiUrl, "token");
+    await verifier.verify(permissionsApiUrl, "token");
     jest.setSystemTime(now.getTime() + 1001);
 
-    await expect(verifier.assert(permissionsApiUrl, "token")).rejects.toThrow(
+    await expect(verifier.verify(permissionsApiUrl, "token")).rejects.toThrow(
       new HttpException("Invalid or expired token", 403)
     );
     expect(fetchSpy).toHaveBeenCalledTimes(2);
@@ -158,8 +169,48 @@ describe("ExplorerSessionVerifier", () => {
     mockCurrentSession({ type: "user", expiresAt: inOneHour(), oauthClientId: "some-dapp" });
     mockCurrentSession({ type: "user", expiresAt: inOneHour(), oauthClientId: "some-dapp" });
 
-    await expect(verifier.assert(permissionsApiUrl, "token")).rejects.toThrow(HttpException);
-    await expect(verifier.assert(permissionsApiUrl, "token")).rejects.toThrow(HttpException);
+    await expect(verifier.verify(permissionsApiUrl, "token")).rejects.toThrow(HttpException);
+    await expect(verifier.verify(permissionsApiUrl, "token")).rejects.toThrow(HttpException);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
+
+  it("shares one upstream call between concurrent requests with the same token", async () => {
+    const verifier = new ExplorerSessionVerifier();
+    const resolveSession = deferredCurrentSession();
+
+    const requests = Array.from({ length: 120 }, () => verifier.verify(permissionsApiUrl, "token"));
+    resolveSession({ type: "user", expiresAt: inOneHour() });
+    await Promise.all(requests);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("shares the upstream call between a login and concurrent requests", async () => {
+    const verifier = new ExplorerSessionVerifier();
+    const resolveSession = deferredCurrentSession();
+    const expiresAt = inOneHour();
+
+    const login = verifier.establish(permissionsApiUrl, "token");
+    const request = verifier.verify(permissionsApiUrl, "token");
+    resolveSession({ type: "user", expiresAt });
+
+    await expect(login).resolves.toEqual({ expiresAt });
+    await request;
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("shares a rejection between concurrent requests and verifies again afterwards", async () => {
+    const verifier = new ExplorerSessionVerifier();
+    const resolveSession = deferredCurrentSession();
+    mockCurrentSession({ type: "user", expiresAt: inOneHour() });
+
+    const requests = Array.from({ length: 3 }, () => verifier.verify(permissionsApiUrl, "token"));
+    resolveSession({ type: "user", expiresAt: inOneHour(), oauthClientId: "some-dapp" });
+    for (const request of requests) {
+      await expect(request).rejects.toThrow(HttpException);
+    }
+    await verifier.verify(permissionsApiUrl, "token");
 
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
@@ -170,11 +221,11 @@ describe("ExplorerSessionVerifier", () => {
       mockCurrentSession({ type: "user", expiresAt: inOneHour() });
     }
 
-    await verifier.assert(permissionsApiUrl, "token-a");
-    await verifier.assert(permissionsApiUrl, "token-b");
-    await verifier.assert(permissionsApiUrl, "token-c");
-    await verifier.assert(permissionsApiUrl, "token-b");
-    await verifier.assert(permissionsApiUrl, "token-a");
+    await verifier.verify(permissionsApiUrl, "token-a");
+    await verifier.verify(permissionsApiUrl, "token-b");
+    await verifier.verify(permissionsApiUrl, "token-c");
+    await verifier.verify(permissionsApiUrl, "token-b");
+    await verifier.verify(permissionsApiUrl, "token-a");
 
     expect(fetchSpy).toHaveBeenCalledTimes(4);
   });

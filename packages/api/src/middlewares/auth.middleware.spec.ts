@@ -7,8 +7,6 @@ import { ConfigService } from "@nestjs/config";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 import { ExplorerSessionVerifier } from "../auth/explorerSession";
 
-jest.mock("../auth/explorerSession");
-
 jest.mock("../api/pipes/addUserRoles.pipe", () => {
   return {
     ...jest.requireActual("../api/pipes/addUserRoles.pipe"),
@@ -25,8 +23,15 @@ const configServiceMock = mock<ConfigService>({
 });
 
 describe("AuthMiddleware", () => {
+  let verifier: { verify: jest.Mock };
+  const buildMiddleware = () => new AuthMiddleware(configServiceMock, verifier as unknown as ExplorerSessionVerifier);
+
+  beforeEach(() => {
+    verifier = { verify: jest.fn().mockResolvedValue(undefined) };
+  });
+
   it("allows traffic for unprotected route", async () => {
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.originalUrl = "/auth/login";
     const res = mock<Response>();
@@ -36,7 +41,7 @@ describe("AuthMiddleware", () => {
   });
 
   it("blocks traffic for protected route when no cookie", async () => {
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.originalUrl = "/protected";
     const res = mock<Response>();
@@ -46,7 +51,7 @@ describe("AuthMiddleware", () => {
   });
 
   it("blocks traffic for protected route when invalid address", async () => {
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.originalUrl = "/protected";
     req.session = {
@@ -60,7 +65,7 @@ describe("AuthMiddleware", () => {
   });
 
   it("allows traffic for protected route when cookie is set", async () => {
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.originalUrl = "/protected";
     req.session = {
@@ -75,8 +80,60 @@ describe("AuthMiddleware", () => {
     expect(next).toHaveBeenCalled();
   });
 
+  it("verifies the session token behind the cookie", async () => {
+    const middleware = buildMiddleware();
+    const req = mock<Request>();
+    req.originalUrl = "/protected";
+    req.session = {
+      address: "0x36Ea1B6673eA6269014D6cA0AdCca6598f618319",
+      wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
+      token: "mock-token",
+      expiresAt: new Date(2100, 1, 1).toISOString(),
+    };
+    const next = jest.fn();
+    await middleware.use(req, mock<Response>(), next);
+    expect(verifier.verify).toHaveBeenCalledWith("https://permissions-api.example.com", "mock-token");
+    expect(next).toHaveBeenCalled();
+  });
+
+  it("clears the cookie session and blocks traffic when its token was issued to another application", async () => {
+    verifier.verify.mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403));
+    const middleware = buildMiddleware();
+    const req = mock<Request>();
+    req.originalUrl = "/protected";
+    req.session = {
+      address: "0x36Ea1B6673eA6269014D6cA0AdCca6598f618319",
+      wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
+      token: "foreign-token",
+      expiresAt: new Date(2100, 1, 1).toISOString(),
+    };
+    const next = jest.fn();
+    await expect(middleware.use(req, mock<Response>(), next)).rejects.toThrow(
+      new PrividiumApiError({ message: "Token was not issued for the block explorer" }, 401)
+    );
+    expect(req.session).toBeNull();
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  it("keeps the cookie session and throws BadGatewayException when the session check fails upstream", async () => {
+    verifier.verify.mockRejectedValue(new Error("ECONNREFUSED"));
+    const middleware = buildMiddleware();
+    const req = mock<Request>();
+    req.originalUrl = "/protected";
+    req.session = {
+      address: "0x36Ea1B6673eA6269014D6cA0AdCca6598f618319",
+      wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
+      token: "mock-token",
+      expiresAt: new Date(2100, 1, 1).toISOString(),
+    };
+    const next = jest.fn();
+    await expect(middleware.use(req, mock<Response>(), next)).rejects.toThrow(BadGatewayException);
+    expect(req.session).not.toBeNull();
+    expect(next).not.toHaveBeenCalled();
+  });
+
   it("does not allow traffic for protected route when token is expired", async () => {
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.originalUrl = "/protected";
     req.session = {
@@ -94,7 +151,7 @@ describe("AuthMiddleware", () => {
   });
 
   it("blocks traffic for api route without auth", async () => {
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.originalUrl = "/api";
     const res = mock<Response>();
@@ -104,7 +161,7 @@ describe("AuthMiddleware", () => {
   });
 
   it("blocks traffic for api route when auth header is invalid", async () => {
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.headers = {
       authorization: "invalid-header",
@@ -122,7 +179,7 @@ describe("AuthMiddleware", () => {
         hasFullReadAccess: false,
       }),
     }));
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.headers = {
       authorization: "Bearer token",
@@ -140,9 +197,7 @@ describe("AuthMiddleware", () => {
         hasFullReadAccess: true,
       }),
     }));
-    const assertExplorerSession = jest.fn().mockResolvedValue(undefined);
-    (ExplorerSessionVerifier as jest.Mock).mockImplementationOnce(() => ({ assert: assertExplorerSession }));
-    const middleware = new AuthMiddleware(configServiceMock);
+    const middleware = buildMiddleware();
     const req = mock<Request>();
     req.headers = {
       authorization: "Bearer token",
@@ -151,7 +206,7 @@ describe("AuthMiddleware", () => {
     const res = mock<Response>();
     const next = jest.fn();
     await middleware.use(req, res, next);
-    expect(assertExplorerSession).toHaveBeenCalledWith("https://permissions-api.example.com", "token");
+    expect(verifier.verify).toHaveBeenCalledWith("https://permissions-api.example.com", "token");
     expect(next).toHaveBeenCalled();
   });
 
@@ -167,10 +222,8 @@ describe("AuthMiddleware", () => {
     };
 
     it("blocks traffic when the token was issued to another application", async () => {
-      (ExplorerSessionVerifier as jest.Mock).mockImplementationOnce(() => ({
-        assert: jest.fn().mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403)),
-      }));
-      const middleware = new AuthMiddleware(configServiceMock);
+      verifier.verify.mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403));
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(fullReadRequest(), mock<Response>(), next)).rejects.toThrow(
         new PrividiumApiError("Token was not issued for the block explorer", 403)
@@ -179,10 +232,8 @@ describe("AuthMiddleware", () => {
     });
 
     it("throws BadGatewayException when the session check fails upstream", async () => {
-      (ExplorerSessionVerifier as jest.Mock).mockImplementationOnce(() => ({
-        assert: jest.fn().mockRejectedValue(new Error("ECONNREFUSED")),
-      }));
-      const middleware = new AuthMiddleware(configServiceMock);
+      verifier.verify.mockRejectedValue(new Error("ECONNREFUSED"));
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(fullReadRequest(), mock<Response>(), next)).rejects.toThrow(BadGatewayException);
       expect(next).not.toHaveBeenCalled();
@@ -213,7 +264,7 @@ describe("AuthMiddleware", () => {
 
     it("allows traffic when the m2m app has full read access and forwards the client ip", async () => {
       mockM2mAppResponse([{ roleName: "indexer", systemPermissions: ["full_read_access"], organizationId: null }]);
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await middleware.use(apiKeyRequest(), mock<Response>(), next);
       expect(next).toHaveBeenCalled();
@@ -224,7 +275,7 @@ describe("AuthMiddleware", () => {
 
     it("blocks traffic when the m2m app has no full read access", async () => {
       mockM2mAppResponse([{ roleName: "reader", systemPermissions: ["admin_read"], organizationId: null }]);
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(ForbiddenException);
       expect(next).not.toHaveBeenCalled();
@@ -232,7 +283,7 @@ describe("AuthMiddleware", () => {
 
     it("ignores read permissions granted by organization-scoped roles", async () => {
       mockM2mAppResponse([{ roleName: "org-reader", systemPermissions: ["full_read_access"], organizationId: "org1" }]);
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(ForbiddenException);
       expect(next).not.toHaveBeenCalled();
@@ -240,7 +291,7 @@ describe("AuthMiddleware", () => {
 
     it("throws PrividiumApiError 401 when the permissions API rejects the api key", async () => {
       fetchSpy.mockResolvedValueOnce({ status: 401, json: jest.fn() });
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(
         new PrividiumApiError("Authentication failed", 401)
@@ -261,14 +312,14 @@ describe("AuthMiddleware", () => {
       ["is unreachable", () => fetchSpy.mockRejectedValueOnce(new Error("ECONNREFUSED"))],
     ])("throws BadGatewayException when the permissions API %s", async (_, mockResponse) => {
       mockResponse();
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(BadGatewayException);
       expect(next).not.toHaveBeenCalled();
     });
 
     it.each([[""], [["key1", "key2"]]])("blocks traffic without a usable api key (%p)", async (apiKey) => {
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(apiKeyRequest(apiKey), mock<Response>(), next)).rejects.toThrow(
         UnauthorizedException
@@ -280,7 +331,7 @@ describe("AuthMiddleware", () => {
     it("uses the bearer token when both a bearer token and an api key are sent", async () => {
       const transform = jest.fn().mockResolvedValue({ hasFullReadAccess: true });
       (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({ transform }));
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const req = apiKeyRequest();
       req.headers.authorization = "Bearer token";
       const next = jest.fn();
@@ -303,7 +354,7 @@ describe("AuthMiddleware", () => {
     it.each(["/API", "/API/account/txlist", "/Api/account/txlist", "/aPi/Account/TxList", "/API/logs/getLogs"])(
       "classifies %s as an api route and refuses it without a bearer token, even with a valid session",
       async (originalUrl) => {
-        const middleware = new AuthMiddleware(configServiceMock);
+        const middleware = buildMiddleware();
         const req = mock<Request>();
         req.originalUrl = originalUrl;
         req.session = validSession();
@@ -318,7 +369,7 @@ describe("AuthMiddleware", () => {
       (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
         transform: jest.fn().mockResolvedValue({ hasFullReadAccess: false }),
       }));
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const req = mock<Request>();
       req.headers = { authorization: "Bearer token" };
       req.originalUrl = "/API/account/txlist";
@@ -330,7 +381,7 @@ describe("AuthMiddleware", () => {
     });
 
     it("does not over-classify paths that merely start with the api prefix", async () => {
-      const middleware = new AuthMiddleware(configServiceMock);
+      const middleware = buildMiddleware();
       const req = mock<Request>();
       req.originalUrl = "/apiaries";
       req.session = validSession();

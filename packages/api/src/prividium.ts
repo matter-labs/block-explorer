@@ -6,6 +6,8 @@ import { AuthController } from "./auth/auth.controller";
 import { RpcModule } from "./rpc/rpc.module";
 import { NoCacheMiddleware } from "./middlewares/no-cache.middleware";
 import { AddUserRolesPipe } from "./api/pipes/addUserRoles.pipe";
+import { ExplorerSessionVerifier } from "./auth/explorerSession";
+import { PrividiumApiError } from "./errors/prividiumApiError";
 import cookieSession from "cookie-session";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Request, Response, NextFunction } from "express";
@@ -76,10 +78,27 @@ export function applyPrividiumExpressConfig(
   });
 }
 
-export function applySwaggerAuthMiddleware(app: NestExpressApplication, configService: ConfigService) {
+// Swagger is served ahead of the Nest middlewares, so this gate checks the session token itself.
+export function applySwaggerAuthMiddleware(
+  app: NestExpressApplication,
+  configService: ConfigService,
+  explorerSessions: ExplorerSessionVerifier
+) {
   app.use("/docs", async (req: Request, res: Response, next: NextFunction) => {
     if (!req.session?.address || !req.session?.token) {
       res.status(401).json({ message: "Unauthorized" });
+      return;
+    }
+
+    try {
+      await explorerSessions.verify(configService.get("prividium.permissionsApiUrl"), req.session.token);
+    } catch (error) {
+      if (error instanceof PrividiumApiError) {
+        req.session = null;
+        res.status(401).json({ message: "Unauthorized" });
+        return;
+      }
+      res.status(502).json({ message: "Auth service unavailable" });
       return;
     }
 

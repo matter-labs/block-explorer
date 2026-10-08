@@ -27,9 +27,7 @@ export const isApiRoutePathname = (pathname: string): boolean => {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  private readonly explorerSessions = new ExplorerSessionVerifier();
-
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService, private explorerSessions: ExplorerSessionVerifier) {}
 
   public async use(req: Request, _res: Response, next: NextFunction) {
     const pathname = parseReqPathname(req);
@@ -70,6 +68,17 @@ export class AuthMiddleware implements NestMiddleware {
       throw new PrividiumApiError({ message: "Session expired" }, 401);
     }
 
+    // Also covers cookies minted before the token's application was checked at login.
+    try {
+      await this.assertExplorerSession(req.session.token);
+    } catch (error) {
+      if (error instanceof PrividiumApiError) {
+        req.session = null;
+        throw new PrividiumApiError({ message: error.message }, 401);
+      }
+      throw error;
+    }
+
     // Update a value in the session to reset the expiration time.
     // Note: this is a cookie-session limitation, we can't send 'Set-Cookie'
     // headers without modifying the session object.
@@ -80,7 +89,7 @@ export class AuthMiddleware implements NestMiddleware {
   // A token issued to another application is the user's on the permissions API but not an explorer credential.
   private async assertExplorerSession(token: string) {
     try {
-      await this.explorerSessions.assert(this.configService.get("prividium.permissionsApiUrl"), token);
+      await this.explorerSessions.verify(this.configService.get("prividium.permissionsApiUrl"), token);
     } catch (error) {
       if (error instanceof PrividiumApiError) {
         throw error;

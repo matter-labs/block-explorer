@@ -24,7 +24,7 @@ import { z } from "zod";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 import { parseUserProfile } from "../api/pipes/addUserRoles.pipe";
 import { NO_WALLET_VIEWER } from "../common/constants";
-import { fetchExplorerSession } from "./explorerSession";
+import { ExplorerSessionVerifier } from "./explorerSession";
 
 const entityName = "auth";
 const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
@@ -35,7 +35,10 @@ const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
 export class AuthController {
   private readonly logger: Logger;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly explorerSessions: ExplorerSessionVerifier
+  ) {
     this.logger = new Logger(AuthController.name);
   }
 
@@ -54,7 +57,7 @@ export class AuthController {
     try {
       const [wallets, { expiresAt }, { hasFullReadAccess, hasAdminRead }] = await Promise.all([
         this.fetchUserWallets(body.token),
-        fetchExplorerSession(this.configService.get("prividium.permissionsApiUrl"), body.token),
+        this.explorerSessions.establish(this.configService.get("prividium.permissionsApiUrl"), body.token),
         this.fetchUserProfile(body.token),
       ]);
 
