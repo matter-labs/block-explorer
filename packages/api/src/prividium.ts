@@ -78,7 +78,7 @@ export function applyPrividiumExpressConfig(
   });
 }
 
-// Swagger is served ahead of the Nest middlewares, so this gate checks the session token itself.
+// Swagger is served ahead of the Nest middleware, so this gate checks the session token itself.
 export function applySwaggerAuthMiddleware(
   app: NestExpressApplication,
   configService: ConfigService,

@@ -131,7 +131,7 @@ describe("AuthController", () => {
       expect(req.session.hasFullReadAccess).toBe(true);
     });
 
-    it("logins with the explorer's own application session", async () => {
+    it("logs in with the explorer's own application session", async () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,

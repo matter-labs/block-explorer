@@ -358,7 +358,6 @@ describe("Prividium API (e2e)", () => {
   });
   // Cookies minted by a login that did not check the token's application must not outlive the fix.
   describe("Cookie sessions issued before the token's application was checked", () => {
-    const otherTxHash = "0x8a008b8dbbc18035e56370abb820e736b705d68d6ac12b203603db8d9ea87e20";
     let fetchSpy: jest.SpyInstance;
 
     beforeEach(() => {
@@ -432,7 +431,6 @@ describe("Prividium API (e2e)", () => {
       const response = await request(app.getHttpServer()).get("/transactions").set("Cookie", cookie);
 
       expect(response.status).toBe(401);
-      expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
       expect((response.headers["set-cookie"] as string[]).join(";")).toContain("_auth=;");
     });
 

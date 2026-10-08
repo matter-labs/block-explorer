@@ -90,7 +90,7 @@ export class AuthMiddleware implements NestMiddleware {
     next();
   }
 
-  // A token issued to another application is the user's on the permissions API but not an explorer credential.
+  // A token issued to another application authenticates the user on the permissions API but is not an explorer credential.
   private async assertExplorerSession(token: string) {
     try {
       await this.explorerSessions.verify(this.configService.get("prividium.permissionsApiUrl"), token);

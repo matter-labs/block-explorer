@@ -53,8 +53,7 @@ const MAX_VERIFIED_TOKENS = 10_000;
 
 /**
  * Remembers which tokens were issued to the explorer, so a token is verified once rather than on every request.
- * Safe to cache: a session's type and client never change after issue, and expiry and revocation are still
- * enforced per request by the uncached profile lookup.
+ * Caching preserves the existing live authorization checks; only the immutable session audience is cached.
  */
 export class ExplorerSessionVerifier {
   private readonly verified = new Map<string, ExplorerSession>();
