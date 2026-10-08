@@ -117,6 +117,7 @@ export class ExplorerSessionVerifier {
   }
 
   private remember(key: string, verdict: ExplorerSession | ForeignSessionError): void {
+    this.verdicts.delete(key);
     if (this.verdicts.size >= this.maxEntries) {
       const oldest = this.verdicts.keys().next().value;
       this.verdicts.delete(oldest);

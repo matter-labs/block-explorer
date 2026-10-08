@@ -272,6 +272,22 @@ describe("ExplorerSessionVerifier", () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
+  it("preserves other cached tokens when refreshing an existing entry in a full cache", async () => {
+    const verifier = new ExplorerSessionVerifier(2);
+    fetchSpy.mockResolvedValue({
+      status: 200,
+      json: jest.fn().mockResolvedValue({ type: "user", expiresAt: inOneHour() }),
+    });
+
+    await verifier.verify(permissionsApiUrl, "token-a");
+    await verifier.verify(permissionsApiUrl, "token-b");
+    await verifier.establish(permissionsApiUrl, "token-b");
+    await verifier.verify(permissionsApiUrl, "token-a");
+    await verifier.verify(permissionsApiUrl, "token-b");
+
+    expect(fetchSpy).toHaveBeenCalledTimes(3);
+  });
+
   it("forgets the oldest verdict when full", async () => {
     const verifier = new ExplorerSessionVerifier(2);
     for (let i = 0; i < 4; i++) {
