@@ -15,6 +15,12 @@ const currentSessionSchema = z.object({
 
 export type ExplorerSession = { expiresAt: string };
 
+class ForeignSessionError extends PrividiumApiError {
+  constructor(readonly expiresAt: string) {
+    super("Token was not issued for the block explorer", 403);
+  }
+}
+
 const logger = new Logger("ExplorerSession");
 
 /**
@@ -43,37 +49,48 @@ export async function fetchExplorerSession(permissionsApiUrl: string, token: str
   const issuedToExplorer = oauthClientId == null || oauthClientId === BLOCK_EXPLORER_OAUTH_CLIENT_ID;
   if (type !== "user" || !issuedToExplorer) {
     logger.warn(`Rejected a ${type} session issued to ${oauthClientId ?? "the account"}`);
-    throw new PrividiumApiError("Token was not issued for the block explorer", 403);
+    throw new ForeignSessionError(expiresAt);
   }
 
   return { expiresAt };
 }
 
-const MAX_VERIFIED_TOKENS = 10_000;
+const MAX_CACHED_TOKENS = 10_000;
 
 /**
- * Remembers which tokens were issued to the explorer, so a token is verified once rather than on every request.
+ * Remembers accepted and foreign audiences until expiry to avoid repeating the same upstream check.
  * Caching preserves the existing live authorization checks; only the immutable session audience is cached.
  */
 export class ExplorerSessionVerifier {
-  private readonly verified = new Map<string, ExplorerSession>();
+  private readonly verdicts = new Map<string, ExplorerSession | ForeignSessionError>();
   private readonly pending = new Map<string, Promise<ExplorerSession>>();
 
-  constructor(private readonly maxEntries = MAX_VERIFIED_TOKENS) {}
+  constructor(private readonly maxEntries = MAX_CACHED_TOKENS) {}
 
-  /** Always fetches, so a login stores the session's current expiry, and remembers the verdict. */
-  establish(permissionsApiUrl: string, token: string): Promise<ExplorerSession> {
-    return this.fetchShared(permissionsApiUrl, token, hashToken(token));
+  /** Fetches the current expiry on login, unless the token is already known to belong to another application. */
+  async establish(permissionsApiUrl: string, token: string): Promise<ExplorerSession> {
+    const key = hashToken(token);
+    this.getCached(key);
+    return this.fetchShared(permissionsApiUrl, token, key);
   }
 
   async verify(permissionsApiUrl: string, token: string): Promise<void> {
     const key = hashToken(token);
-    const cached = this.verified.get(key);
-    if (cached !== undefined && Date.parse(cached.expiresAt) > Date.now()) {
-      return;
+    if (this.getCached(key) === undefined) {
+      await this.fetchShared(permissionsApiUrl, token, key);
     }
-    this.verified.delete(key);
-    await this.fetchShared(permissionsApiUrl, token, key);
+  }
+
+  private getCached(key: string): ExplorerSession | undefined {
+    const cached = this.verdicts.get(key);
+    if (cached !== undefined && Date.parse(cached.expiresAt) > Date.now()) {
+      if (cached instanceof ForeignSessionError) {
+        throw cached;
+      }
+      return cached;
+    }
+    this.verdicts.delete(key);
+    return undefined;
   }
 
   // Concurrent requests with the same token share one upstream call.
@@ -87,17 +104,28 @@ export class ExplorerSessionVerifier {
   }
 
   private async fetchAndRemember(permissionsApiUrl: string, token: string, key: string): Promise<ExplorerSession> {
-    const session = await fetchExplorerSession(permissionsApiUrl, token);
-    if (this.verified.size >= this.maxEntries) {
-      const oldest = this.verified.keys().next().value;
-      this.verified.delete(oldest);
+    try {
+      const session = await fetchExplorerSession(permissionsApiUrl, token);
+      this.remember(key, session);
+      return session;
+    } catch (error) {
+      if (error instanceof ForeignSessionError) {
+        this.remember(key, error);
+      }
+      throw error;
     }
-    this.verified.set(key, session);
-    return session;
+  }
+
+  private remember(key: string, verdict: ExplorerSession | ForeignSessionError): void {
+    if (this.verdicts.size >= this.maxEntries) {
+      const oldest = this.verdicts.keys().next().value;
+      this.verdicts.delete(oldest);
+    }
+    this.verdicts.set(key, verdict);
   }
 }
 
-// Cache key only: the token is a random session token, not a password, so a fast hash is the right one.
+// Session tokens are random, so a fast hash is enough for a cache key.
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }

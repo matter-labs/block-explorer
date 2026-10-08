@@ -93,7 +93,43 @@ describe("AuthMiddleware", () => {
     const next = jest.fn();
     await middleware.use(req, mock<Response>(), next);
     expect(verifier.verify).toHaveBeenCalledWith("https://permissions-api.example.com", "mock-token");
+    expect(req.session.audienceChecked).toBe(true);
     expect(next).toHaveBeenCalled();
+  });
+
+  it("accepts a previously checked cookie on a fresh pod while current-session is unavailable", async () => {
+    verifier.verify.mockRejectedValue(new Error("Unexpected 429 response from permissions API"));
+    const req = mock<Request>();
+    req.originalUrl = "/blocks";
+    req.session = {
+      address: "0x123",
+      wallets: ["0x123"],
+      token: "mock-token",
+      expiresAt: new Date(2100, 1, 1).toISOString(),
+      audienceChecked: true,
+    };
+    const next = jest.fn();
+
+    await buildMiddleware().use(req, mock<Response>(), next);
+
+    expect(verifier.verify).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalled();
+  });
+
+  it("does not treat a non-boolean audience marker as verified", async () => {
+    verifier.verify.mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403));
+    const req = mock<Request>();
+    req.originalUrl = "/blocks";
+    req.session = {
+      address: "0x123",
+      wallets: ["0x123"],
+      token: "foreign-token",
+      expiresAt: new Date(2100, 1, 1).toISOString(),
+    };
+    Object.assign(req.session, { audienceChecked: "true" });
+
+    await expect(buildMiddleware().use(req, mock<Response>(), jest.fn())).rejects.toThrow(PrividiumApiError);
+    expect(req.session).toBeNull();
   });
 
   it("answers the session introspection route from the cookie without verifying the token", async () => {
@@ -111,6 +147,7 @@ describe("AuthMiddleware", () => {
     await middleware.use(req, mock<Response>(), next);
     expect(verifier.verify).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalled();
+    expect(req.session.audienceChecked).toBeUndefined();
   });
 
   it("clears the cookie session and blocks traffic when its token was issued to another application", async () => {
@@ -146,6 +183,7 @@ describe("AuthMiddleware", () => {
     const next = jest.fn();
     await expect(middleware.use(req, mock<Response>(), next)).rejects.toThrow(BadGatewayException);
     expect(req.session).not.toBeNull();
+    expect(req.session.audienceChecked).toBeUndefined();
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -158,6 +196,7 @@ describe("AuthMiddleware", () => {
       wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
       token: "mock-token",
       expiresAt: new Date(1980, 1, 1).toISOString(),
+      audienceChecked: true,
     };
     const res = mock<Response>();
     const next = jest.fn();
@@ -285,6 +324,7 @@ describe("AuthMiddleware", () => {
       const next = jest.fn();
       await middleware.use(apiKeyRequest(), mock<Response>(), next);
       expect(next).toHaveBeenCalled();
+      expect(verifier.verify).not.toHaveBeenCalled();
       expect(fetchSpy).toHaveBeenCalledWith(new URL("https://permissions-api.example.com/api/m2m-app-queries/me"), {
         headers: { "x-api-key": "m2m-api-key", "X-Forwarded-For": "203.0.113.7" },
       });

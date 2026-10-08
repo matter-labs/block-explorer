@@ -9,6 +9,7 @@ declare global {
       hasFullReadAccess?: boolean;
       hasAdminRead?: boolean;
       expiresAt?: string;
+      audienceChecked?: boolean;
     }
   }
 }

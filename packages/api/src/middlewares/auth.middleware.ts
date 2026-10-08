@@ -12,7 +12,7 @@ import { AddUserRolesPipe, parseUserProfile } from "../api/pipes/addUserRoles.pi
 import { ExplorerSessionVerifier } from "../auth/explorerSession";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
-// Only reflects the cookie, so it stays answerable while the permissions API is down; data routes verify the token.
+// Reflects the cookie only, so it keeps answering while the permissions API is down.
 const SESSION_INTROSPECTION_ROUTE = "/auth/me";
 
 function throwUpstreamError(): never {
@@ -71,9 +71,10 @@ export class AuthMiddleware implements NestMiddleware {
     }
 
     // Also covers cookies minted before the token's application was checked at login.
-    if (pathname !== SESSION_INTROSPECTION_ROUTE) {
+    if (pathname !== SESSION_INTROSPECTION_ROUTE && req.session.audienceChecked !== true) {
       try {
         await this.assertExplorerSession(req.session.token);
+        req.session.audienceChecked = true;
       } catch (error) {
         if (error instanceof PrividiumApiError) {
           req.session = null;
@@ -90,7 +91,6 @@ export class AuthMiddleware implements NestMiddleware {
     next();
   }
 
-  // A token issued to another application authenticates the user on the permissions API but is not an explorer credential.
   private async assertExplorerSession(token: string) {
     try {
       await this.explorerSessions.verify(this.configService.get("prividium.permissionsApiUrl"), token);

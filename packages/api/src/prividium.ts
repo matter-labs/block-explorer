@@ -91,7 +91,10 @@ export function applySwaggerAuthMiddleware(
     }
 
     try {
-      await explorerSessions.verify(configService.get("prividium.permissionsApiUrl"), req.session.token);
+      if (req.session.audienceChecked !== true) {
+        await explorerSessions.verify(configService.get("prividium.permissionsApiUrl"), req.session.token);
+        req.session.audienceChecked = true;
+      }
     } catch (error) {
       if (error instanceof PrividiumApiError) {
         req.session = null;

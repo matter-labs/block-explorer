@@ -55,10 +55,11 @@ export class AuthController {
     @Req() req: Request
   ): Promise<{ address: string | null; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean }> {
     try {
-      const [wallets, { expiresAt }, { hasFullReadAccess, hasAdminRead }] = await Promise.all([
+      // Reject junk tokens before spending the permissions API's shared auth rate limit.
+      const { hasFullReadAccess, hasAdminRead } = await this.fetchUserProfile(body.token);
+      const [wallets, { expiresAt }] = await Promise.all([
         this.fetchUserWallets(body.token),
         this.explorerSessions.establish(this.configService.get("prividium.permissionsApiUrl"), body.token),
-        this.fetchUserProfile(body.token),
       ]);
 
       // Store all wallets and use first address as default
@@ -69,6 +70,7 @@ export class AuthController {
       req.session.hasFullReadAccess = hasFullReadAccess;
       req.session.hasAdminRead = hasAdminRead;
       req.session.expiresAt = expiresAt;
+      req.session.audienceChecked = true;
       return {
         address: address === NO_WALLET_VIEWER ? null : address,
         wallets,

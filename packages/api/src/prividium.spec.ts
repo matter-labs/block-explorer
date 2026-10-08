@@ -326,6 +326,28 @@ describe("applySwaggerAuthMiddleware", () => {
     expect(transformSpy).not.toHaveBeenCalled();
   });
 
+  it("persists the audience check in the signed cookie but still checks live roles", async () => {
+    app.get("/login", (req, res) => {
+      req.session = { address: "0x123", token: "valid-token" };
+      res.end();
+    });
+    transformSpy.mockResolvedValue({ address: "0x123", token: "valid-token", hasFullReadAccess: true });
+    applyGate();
+    app.get("/docs", (_req, res) => res.send("docs"));
+    const agent = request.agent(app);
+    await agent.get("/login").expect(200);
+    await agent.get("/docs").expect(200);
+    expect(verifier.verify).toHaveBeenCalledTimes(1);
+
+    verifier.verify.mockReset().mockRejectedValue(new Error("Unexpected 429 response from permissions API"));
+    await agent.get("/docs").expect(200);
+    expect(verifier.verify).not.toHaveBeenCalled();
+    expect(transformSpy).toHaveBeenCalledTimes(2);
+
+    transformSpy.mockRejectedValue(new PrividiumApiError("Authentication failed", 401));
+    await agent.get("/docs").expect(401);
+  });
+
   it("returns 502 when the session check fails upstream", async () => {
     app.use((req, _res, next) => {
       req.session = { address: "0x123", token: "valid-token" } as any;

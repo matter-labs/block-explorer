@@ -127,6 +127,12 @@ describe("Prividium API (e2e)", () => {
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "user" }],
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
             wallets: [mockWalletAddress],
           }),
         })
@@ -135,12 +141,6 @@ describe("Prividium API (e2e)", () => {
           json: jest.fn().mockResolvedValue({
             type: "user",
             expiresAt: new Date(2100, 0, 0).toISOString(),
-          }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "user" }],
           }),
         });
 
@@ -188,6 +188,12 @@ describe("Prividium API (e2e)", () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "admin_read"] }],
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
           json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
         })
         .mockResolvedValueOnce({
@@ -196,12 +202,6 @@ describe("Prividium API (e2e)", () => {
             type: "user",
             expiresAt: new Date(2100, 0, 0).toISOString(),
             oauthClientId: "some-dapp",
-          }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "admin_read"] }],
           }),
         });
 
@@ -230,6 +230,10 @@ describe("Prividium API (e2e)", () => {
     it("rejects login when roles API returns 403", async () => {
       fetchSpy
         .mockResolvedValueOnce({
+          status: 403,
+          json: jest.fn(),
+        })
+        .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
         })
@@ -239,10 +243,6 @@ describe("Prividium API (e2e)", () => {
             type: "user",
             expiresAt: new Date(2100, 0, 0).toISOString(),
           }),
-        })
-        .mockResolvedValueOnce({
-          status: 403,
-          json: jest.fn(),
         });
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(403);
@@ -252,6 +252,10 @@ describe("Prividium API (e2e)", () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
+          json: jest.fn().mockResolvedValue({ invalid: "response" }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
           json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
         })
         .mockResolvedValueOnce({
@@ -260,10 +264,6 @@ describe("Prividium API (e2e)", () => {
             type: "user",
             expiresAt: new Date(2100, 0, 0).toISOString(),
           }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({ invalid: "response" }),
         });
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(500);
@@ -290,6 +290,10 @@ describe("Prividium API (e2e)", () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
           json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
         })
         .mockResolvedValueOnce({
@@ -298,10 +302,6 @@ describe("Prividium API (e2e)", () => {
             type: "user",
             expiresAt: new Date(2100, 0, 0).toISOString(),
           }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
         });
 
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
@@ -323,6 +323,12 @@ describe("Prividium API (e2e)", () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
+          json: jest.fn().mockResolvedValue({
+            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
+          }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
           json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
         })
         .mockResolvedValueOnce({
@@ -330,12 +336,6 @@ describe("Prividium API (e2e)", () => {
           json: jest.fn().mockResolvedValue({
             type: "user",
             expiresAt: new Date(2100, 0, 0).toISOString(),
-          }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({
-            roles: [{ roleName: "admin", systemPermissions: ["full_read_access"] }],
           }),
         });
 
@@ -440,6 +440,39 @@ describe("Prividium API (e2e)", () => {
 
       await request(app.getHttpServer()).get("/docs").set("Cookie", cookie).expect(401);
     });
+
+    it("rejects the same cookie on /rpc before forwarding the request", async () => {
+      mockPermissionsApi({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString(), oauthClientId: "some-dapp" });
+      const cookie = await forgeSessionCookie("pre-fix-rpc-foreign-token");
+
+      const response = await request(app.getHttpServer())
+        .post("/rpc")
+        .set("Cookie", cookie)
+        .send({ jsonrpc: "2.0", id: 1, method: "eth_blockNumber", params: [] });
+
+      expect(response.status).toBe(401);
+      expect((response.headers["set-cookie"] as string[]).join(";")).toContain("_auth=;");
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy.mock.calls[0][0].pathname).toBe("/api/auth/current-session");
+    });
+
+    it("remembers a legacy cookie's audience across requests when current-session becomes unavailable", async () => {
+      mockPermissionsApi({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() });
+      const cookie = await forgeSessionCookie("pre-fix-migrated-token");
+      const response = await request(app.getHttpServer()).get("/blocks").set("Cookie", cookie).expect(200);
+      const checkedCookie = (response.headers["set-cookie"] as string[]).map((value) => value.split(";")[0]).join("; ");
+      const verifierSpy = jest.spyOn(app.get(ExplorerSessionVerifier, { strict: false }), "verify");
+      verifierSpy.mockRejectedValue(new Error("Unexpected 429 response from permissions API"));
+      fetchSpy.mockReset().mockRejectedValue(new Error("ECONNREFUSED"));
+
+      try {
+        await request(app.getHttpServer()).get("/blocks").set("Cookie", checkedCookie).expect(200);
+        expect(verifierSpy).not.toHaveBeenCalled();
+        expect(fetchSpy).not.toHaveBeenCalled();
+      } finally {
+        verifierSpy.mockRestore();
+      }
+    });
   });
 
   // `/API/...` reaches the `/api/...` handler, so it must hit the same full read access gate.
@@ -490,12 +523,12 @@ describe("Prividium API (e2e)", () => {
       fetchSpy = jest.spyOn(global, "fetch");
       // Ordinary user: a wallet, no full read access, no admin read.
       fetchSpy
+        .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }) })
         .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }) })
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }),
-        })
-        .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }) });
+        });
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
       fetchSpy.mockReset();
     });
