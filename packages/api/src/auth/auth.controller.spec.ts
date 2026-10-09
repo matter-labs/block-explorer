@@ -5,11 +5,13 @@ import { VerifySignatureDto, SwitchWalletDto } from "./auth.dto";
 import { HttpException, InternalServerErrorException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NO_WALLET_VIEWER } from "../common/constants";
+import { ExplorerSessionVerifier } from "./explorerSession";
 
 jest.mock("@nestjs/common", () => ({
   ...jest.requireActual("@nestjs/common"),
   Logger: jest.fn().mockReturnValue({
     error: jest.fn(),
+    warn: jest.fn(),
   }),
 }));
 
@@ -28,7 +30,7 @@ describe("AuthController", () => {
     configServiceMock = mock<ConfigService>({
       get: jest.fn().mockImplementation((key: string) => configServiceValues[key]),
     });
-    controller = new AuthController(configServiceMock);
+    controller = new AuthController(configServiceMock, new ExplorerSessionVerifier());
     req = mock<Request>();
   });
 
@@ -45,7 +47,7 @@ describe("AuthController", () => {
       fetchSpy.mockRestore();
     });
 
-    it("logins successfully with valid token, sets hasFullReadAccess true when role has full_read_access", async () => {
+    it("logs in successfully with valid token, sets hasFullReadAccess true when role has full_read_access", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       const mockRoles = [
         { roleName: "admin", systemPermissions: ["full_read_access", "contract_deployment"] },
@@ -54,15 +56,15 @@ describe("AuthController", () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
+          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
           json: jest.fn().mockResolvedValue({ wallets: mockWallets }),
         })
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
         });
 
       const result = await controller.login(body, req);
@@ -78,15 +80,20 @@ describe("AuthController", () => {
       expect(req.session.hasFullReadAccess).toBe(true);
       expect(req.session.hasAdminRead).toBe(false);
       expect(req.session.token).toBe(mockToken);
+      expect(req.session.audienceChecked).toBe(true);
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
       });
     });
 
-    it("logins successfully and sets hasFullReadAccess false when roles have no read-all permissions", async () => {
+    it("logs in successfully and sets hasFullReadAccess false when roles have no read-all permissions", async () => {
       const mockWallets = [mockWalletAddress];
       const mockRoles = [{ roleName: "trader", systemPermissions: ["contract_deployment"] }];
       fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
+        })
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ wallets: mockWallets }),
@@ -94,10 +101,6 @@ describe("AuthController", () => {
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
         });
 
       const result = await controller.login(body, req);
@@ -106,10 +109,14 @@ describe("AuthController", () => {
       expect(req.session.hasFullReadAccess).toBe(false);
     });
 
-    it("logins successfully and sets hasFullReadAccess true when role has full_sequencer_rpc_access", async () => {
+    it("logs in successfully and sets hasFullReadAccess true when role has full_sequencer_rpc_access", async () => {
       const mockWallets = [mockWalletAddress];
       const mockRoles = [{ roleName: "superuser", systemPermissions: ["full_sequencer_rpc_access"] }];
       fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
+        })
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ wallets: mockWallets }),
@@ -117,10 +124,6 @@ describe("AuthController", () => {
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({ roles: mockRoles }),
         });
 
       const result = await controller.login(body, req);
@@ -129,13 +132,70 @@ describe("AuthController", () => {
       expect(req.session.hasFullReadAccess).toBe(true);
     });
 
-    it("throws 403 error for 403 response from permissions API", async () => {
+    it("logs in with the explorer's own application session", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+            oauthClientId: "block-explorer",
+          }),
+        });
+
+      const result = await controller.login(body, req);
+
+      expect(result.address).toBe(mockWalletAddress);
+      expect(req.session.token).toBe(mockToken);
+    });
+
+    it("throws 403 error when the token was issued to another application", async () => {
+      req.session = {};
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin", systemPermissions: ["admin_read"] }] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({
+            type: "user",
+            expiresAt: new Date().toISOString(),
+            oauthClientId: "some-dapp",
+          }),
+        });
+
+      await expect(controller.login(body, req)).rejects.toThrow(
+        new HttpException("Token was not issued for the block explorer", 403)
+      );
+      expect(req.session.token).toBeUndefined();
+      expect(req.session.hasAdminRead).toBeUndefined();
+      expect(req.session.audienceChecked).toBeUndefined();
+    });
+
+    it.each([401, 403])("rejects a junk token with upstream %s before calling current-session", async (status) => {
       fetchSpy.mockResolvedValueOnce({
-        status: 403,
+        status,
         json: jest.fn(),
       });
 
       await expect(controller.login(body, req)).rejects.toThrow(new HttpException("Invalid or expired token", 403));
+      expect(fetchSpy).toHaveBeenCalledTimes(1);
+      expect(fetchSpy).toHaveBeenCalledWith(new URL("https://permissions-api.example.com/api/profiles/me"), {
+        headers: { Authorization: `Bearer ${mockToken}` },
+      });
     });
 
     it("throws internal server error for invalid API response", async () => {
@@ -145,6 +205,23 @@ describe("AuthController", () => {
       });
 
       await expect(controller.login(body, req)).rejects.toThrow(InternalServerErrorException);
+    });
+
+    it("throws internal server error when the permissions API throttles the session check", async () => {
+      fetchSpy
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+        })
+        .mockResolvedValueOnce({ status: 429, json: jest.fn() });
+
+      await expect(controller.login(body, req)).rejects.toThrow(
+        new InternalServerErrorException("Authentication failed")
+      );
     });
 
     it("throws internal server error for network errors", async () => {
@@ -159,19 +236,19 @@ describe("AuthController", () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin", systemPermissions }] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
           json: jest.fn().mockResolvedValue({ wallets: [] }),
         })
         .mockResolvedValueOnce({
           status: 200,
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date().toISOString() }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "admin", systemPermissions }] }),
         });
     };
 
-    it("logins without a wallet when the user has full read access", async () => {
+    it("logs in without a wallet when the user has full read access", async () => {
       mockWalletlessLogin(["full_read_access"]);
 
       const result = await controller.login(body, req);
@@ -186,7 +263,7 @@ describe("AuthController", () => {
       expect(req.session.wallets).toEqual([]);
     });
 
-    it("logins without a wallet when the user has no read-all permissions", async () => {
+    it("logs in without a wallet when the user has no read-all permissions", async () => {
       mockWalletlessLogin(["contract_deployment"]);
 
       const result = await controller.login(body, req);
@@ -201,11 +278,15 @@ describe("AuthController", () => {
       expect(req.session.wallets).toEqual([]);
     });
 
-    it("throws 403 error when roles API returns 403", async () => {
+    it("throws 403 error when wallets API returns 403", async () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        })
+        .mockResolvedValueOnce({
+          status: 403,
+          json: jest.fn(),
         })
         .mockResolvedValueOnce({
           status: 200,
@@ -213,20 +294,20 @@ describe("AuthController", () => {
             type: "user",
             expiresAt: new Date().toISOString(),
           }),
-        })
-        .mockResolvedValueOnce({
-          status: 403,
-          json: jest.fn(),
         });
 
       await expect(controller.login(body, req)).rejects.toThrow(new HttpException("Invalid or expired token", 403));
     });
 
-    it("throws internal server error when roles API returns invalid data", async () => {
+    it("throws internal server error when wallets API returns invalid data", async () => {
       fetchSpy
         .mockResolvedValueOnce({
           status: 200,
-          json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }),
+          json: jest.fn().mockResolvedValue({ roles: [{ roleName: "user" }] }),
+        })
+        .mockResolvedValueOnce({
+          status: 200,
+          json: jest.fn().mockResolvedValue({ invalid: "response" }),
         })
         .mockResolvedValueOnce({
           status: 200,
@@ -234,10 +315,6 @@ describe("AuthController", () => {
             type: "user",
             expiresAt: new Date().toISOString(),
           }),
-        })
-        .mockResolvedValueOnce({
-          status: 200,
-          json: jest.fn().mockResolvedValue({ invalid: "response" }),
         });
 
       await expect(controller.login(body, req)).rejects.toThrow(InternalServerErrorException);

@@ -6,6 +6,8 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { mock } from "jest-mock-extended";
 import { MiddlewareConsumer } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { ExplorerSessionVerifier } from "./auth/explorerSession";
+import { PrividiumApiError } from "./errors/prividiumApiError";
 import { Test } from "@nestjs/testing";
 import { MiddlewareConfigProxy } from "@nestjs/common/interfaces/middleware/middleware-config-proxy.interface";
 import { AuthMiddleware } from "./middlewares/auth.middleware";
@@ -222,8 +224,16 @@ describe("applySwaggerAuthMiddleware", () => {
   let app: express.Express;
   let configService: ConfigService;
   let transformSpy: jest.SpyInstance;
+  let verifier: { verify: jest.Mock };
+  const applyGate = () =>
+    applySwaggerAuthMiddleware(
+      app as unknown as NestExpressApplication,
+      configService,
+      verifier as unknown as ExplorerSessionVerifier
+    );
 
   beforeEach(() => {
+    verifier = { verify: jest.fn().mockResolvedValue(undefined) };
     app = express();
     app.use(
       cookieSession({
@@ -241,7 +251,7 @@ describe("applySwaggerAuthMiddleware", () => {
   });
 
   it("returns 401 for unauthenticated requests without session", async () => {
-    applySwaggerAuthMiddleware(app as unknown as NestExpressApplication, configService);
+    applyGate();
     app.get("/docs", (_req, res) => res.send("docs"));
 
     const res = await request(app).get("/docs");
@@ -254,7 +264,7 @@ describe("applySwaggerAuthMiddleware", () => {
       req.session = { address: "0x123" } as any;
       next();
     });
-    applySwaggerAuthMiddleware(app as unknown as NestExpressApplication, configService);
+    applyGate();
     app.get("/docs", (_req, res) => res.send("docs"));
 
     const res = await request(app).get("/docs");
@@ -273,7 +283,7 @@ describe("applySwaggerAuthMiddleware", () => {
       roles: ["user"],
       hasFullReadAccess: false,
     });
-    applySwaggerAuthMiddleware(app as unknown as NestExpressApplication, configService);
+    applyGate();
     app.get("/docs", (_req, res) => res.send("docs"));
 
     const res = await request(app).get("/docs");
@@ -292,12 +302,64 @@ describe("applySwaggerAuthMiddleware", () => {
       roles: ["admin"],
       hasFullReadAccess: true,
     });
-    applySwaggerAuthMiddleware(app as unknown as NestExpressApplication, configService);
+    applyGate();
     app.get("/docs", (_req, res) => res.send("docs"));
 
     const res = await request(app).get("/docs");
     expect(res.status).toBe(200);
     expect(res.text).toBe("docs");
+  });
+
+  it("returns 401 and clears the session when its token was issued to another application", async () => {
+    app.use((req, _res, next) => {
+      req.session = { address: "0x123", token: "foreign-token" } as any;
+      next();
+    });
+    verifier.verify.mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403));
+    applyGate();
+    app.get("/docs", (_req, res) => res.send("docs"));
+
+    const res = await request(app).get("/docs");
+    expect(res.status).toBe(401);
+    expect(res.body).toEqual({ message: "Unauthorized" });
+    expect(res.headers["set-cookie"].join(";")).toContain("_auth=;");
+    expect(transformSpy).not.toHaveBeenCalled();
+  });
+
+  it("persists the audience check in the signed cookie but still checks live roles", async () => {
+    app.get("/login", (req, res) => {
+      req.session = { address: "0x123", token: "valid-token" };
+      res.end();
+    });
+    transformSpy.mockResolvedValue({ address: "0x123", token: "valid-token", hasFullReadAccess: true });
+    applyGate();
+    app.get("/docs", (_req, res) => res.send("docs"));
+    const agent = request.agent(app);
+    await agent.get("/login").expect(200);
+    await agent.get("/docs").expect(200);
+    expect(verifier.verify).toHaveBeenCalledTimes(1);
+
+    verifier.verify.mockReset().mockRejectedValue(new Error("Unexpected 429 response from permissions API"));
+    await agent.get("/docs").expect(200);
+    expect(verifier.verify).not.toHaveBeenCalled();
+    expect(transformSpy).toHaveBeenCalledTimes(2);
+
+    transformSpy.mockRejectedValue(new PrividiumApiError("Authentication failed", 401));
+    await agent.get("/docs").expect(401);
+  });
+
+  it("returns 502 when the session check fails upstream", async () => {
+    app.use((req, _res, next) => {
+      req.session = { address: "0x123", token: "valid-token" } as any;
+      next();
+    });
+    verifier.verify.mockRejectedValue(new Error("ECONNREFUSED"));
+    applyGate();
+    app.get("/docs", (_req, res) => res.send("docs"));
+
+    const res = await request(app).get("/docs");
+    expect(res.status).toBe(502);
+    expect(res.body).toEqual({ message: "Auth service unavailable" });
   });
 
   it("returns 401 when AddUserRolesPipe throws an error", async () => {
@@ -306,7 +368,7 @@ describe("applySwaggerAuthMiddleware", () => {
       next();
     });
     transformSpy.mockRejectedValue(new Error("Authentication failed"));
-    applySwaggerAuthMiddleware(app as unknown as NestExpressApplication, configService);
+    applyGate();
     app.get("/docs", (_req, res) => res.send("docs"));
 
     const res = await request(app).get("/docs");

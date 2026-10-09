@@ -24,13 +24,10 @@ import { z } from "zod";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 import { parseUserProfile } from "../api/pipes/addUserRoles.pipe";
 import { NO_WALLET_VIEWER } from "../common/constants";
+import { ExplorerSessionVerifier } from "./explorerSession";
 
 const entityName = "auth";
 const userWalletsSchema = z.object({ wallets: z.array(z.string()) });
-const currentSessionSchema = z.object({
-  type: z.string(),
-  expiresAt: z.string().datetime(),
-});
 
 @ApiTags("Auth BFF")
 @ApiExcludeController(!swagger.bffEnabled)
@@ -38,7 +35,10 @@ const currentSessionSchema = z.object({
 export class AuthController {
   private readonly logger: Logger;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly explorerSessions: ExplorerSessionVerifier
+  ) {
     this.logger = new Logger(AuthController.name);
   }
 
@@ -55,10 +55,11 @@ export class AuthController {
     @Req() req: Request
   ): Promise<{ address: string | null; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean }> {
     try {
-      const [wallets, sessionExpirationIso, { hasFullReadAccess, hasAdminRead }] = await Promise.all([
+      // Reject junk tokens before spending the permissions API's shared auth rate limit.
+      const { hasFullReadAccess, hasAdminRead } = await this.fetchUserProfile(body.token);
+      const [wallets, { expiresAt }] = await Promise.all([
         this.fetchUserWallets(body.token),
-        this.fetchExpirationTimeIso(body.token),
-        this.fetchUserProfile(body.token),
+        this.explorerSessions.establish(this.configService.get("prividium.permissionsApiUrl"), body.token),
       ]);
 
       // Store all wallets and use first address as default
@@ -68,7 +69,8 @@ export class AuthController {
       req.session.token = body.token;
       req.session.hasFullReadAccess = hasFullReadAccess;
       req.session.hasAdminRead = hasAdminRead;
-      req.session.expiresAt = sessionExpirationIso;
+      req.session.expiresAt = expiresAt;
+      req.session.audienceChecked = true;
       return {
         address: address === NO_WALLET_VIEWER ? null : address,
         wallets,
@@ -167,27 +169,5 @@ export class AuthController {
     }
 
     return parseUserProfile(await response.json());
-  }
-
-  private async fetchExpirationTimeIso(token: string): Promise<string> {
-    const response = await fetch(
-      new URL("/api/auth/current-session", this.configService.get("prividium.permissionsApiUrl")),
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    // If user token expiration cannot be fetch user cannot log in to the system.
-    if (response.status !== 200) {
-      throw new PrividiumApiError("Invalid or expired token", 403);
-    }
-
-    const data = await response.json();
-    const validatedData = currentSessionSchema.safeParse(data);
-    if (!validatedData.success) {
-      throw new Error(`Invalid response from permissions API: ${JSON.stringify(validatedData.error)}`);
-    }
-
-    return validatedData.data.expiresAt;
   }
 }

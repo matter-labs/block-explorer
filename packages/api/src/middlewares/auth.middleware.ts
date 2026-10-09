@@ -9,8 +9,11 @@ import { ConfigService } from "@nestjs/config";
 import { Request, Response, NextFunction } from "express";
 import { parseReqPathname } from "../common/utils";
 import { AddUserRolesPipe, parseUserProfile } from "../api/pipes/addUserRoles.pipe";
+import { ExplorerSessionVerifier } from "../auth/explorerSession";
 import { PrividiumApiError } from "../errors/prividiumApiError";
 const UNPROTECTED_ROUTES = new Set(["/auth/login", "/auth/logout", "/health", "/ready"]);
+// Reflects the cookie only, so it keeps answering while the permissions API is down.
+const SESSION_INTROSPECTION_ROUTE = "/auth/me";
 
 function throwUpstreamError(): never {
   throw new BadGatewayException("Auth service unavailable");
@@ -26,7 +29,7 @@ export const isApiRoutePathname = (pathname: string): boolean => {
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
-  constructor(private configService: ConfigService) {}
+  constructor(private configService: ConfigService, private explorerSessions: ExplorerSessionVerifier) {}
 
   public async use(req: Request, _res: Response, next: NextFunction) {
     const pathname = parseReqPathname(req);
@@ -43,6 +46,7 @@ export class AuthMiddleware implements NestMiddleware {
       if (token) {
         const addUserRolesPipe = new AddUserRolesPipe(this.configService);
         ({ hasFullReadAccess } = await addUserRolesPipe.transform({ address: "", wallets: [], token }));
+        await this.assertExplorerSession(token);
       } else if (typeof apiKey === "string" && apiKey) {
         ({ hasFullReadAccess } = await this.fetchM2mAppPermissions(apiKey, req.ip));
       } else {
@@ -66,11 +70,36 @@ export class AuthMiddleware implements NestMiddleware {
       throw new PrividiumApiError({ message: "Session expired" }, 401);
     }
 
+    // Verify legacy cookies that lack the audience marker now set at login.
+    if (pathname !== SESSION_INTROSPECTION_ROUTE && req.session.audienceChecked !== true) {
+      try {
+        await this.assertExplorerSession(req.session.token);
+        req.session.audienceChecked = true;
+      } catch (error) {
+        if (error instanceof PrividiumApiError) {
+          req.session = null;
+          throw new PrividiumApiError({ message: error.message }, 401);
+        }
+        throw error;
+      }
+    }
+
     // Update a value in the session to reset the expiration time.
     // Note: this is a cookie-session limitation, we can't send 'Set-Cookie'
     // headers without modifying the session object.
     req.session._nowInMinutes = Math.floor(Date.now() / 1000 / 60);
     next();
+  }
+
+  private async assertExplorerSession(token: string) {
+    try {
+      await this.explorerSessions.verify(this.configService.get("prividium.permissionsApiUrl"), token);
+    } catch (error) {
+      if (error instanceof PrividiumApiError) {
+        throw error;
+      }
+      throwUpstreamError();
+    }
   }
 
   // M2M apps use an API key, which the permissions API only accepts from the app's whitelisted IPs,
