@@ -70,7 +70,7 @@ export class AuthMiddleware implements NestMiddleware {
       throw new PrividiumApiError({ message: "Session expired" }, 401);
     }
 
-    // Also covers cookies minted before the token's application was checked at login.
+    // Verify legacy cookies that lack the audience marker now set at login.
     if (pathname !== SESSION_INTROSPECTION_ROUTE && req.session.audienceChecked !== true) {
       try {
         await this.assertExplorerSession(req.session.token);

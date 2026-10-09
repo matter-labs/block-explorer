@@ -70,18 +70,18 @@ export class ExplorerSessionVerifier {
   /** Fetches the current expiry on login, unless the token is already known to belong to another application. */
   async establish(permissionsApiUrl: string, token: string): Promise<ExplorerSession> {
     const key = hashToken(token);
-    this.getCached(key);
+    this.cachedVerdictOrThrow(key);
     return this.fetchShared(permissionsApiUrl, token, key);
   }
 
   async verify(permissionsApiUrl: string, token: string): Promise<void> {
     const key = hashToken(token);
-    if (this.getCached(key) === undefined) {
+    if (this.cachedVerdictOrThrow(key) === undefined) {
       await this.fetchShared(permissionsApiUrl, token, key);
     }
   }
 
-  private getCached(key: string): ExplorerSession | undefined {
+  private cachedVerdictOrThrow(key: string): ExplorerSession | undefined {
     const cached = this.verdicts.get(key);
     if (cached !== undefined && Date.parse(cached.expiresAt) > Date.now()) {
       if (cached instanceof ForeignSessionError) {
