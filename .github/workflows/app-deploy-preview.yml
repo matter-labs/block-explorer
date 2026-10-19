@@ -13,6 +13,7 @@ jobs:
     runs-on: matterlabs-firebase-deployer
     permissions:
       contents: read
+      id-token: write
     outputs:
       dappUrl: ${{ steps.check_channel.outputs.channel_url }}
     env:
@@ -55,6 +56,12 @@ jobs:
       - name: Unzip Storybook package
         run: |
           unzip storybook-static.zip -d packages/app
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_FIREBASE_DEPLOYER_SERVICE_ACCOUNT }}
 
       - name: Check if Firebase Hosting channel exists
         working-directory: ./packages/app
