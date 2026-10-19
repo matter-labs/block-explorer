@@ -13,6 +13,7 @@ jobs:
     runs-on: matterlabs-firebase-deployer
     permissions:
       contents: read
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -54,6 +55,12 @@ jobs:
       - name: Unzip Storybook package
         run: |
           unzip storybook-static.zip -d packages/app
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_FIREBASE_DEPLOYER_SERVICE_ACCOUNT }}
 
       - name: Deploy
         working-directory: ./packages/app

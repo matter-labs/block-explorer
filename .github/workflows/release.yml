@@ -58,6 +58,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     needs: [createReleaseVersion]
     if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     env:
@@ -87,6 +88,12 @@ jobs:
           sha=$(git rev-parse --short HEAD)
           ts=$(date +%s%N | cut -b1-13)
           echo "::set-output name=imageTag::${sha}-${ts}"
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_AR_PUBLISHER_SERVICE_ACCOUNT }}
 
       - name: Auth to google artifact registry
         run: |
@@ -229,6 +236,7 @@ jobs:
     runs-on: matterlabs-firebase-deployer
     permissions:
       contents: read
+      id-token: write
     needs: createReleaseVersion
     if: ${{ github.ref == 'refs/heads/main' && needs.createReleaseVersion.outputs.releaseVersion != '' }}
     steps:
@@ -272,6 +280,12 @@ jobs:
       - name: Unzip Storybook package
         run: |
           unzip storybook-static.zip -d packages/app
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2.1.13
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_FIREBASE_DEPLOYER_SERVICE_ACCOUNT }}
 
       - name: Deploy
         working-directory: ./packages/app
