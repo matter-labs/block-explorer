@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": "https://github.com/matter-labs/block-explorer",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "dev": "nest start",
@@ -49,7 +49,6 @@
     "pg": "^8.8.0",
     "prom-client": "^14.1.0",
     "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "typeorm": "^0.3.26",
     "winston": "^3.8.2",

@@ -58,9 +58,9 @@ export default defineConfig(({ command }) => ({
     {
       name: "html-transform",
       transformIndexHtml(html) {
-        // Docker: leave the sentinel + {{ }} templates for gomplate/sed to resolve at container start.
+        // Docker: emit envsubst placeholders and leave the asset sentinel for container startup.
         if (process.env.DOCKER_BUILD === "true") {
-          return html;
+          return replaceEnvVariables(html, (name) => `\${${name}}`);
         }
         // Non-Docker: resolve the templates now and point the sentinel asset URLs at the
         // serving base — the CDN origin if STATIC_ASSETS_URL is set at build time, else the app base
@@ -125,9 +125,11 @@ export default defineConfig(({ command }) => ({
   },
 }));
 
-function replaceEnvVariables(template: string): string {
-  // Resolves the gomplate-style placeholders used in index.html for the non-Docker (static) build.
-  // (For Docker builds DOCKER_BUILD=true skips this and gomplate resolves them at container start.)
+function replaceEnvVariables(
+  template: string,
+  getValue: (name: string) => string | undefined = (name) => process.env[name]
+): string {
+  // Resolve the template expressions, or emit placeholders for envsubst in Docker builds.
   // Supported forms:
   //   {{ getenv "VAR" }}
   //   {{ getenv "VAR" | default "fallback" }}
@@ -139,9 +141,9 @@ function replaceEnvVariables(template: string): string {
     let fallback = quotedFallback;
     if (fallback === undefined && baseVar !== undefined) {
       // default (print (getenv baseVar baseDefault) defaultValue)  ->  (APP_BASE || "/") + defaultValue
-      fallback = (process.env[baseVar] ?? baseDefault ?? "") + (defaultValue ?? "");
+      fallback = (getValue(baseVar) ?? baseDefault ?? "") + (defaultValue ?? "");
     }
     // If env var exists, use it
-    return process.env[varName] ?? fallback ?? "";
+    return getValue(varName) ?? fallback ?? "";
   });
 }

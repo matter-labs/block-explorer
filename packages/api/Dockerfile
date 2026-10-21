@@ -3,17 +3,18 @@ ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
 
+FROM base-stage AS dependencies-stage
 COPY --chown=node:node .npmrc .npmrc
 COPY --chown=node:node lerna.json ./
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node ./packages/api/package*.json ./packages/api/
-RUN npm ci --ignore-scripts --only=production && npm cache clean --force
-COPY --chown=node:node ./packages/api/. ./packages/api
+RUN npm ci --ignore-scripts --omit=dev && npm cache clean --force
 RUN rm -f .npmrc
 
-FROM base-stage AS development-stage
+FROM dependencies-stage AS development-stage
 ENV NODE_ENV=development
 RUN apk add --no-cache python3 make g++
+COPY --chown=node:node ./packages/api/. ./packages/api
 COPY --chown=node:node .npmrc .npmrc
 RUN npm ci
 RUN rm -f .npmrc
@@ -22,6 +23,12 @@ FROM development-stage AS build-stage
 RUN npm run build
 
 FROM base-stage AS production-stage
+RUN rm -rf /usr/local/lib/node_modules /opt/yarn-* \
+    /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/corepack \
+    /usr/local/bin/yarn /usr/local/bin/yarnpkg
+
+COPY --chown=node:node --from=dependencies-stage /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=dependencies-stage /usr/src/app/packages/api ./packages/api
 
 COPY --chown=node:node --from=build-stage /usr/src/app/packages/api/dist ./packages/api/dist
 
