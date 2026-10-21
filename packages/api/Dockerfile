@@ -1,9 +1,7 @@
-FROM node:22.22.3-alpine AS base-stage
+FROM node:22.23.4-alpine3.24@sha256:ce8d97f7cfc7c5386421eb932df20a29df99b1a7f469f6157d5c9956702ffadc AS base-stage
 ENV NODE_ENV=production
 
 WORKDIR /usr/src/app
-
-RUN apk add --update python3 make g++ && rm -rf /var/cache/apk/*
 
 COPY --chown=node:node .npmrc .npmrc
 COPY --chown=node:node lerna.json ./
@@ -15,6 +13,7 @@ RUN rm -f .npmrc
 
 FROM base-stage AS development-stage
 ENV NODE_ENV=development
+RUN apk add --no-cache python3 make g++
 COPY --chown=node:node .npmrc .npmrc
 RUN npm ci
 RUN rm -f .npmrc
