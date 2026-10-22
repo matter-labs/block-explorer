@@ -25,8 +25,8 @@ describe("config", () => {
       },
       blocks: {
         queuePollingInterval: 1000,
-        blocksProcessingBatchSize: 50,
-        blocksProcessingWorkerPoolSize: 1,
+        blocksProcessingBatchSize: 10,
+        blocksProcessingWorkerPoolSize: 5,
         maxBlocksAheadOfLastReadyBlock: 1000,
         enqueuerPollingInterval: 1000,
         chainTipPollingInterval: 1000,
@@ -110,8 +110,8 @@ describe("config", () => {
       },
       blocks: {
         queuePollingInterval: 1000,
-        blocksProcessingBatchSize: 50,
-        blocksProcessingWorkerPoolSize: 1,
+        blocksProcessingBatchSize: 10,
+        blocksProcessingWorkerPoolSize: 5,
         maxBlocksAheadOfLastReadyBlock: 1000,
         enqueuerPollingInterval: 1000,
         chainTipPollingInterval: 1000,

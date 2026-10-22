@@ -78,8 +78,8 @@ export default () => {
     },
     blocks: {
       queuePollingInterval: parseInt(BLOCKS_QUEUE_POLLING_INTERVAL, 10) || 1000,
-      blocksProcessingBatchSize: parseInt(BLOCKS_PROCESSING_BATCH_SIZE, 10) || 50,
-      blocksProcessingWorkerPoolSize: parseInt(BLOCKS_PROCESSING_WORKER_POOL_SIZE, 10) || 1,
+      blocksProcessingBatchSize: parseInt(BLOCKS_PROCESSING_BATCH_SIZE, 10) || 10,
+      blocksProcessingWorkerPoolSize: parseInt(BLOCKS_PROCESSING_WORKER_POOL_SIZE, 10) || 5,
       maxBlocksAheadOfLastReadyBlock: parseInt(MAX_BLOCKS_AHEAD_OF_LAST_READY_BLOCK, 10) || 1000,
       enqueuerPollingInterval: parseInt(BLOCKS_ENQUEUER_POLLING_INTERVAL, 10) || 1000,
       chainTipPollingInterval: parseInt(CHAIN_TIP_POLLING_INTERVAL, 10) || 1000,
