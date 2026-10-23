@@ -31,6 +31,7 @@ export const erc1155TransferSingleHandler: ExtractTransferHandler = {
       amount: parsedLog.args.value,
       fields: {
         tokenId: parsedLog.args.id,
+        operator: parsedLog.args.operator.toLowerCase(),
       },
       tokenAddress: log.address.toLowerCase(),
       type,

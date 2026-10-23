@@ -40,6 +40,7 @@ export const erc1155TransferBatchHandler: ExtractTransferHandler<Transfer[]> = {
       amount: values[index],
       fields: {
         tokenId: id,
+        operator: parsedLog.args.operator.toLowerCase(),
       },
       tokenAddress: log.address.toLowerCase(),
       type,

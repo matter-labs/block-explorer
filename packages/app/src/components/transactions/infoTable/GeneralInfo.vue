@@ -348,8 +348,9 @@ const interopBundle = computed(() => {
 });
 
 const tokenTransfers = computed(() => {
-  // exclude transfers with no amount, such as NFT until we fully support them
-  const transfers = props.transaction?.transfers.filter((transfer) => transfer.amount) || [];
+  // exclude NFT transfers until we fully support them: ERC721 ones have no amount, ERC1155 ones are excluded by token type
+  const transfers =
+    props.transaction?.transfers.filter((transfer) => transfer.amount && transfer.tokenType !== "ERC1155") || [];
 
   // Decode TransferWithMemo logs once, in emission order, so that identical
   // transfers (same from/to/value/token) pair with the correct memo by position

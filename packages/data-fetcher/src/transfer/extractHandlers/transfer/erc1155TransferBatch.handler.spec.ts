@@ -86,6 +86,14 @@ describe("erc1155TransferBatchHandler", () => {
       ]);
     });
 
+    it("extracts transfers with lower cased operator", async () => {
+      const result = await erc1155TransferBatchHandler.extract(log, blockchainService, blockDetails);
+      expect(result.map((transfer) => transfer.fields.operator)).toEqual([
+        OPERATOR.toLowerCase(),
+        OPERATOR.toLowerCase(),
+      ]);
+    });
+
     it("extracts transfers with the same log details", async () => {
       const result = await erc1155TransferBatchHandler.extract(log, blockchainService, blockDetails);
       for (const transfer of result) {

@@ -30,6 +30,7 @@ export type TokenTransfer = {
   from: Hash;
   to: Hash;
   type: "fee" | "transfer" | "withdrawal" | "deposit" | "refund" | "mint";
+  tokenType?: Api.Response.Transfer["tokenType"];
   fromNetwork: NetworkOrigin;
   toNetwork: NetworkOrigin;
   tokenInfo?: TokenInfo;
@@ -271,6 +272,7 @@ function mapTransfers(transfers: Api.Response.Transfer[], l1ChainId?: number): T
     fromNetwork: getTransferNetworkOrigin(item, "from", l1ChainId),
     toNetwork: getTransferNetworkOrigin(item, "to", l1ChainId),
     type: item.type,
+    tokenType: item.tokenType,
     tokenInfo: {
       address: item.tokenAddress,
       l1Address: item.token?.l1Address,
@@ -299,8 +301,7 @@ export function filterFees(transfers: Api.Response.Transfer[]) {
 }
 
 export function filterTransfers(transfers: Api.Response.Transfer[]) {
-  // ERC1155 transfers are excluded until NFTs are fully supported (ERC721 ones have no amount and are excluded on display)
-  return transfers.filter((item) => item.type !== "fee" && item.type !== "refund" && item.tokenType !== "ERC1155");
+  return transfers.filter((item) => item.type !== "fee" && item.type !== "refund");
 }
 
 async function all<T>(context: Context, url: string, searchParams: URLSearchParams): Promise<T[]> {

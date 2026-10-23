@@ -3,6 +3,8 @@ import { TokenType } from "../../token/token.service";
 
 export interface TransferFields {
   tokenId?: bigint;
+  // ERC1155 only, the address that made the transfer (holder, approved operator or minter)
+  operator?: string;
 }
 
 export interface Transfer {

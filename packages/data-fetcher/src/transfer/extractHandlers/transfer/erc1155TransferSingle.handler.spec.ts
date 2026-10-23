@@ -74,9 +74,9 @@ describe("erc1155TransferSingleHandler", () => {
       expect(result.amount).toBe(BigInt(12));
     });
 
-    it("extracts transfer with populated tokenId", async () => {
+    it("extracts transfer with populated tokenId and lower cased operator", async () => {
       const result = await erc1155TransferSingleHandler.extract(log, blockchainService, blockDetails);
-      expect(result.fields).toEqual({ tokenId: BigInt(5) });
+      expect(result.fields).toEqual({ tokenId: BigInt(5), operator: OPERATOR.toLowerCase() });
     });
 
     it("extracts transfer with tokenAddress field populated with lower cased log address", async () => {

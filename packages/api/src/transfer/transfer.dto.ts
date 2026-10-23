@@ -85,13 +85,17 @@ export class TransferDto {
     type: Object,
     additionalProperties: { type: "string" },
     description:
-      "Additional transfer fields that depend on the particular transfer. For instance: { tokenId: number } for ERC721 and ERC1155 tokens",
+      "Additional transfer fields that depend on the particular transfer. For instance: { tokenId } for ERC721 tokens, { tokenId, operator } for ERC1155 tokens where operator is the address that made the transfer",
     example: {
       tokenId: 1,
     },
     examples: [
       {
         tokenId: 1,
+      },
+      {
+        tokenId: 1,
+        operator: "0xd754ff5e8a6f257e162f72578a4bb0493c0681d8",
       },
       null,
     ],

@@ -503,10 +503,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=tokennfttx")
-  @ApiOperation({
-    summary: "Retrieve ERC721 transfers for a specific address",
-    description: "ERC1155 transfers are returned by the token1155tx action",
-  })
+  @ApiOperation({ summary: "Retrieve ERC721 transfers for a specific address" })
   @ApiQuery({
     name: "address",
     type: String,

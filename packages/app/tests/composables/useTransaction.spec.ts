@@ -4,7 +4,7 @@ import { $fetch, FetchError } from "ohmyfetch";
 
 import { ETH_TOKEN_MOCK, useContextMock } from "./../mocks";
 
-import useTransaction, { filterTransfers, getTransferNetworkOrigin } from "@/composables/useTransaction";
+import useTransaction, { getTransferNetworkOrigin } from "@/composables/useTransaction";
 
 import type { Context } from "@/composables/useContext";
 
@@ -415,23 +415,6 @@ describe("useTransaction:", () => {
       expect(result).toBe("L1");
     });
   });
-  describe("filterTransfers:", () => {
-    it("excludes fees, refunds and ERC1155 transfers", () => {
-      const transfers = [
-        { type: "transfer", tokenType: "ERC20" },
-        { type: "fee", tokenType: "BASETOKEN" },
-        { type: "refund", tokenType: "BASETOKEN" },
-        { type: "transfer", tokenType: "ERC721" },
-        { type: "mint", tokenType: "ERC1155" },
-        { type: "transfer", tokenType: "ERC1155" },
-      ] as Api.Response.Transfer[];
-      expect(filterTransfers(transfers)).toEqual([
-        { type: "transfer", tokenType: "ERC20" },
-        { type: "transfer", tokenType: "ERC721" },
-      ]);
-    });
-  });
-
   describe("getByHash:", () => {
     it("sets isRequestPending to true when request is pending", async () => {
       const { isRequestPending, getByHash } = useTransaction();
@@ -662,6 +645,26 @@ describe("useTransaction:", () => {
               decimals: 18,
               name: "Your Token Name",
               symbol: "YourTokenSymbol",
+            },
+          },
+          {
+            amount: "5",
+            from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            fromNetwork: "L2",
+            toNetwork: "L2",
+            type: "transfer",
+            tokenType: "ERC1155",
+            tokenInfo: {
+              iconURL: undefined,
+              liquidity: undefined,
+              usdPrice: undefined,
+              address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47E",
+              l1Address: undefined,
+              l2Address: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47E",
+              decimals: 0,
+              name: undefined,
+              symbol: undefined,
             },
           },
         ],
