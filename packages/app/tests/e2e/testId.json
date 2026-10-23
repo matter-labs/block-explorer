@@ -20,6 +20,7 @@
   "tokenAddress":"tokenAddress",
   "tokenAmount":"token-amount",
   "tokenAmountPrice":"token-amount-price",
+  "tokenId":"token-id",
   "transactionsHash": "transactions-hash",
   "transactionsMethodName": "transactions-method-name",
   "timestamp": "timestamp",

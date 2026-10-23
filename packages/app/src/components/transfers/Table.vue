@@ -111,7 +111,21 @@
       </TableBodyColumn>
 
       <TableBodyColumn :data-heading="t('transfers.table.amount')">
-        <TokenAmountPriceTableCell :amount="item.amount" :token="item.token" :show-price="true" />
+        <div v-if="item.tokenType === 'ERC1155'" class="token-id-amount">
+          <span :data-testid="$testId.tokenAmount">{{ item.amount }}</span>
+          <Tooltip :disabled="shortenTokenId(item.fields?.tokenId) === item.fields?.tokenId">
+            <AddressLink
+              :address="item.tokenAddress"
+              :is-token-address="true"
+              :data-testid="$testId.tokenId"
+              class="token-id-link"
+            >
+              #{{ shortenTokenId(item.fields?.tokenId) }}
+            </AddressLink>
+            <template #content>#{{ item.fields?.tokenId }}</template>
+          </Tooltip>
+        </div>
+        <TokenAmountPriceTableCell v-else :amount="item.amount" :token="item.token" :show-price="true" />
       </TableBodyColumn>
     </template>
     <template #empty>
@@ -144,6 +158,7 @@ import AddressLink from "@/components/AddressLink.vue";
 import CopyButton from "@/components/common/CopyButton.vue";
 import { shortenFitText } from "@/components/common/HashLabel.vue";
 import Pagination from "@/components/common/Pagination.vue";
+import Tooltip from "@/components/common/Tooltip.vue";
 import Table from "@/components/common/table/Table.vue";
 import TableBodyColumn from "@/components/common/table/TableBodyColumn.vue";
 import TableHeadColumn from "@/components/common/table/TableHeadColumn.vue";
@@ -177,6 +192,11 @@ const { data, load, total, pending, pageSize } = useTransfers(
 
 function getTransferDirection(item: Transfer): Direction {
   return item.from === item.to ? "self" : item.to !== props.address ? "out" : "in";
+}
+
+// ERC1155 token ids can be up to 78 digits long
+function shortenTokenId(tokenId = "") {
+  return shortenFitText(tokenId, "middle", 100, 6);
 }
 
 const activePage = ref(1);
@@ -235,6 +255,13 @@ watch(
 
   .transfers-in-out {
     @apply md:m-auto;
+  }
+
+  .token-id-amount {
+    @apply flex items-center gap-x-1.5;
+    .token-id-link {
+      @apply text-sm font-medium;
+    }
   }
 
   .transfers-data-link {

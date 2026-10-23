@@ -1,0 +1,44 @@
+import { type Log, type Block } from "ethers";
+import { Transfer } from "../../interfaces/transfer.interface";
+import { ExtractTransferHandler } from "../../interfaces/extractTransferHandler.interface";
+import { TransferType } from "../../transfer.service";
+import { TokenType } from "../../../token/token.service";
+import { unixTimeToDate } from "../../../utils/date";
+import parseLog from "../../../utils/parseLog";
+import { CONTRACT_INTERFACES, ETH_L1_ADDRESS } from "../../../constants";
+
+export const erc1155TransferSingleHandler: ExtractTransferHandler = {
+  matches: (log: Log): boolean => log.topics.length === 4,
+  extract: async (log: Log, _, block: Block): Promise<Transfer> => {
+    const parsedLog = parseLog(CONTRACT_INTERFACES.ERC1155, log);
+    if (!parsedLog) {
+      return null;
+    }
+
+    let type = TransferType.Transfer;
+    let from = parsedLog.args.from;
+
+    if (parsedLog.args.from === ETH_L1_ADDRESS) {
+      type = TransferType.Mint;
+      from = parsedLog.args.to;
+    }
+
+    return {
+      from: from.toLowerCase(),
+      to: parsedLog.args.to.toLowerCase(),
+      transactionHash: log.transactionHash,
+      blockNumber: log.blockNumber,
+      amount: parsedLog.args.value,
+      fields: {
+        tokenId: parsedLog.args.id,
+      },
+      tokenAddress: log.address.toLowerCase(),
+      type,
+      tokenType: TokenType.ERC1155,
+      isFeeOrRefund: false,
+      logIndex: log.index,
+      transactionIndex: log.transactionIndex,
+      timestamp: unixTimeToDate(block.timestamp),
+    };
+  },
+};

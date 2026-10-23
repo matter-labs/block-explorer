@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { TokenDto } from "../token/token.dto";
+import { TokenType } from "../token/token.entity";
 import { TransferType } from "./transfer.entity";
 
 export class TransferDto {
@@ -36,7 +37,7 @@ export class TransferDto {
   @ApiProperty({
     type: String,
     description:
-      "The total amount that was transferred. Null if no amount was specified for the transfer like with NFT tokens",
+      "The total amount that was transferred. Null if no amount was specified for the transfer like with ERC721 tokens",
     example: "100000000",
     examples: ["100000000", null],
     nullable: true,
@@ -59,6 +60,13 @@ export class TransferDto {
   public readonly tokenAddress: string;
 
   @ApiProperty({
+    enum: TokenType,
+    description: "The type of the token that was transferred",
+    example: TokenType.ERC20,
+  })
+  public readonly tokenType: TokenType;
+
+  @ApiProperty({
     enum: TransferType,
     description: "The type of the transfer",
     example: "transfer",
@@ -77,7 +85,7 @@ export class TransferDto {
     type: Object,
     additionalProperties: { type: "string" },
     description:
-      "Additional transfer fields that depend on the particular transfer. For instance: { tokenId: number } for NFT",
+      "Additional transfer fields that depend on the particular transfer. For instance: { tokenId: number } for ERC721 and ERC1155 tokens",
     example: {
       tokenId: 1,
     },

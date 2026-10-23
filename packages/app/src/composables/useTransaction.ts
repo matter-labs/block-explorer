@@ -299,7 +299,8 @@ export function filterFees(transfers: Api.Response.Transfer[]) {
 }
 
 export function filterTransfers(transfers: Api.Response.Transfer[]) {
-  return transfers.filter((item) => item.type !== "fee" && item.type !== "refund");
+  // ERC1155 transfers are excluded until NFTs are fully supported (ERC721 ones have no amount and are excluded on display)
+  return transfers.filter((item) => item.type !== "fee" && item.type !== "refund" && item.tokenType !== "ERC1155");
 }
 
 async function all<T>(context: Context, url: string, searchParams: URLSearchParams): Promise<T[]> {

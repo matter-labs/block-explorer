@@ -4,7 +4,7 @@ import { $fetch, FetchError } from "ohmyfetch";
 
 import { ETH_TOKEN_MOCK, useContextMock } from "./../mocks";
 
-import useTransaction, { getTransferNetworkOrigin } from "@/composables/useTransaction";
+import useTransaction, { filterTransfers, getTransferNetworkOrigin } from "@/composables/useTransaction";
 
 import type { Context } from "@/composables/useContext";
 
@@ -151,6 +151,18 @@ vi.mock("ohmyfetch", async () => {
               name: "Your Token Name",
               decimals: 18,
             },
+          },
+          {
+            from: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            to: "0x08d211E22dB19741FF25838A22e4e696FeE7eD36",
+            blockNumber: 1162235,
+            transactionHash: hash,
+            amount: "5",
+            tokenAddress: "0x1bAbcaeA2e4BE1f1e1A149c454806F2D21d7f47E",
+            tokenType: "ERC1155",
+            type: "transfer",
+            fields: { tokenId: "123" },
+            token: null,
           },
           {
             from: "0x0000000000000000000000000000000000008001",
@@ -403,6 +415,23 @@ describe("useTransaction:", () => {
       expect(result).toBe("L1");
     });
   });
+  describe("filterTransfers:", () => {
+    it("excludes fees, refunds and ERC1155 transfers", () => {
+      const transfers = [
+        { type: "transfer", tokenType: "ERC20" },
+        { type: "fee", tokenType: "BASETOKEN" },
+        { type: "refund", tokenType: "BASETOKEN" },
+        { type: "transfer", tokenType: "ERC721" },
+        { type: "mint", tokenType: "ERC1155" },
+        { type: "transfer", tokenType: "ERC1155" },
+      ] as Api.Response.Transfer[];
+      expect(filterTransfers(transfers)).toEqual([
+        { type: "transfer", tokenType: "ERC20" },
+        { type: "transfer", tokenType: "ERC721" },
+      ]);
+    });
+  });
+
   describe("getByHash:", () => {
     it("sets isRequestPending to true when request is pending", async () => {
       const { isRequestPending, getByHash } = useTransaction();

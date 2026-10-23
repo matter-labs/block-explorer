@@ -3,6 +3,8 @@ export * from "./finalizeDeposit/assetRouter.handler";
 export * from "./transfer/contractDeployerTransfer.handler";
 export * from "./transfer/default.handler";
 export * from "./transfer/erc721Transfer.handler";
+export * from "./transfer/erc1155TransferSingle.handler";
+export * from "./transfer/erc1155TransferBatch.handler";
 export * from "./withdrawalInitiated/default.handler";
 export * from "./withdrawalInitiated/assetRouter.handler";
 export * from "./mint/ethMintFromL1.handler";

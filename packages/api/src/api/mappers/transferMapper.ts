@@ -24,3 +24,11 @@ export const mapTransferListItem = (transfer: Transfer, lastBlockNumber: number)
   fee: transfer.transaction?.fee ? BigInt(transfer.transaction.fee).toString() : undefined,
   transactionType: transfer.transaction?.type.toString(),
 });
+
+// ERC1155 transfers return the amount as tokenValue and have no decimals, same as Etherscan token1155tx
+export const mapERC1155TransferListItem = (transfer: Transfer, lastBlockNumber: number) => ({
+  ...mapTransferListItem(transfer, lastBlockNumber),
+  value: undefined,
+  tokenDecimal: undefined,
+  tokenValue: transfer.amount || undefined,
+});

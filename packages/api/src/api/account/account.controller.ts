@@ -14,13 +14,14 @@ import { ParseAddressPipe } from "../../common/pipes/parseAddress.pipe";
 import { ParseTransactionHashPipe } from "../../common/pipes/parseTransactionHash.pipe";
 import { mapTransactionListItem } from "../mappers/transactionMapper";
 import { mapInternalTransactionListItem } from "../mappers/internalTransactionMapper";
-import { mapTransferListItem } from "../mappers/transferMapper";
+import { mapTransferListItem, mapERC1155TransferListItem } from "../mappers/transferMapper";
 import { ResponseStatus, ResponseMessage } from "../dtos/common/responseBase.dto";
 import { AccountTransactionsResponseDto } from "../dtos/account/accountTransactionsResponse.dto";
 import { AccountInternalTransactionsResponseDto } from "../dtos/account/accountInternalTransactionsResponse.dto";
 import {
   AccountTokenTransfersResponseDto,
   AccountNFTTransfersResponseDto,
+  AccountERC1155TransfersResponseDto,
 } from "../dtos/account/accountTokenTransfersResponse.dto";
 import {
   AccountEtherBalanceResponseDto,
@@ -166,6 +167,40 @@ export class AccountController {
       }),
     ]);
     const transfersList = transfers.map((transfer) => mapTransferListItem(transfer, lastBlockNumber));
+    return {
+      status: transfersList.length ? ResponseStatus.OK : ResponseStatus.NOTOK,
+      message: transfersList.length ? ResponseMessage.OK : ResponseMessage.NO_TRANSACTIONS_FOUND,
+      result: transfersList,
+    };
+  }
+
+  @Get("/token1155tx")
+  public async getAccountERC1155Transfers(
+    @Query("address", new ParseAddressPipe({ required: false, errorMessage: "Error! Invalid address format" }))
+    address: string,
+    @Query(
+      "contractaddress",
+      new ParseAddressPipe({ required: false, errorMessage: "Error! Invalid contract address format" })
+    )
+    contractAddress: string,
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    @Query() sortingOptions: SortingOptionsDto,
+    @Query("startblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) startBlock?: number,
+    @Query("endblock", new ParseLimitedIntPipe({ min: 0, isOptional: true })) endBlock?: number
+  ): Promise<AccountERC1155TransfersResponseDto> {
+    const [lastBlockNumber, transfers] = await Promise.all([
+      this.blockService.getLastBlockNumber(),
+      this.transferService.findTokenTransfers({
+        tokenType: TokenType.ERC1155,
+        address,
+        tokenAddress: contractAddress,
+        startBlock,
+        endBlock,
+        ...pagingOptions,
+        ...sortingOptions,
+      }),
+    ]);
+    const transfersList = transfers.map((transfer) => mapERC1155TransferListItem(transfer, lastBlockNumber));
     return {
       status: transfersList.length ? ResponseStatus.OK : ResponseStatus.NOTOK,
       message: transfersList.length ? ResponseMessage.OK : ResponseMessage.NO_TRANSACTIONS_FOUND,
