@@ -14,6 +14,7 @@ export interface Balance {
 
 export interface TransferFields {
   tokenId?: string;
+  operator?: string;
 }
 
 export interface Transfer {

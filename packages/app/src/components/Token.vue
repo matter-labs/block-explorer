@@ -27,7 +27,8 @@
     <Spinner v-else size="md" />
   </div>
   <div class="tables-container">
-    <div class="contract-tables-container">
+    <!-- contracts which are not ERC20-like tokens (e.g. ERC721 and ERC1155) have no token info to show -->
+    <div v-if="isTokenInfoPending || tokenInfo" class="contract-tables-container">
       <div>
         <OverviewTokenInfoTable
           class="token-info-table"
@@ -115,7 +116,7 @@ const props = defineProps({
   },
 });
 
-const { getTokenInfo, tokenInfo } = useToken();
+const { getTokenInfo, tokenInfo, isRequestPending: isTokenInfoPending } = useToken();
 const { getTokenOverview, tokenOverview, isRequestPending: isLoadingTokenOverview } = useTokenOverview();
 
 watchEffect(() => {

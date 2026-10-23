@@ -3,6 +3,7 @@ import * as ethTokenAbi from "./abis/ethToken.json";
 import * as erc20Abi from "./abis/erc20.json";
 import * as l2SharedBridgeAbi from "./abis/l2SharedBridge.json";
 import * as erc721Abi from "./abis/erc721.json";
+import * as erc1155Abi from "./abis/erc1155.json";
 import * as transferEventWithNoIndexesAbi from "./abis/transferEventWithNoIndexes.json";
 import * as l2StandardERC20Abi from "./abis/l2StandardERC20.json";
 import * as l2AssetRouterAbi from "./abis/l2AssetRouter.json";
@@ -30,6 +31,10 @@ export const CONTRACT_INTERFACES = {
   ERC721: {
     interface: new Interface(erc721Abi),
     abi: erc721Abi,
+  },
+  ERC1155: {
+    interface: new Interface(erc1155Abi),
+    abi: erc1155Abi,
   },
   L2_STANDARD_ERC20: {
     interface: new Interface(l2StandardERC20Abi),

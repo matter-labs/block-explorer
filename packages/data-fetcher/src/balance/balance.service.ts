@@ -51,6 +51,11 @@ export class BalanceService {
       new Map<string, Map<string, { balance: bigint; tokenType: TokenType }>>();
 
     for (const transfer of transfers) {
+      // ERC1155 balances are per token id and cannot be fetched with balanceOf(address), so they are not tracked here
+      if (transfer.tokenType === TokenType.ERC1155) {
+        continue;
+      }
+
       const changedBalancesAddresses = new Set([transfer.from, transfer.to]);
       for (const changedBalanceAddress of changedBalancesAddresses) {
         if (changedBalanceAddress === ETH_L1_ADDRESS) {

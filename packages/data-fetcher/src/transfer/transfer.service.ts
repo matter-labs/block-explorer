@@ -13,6 +13,8 @@ import {
   defaultWithdrawalInitiatedHandler,
   assetRouterWithdrawalInitiatedHandler,
   erc721TransferHandler,
+  erc1155TransferSingleHandler,
+  erc1155TransferBatchHandler,
   contractDeployerTransferHandler,
   defaultTransferHandler,
   ethMintFromL1Handler,
@@ -28,12 +30,14 @@ export enum TransferType {
   Refund = "refund",
 }
 
-const extractTransfersHandlers: Record<string, ExtractTransferHandler[]> = {
+const extractTransfersHandlers: Record<string, ExtractTransferHandler<Transfer | Transfer[]>[]> = {
   [LogType.FinalizeDeposit]: [defaultFinalizeDepositHandler],
   [LogType.DepositFinalizedAssetRouter]: [assetRouterFinalizeDepositHandler],
   [LogType.WithdrawalInitiated]: [defaultWithdrawalInitiatedHandler],
   [LogType.WithdrawalInitiatedAssetRouter]: [assetRouterWithdrawalInitiatedHandler],
   [LogType.Transfer]: [erc721TransferHandler, contractDeployerTransferHandler, defaultTransferHandler],
+  [LogType.TransferSingle]: [erc1155TransferSingleHandler],
+  [LogType.TransferBatch]: [erc1155TransferBatchHandler],
   [LogType.Mint]: [ethMintFromL1Handler],
   [LogType.Withdrawal]: [ethWithdrawalToL1Handler],
 };
@@ -94,9 +98,12 @@ export class TransferService {
       }
 
       try {
-        const transfer = await handlerForLog.extract(log, this.blockchainService, block);
-        if (transfer) {
-          extractedTransfers.push({ transfer, topic });
+        const extracted = await handlerForLog.extract(log, this.blockchainService, block);
+        const logTransfers = Array.isArray(extracted) ? extracted : [extracted];
+        for (const transfer of logTransfers) {
+          if (transfer) {
+            extractedTransfers.push({ transfer, topic });
+          }
         }
       } catch (error) {
         this.logger.error("Failed to parse transfer", {

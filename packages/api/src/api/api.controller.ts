@@ -23,10 +23,15 @@ import { AccountTransactionDto } from "./dtos/account/accountTransaction.dto";
 import { AccountTransactionsResponseDto } from "./dtos/account/accountTransactionsResponse.dto";
 import { AccountInternalTransactionDto } from "./dtos/account/accountInternalTransaction.dto";
 import { AccountInternalTransactionsResponseDto } from "./dtos/account/accountInternalTransactionsResponse.dto";
-import { AccountTokenTransferDto, AccountNFTTransferDto } from "./dtos/account/accountTokenTransfer.dto";
+import {
+  AccountTokenTransferDto,
+  AccountNFTTransferDto,
+  AccountERC1155TransferDto,
+} from "./dtos/account/accountTokenTransfer.dto";
 import {
   AccountTokenTransfersResponseDto,
   AccountNFTTransfersResponseDto,
+  AccountERC1155TransfersResponseDto,
 } from "./dtos/account/accountTokenTransfersResponse.dto";
 import {
   AccountEtherBalanceResponseDto,
@@ -498,7 +503,7 @@ export class ApiController {
 
   @ApiTags("Account API")
   @Get("api?module=account&action=tokennfttx")
-  @ApiOperation({ summary: "Retrieve NFT transfers for a specific address" })
+  @ApiOperation({ summary: "Retrieve ERC721 transfers for a specific address" })
   @ApiQuery({
     name: "address",
     type: String,
@@ -529,7 +534,7 @@ export class ApiController {
   })
   @ApiExtraModels(AccountNFTTransferDto)
   @ApiOkResponse({
-    description: "NFT transfers",
+    description: "ERC721 transfers",
     type: AccountNFTTransfersResponseDto,
   })
   public async getAccountNFTTransfers(
@@ -538,6 +543,50 @@ export class ApiController {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     @Query() sortingOptions: SortingOptionsDto
   ): Promise<AccountNFTTransfersResponseDto> {
+    return null;
+  }
+
+  @ApiTags("Account API")
+  @Get("api?module=account&action=token1155tx")
+  @ApiOperation({ summary: "Retrieve ERC1155 transfers for a specific address" })
+  @ApiQuery({
+    name: "address",
+    type: String,
+    description: "The address to get transfers for",
+    example: constants.address,
+    required: false,
+  })
+  @ApiQuery({
+    name: "contractaddress",
+    type: String,
+    description: "The Token contract address to get transfers for",
+    required: false,
+  })
+  @ApiQuery({
+    name: "startblock",
+    type: "integer",
+    description: "The block number to start searching for transfers",
+    example: 0,
+    required: false,
+  })
+  @ApiQuery({
+    name: "endblock",
+    type: "integer",
+    description: "The block number to stop searching for transfers",
+    example: 99999999,
+    required: false,
+  })
+  @ApiExtraModels(AccountERC1155TransferDto)
+  @ApiOkResponse({
+    description: "ERC1155 transfers",
+    type: AccountERC1155TransfersResponseDto,
+  })
+  public async getAccountERC1155Transfers(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() pagingOptions: PagingOptionsWithMaxItemsLimitDto,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @Query() sortingOptions: SortingOptionsDto
+  ): Promise<AccountERC1155TransfersResponseDto> {
     return null;
   }
 

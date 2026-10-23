@@ -7,6 +7,14 @@ export enum LogType {
   // event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
   Transfer = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
 
+  // ERC1155
+  // event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value);
+  TransferSingle = "0xc3d58168c5ae7397731d063d5bbf3d657854427343f4c083240f7aacaa2d0f62",
+
+  // ERC1155
+  // event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values);
+  TransferBatch = "0x4a39dc06d4c0dbc64b70af90fd698a233a518aa5d07e595d983b8c0526c8f7fb",
+
   // event Approval(address indexed owner, address indexed spender, uint256 value);
   Approval = "0x8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b925",
 

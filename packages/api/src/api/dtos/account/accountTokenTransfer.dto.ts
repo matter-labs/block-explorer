@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, OmitType } from "@nestjs/swagger";
 
 export class AccountTokenTransferDto {
   @ApiProperty({
@@ -157,4 +157,13 @@ export class AccountNFTTransferDto extends AccountTokenTransferDto {
     example: "123",
   })
   public readonly tokenID: string;
+}
+
+export class AccountERC1155TransferDto extends OmitType(AccountNFTTransferDto, ["value", "tokenDecimal"] as const) {
+  @ApiProperty({
+    type: String,
+    description: "The amount of tokens with the specified Token Id transferred",
+    example: "10",
+  })
+  public readonly tokenValue: string;
 }

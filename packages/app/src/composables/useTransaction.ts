@@ -30,6 +30,7 @@ export type TokenTransfer = {
   from: Hash;
   to: Hash;
   type: "fee" | "transfer" | "withdrawal" | "deposit" | "refund" | "mint";
+  tokenType?: Api.Response.Transfer["tokenType"];
   fromNetwork: NetworkOrigin;
   toNetwork: NetworkOrigin;
   tokenInfo?: TokenInfo;
@@ -271,6 +272,7 @@ function mapTransfers(transfers: Api.Response.Transfer[], l1ChainId?: number): T
     fromNetwork: getTransferNetworkOrigin(item, "from", l1ChainId),
     toNetwork: getTransferNetworkOrigin(item, "to", l1ChainId),
     type: item.type,
+    tokenType: item.tokenType,
     tokenInfo: {
       address: item.tokenAddress,
       l1Address: item.token?.l1Address,

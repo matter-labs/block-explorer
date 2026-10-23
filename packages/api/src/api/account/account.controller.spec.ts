@@ -93,6 +93,14 @@ describe("AccountController", () => {
       tokenId: "123",
     },
   } as unknown as Transfer;
+  const erc1155Transfer = {
+    ...ecr20Transfer,
+    token: undefined,
+    amount: "5",
+    fields: {
+      tokenId: "123",
+    },
+  } as unknown as Transfer;
 
   beforeEach(async () => {
     blockServiceMock = mock<BlockService>({
@@ -548,6 +556,96 @@ describe("AccountController", () => {
             value: "1000000",
             transactionType: "255",
           },
+        ],
+      });
+    });
+  });
+
+  describe("getAccountERC1155Transfers", () => {
+    it("calls block service to get latest block number", async () => {
+      await controller.getAccountERC1155Transfers(
+        address,
+        null,
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
+      expect(blockServiceMock.getLastBlockNumber).toBeCalledTimes(1);
+    });
+
+    it("calls transfers service to get ERC1155 token transfers", async () => {
+      await controller.getAccountERC1155Transfers(
+        address,
+        "contractAddress",
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc },
+        11,
+        12
+      );
+      expect(transferServiceMock.findTokenTransfers).toBeCalledWith({
+        tokenType: TokenType.ERC1155,
+        address,
+        tokenAddress: "contractAddress",
+        startBlock: 11,
+        endBlock: 12,
+        page: 2,
+        offset: 20,
+        sort: SortingOrder.Asc,
+        maxLimit: 10000,
+      });
+      expect(transferServiceMock.findTokenTransfers).toBeCalledTimes(1);
+    });
+
+    it("returns not ok response when no transfers found", async () => {
+      const response = await controller.getAccountERC1155Transfers(
+        address,
+        "tokenAddress",
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
+      expect(response).toEqual({
+        status: ResponseStatus.NOTOK,
+        message: ResponseMessage.NO_TRANSACTIONS_FOUND,
+        result: [],
+      });
+    });
+
+    it("returns transfers list with tokenID and tokenValue when transfers are found", async () => {
+      jest.spyOn(transferServiceMock, "findTokenTransfers").mockResolvedValue([erc1155Transfer]);
+
+      const response = await controller.getAccountERC1155Transfers(
+        address,
+        "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe36A",
+        {
+          page: 2,
+          offset: 20,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Asc }
+      );
+      expect(response).toStrictEqual({
+        status: ResponseStatus.OK,
+        message: ResponseMessage.OK,
+        result: [
+          expect.objectContaining({
+            hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
+            contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe36A",
+            tokenID: "123",
+            tokenValue: "5",
+            value: undefined,
+            tokenDecimal: undefined,
+          }),
         ],
       });
     });

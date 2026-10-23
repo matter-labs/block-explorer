@@ -88,6 +88,35 @@ describe("BalanceService", () => {
       expect(balanceService.changedBalances.size).toBe(0);
     });
 
+    it("does not track changed balances for ERC1155 transfers", () => {
+      const transfers = [
+        mock<Transfer>({
+          tokenAddress: "0x2392e98fb47cf05773144db3ce8002fac4f39c84",
+          from: "0x36615cf349d7f6344891b1e7ca7c72883f5dc049",
+          to: "0xd206eaf6819007535e893410cfa01885ce40e99a",
+          blockNumber: 10,
+          tokenType: TokenType.ERC20,
+        }),
+        mock<Transfer>({
+          tokenAddress: "0x89bcb56033920b8a654109faeb1f87e0c3358cad",
+          from: "0x36615cf349d7f6344891b1e7ca7c72883f5dc049",
+          to: "0x7aa5f26e03b12a78e3ff1c454547701443144c67",
+          blockNumber: 10,
+          tokenType: TokenType.ERC1155,
+        }),
+      ];
+
+      balanceService.trackChangedBalances(transfers);
+      const blockChangedBalances = balanceService.changedBalances.get(transfers[0].blockNumber);
+      expect(blockChangedBalances.size).toBe(2);
+      expect(blockChangedBalances.has("0x7aa5f26e03b12a78e3ff1c454547701443144c67")).toBe(false);
+      expect(
+        blockChangedBalances
+          .get("0x36615cf349d7f6344891b1e7ca7c72883f5dc049")
+          .has("0x89bcb56033920b8a654109faeb1f87e0c3358cad")
+      ).toBe(false);
+    });
+
     it("does not track changed balance for 0x000 address", () => {
       const transfers = [
         mock<Transfer>({
