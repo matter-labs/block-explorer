@@ -11,6 +11,7 @@ export default () => {
     RPC_BATCH_MAX_SIZE_BYTES,
     RPC_BATCH_MAX_COUNT,
     RPC_BATCH_STALL_TIME_MS,
+    RPC_CALLS_FROM_ADDRESS,
     BLOCKS_QUEUE_POLLING_INTERVAL,
     BLOCKS_PROCESSING_BATCH_SIZE,
     BLOCKS_PROCESSING_WORKER_POOL_SIZE,
@@ -71,6 +72,9 @@ export default () => {
       // 0 indicates batching will only encompass the current event loop.
       // If rpcBatchMaxCount = 1, this is ignored.
       rpcBatchStallTimeMs: parseInt(RPC_BATCH_STALL_TIME_MS, 10) || 0,
+      // address used as "from" for eth_call requests, e.g. when view functions check msg.sender.
+      // If not set, eth_call requests are sent without "from".
+      rpcCallsFromAddress: RPC_CALLS_FROM_ADDRESS || undefined,
     },
     dataFetcher: {
       url: DATA_FETCHER_URL || "http://localhost:3040",

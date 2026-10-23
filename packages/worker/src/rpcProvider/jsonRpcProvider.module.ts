@@ -14,6 +14,7 @@ import { JsonRpcProviderBase, JsonRpcProviderExtended } from "./index";
         const batchMaxSizeBytes = configService.get<number>("blockchain.rpcBatchMaxSizeBytes");
         const batchMaxCount = configService.get<number>("blockchain.rpcBatchMaxCount");
         const batchStallTimeMs = configService.get<number>("blockchain.rpcBatchStallTimeMs");
+        const callsFromAddress = configService.get<string>("blockchain.rpcCallsFromAddress");
         const providerUrlProtocol = new URL(providerUrl).protocol;
 
         logger.debug(`Initializing RPC provider with the following URL: ${providerUrl}.`, "RpcProviderModule");
@@ -25,7 +26,8 @@ import { JsonRpcProviderBase, JsonRpcProviderExtended } from "./index";
             connectionQuickTimeout,
             batchMaxCount,
             batchMaxSizeBytes,
-            batchStallTimeMs
+            batchStallTimeMs,
+            callsFromAddress
           );
         }
 
