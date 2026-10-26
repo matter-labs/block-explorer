@@ -4,7 +4,7 @@ import { createI18n } from "vue-i18n";
 import { afterEach, beforeEach, describe, expect, it, type SpyInstance, vi } from "vitest";
 
 import { render, type RenderResult } from "@testing-library/vue";
-import { RouterLinkStub } from "@vue/test-utils";
+import { mount, RouterLinkStub } from "@vue/test-utils";
 import { useTimeAgo } from "@vueuse/core";
 
 import { ETH_TOKEN_MOCK, useContextMock, useTransfersMock } from "./../../mocks";
@@ -142,6 +142,69 @@ describe("Transfers:", () => {
     it("renders amount column", () => {
       expect(renderResult!.getByTestId(elements.tokenAmount).textContent).toEqual("129187024.261081");
       expect(renderResult!.getByTestId(elements.tokenAmountPrice).textContent).toEqual("$129.19M");
+    });
+  });
+
+  describe("Table with ERC1155 transfer:", () => {
+    let renderResult: RenderResult | null;
+
+    const renderWithTokenId = (tokenId: string) => {
+      mockTransfers = useTransfersMock({
+        data: computed(() => [
+          {
+            ...transfer,
+            amount: "5",
+            tokenType: "ERC1155",
+            fields: { tokenId },
+            token: null,
+          },
+        ]),
+      });
+      renderResult = render(Table, {
+        props: {
+          address: "0x0a27CaAeaD54cc6976175F6f4888beB1f871706b",
+        },
+        global: {
+          plugins: [i18n, $testId],
+          stubs: { RouterLink: RouterLinkStub },
+        },
+      });
+    };
+
+    afterEach(() => {
+      renderResult?.unmount();
+    });
+
+    it("renders amount and token id instead of token symbol", () => {
+      renderWithTokenId("123");
+      expect(renderResult!.getByTestId(elements.tokenAmount).textContent).toEqual("5");
+      expect(renderResult!.getByTestId(elements.tokenId).textContent?.trim()).toEqual("#123");
+      expect(renderResult!.queryByText(enUS.balances.table.unknownSymbol)).toBeNull();
+    });
+
+    it("links token id to the token page", () => {
+      mockTransfers = useTransfersMock({
+        data: computed(() => [{ ...transfer, amount: "5", tokenType: "ERC1155", fields: { tokenId: "123" } }]),
+      });
+      const wrapper = mount(Table, {
+        props: {
+          address: "0x0a27CaAeaD54cc6976175F6f4888beB1f871706b",
+        },
+        global: {
+          plugins: [i18n, $testId],
+          stubs: { RouterLink: RouterLinkStub },
+        },
+      });
+      const tokenIdLink = wrapper
+        .findAllComponents(RouterLinkStub)
+        .find((link) => link.attributes("data-testid") === elements.tokenId);
+      expect(tokenIdLink?.props().to).toEqual({ name: "token", params: { address: transfer.tokenAddress } });
+      wrapper.unmount();
+    });
+
+    it("shortens long token ids", () => {
+      renderWithTokenId("1".repeat(78));
+      expect(renderResult!.getByTestId(elements.tokenId).textContent?.trim()).toEqual("#11111...11111");
     });
   });
 

@@ -1,6 +1,6 @@
 import { Transfer } from "../../transfer/transfer.entity";
 import { TransactionStatus } from "../../transaction/entities/transaction.entity";
-import { mapTransferListItem } from "./transferMapper";
+import { mapTransferListItem, mapERC1155TransferListItem } from "./transferMapper";
 
 describe("transferMapper", () => {
   const transfer = {
@@ -168,6 +168,61 @@ describe("transferMapper", () => {
             } as unknown as Transfer,
             100
           ).value
+        ).toBe(undefined);
+      });
+    });
+  });
+
+  describe("mapERC1155TransferListItem", () => {
+    it("transforms transfer into ERC1155 transfer list item format", () => {
+      expect(
+        mapERC1155TransferListItem(
+          {
+            ...transfer,
+            amount: "5",
+            fields: {
+              tokenId: "123",
+            },
+          } as unknown as Transfer,
+          100
+        )
+      ).toStrictEqual({
+        blockHash: "0xdfd071dcb9c802f7d11551f4769ca67842041ffb81090c49af7f089c5823f39c",
+        blockNumber: "20",
+        confirmations: "80",
+        contractAddress: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35E",
+        cumulativeGasUsed: "1200000",
+        fee: "0",
+        from: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35C",
+        gas: "1100000",
+        gasPrice: "100",
+        gasUsed: "900000",
+        hash: "0x5e018d2a81dbd1ef80ff45171dd241cb10670dcb091e324401ff8f52293841b0",
+        input: "0x",
+        nonce: "1",
+        timeStamp: "1672531200",
+        to: "0xc7e0220d02d549c4846A6EC31D89C3B670Ebe35D",
+        tokenDecimal: undefined,
+        tokenID: "123",
+        tokenName: "Token",
+        tokenSymbol: "TKN",
+        tokenValue: "5",
+        transactionIndex: "10",
+        value: undefined,
+        transactionType: "255",
+      });
+    });
+
+    describe("when transfer amount is NULL", () => {
+      it("sets tokenValue as undefined", () => {
+        expect(
+          mapERC1155TransferListItem(
+            {
+              ...transfer,
+              amount: null,
+            } as unknown as Transfer,
+            100
+          ).tokenValue
         ).toBe(undefined);
       });
     });

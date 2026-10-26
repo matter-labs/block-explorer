@@ -183,6 +183,20 @@ describe("ApiController", () => {
     });
   });
 
+  describe("getAccountERC1155Transfers", () => {
+    it("returns null as it is defined only to appear in docs and cannot be called", async () => {
+      const result = await controller.getAccountERC1155Transfers(
+        {
+          page: 1,
+          offset: 10,
+          maxLimit: 10000,
+        },
+        { sort: SortingOrder.Desc }
+      );
+      expect(result).toBe(null);
+    });
+  });
+
   describe("getAccountEtherBalance", () => {
     it("returns null as it is defined only to appear in docs and cannot be called", async () => {
       const result = await controller.getAccountEtherBalance();

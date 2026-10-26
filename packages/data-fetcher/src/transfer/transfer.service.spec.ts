@@ -7,7 +7,7 @@ import { AbiCoder, Interface, Log, Block, TransactionReceipt } from "ethers";
 import { BlockchainService } from "../blockchain/blockchain.service";
 import { TransferService, TransferType } from "./transfer.service";
 import { L2_ASSET_ROUTER_ADDRESS, L2_CONTRACT_DEPLOYER_ADDRESS } from "../constants";
-// import { TokenType } from "../token/token.service";
+import { TokenType } from "../token/token.service";
 
 // import * as ethDepositNoFee from "../../test/transactionReceipts/eth/deposit-no-fee.json";
 // import * as ethDepositZeroValue from "../../test/transactionReceipts/eth/deposit-zero-value.json";
@@ -59,6 +59,7 @@ import { L2_ASSET_ROUTER_ADDRESS, L2_CONTRACT_DEPLOYER_ADDRESS } from "../consta
 jest.mock("../logger", () => ({
   default: {
     log: jest.fn(),
+    warn: jest.fn(),
     error: jest.fn(),
   },
 }));
@@ -75,6 +76,8 @@ const iface = new Interface([
   "event WithdrawalInitiatedAssetRouter(uint256 chainId, address indexed l2Sender, bytes32 indexed assetId, bytes assetData)",
   "event FinalizeDeposit(address indexed l1Sender, address indexed l2Receiver, address indexed l2Token, uint256 amount)",
   "event DepositFinalizedAssetRouter(uint256 indexed chainId, bytes32 indexed assetId, bytes assetData)",
+  "event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)",
+  "event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)",
 ]);
 
 const TX_HASH = "0x9cf4c8deca577bda1adcd4285e2f284321594737bcbe71bbd9baec1838e566ca";
@@ -2472,6 +2475,64 @@ describe("TransferService", () => {
         expect(withdrawals).toHaveLength(1);
         expect(withdrawals[0].tokenAddress).toBe(TOKEN_ASSET_ROUTER);
       });
+    });
+  });
+
+  describe("ERC1155 transfers", () => {
+    const TOKEN_ERC1155 = "0x4444444444444444444444444444444444444444";
+    let service: TransferService;
+    let block: Block;
+    let receipt: TransactionReceipt;
+
+    beforeEach(() => {
+      logIndexCounter = 0;
+      service = new TransferService(mock<BlockchainService>(), mock<ConfigService>());
+      block = mock<Block>({ number: 1, timestamp: 1700000000 });
+      receipt = mock<TransactionReceipt>({ type: 2, from: SENDER, to: TOKEN_ERC1155 });
+    });
+
+    it("extracts a transfer from a TransferSingle log", async () => {
+      const logs = [makeLog("TransferSingle", [SENDER, SENDER, RECEIVER, BigInt(7), BigInt(3)], TOKEN_ERC1155)];
+      const transfers = await service.getTransfers(logs, block, [], receipt);
+      expect(transfers).toHaveLength(1);
+      expect(transfers[0]).toMatchObject({
+        from: SENDER,
+        to: RECEIVER,
+        amount: BigInt(3),
+        fields: { tokenId: BigInt(7) },
+        tokenAddress: TOKEN_ERC1155,
+        tokenType: TokenType.ERC1155,
+        type: TransferType.Transfer,
+      });
+    });
+
+    it("splits a TransferBatch log into a transfer per token id with unique log indexes", async () => {
+      const logs = [
+        makeLog("TransferSingle", [SENDER, SENDER, RECEIVER, BigInt(1), BigInt(10)], TOKEN_ERC1155),
+        makeLog(
+          "TransferBatch",
+          [SENDER, SENDER, RECEIVER, [BigInt(2), BigInt(3)], [BigInt(20), BigInt(30)]],
+          TOKEN_ERC1155
+        ),
+      ];
+      const transfers = await service.getTransfers(logs, block, [], receipt);
+      expect(transfers.map((t) => [t.fields.tokenId, t.amount])).toEqual([
+        [BigInt(1), BigInt(10)],
+        [BigInt(2), BigInt(20)],
+        [BigInt(3), BigInt(30)],
+      ]);
+      expect(transfers.map((t) => t.logIndex)).toEqual([1, 2, 3]);
+    });
+
+    it("skips a TransferBatch log with undecodable data and keeps other transfers", async () => {
+      const batchLog = makeLog("TransferBatch", [SENDER, SENDER, RECEIVER, [], []], TOKEN_ERC1155);
+      const logs = [
+        mock<Log>({ ...batchLog, data: "0x" }),
+        makeLog("TransferSingle", [SENDER, SENDER, RECEIVER, BigInt(1), BigInt(10)], TOKEN_ERC1155),
+      ];
+      const transfers = await service.getTransfers(logs, block, [], receipt);
+      expect(transfers).toHaveLength(1);
+      expect(transfers[0].fields.tokenId).toBe(BigInt(1));
     });
   });
 

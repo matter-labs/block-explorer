@@ -71,6 +71,8 @@ declare namespace Api {
       amount: string | null;
       token: Token | null;
       tokenAddress: string;
+      tokenType: "BASETOKEN" | "ERC20" | "ERC721" | "ERC1155";
+      fields?: { tokenId?: string; operator?: string } | null;
       type: "deposit" | "transfer" | "withdrawal" | "fee" | "mint" | "refund";
       timestamp: string;
       chainId?: string;

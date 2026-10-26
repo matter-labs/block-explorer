@@ -19,6 +19,14 @@ const router = {
   },
 };
 const routeQueryMock = vi.fn(() => ({}));
+const tokenInfoMock = vi.fn();
+const tokenInfo = {
+  l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  name: "Ether",
+  symbol: "ETH",
+  decimals: 18,
+  usdPrice: 150,
+};
 
 vi.mock("vue-router", () => ({
   useRouter: () => router,
@@ -40,13 +48,8 @@ describe("Account:", () => {
     return {
       default: () => ({
         getTokenInfo: () => undefined,
-        tokenInfo: computed(() => ({
-          l2Address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-          name: "Ether",
-          symbol: "ETH",
-          decimals: 18,
-          usdPrice: 150,
-        })),
+        tokenInfo: computed(() => tokenInfoMock()),
+        isRequestPending: computed(() => false),
       }),
     };
   });
@@ -62,8 +65,8 @@ describe("Account:", () => {
     };
   });
 
-  it("renders component", () => {
-    const { container } = render(Token, {
+  const renderToken = () =>
+    render(Token, {
       props: {
         contract: {
           accountType: "eOA",
@@ -78,8 +81,20 @@ describe("Account:", () => {
         stubs: { RouterLink: RouterLinkStub, TransfersTable: { template: "<div />" } },
       },
     });
+
+  it("renders component", () => {
+    tokenInfoMock.mockReturnValue(tokenInfo);
+    const { container } = renderToken();
     expect(container.querySelector(".breadcrumb-item-active")?.textContent).toBe("Token 0xDB75...DEd4");
-    expect(container.querySelector(".token-info-table")).toBeDefined();
+    expect(container.querySelector(".token-info-table")).not.toBeNull();
     expect(container.querySelector(".transactions-table")).toBeDefined();
+  });
+
+  it("does not render token info tables when token info is not found", () => {
+    tokenInfoMock.mockReturnValue(null);
+    const { container } = renderToken();
+    expect(container.querySelector(".token-info-table")).toBeNull();
+    expect(container.textContent).not.toContain(enUS.transactions.table.notFound);
+    expect(container.querySelector(".contract-tabs")).not.toBeNull();
   });
 });
