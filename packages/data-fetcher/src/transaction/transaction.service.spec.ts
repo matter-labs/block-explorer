@@ -8,6 +8,7 @@ import { LogService } from "../log";
 import { Token } from "../token/token.service";
 import { Transfer } from "../transfer/interfaces/transfer.interface";
 import { BalanceService } from "../balance/balance.service";
+import { L1_TO_L2_TX_TYPE } from "../constants";
 
 describe("TransactionService", () => {
   let transactionService: TransactionService;
@@ -223,6 +224,49 @@ describe("TransactionService", () => {
 
     it("tracks sender balance for the transaction", async () => {
       await transactionService.getData(transaction.hash, trace, blockDetails);
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledTimes(1);
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledWith(
+        transaction.from.toLowerCase(),
+        blockDetails.number
+      );
+    });
+
+    it("tracks the refund recipient balance for L1 to L2 transactions", async () => {
+      const refundRecipient = "0xA19E17EA7d4521A158ba105b20311bC51aeDb51f";
+      jest
+        .spyOn(blockchainServiceMock, "getTransaction")
+        .mockResolvedValue(mock<TransactionResponse>({ ...transaction, type: L1_TO_L2_TX_TYPE }));
+      jest.spyOn(blockchainServiceMock, "getTransactionRefundRecipient").mockResolvedValue(refundRecipient);
+
+      await transactionService.getData(transaction.hash, trace, blockDetails);
+
+      expect(blockchainServiceMock.getTransactionRefundRecipient).toHaveBeenCalledWith(transaction.hash);
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledTimes(2);
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledWith(
+        refundRecipient.toLowerCase(),
+        blockDetails.number
+      );
+    });
+
+    it("does not look up the refund recipient for L2 transactions", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransaction")
+        .mockResolvedValue(mock<TransactionResponse>({ ...transaction, type: 2 }));
+
+      await transactionService.getData(transaction.hash, trace, blockDetails);
+
+      expect(blockchainServiceMock.getTransactionRefundRecipient).not.toHaveBeenCalled();
+      expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledTimes(1);
+    });
+
+    it("tracks only the sender when the node exposes no refund recipient", async () => {
+      jest
+        .spyOn(blockchainServiceMock, "getTransaction")
+        .mockResolvedValue(mock<TransactionResponse>({ ...transaction, type: L1_TO_L2_TX_TYPE }));
+      jest.spyOn(blockchainServiceMock, "getTransactionRefundRecipient").mockResolvedValue(null);
+
+      await transactionService.getData(transaction.hash, trace, blockDetails);
+
       expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledTimes(1);
       expect(balanceServiceMock.trackBaseTokenBalance).toHaveBeenCalledWith(
         transaction.from.toLowerCase(),
