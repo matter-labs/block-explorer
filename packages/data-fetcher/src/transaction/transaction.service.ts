@@ -2,6 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { InjectMetric } from "@willsoto/nestjs-prometheus";
 import { Histogram } from "prom-client";
 import { type Block, type TransactionReceipt, type TransactionResponse } from "ethers";
+import { L1_TO_L2_TX_TYPE } from "../constants";
 import { BlockchainService, TransactionTrace } from "../blockchain/blockchain.service";
 import { TRANSACTION_PROCESSING_DURATION_METRIC_NAME, GET_TRANSACTION_INFO_DURATION_METRIC_NAME } from "../metrics";
 import { LogService, LogsData } from "../log/log.service";
@@ -79,6 +80,14 @@ export class TransactionService {
     }
 
     this.balanceService.trackBaseTokenBalance(transaction.from.toLowerCase(), block.number);
+    if (transaction.type === L1_TO_L2_TX_TYPE) {
+      // Unused gas and the value of a failed L1->L2 transaction are refunded to the refund recipient
+      // by the bootloader without a Transfer event or a value-carrying trace frame.
+      const refundRecipient = await this.blockchainService.getTransactionRefundRecipient(transactionHash);
+      if (refundRecipient) {
+        this.balanceService.trackBaseTokenBalance(refundRecipient.toLowerCase(), block.number);
+      }
+    }
 
     const transactionInfo = {
       ...transaction,

@@ -98,6 +98,16 @@ export class BlockchainService {
     }, "getTransaction");
   }
 
+  // ZKsync OS exposes the refund recipient of an L1->L2 transaction as `refundRecipient` on the
+  // raw transaction object. ethers drops unknown fields, so the raw RPC response is read instead.
+  // Returns null when the node does not expose the field (e.g. Era) or the transaction is unknown.
+  public async getTransactionRefundRecipient(transactionHash: string): Promise<string | null> {
+    return await this.rpcCall(async () => {
+      const rawTransaction = await this.provider.send("eth_getTransactionByHash", [transactionHash]);
+      return rawTransaction?.refundRecipient ?? null;
+    }, "getTransactionRefundRecipient");
+  }
+
   public async getTransactionReceipt(transactionHash: string): Promise<TransactionReceipt> {
     return await this.rpcCall(async () => {
       return await this.provider.getTransactionReceipt(transactionHash);
@@ -122,7 +132,7 @@ export class BlockchainService {
         txHash,
         {
           tracer: "callTracer",
-          tracerConfig: { onlyTopCall },
+          tracerConfig: { onlyTopCall, includeAllL1TxCalls: true },
         },
       ]);
     }, "debugTraceTransaction");
@@ -134,7 +144,7 @@ export class BlockchainService {
         toBeHex(blockNumber),
         {
           tracer: "callTracer",
-          tracerConfig: { onlyTopCall },
+          tracerConfig: { onlyTopCall, includeAllL1TxCalls: true },
         },
       ]);
     }, "debugTraceBlock");
