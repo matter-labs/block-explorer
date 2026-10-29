@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "context": [
+    ".github/security-review-focus.md",
+    ".github/security-review-focus-ci.md"
+  ],
+  "pathProfiles": [
+    {
+      "paths": ["packages/api/**"],
+      "profiles": [
+        "domains/http-service",
+        "domains/authorization",
+        "domains/privacy-data-exposure"
+      ]
+    },
+    {
+      "paths": ["packages/worker/**", "packages/data-fetcher/**"],
+      "profiles": ["domains/distributed-system"]
+    },
+    {
+      "paths": ["packages/app/**"],
+      "profiles": ["domains/web-client", "domains/privacy-data-exposure"]
+    },
+    {
+      "paths": [
+        ".github/**",
+        "**/Dockerfile*",
+        "**/docker-compose*.yaml",
+        "**/docker-compose*.yml",
+        "**/package.json",
+        "**/package-lock.json",
+        "**/.npmrc",
+        "lerna.json",
+        "**/scripts/**",
+        "**/*.sh"
+      ],
+      "profiles": ["domains/ci-supply-chain", "domains/privileged-automation"]
+    }
+  ]
+}
