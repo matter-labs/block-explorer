@@ -74,6 +74,24 @@ describe("config", () => {
     });
   });
 
+  describe("when RPC_CALLS_FROM_ADDRESS is specified in env vars", () => {
+    beforeEach(() => {
+      process.env = {
+        RPC_CALLS_FROM_ADDRESS: "0x0000000000000000000000000000000000008001",
+      };
+    });
+
+    it("sets rpcCallsFromAddress to the value from env vars", () => {
+      expect(config()).toEqual({
+        ...defaultConfig,
+        blockchain: {
+          ...defaultConfig.blockchain,
+          rpcCallsFromAddress: "0x0000000000000000000000000000000000008001",
+        },
+      });
+    });
+  });
+
   describe("when RPC_BATCH_STALL_TIME_MS is specified in env vars", () => {
     beforeEach(() => {
       process.env = {

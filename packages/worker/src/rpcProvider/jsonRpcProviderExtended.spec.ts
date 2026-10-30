@@ -1,8 +1,8 @@
 import { mock } from "jest-mock-extended";
 const baseSendPromise = jest.fn();
 class JsonRpcProviderBaseMock {
-  public send() {
-    return baseSendPromise();
+  public send(method: string, params: Array<any>) {
+    return baseSendPromise(method, params);
   }
 }
 jest.mock("../logger");
@@ -121,6 +121,55 @@ describe("JsonRpcProviderExtended", () => {
         const result = await jsonRpcProvider.send("method", [1, 2]);
         expect(result).toBeUndefined();
       });
+    });
+  });
+
+  describe("send with calls from address", () => {
+    const callsFromAddress = "0x0000000000000000000000000000000000008001";
+    const callRequest = { to: "0x280a5669b23898ecc307fa398694cc0feedc9985", data: "0x95d89b41" };
+
+    beforeEach(() => {
+      baseSendPromise.mockReset();
+      jsonRpcProvider = new JsonRpcProviderExtended(
+        rpcUrl,
+        120_000,
+        quickTimeout,
+        batchMaxCount,
+        batchMaxSizeBytes,
+        batchStallTimeMs,
+        callsFromAddress
+      );
+    });
+
+    it("adds from address to eth_call requests", async () => {
+      await jsonRpcProvider.send("eth_call", [callRequest, "latest"]);
+      expect(baseSendPromise).toBeCalledWith("eth_call", [{ ...callRequest, from: callsFromAddress }, "latest"]);
+    });
+
+    it("does not override from address specified in eth_call request", async () => {
+      const from = "0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c";
+      await jsonRpcProvider.send("eth_call", [{ ...callRequest, from }, "latest"]);
+      expect(baseSendPromise).toBeCalledWith("eth_call", [{ ...callRequest, from }, "latest"]);
+    });
+
+    it("does not add from address to other requests", async () => {
+      await jsonRpcProvider.send("eth_getBalance", ["0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c", "latest"]);
+      expect(baseSendPromise).toBeCalledWith("eth_getBalance", [
+        "0xc7e0220d02d549c4846a6ec31d89c3b670ebe35c",
+        "latest",
+      ]);
+    });
+  });
+
+  describe("send without calls from address", () => {
+    beforeEach(() => {
+      baseSendPromise.mockReset();
+    });
+
+    it("sends eth_call requests as is", async () => {
+      const callRequest = { to: "0x280a5669b23898ecc307fa398694cc0feedc9985", data: "0x95d89b41" };
+      await jsonRpcProvider.send("eth_call", [callRequest, "latest"]);
+      expect(baseSendPromise).toBeCalledWith("eth_call", [callRequest, "latest"]);
     });
   });
 
