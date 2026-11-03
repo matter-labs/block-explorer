@@ -958,7 +958,7 @@ describe("BlockchainService", () => {
         "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
         {
           tracer: "callTracer",
-          tracerConfig: { onlyTopCall: false },
+          tracerConfig: { onlyTopCall: false, includeAllL1TxCalls: true },
         },
       ]);
     });
@@ -973,7 +973,7 @@ describe("BlockchainService", () => {
         "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
         {
           tracer: "callTracer",
-          tracerConfig: { onlyTopCall: true },
+          tracerConfig: { onlyTopCall: true, includeAllL1TxCalls: true },
         },
       ]);
     });

@@ -1463,7 +1463,7 @@ describe("BlockchainService", () => {
         "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
         {
           tracer: "callTracer",
-          tracerConfig: { onlyTopCall: false },
+          tracerConfig: { onlyTopCall: false, includeAllL1TxCalls: true },
         },
       ]);
     });
@@ -1478,7 +1478,7 @@ describe("BlockchainService", () => {
         "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
         {
           tracer: "callTracer",
-          tracerConfig: { onlyTopCall: true },
+          tracerConfig: { onlyTopCall: true, includeAllL1TxCalls: true },
         },
       ]);
     });
@@ -1631,6 +1631,107 @@ describe("BlockchainService", () => {
           ).rejects.toThrowError(error);
         });
       });
+    });
+  });
+
+  describe("debugTraceBlock", () => {
+    const traceBlockResult = [
+      {
+        txHash: "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b",
+        result: {
+          type: "CALL",
+          from: "0x0000000000000000000000000000000000000000",
+          to: "0x0000000000000000000000000000000000008001",
+          value: "0x0",
+          calls: [],
+        },
+      },
+    ];
+
+    beforeEach(() => {
+      jest.spyOn(provider, "send").mockResolvedValue(traceBlockResult);
+    });
+
+    it("starts the rpc call duration metric", async () => {
+      await blockchainService.debugTraceBlock(255);
+      expect(startRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("gets block traces including all L1 tx calls", async () => {
+      await blockchainService.debugTraceBlock(255);
+      expect(provider.send).toHaveBeenCalledTimes(1);
+      expect(provider.send).toHaveBeenCalledWith("debug_traceBlockByNumber", [
+        "0xff",
+        {
+          tracer: "callTracer",
+          tracerConfig: { onlyTopCall: false, includeAllL1TxCalls: true },
+        },
+      ]);
+    });
+
+    it("gets block traces with only top call", async () => {
+      await blockchainService.debugTraceBlock(255, true);
+      expect(provider.send).toHaveBeenCalledWith("debug_traceBlockByNumber", [
+        "0xff",
+        {
+          tracer: "callTracer",
+          tracerConfig: { onlyTopCall: true, includeAllL1TxCalls: true },
+        },
+      ]);
+    });
+
+    it("stops the rpc call duration metric", async () => {
+      await blockchainService.debugTraceBlock(255);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "debugTraceBlock" });
+    });
+
+    it("returns block traces", async () => {
+      const result = await blockchainService.debugTraceBlock(255);
+      expect(result).toEqual(traceBlockResult);
+    });
+  });
+
+  describe("getTransactionRefundRecipient", () => {
+    const transactionHash = "0xc0ae49e96910fa9df22eb59c0977905864664d495bc95906120695aa26e1710b";
+    const refundRecipient = "0xA19E17EA7d4521A158ba105b20311bC51aeDb51f";
+
+    beforeEach(() => {
+      jest.spyOn(provider, "send").mockResolvedValue({ hash: transactionHash, type: "0x7f", refundRecipient });
+    });
+
+    it("starts the rpc call duration metric", async () => {
+      await blockchainService.getTransactionRefundRecipient(transactionHash);
+      expect(startRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+    });
+
+    it("requests the raw transaction", async () => {
+      await blockchainService.getTransactionRefundRecipient(transactionHash);
+      expect(provider.send).toHaveBeenCalledTimes(1);
+      expect(provider.send).toHaveBeenCalledWith("eth_getTransactionByHash", [transactionHash]);
+    });
+
+    it("stops the rpc call duration metric", async () => {
+      await blockchainService.getTransactionRefundRecipient(transactionHash);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledTimes(1);
+      expect(stopRpcCallDurationMetricMock).toHaveBeenCalledWith({ function: "getTransactionRefundRecipient" });
+    });
+
+    it("returns the refund recipient", async () => {
+      const result = await blockchainService.getTransactionRefundRecipient(transactionHash);
+      expect(result).toBe(refundRecipient);
+    });
+
+    it("returns null when the node does not expose a refund recipient", async () => {
+      jest.spyOn(provider, "send").mockResolvedValue({ hash: transactionHash, type: "0x7f" });
+      const result = await blockchainService.getTransactionRefundRecipient(transactionHash);
+      expect(result).toBeNull();
+    });
+
+    it("returns null when the transaction is not found", async () => {
+      jest.spyOn(provider, "send").mockResolvedValue(null);
+      const result = await blockchainService.getTransactionRefundRecipient(transactionHash);
+      expect(result).toBeNull();
     });
   });
 });

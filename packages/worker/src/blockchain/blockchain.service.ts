@@ -104,7 +104,7 @@ export class BlockchainService {
         txHash,
         {
           tracer: "callTracer",
-          tracerConfig: { onlyTopCall },
+          tracerConfig: { onlyTopCall, includeAllL1TxCalls: true },
         },
       ]);
     }, "debugTraceTransaction");
