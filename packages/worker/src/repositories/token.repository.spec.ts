@@ -207,6 +207,32 @@ describe("TokenRepository", () => {
       );
     });
 
+    it.each([
+      ["the zero address", "0x0000000000000000000000000000000000000000"],
+      ["the asset router ETH address", "0x0000000000000000000000000000000000000001"],
+    ])("matches both stored ETH L1 addresses when l1Address is %s", async (_, l1Address) => {
+      const updatedAt = new Date();
+      await repository.updateTokenOffChainData({
+        l1Address,
+        liquidity: 1000000,
+        usdPrice: 3500,
+        updatedAt,
+      });
+
+      expect(entityManagerMock.update).toBeCalledWith(
+        Token,
+        [
+          { l1Address: "0x0000000000000000000000000000000000000000" },
+          { l1Address: "0x0000000000000000000000000000000000000001" },
+        ],
+        {
+          liquidity: 1000000,
+          usdPrice: 3500,
+          offChainDataUpdatedAt: updatedAt,
+        }
+      );
+    });
+
     it("updates token offchain data using l2Address when provided", async () => {
       const updatedAt = new Date();
       await repository.updateTokenOffChainData({

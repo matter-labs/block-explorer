@@ -1,9 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
-import { IsNull, Not, FindOptionsSelect } from "typeorm";
+import { IsNull, Not, FindOptionsSelect, FindOptionsWhere } from "typeorm";
 import { Token } from "../entities";
 import { BaseRepository } from "./base.repository";
 import { UnitOfWork } from "../unitOfWork";
+import { ETH_ADDRESS_IN_CONTRACTS, ZERO_ADDRESS } from "../constants";
+
+// Native ETH is stored with the zero address as its L1 address when it is the
+// base token, but bridged ETH carries the asset router sentinel 0x...01.
+// Off-chain data providers report ETH under the zero address, so it has to
+// match both.
+const ETH_L1_ADDRESSES = [ZERO_ADDRESS, ETH_ADDRESS_IN_CONTRACTS];
 
 @Injectable()
 export class TokenRepository extends BaseRepository<Token> {
@@ -85,19 +92,19 @@ export class TokenRepository extends BaseRepository<Token> {
       throw new Error("l1Address or l2Address must be provided");
     }
     const transactionManager = this.unitOfWork.getTransactionManager();
-    await transactionManager.update(
-      this.entityTarget,
-      {
-        ...(l1Address ? { l1Address } : { l2Address }),
-      },
-      {
-        liquidity,
-        usdPrice,
-        offChainDataUpdatedAt: updatedAt,
-        ...(iconURL && {
-          iconURL,
-        }),
-      }
-    );
+    let criteria: FindOptionsWhere<Token> | FindOptionsWhere<Token>[] = l1Address ? { l1Address } : { l2Address };
+    if (l1Address && ETH_L1_ADDRESSES.includes(l1Address.toLowerCase())) {
+      // One condition per address (OR) rather than In(), so each value still
+      // goes through the bytea column transformer.
+      criteria = ETH_L1_ADDRESSES.map((address) => ({ l1Address: address }));
+    }
+    await transactionManager.update(this.entityTarget, criteria, {
+      liquidity,
+      usdPrice,
+      offChainDataUpdatedAt: updatedAt,
+      ...(iconURL && {
+        iconURL,
+      }),
+    });
   }
 }
