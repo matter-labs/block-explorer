@@ -90,6 +90,31 @@ describe("TheHeader:", () => {
     expect(routerArray[0].attributes("href")).toBe("https://join.zksync.dev");
     expect(routerArray[1].attributes("href")).toBe("https://x.com/zksync");
   });
+  it("hides a social link when its URL is explicitly hidden", () => {
+    (window as any)["##runtimeConfig"] = { links: { discordUrl: "" } };
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n],
+      },
+    });
+    const socials = wrapper.findAll(".socials-container > a");
+    expect(socials).toHaveLength(1);
+    expect(socials[0].attributes("href")).toBe("https://x.com/zksync");
+    delete (window as any)["##runtimeConfig"];
+  });
+  it("hides the socials container when all social URLs are hidden", () => {
+    (window as any)["##runtimeConfig"] = { links: { discordUrl: null, xUrl: null } };
+    const wrapper = mount(TheHeader, {
+      global: {
+        stubs: ["router-link"],
+        plugins: [i18n],
+      },
+    });
+    expect(wrapper.find(".socials-container").exists()).toBe(false);
+    expect(wrapper.find(".mobile-socials-container").exists()).toBe(false);
+    delete (window as any)["##runtimeConfig"];
+  });
   it("renders network switch", () => {
     const wrapper = mount(TheHeader, {
       global: {

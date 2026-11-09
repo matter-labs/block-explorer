@@ -76,3 +76,37 @@ describe("useRuntimeConfig: docs and terms resolution", () => {
     expect(links.termsOfServiceUrl).toBeNull();
   });
 });
+
+describe("useRuntimeConfig: social links resolution", () => {
+  afterEach(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    delete (window as any)["##runtimeConfig"];
+  });
+
+  it("falls back to the ZKsync URLs when nothing is set", () => {
+    const { links } = useRuntimeConfig();
+    expect(links.discordUrl).toBe("https://join.zksync.dev");
+    expect(links.xUrl).toBe("https://x.com/zksync");
+  });
+
+  it("uses the operator URLs when runtime config provides them", () => {
+    setRuntimeConfig({ links: { discordUrl: "https://discord.gg/bank-xyz", xUrl: "https://x.com/bankxyz" } });
+    const { links } = useRuntimeConfig();
+    expect(links.discordUrl).toBe("https://discord.gg/bank-xyz");
+    expect(links.xUrl).toBe("https://x.com/bankxyz");
+  });
+
+  it("resolves to null when explicitly hidden with an empty string", () => {
+    setRuntimeConfig({ links: { discordUrl: "", xUrl: "" } });
+    const { links } = useRuntimeConfig();
+    expect(links.discordUrl).toBeNull();
+    expect(links.xUrl).toBeNull();
+  });
+
+  it("resolves to null when explicitly hidden with null", () => {
+    setRuntimeConfig({ links: { discordUrl: null, xUrl: null } });
+    const { links } = useRuntimeConfig();
+    expect(links.discordUrl).toBeNull();
+    expect(links.xUrl).toBeNull();
+  });
+});

@@ -65,8 +65,8 @@ export type RuntimeConfig = {
   brandName: string;
   appEnvironment: "default" | "dev" | "local" | "prividium" | "production" | "staging";
   links: {
-    discordUrl: string;
-    xUrl: string;
+    discordUrl: string | null;
+    xUrl: string | null;
     docsUrl: string | null;
     termsOfServiceUrl: string | null;
     contactUsUrl: string | null;

@@ -37,8 +37,11 @@ export default (): RuntimeConfig => {
     brandName: runtimeConfig?.brandName || import.meta.env?.VITE_BRAND_NAME || "ZKsync",
     appEnvironment,
     links: {
-      discordUrl: runtimeConfig?.links?.discordUrl || import.meta.env?.VITE_DISCORD_URL || "https://join.zksync.dev",
-      xUrl: runtimeConfig?.links?.xUrl || import.meta.env?.VITE_X_URL || "https://x.com/zksync",
+      discordUrl: resolveHideable(
+        runtimeConfig?.links?.discordUrl,
+        import.meta.env?.VITE_DISCORD_URL || "https://join.zksync.dev"
+      ),
+      xUrl: resolveHideable(runtimeConfig?.links?.xUrl, import.meta.env?.VITE_X_URL || "https://x.com/zksync"),
       docsUrl: resolveHideable(
         runtimeConfig?.links?.docsUrl,
         import.meta.env?.VITE_DOCS_URL || "https://docs.zksync.io"

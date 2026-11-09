@@ -43,7 +43,7 @@
               }))
             "
           />
-          <div v-if="!isPrividium" class="socials-container">
+          <div v-if="!isPrividium && socials.length" class="socials-container">
             <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
               <component :is="social.component" />
             </a>
@@ -127,7 +127,7 @@
                 "
               />
             </div>
-            <div v-if="!isPrividium" class="mobile-socials-container">
+            <div v-if="!isPrividium && socials.length" class="mobile-socials-container">
               <a :href="social.url" target="_blank" rel="noopener" v-for="(social, index) in socials" :key="index">
                 <component :is="social.component" />
               </a>
@@ -229,7 +229,7 @@ const toolsLinks = computed(() => {
 const socials = [
   { url: runtimeConfig.links.discordUrl, component: DiscordIcon },
   { url: runtimeConfig.links.xUrl, component: TwitterIcon },
-];
+].filter((social): social is { url: string; component: typeof DiscordIcon } => !!social.url);
 
 const hasContent = computed(() => {
   if (route.name !== "not-found" && !currentNetwork.value.maintenance) {
