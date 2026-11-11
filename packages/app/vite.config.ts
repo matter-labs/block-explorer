@@ -56,6 +56,27 @@ export default defineConfig(({ command }) => ({
   plugins: [
     vue(),
     {
+      // The dev server only serves paths under the full base ("/explorer/") and answers "/explorer" with a 404.
+      // Serve the base without its trailing slash as the base itself, without a redirect, so the address bar
+      // keeps "/explorer" (the router does the same, see router/history.ts). Production does this in the proxy.
+      name: "app-base-without-trailing-slash",
+      apply: "serve",
+      configureServer(server) {
+        const base = server.config.base;
+        if (base === "/") {
+          return;
+        }
+        const baseWithoutSlash = base.replace(/\/$/, "");
+        server.middlewares.use((req, _res, next) => {
+          const url = req.url ?? "";
+          if (url === baseWithoutSlash || url.startsWith(`${baseWithoutSlash}?`)) {
+            req.url = base + url.slice(baseWithoutSlash.length);
+          }
+          next();
+        });
+      },
+    },
+    {
       name: "html-transform",
       transformIndexHtml(html) {
         // Docker: emit envsubst placeholders and leave the asset sentinel for container startup.
