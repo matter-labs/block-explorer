@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter } from "vue-router";
 
+import { createAppHistory } from "./history";
 import routes from "./routes";
 
 import useContext from "@/composables/useContext";
@@ -10,7 +11,7 @@ import { appBase } from "@/utils/appBase";
 const router = createRouter({
   // Not import.meta.env.BASE_URL: that is Vite's `base`, which is used as the asset placeholder.
   // The router base must be the runtime app base (window.__APP_BASE__).
-  history: createWebHistory(appBase),
+  history: createAppHistory(appBase),
   routes,
 });
 
