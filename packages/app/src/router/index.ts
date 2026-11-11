@@ -27,4 +27,18 @@ router.beforeEach((to) => {
   }
 });
 
+// Remove trailing slash from root route when deployed under a sub-path.
+// Vue Router normalizes /explorer to /explorer/, but we want the address bar to show /explorer.
+router.afterEach((to, _from, failure) => {
+  if (failure || appBase === "/" || to.path !== "/") {
+    return;
+  }
+  // appBase is the runtime base with trailing slash (e.g. "/explorer/").
+  // Build the URL without the trailing slash for the root route.
+  const baseWithoutSlash = appBase.replace(/\/+$/, "");
+  const newUrl = baseWithoutSlash + (location.search || "") + (location.hash || "");
+  // Use history.replaceState to update the URL without triggering a navigation.
+  history.replaceState(history.state, "", newUrl);
+});
+
 export default router;
