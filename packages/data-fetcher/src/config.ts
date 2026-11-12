@@ -14,6 +14,7 @@ export default () => {
     RPC_BATCH_MAX_SIZE_BYTES,
     RPC_BATCH_MAX_COUNT,
     RPC_BATCH_STALL_TIME_MS,
+    RPC_CALLS_FROM_ADDRESS,
     MAX_BLOCKS_BATCH_SIZE,
     GRACEFUL_SHUTDOWN_TIMEOUT_MS,
     RPC_HEALTH_CHECK_TIMEOUT_MS,
@@ -50,6 +51,9 @@ export default () => {
       // 0 indicates batching will only encompass the current event loop.
       // If rpcBatchMaxCount = 1, this is ignored.
       rpcBatchStallTimeMs: parseInt(RPC_BATCH_STALL_TIME_MS, 10) || 0,
+      // address used as "from" for eth_call requests, e.g. when view functions check msg.sender.
+      // If not set, eth_call requests are sent without "from".
+      rpcCallsFromAddress: RPC_CALLS_FROM_ADDRESS || undefined,
     },
     maxBlocksBatchSize: parseInt(MAX_BLOCKS_BATCH_SIZE, 10) || 20,
     gracefulShutdownTimeoutMs: parseInt(GRACEFUL_SHUTDOWN_TIMEOUT_MS, 10) || 0,
