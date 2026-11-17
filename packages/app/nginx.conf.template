@@ -1,3 +1,14 @@
+# Cache only the files that can also be served from STATIC_ASSETS_URL (the CDN): the bundle in /assets
+# and /images. Everything else (index.html, config.js, runtime-base.js, favicons) is never cached.
+# Evaluated on the final URI, so a missing asset served as the /index.html fallback is not cached.
+map $uri $static_cache_control {
+    default        "no-cache, no-store, must-revalidate";
+    # content-hashed file names, a new release never reuses a URL
+    ~^/assets/     "public, max-age=31536000, immutable";
+    # not content-hashed, so a release can change an image under the same URL
+    ~^/images/     "public, max-age=86400";
+}
+
 server {
     listen   ${PORT};
     listen   [::]:${PORT} default;
@@ -16,13 +27,11 @@ server {
     location / {
         try_files $uri /index.html;
         # Add headers to all responses
-        add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+        add_header Cache-Control $static_cache_control always;
         add_header Referrer-Policy "no-referrer, strict-origin-when-cross-origin" always;
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "DENY" always;
         add_header X-XSS-Protection "1; mode=block" always;
         add_header ${CSP_HEADER} "${CSP_REPORT_ONLY}" always;
     }
-
-    # TODO: add cache for static files, avoid caching config.js, index.html etc.
 }
