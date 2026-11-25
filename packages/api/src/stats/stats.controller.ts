@@ -5,6 +5,8 @@ import { TransactionService } from "../transaction/transaction.service";
 import { StatsDto } from "./stats.dto";
 import { MonthlyActiveAddressDto } from "./monthlyActiveAddress.dto";
 import { MonthlyActiveAddressService } from "./monthlyActiveAddress.service";
+import { MonthlyTransactionsDto } from "./monthlyTransactions.dto";
+import { MonthlyTransactionService } from "./monthlyTransaction.service";
 import { swagger } from "../config/featureFlags";
 
 const entityName = "stats";
@@ -17,7 +19,8 @@ export class StatsController {
   constructor(
     private readonly blocksService: BlockService,
     private readonly transactionService: TransactionService,
-    private readonly monthlyActiveAddressService: MonthlyActiveAddressService
+    private readonly monthlyActiveAddressService: MonthlyActiveAddressService,
+    private readonly monthlyTransactionService: MonthlyTransactionService
   ) {}
 
   @Get()
@@ -48,6 +51,21 @@ export class StatsController {
       throw new BadRequestException("month must be in YYYY-MM format");
     }
     const count = await this.monthlyActiveAddressService.getCount(month);
+    return { count };
+  }
+
+  @Get("monthly-transactions")
+  @ApiQuery({ name: "month", type: String, description: "Calendar month in YYYY-MM format (UTC)", example: "2026-10" })
+  @ApiOkResponse({
+    description: "Number of transactions in the given month",
+    type: MonthlyTransactionsDto,
+  })
+  @ApiBadRequestResponse({ description: "Month query param is missing or not in YYYY-MM format" })
+  public async monthlyTransactions(@Query("month") month: string): Promise<MonthlyTransactionsDto> {
+    if (!month || !MONTH_REGEX.test(month)) {
+      throw new BadRequestException("month must be in YYYY-MM format");
+    }
+    const count = await this.monthlyTransactionService.getCount(month);
     return { count };
   }
 }
