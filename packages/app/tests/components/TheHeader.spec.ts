@@ -3,7 +3,7 @@
 import { computed } from "vue";
 import { createI18n } from "vue-i18n";
 
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fireEvent } from "@testing-library/vue";
 import { mount, RouterLinkStub } from "@vue/test-utils";
@@ -15,10 +15,12 @@ import enUS from "@/locales/en.json";
 const routeMock = vi.fn(() => ({ name: "home", params: {} }));
 vi.mock("vue-router", () => ({
   useRoute: () => routeMock(),
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
 const maintenanceMock = vi.fn(() => false);
 const networkOverridesMock = vi.fn(() => ({}));
+const userMock = vi.fn((): Record<string, unknown> => ({ loggedIn: false }));
 vi.mock("@/composables/useContext", () => {
   return {
     default: () => ({
@@ -29,7 +31,7 @@ vi.mock("@/composables/useContext", () => {
         ...networkOverridesMock(),
       })),
       networks: computed(() => []),
-      user: computed(() => ({ loggedIn: false })),
+      user: computed(() => userMock()),
     }),
   };
 });
@@ -68,6 +70,61 @@ describe("TheHeader:", () => {
       "https://docs.zksync.io"
     );
   });
+  describe("in Prividium mode", () => {
+    const user = (permissions: { hasFullReadAccess: boolean; hasFullWriteAccess: boolean }) => ({
+      loggedIn: true,
+      address: "0x1",
+      wallets: ["0x1"],
+      hasAdminRead: false,
+      ...permissions,
+    });
+
+    const mountToolsLinks = async () => {
+      const wrapper = mount(TheHeader, {
+        global: {
+          stubs: { RouterLink: RouterLinkStub },
+          plugins: [i18n],
+        },
+      });
+      const dropdown = wrapper.findAll(".dropdown-container");
+      await fireEvent.click(dropdown[1].find("button")!.element);
+      return {
+        routerLinks: dropdown[1].findAllComponents(RouterLinkStub).map((link: any) => link.props().to.name),
+        hrefs: dropdown[1].findAll("a").map((link) => link.attributes("href")),
+      };
+    };
+
+    beforeEach(() => {
+      (window as any)["##runtimeConfig"] = { appEnvironment: "prividium" };
+    });
+
+    afterEach(() => {
+      delete (window as any)["##runtimeConfig"];
+      userMock.mockReset().mockReturnValue({ loggedIn: false });
+    });
+
+    it("shows the API docs and contract verification to users with write access", async () => {
+      userMock.mockReturnValue(user({ hasFullReadAccess: true, hasFullWriteAccess: true }));
+      const { routerLinks, hrefs } = await mountToolsLinks();
+      expect(routerLinks).toContain("contract-verification");
+      expect(hrefs).toContain("https://api-url/docs");
+    });
+
+    it("shows the API docs but not contract verification to users with read access only", async () => {
+      userMock.mockReturnValue(user({ hasFullReadAccess: true, hasFullWriteAccess: false }));
+      const { routerLinks, hrefs } = await mountToolsLinks();
+      expect(routerLinks).not.toContain("contract-verification");
+      expect(hrefs).toContain("https://api-url/docs");
+    });
+
+    it("hides the API docs and contract verification from users without full read access", async () => {
+      userMock.mockReturnValue(user({ hasFullReadAccess: false, hasFullWriteAccess: false }));
+      const { routerLinks, hrefs } = await mountToolsLinks();
+      expect(routerLinks).not.toContain("contract-verification");
+      expect(hrefs).not.toContain("https://api-url/docs");
+    });
+  });
+
   it("hides the documentation link when the docs URL is explicitly hidden", () => {
     (window as any)["##runtimeConfig"] = { links: { docsUrl: "" } };
     const wrapper = mount(TheHeader, {

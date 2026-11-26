@@ -103,7 +103,8 @@ export default [
     component: () => import("@/views/ContractVerificationView.vue"),
     meta: {
       title: "contractVerification.title",
-      requiresAdmin: true,
+      // the same permission the API requires to submit a verification
+      requiresFullWriteAccess: true,
     },
   },
   {

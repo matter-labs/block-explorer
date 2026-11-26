@@ -8,12 +8,16 @@ import { NO_WALLET_VIEWER } from "../../common/constants";
 type Permissions = {
   hasFullReadAccess: boolean;
   hasAdminRead: boolean;
+  hasFullWriteAccess: boolean;
 };
 
 export type UserWithPermissions = UserParam & Permissions;
 
+export const ADMIN_READ_PERMISSION = "admin_read";
+// Permissions that allow write actions in the explorer, such as contract verification.
+export const WRITE_PERMISSIONS = new Set(["full_sequencer_rpc_access", "admin_write"]);
 // Permissions that grant unrestricted read access to all on-chain data in the explorer.
-export const READ_ALL_PERMISSIONS = new Set(["full_read_access", "full_sequencer_rpc_access"]);
+export const READ_ALL_PERMISSIONS = new Set(["full_read_access", ADMIN_READ_PERMISSION, ...WRITE_PERMISSIONS]);
 
 const userProfileSchema = z.object({
   roles: z.array(
@@ -38,8 +42,9 @@ export function parseUserProfile(data: unknown): Permissions {
   // so only zone-level roles count. A missing organizationId means a permissions API without organization roles.
   const zoneRoles = result.data.roles.filter((r) => r.organizationId == null);
   const hasFullReadAccess = zoneRoles.some((r) => r.systemPermissions?.some((p) => READ_ALL_PERMISSIONS.has(p)));
-  const hasAdminRead = zoneRoles.some((r) => r.systemPermissions?.includes("admin_read"));
-  return { hasFullReadAccess, hasAdminRead };
+  const hasAdminRead = zoneRoles.some((r) => r.systemPermissions?.includes(ADMIN_READ_PERMISSION));
+  const hasFullWriteAccess = zoneRoles.some((r) => r.systemPermissions?.some((p) => WRITE_PERMISSIONS.has(p)));
+  return { hasFullReadAccess, hasAdminRead, hasFullWriteAccess };
 }
 
 function throwUpstreamError(): never {
@@ -93,6 +98,7 @@ export class AddUserRolesPipe implements PipeTransform<UserParam | null, Promise
       wallets,
       hasFullReadAccess: profile.hasFullReadAccess,
       hasAdminRead: profile.hasAdminRead,
+      hasFullWriteAccess: profile.hasFullWriteAccess,
     };
   }
 }

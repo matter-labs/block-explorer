@@ -1,6 +1,7 @@
 import { Module, Logger, MiddlewareConsumer, NestModule, DynamicModule, Inject } from "@nestjs/common";
-import { APP_FILTER } from "@nestjs/core";
+import { APP_FILTER, APP_GUARD } from "@nestjs/core";
 import { SessionInvalidationFilter } from "./middlewares/sessionInvalidation.filter";
+import { FullWriteAccessGuard } from "./auth/fullWriteAccess.guard";
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { HealthModule } from "./health/health.module";
@@ -88,6 +89,10 @@ export class AppModule implements NestModule {
               {
                 provide: APP_FILTER,
                 useClass: SessionInvalidationFilter,
+              },
+              {
+                provide: APP_GUARD,
+                useClass: FullWriteAccessGuard,
               },
             ]
           : []),

@@ -12,7 +12,14 @@ import { checksumAddress } from "@/utils/formatters";
 import { getWindowLocation } from "@/utils/helpers";
 
 export type UserContext =
-  | { address: string | null; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean; loggedIn: true }
+  | {
+      address: string | null;
+      wallets: string[];
+      hasFullReadAccess: boolean;
+      hasAdminRead: boolean;
+      hasFullWriteAccess: boolean;
+      loggedIn: true;
+    }
   | { loggedIn: false };
 
 const network = useStorage("selectedNetwork_v2", DEFAULT_NETWORK.name);

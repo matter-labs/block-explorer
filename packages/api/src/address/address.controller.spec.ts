@@ -449,26 +449,12 @@ describe("AddressController", () => {
         expect(result["verifiedNonce"]).toBe(3);
       });
 
-      it("does not include nonces if user is not the account owner and is not an admin", async () => {
+      it("includes nonces if user has full read access and is not the account owner", async () => {
         user = mock<UserWithPermissions>({
           address: mockUser,
           wallets: [mockUser],
           hasFullReadAccess: true,
           hasAdminRead: false,
-        });
-        serviceMock.findOne.mockResolvedValue(mock<Address>({ address: blockchainAddress, bytecode: "0x" }));
-        const result = await controller.getAddress(blockchainAddress, user);
-        expect(transactionServiceMock.getAccountNonce).not.toHaveBeenCalled();
-        expect(result).not.toHaveProperty("sealedNonce");
-        expect(result).not.toHaveProperty("verifiedNonce");
-      });
-
-      it("includes nonces if user is an admin and is not the account owner", async () => {
-        user = mock<UserWithPermissions>({
-          address: mockUser,
-          wallets: [mockUser],
-          hasFullReadAccess: true,
-          hasAdminRead: true,
         });
         serviceMock.findOne.mockResolvedValue(mock<Address>({ address: blockchainAddress, bytecode: "0x" }));
         (transactionServiceMock.getAccountNonce as jest.Mock).mockResolvedValueOnce(5).mockResolvedValueOnce(3);

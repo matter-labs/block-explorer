@@ -2,6 +2,7 @@
   "networks": [
     {
       "apiUrl": "http://localhost:3020",
+      "verificationApiUrl": "http://localhost:3020/api",
       "bridgeUrl": "http://localhost:3001/bridge",
       "hostnames": ["localhost"],
       "icon": "/images/prividium_logo.svg",

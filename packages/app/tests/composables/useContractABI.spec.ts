@@ -2,7 +2,7 @@ import { computed, ref } from "vue";
 
 import { describe, expect, it, type SpyInstance, vi } from "vitest";
 
-import { $fetch } from "ohmyfetch";
+import { $fetch, FetchError } from "ohmyfetch";
 
 import { TESTNET_BETA_NETWORK, TESTNET_NETWORK } from "../mocks";
 
@@ -60,6 +60,16 @@ describe("useContractABI:", () => {
     await getCollection(["0x0000000000000000000000000000000000000123"]);
 
     expect(isRequestFailed.value).toEqual(true);
+    mock.mockRestore();
+  });
+  it.each([401, 403, 404])("does not set isRequestFailed when the request fails with %s", async (status) => {
+    const error = Object.assign(Object.create(FetchError.prototype), { response: { status } });
+    const mock = ($fetch as unknown as SpyInstance).mockRejectedValue(error);
+    const { isRequestFailed, collection, getCollection } = useContractABI();
+    await getCollection([`0x${status}0000000000000000000000000000000000000`]);
+
+    expect(isRequestFailed.value).toEqual(false);
+    expect(collection.value).toEqual({});
     mock.mockRestore();
   });
   it("doesn't make request when there is no verification api url", async () => {

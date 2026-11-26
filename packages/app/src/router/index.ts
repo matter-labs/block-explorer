@@ -19,10 +19,10 @@ router.beforeEach((to) => {
   const runtimeConfig = useRuntimeConfig();
   const isPrividium = runtimeConfig.appEnvironment === "prividium";
 
-  if (isPrividium && to.meta.requiresAdmin) {
+  if (isPrividium && to.meta.requiresFullWriteAccess) {
     const { user } = useContext();
-    const hasAdminRead = user.value.loggedIn && user.value.hasAdminRead;
-    if (!hasAdminRead) {
+    const hasFullWriteAccess = user.value.loggedIn && user.value.hasFullWriteAccess;
+    if (!hasFullWriteAccess) {
       return { name: "not-authorized" };
     }
   }

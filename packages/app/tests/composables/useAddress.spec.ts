@@ -198,6 +198,37 @@ describe("useAddresses", () => {
       });
     });
 
+    it.each([401, 403])(
+      "loads the contract without verification info when the verification API answers %i",
+      async (status) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const error: any = new FetchError(String(status));
+        error.response = { status };
+        // the address lookup succeeds, the contract's verification lookup fails
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ($fetch as any)
+          .mockImplementationOnce(async (url: string) => ({
+            address: url.slice(url.length - 42),
+            balances: {},
+            type: "contract",
+          }))
+          .mockRejectedValueOnce(error);
+        const { item, isRequestFailed, getByAddress } = useAddress();
+        await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");
+
+        expect($fetch).toHaveBeenNthCalledWith(
+          2,
+          "?module=contract&action=getsourcecode&address=0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c"
+        );
+        expect(isRequestFailed.value).toBe(false);
+        expect(item.value).toMatchObject({
+          address: "0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c",
+          type: "contract",
+          verificationInfo: null,
+        });
+      }
+    );
+
     it("takes proxy implementation contract from implementation function when it exists", async () => {
       const { item, getByAddress } = useAddress();
       await getByAddress("0xc31f9d4cbf557b6cf0ad2af66d44c358f7fa7a1c");

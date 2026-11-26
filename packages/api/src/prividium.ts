@@ -112,7 +112,7 @@ export function applySwaggerAuthMiddleware(
         wallets: req.session.wallets ?? [req.session.address],
         token: req.session.token,
       });
-      if (!userWithRoles?.hasAdminRead && !userWithRoles?.hasFullReadAccess) {
+      if (!userWithRoles?.hasFullReadAccess) {
         res.status(403).json({ message: "Forbidden" });
         return;
       }

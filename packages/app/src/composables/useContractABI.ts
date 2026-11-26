@@ -49,7 +49,8 @@ export default (context = useContext()) => {
             abi,
           };
         } catch (error) {
-          if (!(error instanceof FetchError) || error.response?.status !== 404) {
+          // Users without access to the verification API (Prividium) get no ABI, as for unverified contracts.
+          if (!(error instanceof FetchError) || ![401, 403, 404].includes(error.response?.status ?? 0)) {
             isRequestFailed.value = true;
           }
           return {

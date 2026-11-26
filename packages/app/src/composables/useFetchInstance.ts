@@ -13,7 +13,20 @@ export class FetchInstance {
   public static $fetch = $fetch;
 
   public static api(context = useContext()) {
-    return this.withCredentials(context, context.currentNetwork.value.apiUrl, ({ response }) => {
+    return this.withCredentials(context, context.currentNetwork.value.apiUrl, this.loginOnInvalidatedSession(context));
+  }
+
+  // In Prividium mode the verification API is the explorer API's /api, authorized by the session cookie.
+  public static verificationApi(context = useContext()) {
+    return this.withCredentials(
+      context,
+      context.currentNetwork.value.verificationApiUrl ?? "",
+      this.loginOnInvalidatedSession(context)
+    );
+  }
+
+  private static loginOnInvalidatedSession(context: Context): OnResponse {
+    return ({ response }) => {
       if (response.status !== 401 || !context.currentNetwork.value.prividium || !context.user.value.loggedIn) {
         return;
       }
@@ -21,11 +34,7 @@ export class FetchInstance {
       // API invalidated the session
       context.user.value = { loggedIn: false };
       window.location.href = `${resolveBase("/login")}?redirect=${encodeURIComponent(window.location.pathname)}`;
-    });
-  }
-
-  public static verificationApi(context = useContext()) {
-    return this.withBaseUrl(context.currentNetwork.value.verificationApiUrl ?? "");
+    };
   }
 
   private static withCredentials(context: Context, baseUrl?: string, onResponse?: OnResponse) {

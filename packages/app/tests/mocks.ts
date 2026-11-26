@@ -179,6 +179,7 @@ export const useContextMock = (params: any = {}) => {
       wallets: ["0x000000000000000000000000000000000000800A"],
       hasFullReadAccess: false,
       hasAdminRead: false,
+      hasFullWriteAccess: false,
       loggedIn: true,
     })),
     identifyNetwork: () => undefined,

@@ -331,7 +331,7 @@ describe("AuthMiddleware", () => {
     });
 
     it("blocks traffic when the m2m app has no full read access", async () => {
-      mockM2mAppResponse([{ roleName: "reader", systemPermissions: ["admin_read"], organizationId: null }]);
+      mockM2mAppResponse([{ roleName: "deployer", systemPermissions: ["contract_deployment"], organizationId: null }]);
       const middleware = buildMiddleware();
       const next = jest.fn();
       await expect(middleware.use(apiKeyRequest(), mock<Response>(), next)).rejects.toThrow(ForbiddenException);
@@ -399,6 +399,158 @@ describe("AuthMiddleware", () => {
     });
   });
 
+  describe("api route with a session cookie", () => {
+    const sessionRequest = (session: Partial<Request["session"]> = {}) => {
+      const req = mock<Request>();
+      req.originalUrl = "/api/contract/verifysourcecode";
+      req.session = {
+        address: "0x36Ea1B6673eA6269014D6cA0AdCca6598f618319",
+        wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
+        token: "session-token",
+        expiresAt: new Date(2100, 1, 1).toISOString(),
+        audienceChecked: true,
+        ...session,
+      };
+      return req;
+    };
+
+    const mockSessionUser = (permissions: { hasFullReadAccess: boolean; hasFullWriteAccess?: boolean }) => {
+      const transform = jest.fn().mockResolvedValue(permissions);
+      (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({ transform }));
+      return transform;
+    };
+
+    it("allows traffic with full read access, checking the live roles and wallet of the session", async () => {
+      const transform = mockSessionUser({ hasFullReadAccess: true, hasFullWriteAccess: false });
+      const req = sessionRequest();
+      const next = jest.fn();
+      await buildMiddleware().use(req, mock<Response>(), next);
+      expect(transform).toHaveBeenCalledWith({
+        address: "0x36Ea1B6673eA6269014D6cA0AdCca6598f618319",
+        wallets: ["0x36Ea1B6673eA6269014D6cA0AdCca6598f618319"],
+        token: "session-token",
+      });
+      expect(req.identity).toEqual({ hasFullReadAccess: true, hasFullWriteAccess: false });
+      expect(next).toHaveBeenCalled();
+    });
+
+    it("records full write access of the session user", async () => {
+      mockSessionUser({ hasFullReadAccess: true, hasFullWriteAccess: true });
+      const req = sessionRequest();
+      await buildMiddleware().use(req, mock<Response>(), jest.fn());
+      expect(req.identity).toEqual({ hasFullReadAccess: true, hasFullWriteAccess: true });
+    });
+
+    it("blocks traffic without full read access", async () => {
+      mockSessionUser({ hasFullReadAccess: false, hasFullWriteAccess: false });
+      const next = jest.fn();
+      await expect(buildMiddleware().use(sessionRequest(), mock<Response>(), next)).rejects.toThrow(ForbiddenException);
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("clears the session and blocks traffic when the session is expired", async () => {
+      const transform = mockSessionUser({ hasFullReadAccess: true });
+      const req = sessionRequest({ expiresAt: new Date(1980, 1, 1).toISOString() });
+      await expect(buildMiddleware().use(req, mock<Response>(), jest.fn())).rejects.toThrow(
+        new PrividiumApiError({ message: "Session expired" }, 401)
+      );
+      expect(transform).not.toHaveBeenCalled();
+      expect(req.session).toBeNull();
+    });
+
+    it("verifies the token of a session without the audience marker", async () => {
+      verifier.verify.mockRejectedValue(new PrividiumApiError("Token was not issued for the block explorer", 403));
+      const transform = mockSessionUser({ hasFullReadAccess: true });
+      const req = sessionRequest({ audienceChecked: undefined });
+      await expect(buildMiddleware().use(req, mock<Response>(), jest.fn())).rejects.toThrow(PrividiumApiError);
+      expect(transform).not.toHaveBeenCalled();
+      expect(req.session).toBeNull();
+    });
+
+    it("clears the session when the permissions API rejects its token or selected wallet", async () => {
+      (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
+        transform: jest.fn().mockRejectedValue(new PrividiumApiError("Authentication failed", 401)),
+      }));
+      const req = sessionRequest();
+      const next = jest.fn();
+      await expect(buildMiddleware().use(req, mock<Response>(), next)).rejects.toThrow(
+        new PrividiumApiError("Authentication failed", 401)
+      );
+      expect(req.session).toBeNull();
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    it("keeps the session when the permissions API is unavailable", async () => {
+      (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
+        transform: jest.fn().mockRejectedValue(new BadGatewayException("Auth service unavailable")),
+      }));
+      const req = sessionRequest();
+      await expect(buildMiddleware().use(req, mock<Response>(), jest.fn())).rejects.toThrow(BadGatewayException);
+      expect(req.session).not.toBeNull();
+    });
+
+    it("uses the bearer token when both a bearer token and a session are sent", async () => {
+      const transform = mockSessionUser({ hasFullReadAccess: true, hasFullWriteAccess: false });
+      const req = sessionRequest();
+      req.headers = { authorization: "Bearer token" };
+      await buildMiddleware().use(req, mock<Response>(), jest.fn());
+      expect(transform).toHaveBeenCalledWith({ address: "", wallets: [], token: "token" });
+    });
+  });
+
+  describe("api access recorded for bearer tokens and m2m app api keys", () => {
+    it("records full write access of a bearer token user", async () => {
+      (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
+        transform: jest.fn().mockResolvedValue({ hasFullReadAccess: true, hasFullWriteAccess: true }),
+      }));
+      const req = mock<Request>();
+      req.headers = { authorization: "Bearer token" };
+      req.originalUrl = "/api";
+      await buildMiddleware().use(req, mock<Response>(), jest.fn());
+      expect(req.identity).toEqual({ hasFullReadAccess: true, hasFullWriteAccess: true });
+    });
+
+    it("records full write access of an m2m app", async () => {
+      const fetchSpy: jest.SpyInstance = jest.spyOn(global, "fetch");
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          id: "app",
+          roles: [{ roleName: "verifier", systemPermissions: ["full_sequencer_rpc_access"], organizationId: null }],
+        }),
+      });
+      try {
+        const req = mock<Request>();
+        req.headers = { "x-api-key": "m2m-api-key" };
+        req.originalUrl = "/api";
+        await buildMiddleware().use(req, mock<Response>(), jest.fn());
+        expect(req.identity).toEqual({ hasFullReadAccess: true, hasFullWriteAccess: true });
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+
+    it("records no full write access for an m2m app with full read access only", async () => {
+      const fetchSpy: jest.SpyInstance = jest.spyOn(global, "fetch");
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          id: "app",
+          roles: [{ roleName: "indexer", systemPermissions: ["full_read_access"], organizationId: null }],
+        }),
+      });
+      try {
+        const req = mock<Request>();
+        req.headers = { "x-api-key": "m2m-api-key" };
+        req.originalUrl = "/api";
+        await buildMiddleware().use(req, mock<Response>(), jest.fn());
+        expect(req.identity).toEqual({ hasFullReadAccess: true, hasFullWriteAccess: false });
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+  });
+
   // `/API/...` reaches the `/api/...` handler, so it must hit this gate too.
   describe("api route classification is case-insensitive (route/authorizer parity)", () => {
     const validSession = () => ({
@@ -409,15 +561,18 @@ describe("AuthMiddleware", () => {
     });
 
     it.each(["/API", "/API/account/txlist", "/Api/account/txlist", "/aPi/Account/TxList", "/API/logs/getLogs"])(
-      "classifies %s as an api route and refuses it without a bearer token, even with a valid session",
+      "classifies %s as an api route and enforces full read access for a valid session",
       async (originalUrl) => {
+        (AddUserRolesPipe as jest.Mock).mockImplementation(() => ({
+          transform: jest.fn().mockResolvedValue({ hasFullReadAccess: false }),
+        }));
         const middleware = buildMiddleware();
         const req = mock<Request>();
         req.originalUrl = originalUrl;
         req.session = validSession();
         const res = mock<Response>();
         const next = jest.fn();
-        await expect(middleware.use(req, res, next)).rejects.toThrow(UnauthorizedException);
+        await expect(middleware.use(req, res, next)).rejects.toThrow(ForbiddenException);
         expect(next).not.toHaveBeenCalled();
       }
     );
