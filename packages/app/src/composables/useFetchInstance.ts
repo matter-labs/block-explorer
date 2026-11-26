@@ -16,7 +16,6 @@ export class FetchInstance {
     return this.withCredentials(context, context.currentNetwork.value.apiUrl, this.loginOnInvalidatedSession(context));
   }
 
-  // In Prividium mode the verification API is the explorer API's /api, authorized by the session cookie.
   public static verificationApi(context = useContext()) {
     return this.withCredentials(
       context,
