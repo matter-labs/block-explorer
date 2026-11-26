@@ -45,7 +45,8 @@ export class AuthMiddleware implements NestMiddleware {
         // Only users/m2m apps with full read access can use the API for now
         throw new ForbiddenException({ message: "Forbidden request" });
       }
-      // Handlers that change state require more, see RequiresFullWriteAccess.
+      // Read access is enough here. Handlers marked with @RequiresFullWriteAccess() also need write access,
+      // which FullWriteAccessGuard checks against req.identity after routing.
       req.identity = { hasFullReadAccess, hasFullWriteAccess };
       next();
       return;
