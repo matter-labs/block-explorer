@@ -677,7 +677,8 @@ describe("Prividium API (e2e)", () => {
       it("refuses a bearer token with read access only", async () => {
         mockPermissions(["full_read_access", "admin_read"]);
 
-        const response = await verifyContract({ Authorization: "Bearer some-token" });
+        // A token of its own: ExplorerSessionVerifier caches which application each token was issued to.
+        const response = await verifyContract({ Authorization: "Bearer verifier-token" });
 
         expect(response.body).toEqual({ status: "0", message: "NOTOK", result: "Forbidden request" });
       });
@@ -687,7 +688,7 @@ describe("Prividium API (e2e)", () => {
         async (permission) => {
           mockPermissions([permission]);
 
-          const response = await verifyContract({ Authorization: "Bearer some-token" });
+          const response = await verifyContract({ Authorization: "Bearer verifier-token" });
 
           expect(response.body.result).not.toBe("Forbidden request");
         }
