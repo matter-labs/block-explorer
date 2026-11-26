@@ -4,18 +4,23 @@ import { mock } from "jest-mock-extended";
 import { BlockService } from "../block/block.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { MonthlyActiveAddressService } from "./monthlyActiveAddress.service";
+import { MonthlyTransactionService } from "./monthlyTransaction.service";
 import { StatsController } from "./stats.controller";
 
 describe("StatsController", () => {
   let blockServiceMock: BlockService;
   let transactionServiceMock: TransactionService;
   let monthlyActiveAddressServiceMock: MonthlyActiveAddressService;
+  let monthlyTransactionServiceMock: MonthlyTransactionService;
   let statsController: StatsController;
 
   beforeEach(async () => {
     blockServiceMock = mock<BlockService>();
     transactionServiceMock = mock<TransactionService>();
     monthlyActiveAddressServiceMock = mock<MonthlyActiveAddressService>({
+      getCount: jest.fn().mockResolvedValue(0),
+    });
+    monthlyTransactionServiceMock = mock<MonthlyTransactionService>({
       getCount: jest.fn().mockResolvedValue(0),
     });
 
@@ -33,6 +38,10 @@ describe("StatsController", () => {
         {
           provide: MonthlyActiveAddressService,
           useValue: monthlyActiveAddressServiceMock,
+        },
+        {
+          provide: MonthlyTransactionService,
+          useValue: monthlyTransactionServiceMock,
         },
       ],
     }).compile();
@@ -83,6 +92,26 @@ describe("StatsController", () => {
       await expect(statsController.monthlyActiveAddresses("2026-13")).rejects.toThrow(BadRequestException);
       await expect(statsController.monthlyActiveAddresses("2026")).rejects.toThrow(BadRequestException);
       await expect(statsController.monthlyActiveAddresses("2026-05-01")).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe("monthlyTransactions", () => {
+    it("returns the count for the given month", async () => {
+      (monthlyTransactionServiceMock.getCount as jest.Mock).mockResolvedValueOnce(54321);
+      const result = await statsController.monthlyTransactions("2026-10");
+      expect(monthlyTransactionServiceMock.getCount).toHaveBeenCalledWith("2026-10");
+      expect(result).toStrictEqual({ count: 54321 });
+    });
+
+    it("throws BadRequestException when month is missing", async () => {
+      await expect(statsController.monthlyTransactions(undefined)).rejects.toThrow(BadRequestException);
+    });
+
+    it("throws BadRequestException when month is malformed", async () => {
+      await expect(statsController.monthlyTransactions("2026-13")).rejects.toThrow(BadRequestException);
+      await expect(statsController.monthlyTransactions("2026")).rejects.toThrow(BadRequestException);
+      await expect(statsController.monthlyTransactions("2026-10-01")).rejects.toThrow(BadRequestException);
+      expect(monthlyTransactionServiceMock.getCount).not.toHaveBeenCalled();
     });
   });
 });

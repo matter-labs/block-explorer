@@ -11,6 +11,14 @@ import { Transaction } from "../src/transaction/entities/transaction.entity";
 import { Counter } from "../src/counter/counter.entity";
 import { IndexerState } from "../src/indexerState/indexerState.entity";
 
+// Written as SQL literals so the stored timestamps don't depend on the time zone of the test process.
+const blockTimestamps = [
+  "2022-10-31 23:59:59",
+  "2022-11-01 00:00:00",
+  ...new Array(7).fill("2022-11-10 14:44:08"),
+  "2022-12-01 00:00:00",
+];
+
 describe("StatsController (e2e)", () => {
   let app: INestApplication;
   let blockRepository: Repository<BlockDetails>;
@@ -40,13 +48,13 @@ describe("StatsController (e2e)", () => {
       await blockRepository.insert({
         number: i + 1,
         hash: `0x4f86d6647711915ac90e5ef69c29845946f0a55b3feaa0488aece4a359f79c0${i}`,
-        timestamp: new Date("2022-11-10T14:44:08.000Z"),
+        timestamp: () => `'${blockTimestamps[i]}'`,
         gasLimit: "0",
         gasUsed: "0",
         baseFeePerGas: "100000000",
         extraData: "0x",
         l1TxCount: 1,
-        l2TxCount: 1,
+        l2TxCount: 2,
         miner: "0x0000000000000000000000000000000000000000",
         status: i > 4 ? BlockStatus.Sealed : BlockStatus.Executed,
       });
@@ -100,6 +108,41 @@ describe("StatsController (e2e)", () => {
             totalTransactions: 10,
           })
         );
+    });
+  });
+
+  describe("/stats/monthly-transactions GET", () => {
+    it("returns the transactions of blocks from the month start up to, but excluding, the next month start", () => {
+      // blocks 2-9: 8 blocks with 1 + 2 transactions each
+      return request(app.getHttpServer())
+        .get("/stats/monthly-transactions?month=2022-11")
+        .expect(200)
+        .expect((res) => expect(res.body).toStrictEqual({ count: 24 }));
+    });
+
+    it("counts the block one second before the month start in the previous month", () => {
+      return request(app.getHttpServer())
+        .get("/stats/monthly-transactions?month=2022-10")
+        .expect(200)
+        .expect((res) => expect(res.body).toStrictEqual({ count: 3 }));
+    });
+
+    it("counts the block at the next month start in the next month", () => {
+      return request(app.getHttpServer())
+        .get("/stats/monthly-transactions?month=2022-12")
+        .expect(200)
+        .expect((res) => expect(res.body).toStrictEqual({ count: 3 }));
+    });
+
+    it("returns 0 for a month without blocks", () => {
+      return request(app.getHttpServer())
+        .get("/stats/monthly-transactions?month=2022-09")
+        .expect(200)
+        .expect((res) => expect(res.body).toStrictEqual({ count: 0 }));
+    });
+
+    it("returns HTTP 400 when month is not in YYYY-MM format", () => {
+      return request(app.getHttpServer()).get("/stats/monthly-transactions?month=2022-13").expect(400);
     });
   });
 });
