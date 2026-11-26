@@ -3,6 +3,7 @@ import { $fetch } from "ohmyfetch";
 interface OpenChainMethod {
   name: string;
   filtered: boolean;
+  hasVerifiedContract?: boolean;
 }
 
 interface OpenChainLookupResponse {
@@ -19,12 +20,14 @@ function parseOpenChainResult(data: Record<string, OpenChainMethod[]> | undefine
   if (!data) return names;
 
   Object.entries(data).forEach(([hash, items]) => {
-    if (Array.isArray(items)) {
-      items.forEach((item) => {
-        if (item?.name && item.name.includes("(")) {
-          names[hash] = item.name;
-        }
-      });
+    if (!Array.isArray(items)) return;
+    // A selector can match several signatures, some of them registered on purpose to collide with real ones
+    // (e.g. "_SIMONdotBLACK_(...)" for transferOwnership). Prefer one used by a verified contract,
+    // otherwise the first one, skipping the ones the database marks as filtered.
+    const candidates = items.filter((item) => item?.name?.includes("(") && !item.filtered);
+    const candidate = candidates.find((item) => item.hasVerifiedContract) ?? candidates[0];
+    if (candidate) {
+      names[hash] = candidate.name;
     }
   });
 
