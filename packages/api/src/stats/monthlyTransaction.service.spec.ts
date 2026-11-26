@@ -3,6 +3,7 @@ import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { mock } from "jest-mock-extended";
 import { Block } from "../block/block.entity";
+import { BlockService } from "../block/block.service";
 import { IndexerStateService } from "../indexerState/indexerState.service";
 import { MonthlyTransactionService, INCOMPLETE_MONTH_CACHE_TTL_MS } from "./monthlyTransaction.service";
 
@@ -14,6 +15,7 @@ describe("MonthlyTransactionService", () => {
   // last block with timestamp < key
   let lastBlockBefore: Record<string, number>;
   let lastReadyBlockNumber: number;
+  let lastExecutedBlockNumber: number;
   let sumMock: jest.Mock;
 
   beforeEach(async () => {
@@ -22,6 +24,7 @@ describe("MonthlyTransactionService", () => {
     firstBlockFrom = { "2026-10-01": 100, "2026-11-01": 200 };
     lastBlockBefore = { "2026-11-01": 199, "2026-12-01": 260 };
     lastReadyBlockNumber = 250;
+    lastExecutedBlockNumber = 220;
     sumMock = jest.fn().mockResolvedValue(1000);
 
     const blockRepositoryMock = mock<Repository<Block>>({
@@ -59,6 +62,12 @@ describe("MonthlyTransactionService", () => {
         MonthlyTransactionService,
         { provide: getRepositoryToken(Block), useValue: blockRepositoryMock },
         { provide: IndexerStateService, useValue: indexerStateServiceMock },
+        {
+          provide: BlockService,
+          useValue: mock<BlockService>({
+            getLastVerifiedBlockNumber: jest.fn().mockImplementation(async () => lastExecutedBlockNumber),
+          }),
+        },
       ],
     }).compile();
 
@@ -113,7 +122,7 @@ describe("MonthlyTransactionService", () => {
     });
 
     describe("cache", () => {
-      it("caches a fully indexed month forever", async () => {
+      it("caches a month forever once its next month's first block is executed", async () => {
         await service.getCount("2026-10");
         jest.advanceTimersByTime(365 * 24 * 60 * 60 * 1000);
         const result = await service.getCount("2026-10");
@@ -121,7 +130,7 @@ describe("MonthlyTransactionService", () => {
         expect(result).toBe(1000);
       });
 
-      it("caches a month which is not fully indexed for 5 minutes", async () => {
+      it("caches the current month for 5 minutes", async () => {
         // the current month: no block of the next month yet
         await service.getCount("2026-11");
         jest.advanceTimersByTime(INCOMPLETE_MONTH_CACHE_TTL_MS - 1);
@@ -135,11 +144,25 @@ describe("MonthlyTransactionService", () => {
         expect(result).toBe(2000);
       });
 
-      it("caches a past month for 5 minutes until its next month's first block is ready", async () => {
+      it("caches a past month for 5 minutes while its next month's first block is not ready", async () => {
         lastReadyBlockNumber = 199;
+        lastExecutedBlockNumber = 150;
         await service.getCount("2026-10");
         jest.advanceTimersByTime(INCOMPLETE_MONTH_CACHE_TTL_MS);
-        lastReadyBlockNumber = 200;
+        await service.getCount("2026-10");
+        expect(sumMock).toHaveBeenCalledTimes(2);
+      });
+
+      it("caches a past month for 5 minutes while its next month's first block is ready but not executed", async () => {
+        // a revert can still remove and reindex the month's last blocks
+        lastExecutedBlockNumber = 199;
+        await service.getCount("2026-10");
+        jest.advanceTimersByTime(INCOMPLETE_MONTH_CACHE_TTL_MS - 1);
+        await service.getCount("2026-10");
+        expect(sumMock).toHaveBeenCalledTimes(1);
+
+        jest.advanceTimersByTime(1);
+        lastExecutedBlockNumber = 200;
         await service.getCount("2026-10");
         jest.advanceTimersByTime(365 * 24 * 60 * 60 * 1000);
         await service.getCount("2026-10");

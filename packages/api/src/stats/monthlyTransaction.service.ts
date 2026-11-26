@@ -2,14 +2,15 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Block } from "../block/block.entity";
+import { BlockService } from "../block/block.service";
 import { IndexerStateService } from "../indexerState/indexerState.service";
 
-// A month that is not fully indexed yet (the current one, or a past one the indexer hasn't finished) can still change.
+// A month that is not final yet (the current one, or a past one whose blocks are not all executed) can still change.
 export const INCOMPLETE_MONTH_CACHE_TTL_MS = 5 * 60 * 1000;
 
 interface CachedCount {
   count: number;
-  // null for fully indexed months, their count never changes
+  // null for final months, their count never changes
   expiresAt: number | null;
 }
 
@@ -28,7 +29,8 @@ export class MonthlyTransactionService {
   public constructor(
     @InjectRepository(Block)
     private readonly blockRepository: Repository<Block>,
-    private readonly indexerStateService: IndexerStateService
+    private readonly indexerStateService: IndexerStateService,
+    private readonly blockService: BlockService
   ) {}
 
   // Returns the number of transactions in the given calendar month (YYYY-MM, UTC) up to the last ready block.
@@ -52,10 +54,11 @@ export class MonthlyTransactionService {
 
     const lastReadyBlockNumber = await this.indexerStateService.getLastReadyBlockNumber();
     // Block timestamps never decrease, so the month is the range between its first and last block.
-    const [firstBlockNumber, lastBlockNumber, nextMonthFirstBlockNumber] = await Promise.all([
+    const [firstBlockNumber, lastBlockNumber, nextMonthFirstBlockNumber, lastExecutedBlockNumber] = await Promise.all([
       this.getFirstBlockNumberFrom(monthStart),
       this.getLastBlockNumberBefore(nextMonthStart),
       this.getFirstBlockNumberFrom(nextMonthStart),
+      this.blockService.getLastVerifiedBlockNumber(),
     ]);
 
     let count = 0;
@@ -66,7 +69,9 @@ export class MonthlyTransactionService {
       }
     }
 
-    const isComplete = nextMonthFirstBlockNumber !== undefined && nextMonthFirstBlockNumber <= lastReadyBlockNumber;
+    // Block reverts never go below the last executed block, so the month can't change anymore
+    // once the first block of the next month is executed.
+    const isComplete = nextMonthFirstBlockNumber !== undefined && nextMonthFirstBlockNumber <= lastExecutedBlockNumber;
     this.cache.set(month, {
       count,
       expiresAt: isComplete ? null : Date.now() + INCOMPLETE_MONTH_CACHE_TTL_MS,
