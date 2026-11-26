@@ -116,21 +116,18 @@ export class AddressController {
       };
     }
 
-    // In prividium mode account nonces are only visible to the account owner or an admin
-    const includeNonces = !user || user.hasAdminRead || isOwnAddress;
-    const [sealedNonce, verifiedNonce] = includeNonces
-      ? await Promise.all([
-          this.transactionService.getAccountNonce({ accountAddress: address }),
-          this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
-        ])
-      : [undefined, undefined];
+    const [sealedNonce, verifiedNonce] = await Promise.all([
+      this.transactionService.getAccountNonce({ accountAddress: address }),
+      this.transactionService.getAccountNonce({ accountAddress: address, isVerified: true }),
+    ]);
 
     return {
       type: AddressType.Account,
       address: ethersGetAddress(address),
       blockNumber: addressBalance.blockNumber || (await this.blockService.getLastBlockNumber()),
       balances: addressBalance.balances,
-      ...(includeNonces && { sealedNonce, verifiedNonce }),
+      sealedNonce,
+      verifiedNonce,
     };
   }
 

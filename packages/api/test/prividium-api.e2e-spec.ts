@@ -152,6 +152,7 @@ describe("Prividium API (e2e)", () => {
         wallets: [mockWalletAddress],
         hasFullReadAccess: false,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       });
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: `Bearer ${mockToken}` },
@@ -163,6 +164,7 @@ describe("Prividium API (e2e)", () => {
         wallets: [mockWalletAddress],
         hasFullReadAccess: false,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       });
 
       // Logout user
@@ -530,7 +532,14 @@ describe("Prividium API (e2e)", () => {
           json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }),
         });
       await agent.post("/auth/login").send({ token: mockToken }).expect(201);
-      fetchSpy.mockReset();
+      // The session's live roles: an ordinary user without full read access.
+      fetchSpy.mockReset().mockImplementation(async () => ({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "user" }],
+          wallets: [{ walletAddress: mockWalletAddress }],
+        }),
+      }));
     });
 
     afterEach(() => {
@@ -548,11 +557,142 @@ describe("Prividium API (e2e)", () => {
       }
     );
 
-    it("denies the lower-case api route to a session without a bearer token", async () => {
+    it("denies the lower-case api route to a session without full read access", async () => {
       const response = await agent.get(`/api/account/txlist?address=${otherAddress}`);
+
+      expect(response.status).toBe(403);
+      expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
+    });
+
+    it("denies the api route without a session, bearer token or api key", async () => {
+      const response = await request(app.getHttpServer()).get(`/api/account/txlist?address=${otherAddress}`);
 
       expect(response.status).toBe(401);
       expect(JSON.stringify(response.body)).not.toContain(otherTxHash);
+    });
+
+    describe("with a session cookie", () => {
+      const profile = (systemPermissions: string[]) => ({
+        roles: [{ roleName: "role", systemPermissions }],
+        wallets: [{ walletAddress: mockWalletAddress }],
+      });
+
+      // Logs in again, then answers the session's live roles with the given permissions.
+      const loginWith = async (systemPermissions: string[]) => {
+        fetchSpy
+          .mockReset()
+          .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue(profile(systemPermissions)) })
+          .mockResolvedValueOnce({ status: 200, json: jest.fn().mockResolvedValue({ wallets: [mockWalletAddress] }) })
+          .mockResolvedValueOnce({
+            status: 200,
+            json: jest.fn().mockResolvedValue({ type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }),
+          });
+        await agent.post("/auth/login").send({ token: mockToken }).expect(201);
+        fetchSpy.mockReset().mockImplementation(async () => ({
+          status: 200,
+          json: jest.fn().mockResolvedValue(profile(systemPermissions)),
+        }));
+      };
+
+      const verifyContract = (path: string, body: Record<string, string> = {}) =>
+        agent.post(path).send({ contractaddress: otherAddress, ...body });
+
+      it.each(["full_read_access", "admin_read", "full_sequencer_rpc_access", "admin_write"])(
+        "allows read endpoints to a session with %s",
+        async (permission) => {
+          await loginWith([permission]);
+
+          const response = await agent.get(`/api/account/txlist?address=${otherAddress}&page=1&offset=10`);
+
+          expect(response.status).toBe(200);
+          expect(JSON.stringify(response.body)).toContain(otherTxHash);
+        }
+      );
+
+      it.each([
+        ["the module and action in the query", "/api?module=contract&action=verifysourcecode", {}],
+        ["the module and action in the body", "/api", { module: "contract", action: "verifysourcecode" }],
+        ["the contract route", "/api/contract/verifysourcecode", {}],
+      ])(
+        "refuses contract verification via %s to a session with full read access only",
+        async (_, path: string, body: Record<string, string>) => {
+          await loginWith(["full_read_access", "admin_read"]);
+
+          const response = await verifyContract(path, body);
+
+          expect(response.body).toEqual({ status: "0", message: "NOTOK", result: "Forbidden request" });
+        }
+      );
+
+      it.each(["full_sequencer_rpc_access", "admin_write"])(
+        "lets contract verification through to a session with %s",
+        async (permission) => {
+          await loginWith([permission]);
+
+          const response = await verifyContract("/api?module=contract&action=verifysourcecode");
+
+          // past the permission check, the incomplete request fails validation
+          expect(response.body.result).not.toBe("Forbidden request");
+        }
+      );
+    });
+
+    describe("contract verification with an m2m app api key or a bearer token", () => {
+      const verifyContract = (headers: Record<string, string>) =>
+        request(app.getHttpServer())
+          .post("/api?module=contract&action=verifysourcecode")
+          .set(headers)
+          .send({ contractaddress: otherAddress });
+
+      const mockPermissions = (systemPermissions: string[]) =>
+        fetchSpy.mockReset().mockImplementation(async (url: URL) => ({
+          status: 200,
+          json: jest.fn().mockResolvedValue(
+            url.pathname.endsWith("/current-session")
+              ? { type: "user", expiresAt: new Date(2100, 0, 0).toISOString() }
+              : {
+                  id: "app",
+                  roles: [{ roleName: "role", systemPermissions }],
+                  wallets: [{ walletAddress: mockWalletAddress }],
+                }
+          ),
+        }));
+
+      it("refuses an m2m app with read access only", async () => {
+        mockPermissions(["full_read_access", "admin_read"]);
+
+        const response = await verifyContract({ "x-api-key": "m2m-api-key" });
+
+        expect(response.body).toEqual({ status: "0", message: "NOTOK", result: "Forbidden request" });
+      });
+
+      it.each(["full_sequencer_rpc_access", "admin_write"])("lets an m2m app with %s through", async (permission) => {
+        mockPermissions([permission]);
+
+        const response = await verifyContract({ "x-api-key": "m2m-api-key" });
+
+        expect(response.body.result).not.toBe("Forbidden request");
+      });
+
+      it("refuses a bearer token with read access only", async () => {
+        mockPermissions(["full_read_access", "admin_read"]);
+
+        // A token of its own: ExplorerSessionVerifier caches which application each token was issued to.
+        const response = await verifyContract({ Authorization: "Bearer verifier-token" });
+
+        expect(response.body).toEqual({ status: "0", message: "NOTOK", result: "Forbidden request" });
+      });
+
+      it.each(["full_sequencer_rpc_access", "admin_write"])(
+        "lets a bearer token with %s through",
+        async (permission) => {
+          mockPermissions([permission]);
+
+          const response = await verifyContract({ Authorization: "Bearer verifier-token" });
+
+          expect(response.body.result).not.toBe("Forbidden request");
+        }
+      );
     });
 
     it("refuses the api route when the bearer token was issued to another application", async () => {

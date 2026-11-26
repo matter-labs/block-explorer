@@ -173,8 +173,10 @@ const { currentNetwork, user } = useContext();
 const runtimeConfig = useRuntimeConfig();
 
 const isPrividium = runtimeConfig.appEnvironment === "prividium";
-const hasAdminRead = computed(() => user.value.loggedIn && user.value.hasAdminRead);
-const showAdminLinks = computed(() => !isPrividium || hasAdminRead.value);
+const hasFullReadAccess = computed(() => user.value.loggedIn && user.value.hasFullReadAccess);
+const showAdminLinks = computed(() => !isPrividium || hasFullReadAccess.value);
+const hasFullWriteAccess = computed(() => user.value.loggedIn && user.value.hasFullWriteAccess);
+const showContractVerificationLink = computed(() => !isPrividium || hasFullWriteAccess.value);
 
 const navigation = computed(() =>
   runtimeConfig.links.docsUrl
@@ -210,6 +212,8 @@ const toolsLinks = computed(() => {
       label: t("header.nav.apiDocs"),
       url: `${currentNetwork.value.apiUrl}/docs`,
     });
+  }
+  if (showContractVerificationLink.value) {
     links.push({
       label: t("header.nav.contractVerification"),
       to: { name: "contract-verification" },

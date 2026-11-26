@@ -51,6 +51,7 @@ describe("useLogin", () => {
         wallets: ["0x1"],
         hasFullReadAccess: true,
         hasAdminRead: false,
+        hasFullWriteAccess: true,
       });
 
       await useLogin(context, logger).initializeLogin();
@@ -60,8 +61,22 @@ describe("useLogin", () => {
         wallets: ["0x1"],
         hasFullReadAccess: true,
         hasAdminRead: false,
+        hasFullWriteAccess: true,
         loggedIn: true,
       });
+    });
+
+    it("treats a session from an API without the full write access flag as not having it", async () => {
+      fetchSpy.mockResolvedValueOnce({
+        address: "0x1",
+        wallets: ["0x1"],
+        hasFullReadAccess: true,
+        hasAdminRead: true,
+      });
+
+      await useLogin(context, logger).initializeLogin();
+
+      expect(context.user.value).toMatchObject({ loggedIn: true, hasFullWriteAccess: false });
     });
 
     it.each([401, 403])("logs out when the API rejects the session with %i", async (status) => {

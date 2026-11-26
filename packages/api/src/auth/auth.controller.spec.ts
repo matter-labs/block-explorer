@@ -74,11 +74,13 @@ describe("AuthController", () => {
         wallets: mockWallets,
         hasFullReadAccess: true,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       });
       expect(req.session.address).toBe(mockWalletAddress);
       expect(req.session.wallets).toEqual(mockWallets);
       expect(req.session.hasFullReadAccess).toBe(true);
       expect(req.session.hasAdminRead).toBe(false);
+      expect(req.session.hasFullWriteAccess).toBe(false);
       expect(req.session.token).toBe(mockToken);
       expect(req.session.audienceChecked).toBe(true);
       expect(fetchSpy).toHaveBeenCalledWith(expect.any(URL), {
@@ -130,6 +132,8 @@ describe("AuthController", () => {
 
       expect(result.hasFullReadAccess).toBe(true);
       expect(req.session.hasFullReadAccess).toBe(true);
+      expect(result.hasFullWriteAccess).toBe(true);
+      expect(req.session.hasFullWriteAccess).toBe(true);
     });
 
     it("logs in with the explorer's own application session", async () => {
@@ -258,6 +262,7 @@ describe("AuthController", () => {
         wallets: [],
         hasFullReadAccess: true,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       });
       expect(req.session.address).toBe(NO_WALLET_VIEWER);
       expect(req.session.wallets).toEqual([]);
@@ -273,6 +278,7 @@ describe("AuthController", () => {
         wallets: [],
         hasFullReadAccess: false,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       });
       expect(req.session.address).toBe(NO_WALLET_VIEWER);
       expect(req.session.wallets).toEqual([]);
@@ -378,15 +384,22 @@ describe("AuthController", () => {
   });
 
   describe("GET /me", () => {
-    it("returns address, wallets, hasFullReadAccess, and hasAdminRead stored in session", async () => {
+    it("returns address, wallets and the permissions stored in session", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
-      req.session = { address: mockWalletAddress, wallets: mockWallets, hasFullReadAccess: true, hasAdminRead: true };
+      req.session = {
+        address: mockWalletAddress,
+        wallets: mockWallets,
+        hasFullReadAccess: true,
+        hasAdminRead: true,
+        hasFullWriteAccess: true,
+      };
       const res = await controller.me(req);
       expect(res).toEqual({
         address: mockWalletAddress,
         wallets: mockWallets,
         hasFullReadAccess: true,
         hasAdminRead: true,
+        hasFullWriteAccess: true,
       });
     });
 
@@ -404,10 +417,11 @@ describe("AuthController", () => {
         wallets: [],
         hasFullReadAccess: true,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       });
     });
 
-    it("returns false for both flags when session has neither set", async () => {
+    it("returns false for the permissions the session has not set", async () => {
       const mockWallets = [mockWalletAddress, mockWalletAddress2];
       req.session = { address: mockWalletAddress, wallets: mockWallets };
       const res = await controller.me(req);
@@ -416,6 +430,7 @@ describe("AuthController", () => {
         wallets: mockWallets,
         hasFullReadAccess: false,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       });
     });
   });

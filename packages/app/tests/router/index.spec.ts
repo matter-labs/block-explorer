@@ -38,7 +38,7 @@ describe("Router Navigation Guard", () => {
           path: "/contracts/verify",
           name: "contract-verification",
           component: { template: "<div>Contract Verification</div>" },
-          meta: { requiresAdmin: true },
+          meta: { requiresFullWriteAccess: true },
         },
         {
           path: "/not-authorized",
@@ -57,9 +57,9 @@ describe("Router Navigation Guard", () => {
     router.beforeEach((to) => {
       const isPrividium = mockAppEnvironment() === "prividium";
 
-      if (isPrividium && to.meta.requiresAdmin) {
-        const hasAdminRead = mockUser.value.loggedIn && mockUser.value.hasAdminRead;
-        if (!hasAdminRead) {
+      if (isPrividium && to.meta.requiresFullWriteAccess) {
+        const hasFullWriteAccess = mockUser.value.loggedIn && mockUser.value.hasFullWriteAccess;
+        if (!hasFullWriteAccess) {
           return { name: "not-authorized" };
         }
       }
@@ -71,7 +71,7 @@ describe("Router Navigation Guard", () => {
       mockAppEnvironment.mockReturnValue("default");
     });
 
-    it("allows access to requiresAdmin routes without authentication", async () => {
+    it("allows access to requiresFullWriteAccess routes without authentication", async () => {
       await router.push("/contracts/verify");
       expect(router.currentRoute.value.name).toBe("contract-verification");
     });
@@ -87,33 +87,35 @@ describe("Router Navigation Guard", () => {
       mockAppEnvironment.mockReturnValue("prividium");
     });
 
-    it("redirects unauthenticated users from requiresAdmin routes to not-authorized", async () => {
+    it("redirects unauthenticated users from requiresFullWriteAccess routes to not-authorized", async () => {
       mockUser.value = { loggedIn: false };
 
       await router.push("/contracts/verify");
       expect(router.currentRoute.value.name).toBe("not-authorized");
     });
 
-    it("redirects authenticated non-admin users from requiresAdmin routes to not-authorized", async () => {
-      mockUser.value = {
-        loggedIn: true,
-        address: "0x123",
-        wallets: ["0x123"],
-        hasFullReadAccess: false,
-        hasAdminRead: false,
-      };
-
-      await router.push("/contracts/verify");
-      expect(router.currentRoute.value.name).toBe("not-authorized");
-    });
-
-    it("allows admin users to access requiresAdmin routes", async () => {
+    it("redirects admins with full read access but without full write access to not-authorized", async () => {
       mockUser.value = {
         loggedIn: true,
         address: "0x123",
         wallets: ["0x123"],
         hasFullReadAccess: true,
         hasAdminRead: true,
+        hasFullWriteAccess: false,
+      };
+
+      await router.push("/contracts/verify");
+      expect(router.currentRoute.value.name).toBe("not-authorized");
+    });
+
+    it("allows users with full write access to access requiresFullWriteAccess routes", async () => {
+      mockUser.value = {
+        loggedIn: true,
+        address: "0x123",
+        wallets: ["0x123"],
+        hasFullReadAccess: true,
+        hasAdminRead: false,
+        hasFullWriteAccess: true,
       };
 
       await router.push("/contracts/verify");
@@ -127,13 +129,14 @@ describe("Router Navigation Guard", () => {
       expect(router.currentRoute.value.name).toBe("public-page");
     });
 
-    it("allows non-admin users to access public routes", async () => {
+    it("allows users without permissions to access public routes", async () => {
       mockUser.value = {
         loggedIn: true,
         address: "0x123",
         wallets: ["0x123"],
         hasFullReadAccess: false,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
       };
 
       await router.push("/public");

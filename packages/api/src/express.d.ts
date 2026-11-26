@@ -1,9 +1,10 @@
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        address: string;
-        token: string;
+      // Set by AuthMiddleware in Prividium mode for Etherscan API (/api) requests.
+      identity?: {
+        hasFullReadAccess: boolean;
+        hasFullWriteAccess: boolean;
       };
     }
   }

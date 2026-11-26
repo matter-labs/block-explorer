@@ -58,12 +58,14 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
         wallets: string[];
         hasFullReadAccess: boolean;
         hasAdminRead: boolean;
+        hasFullWriteAccess: boolean;
       }>("/auth/me");
       context.user.value = {
         address: response.address,
         wallets: response.wallets,
         hasFullReadAccess: response.hasFullReadAccess,
         hasAdminRead: response.hasAdminRead,
+        hasFullWriteAccess: response.hasFullWriteAccess ?? false,
         loggedIn: true,
       };
     } catch (err) {
@@ -104,6 +106,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
           wallets: string[];
           hasFullReadAccess: boolean;
           hasAdminRead: boolean;
+          hasFullWriteAccess: boolean;
         }>("/auth/login", {
           method: "POST",
           body: { token: result.token },
@@ -113,6 +116,7 @@ export default (context: Context, _logger = defaultLogger): UseLogin => {
           wallets: response.wallets,
           hasFullReadAccess: response.hasFullReadAccess,
           hasAdminRead: response.hasAdminRead,
+          hasFullWriteAccess: response.hasFullWriteAccess ?? false,
           loggedIn: true,
         };
       }

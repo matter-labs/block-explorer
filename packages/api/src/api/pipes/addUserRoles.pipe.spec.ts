@@ -56,7 +56,7 @@ describe("AddUserRolesPipe", () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
       json: jest.fn().mockResolvedValue({
-        roles: [{ roleName: "deployer", systemPermissions: ["contract_deployment", "admin_read"] }],
+        roles: [{ roleName: "deployer", systemPermissions: ["contract_deployment", "admin_users"] }],
         wallets: [{ walletAddress: "0x01" }],
       }),
     });
@@ -65,31 +65,21 @@ describe("AddUserRolesPipe", () => {
     expect(user.hasFullReadAccess).toBe(false);
   });
 
-  it("sets hasFullReadAccess to true when a role has full_read_access permission", async () => {
-    fetchSpy.mockResolvedValueOnce({
-      status: 200,
-      json: jest.fn().mockResolvedValue({
-        roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "contract_deployment"] }],
-        wallets: [{ walletAddress: "0x01" }],
-      }),
-    });
+  it.each(["full_read_access", "admin_read", "full_sequencer_rpc_access", "admin_write"])(
+    "sets hasFullReadAccess to true when a role has %s permission",
+    async (permission) => {
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "role", systemPermissions: [permission, "contract_deployment"] }],
+          wallets: [{ walletAddress: "0x01" }],
+        }),
+      });
 
-    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
-    expect(user.hasFullReadAccess).toBe(true);
-  });
-
-  it("sets hasFullReadAccess to true when a role has full_sequencer_rpc_access permission", async () => {
-    fetchSpy.mockResolvedValueOnce({
-      status: 200,
-      json: jest.fn().mockResolvedValue({
-        roles: [{ roleName: "superuser", systemPermissions: ["full_sequencer_rpc_access"] }],
-        wallets: [{ walletAddress: "0x01" }],
-      }),
-    });
-
-    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
-    expect(user.hasFullReadAccess).toBe(true);
-  });
+      const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
+      expect(user.hasFullReadAccess).toBe(true);
+    }
+  );
 
   it("sets hasAdminRead to false when no role has admin_read permission", async () => {
     fetchSpy.mockResolvedValueOnce({
@@ -131,6 +121,68 @@ describe("AddUserRolesPipe", () => {
     expect(user.hasAdminRead).toBe(false);
   });
 
+  it.each(["full_sequencer_rpc_access", "admin_write"])(
+    "sets hasFullWriteAccess to true when a role has %s permission",
+    async (permission) => {
+      fetchSpy.mockResolvedValueOnce({
+        status: 200,
+        json: jest.fn().mockResolvedValue({
+          roles: [{ roleName: "role", systemPermissions: [permission] }],
+          wallets: [{ walletAddress: "0x01" }],
+        }),
+      });
+
+      const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
+      expect(user.hasFullWriteAccess).toBe(true);
+    }
+  );
+
+  it("sets hasFullWriteAccess to false for read-only permissions", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "admin", systemPermissions: ["full_read_access", "admin_read"] }],
+        wallets: [{ walletAddress: "0x01" }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
+    expect(user.hasFullReadAccess).toBe(true);
+    expect(user.hasFullWriteAccess).toBe(false);
+  });
+
+  it("sets hasAdminRead to false for write permissions", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [{ roleName: "admin", systemPermissions: ["admin_write"] }],
+        wallets: [{ walletAddress: "0x01" }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
+    expect(user.hasAdminRead).toBe(false);
+  });
+
+  it("ignores write permissions granted by organization-scoped roles", async () => {
+    fetchSpy.mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockResolvedValue({
+        roles: [
+          {
+            roleName: "sequencer",
+            systemPermissions: ["full_sequencer_rpc_access", "admin_write"],
+            organizationId: "org1",
+          },
+        ],
+        wallets: [{ walletAddress: "0x01" }],
+      }),
+    });
+
+    const user = await pipe.transform({ address: "0x01", wallets: ["0x01"], token: "token1" });
+    expect(user.hasFullWriteAccess).toBe(false);
+  });
+
   it("sets hasFullReadAccess to true when the permission is on any role in the list", async () => {
     fetchSpy.mockResolvedValueOnce({
       status: 200,
@@ -169,7 +221,7 @@ describe("AddUserRolesPipe", () => {
           {
             roleName: "org-reader",
             organizationId: "org-a",
-            systemPermissions: ["full_read_access", "full_sequencer_rpc_access", "admin_read"],
+            systemPermissions: ["full_read_access", "full_sequencer_rpc_access", "admin_read", "admin_write"],
           },
         ],
         wallets: [{ walletAddress: "0x01" }],

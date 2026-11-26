@@ -53,10 +53,16 @@ export class AuthController {
   public async login(
     @Body() body: VerifySignatureDto,
     @Req() req: Request
-  ): Promise<{ address: string | null; wallets: string[]; hasFullReadAccess: boolean; hasAdminRead: boolean }> {
+  ): Promise<{
+    address: string | null;
+    wallets: string[];
+    hasFullReadAccess: boolean;
+    hasAdminRead: boolean;
+    hasFullWriteAccess: boolean;
+  }> {
     try {
       // Reject junk tokens before spending the permissions API's shared auth rate limit.
-      const { hasFullReadAccess, hasAdminRead } = await this.fetchUserProfile(body.token);
+      const { hasFullReadAccess, hasAdminRead, hasFullWriteAccess } = await this.fetchUserProfile(body.token);
       const [wallets, { expiresAt }] = await Promise.all([
         this.fetchUserWallets(body.token),
         this.explorerSessions.establish(this.configService.get("prividium.permissionsApiUrl"), body.token),
@@ -69,6 +75,7 @@ export class AuthController {
       req.session.token = body.token;
       req.session.hasFullReadAccess = hasFullReadAccess;
       req.session.hasAdminRead = hasAdminRead;
+      req.session.hasFullWriteAccess = hasFullWriteAccess;
       req.session.expiresAt = expiresAt;
       req.session.audienceChecked = true;
       return {
@@ -76,6 +83,7 @@ export class AuthController {
         wallets,
         hasFullReadAccess,
         hasAdminRead,
+        hasFullWriteAccess,
       };
     } catch (error) {
       if (error instanceof HttpException) {
@@ -133,6 +141,7 @@ export class AuthController {
       wallets: req.session.wallets,
       hasFullReadAccess: req.session.hasFullReadAccess ?? false,
       hasAdminRead: req.session.hasAdminRead ?? false,
+      hasFullWriteAccess: req.session.hasFullWriteAccess ?? false,
     };
   }
 
@@ -159,7 +168,9 @@ export class AuthController {
     return validatedData.data.wallets;
   }
 
-  private async fetchUserProfile(token: string): Promise<{ hasFullReadAccess: boolean; hasAdminRead: boolean }> {
+  private async fetchUserProfile(
+    token: string
+  ): Promise<{ hasFullReadAccess: boolean; hasAdminRead: boolean; hasFullWriteAccess: boolean }> {
     const response = await fetch(new URL("/api/profiles/me", this.configService.get("prividium.permissionsApiUrl")), {
       headers: { Authorization: `Bearer ${token}` },
     });

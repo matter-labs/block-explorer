@@ -108,7 +108,8 @@ export default (context = useContext()) => {
       }
       return mapSourceCodeDataToVerificationInfo(sourceCodeData[0]);
     } catch (e) {
-      if (!(e instanceof FetchError) || e.response?.status !== 404) {
+      // Users without access to the verification API (Prividium) see the contract without verification info.
+      if (!(e instanceof FetchError) || ![401, 403, 404].includes(e.response?.status ?? 0)) {
         throw e;
       }
       return null;

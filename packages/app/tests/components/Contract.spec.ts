@@ -41,6 +41,7 @@ describe("Contract:", () => {
         wallets: ["0x000000000000000000000000000000000000800A"],
         hasFullReadAccess: true,
         hasAdminRead: false,
+        hasFullWriteAccess: false,
         loggedIn: true as const,
       })),
     });

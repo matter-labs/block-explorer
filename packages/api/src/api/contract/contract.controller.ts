@@ -25,6 +25,7 @@ import { ContractCreationResponseDto } from "../dtos/contract/contractCreationRe
 import { VerifyContractRequestDto } from "../dtos/contract/verifyContractRequest.dto";
 import { ContractVerificationStatusResponseDto } from "../dtos/contract/contractVerificationStatusResponse.dto";
 import { ApiExceptionFilter } from "../exceptionFilter";
+import { RequiresFullWriteAccess } from "../../auth/fullWriteAccess.guard";
 import { SOURCE_CODE_EMPTY_INFO, mapContractSourceCode } from "../mappers/sourceCodeMapper";
 import {
   AbiFragment,
@@ -131,6 +132,7 @@ export class ContractController {
 
   @HttpCode(200)
   @Post("/verifysourcecode")
+  @RequiresFullWriteAccess()
   public async verifySourceContract(
     @Body(
       "contractaddress",
